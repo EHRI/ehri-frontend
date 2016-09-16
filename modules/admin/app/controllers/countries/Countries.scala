@@ -1,21 +1,22 @@
 package controllers.countries
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
-import _root_.forms.VisibilityForm
+import forms.VisibilityForm
 import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
 import utils.MovedPageLookup
-import utils.search.{SearchConstants, SearchItemResolver, SearchEngine}
+import utils.search.{SearchConstants, SearchEngine, SearchItemResolver}
 import javax.inject._
+
+import backend.rest.DataHelpers
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, DataApi}
+import backend.{DataApi, Entity, IdGenerator}
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -29,11 +30,11 @@ case class Countries @Inject()(
   searchResolver: SearchItemResolver,
   idGenerator: IdGenerator,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
@@ -85,7 +86,7 @@ case class Countries @Inject()(
 
   def createPost = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
@@ -123,7 +124,7 @@ case class Countries @Inject()(
 
   def createRepositoryPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.repository.create(request.item,
           errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }

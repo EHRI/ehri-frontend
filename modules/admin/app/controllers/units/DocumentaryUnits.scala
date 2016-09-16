@@ -7,14 +7,16 @@ import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import models._
 import controllers.generic._
-import play.api.i18n.{MessagesApi, Messages}
-import defines.{ContentTypes,EntityType,PermissionType}
+import play.api.i18n.{Messages, MessagesApi}
+import defines.{ContentTypes, EntityType, PermissionType}
 import utils.MovedPageLookup
-import views.{MarkdownRenderer, Helpers}
+import views.{Helpers, MarkdownRenderer}
 import utils.search._
 import javax.inject._
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
+import backend.rest.DataHelpers
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -27,11 +29,11 @@ case class DocumentaryUnits @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -172,7 +174,7 @@ case class DocumentaryUnits @Inject()(
 
   def createDocPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
           errorForm, formDefaults, accForm, users, groups,
           docRoutes.createDocPost(id)))

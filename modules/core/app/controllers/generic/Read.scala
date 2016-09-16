@@ -2,6 +2,7 @@ package controllers.generic
 
 import backend.rest.ItemNotFound
 import backend.{ContentType, Resource}
+import controllers.base.CoreActionBuilders
 import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.Logger
@@ -18,7 +19,7 @@ import scala.concurrent.Future
  *
  * @tparam MT Meta-model
  */
-trait Read[MT] extends Generic {
+trait Read[MT] extends CoreActionBuilders {
 
   case class ItemPermissionRequest[A](
     item: MT,

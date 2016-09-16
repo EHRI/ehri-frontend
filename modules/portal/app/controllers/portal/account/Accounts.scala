@@ -20,6 +20,7 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import models._
 import play.api.cache.CacheApi
 import play.api.data.Form
+import play.api.http.HttpVerbs
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
@@ -115,7 +116,7 @@ case class Accounts @Inject()(
 
   object RateLimit extends ActionBuilder[Request] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      if (request.method != "POST") block(request)
+      if (request.method != HttpVerbs.POST) block(request)
       else {
         if (checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) block(request)
         else immediate(TooManyRequests(rateLimitError(request)))

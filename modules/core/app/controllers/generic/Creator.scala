@@ -9,7 +9,7 @@ import models.UserProfile
 import forms.VisibilityForm
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
-import backend.rest.{RestHelpers, ValidationError}
+import backend.rest.{DataHelpers, ValidationError}
 import backend.{Readable, Writable, ContentType}
 
 /**
@@ -17,7 +17,11 @@ import backend.{Readable, Writable, ContentType}
  * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
-trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Read[MT] {
+trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaModel[_]] extends Write {
+
+  this: Read[MT] =>
+
+  def dataHelpers: DataHelpers
 
   case class NewChildRequest[A](
     item: MT,
@@ -30,10 +34,9 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
-      for {
-        users <- getUserList
-        groups <- getGroupList
-      } yield NewChildRequest(request.item, users, groups, request.userOpt, request)
+      dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+        NewChildRequest(request.item, users, groups, request.userOpt, request)
+      }
     }
   }
 
@@ -69,7 +72,6 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
         )
       }
     }
-
 
   protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]) =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)

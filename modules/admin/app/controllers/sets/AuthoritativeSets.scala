@@ -1,7 +1,6 @@
 package controllers.sets
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
@@ -10,12 +9,14 @@ import controllers.generic._
 import models._
 import defines.{ContentTypes, EntityType}
 import utils.MovedPageLookup
-import utils.search.{SearchConstants, SearchIndexMediator, SearchItemResolver, SearchEngine}
+import utils.search.{SearchConstants, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import javax.inject._
+
+import backend.rest.DataHelpers
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.{Entity, IdGenerator, DataApi}
+import backend.{DataApi, Entity, IdGenerator}
 import play.api.Configuration
 import controllers.base.AdminController
 
@@ -30,12 +31,12 @@ AuthoritativeSets @Inject()(
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   idGenerator: IdGenerator,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with CRUD[AuthoritativeSetF,AuthoritativeSet]
   with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
@@ -77,7 +78,7 @@ AuthoritativeSets @Inject()(
 
   def createPost = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm,
           users, groups, setRoutes.createPost()))
       }
@@ -112,7 +113,7 @@ AuthoritativeSets @Inject()(
 
   def createHistoricalAgentPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.historicalAgent.create(request.item,
           errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
       }

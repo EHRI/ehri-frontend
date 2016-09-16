@@ -15,7 +15,9 @@ import backend.{Readable, Writable, ContentType}
  * Controller trait for creating, updating, and deleting auxiliary descriptions
  * for entities that can be multiply described.
  */
-trait Descriptions[D <: Description with Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
+trait Descriptions[D <: Description with Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends Write {
+
+  this: Read[MT] =>
 
   case class ManageDescriptionRequest[A](
     item: MT,

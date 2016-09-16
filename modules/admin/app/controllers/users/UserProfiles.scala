@@ -1,7 +1,6 @@
 package controllers.users
 
 import auth.{HashedPassword, AccountManager}
-import backend.rest.cypher.Cypher
 import controllers.core.auth.AccountHelpers
 import org.joda.time.DateTime
 import play.api.cache.CacheApi
@@ -21,7 +20,7 @@ import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
 import scala.concurrent.Future
 import play.api.mvc.Request
-import backend.rest.{ValidationError, RestHelpers}
+import backend.rest.{ValidationError, DataHelpers}
 import play.api.mvc.Result
 import play.api.libs.json.JsObject
 import controllers.base.AdminController
@@ -36,11 +35,11 @@ case class UserProfiles @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
@@ -51,7 +50,6 @@ case class UserProfiles @Inject()(
   with SearchType[UserProfile]
   with Search
   with AccountHelpers
-  with RestHelpers
   with CsvHelpers {
 
   private val entityFacets: FacetBuilder = { implicit request =>
@@ -98,7 +96,7 @@ case class UserProfiles @Inject()(
    * admin only function and should be removed eventually.
    */
   def createUser = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
-      getGroups { groups =>
+      dataHelpers.getGroupList.map { groups =>
         Ok(views.html.admin.userProfile.create(userPasswordForm, groupMembershipForm, groups,
           userRoutes.createUserPost()))
       }
@@ -122,7 +120,7 @@ case class UserProfiles @Inject()(
    *    account so they can edit it... all in all not nice.
    */
   def createUserPost = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
-    getGroupList.flatMap { allGroups =>
+    dataHelpers.getGroupList.flatMap { allGroups =>
       userPasswordForm.bindFromRequest.fold(
         errorForm => immediate(BadRequest(views.html.admin.userProfile.create(
             errorForm,

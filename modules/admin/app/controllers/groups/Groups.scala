@@ -1,24 +1,25 @@
 package controllers.groups
 
 import auth.AccountManager
-import backend.rest.cypher.Cypher
 import defines.EntityType
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
-import models.{UserProfile, Group, GroupF}
+import models.{Group, GroupF, UserProfile}
 import models.base.Accessor
 import javax.inject._
+
 import utils.PageParams
-import utils.search.{SearchItemResolver, SearchEngine}
+import utils.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
+
 import scala.concurrent.Future
 import backend.DataApi
-import backend.rest.Constants
+import backend.rest.{Constants, DataHelpers}
 import play.api.mvc.Request
-import play.api.data.{Forms, Form}
+import play.api.data.{Form, Forms}
 import controllers.base.AdminController
 
 case class Groups @Inject()(
@@ -28,11 +29,11 @@ case class Groups @Inject()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
+  dataHelpers: DataHelpers,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,
   messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher
+  markdown: MarkdownRenderer
 ) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]
@@ -83,7 +84,7 @@ case class Groups @Inject()(
 
   def createPost = CreateItemAction(form, memberExtractor).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => getUsersAndGroups { users => groups =>
+      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.group.create(
           errorForm, accForm, users, groups, groupRoutes.createPost()))
       }

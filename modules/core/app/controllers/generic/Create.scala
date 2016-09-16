@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.rest.{RestHelpers, ValidationError}
+import backend.rest.{DataHelpers, ValidationError}
 import backend.{ContentType, Readable, Writable}
 import defines.PermissionType
 import forms.VisibilityForm
@@ -16,9 +16,11 @@ import scala.concurrent.Future.{successful => immediate}
 /**
  * Controller trait for creating AccessibleEntities.
  */
-trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
+trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
 
   this: Read[MT] =>
+
+  def dataHelpers: DataHelpers
 
   /**
    * A request containing id->name tuples for available users
@@ -47,10 +49,9 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Generic {
   protected def NewItemAction(implicit ct: ContentType[MT]) =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, UserGroupsRequest] {
       override protected def transform[A](request: WithUserRequest[A]): Future[UserGroupsRequest[A]] = {
-        for {
-          users <- getUserList
-          groups <- getGroupList
-        } yield UserGroupsRequest(users, groups, request.user, request)
+        dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+          UserGroupsRequest(users, groups, request.user, request)
+        }
       }
     }
 

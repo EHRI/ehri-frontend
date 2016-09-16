@@ -2,29 +2,27 @@ package backend.rest
 
 import java.net.{ConnectException, URLEncoder}
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
-import play.api.http.{ContentTypeOf, HeaderNames, Writeable}
+import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Writeable}
 import play.api.libs.json._
-import backend._
+import backend.{AnonymousUser, ApiUser, AuthenticatedUser, ErrorSet, Resource}
 import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
 
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import play.api.cache.CacheApi
+
 
 trait RestService {
 
   implicit def config: play.api.Configuration
-  implicit def cache: CacheApi
   def ws: WSClient
 
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
+  import HttpVerbs._
 
   private def logger: Logger = Logger(this.getClass)
 
@@ -35,40 +33,14 @@ trait RestService {
     url: String,
     headers: Seq[(String,String)] = Seq.empty,
     queryString: Seq[(String,String)] = Seq.empty,
-    method: String = "GET",
+    method: String = GET,
     body: WSBody = EmptyBody
     )(implicit apiUser: ApiUser) {
-
-    import scala.util.matching.Regex
-    import scala.concurrent.Future
-
-    private val CCExtractor: Regex = """.*?max-age=(\d+)""".r
 
     lazy val credentials = for {
       username <- config.getString("services.ehridata.username")
       password <- config.getString("services.ehridata.password")
     } yield (username, password)
-
-    private def conditionalCache(url: String, method: String, response: WSResponse): WSResponse = {
-      val doCache = config.getBoolean("ehri.ws.cache").getOrElse(false)
-      if (doCache) {
-        response.header(HeaderNames.CACHE_CONTROL) match {
-          // if there's a max-age cache on a GET request cache the response.
-          case Some(CCExtractor(age)) if method == "GET"
-            && age.toInt > 0
-            && response.status >= 200 && response.status < 300 =>
-            logger.trace(s"CACHING: $method $url $age")
-            cache.set(url, response, Duration(age.toInt, TimeUnit.SECONDS))
-          // if not, ensure it's invalidated
-          case _ if method != "GET" =>
-            val itemUrl = response.header(HeaderNames.LOCATION).getOrElse(url)
-            logger.trace(s"Evicting from cache: $method $itemUrl")
-            cache.remove(itemUrl)
-          case _ =>
-        }
-      }
-      response
-    }
 
     private def queryStringMap: Map[String,Seq[String]] =
       queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
@@ -93,7 +65,6 @@ trait RestService {
       holderWithAuth
         .execute(method)
         .map(r => checkError(r, Some(fullUrl)))
-        .map(r => conditionalCache(url, method, r))
         .recover {
           case e: ConnectException => throw BackendOffline(fullUrl, e)
         }
@@ -102,17 +73,20 @@ trait RestService {
     def stream(): Future[StreamedResponse] = {
       logger.debug(s"WS (stream): $apiUser $method $fullUrl")
       holderWithAuth.stream()
+      .recover {
+        case e: ConnectException => throw BackendOffline(fullUrl, e)
+      }
     }
 
-    def get(): Future[WSResponse] = copy(method = "GET").execute()
+    def get(): Future[WSResponse] = copy(method = GET).execute()
 
     def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("POST").withBody(body).execute()
+      withMethod(POST).withBody(body).execute()
 
     def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
-      withMethod("PUT").withBody(body).execute()
+      withMethod(PUT).withBody(body).execute()
 
-    def delete() = withMethod("DELETE").execute()
+    def delete() = withMethod(DELETE).execute()
 
     /**
      * Sets the body for this request. Copy and paste from WSRequest :(
@@ -138,14 +112,7 @@ trait RestService {
 
     def withMethod(method: String) = copy(method = method)
 
-    def execute(): Future[WSResponse] = {
-      if (method == "GET") cache.get[WSResponse](url) match {
-        case Some(r) =>
-          logger.trace(s"Retrieved from cache: $url")
-          Future.successful(r)
-        case _ => runWs
-      } else runWs
-    }
+    def execute(): Future[WSResponse] = runWs
   }
 
   import backend.rest.Constants._
@@ -311,12 +278,12 @@ trait RestService {
   /**
    * List header parser
    */
-  private[rest] val Extractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
+  private[rest] val PaginationExtractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
 
   private[rest] def parsePagination(response: WSResponse, context: Option[String]): Option[(Int, Int, Int)] = {
     val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
-    Extractor.findFirstIn(pagination) match {
-      case Some(Extractor(offset, limit, total)) => Some((offset.toInt, limit.toInt, total.toInt))
+    PaginationExtractor.findFirstIn(pagination) match {
+      case Some(PaginationExtractor(offset, limit, total)) => Some((offset.toInt, limit.toInt, total.toInt))
       case _ => None
     }
   }

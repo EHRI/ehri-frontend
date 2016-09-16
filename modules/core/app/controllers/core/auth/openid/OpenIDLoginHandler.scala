@@ -12,7 +12,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.net.ConnectException
-import scala.concurrent.Future
 import controllers.core.auth.AccountHelpers
 
 import scala.concurrent.Future
