@@ -1,62 +1,46 @@
-$(document).ready(function() {
-  //Shared variables
-  var re = /(\w+)\.dates\[([0-9]+)\]/;
-  var re2 = /descriptions\[([0-9]+)\]\.(\w+)\.dates\[([0-9]+)\]/;
+$(document).ready(function () {
+
   var defaultStartView = "decade";
-  //var defaultFormat = 'yyyy-mm-dd';
 
-  //Callback functions
   var dateField = function (name, src) {
-
-    var regResults = re.exec(src),
-        regResults2 = re2.exec(src),
-        precision = "";
-
-    if(regResults2.length == 4) {
-      precision = "descriptions[" + regResults2[1] + "]." + regResults2[2] + ".dates[" + regResults2[3] + "]." + name
-      precision = "*[name='" + precision + "']";
-    } else {
-      precision = regResults[1] + ".dates[" + regResults[2] + "]." + name
-      precision = "*[name='" + precision + "']";
-    }
-    return precision;
+    return "*[name='" + /(.*?)\w+$/.exec(src)[1] + name + "']";
   }
 
   //Create datepicker
-  var createDatepicker = function(target, forced) {
+  var createDatepicker = function (target, forced) {
     var process = false,
         override = true,
         hasDP = hasDatepicker(target),
         show = false;
 
-    if(hasDP === true) {
+    if (hasDP === true) {
       process = true;
       target.datepicker("remove");
-    } else if(typeof forced !== "undefined" && forced === true) {
+    } else if (typeof forced !== "undefined" && forced === true) {
       process = true;
       override = false;
       show = true;
     }
 
-    if(process === true) {
+    if (process === true) {
       target.datepicker({
         startView: defaultStartView,
-        format: function() {
+        format: function () {
           console.log(defaultFormat(target));
           return defaultFormat(target);
         },
-        minViewMode : function() {
+        minViewMode: function () {
           return defaultMinViewMode(target);
         }
       });
       target.addClass("datepicker-activated");
-      if(show === true) {
+      if (show === true) {
         target.datepicker("show");
       }
     }
   }
 
-  var defaultFormat =function(that) {
+  var defaultFormat = function (that) {
     name = that.attr("name");
     precision = $(dateField("precision", name)).val();
 
@@ -76,7 +60,7 @@ $(document).ready(function() {
     return precision || "yyyy-mm-dd";
   }
 
-  var defaultMinViewMode = function(that) {
+  var defaultMinViewMode = function (that) {
     name = that.attr("name");
     precision = $(dateField("precision", name)).val();
 
@@ -97,16 +81,12 @@ $(document).ready(function() {
     return precision || false;
   }
 
-  var hasDatepicker = function(obj) {
-    if(obj.hasClass("datepicker-activated") === false) {
-      return false;
-    } else {
-      return true;
-    }
+  var hasDatepicker = function (obj) {
+    return obj.hasClass("datepicker-activated") !== false;
   }
 
   //jQuery Handler
-  $(document).on("change", ".precision", function() {
+  $(document).on("change", ".precision", function () {
     var that = $(this),
         start = $(dateField("startDate", that.attr("name"))),
         end = $(dateField("endDate", that.attr("name")));
@@ -115,7 +95,7 @@ $(document).ready(function() {
     createDatepicker(end);
   });
 
-  $(document).on("keyup", "input.datepicker", function() {
+  $(document).on("keyup", "input.datepicker", function () {
     var that = $(this),
         val = that.val(),
         name = that.attr("name"),
@@ -127,14 +107,14 @@ $(document).ready(function() {
         end = $(dateField("endDate", that.attr("name")));
 
     //If the input has some val and it's bigger than 4 (year is minimum scope), we can start
-    if(typeof val.length !== "undefined" && val.length >= 4) {
+    if (typeof val.length !== "undefined" && val.length >= 4) {
       table = val.split("-");
-      if(typeof table[1] !== "undefined") {
-        if(table[1] === "" || table[1] === "-") {
+      if (typeof table[1] !== "undefined") {
+        if (table[1] === "" || table[1] === "-") {
           table = [table[0]];
         }
       }
-      if(table.length > 0) { //Checking for bug
+      if (table.length > 0) { //Checking for bug
         switch (table.length) {
           case 2:
             precision = "month";
@@ -156,7 +136,7 @@ $(document).ready(function() {
     }
   });
 
-  $(document).on('click', '.datepicker-activation', function() {
+  $(document).on('click', '.datepicker-activation', function () {
     var name = $(this).attr("data-target");
     target = $(name);
     createDatepicker(target, true);
