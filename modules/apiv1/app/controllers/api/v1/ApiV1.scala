@@ -49,7 +49,7 @@ case class ApiV1 @Inject()(
   private implicit val userOpt: Option[UserProfile] = None
 
   private val hitsPerSecond = 1000 // basically, no limit at the moment
-  private val rateLimitTimeoutDuration: FiniteDuration = Duration(3600, TimeUnit.SECONDS)
+  private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
 
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
