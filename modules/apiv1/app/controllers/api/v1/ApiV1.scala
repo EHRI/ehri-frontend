@@ -262,17 +262,16 @@ case class ApiV1 @Inject()(
     ).as(JSONAPI_MIMETYPE)
   }
 
-  def search(q: Option[String], page: Int) = JsonApiAction.async { implicit request =>
-    val types = request.queryString.getOrElse("type", Seq.empty)
-    find[AnyModel](
-      defaultParams = SearchParams(query = q, page = Some(page)),
-      entities = apiSupportedEntities.filter(e => types.isEmpty ||
-        types.exists(_.toString.toLowerCase == e.toString.toLowerCase))
-    ).map { r =>
-      Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, p).absoluteURL())))
-        .as(JSONAPI_MIMETYPE)
+  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int) =
+    JsonApiAction.async { implicit request =>
+      find[AnyModel](
+        defaultParams = SearchParams(query = q, page = Some(page)),
+        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
+      ).map { r =>
+        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p).absoluteURL())))
+          .as(JSONAPI_MIMETYPE)
+      }
     }
-  }
 
   def fetch(id: String) = JsonApiAction.async { implicit request =>
     userDataApi.getAny[AnyModel](id).map { item =>
@@ -290,15 +289,15 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], page: Int) = JsonApiAction.async { implicit request =>
+  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int) = JsonApiAction.async { implicit request =>
     userDataApi.getAny[AnyModel](id).flatMap { item =>
       find[AnyModel](
         filters = Map(searchFilterKey(item) -> id),
         defaultParams = SearchParams(query = q, page = Some(page)),
-        entities = apiSupportedEntities
+        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
       ).map { r =>
         Ok(Json.toJson(pageData(r.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, q, p).absoluteURL(), Some(Seq(item))))
+          p => apiRoutes.searchIn(id, q, `type`, p).absoluteURL(), Some(Seq(item))))
         ).as(JSONAPI_MIMETYPE)
       }
     } recover {
