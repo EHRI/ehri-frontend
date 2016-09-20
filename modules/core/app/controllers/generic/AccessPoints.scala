@@ -85,10 +85,10 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
           val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
             val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
               val linkOpt = links.find(_.bodies.exists(b => b.model.id == ap.id))
-              new LinkItem(
+              LinkItem(
                 ap,
                 linkOpt.map(_.model),
-                linkOpt.flatMap(l => l.opposingTarget(item).map(t => new Target(t.id, t.isA)))
+                linkOpt.flatMap(l => l.opposingTarget(item).map(t => Target(t.id, t.isA)))
               )
             }
             Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))

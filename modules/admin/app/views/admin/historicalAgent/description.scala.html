@@ -1,10 +1,10 @@
-@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
 @import models.Isaar._
 @import views.html.admin.common.descriptionSection
 
 
-@views.html.admin.layout.descriptionOutline(item, desc) {
+@views.html.admin.layout.descriptionOutline(item, desc, actions = actions) {
     @views.html.admin.common.descriptionHeader(desc.name)
     @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 

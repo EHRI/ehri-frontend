@@ -43,7 +43,7 @@ $(document).ready(function () {
       if (page > 0) {
         params = params + "&page=" + page;
       }
-      return $service.filter().url + params;
+      return SERVICE.filter().url + params;
     };
 
     var limitTypes = function (element) {
@@ -78,27 +78,11 @@ $(document).ready(function () {
       limitTypes: limitTypes,
       limitHolders: limitHolders,
       detail: function (type, id, callback) {
-        return $.get($service.getItem(type, id).url, {
+        return $.get(SERVICE.getItem(type, id).url, {
           headers: ajaxHeaders
         }, callback);
       }
     };
-  };
-
-  var $service = {
-    filter: adminJsRoutes.controllers.admin.SearchFilter.filterItems,
-    get: adminJsRoutes.controllers.admin.Data.getItem,
-    getItem: adminJsRoutes.controllers.admin.Data.getItemType,
-    createLink: adminJsRoutes.controllers.units.DocumentaryUnits.createLink,
-    createMultipleLinks: adminJsRoutes.controllers.units.DocumentaryUnits.linkMultiAnnotatePost,
-    createAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.createAccessPoint,
-    getAccessPoints: adminJsRoutes.controllers.units.DocumentaryUnits.getAccessPointsJson,
-    deleteLink: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLink,
-    deleteAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteAccessPoint,
-    deleteLinkAndAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint,
-    redirectUrl: function (id) {
-      return adminJsRoutes.controllers.units.DocumentaryUnits.get(id).url;
-    }
   };
 
   // Get list of access points
@@ -108,7 +92,7 @@ $(document).ready(function () {
         $descriptionId = $item.data("did"),
         $accessList = null;
 
-    $service.getAccessPoints($itemId, $descriptionId).ajax({
+    SERVICE.getAccessPoints($itemId, $descriptionId).ajax({
       success: function (data) {
         for (var i in data) {
           if (data.hasOwnProperty(i)) {
@@ -143,7 +127,7 @@ $(document).ready(function () {
               }
               $element.find(".access-saved-name").text(a.accessPoint.name);
               if (hasTarget(a)) {
-                $element.find(".access-saved-name").attr("href", $service.getItem(a.target.type, a.target.id).url)
+                $element.find(".access-saved-name").attr("href", SERVICE.getItem(a.target.type, a.target.id).url)
               } else {
                 $element.find(".access-saved-name").removeAttr("href").css("color", "#000000");
               }
@@ -161,8 +145,8 @@ $(document).ready(function () {
                 trigger: "click",
                 onConfirm: function () {
                   var $route = !hasTarget(a)
-                      ? $service.deleteAccessPoint($itemId, $descriptionId, a.accessPoint.id)
-                      : $service.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link"));
+                      ? SERVICE.deleteAccessPoint($itemId, $descriptionId, a.accessPoint.id)
+                      : SERVICE.deleteLinkAndAccessPoint($itemId, $descriptionId, a.accessPoint.id, $element.data("link"));
                   var $modal = $(".waiting-modal").modal({
                     backdrop: true,
                     keyboard: false
@@ -240,7 +224,7 @@ $(document).ready(function () {
   };
 
   var saveNewAccessPoint = function ($scope, $accesspoints) {
-    $service.createAccessPoint($scope.id, $scope.did).ajax({
+    SERVICE.createAccessPoint($scope.id, $scope.did).ajax({
       data: JSON.stringify({
         name: $scope.name,
         accessPointType: $scope.type,
@@ -252,7 +236,7 @@ $(document).ready(function () {
       if ($scope.link.targetType == null) {
         nextNewAccesspoint($scope, $accesspoints);
       } else {
-        $service.createLink($scope.id, data.id).ajax({
+        SERVICE.createLink($scope.id, data.id).ajax({
           data: JSON.stringify({
             target: $scope.link.target,
             type: $scope.link.type,
@@ -383,7 +367,9 @@ $(document).ready(function () {
       }
     });
     $quicksearchBH.initialize();
-    var $quicksearchTemplate = Handlebars.compile('<a class="add-access-element" data-type="{{type}}" data-did="{{did}}" data-name="{{name}}" data-target="{{id}}">{{name}} <span class="badge pull-right">{{parent}} {{type}}</span></a>');
+
+    var $quicksearchTemplate = Handlebars.compile(
+        '<a class="add-access-element" data-type="{{type}}" data-did="{{did}}" data-name="{{name}}" data-target="{{id}}">{{name}} <span class="badge pull-right">{{parent}} {{type}}</span></a>');
 
     // Initialize typeahead.js
     $quicksearch.typeahead(

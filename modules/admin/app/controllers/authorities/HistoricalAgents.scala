@@ -35,7 +35,9 @@ case class HistoricalAgents @Inject()(
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
-  with SearchType[HistoricalAgent] {
+  with SearchType[HistoricalAgent]
+  with Descriptions[HistoricalAgentDescriptionF, HistoricalAgentF, HistoricalAgent]
+  with AccessPoints[HistoricalAgentDescriptionF, HistoricalAgentF, HistoricalAgent] {
 
   private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents
@@ -162,5 +164,26 @@ case class HistoricalAgents @Inject()(
           Redirect(histRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
       }
+  }
+
+  def linkMultiAnnotate(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.link.linkMulti(request.item,
+      Link.multiForm, histRoutes.linkMultiAnnotatePost(id)))
+  }
+
+  def linkMultiAnnotatePost(id: String) = CreateMultipleLinksAction(id).apply { implicit request =>
+    request.formOrLinks match {
+      case Left(errorForms) =>
+        BadRequest(views.html.admin.link.linkMulti(request.item,
+          errorForms, histRoutes.linkMultiAnnotatePost(id)))
+      case Right(_) =>
+        Redirect(histRoutes.get(id)).flashing("success" -> "item.update.confirmation")
+    }
+  }
+
+  def manageAccessPoints(id: String, descriptionId: String) = WithDescriptionAction(id, descriptionId).apply { implicit request =>
+    val holders = config.getStringSeq("ehri.admin.accessPoints.holders").getOrElse(Seq.empty)
+    Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
+      request.description, holderIds = holders))
   }
 }
