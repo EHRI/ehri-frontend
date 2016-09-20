@@ -27,7 +27,7 @@ object AccessPointF {
     val CorporateBodyAccess = Value("corporateBody")
     val SubjectAccess = Value("subject")
     val PlaceAccess = Value("place")
-    val Other = Value("genre")
+    val GenreAccess = Value("genre")
 
     implicit val format = defines.EnumUtils.enumFormat(this)
 
@@ -39,7 +39,7 @@ object AccessPointF {
   implicit val accessPointFormat: Format[AccessPointF] = (
     (__ \ ETYPE).formatIfEquals(EntityType.AccessPoint) and
     (__ \ ID).formatNullable[String] and
-    (__ \ DATA \ TYPE).formatWithDefault(AccessPointType.Other) and
+    (__ \ DATA \ TYPE).formatWithDefault(AccessPointType.SubjectAccess) and
     (__ \ DATA \ NAME).format[String] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String]
   )(AccessPointF.apply, unlift(AccessPointF.unapply))

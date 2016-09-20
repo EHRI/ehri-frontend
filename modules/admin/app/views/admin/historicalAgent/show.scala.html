@@ -8,7 +8,7 @@
             @defining("historicalAgent") { implicit fieldPrefix =>
                 @layout.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
-                        @description(item, desc, links, annotations)
+                        @description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 
                     @views.html.admin.link.annotationLinks(item, links)
