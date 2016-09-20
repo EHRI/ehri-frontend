@@ -33,11 +33,11 @@
 </style>
 
 
-<h4>&quot;@desc.name&quot;</h4>
+<i>@Messages("accessPoint.editing", desc.name)</i>
 <ul class="list-unstyled">
 @AccessPointType.values.toList.map { accessPointType =>
     <li class="accessPointList @accessPointType">
-        <h3>@Messages("documentaryUnit.accessPoints." + accessPointType)</h3>
+        <h3>@Messages("accessPoint.type." + accessPointType)</h3>
         <ul class="item-annotation-links list-unstyled" data-id="@item.id" data-did="@desc.id">
             <li class="access-saved model" id="linkId">
                 <a href="#" class="access-saved-name"></a>
@@ -48,14 +48,14 @@
                 <a href="#" class="add-access-toggle"><small><i class="glyphicon glyphicon-plus-sign"></i>@Messages("accessPoint.create")</small></a>
 
                 <div class="form-horizontal new-access-point" data-type="@accessPointType.toString" style="">
-                    <h4>@Messages("accessPoints.newAccessPoint")</h4>
+                    <h4>@Messages("accessPoint.newAccessPoint")</h4>
                     <div class="form-group">
                         <label class="control-label">@Messages("accessPoint.name")</label>
                         <div class="control-elements">
                             <div class="input-group">
                                 <input class="form-control quicksearch" name="@accessPointType.toString" type="text" placeholder="@Messages("accessPoint.name")" autofocus="autofocus" />
                                 <div class="input-group-btn">
-                                    <button class="btn btn-success add-access-text" title="@Messages("accessPoints.newTextAccessPoint.description")"><span class="glyphicon glyphicon-plus-sign"></span></button>
+                                    <button class="btn btn-success add-access-text" title="@Messages("accessPoint.newTextAccessPoint.description")"><span class="glyphicon glyphicon-plus-sign"></span></button>
                                     <ul class="dropdown-menu holder-filters pull-right">
                                     @holderIds.map { holderId =>
                                         <li data-value="@holderId" class="active holder"><a>@holderId</a></li>

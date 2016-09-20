@@ -98,6 +98,8 @@ link.family=Familial
 link.temporal=Temporal
 link.creation=Creation
 link.existence=Existence
+link.startDate=Start Date
+link.endDate=End Date
 
 #
 # Generic actions
@@ -674,14 +676,6 @@ documentaryUnit.processInfo.description=Information about accessioning, arrangin
   the EAD <processinfo> field.
 
 documentaryUnit.accessPoints=Access Points
-documentaryUnit.accessPoints.creator=Creators
-documentaryUnit.accessPoints.corporateBody=Corporate Bodies
-documentaryUnit.accessPoints.family=Families
-documentaryUnit.accessPoints.person=Persons
-documentaryUnit.accessPoints.subject=Subject Access Points
-documentaryUnit.accessPoints.place=Place Access Points
-documentaryUnit.accessPoints.genre=Genre Access Points
-documentaryUnit.accessPoints.other=Other Access Points
 
 # isad(g) dates
 documentaryUnit.startDate=Start Date
@@ -1147,29 +1141,6 @@ Record notes pertinent to the creation and maintenance of the authority record. 
   names of persons responsible for creating the authority record may be recorded here.
 
 historicalAgent.accessPoints=Access Points
-historicalAgent.accessPoint.description=
-
-historicalAgent.accessPoints.creatorAccess=Creators
-historicalAgent.accessPoints.creatorAccess.description=
-
-historicalAgent.accessPoints.corporateBodyAccess=Corporate Bodies
-historicalAgent.accessPoints.corporateBodyAccess.description=
-
-historicalAgent.accessPoints.familyAccess=Families
-historicalAgent.accessPoints.family.description=
-
-historicalAgent.accessPoints.personAccess=Persons
-historicalAgent.accessPoints.personAccess.description=
-
-historicalAgent.accessPoints.subjectAccess=Subject Access Points
-historicalAgent.accessPoints.subjectAccess.description=
-
-historicalAgent.accessPoints.placeAccess=Place Access Points
-historicalAgent.accessPoints.placeAccess.description=
-
-historicalAgent.accessPoints.otherAccess=Other Access Points
-historicalAgent.accessPoints.otherAccess.description=
-
 
 
 # Skos/Concept i18n definitions
@@ -1208,10 +1179,12 @@ cvocConcept.narrower.create=Create Narrower Term
 #
 # Access points
 #
+accessPoint=Access Points
+accessPoint.editing=Editing access points for description: "{0}"
 accessPoint.create=Add New
 accessPoint.create.submit=Save
-accessPoints.newAccessPoint=New Access Point
-accessPoints.newTextAccessPoint.description=Create a new text-only access point
+accessPoint.newAccessPoint=New Access Point
+accessPoint.newTextAccessPoint.description=Create a new text-only access point
 accessPoint.name=Name of link target
 accessPoint.description=Optional description...
 # References not on this item, but from another item's access points
