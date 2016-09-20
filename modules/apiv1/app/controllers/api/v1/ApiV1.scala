@@ -262,13 +262,13 @@ case class ApiV1 @Inject()(
     ).as(JSONAPI_MIMETYPE)
   }
 
-  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int) =
+  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
     JsonApiAction.async { implicit request =>
       find[AnyModel](
-        defaultParams = SearchParams(query = q, page = Some(page)),
+        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
         entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
       ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p).absoluteURL())))
+        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit).absoluteURL())))
           .as(JSONAPI_MIMETYPE)
       }
     }
@@ -289,22 +289,23 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int) = JsonApiAction.async { implicit request =>
-    userDataApi.getAny[AnyModel](id).flatMap { item =>
-      find[AnyModel](
-        filters = Map(searchFilterKey(item) -> id),
-        defaultParams = SearchParams(query = q, page = Some(page)),
-        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
-      ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, q, `type`, p).absoluteURL(), Some(Seq(item))))
-        ).as(JSONAPI_MIMETYPE)
+  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
+    JsonApiAction.async { implicit request =>
+      userDataApi.getAny[AnyModel](id).flatMap { item =>
+        find[AnyModel](
+          filters = Map(searchFilterKey(item) -> id),
+          defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
+          entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
+        ).map { r =>
+          Ok(Json.toJson(pageData(r.mapItems(_._1).page,
+            p => apiRoutes.searchIn(id, q, `type`, p, limit).absoluteURL(), Some(Seq(item))))
+          ).as(JSONAPI_MIMETYPE)
+        }
+      } recover {
+        case e: ItemNotFound => error(NOT_FOUND, e.message)
+        case e: PermissionDenied => error(FORBIDDEN)
       }
-    } recover {
-      case e: ItemNotFound => error(NOT_FOUND, e.message)
-      case e: PermissionDenied => error(FORBIDDEN)
     }
-  }
 
   override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
     immediate(error(UNAUTHORIZED))
