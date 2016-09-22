@@ -42,6 +42,8 @@ jQuery(function($) {
 //    }
 //  });
 
+  $('body').scrollspy({target: "#form-nav-sidebar"});
+
   $(".form-group").on("click", ".quiet-toggle", function(e) {
     $(this).trigger("quiet-toggle")
 

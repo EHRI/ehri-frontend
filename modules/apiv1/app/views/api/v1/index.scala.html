@@ -15,10 +15,16 @@
     .example {
         margin-bottom: 100px;
     }
+
     .api-example-curl {
         box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
     }
+
+    .api-example-form input[type=number] {
+        width: 6em;
+    }
     </style>
+
     <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/codemirror.css")">
 }
 
@@ -75,7 +81,7 @@
     </div>
 }
 
-@views.html.layout.textLayout(Messages("api.v1.header"), scripts = scripts, styles = styles) {
+@views.html.layout.rightSidebarLayout(Messages("api.v1.header"), scripts = scripts, styles = styles) {
     <h1>@Messages("api.v1.header")</h1>
 
     <p class="alert alert-info">
@@ -96,9 +102,9 @@
     </p>
     <ol>
         <li>Countries (type: <code>Country</code>)
-        <li>Institutions (type: <code>Repository</code>)
+    <li>Institutions (type: <code>Repository</code>)
         <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
-        <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
+    <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
     </ol>
 
     <p>
@@ -137,21 +143,19 @@
             The Global search action (<code>/search</code>) allows you to search all available item types.
             Four parameters are currently supported:
         </p>
-        
+
         @searchParams
 
         <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.search()">
-            <fieldset>
-                <legend>Test it!</legend>
+            <h3>Test it!</h3>
 
-                @searchForm("api-example-search")
-                @submitButton
+            @searchForm("api-example-search")
+            @submitButton
 
-                <br/>
-                <br/>
-                <label for="api-example-search" class="">Global Search Example Results</label>
-                <textarea rows="8" class="api-example" id="api-example-search"></textarea>
-            </fieldset>
+            <br/>
+            <br/>
+            <label for="api-example-search" class="">Global Search Example Results</label>
+            <textarea rows="8" class="api-example" id="api-example-search"></textarea>
         </form>
 
         <br/>
@@ -165,22 +169,20 @@
     <div class="example">
         <h2 id="retrieve-item">Retrieve an item</h2>
         <p>
-            For retrieving individual items (of any type) the <code>/{id}</code> action is provided, with the
-            <code>{id}</code> being the <i>global EHRI identifier</i> of the item you want.
+            For retrieving individual items (of any type) the <code>/{ID}</code> action is provided, with the
+            <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
         </p>
 
         <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.fetch("{id}")">
-            <fieldset>
-                <legend>Test it!</legend>
+            <h3>Test it!</h3>
 
-                @itemIdField("api-example-fetch")
-                @submitButton
+            @itemIdField("api-example-fetch")
+            @submitButton
 
-                <br/>
-                <br/>
-                <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
-                <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
-            </fieldset>
+            <br/>
+            <br/>
+            <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
+            <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
         </form>
 
         <br/>
@@ -194,41 +196,43 @@
         <h2 id="item-search">Item Search</h2>
         <p>
             The item search action (<code>/{ID}/search</code>) allows you to search <i>within an individual
-                item</i>, for example: searching the archival descriptions within a particular repository.
+            item</i>, for example: searching the archival descriptions within a particular repository.
 
             The same four parameters as the <a href="#global-search">Global Search</a> action are supported
         </p>
-        
+
         @searchParams
-        
+
         <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.searchIn("{id}")">
-            <fieldset>
-                <legend>Test it!</legend>
+            <h3>Test it!</h3>
 
-                @itemIdField("api-example-item-search")
+            @itemIdField("api-example-item-search")
 
-                <br/>
-                <br/>
+            <br/>
+            <br/>
 
-                @searchForm("api-example-item-search")
-                @submitButton
+            @searchForm("api-example-item-search")
+            @submitButton
 
-                <br/>
-                <br/>
-                <label for="api-example-item-search" class="">Item Search Example Results</label>
-                <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
-            </fieldset>
+            <br/>
+            <br/>
+            <label for="api-example-item-search" class="">Item Search Example Results</label>
+            <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
         </form>
 
         <br/>
         <p>Run it as a curl command:</p>
-        <pre class="api-example-curl">curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
+        <pre class="api-example-curl">
+            curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
 
         <hr/>
     </div>
 
     <script>
             jQuery(function ($) {
+
+                $('body').scrollspy({target: "#doc-navbar"});
+
                 $(".api-example").each(function (i, elem) {
                     var editor = CodeMirror.fromTextArea(elem, {
                         readOnly: true,
@@ -247,7 +251,6 @@
 
                     console.log("ID: " + $form
                                     .find("[name='id']").val(), "ACTION", $(this).attr("action"))
-
 
 
                     var action = $(this).attr("action")
@@ -287,4 +290,12 @@
 
             });
     </script>
+} {
+    <div id="doc-navbar" class="vertical-navbar" data-spy="affix" data-offset-top="100">
+        <ul class="nav nav-stacked nav-pills">
+            <li role="presentation"><a href="#global-search">Global Search</a></li>
+            <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
+            <li role="presentation"><a href="#item-search">Item Search</a></li>
+        </ul>
+    </div>
 }
