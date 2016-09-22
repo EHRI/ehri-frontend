@@ -1,6 +1,6 @@
 # API V1 routes
 
-GET        /                       @controllers.api.v1.ApiV1.index()
+GET        /                       @controllers.api.v1.ApiV1Home.index()
 GET        /search                 @controllers.api.v1.ApiV1.search(q: Option[String] ?= None, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, page: Int ?= 1, limit: Int ?= 20)
 GET        /:id                    @controllers.api.v1.ApiV1.fetch(id: String)
 GET        /:id/search             @controllers.api.v1.ApiV1.searchIn(id: String, q: Option[String] ?= None, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, page: Int ?= 1, limit: Int ?= 20)

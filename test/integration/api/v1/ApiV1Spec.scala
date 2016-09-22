@@ -1,13 +1,14 @@
 package integration.api.v1
 
-import helpers.{IntegrationTestRunner, TestConfiguration}
+import helpers.IntegrationTestRunner
 import models.api.v1.JsonApiV1
-import org.everit.json.schema.{ValidationException, SchemaException}
+import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
-import org.json.{JSONTokener, JSONObject}
-import play.api.http.HeaderNames
+import org.json.{JSONObject, JSONTokener}
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json._
-import play.api.test.{FakeRequest, PlaySpecification}
+import play.api.test.FakeRequest
+
 
 class ApiV1Spec extends IntegrationTestRunner {
 
@@ -33,6 +34,30 @@ class ApiV1Spec extends IntegrationTestRunner {
   }
 
   "API/V1" should {
+    "say forbodden when authorization enabled" in new ITestApp(
+      Map(
+        "ehri.api.v1.authorization.enabled" -> true,
+        "ehri.api.v1.authorization.tokens" -> List("allowed")
+      )
+    ) {
+      val idx1 = FakeRequest(apiRoutes.search())
+        .withHeaders(ACCEPT -> ContentTypes.JSON).call()
+      status(idx1) must_== FORBIDDEN
+      contentAsJson(idx1) \ "errors" \ 0 \ "detail" must_== JsDefined(JsString("Token required"))
+
+      val idx2 = FakeRequest(apiRoutes.search())
+        .withHeaders(HeaderNames.AUTHORIZATION -> "Bearer allowed")
+        .call()
+      status(idx2) must_== OK
+    }
+
+    "give Not Acceptable with a modified Accept header" in new ITestApp {
+      val idx = FakeRequest(apiRoutes.search())
+        .withHeaders(HeaderNames.ACCEPT -> (JsonApiV1.JSONAPI_MIMETYPE + ";encoding=utf8"))
+        .call()
+      status(idx) must_== NOT_ACCEPTABLE
+    }
+
     "forbid fetching protected items" in new ITestApp {
       val fetch = FakeRequest(apiRoutes.fetch("c1")).call()
       status(fetch) must_== FORBIDDEN

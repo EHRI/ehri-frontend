@@ -1,0 +1,290 @@
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+
+@scripts = {
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/javascript.js")"></script>
+}
+
+@styles = {
+    <style>
+    .CodeMirror {
+        border: 1px solid #999;
+        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
+    }
+
+    .example {
+        margin-bottom: 100px;
+    }
+    .api-example-curl {
+        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
+    }
+    </style>
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/codemirror.css")">
+}
+
+@searchParams = {
+    <ul>
+        <li><code>q</code>
+            : A text query, following the same rules as <a href="https://portal.ehri-project.eu/help/faq#kix.621e28q6i9y3">
+                searching on the portal site.</a></li>
+        <li><code>type</code> : One of the available data types. Can be used multiple times.</li>
+        <li><code>page</code> : Since results are paginated, this number selects the desired page.</li>
+        <li><code>limit</code> : The number of results to fetch per page, up to a maximum of 100.</li>
+    </ul>
+}
+
+@submitButton = {
+    <div class="form-group" style="margin-left: 10px">
+        <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+    </div>
+}
+
+@searchForm(prefix: String) = {
+    <div class="form-group">
+        <label class="form-label hidden" for="@prefix-q">Query</label>
+        <input class="input-sm form-control" placeholder="Query" type="text" name="q"
+        id="@prefix-q" />
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="@prefix-type">Type</label>
+        <select class="input-sm form-control" id="@prefix-type" name="type">
+            <option value="">All</option>
+            @for(t <- controllers.api.v1.ApiV1.apiSupportedEntities) {
+                <option value="@t">@t</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="@prefix-page">Page</label>
+        <input class="input-sm form-control" type="number" min="1" max="1000" name="page"
+        id="@prefix-page"
+        value="1" />
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="@prefix-limit">Per page</label>
+        <input class="input-sm form-control" type="number" min="1" max="100" name="limit"
+        id="@prefix-limit" value="20" />
+    </div>
+}
+
+@itemIdField(prefix: String) = {
+    <div class="form-group">
+        <label class="form-label" for="@prefix-id">Type an item's ID:</label>
+        <input class="input-sm form-control" placeholder="Query" type="text" name="id"
+        id="@prefix-id" value="us-005578" />
+    </div>
+}
+
+@views.html.layout.textLayout(Messages("api.v1.header"), scripts = scripts, styles = styles) {
+    <h1>@Messages("api.v1.header")</h1>
+
+    <p class="alert alert-info">
+        <i class="glyphicon glyphicon-asterisk"></i>
+        The EHRI JSON API is currently in testing and not recommended for use in important
+        applications.
+    </p>
+
+    <p>The EHRI portal has an experimental web <a class="external" href="https://en.wikipedia.org/wiki/Application_programming_interface#Web_APIs">
+        API</a>, intended for searching and retrieving a
+        subset of EHRI data in structured <a href="https://en.wikipedia.org/wiki/JSON" class="external">JSON</a> format.
+
+        While it is intended that the scope of the API will broaden in future, it is intended to prioritise convenience over semantic precision, providing a somewhat simplified view of EHRI's data relative to that offered by the HTML site.
+    </p>
+
+    <p>
+        At present, information is only available for four types of item:
+    </p>
+    <ol>
+        <li>Countries (type: <code>Country</code>)
+        <li>Institutions (type: <code>Repository</code>)
+        <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
+        <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
+    </ol>
+
+    <p>
+        The base API URL is <a href="@controllers.api.v1.routes.ApiV1Home.index()">@controllers.api.v1.routes.ApiV1Home.index()</a>
+        .
+    </p>
+
+    <p>
+        Three &quot;actions&quot; are currently available:
+    </p>
+
+    <ol>
+        <li>Global search at <code>/search</code>: Intended for a simple-text query of all country report,
+            institution, and archival description information in the portal.
+            Optionally, the search can be limited to items of specific types.</li>
+
+        <li>Retrieving item info by ID at <code>/{ID}</code>
+            : If item's IDs are known in advance (or determined via a search), information about them can be fetched individually.</li>
+
+        <li>Item-scoped search at <code>/{ID}/search</code>
+            : Intended for searching via simple text query within the "scope" of a particular item, retrieving matching child items. For example, a country can be searched for specific repositories, and repositories and archival descriptions for, respectively, top-level and sub-level descriptions.</li>
+    </ol>
+
+    <p>
+        The format of returned data conforms to the <a class="external" href="http://jsonapi.org/">http://jsonapi.org/</a>
+        specification and has <a href="https://en.wikipedia.org/wiki/Media_type" class="external">content-type</a> <code>
+        application/vnd
+        .api+json</code>.
+    </p>
+
+    <hr/>
+
+    <div class="example">
+        <h2 id="global-search">Global Search</h2>
+        <p>
+            The Global search action (<code>/search</code>) allows you to search all available item types.
+            Four parameters are currently supported:
+        </p>
+        
+        @searchParams
+
+        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.search()">
+            <fieldset>
+                <legend>Test it!</legend>
+
+                @searchForm("api-example-search")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-search" class="">Global Search Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-search"></textarea>
+            </fieldset>
+        </form>
+
+        <br/>
+        <p>Run it as a curl command:</p>
+        <pre class="api-example-curl">curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"</pre>
+
+        <hr/>
+    </div>
+
+
+    <div class="example">
+        <h2 id="retrieve-item">Retrieve an item</h2>
+        <p>
+            For retrieving individual items (of any type) the <code>/{id}</code> action is provided, with the
+            <code>{id}</code> being the <i>global EHRI identifier</i> of the item you want.
+        </p>
+
+        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.fetch("{id}")">
+            <fieldset>
+                <legend>Test it!</legend>
+
+                @itemIdField("api-example-fetch")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
+            </fieldset>
+        </form>
+
+        <br/>
+        <p>Run it as a curl command:</p>
+        <pre class="api-example-curl">
+            curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"</pre>
+        <hr/>
+    </div>
+
+    <div class="example">
+        <h2 id="item-search">Item Search</h2>
+        <p>
+            The item search action (<code>/{ID}/search</code>) allows you to search <i>within an individual
+                item</i>, for example: searching the archival descriptions within a particular repository.
+
+            The same four parameters as the <a href="#global-search">Global Search</a> action are supported
+        </p>
+        
+        @searchParams
+        
+        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.searchIn("{id}")">
+            <fieldset>
+                <legend>Test it!</legend>
+
+                @itemIdField("api-example-item-search")
+
+                <br/>
+                <br/>
+
+                @searchForm("api-example-item-search")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-item-search" class="">Item Search Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
+            </fieldset>
+        </form>
+
+        <br/>
+        <p>Run it as a curl command:</p>
+        <pre class="api-example-curl">curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
+
+        <hr/>
+    </div>
+
+    <script>
+            jQuery(function ($) {
+                $(".api-example").each(function (i, elem) {
+                    var editor = CodeMirror.fromTextArea(elem, {
+                        readOnly: true,
+                        mode: 'javascript'
+                    });
+
+                    $(elem).data("editor", editor);
+                });
+
+                $(".api-example-form").submit(function (e) {
+                    e.preventDefault();
+
+                    var $form = $(this),
+                            $text = $form.find("textarea");
+
+
+                    console.log("ID: " + $form
+                                    .find("[name='id']").val(), "ACTION", $(this).attr("action"))
+
+
+
+                    var action = $(this).attr("action")
+                            .replace(/%7Bid%7D/gi, encodeURI($form.find("[name='id']").val()));
+
+                    var params = $form.find(":input")
+                            .filter(function (index, element) {
+                                return $(element).val().trim() != ""
+                                        && $(element).attr("name") != "id";
+                            })
+                            .serialize();
+
+                    var url = action + (params != "" ? "?" + params : "");
+
+                    console.log("API call", url);
+
+                    $form.find(".progress-button").addClass("running");
+                    $.get(url, function (data) {
+                        $text.data("editor").getDoc().setValue(JSON.stringify(data, null, 2));
+                    }).error(function (e) {
+                        $text.data("editor").getDoc().setValue(JSON.stringify(e.responseJSON, null, 2));
+                    }).complete(function () {
+                        $form.find(".progress-button").removeClass("running");
+                    });
+
+                    function curl(action) {
+                        var http = location.protocol;
+                        var slashes = http.concat("//");
+                        var host = slashes.concat(window.location.hostname)
+                                .concat((window.location.port != ""
+                                        ? (":" + window.location.port) : ""));
+                        return "curl " + "\"" + host + action + "\"";
+                    }
+
+                    $form.parent().find(".api-example-curl").html(curl(url));
+                });
+
+            });
+    </script>
+}

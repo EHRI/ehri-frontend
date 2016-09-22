@@ -1,10 +1,10 @@
 package controllers.api.v1
 
 import java.util.concurrent.TimeUnit
-import javax.inject.{Singleton, Inject}
+import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
-import backend.rest.{PermissionDenied, ItemNotFound}
+import backend.rest.{ItemNotFound, PermissionDenied}
 import backend.{AnonymousUser, DataApi}
 import models.api.v1.JsonApiV1._
 import controllers.base.{AuthConfigImpl, ControllerHelpers, CoreActionBuilders}
@@ -19,12 +19,21 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils.Page
-import utils.search.{SearchConstants, SearchParams, SearchEngine, SearchItemResolver}
+import utils.search.{SearchConstants, SearchEngine, SearchItemResolver, SearchParams}
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 
+
+object ApiV1 {
+  val apiSupportedEntities = Seq(
+    EntityType.DocumentaryUnit,
+    EntityType.Repository,
+    EntityType.HistoricalAgent,
+    EntityType.Country
+  )
+}
 
 @Singleton
 case class ApiV1 @Inject()(
@@ -42,6 +51,8 @@ case class ApiV1 @Inject()(
   with ControllerHelpers
   with AuthConfigImpl
   with Search {
+
+  import ApiV1._
 
   private val logger = play.api.Logger(ApiV1.getClass)
 
@@ -61,12 +72,6 @@ case class ApiV1 @Inject()(
     .map(_.asScala.toSeq).getOrElse(Seq.empty)
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
-  private val apiSupportedEntities = Seq(
-    EntityType.DocumentaryUnit,
-    EntityType.Repository,
-    EntityType.HistoricalAgent,
-    EntityType.Country
-  )
 
   private def error(status: Int, message: Option[String] = None): Result =
     Status(status)(errorJson(status, message))
@@ -241,26 +246,6 @@ case class ApiV1 @Inject()(
         "pages" -> page.numPages
       ))
     )
-
-  def index() = JsonApiAction { implicit request =>
-    // describe possible actions here...
-    Ok(
-      Json.obj(
-        "meta" -> Json.obj(
-          "name" -> "EHRI API V1",
-          "routes" -> Json.obj(
-            "search" -> (apiRoutes.search().absoluteURL() + "?[q=Text Query]"),
-            "fetch" -> apiRoutes.fetch("ITEM-ID").absoluteURL(),
-            "search-in" -> (apiRoutes.searchIn("ITEM-ID").absoluteURL() + "?[q=Text Query]")
-          ),
-          "status" -> "ALPHA: Do not use for production"
-        ),
-        "jsonapi" -> Json.obj(
-          "version" -> "1.0"
-        )
-      )
-    ).as(JSONAPI_MIMETYPE)
-  }
 
   def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
     JsonApiAction.async { implicit request =>
