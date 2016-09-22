@@ -7,3 +7,5 @@ api.error.406=Not Acceptable
 api.error.415=Unsupported Media Type
 api.error.429=Too Many Requests
 
+api.v1=JSON API
+api.v1.header=API V1 Documentation

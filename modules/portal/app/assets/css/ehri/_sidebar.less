@@ -34,3 +34,27 @@
 }
 
 
+.vertical-navbar {
+  width: 200px;
+}
+
+.vertical-navbar > ul > li.active > a,
+.vertical-navbar > ul > li.active > a:focus,
+.vertical-navbar > ul > li.active > a:hover {
+  background-color: #fff;
+  color: @link-color;
+  font-weight: bolder;
+}
+
+.vertical-navbar > ul > li > ul > li {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
+
+.vertical-navbar > ul > li.active > ul > li.active > a,
+.vertical-navbar > ul > li.active > ul > li.active > a:focus,
+.vertical-navbar > ul > li.active > ul > li.active > a:hover {
+  background-color: #fff;
+  color: @link-color;
+  font-weight: bold;
+}

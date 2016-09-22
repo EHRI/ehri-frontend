@@ -318,7 +318,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
 lazy val apiv1 = Project(appName + "-apiv1", file("modules/apiv1"))
   .enablePlugins(play.sbt.PlayScala).settings(
     libraryDependencies ++= Seq("org.everit.json" % "org.everit.json.schema" % "1.3.0")
-  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(core % "test->test;compile->compile")
+  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala).settings(
