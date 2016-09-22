@@ -13,11 +13,15 @@
     }
 
     .example {
-        margin-bottom: 100px;
+        margin-bottom: 50px;
     }
 
     .api-example-curl {
         box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
+    }
+
+    section {
+        margin-bottom: 60px;
     }
 
     .api-example-form input[type=number] {
@@ -29,14 +33,14 @@
 }
 
 @searchParams = {
-    <ul>
-        <li><code>q</code>
-            : A text query, following the same rules as <a href="https://portal.ehri-project.eu/help/faq#kix.621e28q6i9y3">
-                searching on the portal site.</a></li>
-        <li><code>type</code> : One of the available data types. Can be used multiple times.</li>
-        <li><code>page</code> : Since results are paginated, this number selects the desired page.</li>
-        <li><code>limit</code> : The number of results to fetch per page, up to a maximum of 100.</li>
-    </ul>
+    <dl class="dl-horizontal">
+        <dt><code>q</code></dt>
+        <dd>A text query, following the same rules as <a href="https://portal.ehri-project.eu/help/faq#kix.621e28q6i9y3">
+            searching on the portal site.</a></dd>
+        <dt><code>type</code></dt><dd>One of the available data types. Can be used multiple times.</dd>
+        <dt><code>page</code></dt><dd>Since results are paginated, this number selects the desired page.</dd>
+        <dt><code>limit</code></dt><dd>The number of results to fetch per page, up to a maximum of 100.</dd>
+    </dl>
 }
 
 @submitButton = {
@@ -84,149 +88,202 @@
 @views.html.layout.rightSidebarLayout(Messages("api.v1.header"), scripts = scripts, styles = styles) {
     <h1>@Messages("api.v1.header")</h1>
 
-    <p class="alert alert-info">
-        <i class="glyphicon glyphicon-asterisk"></i>
-        The EHRI JSON API is currently in testing and not recommended for use in important
-        applications.
-    </p>
-
-    <p>The EHRI portal has an experimental web <a class="external" href="https://en.wikipedia.org/wiki/Application_programming_interface#Web_APIs">
-        API</a>, intended for searching and retrieving a
-        subset of EHRI data in structured <a href="https://en.wikipedia.org/wiki/JSON" class="external">JSON</a> format.
-
-        While it is intended that the scope of the API will broaden in future, it is intended to prioritise convenience over semantic precision, providing a somewhat simplified view of EHRI's data relative to that offered by the HTML site.
-    </p>
-
-    <p>
-        At present, information is only available for four types of item:
-    </p>
-    <ol>
-        <li>Countries (type: <code>Country</code>)
-    <li>Institutions (type: <code>Repository</code>)
-        <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
-    <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
-    </ol>
-
-    <p>
-        The base API URL is <a href="@controllers.api.v1.routes.ApiV1Home.index()">@controllers.api.v1.routes.ApiV1Home.index()</a>
-        .
-    </p>
-
-    <p>
-        Three &quot;actions&quot; are currently available:
-    </p>
-
-    <ol>
-        <li>Global search at <code>/search</code>: Intended for a simple-text query of all country report,
-            institution, and archival description information in the portal.
-            Optionally, the search can be limited to items of specific types.</li>
-
-        <li>Retrieving item info by ID at <code>/{ID}</code>
-            : If item's IDs are known in advance (or determined via a search), information about them can be fetched individually.</li>
-
-        <li>Item-scoped search at <code>/{ID}/search</code>
-            : Intended for searching via simple text query within the "scope" of a particular item, retrieving matching child items. For example, a country can be searched for specific repositories, and repositories and archival descriptions for, respectively, top-level and sub-level descriptions.</li>
-    </ol>
-
-    <p>
-        The format of returned data conforms to the <a class="external" href="http://jsonapi.org/">http://jsonapi.org/</a>
-        specification and has <a href="https://en.wikipedia.org/wiki/Media_type" class="external">content-type</a> <code>
-        application/vnd
-        .api+json</code>.
-    </p>
-
-    <hr/>
-
-    <div class="example">
-        <h2 id="global-search">Global Search</h2>
-        <p>
-            The Global search action (<code>/search</code>) allows you to search all available item types.
-            Four parameters are currently supported:
+    <section id="overview">
+        <h2>Overview</h2>
+        <p class="alert alert-info">
+            <i class="glyphicon glyphicon-asterisk"></i>
+            The EHRI JSON API is currently in testing and not recommended for use in important
+            applications.
         </p>
 
-        @searchParams
+        <p>The EHRI portal has an experimental web <a class="external" href="https://en.wikipedia.org/wiki/Application_programming_interface#Web_APIs">
+            API</a>, intended for searching and retrieving a
+            subset of EHRI data in structured <a href="https://en.wikipedia.org/wiki/JSON" class="external">JSON</a> format.
 
-        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.search()">
-            <h3>Test it!</h3>
-
-            @searchForm("api-example-search")
-            @submitButton
-
-            <br/>
-            <br/>
-            <label for="api-example-search" class="">Global Search Example Results</label>
-            <textarea rows="8" class="api-example" id="api-example-search"></textarea>
-        </form>
-
-        <br/>
-        <p>Run it as a curl command:</p>
-        <pre class="api-example-curl">curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"</pre>
-
-        <hr/>
-    </div>
-
-
-    <div class="example">
-        <h2 id="retrieve-item">Retrieve an item</h2>
-        <p>
-            For retrieving individual items (of any type) the <code>/{ID}</code> action is provided, with the
-            <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
+            While it is intended that the scope of the API will broaden in future, it is intended to prioritise convenience over semantic precision, providing a somewhat simplified view of EHRI's data relative to that offered by the HTML site.
         </p>
 
-        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.fetch("{id}")">
-            <h3>Test it!</h3>
-
-            @itemIdField("api-example-fetch")
-            @submitButton
-
-            <br/>
-            <br/>
-            <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
-            <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
-        </form>
-
-        <br/>
-        <p>Run it as a curl command:</p>
-        <pre class="api-example-curl">
-            curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"</pre>
-        <hr/>
-    </div>
-
-    <div class="example">
-        <h2 id="item-search">Item Search</h2>
         <p>
-            The item search action (<code>/{ID}/search</code>) allows you to search <i>within an individual
-            item</i>, for example: searching the archival descriptions within a particular repository.
+            At present, information is only available for four types of item:
+        </p>
+        <ol>
+            <li>Countries (type: <code>Country</code>)
+        <li>Institutions (type: <code>Repository</code>)
+            <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
+        <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
+        </ol>
 
-            The same four parameters as the <a href="#global-search">Global Search</a> action are supported
+        <p>
+            The base API URL is <a href="@controllers.api.v1.routes.ApiV1Home.index()">@controllers.api.v1.routes.ApiV1Home.index()</a>
+            .
+        </p>
+    </section>
+
+    <section id="api-actions">
+        <h2>Actions</h2>
+        <p>
+            Three &quot;actions&quot; are currently available:
         </p>
 
-        @searchParams
+        <ol>
+            <li>Global search at <code>/search</code>: Intended for a simple-text query of all country report,
+                institution, and archival description information in the portal.
+                Optionally, the search can be limited to items of specific types.</li>
 
-        <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.searchIn("{id}")">
-            <h3>Test it!</h3>
+            <li>Retrieving item info by ID at <code>/{ID}</code>
+                : If item's IDs are known in advance (or determined via a search), information about them can be fetched individually.</li>
 
-            @itemIdField("api-example-item-search")
+            <li>Item-scoped search at <code>/{ID}/search</code>
+                : Intended for searching via simple text query within the "scope" of a particular item, retrieving matching child items. For example, a country can be searched for specific repositories, and repositories and archival descriptions for, respectively, top-level and sub-level descriptions.</li>
+        </ol>
 
-            <br/>
-            <br/>
-
-            @searchForm("api-example-item-search")
-            @submitButton
-
-            <br/>
-            <br/>
-            <label for="api-example-item-search" class="">Item Search Example Results</label>
-            <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
-        </form>
-
-        <br/>
-        <p>Run it as a curl command:</p>
-        <pre class="api-example-curl">
-            curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
+        <p>
+            The format of returned data conforms to the <a class="external" href="http://jsonapi.org/">
+            http://jsonapi.org/</a>
+            specification and has <a href="https://en.wikipedia.org/wiki/Media_type" class="external">content-type</a> <code>
+            application/vnd
+            .api+json</code>.
+        </p>
 
         <hr/>
-    </div>
+
+        <div class="example">
+            <h3 id="global-search">Global Search</h3>
+            <p>
+                The Global search action (<code>/search</code>) allows you to search all available item types.
+                Four parameters are currently supported:
+            </p>
+
+            @searchParams
+
+            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.search()">
+                <h4>Test it!</h4>
+
+                @searchForm("api-example-search")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-search" class="">Global Search Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-search"></textarea>
+            </form>
+
+            <br/>
+            <p>Run it as a curl command:</p>
+            <pre class="api-example-curl">
+                curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"</pre>
+
+            <hr/>
+        </div>
+
+
+        <div class="example">
+            <h3 id="retrieve-item">Retrieve an item</h3>
+            <p>
+                For retrieving individual items (of any type) the <code>/{ID}</code> action is provided, with the
+                <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
+            </p>
+
+            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.fetch("{id}")">
+                <h4>Test it!</h4>
+
+                @itemIdField("api-example-fetch")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
+            </form>
+
+            <br/>
+            <p>Run it as a curl command:</p>
+            <pre class="api-example-curl">
+                curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"</pre>
+            <hr/>
+        </div>
+
+        <div class="example">
+            <h3 id="item-search">Item Search</h3>
+            <p>
+                The item search action (<code>/{ID}/search</code>) allows you to search <i>within an individual
+                item</i>, for example: searching the archival descriptions within a particular repository.
+
+                The same four parameters as the <a href="#global-search">Global Search</a> action are supported
+            </p>
+
+            @searchParams
+
+            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.searchIn("{id}")">
+                <h4>Test it!</h4>
+
+                @itemIdField("api-example-item-search")
+
+                <br/>
+                <br/>
+
+                @searchForm("api-example-item-search")
+                @submitButton
+
+                <br/>
+                <br/>
+                <label for="api-example-item-search" class="">Item Search Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
+            </form>
+
+            <br/>
+            <p>Run it as a curl command:</p>
+            <pre class="api-example-curl">
+                curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
+
+            <hr/>
+        </div>
+    </section>
+
+    <section id="api-responses">
+        <h2>Structure of responses</h2>
+        <p class="alert alert-info">The responses from the API conform to the <a class="external"
+        href="http://jsonapi.org">http://jsonapi.org</a>
+            specification, so read the documentation there for an overview of what to expect.</p>
+
+        <p>The response is a JSON object with up to four fields:</p>
+        <dl class="dl-horizontal">
+            <dt><code>data</code></dt><dd>this contains the main body of the response, and is either a list of
+                items or a single item.</dd>
+            <dt><code>links</code></dt><dd>the top level "links" field contains links to API actions related to
+                this one. For example, it contains links to the first, last, next, and previous pages if the
+                data is paginated.</dd>
+            <dt><code>included</code></dt><dd>contains a list of related items. For example, when <a
+            href="#api-example-item-search">searching within an item</a>
+                , the item itself is included with the response, for convenience.</dd>
+            <dt><code>meta</code></dt><dd>contains additional relevant metadata, for example the total number of
+                items, and the total number of pages.</dd>
+        </dl>
+
+        <p>Each item type has a different set of possible fields. The naming of the fields for
+            <code>DocumentaryUnit</code>, <code>HistoricalAgent</code>, <code>Repository</code> items
+        respectively generally conform to the ISAD(G), ISAAR, and ISDIAH standards. Look at the example responses
+        for an idea of what to expect.</p>
+    </section>
+
+    <section id="api-usage-python">
+        <h2>Example usage with Python</h2>
+
+        <p>The script shown below is a Python script for creating a tab-delimited (TSV) file containing three
+            fields: the EHRI item id, its title, and the <i>scope and content</i> field of EHRI archival descriptions.</p>
+
+        <script src="https://gist.github.com/mikesname/a7a2a8ced559b0aa4fd278704ef1263d.js"></script>
+
+        <p>You can copy the code to a file called <code>scopecontent.py</code> and run it with URL for
+            a search of EHRI archival descriptions, e.g:</p>
+
+        <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(q = Some("title:Amsterdam"), `type` = Seq(defines.EntityType.DocumentaryUnit)).absoluteURL(globalConfig.https), "UTF-8")"
+        </pre>
+
+        <p>This will run a search for documentary unit items with &quot;Amsterdam&quot; in the title and
+            download all the subsequent pages of items, transforming the selected data to TSV and printing
+            it to the console.</p>
+    </section>
 
     <script>
             jQuery(function ($) {
@@ -293,9 +350,23 @@
 } {
     <div id="doc-navbar" class="vertical-navbar" data-spy="affix" data-offset-top="100">
         <ul class="nav nav-stacked nav-pills">
-            <li role="presentation"><a href="#global-search">Global Search</a></li>
-            <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
-            <li role="presentation"><a href="#item-search">Item Search</a></li>
+            <li role="presentation">
+                <a href="#overview">Overview</a>
+            </li>
+            <li role="presentation">
+                <a href="#api-actions">Actions</a>
+                <ul class="nav">
+                    <li role="presentation"><a href="#global-search">Global Search</a></li>
+                    <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
+                    <li role="presentation"><a href="#item-search">Item Search</a></li>
+                </ul>
+            </li>
+            <li role="presentation">
+                <a href="#api-responses">Structure of responses</a>
+            </li>
+            <li role="presentation">
+                <a href="#api-usage-python">Example usage with Python</a>
+            </li>
         </ul>
     </div>
 }
