@@ -1,0 +1,68 @@
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+
+
+@views.html.layout.rightSidebarLayout(Messages("api.header")) {
+    <h1>@Messages("api.header")</h1>
+
+    <section id="overview">
+        <h2>Overview</h2>
+        <p>
+            The EHRI portal's APIs (application programming interfaces) allow users (researchers, developers, etc) to
+            retrieve EHRI's information in a programmatic fashion. Currently two APIs are offered, each suitable for
+            different purposes:
+        </p>
+        <p class="alert alert-info">
+            <i class="glyphicon glyphicon-asterisk"></i>
+            <strong>Note:</strong> both APIs are currently in testing. Feedback and reports of usage
+            issues will be gratefully recieved.
+        </p>
+    </section>
+
+    <div id="apis">
+        <section id="api-search">
+            <h2>Search API</h2>
+
+            <p>The search API (version 1) allows searching the EHRI portal's data and
+            retrieving items as JSON objects. It is based on the <a class="external"
+            href="http://jsonapi.org">http://jsonapi.org</a> specification.</p>
+
+            <p>
+                <strong><a href="@controllers.api.v1.routes.ApiV1Home.index()">
+                    Try the EHRI Search API.
+                </a></strong>
+            </p>
+        </section>
+
+        <section id="api-graphql">
+            <h2>GraphQL API</h2>
+
+            <p>The GraphQL API implements <a class="external" href="http://graphql.org/">Facebook's data query
+                language</a>
+            and provides the means to make highly specific queries of the portal's data with a wider
+                scope than that provided by the search API.</p>
+
+            <p>
+                <strong><a href="@controllers.api.graphql.routes.GraphQL.index()">
+                    Try the EHRI GraphQL API.
+                </a></strong>
+            </p>
+        </section>
+    </div>
+} {
+    <div id="doc-navbar" class="vertical-navbar" data-spy="affix" data-offset-top="100">
+        <ul class="nav nav-stacked nav-pills">
+            <li role="presentation">
+                <a href="#api-v1">Overview</a>
+            </li>
+            <li role="presentation">
+                <a href="#apis">APIs</a>
+                <ul class="nav">
+                    <li role="presentation">
+                        <a href="#api-search">Search API</a>
+                        <a href="#api-graphql">GraphQL API</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+}

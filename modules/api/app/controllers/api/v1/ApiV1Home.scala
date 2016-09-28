@@ -73,7 +73,7 @@ case class ApiV1Home @Inject()(
           )
         )
       ).as(JSONAPI_MIMETYPE)
-      case _ => Ok(views.html.api.v1.index())
+      case _ => Ok(views.html.api.v1.docs())
     }
   }
 }

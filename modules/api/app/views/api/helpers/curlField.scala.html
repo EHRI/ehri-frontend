@@ -1,0 +1,6 @@
+@(id: String)(html: Html)
+
+<div class="api-example-curl" id="@id">
+    <button class="btn btn-xs copy-button" data-clipboard-target="#@id-text">Copy</button>
+    <pre id="@id-text">@html.body.trim</pre>
+</div>
