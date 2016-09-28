@@ -7,12 +7,14 @@ import play.api.cache.CacheApi
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.i18n.MessagesApi
 import play.api.libs.ws.WSClient
-import play.api.libs.concurrent.Execution.Implicits._
-
 import javax.inject._
-import backend.{Readable, DataApi}
+
+import backend.{DataApi, Readable}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
+
+import scala.concurrent.ExecutionContext
+
 
 case class Data @Inject()(
   implicit config: play.api.Configuration,
@@ -23,7 +25,8 @@ case class Data @Inject()(
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  ws: WSClient
+  ws: WSClient,
+  executionContext: ExecutionContext
 ) extends AdminController {
 
   implicit val rd: Readable[AnyModel] = AnyModel.Converter

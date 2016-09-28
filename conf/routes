@@ -11,4 +11,4 @@
 -> /admin/guides        guideadmin.Routes
 
 # API routes
--> /api/v1              apiv1.Routes
+-> /api              api.Routes

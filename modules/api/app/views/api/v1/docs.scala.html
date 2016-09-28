@@ -1,36 +1,5 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
-@scripts = {
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/javascript.js")"></script>
-}
-
-@styles = {
-    <style>
-    .CodeMirror {
-        border: 1px solid #999;
-        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
-    }
-
-    .example {
-        margin-bottom: 50px;
-    }
-
-    .api-example-curl {
-        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
-    }
-
-    section {
-        margin-bottom: 60px;
-    }
-
-    .api-example-form input[type=number] {
-        width: 6em;
-    }
-    </style>
-
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/codemirror.css")">
-}
 
 @searchParams = {
     <dl class="dl-horizontal">
@@ -85,12 +54,10 @@
     </div>
 }
 
-@views.html.layout.rightSidebarLayout(Messages("api.v1.header"), scripts = scripts, styles = styles) {
-    <h1>@Messages("api.v1.header")</h1>
-
+@views.html.api.layout.apiDocLayout(Messages("api.v1.header")) {
     <section id="overview">
         <h2>Overview</h2>
-        <p class="alert alert-info">
+        <p class="alert alert-warning">
             <i class="glyphicon glyphicon-asterisk"></i>
             The EHRI JSON API is currently in testing and not recommended for use in important
             applications.
@@ -108,14 +75,13 @@
         </p>
         <ol>
             <li>Countries (type: <code>Country</code>)
-        <li>Institutions (type: <code>Repository</code>)
+            <li>Institutions (type: <code>Repository</code>)
             <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
-        <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
+            <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
         </ol>
 
         <p>
-            The base API URL is <a href="@controllers.api.v1.routes.ApiV1Home.index()">@controllers.api.v1.routes.ApiV1Home.index()</a>
-            .
+            The base API URL is <a href="@controllers.api.v1.routes.ApiV1Home.index()">@controllers.api.v1.routes.ApiV1Home.index()</a>.
         </p>
     </section>
 
@@ -156,7 +122,7 @@
 
             @searchParams
 
-            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.search()">
+            @helper.form(controllers.api.v1.routes.ApiV1.search(), 'class -> "api-example-form form-inline") {
                 <h4>Test it!</h4>
 
                 @searchForm("api-example-search")
@@ -166,13 +132,13 @@
                 <br/>
                 <label for="api-example-search" class="">Global Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-search"></textarea>
-            </form>
+            }
 
             <br/>
             <p>Run it as a curl command:</p>
-            <pre class="api-example-curl">
-                curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"</pre>
-
+            @views.html.api.helpers.curlField("global-search-curl") {
+                curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"
+            }
             <hr/>
         </div>
 
@@ -184,7 +150,7 @@
                 <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
             </p>
 
-            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.fetch("{id}")">
+            @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), 'class -> "api-example-form form-inline") {
                 <h4>Test it!</h4>
 
                 @itemIdField("api-example-fetch")
@@ -194,12 +160,13 @@
                 <br/>
                 <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
-            </form>
+            }
 
             <br/>
             <p>Run it as a curl command:</p>
-            <pre class="api-example-curl">
-                curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"</pre>
+            @views.html.api.helpers.curlField("retrieve-item-curl") {
+                curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"
+            }
             <hr/>
         </div>
 
@@ -214,9 +181,8 @@
 
             @searchParams
 
-            <form class="api-example-form form-inline" action="@controllers.api.v1.routes.ApiV1.searchIn("{id}")">
+            @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), 'class -> "api-example-form form-inline") {
                 <h4>Test it!</h4>
-
                 @itemIdField("api-example-item-search")
 
                 <br/>
@@ -229,13 +195,13 @@
                 <br/>
                 <label for="api-example-item-search" class="">Item Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
-            </form>
+            }
 
             <br/>
             <p>Run it as a curl command:</p>
-            <pre class="api-example-curl">
-                curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"</pre>
-
+            @views.html.api.helpers.curlField("item-search-curl") {
+                curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"
+            }
             <hr/>
         </div>
     </section>
@@ -288,8 +254,6 @@
     <script>
             jQuery(function ($) {
 
-                $('body').scrollspy({target: "#doc-navbar"});
-
                 $(".api-example").each(function (i, elem) {
                     var editor = CodeMirror.fromTextArea(elem, {
                         readOnly: true,
@@ -299,18 +263,8 @@
                     $(elem).data("editor", editor);
                 });
 
-                $(".api-example-form").submit(function (e) {
-                    e.preventDefault();
-
-                    var $form = $(this),
-                            $text = $form.find("textarea");
-
-
-                    console.log("ID: " + $form
-                                    .find("[name='id']").val(), "ACTION", $(this).attr("action"))
-
-
-                    var action = $(this).attr("action")
+                function getUrl($form) {
+                    var action = $form.attr("action")
                             .replace(/%7Bid%7D/gi, encodeURI($form.find("[name='id']").val()));
 
                     var params = $form.find(":input")
@@ -319,8 +273,25 @@
                                         && $(element).attr("name") != "id";
                             })
                             .serialize();
+                    return action + (params != "" ? "?" + params : "");
+                }
 
-                    var url = action + (params != "" ? "?" + params : "");
+                function curlCommand(action) {
+                    var http = location.protocol;
+                    var slashes = http.concat("//");
+                    var host = slashes.concat(window.location.hostname)
+                            .concat((window.location.port != ""
+                                    ? (":" + window.location.port) : ""));
+                    return "curl " + "\"" + host + action + "\"";
+                }
+
+                $(".api-example-form").submit(function (e) {
+                    e.preventDefault();
+
+                    var $form = $(this),
+                            $text = $form.find("textarea");
+
+                    var url = getUrl($form);
 
                     console.log("API call", url);
 
@@ -333,40 +304,29 @@
                         $form.find(".progress-button").removeClass("running");
                     });
 
-                    function curl(action) {
-                        var http = location.protocol;
-                        var slashes = http.concat("//");
-                        var host = slashes.concat(window.location.hostname)
-                                .concat((window.location.port != ""
-                                        ? (":" + window.location.port) : ""));
-                        return "curl " + "\"" + host + action + "\"";
-                    }
-
-                    $form.parent().find(".api-example-curl").html(curl(url));
-                });
+                }).change(function(e) {
+                    var url = getUrl($(this));
+                    $(this).parent().find(".api-example-curl > pre").text(curlCommand(url));
+                })
 
             });
     </script>
 } {
-    <div id="doc-navbar" class="vertical-navbar" data-spy="affix" data-offset-top="100">
-        <ul class="nav nav-stacked nav-pills">
-            <li role="presentation">
-                <a href="#overview">Overview</a>
-            </li>
-            <li role="presentation">
-                <a href="#api-actions">Actions</a>
-                <ul class="nav">
-                    <li role="presentation"><a href="#global-search">Global Search</a></li>
-                    <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
-                    <li role="presentation"><a href="#item-search">Item Search</a></li>
-                </ul>
-            </li>
-            <li role="presentation">
-                <a href="#api-responses">Structure of responses</a>
-            </li>
-            <li role="presentation">
-                <a href="#api-usage-python">Example usage with Python</a>
-            </li>
+    <li role="presentation">
+        <a href="#overview">Overview</a>
+    </li>
+    <li role="presentation">
+        <a href="#api-actions">Actions</a>
+        <ul class="nav">
+            <li role="presentation"><a href="#global-search">Global Search</a></li>
+            <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
+            <li role="presentation"><a href="#item-search">Item Search</a></li>
         </ul>
-    </div>
+    </li>
+    <li role="presentation">
+        <a href="#api-responses">Structure of responses</a>
+    </li>
+    <li role="presentation">
+        <a href="#api-usage-python">Example usage with Python</a>
+    </li>
 }

@@ -11,6 +11,9 @@
         <ul id="navbar-tertiary">
             @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
             @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
+            <li class="@views.Helpers.maybeActive("/api")">
+                <a href="/api">API</a>
+            </li>
         </ul>
 
         <ul id="lang-switcher">

@@ -18,7 +18,7 @@ val projectScalaVersion = "2.11.8"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
-val backendVersion = "0.13.5-SNAPSHOT"
+val backendVersion = "0.13.6-SNAPSHOT"
 val dataConverterVersion = "1.1.9"
 val neo4jVersion = "3.0.4"
 val jerseyVersion = "1.19.1"
@@ -315,7 +315,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     )
   ).dependsOn(core % "test->test;compile->compile")
 
-lazy val apiv1 = Project(appName + "-apiv1", file("modules/apiv1"))
+lazy val api = Project(appName + "-api", file("modules/api"))
   .enablePlugins(play.sbt.PlayScala).settings(
     libraryDependencies ++= Seq("org.everit.json" % "org.everit.json.schema" % "1.3.0")
   ).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
@@ -341,5 +341,5 @@ lazy val main = Project(appName, file("."))
 
     libraryDependencies ++= coreDependencies ++ testDependencies
 ).settings(commonSettings: _*)
-  .dependsOn(portal % "test->test;compile->compile", admin, guides, apiv1, solr)
-  .aggregate(backend, core, admin, portal, guides, apiv1, solr)
+  .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
+  .aggregate(backend, core, admin, portal, guides, api, solr)

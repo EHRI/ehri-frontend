@@ -1,0 +1,164 @@
+@(query: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+
+@import play.api.libs.json.Json
+
+@views.html.api.layout.apiDocLayout(Messages("api.graphql.header")) {
+    <section id="overview">
+        <h2>Overview</h2>
+        <p class="alert alert-warning">
+            <i class="glyphicon glyphicon-asterisk"></i>
+            The EHRI GraphQL API is currently in testing and not recommended for use in important
+            applications.
+        </p>
+
+        <p>In addition to the <a href="@controllers.api.v1.routes.ApiV1Home.index()">REST-style JSON API</a>,
+            the EHRI portal has an experimental web <a class="external" href="http://graphql.org/">
+            GraphQL</a> API, intended for retrieving specific EHRI data in structured <a href="https://en.wikipedia.org/wiki/JSON" class="external">JSON</a> format.
+
+            Unlike the REST API, the GraphQL interface does not support search. It does, however,
+            provide more types of data, and is a faster and more efficient option when the data
+            required in known in advance. There is also a <a href="@controllers.api.graphql.routes.GraphQL.graphiql()">
+            Graph<i>iQL</i> interface</a> which provides an interface for building queries and browsing the
+            types of data that is available.
+        </p>
+
+        <p>See the <a href="http://graphql.org/learn/" class="external">GraphQL Docs</a>
+            for an overview of the language's features and semantics.
+        </p>
+    </section>
+
+    <section id="api-usage">
+        <h2>Usage</h2>
+        <p class="alert alert-info"><strong>Note</strong>: Try the
+            <a href="@controllers.api.graphql.routes.GraphQL.graphiql()">Graph<i>i</i>QL</a>
+        interface for a better intractive query experience. Be sure to see the &quot;Docs&quot; section
+        at the right hand side for information on what type and data is available.</p>
+
+        <div id="api-usage-example">
+            @helper.form(controllers.api.graphql.routes.GraphQL.query(), 'class -> "api-example-form form-inline", 'id -> "api-usage-form") {
+                <label for="api-usage-input" class="">Example Query</label>
+                <textarea rows="8" id="api-usage-input">@query</textarea>
+                <br/>
+                <div class="form-group">
+                    <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+                </div>
+                <br/>
+                <hr/>
+
+                <label for="api-usage-output" class="">Example Results</label>
+                <textarea rows="8" id="api-usage-output"></textarea>
+            }
+
+            <br/>
+            <p>Run it as a curl command:</p>
+            @views.html.api.helpers.curlField("api-usage-curl") {
+                curl --header Content-type:application/json \
+                    @controllers.api.graphql.routes.GraphQL.query().absoluteURL(globalConfig.https) \
+                    --data-binary '@Html(org.jsoup.Jsoup.clean(Json.stringify(Json.obj("query" -> query)), org.jsoup.safety.Whitelist.simpleText()))'
+            }
+        </div>
+
+        <hr/>
+        <div id="api-usage-formats">
+            <h3>Data Formats</h3>
+            <p>
+                The GraphQL <code>POST</code> endpoint at <code>@controllers.api.graphql.routes.GraphQL.query()</code>
+                accepts data in two formats, specified by the <code>Content-type</code> header:
+            </p>
+            <dl class="dl-horizontal">
+                <dt><code>application/json</code></dt>
+                <dd>A JSON object with, at minumum, a <code>query</code> field
+                    containing the text of the query. You can also provide a
+                    <code>variables</code> field containing of a (stringified)
+                    JSON object of <a class="external" href="http://graphql.org/learn/queries/#variables">
+                        GraphQL Query Variables</a></dd>
+                <dt><code>text/plain</code></dt>
+                <dd>The query as text. Variables are not supported via this format.</dd>
+            </dl>
+        </div>
+    </section>
+
+    <section id="api-usage-python">
+        <h2>Example usage with Python</h2>
+
+        <p>The script shown below is a Python script for creating a tab-delimited (TSV) file containing three
+            fields: the EHRI item id, its title, and the <i>history</i> field of EHRI institution descriptions.</p>
+
+        <script src="https://gist.github.com/mikesname/3f03e09c8c2865cd3b80eb51351c5f85.js"></script>
+
+        <p>You can copy the code to a file called <code>history.py</code> and run it with URL for
+            the EHRI GraphQL API, e.g:</p>
+
+        <pre>python3 history.py "@controllers.api.graphql.routes.GraphQL.query().absoluteURL(globalConfig.https)"</pre>
+
+        <p>This will run a query for the history field of repository descriptions, and download
+            and convert the data to TSV in pages of 50 items at a time.</p>
+    </section>
+
+    <script>
+            jQuery(function ($) {
+                var editor = CodeMirror.fromTextArea(document.getElementById("api-usage-input"), {
+                    readOnly: false,
+                    mode: 'javascript'
+                });
+
+                var results = CodeMirror.fromTextArea(document.getElementById("api-usage-output"), {
+                    readOnly: true,
+                    mode: 'javascript'
+                });
+
+                var $form = $("#api-usage-form");
+                var url = $form.attr("action");
+
+                $form.submit(function(e) {
+                   e.preventDefault();
+
+                    var $button = $(this).find(".progress-button");
+
+                    var q = $("#api-usage-input").val();
+                    $button.addClass("running");
+
+                    $.ajax({
+                        url: url,
+                        type: $form.attr("method"),
+                        data: JSON.stringify({ query: q }),
+                        contentType: "application/json"
+                    }).success(function (data) {
+                        results.getDoc().setValue(JSON.stringify(data, null, 2));
+                    }).error(function(e) {
+                        results.getDoc().setValue(JSON.stringify(e.responseJSON, null, 2));
+                    }).complete(function() {
+                        $button.removeClass("running")
+                    });
+                });
+
+                editor.on("change", function(e) {
+                    function curl(action) {
+                        var http = location.protocol;
+                        var slashes = http.concat("//");
+                        var value = e.getValue();
+                        var host = slashes.concat(window.location.hostname)
+                                .concat((window.location.port != ""
+                                        ? (":" + window.location.port) : ""));
+                        return "curl --header Content-type:application/json \\\n"
+                                + "            " + host + action + " \\\n"
+                                + "            --data-binary '" + JSON.stringify({query: value}) + "'";
+                    }
+
+                    $form.parent().find(".api-example-curl > pre").text(curl(url));
+                });
+
+            });
+    </script>
+} {
+    <li role="presentation"><a href="#overview">Overview</a></li>
+    <li role="presentation"><a href="#api-usage">Usage</a>
+        <ul class="nav">
+            <li role="presentation"><a href="#api-usage-example">Example</a></li>
+            <li role="presentation"><a href="#api-usage-formats">Data Formats</a></li>
+        </ul>
+    </li>
+    <li role="presentation">
+        <a href="#api-usage-python">Example usage with Python</a>
+    </li>
+}
