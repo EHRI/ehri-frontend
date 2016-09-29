@@ -9,7 +9,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
 import backend.{Entity, Writable}
-
+import eu.ehri.project.definitions.Ontology
 import models.base.Description._
 
 
@@ -55,8 +55,11 @@ case class ConceptDescriptionF(
   latitude: Option[BigDecimal] = None,
   url: Option[String] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
+  @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
+  @models.relation(Ontology.HAS_MAINTENANCE_EVENT)
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
+  @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 

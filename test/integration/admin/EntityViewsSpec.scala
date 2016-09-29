@@ -118,7 +118,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
         "descriptions[0].languageCode" -> Seq("eng"),
         "descriptions[0].name" -> Seq("An Authority"),
         "descriptions[0].maintenanceEvents[0].source" -> Seq("Test Event"),
-        "descriptions[0].maintenanceEvents[0].eventType" -> Seq("CREATED"),
+        "descriptions[0].maintenanceEvents[0].eventType" -> Seq("created"),
         "descriptions[0].maintenanceEvents[0].order" -> Seq("0")
       )
       val cr = FakeRequest(histAgentRoutes.updatePost("a1"))
@@ -128,7 +128,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val a1 = await(dataApi.get[HistoricalAgent]("a1"))
       a1.descriptions.flatMap(_.maintenanceEvents).headOption must beSome.which { me =>
         me.source must_== Some("Test Event")
-        me.eventType must_== Some("CREATED")
+        me.eventType must_== Some("created")
         me.order must_== Some(0)
       }
 

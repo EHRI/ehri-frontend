@@ -144,8 +144,11 @@ case class DocumentaryUnitDescriptionF(
   notes: Option[Seq[String]] = None,
   control: IsadGControl = IsadGControl(),
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
+  @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
+  @models.relation(Ontology.HAS_MAINTENANCE_EVENT)
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
+  @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description with Temporal {
   import models.IsadG._
