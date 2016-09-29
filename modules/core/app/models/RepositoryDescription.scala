@@ -113,14 +113,18 @@ case class RepositoryDescriptionF(
   name: String,
   otherFormsOfName: Option[Seq[String]] = None,
   parallelFormsOfName: Option[Seq[String]] = None,
-  @models.relation(Ontology.ENTITY_HAS_ADDRESS) addresses: Seq[AddressF] = Nil,
+  @models.relation(Ontology.ENTITY_HAS_ADDRESS)
+  addresses: Seq[AddressF] = Nil,
   details: IsdiahDetails,
   access: IsdiahAccess,
   services: IsdiahServices,
   control: IsdiahControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
+  @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
+  @models.relation(Ontology.HAS_MAINTENANCE_EVENT)
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
+  @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 

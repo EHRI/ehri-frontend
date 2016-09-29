@@ -96,14 +96,16 @@ case class HistoricalAgentDescriptionF(
   name: String,
   otherFormsOfName: Option[Seq[String]] = None,
   parallelFormsOfName: Option[Seq[String]] = None,
-
   @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: Seq[DatePeriodF] = Nil,
   details: IsaarDetail,
   control: IsaarControl,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
-  accessPoints: Seq[AccessPointF],
+  @models.relation(Ontology.HAS_ACCESS_POINT)
+  accessPoints: Seq[AccessPointF] = Nil,
+  @models.relation(Ontology.HAS_MAINTENANCE_EVENT)
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
+  @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
 ) extends Model
   with Persistable

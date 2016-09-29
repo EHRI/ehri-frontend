@@ -105,9 +105,9 @@ object Persistable {
     }
 
     // And then the nested relationship errors
-    errorSet.relationships.foldLeft(nmap) { (m, kev) =>
-      val (rel, errorSets) = kev
-      val attrName = relmap.getOrElse(rel, sys.error(s"Unknown error map relationship for $this: $rel ($relmap)"))
+    errorSet.relationships.foldLeft(nmap) { case (m, (rel, errorSets)) =>
+      val attrName = relmap.getOrElse(rel, sys.error(
+        s"Unknown error map relationship for: $rel ($relmap)"))
       errorSets.zipWithIndex.foldLeft(m) { case (mm, (e1, e2)) => e1 match {
           case Some(es) => unfurlErrors(es, relmap, mm, Some(newpath), Some(attrName), Some(e2))
           case None => mm
