@@ -182,7 +182,7 @@ trait PortalController
     }
   }.getOrElse(Future.successful(Seq.empty))
 
-  protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String])(
+  protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String], asFile: Boolean = false)(
       implicit apiUser: ApiUser, request: RequestHeader, executionContext: ExecutionContext): Future[Result] = {
     val format: String = request.getQueryString("format")
       .filter(formats.contains).getOrElse(formats.head)
@@ -190,9 +190,13 @@ trait PortalController
     userDataApi.stream(s"classes/$entityType/$id/$format", params = params).map { sr =>
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
+
       val disp = if (ct.contains("zip"))
         Seq("Content-Disposition" -> s"attachment; filename='$id-$format.zip'")
+      else if (asFile)
+        Seq("Content-Disposition" -> s"attachment; filename='$id-$format.xml'")
       else Seq.empty
+
       val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
       // If we're streaming a zip file, send it as an attachment
       // with a more useful filename...

@@ -89,7 +89,7 @@ case class Repositories @Inject()(
     }
   }
 
-  def export(id: String) = OptionalUserAction.async { implicit request =>
-    exportXml(EntityType.Repository, id, Seq("eag", "ead"))
+  def export(id: String, asFile: Boolean) = OptionalUserAction.async { implicit request =>
+    exportXml(EntityType.Repository, id, Seq("eag", "ead"), asFile)
   }
 }

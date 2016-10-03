@@ -46,7 +46,7 @@ case class HistoricalAgents @Inject()(
     Ok(views.html.historicalAgent.show(request.item, request.annotations, request.links, request.watched))
   }
 
-  def export(id: String) = OptionalUserAction.async { implicit request =>
-    exportXml(EntityType.HistoricalAgent, id, Seq("eac"))
+  def export(id: String, asFile: Boolean) = OptionalUserAction.async { implicit request =>
+    exportXml(EntityType.HistoricalAgent, id, Seq("eac"), asFile)
   }
 }

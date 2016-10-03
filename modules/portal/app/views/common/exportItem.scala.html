@@ -1,0 +1,16 @@
+@(fmts: Map[String, Call])(implicit request: RequestHeader, messages: Messages)
+
+@if(fmts.nonEmpty) {
+    @views.html.common.panel(Messages("export")) {
+        <ul class="export-formats">
+        @for((fmt, url) <- fmts) {
+            <li class="export-format-item">
+                <a rel="nofollow" href="@url">
+                    <i class="fa fa-download"></i>
+                    @Messages(s"export.format.$fmt")
+                </a>
+            </li>
+        }
+        </ul>
+    }
+}
