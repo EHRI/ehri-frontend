@@ -73,7 +73,7 @@ case class Countries @Inject()(
     }
   }
 
-  def export(id: String) = OptionalUserAction.async { implicit request =>
-    exportXml(EntityType.Country, id, Seq("eag"))
+  def export(id: String, asFile: Boolean) = OptionalUserAction.async { implicit request =>
+    exportXml(EntityType.Country, id, Seq("eag"), asFile)
   }
 }

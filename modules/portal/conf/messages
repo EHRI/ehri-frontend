@@ -113,9 +113,9 @@ download.format.json=Download as JSON
 
 export=Export
 export.format.json=JSON
-export.format.eag=EAG
-export.format.ead=EAD
-export.format.eac=EAC
+export.format.eag=EAG 2012 XML
+export.format.ead=EAD 2002 XML
+export.format.eac=EAC 2010 XML
 export.format.ttl=TTL
 export.format.rdf_xml=RDF/XML
 
