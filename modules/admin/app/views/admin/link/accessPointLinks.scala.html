@@ -10,7 +10,7 @@
                     @linksOfType.map { ap =>
                         @ap.target(item, links).map { case (link, other) =>
                             <li class="access-point-link resolved-access-point" data-apid="@ap.id">
-                                @itemLink(link, other)
+                                @itemLink(link, other, Some(item))
                             </li>
                         }.getOrElse {
                             <li class="access-point">

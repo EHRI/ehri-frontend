@@ -11,6 +11,7 @@ import backend.rest.DataHelpers
 import controllers.base.AdminController
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
+import play.api.mvc.Call
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
@@ -37,6 +38,9 @@ case class Links @Inject()(
 
   private val linkRoutes = controllers.linking.routes.Links
 
+  private def redirectLink(src: Option[String], alt: Call): Call =
+    src.map(r => controllers.admin.routes.Data.getItem(r)).getOrElse(alt)
+
   def get(id: String) = getAndRedirect(id, None)
 
   def getAndRedirect(id: String, redirect: Option[String] = None) = ItemMetaAction(id).apply { implicit request =>
@@ -58,16 +62,16 @@ case class Links @Inject()(
         .flashing("success" -> "item.update.confirmation")
   }
   
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String, redirect: Option[String] = None) = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.link.edit(
-      request.item, form.fill(request.item.model), linkRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), linkRoutes.updatePost(id, redirect)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String, redirect: Option[String] = None) = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.link.edit(
-          request.item, errorForm, linkRoutes.updatePost(id)))
-      case Right(item) => Redirect(linkRoutes.get(id))
+          request.item, errorForm, linkRoutes.updatePost(id, redirect)))
+      case Right(item) => Redirect(redirectLink(redirect, linkRoutes.get(id)))
         .flashing("success" -> "item.update.confirmation")
     }
   }  
@@ -79,8 +83,7 @@ case class Links @Inject()(
   }
 
   def deletePost(id: String, redirect: Option[String] = None) = DeleteAction(id).apply { implicit request =>
-    Redirect(redirect.map(r => controllers.admin.routes.Data.getItem(r))
-        .getOrElse(controllers.admin.routes.Home.index()))
+    Redirect(redirectLink(redirect, controllers.admin.routes.Home.index()))
         .flashing("success" -> "item.delete.confirmation")
   }
 

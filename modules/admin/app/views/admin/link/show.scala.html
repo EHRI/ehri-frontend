@@ -33,7 +33,7 @@
 
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Update)) {
-            <a href="@controllers.linking.routes.Links.update(item.id)">@Messages("item.update")</a>
+            <a href="@controllers.linking.routes.Links.update(item.id, src)">@Messages("item.update")</a>
         }
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Link, PermissionType.Delete)) {
             <a href="@controllers.linking.routes.Links.delete(item.id, src)">@Messages("link.delete")</a>
