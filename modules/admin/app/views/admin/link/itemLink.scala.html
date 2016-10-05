@@ -1,12 +1,17 @@
-@(link: Link, item: models.base.AnyModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(link: Link, item: models.base.AnyModel, src: Option[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
 <small>
     <span class="label label-default">@Messages("link." + link.model.linkType.toString)</span>
 </small>
-<a href="@controllers.linking.routes.Links.getAndRedirect(link.id, Some(item.id))">
-    <span class="glyphicon glyphicon-link"></span>
+<a class="inline-action" title="@Messages("link.update")" href="@controllers.linking.routes.Links.getAndRedirect(link.id, src.map(_.id))">
+    <i class="glyphicon glyphicon-link"></i>
 </a>
+<a class="ajax-action inline-action" title="@Messages("link.delete")?"
+        href="@controllers.linking.routes.Links.delete(link.id, src.map(_.id))">
+    <i class="glyphicon glyphicon-remove"></i>
+</a>
+
 @if(link.model.dates.nonEmpty) {
     <small>@link.model.dateRange</small>
 }
