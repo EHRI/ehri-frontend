@@ -66,46 +66,7 @@ case class Data @Inject()(
       val rHeaders = passThroughHeaders(sr.headers.headers)
       val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.JSON)
-      result.chunked(sr.body).as(ct).withHeaders(rHeaders.toSeq: _*)
-    }
-  }
-
-  //
-  // Test guff for the Sparql endpoint...
-  //
-
-  import play.api.data.Form
-  import play.api.data.Forms._
-  private val queryForm = Form(single("q" -> text))
-
-  private val defaultSparql =
-    """
-      |PREFIX edge:   <http://tinkerpop.com/pgm/edge/>
-      |PREFIX vertex: <http://tinkerpop.com/pgm/vertex/>
-      |PREFIX prop:   <http://tinkerpop.com/pgm/property/>
-      |PREFIX pgm:    <http://tinkerpop.com/pgm/ontology#>
-      |PREFIX rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      |
-      |# Select all the userProfile nodes and their name properties...
-      |SELECT ?n ?u WHERE {
-      |    ?u a pgm:Vertex ;
-      |       prop:__type  "UserProfile" ;
-      |       prop:name     ?n .
-      |}
-      |
-      |LIMIT 100
-    """.stripMargin
-
-  def sparql = AdminAction { implicit request =>
-    Ok(views.html.admin.queryForm(queryForm.fill(defaultSparql),
-        controllers.admin.routes.Data.sparqlQuery(), "SparQL"))
-  }
-
-  def sparqlQuery = AdminAction.async { implicit request =>
-    userDataApi.stream("sparql", request.headers, request.queryString).map { sr =>
-      Status(sr.headers.status)
-        .chunked(sr.body)
-        .withHeaders(passThroughHeaders(sr.headers.headers): _*)
+      result.chunked(sr.body).as(ct).withHeaders(rHeaders: _*)
     }
   }
 }
