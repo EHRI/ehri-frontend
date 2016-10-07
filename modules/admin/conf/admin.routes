@@ -42,10 +42,6 @@ GET         /item/:id                           @controllers.admin.Data.getItem(
 GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: defines.EntityType.Value, id: String)
 GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemRawJson(entityType: defines.EntityType.Value, id: String)
 
-# API Sparql
-GET         /sparql                             @controllers.admin.Data.sparql
-GET         /sparqlQuery                        @controllers.admin.Data.sparqlQuery
-
 # Simple filtering
 GET         /filter                             @controllers.admin.SearchFilter.filterItems
 
