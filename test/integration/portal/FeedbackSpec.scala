@@ -19,7 +19,7 @@ class FeedbackSpec extends IntegrationTestRunner {
 
     val fb = Map(
       TEXT -> Seq("it doesn't work"),
-      TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
+      TIMESTAMP -> Seq(java.time.ZonedDateTime.now.toString),
       BLANK_CHECK -> Seq("")
     )
 

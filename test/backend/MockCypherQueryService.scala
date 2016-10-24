@@ -2,7 +2,7 @@ package backend
 
 import backend.rest.ItemNotFound
 import models.CypherQuery
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future
@@ -16,7 +16,7 @@ case class MockCypherQueryService(buffer: collection.mutable.HashMap[Int, Cypher
 
   override def update(id: String, cypherQuery: CypherQuery): Future[String] = {
     buffer += id.toInt -> cypherQuery
-    immediate(DateTime.now.toString)
+    immediate(LocalDateTime.now.toString)
   }
 
   override def delete(id: String): Future[Boolean] = {

@@ -1,13 +1,12 @@
 package backend.sql
 
+import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import backend.CypherQueryService
 import models.CypherQuery
-import org.joda.time.DateTime
 import play.api.db.Database
-import anorm.JodaParameterMetaData._
 import anorm._
 import utils.{Page, PageParams}
 
@@ -68,7 +67,7 @@ case class SqlCypherQueryService @Inject()(
 
   override def create(data: CypherQuery): Future[String] = Future {
     val query = data.copy(objectId = data.objectId.orElse(Some(utils.db.newObjectId(10))),
-      createdAt = data.createdAt.orElse(Some(DateTime.now())))
+      createdAt = data.createdAt.orElse(Some(ZonedDateTime.now())))
     db.withConnection { implicit conn =>
       SQL"""INSERT INTO cypher_queries
         (id, user_id, name, query, description, public, created, updated)

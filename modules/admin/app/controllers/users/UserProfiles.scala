@@ -1,26 +1,31 @@
 package controllers.users
 
-import auth.{HashedPassword, AccountManager}
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
+import auth.{AccountManager, HashedPassword}
 import controllers.core.auth.AccountHelpers
-import org.joda.time.DateTime
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
-import play.api.i18n.{MessagesApi, Messages}
-import defines.{EntityType, PermissionType, ContentTypes}
-import utils.{CsvHelpers, PageParams, MovedPageLookup}
+import play.api.i18n.{Messages, MessagesApi}
+import defines.{ContentTypes, EntityType, PermissionType}
+import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import utils.search._
 import javax.inject._
+
 import backend.DataApi
-import play.api.data.{FormError, Forms, Form}
+import play.api.data.{Form, FormError, Forms}
 import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
+
 import scala.concurrent.Future
 import play.api.mvc.Request
-import backend.rest.{ValidationError, DataHelpers}
+import backend.rest.{DataHelpers, ValidationError}
 import play.api.mvc.Result
 import play.api.libs.json.JsObject
 import controllers.base.AdminController
@@ -212,7 +217,8 @@ case class UserProfiles @Inject()(
       accounts <- accounts.findAll(PageParams.empty.withoutLimit)
       users <- userDataApi.list[UserProfile](PageParams.empty.withoutLimit)
     } yield {
-      val exportDate = DateTime.now().toString("YMMdd")
+      val datePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("YMMdd")
+      val exportDate = ZonedDateTime.now().format(datePattern)
       val headers = Seq(
         "name", "email", "location", "url", "institution", "role", "about", "interests", "created"
       )
@@ -229,7 +235,7 @@ case class UserProfiles @Inject()(
           user.model.role.getOrElse(""),
           user.model.about.getOrElse(""),
           user.model.interests.getOrElse(""),
-          account.created.map(_.toString("YMMdd")).getOrElse("")
+          account.created.map(_.format(datePattern)).getOrElse("")
         )
       }
       Ok(writeCsv(headers, data))

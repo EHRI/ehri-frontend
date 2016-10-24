@@ -1,14 +1,12 @@
 @(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@import org.joda.time.format.DateTimeFormat
+@import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 <div class="user-profile-content">
     <h2 class="block-header UserProfile">
         @Messages("activity")
         @for(from <- eventParams.from; to <- eventParams.to) {
-            @defining(DateTimeFormat.shortDateTime()) { fmt =>
-                @fmt.print(to) - @fmt.print(from)
-            }
+            @ISO_LOCAL_DATE.format(to) - @ISO_LOCAL_DATE.format(from)
         }
     </h2>
     @views.html.activity.userActivityStream(item, events)

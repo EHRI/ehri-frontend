@@ -1,8 +1,9 @@
 package models
 
-import models.base.{AnyModel, Model, MetaModel, Accessor}
-import org.joda.time.DateTime
-import defines.{PermissionType,EntityType}
+import java.time.ZonedDateTime
+
+import models.base.{Accessor, AnyModel, MetaModel, Model}
+import defines.{EntityType, PermissionType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
@@ -24,7 +25,7 @@ object PermissionGrantF {
   implicit val permissionGrantReads: Reads[PermissionGrantF] = (
     (__ \ TYPE).readIfEquals(EntityType.PermissionGrant) and
     (__ \ ID).readNullable[String] and
-    (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(new DateTime(_))) and
+    (__ \ DATA \ TIMESTAMP).readNullable[String].map(_.map(ZonedDateTime.parse(_))) and
     (__ \ RELATIONSHIPS \ PERM_REL \\ ID).read[String].map(PermissionType.withName)
   )(PermissionGrantF.apply _)
 
@@ -36,7 +37,7 @@ object PermissionGrantF {
 case class PermissionGrantF(
   isA: EntityType.Value = EntityType.PermissionGrant,
   id: Option[String],
-  timestamp: Option[DateTime],
+  timestamp: Option[ZonedDateTime],
   permission: PermissionType.Value
 ) extends Model
 

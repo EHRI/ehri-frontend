@@ -19,7 +19,7 @@
         <textarea rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
 
         <div class="blank-check" style="display: none">
-            <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@org.joda.time.DateTime.now().toString" />
+            <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString" />
             <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
         </div>
     </fieldset>

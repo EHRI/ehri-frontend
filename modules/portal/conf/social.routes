@@ -3,7 +3,7 @@
 GET         /                               @controllers.portal.social.Social.browseUsers
 GET         /:userId                        @controllers.portal.social.Social.userProfile(userId: String)
 GET         /:userId/watched       	        @controllers.portal.social.Social.userWatchList(userId: String)
-GET         /:userId/activity               @controllers.portal.social.Social.userActivity(userId: String, from: Option[org.joda.time.DateTime] ?= None, to: Option[org.joda.time.DateTime] ?= None)
+GET         /:userId/activity               @controllers.portal.social.Social.userActivity(userId: String, from: Option[java.time.LocalDateTime] ?= None, to: Option[java.time.LocalDateTime] ?= None)
 GET         /:userId/follow                 @controllers.portal.social.Social.followUser(userId: String)
 POST        /:userId/follow                 @controllers.portal.social.Social.followUserPost(userId: String)
 GET         /:userId/unfollow               @controllers.portal.social.Social.unfollowUser(userId: String)

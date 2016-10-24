@@ -1,8 +1,9 @@
 package models
 
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 import models.base._
-import org.joda.time.DateTime
-import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat}
 import defines.{ContentTypes, EntityType, EventType}
 import models.json._
 import play.api.libs.json._
@@ -26,9 +27,9 @@ object SystemEventF {
     (__ \ ID).formatNullable[String] and
     // NB: Default Joda DateTime format is less flexible then
     // using the constructor from a string
-    (__ \ DATA \ TIMESTAMP).format[String].inmap(
-      s => new DateTime(s),
-      (dt: DateTime) => dt.toString
+    (__ \ DATA \ TIMESTAMP).format[String].inmap[ZonedDateTime](
+      s => ZonedDateTime.parse(s),
+      dt => DateTimeFormatter.ISO_DATE_TIME.format(dt)
     ) and
     (__ \ DATA \ LOG_MESSAGE).formatNullable[String] and
     (__ \ DATA \ EVENT_PROP).formatNullable[EventType.Value]
@@ -42,11 +43,11 @@ object SystemEventF {
 case class SystemEventF(
   isA: EntityType.Value = EntityType.SystemEvent,
   id: Option[String],
-  timestamp: DateTime,
+  timestamp: ZonedDateTime,
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
 ) extends Model {
-  lazy val datetime = ISODateTimeFormat.dateTime.withZoneUTC.print(timestamp)
+  lazy val datetime = DateTimeFormatter.ISO_DATE_TIME.format(timestamp)
 }
 
 object SystemEvent {
@@ -82,7 +83,7 @@ case class SystemEvent(
   with MetaModel[SystemEventF]
   with Holder[AnyModel] {
 
-  def time = DateTimeFormat.forPattern(SystemEventF.FORMAT).print(model.timestamp)
+  def time = DateTimeFormatter.ISO_INSTANT.format(model.timestamp)
 
   /**
    * If the event is of a certain type (link, annotate) the effective

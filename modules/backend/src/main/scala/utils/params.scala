@@ -1,12 +1,13 @@
 package utils
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 import play.api.mvc.RequestHeader
 import play.api.data.Form
 import play.api.data.Forms._
 import backend.rest.Constants._
-import defines.{EnumUtils, EntityType, EventType}
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
+import defines.{EntityType, EventType}
 import utils.SystemEventParams.{Aggregation, ShowType}
 
 object Ranged {
@@ -73,8 +74,8 @@ case class SystemEventParams(
   users: Seq[String] = Nil,
   eventTypes: Seq[EventType.Value] = Nil,
   itemTypes: Seq[EntityType.Value] = Nil,
-  from: Option[DateTime] = None,
-  to: Option[DateTime] = None,
+  from: Option[LocalDateTime] = None,
+  to: Option[LocalDateTime] = None,
   show: Option[ShowType.Value] = None,
   aggregation: Option[Aggregation.Value] = None) {
   import utils.SystemEventParams._
@@ -83,8 +84,8 @@ case class SystemEventParams(
     .filterNot(_.isEmpty).map(u => USERS -> u) ++
       eventTypes.map(et => EVENT_TYPE -> et.toString) ++
       itemTypes.map(et => ITEM_TYPE -> et.toString) ++
-      from.map(f => FROM -> fmt.print(f)).toSeq ++
-      to.map(t => TO -> fmt.print(t)).toSeq ++
+      from.map(f => FROM -> fmt.format(f)).toSeq ++
+      to.map(t => TO -> fmt.format(t)).toSeq ++
       show.map(f => SHOW -> f.toString).toSeq ++
       aggregation.map(f => AGGREGATION -> f.toString)
 }
@@ -92,7 +93,7 @@ case class SystemEventParams(
 object SystemEventParams {
 
   import defines.EnumUtils.enumMapping
-  private val fmt = ISODateTimeFormat.dateTime
+  private val fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
   def empty: SystemEventParams = new SystemEventParams()
 
@@ -117,8 +118,8 @@ object SystemEventParams {
       USERS -> seq(text),
       EVENT_TYPE -> seq(enumMapping(EventType)),
       ITEM_TYPE -> seq(enumMapping(EntityType)),
-      FROM -> optional(jodaDate(pattern = DATE_PATTERN)),
-      TO -> optional(jodaDate(pattern = DATE_PATTERN)),
+      FROM -> optional(localDateTime(pattern = DATE_PATTERN)),
+      TO -> optional(localDateTime(pattern = DATE_PATTERN)),
       SHOW -> optional(enumMapping(ShowType)),
       AGGREGATION -> optional(enumMapping(Aggregation))
     )(SystemEventParams.apply)(SystemEventParams.unapply)

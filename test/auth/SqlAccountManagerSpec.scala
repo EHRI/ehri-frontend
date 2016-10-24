@@ -1,6 +1,7 @@
 package auth
 
 import java.sql.{SQLException, SQLIntegrityConstraintViolationException}
+import java.time.ZonedDateTime
 import java.util.UUID
 
 import akka.actor.ActorSystem
@@ -8,7 +9,6 @@ import anorm.SqlParser._
 import anorm._
 import auth.sql.SqlAccountManager
 import models.Account
-import org.joda.time.DateTime
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
@@ -18,7 +18,7 @@ import helpers.withFixtures
 
 class SqlAccountManagerSpec extends PlaySpecification {
 
-  implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
   implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
   def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager()(db, actorSystem)
@@ -41,7 +41,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
     "create accounts with correct properties" in withFixtures { implicit db =>
       // "now" with fudge factor for crap DBs that don't support
       // fractional timestamps...
-      val now = DateTime.now().minusSeconds(1)
+      val now = ZonedDateTime.now().minusSeconds(1)
       val testAcc = Account(
         id = "test",
         email = "blah@example.com",

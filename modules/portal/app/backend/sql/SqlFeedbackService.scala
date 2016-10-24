@@ -2,15 +2,14 @@ package backend.sql
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
+import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
-import anorm.JodaParameterMetaData._
 import anorm._
 import backend.FeedbackService
 import models.{Feedback, FeedbackContext}
 import org.apache.commons.io.IOUtils
-import org.joda.time.DateTime
 import play.api.db.Database
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
@@ -19,6 +18,7 @@ import scala.languageFeature.postfixOps
 import utils.{Page, PageParams}
 
 import scala.concurrent.{ExecutionContext, Future}
+
 
 @Singleton
 case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends FeedbackService {
@@ -94,7 +94,7 @@ case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: Act
     db.withConnection { implicit conn =>
       val feedback = data.copy(objectId = data.objectId
           .orElse(Some(utils.db.newObjectId(10))),
-        createdAt = data.createdAt.orElse(Some(DateTime.now)))
+        createdAt = data.createdAt.orElse(Some(ZonedDateTime.now)))
       SQL"""INSERT INTO feedback
         (id, user_id, name, email, text, type, copy, context, created, updated, mode)
         VALUES (

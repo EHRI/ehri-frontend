@@ -1,21 +1,22 @@
 package auth.sql
 
 import java.sql.Connection
+import java.time.ZonedDateTime
+
 import akka.actor.ActorSystem
-import org.joda.time.DateTime
 
 import scala.language.postfixOps
 import scala.languageFeature.postfixOps
 import java.util.UUID
 
-import auth.{HashedPassword, OpenIdAssociationManager, OAuth2AssociationManager, AccountManager}
+import auth.{AccountManager, HashedPassword, OAuth2AssociationManager, OpenIdAssociationManager}
 import models.Account
 import play.api.db.Database
 import utils.PageParams
 import anorm.SqlParser._
 import anorm._
-import anorm.JodaParameterMetaData._
-import scala.concurrent.{Future, ExecutionContext}
+
+import scala.concurrent.{ExecutionContext, Future}
 import javax.inject._
 
 
@@ -36,7 +37,7 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
     db.withTransaction { implicit conn =>
       SQL"UPDATE users SET last_login = NOW() WHERE id = ${account.id}".executeUpdate()
       // This is a bit dodgy
-      account.copy(lastLogin = Some(DateTime.now()))
+      account.copy(lastLogin = Some(ZonedDateTime.now()))
     }
   }
 
@@ -185,11 +186,11 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
   private def createSignupToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
     // NB: calculating expires here to avoid DB compatibility issues...
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VALUES ($id, $uuid, ${DateTime.now().plusWeeks(1)}, TRUE)""".execute()
+           VALUES ($id, $uuid, ${ZonedDateTime.now().plusWeeks(1)}, TRUE)""".execute()
 
   private def createResetToken(id: String, uuid: UUID)(implicit conn: Connection): Unit =
     SQL"""INSERT INTO token (id, token, expires, is_sign_up)
-           VALUES ($id, $uuid, ${DateTime.now().plusHours(1)}, FALSE)""".execute()
+           VALUES ($id, $uuid, ${ZonedDateTime.now().plusHours(1)}, FALSE)""".execute()
 }
 
 object SqlAccountManager {
@@ -222,8 +223,8 @@ object SqlAccountManager {
       bool("users.staff") ~
       bool("users.active") ~
       bool("users.allow_messaging") ~
-      get[Option[DateTime]]("users.created") ~
-      get[Option[DateTime]]("users.last_login") ~
+      get[Option[ZonedDateTime]]("users.created") ~
+      get[Option[ZonedDateTime]]("users.last_login") ~
       get[Option[HashedPassword]]("users.password") ~
       get[Boolean]("users.is_legacy") map {
       case id ~ email ~ verified ~ staff ~ active ~ allowMessaging ~ created ~ login ~ pw ~ legacy =>

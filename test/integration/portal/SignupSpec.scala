@@ -1,8 +1,9 @@
 package integration.portal
 
+import java.time.ZonedDateTime
+
 import helpers.IntegrationTestRunner
 import models._
-import org.joda.time.DateTime
 import play.api.test.FakeRequest
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
@@ -29,7 +30,7 @@ class SignupSpec extends IntegrationTestRunner {
       SignupData.EMAIL -> Seq(testEmail),
       SignupData.PASSWORD -> Seq(testPassword),
       SignupData.CONFIRM -> Seq(testPassword),
-      TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
+      TIMESTAMP -> Seq(ZonedDateTime.now.toString),
       BLANK_CHECK -> Seq(""),
       SignupData.AGREE_TERMS -> Seq(true.toString),
       CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -69,7 +70,7 @@ class SignupSpec extends IntegrationTestRunner {
 
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
       val badData = data
-        .updated(TIMESTAMP, Seq(org.joda.time.DateTime.now.toString))
+        .updated(TIMESTAMP, Seq(java.time.ZonedDateTime.now.toString))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       println(redirectLocation(signup))
       status(signup) must equalTo(BAD_REQUEST)
@@ -120,8 +121,8 @@ class SignupSpec extends IntegrationTestRunner {
         val logout = FakeRequest(accountRoutes.logout()).withUser(u).call()
         status(logout) must equalTo(SEE_OTHER)
 
-        implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
-        val time = DateTime.now()
+        implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
+        val time = ZonedDateTime.now()
         val login = FakeRequest(accountRoutes.passwordLoginPost()).withCsrf.callWith(data2)
         status(login) must equalTo(SEE_OTHER)
         redirectLocation(login) must beSome.which { loc =>
