@@ -1,17 +1,19 @@
 package models
 
-import models.base.Model
-import org.joda.time.DateTime
+import java.time.format.DateTimeParseException
+import java.time.temporal.TemporalAccessor
+import java.time.{LocalDate, Year, YearMonth}
 
-import defines.EntityType
 import backend.{Entity, Writable}
+import defines.EntityType
+import models.base.Model
 
 
 object DatePeriodF {
 
   import models.json._
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   val TYPE = "type"
   val START_DATE = "startDate"
@@ -38,17 +40,17 @@ object DatePeriodF {
     implicit val format = defines.EnumUtils.enumFormat(this)
   }
 
-  import Entity.{TYPE => ETYPE,_}
+  import Entity.{TYPE => ETYPE, _}
 
   implicit val datePeriodFormat: Format[DatePeriodF] = (
     (__ \ ETYPE).formatIfEquals(EntityType.DatePeriod) and
-    (__ \ ID).formatNullable[String] and
-    (__ \ DATA \ TYPE).formatNullable[DatePeriodType.Value] and
-    (__ \ DATA \ START_DATE).formatNullable[String] and
-    (__ \ DATA \ END_DATE).formatNullable[String] and
-    (__ \ DATA \ PRECISION).formatNullable[DatePeriodPrecision.Value] and
-    (__ \ DATA \ DESCRIPTION).formatNullable[String]
-  )(DatePeriodF.apply, unlift(DatePeriodF.unapply))
+      (__ \ ID).formatNullable[String] and
+      (__ \ DATA \ TYPE).formatNullable[DatePeriodType.Value] and
+      (__ \ DATA \ START_DATE).formatNullable[String] and
+      (__ \ DATA \ END_DATE).formatNullable[String] and
+      (__ \ DATA \ PRECISION).formatNullable[DatePeriodPrecision.Value] and
+      (__ \ DATA \ DESCRIPTION).formatNullable[String]
+    ) (DatePeriodF.apply, unlift(DatePeriodF.unapply))
 
   implicit object Converter extends Writable[DatePeriodF] {
     lazy val restFormat = datePeriodFormat
@@ -65,33 +67,35 @@ case class DatePeriodF(
   description: Option[String] = None
 ) extends Model {
   /**
-   * Get a string representing the year-range of this period,
-   * i.e. 1939-1945
-   */
-  lazy val years: String = {
-    List(startDate, endDate).filter(_.isDefined).flatten.map { dateString =>
-      try {
-        new DateTime(dateString).getYear
-      } catch {
-        case _: Throwable => dateString
-      }
-    }.distinct.mkString("-")
-  }
+    * Get a string representing the year-range of this period,
+    * i.e. 1939-1945.
+    */
+  lazy val years: String = Seq(startDate, endDate).collect {
+    case Some(d) if d.matches("^\\d{4}.*") => d.substring(0, 4)
+  }.distinct.mkString("-")
 }
 
 object DatePeriod {
+
   import DatePeriodF._
   import Entity.{TYPE => _, _}
   import defines.EnumUtils.enumMapping
 
-  private val dateValidator: (String) => Boolean = { dateString =>
-    try {
-      DateTime.parse(dateString)
+  val formats: List[String => TemporalAccessor] = List(
+    LocalDate.parse, YearMonth.parse, Year.parse
+  )
+
+  def tryFormats(s: String, formats: List[String => TemporalAccessor]): Boolean = formats match {
+    case f :: rest => try {
+      f.apply(s)
       true
     } catch {
-      case e: IllegalArgumentException => false
+      case e: DateTimeParseException => tryFormats(s, rest)
     }
+    case Nil => false
   }
+
+  val dateValidator: (String) => Boolean = date => tryFormats(date, formats)
 
   import play.api.data.Form
   import play.api.data.Forms._

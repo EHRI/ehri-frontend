@@ -1,8 +1,9 @@
 package models
 
+import java.time.ZonedDateTime
+
 import defines.EventType
-import models.base.{AnyModel, Accessor}
-import org.joda.time.DateTime
+import models.base.{Accessor, AnyModel}
 
 /**
  * Summarise a set of events. Typically the events will be
@@ -12,12 +13,12 @@ import org.joda.time.DateTime
  */
 case class EventSummary(events: Seq[SystemEvent]) {
   lazy val user: Option[Accessor] = events.headOption.flatMap(_.actioner)
-  lazy val timestamp: Option[DateTime] = events.headOption.map(_.model.timestamp)
+  lazy val timestamp: Option[ZonedDateTime] = events.headOption.map(_.model.timestamp)
   lazy val eventTypes: Set[EventType.Value] = events.flatMap(_.effectiveType).toSet
   lazy val firstSubjects: Set[AnyModel] = events.flatMap(_.effectiveSubject).toSet
 
-  def from: Option[DateTime] = events.headOption.map(_.model.timestamp)
-  def to: Option[DateTime] = events.lastOption.map(_.model.timestamp)
+  def from: Option[ZonedDateTime] = events.headOption.map(_.model.timestamp)
+  def to: Option[ZonedDateTime] = events.lastOption.map(_.model.timestamp)
 
   def sameSubject: Boolean = firstSubjects.size == 1
   def sameType: Boolean = eventTypes.size == 1

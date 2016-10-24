@@ -1,10 +1,11 @@
 package controllers.portal.social
 
+import java.time.LocalDateTime
+
 import auth.AccountManager
 import backend.rest.cypher.Cypher
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
-import org.joda.time.DateTime
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
@@ -76,7 +77,7 @@ case class Social @Inject()(
     ))
   }
 
-  def userActivity(userId: String, from: Option[DateTime] = None, to: Option[DateTime] = None) = WithUserAction.async { implicit request =>
+  def userActivity(userId: String, from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None) = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)

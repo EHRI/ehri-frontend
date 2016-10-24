@@ -17,9 +17,12 @@ object Helpers {
     val p = new PrettyTime(messages.lang.toLocale)
     p.format(d)
   }
-  def relativeDate(d: org.joda.time.DateTime)(implicit messages: Messages): String = relativeDate(d.toDate)
-  def relativeDate(d: Option[org.joda.time.DateTime])(implicit messages: Messages): String =
-    d.fold("")(dt => relativeDate(dt.toDate))
+
+  def relativeDate(d: java.time.ZonedDateTime)(implicit messages: Messages): String =
+    relativeDate(java.util.Date.from(d.toInstant))
+
+  def relativeDate(d: Option[java.time.ZonedDateTime])(implicit messages: Messages): String =
+    d.fold("")(d => relativeDate(d))
 
   /**
    * Get the field prefix for an entity type. This is just the entity type

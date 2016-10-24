@@ -2,7 +2,7 @@ package models
 
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.RequestHeader
-import org.joda.time.format.ISODateTimeFormat
+
 
 case class FeedbackContext(
   path: String,
@@ -11,9 +11,6 @@ case class FeedbackContext(
 )
 
 object FeedbackContext {
-
-  private val dateTimeFormatter = ISODateTimeFormat.dateTime()
-
   def fromRequest(implicit request: RequestHeader): FeedbackContext = FeedbackContext(
     path = request.path,
     queryString = request.queryString,

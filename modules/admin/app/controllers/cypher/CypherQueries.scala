@@ -18,6 +18,7 @@ import utils.PageParams
 import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 
+
 @Singleton
 case class CypherQueries @Inject()(
   implicit config: play.api.Configuration,

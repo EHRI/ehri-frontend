@@ -1,14 +1,15 @@
 package auth
 
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import models.{Account, OAuth2Association, OpenIDAssociation}
-import org.joda.time.DateTime
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
+
 
 @Singleton
 case class MockAccountManager @Inject()() extends AccountManager {
@@ -34,7 +35,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
       }
 
     def findAll: Future[Seq[OAuth2Association]] =
-      immediate(mockdata.oauth2AssociationFixtures.toSeq)
+      immediate(mockdata.oauth2AssociationFixtures)
 
     def findByProviderInfo(providerUserId: String, provider: String): Future[Option[OAuth2Association]] =
       immediate(mockdata.oauth2AssociationFixtures.find {
@@ -42,7 +43,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
       })
 
     def findForAccount(id: String): Future[Seq[OAuth2Association]] =
-      immediate(mockdata.oauth2AssociationFixtures.filter(_.id == id).toSeq)
+      immediate(mockdata.oauth2AssociationFixtures.filter(_.id == id))
   }
 
   override def openId: OpenIdAssociationManager = new OpenIdAssociationManager {
@@ -58,7 +59,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
     def findByUrl(url: String): Future[Option[OpenIDAssociation]] =
       immediate(mockdata.openIdAssociationFixtures.find(_.url == url))
 
-    def findAll: Future[Seq[OpenIDAssociation]] = immediate(mockdata.openIdAssociationFixtures.toSeq)
+    def findAll: Future[Seq[OpenIDAssociation]] = immediate(mockdata.openIdAssociationFixtures)
   }
 
   override def get(id: String): Future[Account] =
@@ -90,7 +91,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
   }
 
   override def setLoggedIn(account: Account): Future[Account] =
-    immediate(updateWith(account.copy(lastLogin = Some(DateTime.now()))))
+    immediate(updateWith(account.copy(lastLogin = Some(ZonedDateTime.now()))))
 
   override def verify(account: Account, token: String): Future[Option[Account]] =
     immediate(Some(updateWith(account.copy(verified = true))))
@@ -106,7 +107,7 @@ case class MockAccountManager @Inject()() extends AccountManager {
   }
 
   override def create(account: Account): Future[Account] =
-    immediate(updateWith(account.copy(created = Some(DateTime.now()))))
+    immediate(updateWith(account.copy(created = Some(ZonedDateTime.now()))))
 
   override def update(account: Account): Future[Account] =
     immediate(updateWith(account))

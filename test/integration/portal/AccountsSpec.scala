@@ -9,6 +9,7 @@ import play.api.test.{WithApplication, FakeRequest}
 import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
+
 class AccountsSpec extends IntegrationTestRunner {
   import mockdata.privilegedUser
 
@@ -37,7 +38,7 @@ class AccountsSpec extends IntegrationTestRunner {
         // on email login (bug #816)
         SignupData.EMAIL -> Seq(privilegedUser.email.toUpperCase),
         SignupData.PASSWORD -> Seq(testPassword),
-        TIMESTAMP -> Seq(org.joda.time.DateTime.now.toString),
+        TIMESTAMP -> Seq(java.time.ZonedDateTime.now.toString),
         BLANK_CHECK -> Seq(""),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
       )

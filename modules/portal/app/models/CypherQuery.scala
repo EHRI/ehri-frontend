@@ -1,10 +1,11 @@
 package models
 
+import java.time.ZonedDateTime
+
 import backend.rest.cypher.CypherService
-import org.joda.time.DateTime
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.{Valid, Invalid, Constraint}
+import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json._
 import play.api.libs.ws.StreamedResponse
 import utils.CsvHelpers
@@ -43,8 +44,8 @@ case class CypherQuery(
   query: String,
   description: Option[String] = None,
   public: Boolean = false,
-  createdAt: Option[DateTime] = None,
-  updatedAt: Option[DateTime] = None
+  createdAt: Option[ZonedDateTime] = None,
+  updatedAt: Option[ZonedDateTime] = None
 ) {
 
   def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[StreamedResponse] =
@@ -62,7 +63,6 @@ object CypherQuery {
   val DESCRIPTION = "description"
   val PUBLIC = "public"
 
-  implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   implicit val _format: Format[CypherQuery] = Json.format[CypherQuery]
 
   // Mutation Cypher queries - if they add more and we don't update this
@@ -83,8 +83,8 @@ object CypherQuery {
       QUERY -> nonEmptyText.verifying(isReadOnly),
       DESCRIPTION -> optional(text),
       PUBLIC -> boolean,
-      "createdAt" -> ignored(Option.empty[DateTime]),
-      "updatedAt" -> ignored(Option.empty[DateTime])
+      "createdAt" -> ignored(Option.empty[ZonedDateTime]),
+      "updatedAt" -> ignored(Option.empty[ZonedDateTime])
     )(CypherQuery.apply)(CypherQuery.unapply)
   )
 }

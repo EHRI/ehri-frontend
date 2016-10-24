@@ -1,10 +1,11 @@
 package models
 
-import play.api.libs.json.{Reads, Format, Json}
+import java.time.ZonedDateTime
+
+import play.api.libs.json.{Format, Json, Reads}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.Mode.Mode
-import org.joda.time.DateTime
 import defines.BindableEnum
 import defines.EnumUtils.enumMapping
 
@@ -17,8 +18,8 @@ case class Feedback(
   `type`: Option[Feedback.Type.Value] = Some(Feedback.Type.Site),
   copyMe: Option[Boolean] = Some(false),
   context: Option[FeedbackContext] = None,
-  createdAt: Option[DateTime] = None,
-  updatedAt: Option[DateTime] = None,
+  createdAt: Option[ZonedDateTime] = None,
+  updatedAt: Option[ZonedDateTime] = None,
   mode: Option[Mode] = Some(play.api.Mode.Dev)
 )
 
@@ -39,7 +40,6 @@ object Feedback {
   }
 
   implicit val modeFormat = defines.EnumUtils.enumFormat(play.api.Mode)
-  implicit val isoJodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
   implicit val _format: Format[Feedback] = Json.format[Feedback]
 
   implicit val form = Form(
@@ -52,8 +52,8 @@ object Feedback {
       TYPE -> optional(enumMapping(Type)),
       COPY_ME -> optional(boolean),
       "context" -> ignored(Option.empty[FeedbackContext]),
-      "createdAt" -> ignored(Option.empty[DateTime]),
-      "updatedAt" -> ignored(Option.empty[DateTime]),
+      "createdAt" -> ignored(Option.empty[ZonedDateTime]),
+      "updatedAt" -> ignored(Option.empty[ZonedDateTime]),
       "mode" -> ignored(Option.empty[play.api.Mode.Value])
     )(Feedback.apply)(Feedback.unapply)
   )

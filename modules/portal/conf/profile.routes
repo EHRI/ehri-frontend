@@ -1,6 +1,6 @@
 
 GET         /                    @controllers.portal.users.UserProfiles.profile
-GET         /activity            @controllers.portal.users.UserProfiles.activity(from: Option[org.joda.time.DateTime] ?= None, to: Option[org.joda.time.DateTime] ?= None)
+GET         /activity            @controllers.portal.users.UserProfiles.activity(from: Option[java.time.LocalDateTime] ?= None, to: Option[java.time.LocalDateTime] ?= None)
 POST        /accountPrefs        @controllers.portal.users.UserProfiles.updateAccountPrefsPost
 
 GET         /notes               @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)

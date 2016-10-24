@@ -2,7 +2,6 @@ package controllers.portal.users
 
 import auth.AccountManager
 import controllers.generic.Search
-import org.joda.time.DateTime
 import play.api.cache.CacheApi
 import play.api.libs.concurrent.Execution.Implicits._
 import models._
@@ -18,6 +17,7 @@ import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import java.io.File
 import scala.concurrent.Future
+import java.time.LocalDateTime
 import utils.search._
 import backend._
 
@@ -27,7 +27,6 @@ import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
 import controllers.DataFormat
 import play.api.http.{HeaderNames, MimeTypes}
-import org.joda.time.format.ISODateTimeFormat
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
 import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
@@ -96,7 +95,7 @@ case class UserProfiles @Inject()(
     implicit val writes = Json.writes[ExportWatchItem]
   }
 
-  def activity(from: Option[DateTime] = None, to: Option[DateTime] = None) = WithUserAction.async { implicit request =>
+  def activity(from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None) = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
@@ -162,8 +161,7 @@ case class UserProfiles @Inject()(
       annotation.target.map(_.toStringLang),
       annotation.model.field,
       annotation.model.body,
-      annotation.latestEvent
-        .map(_.model.timestamp.toString(ISODateTimeFormat.dateTime)),
+      annotation.latestEvent.map(_.time),
       annotation.target
         .map(t => views.p.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
     )

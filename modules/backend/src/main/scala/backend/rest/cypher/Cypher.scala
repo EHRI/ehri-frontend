@@ -1,8 +1,7 @@
 package backend.rest.cypher
 
-import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.{Reads, JsValue}
-import play.api.libs.ws.{StreamedResponse, WSResponseHeaders, WSResponse}
+import play.api.libs.ws.StreamedResponse
 
 import scala.concurrent.Future
 

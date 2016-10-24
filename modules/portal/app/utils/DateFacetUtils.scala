@@ -1,9 +1,10 @@
 package utils
 
+import java.time.{ZoneId, ZonedDateTime}
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
-import play.api.i18n.{MessagesApi, Messages}
+
+import play.api.i18n.{Messages, MessagesApi}
 import utils.search._
 
 /**
@@ -62,8 +63,7 @@ object DateFacetUtils {
 
   val dateQueryForm = Form(single(DATE_PARAM -> nonEmptyText))
 
-  def startDate(year: Int): String = formatter.print(new DateTime(year, 1, 1, 0, 0))
-  def endDate(year: Int): String = formatter.print(new DateTime(year, 12, 12, 23, 59))
-
-  val formatter: DateTimeFormatter = ISODateTimeFormat.dateTime().withZoneUTC()
+  val formatter = DateTimeFormatter.ISO_DATE_TIME
+  def startDate(year: Int): String = formatter.format(ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneId.of("Z")))
+  def endDate(year: Int): String = formatter.format(ZonedDateTime.of(year, 12, 12, 23, 59, 59, 0, ZoneId.of("Z")))
 }
