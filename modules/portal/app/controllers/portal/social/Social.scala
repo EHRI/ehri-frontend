@@ -1,55 +1,40 @@
 package controllers.portal.social
 
 import java.time.LocalDateTime
+import javax.inject._
 
-import auth.AccountManager
+import backend.ApiUser
 import backend.rest.cypher.Cypher
+import controllers.Components
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
-import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
+import controllers.portal.base.PortalController
+import models.base.AnyModel
 import models.{SystemEvent, UserProfile}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
+import play.api.mvc.{RequestHeader, Result}
 import utils._
 import utils.search._
-import backend.{DataApi, ApiUser}
 
-import javax.inject._
-import play.api.mvc.RequestHeader
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.libs.json.Json
-import views.MarkdownRenderer
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import models.base.AnyModel
-import play.api.mvc.Result
-import controllers.portal.base.PortalController
 
-/**
- *
- * NB: Things like watching and following items could
- * be greatly optimised by implementing caching for
- * just lists of IDs.
- */
 @Singleton
 case class Social @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
   mailer: MailerClient,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
   ws: WSClient,
   cypher: Cypher
 ) extends PortalController
   with RecaptchaHelper
   with Search {
+
+  // NB: Things like watching and following items could
+  // be greatly optimised by implementing caching for
+  // just lists of IDs.
 
   private val socialRoutes = controllers.portal.social.routes.Social
 

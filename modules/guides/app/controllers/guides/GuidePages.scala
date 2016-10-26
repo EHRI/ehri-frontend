@@ -1,32 +1,19 @@
 package controllers.guides
 
 import java.sql.SQLException
-
-import auth.AccountManager
-import controllers.base.AdminController
-
 import javax.inject._
-import backend.DataApi
-import models.sql.IntegrityError
-import models.{GuideService, Guide, GuidePage}
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import utils.MovedPageLookup
-import views.MarkdownRenderer
 
-import scala.util.{Success, Failure}
+import controllers.Components
+import controllers.base.AdminController
+import models.sql.IntegrityError
+import models.{GuidePage, GuideService}
+
+import scala.util.{Failure, Success}
 
 
 @Singleton
 case class GuidePages @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   guides: GuideService
 ) extends AdminController {
 
@@ -111,7 +98,7 @@ case class GuidePages @Inject()(
                     guides.findPages(guide), guides.findAll(), guidePagesRoutes.createPost(gPath))))
                 case Failure(e) => throw e
               }
-        }
+          }
         )
       }
     }

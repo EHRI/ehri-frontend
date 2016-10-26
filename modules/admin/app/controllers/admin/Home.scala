@@ -1,39 +1,26 @@
 package controllers.admin
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
-import models.{SystemEvent, Isaar}
-import models.base.{Description, AnyModel}
-import controllers.generic.Search
-import play.api.mvc._
-import defines.{EventType, EntityType}
-import play.api.i18n.{MessagesApi, Messages}
-import views.Helpers
-import play.api.libs.json.Json
-import utils.search._
-
 import javax.inject._
-import play.api.http.MimeTypes
-import scala.concurrent.Future.{successful => immediate}
-import backend.DataApi
-import utils.{MovedPageLookup, RangeParams, SystemEventParams}
+
+import controllers.Components
 import controllers.base.AdminController
+import controllers.generic.Search
+import defines.{EntityType, EventType}
+import models.base.{AnyModel, Description}
+import models.{Isaar, SystemEvent}
+import play.api.http.MimeTypes
+import play.api.i18n.Messages
+import play.api.libs.json.Json
+import play.api.mvc._
+import utils.search._
+import utils.{RangeParams, SystemEventParams}
+import views.Helpers
+
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Home @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi
-) extends AdminController
-  with Search {
+case class Home @Inject()(components: Components) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

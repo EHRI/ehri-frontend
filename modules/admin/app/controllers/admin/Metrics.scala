@@ -1,41 +1,28 @@
 package controllers.admin
 
-import auth.AccountManager
+import javax.inject._
+
 import client.json.ClientWriteable
-import play.api.libs.concurrent.Execution.Implicits._
-import models.Isaar
-import models.base.{Description, AnyModel}
+import controllers.Components
+import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.libs.json.{Writes, Json}
+import models.Isaar
+import models.base.{AnyModel, Description}
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request, Result}
+import utils.search._
 import utils.{Page, search}
 import views.Helpers
-import utils.search._
-
-import javax.inject._
-import play.api.cache.{CacheApi, Cached}
-import backend.DataApi
-import controllers.base.AdminController
 
 
 @Singleton
-case class Metrics @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  statusCache: Cached
-) extends AdminController
-  with Search {
+case class Metrics @Inject()(components: Components) extends AdminController with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
+
+  private val statusCache = components.statusCache
 
   private val searchEntities = List(
     EntityType.DocumentaryUnit,

@@ -1,7 +1,6 @@
 package controllers.generic
 
 import acl.GlobalPermissionSet
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import models.base._
 import defines._

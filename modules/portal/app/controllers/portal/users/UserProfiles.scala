@@ -1,56 +1,42 @@
 package controllers.portal.users
 
-import auth.AccountManager
-import controllers.generic.Search
-import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
-import models._
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.libs.mailer.MailerClient
-import play.api.mvc._
-import play.api.libs.json.{JsValue, Json, JsObject}
-import play.core.parsers.Multipart
-import utils._
-import views.MarkdownRenderer
-import scala.concurrent.Future.{successful => immediate}
-import jp.t2v.lab.play2.auth.LoginLogout
-import play.api.libs.Files.TemporaryFile
 import java.io.File
-import scala.concurrent.Future
 import java.time.LocalDateTime
-import utils.search._
-import backend._
-
 import javax.inject._
-import net.coobird.thumbnailator.tasks.UnsupportedFormatException
-import play.api.mvc.MaxSizeExceeded
-import play.api.mvc.MultipartFormData.FilePart
-import controllers.DataFormat
-import play.api.http.{HeaderNames, MimeTypes}
+
+import akka.stream.Materializer
+import backend._
+import controllers.generic.Search
+import controllers.portal.base.PortalController
+import controllers.{Components, DataFormat}
+import models._
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
-import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
+import net.coobird.thumbnailator.tasks.UnsupportedFormatException
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.i18n.Messages
+import play.api.libs.Files.TemporaryFile
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.mailer.MailerClient
+import play.api.mvc.MultipartFormData.FilePart
+import play.api.mvc.{MaxSizeExceeded, _}
+import utils._
+import utils.search._
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+
 
 @Singleton
 case class UserProfiles @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
   mailer: MailerClient,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  fileStorage: FileStorage,
-  mat: akka.stream.Materializer
+  fileStorage: FileStorage
 ) extends PortalController
-  with LoginLogout
-  with PortalAuthConfigImpl
   with Search
   with CsvHelpers {
+
+  private implicit val mat: Materializer = components.materializer
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 

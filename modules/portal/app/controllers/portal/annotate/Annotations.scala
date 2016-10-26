@@ -1,47 +1,31 @@
 package controllers.portal.annotate
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.ws.WSClient
-import play.api.mvc._
-import controllers.generic.{Promotion, Read, Search, Visibility}
-import models.{Annotation, AnnotationF, UserProfile}
-import utils.ContributionVisibility
-import views.MarkdownRenderer
-
-import scala.concurrent.Future.{successful => immediate}
-import defines.{EntityType, PermissionType}
-import play.api.libs.json.Json
-import eu.ehri.project.definitions.Ontology
-
-import scala.concurrent.Future
-import play.api.mvc.Result
-import forms.VisibilityForm
-import com.google.common.net.HttpHeaders
-import backend.DataApi
-import utils.search.{SearchEngine, SearchItemResolver}
-import models.view.AnnotationContext
 import javax.inject._
 
 import backend.rest.DataHelpers
 import backend.rest.cypher.Cypher
+import com.google.common.net.HttpHeaders
+import controllers.Components
+import controllers.generic.{Promotion, Read, Search, Visibility}
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
+import defines.{EntityType, PermissionType}
+import eu.ehri.project.definitions.Ontology
+import forms.VisibilityForm
+import models.view.AnnotationContext
+import models.{Annotation, AnnotationF, UserProfile}
+import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
+import play.api.mvc.{Result, _}
+import utils.ContributionVisibility
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+
 
 @Singleton
 case class Annotations @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   ws: WSClient,
   dataHelpers: DataHelpers,
   cypher: Cypher

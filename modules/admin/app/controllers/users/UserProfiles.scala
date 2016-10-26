@@ -2,49 +2,32 @@ package controllers.users
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-
-import auth.{AccountManager, HashedPassword}
-import controllers.core.auth.AccountHelpers
-import play.api.cache.CacheApi
-import play.api.http.HeaderNames
-import play.api.libs.concurrent.Execution.Implicits._
-import controllers.generic._
-import models._
-import play.api.i18n.{Messages, MessagesApi}
-import defines.{ContentTypes, EntityType, PermissionType}
-import utils.{CsvHelpers, MovedPageLookup, PageParams}
-import utils.search._
 import javax.inject._
 
-import backend.DataApi
+import auth.HashedPassword
+import backend.rest.{DataHelpers, ValidationError}
+import controllers.Components
+import controllers.base.AdminController
+import controllers.core.auth.AccountHelpers
+import controllers.generic._
+import defines.{ContentTypes, EntityType, PermissionType}
+import models._
 import play.api.data.{Form, FormError, Forms}
-import views.MarkdownRenderer
-
-import scala.concurrent.Future.{successful => immediate}
-import play.api.libs.json.Json
+import play.api.http.HeaderNames
+import play.api.i18n.Messages
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.{Request, Result}
+import utils.search._
+import utils.{CsvHelpers, PageParams}
 
 import scala.concurrent.Future
-import play.api.mvc.Request
-import backend.rest.{DataHelpers, ValidationError}
-import play.api.mvc.Result
-import play.api.libs.json.JsObject
-import controllers.base.AdminController
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class UserProfiles @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchIndexer: SearchIndexMediator,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]

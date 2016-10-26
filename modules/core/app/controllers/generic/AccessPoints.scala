@@ -1,14 +1,11 @@
 package controllers.generic
 
-import backend.{ContentType, Readable, Resource}
-import defines.{EntityType, PermissionType}
+import backend.{Readable, Resource}
+import defines.EntityType
 import models.base.{Described, Description, MetaModel, Model}
-import models.{AccessPointF, Link, LinkF, UserProfile}
-import play.api.libs.concurrent.Execution.Implicits._
+import models.{AccessPointF, Link, LinkF}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, Request, Result}
 
-import scala.concurrent.Future.{successful => immediate}
 
 trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
 

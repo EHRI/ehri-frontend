@@ -1,9 +1,8 @@
 package controllers.core.auth.openid
 
 import controllers.base.CoreActionBuilders
-import models.{UserProfile, Account}
+import models.{Account, UserProfile}
 import play.api.libs.openid._
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
@@ -12,6 +11,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.net.ConnectException
+
 import controllers.core.auth.AccountHelpers
 
 import scala.concurrent.Future
@@ -23,11 +23,12 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  def dataApi: DataApi
-  def accounts: auth.AccountManager
-  def globalConfig: global.GlobalConfig
-  def openId: OpenIdClient
-  implicit def config: play.api.Configuration
+  protected def dataApi: DataApi
+  protected def accounts: auth.AccountManager
+  protected def globalConfig: global.GlobalConfig
+  protected def openId: OpenIdClient
+
+  protected implicit def config: play.api.Configuration
 
   val attributes = Seq(
     "email" -> "http://schema.openid.net/contact/email",

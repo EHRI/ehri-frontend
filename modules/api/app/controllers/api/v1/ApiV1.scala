@@ -4,14 +4,18 @@ import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
-import backend.rest.{ItemNotFound, PermissionDenied}
+import auth.handler.AuthHandler
 import backend.{AnonymousUser, DataApi}
-import models.api.v1.JsonApiV1._
-import controllers.base.{AuthConfigImpl, ControllerHelpers, CoreActionBuilders}
+import backend.rest.{ItemNotFound, PermissionDenied}
+import controllers.Components
+import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.generic.Search
 import defines.EntityType
-import models.base.AnyModel
+import global.GlobalConfig
 import models._
+import models.api.v1.JsonApiV1._
+import models.base.AnyModel
+import play.api.{Configuration, Logger}
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
@@ -20,10 +24,11 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils.Page
 import utils.search.{SearchConstants, SearchEngine, SearchItemResolver, SearchParams}
+import views.MarkdownRenderer
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object ApiV1 {
@@ -37,20 +42,26 @@ object ApiV1 {
 
 @Singleton
 case class ApiV1 @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  messagesApi: MessagesApi,
-  ws: WSClient,
-  executionContext: ExecutionContext
+  components: Components,
+  ws: WSClient
 ) extends CoreActionBuilders
   with ControllerHelpers
-  with AuthConfigImpl
   with Search {
+
+  protected implicit def cache: CacheApi = components.cacheApi
+  implicit def messagesApi: MessagesApi = components.messagesApi
+  protected implicit def globalConfig: GlobalConfig = components.globalConfig
+  protected implicit def markdown: MarkdownRenderer = components.markdown
+
+  protected implicit def executionContext: ExecutionContext = components.executionContext
+
+  protected def accounts: AccountManager = components.accounts
+  protected def dataApi: DataApi = components.dataApi
+  protected def config: Configuration = components.configuration
+  protected def authHandler: AuthHandler = components.authHandler
+
+  def searchEngine: SearchEngine = components.searchEngine
+  def searchResolver: SearchItemResolver = components.searchResolver
 
   import ApiV1._
 
@@ -292,24 +303,30 @@ case class ApiV1 @Inject()(
       }
     }
 
-  override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def authenticationFailed(request: RequestHeader): Future[Result] =
     immediate(error(UNAUTHORIZED))
 
-  override def authorizationFailed(request: RequestHeader,user: UserProfile)(implicit context: ExecutionContext): Future[Result] =
+  override def authorizationFailed(request: RequestHeader,user: UserProfile): Future[Result] =
     immediate(error(FORBIDDEN))
 
-  override def authorizationFailed(request: RequestHeader, user: User, authority: Option[Authority])(implicit context: ExecutionContext): Future[Result] =
-    immediate(error(FORBIDDEN))
-
-  override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def downForMaintenance(request: RequestHeader): Future[Result] =
     immediate(error(SERVICE_UNAVAILABLE))
 
-  override protected def notFoundError(request: RequestHeader,msg: Option[String])(implicit context: ExecutionContext): Future[Result] =
+  override protected def notFoundError(request: RequestHeader,msg: Option[String]): Future[Result] =
     immediate(error(NOT_FOUND, msg))
 
-  override def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def staffOnlyError(request: RequestHeader): Future[Result] =
     immediate(error(FORBIDDEN))
 
-  override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def verifiedOnlyError(request: RequestHeader): Future[Result] =
     immediate(error(FORBIDDEN))
+
+  override def loginSucceeded(request: RequestHeader): Future[Result] = {
+    val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)
+    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
+  }
+
+  override def logoutSucceeded(request: RequestHeader): Future[Result] =
+    immediate(Redirect(controllers.api.routes.ApiHome.index()))
 }

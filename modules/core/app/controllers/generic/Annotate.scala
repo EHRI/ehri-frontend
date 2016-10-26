@@ -1,7 +1,6 @@
 package controllers.generic
 
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 import models._
 import play.api.libs.json.{Json, JsError}
 import scala.concurrent.Future.{successful => immediate}

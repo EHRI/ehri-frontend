@@ -1,11 +1,11 @@
 package controllers.base
 
 
+import auth.AccountManager
+import auth.handler.AuthHandler
 import backend.{ApiUser, _}
 import defines.{ContentTypes, PermissionType}
-import jp.t2v.lab.play2.auth.AuthActionBuilders
-import models.UserProfile
-import play.api.libs.concurrent.Execution.Implicits._
+import models.{Account, UserProfile}
 import play.api.mvc.{Result, _}
 
 import scala.concurrent.Future.{successful => immediate}
@@ -17,13 +17,20 @@ import scala.language.implicitConversions
  * Trait containing Action wrappers to handle different
  * types of site management and request authentication concerns
  */
-trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActionBuilders with AuthConfigImpl {
+trait CoreActionBuilders extends Controller with ControllerHelpers {
 
   /**
    * Inheriting controllers need to be provided/injected with
    * a dataApi implementation.
    */
   protected def dataApi: DataApi
+
+  protected def authHandler: AuthHandler
+
+  protected def executionContext: ExecutionContext
+  protected implicit def exc = executionContext
+
+  protected def accounts: AccountManager
 
   /**
    * Obtain a handle to the dataApi database in the context of
@@ -61,28 +68,63 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   /**
    * Abstract response methods that should be implemented by inheritors.
    */
-  protected def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def verifiedOnlyError(request: RequestHeader): Future[Result]
 
   /**
    * This controller can only be accessed by staff
    */
-  protected def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def staffOnlyError(request: RequestHeader): Future[Result]
 
   /**
    * A dataApi resource was not found
    */
-  protected def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result]
+  protected def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result]
 
   /**
    * The user didn't have the required permissions
    */
-  protected def authorizationFailed(request: RequestHeader, user: UserProfile)(implicit context: ExecutionContext): Future[Result]
+  protected def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result]
 
+  /**
+    * The user was not authenticated
+    */
+  protected def authenticationFailed(request: RequestHeader): Future[Result]
 
   /**
    * The site is down currently for maintenance
    */
-  protected def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result]
+  protected def downForMaintenance(request: RequestHeader): Future[Result]
+
+  /**
+    * Handle a successful login
+    */
+  protected def loginSucceeded(request: RequestHeader): Future[Result]
+
+  protected def logoutSucceeded(request: RequestHeader): Future[Result]
+
+  /**
+    * Handle a successful login with a custom action
+    */
+  protected def gotoLoginSucceeded(userId: String, result: => Future[Result])(implicit request: RequestHeader): Future[Result] =
+    authHandler.login(userId, result)
+
+  /**
+    * Handle a successful login
+    */
+  protected def gotoLoginSucceeded(userId: String)(implicit request: RequestHeader): Future[Result] =
+    authHandler.login(userId, loginSucceeded(request))
+
+  /**
+    * Handle a successful logout with a custom action
+    */
+  protected def gotoLogoutSucceeded(result: => Future[Result])(implicit request: RequestHeader): Future[Result] =
+    authHandler.logout(result)
+
+  /**
+    * Handle a successful logout
+    */
+  protected def gotoLogoutSucceeded(implicit request: RequestHeader): Future[Result] =
+    authHandler.logout(logoutSucceeded(request))
 
   /**
    * Base trait for any type of request that contains
@@ -99,6 +141,15 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
   protected trait WithUser { self: WrappedRequest[_] =>
     def user: UserProfile
   }
+
+  /**
+    * A wrapped request that optionally contains a user's account.
+    * @param accountOpt the optional account
+    * @param request the underlying request
+    * @tparam A the type of underlying request
+    */
+  protected case class OptionalAccountRequest[A](accountOpt: Option[Account], request: Request[A])
+    extends WrappedRequest[A](request)
 
   /**
    * A wrapped request that optionally contains a user's profile.
@@ -154,8 +205,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * @param oar an optional auth request
    * @return an ApiUser, possibly anonymous
    */
-  protected implicit def optionalAuthRequest2apiUser(implicit oar: OptionalAuthRequest[_]): ApiUser =
-    ApiUser(oar.user.map(_.id))
+  protected implicit def optionalAuthRequest2apiUser(implicit oar: OptionalAccountRequest[_]): ApiUser =
+    ApiUser(oar.accountOpt.map(_.id))
 
   /**
    * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
@@ -173,8 +224,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * fetching the profile associated with the account and the user's global
    * permissions.
    */
-  protected object FetchProfile extends ActionTransformer[OptionalAuthRequest, OptionalUserRequest] {
-    def transform[A](request: OptionalAuthRequest[A]): Future[OptionalUserRequest[A]] = request.user.fold(
+  protected object FetchProfile extends ActionTransformer[OptionalAccountRequest, OptionalUserRequest] {
+    def transform[A](request: OptionalAccountRequest[A]): Future[OptionalUserRequest[A]] = request.accountOpt.fold(
       ifEmpty = immediate(OptionalUserRequest[A](None, request))
     ) { account =>
       implicit val apiUser = AuthenticatedUser(account.id)
@@ -192,15 +243,15 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * If the global read-only flag is enabled, remove the account from
    * the request, globally denying all secured actions.
    */
-  protected object ReadOnlyTransformer extends ActionTransformer[OptionalAuthRequest,OptionalAuthRequest]{
-    protected def transform[A](request: OptionalAuthRequest[A]): Future[OptionalAuthRequest[A]] = immediate {
-      if (globalConfig.readOnly) new OptionalAuthRequest(None, request.underlying) else request
+  protected object ReadOnlyTransformer extends ActionTransformer[OptionalAccountRequest,OptionalAccountRequest]{
+    protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
+      if (globalConfig.readOnly) OptionalAccountRequest(None, request) else request
     }
   }
 
-  protected object EmbedTransformer extends ActionTransformer[OptionalAuthRequest,OptionalAuthRequest]{
-    protected def transform[A](request: OptionalAuthRequest[A]): Future[OptionalAuthRequest[A]] = immediate {
-      if (globalConfig.isEmbedMode(request)) new OptionalAuthRequest(None, request.underlying) else request
+  protected object EmbedTransformer extends ActionTransformer[OptionalAccountRequest,OptionalAccountRequest]{
+    protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
+      if (globalConfig.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
     }
   }
 
@@ -208,8 +259,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * If the global read-only flag is enabled, remove the account from
    * the request, globally denying all secured actions.
    */
-  protected object MaintenanceFilter extends ActionFilter[OptionalAuthRequest]{
-    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+  protected object MaintenanceFilter extends ActionFilter[OptionalAccountRequest]{
+    override protected def filter[A](request: OptionalAccountRequest[A]): Future[Option[Result]] = {
       if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
       else immediate(None)
     }
@@ -219,8 +270,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * If the IP WHITELIST file is present, check the incoming IP and show a 503 to
    * everyone else.
    */
-  protected object IpFilter extends ActionFilter[OptionalAuthRequest]{
-    override protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
+  protected object IpFilter extends ActionFilter[OptionalAccountRequest]{
+    override protected def filter[A](request: OptionalAccountRequest[A]): Future[Option[Result]] = {
       globalConfig.ipFilter.map { whitelist =>
         // Extract the client from the forwarded header, falling back
         // on the remote address. This is dependent on the proxy situation.
@@ -234,9 +285,9 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    * Check the user is allowed in this controller based on their account's
    * `staff` and `verified` flags.
    */
-  protected object AllowedFilter extends ActionFilter[OptionalAuthRequest] {
-    protected def filter[A](request: OptionalAuthRequest[A]): Future[Option[Result]] = {
-      request.user.fold(
+  protected object AllowedFilter extends ActionFilter[OptionalAccountRequest] {
+    protected def filter[A](request: OptionalAccountRequest[A]): Future[Option[Result]] = {
+      request.accountOpt.fold(
         if ((staffOnly || verifiedOnly) && secured) authenticationFailed(request).map(r => Some(r))
         else immediate(None)
       ) { account =>
@@ -254,12 +305,24 @@ trait CoreActionBuilders extends Controller with ControllerHelpers with AuthActi
    *  - they are allowed in this controller
    */
   protected def OptionalAccountAction =
-    OptionalAuthAction andThen
+    GenericOptionalAccountFunction andThen
       MaintenanceFilter andThen
       IpFilter andThen
       ReadOnlyTransformer andThen
       EmbedTransformer andThen
       AllowedFilter
+
+
+  protected def GenericOptionalAccountFunction = new ActionBuilder[OptionalAccountRequest] {
+    def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]) = {
+      authHandler.restoreAccount(request) recover {
+        case _ => None -> identity[Result] _
+      } flatMap { case (user, cookieUpdater) =>
+        block(OptionalAccountRequest[A](user, request)).map(cookieUpdater)
+      }
+    }
+  }
+
 
   /**
    * Fetch the profile in addition to the account

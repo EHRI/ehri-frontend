@@ -5,9 +5,7 @@ import models.UserProfile
 
 import scala.concurrent.Future
 
-/**
- * User: mikebryant
- */
+
 trait SearchEngineConfig {
 
   /**

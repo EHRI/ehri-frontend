@@ -1,32 +1,18 @@
 package controllers.admin
 
-import auth.AccountManager
-import controllers.base.AdminController
-import models.base.AnyModel
-import play.api.cache.CacheApi
-import play.api.http.{ContentTypes, HeaderNames}
-import play.api.i18n.MessagesApi
-import play.api.libs.ws.WSClient
 import javax.inject._
 
-import backend.{DataApi, Readable}
-import utils.MovedPageLookup
-import views.MarkdownRenderer
-
-import scala.concurrent.ExecutionContext
+import backend.Readable
+import controllers.Components
+import controllers.base.AdminController
+import models.base.AnyModel
+import play.api.http.{ContentTypes, HeaderNames}
+import play.api.libs.ws.WSClient
 
 
 case class Data @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  ws: WSClient,
-  executionContext: ExecutionContext
+  components: Components,
+  ws: WSClient
 ) extends AdminController {
 
   implicit val rd: Readable[AnyModel] = AnyModel.Converter

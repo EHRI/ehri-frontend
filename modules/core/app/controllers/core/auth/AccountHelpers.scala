@@ -2,9 +2,10 @@ package controllers.core.auth
 
 import scala.collection.JavaConversions
 
+
 trait AccountHelpers {
 
-  def config: play.api.Configuration
+  protected def config: play.api.Configuration
 
   /**
    * Default group(s) new users belong to.

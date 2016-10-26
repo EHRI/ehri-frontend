@@ -1,30 +1,18 @@
 package controllers.guides
 
-import auth.AccountManager
-import controllers.base.AdminController
-
 import javax.inject._
-import backend.DataApi
+
+import controllers.Components
+import controllers.base.AdminController
 import models.sql.IntegrityError
-import models.{GuideService, Guide}
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import utils.MovedPageLookup
-import views.MarkdownRenderer
+import models.{Guide, GuideService}
 
 import scala.util.{Failure, Success}
 
 
 @Singleton
 case class Guides @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   guides: GuideService
 ) extends AdminController {
 

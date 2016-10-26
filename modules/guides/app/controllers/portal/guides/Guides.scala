@@ -1,29 +1,23 @@
 package controllers.portal.guides
 
-import auth.AccountManager
-import backend.DataApi
-import backend.rest.cypher.Cypher
 import javax.inject._
 
+import backend.rest.cypher.Cypher
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
+import controllers.{Components, renderError}
 import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
 import models.{GeoCoordinates, Guide, GuidePage, _}
-import play.api.cache.{CacheApi, Cached}
 import play.api.data.Forms._
 import play.api.data._
 import play.api.http.MimeTypes
-import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import play.api.mvc._
 import utils.search._
-import controllers.renderError
-import views.MarkdownRenderer
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -31,17 +25,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Guides @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  statusCache: Cached,
-  markdown: MarkdownRenderer,
+  components: Components,
   guides: GuideService,
   cypher: Cypher
 ) extends PortalController
@@ -53,7 +37,7 @@ case class Guides @Inject()(
   private val htmlAgentOrder = utils.search.SearchOrder.Detail
   private val htmlConceptOrder = utils.search.SearchOrder.ChildCount
 
-  def jsRoutes = statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(

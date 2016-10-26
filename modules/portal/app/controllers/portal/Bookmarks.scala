@@ -1,41 +1,30 @@
 package controllers.portal
 
-import auth.AccountManager
-import backend.rest.cypher.Cypher
-import controllers.generic.Search
-import models._
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
-import utils.search._
-import defines.EntityType
-import backend.{IdGenerator, DataApi}
-import utils._
 import javax.inject._
-import views.MarkdownRenderer
+
+import backend.IdGenerator
+import backend.rest.cypher.Cypher
+import backend.rest.{Constants, ItemNotFound}
+import controllers.Components
+import controllers.generic.Search
+import controllers.portal.base.PortalController
+import defines.EntityType
+import models._
+import models.base.AnyModel
+import play.api.http.HeaderNames
+import play.api.i18n.Messages
+import play.api.mvc._
+import utils._
+import utils.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import backend.rest.{ItemNotFound, Constants}
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.http.HeaderNames
-import play.api.cache.CacheApi
-import models.base.AnyModel
-import controllers.portal.base.PortalController
 
 
 @Singleton
 case class Bookmarks @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
   idGenerator: IdGenerator,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
   cypher: Cypher
 ) extends PortalController
   with FacetConfig

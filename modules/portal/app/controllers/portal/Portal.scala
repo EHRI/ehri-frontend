@@ -1,27 +1,23 @@
 package controllers.portal
 
 import java.util.concurrent.TimeUnit
-
-import auth.AccountManager
-import controllers.generic.Search
-import models._
-import models.base.AnyModel
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.mvc._
-import utils.caching.FutureCache
-import utils.search._
-import play.api.cache.{CacheApi, Cached}
-import defines.EntityType
-import play.api.libs.ws.WSClient
-import backend.{DataApi, HtmlPages}
-import utils._
 import javax.inject._
 
-import views.MarkdownRenderer
-import views.html.errors.pageNotFound
+import backend.HtmlPages
+import controllers.Components
+import controllers.generic.Search
 import controllers.portal.base.PortalController
+import defines.EntityType
+import models._
+import models.base.AnyModel
+import play.api.i18n.Messages
 import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
+import play.api.mvc._
+import utils._
+import utils.caching.FutureCache
+import utils.search._
+import views.html.errors.pageNotFound
 
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -29,17 +25,7 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 case class Portal @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  statusCache: Cached,
-  markdown: MarkdownRenderer,
+  components: Components,
   htmlPages: HtmlPages,
   ws: WSClient
 ) extends PortalController
@@ -186,7 +172,7 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String) = statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String) = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
         config.getString(s"ehri.portal.externalFeed.$key.rss").map { url =>

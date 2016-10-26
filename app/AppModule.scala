@@ -1,6 +1,8 @@
 import javax.inject.{Inject, Provider}
 
 import auth.AccountManager
+import auth.handler.AuthIdContainer
+import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
 import backend._
 import backend.aws.S3FileStorage
@@ -12,12 +14,12 @@ import backend.sql.{SqlCypherQueryService, SqlFeedbackService}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
-import eu.ehri.project.search.solr.{SolrJsonResponseHandler, ResponseHandler, SolrSearchEngine}
+import eu.ehri.project.search.solr.{ResponseHandler, SolrJsonResponseHandler, SolrSearchEngine}
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
 import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
 import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
-import utils.{SqlMovedPageLookup, MovedPageLookup}
+import utils.{MovedPageLookup, SqlMovedPageLookup}
 import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
@@ -26,6 +28,7 @@ private class SolrIndexProvider @Inject()(config: play.api.Configuration) extend
 
 class AppModule extends AbstractModule {
   protected def configure(): Unit = {
+    bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
     bind(classOf[AccountManager]).to(classOf[auth.sql.SqlAccountManager])
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])

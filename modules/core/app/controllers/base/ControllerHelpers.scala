@@ -10,8 +10,13 @@ import scala.concurrent.duration.{FiniteDuration, Duration}
 
 trait ControllerHelpers extends play.api.i18n.I18nSupport {
 
-  implicit def config: play.api.Configuration
-  implicit def cache: play.api.cache.CacheApi
+  protected implicit def config: play.api.Configuration
+  protected implicit def cache: play.api.cache.CacheApi
+
+  /**
+    * Session key for last page prior to login
+    */
+  protected val ACCESS_URI: String = "access_uri"
 
   /**
    * Get the remote IP of a user, taking into account intermediate

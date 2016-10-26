@@ -1,39 +1,27 @@
 package controllers.institutions
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
-import forms.VisibilityForm
-import controllers.generic._
-import models._
-import play.api.i18n.{Messages, MessagesApi}
-import defines.{ContentTypes, EntityType, PermissionType}
-import utils.MovedPageLookup
-import views.{Helpers, MarkdownRenderer}
-import utils.search._
 import javax.inject._
 
-import scala.concurrent.Future.{successful => immediate}
-import backend.DataApi
 import backend.rest.DataHelpers
-import play.api.Configuration
+import controllers.Components
 import controllers.base.AdminController
+import controllers.generic._
+import defines.{ContentTypes, EntityType, PermissionType}
+import forms.VisibilityForm
+import models._
+import play.api.Configuration
+import play.api.i18n.Messages
+import utils.search._
+import views.Helpers
+
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class Repositories @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchIndexer: SearchIndexMediator,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
+  components: Components,
   dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  searchIndexer: SearchIndexMediator
 ) extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]

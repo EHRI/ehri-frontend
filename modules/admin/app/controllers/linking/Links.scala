@@ -1,31 +1,19 @@
 package controllers.linking
 
-import auth.AccountManager
-import forms.VisibilityForm
-import models.{Link, LinkF}
 import javax.inject._
 
-import controllers.generic._
-import backend.DataApi
 import backend.rest.DataHelpers
+import controllers.Components
 import controllers.base.AdminController
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
+import controllers.generic._
+import forms.VisibilityForm
+import models.{Link, LinkF}
 import play.api.mvc.Call
-import utils.MovedPageLookup
-import views.MarkdownRenderer
 
 
 case class Links @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with Read[Link]
   with Visibility[Link]

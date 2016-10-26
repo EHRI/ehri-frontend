@@ -2,35 +2,24 @@ package controllers.cypher
 
 import javax.inject.{Inject, Singleton}
 
-import auth.AccountManager
-import controllers.DataFormat
-import play.api.http.{ContentTypes, HeaderNames}
-import play.api.libs.concurrent.Execution.Implicits._
+import backend.CypherQueryService
 import backend.rest.cypher.CypherService
-import backend.{DataApi, CypherQueryService}
 import controllers.base.AdminController
-import models.{ResultFormat, CypherQuery}
-import play.api.cache.CacheApi
+import controllers.{Components, DataFormat}
+import models.{CypherQuery, ResultFormat}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.MessagesApi
+import play.api.http.{ContentTypes, HeaderNames}
 import utils.PageParams
-import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class CypherQueries @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
+  components: Components,
   cypher: CypherService,
-  cypherQueries: CypherQueryService,
-  md: MarkdownRenderer
+  cypherQueries: CypherQueryService
 ) extends AdminController {
 
   private val queryForm = Form(

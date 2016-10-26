@@ -2,24 +2,23 @@ package controllers.core.auth.userpass
 
 import auth.HashedPassword
 import controllers.core.auth.AccountHelpers
-import play.api.libs.concurrent.Execution.Implicits._
 import models.{UserProfile, Account}
 import play.api.mvc._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
-import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.data.{Forms, Form}
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.util.UUID
 import controllers.base.{RecaptchaHelper, CoreActionBuilders}
 
+
 trait UserPasswordLoginHandler {
 
-  self: CoreActionBuilders with LoginLogout with AccountHelpers with RecaptchaHelper =>
+  self: CoreActionBuilders with AccountHelpers with RecaptchaHelper =>
 
-  def config: play.api.Configuration
+  protected def config: play.api.Configuration
 
   val passwordLoginForm = Form(
     tuple(

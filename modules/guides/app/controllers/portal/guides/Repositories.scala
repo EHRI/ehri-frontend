@@ -1,29 +1,16 @@
 package controllers.portal.guides
 
-import auth.AccountManager
-import backend.DataApi
 import javax.inject._
+
 import backend.rest.cypher.Cypher
+import controllers.Components
 import controllers.portal.base.{Generic, PortalController}
-import models.{Guide, GuidePage, _}
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import utils.search.{SearchEngine, SearchItemResolver}
-import views.MarkdownRenderer
+import models.{GuidePage, _}
 
 
 @Singleton
 case class Repositories @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   guides: GuideService,
   cypher: Cypher
 ) extends PortalController

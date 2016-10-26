@@ -2,20 +2,19 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import play.api.cache.{CacheApi, Cached}
+import controllers.Components
 import play.api.http.{ContentTypes, MimeTypes}
-import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, Controller}
 
 
 @Singleton
 case class PortalData @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  messagesApi: MessagesApi,
-  statusCache: Cached
+  components: Components
 ) extends Controller
   with play.api.i18n.I18nSupport {
+
+  protected def statusCache = components.statusCache
+  def messagesApi = components.messagesApi
 
   def jsRoutes = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>

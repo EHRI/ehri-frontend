@@ -1,30 +1,15 @@
 package controllers.admin
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.Json
-import utils.MovedPageLookup
-import utils.search.{SearchItemResolver, SearchEngine}
 import javax.inject._
-import controllers.generic.Search
-import backend.DataApi
+
+import controllers.Components
 import controllers.base.AdminController
+import controllers.generic.Search
+import play.api.libs.json.Json
+
 
 @Singleton
-case class SearchFilter @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi
-) extends AdminController
-  with Search {
+case class SearchFilter @Inject()(components: Components) extends AdminController with Search {
 
   override val staffOnly = false
   override val verifiedOnly = false

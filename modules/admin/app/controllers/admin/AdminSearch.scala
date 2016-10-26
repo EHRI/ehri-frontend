@@ -1,41 +1,29 @@
 package controllers.admin
 
+import javax.inject._
+
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
-import utils.MovedPageLookup
-import concurrent.Future
-import play.api.i18n.{MessagesApi, Messages}
-import views.{MarkdownRenderer, Helpers}
-import play.api.libs.json.{Writes, Json}
-
-import javax.inject._
-import models.base.{Description, AnyModel}
-import utils.search._
-import play.api.Logger
-import controllers.generic.{Indexable, Search}
-import backend.DataApi
-import defines.EntityType
+import controllers.Components
 import controllers.base.AdminController
+import controllers.generic.{Indexable, Search}
+import defines.EntityType
 import defines.EnumUtils.enumMapping
+import models.base.{AnyModel, Description}
+import play.api.Logger
+import play.api.i18n.Messages
+import play.api.libs.json.{Json, Writes}
+import utils.search._
+import views.Helpers
+
+import scala.concurrent.Future
+
 
 @Singleton
 case class AdminSearch @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  searchIndexer: SearchIndexMediator,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
-) extends AdminController
-  with Search {
+  components: Components,
+  searchIndexer: SearchIndexMediator
+) extends AdminController with Search {
 
   // i.e. Everything
 

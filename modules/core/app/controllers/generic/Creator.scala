@@ -2,7 +2,6 @@ package controllers.generic
 
 import play.api.mvc._
 import play.api.data.Form
-import play.api.libs.concurrent.Execution.Implicits._
 import defines.PermissionType
 import models.base._
 import models.UserProfile
@@ -21,7 +20,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   this: Read[MT] =>
 
-  def dataHelpers: DataHelpers
+  protected def dataHelpers: DataHelpers
 
   case class NewChildRequest[A](
     item: MT,
