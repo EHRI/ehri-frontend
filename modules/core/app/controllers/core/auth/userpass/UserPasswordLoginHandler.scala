@@ -18,7 +18,7 @@ trait UserPasswordLoginHandler {
 
   self: CoreActionBuilders with AccountHelpers with RecaptchaHelper =>
 
-  def config: play.api.Configuration
+  protected def config: play.api.Configuration
 
   val passwordLoginForm = Form(
     tuple(

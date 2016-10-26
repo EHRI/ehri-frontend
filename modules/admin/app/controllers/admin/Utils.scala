@@ -2,28 +2,22 @@ package controllers.admin
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-
-import auth.AccountManager
-import controllers.base.AdminController
-import play.api.cache.CacheApi
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.i18n.MessagesApi
 import javax.inject._
 
-import auth.handler.AuthHandler
-import play.api.libs.json._
-import play.api.mvc.Action
-import backend.{AuthenticatedUser, DataApi}
-import play.api.libs.ws.WSClient
-import utils.{CsvHelpers, MovedPageLookup, PageParams}
+import backend.AuthenticatedUser
 import backend.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
-import utils.search.SearchEngine
-import views.MarkdownRenderer
+import controllers.Components
+import controllers.base.AdminController
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json._
+import play.api.libs.ws.WSClient
+import play.api.mvc.Action
+import utils.{CsvHelpers, PageParams}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -31,19 +25,9 @@ import scala.concurrent.Future.{successful => immediate}
  */
 @Singleton
 case class Utils @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
-  cypher: Cypher,
-  ws: WSClient
+  components: Components,
+  ws: WSClient,
+  cypher: Cypher
 ) extends AdminController {
 
   private val logger = play.api.Logger(getClass)
@@ -88,7 +72,7 @@ case class Utils @Inject()(
           val data = parseCsv(file.ref.file).map { case (from, to) =>
             s"$prefix${enc(from)}" -> s"$prefix${enc(to)}"
           }
-          pageRelocator.addMoved(data).map { inserted =>
+          components.pageRelocator.addMoved(data).map { inserted =>
             Ok(views.html.admin.movedItemsAdded(data.map(p => dec(p._1) -> dec(p._2))))
           }
         }.getOrElse {
@@ -102,8 +86,10 @@ case class Utils @Inject()(
 
   private def parseCsv(file: File): Seq[(String, String)] = {
     import java.io.FileInputStream
-    import scala.collection.JavaConverters._
+
     import com.fasterxml.jackson.dataformat.csv.CsvSchema
+
+    import scala.collection.JavaConverters._
 
     val schema = CsvSchema.builder().setColumnSeparator('\t').build()
     val all: MappingIterator[Array[String]] = CsvHelpers

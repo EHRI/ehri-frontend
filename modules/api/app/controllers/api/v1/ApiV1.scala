@@ -5,15 +5,17 @@ import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
 import auth.handler.AuthHandler
-import backend.rest.{ItemNotFound, PermissionDenied}
 import backend.{AnonymousUser, DataApi}
-import models.api.v1.JsonApiV1._
+import backend.rest.{ItemNotFound, PermissionDenied}
+import controllers.Components
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.generic.Search
 import defines.EntityType
-import models.base.AnyModel
+import global.GlobalConfig
 import models._
-import play.api.Logger
+import models.api.v1.JsonApiV1._
+import models.base.AnyModel
+import play.api.{Configuration, Logger}
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
@@ -22,10 +24,11 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils.Page
 import utils.search.{SearchConstants, SearchEngine, SearchItemResolver, SearchParams}
+import views.MarkdownRenderer
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object ApiV1 {
@@ -39,20 +42,26 @@ object ApiV1 {
 
 @Singleton
 case class ApiV1 @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  messagesApi: MessagesApi,
+  components: Components,
   ws: WSClient
 ) extends CoreActionBuilders
   with ControllerHelpers
   with Search {
+
+  protected implicit def cache: CacheApi = components.cacheApi
+  implicit def messagesApi: MessagesApi = components.messagesApi
+  protected implicit def globalConfig: GlobalConfig = components.globalConfig
+  protected implicit def markdown: MarkdownRenderer = components.markdown
+
+  protected implicit def executionContext: ExecutionContext = components.executionContext
+
+  protected def accounts: AccountManager = components.accounts
+  protected def dataApi: DataApi = components.dataApi
+  protected def config: Configuration = components.configuration
+  protected def authHandler: AuthHandler = components.authHandler
+
+  def searchEngine: SearchEngine = components.searchEngine
+  def searchResolver: SearchItemResolver = components.searchResolver
 
   import ApiV1._
 

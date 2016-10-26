@@ -1,42 +1,26 @@
 package controllers.keywords
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import _root_.forms.VisibilityForm
-import controllers.generic._
-import models._
-import play.api.i18n.{Messages, MessagesApi}
-import defines.{ContentTypes, EntityType, PermissionType}
-import utils.{MovedPageLookup, PageParams}
-import views.{Helpers, MarkdownRenderer}
-import utils.search._
 import javax.inject._
 
-import auth.handler.AuthHandler
+import forms.VisibilityForm
+import backend.rest.DataHelpers
+import controllers.Components
+import controllers.base.AdminController
+import controllers.generic._
+import defines.{ContentTypes, EntityType, PermissionType}
+import models._
+import play.api.i18n.Messages
+import utils.PageParams
+import utils.search._
+import views.Helpers
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.DataApi
-import backend.rest.DataHelpers
-import controllers.base.AdminController
-
-import scala.concurrent.ExecutionContext
 
 
 @Singleton
 case class Concepts @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with Creator[ConceptF, Concept, Concept]
   with Visibility[Concept]

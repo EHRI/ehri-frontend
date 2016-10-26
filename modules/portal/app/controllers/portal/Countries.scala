@@ -1,38 +1,21 @@
 package controllers.portal
 
-import auth.AccountManager
-import backend.DataApi
-import backend.rest.cypher.Cypher
 import javax.inject.{Inject, Singleton}
 
-import auth.handler.AuthHandler
+import backend.rest.cypher.Cypher
+import controllers.Components
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{Country, Repository}
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
 import utils.search._
-import views.MarkdownRenderer
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class Countries @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   cypher: Cypher
 ) extends PortalController
   with Generic[Country]

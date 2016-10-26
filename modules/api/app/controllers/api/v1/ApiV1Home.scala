@@ -2,34 +2,19 @@ package controllers.api.v1
 
 import javax.inject.{Inject, Singleton}
 
-import auth.AccountManager
-import auth.handler.AuthHandler
-import backend.DataApi
-import models.api.v1.JsonApiV1._
+import controllers.Components
 import controllers.portal.base.PortalController
 import defines.EntityType
-import play.api.cache.CacheApi
-import play.api.i18n.{Messages, MessagesApi}
+import models.api.v1.JsonApiV1._
+import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc._
-import utils.MovedPageLookup
-
-import scala.concurrent.ExecutionContext
 
 
 @Singleton
 case class ApiV1Home @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi
+  components: Components
 ) extends PortalController {
-
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 

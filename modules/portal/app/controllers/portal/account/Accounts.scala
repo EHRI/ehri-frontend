@@ -4,51 +4,37 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
-import auth.handler.AuthHandler
+import auth.HashedPassword
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
-import auth.{AccountManager, HashedPassword}
-import backend.{AnonymousUser, DataApi}
+import backend.AnonymousUser
 import com.google.common.net.HttpHeaders
+import controllers.Components
 import controllers.base.RecaptchaHelper
 import controllers.core.auth.AccountHelpers
 import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import controllers.portal.base.PortalController
-import global.GlobalConfig
 import models._
-import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.http.HttpVerbs
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
-import utils.MovedPageLookup
-import utils.search.{SearchEngine, SearchItemResolver}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 @Singleton
 case class Accounts @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
   ws: WSClient,
   openId: OpenIdClient
 ) extends PortalController
@@ -57,6 +43,8 @@ case class Accounts @Inject()(
   with UserPasswordLoginHandler
   with AccountHelpers
   with RecaptchaHelper {
+
+  override protected implicit val config = components.configuration
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts

@@ -28,15 +28,15 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  def logger = Logger(this.getClass)
+  protected def logger = Logger(this.getClass)
 
-  def dataApi: DataApi
-  def accounts: auth.AccountManager
-  def globalConfig: GlobalConfig
-  def oAuth2Flow: OAuth2Flow
-  def cache: play.api.cache.CacheApi
+  protected def dataApi: DataApi
+  protected def accounts: auth.AccountManager
+  protected def globalConfig: GlobalConfig
+  protected def oAuth2Flow: OAuth2Flow
+  protected def cache: play.api.cache.CacheApi
 
-  def oauth2Providers: Seq[OAuth2Provider]
+  protected def oauth2Providers: Seq[OAuth2Provider]
 
 
   private val SessionKey = "sid"

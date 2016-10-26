@@ -1,44 +1,26 @@
 package controllers.vocabularies
 
-import auth.AccountManager
-import backend.rest.{Constants, DataHelpers}
-import play.api.cache.CacheApi
-import play.api.http.{HeaderNames, MimeTypes}
-import play.api.i18n.MessagesApi
-import forms.VisibilityForm
-import controllers.generic._
-import models._
-import defines.{ContentTypes, EntityType}
-import play.api.libs.ws.WSClient
-import utils.search.{SearchConstants, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import javax.inject._
 
-import auth.handler.AuthHandler
-import views.MarkdownRenderer
+import backend.rest.{Constants, DataHelpers}
+import controllers.Components
+import controllers.base.AdminController
+import controllers.generic._
+import defines.{ContentTypes, EntityType}
+import forms.VisibilityForm
+import models._
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.libs.ws.WSClient
+import utils.search.{SearchConstants, SearchIndexMediator}
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.DataApi
-import controllers.base.AdminController
-
-import scala.concurrent.ExecutionContext
 
 
 @Singleton
 case class Vocabularies @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchIndexer: SearchIndexMediator,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
+  components: Components,
   dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  searchIndexer: SearchIndexMediator,
   ws: WSClient
 ) extends AdminController
   with CRUD[VocabularyF,Vocabulary]

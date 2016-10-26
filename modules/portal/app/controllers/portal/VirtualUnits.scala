@@ -1,43 +1,27 @@
 package controllers.portal
 
-import auth.AccountManager
-import backend.rest.cypher.Cypher
-import controllers.base.SearchVC
-import controllers.generic.Search
-import models._
-import models.base.AnyModel
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import play.api.mvc.RequestHeader
-import utils.MovedPageLookup
-import utils.search._
-import defines.EntityType
-import backend.{DataApi, IdGenerator}
 import javax.inject._
 
-import auth.handler.AuthHandler
-import views.MarkdownRenderer
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.Future.{successful => immediate}
+import backend.IdGenerator
+import backend.rest.cypher.Cypher
+import controllers.Components
+import controllers.base.SearchVC
+import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
+import defines.EntityType
+import models._
+import models.base.AnyModel
+import play.api.mvc.RequestHeader
+import utils.search._
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class VirtualUnits @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
   idGenerator: IdGenerator,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
   cypher: Cypher
 ) extends PortalController
   with Generic[VirtualUnit]

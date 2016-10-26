@@ -1,37 +1,19 @@
 package controllers.portal.guides
 
-import auth.AccountManager
-import backend.DataApi
 import javax.inject._
 
-import auth.handler.AuthHandler
 import backend.rest.cypher.Cypher
+import controllers.Components
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
-import models.{Guide, GuidePage, _}
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import utils.search.{SearchConstants, SearchEngine, SearchItemResolver}
-import views.MarkdownRenderer
-
-import scala.concurrent.ExecutionContext
+import models.{GuidePage, _}
+import utils.search.SearchConstants
 
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   guides: GuideService,
   cypher: Cypher
 ) extends PortalController

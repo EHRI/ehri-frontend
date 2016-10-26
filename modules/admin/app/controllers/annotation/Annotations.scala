@@ -1,34 +1,17 @@
 package controllers.annotation
 
-import auth.AccountManager
-import models.{Annotation, AnnotationF}
 import javax.inject._
 
-import auth.handler.AuthHandler
-import controllers.generic._
-import backend.DataApi
 import backend.rest.DataHelpers
+import controllers.Components
 import controllers.base.AdminController
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import utils.MovedPageLookup
-import views.MarkdownRenderer
-
-import scala.concurrent.ExecutionContext
+import controllers.generic._
+import models.{Annotation, AnnotationF}
 
 
 case class Annotations @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with Read[Annotation]
   with Visibility[Annotation]

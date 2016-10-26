@@ -1,42 +1,25 @@
 package controllers.groups
 
-import auth.AccountManager
-import defines.EntityType
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import controllers.generic._
-import forms.VisibilityForm
-import models.{Group, GroupF, UserProfile}
-import models.base.Accessor
 import javax.inject._
 
-import auth.handler.AuthHandler
-import utils.PageParams
-import utils.search.{SearchEngine, SearchItemResolver}
-import views.MarkdownRenderer
-
-import scala.concurrent.{ExecutionContext, Future}
-import backend.DataApi
 import backend.rest.{Constants, DataHelpers}
-import play.api.mvc.Request
-import play.api.data.{Form, Forms}
+import controllers.Components
 import controllers.base.AdminController
+import controllers.generic._
+import defines.EntityType
+import forms.VisibilityForm
+import models.base.Accessor
+import models.{Group, GroupF, UserProfile}
+import play.api.data.{Form, Forms}
+import play.api.mvc.Request
+import utils.PageParams
+
+import scala.concurrent.Future
 
 
 case class Groups @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: utils.MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with PermissionHolder[Group]
   with Visibility[Group]

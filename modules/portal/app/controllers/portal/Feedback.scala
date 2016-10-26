@@ -1,52 +1,42 @@
 package controllers.portal
 
-import auth.AccountManager
-import backend.rest.cypher.Cypher
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{RequestHeader, Result}
-import utils.{MovedPageLookup, PageParams}
-import views.MarkdownRenderer
-
-import scala.concurrent.Future.{successful => immediate}
-import backend.{DataApi, FeedbackService}
 import javax.inject._
 
-import auth.handler.AuthHandler
+import backend.FeedbackService
+import backend.rest.cypher.Cypher
+import controllers.Components
 import controllers.portal.base.PortalController
+import play.api.Application
+import play.api.libs.mailer.{Email, MailerClient}
+import play.api.mvc.{RequestHeader, Result}
+import utils.PageParams
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class Feedback @Inject()(
-  implicit config: play.api.Configuration,
-  app: play.api.Application, // FIXME: remove
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,   executionContext: ExecutionContext,   feedbackService: FeedbackService,
-  dataApi: DataApi,
-  accounts: AccountManager,
+  components: Components,
+  app: Application,
+  feedbackService: FeedbackService,
   mailer: MailerClient,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
   cypher: Cypher
 ) extends PortalController {
 
-  import utils.forms._
+  override protected implicit val config = components.configuration
+
   import play.api.data.Form
   import play.api.data.Forms._
   import utils.forms.HoneyPotForm._
   import utils.forms.TimeCheckForm._
+  import utils.forms._
 
   case class CheckFeedbackData(
     timestamp: String,
     blankCheck: String
   ) extends HoneyPotForm with TimeCheckForm
 
-  private def checkFbForm(implicit app: play.api.Application) = Form(
+  private def checkFbForm = Form(
     mapping(
       TIMESTAMP -> nonEmptyText,
       BLANK_CHECK -> text.verifying(s => s.isEmpty)
@@ -54,7 +44,7 @@ case class Feedback @Inject()(
       verifying blankFieldIsBlank verifying formSubmissionTime
   )
 
-  private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value])(implicit app: play.api.Application): Seq[String] = {
+  private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value]): Seq[String] = {
     import scala.collection.JavaConverters._
     val defaultOpt = config.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
     ((for {
@@ -63,7 +53,7 @@ case class Feedback @Inject()(
     } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 
-  private def sendMessageEmail(feedback: models.Feedback)(implicit config: play.api.Configuration, request: RequestHeader): Unit = {
+  private def sendMessageEmail(feedback: models.Feedback)(implicit request: RequestHeader): Unit = {
     for {
       accTo <- getCopyMail(feedback.`type`)
     } yield {

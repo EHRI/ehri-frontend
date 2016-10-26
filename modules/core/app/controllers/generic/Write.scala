@@ -11,7 +11,7 @@ import play.api.mvc.Request
  */
 trait Write extends CoreActionBuilders {
 
-  def globalConfig: GlobalConfig
+  protected def globalConfig: GlobalConfig
 
   /**
    * Extract a log message from an incoming request params

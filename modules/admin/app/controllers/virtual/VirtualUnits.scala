@@ -1,50 +1,34 @@
 package controllers.virtual
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import forms.VisibilityForm
-import models._
-import controllers.generic._
-import play.api.i18n.{Messages, MessagesApi}
-import defines.{ContentTypes, EntityType, PermissionType}
-import play.api.mvc.{Action, RequestHeader}
-import utils.MovedPageLookup
-import views.{Helpers, MarkdownRenderer}
-import utils.search._
 import javax.inject._
 
-import auth.handler.AuthHandler
 import backend.rest.cypher.Cypher
-
-import scala.concurrent.Future.{successful => immediate}
-import backend.{DataApi, Entity, IdGenerator}
+import backend.rest.{DataHelpers, ItemNotFound}
+import backend.{Entity, IdGenerator}
+import controllers.Components
+import controllers.base.{AdminController, SearchVC}
+import controllers.generic._
+import defines.{ContentTypes, EntityType, PermissionType}
+import forms.VisibilityForm
+import models._
+import models.base.{AnyModel, Description}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.rest.{DataHelpers, ItemNotFound}
+import play.api.i18n.Messages
+import play.api.mvc.Action
+import utils.search._
+import views.Helpers
 
-import scala.concurrent.{ExecutionContext, Future}
-import models.base.AnyModel
-import models.base.Description
-import controllers.base.{AdminController, SearchVC}
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
 case class VirtualUnits @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  idGenerator: IdGenerator,
-  searchResolver: SearchItemResolver,
-  dataApi: DataApi,
+  components: Components,
   dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  idGenerator: IdGenerator,
   cypher: Cypher
 ) extends AdminController
   with Read[VirtualUnit]

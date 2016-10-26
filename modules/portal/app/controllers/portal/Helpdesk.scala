@@ -1,34 +1,20 @@
 package controllers.portal
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.RequestHeader
-import backend.{BadHelpdeskResponse, DataApi, HelpdeskService}
-import models.{Repository, UserProfile}
 import javax.inject._
 
-import auth.handler.AuthHandler
+import backend.{BadHelpdeskResponse, HelpdeskService}
+import controllers.Components
 import controllers.portal.base.PortalController
-import utils.MovedPageLookup
-import utils.search.SearchItemResolver
-
-import scala.concurrent.ExecutionContext
+import models.{Repository, UserProfile}
+import play.api.libs.mailer.{Email, MailerClient}
+import play.api.mvc.RequestHeader
 
 
 @Singleton
 case class Helpdesk @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,   executionContext: ExecutionContext,   dataApi: DataApi,
-  resolver: SearchItemResolver,
-  accounts: AccountManager,
+  components: Components,
   mailer: MailerClient,
-  helpdeskService: HelpdeskService,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi
+  helpdeskService: HelpdeskService
 ) extends PortalController {
 
   import play.api.data.Form

@@ -1,44 +1,27 @@
 package controllers.countries
 
-import auth.AccountManager
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
-import forms.VisibilityForm
-import controllers.generic._
-import models._
-import defines.{ContentTypes, EntityType}
-import utils.MovedPageLookup
-import utils.search.{SearchConstants, SearchEngine, SearchItemResolver}
 import javax.inject._
 
-import auth.handler.AuthHandler
 import backend.rest.DataHelpers
-import views.MarkdownRenderer
+import backend.{Entity, IdGenerator}
+import controllers.Components
+import controllers.base.AdminController
+import controllers.generic._
+import defines.{ContentTypes, EntityType}
+import forms.VisibilityForm
+import models._
+import play.api.Configuration
+import utils.search.{SearchConstants, SearchIndexMediator}
 
 import scala.concurrent.Future.{successful => immediate}
-import backend.{DataApi, Entity, IdGenerator}
-import play.api.Configuration
-import controllers.base.AdminController
-
-import scala.concurrent.ExecutionContext
 
 
 @Singleton
 case class Countries @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  idGenerator: IdGenerator,
-  dataApi: DataApi,
+  components: Components,
   dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  searchIndexer: SearchIndexMediator,
+  idGenerator: IdGenerator
 ) extends AdminController
   with CRUD[CountryF,Country]
   with Creator[RepositoryF, Repository, Country]
@@ -51,7 +34,6 @@ case class Countries @Inject()(
   /**
    * Content types that relate to this controller.
    */
-
   val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
   private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.Repository.toString)

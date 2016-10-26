@@ -20,7 +20,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   this: Read[MT] =>
 
-  def dataHelpers: DataHelpers
+  protected def dataHelpers: DataHelpers
 
   case class NewChildRequest[A](
     item: MT,

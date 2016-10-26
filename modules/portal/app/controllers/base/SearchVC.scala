@@ -16,8 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 trait SearchVC {
   this: CoreActionBuilders =>
 
-  implicit def cache: CacheApi
-  def cypher: Cypher
+  protected implicit def cache: CacheApi
+  protected def cypher: Cypher
 
   private def logger: Logger = Logger(getClass)
 

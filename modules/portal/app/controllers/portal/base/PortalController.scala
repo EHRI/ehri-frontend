@@ -2,12 +2,14 @@ package controllers.portal.base
 
 import java.util.concurrent.TimeUnit
 
-import play.api.Logger
+import auth.AccountManager
+import auth.handler.AuthHandler
+import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import utils._
-import controllers.renderError
+import controllers.{Components, renderError}
 import models.UserProfile
 import play.api.mvc._
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
@@ -18,8 +20,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
-import backend.ApiUser
+import backend.{ApiUser, DataApi}
+import global.GlobalConfig
+import play.api.cache.CacheApi
 import play.api.mvc.Result
+import utils.search.{SearchEngine, SearchItemResolver}
+import views.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance}
 
 
@@ -28,18 +34,29 @@ trait PortalController
   with ControllerHelpers
   with SessionPreferences[SessionPrefs] {
 
+  // Abstract controller components, injected into super classes
+  def components: Components
+
+  // Implicits hoisted to class scope so as to be provided to views
+  protected implicit def cache: CacheApi = components.cacheApi
+  implicit def messagesApi: MessagesApi = components.messagesApi
+  protected implicit def globalConfig: GlobalConfig = components.globalConfig
+  protected implicit def markdown: MarkdownRenderer = components.markdown
+
+  protected implicit def executionContext: ExecutionContext = components.executionContext
+
+  protected def accounts: AccountManager = components.accounts
+  protected def dataApi: DataApi = components.dataApi
+  protected def config: Configuration = components.configuration
+  protected def authHandler: AuthHandler = components.authHandler
+
+  protected def searchEngine: SearchEngine = components.searchEngine
+  protected def searchResolver: SearchItemResolver = components.searchResolver
+
   // By default, all controllers require auth unless ehri.portal.secured
   // is set to false in the config, which it is by default.
-  override val staffOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
-  override val verifiedOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
-
-  implicit def cache: play.api.cache.CacheApi
-
-  /**
-   * The page relocator handles provides the new location (if any)
-   * for pages that have been moved from one URL to another.
-   */
-  protected def pageRelocator: MovedPageLookup
+  override def staffOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override def verifiedOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /**
    * The user's default preferences. The `SessionPreferences` trait generates
@@ -129,7 +146,7 @@ trait PortalController
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)
     else for {
-      maybeMoved <- pageRelocator.hasMovedTo(request.path)
+      maybeMoved <- components.pageRelocator.hasMovedTo(request.path)
     } yield maybeMoved match {
       case Some(path) => MovedPermanently(path)
       case None => notFoundResponse

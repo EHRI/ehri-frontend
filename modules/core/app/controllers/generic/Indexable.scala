@@ -31,7 +31,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
 
   private def logger = Logger(self.getClass)
 
-  def searchIndexer: SearchIndexMediator
+  protected def searchIndexer: SearchIndexMediator
 
   private def wrapMsg(m: String) = s"<message>$m</message>"
 

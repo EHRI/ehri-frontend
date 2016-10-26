@@ -3,34 +3,17 @@ package controllers.api.graphql
 import javax.inject.{Inject, Singleton}
 
 import akka.util.ByteString
-import auth.AccountManager
-import auth.handler.AuthHandler
-import backend.DataApi
 import backend.rest.Constants
+import controllers.Components
 import controllers.portal.base.PortalController
-import play.api.cache.CacheApi
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
-import play.api.i18n.MessagesApi
-import play.api.mvc.BodyParsers
-import utils.MovedPageLookup
 import play.api.libs.ws.WSClient
-import views.MarkdownRenderer
-
-import scala.concurrent.ExecutionContext
+import play.api.mvc.BodyParsers
 
 
 @Singleton
 case class GraphQL @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  dataApi: DataApi,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer,
+  components: Components,
   ws: WSClient
 ) extends PortalController {
 

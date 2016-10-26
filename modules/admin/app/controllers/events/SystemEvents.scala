@@ -1,35 +1,20 @@
 package controllers.events
 
-import auth.AccountManager
-import models.SystemEvent
-import play.api.cache.CacheApi
-import play.api.i18n.MessagesApi
 import javax.inject._
 
-import auth.handler.AuthHandler
-import utils.{MovedPageLookup, PageParams, RangeParams, SystemEventParams}
-import controllers.generic.Read
-import backend.DataApi
 import backend.rest.DataHelpers
-import models.base.AnyModel
+import controllers.Components
 import controllers.base.AdminController
-import views.MarkdownRenderer
+import controllers.generic.Read
+import models.SystemEvent
+import models.base.AnyModel
+import utils.{PageParams, RangeParams, SystemEventParams}
 
-import scala.concurrent.ExecutionContext
 
 @Singleton
 case class SystemEvents @Inject()(
-  implicit config: play.api.Configuration,
-  cache: CacheApi,
-  globalConfig: global.GlobalConfig,
-  authHandler: AuthHandler,
-  executionContext: ExecutionContext,
-  dataApi: DataApi,
-  dataHelpers: DataHelpers,
-  accounts: AccountManager,
-  pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  markdown: MarkdownRenderer
+  components: Components,
+  dataHelpers: DataHelpers
 ) extends AdminController
   with Read[SystemEvent] {
 

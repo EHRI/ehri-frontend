@@ -17,15 +17,15 @@ import backend.{ContentType, WithId, Readable}
  */
 trait Search extends CoreActionBuilders {
 
-  def searchEngine: utils.search.SearchEngine
-  def searchResolver: utils.search.SearchItemResolver
+  protected def searchEngine: utils.search.SearchEngine
+  protected def searchResolver: utils.search.SearchItemResolver
 
   /**
    * A function that generates a list of facet classes from an
    * incoming request header. The facet rendering can be changed
    * based on request variables such as the user's current language.
    */
-  type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
+  protected type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
 
   /**
    * A default facet class builder.

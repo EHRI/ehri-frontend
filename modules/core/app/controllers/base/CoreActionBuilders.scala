@@ -28,7 +28,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
   protected def authHandler: AuthHandler
 
   protected def executionContext: ExecutionContext
-  implicit def exc = executionContext
+  protected implicit def exc = executionContext
 
   protected def accounts: AccountManager
 
