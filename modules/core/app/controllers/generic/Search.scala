@@ -2,7 +2,6 @@ package controllers.generic
 
 import play.api.data.Form
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 import models.UserProfile
 import defines.EntityType
 import utils.Page

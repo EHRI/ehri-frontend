@@ -2,22 +2,24 @@ package controllers.admin
 
 import auth.AccountManager
 import client.json.ClientWriteable
-import play.api.libs.concurrent.Execution.Implicits._
 import models.Isaar
-import models.base.{Description, AnyModel}
+import models.base.{AnyModel, Description}
 import controllers.generic.Search
 import defines.EntityType
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.libs.json.{Writes, Json}
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, Request, Result}
 import utils.{Page, search}
 import views.Helpers
 import utils.search._
-
 import javax.inject._
+
+import auth.handler.AuthHandler
 import play.api.cache.{CacheApi, Cached}
 import backend.DataApi
 import controllers.base.AdminController
+
+import scala.concurrent.ExecutionContext
 
 
 @Singleton
@@ -25,6 +27,8 @@ case class Metrics @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

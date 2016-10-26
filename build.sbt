@@ -63,9 +63,6 @@ val coreDependencies = backendDependencies ++ Seq(
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
 
-  // Authentication
-  "jp.t2v" %% "play2-auth" % "0.14.2",
-
   // Password hashing
   "org.mindrot" % "jbcrypt" % "0.3m",
 
@@ -106,8 +103,7 @@ val portalDependencies = Seq(
 )
 
 val testDependencies = backendTestDependencies ++ Seq(
-  specs2 % Test,
-  "jp.t2v" %% "play2-auth-test" % "0.14.2" % "test"
+  specs2 % Test
 )
 
 val additionalResolvers = Seq(

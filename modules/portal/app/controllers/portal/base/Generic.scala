@@ -1,6 +1,5 @@
 package controllers.portal.base
 
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.ContentType
 import controllers.generic.Read
 import models.{UserProfile, Link, Annotation}
@@ -8,6 +7,7 @@ import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
 import utils.Page
 
 import scala.concurrent.Future
+
 
 trait Generic[MT] extends Read[MT] {
   this: PortalController =>

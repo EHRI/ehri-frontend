@@ -14,6 +14,11 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
   implicit def cache: play.api.cache.CacheApi
 
   /**
+    * Session key for last page prior to login
+    */
+  protected val ACCESS_URI: String = "access_uri"
+
+  /**
    * Get the remote IP of a user, taking into account intermediate
    * proxying. FIXME: there's got to be a better way to do this.
    */

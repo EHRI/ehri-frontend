@@ -3,7 +3,6 @@ package controllers.portal.annotate
 import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import controllers.generic.{Promotion, Read, Search, Visibility}
@@ -16,7 +15,7 @@ import defines.{EntityType, PermissionType}
 import play.api.libs.json.Json
 import eu.ehri.project.definitions.Ontology
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Result
 import forms.VisibilityForm
 import com.google.common.net.HttpHeaders
@@ -25,6 +24,7 @@ import utils.search.{SearchEngine, SearchItemResolver}
 import models.view.AnnotationContext
 import javax.inject._
 
+import auth.handler.AuthHandler
 import backend.rest.DataHelpers
 import backend.rest.cypher.Cypher
 import controllers.portal.FacetConfig
@@ -35,6 +35,8 @@ case class Annotations @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

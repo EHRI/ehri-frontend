@@ -7,7 +7,6 @@ import auth.{AccountManager, HashedPassword}
 import controllers.core.auth.AccountHelpers
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
-import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import models._
 import play.api.i18n.{Messages, MessagesApi}
@@ -16,6 +15,7 @@ import utils.{CsvHelpers, MovedPageLookup, PageParams}
 import utils.search._
 import javax.inject._
 
+import auth.handler.AuthHandler
 import backend.DataApi
 import play.api.data.{Form, FormError, Forms}
 import views.MarkdownRenderer
@@ -23,7 +23,7 @@ import views.MarkdownRenderer
 import scala.concurrent.Future.{successful => immediate}
 import play.api.libs.json.Json
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Request
 import backend.rest.{DataHelpers, ValidationError}
 import play.api.mvc.Result
@@ -36,6 +36,8 @@ case class UserProfiles @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchIndexer: SearchIndexMediator,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,

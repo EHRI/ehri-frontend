@@ -5,6 +5,7 @@ import backend.DataApi
 import backend.rest.cypher.Cypher
 import javax.inject._
 
+import auth.handler.AuthHandler
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
@@ -18,14 +19,13 @@ import play.api.data.Forms._
 import play.api.data._
 import play.api.http.MimeTypes
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json._
 import play.api.mvc._
 import utils.search._
 import controllers.renderError
 import views.MarkdownRenderer
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -34,6 +34,8 @@ case class Guides @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

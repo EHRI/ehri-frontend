@@ -9,6 +9,7 @@ import play.api.i18n.MessagesApi
 import play.api.libs.ws.WSClient
 import javax.inject._
 
+import auth.handler.AuthHandler
 import backend.{DataApi, Readable}
 import utils.MovedPageLookup
 import views.MarkdownRenderer
@@ -20,13 +21,14 @@ case class Data @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  ws: WSClient,
-  executionContext: ExecutionContext
+  ws: WSClient
 ) extends AdminController {
 
   implicit val rd: Readable[AnyModel] = AnyModel.Converter

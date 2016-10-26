@@ -7,20 +7,21 @@ import backend.rest.cypher.Cypher
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
 import models.{SystemEvent, UserProfile}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
 import utils._
 import utils.search._
-import backend.{DataApi, ApiUser}
-
+import backend.{ApiUser, DataApi}
 import javax.inject._
+
+import auth.handler.AuthHandler
 import play.api.mvc.RequestHeader
-import play.api.i18n.{MessagesApi, Messages}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json.Json
 import views.MarkdownRenderer
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import play.api.mvc.Result
@@ -37,6 +38,8 @@ case class Social @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

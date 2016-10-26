@@ -4,28 +4,31 @@ import auth.AccountManager
 import defines.EntityType
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import controllers.generic._
 import forms.VisibilityForm
 import models.{Group, GroupF, UserProfile}
 import models.base.Accessor
 import javax.inject._
 
+import auth.handler.AuthHandler
 import utils.PageParams
 import utils.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import backend.DataApi
 import backend.rest.{Constants, DataHelpers}
 import play.api.mvc.Request
 import play.api.data.{Form, Forms}
 import controllers.base.AdminController
 
+
 case class Groups @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

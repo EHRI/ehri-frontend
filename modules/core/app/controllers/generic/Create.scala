@@ -7,7 +7,6 @@ import forms.VisibilityForm
 import models.UserProfile
 import models.base.{MetaModel, Model, Persistable}
 import play.api.data._
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 
 import scala.concurrent.Future

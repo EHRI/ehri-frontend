@@ -2,26 +2,28 @@ package helpers
 
 import akka.stream.Materializer
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
-import auth.{MockAccountManager, AccountManager}
+import auth._
+import auth.handler.cookie.CookieIdContainer
+import auth.handler.{AuthHandler, AuthIdContainer}
 import backend._
 import backend.aws.MockFileStorage
 import backend.feedback.MockFeedbackService
 import backend.helpdesk.MockHelpdeskService
 import backend.rest.{IdSearchResolver, RestApi}
-import controllers.base.{SessionPreferences, AuthConfigImpl}
-import global.GlobalConfig
-import jp.t2v.lab.play2.auth.test.Helpers._
-import models.{CypherQuery, Account, Feedback}
-import org.specs2.execute.{Result, AsResult}
+import controllers.base.SessionPreferences
+import models.{Account, CypherQuery, Feedback}
+import org.specs2.execute.{AsResult, Result}
+import play.api.Application
 import play.api.http.Writeable
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.json.{Json, Writes}
-import play.api.libs.mailer.{MailerClient, Email}
+import play.api.libs.mailer.{Email, MailerClient}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
 import utils.search.{MockSearchIndexMediator, _}
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 
 /**
@@ -46,11 +48,11 @@ trait TestConfiguration {
   protected val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
 
-  private def mockMailer: MailerClient = new MockBufferedMailer(mailBuffer)
-  private def mockIndexer: SearchIndexMediator = new MockSearchIndexMediator(indexEventBuffer)
-  private def mockFeedback: FeedbackService = new MockFeedbackService(feedbackBuffer)
-  private def mockHelpdesk: HelpdeskService = new MockHelpdeskService(helpdeskBuffer)
-  private def mockCypherQueries: CypherQueryService = new MockCypherQueryService(cypherQueryBuffer)
+  private def mockMailer: MailerClient = MockBufferedMailer(mailBuffer)
+  private def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
+  private def mockFeedback: FeedbackService = MockFeedbackService(feedbackBuffer)
+  private def mockHelpdesk: HelpdeskService = MockHelpdeskService(helpdeskBuffer)
+  private def mockCypherQueries: CypherQueryService = MockCypherQueryService(cypherQueryBuffer)
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
@@ -78,6 +80,10 @@ trait TestConfiguration {
 
   protected val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
+      // since we run some concurrent requests as the same user its
+      // important not to use the CacheIdContainer, since each new
+      // login evicts the last.
+      bind[AuthIdContainer].to(classOf[CookieIdContainer]),
       bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Flow].toInstance(mockOAuth2Flow),
       bind[FileStorage].toInstance(mockFileStorage),
@@ -102,13 +108,6 @@ trait TestConfiguration {
   // Might want to mock the dataApi at at some point!
   protected def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
-
-  // Dummy auth config for play-2-auth
-  protected def authConfig(implicit _app: play.api.Application) = new AuthConfigImpl {
-    val config = _app.configuration
-    val globalConfig = _app.injector.instanceOf[GlobalConfig]
-    val accounts = _app.injector.instanceOf[AccountManager]
-  }
 
   protected val CSRF_TOKEN_NAME = "csrfToken"
   protected val CSRF_HEADER_NAME = "Csrf-Token"
@@ -161,11 +160,19 @@ trait TestConfiguration {
    * Convenience extensions for the FakeRequest object.
    */
   protected implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+
+    import scala.concurrent.duration._
+    def withLoggedIn(implicit app: Application): String => FakeRequest[A] = { id =>
+      val handler: AuthHandler = app.injector.instanceOf[AuthHandler]
+      val token = Await.result(handler.newSession(id), 10.seconds)
+      fr.withHeaders("PLAY2_AUTH_TEST_TOKEN" -> token)
+    }
+
     /**
      * Set the request to be authenticated for the given user.
      */
     def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
-      fr.withLoggedIn(authConfig(app))(user.id)
+      fr.withLoggedIn(app)(user.id)
     }
 
     /**

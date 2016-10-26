@@ -1,6 +1,5 @@
 package controllers.generic
 
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.rest.DataHelpers
 import backend.ContentType
 import defines.PermissionType

@@ -3,19 +3,21 @@ package controllers.cypher
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import auth.handler.AuthHandler
 import controllers.DataFormat
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.rest.cypher.CypherService
-import backend.{DataApi, CypherQueryService}
+import backend.{CypherQueryService, DataApi}
 import controllers.base.AdminController
-import models.{ResultFormat, CypherQuery}
+import models.{CypherQuery, ResultFormat}
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
 import utils.PageParams
 import views.MarkdownRenderer
+
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -24,6 +26,8 @@ case class CypherQueries @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: utils.MovedPageLookup,

@@ -12,7 +12,6 @@ import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
 import play.api.Logger
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsString, Json}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}

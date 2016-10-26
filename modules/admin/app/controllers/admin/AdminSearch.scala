@@ -4,15 +4,16 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
 import auth.AccountManager
 import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
 import utils.MovedPageLookup
-import concurrent.Future
-import play.api.i18n.{MessagesApi, Messages}
-import views.{MarkdownRenderer, Helpers}
-import play.api.libs.json.{Writes, Json}
 
+import concurrent.{ExecutionContext, Future}
+import play.api.i18n.{Messages, MessagesApi}
+import views.{Helpers, MarkdownRenderer}
+import play.api.libs.json.{Json, Writes}
 import javax.inject._
-import models.base.{Description, AnyModel}
+
+import auth.handler.AuthHandler
+import models.base.{AnyModel, Description}
 import utils.search._
 import play.api.Logger
 import controllers.generic.{Indexable, Search}
@@ -21,11 +22,14 @@ import defines.EntityType
 import controllers.base.AdminController
 import defines.EnumUtils.enumMapping
 
+
 @Singleton
 case class AdminSearch @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   searchIndexer: SearchIndexMediator,

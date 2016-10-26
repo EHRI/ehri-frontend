@@ -2,7 +2,6 @@ package controllers.institutions
 
 import auth.AccountManager
 import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
@@ -13,11 +12,15 @@ import views.{Helpers, MarkdownRenderer}
 import utils.search._
 import javax.inject._
 
+import auth.handler.AuthHandler
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
 import backend.rest.DataHelpers
 import play.api.Configuration
 import controllers.base.AdminController
+
+import scala.concurrent.ExecutionContext
 
 
 @Singleton
@@ -25,6 +28,8 @@ case class Repositories @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,

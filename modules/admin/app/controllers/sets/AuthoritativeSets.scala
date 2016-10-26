@@ -3,7 +3,6 @@ package controllers.sets
 import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import _root_.forms.VisibilityForm
 import controllers.generic._
 import models._
@@ -12,6 +11,7 @@ import utils.MovedPageLookup
 import utils.search.{SearchConstants, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import javax.inject._
 
+import auth.handler.AuthHandler
 import backend.rest.DataHelpers
 import views.MarkdownRenderer
 
@@ -20,6 +20,8 @@ import backend.{DataApi, Entity, IdGenerator}
 import play.api.Configuration
 import controllers.base.AdminController
 
+import scala.concurrent.ExecutionContext
+
 
 @Singleton
 case class
@@ -27,6 +29,8 @@ AuthoritativeSets @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,

@@ -5,7 +5,6 @@ import backend.rest.{Constants, DataHelpers}
 import play.api.cache.CacheApi
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
@@ -14,11 +13,14 @@ import play.api.libs.ws.WSClient
 import utils.search.{SearchConstants, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import javax.inject._
 
+import auth.handler.AuthHandler
 import views.MarkdownRenderer
 
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
 import controllers.base.AdminController
+
+import scala.concurrent.ExecutionContext
 
 
 @Singleton
@@ -26,6 +28,8 @@ case class Vocabularies @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchIndexer: SearchIndexMediator,
   searchResolver: SearchItemResolver,

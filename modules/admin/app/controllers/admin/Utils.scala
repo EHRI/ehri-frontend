@@ -9,9 +9,9 @@ import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import javax.inject._
 
+import auth.handler.AuthHandler
 import play.api.libs.json._
 import play.api.mvc.Action
 import backend.{AuthenticatedUser, DataApi}
@@ -23,7 +23,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser
 import utils.search.SearchEngine
 import views.MarkdownRenderer
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 
 /**
@@ -34,8 +34,10 @@ case class Utils @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
+  dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,

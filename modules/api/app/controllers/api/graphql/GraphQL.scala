@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.util.ByteString
 import auth.AccountManager
+import auth.handler.AuthHandler
 import backend.DataApi
 import backend.rest.Constants
 import controllers.portal.base.PortalController
@@ -23,13 +24,14 @@ case class GraphQL @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
   messagesApi: MessagesApi,
   markdown: MarkdownRenderer,
-  ws: WSClient,
-  executionContext: ExecutionContext
+  ws: WSClient
 ) extends PortalController {
 
   val defaultQuery =

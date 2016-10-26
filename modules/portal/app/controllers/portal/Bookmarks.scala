@@ -4,19 +4,20 @@ import auth.AccountManager
 import backend.rest.cypher.Cypher
 import controllers.generic.Search
 import models._
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.search._
 import defines.EntityType
-import backend.{IdGenerator, DataApi}
+import backend.{DataApi, IdGenerator}
 import utils._
 import javax.inject._
+
+import auth.handler.AuthHandler
 import views.MarkdownRenderer
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
-import backend.rest.{ItemNotFound, Constants}
-import play.api.i18n.{MessagesApi, Messages}
+import backend.rest.{Constants, ItemNotFound}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.http.HeaderNames
 import play.api.cache.CacheApi
 import models.base.AnyModel
@@ -28,6 +29,8 @@ case class Bookmarks @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

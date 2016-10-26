@@ -2,7 +2,6 @@ package controllers.generic
 
 import acl.ItemPermissionSet
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 import models.base._
 import defines._
 import models.{PermissionGrant, UserProfile}

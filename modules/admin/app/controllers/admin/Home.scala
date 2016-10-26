@@ -2,23 +2,26 @@ package controllers.admin
 
 import auth.AccountManager
 import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
-import models.{SystemEvent, Isaar}
-import models.base.{Description, AnyModel}
+import models.{Isaar, SystemEvent}
+import models.base.{AnyModel, Description}
 import controllers.generic.Search
 import play.api.mvc._
-import defines.{EventType, EntityType}
-import play.api.i18n.{MessagesApi, Messages}
+import defines.{EntityType, EventType}
+import play.api.i18n.{Messages, MessagesApi}
 import views.Helpers
 import play.api.libs.json.Json
 import utils.search._
-
 import javax.inject._
+
+import auth.handler.AuthHandler
 import play.api.http.MimeTypes
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.DataApi
 import utils.{MovedPageLookup, RangeParams, SystemEventParams}
 import controllers.base.AdminController
+
+import scala.concurrent.ExecutionContext
 
 
 @Singleton
@@ -26,6 +29,8 @@ case class Home @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

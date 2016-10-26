@@ -4,6 +4,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
+import auth.handler.AuthHandler
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
 import auth.{AccountManager, HashedPassword}
@@ -16,13 +17,11 @@ import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import controllers.portal.base.PortalController
 import global.GlobalConfig
-import jp.t2v.lab.play2.auth.LoginLogout
 import models._
 import play.api.cache.CacheApi
 import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
@@ -30,15 +29,18 @@ import play.api.mvc.{Result, _}
 import utils.MovedPageLookup
 import utils.search.{SearchEngine, SearchItemResolver}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
+
 
 @Singleton
 case class Accounts @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
@@ -49,8 +51,7 @@ case class Accounts @Inject()(
   messagesApi: MessagesApi,
   ws: WSClient,
   openId: OpenIdClient
-) extends LoginLogout
-  with PortalController
+) extends PortalController
   with OpenIDLoginHandler
   with OAuth2LoginHandler
   with UserPasswordLoginHandler
@@ -100,7 +101,7 @@ case class Accounts @Inject()(
       block(request)
     }
 
-    override def composeAction[A](action: Action[A]) = new NotReadOnly(action)
+    override def composeAction[A](action: Action[A]) = NotReadOnly(action)
   }
 
   def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
@@ -224,7 +225,7 @@ case class Accounts @Inject()(
       Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
     } else {
       implicit val userOpt: Option[UserProfile] = None
-      implicit val accountOpt = authRequest.user
+      implicit val accountOpt = authRequest.accountOpt
       accountOpt match {
         case Some(user) => Redirect(portalRoutes.index())
           .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
@@ -285,7 +286,7 @@ case class Accounts @Inject()(
   }
 
   def logout = Action.async { implicit authRequest =>
-    gotoLogoutSucceeded
+    gotoLogoutSucceeded(authRequest)
   }
 
   def oauth2(provider: String, code: Option[String], state: Option[String]) =
@@ -330,7 +331,7 @@ case class Accounts @Inject()(
     implicit val userOpt = Some(request.user)
     val account = request.user.account.get
     request.errForm.fold(
-      Redirect(defaultLoginUrl)
+      Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
         .flashing("success" -> "login.password.change.confirmation")
     )(errForm => BadRequest(views.html.account.changePassword(
       account, errForm, accountRoutes.changePasswordPost())))

@@ -5,7 +5,6 @@ import defines._
 import models._
 import models.base._
 import play.api.data.Form
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsError, Json}
 import play.api.mvc._
 import utils.search.{SearchHit, _}

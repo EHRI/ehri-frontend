@@ -3,6 +3,7 @@ package controllers.api
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import auth.handler.AuthHandler
 import backend.DataApi
 import controllers.portal.base.PortalController
 import defines.EntityType
@@ -21,11 +22,12 @@ case class ApiHome @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  executionContext: ExecutionContext
+  messagesApi: MessagesApi
 ) extends PortalController {
 
   def index = OptionalUserAction { implicit request =>

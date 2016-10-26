@@ -3,6 +3,7 @@ package controllers.api.v1
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import auth.handler.AuthHandler
 import backend.DataApi
 import models.api.v1.JsonApiV1._
 import controllers.portal.base.PortalController
@@ -21,11 +22,12 @@ case class ApiV1Home @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   accounts: AccountManager,
   pageRelocator: MovedPageLookup,
-  messagesApi: MessagesApi,
-  executionContext: ExecutionContext
+  messagesApi: MessagesApi
 ) extends PortalController {
 
 

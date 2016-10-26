@@ -6,16 +6,15 @@ import models.base.AnyModel
 import play.api.Logger
 import play.api.cache.CacheApi
 import play.api.mvc.Controller
-import utils.search.SearchConstants
 
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.{ExecutionContext, Future}
+
 
 /**
  * Helpers for searching virtual collections
  */
 trait SearchVC {
-  this: Controller with ControllerHelpers =>
+  this: CoreActionBuilders =>
 
   implicit def cache: CacheApi
   def cypher: Cypher

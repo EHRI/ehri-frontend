@@ -4,6 +4,7 @@ import auth.AccountManager
 import models.{Annotation, AnnotationF}
 import javax.inject._
 
+import auth.handler.AuthHandler
 import controllers.generic._
 import backend.DataApi
 import backend.rest.DataHelpers
@@ -13,10 +14,15 @@ import play.api.i18n.MessagesApi
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
+
+
 case class Annotations @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   dataHelpers: DataHelpers,
   accounts: AccountManager,

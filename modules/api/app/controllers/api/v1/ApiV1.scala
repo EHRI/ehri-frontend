@@ -4,14 +4,16 @@ import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
+import auth.handler.AuthHandler
 import backend.rest.{ItemNotFound, PermissionDenied}
 import backend.{AnonymousUser, DataApi}
 import models.api.v1.JsonApiV1._
-import controllers.base.{AuthConfigImpl, ControllerHelpers, CoreActionBuilders}
+import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.generic.Search
 import defines.EntityType
 import models.base.AnyModel
 import models._
+import play.api.Logger
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
@@ -40,16 +42,16 @@ case class ApiV1 @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
   accounts: AccountManager,
   messagesApi: MessagesApi,
-  ws: WSClient,
-  executionContext: ExecutionContext
+  ws: WSClient
 ) extends CoreActionBuilders
   with ControllerHelpers
-  with AuthConfigImpl
   with Search {
 
   import ApiV1._
@@ -292,24 +294,30 @@ case class ApiV1 @Inject()(
       }
     }
 
-  override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def authenticationFailed(request: RequestHeader): Future[Result] =
     immediate(error(UNAUTHORIZED))
 
-  override def authorizationFailed(request: RequestHeader,user: UserProfile)(implicit context: ExecutionContext): Future[Result] =
+  override def authorizationFailed(request: RequestHeader,user: UserProfile): Future[Result] =
     immediate(error(FORBIDDEN))
 
-  override def authorizationFailed(request: RequestHeader, user: User, authority: Option[Authority])(implicit context: ExecutionContext): Future[Result] =
-    immediate(error(FORBIDDEN))
-
-  override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def downForMaintenance(request: RequestHeader): Future[Result] =
     immediate(error(SERVICE_UNAVAILABLE))
 
-  override protected def notFoundError(request: RequestHeader,msg: Option[String])(implicit context: ExecutionContext): Future[Result] =
+  override protected def notFoundError(request: RequestHeader,msg: Option[String]): Future[Result] =
     immediate(error(NOT_FOUND, msg))
 
-  override def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def staffOnlyError(request: RequestHeader): Future[Result] =
     immediate(error(FORBIDDEN))
 
-  override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] =
+  override def verifiedOnlyError(request: RequestHeader): Future[Result] =
     immediate(error(FORBIDDEN))
+
+  override def loginSucceeded(request: RequestHeader): Future[Result] = {
+    val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)
+    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
+  }
+
+  override def logoutSucceeded(request: RequestHeader): Future[Result] =
+    immediate(Redirect(controllers.api.routes.ApiHome.index()))
 }

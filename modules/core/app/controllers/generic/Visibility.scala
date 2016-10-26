@@ -2,7 +2,6 @@ package controllers.generic
 
 import backend.rest.DataHelpers
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits._
 import defines.PermissionType
 import models.UserProfile
 import backend.ContentType

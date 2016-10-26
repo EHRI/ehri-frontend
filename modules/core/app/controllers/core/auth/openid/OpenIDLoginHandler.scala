@@ -3,7 +3,6 @@ package controllers.core.auth.openid
 import controllers.base.CoreActionBuilders
 import models.{UserProfile, Account}
 import play.api.libs.openid._
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages

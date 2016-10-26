@@ -5,6 +5,7 @@ import forms.VisibilityForm
 import models.{Link, LinkF}
 import javax.inject._
 
+import auth.handler.AuthHandler
 import controllers.generic._
 import backend.DataApi
 import backend.rest.DataHelpers
@@ -15,11 +16,15 @@ import play.api.mvc.Call
 import utils.MovedPageLookup
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
+
 
 case class Links @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   dataApi: DataApi,
   dataHelpers: DataHelpers,
   accounts: AccountManager,

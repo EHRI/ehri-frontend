@@ -3,7 +3,6 @@ package controllers.countries
 import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import forms.VisibilityForm
 import controllers.generic._
 import models._
@@ -12,6 +11,7 @@ import utils.MovedPageLookup
 import utils.search.{SearchConstants, SearchEngine, SearchItemResolver}
 import javax.inject._
 
+import auth.handler.AuthHandler
 import backend.rest.DataHelpers
 import views.MarkdownRenderer
 
@@ -20,12 +20,16 @@ import backend.{DataApi, Entity, IdGenerator}
 import play.api.Configuration
 import controllers.base.AdminController
 
+import scala.concurrent.ExecutionContext
+
 
 @Singleton
 case class Countries @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   idGenerator: IdGenerator,

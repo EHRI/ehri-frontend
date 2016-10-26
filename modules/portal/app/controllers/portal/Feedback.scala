@@ -4,15 +4,20 @@ import auth.AccountManager
 import backend.rest.cypher.Cypher
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{Result, RequestHeader}
-import utils.{PageParams, MovedPageLookup}
+import play.api.mvc.{RequestHeader, Result}
+import utils.{MovedPageLookup, PageParams}
 import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
 import backend.{DataApi, FeedbackService}
 import javax.inject._
+
+import auth.handler.AuthHandler
 import controllers.portal.base.PortalController
+
+import scala.concurrent.ExecutionContext
+
 
 @Singleton
 case class Feedback @Inject()(
@@ -20,7 +25,7 @@ case class Feedback @Inject()(
   app: play.api.Application, // FIXME: remove
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  feedbackService: FeedbackService,
+  authHandler: AuthHandler,   executionContext: ExecutionContext,   feedbackService: FeedbackService,
   dataApi: DataApi,
   accounts: AccountManager,
   mailer: MailerClient,

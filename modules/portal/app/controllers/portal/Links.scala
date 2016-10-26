@@ -4,6 +4,8 @@ import auth.AccountManager
 import backend.DataApi
 import backend.rest.cypher.Cypher
 import javax.inject.{Inject, Singleton}
+
+import auth.handler.AuthHandler
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Link
@@ -12,11 +14,16 @@ import play.api.i18n.MessagesApi
 import utils.search._
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
+
+
 @Singleton
 case class Links @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

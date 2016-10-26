@@ -7,7 +7,6 @@ import controllers.generic.Search
 import models._
 import models.base.AnyModel
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import utils.caching.FutureCache
 import utils.search._
@@ -18,12 +17,13 @@ import backend.{DataApi, HtmlPages}
 import utils._
 import javax.inject._
 
+import auth.handler.AuthHandler
 import views.MarkdownRenderer
 import views.html.errors.pageNotFound
 import controllers.portal.base.PortalController
 import play.api.libs.json.Json
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
 
@@ -32,6 +32,8 @@ case class Portal @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

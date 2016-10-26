@@ -3,25 +3,25 @@ package controllers.portal.users
 import auth.AccountManager
 import controllers.generic.Search
 import play.api.cache.CacheApi
-import play.api.libs.concurrent.Execution.Implicits._
 import models._
-import play.api.i18n.{MessagesApi, Messages}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.mailer.MailerClient
 import play.api.mvc._
-import play.api.libs.json.{JsValue, Json, JsObject}
-import play.core.parsers.Multipart
+import play.api.libs.json.{JsValue, Json}
 import utils._
 import views.MarkdownRenderer
+
 import scala.concurrent.Future.{successful => immediate}
-import jp.t2v.lab.play2.auth.LoginLogout
 import play.api.libs.Files.TemporaryFile
 import java.io.File
-import scala.concurrent.Future
 import java.time.LocalDateTime
+
+import scala.concurrent.{ExecutionContext, Future}
 import utils.search._
 import backend._
-
 import javax.inject._
+
+import auth.handler.AuthHandler
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.mvc.MaxSizeExceeded
 import play.api.mvc.MultipartFormData.FilePart
@@ -29,13 +29,16 @@ import controllers.DataFormat
 import play.api.http.{HeaderNames, MimeTypes}
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
-import controllers.portal.base.{PortalController, PortalAuthConfigImpl}
+import controllers.portal.base.PortalController
+
 
 @Singleton
 case class UserProfiles @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,
@@ -47,8 +50,6 @@ case class UserProfiles @Inject()(
   fileStorage: FileStorage,
   mat: akka.stream.Materializer
 ) extends PortalController
-  with LoginLogout
-  with PortalAuthConfigImpl
   with Search
   with CsvHelpers {
 

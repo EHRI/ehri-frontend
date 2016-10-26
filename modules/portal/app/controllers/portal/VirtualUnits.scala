@@ -8,16 +8,17 @@ import models._
 import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.MovedPageLookup
 import utils.search._
 import defines.EntityType
-import backend.{IdGenerator, DataApi}
+import backend.{DataApi, IdGenerator}
 import javax.inject._
+
+import auth.handler.AuthHandler
 import views.MarkdownRenderer
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import controllers.portal.base.{Generic, PortalController}
 
@@ -27,6 +28,8 @@ case class VirtualUnits @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

@@ -4,25 +4,30 @@ import auth.AccountManager
 import backend.DataApi
 import backend.rest.cypher.Cypher
 import javax.inject.{Inject, Singleton}
+
+import auth.handler.AuthHandler
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
-import models.{Repository, DocumentaryUnit}
+import models.{DocumentaryUnit, Repository}
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.RequestHeader
 import utils.MovedPageLookup
 import utils.search._
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.{successful => immediate}
+
 
 @Singleton
 case class Repositories @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

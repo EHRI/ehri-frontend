@@ -5,9 +5,10 @@ import backend.rest.cypher.Cypher
 import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.DataApi
 import javax.inject.{Inject, Singleton}
+
+import auth.handler.AuthHandler
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
@@ -17,13 +18,17 @@ import utils.MovedPageLookup
 import utils.search._
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.{successful => immediate}
+
 
 @Singleton
 case class DocumentaryUnits @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
+  authHandler: AuthHandler,
+  executionContext: ExecutionContext,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   dataApi: DataApi,

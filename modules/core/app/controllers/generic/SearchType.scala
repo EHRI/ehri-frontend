@@ -1,6 +1,5 @@
 package controllers.generic
 
-import play.api.libs.concurrent.Execution.Implicits._
 import backend.ContentType
 import models.UserProfile
 import play.api.mvc.{ActionTransformer, Request, WrappedRequest}

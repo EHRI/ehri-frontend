@@ -7,7 +7,7 @@ import utils.{Page, PageParams}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 
-class MockFeedbackService(buffer: collection.mutable.HashMap[Int, Feedback]) extends FeedbackService {
+case class MockFeedbackService(buffer: collection.mutable.HashMap[Int, Feedback]) extends FeedbackService {
 
   def create(feedback: Feedback): Future[String] = {
     val key = buffer.size + 1

@@ -3,22 +3,26 @@ package controllers.portal
 import auth.AccountManager
 import play.api.cache.CacheApi
 import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc.RequestHeader
-import backend.{BadHelpdeskResponse, HelpdeskService, DataApi}
-import models.{UserProfile, Repository}
+import backend.{BadHelpdeskResponse, DataApi, HelpdeskService}
+import models.{Repository, UserProfile}
 import javax.inject._
+
+import auth.handler.AuthHandler
 import controllers.portal.base.PortalController
 import utils.MovedPageLookup
 import utils.search.SearchItemResolver
+
+import scala.concurrent.ExecutionContext
+
 
 @Singleton
 case class Helpdesk @Inject()(
   implicit config: play.api.Configuration,
   cache: CacheApi,
   globalConfig: global.GlobalConfig,
-  dataApi: DataApi,
+  authHandler: AuthHandler,   executionContext: ExecutionContext,   dataApi: DataApi,
   resolver: SearchItemResolver,
   accounts: AccountManager,
   mailer: MailerClient,

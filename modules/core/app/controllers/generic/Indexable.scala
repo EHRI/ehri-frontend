@@ -3,7 +3,6 @@ package controllers.generic
 import akka.actor.ActorRef
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc.Controller
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import utils.search.SearchIndexMediator

@@ -3,15 +3,14 @@ package backend.googledocs
 import javax.inject.Inject
 
 import backend.HtmlPages
-import backend.rest.{PermissionDenied, ItemNotFound}
+import backend.rest.{ItemNotFound, PermissionDenied}
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
 import utils.caching.FutureCache
 
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
 /**
@@ -22,7 +21,9 @@ import scala.concurrent.duration._
  * page css to put all the selectors in a scope so it
  * doesn't affect the rest of the page.
  */
-case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi, config: play.api.Configuration, ws: WSClient) extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi,
+                                          config: play.api.Configuration, ws: WSClient,
+                                          executionContext: ExecutionContext) extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     ws.url(url).withQueryString(
       "e" -> "download",

@@ -1,17 +1,18 @@
 package controllers.portal.base
 
 import java.util.concurrent.TimeUnit
+
 import play.api.Logger
-import defines.{EventType, EntityType}
-import play.api.cache.Cached
+import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.i18n.{Lang, Messages}
 import utils._
 import controllers.renderError
-import models.{Account, UserProfile}
+import models.UserProfile
 import play.api.mvc._
-import controllers.base.{SessionPreferences, ControllerHelpers, CoreActionBuilders}
+import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
 import utils.caching.FutureCache
+
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
@@ -19,13 +20,12 @@ import models.base.AnyModel
 import models.view.UserDetails
 import backend.ApiUser
 import play.api.mvc.Result
-import views.html.errors.{maintenance, itemNotFound}
+import views.html.errors.{itemNotFound, maintenance}
 
 
 trait PortalController
   extends CoreActionBuilders
   with ControllerHelpers
-  with PortalAuthConfigImpl
   with SessionPreferences[SessionPrefs] {
 
   // By default, all controllers require auth unless ehri.portal.secured
@@ -95,17 +95,35 @@ trait PortalController
     EntityType.HistoricalAgent
   )
 
-  override def verifiedOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  /**
+    * A redirect target after a successful user login.
+    */
+  override def loginSucceeded(request: RequestHeader): Future[Result] = {
+    val uri = request.session.get(ACCESS_URI)
+      .getOrElse(controllers.portal.users.routes.UserProfiles.profile().url)
+    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
+  }
+
+  /**
+    * A redirect target after a successful user logout.
+    */
+  override def logoutSucceeded(request: RequestHeader): Future[Result] =
+    immediate(Redirect(controllers.portal.routes.Portal.index())
+      .flashing("success" -> "logout.confirmation"))
+
+
+  override def verifiedOnlyError(request: RequestHeader): Future[Result] = {
     implicit val r  = request
     immediate(Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly())))
   }
 
-  override def staffOnlyError(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def staffOnlyError(request: RequestHeader): Future[Result] = {
     implicit val r  = request
     immediate(Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly())))
   }
 
-  override def notFoundError(request: RequestHeader, msg: Option[String] = None)(implicit context: ExecutionContext): Future[Result] = {
+  override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
     val doMoveCheck: Boolean = config.getBoolean("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
@@ -118,7 +136,7 @@ trait PortalController
     }
   }
 
-  override def downForMaintenance(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def downForMaintenance(request: RequestHeader): Future[Result] = {
     implicit val r  = request
     immediate(ServiceUnavailable(renderError("errors.maintenance", maintenance())))
   }
@@ -126,7 +144,7 @@ trait PortalController
   /**
    * A redirect target after a failed authentication.
    */
-  override def authenticationFailed(request: RequestHeader)(implicit context: ExecutionContext): Future[Result] = {
+  override def authenticationFailed(request: RequestHeader): Future[Result] = {
     if (isAjax(request)) {
       Logger.logger.warn("Auth failed for: {}", request.toString())
       immediate(Unauthorized("authentication failed"))
@@ -136,12 +154,7 @@ trait PortalController
     }
   }
 
-  override def authorizationFailed(request: RequestHeader, user: UserProfile)(implicit context: ExecutionContext): Future[Result] = {
-    implicit val r = request
-    immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
-  }
-
-  override def authorizationFailed(request: RequestHeader, account: Account, authority: Option[Authority] = None)(implicit context: ExecutionContext): Future[Result] = {
+  override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] = {
     implicit val r = request
     immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
   }
@@ -172,9 +185,7 @@ trait PortalController
    * Fetched watched items for an optional user.
    */
   protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
-    import play.api.libs.concurrent.Execution.Implicits._
     FutureCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
-      import play.api.libs.concurrent.Execution.Implicits._
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
       userDataApi.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>
         page.items.map(_.id)
@@ -183,7 +194,7 @@ trait PortalController
   }.getOrElse(Future.successful(Seq.empty))
 
   protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String], asFile: Boolean = false)(
-      implicit apiUser: ApiUser, request: RequestHeader, executionContext: ExecutionContext): Future[Result] = {
+      implicit apiUser: ApiUser, request: RequestHeader): Future[Result] = {
     val format: String = request.getQueryString("format")
       .filter(formats.contains).getOrElse(formats.head)
     val params = request.queryString.filterKeys(_ == "lang")
@@ -215,10 +226,10 @@ trait PortalController
   /**
    * Action which fetches a user's profile and list of watched items.
    */
-  protected def UserBrowseAction = OptionalAccountAction andThen new ActionTransformer[OptionalAuthRequest, UserDetailsRequest] {
-    override protected def transform[A](request: OptionalAuthRequest[A]): Future[UserDetailsRequest[A]] = {
-      request.user.map { account =>
-        import play.api.libs.concurrent.Execution.Implicits._
+  protected def UserBrowseAction = OptionalAccountAction andThen new ActionTransformer[OptionalAccountRequest,
+    UserDetailsRequest] {
+    override protected def transform[A](request: OptionalAccountRequest[A]): Future[UserDetailsRequest[A]] = {
+      request.accountOpt.map { account =>
         implicit val apiUser: ApiUser = ApiUser(Some(account.id))
         val userF: Future[UserProfile] = userDataApi.get[UserProfile](account.id)
         val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(account.id))

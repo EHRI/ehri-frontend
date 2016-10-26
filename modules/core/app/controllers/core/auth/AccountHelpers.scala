@@ -2,6 +2,7 @@ package controllers.core.auth
 
 import scala.collection.JavaConversions
 
+
 trait AccountHelpers {
 
   def config: play.api.Configuration
