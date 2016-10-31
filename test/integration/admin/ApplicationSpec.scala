@@ -116,7 +116,6 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val robots = contentAsString(FakeRequest(GET, "/robots.txt").call())
       robots must contain("Disallow: " + portalRoutes.personalisedActivity().url)
       robots must contain("Disallow: " + accountRoutes.loginOrSignup().url)
-      robots must contain("Disallow: " + controllers.portal.routes.Helpdesk.helpdesk().url)
       robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
       robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
       robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll())

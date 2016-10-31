@@ -20,7 +20,6 @@ details.hide=Cacher les informations concernant l''objet
 help=Aide
 help.general=Aide générale
 help.archivists=Aide pour les archivistes
-help.helpdesk=Service d''assistance
 landingBlurb.Repository=Naviguer {0} dans {1}.
 landingBlurb.Repository.link={0} institutions archivistiques
 landingBlurb.Repository.Country.link={0} pays
@@ -524,29 +523,6 @@ feedback.list=Commentaire envoyé
 feedback.type=Ce commentaire concerne
 feedback.type.site=le site (fonctionnalités, design, etc.)
 feedback.type.data=le contenu des données
-helpdesk=Service d''assistance
-helpdesk.email=Votre adresse e-mail
-helpdesk.message=Le service d''assistance va tenter de transmettre votre demande à l''institution partenaire d''EHRI \
-  qui est la mieux placée pour y répondre. Veuillez noter que \
-  le service d''assistance ne vous fournira pas de réponse à votre question \
-  et il ne l''enverra pas directement à une institution partenaire d''EHRI.
-helpdesk.thanks=Merci !
-helpdesk.thanks.message=Votre demande a été envoyée.
-helpdesk.query=Demande
-helpdesk.error=Oups ! Quelque chose s''est mal passé avec le service d''assistance. Voici ce qui est indiqué :
-helpdesk.results=Recommandations de contact du service d''assistance
-helpdesk.results.empty=Aucune institution pertinente trouvée. Veuillez reformuler votre demande et ajouter plus de détails.
-helpdesk.query.placeholder=Saisissez votre question en anglais ici. Indiquez \
-  des détails sur le domaine de la recherche archivistique à laquelle votre question se réfère, \
-  sur les lieux, les noms, les institutions, les institutions ou les termes du \
-  sujet.
-helpdesk.copyMe=Envoyer par e-mail une copie de la demande à votre adresse
-helpdesk.youAsked=Vous avez demandé
-helpdesk.institution=Nom de l''institution
-helpdesk.contactEmail=E-mail de contact
-helpdesk.score=Niveau de confiance
-helpdesk.confidence.message=Notre niveau de confiance dans l''exactitude de ce classement.
-helpdesk.query.submit=Demander au service d''assistance
 dataPolicy=Politique en matière de données
 dataPolicy.header=Politique EHRI en matière de données
 dataPolicy.notice1=Cette base de données peut contenir des données personnelles qui, selon la législation néerlandaise \
@@ -875,12 +851,6 @@ search.helper.field.example.description=Par exemple, vous pouvez trouver \
   toutes les descriptions qui ont la phrase « Auschwitz Birkenau » dans leur titre \
   en cherchant title:"Auschwitz Birkenau".
 search.helper.field.available=Les champs suivants sont actuellement disponibles :
-helpdesk.recommendations=Institutions recommandées triées par pertinence pour \
-  votre question. Veuillez utiliser l''adresse e-mail indiquée pour contacter une ou \
-  plusieurs institutions pertinentes.
-helpdesk.askAgain=Essayez une autre requête...
-helpdesk.institutions=Les recommandations de contact seront issues des \
-  institutions suivantes :
 contact.header=Contacter l''EHRI
 contact.p1=Le coordinateur du projet EHRI est le NIOD Institute for War, \
   Holocaust and Genocide Studies. Vous pouvez écrire au NIOD à \
@@ -893,10 +863,7 @@ contact.p2.2=si vous avez des questions à propos des collections et des règles
   aux archives qui procurent des données au portail EHRI, \
    veuillez contacter directement les archives concernées en utilisant \
   les coordonnées figurant dans leur description institutionnelle.
-contact.p2.3=si vous avez une question générale à propos de sources archivistiques liées \
-  à l''Holocauste, mais que vous ne savez pas quelle institution \
-  peut répondre à votre question, utilisez le {0}.
-contact.p2.4=pour toutes les autres questions ou si vous souhaitez formuler un commentaire, \
+contact.p2.3=pour toutes les autres questions ou si vous souhaitez formuler un commentaire, \
   un compliment ou une réclamation à propos du portail EHRI, vous pouvez \
   utiliser l'élément de menu « commentaire » dans la barre de menus supérieure du portail, \
   ou nous écrire à {0}.

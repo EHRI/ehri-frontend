@@ -8,7 +8,6 @@ import auth.handler.{AuthHandler, AuthIdContainer}
 import backend._
 import backend.aws.MockFileStorage
 import backend.feedback.MockFeedbackService
-import backend.helpdesk.MockHelpdeskService
 import backend.rest.{IdSearchResolver, RestApi}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
@@ -42,7 +41,6 @@ trait TestConfiguration {
   // whatsit etc...
   protected val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
   protected val cypherQueryBuffer = collection.mutable.HashMap.empty[Int,CypherQuery]
-  protected val helpdeskBuffer = collection.mutable.HashMap.empty[Int, Seq[(String, Double)]]
   protected val mailBuffer = collection.mutable.ListBuffer.empty[Email]
   protected val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
   protected val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
@@ -51,7 +49,6 @@ trait TestConfiguration {
   private def mockMailer: MailerClient = MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
   private def mockFeedback: FeedbackService = MockFeedbackService(feedbackBuffer)
-  private def mockHelpdesk: HelpdeskService = MockHelpdeskService(helpdeskBuffer)
   private def mockCypherQueries: CypherQueryService = MockCypherQueryService(cypherQueryBuffer)
 
   // NB: The mutable state for the user DAO is still stored globally
@@ -90,7 +87,6 @@ trait TestConfiguration {
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
-      bind[HelpdeskService].toInstance(mockHelpdesk),
       bind[FeedbackService].toInstance(mockFeedback),
       bind[CypherQueryService].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),

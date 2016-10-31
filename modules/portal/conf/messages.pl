@@ -20,7 +20,6 @@ details.hide=Ukryj szczegóły dotyczące pozycji
 help=Pomoc
 help.general=Ogólna pomoc dotycząca witryny
 help.archivists=Pomoc dla archiwistów
-help.helpdesk=Pomoc techniczna
 landingBlurb.Repository=Przeglądaj {0} w {1}.
 landingBlurb.Repository.link={0} instytucji archiwalnych
 landingBlurb.Repository.Country.link={0} krajów
@@ -523,21 +522,6 @@ feedback.list=Przesłana opinia
 feedback.type=Ta opinia dotyczy:
 feedback.type.site=witryny (funkcjonalność, układ itp.)
 feedback.type.data=zawartych treści
-helpdesk=Dział pomocy
-helpdesk.email=Twój e-mail
-helpdesk.thanks=Dziękujemy!
-helpdesk.thanks.message=Twoje zapytanie zostało przesłane.
-helpdesk.query=Zapytanie
-helpdesk.error=Oj! Wystąpił problem podczas korzystania z pomocy. Oto komunikat:
-helpdesk.results=Rekomendacje dotyczące kontaktu z działem pomocy
-helpdesk.results.empty=Nie znaleziono odpowiednich instytucji. Zmień sformułowanie zapytania i dodaj więcej szczegółów.
-helpdesk.copyMe=Prześlij kopię zapytania na mój adres
-helpdesk.youAsked=Pytałeś o
-helpdesk.institution=Nazwa instytucji
-helpdesk.contactEmail=E-mail kontaktowy
-helpdesk.score=Stopień zaufania
-helpdesk.confidence.message=W jakim stopniu jesteśmy przekonani, że ta klasyfikacja jest prawidłowa.
-helpdesk.query.submit=Zapytaj dział pomocy
 dataPolicy=Zasady zarządzania danymi
 dataPolicy.header=Zasady zarządzania danymi w EHRI
 dataPolicy.notice1=Ta baza danych może zawierać wrażliwe dane osobowe, które zgodnie z holenderskim prawem o ochronie \
@@ -868,20 +852,6 @@ search.helper.field.example.description=Można na przykład wyszukać wszystkie 
     opisy, które w tytule zawierają frazę "Auschwitz Birkenau", \
     wpisując tytuł:"Auschwitz Birkenau".
 search.helper.field.available=Obecnie dostępne są następujące pola:
-helpdesk.message=Dział pomocy postara się dopasować Twoje zapytanie do \
-    instytucji partnerskiej EHRI, która będzie mogła na nie najlepiej odpowiedzieć.  Należy pamiętać, że \
-    Dział pomocy nie udzieli odpowiedzi na Twoje pytanie ani nie \
-    prześle bezpośrednio Twojego pytania do instytucji partnerskiej EHRI.
-helpdesk.query.placeholder=Tutaj wpisz swoje pytanie w języku angielskim. Przedstaw \
-    szczegółowe informacje dotyczące obszaru badań archiwalnych, którego dotyczy pytanie, \
-    na przykład nazwy miejsc, nazwiska, instytucje lub hasła \
-    tematyczne.
-helpdesk.recommendations=Zalecane instytucje posortowane według trafności \
-    w odniesieniu do pytania. Skorzystaj z podanego adresu e-mail, aby skontaktować się z jedną lub \
-    większą liczbą stosownych instytucji.
-helpdesk.askAgain=Wypróbuj inne pytanie...
-helpdesk.institutions=Dane kontaktowe instytucji, z którymi zalecamy się skontaktować, pochodzą z \
-    następujących źródeł:
 contact.header=Kontakt z EHRI
 contact.p1=Koordynatorem projektu EHRI jest Instytut Badań nad Wojną, \
     Zagładą Żydów i Ludobójstwem NIOD. Z Instytutem NIOD można skontaktować się pisemnie \
@@ -894,10 +864,7 @@ contact.p2.2=W przypadku wszelkich pytań dotyczących zbiorów i zasad \
     ich udostępniania w archiwach, które przekazują dane na portal EHRI, \
     należy skontaktować się bezpośrednio z danym archiwum, korzystając \
     z informacji kontaktowych podanych w opisie danej instytucji.
-contact.p2.3=W przypadku pytań ogólnych związanych ze źródłami archiwalnymi \
-    dotyczącymi Zagłady Żydów, kiedy nie ma pewności, która ze współpracujących instytucji mogłaby \
-    udzielić odpowiedzi na pytanie, przydatny będzie {0}.
-contact.p2.4=W przypadku wszelkich pozostałych pytań lub w sprawie uwag, \
+contact.p2.3=W przypadku wszelkich pozostałych pytań lub w sprawie uwag, \
     podziękowań lub skarg na temat portalu EHRI można skorzystać z \
     pozycji „Opinie” na górnym pasku menu w portalu lub wysłać \
     e-mail na adres {0}.

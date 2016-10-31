@@ -7,7 +7,6 @@ import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
 import backend._
 import backend.aws.S3FileStorage
 import backend.googledocs.GoogleDocsHtmlPages
-import backend.helpdesk.EhriHelpdesk
 import backend.rest.cypher.{Cypher, CypherService}
 import backend.rest.{CypherIdGenerator, GidSearchResolver, RestApi}
 import backend.sql.{SqlCypherQueryService, SqlFeedbackService}
@@ -40,7 +39,6 @@ class AppModule extends AbstractModule {
     bind(classOf[DataApi]).to(classOf[RestApi])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
-    bind(classOf[HelpdeskService]).to(classOf[EhriHelpdesk])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
