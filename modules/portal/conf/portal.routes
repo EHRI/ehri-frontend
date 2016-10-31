@@ -7,9 +7,6 @@
 
 GET         /                                     @controllers.portal.Portal.index
 
-GET         /helpdesk                             @controllers.portal.Helpdesk.helpdesk
-POST        /helpdesk                             @controllers.portal.Helpdesk.helpdeskPost
-
 GET         /robots.txt                           @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="robots.txt")
 GET         /sitemap.xml                          @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="sitemap.xml")
 

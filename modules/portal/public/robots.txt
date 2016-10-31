@@ -8,7 +8,6 @@ Disallow: /notes
 Disallow: /links
 Disallow: /locale
 Disallow: /feedback
-Disallow: /helpdesk
 Disallow: /activity
 Disallow: /guides
 Disallow: */export
