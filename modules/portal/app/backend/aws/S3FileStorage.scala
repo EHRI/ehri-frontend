@@ -11,12 +11,24 @@ import backend.FileStorage
 import scala.concurrent.{ExecutionContext, Future}
 
 case class S3FileStorage @Inject ()(implicit config: play.api.Configuration) extends FileStorage {
-  override def putFile(instance: String, classifier: String, path: String, file: File)(
-      implicit executionContext: ExecutionContext): Future[URI] = {
+
+  override def putFile(instance: String, classifier: String, path: String, file: File)(implicit executionContext: ExecutionContext): Future[URI] = {
+    val result: PutObjectResult = bucket(instance, classifier).putAsPublicRead(path, file)
+    Future.successful(url(instance, result))
+  }
+
+  override def delete(instance: String, classifier: String, path: String)(implicit executionContext: ExecutionContext): Future[Unit] = {
+    Future.successful(bucket(instance, classifier).delete(path))
+  }
+
+  private def bucket(instance: String, classifier: String): Bucket = {
     val s3config: AwsConfig = AwsConfig.fromConfig(fallback = Map("aws.instance" -> instance))
-    implicit val s3 = S3(Credentials(s3config.accessKey, s3config.secret))(awscala.Region(s3config.region))
-    val bucket: Bucket = s3.bucket(classifier).getOrElse(sys.error(s"Bucket $classifier not found"))
-    val read: PutObjectResult = bucket.putAsPublicRead(path, file)
-    Future.successful(new URI(s"https://${read.bucket.name}.s3-${s3config.region}.amazonaws.com/${read.key}"))
+    val s3 = S3(Credentials(s3config.accessKey, s3config.secret))(awscala.Region(s3config.region))
+    s3.bucket(classifier).getOrElse(sys.error(s"Bucket $classifier not found"))
+  }
+
+  private def url(instance: String, result: PutObjectResult): URI = {
+    val s3config: AwsConfig = AwsConfig.fromConfig(fallback = Map("aws.instance" -> instance))
+    new URI(s"https://${result.bucket.name}.s3-${s3config.region}.amazonaws.com/${result.key}")
   }
 }
