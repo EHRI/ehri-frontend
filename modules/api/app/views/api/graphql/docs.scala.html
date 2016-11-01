@@ -76,6 +76,38 @@
                 <dd>The query as text. Variables are not supported via this format.</dd>
             </dl>
         </div>
+
+        <hr/>
+        <div id="api-usage-pagination">
+            <h3>Pagination and Cursors</h3>
+            <p>
+                By <i>default</i> the GraphQL API returns paginated (partial) data for types which return lists
+                of items. GraphQL types which represent potentially unbounded lists of items, such as
+                <code>repositories</code> or <code>documentaryUnits</code>, contain two sub-fields name <code>items</code>
+                and <code>pageInfo</code>. The <code>items</code> field is an array of items in the current page, and
+                <code>pageInfo</code> contains a <code>nextPage</code> <i>cursor</i> that can be passed to the <code>after</code> argument
+                to retrieve the next page of items. (More generally this pagination schema conforms to the <a href="https://facebook.github.io/relay/graphql/connections.htm">Relay Cursor Connections Specification</a>, with the exception of backwards pagination
+                which is not currently supported.)
+            </p>
+            <p>
+                This is an example of a query which fetches the items and next page cursor:
+            </p>
+            <script src="https://gist.github.com/mikesname/d8abd5bb4f7d775adfc2e33ec123f35f.js"></script>
+            <p>
+                In this case, if no variables were provided for the value of the <code>$cursor</code> parameter
+                it would default to <code>null</code>, returning the first page of items. Thereafter the value of
+                <code>nextPage</code> can be used as the <code>$cursor</code> value to retrieve subsequent items.
+            </p>
+
+            <h4>Streaming</h4>
+            <p>
+                While response pagination is appropriate for user interfaces or memory-constrained applications
+                it is less efficient than retrieving a complete data set as a stream.
+                Streaming can be enabled for the GraphQL API by adding the HTTP header value <code>X-Stream: true</code>
+                to the GraphQL request. In this mode, pagination will be disabled for all list types and the full dataset
+                returned as an HTTP chunked response.
+            </p>
+        </div>
     </section>
 
     <section id="api-usage-python">
@@ -156,6 +188,7 @@
         <ul class="nav">
             <li role="presentation"><a href="#api-usage-example">Example</a></li>
             <li role="presentation"><a href="#api-usage-formats">Data Formats</a></li>
+            <li role="presentation"><a href="#api-usage-pagination">Pagination and Cursors</a></li>
         </ul>
     </li>
     <li role="presentation">
