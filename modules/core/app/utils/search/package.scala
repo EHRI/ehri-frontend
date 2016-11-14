@@ -1,7 +1,5 @@
 package utils
 
-import java.io.IOException
-
 import defines.EnumUtils
 
 package object search {
@@ -15,8 +13,11 @@ package object search {
 
   def pathWithoutFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     http.joinPath(path, qs.collect {
-        case (q, vals) if q == fc.param => q -> vals.filter(_ != f)
-        case pair => pair
+      // Specific facets
+      case (q, vals) if q == fc.param => q -> vals.filter(_ != f)
+      // Generic facets
+      case (k, vals) if k == SearchParams.FACET => k -> vals.filter(_ != s"${fc.param}:$f")
+      case pair => pair
     })
 
   def pathWithFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
@@ -26,4 +27,12 @@ package object search {
         case pair => pair
       }
     } else qs.updated(fc.param, Seq(f)))
+
+  def pathWithGenericFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
+    http.joinPath(path, if (qs.contains(SearchParams.FACET)) {
+      qs.collect {
+        case (k, vals) if k == SearchParams.FACET => k -> vals.union(Seq(s"${fc.param}:$f")).distinct.sorted
+        case pair => pair
+      }
+    } else qs.updated(SearchParams.FACET, Seq(s"${fc.param}:$f")))
 }

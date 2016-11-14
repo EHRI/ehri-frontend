@@ -65,6 +65,7 @@ case class SearchParams(
   reverse: Option[Boolean] = Some(false),
   entities: Seq[EntityType.Value] = Nil,
   fields: Seq[SearchField.Value] = Nil,
+  facets: Seq[String] = Nil,
   excludes: Option[List[String]] = None,
   filters: Option[List[String]] = None
 ) {
@@ -93,6 +94,7 @@ case class SearchParams(
       reverse = reverse orElse d.reverse,
       entities = if (entities.isEmpty) d.entities else entities,
       fields = if (fields.isEmpty) d.fields else fields,
+      facets = if (facets.isEmpty) d.facets else facets,
       excludes = excludes orElse d.excludes,
       filters = filters orElse d.filters
     )
@@ -105,6 +107,7 @@ object SearchParams {
   val SORT = "sort"
   val QUERY = "q"
   val FIELD = "qf"
+  val FACET = "facet"
   val ENTITY = "st"
   val EXCLUDE = "ex"
   val FILTERS = "f"
@@ -133,6 +136,7 @@ object SearchParams {
       REVERSE -> optional(boolean),
       ENTITY -> tolerantSeq(EntityType),
       FIELD -> tolerantSeq(SearchField),
+      FACET -> seq(nonEmptyText),
       EXCLUDE -> optional(list(nonEmptyText)),
       FILTERS -> optional(list(nonEmptyText))
     )(SearchParams.apply)(SearchParams.unapply)

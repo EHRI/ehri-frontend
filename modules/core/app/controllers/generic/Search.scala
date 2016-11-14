@@ -39,12 +39,25 @@ trait Search extends CoreActionBuilders {
   protected def hasActiveQuery(request: RequestHeader): Boolean =
     request.getQueryString(SearchParams.QUERY).exists(_.nonEmpty)
 
-  private def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] =
-    facetClasses.flatMap { fc =>
+  private def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] = {
+    // Facets provided with names as query parameters
+    val specific: Seq[AppliedFacet] = facetClasses.flatMap { fc =>
       request.queryString.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
         AppliedFacet(fc.key, values.toList)
       }
     }
+
+    // Facets provided using ?facet=name:value format
+    val fs: Seq[String] = request.queryString.getOrElse(SearchParams.FACET, Seq.empty[String])
+    val keys: Map[String,String] = facetClasses.map(fc => fc.param -> fc.key).toMap
+    val generic: Seq[AppliedFacet] = fs.map(_.split(":").toList).collect {
+      case key :: value :: Nil if keys.contains(key) => keys.getOrElse(key, key) -> value
+    }.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
+      m.updated(k, v +: m.getOrElse(k, Seq.empty[String]))
+    }.map(s => AppliedFacet(s._1, s._2)).toSeq
+
+    specific ++ generic
+  }
 
   /**
    * Search sort logic. By default, if there's a query, items come out
@@ -90,7 +103,6 @@ trait Search extends CoreActionBuilders {
 
     val facetClasses = facetBuilder(request)
     val appliedFacets: Seq[AppliedFacet] = bindFacetsFromRequest(facetClasses)
-
     searchEngine.config
       .setParams(sp)
       .withFacets(appliedFacets)
