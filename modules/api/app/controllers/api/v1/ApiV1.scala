@@ -23,8 +23,9 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils.Page
-import utils.search.{SearchConstants, SearchEngine, SearchItemResolver, SearchParams}
-import views.MarkdownRenderer
+import utils.search.SearchConstants._
+import utils.search._
+import views.{Helpers, MarkdownRenderer}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
@@ -72,6 +73,21 @@ case class ApiV1 @Inject()(
 
   private val hitsPerSecond = 1000 // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
+
+  // i.e. Everything
+  private val apiSearchFacets: FacetBuilder = { implicit request =>
+    List(
+      FieldFacetClass(
+        key = LANGUAGE_CODE,
+        name = Messages("facet.lang"),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
+      )
+    )
+  }
+
 
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
@@ -258,13 +274,14 @@ case class ApiV1 @Inject()(
       ))
     )
 
-  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
+  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
     JsonApiAction.async { implicit request =>
       find[AnyModel](
-        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
-        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
+        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+        facetBuilder = apiSearchFacets
       ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit).absoluteURL())))
+        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit, facets).absoluteURL())))
           .as(JSONAPI_MIMETYPE)
       }
     }
@@ -285,16 +302,17 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
+  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
     JsonApiAction.async { implicit request =>
       userDataApi.getAny[AnyModel](id).flatMap { item =>
         find[AnyModel](
           filters = Map(searchFilterKey(item) -> id),
-          defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
-          entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
+          defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+          entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+          facetBuilder = apiSearchFacets
         ).map { r =>
           Ok(Json.toJson(pageData(r.mapItems(_._1).page,
-            p => apiRoutes.searchIn(id, q, `type`, p, limit).absoluteURL(), Some(Seq(item))))
+            p => apiRoutes.searchIn(id, q, `type`, p, limit, facets).absoluteURL(), Some(Seq(item))))
           ).as(JSONAPI_MIMETYPE)
         }
       } recover {
