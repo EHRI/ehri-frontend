@@ -99,7 +99,7 @@ trait FacetConfig extends Search {
         display = FacetDisplay.DropDown
       ),
       FieldFacetClass(
-        key = HOLDER_NAME,
+        key = HOLDER_ID,
         name = Messages("documentaryUnit.heldBy"),
         param = "holder",
         sort = FacetSort.Name,
