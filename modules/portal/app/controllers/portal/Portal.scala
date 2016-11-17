@@ -42,7 +42,6 @@ case class Portal @Inject()(
   private val defaultSearchTypes = List(
     EntityType.Repository,
     EntityType.DocumentaryUnit,
-    EntityType.VirtualUnit,
     EntityType.Country
   )
 
@@ -115,13 +114,11 @@ case class Portal @Inject()(
   def index = OptionalUserAction.async { implicit request =>
     FutureCache.getOrElse("index:metrics", Duration(60 * 5, TimeUnit.SECONDS)) {
       find[AnyModel](
-        defaultParams = SearchParams(
-          // we don't need results here because we're only using the facets
-          count = Some(0),
-          entities = defaultSearchTypes
-        ),
+        // we don't need actual hits here because we're only using the facets counts
+        defaultParams = SearchParams(count = Some(0)),
+        extra = Map("facet.limit" -> "-1"),
         facetBuilder = entityMetrics,
-        extra = Map("facet.limit" -> "-1")
+        entities = defaultSearchTypes
       ).map(_.facetClasses)
     }.map(facets => Ok(views.html.portal(Stats(facets))))
   }
