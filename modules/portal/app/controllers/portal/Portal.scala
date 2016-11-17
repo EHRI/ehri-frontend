@@ -193,13 +193,11 @@ case class Portal @Inject()(
       // Assume no user for fetching global stats
       implicit val userOpt: Option[UserProfile] = None
       find[AnyModel](
-        defaultParams = SearchParams(
-          // we don't need results here because we're only using the facets
-          count = Some(0),
-          entities = defaultSearchTypes
-        ),
+        // we don't need results here because we're only using the facets
+        defaultParams = SearchParams(count = Some(0)),
         facetBuilder = entityMetrics,
-        extra = Map("facet.limit" -> "-1")
+        extra = Map("facet.limit" -> "-1"),
+        entities = defaultSearchTypes
       ).map(r => Stats(r.facetClasses))
     }
 }
