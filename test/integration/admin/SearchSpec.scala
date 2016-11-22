@@ -45,43 +45,6 @@ class SearchSpec extends IntegrationTestRunner {
         .call()
       status(filter) must equalTo(OK)
     }
-
-    "perform indexing correctly" in new ITestApp {
-      val cmd: List[String] = List(
-        EntityType.DocumentaryUnit.toString,
-        EntityType.Repository.toString
-      )
-      val data = Map[String, Seq[String]](
-        "all" -> Seq("true"),
-        "type[]" -> cmd
-      )
-
-      val idx = FakeRequest(controllers.admin.routes.AdminSearch.updateIndexPost())
-          .withUser(privilegedUser)
-          .withCsrf
-          .callWith(data)
-      status(idx) must equalTo(OK)
-      // NB: reading the content of the chunked response as a string is
-      // necessary to exhaust the iteratee and fill the event buffer.
-      contentAsString(idx) must contain("Done")
-      indexEventBuffer.lastOption must beSome.which { bufcmd =>
-        bufcmd must equalTo(cmd.toString())
-      }
-    }
-
-    "perform hierarchy indexing correctly" in new ITestApp {
-      val idx = FakeRequest(controllers.institutions.routes.Repositories.updateIndexPost("r1"))
-        .withUser(privilegedUser)
-        .withCsrf
-        .call()
-      status(idx) must equalTo(OK)
-      // NB: reading the content of the chunked response as a string is
-      // necessary to exhaust the iteratee and fill the event buffer.
-      contentAsString(idx) must contain("Done")
-      indexEventBuffer.lastOption must beSome.which { bufcmd =>
-        bufcmd must equalTo("r1")
-      }
-    }
   }
 
   "Search metrics" should {
