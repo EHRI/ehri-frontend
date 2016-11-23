@@ -57,9 +57,7 @@ object Helpers {
       case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
       case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
       case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
-      case _ =>
-        play.api.Logger.logger.error(s"Link to unexpected item: $id -> $isA")
-        Call("GET", "#")
+      case _ => Call("GET", "#")
     }
   }
 
