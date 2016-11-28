@@ -167,8 +167,8 @@ object JsonApiV1 {
   case class DocumentaryUnitLinks(
     self: String,
     search: String,
-    holder: Option[String],
-    parent: Option[String]
+    holder: Option[String] = None,
+    parent: Option[String] = None
   )
 
   object DocumentaryUnitLinks {
@@ -176,8 +176,8 @@ object JsonApiV1 {
   }
 
   case class DocumentaryUnitRelations(
-    holder: Option[JsValue],
-    parent: Option[JsValue]
+    holder: Option[JsValue] = None,
+    parent: Option[JsValue] = None
   )
 
   object DocumentaryUnitRelations {
