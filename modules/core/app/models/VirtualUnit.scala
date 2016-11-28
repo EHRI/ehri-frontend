@@ -117,8 +117,8 @@ case class VirtualUnit(
     else includedUnits.headOption.map(_.toStringLang(messages)).getOrElse(id)
   }
 
-  def allDescriptions: Seq[DocumentaryUnitDescriptionF]
-    = includedUnits.flatMap(_.descriptions) ++ model.descriptions
+  def allDescriptions: Seq[DocumentaryUnitDescriptionF] =
+    includedUnits.flatMap(_.descriptions) ++ model.descriptions
 
   def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(
     new DocumentaryUnitF(

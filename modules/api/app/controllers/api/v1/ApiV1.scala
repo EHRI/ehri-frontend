@@ -5,10 +5,11 @@ import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
 import auth.handler.AuthHandler
+import backend.rest.cypher.Cypher
 import backend.{AnonymousUser, DataApi}
 import backend.rest.{ItemNotFound, PermissionDenied}
 import controllers.Components
-import controllers.base.{ControllerHelpers, CoreActionBuilders}
+import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
 import global.GlobalConfig
@@ -23,8 +24,9 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils.Page
-import utils.search.{SearchConstants, SearchEngine, SearchItemResolver, SearchParams}
-import views.MarkdownRenderer
+import utils.search.SearchConstants._
+import utils.search._
+import views.{Helpers, MarkdownRenderer}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
@@ -34,6 +36,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 object ApiV1 {
   val apiSupportedEntities = Seq(
     EntityType.DocumentaryUnit,
+    EntityType.VirtualUnit,
     EntityType.Repository,
     EntityType.HistoricalAgent,
     EntityType.Country
@@ -43,10 +46,12 @@ object ApiV1 {
 @Singleton
 case class ApiV1 @Inject()(
   components: Components,
-  ws: WSClient
+  ws: WSClient,
+  cypher: Cypher
 ) extends CoreActionBuilders
   with ControllerHelpers
-  with Search {
+  with Search
+  with SearchVC {
 
   protected implicit def cache: CacheApi = components.cacheApi
   implicit def messagesApi: MessagesApi = components.messagesApi
@@ -72,6 +77,21 @@ case class ApiV1 @Inject()(
 
   private val hitsPerSecond = 1000 // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
+
+  // i.e. Everything
+  private val apiSearchFacets: FacetBuilder = { implicit request =>
+    List(
+      FieldFacetClass(
+        key = LANGUAGE_CODE,
+        name = Messages("facet.lang"),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.Choice,
+        sort = FacetSort.Name
+      )
+    )
+  }
+
 
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
@@ -167,6 +187,32 @@ case class ApiV1 @Inject()(
         meta = Some(meta(doc).deepMerge(holderMeta(doc)))
       )
     )
+    case vu: VirtualUnit => Json.toJson(
+      JsonApiResponseData(
+        id = vu.id,
+        `type` = vu.isA.toString,
+        attributes = Json.toJson(DocumentaryUnitAttrs(vu.asDocumentaryUnit)),
+        relationships = Some(
+          Json.toJson(
+            DocumentaryUnitRelations(
+              parent = vu.parent.map(_.asDocumentaryUnit).map { r =>
+                Json.obj("data" -> ResourceIdentifier(r))
+              }
+            )
+          )
+        ),
+        links = Some(
+          Json.toJson(
+            DocumentaryUnitLinks(
+              self = apiRoutes.fetch(vu.id).absoluteURL(),
+              search = apiRoutes.searchIn(vu.id).absoluteURL(),
+              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL())
+            )
+          )
+        ),
+        meta = Some(meta(vu).deepMerge(holderMeta(vu)))
+      )
+    )
     case repo: Repository => Json.toJson(
       JsonApiResponseData(
         id = repo.id,
@@ -232,10 +278,11 @@ case class ApiV1 @Inject()(
     case _ => None
   }
 
-  private def searchFilterKey(any: AnyModel): String = any match {
-    case repo: Repository => SearchConstants.HOLDER_ID
-    case country: Country => SearchConstants.COUNTRY_CODE
-    case _ => SearchConstants.PARENT_ID
+  private def hierarchySearchFilters(item: AnyModel): Future[Map[String, Any]] = item match {
+    case repo: Repository => immediate(Map(SearchConstants.HOLDER_ID -> item.id))
+    case country: Country => immediate(Map(SearchConstants.COUNTRY_CODE -> item.id))
+    case vc: VirtualUnit => buildChildSearchFilter(vc)
+    case _ => immediate(Map(SearchConstants.PARENT_ID -> item.id))
   }
 
   private def pageData[T <: AnyModel](page: Page[T],
@@ -258,13 +305,14 @@ case class ApiV1 @Inject()(
       ))
     )
 
-  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
+  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
     JsonApiAction.async { implicit request =>
       find[AnyModel](
-        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
-        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
+        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+        facetBuilder = apiSearchFacets
       ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit).absoluteURL())))
+        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit, facets).absoluteURL())))
           .as(JSONAPI_MIMETYPE)
       }
     }
@@ -285,18 +333,20 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int) =
+  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
     JsonApiAction.async { implicit request =>
       userDataApi.getAny[AnyModel](id).flatMap { item =>
-        find[AnyModel](
-          filters = Map(searchFilterKey(item) -> id),
-          defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit)),
-          entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e))
-        ).map { r =>
-          Ok(Json.toJson(pageData(r.mapItems(_._1).page,
-            p => apiRoutes.searchIn(id, q, `type`, p, limit).absoluteURL(), Some(Seq(item))))
-          ).as(JSONAPI_MIMETYPE)
-        }
+        for {
+          filters <- hierarchySearchFilters(item)
+          result <- find[AnyModel](
+            filters = filters,
+            defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+            entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+            facetBuilder = apiSearchFacets
+          )
+        } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,
+          p => apiRoutes.searchIn(id, q, `type`, p, limit, facets).absoluteURL(), Some(Seq(item))))
+        ).as(JSONAPI_MIMETYPE)
       } recover {
         case e: ItemNotFound => error(NOT_FOUND, e.message)
         case e: PermissionDenied => error(FORBIDDEN)

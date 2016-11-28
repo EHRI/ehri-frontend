@@ -15,7 +15,6 @@ import play.api.mvc.RequestHeader
 import utils.search._
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
@@ -38,26 +37,9 @@ case class VirtualUnits @Inject()(
       request.item, request.annotations, request.links, request.watched))
   }
 
-  private def filtersOrIds(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] = {
-    import SearchConstants._
-    item match {
-      // If we don't have an active query, this is just the immediate children
-      case _ if !hasActiveQuery(request) => immediate(buildChildSearchFilter(item))
-      // If we do, and the item is a virtual unit, we need to specifically query
-      // the immediate leaf nodes and construct an ID-or-ANCESTOR query
-      case v: VirtualUnit => descendantIds(item).map { seq =>
-        if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-        else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
-      }
-      // otherwise, for documentary units, we can just query
-      // all ancestors
-      case d => immediate(Map(s"$ANCESTOR_IDS:${item.id}" -> Unit))
-    }
-  }
-
   def searchVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
     for {
-      filters <- filtersOrIds(request.item)
+      filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
@@ -72,8 +54,8 @@ case class VirtualUnits @Inject()(
   }
 
   def browseVirtualCollections = UserBrowseAction.async { implicit request =>
-    val filters = if (request.getQueryString(SearchParams.QUERY).forall(_.trim.isEmpty))
-      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]
+    val filters = if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
+    else Map.empty[String,Any]
 
     find[VirtualUnit](
       filters = filters,
@@ -113,7 +95,7 @@ case class VirtualUnits @Inject()(
       watched <- watchedF
       item <- itemF
       path <- pathF
-      filters <- filtersOrIds(item)
+      filters <- vcSearchFilters(item)
       result <- find[AnyModel](
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),

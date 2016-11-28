@@ -29,5 +29,16 @@ class FacetSpec extends PlaySpecification {
       val withoutFacet: String = pathWithoutFacet(testFacetClass, "fr", "/foobar", qs)
       withoutFacet must equalTo("/foobar?lang=de")
     }
+
+    "allow adding generic facet to a query" in {
+      val withFacet: String = pathWithGenericFacet(testFacetClass, "en", "/foobar", qs)
+      withFacet must equalTo("/foobar?lang=de&lang=fr&facet=lang%3Aen")
+    }
+
+    "allow removing generic facets from a query" in {
+      val withoutFacet: String = pathWithoutFacet(testFacetClass, "fr", "/foobar",
+        ListMap("facet" -> Seq("lang:de", "lang:fr")))
+      withoutFacet must equalTo("/foobar?facet=lang%3Ade")
+    }
   }
 }

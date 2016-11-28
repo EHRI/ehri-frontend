@@ -150,5 +150,5 @@ case class SolrSearchConfig(
 }
 
 case class SolrSearchEngine @Inject()(handler: ResponseHandler, conf: Configuration, ws: WSClient) extends SearchEngine {
-  def config = new SolrSearchConfig(handler)(conf, ws)
+  def config = SolrSearchConfig(handler)(conf, ws)
 }

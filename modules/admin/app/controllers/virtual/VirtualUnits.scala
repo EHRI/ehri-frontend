@@ -16,7 +16,7 @@ import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import play.api.mvc.Action
+import play.api.mvc.{Action, RequestHeader}
 import utils.search._
 import views.Helpers
 
@@ -115,12 +115,11 @@ case class VirtualUnits @Inject()(
 
   def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
     for {
-      ids <- descendantIds(request.item)
+      filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
-        filters = buildChildSearchFilter(request.item),
+        filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = entityFacets,
-        idFilters = ids
+        facetBuilder = entityFacets
       )
     } yield {
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
@@ -129,8 +128,9 @@ case class VirtualUnits @Inject()(
 
   def get(id: String) = ItemMetaAction(id).async { implicit request =>
     for {
+      filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
-        filters = buildChildSearchFilter(request.item),
+        filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = entityFacets)
     } yield {
@@ -151,8 +151,9 @@ case class VirtualUnits @Inject()(
       path <- pathF
       links <- linksF
       annotations <- annsF
+      filters <- vcSearchFilters(item)
       children <- find[AnyModel](
-        filters = buildChildSearchFilter(item),
+        filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
