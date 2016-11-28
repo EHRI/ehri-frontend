@@ -4,22 +4,20 @@
     <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/css/timeline.css">
 }
 @js = {
-    <!-- BEGIN TimelineJS -->
     <script type="text/javascript" src="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/js/storyjs-embed.js"></script>
     <script>
-$(document).ready(function() {
-    createStoryJS({
-        type:       'timeline',
-        width:      '750',
-        height:     '600',
-        source:     '@page.content.trim
-        ',
-                    embed_id:   'my-timeline'
-                });
+        $(document).ready(function() {
+            createStoryJS({
+                type:       'timeline',
+                width:      '750',
+                height:     '600',
+                source:     '@page.content.trim',
+                embed_id:   'my-timeline'
             });
-            </script>
-    <!-- END TimelineJS -->
+        });
+    </script>
 }
+
 @views.html.layout.guideLayout(guide, page, allPages, scripts = js, optionalContent = page.description.map(d => Html(md.renderTrustedMarkdown(d)))) {
     <article>
         <header>
