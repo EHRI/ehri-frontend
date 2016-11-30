@@ -18,15 +18,12 @@ case class S3FileStorage @Inject()(implicit config: play.api.Configuration, acto
 
   private val logger = Logger(getClass)
   private implicit val ec = mat.executionContext
+  private val s3config: AwsConfig = AwsConfig.fromConfig(config)
+  private val client = new S3Client(AWSCredentials(s3config.accessKey, s3config.secret), s3config.region)
 
-  override def putFile(instance: String, classifier: String, path: String, file: File): Future[URI] = {
-
-    val s3config: AwsConfig = AwsConfig.fromConfig(config, fallback = Map("aws.instance" -> instance))
-    val cred = AWSCredentials(s3config.accessKey, s3config.secret)
-    val client = new S3Client(cred, s3config.region)
-    val sink = client.multipartUpload(classifier, path, cannedAcl = CannedAcl.PublicRead)
-
+  override def putFile(classifier: String, path: String, file: File): Future[URI] = {
     logger.debug(s"Uploading file: ${file.getPath} to $classifier/$path")
+    val sink = client.multipartUpload(classifier, path, cannedAcl = CannedAcl.PublicRead)
     FileIO.fromPath(file.toPath).runWith(sink).map(r => new URI(r.location.toString))
   }
 }

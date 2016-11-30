@@ -323,7 +323,7 @@ case class UserProfiles @Inject()(
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
 
-    val url: Future[String] = fileStorage.putFile(instance, classifier, storeName, temp).map(_.toString)
+    val url: Future[String] = fileStorage.putFile(classifier, storeName, temp).map(_.toString)
     url.onComplete { _ => temp.delete() }
     url
   }

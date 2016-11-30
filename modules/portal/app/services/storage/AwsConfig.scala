@@ -2,7 +2,6 @@ package services.storage
 
 case class AwsConfig(
   region: String,
-  instance: String,
   accessKey: String,
   secret: String
 )
@@ -16,7 +15,6 @@ object AwsConfig {
 
     new AwsConfig(
       getString("s3.region"),
-      getString("aws.instance"),
       getString("aws.accessKeyId"),
       getString("aws.secretKey")
     )
