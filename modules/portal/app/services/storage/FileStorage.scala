@@ -16,6 +16,5 @@ trait FileStorage {
    * @param file        the file object to store
    * @return  the file URI of the stored file
    */
-  def putFile(instance: String, classifier: String, path: String, file: File)(implicit executionContext: ExecutionContext):
-  Future[URI]
+  def putFile(instance: String, classifier: String, path: String, file: File): Future[URI]
 }
