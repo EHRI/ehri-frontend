@@ -6,6 +6,7 @@ import java.net.URI
 import scala.concurrent.Future
 
 trait FileStorage {
+
   /**
     * Put a file object in storage.
     *

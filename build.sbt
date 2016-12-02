@@ -79,7 +79,7 @@ val portalDependencies = Seq(
   "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
-  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.2+2-6f5ddc2e"
+  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.3"
 )
 
 val testDependencies = Seq(
