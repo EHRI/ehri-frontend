@@ -110,8 +110,8 @@ val additionalResolvers = Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "EHRI Snapshots" at "http://ehridev.dans.knaw.nl/artifactory/libs-snapshot/",
-  "EHRI Releases" at "http://ehridev.dans.knaw.nl/artifactory/libs-release/"
+  "EHRI Snapshots" at "https://dev.ehri-project.eu/artifactory/libs-snapshot/",
+  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/"
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
