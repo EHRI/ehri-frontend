@@ -29,15 +29,15 @@ TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 # environments
 def test():
     "Use the remote testing server"
-    env.hosts = ['ehritest']
+    env.hosts = ['ehri-test-01']
 
 def stage():
     "Use the remote staging server"
-    env.hosts = ['ehristage']
+    env.hosts = ['ehri-stage-01']
 
 def prod():
     "Use the remote virtual server"
-    env.hosts = ['ehriprod']
+    env.hosts = ['ehri-portal-01']
     env.prod = True
 
 def deploy():
