@@ -9,6 +9,9 @@
                 <th>Submitted</th>
                 <th>Instance</th>
                 <th>Text</th>
+                @if(userOpt.exists(_.isAdmin)) {
+                    <th></th>
+                }
             </tr>
             @feedback.map { f =>
                 <tr>
@@ -22,6 +25,13 @@
                     <td>@f.createdAt.map(views.Helpers.relativeDate)</td>
                     <td>@f.mode.getOrElse("")</td>
                     <td>@f.text.getOrElse("")</td>
+                    @for(id <- f.objectId; user <- userOpt if user.isAdmin) {
+                        <td>
+                            <a class="ajax-action" title="@Messages("feedback.delete.submit")?" href="@controllers.portal.routes.Feedback.deletePost(id)">
+                                @Messages("feedback.delete")
+                            </a>
+                        </td>
+                    }
                 </tr>
             }
         </table>
