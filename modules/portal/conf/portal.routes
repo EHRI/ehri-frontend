@@ -28,6 +28,7 @@ GET         /*path/                               @controllers.portal.PortalData
 GET         /feedback                             @controllers.portal.Feedback.feedback
 POST        /feedback                             @controllers.portal.Feedback.feedbackPost
 GET         /feedback/list                        @controllers.portal.Feedback.list
+POST        /feedback/:id/delete                  @controllers.portal.Feedback.deletePost(id: String)
 
 # Data routes
 GET         /search                               @controllers.portal.Portal.search

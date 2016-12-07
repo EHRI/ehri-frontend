@@ -114,4 +114,9 @@ case class Feedback @Inject()(
       Ok(views.html.feedback.list(flist.copy(items = flist.filter(_.text.isDefined))))
     }
   }
+
+  def deletePost(id: String) = AdminAction.async { implicit request =>
+    feedbackService.delete(id).map(_ => Redirect(controllers.portal.routes.Feedback.list())
+      .flashing("success" -> "item.delete.confirmation"))
+  }
 }
