@@ -72,6 +72,22 @@ class ApiV1Spec extends IntegrationTestRunner {
           "scopeAndContent" must_== JsDefined(JsString("Some description text for c4"))
     }
 
+    "send CORS headers" in new ITestApp {
+      // `/api` is configured as a prefix in play.filters.cors.pathPrefixes
+      val testOrigin = "http://example.com"
+      val testHost = "localhost"
+
+      val api = FakeRequest(apiRoutes.search())
+        .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
+        .call()
+      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, api) must_== Some(testOrigin)
+
+      val nonApi = FakeRequest(GET, "/")
+        .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
+        .call()
+      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, nonApi) must_== None
+    }
+
     "contain the right metadata" in new ITestApp {
       val fetch = FakeRequest(apiRoutes.fetch("r1")).call()
       status(fetch) must_== OK
