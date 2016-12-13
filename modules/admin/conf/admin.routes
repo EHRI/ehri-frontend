@@ -28,6 +28,8 @@ GET         /metrics/_clear                     @controllers.admin.Metrics.clear
 # Upload a CSV of moved items
 GET         /movedItems                         @controllers.admin.Utils.addMovedItems
 POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
+GET         /regenerate                         @controllers.admin.Utils.regenerateIds
+POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost
 
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices

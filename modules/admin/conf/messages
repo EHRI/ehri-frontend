@@ -202,6 +202,14 @@ admin.utils.movedItems.description=Upload a tab-delimited CSV of items that have
 admin.utils.movedItems.added=The following URLs will be redirected:
 admin.utils.movedItems.added.none=No new redirects were created
 
+#
+# ID regeneration
+#
+admin.utils.regenerateIds=Regenerate Item IDs
+admin.utils.regenerateIds.scanning=Scanning items with stale IDs...
+admin.utils.regenerateIds.description=Items that require ID regeneration.
+admin.utils.regenerateIds.noIdsFound=No IDs requiring regeneration found.
+
 # Admin search index
 search.index.update=Refresh Search Index
 search.index.update.for=Refresh searching index for {0}
