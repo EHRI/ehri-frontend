@@ -1,0 +1,29 @@
+@(form: Form[Seq[(String, String, Boolean)]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@css = {
+    <style>
+        .progress {
+            min-height: 200px;
+            background: rgba(255, 255, 255, .8) url('@controllers.admin.routes.AdminAssets.versioned("img/ajax-loader-large.gif")') 50% 50% no-repeat;
+        }
+    </style>
+}
+
+
+@views.html.admin.layout.rightSidebar(Messages("admin.utils.regenerateIds"), styles = css) {
+
+    <div id="form-container">
+        <p class="alert alert-info">@Messages("admin.utils.regenerateIds.scanning")</p>
+        <div class="progress">&nbsp;</div>
+    </div>
+    <script>
+        jQuery(function($) {
+            $("#form-container").load("@action").error(function() {
+                $(".progress").remove();
+            });
+        });
+    </script>
+} {
+
+}
+

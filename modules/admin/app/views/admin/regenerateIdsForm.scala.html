@@ -1,0 +1,41 @@
+@(form: Form[Seq[(String, String, Boolean)]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@defining(form("row")) { field =>
+    @if(field.indexes.isEmpty) {
+        <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
+    } else {
+        @helper.form(action = action, 'class -> "entity-form form-horizontal", 'id -> "regenerate-ids") {
+            @formHelpers.csrfToken()
+
+            <p>@Messages("admin.utils.regenerateIds.description")</p>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Rename?</th>
+                    </tr>
+                </thead>
+                @helper.repeat(field) { f =>
+                    <tr>
+                        <td>
+                            @f("from").value
+                            @formHelpers.hiddenInput(f("from"))
+                        </td>
+                        <td>
+                            @f("to").value
+                            @formHelpers.hiddenInput(f("to"))
+                        </td>
+                        <td>
+                            @helper.checkbox(f("active"), '_label -> "")
+                        </td>
+                    </tr>
+                }
+            </table>
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger" value="Regenerate IDs" />
+            </div>
+        }
+    }
+}

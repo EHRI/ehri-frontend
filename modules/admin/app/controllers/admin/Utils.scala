@@ -1,6 +1,6 @@
 package controllers.admin
 
-import java.io.File
+import java.io.{ByteArrayInputStream, FileInputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
@@ -19,6 +19,11 @@ import utils.{CsvHelpers, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import java.io.InputStream
+
+import backend.rest.Constants
+import defines.EntityType
+import utils.search.SearchIndexMediator
 
 /**
  * Controller for various monitoring functions.
@@ -26,6 +31,7 @@ import scala.concurrent.Future.{successful => immediate}
 @Singleton
 case class Utils @Inject()(
   components: Components,
+  searchIndexer: SearchIndexMediator,
   ws: WSClient,
   cypher: Cypher
 ) extends AdminController {
@@ -50,13 +56,71 @@ case class Utils @Inject()(
     }
   }
 
-  val movedItemsForm = Form(
+  private val movedItemsForm = Form(
     single("path-prefix" -> nonEmptyText.verifying("isPath", s => s.startsWith("/") && s.endsWith("/")))
   )
 
   def addMovedItems() = AdminAction { implicit request =>
     Ok(views.html.admin.movedItemsForm(movedItemsForm,
         controllers.admin.routes.Utils.addMovedItemsPost()))
+  }
+
+  private val regenerateForm: Form[Seq[(String, String, Boolean)]] = Form(
+    single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
+  )
+
+  def regenerateIds() = AdminAction.async { implicit request =>
+    if (isAjax) {
+      ws.url(s"$dbBaseUrl/tools/regenerate-ids-for-type/${EntityType.DocumentaryUnit}")
+        .post("").map { r =>
+        val items: Seq[(String,String)] = parseCsv(
+          new ByteArrayInputStream(r.bodyAsBytes.toArray), ',')
+        Ok(views.html.admin.regenerateIdsForm(regenerateForm
+            .fill(items.map{case (f, t) => (f, t, true)}),
+          controllers.admin.routes.Utils.regenerateIdsPost()))
+      }
+    } else immediate(Ok(views.html.admin.regenerateIds(regenerateForm,
+      controllers.admin.routes.Utils.regenerateIdsPost())))
+  }
+
+  def regenerateIdsPost() = AdminAction.async { implicit request =>
+
+    val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
+        controllers.admin.routes.Utils.regenerateIdsPost()))),
+
+      formItems => {
+        val activeIds = formItems.collect{ case (f, t, true) => f}
+        logger.info(s"Renaming: $activeIds")
+
+        ws.url(s"$dbBaseUrl/tools/regenerate-ids")
+          .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
+          .withQueryString("commit" -> true.toString).post("").flatMap { r =>
+
+          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',')
+          // For each item we're renaming create 301s for the browse, search, and admin URLs
+          val newUrls = items.flatMap { case (from, to) =>
+            val portalBrowse = (controllers.portal.routes.DocumentaryUnits.browse(from).url,
+              controllers.portal.routes.DocumentaryUnits.browse(to).url)
+            val portalSearch = (controllers.portal.routes.DocumentaryUnits.search(from).url,
+              controllers.portal.routes.DocumentaryUnits.search(to).url)
+            val admin = (controllers.units.routes.DocumentaryUnits.get(from).url,
+              controllers.units.routes.DocumentaryUnits.get(to).url)
+            Seq(portalBrowse, portalSearch, admin)
+          }
+
+          for {
+            // Delete the old IDs from the search engine...
+            _ <- seqFutures(items)(t => searchIndexer.handle.clearId(t._1))
+            // Index the new ones...
+            _ <- seqFutures(items)(t => searchIndexer.handle.indexId(t._2))
+            // Add the 301s to the DB...
+            redirectCount <- components.pageRelocator.addMoved(newUrls)
+          } yield Ok(views.html.admin.movedItemsAdded(newUrls))
+        }
+      }
+    )
   }
 
   def addMovedItemsPost() = AdminAction.async(parse.multipartFormData) { implicit request =>
@@ -69,7 +133,7 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.addMovedItemsPost()))),
       prefix =>
         request.body.file("tsv").map { file =>
-          val data = parseCsv(file.ref.file).map { case (from, to) =>
+          val data = parseCsv(new FileInputStream(file.ref.file)).map { case (from, to) =>
             s"$prefix${enc(from)}" -> s"$prefix${enc(to)}"
           }
           components.pageRelocator.addMoved(data).map { inserted =>
@@ -84,20 +148,17 @@ case class Utils @Inject()(
     )
   }
 
-  private def parseCsv(file: File): Seq[(String, String)] = {
-    import java.io.FileInputStream
-
+  private def parseCsv(ios: InputStream, sep: Char = '\t'): Seq[(String, String)] = {
     import com.fasterxml.jackson.dataformat.csv.CsvSchema
-
     import scala.collection.JavaConverters._
 
-    val schema = CsvSchema.builder().setColumnSeparator('\t').build()
+    val schema = CsvSchema.builder().setColumnSeparator(sep).build()
     val all: MappingIterator[Array[String]] = CsvHelpers
       .mapper
       .enable(CsvParser.Feature.WRAP_AS_ARRAY)
       .readerFor(classOf[Array[String]])
       .`with`(schema)
-      .readValues(new FileInputStream(file))
+      .readValues(ios)
     try {
       (for {
         arr <- all.readAll().asScala
@@ -107,6 +168,12 @@ case class Utils @Inject()(
     } finally {
       all.close()
     }
+  }
+
+  private def seqFutures[T, U](items: TraversableOnce[T])(fun: T => Future[U]): Future[List[U]] = {
+    items.foldLeft(Future.successful[List[U]](Nil)) { (f, item) =>
+      f.flatMap(x => fun(item).map(_ :: x))
+    }.map(_.reverse)
   }
 
   /**
