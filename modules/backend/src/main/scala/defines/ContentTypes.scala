@@ -1,12 +1,13 @@
 package defines
 
 import eu.ehri.project.definitions.Entities
+import play.api.libs.json.Format
 
 object ContentTypes extends Enumeration() {
   type Type = Value
-  val HistoricalAgent = Value(Entities.HISTORICAL_AGENT)
   val DocumentaryUnit = Value(Entities.DOCUMENTARY_UNIT)
   val Repository = Value(Entities.REPOSITORY)
+  val HistoricalAgent = Value(Entities.HISTORICAL_AGENT)
   val SystemEvent = Value(Entities.SYSTEM_EVENT)
   val UserProfile = Value(Entities.USER_PROFILE)
   val Group = Value(Entities.GROUP)
@@ -18,5 +19,5 @@ object ContentTypes extends Enumeration() {
   val Country = Value(Entities.COUNTRY)
   val VirtualUnit = Value(Entities.VIRTUAL_UNIT)
 
-  implicit val _format = defines.EnumUtils.enumFormat(this)
+  implicit val _format: Format[ContentTypes.Value] = defines.EnumUtils.enumFormat(this)
 }

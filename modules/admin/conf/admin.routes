@@ -31,6 +31,10 @@ POST        /movedItems                         @controllers.admin.Utils.addMove
 GET         /regenerate                         @controllers.admin.Utils.regenerateIds
 POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost
 
+# Find and replace
+GET         /findReplace                        @controllers.admin.Utils.findReplace
+POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
+
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync

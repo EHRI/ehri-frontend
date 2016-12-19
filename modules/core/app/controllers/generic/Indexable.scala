@@ -56,7 +56,7 @@ trait Indexable[MT] extends Controller with CoreActionBuilders with ControllerHe
    */
   def updateItemPost(id: String) = AdminAction { implicit request =>
     val source = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { chan =>
-      searchIndexer.handle.withChannel(chan, wrapMsg).indexId(id).onComplete {
+      searchIndexer.handle.withChannel(chan, wrapMsg).indexIds(id).onComplete {
         case Success(()) => finishSuccess(chan)
         case Failure(t) => finishError(chan, t)
       }

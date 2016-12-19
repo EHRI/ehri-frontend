@@ -87,13 +87,13 @@ case class CmdlineIndexMediatorHandle(
     play.api.Logger.logger.debug("Index: {}", cmd.mkString(" "))
     val process: Process = cmd.run(logger)
     if (process.exitValue() != 0) {
-      throw new IndexingError("Exit code was " + process.exitValue() + "\nLast output: \n"
+      throw IndexingError("Exit code was " + process.exitValue() + "\nLast output: \n"
         + (if(logger.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
         + logger.lastMessages.mkString("\n"))
     }
   }
 
-  def indexId(id: String): Future[Unit] = runProcess(idxArgs ++ Seq("@" + id, "--pretty"))
+  def indexIds(ids: String*): Future[Unit] = runProcess((idxArgs ++ ids.map(id => s"@$id")) :+ "--pretty")
 
   def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
         = runProcess(idxArgs ++ entityTypes.map(_.toString))
@@ -106,7 +106,7 @@ case class CmdlineIndexMediatorHandle(
   def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
         = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
 
-  def clearId(id: String): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-id", id))
+  def clearIds(ids: String*): Future[Unit] = runProcess(clearArgs ++ ids.flatMap(id => Seq("--clear-id", id)))
 
   def clearKeyValue(key: String, value: String): Future[Unit]
         = runProcess(clearArgs ++ Seq("--clear-key-value", s"$key=$value"))

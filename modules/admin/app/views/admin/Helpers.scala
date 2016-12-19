@@ -27,9 +27,14 @@ object Helpers {
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
-    ("cypherQuery.list",           controllers.cypher.routes.CypherQueries.listQueries().url),
+    ("cypherQuery.list",           controllers.cypher.routes.CypherQueries.listQueries().url)
+  )
+
+  val adminMenu = Seq(
     ("s3", "-"),
-    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url)
+    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url),
+    ("admin.utils.findReplace", controllers.admin.routes.Utils.findReplace().url),
+    ("admin.utils.regenerateIds", controllers.admin.routes.Utils.regenerateIds().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

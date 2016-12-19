@@ -1,5 +1,7 @@
 package helpers
 
+import java.net.URI
+
 import akka.stream.Materializer
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth._
@@ -14,7 +16,7 @@ import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
 import play.api.Application
 import play.api.http.Writeable
-import play.api.inject.guice.GuiceApplicationLoader
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.test.Helpers._
@@ -22,6 +24,8 @@ import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
 import utils.search.{MockSearchIndexMediator, _}
 
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 
@@ -39,12 +43,12 @@ trait TestConfiguration {
   // parameters, and reset tokens. These persist across tests in
   // a very unclean way but are useful for determining the last-used
   // whatsit etc...
-  protected val feedbackBuffer = collection.mutable.HashMap.empty[Int,Feedback]
-  protected val cypherQueryBuffer = collection.mutable.HashMap.empty[Int,CypherQuery]
-  protected val mailBuffer = collection.mutable.ListBuffer.empty[Email]
-  protected val storedFileBuffer = collection.mutable.ListBuffer.empty[java.net.URI]
-  protected val searchParamBuffer = collection.mutable.ListBuffer.empty[ParamLog]
-  protected val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
+  protected val feedbackBuffer: mutable.HashMap[Int, Feedback] = collection.mutable.HashMap.empty[Int,Feedback]
+  protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
+  protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
+  protected val storedFileBuffer: ListBuffer[URI] = collection.mutable.ListBuffer.empty[java.net.URI]
+  protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
+  protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
 
   private def mockMailer: MailerClient = MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
@@ -64,9 +68,9 @@ trait TestConfiguration {
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
   protected val testEventHandler = new EventHandler {
-    def handleCreate(id: String) = mockIndexer.handle.indexId(id)
-    def handleUpdate(id: String) = mockIndexer.handle.indexId(id)
-    def handleDelete(id: String) = mockIndexer.handle.clearId(id)
+    def handleCreate(id: String): Unit = mockIndexer.handle.indexIds(id)
+    def handleUpdate(id: String): Unit = mockIndexer.handle.indexIds(id)
+    def handleDelete(id: String): Unit = mockIndexer.handle.clearIds(id)
   }
 
   protected val searchLogger = new SearchLogger {
@@ -75,7 +79,7 @@ trait TestConfiguration {
 
   import play.api.inject.bind
 
-  protected val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
+  protected val appBuilder: GuiceApplicationBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
       // since we run some concurrent requests as the same user its
       // important not to use the CacheIdContainer, since each new

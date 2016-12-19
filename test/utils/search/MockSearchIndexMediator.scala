@@ -15,9 +15,9 @@ case class MockSearchIndexMediator(eventBuffer: collection.mutable.ListBuffer[St
  */
 case class MockSearchIndexMediatorHandle(eventBuffer: collection.mutable.ListBuffer[String]) extends SearchIndexMediatorHandle {
 
-  def indexId(id: String) = {
-    eventBuffer += id
-    Logger.logger.info("Indexing: " + id)
+  def indexIds(ids: String*) = {
+    ids.foreach(id => eventBuffer += id)
+    Logger.logger.info("Indexing: " + ids)
     Future.successful(())
   }
   def indexTypes(entityTypes: Seq[EntityType.Value]) = {
@@ -40,9 +40,9 @@ case class MockSearchIndexMediatorHandle(eventBuffer: collection.mutable.ListBuf
     Logger.logger.info("Clearing entity types: " + entityTypes)
     Future.successful(())
   }
-  def clearId(id: String) = {
-    eventBuffer += id
-    Logger.logger.info("Clearing id: " + id)
+  def clearIds(ids: String*) = {
+    ids.foreach(id => eventBuffer += id)
+    Logger.logger.info("Clearing id: " + ids)
     Future.successful(())
   }
   def clearKeyValue(key: String, value: String) = {

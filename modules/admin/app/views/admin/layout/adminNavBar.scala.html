@@ -3,6 +3,15 @@
 @activeIfCurrent(url: String, text: String) = {
     <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
 }
+
+@dropdownMenu(key: String, url: String) = {
+    @if(url == "-") {
+        <li role="presentation" class="divider"></li>
+    } else {
+        @activeIfCurrent(url, Messages(key))
+    }
+}
+
 @defining(utils.SessionPrefs()) { implicit prefs =>
     @views.html.layout.topNavBar {
         <ul class="nav navbar-nav navbar-left">
@@ -18,10 +27,11 @@
 
                 <ul class="dropdown-menu" role="menu" aria-labelledby="more-menu">
                     @views.admin.Helpers.moreMenu.map { case (key, url) =>
-                        @if(url == "-") {
-                            <li role="presentation" class="divider"></li>
-                        } else {
-                            @activeIfCurrent(url, Messages(key))
+                        @dropdownMenu(key, url)
+                    }
+                    @if(userOpt.exists(_.isAdmin)) {
+                        @views.admin.Helpers.adminMenu.map { case (key, url) =>
+                            @dropdownMenu(key, url)
                         }
                     }
                 </ul>

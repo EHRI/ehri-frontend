@@ -49,9 +49,9 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
     app.injector.instanceOf[DataApi].withContext(apiUser)
 
   def testEventHandler = new EventHandler {
-    def handleCreate(id: String) = mockIndexer.handle.indexId(id)
-    def handleUpdate(id: String) = mockIndexer.handle.indexId(id)
-    def handleDelete(id: String) = mockIndexer.handle.clearId(id)
+    def handleCreate(id: String) = mockIndexer.handle.indexIds(id)
+    def handleUpdate(id: String) = mockIndexer.handle.indexIds(id)
+    def handleDelete(id: String) = mockIndexer.handle.clearIds(id)
   }
 
   /**

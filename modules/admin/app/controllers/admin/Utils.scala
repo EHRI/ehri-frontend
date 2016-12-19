@@ -20,9 +20,12 @@ import utils.{CsvHelpers, PageParams}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import java.io.InputStream
+import java.net.URLEncoder
 
 import backend.rest.Constants
+import backend.rest.Constants.LOG_MESSAGE_HEADER_NAME
 import defines.EntityType
+import play.api.i18n.Messages
 import utils.search.SearchIndexMediator
 
 /**
@@ -74,7 +77,9 @@ case class Utils @Inject()(
       ws.url(s"$dbBaseUrl/tools/regenerate-ids-for-type/${EntityType.DocumentaryUnit}")
         .post("").map { r =>
         val items: Seq[(String,String)] = parseCsv(
-          new ByteArrayInputStream(r.bodyAsBytes.toArray), ',')
+          new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+          case from :: to :: _ => from -> to
+        }
         Ok(views.html.admin.regenerateIdsForm(regenerateForm
             .fill(items.map{case (f, t) => (f, t, true)}),
           controllers.admin.routes.Utils.regenerateIdsPost()))
@@ -98,7 +103,9 @@ case class Utils @Inject()(
           .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
           .withQueryString("commit" -> true.toString).post("").flatMap { r =>
 
-          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',')
+          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+            case from :: to :: _ => from -> to
+          }
           // For each item we're renaming create 301s for the browse, search, and admin URLs
           val newUrls = items.flatMap { case (from, to) =>
             val portalBrowse = (controllers.portal.routes.DocumentaryUnits.browse(from).url,
@@ -112,9 +119,9 @@ case class Utils @Inject()(
 
           for {
             // Delete the old IDs from the search engine...
-            _ <- seqFutures(items)(t => searchIndexer.handle.clearId(t._1))
+            _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
             // Index the new ones...
-            _ <- seqFutures(items)(t => searchIndexer.handle.indexId(t._2))
+            _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
             // Add the 301s to the DB...
             redirectCount <- components.pageRelocator.addMoved(newUrls)
           } yield Ok(views.html.admin.movedItemsAdded(newUrls))
@@ -133,7 +140,9 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.addMovedItemsPost()))),
       prefix =>
         request.body.file("tsv").map { file =>
-          val data = parseCsv(new FileInputStream(file.ref.file)).map { case (from, to) =>
+          val data = parseCsv(new FileInputStream(file.ref.file)).collect {
+            case from :: to :: _ => from -> to
+          }.map { case (from, to) =>
             s"$prefix${enc(from)}" -> s"$prefix${enc(to)}"
           }
           components.pageRelocator.addMoved(data).map { inserted =>
@@ -148,7 +157,59 @@ case class Utils @Inject()(
     )
   }
 
-  private def parseCsv(ios: InputStream, sep: Char = '\t'): Seq[(String, String)] = {
+  import models.admin.FindReplaceTask
+
+  private def msgHeader(msg: Option[String]): Seq[(String,String)] =
+    msg
+      .map(m => Seq(LOG_MESSAGE_HEADER_NAME -> URLEncoder.encode(m, StandardCharsets.UTF_8.name)))
+      .getOrElse(Seq.empty)
+
+  private def doFindReplace(task: FindReplaceTask, userId: String, commit: Boolean = false): Future[Seq[(String, String, String)]] =
+    ws.url(s"$dbBaseUrl/tools/find-replace")
+      .withHeaders(Constants.AUTH_HEADER_NAME -> userId)
+      .withHeaders(msgHeader(task.log): _*)
+      .withQueryString(
+        FindReplaceTask.PARENT_TYPE -> task.parentType.toString,
+        FindReplaceTask.SUB_TYPE -> task.subType.toString,
+        FindReplaceTask.PROPERTY -> task.property,
+        "commit" -> commit.toString)
+      .post(Map(
+        FindReplaceTask.FIND -> Seq(task.find),
+        FindReplaceTask.REPLACE -> Seq(task.replace))).map { r =>
+      parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+        case pid :: cid :: textValue :: _ => (pid, cid, textValue)
+      }
+    }
+
+  def findReplace = AdminAction.apply { implicit request =>
+    Ok(views.html.admin.findReplace(FindReplaceTask.form, None,
+      controllers.admin.routes.Utils.findReplacePost(),
+      controllers.admin.routes.Utils.findReplacePost(commit = true)))
+  }
+
+  def findReplacePost(commit: Boolean = false) = AdminAction.async { implicit request =>
+    val boundForm = FindReplaceTask.form.bindFromRequest()
+    boundForm.fold(
+      errForm => immediate(
+        BadRequest(views.html.admin.findReplace(errForm, None,
+          controllers.admin.routes.Utils.findReplacePost(),
+          controllers.admin.routes.Utils.findReplacePost(commit = true)))
+      ),
+      fr => doFindReplace(fr, request.user.id, commit = commit).flatMap { found =>
+        if (commit) {
+          searchIndexer.handle.indexIds(found.map(_._1): _*).map { _ =>
+            Redirect(controllers.admin.routes.Utils.findReplace())
+              .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
+          }
+        }
+        else immediate(Ok(views.html.admin.findReplace(boundForm, Some(found),
+          controllers.admin.routes.Utils.findReplacePost(),
+          controllers.admin.routes.Utils.findReplacePost(commit = true))))
+      }
+    )
+  }
+
+  private def parseCsv(ios: InputStream, sep: Char = '\t'): Seq[List[String]] = {
     import com.fasterxml.jackson.dataformat.csv.CsvSchema
     import scala.collection.JavaConverters._
 
@@ -160,20 +221,12 @@ case class Utils @Inject()(
       .`with`(schema)
       .readValues(ios)
     try {
-      (for {
+      for {
         arr <- all.readAll().asScala
-      } yield arr.toList).collect {
-        case from :: to :: _ => from -> to
-      }
+      } yield arr.toList
     } finally {
       all.close()
     }
-  }
-
-  private def seqFutures[T, U](items: TraversableOnce[T])(fun: T => Future[U]): Future[List[U]] = {
-    items.foldLeft(Future.successful[List[U]](Nil)) { (f, item) =>
-      f.flatMap(x => fun(item).map(_ :: x))
-    }.map(_.reverse)
   }
 
   /**
