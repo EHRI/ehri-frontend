@@ -22,13 +22,13 @@ case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) exte
     }
   }
 
-  def handleCreate(id: String) = logFailure(id, searchIndexer.handle.indexId)
-  def handleUpdate(id: String) = logFailure(id, searchIndexer.handle.indexId)
+  def handleCreate(id: String) = logFailure(id, id => searchIndexer.handle.indexIds(id))
+  def handleUpdate(id: String) = logFailure(id, id => searchIndexer.handle.indexIds(id))
 
   // Special case - block when deleting because otherwise we get ItemNotFounds
   // after redirects because the item is still in the search index but not in
   // the database.
   def handleDelete(id: String) = logFailure(id, id => Future.successful[Unit] {
-    concurrent.Await.result(searchIndexer.handle.clearId(id), Duration(1, TimeUnit.MINUTES))
+    concurrent.Await.result(searchIndexer.handle.clearIds(id), Duration(1, TimeUnit.MINUTES))
   })
 }

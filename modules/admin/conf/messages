@@ -210,6 +210,32 @@ admin.utils.regenerateIds.scanning=Scanning items with stale IDs...
 admin.utils.regenerateIds.description=Items that require ID regeneration.
 admin.utils.regenerateIds.noIdsFound=No IDs requiring regeneration found.
 
+#
+# Find and replace
+#
+admin.utils.findReplace=Find and Replace
+admin.utils.findReplace.found=Items found: {0}
+admin.utils.findReplace.notFound=No items found
+admin.utils.findReplace.done=Items updated: {0}
+admin.utils.findReplace.find=Find
+admin.utils.findReplace.replace={0,choice,0#Replace {0} Values|1#Replace 1 Value|1<Replace {0,number,integer} Values}
+admin.utils.findReplace.description=Find and replace text across a particular property of an item type.\
+  Note: you can only change up to 100 items at a time.
+admin.utils.findReplace.warning=Don''t do this unless you're sure you know what you''re doing, since \
+  it is a sharp tool.
+admin.utils.findReplace.type=Parent item type
+admin.utils.findReplace.type.description=The top-level content item, e.g. a Repository.
+admin.utils.findReplace.subtype=Dependent item type
+admin.utils.findReplace.subtype.description=The property-holding item type, e.g. a Repository description.
+admin.utils.findReplace.property=Property
+admin.utils.findReplace.property.description=The property name.
+admin.utils.findReplace.from=Text to find
+admin.utils.findReplace.from.description=The current text to find.
+admin.utils.findReplace.to=Replacement text
+admin.utils.findReplace.to.description=The replacement text.
+admin.utils.findReplace.logMessage=Log message
+admin.utils.findReplace.logMessage.description=Describe why you are making this change.
+
 # Admin search index
 search.index.update=Refresh Search Index
 search.index.update.for=Refresh searching index for {0}

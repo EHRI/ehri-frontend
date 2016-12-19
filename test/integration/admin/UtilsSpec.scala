@@ -2,9 +2,12 @@ package integration.admin
 
 import java.io.File
 
+import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
 import org.apache.commons.io.FileUtils
+import play.api.i18n.Messages
+import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 /**
@@ -51,6 +54,39 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         from must_== "/units/foo"
         to must_== "/units/c4"
       }
+    }
+
+    "handle find/replace correctly" in new ITestApp {
+      import models.admin.FindReplaceTask._
+      import play.api.i18n.Messages.Implicits._
+
+      val data: Map[String,Seq[String]] = Map(
+        PARENT_TYPE -> Seq(Entities.REPOSITORY),
+        SUB_TYPE -> Seq(Entities.REPOSITORY_DESCRIPTION),
+        PROPERTY -> Seq(models.Isdiah.AUTHORIZED_FORM_OF_NAME),
+        FIND -> Seq("NIOD"),
+        REPLACE -> Seq("TEST"),
+        LOG_MSG -> Seq("Testing")
+      )
+
+      val find = FakeRequest(controllers.admin
+        .routes.Utils.findReplacePost())
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(data)
+
+      status(find) must_== OK
+      contentAsString(find) must contain("NIOD Description")
+
+      val replace = FakeRequest(controllers.admin
+        .routes.Utils.findReplacePost(commit = true))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(data)
+
+      status(replace) must_== SEE_OTHER
+      flash(replace) must_== Flash(
+        Map("success" -> Messages("admin.utils.findReplace.done", 1)))
     }
   }
 }

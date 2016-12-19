@@ -87,9 +87,9 @@ case class SearchToolsIndexMediatorHandle(
     builder.build()
   }
 
-  override def indexId(id: String): Future[Unit] = Future {
-    logger.debug(s"Indexing: $id")
-    indexHelper("@" + id).run()
+  override def indexIds(ids: String*): Future[Unit] = Future {
+    logger.debug(s"Indexing: $ids")
+    indexHelper(ids.map(id => s"@$id"): _*).run()
   }
 
   override def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = Future {
@@ -117,8 +117,8 @@ case class SearchToolsIndexMediatorHandle(
     index.deleteAll(true)
   }
 
-  override def clearId(id: String): Future[Unit] = Future {
-    logger.debug(s"Clear id: $id")
-    index.deleteItem(id, true)
+  override def clearIds(ids: String*): Future[Unit] = Future {
+    logger.debug(s"Clear ids: $ids")
+    index.deleteItems(ids.asJava, true)
   }
 }

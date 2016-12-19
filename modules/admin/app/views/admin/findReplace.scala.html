@@ -1,0 +1,78 @@
+@(f: Form[models.admin.FindReplaceTask], foundOpt: Option[Seq[(String, String, String)]], findAction: Call, replaceAction: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@import models.admin.FindReplaceTask._
+
+@views.html.admin.layout.noSidebar(Messages("admin.utils.findReplace")) {
+
+    <p>@Messages("admin.utils.findReplace.description")</p>
+    @if(foundOpt.isEmpty) {
+        <p class="alert alert-danger">@Messages("admin.utils.findReplace.warning")</p>
+    }
+
+    @defining("admin.utils.findReplace") { implicit fieldPrefix =>
+        @helper.form(action = findAction, 'class -> "entity-form form-horizontal") {
+            @formHelpers.csrfToken()
+
+            @defining("") { implicit fieldPrefix =>
+                @formHelpers.enumChoiceInput(f(PARENT_TYPE), defines.ContentTypes, PARENT_TYPE, blank = true)
+                @formHelpers.enumChoiceInput(f(SUB_TYPE), defines.EntityType, SUB_TYPE, blank = true)
+            }
+            @formHelpers.lineInput(f(""), PROPERTY)
+            @formHelpers.textInput(f(""), FIND)
+            @formHelpers.textInput(f(""), REPLACE)
+            @formHelpers.lineInput(f(""), LOG_MSG)
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-warning" value="@Messages("admin.utils.findReplace.find")" />
+            </div>
+        }
+
+        @foundOpt.map { found =>
+            @if(found.isEmpty) {
+                <h3>@Messages("admin.utils.findReplace.notFound")</h3>
+            } else {
+                <hr/>
+
+                <h3>@Messages("admin.utils.findReplace.found", found.size)</h3>
+                @helper.form(action = replaceAction, 'class -> "entity-form form-horizontal") {
+                    @formHelpers.csrfToken()
+                    @formHelpers.hiddenInput(f(PARENT_TYPE))
+                    @formHelpers.hiddenInput(f(SUB_TYPE))
+                    @formHelpers.hiddenInput(f(PROPERTY))
+                    @formHelpers.hiddenInput(f(FIND))
+                    @formHelpers.hiddenInput(f(REPLACE))
+                    @formHelpers.hiddenInput(f(LOG_MSG))
+
+                    <table class="table table-bordered table-condensed table-striped small">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Subitem</th>
+                                <th>Current Text</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @found.map { case (pid, cid, textValue) =>
+                        <tr>
+                            <td><a target="_blank"
+                                    href="@controllers.admin.routes.Data.getItem(pid)">@pid</a></td>
+                            <td>@cid</td>
+                            <td>@textValue</td>
+                        </tr>
+                        }
+                        </tbody>
+                    </table>
+
+                    <div class="form-group">
+                        <input type="submit" onclick="return confirm('Are you sure?')"
+                            class="btn btn-danger"
+                            value="@Messages("admin.utils.findReplace.replace", found.size)" />
+                    </div>
+                }
+            }
+        }
+    }
+}
+
