@@ -71,9 +71,12 @@ case class Utils @Inject()(
     single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
   )
 
+  import scala.concurrent.duration._
+
   def regenerateIds(): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) {
       ws.url(s"$dbBaseUrl/tools/regenerate-ids-for-type/${EntityType.DocumentaryUnit}")
+        .withRequestTimeout(20.minutes)
         .post("").map { r =>
         val items: Seq[(String,String)] = parseCsv(
           new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
@@ -84,7 +87,7 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.regenerateIdsPost()))
       }
     } else immediate(Ok(views.html.admin.regenerateIds(regenerateForm,
-      controllers.admin.routes.Utils.regenerateIdsPost())))
+      controllers.admin.routes.Utils.regenerateIds())))
   }
 
   def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
@@ -97,10 +100,7 @@ case class Utils @Inject()(
         val activeIds = formItems.collect{ case (f, t, true) => f}
         logger.info(s"Renaming: $activeIds")
 
-        import scala.concurrent.duration._
-
         ws.url(s"$dbBaseUrl/tools/regenerate-ids")
-          .withRequestTimeout(20.minutes)
           .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
           .withQueryString("commit" -> true.toString).post("").flatMap { r =>
 
