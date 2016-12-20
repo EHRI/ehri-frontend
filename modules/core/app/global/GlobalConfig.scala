@@ -41,10 +41,9 @@ trait GlobalConfig {
   lazy val mapsApiKey: Option[String] =
     configuration.getString("google.maps.browserApiKey")
 
-  import scala.collection.JavaConversions._
-
+  import scala.collection.JavaConverters._
   lazy val languages: Seq[String] =
-    configuration.getStringList("play.i18n.langs").toSeq.flatten
+    configuration.getStringList("play.i18n.langs").map(_.asScala).toSeq.flatten
 
   def protocol(implicit req: RequestHeader): String =
     "http" + (if (req.secure) "s" else "") + "://"

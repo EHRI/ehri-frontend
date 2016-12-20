@@ -160,10 +160,10 @@ trait RestService {
   /**
    * Create a web request with correct auth parameters for the REST API.
    */
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
   private lazy val includeProps =
-    config.getStringList("ehri.backend.includedProperties").map(_.toSeq)
-        .getOrElse(Seq.empty[String])
+    config.getStringList("ehri.backend.includedProperties").map(_.asScala)
+        .getOrElse(Seq.empty)
 
 
   protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {

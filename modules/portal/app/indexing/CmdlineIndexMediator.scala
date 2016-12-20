@@ -53,10 +53,8 @@ case class CmdlineIndexMediatorHandle(
       else chan.foreach(_ ! processFunc(s))
     }
 
-    def lastMessages: List[String] = {
-      import scala.collection.JavaConversions._
-      errBuffer.iterator().toList
-    }
+    import scala.collection.JavaConverters._
+    def lastMessages: List[String] = errBuffer.asScala.toList
 
     private def report(): Unit = {
       count += 1
