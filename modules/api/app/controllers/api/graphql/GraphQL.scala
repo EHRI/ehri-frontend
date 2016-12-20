@@ -8,7 +8,7 @@ import controllers.Components
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
 import play.api.libs.ws.WSClient
-import play.api.mvc.BodyParsers
+import play.api.mvc.{Action, BodyParsers, RawBuffer}
 
 
 @Singleton
@@ -17,7 +17,7 @@ case class GraphQL @Inject()(
   ws: WSClient
 ) extends PortalController {
 
-  val defaultQuery =
+  val defaultQuery: String =
     """
       |{
       |  Country(id: "us") {
@@ -36,7 +36,7 @@ case class GraphQL @Inject()(
       controllers.api.graphql.routes.GraphQL.query()))
   }
 
-  def query = OptionalUserAction.async(BodyParsers.parse.raw) { implicit request =>
+  def query: Action[RawBuffer] = OptionalUserAction.async(BodyParsers.parse.raw) { implicit request =>
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
     val ct = request.contentType.getOrElse(ContentTypes.BINARY)
     val streamHeader: Option[String] = request.headers.get(Constants.STREAM_HEADER_NAME)

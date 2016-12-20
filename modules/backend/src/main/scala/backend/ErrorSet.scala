@@ -17,7 +17,7 @@ case class ErrorSet(
     errors
   }
 
-  override def toString = errors.toString() // TODO: Handle nested errors
+  override def toString: String = errors.toString() // TODO: Handle nested errors
 }
 
 /**

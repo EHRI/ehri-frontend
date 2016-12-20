@@ -42,7 +42,7 @@ package object forms {
    *
    */
   def entityMapping: Formatter[Entity] = new Formatter[Entity] {
-    def bind(key: String, data: Map[String, String]) = {
+    def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Entity] = {
       play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
         scala.util.control.Exception.allCatch[Entity]
           .either(Json.parse(s).as[Entity](Entity.entityReads))

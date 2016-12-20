@@ -50,7 +50,7 @@ object GuidePage {
     val Map = Value("map")
     val Timeline = Value("timeline")
 
-    def isFreeText(v: Value) = Set(Markdown, Html, Timeline) contains v
+    def isFreeText(v: Value): Boolean = Set(Markdown, Html, Timeline) contains v
   }
 
   object MenuPosition extends Enumeration with StorableEnum {
@@ -78,7 +78,7 @@ object GuidePage {
     GuidePage(None, Layout.Markdown, "", "", MenuPosition.Side, "", guideId)
   }
 
-  val rowExtractor = {
+  val rowExtractor: RowParser[GuidePage] = {
     get[Option[Long]](OBJECTID) ~
     get[Layout.Value](LAYOUT) ~
     get[String](NAME) ~

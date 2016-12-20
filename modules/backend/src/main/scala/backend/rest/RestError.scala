@@ -38,8 +38,8 @@ case class BadJson(
   url: Option[String] = None,
   data: Option[String] = None
 ) extends RestError {
-  def prettyError = Json.prettyPrint(JsError.toJson(error))
-  override def getMessage = s"""
+  def prettyError: String = Json.prettyPrint(JsError.toJson(error))
+  override def getMessage: String = s"""
         |Parsing error ${url.getOrElse("(no context)")}
         |
         |Data:

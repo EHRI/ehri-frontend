@@ -101,7 +101,7 @@ object RepositoryDescriptionF {
   )(RepositoryDescriptionF.apply, unlift(RepositoryDescriptionF.unapply))
 
   implicit object Converter extends Writable[RepositoryDescriptionF] {
-    val restFormat = repositoryDescriptionFormat
+    val restFormat: Format[RepositoryDescriptionF] = repositoryDescriptionFormat
   }
 }
 
@@ -130,7 +130,7 @@ case class RepositoryDescriptionF(
 
   import Isdiah._
 
-  def displayText = details.history orElse details.generalContext
+  override def displayText: Option[String] = details.history orElse details.generalContext
 
   def toSeq = Seq(
     HISTORY -> details.history,

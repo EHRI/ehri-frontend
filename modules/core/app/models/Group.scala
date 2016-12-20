@@ -28,7 +28,7 @@ object GroupF {
   )(GroupF.apply _, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
-    lazy val restFormat = groupFormat
+    lazy val restFormat: Format[GroupF] = groupFormat
   }
 }
 
@@ -58,7 +58,7 @@ object Group {
   implicit object GroupResource extends backend.ContentType[Group]  {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
-    val restReads = metaReads
+    val restReads: Reads[Group] = metaReads
   }
 
   val form = Form(
@@ -83,6 +83,6 @@ case class Group(
   with Accessor
   with Accessible {
 
-  override def toStringLang(implicit messages: Messages) = model.name
+  override def toStringLang(implicit messages: Messages): String = model.name
 }
 

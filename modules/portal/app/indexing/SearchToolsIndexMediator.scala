@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 import akka.actor.ActorRef
 import backend.rest.Constants
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder
 import eu.ehri.project.indexing.source.impl.WebJsonSource
@@ -45,7 +45,7 @@ case class SearchToolsIndexMediatorHandle(
 
   val serviceBaseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
-  override def withChannel(actorRef: ActorRef, formatter: String => String) =
+  override def withChannel(actorRef: ActorRef, formatter: String => String): SearchToolsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter)
 
   private def indexProperties(extra: Map[String,Any] = Map.empty): Properties = {
@@ -65,7 +65,7 @@ case class SearchToolsIndexMediatorHandle(
       }))
       .addConverter(new JsonConverter)
       .addSink(new CallbackSink[JsonNode](new CallbackSink.Callback[JsonNode]() {
-         val writer = new ObjectMapper().writerWithDefaultPrettyPrinter()
+         val writer: ObjectWriter = new ObjectMapper().writerWithDefaultPrettyPrinter()
          var count = 0
          override def call(node: JsonNode): Unit = {
            logger.trace(writer.writeValueAsString(node))

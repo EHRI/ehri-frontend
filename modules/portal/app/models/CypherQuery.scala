@@ -11,6 +11,7 @@ import play.api.libs.ws.StreamedResponse
 import utils.CsvHelpers
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.matching.Regex
 
 case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
   /**
@@ -23,7 +24,7 @@ case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
   def toData: Seq[Seq[String]] = data.map(_.collect(ResultFormat.jsToString))
 }
 object ResultFormat {
-  implicit val _reads = Json.reads[ResultFormat]
+  implicit val _reads: Reads[ResultFormat] = Json.reads[ResultFormat]
 
   def jsToString: PartialFunction[JsValue, String] = {
     case JsString(s) => s
@@ -67,8 +68,8 @@ object CypherQuery {
 
   // Mutation Cypher queries - if they add more and we don't update this
   // we're a bit screwed :|
-  val dangerousClauses = "\\b(CREATE|SET|UPDATE|DELETE|MERGE|REMOVE|DETACH)\\b".r
-  val isReadOnly = Constraint[String]("cypherQuery.mutatingClauses") { q =>
+  val dangerousClauses: Regex = "\\b(CREATE|SET|UPDATE|DELETE|MERGE|REMOVE|DETACH)\\b".r
+  val isReadOnly: Constraint[String] = Constraint[String]("cypherQuery.mutatingClauses") { q =>
     dangerousClauses.findFirstIn(q.toUpperCase) match {
       case Some(clause) => Invalid("cypherQuery.mutatingClauses.error", clause)
       case None => Valid

@@ -7,6 +7,7 @@ import controllers.Components
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.{Concept, Vocabulary}
+import play.api.mvc.{Action, AnyContent}
 import utils.search._
 
 import scala.concurrent.Future.{successful => immediate}
@@ -23,7 +24,7 @@ case class Vocabularies @Inject()(
 
   private val portalVocabRoutes = controllers.portal.routes.Vocabularies
 
-  def searchAll = UserBrowseAction.async { implicit request =>
+  def searchAll: Action[AnyContent] = UserBrowseAction.async { implicit request =>
     findType[Vocabulary](
       facetBuilder = repositorySearchFacets
     ).map { result =>
@@ -31,7 +32,7 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def browse(id: String) = GetItemAction(id).async { implicit request =>
+  def browse(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.vocabulary.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[Concept](
       filters = Map(SearchConstants.HOLDER_ID -> id),
@@ -42,7 +43,7 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def search(id: String) = GetItemAction(id).async { implicit request =>
+  def search(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Concept](
       filters = Map(SearchConstants.HOLDER_ID -> id),
       facetBuilder = conceptFacets

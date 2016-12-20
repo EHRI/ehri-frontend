@@ -38,7 +38,7 @@ object ConceptDescriptionF {
   )(ConceptDescriptionF.apply, unlift(ConceptDescriptionF.unapply))
 
   implicit object Converter extends Writable[ConceptDescriptionF] {
-    lazy val restFormat = conceptDescriptionFormat
+    lazy val restFormat: Format[ConceptDescriptionF] = conceptDescriptionFormat
   }
 }
 
@@ -63,7 +63,8 @@ case class ConceptDescriptionF(
   unknownProperties: Seq[Entity] = Nil
 ) extends Model with Persistable with Description {
 
-  def displayText = scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)
+  override def displayText: Option[String] =
+    scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)
 
   // NA - no single valued optional text fields
   // here...

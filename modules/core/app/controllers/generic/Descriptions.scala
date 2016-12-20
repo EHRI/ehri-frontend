@@ -1,19 +1,20 @@
 package controllers.generic
 
-import models.base._
-import play.api.mvc._
-import play.api.data.Form
+import backend.rest.ValidationError
+import backend.{ContentType, Writable}
 import defines.PermissionType
 import models.UserProfile
+import models.base._
+import play.api.data.Form
+import play.api.mvc._
+
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import backend.rest.ValidationError
-import backend.{Readable, Writable, ContentType}
 
 /**
- * Controller trait for creating, updating, and deleting auxiliary descriptions
- * for entities that can be multiply described.
- */
+  * Controller trait for creating, updating, and deleting auxiliary descriptions
+  * for entities that can be multiply described.
+  */
 trait Descriptions[D <: Description with Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends Write {
 
   this: Read[MT] =>
@@ -22,7 +23,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     item: MT,
     formOrDescription: Either[Form[D], D],
     userOpt: Option[UserProfile],
-    request:Request[A]
+    request: Request[A]
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
@@ -36,7 +37,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
 
 
   protected def CreateDescriptionAction(id: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]) =
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -54,7 +55,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   protected def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]) =
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
@@ -72,8 +73,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   protected def WithDescriptionAction(id: String, did: String)(
-    implicit fmt: Writable[D], ct: ContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest,DeleteDescriptionRequest] {
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
         request.item.model.description(did) match {
           case Some(d) => immediate(Right(DeleteDescriptionRequest(request.item, d, request.userOpt, request)))
@@ -82,7 +83,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]) =
+  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request

@@ -11,7 +11,7 @@ import models.Isaar
 import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, Request, Result}
+import play.api.mvc.{AnyContent, EssentialAction, Request, Result}
 import utils.search._
 import utils.{Page, search}
 import views.Helpers
@@ -57,7 +57,7 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     )
   }
 
-  def languageOfMaterial = statusCache.status(_ => "pages:langMetric", OK, metricCacheTime) {
+  def languageOfMaterial: EssentialAction = statusCache.status(_ => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -79,7 +79,7 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     )
   }
 
-  def holdingRepository = statusCache.status(_ => "pages:repoMetric", OK, metricCacheTime) {
+  def holdingRepository: EssentialAction = statusCache.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -102,7 +102,7 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     )
   }
 
-  def repositoryCountries = statusCache.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
+  def repositoryCountries: EssentialAction = statusCache.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -124,7 +124,7 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     )
   }
 
-  def restricted = statusCache.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
+  def restricted: EssentialAction = statusCache.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         defaultParams = defaultParams,
@@ -148,7 +148,7 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     )
   }
 
-  def agentTypes = statusCache.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
+  def agentTypes: EssentialAction = statusCache.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](
         entities = List(EntityType.HistoricalAgent),

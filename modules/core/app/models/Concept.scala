@@ -41,7 +41,7 @@ object ConceptF {
   )(ConceptF.apply, unlift(ConceptF.unapply))
 
   implicit object Converter extends Writable[ConceptF] {
-    val restFormat = conceptFormat
+    val restFormat: Format[ConceptF] = conceptFormat
   }
 }
 
@@ -75,7 +75,7 @@ object Concept {
   implicit object ConceptResource extends backend.ContentType[Concept]  {
     val entityType = EntityType.Concept
     val contentType = ContentTypes.Concept
-    val restReads = metaReads
+    val restReads: Reads[Concept] = metaReads
 
     override def defaultParams = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME

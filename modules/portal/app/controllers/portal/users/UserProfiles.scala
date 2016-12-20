@@ -16,7 +16,7 @@ import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.libs.mailer.MailerClient
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{MaxSizeExceeded, _}
@@ -45,7 +45,7 @@ case class UserProfiles @Inject()(
       profileRoutes.watchItemPost(id)))
   }
 
-  def watchItemPost(id: String) = WithUserAction.async { implicit request =>
+  def watchItemPost(id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.watch(request.user.id, id).map { _ =>
       clearWatchedItemsCache(request.user.id)
       if (isAjax) Ok("ok")
@@ -58,7 +58,7 @@ case class UserProfiles @Inject()(
       profileRoutes.unwatchItemPost(id)))
   }
 
-  def unwatchItemPost(id: String) = WithUserAction.async { implicit request =>
+  def unwatchItemPost(id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.unwatch(request.user.id, id).map { _ =>
       clearWatchedItemsCache(request.user.id)
       if (isAjax) Ok("ok")
@@ -78,10 +78,10 @@ case class UserProfiles @Inject()(
       item.toStringLang,
       views.p.Helpers.linkTo(item).absoluteURL(globalConfig.https)
     )
-    implicit val writes = Json.writes[ExportWatchItem]
+    implicit val writes: OWrites[ExportWatchItem] = Json.writes[ExportWatchItem]
   }
 
-  def activity(from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None) = WithUserAction.async { implicit request =>
+  def activity(from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
@@ -98,7 +98,7 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def watching(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
+  def watching(format: DataFormat.Value = DataFormat.Html): Action[AnyContent] = WithUserAction.async { implicit request =>
     for {
       watching <- userDataApi.watching[AnyModel](request.user.id)
       result <- findIn[AnyModel](watching)
@@ -152,10 +152,10 @@ case class UserProfiles @Inject()(
         .map(t => views.p.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
     )
     import play.api.libs.json._
-    implicit val writes = Json.writes[ExportAnnotation]
+    implicit val writes: OWrites[ExportAnnotation] = Json.writes[ExportAnnotation]
   }
 
-  def annotations(format: DataFormat.Value = DataFormat.Html) = WithUserAction.async { implicit request =>
+  def annotations(format: DataFormat.Value = DataFormat.Html): Action[AnyContent] = WithUserAction.async { implicit request =>
     findType[Annotation](
       filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id)
     ).map { result =>
@@ -188,7 +188,7 @@ case class UserProfiles @Inject()(
     = Json.toJson(annotations.map(ExportAnnotation.fromAnnotation))
 
   // For now the user's profile main page is just their notes.
-  def profile = annotations(format = DataFormat.Html)
+  def profile: Action[AnyContent] = annotations(format = DataFormat.Html)
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -220,7 +220,7 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def updateAccountPrefsPost() = WithUserAction.async { implicit request =>
+  def updateAccountPrefsPost(): Action[AnyContent] = WithUserAction.async { implicit request =>
     AccountPreferences.form.bindFromRequest.fold(
       errForm => immediate(BadRequest(views.html.userProfile.editProfile(
             ProfileData.form, imageForm, errForm))),
@@ -239,7 +239,7 @@ case class UserProfiles @Inject()(
     Ok(views.html.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
-  def updateProfilePost() = WithUserAction.async { implicit request =>
+  def updateProfilePost(): Action[AnyContent] = WithUserAction.async { implicit request =>
     ProfileData.form.bindFromRequest.fold(
       errForm => immediate(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
@@ -257,7 +257,7 @@ case class UserProfiles @Inject()(
       profileRoutes.deleteProfilePost()))
   }
 
-  def deleteProfilePost() = WithUserAction.async { implicit request =>
+  def deleteProfilePost(): Action[AnyContent] = WithUserAction.async { implicit request =>
     deleteForm(request.user).bindFromRequest.fold(
       errForm => immediate(BadRequest(views.html.userProfile.deleteProfile(
         errForm.withGlobalError("profile.delete.badConfirmation"),
@@ -282,13 +282,13 @@ case class UserProfiles @Inject()(
   }
 
   // Defer to the standard profile update page...
-  def updateProfileImage() = updateProfile()
+  def updateProfileImage(): Action[AnyContent] = updateProfile()
 
   // Body parser that'll refuse anything larger than 5MB
   private def uploadParser = parse.maxLength(
     getConfigInt("ehri.portal.profile.maxImageSize"), parse.multipartFormData)
 
-  def updateProfileImagePost() = WithUserAction.async(uploadParser) { implicit request =>
+  def updateProfileImagePost(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = WithUserAction.async(uploadParser) { implicit request =>
 
     def onError(err: String, status: Status = BadRequest): Future[Result] = immediate(
         status(views.html.userProfile.editProfile(profileDataForm,

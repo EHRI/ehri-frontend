@@ -8,6 +8,7 @@ import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
+import play.api.mvc.{Action, AnyContent}
 
 
 case class Data @Inject()(
@@ -24,7 +25,7 @@ case class Data @Inject()(
     }.toSeq
   }
 
-  def getItem(id: String) = OptionalUserAction.async { implicit request =>
+  def getItem(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     implicit val rd: Readable[AnyModel] = AnyModel.Converter
     userDataApi.fetch(List(id)).map {
       case Nil => NotFound(views.html.errors.itemNotFound())
@@ -39,13 +40,13 @@ case class Data @Inject()(
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
   }
 
-  def getItemRawJson(entityType: defines.EntityType.Value, id: String) = OptionalUserAction.async { implicit request =>
+  def getItemRawJson(entityType: defines.EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     userDataApi.query(s"classes/$entityType/$id").map { r =>
       Ok(r.json)
     }
   }
 
-  def forward(urlPart: String) = OptionalUserAction.async { implicit request =>
+  def forward(urlPart: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
     userDataApi.stream(url).map { sr =>
       val result:Status = Status(sr.headers.status)

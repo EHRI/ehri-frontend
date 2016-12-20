@@ -39,7 +39,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
   }
 
-  protected def NewChildAction(itemId: String)(implicit ct: ContentType[MT], cct: ContentType[CMT]) =
+  protected def NewChildAction(itemId: String)(implicit ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[NewChildRequest] =
     WithParentPermissionAction(itemId, PermissionType.Create, cct.contentType) andThen NewChildTransformer
 
   case class CreateChildRequest[A](
@@ -72,7 +72,8 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
       }
     }
 
-  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]) =
+  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(
+    implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[CreateChildRequest] =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
   
   

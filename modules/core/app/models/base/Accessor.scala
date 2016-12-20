@@ -20,7 +20,7 @@ object Accessor {
    * the entity type.
    */
   def resourceFor(t: EntityType.Value): ContentType[Accessor] = new backend.ContentType[Accessor] {
-    val restReads = Converter.restReads
+    val restReads: Reads[Accessor] = Converter.restReads
     def entityType: EntityType.Value = t
     def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)
   }
@@ -35,7 +35,7 @@ trait Accessor extends AnyModel {
 
   lazy val allGroups: Seq[Group] = getGroups(this)
 
-  def isAdmin = getAccessor(groups, ADMIN_GROUP_NAME).isDefined
+  def isAdmin: Boolean = getAccessor(groups, ADMIN_GROUP_NAME).isDefined
 
   // Search up the tree(?) if parent groups, looking
   // for one with the desired id.

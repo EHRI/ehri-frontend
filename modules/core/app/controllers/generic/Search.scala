@@ -1,41 +1,43 @@
 package controllers.generic
 
+import backend.{ContentType, Readable, WithId}
+import controllers.base.CoreActionBuilders
+import defines.EntityType
+import models.UserProfile
+import play.api.Logger
 import play.api.data.Form
 import play.api.mvc._
-import models.UserProfile
-import defines.EntityType
 import utils.Page
 import utils.search._
-import play.api.Logger
-import controllers.base.CoreActionBuilders
+
 import scala.concurrent.Future
-import backend.{ContentType, WithId, Readable}
 
 
 /**
- * Helpers for using the search engine from controllers.
- */
+  * Helpers for using the search engine from controllers.
+  */
 trait Search extends CoreActionBuilders {
 
   protected def searchEngine: utils.search.SearchEngine
+
   protected def searchResolver: utils.search.SearchItemResolver
 
   /**
-   * A function that generates a list of facet classes from an
-   * incoming request header. The facet rendering can be changed
-   * based on request variables such as the user's current language.
-   */
+    * A function that generates a list of facet classes from an
+    * incoming request header. The facet rendering can be changed
+    * based on request variables such as the user's current language.
+    */
   protected type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
 
   /**
-   * A default facet class builder.
-   */
-  protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]]}
+    * A default facet class builder.
+    */
+  protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
 
   /**
-   * Ascertain if the user is making a textual query on this
-   * request, as opposed to facet filtering a full list.
-   */
+    * Ascertain if the user is making a textual query on this
+    * request, as opposed to facet filtering a full list.
+    */
   protected def hasActiveQuery(request: RequestHeader): Boolean =
     request.getQueryString(SearchParams.QUERY).exists(_.nonEmpty)
 
@@ -49,10 +51,10 @@ trait Search extends CoreActionBuilders {
 
     // Facets provided using ?facet=name:value format
     val fs: Seq[String] = request.queryString.getOrElse(SearchParams.FACET, Seq.empty[String])
-    val keys: Map[String,String] = facetClasses.map(fc => fc.param -> fc.key).toMap
+    val keys: Map[String, String] = facetClasses.map(fc => fc.param -> fc.key).toMap
     val generic: Seq[AppliedFacet] = fs.map(_.split(":").toList).collect {
       case key :: value :: Nil if keys.contains(key) => keys.getOrElse(key, key) -> value
-    }.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
+    }.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
       m.updated(k, v +: m.getOrElse(k, Seq.empty[String]))
     }.map(s => AppliedFacet(s._1, s._2)).toSeq
 
@@ -60,13 +62,13 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-   * Search sort logic. By default, if there's a query, items come out
-   * sorted by their score. Otherwise, they are sorted by name.
-   */
+    * Search sort logic. By default, if there's a query, items come out
+    * sorted by their score. Otherwise, they are sorted by name.
+    */
   private type SortFunction = (SearchParams => RequestHeader) => Option[SearchOrder.Value]
 
   private def defaultSortFunction(sp: SearchParams, request: RequestHeader,
-      fallback: SearchOrder.Value = SearchOrder.DateNewest): Option[SearchOrder.Value] = {
+    fallback: SearchOrder.Value = SearchOrder.DateNewest): Option[SearchOrder.Value] = {
     sp.sort.orElse {
       Some {
         if (request.getQueryString(SearchParams.QUERY).exists(!_.trim.isEmpty))
@@ -77,16 +79,16 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-   * Fetch a search engine with configuration derived from
-   * an incoming request.
-   *
-   * @param defaultParams the default parameters
-   * @param defaultOrder  the default ordering
-   * @param facetBuilder  a facet extractor
-   * @param userOpt the current (optional user)
-   * @param request the current request
-   * @return a configured search engine
-   */
+    * Fetch a search engine with configuration derived from
+    * an incoming request.
+    *
+    * @param defaultParams the default parameters
+    * @param defaultOrder  the default ordering
+    * @param facetBuilder  a facet extractor
+    * @param userOpt       the current (optional user)
+    * @param request       the current request
+    * @return a configured search engine
+    */
   protected def searchEngineFromRequest(
     defaultParams: SearchParams = SearchParams.empty,
     defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
@@ -110,25 +112,25 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-   * Helper for searching a set of pre-fetched items and then
-   * combining the resulting search hits with those items.
-   *
-   * This applies an ID filter to the search query from the
-   * IDs of the given items.
-   *
-   * @param items a sequence of items
-   * @param filters A map of key/value filter pairs
-   * @param extra An arbitrary set of key/value parameters
-   * @param defaultOrder The default ordering
-   * @param defaultParams The default parameters
-   * @param idFilters Additional ID filters
-   * @param entities A list of entities to limit the search to
-   * @param facetBuilder A function to create the set of facets
-   *                     from the incoming request
-   * @param mode The search mode, default all or default to none
-   * @return A query result containing the page of search data,
-   *         plus the resolved parameters and facets.
-   */
+    * Helper for searching a set of pre-fetched items and then
+    * combining the resulting search hits with those items.
+    *
+    * This applies an ID filter to the search query from the
+    * IDs of the given items.
+    *
+    * @param items         a sequence of items
+    * @param filters       A map of key/value filter pairs
+    * @param extra         An arbitrary set of key/value parameters
+    * @param defaultOrder  The default ordering
+    * @param defaultParams The default parameters
+    * @param idFilters     Additional ID filters
+    * @param entities      A list of entities to limit the search to
+    * @param facetBuilder  A function to create the set of facets
+    *                      from the incoming request
+    * @param mode          The search mode, default all or default to none
+    * @return A query result containing the page of search data,
+    *         plus the resolved parameters and facets.
+    */
   protected def findIn[MT <: WithId](
     items: Seq[MT],
     filters: Map[String, Any] = Map.empty,
@@ -139,7 +141,7 @@ trait Search extends CoreActionBuilders {
     entities: Seq[EntityType.Value] = Nil,
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll)(
-      implicit request: RequestHeader, userOpt: Option[UserProfile]): Future[SearchResult[(MT,SearchHit)]] = {
+    implicit request: RequestHeader, userOpt: Option[UserProfile]): Future[SearchResult[(MT, SearchHit)]] = {
 
     val dispatcher = searchEngineFromRequest(defaultParams, defaultOrder, facetBuilder)
       .withFilters(filters)
@@ -156,19 +158,19 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-   * Dispatch a search to the search engine.
-   *
-   * @param filters A map of key/value filter pairs
-   * @param extra An arbitrary set of key/value parameters
-   * @param defaultParams The default parameters
-   * @param idFilters Additional ID filters
-   * @param entities A list of entities to limit the search to
-   * @param facetBuilder A function to create the set of facets
-   *                     from the incoming request
-   * @param mode The search mode, default all or default to none
-   * @return A query result containing the page of search data,
-   *         plus the resolved parameters and facets.
-   */
+    * Dispatch a search to the search engine.
+    *
+    * @param filters       A map of key/value filter pairs
+    * @param extra         An arbitrary set of key/value parameters
+    * @param defaultParams The default parameters
+    * @param idFilters     Additional ID filters
+    * @param entities      A list of entities to limit the search to
+    * @param facetBuilder  A function to create the set of facets
+    *                      from the incoming request
+    * @param mode          The search mode, default all or default to none
+    * @return A query result containing the page of search data,
+    *         plus the resolved parameters and facets.
+    */
   protected def find[MT](
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
@@ -179,7 +181,7 @@ trait Search extends CoreActionBuilders {
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
     resolverOpt: Option[SearchItemResolver] = None)(
-      implicit request: RequestHeader, userOpt: Option[UserProfile], rd: Readable[MT]): Future[SearchResult[(MT,SearchHit)]] = {
+    implicit request: RequestHeader, userOpt: Option[UserProfile], rd: Readable[MT]): Future[SearchResult[(MT, SearchHit)]] = {
 
     val dispatcher = searchEngineFromRequest(defaultParams, defaultOrder, facetBuilder)
       .withFilters(filters)
@@ -201,18 +203,18 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-   * Dispatch a search for items of a single content type to the search engine.
-   *
-   * @param filters A map of key/value filter pairs
-   * @param extra An arbitrary set of key/value parameters
-   * @param defaultParams The default parameters
-   * @param idFilters Additional ID filters
-   * @param facetBuilder A function to create the set of facets
-   *                     from the incoming request
-   * @param mode The search mode, default all or default to none
-   * @return A query result containing the page of search data,
-   *         plus the resolved parameters and facets.
-   */
+    * Dispatch a search for items of a single content type to the search engine.
+    *
+    * @param filters       A map of key/value filter pairs
+    * @param extra         An arbitrary set of key/value parameters
+    * @param defaultParams The default parameters
+    * @param idFilters     Additional ID filters
+    * @param facetBuilder  A function to create the set of facets
+    *                      from the incoming request
+    * @param mode          The search mode, default all or default to none
+    * @return A query result containing the page of search data,
+    *         plus the resolved parameters and facets.
+    */
   protected def findType[MT](
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
@@ -222,7 +224,7 @@ trait Search extends CoreActionBuilders {
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
     resolverOpt: Option[SearchItemResolver] = None)(
-      implicit request: RequestHeader, userOpt: Option[UserProfile], rd: ContentType[MT]): Future[SearchResult[(MT,SearchHit)]] = {
+    implicit request: RequestHeader, userOpt: Option[UserProfile], rd: ContentType[MT]): Future[SearchResult[(MT, SearchHit)]] = {
 
     find[MT](filters, extra, defaultParams, defaultOrder, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }

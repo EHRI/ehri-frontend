@@ -64,7 +64,7 @@ case class Home @Inject()(components: Components) extends AdminController with S
   }
 
 
-  def index = OptionalUserAction.async { implicit request =>
+  def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val activityEventTypes = List(
       EventType.deletion,
       EventType.creation,
@@ -106,7 +106,7 @@ case class Home @Inject()(components: Components) extends AdminController with S
 
   // NB: This page now just handles metrics and only provides facet
   // data via JSON.
-  def overview = OptionalUserAction.async { implicit request =>
+  def overview: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(count=Some(0)),
       facetBuilder = entityFacets

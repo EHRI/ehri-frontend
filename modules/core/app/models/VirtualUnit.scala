@@ -31,7 +31,7 @@ object VirtualUnitF {
   )(VirtualUnitF.apply, unlift(VirtualUnitF.unapply))
 
   implicit object Converter extends Writable[VirtualUnitF] {
-    val restFormat = virtualUnitFormat
+    val restFormat: Format[VirtualUnitF] = virtualUnitFormat
   }
 }
 
@@ -70,7 +70,7 @@ object VirtualUnit {
   implicit object VirtualUnitResource extends backend.ContentType[VirtualUnit]  {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
-    implicit val restReads = metaReads
+    implicit val restReads: Reads[VirtualUnit] = metaReads
 
     /**
      * When displaying doc units we need the

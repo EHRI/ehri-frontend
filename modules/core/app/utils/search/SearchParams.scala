@@ -1,8 +1,8 @@
 package utils.search
 
-import defines.EntityType
 import backend.rest.Constants._
-import play.api.libs.json.Json
+import defines.EntityType
+import play.api.libs.json.{Format, Json, Writes}
 
 
 object SearchField extends Enumeration {
@@ -15,7 +15,7 @@ object SearchField extends Enumeration {
   val Subject = Value("subject")
   val Address = Value("address")
 
-  implicit val format = defines.EnumUtils.enumFormat(SearchField)
+  implicit val format: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
 }
 
 object SearchOrder extends Enumeration {
@@ -30,7 +30,7 @@ object SearchOrder extends Enumeration {
   val Detail = Value("charCount.desc")
   val ChildCount = Value("childCount.desc")
 
-  implicit val format = defines.EnumUtils.enumFormat(SearchOrder)
+  implicit val format: Format[SearchOrder.Value] = defines.EnumUtils.enumFormat(SearchOrder)
 }
 
 object SearchType extends Enumeration {
@@ -40,7 +40,7 @@ object SearchType extends Enumeration {
   val Authority = Value("authority")
   val Repository = Value("repository")
 
-  implicit val format = defines.EnumUtils.enumFormat(SearchType)
+  implicit val format: Format[SearchType.Value] = defines.EnumUtils.enumFormat(SearchType)
 }
 
 object SearchMode extends Enumeration {
@@ -48,15 +48,15 @@ object SearchMode extends Enumeration {
   val DefaultAll = Value("all")
   val DefaultNone = Value("none")
 
-  implicit val format = defines.EnumUtils.enumFormat(SearchMode)
+  implicit val format: Format[SearchMode.Value] = defines.EnumUtils.enumFormat(SearchMode)
 }
 
 
 /**
- * Class encapsulating the parameters of a Solr search.
- *
- * User: michaelb
- */
+  * Class encapsulating the parameters of a Solr search.
+  *
+  * User: michaelb
+  */
 case class SearchParams(
   query: Option[String] = None,
   page: Option[Int] = None,
@@ -75,16 +75,16 @@ case class SearchParams(
   def countOrDefault: Int = count.getOrElse(DEFAULT_LIST_LIMIT)
 
   /**
-   * Is there an active constraint on these params?
-   * TODO: Should this include page etc?
-   */
+    * Is there an active constraint on these params?
+    * TODO: Should this include page etc?
+    */
   def isFiltered: Boolean = !query.forall(_.trim.isEmpty)
 
-  def offset = Math.max(0, (pageOrDefault - 1) * countOrDefault)
+  def offset: Int = Math.max(0, (pageOrDefault - 1) * countOrDefault)
 
   /**
-   * Set unset values from another (optional) instance.
-   */
+    * Set unset values from another (optional) instance.
+    */
   def setDefault(default: Option[SearchParams]): SearchParams = default match {
     case Some(d) => copy(
       query = query orElse d.query,
@@ -112,14 +112,14 @@ object SearchParams {
   val EXCLUDE = "ex"
   val FILTERS = "f"
 
-  import play.api.data.Forms._
-  import play.api.data.Form
-  import utils.PageParams._
   import defines.EnumUtils._
+  import play.api.data.Form
+  import play.api.data.Forms._
+  import utils.PageParams._
 
   def empty: SearchParams = new SearchParams()
 
-  implicit val writes = Json.writes[SearchParams]
+  implicit val writes: Writes[SearchParams] = Json.writes[SearchParams]
 
   // Form deserialization
   val form = Form(

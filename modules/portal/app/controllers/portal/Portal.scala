@@ -66,7 +66,7 @@ case class Portal @Inject()(
       .withPreferences(request.preferences.copy(language = Some(lang)))
   }
 
-  def personalisedActivity = WithUserAction.async{ implicit request =>
+  def personalisedActivity: Action[AnyContent] = WithUserAction.async{ implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
     val listParams = RangeParams.fromRequest(request)
@@ -80,7 +80,7 @@ case class Portal @Inject()(
     }
   }
 
-  def search = UserBrowseAction.async { implicit request =>
+  def search: Action[AnyContent] = UserBrowseAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
@@ -96,7 +96,7 @@ case class Portal @Inject()(
    * only the name_ngram field and returns an id/name pair.
    * @return
    */
-  def filterItems = OptionalUserAction.async { implicit request =>
+  def filterItems: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     filter().map { page =>
       Ok(Json.obj(
         "numPages" -> page.numPages,
@@ -111,7 +111,7 @@ case class Portal @Inject()(
    * extracted from the search engine facet counts for different
    * types.
    */
-  def index = OptionalUserAction.async { implicit request =>
+  def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     getStats.map { stats =>
       Ok(views.html.portal(stats))
     }
@@ -124,7 +124,7 @@ case class Portal @Inject()(
     else Redirect(call)
   }
 
-  def itemHistory(id: String, modal: Boolean = false) = OptionalUserAction.async { implicit request =>
+  def itemHistory(id: String, modal: Boolean = false): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val params: RangeParams = RangeParams.fromRequest(request)
     val filters = SystemEventParams.fromRequest(request)
     userDataApi.history[SystemEvent](id, params, filters).map { events =>
@@ -135,7 +135,7 @@ case class Portal @Inject()(
     }
   }
 
-  def eventDetails(id: String) = OptionalUserAction.async { implicit request =>
+  def eventDetails(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
     val eventF: Future[SystemEvent] = userDataApi.get[SystemEvent](id)
     val subjectsF: Future[Page[AnyModel]] = userDataApi.subjectsForEvent[AnyModel](id, params)
@@ -147,23 +147,23 @@ case class Portal @Inject()(
     }
   }
 
-  def dataPolicy = OptionalUserAction.apply { implicit request =>
+  def dataPolicy: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.dataPolicy())
   }
 
-  def terms = OptionalUserAction.apply { implicit request =>
+  def terms: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.terms())
   }
 
-  def about = OptionalUserAction.apply { implicit request =>
+  def about: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.about())
   }
 
-  def contact = OptionalUserAction.apply { implicit request =>
+  def contact: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String) = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
         config.getString(s"ehri.portal.externalFeed.$key.rss").map { url =>
@@ -176,7 +176,7 @@ case class Portal @Inject()(
     }
   }
 
-  def externalPage(key: String) = OptionalUserAction.async { implicit request =>
+  def externalPage(key: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     futureItemOr404 {
       htmlPages.get(key, noCache = request.getQueryString("noCache").isDefined).map { futureData =>
         futureData.map { case (css, html) =>

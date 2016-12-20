@@ -7,6 +7,7 @@ import auth.handler.AuthIdContainer
 import play.api.cache.CacheApi
 
 import scala.annotation.tailrec
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration._
 import scala.util.Random
@@ -27,21 +28,21 @@ class CacheIdContainer @Inject()(cacheApi: CacheApi) extends AuthIdContainer {
   private final val table = "abcdefghijklmnopqrstuvwxyz1234567890_.~*'()"
   private val random = new Random(new SecureRandom())
 
-  override def startNewSession(userId: String, timeout: Duration) = immediate {
+  override def startNewSession(userId: String, timeout: Duration): Future[String] = immediate {
     removeByUserId(userId)
     val token = generate
     store(token, userId, timeout)
     token
   }
 
-  override def remove(token: String) = immediate {
+  override def remove(token: String): Future[Unit] = immediate {
     lookup(token).foreach(unsetUserId)
     unsetToken(token)
   }
 
-  override def get(token: String) = immediate(lookup(token))
+  override def get(token: String): Future[Option[String]] = immediate(lookup(token))
 
-  override def prolongTimeout(token: String, timeout: Duration) = immediate {
+  override def prolongTimeout(token: String, timeout: Duration): Future[Unit] = immediate {
     lookup(token).foreach(t => store(token, t, timeout))
   }
 

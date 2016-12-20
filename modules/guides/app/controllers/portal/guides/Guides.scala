@@ -37,7 +37,7 @@ case class Guides @Inject()(
   private val htmlAgentOrder = utils.search.SearchOrder.Detail
   private val htmlConceptOrder = utils.search.SearchOrder.ChildCount
 
-  def jsRoutes = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes: EssentialAction = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
@@ -142,7 +142,7 @@ case class Guides @Inject()(
   /*
   * Return a homepage for a guide
   */
-  def home(path: String) = itemOr404Action {
+  def home(path: String): Action[AnyContent] = itemOr404Action {
     guides.find(path, activeOnly = true).map { guide =>
       guideLayout(guide, guides.getDefaultPage(guide))
     }
@@ -151,7 +151,7 @@ case class Guides @Inject()(
   /*
   * Return a layout for a guide and a given path
   */
-  def layoutRetrieval(path: String, page: String) = itemOr404Action {
+  def layoutRetrieval(path: String, page: String): Action[AnyContent] = itemOr404Action {
     guides.find(path, activeOnly = true).map { guide =>
       guideLayout(guide, guides.findPage(guide, page))
     }
@@ -214,7 +214,7 @@ case class Guides @Inject()(
   */
 
 
-  def guideLayout(guide: Guide, temp: Option[GuidePage]) = itemOr404Action {
+  def guideLayout(guide: Guide, temp: Option[GuidePage]): Action[AnyContent] = itemOr404Action {
     temp.map { page =>
       page.layout match {
         case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
@@ -237,7 +237,7 @@ case class Guides @Inject()(
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideAuthority(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     for {
       r <- find[HistoricalAgent](
         filters = params,
@@ -257,7 +257,7 @@ case class Guides @Inject()(
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideMap(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     mapParams(
       if (request.queryString.contains("lat") && request.queryString.contains("lng")) request.queryString
       else page.getParams
@@ -283,7 +283,7 @@ case class Guides @Inject()(
   /*
    *   Layout named "organisation" [Concept]
    */
-  def guideOrganization(page: GuidePage, params: Map[String, String], guide: Guide) = UserBrowseAction.async { implicit request =>
+  def guideOrganization(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     for {
       r <- find[Concept](
         params,
@@ -413,7 +413,7 @@ case class Guides @Inject()(
   /*
   *   Faceted search
   */
-  def guideFacets(path: String) = OptionalUserAction.async { implicit request =>
+  def guideFacets(path: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     guides.find(path, activeOnly = true).map { guide =>
       /*
        *  If we have keyword, we make a query 
@@ -508,7 +508,7 @@ case class Guides @Inject()(
     }
   }
 
-  def linkedData(id: String) = UserBrowseAction.async { implicit request =>
+  def linkedData(id: String): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     for {
       gids <- searchLinksForm.bindFromRequest(request.queryString).fold(
       errs => searchLinks(id), {
@@ -521,7 +521,7 @@ case class Guides @Inject()(
     }))
   }
 
-  def linkedDataInContext(id: String, context: String) = UserBrowseAction.async { implicit request =>
+  def linkedDataInContext(id: String, context: String): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     for {
       gids <- searchLinksForm.bindFromRequest(request.queryString).fold(
       errs => searchLinks(id, context = Some(context)), {

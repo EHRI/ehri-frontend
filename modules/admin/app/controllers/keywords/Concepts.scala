@@ -2,14 +2,15 @@ package controllers.keywords
 
 import javax.inject._
 
-import forms.VisibilityForm
 import backend.rest.DataHelpers
 import controllers.Components
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
+import defines.{EntityType, PermissionType}
+import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
+import play.api.mvc.{Action, AnyContent}
 import utils.PageParams
 import utils.search._
 import views.Helpers
@@ -30,8 +31,6 @@ case class Concepts @Inject()(
   with Linking[Concept]
   with Annotate[Concept]
   with SearchType[Concept] {
-
-  val targetContentTypes = Seq(ContentTypes.Concept)
 
   private val form = models.Concept.form
   private val childForm = models.Concept.form
@@ -58,31 +57,31 @@ case class Concepts @Inject()(
   }
 
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
     userDataApi.children[Concept, Concept](id, params).map { page =>
       Ok(views.html.admin.concept.show(request.item, page, params, request.links, request.annotations))
     }
   }
 
-  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
     Ok(views.html.admin.concept.search(request.result, conceptRoutes.search()))
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.concept.list(request.page, request.params))
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.edit(
-      request.item, form.fill(request.item.model),conceptRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), conceptRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.concept.edit(
         request.item, errorForm, conceptRoutes.updatePost(id)))
@@ -91,15 +90,15 @@ case class Concepts @Inject()(
     }
   }
 
-  def createConcept(id: String) = NewChildAction(id).apply { implicit request =>
+  def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
       request.item, childForm, VisibilityForm.form,
       request.users, request.groups, conceptRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
       }
@@ -108,53 +107,56 @@ case class Concepts @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        request.item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
+      request.item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(conceptRoutes.search())
-        .flashing("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, conceptRoutes.visibilityPost(id)))
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, conceptRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(conceptRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
-    Ok(views.html.admin.link.create(request.from, request.to,
-            Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
-  }
-
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
-    request.formOrLink match {
-      case Left((target,errorForm)) =>
-        BadRequest(views.html.admin.link.create(request.from, target,
-            errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
-      case Right(_) =>
-        Redirect(conceptRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    LinkAction(id, toType, to).apply { implicit request =>
+      Ok(views.html.admin.link.create(request.from, request.to,
+        Link.form, conceptRoutes.linkAnnotatePost(id, toType, to)))
     }
-  }
 
-  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    CreateLinkAction(id, toType, to).apply { implicit request =>
+      request.formOrLink match {
+        case Left((target, errorForm)) =>
+          BadRequest(views.html.admin.link.create(request.from, target,
+            errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
+        case Right(_) =>
+          Redirect(conceptRoutes.get(id))
+            .flashing("success" -> "item.update.confirmation")
+      }
+    }
+
+  def linkTo(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
     Ok(views.html.admin.concept.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
-    Ok(views.html.admin.link.linkSourceList(
-      request.item, request.searchResult, request.entityType,
-      conceptRoutes.linkAnnotateSelect(id, toType),
-      conceptRoutes.linkAnnotate))
-  }
+  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
+    LinkSelectAction(id, toType).apply { implicit request =>
+      Ok(views.html.admin.link.linkSourceList(
+        request.item, request.searchResult, request.entityType,
+        conceptRoutes.linkAnnotateSelect(id, toType),
+        conceptRoutes.linkAnnotate))
+    }
 }
 
 

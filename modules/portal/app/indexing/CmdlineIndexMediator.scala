@@ -4,41 +4,46 @@ import javax.inject.Inject
 
 import akka.actor.ActorRef
 import backend.rest.Constants
-import scala.sys.process._
+import com.google.common.collect.EvictingQueue
 import defines.EntityType
 import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
+
 import scala.concurrent.{ExecutionContext, Future}
-import com.google.common.collect.EvictingQueue
+import scala.sys.process._
 
 
 case class CmdlineIndexMediator @Inject()(
-    implicit config: play.api.Configuration,
-    executionContext: ExecutionContext) extends SearchIndexMediator {
-  def handle = new CmdlineIndexMediatorHandle()
+  implicit config: play.api.Configuration,
+  executionContext: ExecutionContext) extends SearchIndexMediator {
+  def handle = CmdlineIndexMediatorHandle()
 }
 
 /**
- * Indexer which uses the command-line tool in
- * bin to index items.
- */
+  * Indexer which uses the command-line tool in
+  * bin to index items.
+  */
 case class CmdlineIndexMediatorHandle(
   chan: Option[ActorRef] = None,
   processFunc: String => String = identity[String]
-)(implicit config: play.api.Configuration, executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
+)(implicit config: play.api.Configuration, executionContext: ExecutionContext)
+  extends SearchIndexMediatorHandle {
 
-  override def withChannel(actorRef: ActorRef, formatter: String => String)
-      = copy(chan = Some(actorRef), processFunc = formatter)
+  override def withChannel(actorRef: ActorRef, formatter: String => String): CmdlineIndexMediatorHandle =
+    copy(chan = Some(actorRef), processFunc = formatter)
 
   /**
-   * Process logger which buffers output to `bufferCount` lines
-   */
+    * Process logger which buffers output to `bufferCount` lines
+    */
   object logger extends ProcessLogger {
-    val bufferCount = 100 // number of lines to buffer...
+    val bufferCount = 100
+    // number of lines to buffer...
     var count = 0
-    val errBuffer = EvictingQueue.create[String](10)
+    val errBuffer: EvictingQueue[String] = EvictingQueue.create[String](10)
 
     def buffer[T](f: => T): T = f
-    def out(s: => String) = report()
+
+    def out(s: => String): Unit = report()
+
     def err(s: => String) {
       errBuffer.add(s)
       // This is a hack. All progress goes to stdout but we only
@@ -88,7 +93,7 @@ case class CmdlineIndexMediatorHandle(
     val process: Process = cmd.run(logger)
     if (process.exitValue() != 0) {
       throw IndexingError("Exit code was " + process.exitValue() + "\nLast output: \n"
-        + (if(logger.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
+        + (if (logger.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
         + logger.lastMessages.mkString("\n"))
     }
   }
@@ -96,18 +101,18 @@ case class CmdlineIndexMediatorHandle(
   def indexIds(ids: String*): Future[Unit] = runProcess((idxArgs ++ ids.map(id => s"@$id")) :+ "--pretty")
 
   def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
-        = runProcess(idxArgs ++ entityTypes.map(_.toString))
+  = runProcess(idxArgs ++ entityTypes.map(_.toString))
 
   def indexChildren(entityType: EntityType.Value, id: String): Future[Unit]
-      = runProcess(idxArgs ++ Seq(s"$entityType|$id"))
+  = runProcess(idxArgs ++ Seq(s"$entityType|$id"))
 
   def clearAll(): Future[Unit] = runProcess(clearArgs ++ Seq("--clear-all"))
 
   def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit]
-        = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
+  = runProcess(clearArgs ++ entityTypes.flatMap(s => Seq("--clear-type", s.toString)))
 
   def clearIds(ids: String*): Future[Unit] = runProcess(clearArgs ++ ids.flatMap(id => Seq("--clear-id", id)))
 
   def clearKeyValue(key: String, value: String): Future[Unit]
-        = runProcess(clearArgs ++ Seq("--clear-key-value", s"$key=$value"))
+  = runProcess(clearArgs ++ Seq("--clear-key-value", s"$key=$value"))
 }

@@ -37,7 +37,7 @@ trait RestService {
     body: WSBody = EmptyBody
     )(implicit apiUser: ApiUser) {
 
-    lazy val credentials = for {
+    lazy val credentials: Option[(String, String)] = for {
       username <- config.getString("services.ehridata.username")
       password <- config.getString("services.ehridata.password")
     } yield (username, password)
@@ -80,13 +80,13 @@ trait RestService {
 
     def get(): Future[WSResponse] = copy(method = GET).execute()
 
-    def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+    def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
       withMethod(POST).withBody(body).execute()
 
-    def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) =
+    def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
       withMethod(PUT).withBody(body).execute()
 
-    def delete() = withMethod(DELETE).execute()
+    def delete(): Future[WSResponse] = withMethod(DELETE).execute()
 
     /**
      * Sets the body for this request. Copy and paste from WSRequest :(
@@ -110,7 +110,7 @@ trait RestService {
     def withQueryString(parameters: (String, String)*): BackendRequest =
       copy(queryString = queryString ++ parameters)
 
-    def withMethod(method: String) = copy(method = method)
+    def withMethod(method: String): BackendRequest = copy(method = method)
 
     def execute(): Future[WSResponse] = runWs
   }
@@ -192,7 +192,7 @@ trait RestService {
   /**
    * Encode a bunch of URL parts.
    */
-  protected def enc(base: String, s: Any*) = {
+  protected def enc(base: String, s: Any*): String = {
     def clean(segment: Any): String =
       segment.toString.replace("?", "%3F").replace("#", "%23")
     import java.net.URI

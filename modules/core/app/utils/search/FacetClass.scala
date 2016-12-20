@@ -26,7 +26,7 @@ sealed trait FacetClass[+T <: Facet] {
    * or it contains facets which are worth applying, e.g. have a
    * non-zero item count.
    */
-  def isActive = facets.exists(_.applied) || facets.exists(_.count > 0)
+  def isActive: Boolean = facets.exists(_.applied) || facets.exists(_.count > 0)
   def render: String => String = identity
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
 
@@ -88,7 +88,7 @@ case class QueryFacetClass(
   override val displayLimit: Int = 20,
   override val sort: FacetSort.Value = FacetSort.Name
 ) extends FacetClass[QueryFacet] {
-  override def isValidValue(s: String) = facets.exists(_.value == s)
+  override def isValidValue(s: String): Boolean = facets.exists(_.value == s)
 }
 
 

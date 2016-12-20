@@ -3,8 +3,10 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import controllers.Components
+import play.api.cache.Cached
 import play.api.http.{ContentTypes, MimeTypes}
-import play.api.mvc.{Action, Controller}
+import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, Controller, EssentialAction}
 
 
 @Singleton
@@ -13,10 +15,10 @@ case class PortalData @Inject()(
 ) extends Controller
   with play.api.i18n.I18nSupport {
 
-  protected def statusCache = components.statusCache
-  def messagesApi = components.messagesApi
+  protected def statusCache: Cached = components.statusCache
+  def messagesApi: MessagesApi = components.messagesApi
 
-  def jsRoutes = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
+  def jsRoutes: EssentialAction = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
@@ -61,7 +63,7 @@ case class PortalData @Inject()(
    * Render entity types into the view to serve as JS constants.
    * @return
    */
-  def globalData = statusCache.status(_ => "pages:globalData", OK, 3600) {
+  def globalData: EssentialAction = statusCache.status(_ => "pages:globalData", OK, 3600) {
     Action { implicit request =>
       import defines.EntityType
       Ok(
@@ -83,7 +85,7 @@ case class PortalData @Inject()(
     MovedPermanently("/" + path + query)
   }
 
-  def localeData(lang: String) = statusCache.status(_ => "pages:localeData", OK, 3600) {
+  def localeData(lang: String): EssentialAction = statusCache.status(_ => "pages:localeData", OK, 3600) {
     Action { request =>
       implicit val locale = play.api.i18n.Lang(lang)
 

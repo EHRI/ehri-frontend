@@ -77,17 +77,17 @@ case class Bookmarks @Inject()(
         params = Map(Constants.ID_PARAM -> items))
     } yield vu
 
-  def removeBookmarksPost(set: String, ids: Seq[String]) = WithUserAction.async { implicit request =>
+  def removeBookmarksPost(set: String, ids: Seq[String]): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.deleteReferences[VirtualUnit](set, ids).map(_ => Ok("ok"))
   }
 
-  def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty) = WithUserAction.async { implicit request =>
+  def moveBookmarksPost(fromSet: String, toSet: String, ids: Seq[String] = Seq.empty): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.moveReferences[VirtualUnit](fromSet, toSet, ids).map(_ => Ok("ok"))
   }
 
-  def bookmarkInNewSetPost(id: String) = createBookmarkSetPost(List(id))
+  def bookmarkInNewSetPost(id: String): Action[AnyContent] = createBookmarkSetPost(List(id))
 
-  def bookmark(itemId: String, bsId: Option[String] = None) = WithUserAction.apply { implicit request =>
+  def bookmark(itemId: String, bsId: Option[String] = None): Action[AnyContent] = WithUserAction.apply { implicit request =>
     Ok(views.html.helpers.simpleForm("bookmark.item", bmRoutes.bookmarkPost(itemId, bsId)))
   }
 
@@ -95,7 +95,7 @@ case class Bookmarks @Inject()(
    * Bookmark an item, creating (if necessary) a default virtual
    * collection private to the user.
    */
-  def bookmarkPost(itemId: String, bsId: Option[String] = None) = WithUserAction.async { implicit request =>
+  def bookmarkPost(itemId: String, bsId: Option[String] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
       userDataApi.get[VirtualUnit](idOpt.getOrElse(defaultBookmarkSetId)).map { vu =>
@@ -118,7 +118,7 @@ case class Bookmarks @Inject()(
     }
   }
 
-  def listBookmarkSets = WithUserAction.async { implicit request =>
+  def listBookmarkSets: Action[AnyContent] = WithUserAction.async { implicit request =>
     val params: PageParams = PageParams.fromRequest(request)
     val pageF = userDataApi.userBookmarks[VirtualUnit](request.user.id, params)
     val watchedF = watchedItemIds(userIdOpt = Some(request.user.id))
@@ -134,7 +134,7 @@ case class Bookmarks @Inject()(
     else Ok(views.html.bookmarks.create(BookmarkSet.bookmarkForm, bmRoutes.createBookmarkSetPost(items)))
   }
 
-  def createBookmarkSetPost(items: List[String] = Nil) = WithUserAction.async { implicit request =>
+  def createBookmarkSetPost(items: List[String] = Nil): Action[AnyContent] = WithUserAction.async { implicit request =>
     BookmarkSet.bookmarkForm.bindFromRequest.fold(
       errs => immediate {
         if (isAjax) Ok(views.html.bookmarks.form(errs, bmRoutes.createBookmarkSetPost(items)))
@@ -178,7 +178,7 @@ case class Bookmarks @Inject()(
   }
 
 
-  def contents(id: String) = WithUserAction.async { implicit request =>
+  def contents(id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
@@ -196,7 +196,7 @@ case class Bookmarks @Inject()(
     }
   }
 
-  def moreContents(id: String, page: Int) = WithUserAction.async { implicit request =>
+  def moreContents(id: String, page: Int): Action[AnyContent] = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {

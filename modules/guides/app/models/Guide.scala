@@ -53,7 +53,7 @@ object Guide {
     )(Guide.apply)(Guide.unapply)
   )
 
-  val rowExtractor = {
+  private[models] val rowExtractor: RowParser[Guide] = {
     get[Option[Long]](OBJECTID) ~
       get[String](NAME) ~
       get[String](PATH) ~

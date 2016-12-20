@@ -36,7 +36,7 @@ object CountryF {
   )(CountryF.apply, unlift(CountryF.unapply))
 
   implicit object Converter extends Writable[CountryF] {
-    lazy val restFormat = countryFormat
+    lazy val restFormat: Format[CountryF] = countryFormat
   }
 }
 
@@ -51,7 +51,7 @@ case class CountryF(
   extensive: Option[String]                   
 ) extends Model with Persistable {
 
-  def displayText = abs orElse situation
+  def displayText: Option[String] = abs orElse situation
 }
 
 
@@ -71,7 +71,7 @@ object Country {
   implicit object CountryResource extends backend.ContentType[Country]  {
     val entityType = EntityType.Country
     val contentType = ContentTypes.Country
-    val restReads = metaReads
+    val restReads: Reads[Country] = metaReads
   }
 
   val form = Form(
@@ -100,5 +100,5 @@ case class Country(
   with Accessible
   with Holder[Repository] {
 
-  override def toStringLang(implicit messages: Messages) = views.Helpers.countryCodeToName(id)
+  override def toStringLang(implicit messages: Messages): String = views.Helpers.countryCodeToName(id)
 }

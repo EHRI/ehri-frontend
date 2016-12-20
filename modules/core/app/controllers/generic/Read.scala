@@ -74,7 +74,7 @@ trait Read[MT] extends CoreActionBuilders {
   private def WithItemPermissionFilter(perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
     WithPermissionFilter(perm, ct.contentType)
 
-  protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]) =
+  protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
     OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
       private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val userOpt = input.userOpt
@@ -104,13 +104,15 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(implicit ct: ContentType[MT]) =
+  protected def WithItemPermissionAction(itemId: String, perm: PermissionType.Value)(
+    implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
     ItemPermissionAction(itemId) andThen WithItemPermissionFilter(perm)
 
-  protected def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(implicit ct: ContentType[MT]) =
+  protected def WithParentPermissionAction(itemId: String, perm: PermissionType.Value, contentType: ContentTypes.Value)(
+    implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
     ItemPermissionAction(itemId) andThen WithPermissionFilter(perm, contentType)
 
-  protected def ItemMetaAction(itemId: String)(implicit ct: ContentType[MT]) =
+  protected def ItemMetaAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemMetaRequest] =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
         implicit val userOpt = request.userOpt
@@ -123,7 +125,7 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def ItemPageAction(implicit rs: Resource[MT]) =
+  protected def ItemPageAction(implicit rs: Resource[MT]): ActionBuilder[ItemPageRequest] =
     OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPageRequest] {
       def transform[A](input: OptionalUserRequest[A]): Future[ItemPageRequest[A]] = {
         implicit val userOpt = input.userOpt
@@ -134,7 +136,7 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def ItemHistoryAction(itemId: String)(implicit ct: ContentType[MT]) =
+  protected def ItemHistoryAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemHistoryRequest] =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
         implicit val req = request
@@ -148,7 +150,7 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def ItemVersionsAction(itemId: String)(implicit ct: ContentType[MT]) =
+  protected def ItemVersionsAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest] =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req = request

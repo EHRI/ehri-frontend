@@ -13,14 +13,14 @@ import anorm._
 import scala.language.postfixOps
 
 object SqlOpenIdAssociationManager {
-  val openIdParser = {
+  private[sql] val openIdParser: RowParser[OpenIDAssociation] = {
     get[String]("openid_association.id") ~
     get[String]("openid_association.openid_url") map {
       case id ~ url => OpenIDAssociation(id, url, None)
     }
   }
 
-  val openIdWithUser = openIdParser ~ SqlAccountManager.userParser map {
+  private[sql] val openIdWithUser: RowParser[OpenIDAssociation] = openIdParser ~ SqlAccountManager.userParser map {
     case association ~ user => association.copy(user = Some(user))
   }
 }

@@ -10,6 +10,7 @@ import models.{CypherQuery, ResultFormat}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypes, HeaderNames}
+import play.api.mvc.{Action, AnyContent}
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
@@ -38,7 +39,7 @@ case class CypherQueries @Inject()(
       controllers.cypher.routes.CypherQueries.cypherQuery(), "Cypher"))
   }
 
-  def cypherQuery = AdminAction.async { implicit request =>
+  def cypherQuery: Action[AnyContent] = AdminAction.async { implicit request =>
     queryForm.bindFromRequest.fold(
       err => immediate(BadRequest(err.errorsAsJson)),
       q => cypher.stream(q, Map.empty).map { sr =>
@@ -47,7 +48,7 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def listQueries = WithUserAction.async { implicit request =>
+  def listQueries: Action[AnyContent] = WithUserAction.async { implicit request =>
     cypherQueries.list(PageParams.fromRequest(request)).map { queries =>
       Ok(views.html.admin.cypherQueries.list(queries))
     }
@@ -58,7 +59,7 @@ case class CypherQueries @Inject()(
       controllers.cypher.routes.CypherQueries.createQueryPost()))
   }
 
-  def createQueryPost = AdminAction.async { implicit request =>
+  def createQueryPost: Action[AnyContent] = AdminAction.async { implicit request =>
     CypherQuery.form.bindFromRequest.fold(
       errors => immediate(BadRequest(views.html.admin.cypherQueries.form(None, errors,
         controllers.cypher.routes.CypherQueries.createQueryPost()))),
@@ -69,7 +70,7 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def updateQuery(id: String) = AdminAction.async { implicit request =>
+  def updateQuery(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     cypherQueries.get(id).map { query =>
       val f = CypherQuery.form.fill(query)
       Ok(views.html.admin.cypherQueries.form(Some(query), f,
@@ -77,7 +78,7 @@ case class CypherQueries @Inject()(
     }
   }
 
-  def updateQueryPost(id: String) = AdminAction.async { implicit request =>
+  def updateQueryPost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     CypherQuery.form.bindFromRequest.fold(
       errors => cypherQueries.get(id).map { query =>
         BadRequest(views.html.admin.cypherQueries.form(Some(query), errors,
@@ -90,7 +91,7 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def deleteQuery(id: String) = AdminAction.async { implicit request =>
+  def deleteQuery(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     cypherQueries.get(id).map { query =>
       Ok(views.html.admin.cypherQueries.delete(query,
         controllers.cypher.routes.CypherQueries.deleteQueryPost(id),
@@ -98,14 +99,14 @@ case class CypherQueries @Inject()(
     }
   }
 
-  def deleteQueryPost(id: String) = AdminAction.async { implicit request =>
+  def deleteQueryPost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     cypherQueries.delete(id).map { _ =>
       Redirect(controllers.cypher.routes.CypherQueries.listQueries())
         .flashing("success" -> "item.delete.confirmation")
     }
   }
 
-  def executeQuery(id: String, format: DataFormat.Value) = WithUserAction.async { implicit request =>
+  def executeQuery(id: String, format: DataFormat.Value): Action[AnyContent] = WithUserAction.async { implicit request =>
     cypherQueries.get(id).flatMap { query =>
       val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
       val filename = s"$name-$id.$format"

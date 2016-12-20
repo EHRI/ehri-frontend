@@ -16,17 +16,17 @@ trait GlobalConfig {
    * This is different from the usual dev/prod run configuration because
    * we might be running experimental stuff on a real life server.
    */
-  def isTestMode = configuration.getBoolean("ehri.testing").getOrElse(true)
+  def isTestMode: Boolean = configuration.getBoolean("ehri.testing").getOrElse(true)
 
-  def isStageMode = configuration.getBoolean("ehri.staging").getOrElse(false)
+  def isStageMode: Boolean = configuration.getBoolean("ehri.staging").getOrElse(false)
   
   def isEmbedMode(implicit req: RequestHeader): Boolean =
     req.getQueryString("embed").map(_.toLowerCase).contains("true")
 
-  lazy val https =
+  lazy val https: Boolean =
     configuration.getBoolean("ehri.https").getOrElse(false)
 
-  lazy val skipRecaptcha =
+  lazy val skipRecaptcha: Boolean =
     configuration.getBoolean("recaptcha.skip").getOrElse(false)
 
   lazy val analyticsEnabled: Boolean =

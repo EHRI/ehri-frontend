@@ -41,7 +41,7 @@ object RepositoryF {
   )(RepositoryF.apply, unlift(RepositoryF.unapply))
 
   implicit object Converter extends Writable[RepositoryF] {
-    val restFormat = repositoryFormat
+    val restFormat: Format[RepositoryF] = repositoryFormat
   }
 }
 
@@ -76,7 +76,7 @@ case class Repository(
   with Accessible
   with Holder[DocumentaryUnit] {
 
-  override def allNames(implicit messages: Messages) = model.primaryDescription(messages) match {
+  override def allNames(implicit messages: Messages): Seq[String] = model.primaryDescription(messages) match {
     case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)
     case None => Seq(toStringLang(messages))
   }
@@ -115,7 +115,7 @@ object Repository {
   implicit object RepositoryResource extends backend.ContentType[Repository]  {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
-    val restReads = metaReads
+    val restReads: Reads[Repository] = metaReads
   }
 
   /**

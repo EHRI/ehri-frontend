@@ -89,7 +89,7 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
   
-  protected def ForgotPasswordAction = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
+  protected def ForgotPasswordAction: ActionBuilder[ForgotPasswordRequest] = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ForgotPasswordRequest[A]] = {
       implicit val r = request
       checkRecapture.flatMap {
@@ -121,7 +121,7 @@ trait UserPasswordLoginHandler {
     request: Request[A]
   ) extends WrappedRequest[A](request)
   
-  protected def ChangePasswordAction = WithUserAction andThen new ActionTransformer[WithUserRequest, ChangePasswordRequest] {
+  protected def ChangePasswordAction: ActionBuilder[ChangePasswordRequest] = WithUserAction andThen new ActionTransformer[WithUserRequest, ChangePasswordRequest] {
     override protected def transform[A](request: WithUserRequest[A]): Future[ChangePasswordRequest[A]] = {
       implicit val r = request
       val form = changePasswordForm.bindFromRequest
@@ -152,7 +152,7 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def ResetPasswordAction(token: String) = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
+  protected def ResetPasswordAction(token: String): ActionBuilder[ResetPasswordRequest] = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ResetPasswordRequest[A]] = {
       implicit val r = request
       val form: Form[(String, String)] = resetPasswordForm.bindFromRequest

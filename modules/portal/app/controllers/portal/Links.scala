@@ -7,6 +7,7 @@ import controllers.Components
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Link
+import play.api.mvc.{Action, AnyContent}
 
 
 @Singleton
@@ -18,7 +19,7 @@ case class Links @Inject()(
   with Search
   with FacetConfig {
 
-  def browse(id: String) = GetItemAction(id).apply { implicit request =>
+  def browse(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     Ok(views.html.link.show(request.item))
   }
 }

@@ -2,6 +2,7 @@ package auth.handler.cookie
 
 import auth.handler.AuthIdContainer
 
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.Duration
 
@@ -16,13 +17,13 @@ import scala.concurrent.duration.Duration
   */
 class CookieIdContainer extends AuthIdContainer {
 
-  override def startNewSession(userId: String, timeout: Duration) = immediate(userId)
+  override def startNewSession(userId: String, timeout: Duration): Future[String] = immediate(userId)
 
-  override def remove(token: String) = immediate(())
+  override def remove(token: String): Future[Unit] = immediate(())
 
-  override def get(token: String) = immediate(Some(token))
+  override def get(token: String): Future[Option[String]] = immediate(Some(token))
 
-  override def prolongTimeout(token: String, timeout: Duration) = immediate{
+  override def prolongTimeout(token: String, timeout: Duration): Future[Unit] = immediate{
     // Timeout unsupported
   }
 }

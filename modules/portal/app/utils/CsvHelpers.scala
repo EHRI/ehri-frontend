@@ -17,6 +17,6 @@ trait CsvHelpers {
 object CsvHelpers extends CsvHelpers {
   // String quoting check necessary to avoid over-cautious quoting
   // of unicode-containing values
-  val mapper = new CsvMapper()
+  val mapper: CsvMapper = new CsvMapper()
     .enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING)
 }

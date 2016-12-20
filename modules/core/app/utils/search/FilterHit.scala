@@ -1,11 +1,11 @@
 package utils.search
 
 import defines.EntityType
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
 /**
- * Class representing a search engine filter hit
- */
+  * Class representing a search engine filter hit
+  */
 case class FilterHit(
   id: String,
   did: String,
@@ -16,5 +16,5 @@ case class FilterHit(
 )
 
 object FilterHit {
-  implicit val fmt = Json.format[FilterHit]
+  implicit val fmt: Format[FilterHit] = Json.format[FilterHit]
 }

@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 
 object SqlOAuth2AssociationManager {
-  val oAuthParser = {
+  private[sql] val oAuthParser: RowParser[OAuth2Association] = {
     get[String]("oauth2_association.id") ~
     get[String]("oauth2_association.provider_id") ~
     get[String]("oauth2_association.provider") map {
@@ -22,7 +22,7 @@ object SqlOAuth2AssociationManager {
     }
   }
 
-  val oAuthWithUser = oAuthParser ~ SqlAccountManager.userParser map {
+  private[sql] val oAuthWithUser: RowParser[OAuth2Association] = oAuthParser ~ SqlAccountManager.userParser map {
     case association ~ user => association.copy(user = Some(user))
   }
 }

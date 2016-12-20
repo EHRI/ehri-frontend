@@ -1,5 +1,7 @@
 package models
 
+import play.api.libs.json.Format
+
 /**
  * ISAAR Field definitions
  */
@@ -11,7 +13,7 @@ case object Isaar {
     val Family = Value("family")
     val CorporateBody = Value("corporateBody")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[Isaar.HistoricalAgentType.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   val IDENTIFIER = "identifier"

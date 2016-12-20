@@ -16,7 +16,7 @@ import play.api.data.{Form, FormError, Forms}
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import utils.search._
 import utils.{CsvHelpers, PageParams}
 
@@ -62,11 +62,8 @@ case class UserProfiles @Inject()(
     )
   }
 
-  val form = models.UserProfile.form
-
+  private val form: Form[UserProfileF] = models.UserProfile.form
   private val userRoutes = controllers.users.routes.UserProfiles
-
-
   private val groupMembershipForm = Form(Forms.single("group" -> Forms.list(Forms.nonEmptyText)))
 
   private def userPasswordForm = Form(
@@ -83,7 +80,7 @@ case class UserProfiles @Inject()(
    * Create a user's account for them with a pre-set password. This is an
    * admin only function and should be removed eventually.
    */
-  def createUser = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
+  def createUser: Action[AnyContent] = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
       dataHelpers.getGroupList.map { groups =>
         Ok(views.html.admin.userProfile.create(userPasswordForm, groupMembershipForm, groups,
           userRoutes.createUserPost()))
@@ -107,7 +104,7 @@ case class UserProfiles @Inject()(
    *  - we also need to tweak permissions on the user's own
    *    account so they can edit it... all in all not nice.
    */
-  def createUserPost = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
+  def createUserPost: Action[AnyContent] = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
     dataHelpers.getGroupList.flatMap { allGroups =>
       userPasswordForm.bindFromRequest.fold(
         errorForm => immediate(BadRequest(views.html.admin.userProfile.create(
@@ -174,11 +171,11 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def get(id: String) = ItemMetaAction(id).apply {  implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply {  implicit request =>
     Ok(views.html.admin.userProfile.show(request.item, request.annotations))
   }
 
-  def search = SearchTypeAction(facetBuilder = entityFacets).async { implicit request =>
+  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).async { implicit request =>
     accounts.findAllById(ids = request.result.page.items.map(_._1.id)).map { accs =>
       val pageWithAccounts = request.result.mapItems { case(up, hit) =>
         up.copy(account = accs.find(_.id == up.id)) -> hit
@@ -187,15 +184,15 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.userProfile.list(request.page, request.params))
   }
 
-  def export = AdminAction.async { implicit request =>
+  def export: Action[AnyContent] = AdminAction.async { implicit request =>
     for {
       accounts <- accounts.findAll(PageParams.empty.withoutLimit)
       users <- userDataApi.list[UserProfile](PageParams.empty.withoutLimit)
@@ -227,87 +224,90 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def update(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-    accounts.findById(request.item.id).map { accountOpt =>
-      val userWithAccount = request.item.copy(account = accountOpt)
-      Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
-        AdminUserData.fromUserProfile(userWithAccount)),
-        userRoutes.updatePost(id)))
+  def update(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
+      accounts.findById(request.item.id).map { accountOpt =>
+        val userWithAccount = request.item.copy(account = accountOpt)
+        Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
+          AdminUserData.fromUserProfile(userWithAccount)),
+          userRoutes.updatePost(id)))
+      }
     }
-  }
 
-  def updatePost(id: String) = WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-    accounts.findById(request.item.id).flatMap { accountOpt =>
-      val userWithAccount = request.item.copy(account = accountOpt)
-      AdminUserData.form.bindFromRequest.fold(
-        errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
-          userRoutes.updatePost(id)))),
-        data => accountOpt match {
-          case Some(account) => for {
-            profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-            newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
-          } yield Redirect(userRoutes.search())
-              .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
-          case None => for {
-            profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-          } yield Redirect(userRoutes.search())
-              .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
-        }
-      )
+  def updatePost(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
+      accounts.findById(request.item.id).flatMap { accountOpt =>
+        val userWithAccount = request.item.copy(account = accountOpt)
+        AdminUserData.form.bindFromRequest.fold(
+          errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
+            userRoutes.updatePost(id)))),
+          data => accountOpt match {
+            case Some(account) => for {
+              profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+              newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
+            } yield Redirect(userRoutes.search())
+                .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
+            case None => for {
+              profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+            } yield Redirect(userRoutes.search())
+                .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
+          }
+        )
+      }
     }
-  }
 
   private def deleteForm(user: UserProfile): Form[String] = Form(
     Forms.single("deleteCheck" -> Forms.nonEmptyText
       .verifying("error.invalidName", name => name == user.model.name))
   )
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.userProfile.delete(
       request.item, deleteForm(request.item), userRoutes.deletePost(id),
           userRoutes.get(id)))
   }
 
-  def deletePost(id: String) = WithItemPermissionAction(id, PermissionType.Delete).async { implicit request =>
-    deleteForm(request.item).bindFromRequest.fold(
-      errForm => {
-        immediate(BadRequest(views.html.admin.userProfile.delete(
-          request.item, deleteForm(request.item), userRoutes.deletePost(id),
-          userRoutes.get(id))))
-      },
-      _ => {
-        accounts.findById(id).flatMap {
-          case Some(account) => for {
-            _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
-            _ <- accounts.delete(id)
-          } yield Redirect(userRoutes.search())
-              .flashing("success" -> Messages("item.delete.confirmation", id))
-          case None => for {
-            _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
-          } yield Redirect(userRoutes.search())
-              .flashing("success" -> Messages("item.delete.confirmation", id))
+  def deletePost(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Delete).async { implicit request =>
+      deleteForm(request.item).bindFromRequest.fold(
+        errForm => {
+          immediate(BadRequest(views.html.admin.userProfile.delete(
+            request.item, deleteForm(request.item), userRoutes.deletePost(id),
+            userRoutes.get(id))))
+        },
+        _ => {
+          accounts.findById(id).flatMap {
+            case Some(account) => for {
+              _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
+              _ <- accounts.delete(id)
+            } yield Redirect(userRoutes.search())
+                .flashing("success" -> Messages("item.delete.confirmation", id))
+            case None => for {
+              _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
+            } yield Redirect(userRoutes.search())
+                .flashing("success" -> Messages("item.delete.confirmation", id))
+          }
         }
-      }
-    )
-  }
+      )
+    }
 
-  def grantList(id: String) = GrantListAction(id).apply { implicit request =>
+  def grantList(id: String): Action[AnyContent] = GrantListAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionGrantList(
       request.item, request.permissionGrants))
   }
 
-  def permissions(id: String) = CheckGlobalPermissionsAction(id).apply { implicit request =>
+  def permissions(id: String): Action[AnyContent] = CheckGlobalPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.editGlobalPermissions(
       request.item, request.permissions,
         userRoutes.permissionsPost(id)))
   }
 
-  def permissionsPost(id: String) = SetGlobalPermissionsAction(id).apply { implicit request =>
+  def permissionsPost(id: String): Action[AnyContent] = SetGlobalPermissionsAction(id).apply { implicit request =>
     Redirect(userRoutes.get(id))
         .flashing("success" -> Messages("item.update.confirmation", id))
   }
 
-  def revokePermission(id: String, permId: String) = {
+  def revokePermission(id: String, permId: String): Action[AnyContent] = {
     CheckRevokePermissionAction(id, permId).apply { implicit request =>
       Ok(views.html.admin.permissions.revokePermission(
         request.item, request.permissionGrant,
@@ -315,24 +315,24 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def revokePermissionPost(id: String, permId: String) = {
+  def revokePermissionPost(id: String, permId: String): Action[AnyContent] = {
     RevokePermissionAction(id, permId).apply { implicit request =>
       Redirect(userRoutes.grantList(id))
         .flashing("success" -> Messages("item.delete.confirmation", id))
     }
   }
 
-  def managePermissions(id: String) = PermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
         userRoutes.addItemPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
         userRoutes.setItemPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
@@ -340,35 +340,39 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(userRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def membership(id: String) = MembershipAction(id).apply { implicit request =>
+  def membership(id: String): Action[AnyContent] = MembershipAction(id).apply { implicit request =>
     Ok(views.html.admin.group.membership(request.item, request.groups))
   }
 
-  def checkAddToGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
-    Ok(views.html.admin.group.confirmMembership(request.group, request.item,
-      userRoutes.addToGroup(id, groupId)))
-  }
+  def checkAddToGroup(id: String, groupId: String): Action[AnyContent] =
+    CheckManageGroupAction(id, groupId).apply { implicit request =>
+      Ok(views.html.admin.group.confirmMembership(request.group, request.item,
+        userRoutes.addToGroup(id, groupId)))
+    }
 
-  def addToGroup(id: String, groupId: String) = AddToGroupAction(id, groupId).apply { implicit request =>
-    Redirect(userRoutes.membership(id))
-      .flashing("success" -> "item.update.confirmation")
-  }
+  def addToGroup(id: String, groupId: String): Action[AnyContent] =
+    AddToGroupAction(id, groupId).apply { implicit request =>
+      Redirect(userRoutes.membership(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
 
-  def checkRemoveFromGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
-    Ok(views.html.admin.group.removeMembership(request.group, request.item,
-      userRoutes.removeFromGroup(id, groupId)))
-  }
+  def checkRemoveFromGroup(id: String, groupId: String): Action[AnyContent] =
+    CheckManageGroupAction(id, groupId).apply { implicit request =>
+      Ok(views.html.admin.group.removeMembership(request.group, request.item,
+        userRoutes.removeFromGroup(id, groupId)))
+    }
 
-  def removeFromGroup(id: String, groupId: String) = RemoveFromGroupAction(id, groupId).apply { implicit request =>
-    Redirect(userRoutes.membership(id))
-      .flashing("success" -> "item.update.confirmation")
-  }
+  def removeFromGroup(id: String, groupId: String): Action[AnyContent] =
+    RemoveFromGroupAction(id, groupId).apply { implicit request =>
+      Redirect(userRoutes.membership(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
 }
 

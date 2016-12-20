@@ -4,7 +4,7 @@ import auth.oauth2.{OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
 import play.api.http.ContentTypes
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 
 case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
@@ -12,7 +12,7 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
 
   private case class YahooEmail(handle: String, id: Int, primary: Option[Boolean])
   private object YahooEmail {
-    implicit val reader = Json.reads[YahooEmail]
+    implicit val reader: Reads[YahooEmail] = Json.reads[YahooEmail]
   }
 
   override def getUserInfoUrl(info: OAuth2Info): String =

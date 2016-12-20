@@ -45,7 +45,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
   ) extends WrappedRequest[A](request)
     with WithUser
 
-  protected def NewItemAction(implicit ct: ContentType[MT]) =
+  protected def NewItemAction(implicit ct: ContentType[MT]): ActionBuilder[UserGroupsRequest] =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, UserGroupsRequest] {
       override protected def transform[A](request: WithUserRequest[A]): Future[UserGroupsRequest[A]] = {
         dataHelpers.getUserAndGroupList.map { case (users, groups) =>
@@ -54,7 +54,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
       }
     }
 
-  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(implicit fmt: Writable[F], rd: Readable[MT], ct: ContentType[MT]) =
+  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(
+    implicit fmt: Writable[F], rd: Readable[MT], ct: ContentType[MT]): ActionBuilder[CreateRequest] =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new ActionTransformer[WithUserRequest, CreateRequest] {
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request

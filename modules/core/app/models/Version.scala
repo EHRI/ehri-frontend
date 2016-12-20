@@ -62,6 +62,6 @@ object Version {
   )(Version.apply _)
 
   implicit object Converter extends Readable[Version] {
-    val restReads = metaReads
+    val restReads: Reads[Version] = metaReads
   }
 }

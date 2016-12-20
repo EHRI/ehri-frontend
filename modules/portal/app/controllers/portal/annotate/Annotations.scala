@@ -42,7 +42,7 @@ case class Annotations @Inject()(
     AnnotationF.IS_PRIVATE -> true.toString
   )
 
-  def searchAll = OptionalUserAction.async { implicit request =>
+  def searchAll: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     find[Annotation](
       entities = List(EntityType.Annotation),
       facetBuilder = annotationFacets
@@ -51,7 +51,7 @@ case class Annotations @Inject()(
     }
   }
 
-  def browse(id: String) = OptionalUserAction.async { implicit request =>
+  def browse(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     userDataApi.get[Annotation](id).map { ann =>
       if (isAjax) Ok(Json.toJson(ann)(client.json.annotationJson.clientFormat))
       else Ok(views.html.annotation.show(ann))
@@ -59,7 +59,7 @@ case class Annotations @Inject()(
   }
 
   // Ajax
-  def annotate(id: String, did: String) = WithUserAction.async {  implicit request =>
+  def annotate(id: String, did: String): Action[AnyContent] = WithUserAction.async {  implicit request =>
     getCanShareWith(request.user) { users => groups =>
       Ok(views.html.annotation.create(
           Annotation.form.bind(annotationDefaults),
@@ -73,7 +73,7 @@ case class Annotations @Inject()(
   }
 
   // Ajax
-  def annotatePost(id: String, did: String) = WithUserAction.async { implicit request =>
+  def annotatePost(id: String, did: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
@@ -88,7 +88,7 @@ case class Annotations @Inject()(
   }
 
   // Ajax
-  def editAnnotation(aid: String, context: AnnotationContext.Value) = {
+  def editAnnotation(aid: String, context: AnnotationContext.Value): Action[AnyContent] = {
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       val vis = getContributionVisibility(request.item, request.userOpt.get)
       getCanShareWith(request.userOpt.get) { users => groups =>
@@ -101,7 +101,7 @@ case class Annotations @Inject()(
     }
   }
 
-  def editAnnotationPost(aid: String, context: AnnotationContext.Value) = {
+  def editAnnotationPost(aid: String, context: AnnotationContext.Value): Action[AnyContent] = {
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       // save an override field, becuase it's not possible to change it.
       val field = request.item.model.field
@@ -122,7 +122,7 @@ case class Annotations @Inject()(
     }
   }
 
-  def setAnnotationVisibilityPost(aid: String) = {
+  def setAnnotationVisibilityPost(aid: String): Action[AnyContent] = {
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       val accessors = getAccessors(request.item.model, request.userOpt.get)
       userDataApi.setVisibility[Annotation](aid, accessors).map { ann =>
@@ -132,19 +132,19 @@ case class Annotations @Inject()(
   }
 
   // Ajax
-  def deleteAnnotation(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).apply { implicit request =>
+  def deleteAnnotation(aid: String): Action[AnyContent] = WithItemPermissionAction(aid, PermissionType.Delete).apply { implicit request =>
       Ok(views.html.helpers.simpleForm("annotation.delete.title",
           annotationRoutes.deleteAnnotationPost(aid)))
   }
 
-  def deleteAnnotationPost(aid: String) = WithItemPermissionAction(aid, PermissionType.Delete).async { implicit request =>
+  def deleteAnnotationPost(aid: String): Action[AnyContent] = WithItemPermissionAction(aid, PermissionType.Delete).async { implicit request =>
     userDataApi.delete[Annotation](aid).map { done =>
       Ok(true.toString)
     }
   }
 
   // Ajax
-  def annotateField(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
+  def annotateField(id: String, did: String, field: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     getCanShareWith(request.user) { users => groups =>
       Ok(views.html.annotation.create(
         Annotation.form.bind(annotationDefaults),
@@ -158,7 +158,7 @@ case class Annotations @Inject()(
   }
 
   // Ajax
-  def annotateFieldPost(id: String, did: String, field: String) = WithUserAction.async { implicit request =>
+  def annotateFieldPost(id: String, did: String, field: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     Annotation.form.bindFromRequest.fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
@@ -186,39 +186,39 @@ case class Annotations @Inject()(
     }
   }
 
-  def promoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
+  def promoteAnnotation(id: String, context: AnnotationContext.Value): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.helpers.simpleForm("promotion.promote.title",
       annotationRoutes.promoteAnnotationPost(id, context)))
   }
 
-  def promoteAnnotationPost(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
+  def promoteAnnotationPost(id: String, context: AnnotationContext.Value): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
     annotationResponse(request.item, context)
   }
 
-  def removeAnnotationPromotion(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
+  def removeAnnotationPromotion(id: String, context: AnnotationContext.Value): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.helpers.simpleForm("promotion.promote.remove.title",
       annotationRoutes.removeAnnotationPromotionPost(id, context)))
   }
 
-  def removeAnnotationPromotionPost(id: String, context: AnnotationContext.Value) = RemovePromotionAction(id).apply { implicit request =>
+  def removeAnnotationPromotionPost(id: String, context: AnnotationContext.Value): Action[AnyContent] = RemovePromotionAction(id).apply { implicit request =>
     annotationResponse(request.item, context)
   }
 
-  def demoteAnnotation(id: String, context: AnnotationContext.Value) = EditPromotionAction(id).apply { implicit request =>
+  def demoteAnnotation(id: String, context: AnnotationContext.Value): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.helpers.simpleForm("promotion.demote.title",
       annotationRoutes.demoteAnnotationPost(id, context)))
   }
 
-  def demoteAnnotationPost(id: String, context: AnnotationContext.Value) = DemoteItemAction(id).apply { implicit request =>
+  def demoteAnnotationPost(id: String, context: AnnotationContext.Value): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
     annotationResponse(request.item, context)
   }
 
-  def removeAnnotationDemotion(id: String, context: AnnotationContext.Value) = PromoteItemAction(id).apply { implicit request =>
+  def removeAnnotationDemotion(id: String, context: AnnotationContext.Value): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
     Ok(views.html.helpers.simpleForm("promotion.demote.remove.title",
       annotationRoutes.removeAnnotationDemotionPost(id, context)))
   }
 
-  def removeAnnotationDemotionPost(id: String, context: AnnotationContext.Value) = RemoveDemotionAction(id).apply { implicit request =>
+  def removeAnnotationDemotionPost(id: String, context: AnnotationContext.Value): Action[AnyContent] = RemoveDemotionAction(id).apply { implicit request =>
     annotationResponse(request.item, context)
   }
 

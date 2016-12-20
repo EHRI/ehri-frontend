@@ -35,7 +35,7 @@ object Helpers {
     }
   }
 
-  def isAnnotatable(item: AnyModel, userOpt: Option[models.UserProfile]) = userOpt.exists { user =>
+  def isAnnotatable(item: AnyModel, userOpt: Option[models.UserProfile]): Boolean = userOpt.exists { user =>
     item.contentType.exists {
       ct => user.hasPermission(ct, PermissionType.Annotate)
     }

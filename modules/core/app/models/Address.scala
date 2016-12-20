@@ -67,7 +67,7 @@ case class AddressF(
   def concise: String =
     Seq(streetAddress, city, region).flatten.filterNot(_.trim.isEmpty).mkString(", ")
 
-  override def toString =
+  override def toString: String =
     Seq(name, contactPerson, streetAddress, city).filter(_.isDefined).mkString(", ")
 }
 

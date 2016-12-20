@@ -1,7 +1,8 @@
 package utils
 
-import play.api.data.{Forms, Form}
+import play.api.data.{Form, Forms}
 import defines.EnumUtils.enumMapping
+import play.api.libs.json.Format
 
 /**
  * Enum defining modes of visibility for contributed
@@ -35,5 +36,5 @@ object ContributionVisibility extends Enumeration {
   /**
    * Binding/unbinding from JSON.
    */
-  val format = defines.EnumUtils.enumFormat(this)
+  val format: Format[ContributionVisibility.Value] = defines.EnumUtils.enumFormat(this)
 }
