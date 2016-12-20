@@ -88,7 +88,6 @@ case class Utils @Inject()(
   }
 
   def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
-
     val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
@@ -98,7 +97,10 @@ case class Utils @Inject()(
         val activeIds = formItems.collect{ case (f, t, true) => f}
         logger.info(s"Renaming: $activeIds")
 
+        import scala.concurrent.duration._
+
         ws.url(s"$dbBaseUrl/tools/regenerate-ids")
+          .withRequestTimeout(20.minutes)
           .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
           .withQueryString("commit" -> true.toString).post("").flatMap { r =>
 
