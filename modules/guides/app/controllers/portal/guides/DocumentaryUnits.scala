@@ -8,6 +8,7 @@ import controllers.generic.SearchType
 import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
+import play.api.mvc.{Action, AnyContent}
 import utils.search.SearchConstants
 
 
@@ -21,7 +22,7 @@ case class DocumentaryUnits @Inject()(
   with SearchType[DocumentaryUnit]
   with FacetConfig {
 
-  def browse(path: String, id: String) = GetItemAction(id).async { implicit request =>
+  def browse(path: String, id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     futureItemOr404 {
       guides.find(path, activeOnly = true).map { guide =>
         val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID

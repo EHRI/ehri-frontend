@@ -14,7 +14,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, MultipartFormData}
 import utils.{CsvHelpers, PageParams}
 
 import scala.concurrent.Future
@@ -26,6 +26,7 @@ import backend.rest.Constants
 import backend.rest.Constants.LOG_MESSAGE_HEADER_NAME
 import defines.EntityType
 import play.api.i18n.Messages
+import play.api.libs.Files.TemporaryFile
 import utils.search.SearchIndexMediator
 
 /**
@@ -39,16 +40,14 @@ case class Utils @Inject()(
   cypher: Cypher
 ) extends AdminController {
 
-  private val logger = play.api.Logger(getClass)
-
   override val staffOnly = false
-
+  private val logger = play.api.Logger(getClass)
   private val dbBaseUrl = utils.serviceBaseUrl("ehridata", config)
 
   /**
    * Check the database is up by trying to load the admin account.
    */
-  def checkServices = Action.async { implicit request =>
+  def checkServices: Action[AnyContent] = Action.async { implicit request =>
     val checkDbF = dataApi.withContext(AuthenticatedUser("admin")).status()
       .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"ehri\t$s")
     val checkSearchF = searchEngine.config.status()
@@ -72,7 +71,7 @@ case class Utils @Inject()(
     single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
   )
 
-  def regenerateIds() = AdminAction.async { implicit request =>
+  def regenerateIds(): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) {
       ws.url(s"$dbBaseUrl/tools/regenerate-ids-for-type/${EntityType.DocumentaryUnit}")
         .post("").map { r =>
@@ -88,7 +87,7 @@ case class Utils @Inject()(
       controllers.admin.routes.Utils.regenerateIdsPost())))
   }
 
-  def regenerateIdsPost() = AdminAction.async { implicit request =>
+  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
 
     val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
     boundForm.fold(
@@ -130,7 +129,7 @@ case class Utils @Inject()(
     )
   }
 
-  def addMovedItemsPost() = AdminAction.async(parse.multipartFormData) { implicit request =>
+  def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
     def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
 
@@ -181,13 +180,13 @@ case class Utils @Inject()(
       }
     }
 
-  def findReplace = AdminAction.apply { implicit request =>
+  def findReplace: Action[AnyContent] = AdminAction.apply { implicit request =>
     Ok(views.html.admin.findReplace(FindReplaceTask.form, None,
       controllers.admin.routes.Utils.findReplacePost(),
       controllers.admin.routes.Utils.findReplacePost(commit = true)))
   }
 
-  def findReplacePost(commit: Boolean = false) = AdminAction.async { implicit request =>
+  def findReplacePost(commit: Boolean = false): Action[AnyContent] = AdminAction.async { implicit request =>
     val boundForm = FindReplaceTask.form.bindFromRequest()
     boundForm.fold(
       errForm => immediate(
@@ -233,7 +232,7 @@ case class Utils @Inject()(
    * Check users in the accounts DB have profiles in
    * the graph DB, and vice versa.
    */
-  def checkUserSync = Action.async { implicit request =>
+  def checkUserSync: Action[AnyContent] = Action.async { implicit request =>
     val stringList: Reads[Seq[String]] =
       (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
 

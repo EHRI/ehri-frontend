@@ -84,7 +84,7 @@ object HistoricalAgentDescriptionF {
   )(HistoricalAgentDescriptionF.apply, unlift(HistoricalAgentDescriptionF.unapply))
 
   implicit object Converter extends Writable[HistoricalAgentDescriptionF]  {
-    val restFormat = historicalAgentDescriptionFormat
+    val restFormat: Format[HistoricalAgentDescriptionF] = historicalAgentDescriptionFormat
   }
 }
 
@@ -112,7 +112,8 @@ case class HistoricalAgentDescriptionF(
   with Description
   with Temporal {
 
-  def displayText = details.history orElse details.generalContext orElse details.internalStructure
+  override def displayText: Option[String] =
+    details.history orElse details.generalContext orElse details.internalStructure
 
   import Isaar._
 

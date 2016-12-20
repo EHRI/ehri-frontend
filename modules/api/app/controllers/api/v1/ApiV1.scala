@@ -6,8 +6,8 @@ import javax.inject.{Inject, Singleton}
 import auth.AccountManager
 import auth.handler.AuthHandler
 import backend.rest.cypher.Cypher
-import backend.{AnonymousUser, DataApi}
 import backend.rest.{ItemNotFound, PermissionDenied}
+import backend.{AnonymousUser, DataApi}
 import controllers.Components
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
@@ -16,21 +16,21 @@ import global.GlobalConfig
 import models._
 import models.api.v1.JsonApiV1._
 import models.base.AnyModel
-import play.api.{Configuration, Logger}
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import play.api.{Configuration, Logger}
 import utils.Page
 import utils.search.SearchConstants._
 import utils.search._
 import views.{Helpers, MarkdownRenderer}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 object ApiV1 {
@@ -53,20 +53,17 @@ case class ApiV1 @Inject()(
   with Search
   with SearchVC {
 
-  protected implicit def cache: CacheApi = components.cacheApi
-  implicit def messagesApi: MessagesApi = components.messagesApi
-  protected implicit def globalConfig: GlobalConfig = components.globalConfig
-  protected implicit def markdown: MarkdownRenderer = components.markdown
-
-  protected implicit def executionContext: ExecutionContext = components.executionContext
-
-  protected def accounts: AccountManager = components.accounts
-  protected def dataApi: DataApi = components.dataApi
-  protected def config: Configuration = components.configuration
-  protected def authHandler: AuthHandler = components.authHandler
-
-  def searchEngine: SearchEngine = components.searchEngine
-  def searchResolver: SearchItemResolver = components.searchResolver
+  implicit val messagesApi: MessagesApi = components.messagesApi
+  protected implicit val cache: CacheApi = components.cacheApi
+  protected implicit val globalConfig: GlobalConfig = components.globalConfig
+  protected implicit val markdown: MarkdownRenderer = components.markdown
+  protected implicit val executionContext: ExecutionContext = components.executionContext
+  protected val accounts: AccountManager = components.accounts
+  protected val dataApi: DataApi = components.dataApi
+  protected val config: Configuration = components.configuration
+  protected val authHandler: AuthHandler = components.authHandler
+  protected val searchEngine: SearchEngine = components.searchEngine
+  protected val searchResolver: SearchItemResolver = components.searchResolver
 
   import ApiV1._
 
@@ -75,7 +72,8 @@ case class ApiV1 @Inject()(
   private implicit val apiUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None
 
-  private val hitsPerSecond = 1000 // basically, no limit at the moment
+  private val hitsPerSecond = 1000
+  // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
 
   // i.e. Everything
@@ -98,7 +96,9 @@ case class ApiV1 @Inject()(
   // tokens are in config.
   private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled")
     .getOrElse(false)
+
   import scala.collection.JavaConverters._
+
   private val authenticationTokens: Seq[String] = config.getStringList("ehri.api.v1.authorization.tokens")
     .map(_.asScala.toSeq).getOrElse(Seq.empty)
 
@@ -121,7 +121,7 @@ case class ApiV1 @Inject()(
 
   private def checkAuthentication(request: RequestHeader): Option[String] = {
     request.headers.get(HeaderNames.AUTHORIZATION).flatMap { authValue =>
-      authenticationTokens.find(token => authValue ==  "Bearer " + token)
+      authenticationTokens.find(token => authValue == "Bearer " + token)
     }
   }
 
@@ -273,7 +273,7 @@ case class ApiV1 @Inject()(
 
   private def includedData(any: AnyModel)(implicit requestHeader: RequestHeader): Option[Seq[AnyModel]] = any match {
     case doc: DocumentaryUnit =>
-      val inc = Seq[Option[_<:AnyModel]](doc.holder, doc.parent).collect{case Some(m) => m}
+      val inc = Seq[Option[_ <: AnyModel]](doc.holder, doc.parent).collect { case Some(m) => m }
       if (inc.isEmpty) None else Some(inc)
     case _ => None
   }
@@ -286,8 +286,8 @@ case class ApiV1 @Inject()(
   }
 
   private def pageData[T <: AnyModel](page: Page[T],
-                  urlFunc: Int => String,
-                  included: Option[Seq[AnyModel]] = None)(implicit w: Writes[AnyModel]): JsonApiListResponse =
+    urlFunc: Int => String,
+    included: Option[Seq[AnyModel]] = None)(implicit w: Writes[AnyModel]): JsonApiListResponse =
     JsonApiListResponse(
       data = page.items,
       links = PaginationLinks(
@@ -305,7 +305,7 @@ case class ApiV1 @Inject()(
       ))
     )
 
-  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
+  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       find[AnyModel](
         defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
@@ -317,7 +317,7 @@ case class ApiV1 @Inject()(
       }
     }
 
-  def fetch(id: String) = JsonApiAction.async { implicit request =>
+  def fetch(id: String): Action[AnyContent] = JsonApiAction.async { implicit request =>
     userDataApi.getAny[AnyModel](id).map { item =>
       Ok(
         Json.toJson(
@@ -333,7 +333,7 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]) =
+  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       userDataApi.getAny[AnyModel](id).flatMap { item =>
         for {
@@ -356,13 +356,13 @@ case class ApiV1 @Inject()(
   override def authenticationFailed(request: RequestHeader): Future[Result] =
     immediate(error(UNAUTHORIZED))
 
-  override def authorizationFailed(request: RequestHeader,user: UserProfile): Future[Result] =
+  override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] =
     immediate(error(FORBIDDEN))
 
   override def downForMaintenance(request: RequestHeader): Future[Result] =
     immediate(error(SERVICE_UNAVAILABLE))
 
-  override protected def notFoundError(request: RequestHeader,msg: Option[String]): Future[Result] =
+  override protected def notFoundError(request: RequestHeader, msg: Option[String]): Future[Result] =
     immediate(error(NOT_FOUND, msg))
 
   override def staffOnlyError(request: RequestHeader): Future[Result] =

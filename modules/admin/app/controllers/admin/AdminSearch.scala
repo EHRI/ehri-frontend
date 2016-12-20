@@ -13,6 +13,7 @@ import models.base.{AnyModel, Description}
 import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
+import play.api.mvc.{Action, AnyContent}
 import utils.search._
 import views.Helpers
 
@@ -91,7 +92,7 @@ case class AdminSearch @Inject()(
    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
 
-  def search = OptionalUserAction.async { implicit request =>
+  def search: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     find[AnyModel](
       defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
       entities = searchTypes.toList,

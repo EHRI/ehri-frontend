@@ -16,12 +16,12 @@ abstract class BindableEnum extends Enumeration {
   implicit def enumToString(e: Enumeration#Value): String = e.toString
 
   implicit def bindableEnum: PathBindable[Value] = new PathBindable[Value] {
-    def bind(key: String, value: String) =
+    def bind(key: String, value: String): Either[String, Value] =
       values.find(_.toString.toLowerCase == value.toLowerCase) match {
         case Some(v) => Right(v)
         case None => Left("Unknown url path segment '" + value + "'")
       }
-    def unbind(key: String, value: Value) = value.toString.toLowerCase
+    def unbind(key: String, value: Value): String = value.toString.toLowerCase
   }
 
   implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[Value] = new QueryStringBindable[Value] {

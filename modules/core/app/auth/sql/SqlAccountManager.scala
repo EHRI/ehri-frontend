@@ -202,8 +202,8 @@ object SqlAccountManager {
   }
 
   implicit object HashedPasswordParameterMetaData extends ParameterMetaData[HashedPassword] {
-    val sqlType = ParameterMetaData.StringParameterMetaData.sqlType
-    val jdbcType = ParameterMetaData.StringParameterMetaData.jdbcType
+    val sqlType: String = ParameterMetaData.StringParameterMetaData.sqlType
+    val jdbcType: Int = ParameterMetaData.StringParameterMetaData.jdbcType
   }
 
   implicit def rowToPw: Column[HashedPassword] = {
@@ -216,7 +216,7 @@ object SqlAccountManager {
     }
   }
 
-  val userParser = {
+  private[sql] val userParser = {
     str("users.id") ~
       str("users.email") ~
       bool("users.verified") ~

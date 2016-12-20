@@ -28,12 +28,13 @@ case class CookieAuthHandler @Inject()(
   executionContext: ExecutionContext
 ) extends AuthHandler {
 
-  implicit val ec = executionContext
+  implicit val ec: ExecutionContext = executionContext
 
   import scala.concurrent.duration._
 
   // Default - one day...
-  override def sessionTimeout = config.getInt("auth.session.timeout").getOrElse(60 * 60 * 24).seconds
+  override def sessionTimeout: FiniteDuration =
+    config.getInt("auth.session.timeout").getOrElse(60 * 60 * 24).seconds
 
   override def restoreAccount(implicit request: RequestHeader): Future[(Option[Account], ResultUpdater)] = {
     (for {

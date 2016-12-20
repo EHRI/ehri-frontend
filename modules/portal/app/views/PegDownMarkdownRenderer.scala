@@ -4,6 +4,7 @@ import javax.inject.{Inject, Provider, Singleton}
 
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
+import org.pegdown.LinkRenderer.Rendering
 import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
 import org.pegdown.{Extensions, LinkRenderer, PegDownProcessor}
 
@@ -23,14 +24,14 @@ case class PegDownMarkdownRenderer() extends MarkdownRenderer {
   }
 
   private val linkRenderer = new LinkRenderer() {
-    override def render(node: AutoLinkNode) = {
+    override def render(node: AutoLinkNode): Rendering = {
       new LinkRenderer.Rendering(node.getText, node.getText)
         .withAttribute("rel", "nofollow")
         .withAttribute("target", "_blank")
         .withAttribute("class", "external")
     }
 
-    override def render(node: ExpLinkNode, text: String) = {
+    override def render(node: ExpLinkNode, text: String): Rendering = {
       new LinkRenderer.Rendering(node.url, text)
         .withAttribute("rel", "nofollow")
         .withAttribute("target", "_blank")

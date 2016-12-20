@@ -135,13 +135,13 @@ object Helpers {
     0.until(if (field.indexes.isEmpty) 0 else field.indexes.max + 1).flatMap(i => field("[" + i + "]").value).toList
   }
 
-  def maybeActive(url: String)(implicit request: RequestHeader) = {
+  def maybeActive(url: String)(implicit request: RequestHeader): String = {
     if(request.path.equals(url)) "active" else ""
   }
 
-  def maybeActivePath(url: String)(implicit request: RequestHeader) = {
+  def maybeActivePath(url: String)(implicit request: RequestHeader): String = {
     if(request.path.startsWith(url)) "active" else ""
   }
 
-  def textDirection(d: models.base.Description) = if (d.isRightToLeft) "rtl" else "ltr"
+  def textDirection(d: models.base.Description): String = if (d.isRightToLeft) "rtl" else "ltr"
 }

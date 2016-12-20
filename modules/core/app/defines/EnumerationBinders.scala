@@ -6,12 +6,12 @@ import scala.language.implicitConversions
 
 object EnumerationBinders {
   implicit def bindableEnum[E <: Enumeration](enum: E): PathBindable[E#Value] = new PathBindable[E#Value] {
-    def bind(key: String, value: String) =
+    def bind(key: String, value: String): Either[String, enum.Value] =
       enum.values.find(_.toString.toLowerCase == value.toLowerCase) match {
         case Some(v) => Right(v)
         case None => Left("Unknown url path segment '" + value + "'")
       }
-    def unbind(key: String, value: E#Value) = value.toString.toLowerCase
+    def unbind(key: String, value: E#Value): String = value.toString.toLowerCase
   }
 
   implicit def queryStringBinder[E <: Enumeration](enum: E)(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[E#Value] = new QueryStringBindable[E#Value] {

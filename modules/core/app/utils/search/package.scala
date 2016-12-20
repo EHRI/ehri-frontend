@@ -1,6 +1,7 @@
 package utils
 
 import defines.EnumUtils
+import play.api.libs.json.Format
 
 package object search {
 
@@ -8,7 +9,7 @@ package object search {
     val Name = Value("name")
     val Count = Value("count")
 
-    implicit val format = EnumUtils.enumFormat(FacetQuerySort)
+    implicit val format: Format[FacetQuerySort.Value] = EnumUtils.enumFormat(FacetQuerySort)
   }
 
   def pathWithoutFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =

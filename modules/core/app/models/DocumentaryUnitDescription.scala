@@ -128,7 +128,7 @@ object DocumentaryUnitDescriptionF {
   )(DocumentaryUnitDescriptionF.apply, unlift(DocumentaryUnitDescriptionF.unapply))
 
   implicit object Converter extends Writable[DocumentaryUnitDescriptionF] {
-    val restFormat = documentaryUnitDescriptionFormat
+    val restFormat: Format[DocumentaryUnitDescriptionF] = documentaryUnitDescriptionFormat
   }
 }
 
@@ -153,10 +153,10 @@ case class DocumentaryUnitDescriptionF(
 ) extends Model with Persistable with Description with Temporal {
   import models.IsadG._
 
-  def name = identity.name
-  def dates = identity.dates
+  def name: String = identity.name
+  def dates: Seq[DatePeriodF] = identity.dates
 
-  def displayText = identity.`abstract` orElse content.scopeAndContent
+  def displayText: Option[String] = identity.`abstract` orElse content.scopeAndContent
 
   def externalLink(item: DocumentaryUnit): Option[String] = identity.ref orElse {
     for {

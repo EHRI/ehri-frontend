@@ -7,6 +7,7 @@ import controllers.Components
 import controllers.base.AdminController
 import controllers.generic._
 import models.{Annotation, AnnotationF}
+import play.api.mvc.{Action, AnyContent}
 
 
 case class Annotations @Inject()(
@@ -23,31 +24,31 @@ case class Annotations @Inject()(
   private val form = Annotation.form
   private val annotationRoutes = controllers.annotation.routes.Annotations
 
-  def get(id: String) = ItemMetaAction(id).apply { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply { implicit request =>
     Ok(views.html.admin.annotation.show(request.item, request.annotations))
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       forms.VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.users, request.groups, annotationRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.update.confirmation")
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.annotation.edit(
       request.item, form.fill(request.item.model), annotationRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.annotation.edit(
         request.item, errorForm, annotationRoutes.updatePost(id)))
@@ -56,34 +57,34 @@ case class Annotations @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
       request.item, controllers.annotation.routes.Annotations.deletePost(id),
         controllers.annotation.routes.Annotations.get(id)))
   }
 
-  def deletePost(id: String, redirect: Option[String] = None) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String, redirect: Option[String] = None): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(redirect.map(r => controllers.admin.routes.Data.getItem(r))
         .getOrElse(controllers.admin.routes.Home.index()))
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def promote(id: String) = EditPromotionAction(id).apply { implicit request =>
+  def promote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.promote(
       request.item, controllers.annotation.routes.Annotations.promotePost(id)))
   }
 
-  def promotePost(id: String) = PromoteItemAction(id).apply { implicit request =>
+  def promotePost(id: String): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.promote.confirmation")
   }
 
-  def demote(id: String) = EditPromotionAction(id).apply { implicit request =>
+  def demote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.demote(request.item,
       controllers.annotation.routes.Annotations.demotePost(id)))
   }
 
-  def demotePost(id: String) = DemoteItemAction(id).apply { implicit request =>
+  def demotePost(id: String): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
       .flashing("success" -> "item.demote.confirmation")
   }

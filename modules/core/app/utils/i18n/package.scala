@@ -65,7 +65,7 @@ package object i18n {
     }
   }
 
-  def scriptPairList(messages: Messages) = utils.Data.scripts.sortBy(_._2)
+  def scriptPairList(messages: Messages): List[(String, String)] = utils.Data.scripts.sortBy(_._2)
 
   /**
    * Get the script name for a given code. This doesn't work with Java 6 so we have to sacrifice

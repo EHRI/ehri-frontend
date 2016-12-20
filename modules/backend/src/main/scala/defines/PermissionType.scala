@@ -1,5 +1,7 @@
 package defines
 
+import play.api.libs.json.Format
+
 object PermissionType extends Enumeration {
 	type Type = Value
 	val Create = Value("create")
@@ -30,5 +32,5 @@ object PermissionType extends Enumeration {
    */
   def in(p1: Value, p2: Value): Boolean = (bitMask(p1) & bitMask(p2)) == bitMask(p2)
 
-  implicit val _format = defines.EnumUtils.enumFormat(this)
+  implicit val _format: Format[PermissionType.Value] = defines.EnumUtils.enumFormat(this)
 }

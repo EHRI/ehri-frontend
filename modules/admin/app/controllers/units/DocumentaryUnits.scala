@@ -11,6 +11,7 @@ import forms.VisibilityForm
 import models._
 import play.api.Configuration
 import play.api.i18n.Messages
+import play.api.mvc.{Action, AnyContent}
 import utils.search._
 import views.Helpers
 
@@ -76,18 +77,18 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  val formDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
+  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
 
-  val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
+  override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  val form = models.DocumentaryUnit.form
-  val childForm = models.DocumentaryUnit.form
-  val descriptionForm = models.DocumentaryUnitDescription.form
+  private val form = models.DocumentaryUnit.form
+  private val childForm = models.DocumentaryUnit.form
+  private val descriptionForm = models.DocumentaryUnitDescription.form
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
 
 
-  def search = OptionalUserAction.async { implicit request =>
+  def search: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
@@ -105,7 +106,7 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def searchChildren(id: String) = ItemPermissionAction(id).async { implicit request =>
+  def searchChildren(id: String): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
     val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
       else SearchConstants.ANCESTOR_IDS
 
@@ -120,7 +121,7 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[DocumentaryUnit](
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets,
@@ -131,20 +132,20 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.list(request.page, request.params))
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.edit(
       request.item, form.fill(request.item.model), docRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.documentaryUnit.edit(
           request.item, errorForm, docRoutes.updatePost(id)))
@@ -153,13 +154,13 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def createDoc(id: String) = NewChildAction(id).apply { implicit request =>
+  def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
       request.item, childForm, formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.users, request.groups, docRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+  def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
       case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
@@ -171,12 +172,13 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def createDescription(id: String) = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
-    Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-        descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
-  }
+  def createDescription(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+      Ok(views.html.admin.documentaryUnit.createDescription(request.item,
+          descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
+    }
 
-  def createDescriptionPost(id: String) = {
+  def createDescriptionPost(id: String): Action[AnyContent] =
     CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
       request.formOrDescription match {
         case Left(errorForm) =>
@@ -186,17 +188,15 @@ case class DocumentaryUnits @Inject()(
           .flashing("success" -> "item.create.confirmation")
       }
     }
-  }
 
-  def updateDescription(id: String, did: String) = {
+  def updateDescription(id: String, did: String): Action[AnyContent] =
     WithDescriptionAction(id, did).apply { implicit request =>
         Ok(views.html.admin.documentaryUnit.editDescription(request.item,
           descriptionForm.fill(request.description),
           docRoutes.updateDescriptionPost(id, did)))
     }
-  }
 
-  def updateDescriptionPost(id: String, did: String) = {
+  def updateDescriptionPost(id: String, did: String): Action[AnyContent] =
     UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
       request.formOrDescription match {
         case Left(errorForm) =>
@@ -206,134 +206,133 @@ case class DocumentaryUnits @Inject()(
           .flashing("success" -> "item.update.confirmation")
       }
     }
-  }
 
-  def deleteDescription(id: String, did: String) = {
+  def deleteDescription(id: String, did: String): Action[AnyContent] =
     WithDescriptionAction(id, did).apply { implicit request =>
       Ok(views.html.admin.deleteDescription(request.item, request.description,
         docRoutes.deleteDescriptionPost(id, did), docRoutes.get(id)))
     }
-  }
 
-  def deleteDescriptionPost(id: String, did: String) = {
+  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] =
     DeleteDescriptionAction(id, did).apply { implicit request =>
       Redirect(docRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
     }
-  }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
         request.item, docRoutes.deletePost(id), docRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(docRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
         VisibilityForm.form.fill(request.item.accessors.map(_.id)),
         request.users, request.groups, docRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(docRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.manageScopedPermissions(
       request.item, request.permissionGrants, request.scopePermissionGrants,
         docRoutes.addItemPermissions(id),
         docRoutes.addScopedPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
         docRoutes.setItemPermissions))
   }
 
-  def addScopedPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
         docRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
         docRoutes.setItemPermissionsPost(id, userType, userId)))
     }
-  }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
-  }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionScope(
         request.item, request.accessor, request.scopePermissions, targetContentTypes,
         docRoutes.setScopedPermissionsPost(id, userType, userId)))
     }
-  }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(docRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
-  }
 
-  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-    Ok(views.html.admin.documentaryUnit.linkTo(request.item))
-  }
+  def linkTo(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+      Ok(views.html.admin.documentaryUnit.linkTo(request.item))
+    }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType).apply { implicit request =>
+  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
+    LinkSelectAction(id, toType).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
           docRoutes.linkAnnotateSelect(id, toType),
           docRoutes.linkAnnotate))
-  }
-
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
-    Ok(views.html.admin.link.create(request.from, request.to,
-        Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
-  }
-
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
-    request.formOrLink match {
-      case Left((target,errorForm)) =>
-        BadRequest(views.html.admin.link.create(request.from, target,
-          errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
-      case Right(_) =>
-        Redirect(docRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
     }
-  }
 
-  def linkMultiAnnotate(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-    Ok(views.html.admin.link.linkMulti(request.item,
-        Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
-  }
-
-  def linkMultiAnnotatePost(id: String) = CreateMultipleLinksAction(id).apply { implicit request =>
-    request.formOrLinks match {
-      case Left(errorForms) =>
-        BadRequest(views.html.admin.link.linkMulti(request.item,
-          errorForms, docRoutes.linkMultiAnnotatePost(id)))
-      case Right(_) =>
-        Redirect(docRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    LinkAction(id, toType, to).apply { implicit request =>
+      Ok(views.html.admin.link.create(request.from, request.to,
+          Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
     }
-  }
 
-  def manageAccessPoints(id: String, descriptionId: String) =
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    CreateLinkAction(id, toType, to).apply { implicit request =>
+      request.formOrLink match {
+        case Left((target,errorForm)) =>
+          BadRequest(views.html.admin.link.create(request.from, target,
+            errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
+        case Right(_) =>
+          Redirect(docRoutes.get(id))
+            .flashing("success" -> "item.update.confirmation")
+      }
+    }
+
+  def linkMultiAnnotate(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+      Ok(views.html.admin.link.linkMulti(request.item,
+          Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
+    }
+
+  def linkMultiAnnotatePost(id: String): Action[AnyContent] =
+    CreateMultipleLinksAction(id).apply { implicit request =>
+      request.formOrLinks match {
+        case Left(errorForms) =>
+          BadRequest(views.html.admin.link.linkMulti(request.item,
+            errorForms, docRoutes.linkMultiAnnotatePost(id)))
+        case Right(_) =>
+          Redirect(docRoutes.get(id))
+            .flashing("success" -> "item.update.confirmation")
+      }
+    }
+
+  def manageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
       // Holder IDs for vocabularies and authoritative sets to which
       // access point suggestions will be constrainted. If this is empty

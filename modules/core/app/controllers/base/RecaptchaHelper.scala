@@ -14,8 +14,8 @@ trait RecaptchaHelper {
   def ws: WSClient
 
   /**
-   * Check a capture form.
-   */
+    * Check a capture form.
+    */
   def checkRecapture[A](implicit request: Request[A], executionContext: ExecutionContext): Future[Boolean] = {
     // https://developers.google.com/recaptcha/docs/verify
     val recaptchaForm = Form(

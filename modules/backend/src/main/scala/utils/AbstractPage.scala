@@ -10,10 +10,10 @@ trait AbstractPage[+A] extends Seq[A] {
   def limit: Int
   def items: Seq[A]
 
-  def iterator = items.iterator
-  def length = items.length
+  def iterator: Iterator[A] = items.iterator
+  def length: Int = items.length
   def numPages: Int = (total / limit.max(1)) + (total % limit.max(1)).min(1)
-  def hasMultiplePages = total > items.size
+  def hasMultiplePages: Boolean = total > items.size
   def apply(i: Int): A = items.apply(i)
   def start: Int = offset + 1
   def end: Int = offset + items.size
@@ -21,5 +21,5 @@ trait AbstractPage[+A] extends Seq[A] {
   def range: String = s"$start-$end"
   def hasMore: Boolean = page < numPages
 
-  def isLimited = limit == -1
+  def isLimited: Boolean = limit == -1
 }

@@ -6,6 +6,7 @@ import controllers.Components
 import controllers.base.AdminController
 import controllers.generic.Search
 import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent}
 
 
 @Singleton
@@ -18,7 +19,7 @@ case class SearchFilter @Inject()(components: Components) extends AdminControlle
    * Quick filter action that searches applies a 'q' string filter to
    * only the name_ngram field and returns an id/name pair.
    */
-  def filterItems = OptionalUserAction.async { implicit request =>
+  def filterItems: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     filter().map { page =>
       Ok(Json.obj(
         "numPages" -> page.numPages,

@@ -15,7 +15,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{RequestHeader, Result}
+import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
 import utils._
 import utils.search._
 
@@ -41,9 +41,9 @@ case class Social @Inject()(
   private val usersPerPage = 18
 
   // Profile is currently an alias for the watch list
-  def userProfile(userId: String) = userWatchList(userId)
+  def userProfile(userId: String): Action[AnyContent] = userWatchList(userId)
 
-  def browseUsers = WithUserAction.async { implicit request =>
+  def browseUsers: Action[AnyContent] = WithUserAction.async { implicit request =>
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
@@ -62,7 +62,7 @@ case class Social @Inject()(
     ))
   }
 
-  def userActivity(userId: String, from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None) = WithUserAction.async { implicit request =>
+  def userActivity(userId: String, from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
     val listParams = RangeParams.fromRequest(request)
@@ -87,7 +87,7 @@ case class Social @Inject()(
     }
   }
 
-  def userWatchList(userId: String) = WithUserAction.async { implicit request =>
+  def userWatchList(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
     val theirWatchingF: Future[Page[AnyModel]] = userDataApi.watching[AnyModel](userId)
     val myWatchingF: Future[Seq[String]] = watchedItemIds(Some(request.user.id))
@@ -116,7 +116,7 @@ case class Social @Inject()(
       socialRoutes.followUserPost(userId)))
   }
 
-  def followUserPost(userId: String) = WithUserAction.async { implicit request =>
+  def followUserPost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.follow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
@@ -131,7 +131,7 @@ case class Social @Inject()(
       socialRoutes.unfollowUserPost(userId)))
   }
 
-  def unfollowUserPost(userId: String) = WithUserAction.async { implicit request =>
+  def unfollowUserPost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.unfollow[UserProfile](request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
@@ -146,7 +146,7 @@ case class Social @Inject()(
       socialRoutes.blockUserPost(userId)))
   }
 
-  def blockUserPost(userId: String) = WithUserAction.async { implicit request =>
+  def blockUserPost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.block(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
@@ -161,7 +161,7 @@ case class Social @Inject()(
       socialRoutes.unblockUserPost(userId)))
   }
 
-  def unblockUserPost(userId: String) = WithUserAction.async { implicit request =>
+  def unblockUserPost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     userDataApi.unblock(request.user.id, userId).map { _ =>
       if (isAjax) {
         Ok("ok")
@@ -174,7 +174,7 @@ case class Social @Inject()(
   /**
    * Render list of someone else's followers via Ajax...
    */
-  def followersForUser(userId: String) = WithUserAction.async { implicit request =>
+  def followersForUser(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
@@ -190,7 +190,7 @@ case class Social @Inject()(
     }
   }
 
-  def followingForUser(userId: String) = WithUserAction.async { implicit request =>
+  def followingForUser(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     val params = PageParams.fromRequest(request)
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
@@ -265,7 +265,7 @@ case class Social @Inject()(
     }
   }
 
-  def sendMessage(userId: String) = WithUserAction.async { implicit request =>
+  def sendMessage(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     val recaptchaKey = config.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
@@ -283,7 +283,7 @@ case class Social @Inject()(
     }
   }
 
-  def sendMessagePost(userId: String) = WithUserAction.async { implicit request =>
+  def sendMessagePost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     val recaptchaKey = config.getString("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest

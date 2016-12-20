@@ -23,7 +23,7 @@ object DocumentaryUnitF {
     val No = Value("no")
     val Unknown = Value("unknown")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[CopyrightStatus.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   object Scope extends Enumeration {
@@ -31,7 +31,7 @@ object DocumentaryUnitF {
     val Medium = Value("medium")
     val Low = Value("low")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[Scope.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   val OTHER_IDENTIFIERS = "otherIdentifiers"
@@ -51,10 +51,10 @@ object DocumentaryUnitF {
     (__ \ DATA \ COPYRIGHT).formatNullableWithDefault(CopyrightStatus.Unknown) and
     (__ \ DATA \ SCOPE).formatNullable[Scope.Value] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[DocumentaryUnitDescriptionF]
-  )(DocumentaryUnitF.apply _, unlift(DocumentaryUnitF.unapply))
+  )(DocumentaryUnitF.apply, unlift(DocumentaryUnitF.unapply))
 
   implicit object Converter extends Writable[DocumentaryUnitF] {
-    val restFormat = documentaryUnitFormat
+    val restFormat: Format[DocumentaryUnitF] = documentaryUnitFormat
   }
 }
 
@@ -97,7 +97,7 @@ object DocumentaryUnit {
   implicit object DocumentaryUnitResource extends backend.ContentType[DocumentaryUnit]  {
     val entityType = EntityType.DocumentaryUnit
     val contentType = ContentTypes.DocumentaryUnit
-    implicit val restReads = metaReads
+    implicit val restReads: Reads[DocumentaryUnit] = metaReads
 
     /**
      * When displaying doc units we need the

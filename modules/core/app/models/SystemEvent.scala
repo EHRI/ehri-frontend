@@ -36,7 +36,7 @@ object SystemEventF {
   )(SystemEventF.apply, unlift(SystemEventF.unapply))
 
   implicit object Converter extends backend.Readable[SystemEventF] {
-    val restReads = systemEventFormat
+    val restReads: Format[SystemEventF] = systemEventFormat
   }
 }
 
@@ -47,7 +47,7 @@ case class SystemEventF(
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
 ) extends Model {
-  lazy val datetime = DateTimeFormatter.ISO_DATE_TIME.format(timestamp)
+  lazy val datetime: String = DateTimeFormatter.ISO_DATE_TIME.format(timestamp)
 }
 
 object SystemEvent {
@@ -68,7 +68,7 @@ object SystemEvent {
   implicit object SystemEventResource extends backend.ContentType[SystemEvent]  {
     val entityType = EntityType.SystemEvent
     val contentType = ContentTypes.SystemEvent
-    val restReads = metaReads
+    val restReads: Reads[SystemEvent] = metaReads
   }
 }
 
@@ -83,7 +83,7 @@ case class SystemEvent(
   with MetaModel[SystemEventF]
   with Holder[AnyModel] {
 
-  def time = DateTimeFormatter.ISO_INSTANT.format(model.timestamp)
+  def time: String = DateTimeFormatter.ISO_INSTANT.format(model.timestamp)
 
   /**
    * If the event is of a certain type (link, annotate) the effective
@@ -106,7 +106,7 @@ case class SystemEvent(
     case et => et
   }
 
-  override def toStringLang(implicit messages: play.api.i18n.Messages) =
+  override def toStringLang(implicit messages: play.api.i18n.Messages): String =
     Messages("systemEvent." + model.eventType.map(_.toString).getOrElse("unknown"))(messages)
 }
 

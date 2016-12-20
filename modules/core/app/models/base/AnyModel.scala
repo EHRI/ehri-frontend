@@ -35,7 +35,8 @@ trait AnyModel extends backend.WithId {
   /**
    * Abbreviated version of the canonical name
    */
-  def toStringAbbr(implicit messages: Messages) = StringUtils.abbreviate(toStringLang(messages), 80)
+  def toStringAbbr(implicit messages: Messages): String =
+    StringUtils.abbreviate(toStringLang(messages), 80)
 }
 
 object AnyModel {
@@ -60,7 +61,7 @@ object AnyModel {
     */
   def resourceFor(t: EntityType.Value): Resource[AnyModel] = new Resource[AnyModel] {
     def entityType: EntityType.Value = t
-    val restReads = Converter.restReads
+    val restReads: Reads[AnyModel] = Converter.restReads
   }
 }
 
@@ -101,7 +102,7 @@ trait Promotable extends Accessible {
   def isPromoted: Boolean = promoters.size > demoters.size
   def isPromotedBy(user: UserProfile): Boolean = promoters.exists(_.id == user.id)
   def isDemotedBy(user: UserProfile): Boolean = demoters.exists(_.id == user.id)
-  def promotionScore = promoters.size - demoters.size
+  def promotionScore: Int = promoters.size - demoters.size
 }
 
 trait MetaModel[+T <: Model] extends AnyModel {
@@ -109,11 +110,11 @@ trait MetaModel[+T <: Model] extends AnyModel {
   def meta: JsObject
 
   // Convenience helpers
-  def id = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
+  def id: String = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
 
-  def isA = model.isA
+  def isA: EntityType.Value = model.isA
 
-  override def toStringLang(implicit messages: Messages) = model match {
+  override def toStringLang(implicit messages: Messages): String = model match {
     case d: Described[Description] =>
       d.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
     case _ => id
@@ -224,7 +225,7 @@ trait Description extends Model {
   def toMap: SortedMap[String, Option[String]] =
     scala.collection.immutable.TreeMap(toSeq: _*)
 
-  def isRightToLeft = languageCode == "heb" || languageCode == "ara"
+  def isRightToLeft: Boolean = languageCode == "heb" || languageCode == "ara"
 
   def localId: Option[String] = id.flatMap(Description.localId)
 }
@@ -244,7 +245,7 @@ object Description {
     val Import = Value("IMPORT")
     val Manual = Value("MANUAL")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[CreationProcess.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   /**

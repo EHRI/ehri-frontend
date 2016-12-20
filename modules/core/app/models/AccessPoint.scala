@@ -29,7 +29,7 @@ object AccessPointF {
     val PlaceAccess = Value("place")
     val GenreAccess = Value("genre")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[AccessPointType.Value] = defines.EnumUtils.enumFormat(this)
 
     def exceptCreator: ValueSet = values.filterNot(_ == CreatorAccess)
   }
@@ -45,7 +45,7 @@ object AccessPointF {
   )(AccessPointF.apply, unlift(AccessPointF.unapply))
 
   implicit object Converter extends Writable[AccessPointF] {
-    lazy val restFormat = accessPointFormat
+    lazy val restFormat: Format[AccessPointF] = accessPointFormat
   }
 }
 
@@ -91,7 +91,7 @@ object AccessPoint {
     )(AccessPoint.apply _)
 
   implicit object Converter extends Readable[AccessPoint] {
-    val restReads = metaReads
+    val restReads: Reads[AccessPoint] = metaReads
   }
 
 

@@ -39,7 +39,7 @@ case class CypherService @Inject ()(
 
   val logger: Logger = play.api.Logger(getClass)
 
-  def requestUrl = utils.serviceBaseUrl("cypher", config)
+  private val requestUrl = utils.serviceBaseUrl("cypher", config)
 
   import backend.rest.cypher.CypherErrorReader._
 

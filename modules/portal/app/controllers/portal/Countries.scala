@@ -8,6 +8,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{Country, Repository}
+import play.api.mvc.{Action, AnyContent}
 import utils.search._
 
 import scala.concurrent.Future.{successful => immediate}
@@ -24,7 +25,7 @@ case class Countries @Inject()(
 
   private val portalCountryRoutes = controllers.portal.routes.Countries
 
-  def searchAll = UserBrowseAction.async { implicit request =>
+  def searchAll: Action[AnyContent] = UserBrowseAction.async { implicit request =>
     findType[Country](
       facetBuilder = countryFacets,
       defaultOrder = SearchOrder.Name
@@ -33,7 +34,7 @@ case class Countries @Inject()(
     }
   }
 
-  def browse(id: String) = GetItemAction(id).async { implicit request =>
+  def browse(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.country.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else {
       findType[Repository](
@@ -47,7 +48,7 @@ case class Countries @Inject()(
     }
   }
 
-  def search(id: String) = GetItemAction(id).async {  implicit request =>
+  def search(id: String): Action[AnyContent] = GetItemAction(id).async {  implicit request =>
     findType[Repository](
       filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
       facetBuilder = localRepoFacets,
@@ -60,7 +61,7 @@ case class Countries @Inject()(
     }
   }
 
-  def export(id: String, asFile: Boolean) = OptionalUserAction.async { implicit request =>
+  def export(id: String, asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     exportXml(EntityType.Country, id, Seq("eag"), asFile)
   }
 }

@@ -1,21 +1,21 @@
 package controllers.generic
 
 import acl.GlobalPermissionSet
-import play.api.mvc._
-import models.base._
-import defines._
-import models.{PermissionGrant, UserProfile}
-import utils.{Page, PageParams}
 import backend.ContentType
+import defines._
+import models.base._
+import models.{PermissionGrant, UserProfile}
+import play.api.mvc._
+import utils.{Page, PageParams}
 
 import scala.concurrent.Future
 
 /**
- * Trait for setting visibility on any AccessibleEntity.
- */
+  * Trait for setting visibility on any AccessibleEntity.
+  */
 trait ScopePermissions[MT] extends ItemPermissions[MT] {
 
-  val targetContentTypes: Seq[ContentTypes.Value]
+  protected val targetContentTypes: Seq[ContentTypes.Value]
 
   case class ScopePermissionGrantRequest[A](
     item: MT,
@@ -24,7 +24,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalUser
+    with WithOptionalUser
 
   case class SetScopePermissionRequest[A](
     item: MT,
@@ -33,9 +33,9 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
-  with WithOptionalUser
+    with WithOptionalUser
 
-  protected def ScopePermissionGrantAction(id: String)(implicit ct: ContentType[MT]) =
+  protected def ScopePermissionGrantAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest] =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
         implicit val req = request
@@ -48,7 +48,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
       }
     }
 
-  protected def CheckUpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: ContentType[MT]) =
+  protected def CheckUpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(
+    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest] =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
@@ -62,7 +63,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     }
 
 
-  protected def UpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(implicit ct: ContentType[MT]) =
+  protected def UpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(
+    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest] =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request

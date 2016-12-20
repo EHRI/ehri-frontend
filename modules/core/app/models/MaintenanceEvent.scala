@@ -61,7 +61,7 @@ object MaintenanceEvent {
   )(MaintenanceEvent.apply _)
 
   implicit object Converter extends backend.Readable[MaintenanceEvent] {
-    val restReads = metaReads
+    val restReads: Reads[MaintenanceEvent] = metaReads
   }
 }
 

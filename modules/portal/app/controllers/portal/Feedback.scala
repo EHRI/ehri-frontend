@@ -6,9 +6,9 @@ import backend.FeedbackService
 import backend.rest.cypher.Cypher
 import controllers.Components
 import controllers.portal.base.PortalController
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{RequestHeader, Result}
+import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
@@ -23,7 +23,7 @@ case class Feedback @Inject()(
   cypher: Cypher
 ) extends PortalController {
 
-  override protected implicit val config = components.configuration
+  override protected implicit val config: Configuration = components.configuration
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -80,7 +80,7 @@ case class Feedback @Inject()(
     Ok(views.html.feedback.create(models.Feedback.form))
   }
 
-  def feedbackPost = OptionalUserAction.async { implicit request =>
+  def feedbackPost: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val boundForm: Form[models.Feedback] = models.Feedback.form.bindFromRequest()
 
     def response(f: Form[models.Feedback]): Result =
@@ -108,14 +108,14 @@ case class Feedback @Inject()(
     )
   }
 
-  def list = AdminAction.async { implicit request =>
+  def list: Action[AnyContent] = AdminAction.async { implicit request =>
     feedbackService.list(PageParams.fromRequest(request),
         params = Map("order" -> "-createdAt")).map { flist =>
       Ok(views.html.feedback.list(flist.copy(items = flist.filter(_.text.isDefined))))
     }
   }
 
-  def deletePost(id: String) = AdminAction.async { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     feedbackService.delete(id).map(_ => Redirect(controllers.portal.routes.Feedback.list())
       .flashing("success" -> "item.delete.confirmation"))
   }

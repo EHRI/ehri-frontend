@@ -30,7 +30,7 @@ object PermissionGrantF {
   )(PermissionGrantF.apply _)
 
   implicit object Converter extends Readable[PermissionGrantF] {
-    val restReads = permissionGrantReads
+    val restReads: Reads[PermissionGrantF] = permissionGrantReads
   }
 }
 
@@ -61,7 +61,7 @@ object PermissionGrant {
   )(PermissionGrant.apply _)
 
   implicit object PermissionGrantResource extends Resource[PermissionGrant]  {
-    implicit val restReads = metaReads
+    implicit val restReads: Reads[PermissionGrant] = metaReads
     val entityType = EntityType.PermissionGrant
   }
 }

@@ -34,7 +34,7 @@ object VocabularyF {
   )(VocabularyF.apply _, unlift(VocabularyF.unapply))
 
   implicit object Converter extends Writable[VocabularyF] {
-    lazy val restFormat = vocabularyFormat
+    lazy val restFormat: Format[VocabularyF] = vocabularyFormat
   }
 }
 
@@ -65,7 +65,7 @@ object Vocabulary {
   implicit object VocabularyResource extends backend.ContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
-    val restReads = metaReads
+    val restReads: Reads[Vocabulary] = metaReads
   }
 
   val form = Form(

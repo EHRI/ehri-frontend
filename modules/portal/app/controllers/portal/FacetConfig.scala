@@ -203,7 +203,7 @@ trait FacetConfig extends Search {
 
   // Don't include country when displaying repository facets withing
   // a country record
-  protected def localRepoFacets = repositorySearchFacets
+  protected def localRepoFacets: (RequestHeader) => Seq[FacetClass[Facet]] = repositorySearchFacets
     .andThen(_.filterNot(_.key == COUNTRY_CODE))
 
   protected val docSearchFacets: FacetBuilder = { implicit request =>
@@ -243,7 +243,7 @@ trait FacetConfig extends Search {
 
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
-  protected def localDocFacets = docSearchFacets.andThen(_.filterNot { fc =>
+  protected def localDocFacets: (RequestHeader) => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
       Seq(TYPE, CREATION_PROCESS).contains(fc.key)
     })
 

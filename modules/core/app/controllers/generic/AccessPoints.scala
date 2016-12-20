@@ -5,6 +5,7 @@ import defines.EntityType
 import models.base.{Described, Description, MetaModel, Model}
 import models.{AccessPointF, Link, LinkF}
 import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent}
 
 
 trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
@@ -12,65 +13,66 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
   // NB: This doesn't work when placed within the function scope
   // should probably check if a bug has been reported.
   case class Target(id: String, `type`: EntityType.Value)
+
   case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
 
   /**
-   * FIXME: Address this festering sore!
-   *
-   * Translate an item's access points and accompanying links into a more
-   * easily consumable format. We start out with a list of links belonging
-   * to the item. Then, for each description we check if that link's body is
-   * an access point (with, say, descriptive text.) We then sort the access
-   * points for each description according to their type and return them in
-   * a map along with the accompanying link data (if any.) The result looks
-   * something like:
-   *
-   * [ {
-   *     "id" : "e6410af3-c45e-4649-9b5e-6753b2aa1156",
-   *     "data" : [ {
-   *       "type" : "creator",
-   *       "data" : [ ]
-   *     }, {
-   *       "type" : "person",
-   *       "data" : [ ]
-   *     }, {
-   *       "type" : "family",
-   *       "data" : [ ]
-   *     }, {
-   *       "type" : "corporateBody",
-   *       "data" : [ ]
-   *     }, {
-   *       "type" : "subject",
-   *       "data" : [ ]
-   *     }, {
-   *       "type" : "place",
-   *       "data" : [ {
-   *         "accessPoint" : {
-   *           "isA" : "AccessPoint",
-   *           "id" : "07238843-5b75-4af0-80b6-67c17c285686",
-   *           "accessPointType" : "placeAccess",
-   *           "name" : "Wiener Library Archives",
-   *           "description" : ""
-   *         },
-   *         "link" : {
-   *           "isA" : "Link",
-   *           "id" : "1fdb1ece-8202-496d-a01d-33cdddede00f",
-   *           "linkType" : "associative",
-   *           "description" : ""
-   *         },
-   *         "target" : {
-   *           "id" : "il-002821",
-   *           "type" : "Repository"
-   *         }
-   *       } ]
-   *     }, {
-   *       "type" : "genre",
-   *       "data" : [ ]
-   *     } ]
-   *   } ]
-   *
-   */
-  def getAccessPointsJson(id: String)(implicit rd: Readable[MT], rs: Resource[MT]) = {
+    * FIXME: Address this festering sore!
+    *
+    * Translate an item's access points and accompanying links into a more
+    * easily consumable format. We start out with a list of links belonging
+    * to the item. Then, for each description we check if that link's body is
+    * an access point (with, say, descriptive text.) We then sort the access
+    * points for each description according to their type and return them in
+    * a map along with the accompanying link data (if any.) The result looks
+    * something like:
+    *
+    * [ {
+    * "id" : "e6410af3-c45e-4649-9b5e-6753b2aa1156",
+    * "data" : [ {
+    * "type" : "creator",
+    * "data" : [ ]
+    * }, {
+    * "type" : "person",
+    * "data" : [ ]
+    * }, {
+    * "type" : "family",
+    * "data" : [ ]
+    * }, {
+    * "type" : "corporateBody",
+    * "data" : [ ]
+    * }, {
+    * "type" : "subject",
+    * "data" : [ ]
+    * }, {
+    * "type" : "place",
+    * "data" : [ {
+    * "accessPoint" : {
+    * "isA" : "AccessPoint",
+    * "id" : "07238843-5b75-4af0-80b6-67c17c285686",
+    * "accessPointType" : "placeAccess",
+    * "name" : "Wiener Library Archives",
+    * "description" : ""
+    * },
+    * "link" : {
+    * "isA" : "Link",
+    * "id" : "1fdb1ece-8202-496d-a01d-33cdddede00f",
+    * "linkType" : "associative",
+    * "description" : ""
+    * },
+    * "target" : {
+    * "id" : "il-002821",
+    * "type" : "Repository"
+    * }
+    * } ]
+    * }, {
+    * "type" : "genre",
+    * "data" : [ ]
+    * } ]
+    * } ]
+    *
+    */
+  def getAccessPointsJson(id: String)(implicit rd: Readable[MT], rs: Resource[MT]): Action[AnyContent] =
     OptionalUserAction.async { implicit request =>
       for (item <- userDataApi.get(id); links <- userDataApi.links[Link](id)) yield {
         implicit val accessPointFormat = Json.format[AccessPointF]
@@ -95,5 +97,4 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
         Ok(Json.toJson(list))
       }
     }
-  }
 }

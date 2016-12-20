@@ -3,7 +3,7 @@ package defines
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.{LocalDate, LocalDateTime, YearMonth}
 
-import play.api.mvc.QueryStringBindable
+import play.api.mvc.{PathBindable, QueryStringBindable}
 
 /**
   * The implicit values in this package allow the Play routes
@@ -14,8 +14,10 @@ import play.api.mvc.QueryStringBindable
   * the build.
   */
 package object binders {
-  implicit val entityTypeBinder = EnumerationBinders.bindableEnum(EntityType)
-  implicit val entityTypeQueryBinder = EnumerationBinders.queryStringBinder(EntityType)
+  implicit val entityTypeBinder: PathBindable[EntityType.Value] =
+    EnumerationBinders.bindableEnum(EntityType)
+  implicit val entityTypeQueryBinder: QueryStringBindable[EntityType.Value] =
+    EnumerationBinders.queryStringBinder(EntityType)
 
   private val fullDateTimeFmt: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 

@@ -17,6 +17,7 @@ import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import controllers.portal.base.PortalController
 import models._
+import play.api.Configuration
 import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
@@ -44,7 +45,7 @@ case class Accounts @Inject()(
   with AccountHelpers
   with RecaptchaHelper {
 
-  override protected implicit val config = components.configuration
+  override protected implicit val config: Configuration = components.configuration
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
@@ -78,14 +79,14 @@ case class Accounts @Inject()(
       } else action(request)
     }
 
-    lazy val parser = action.parser
+    lazy val parser: BodyParser[A] = action.parser
   }
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
     accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
 
   object NotReadOnlyAction extends ActionBuilder[Request] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]) = {
+    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
     }
 
@@ -113,7 +114,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def signupPost = NotReadOnlyAction.async { implicit request =>
+  def signupPost: Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
     def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
       status(
@@ -173,7 +174,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def confirmEmail(token: String) = NotReadOnlyAction.async { implicit request =>
+  def confirmEmail(token: String): Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
     accounts.findByToken(token, isSignUp = true).flatMap {
       case Some(account) => for {
         _ <- accounts.verify(account, token)
@@ -187,7 +188,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def openIDCallback = OpenIdCallbackAction.async { implicit request =>
+  def openIDCallback: Action[AnyContent] = OpenIdCallbackAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
     implicit val accountOpt: Option[Account] = None
     request.formOrAccount match {
@@ -206,7 +207,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def signup = loginOrSignup(isLogin = false)
+  def signup: Action[AnyContent] = loginOrSignup(isLogin = false)
 
   def loginOrSignup(isLogin: Boolean) = OptionalAccountAction { implicit authRequest =>
     if (globalConfig.readOnly) {
@@ -231,7 +232,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def openIDLoginPost(isLogin: Boolean = true) = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
+  def openIDLoginPost(isLogin: Boolean = true): Action[AnyContent] = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
     implicit val accountOpt: Option[Account] = None
     BadRequest(
@@ -247,7 +248,7 @@ case class Accounts @Inject()(
     )
   }
 
-  def passwordLoginPost = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
+  def passwordLoginPost: Action[AnyContent] = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
 
     def badForm(f: Form[(String, String)], status: Status = BadRequest): Future[Result] = immediate {
@@ -273,11 +274,11 @@ case class Accounts @Inject()(
     }
   }
 
-  def logout = Action.async { implicit authRequest =>
+  def logout: Action[AnyContent] = Action.async { implicit authRequest =>
     gotoLogoutSucceeded(authRequest)
   }
 
-  def oauth2(provider: String, code: Option[String], state: Option[String]) =
+  def oauth2(provider: String, code: Option[String], state: Option[String]): Action[AnyContent] =
     OAuth2LoginAction(provider, code, state, accountRoutes.oauth2(provider)).async { implicit request =>
       request.accountOrErr match {
         case Left(error) => immediate(Redirect(accountRoutes.loginOrSignup())
@@ -325,7 +326,7 @@ case class Accounts @Inject()(
       account, errForm, accountRoutes.changePasswordPost())))
   }
 
-  def resetPassword(token: String) = OptionalUserAction.async { implicit request =>
+  def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     accounts.findByToken(token).map {
       case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
@@ -334,7 +335,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def resendVerificationPost() = WithUserAction.async { implicit request =>
+  def resendVerificationPost(): Action[AnyContent] = WithUserAction.async { implicit request =>
     request.user.account match {
       case Some(account) =>
         val uuid = UUID.randomUUID()
@@ -349,7 +350,7 @@ case class Accounts @Inject()(
     }
   }
 
-  def resetPasswordPost(token: String) = ResetPasswordAction(token).async { implicit request =>
+  def resetPasswordPost(token: String): Action[AnyContent] = ResetPasswordAction(token).async { implicit request =>
     request.formOrAccount match {
       case Left(errForm) => immediate(BadRequest(views.html.account.resetPassword(errForm,
         accountRoutes.resetPasswordPost(token))))

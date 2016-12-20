@@ -7,6 +7,7 @@ import controllers.Components
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Group
+import play.api.mvc.{Action, AnyContent}
 
 
 @Singleton
@@ -18,7 +19,7 @@ case class Groups @Inject()(
   with Search
   with FacetConfig {
 
-  def browse(id: String) = GetItemAction(id).apply { implicit request =>
+  def browse(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     Ok(views.html.group.show(request.item))
   }
 }

@@ -63,7 +63,7 @@ object UserProfileF {
     )(UserProfileF.apply, unlift(UserProfileF.unapply))
 
   implicit object Converter extends Writable[UserProfileF] {
-    lazy val restFormat = userProfileFormat
+    lazy val restFormat: Format[UserProfileF] = userProfileFormat
   }
 }
 
@@ -107,7 +107,7 @@ object UserProfile {
   implicit object UserProfileResource extends backend.ContentType[UserProfile]  {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
-    val restReads = metaReads
+    val restReads: Reads[UserProfile] = metaReads
   }
 
   // Constructor, sans account and perms
@@ -158,7 +158,7 @@ case class UserProfile(
   with Accessor
   with Accessible {
 
-  override def toStringLang(implicit messages: Messages) = model.name
+  override def toStringLang(implicit messages: Messages): String = model.name
 
   def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.exists(gp =>
@@ -168,6 +168,6 @@ case class UserProfile(
       })
   }
 
-  def followerCount = meta.fields.find(_._1 == "followers").flatMap(_._2.asOpt[Int]).getOrElse(0)
-  def followingCount = meta.fields.find(_._1 == "following").flatMap(_._2.asOpt[Int]).getOrElse(0)
+  def followerCount: Int = meta.fields.find(_._1 == "followers").flatMap(_._2.asOpt[Int]).getOrElse(0)
+  def followingCount: Int = meta.fields.find(_._1 == "following").flatMap(_._2.asOpt[Int]).getOrElse(0)
 }

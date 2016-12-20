@@ -8,6 +8,7 @@ import controllers.base.AdminController
 import controllers.generic.Read
 import models.SystemEvent
 import models.base.AnyModel
+import play.api.mvc.{Action, AnyContent}
 import utils.{PageParams, RangeParams, SystemEventParams}
 
 
@@ -18,7 +19,7 @@ case class SystemEvents @Inject()(
 ) extends AdminController
   with Read[SystemEvent] {
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
     val params = PageParams.fromRequest(request)
     val subjectParams = PageParams.fromRequest(request, namespace = "s")
@@ -27,7 +28,7 @@ case class SystemEvents @Inject()(
     }
   }
 
-  def list = OptionalUserAction.async { implicit request =>
+  def list: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val listParams = RangeParams.fromRequest(request)
     val eventFilter = SystemEventParams.fromRequest(request)
     val filterForm = SystemEventParams.form.fill(eventFilter)
@@ -36,6 +37,6 @@ case class SystemEvents @Inject()(
       users <- dataHelpers.getUserList
       events <- userDataApi.events[SystemEvent](listParams, eventFilter)
     } yield Ok(views.html.admin.systemEvent.list(events, listParams,
-        filterForm, users,controllers.events.routes.SystemEvents.list()))
+      filterForm, users, controllers.events.routes.SystemEvents.list()))
   }
 }

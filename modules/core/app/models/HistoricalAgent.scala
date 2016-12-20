@@ -35,7 +35,7 @@ object HistoricalAgentF {
   )(HistoricalAgentF.apply _, unlift(HistoricalAgentF.unapply))
 
   implicit object Converter extends Writable[HistoricalAgentF] {
-    lazy val restFormat = historicalAgentFormat
+    lazy val restFormat: Format[HistoricalAgentF] = historicalAgentFormat
   }
 }
 
@@ -74,7 +74,7 @@ object HistoricalAgent {
   implicit object HistoricalAgentResource extends backend.ContentType[HistoricalAgent]  {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
-    val restReads = metaReads
+    val restReads: Reads[HistoricalAgent] = metaReads
   }
 
   val form = Form(

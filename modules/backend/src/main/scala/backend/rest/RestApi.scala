@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 case class RestApi @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
-  override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext) =
+  override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): RestApiHandle =
     RestApiHandle(eventHandler)(
       cache: CacheApi, config, apiUser, executionContext, ws)
 }
@@ -32,7 +32,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   val ws: WSClient
 ) extends DataApiHandle with RestService with RestContext  {
 
-  override def withEventHandler(eventHandler: EventHandler) = this.copy(eventHandler = eventHandler)
+  override def withEventHandler(eventHandler: EventHandler): RestApiHandle = this.copy(eventHandler = eventHandler)
 
   override def status(): Future[String] = {
     // Using WS directly here to avoid caching and logging
@@ -642,8 +642,8 @@ case class RestApiHandle(eventHandler: EventHandler)(
 object RestApi {
   def withNoopHandler(cache: CacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new RestApi(new EventHandler {
-      def handleCreate(id: String) = ()
-      def handleUpdate(id: String) = ()
-      def handleDelete(id: String) = ()
+      def handleCreate(id: String): Unit = ()
+      def handleUpdate(id: String): Unit = ()
+      def handleDelete(id: String): Unit = ()
     }, cache: CacheApi, config, ws)
 }

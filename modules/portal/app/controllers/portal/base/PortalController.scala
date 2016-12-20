@@ -55,8 +55,8 @@ trait PortalController
 
   // By default, all controllers require auth unless ehri.portal.secured
   // is set to false in the config, which it is by default.
-  override def staffOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
-  override def verifiedOnly = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override def staffOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override def verifiedOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
 
   /**
    * The user's default preferences. The `SessionPreferences` trait generates
@@ -85,7 +85,7 @@ trait PortalController
 
   private def userWatchCacheKey(userId: String) = s"$userId-watchlist"
 
-  protected def clearWatchedItemsCache(userId: String) = cache.remove(userWatchCacheKey(userId))
+  protected def clearWatchedItemsCache(userId: String): Unit = cache.remove(userWatchCacheKey(userId))
 
   /**
    * Activity event types that we think the user would care about.
@@ -243,7 +243,7 @@ trait PortalController
   /**
    * Action which fetches a user's profile and list of watched items.
    */
-  protected def UserBrowseAction = OptionalAccountAction andThen new ActionTransformer[OptionalAccountRequest,
+  protected def UserBrowseAction: ActionBuilder[UserDetailsRequest] = OptionalAccountAction andThen new ActionTransformer[OptionalAccountRequest,
     UserDetailsRequest] {
     override protected def transform[A](request: OptionalAccountRequest[A]): Future[UserDetailsRequest[A]] = {
       request.accountOpt.map { account =>

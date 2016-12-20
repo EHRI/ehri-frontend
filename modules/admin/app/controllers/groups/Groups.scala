@@ -11,7 +11,7 @@ import forms.VisibilityForm
 import models.base.Accessor
 import models.{Group, GroupF, UserProfile}
 import play.api.data.{Form, Forms}
-import play.api.mvc.Request
+import play.api.mvc.{Action, AnyContent, Request}
 import utils.PageParams
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ case class Groups @Inject()(
   private val form = models.Group.form
   private val groupRoutes = controllers.groups.routes.Groups
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     val params = PageParams.fromRequest(request)
     for {
       page <- userDataApi.children[Group,Accessor](id, params)
@@ -45,15 +45,15 @@ case class Groups @Inject()(
     }
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def search = SearchTypeAction().apply { implicit request =>
+  def search: Action[AnyContent] = SearchTypeAction().apply { implicit request =>
     Ok(views.html.admin.group.search(request.result, groupRoutes.search()))
   }
 
-  def create = NewItemAction.apply { implicit request =>
+  def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.group.create(form, VisibilityForm.form,
       request.users, request.groups, groupRoutes.createPost()))
   }
@@ -68,7 +68,7 @@ case class Groups @Inject()(
     )).bindFromRequest().value.getOrElse(Seq.empty))
   }
 
-  def createPost = CreateItemAction(form, memberExtractor).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form, memberExtractor).async { implicit request =>
     request.formOrItem match {
       case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.group.create(
@@ -79,12 +79,12 @@ case class Groups @Inject()(
     }
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.group.edit(
         request.item, form.fill(request.item.model), groupRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.group.edit(
@@ -94,31 +94,31 @@ case class Groups @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
       request.item, groupRoutes.deletePost(id), groupRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(groupRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def grantList(id: String) = GrantListAction(id).apply { implicit request =>
+  def grantList(id: String): Action[AnyContent] = GrantListAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionGrantList(request.item, request.permissionGrants))
   }
 
-  def managePermissions(id: String) = PermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
       groupRoutes.addItemPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
       groupRoutes.setItemPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
@@ -126,24 +126,25 @@ case class Groups @Inject()(
     }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(groupRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def permissions(id: String) = CheckGlobalPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.editGlobalPermissions(request.item, request.permissions,
-          groupRoutes.permissionsPost(id)))
-  }
+  def permissions(id: String): Action[AnyContent] =
+    CheckGlobalPermissionsAction(id).apply { implicit request =>
+      Ok(views.html.admin.permissions.editGlobalPermissions(request.item, request.permissions,
+            groupRoutes.permissionsPost(id)))
+    }
 
-  def permissionsPost(id: String) = SetGlobalPermissionsAction(id).apply { implicit request =>
+  def permissionsPost(id: String): Action[AnyContent] = SetGlobalPermissionsAction(id).apply { implicit request =>
     Redirect(groupRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def revokePermission(id: String, permId: String) = {
+  def revokePermission(id: String, permId: String): Action[AnyContent] = {
     CheckRevokePermissionAction(id, permId).apply { implicit request =>
       Ok(views.html.admin.permissions.revokePermission(
         request.item, request.permissionGrant,
@@ -151,34 +152,38 @@ case class Groups @Inject()(
     }
   }
 
-  def revokePermissionPost(id: String, permId: String) = {
+  def revokePermissionPost(id: String, permId: String): Action[AnyContent] = {
     RevokePermissionAction(id, permId).apply { implicit request =>
       Redirect(groupRoutes.grantList(id))
         .flashing("success" -> "item.delete.confirmation")
     }
   }
 
-  def membership(id: String) = MembershipAction(id).apply { implicit request =>
+  def membership(id: String): Action[AnyContent] = MembershipAction(id).apply { implicit request =>
     Ok(views.html.admin.group.membership(request.item, request.groups))
   }
 
-  def checkAddToGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
-    Ok(views.html.admin.group.confirmMembership(request.group, request.item,
-      groupRoutes.addToGroup(id, groupId)))
-  }
+  def checkAddToGroup(id: String, groupId: String): Action[AnyContent] =
+    CheckManageGroupAction(id, groupId).apply { implicit request =>
+      Ok(views.html.admin.group.confirmMembership(request.group, request.item,
+        groupRoutes.addToGroup(id, groupId)))
+    }
 
-  def addToGroup(id: String, groupId: String) = AddToGroupAction(id, groupId).apply { implicit request =>
-    Redirect(groupRoutes.membership(id))
-      .flashing("success" -> "item.update.confirmation")
-  }
+  def addToGroup(id: String, groupId: String): Action[AnyContent] =
+    AddToGroupAction(id, groupId).apply { implicit request =>
+      Redirect(groupRoutes.membership(id))
+        .flashing("success" -> "item.update.confirmation")
+    }
 
-  def checkRemoveFromGroup(id: String, groupId: String) = CheckManageGroupAction(id, groupId).apply { implicit request =>
-    Ok(views.html.admin.group.removeMembership(request.group, request.item,
-              groupRoutes.removeFromGroup(id, groupId)))
-  }
+  def checkRemoveFromGroup(id: String, groupId: String): Action[AnyContent] =
+    CheckManageGroupAction(id, groupId).apply { implicit request =>
+      Ok(views.html.admin.group.removeMembership(request.group, request.item,
+                groupRoutes.removeFromGroup(id, groupId)))
+    }
 
-  def removeFromGroup(id: String, groupId: String) = RemoveFromGroupAction(id, groupId).apply { implicit request =>
-    Redirect(groupRoutes.membership(id))
-              .flashing("success" -> "item.update.confirmation")
-  }
+  def removeFromGroup(id: String, groupId: String): Action[AnyContent] =
+    RemoveFromGroupAction(id, groupId).apply { implicit request =>
+      Redirect(groupRoutes.membership(id))
+                .flashing("success" -> "item.update.confirmation")
+    }
 }

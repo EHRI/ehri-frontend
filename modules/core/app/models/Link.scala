@@ -26,7 +26,7 @@ object LinkF {
     val Hierarchical = Value("hierarchical")
     val Temporal = Value("temporal")
 
-    implicit val format = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[LinkType.Value] = defines.EnumUtils.enumFormat(this)
   }
 
   import Entity._
@@ -43,7 +43,7 @@ object LinkF {
   )(LinkF.apply _, unlift(LinkF.unapply))
 
   implicit object Converter extends Writable[LinkF] {
-    lazy val restFormat = linkFormat
+    lazy val restFormat: Format[LinkF] = linkFormat
   }
 }
 
@@ -83,7 +83,7 @@ object Link {
   implicit object LinkResource extends backend.ContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
-    val restReads = metaReads
+    val restReads: Reads[Link] = metaReads
   }
 
   import LinkF._

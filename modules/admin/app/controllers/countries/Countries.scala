@@ -11,6 +11,7 @@ import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import models._
 import play.api.Configuration
+import play.api.mvc.{Action, AnyContent}
 import utils.search.{SearchConstants, SearchIndexMediator}
 
 import scala.concurrent.Future.{successful => immediate}
@@ -23,7 +24,7 @@ case class Countries @Inject()(
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator
 ) extends AdminController
-  with CRUD[CountryF,Country]
+  with CRUD[CountryF, Country]
   with Creator[RepositoryF, Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
@@ -32,19 +33,18 @@ case class Countries @Inject()(
   with Search {
 
   /**
-   * Content types that relate to this controller.
-   */
-  val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
+    * Content types that relate to this controller.
+    */
+  override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
   private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.Repository.toString)
-
   private val form = models.Country.form
   private val childForm = models.Repository.form
 
   private final val countryRoutes = controllers.countries.routes.Countries
 
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[Repository](
       filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)
     ).map { result =>
@@ -53,26 +53,26 @@ case class Countries @Inject()(
     }
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.country.list(request.page, request.params))
   }
 
-  def search = SearchTypeAction().apply { implicit request =>
+  def search: Action[AnyContent] = SearchTypeAction().apply { implicit request =>
     Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
   }
 
-  def create = NewItemAction.apply { implicit request =>
+  def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.country.create(form, VisibilityForm.form,
       request.users, request.groups, countryRoutes.createPost()))
   }
 
-  def createPost = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
       }
       case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
@@ -80,12 +80,12 @@ case class Countries @Inject()(
     }
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.country.edit(
-      request.item, form.fill(request.item.model),countryRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), countryRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.country.edit(
         request.item, errorForm, countryRoutes.updatePost(id)))
@@ -94,7 +94,7 @@ case class Countries @Inject()(
     }
   }
 
-  def createRepository(id: String) = NewChildAction(id).async { implicit request =>
+  def createRepository(id: String): Action[AnyContent] = NewChildAction(id).async { implicit request =>
 
     // Beware! This is dubious because there could easily be contention
     // if two repositories get created at the same time.
@@ -108,9 +108,9 @@ case class Countries @Inject()(
     }
   }
 
-  def createRepositoryPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+  def createRepositoryPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.repository.create(request.item,
           errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
       }
@@ -119,45 +119,45 @@ case class Countries @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        request.item, countryRoutes.deletePost(id),
-        countryRoutes.get(id)))
+      request.item, countryRoutes.deletePost(id),
+      countryRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(countryRoutes.search())
-        .flashing("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, countryRoutes.visibilityPost(id)))
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, countryRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(countryRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.manageScopedPermissions(
       request.item, request.permissionGrants, request.scopePermissionGrants,
-        countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
+      countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
-        countryRoutes.setItemPermissions))
+      countryRoutes.setItemPermissions))
   }
 
-  def addScopedPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
-        countryRoutes.setScopedPermissions))
+      countryRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
@@ -165,14 +165,14 @@ case class Countries @Inject()(
     }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionScope(
         request.item, request.accessor, request.scopePermissions, targetContentTypes,
@@ -180,7 +180,7 @@ case class Countries @Inject()(
     }
   }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(countryRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")

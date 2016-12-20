@@ -15,7 +15,7 @@ object ContentType {
   )(ContentType.apply, unlift(ContentType.unapply))
 
   implicit object Converter extends Readable[ContentType] {
-    val restReads = format
+    val restReads: Format[ContentType] = format
   }
 }
 

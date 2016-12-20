@@ -30,7 +30,7 @@ object AuthoritativeSetF {
   )(AuthoritativeSetF.apply, unlift(AuthoritativeSetF.unapply))
 
   implicit object Converter extends Writable[AuthoritativeSetF] {
-    lazy val restFormat = authoritativeSetFormat
+    lazy val restFormat: Format[AuthoritativeSetF] = authoritativeSetFormat
   }
 }
 
@@ -61,7 +61,7 @@ object AuthoritativeSet {
   implicit object AuthoritativeSetResource extends backend.ContentType[AuthoritativeSet]  {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
-    val restReads = metaReads
+    val restReads: Reads[AuthoritativeSet] = metaReads
   }
 
   val form = Form(

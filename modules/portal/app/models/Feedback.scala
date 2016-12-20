@@ -2,12 +2,13 @@ package models
 
 import java.time.ZonedDateTime
 
-import play.api.libs.json.{Format, Json, Reads}
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.Mode.Mode
 import defines.BindableEnum
 import defines.EnumUtils.enumMapping
+import play.api.Mode
+import play.api.Mode.Mode
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.{Format, Json}
 
 case class Feedback(
   objectId: Option[String] = None,
@@ -36,10 +37,10 @@ object Feedback {
     val Site = Value("site")
     val Data = Value("data")
 
-    implicit val _format = defines.EnumUtils.enumFormat(this)
+    implicit val _format: Format[Feedback.Type.Value] = defines.EnumUtils.enumFormat(this)
   }
 
-  implicit val modeFormat = defines.EnumUtils.enumFormat(play.api.Mode)
+  implicit val modeFormat: Format[Mode.Value] = defines.EnumUtils.enumFormat(play.api.Mode)
   implicit val _format: Format[Feedback] = Json.format[Feedback]
 
   implicit val form = Form(

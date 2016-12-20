@@ -1,11 +1,11 @@
 package controllers.generic
 
-import backend.rest.DataHelpers
 import backend.ContentType
+import backend.rest.DataHelpers
 import defines.PermissionType
-import models.{Group, UserProfile}
 import models.base.Accessor
-import play.api.mvc.{ActionTransformer, Request, WrappedRequest}
+import models.{Group, UserProfile}
+import play.api.mvc.{ActionBuilder, ActionTransformer, Request, WrappedRequest}
 
 import scala.concurrent.Future
 
@@ -15,7 +15,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
 
   case class MembershipRequest[A](
     item: MT,
-    groups: Seq[(String,String)],
+    groups: Seq[(String, String)],
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -29,7 +29,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def MembershipAction(id: String)(implicit ct: ContentType[MT]) =
+  protected def MembershipAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MembershipRequest] =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
         dataHelpers.getGroupList.map { groups =>
@@ -52,8 +52,8 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def CheckManageGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]) =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest,ManageGroupRequest] {
+  protected def CheckManageGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ManageGroupRequest] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ManageGroupRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageGroupRequest[A]] = {
         implicit val req = request
         userDataApi.get[Group](groupId).map { group =>
@@ -62,7 +62,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def AddToGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]) =
+  protected def AddToGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
     MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
@@ -70,7 +70,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]) =
+  protected def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
     MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request

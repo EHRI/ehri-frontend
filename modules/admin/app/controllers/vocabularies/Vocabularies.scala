@@ -9,8 +9,10 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import models._
+import play.api.data.Form
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
+import play.api.mvc.{Action, AnyContent}
 import utils.search.{SearchConstants, SearchIndexMediator}
 
 import scala.concurrent.Future.{successful => immediate}
@@ -23,7 +25,7 @@ case class Vocabularies @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient
 ) extends AdminController
-  with CRUD[VocabularyF,Vocabulary]
+  with CRUD[VocabularyF, Vocabulary]
   with Creator[ConceptF, Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
@@ -31,14 +33,13 @@ case class Vocabularies @Inject()(
   with Indexable[Vocabulary]
   with Search {
 
-  val targetContentTypes = Seq(ContentTypes.Concept)
-
-  val form = models.Vocabulary.form
-  val childForm = models.Concept.form
+  override protected val targetContentTypes = Seq(ContentTypes.Concept)
+  private val form: Form[VocabularyF] = models.Vocabulary.form
+  private val childForm: Form[ConceptF] = models.Concept.form
 
   private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
-  def get(id: String) = ItemMetaAction(id).async { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[Concept](
       filters = Map(SearchConstants.HOLDER_ID -> request.item.id)
     ).map { result =>
@@ -48,22 +49,22 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.vocabulary.list(request.page, request.params))
   }
 
-  def create = NewItemAction.apply { implicit request =>
+  def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form,
       request.users, request.groups, vocabRoutes.createPost()))
   }
 
-  def createPost = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
           users, groups, vocabRoutes.createPost()))
       }
@@ -72,29 +73,29 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.vocabulary.edit(
-      request.item, form.fill(request.item.model),vocabRoutes.updatePost(id)))
+      request.item, form.fill(request.item.model), vocabRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.vocabulary.edit(
-          request.item, errorForm, vocabRoutes.updatePost(id)))
+        request.item, errorForm, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def createConcept(id: String) = NewChildAction(id).apply { implicit request =>
+  def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
       request.item, childForm, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.users, request.groups, vocabRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String) = CreateChildAction(id, childForm).async { implicit request =>
+  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
       }
@@ -103,44 +104,44 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-        request.item, vocabRoutes.deletePost(id), vocabRoutes.get(id)))
+      request.item, vocabRoutes.deletePost(id), vocabRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(vocabRoutes.list())
       .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, vocabRoutes.visibilityPost(id)))
+      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.users, request.groups, vocabRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(vocabRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = ScopePermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.manageScopedPermissions(
       request.item, request.permissionGrants, request.scopePermissionGrants,
-        vocabRoutes.addItemPermissions(id), vocabRoutes.addScopedPermissions(id)))
+      vocabRoutes.addItemPermissions(id), vocabRoutes.addScopedPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
-        vocabRoutes.setItemPermissions))
+      vocabRoutes.setItemPermissions))
   }
 
-  def addScopedPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
-        vocabRoutes.setScopedPermissions))
+      vocabRoutes.setScopedPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
@@ -148,14 +149,14 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vocabRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionScope(
         request.item, request.accessor, request.scopePermissions, targetContentTypes,
@@ -163,26 +164,26 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vocabRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def updateIndex(id: String) = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-      Ok(views.html.admin.search.updateItemIndex(request.item,
-          action = vocabRoutes.updateIndexPost(id)))
+  def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    Ok(views.html.admin.search.updateItemIndex(request.item,
+      action = vocabRoutes.updateIndexPost(id)))
   }
 
-  def updateIndexPost(id: String) = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
+  def updateIndexPost(id: String): Action[AnyContent] = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 
-  def exportSkos(id: String, format: Option[String]) = OptionalUserAction.async { implicit request =>
+  def exportSkos(id: String, format: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val baseUrl: Option[String] = request.getQueryString("baseUri")
     ws.url(utils.serviceBaseUrl("ehridata", config) + s"/classes/${EntityType.Vocabulary}/$id/export")
-        .withQueryString(format.toSeq.map(f => "format" -> f): _*)
-        .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
-        .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
+      .withQueryString(format.toSeq.map(f => "format" -> f): _*)
+      .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
+      .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
       Ok(r.body).as(r.header(HeaderNames.CONTENT_TYPE).getOrElse(MimeTypes.TEXT))
     }
   }

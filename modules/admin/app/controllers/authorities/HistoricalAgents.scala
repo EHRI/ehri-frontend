@@ -10,6 +10,7 @@ import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
+import play.api.mvc.{Action, AnyContent}
 import utils.search._
 
 
@@ -17,8 +18,8 @@ import utils.search._
 case class HistoricalAgents @Inject()(
   components: Components,
   dataHelpers: DataHelpers
-) extends AdminController with CRUD[HistoricalAgentF,HistoricalAgent]
-	with Visibility[HistoricalAgent]
+) extends AdminController with CRUD[HistoricalAgentF, HistoricalAgent]
+  with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
@@ -33,44 +34,44 @@ case class HistoricalAgents @Inject()(
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
-        key=models.Isaar.ENTITY_TYPE,
-        name=Messages("historicalAgent." + Isaar.ENTITY_TYPE),
-        param="cpf",
-        render=s => Messages("historicalAgent." + s),
+        key = models.Isaar.ENTITY_TYPE,
+        name = Messages("historicalAgent." + Isaar.ENTITY_TYPE),
+        param = "cpf",
+        render = s => Messages("historicalAgent." + s),
         display = FacetDisplay.Choice
       ),
       FieldFacetClass(
-        key=SearchConstants.HOLDER_NAME,
-        name=Messages("historicalAgent.authoritativeSet"),
-        param="set",
+        key = SearchConstants.HOLDER_NAME,
+        name = Messages("historicalAgent.authoritativeSet"),
+        param = "set",
         sort = FacetSort.Name
       )
     )
   }
 
 
-  def search = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
+  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
   }
 
-  def get(id: String) = ItemMetaAction(id).apply { implicit request =>
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links))
   }
 
-  def history(id: String) = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list = ItemPageAction.apply { implicit request =>
+  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
     Ok(views.html.admin.historicalAgent.list(request.page, request.params))
   }
 
-  def update(id: String) = EditAction(id).apply { implicit request =>
+  def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.edit(
       request.item, form.fill(request.item.model), histRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String) = UpdateAction(id, form).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.historicalAgent
@@ -80,85 +81,89 @@ case class HistoricalAgents @Inject()(
     }
   }
 
-  def delete(id: String) = CheckDeleteAction(id).apply { implicit request =>
+  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(request.item, histRoutes.deletePost(id),
-        histRoutes.get(id)))
+      histRoutes.get(id)))
   }
 
-  def deletePost(id: String) = DeleteAction(id).apply { implicit request =>
+  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(histRoutes.search())
-        .flashing("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
-  def visibility(id: String) = EditVisibilityAction(id).apply { implicit request =>
+  def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.users, request.groups, histRoutes.visibilityPost(id)))
   }
 
-  def visibilityPost(id: String) = UpdateVisibilityAction(id).apply { implicit request =>
+  def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(histRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String) = PermissionGrantAction(id).apply { implicit request =>
+  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
-        histRoutes.addItemPermissions(id)))
+      histRoutes.addItemPermissions(id)))
   }
 
-  def addItemPermissions(id: String) = EditItemPermissionsAction(id).apply { implicit request =>
+  def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
-        histRoutes.setItemPermissions))
+      histRoutes.setItemPermissions))
   }
 
-  def setItemPermissions(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     CheckUpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Ok(views.html.admin.permissions.setPermissionItem(
         request.item, request.accessor, request.itemPermissions,
-          histRoutes.setItemPermissionsPost(id, userType, userId)))
+        histRoutes.setItemPermissionsPost(id, userType, userId)))
     }
   }
 
-  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String) = {
+  def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(histRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def linkTo(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-    Ok(views.html.admin.historicalAgent.linkTo(request.item))
-  }
+  def linkTo(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+      Ok(views.html.admin.historicalAgent.linkTo(request.item))
+    }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value) = LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
-    Ok(views.html.admin.link.linkSourceList(
-      request.item, request.searchResult, request.entityType,
+  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
+    LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
+      Ok(views.html.admin.link.linkSourceList(
+        request.item, request.searchResult, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),
         histRoutes.linkAnnotate))
-  }
+    }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String) = LinkAction(id, toType, to).apply { implicit request =>
-    Ok(views.html.admin.link.create(request.from, request.to,
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    LinkAction(id, toType, to).apply { implicit request =>
+      Ok(views.html.admin.link.create(request.from, request.to,
         Link.form, histRoutes.linkAnnotatePost(id, toType, to)))
-  }
+    }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String) = CreateLinkAction(id, toType, to).apply { implicit request =>
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+    CreateLinkAction(id, toType, to).apply { implicit request =>
       request.formOrLink match {
-        case Left((target,errorForm)) =>
+        case Left((target, errorForm)) =>
           BadRequest(views.html.admin.link.create(request.from, target,
             errorForm, histRoutes.linkAnnotatePost(id, toType, to)))
         case Right(_) =>
           Redirect(histRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
       }
-  }
+    }
 
-  def linkMultiAnnotate(id: String) = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+  def linkMultiAnnotate(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
     Ok(views.html.admin.link.linkMulti(request.item,
       Link.multiForm, histRoutes.linkMultiAnnotatePost(id)))
   }
 
-  def linkMultiAnnotatePost(id: String) = CreateMultipleLinksAction(id).apply { implicit request =>
+  def linkMultiAnnotatePost(id: String): Action[AnyContent] = CreateMultipleLinksAction(id).apply { implicit request =>
     request.formOrLinks match {
       case Left(errorForms) =>
         BadRequest(views.html.admin.link.linkMulti(request.item,
@@ -168,9 +173,10 @@ case class HistoricalAgents @Inject()(
     }
   }
 
-  def manageAccessPoints(id: String, descriptionId: String) = WithDescriptionAction(id, descriptionId).apply { implicit request =>
-    val holders = config.getStringSeq("ehri.admin.accessPoints.holders").getOrElse(Seq.empty)
-    Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
-      request.description, holderIds = holders))
-  }
+  def manageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
+    WithDescriptionAction(id, descriptionId).apply { implicit request =>
+      val holders = config.getStringSeq("ehri.admin.accessPoints.holders").getOrElse(Seq.empty)
+      Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
+        request.description, holderIds = holders))
+    }
 }

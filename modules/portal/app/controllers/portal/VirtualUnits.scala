@@ -11,7 +11,7 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.mvc.RequestHeader
+import play.api.mvc.{Action, AnyContent, RequestHeader}
 import utils.search._
 
 import scala.concurrent.Future
@@ -30,14 +30,14 @@ case class VirtualUnits @Inject()(
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
-  def browseVirtualCollection(id: String) = GetItemAction(id).apply { implicit request =>
+  def browseVirtualCollection(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(
       request.item, request.annotations, request.links, request.watched))
     else Ok(views.html.virtualUnit.show(
       request.item, request.annotations, request.links, request.watched))
   }
 
-  def searchVirtualCollection(id: String) = GetItemAction(id).async { implicit request =>
+  def searchVirtualCollection(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
@@ -53,7 +53,7 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def browseVirtualCollections = UserBrowseAction.async { implicit request =>
+  def browseVirtualCollections: Action[AnyContent] = UserBrowseAction.async { implicit request =>
     val filters = if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
     else Map.empty[String,Any]
 
@@ -67,7 +67,7 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def browseVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
+  def browseVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
@@ -86,7 +86,7 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def searchVirtualUnit(pathStr: String, id: String) = OptionalUserAction.async { implicit request =>
+  def searchVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
