@@ -1,5 +1,7 @@
 @(form: Form[Seq[(String, String, Boolean)]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
+
 @defining(form("row")) { field =>
     @if(field.indexes.isEmpty) {
         <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
@@ -8,7 +10,7 @@
             @formHelpers.csrfToken()
 
             <p>@Messages("admin.utils.regenerateIds.description")</p>
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-condensed">
                 <thead>
                     <tr>
                         <th>From</th>
