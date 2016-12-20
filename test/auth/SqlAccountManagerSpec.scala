@@ -18,8 +18,8 @@ import helpers.withFixtures
 
 class SqlAccountManagerSpec extends PlaySpecification {
 
-  implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
-  implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
+  private implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
+  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
   def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager()(db, actorSystem)
 

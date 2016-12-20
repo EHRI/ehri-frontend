@@ -2,7 +2,7 @@ package integration.admin
 
 import helpers.IntegrationTestRunner
 import models.CypherQuery
-import play.api.libs.json.{JsNumber, JsValue, Json}
+import play.api.libs.json.{JsNumber, JsValue, Json, Reads}
 import play.api.test.FakeRequest
 
 
@@ -12,7 +12,7 @@ class CypherQuerySpec extends IntegrationTestRunner {
 
   case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]])
   object ResultFormat {
-    implicit val _reads = Json.reads[ResultFormat]
+    implicit val _reads: Reads[ResultFormat] = Json.reads[ResultFormat]
   }
 
   "Cypher Query views" should {

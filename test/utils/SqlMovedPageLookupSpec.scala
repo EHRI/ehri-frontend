@@ -11,11 +11,11 @@ import scala.concurrent.ExecutionContext
 
 class SqlMovedPageLookupSpec extends PlaySpecification {
   private val app: Application = new GuiceApplicationBuilder().build()
-  implicit val actorSystem = app.injector.instanceOf[ActorSystem]
-  implicit val executionContext = app.injector.instanceOf[ExecutionContext]
-  implicit def db = app.injector.instanceOf[Database]
+  private implicit val actorSystem = app.injector.instanceOf[ActorSystem]
+  private implicit val executionContext = app.injector.instanceOf[ExecutionContext]
+  private implicit def db = app.injector.instanceOf[Database]
 
-  def movedPageService(implicit db: Database) = SqlMovedPageLookup()(db, actorSystem)
+  private def movedPageService(implicit db: Database) = SqlMovedPageLookup()(db, actorSystem)
 
   "Moved Page lookup" should {
     "fetch redirect items" in {

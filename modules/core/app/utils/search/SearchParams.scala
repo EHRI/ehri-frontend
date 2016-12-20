@@ -54,8 +54,6 @@ object SearchMode extends Enumeration {
 
 /**
   * Class encapsulating the parameters of a Solr search.
-  *
-  * User: michaelb
   */
 case class SearchParams(
   query: Option[String] = None,

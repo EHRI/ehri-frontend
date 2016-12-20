@@ -1,8 +1,6 @@
 package utils.search
 
 /**
- * User: michaelb
- *
  * Various Solr-related constant values.
  */
 object SearchConstants {

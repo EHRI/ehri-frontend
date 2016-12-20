@@ -12,7 +12,7 @@ import eu.ehri.extension.SystemEventResource
  */
 trait BeforeAllAfterAll extends Specification with BeforeEach {
   // see http://bit.ly/11I9kFM (specs2 User Guide)
-  override def map(fragments: => Fragments) =
+  override def map(fragments: => Fragments): Fragments =
     step(beforeAll()) ^ fragments ^ step(afterAll())
 
   protected def beforeAll()
@@ -39,7 +39,7 @@ trait RestApiRunner extends BeforeAllAfterAll {
   /**
    * Tear down and setup fixtures before every test
    */
-  def before = {
+  def before: Unit = {
     runner.tearDownData()
     runner.setUpData()
   }
@@ -47,10 +47,10 @@ trait RestApiRunner extends BeforeAllAfterAll {
   /**
    * Start the server before every class test
    */
-  def beforeAll() = runner.start()
+  def beforeAll(): Unit = runner.start()
 
   /**
    * Stop the server after every class test
    */
-  def afterAll() = runner.stop()
+  def afterAll(): Unit = runner.stop()
 }

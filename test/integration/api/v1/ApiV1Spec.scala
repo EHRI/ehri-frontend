@@ -14,7 +14,7 @@ class ApiV1Spec extends IntegrationTestRunner {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  def validateJson(json: JsValue) = {
+  private def validateJson(json: JsValue) = {
     val is = getClass.getResourceAsStream("/jsonapi-schema.json")
     try {
       val rawSchema = new JSONObject(new JSONTokener(is))

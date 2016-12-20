@@ -106,7 +106,7 @@ case class MockSearchEngineConfig(
     }
   }
 
-  override def status() = Future.successful("ok")
+  override def status(): Future[String] = Future.successful("ok")
 
   override def withIdFilters(ids: Seq[String]): SearchEngineConfig = copy(idFilters = idFilters ++ ids)
 

@@ -1,20 +1,21 @@
 package backend
 
-import defines.{EntityType, ContentTypes, PermissionType}
+import defines.{ContentTypes, EntityType, PermissionType}
 import play.api.cache.CacheApi
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
-import utils.{RangeParams, RangePage, PageParams, SystemEventParams}
+import utils.{PageParams, RangePage, RangeParams, SystemEventParams}
 import backend.rest.{CypherIdGenerator, ItemNotFound, ValidationError}
 import backend.rest.cypher.CypherService
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
-import play.api.test.{WithApplicationLoader, PlaySpecification}
+import play.api.test.{PlaySpecification, WithApplicationLoader}
 import utils.search.{MockSearchIndexMediator, SearchIndexMediator}
 import helpers.RestApiRunner
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
 
 /**
@@ -42,16 +43,16 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
   implicit def cache(implicit app: play.api.Application): CacheApi = app.injector.instanceOf[CacheApi]
   implicit def execContext(implicit app: play.api.Application): ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  val indexEventBuffer = collection.mutable.ListBuffer.empty[String]
+  val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
 
   def testBackend(implicit app: play.api.Application, apiUser: ApiUser): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)
 
   def testEventHandler = new EventHandler {
-    def handleCreate(id: String) = mockIndexer.handle.indexIds(id)
-    def handleUpdate(id: String) = mockIndexer.handle.indexIds(id)
-    def handleDelete(id: String) = mockIndexer.handle.clearIds(id)
+    def handleCreate(id: String): Unit = mockIndexer.handle.indexIds(id)
+    def handleUpdate(id: String): Unit = mockIndexer.handle.indexIds(id)
+    def handleDelete(id: String): Unit = mockIndexer.handle.clearIds(id)
   }
 
   /**
@@ -213,8 +214,8 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
             __.readHeadNullable[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
-          val entityType = UserProfile.UserProfileResource.entityType
-          val contentType = UserProfile.UserProfileResource.contentType
+          val entityType: EntityType.Value = UserProfile.UserProfileResource.entityType
+          val contentType: ContentTypes.Value = UserProfile.UserProfileResource.contentType
         }
 
         await(testBackend.get[UserProfile]("mike")(badDeserializer))
@@ -526,7 +527,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
-      val idGen = new CypherIdGenerator(new CypherService)
+      val idGen = CypherIdGenerator(CypherService())
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -534,7 +535,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = new CypherIdGenerator(new CypherService)
+      val idGen = CypherIdGenerator(CypherService())
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }

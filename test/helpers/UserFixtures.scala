@@ -7,7 +7,7 @@ trait UserFixtures extends BeforeEach {
   /**
    * Tear down and setup fixtures before every test
    */
-  def before = {
+  def before: Unit = {
     mockdata.accountFixtures = mockdata.users
   }
 }
