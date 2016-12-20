@@ -15,7 +15,7 @@ class AccountsSpec extends IntegrationTestRunner {
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[CacheApi]
+  private implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[CacheApi]
 
   "Account views" should {
     "redirect to index page on log out" in new ITestApp {

@@ -10,7 +10,7 @@ import utils.{Page, PageParams}
 
 class SqlCypherQueryServiceSpec extends PlaySpecification {
 
-  implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
+  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
   def queryService(implicit db: Database) = new SqlCypherQueryService()(db, actorSystem)
 

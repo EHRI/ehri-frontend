@@ -32,7 +32,7 @@ package object mockdata {
 
 
   // Mutable vars that server as mock database tables
-  var accountFixtures = users
+  var accountFixtures: Map[String, Account] = users
 
   val tokenFixtures: collection.mutable.ListBuffer[(String,String,Boolean)] =
     collection.mutable.ListBuffer.empty[(String,String,Boolean)]

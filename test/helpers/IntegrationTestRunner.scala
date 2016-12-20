@@ -13,7 +13,7 @@ trait IntegrationTestRunner extends PlaySpecification with RestApiRunner with Us
   // NB: Because both UserFixtures and the RestBackendendRunner
   // do stuff before each test we need to break the ambiguity of
   // which goes first.
-  override def before = {
+  override def before: Unit = {
     super[RestApiRunner].before
     super[UserFixtures].before
   }

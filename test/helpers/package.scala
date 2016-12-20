@@ -1,9 +1,11 @@
 
 import java.io._
+
 import akka.actor.ActorSystem
 import auth.AccountManager
 import auth.sql.SqlAccountManager
-import play.api.{LoggerConfigurator, Configuration}
+import models.OpenIDAssociation
+import play.api.{Configuration, LoggerConfigurator}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -58,7 +60,7 @@ package object helpers {
   /**
    * Load database fixtures.
    */
-  def loadSqlFixtures(implicit db: Database, actorSystem: ActorSystem) = {
+  def loadSqlFixtures(implicit db: Database, actorSystem: ActorSystem): List[Option[OpenIDAssociation]] = {
     val accounts: AccountManager = SqlAccountManager()
     mockdata.users.foreach { case (profile, account) =>
       val acc = Await.result(accounts.create(account), 1.second)
@@ -74,7 +76,7 @@ package object helpers {
   /**
    * Load a file containing SQL statements into the DB.
    */
-  def loadSqlResource(resource: String)(implicit db: Database) = db.withConnection { conn =>
+  def loadSqlResource(resource: String)(implicit db: Database): Unit = db.withConnection { conn =>
     val file = new File(getClass.getClassLoader.getResource(resource).toURI)
     val path = file.getAbsolutePath
     val runner = new ScriptRunner(conn, false, true)

@@ -14,10 +14,10 @@ case class MockFeedbackService(buffer: collection.mutable.HashMap[Int, Feedback]
     buffer += key -> feedback.copy(objectId = Some(key.toString))
     immediate(key.toString)
   }
-  def list(pageParams: PageParams = PageParams.empty, params: Map[String, String] = Map.empty) =
+  def list(pageParams: PageParams = PageParams.empty, params: Map[String, String] = Map.empty): Future[Page[Feedback]] =
     immediate(Page(items = buffer.values.toSeq))
 
-  def delete(id: String) = {
+  def delete(id: String): Future[Boolean] = {
     buffer -= id.toInt
     immediate(true)
   }

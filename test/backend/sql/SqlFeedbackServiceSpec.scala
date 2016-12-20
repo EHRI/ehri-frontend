@@ -12,10 +12,10 @@ import scala.concurrent.ExecutionContext
 
 class SqlFeedbackServiceSpec extends PlaySpecification {
 
-  implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-  implicit val executionContext = new GuiceApplicationBuilder().build().injector.instanceOf[ExecutionContext]
+  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
+  private implicit val executionContext = new GuiceApplicationBuilder().build().injector.instanceOf[ExecutionContext]
 
-  def feedbackService(implicit db: Database) = SqlFeedbackService()(db, actorSystem)
+  private def feedbackService(implicit db: Database) = SqlFeedbackService()(db, actorSystem)
 
   "Feedback service" should {
     "locate items correctly" in {

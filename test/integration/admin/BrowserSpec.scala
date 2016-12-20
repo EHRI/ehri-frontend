@@ -8,7 +8,7 @@ import utils.{MockMovedPageLookup, MovedPageLookup}
 
 class BrowserSpec extends PlaySpecification {
 
-  val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
+  private val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(bind[MovedPageLookup].toInstance(MockMovedPageLookup()))
 
   "Application" should {
