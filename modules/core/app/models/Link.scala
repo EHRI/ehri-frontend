@@ -40,7 +40,7 @@ object LinkF {
     (__ \ DATA \ DESCRIPTION).formatNullable[String] and
     (__ \ DATA \ IS_PROMOTABLE).formatWithDefault(false) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF]
-  )(LinkF.apply _, unlift(LinkF.unapply))
+  )(LinkF.apply, unlift(LinkF.unapply))
 
   implicit object Converter extends Writable[LinkF] {
     lazy val restFormat: Format[LinkF] = linkFormat

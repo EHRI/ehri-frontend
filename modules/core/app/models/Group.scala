@@ -25,7 +25,7 @@ object GroupF {
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ NAME).format[String] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String]
-  )(GroupF.apply _, unlift(GroupF.unapply))
+  )(GroupF.apply, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
     lazy val restFormat: Format[GroupF] = groupFormat
