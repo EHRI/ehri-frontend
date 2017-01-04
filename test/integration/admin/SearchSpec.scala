@@ -1,22 +1,25 @@
 package integration.admin
 
+import controllers.admin.{IndexTypes, Indexing}
 import defines.EntityType
 import helpers._
 import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
-import play.api.test.FakeRequest
+import play.api.libs.json.{JsString, Json}
+import play.api.test.{FakeRequest, WithServer}
 import utils.search.SearchConstants
 
+
 /**
- * Spec to test various page views operate as expected.
- */
+  * Spec to test various page views operate as expected.
+  */
 class SearchSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name = "test user"),
+    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
   )
 
 
@@ -44,6 +47,24 @@ class SearchSpec extends IntegrationTestRunner {
       val filter = FakeRequest(GET, controllers.admin.routes.SearchFilter.filterItems().url + "?q=c")
         .call()
       status(filter) must equalTo(OK)
+    }
+  }
+
+  "Search index mediator" should {
+    val port = 9902
+    "perform indexing correctly via Websocket endpoint" in new WithServer(app = appBuilder.build(), port = port) {
+      val cmd = List(EntityType.DocumentaryUnit)
+      val data = IndexTypes(cmd)
+      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
+      val ws = WebSocketClientWrapper(wsUrl,
+        headers = Map(AUTH_TEST_HEADER_NAME -> testAuthToken(privilegedUser.id)))
+      ws.client.connectBlocking()
+      ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
+
+      eventually { ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString) }
+      indexEventBuffer.lastOption must beSome.which { bufcmd =>
+        bufcmd must equalTo(cmd.toString())
+      }
     }
   }
 

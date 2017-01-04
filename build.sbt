@@ -103,7 +103,9 @@ val portalDependencies = Seq(
 )
 
 val testDependencies = backendTestDependencies ++ Seq(
-  specs2 % Test
+  specs2 % Test,
+  // Used for testing websockets...
+  "org.java-websocket" % "Java-WebSocket" % "1.3.0" % Test
 )
 
 val additionalResolvers = Seq(

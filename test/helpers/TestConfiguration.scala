@@ -109,6 +109,7 @@ trait TestConfiguration {
   protected def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
 
+  protected val AUTH_TEST_HEADER_NAME = "PLAY2_AUTH_TEST_TOKEN"
   protected val CSRF_TOKEN_NAME = "csrfToken"
   protected val CSRF_HEADER_NAME = "Csrf-Token"
   protected val CSRF_HEADER_NOCHECK = "nocheck"
@@ -157,15 +158,21 @@ trait TestConfiguration {
   }
 
   /**
+    * Generate a test authentication token for the given user ID.
+    */
+  protected def testAuthToken(id: String)(implicit app: Application): String = {
+    import scala.concurrent.duration._
+    val handler: AuthHandler = app.injector.instanceOf[AuthHandler]
+    Await.result(handler.newSession(id), 10.seconds)
+  }
+
+  /**
    * Convenience extensions for the FakeRequest object.
    */
   protected implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
 
-    import scala.concurrent.duration._
     def withLoggedIn(implicit app: Application): String => FakeRequest[A] = { id =>
-      val handler: AuthHandler = app.injector.instanceOf[AuthHandler]
-      val token = Await.result(handler.newSession(id), 10.seconds)
-      fr.withHeaders("PLAY2_AUTH_TEST_TOKEN" -> token)
+      fr.withHeaders(AUTH_TEST_HEADER_NAME -> testAuthToken(id))
     }
 
     /**
