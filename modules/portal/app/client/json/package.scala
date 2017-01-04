@@ -13,11 +13,11 @@ import play.api.libs.json.{JsObject, KeyPathNode, _}
 package object json {
 
   implicit object datePeriodJson extends ClientWriteable[DatePeriodF] {
-    lazy val clientFormat = Json.format[DatePeriodF]
+    lazy val clientFormat: Format[DatePeriodF] = Json.format[DatePeriodF]
   }
 
   implicit object addressJson extends ClientWriteable[AddressF] {
-    lazy val clientFormat = Json.writes[AddressF]
+    lazy val clientFormat: Writes[AddressF] = Json.writes[AddressF]
   }
 
   implicit object anyModelJson extends ClientWriteable[AnyModel] {
@@ -40,7 +40,7 @@ package object json {
       case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[AnyModel]]
     }
 
-    def typeOf(json: JsValue) = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+    def typeOf(json: JsValue): EntityType.Value = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
 
     implicit val clientReadAny: Reads[AnyModel] = Reads { json =>
       clientFormatRegistry
@@ -66,7 +66,7 @@ package object json {
   }
 
   implicit object contentTypeJson extends ClientWriteable[ContentType] {
-    val clientFormat = Json.format[ContentType]
+    val clientFormat: Format[ContentType] = Json.format[ContentType]
   }
 
   implicit object permissionGrantJson extends ClientWriteable[PermissionGrant] {
@@ -82,7 +82,7 @@ package object json {
   }
 
   implicit object accessPointJson extends ClientWriteable[AccessPoint] {
-    val clientFormat = Json.format[AccessPoint]
+    val clientFormat: Format[AccessPoint] = Json.format[AccessPoint]
   }
 
   implicit object linkJson extends ClientWriteable[Link] {
@@ -191,7 +191,7 @@ package object json {
     private implicit val isadGConditionsFormat = Json.format[IsadGConditions]
     private implicit val isadGMaterialsFormat = Json.format[IsadGMaterials]
     private implicit val isadGControlFormat = Json.format[IsadGControl]
-    val clientFormat = Json.format[DocumentaryUnitDescriptionF]
+    val clientFormat: Format[DocumentaryUnitDescriptionF] = Json.format[DocumentaryUnitDescriptionF]
   }
 
   implicit object historicalAgentDescriptionJson extends ClientWriteable[HistoricalAgentDescriptionF] {
@@ -199,7 +199,7 @@ package object json {
     private implicit val datePeriodFormat = datePeriodJson.clientFormat
     private implicit val isaarDetailsFormat = Json.format[IsaarDetail]
     private implicit val isaarControlFormat = Json.format[IsaarControl]
-    val clientFormat = Json.format[HistoricalAgentDescriptionF]
+    val clientFormat: Format[HistoricalAgentDescriptionF] = Json.format[HistoricalAgentDescriptionF]
   }
 
   implicit object repositoryDescriptionJson extends ClientWriteable[RepositoryDescriptionF] {
@@ -209,12 +209,12 @@ package object json {
     private implicit val isdiahAccessFormat = Json.format[IsdiahAccess]
     private implicit val isdiahServicesFormat = Json.format[IsdiahServices]
     private implicit val isdiahControlFormat = Json.format[IsdiahControl]
-    val clientFormat = Json.format[RepositoryDescriptionF]
+    val clientFormat: Format[RepositoryDescriptionF] = Json.format[RepositoryDescriptionF]
   }
 
   implicit object conceptDescriptionJson extends ClientWriteable[ConceptDescriptionF] {
     private implicit val accessPointFormat = accessPointJson.clientFormat
-    lazy val clientFormat = Json.format[ConceptDescriptionF]
+    lazy val clientFormat: Format[ConceptDescriptionF] = Json.format[ConceptDescriptionF]
   }
 
   implicit object historicalAgentJson extends ClientWriteable[HistoricalAgent] {

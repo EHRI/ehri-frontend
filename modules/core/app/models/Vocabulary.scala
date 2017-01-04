@@ -31,7 +31,7 @@ object VocabularyF {
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ NAME).formatNullable[String] and
     (__ \ DATA \ DESCRIPTION).formatNullable[String]
-  )(VocabularyF.apply _, unlift(VocabularyF.unapply))
+  )(VocabularyF.apply, unlift(VocabularyF.unapply))
 
   implicit object Converter extends Writable[VocabularyF] {
     lazy val restFormat: Format[VocabularyF] = vocabularyFormat

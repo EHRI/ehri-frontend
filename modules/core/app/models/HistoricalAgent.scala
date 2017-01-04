@@ -32,7 +32,7 @@ object HistoricalAgentF {
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ PUBLICATION_STATUS).formatNullable[PublicationStatus.Value] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[HistoricalAgentDescriptionF]
-  )(HistoricalAgentF.apply _, unlift(HistoricalAgentF.unapply))
+  )(HistoricalAgentF.apply, unlift(HistoricalAgentF.unapply))
 
   implicit object Converter extends Writable[HistoricalAgentF] {
     lazy val restFormat: Format[HistoricalAgentF] = historicalAgentFormat

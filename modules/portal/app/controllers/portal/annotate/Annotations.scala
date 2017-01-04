@@ -78,7 +78,7 @@ case class Annotations @Inject()(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: Seq[String] = getAccessors(ann, request.user)
-        userDataApi.createAnnotationForDependent[Annotation,AnnotationF](id, did, ann, accessors).map { ann =>
+        userDataApi.createAnnotation[Annotation,AnnotationF](id, ann, accessors, Some(did)).map { ann =>
           Created(views.html.annotation.annotationBlock(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
@@ -165,7 +165,7 @@ case class Annotations @Inject()(
         // Add the field to the model!
         val fieldAnn = ann.copy(field = Some(field))
         val accessors: Seq[String] = getAccessors(ann, request.user)
-        userDataApi.createAnnotationForDependent[Annotation,AnnotationF](id, did, fieldAnn, accessors).map { ann =>
+        userDataApi.createAnnotation[Annotation,AnnotationF](id, fieldAnn, accessors, Some(did)).map { ann =>
           Created(views.html.annotation.annotationInline(ann, editable = true))
             .withHeaders(
               HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)

@@ -1,19 +1,17 @@
 package controllers.core.auth
 
-import scala.collection.JavaConversions
-
-
 trait AccountHelpers {
 
   protected def config: play.api.Configuration
 
+
   /**
    * Default group(s) new users belong to.
    */
-  def defaultPortalGroups: List[String] =
+  import scala.collection.JavaConverters._
+  def defaultPortalGroups: Seq[String] =
     config.getStringList("ehri.portal.defaultUserGroups")
-      .map(JavaConversions.collectionAsScalaIterable(_).toList)
-      .getOrElse(List.empty)
+      .map(_.asScala).getOrElse(Seq.empty)
 
   /**
    * Whether new users are signed up for messaging or not.

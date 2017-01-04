@@ -82,7 +82,7 @@ abstract class ParseService[T: Format](objectName: String) extends RestService {
       "skip" -> pageParams.offset.toString,
       "count" -> "true"
     )
-    logger.debug(s"Page params: ${withPaging.toSeq}")
+    logger.debug(s"Page params: $withPaging")
     parseCall(params = withPaging).get().map { r =>
       val results: Results = r.json.as[Results]
       new Page(
