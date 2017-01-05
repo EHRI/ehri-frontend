@@ -1,22 +1,25 @@
 package integration.admin
 
+import controllers.admin.{IndexTypes, Indexing}
 import defines.EntityType
 import helpers._
 import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
-import play.api.test.FakeRequest
+import play.api.libs.json.{JsString, Json}
+import play.api.test.{FakeRequest, WithServer}
 import utils.search.SearchConstants
 
+
 /**
- * Spec to test various page views operate as expected.
- */
+  * Spec to test various page views operate as expected.
+  */
 class SearchSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name = "test user"),
+    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
   )
 
 
@@ -45,41 +48,22 @@ class SearchSpec extends IntegrationTestRunner {
         .call()
       status(filter) must equalTo(OK)
     }
+  }
 
-    "perform indexing correctly" in new ITestApp {
-      val cmd: List[String] = List(
-        EntityType.DocumentaryUnit.toString,
-        EntityType.Repository.toString
-      )
-      val data = Map[String, Seq[String]](
-        "all" -> Seq("true"),
-        "type[]" -> cmd
-      )
+  "Search index mediator" should {
+    val port = 9902
+    "perform indexing correctly via Websocket endpoint" in new WithServer(app = appBuilder.build(), port = port) {
+      val cmd = List(EntityType.DocumentaryUnit)
+      val data = IndexTypes(cmd)
+      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
+      val ws = WebSocketClientWrapper(wsUrl,
+        headers = Map(AUTH_TEST_HEADER_NAME -> testAuthToken(privilegedUser.id)))
+      ws.client.connectBlocking()
+      ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
 
-      val idx = FakeRequest(controllers.admin.routes.AdminSearch.updateIndexPost())
-          .withUser(privilegedUser)
-          .withCsrf
-          .callWith(data)
-      status(idx) must equalTo(OK)
-      // NB: reading the content of the chunked response as a string is
-      // necessary to exhaust the iteratee and fill the event buffer.
-      contentAsString(idx) must contain("Done")
+      eventually { ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString) }
       indexEventBuffer.lastOption must beSome.which { bufcmd =>
         bufcmd must equalTo(cmd.toString())
-      }
-    }
-
-    "perform hierarchy indexing correctly" in new ITestApp {
-      val idx = FakeRequest(controllers.institutions.routes.Repositories.updateIndexPost("r1"))
-        .withUser(privilegedUser)
-        .withCsrf
-        .call()
-      status(idx) must equalTo(OK)
-      // NB: reading the content of the chunked response as a string is
-      // necessary to exhaust the iteratee and fill the event buffer.
-      contentAsString(idx) must contain("Done")
-      indexEventBuffer.lastOption must beSome.which { bufcmd =>
-        bufcmd must equalTo("r1")
       }
     }
   }

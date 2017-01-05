@@ -1,24 +1,32 @@
-@(item: AnyModel, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
+@(item: models.base.AnyModel, field: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
+
+@import controllers.admin.IndexChildren._
 
 @extraStyle = {
     <style>
-        #update-progress {
-            max-height: 200px;
-            overflow: auto;
-        }
-        #update-progress pre {
-            background-color: #fff;
-            font-size: 0.7em;
-        }
+    #update-progress {
+        max-height: 200px;
+        overflow: auto;
+    }
+    #update-progress pre {
+        background-color: #fff;
+        font-size: 0.7em;
+    }
     </style>
 }
 
 @extraScript = {
-
     <script type="application/javascript">
-        var POLL_URL = "@action.url";
-        var DONE_MSG = "<message>@controllers.generic.Indexable.DONE_MESSAGE</message>";
-        var ERR_MSG = "<message>@controllers.generic.Indexable.ERR_MESSAGE</message>";
+            var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
+            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
+            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+            function getData() {
+                return JSON.stringify({
+                    @ID: "@item.id",
+                    @TYPE: "@item.isA",
+                    @FIELD: "@field"
+                });
+            }
     </script>
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/index_utils.js")" type="text/javascript"></script>
 }
@@ -33,8 +41,7 @@
             <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
         </div>
 
-        <div id="update-progress">
-        </div>
+        <div id="update-progress"></div>
     }
 } {
 

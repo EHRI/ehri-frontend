@@ -2,22 +2,16 @@ package controllers.admin
 
 import javax.inject._
 
-import akka.stream.OverflowStrategy
-import akka.stream.scaladsl.Source
 import controllers.Components
 import controllers.base.AdminController
-import controllers.generic.{Indexable, Search}
+import controllers.generic.Search
 import defines.EntityType
-import defines.EnumUtils.enumMapping
 import models.base.{AnyModel, Description}
-import play.api.Logger
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent}
 import utils.search._
 import views.Helpers
-
-import scala.concurrent.Future
 
 
 @Singleton
@@ -59,20 +53,6 @@ case class AdminSearch @Inject()(
     )
   }
 
-  private val indexTypes = Seq(
-    EntityType.Country,
-    EntityType.DocumentaryUnit,
-    EntityType.HistoricalAgent,
-    EntityType.Repository,
-    EntityType.Concept,
-    EntityType.Vocabulary,
-    EntityType.AuthoritativeSet,
-    EntityType.UserProfile,
-    EntityType.Group,
-    EntityType.VirtualUnit,
-    EntityType.Annotation
-  )
-
   private val searchTypes = Seq(
     EntityType.Country,
     EntityType.DocumentaryUnit,
@@ -104,74 +84,12 @@ case class AdminSearch @Inject()(
             "numPages" -> result.page.numPages,
             "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
             "facets" -> result.facetClasses
-          ))
-          )
+          )))
         case _ => Ok(views.html.admin.search.search(
           result,
           controllers.admin.routes.AdminSearch.search())
         )
       }
     }
-  }
-
-  import play.api.data.Form
-  import play.api.data.Forms._
-
-
-  private val updateIndexForm = Form(
-    tuple(
-      "clearAll" -> default(boolean, false),
-      "clearTypes" -> default(boolean, false),
-      "type" -> list(enumMapping(defines.EntityType))
-    )
-  )
-
-  def updateIndex() = AdminAction { implicit request =>
-    Ok(views.html.admin.search.updateIndex(form = updateIndexForm, types = indexTypes,
-      action = controllers.admin.routes.AdminSearch.updateIndexPost()))
-  }
-
-  /**
-   * Perform the actual update, piping progress through a channel
-   * and returning a chunked result.
-   */
-  def updateIndexPost() = AdminAction { implicit request =>
-
-    val (deleteAll, deleteTypes, entities) = updateIndexForm.bindFromRequest.value.get
-
-    def wrapMsg(m: String) = s"<message>$m</message>"
-
-    // An actor source into to feed progress messages...
-    val source = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { channel =>
-      val optionallyClearIndex: Future[Unit] =
-        if (!deleteAll) Future.successful(Unit)
-        else searchIndexer.handle.clearAll()
-          .map(_ => channel ! wrapMsg("... finished clearing index"))
-
-      val optionallyClearType: Future[Unit] =
-        if (!deleteTypes || deleteAll) Future.successful(Unit)
-        else searchIndexer.handle.clearTypes(entities)
-          .map(_ => channel ! wrapMsg(s"... finished clearing index for types: $entities"))
-
-      val job = for {
-        _ <- optionallyClearIndex
-        _ <- optionallyClearType
-        task <- searchIndexer.handle.withChannel(channel, wrapMsg).indexTypes(entityTypes = entities)
-      } yield task
-
-      job.map { _ =>
-        channel ! wrapMsg(Indexable.DONE_MESSAGE)
-        channel ! akka.actor.Status.Success(())
-      } recover {
-        case t =>
-          Logger.logger.error(t.getMessage)
-          channel ! wrapMsg("Indexing operation failed: " + t.getMessage)
-          channel ! wrapMsg(Indexable.ERR_MESSAGE)
-          // Close the stream...
-          channel ! akka.actor.Status.Success(())
-      }
-    }
-
-    Ok.chunked(source)
   }
 }

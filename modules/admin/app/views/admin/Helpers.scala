@@ -32,9 +32,9 @@ object Helpers {
 
   val adminMenu = Seq(
     ("s3", "-"),
-    ("search.index.update",            controllers.admin.routes.AdminSearch.updateIndex().url),
-    ("admin.utils.findReplace", controllers.admin.routes.Utils.findReplace().url),
-    ("admin.utils.regenerateIds", controllers.admin.routes.Utils.regenerateIds().url)
+    ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
+    ("admin.utils.findReplace",     controllers.admin.routes.Utils.findReplace().url),
+    ("admin.utils.regenerateIds",   controllers.admin.routes.Utils.regenerateIds().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

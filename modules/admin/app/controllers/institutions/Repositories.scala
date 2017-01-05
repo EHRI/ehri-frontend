@@ -33,8 +33,7 @@ case class Repositories @Inject()(
   with Annotate[Repository]
   with Linking[Repository]
   with SearchType[Repository]
-  with Search
-  with Indexable[Repository] {
+  with Search {
 
   // Documentary unit facets
   private val repositoryFacets: FacetBuilder = { implicit request =>
@@ -244,9 +243,7 @@ case class Repositories @Inject()(
     }
 
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    Ok(views.html.admin.search.updateItemIndex(request.item,
-      action = controllers.institutions.routes.Repositories.updateIndexPost(id)))
+    Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
+      action = controllers.admin.routes.Indexing.indexer()))
   }
-
-  def updateIndexPost(id: String): Action[AnyContent] = updateChildItemsPost(SearchConstants.HOLDER_ID, id)
 }
