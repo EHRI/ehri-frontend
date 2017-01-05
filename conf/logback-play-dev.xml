@@ -69,6 +69,12 @@
   <!-- <logger name="com.ning.http.client" level="DEBUG" /> -->
   <!-- <logger name="play.api.libs.ws" level="DEBUG" /> -->
 
+  <!-- Configure SQL statement logging (depends on configuration value of
+       db.default.logSql being set to true -->
+  <logger name="org.jdbcdslog.ConnectionLogger" level="OFF"  />
+  <logger name="org.jdbcdslog.StatementLogger"  level="OFF" />
+  <logger name="org.jdbcdslog.ResultSetLogger"  level="OFF"  />
+
   <logger name="application" level="WARN" />
 
   <root level="ERROR">

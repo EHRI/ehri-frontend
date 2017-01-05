@@ -59,7 +59,8 @@ object UserProfileF {
       (__ \ DATA \ INSTITUTION).formatNullable[String] and
       (__ \ DATA \ ROLE).formatNullable[String] and
       (__ \ DATA \ INTERESTS).formatNullable[String] and
-      (__ \ DATA \ ACTIVE).formatWithDefault(true)
+      (__ \ DATA \ ACTIVE).formatWithDefault(true) and
+      (__ \ DATA \ STAFF).formatWithDefault(false)
     )(UserProfileF.apply, unlift(UserProfileF.unapply))
 
   implicit object Converter extends Writable[UserProfileF] {
@@ -84,7 +85,8 @@ case class UserProfileF(
   institution: Option[String] = None,
   role: Option[String] = None,
   interests: Option[String] = None,
-  active: Boolean = true
+  active: Boolean = true,
+  staff: Boolean = false
 ) extends Model with Persistable
 
 
@@ -138,7 +140,8 @@ object UserProfile {
       INSTITUTION -> optional(text),
       ROLE -> optional(text),
       INTERESTS -> optional(text),
-      ACTIVE -> boolean
+      ACTIVE -> boolean,
+      STAFF -> boolean
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
 }

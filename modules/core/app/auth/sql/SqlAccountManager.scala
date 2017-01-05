@@ -9,7 +9,7 @@ import scala.language.postfixOps
 import scala.languageFeature.postfixOps
 import java.util.UUID
 
-import auth.{AccountManager, HashedPassword, OAuth2AssociationManager, OpenIdAssociationManager}
+import auth._
 import models.Account
 import play.api.db.Database
 import utils.PageParams
@@ -155,13 +155,20 @@ case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: Actor
     ()
   }
 
-  override def findAll(params: PageParams): Future[Seq[Account]] = Future {
-    db.withConnection { implicit conn =>
-      val limit = if (params.hasLimit) params.limit else Integer.MAX_VALUE
-      SQL"SELECT * FROM users ORDER BY id LIMIT $limit OFFSET ${params.offset}"
-        .as(userParser *)
+  override def findAll(params: PageParams = PageParams.empty, filters: AccountFilters = AccountFilters()): Future[Seq[Account]] =
+    Future {
+      db.withConnection { implicit conn =>
+        val limit = if (params.hasLimit) params.limit else Integer.MAX_VALUE
+        SQL"""
+             SELECT * FROM users
+              WHERE (${filters.active} IS NULL OR active = ${filters.active})
+                AND (${filters.verified} IS NULL OR verified = ${filters.verified})
+                AND (${filters.staff} IS NULL OR staff = ${filters.staff})
+             ORDER BY id
+             LIMIT $limit OFFSET ${params.offset}"""
+          .as(userParser *)
+      }
     }
-  }
 
   override def findByEmail(email: String): Future[Option[Account]] = Future {
     db.withConnection { implicit  conn =>

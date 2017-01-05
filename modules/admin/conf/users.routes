@@ -5,6 +5,7 @@ GET     /list                               @controllers.users.UserProfiles.list
 GET     /export                             @controllers.users.UserProfiles.export
 GET     /create                             @controllers.users.UserProfiles.createUser
 POST    /create                             @controllers.users.UserProfiles.createUserPost
+GET     /syncDb                             @controllers.users.UserProfiles.syncFromDbPost
 GET     /:id                                @controllers.users.UserProfiles.get(id: String)
 GET     /:id/history                        @controllers.users.UserProfiles.history(id: String)
 GET     /:id/delete                         @controllers.users.UserProfiles.delete(id: String)
@@ -25,4 +26,3 @@ GET     /:id/addTo/:groupId                 @controllers.users.UserProfiles.chec
 POST	/:id/addTo/:groupId	                @controllers.users.UserProfiles.addToGroup(id: String, groupId: String)
 GET     /:id/removeFrom/:groupId            @controllers.users.UserProfiles.checkRemoveFromGroup(id: String, groupId: String)
 POST    /:id/removeFrom/:groupId            @controllers.users.UserProfiles.removeFromGroup(id: String, groupId: String)
-

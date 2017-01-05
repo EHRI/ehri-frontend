@@ -19,7 +19,7 @@ val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
 val backendVersion = "0.13.6-SNAPSHOT"
-val dataConverterVersion = "1.1.9"
+val dataConverterVersion = "1.1.10"
 val neo4jVersion = "3.0.4"
 val jerseyVersion = "1.19.1"
 

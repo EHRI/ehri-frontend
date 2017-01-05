@@ -264,6 +264,8 @@ accessor.groups.remove.submit=Remove
 #
 userProfile.staff=Staff
 userProfile.staff.description=User can access admin pages
+userProfile.staff.true=Staff
+userProfile.staff.false=Non-staff
 userProfile.active=Active
 userProfile.active.description=Whether this user profile is currently active.
 userProfile.active.true=Active
