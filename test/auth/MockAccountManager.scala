@@ -124,8 +124,11 @@ case class MockAccountManager @Inject()() extends AccountManager {
     for (i <- (mockdata.tokenFixtures.size -1) to 0 by -1) if (indicesToDelete contains i) mockdata.tokenFixtures remove i
   }
 
-  override def findAll(params: PageParams): Future[Seq[Account]] = immediate {
+  override def findAll(params: PageParams, filters: AccountFilters = AccountFilters()): Future[Seq[Account]] = immediate {
     val all = mockdata.accountFixtures.values.toSeq.sortBy(_.id).drop(params.offset)
+      .filter(a => filters.active.forall(_ == a.active))
+      .filter(a => filters.verified.forall(_ == a.verified))
+      .filter(a => filters.staff.forall(_ == a.staff))
     if (params.hasLimit) all.drop(params.limit) else all
   }
 }

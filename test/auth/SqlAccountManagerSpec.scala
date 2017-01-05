@@ -100,6 +100,12 @@ class SqlAccountManagerSpec extends PlaySpecification {
       await(accounts.findAll(PageParams(limit = 2))).size must equalTo(2)
     }
 
+    "find all accounts with filters" in withFixtures { implicit db =>
+      await(accounts.findAll(filters = AccountFilters(staff = None))).size must equalTo(5)
+      await(accounts.findAll(filters = AccountFilters(staff = Some(true)))).size must equalTo(3)
+      await(accounts.findAll(filters = AccountFilters(staff = Some(false)))).size must equalTo(2)
+    }
+
     "find accounts by id" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
         await(accounts.findById(mockdata.privilegedUser.id)) must beSome

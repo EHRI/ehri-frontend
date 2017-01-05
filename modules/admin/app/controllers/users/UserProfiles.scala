@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject._
 
-import auth.HashedPassword
+import auth.{AccountFilters, HashedPassword}
 import backend.rest.{DataHelpers, ValidationError}
 import controllers.Components
 import controllers.base.AdminController
@@ -15,7 +15,7 @@ import models._
 import play.api.data.{Form, FormError, Forms}
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import utils.search._
 import utils.{CsvHelpers, PageParams}
@@ -50,6 +50,16 @@ case class UserProfiles @Inject()(
         facets=List(
           QueryFacet(value = "true", range = Val("1")),
           QueryFacet(value = "false", range = Val("0"))
+        ),
+        display = FacetDisplay.Boolean
+      ),
+      QueryFacetClass(
+        key="staff",
+        name=Messages("userProfile.staff"),
+        param="staff",
+        render=s => Messages("userProfile.staff." + s),
+        facets=List(
+          QueryFacet(value = "true", range = Val("1"))
         ),
         display = FacetDisplay.Boolean
       ),
@@ -290,6 +300,22 @@ case class UserProfiles @Inject()(
         }
       )
     }
+
+  def syncFromDbPost: Action[AnyContent] = AdminAction.async { implicit request =>
+    for {
+      staff <- accounts.findAll(
+        filters = AccountFilters(staff = Some(true), active = Some(true)),
+        params = PageParams.empty.withoutLimit)
+      ids = JsArray(staff.map(a => JsString(a.id)))
+      out <-  dataHelpers.cypher.cypher(
+        """
+          |MATCH (u:UserProfile)
+          |WHERE u.__id IN {ids}
+          |SET u.staff = true, u.active = true
+          |RETURN u.__id as id
+        """.stripMargin, Map("ids" -> ids))
+    } yield Ok(out)
+  }
 
   def grantList(id: String): Action[AnyContent] = GrantListAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionGrantList(

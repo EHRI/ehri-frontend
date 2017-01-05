@@ -24,7 +24,9 @@ case class DataHelpers @Inject()(cypher: Cypher)(implicit executionContext: Exec
 
   def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
   
-  def getUserList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.UserProfile)
+  def getUserList: Future[Seq[(String,String)]] = cypher
+    .cypher(s"MATCH (n:${EntityType.UserProfile}) WHERE n.active AND n.staff RETURN n.__id, n.name")
+    .map(parseIds)
 
   def getUserAndGroupList: Future[(Seq[(String, String)], Seq[(String, String)])] = {
     val usersF = getUserList
