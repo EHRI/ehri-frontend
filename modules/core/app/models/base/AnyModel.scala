@@ -1,16 +1,17 @@
 package models.base
 
-import org.apache.commons.lang3.StringUtils
-import play.api.libs.json._
-import defines.{ContentTypes, EntityType}
-import models.json.Utils
-import models._
-import play.api.data.validation.ValidationError
-import play.api.libs.json.KeyPathNode
-import play.api.i18n.Messages
-import scala.collection.SortedMap
 import java.util.NoSuchElementException
+
 import backend.{Entity, Readable, Resource}
+import defines.{ContentTypes, EntityType}
+import models._
+import models.json.Utils
+import org.apache.commons.lang3.StringUtils
+import play.api.data.validation.ValidationError
+import play.api.i18n.Messages
+import play.api.libs.json.{KeyPathNode, _}
+
+import scala.collection.SortedMap
 
 
 trait AnyModel extends backend.WithId {
