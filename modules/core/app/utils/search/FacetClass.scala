@@ -11,9 +11,14 @@ sealed trait FacetClass[+T <: Facet] {
   def sort: FacetSort.Value = FacetSort.Count
   def display: FacetDisplay.Value = FacetDisplay.List
   def displayLimit: Int = 10
-  def count: Int = facets.length
   def limit: Option[Int] = None
   def minCount: Option[Int] = None
+
+  /**
+    * Total number of unique facets, which may or may not be
+    * calculated in the request.
+    */
+  def total: Option[Int] = None
 
   /**
    * This key is a valid facet value. By default any values
@@ -95,7 +100,7 @@ case class QueryFacetClass(
 object FacetClass {
   implicit def facetClassWrites: Writes[FacetClass[Facet]] = Writes[FacetClass[Facet]] { fc =>
     Json.obj(
-      "count" -> JsNumber(fc.count),
+      "count" -> JsNumber(fc.facets.size),
       "param" -> Json.toJson(fc.param),
       "name" -> Json.toJson(fc.name),
       "key" -> Json.toJson(fc.key),

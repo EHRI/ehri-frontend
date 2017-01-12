@@ -106,6 +106,10 @@ case class SolrJsonResponseHandler @Inject()(app: play.api.Application) extends 
      */
     def count: Int = raw.count
 
+    lazy val facetInfo: Map[String, Any] = (response \ "facets")
+      .asOpt[Map[String, JsValue]]
+      .getOrElse(Map.empty[String, JsValue])
+
     /**
      * Get highlight map.
      */

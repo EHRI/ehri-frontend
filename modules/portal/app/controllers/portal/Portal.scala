@@ -189,16 +189,16 @@ case class Portal @Inject()(
   }
 
   private def getStats(implicit request: RequestHeader): Future[Stats] =
-    FutureCache.getOrElse("index:metrics", Duration(60 * 5, TimeUnit.SECONDS)) {
+    FutureCache.getOrElse("index:metrics", Duration(20, TimeUnit.MINUTES)) {
       // Assume no user for fetching global stats
       implicit val userOpt: Option[UserProfile] = None
       find[AnyModel](
         // we don't need results here because we're only using the facets
         defaultParams = SearchParams(count = Some(0)),
         facetBuilder = entityMetrics,
-        extra = Map("facet.limit" -> "-1"),
+        extra = Map("json.facet" -> Stats.query),
         entities = defaultSearchTypes
-      ).map(r => Stats(r.facetClasses))
+      ).map(r => Stats(r.facetInfo))
     }
 }
 

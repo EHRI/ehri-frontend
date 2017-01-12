@@ -122,7 +122,7 @@ case class SolrSearchConfig(
       val parser = handler.getResponseParser(response.body)
       val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(facets, facetClasses)
       val page = Page(params.offset, params.countOrDefault, parser.count, parser.items)
-      SearchResult(page, params, facets, facetClassList, spellcheck = parser.spellcheckSuggestion)
+      SearchResult(page, params, facets, facetClassList, spellcheck = parser.spellcheckSuggestion, parser.facetInfo)
     }
   }
 
