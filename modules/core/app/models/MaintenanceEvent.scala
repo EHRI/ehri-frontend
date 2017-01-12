@@ -2,14 +2,13 @@ package models
 
 import backend.Entity._
 import defines.EntityType
-import defines.EnumUtils._
 import models.base.{AnyModel, MetaModel, Model, Persistable}
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 case class MaintenanceEventF(
   isA: EntityType.Value = EntityType.MaintenanceEvent,
@@ -19,7 +18,15 @@ case class MaintenanceEventF(
   agentType: Option[String] = None,
   eventType: Option[String] = None,
   order: Option[Int] = None
-) extends Model with Persistable
+) extends Model with Persistable {
+  override def toString: String = this match {
+    case MaintenanceEventF(_, _, Some(dt), Some(src), _, _, _) => s"$dt: $src"
+    case MaintenanceEventF(_, _, Some(dt), _, _, Some(et), _) => s"$dt: $et"
+    case MaintenanceEventF(_, _, _, Some(src), _, _, _) => src
+    case MaintenanceEventF(_, _, _, _, _, Some(et), _) => et
+    case _ => "Unknown maintenance event"
+  }
+}
 
 object MaintenanceEventF {
   val DATE = "date"
@@ -69,5 +76,5 @@ case class MaintenanceEvent(
   model: MaintenanceEventF,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel with MetaModel[MaintenanceEventF] {
-  override def toStringLang(implicit messages: Messages) = s"Maintenance Event: (${model.source})"
+  override def toStringLang(implicit messages: Messages): String = model.toString
 }
