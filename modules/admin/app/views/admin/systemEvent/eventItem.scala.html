@@ -2,10 +2,8 @@
 
 <h4 class="event-title">
     <a data-timestamp="@item.time" href="@controllers.events.routes.SystemEvents.get(item.id)">
-        @item.scope.map { scope =>
-            @scope.toStringLang -
-        }
-    <i>@item.toStringLang</i>
+        @item.scope.map(_.toStringLang)
+        <i>@item.toStringLang</i>
     </a>
 </h4>
 <div class="event-details">

@@ -3,12 +3,12 @@
 @import backend.rest.Constants.OFFSET_PARAM
 
 <div class="timeline-container">
-    <ol id="activity-stream" class="timeline timeline">
+    <ol id="activity-stream" class="timeline">
         @views.html.activity.eventItems(page)
     </ol>
 </div>
 @if(page.more) {
-    <a id="activity-stream-fetchmore" class="btn btn-default btn-block"
+    <a id="activity-stream-fetchmore" class="timeline-fetch-more"
     data-limit="@page.limit" data-offset="@(page.offset + page.limit)"
     href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
     @Messages("activity.fetchMore")

@@ -1,19 +1,16 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldPrefix: String)
 
 @import Isaar._
-@import views.html.common.descriptionSection
-@import views.html.common.textField
-@import views.html.common.listField
+@import views.html.common.{descriptionSection, textField, listField}
 
 @views.html.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-
             @views.html.common.itemHeader(desc.name) {
                 @views.html.common.otherNameList(desc.parallelFormsOfName)
             }
 
-            @details(item, desc)
+            @views.html.historicalAgent.details(item, desc)
 
             @descriptionSection(DESCRIPTION_AREA) {
                 @textField(item, descId,   desc.details.datesOfExistence, DATES_OF_EXISTENCE)

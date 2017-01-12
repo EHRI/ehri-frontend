@@ -1,0 +1,15 @@
+@(heading: Html)(content: Html)(badge: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+<li class="timeline-event">
+    <div class="timeline-panel-container">
+        <div class="timeline-panel">
+            <div class="timeline-heading">@heading</div>
+            <div class="timeline-body">@content</div>
+        </div>
+    </div>
+    <div class="timeline-separator">&nbsp;</div>
+    <div class="timeline-badge-container">
+        <div class="timeline-badge-spacer">&nbsp;</div>
+        @badge
+    </div>
+</li>
