@@ -2,7 +2,6 @@ package utils
 
 import defines.EntityType
 import play.api.libs.json._
-import utils.search.{Facet, FacetClass, SearchConstants}
 
 /**
   * Class for holding useful stats for the data in our system.
@@ -19,13 +18,14 @@ private case class BucketStat(
   `val`: EntityType.Value,
   count: Int
 )
+
 private object BucketStat {
   implicit val reads = Json.reads[BucketStat]
 }
 
 object Stats {
 
-  val query = Json.stringify(
+  val analyticsQuery: String = Json.stringify(
     Json.obj(
       "inRepositories" -> "unique(holderId)",
       "inCountries" -> "unique(countryCode)",
@@ -47,7 +47,7 @@ object Stats {
       countryCount = totals.getOrElse(EntityType.Country, 0),
       repositoryCount = totals.getOrElse(EntityType.Repository, 0),
       documentaryUnitCount = totals.getOrElse(EntityType.DocumentaryUnit, 0),
-      inRepositoryCount = info.get("inRepositories")match {
+      inRepositoryCount = info.get("inRepositories") match {
         case Some(JsNumber(num)) => num.toIntExact
         case _ => 0
       },

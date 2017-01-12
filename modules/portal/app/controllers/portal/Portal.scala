@@ -196,7 +196,7 @@ case class Portal @Inject()(
         // we don't need results here because we're only using the facets
         defaultParams = SearchParams(count = Some(0)),
         facetBuilder = entityMetrics,
-        extra = Map("json.facet" -> Stats.query),
+        extra = Map("json.facet" -> Stats.analyticsQuery),
         entities = defaultSearchTypes
       ).map(r => Stats(r.facetInfo))
     }

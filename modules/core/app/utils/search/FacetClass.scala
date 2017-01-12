@@ -15,12 +15,6 @@ sealed trait FacetClass[+T <: Facet] {
   def minCount: Option[Int] = None
 
   /**
-    * Total number of unique facets, which may or may not be
-    * calculated in the request.
-    */
-  def total: Option[Int] = None
-
-  /**
    * This key is a valid facet value. By default any values
    * are accepted, except for query facets.
    */
