@@ -4,8 +4,6 @@
     @if(page.nonEmpty) {
         @views.html.activity.timeline(page)
     } else {
-        <p class="no-content">
-            @Messages("activity.noActivityYet")
-        </p>
+        <p class="no-content">@Messages("activity.noActivityYet")</p>
     }
 </div>

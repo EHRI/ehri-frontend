@@ -1,47 +1,25 @@
 @(event: SystemEvent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@eventTitle(user: Html, eventType: String, item: models.base.AnyModel) = {
-    @Html(Messages("timeline.eventType." + eventType, user, Messages("timeline.target." + item.isA.toString)))
-}
-
-@eventWrapper(event: SystemEvent, user: models.base.Accessor, et: defines.EventType.Value, subject: models.base.AnyModel)(content: Html) = {
-    <li>
-      <div class="timeline-panel-container">
-          <div class="timeline-panel">
-            <div class="timeline-heading">
-                @user match {
-                    case up: UserProfile => {
-                        <img src="@views.p.Helpers.gravitar(up.model.imageUrl)" alt="@up.model.name" class="gravitar pull-left" />
-                    }
-                    case _ => {
-                    }
-                }
-
-                <h4 class="event-title">
-                    @eventTitle(views.html.helpers.linkTo(user), et.toString, subject)
-                </h4>
-                <a href="@controllers.portal.routes.Portal.eventDetails(event.id)" class="event-time" title="@event.model.timestamp">
-                    <i class="glyphicon glyphicon-time"></i>
-                    @views.Helpers.relativeDate(event.model.timestamp)
-                </a>
-            </div>
-            <div class="timeline-body">
-                @content
-            </div>
-          </div>
-      </div>
-      <div class="timeline-separator">&nbsp;</div>
-      <div class="timeline-badge-container">
-        <div class="timeline-badge-spacer">&nbsp;</div>
-        @views.html.activity.eventBadge(et)
-      </div>
-    </li>
-}
-
-@* NB: This will ignore events for which we don't have a type, user, subject, and subject count, which is
-        probably how it should be anyway. *@
 @for(et <- event.effectiveType; user <- event.actioner; subject <- event.effectiveSubject; count <- event.childCount) {
-    @eventWrapper(event, user, et, subject) {
+    @views.html.activity.eventContainer {
+        @event.actioner.collect {
+            case up: UserProfile => {
+                <img src="@views.p.Helpers.gravitar(up.model.imageUrl)" alt="@up.model.name" class="timeline-event-title-image" />
+            }
+        }
+
+        <h4 class="timeline-event-title">
+            @Html(Messages("timeline.eventType." + et.toString,
+                views.html.helpers.linkTo(user),
+                Messages("timeline.target." + subject.isA.toString)))
+        </h4>
+        <a href="@controllers.portal.routes.Portal.eventDetails(event.id)" class="timeline-event-time" title="@event.model.timestamp">
+            <i class="glyphicon glyphicon-time"></i>
+            @views.Helpers.relativeDate(event.model.timestamp)
+        </a>
+    } {
         @views.html.activity.eventBody(event, subject, user, et, count)
+    } {
+        @views.html.activity.eventBadge(et)
     }
 }

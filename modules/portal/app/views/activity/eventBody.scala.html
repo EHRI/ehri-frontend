@@ -47,9 +47,7 @@
             case m: Annotation => {
                 @annotationBody(m)
             }
-            case _ => {
-                @* Nothing to do there *@
-            }
+            case _ => { @* Nothing to do there *@ }
         }
         @event.scope.map { scope =>
             @if(scope.id == subject.id) {

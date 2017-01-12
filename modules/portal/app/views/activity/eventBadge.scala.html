@@ -4,19 +4,22 @@
 
 @et match {
     case EventType.creation => {
-        <div class="timeline-badge success"><i class="glyphicon glyphicon-floppy-disk"></i></div>
+        <div class="timeline-badge success"><i class="glyphicon glyphicon-save"></i></div>
+    }
+    case EventType.deletion => {
+        <div class="timeline-badge warning"><i class="glyphicon glyphicon-floppy-remove"></i></div>
     }
     case EventType.modification | EventType.createDependent | EventType.modifyDependent | EventType.deleteDependent => {
-        <div class="timeline-badge info"><i class="glyphicon glyphicon-refresh"></i></div>
+        <div class="timeline-badge info"><i class="glyphicon glyphicon-edit"></i></div>
     }
     case EventType.ingest => {
-        <div class="timeline-badge info"><i class="glyphicon glyphicon-save"></i></div>
+        <div class="timeline-badge info"><i class="glyphicon glyphicon-hdd"></i></div>
     }
     case EventType.link => {
         <div class="timeline-badge info"><i class="glyphicon glyphicon-link"></i></div>
     }
     case EventType.annotation => {
-        <div class="timeline-badge success"><i class="glyphicon glyphicon-pencil"></i></div>
+        <div class="timeline-badge success"><i class="glyphicon glyphicon-comment"></i></div>
     }
     case EventType.watch => {
         <div class="timeline-badge success"><i class="glyphicon glyphicon-tag"></i></div>
