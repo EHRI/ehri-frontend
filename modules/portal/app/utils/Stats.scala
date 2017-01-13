@@ -3,28 +3,15 @@ package utils
 import defines.EntityType
 import play.api.libs.json._
 
-/**
-  * Class for holding useful stats for the data in our system.
-  */
 case class Stats(
-  countryCount: Int = 0,
-  repositoryCount: Int = 0,
-  inCountryCount: Int = 0,
-  documentaryUnitCount: Int = 0,
-  inRepositoryCount: Int = 0
+  countryCount: Int,
+  repositoryCount: Int,
+  inCountryCount: Int,
+  documentaryUnitCount: Int,
+  inRepositoryCount: Int
 )
-
-private case class BucketStat(
-  `val`: EntityType.Value,
-  count: Int
-)
-
-private object BucketStat {
-  implicit val reads = Json.reads[BucketStat]
-}
 
 object Stats {
-
   val analyticsQuery: String = Json.stringify(
     Json.obj(
       "inRepositories" -> "unique(holderId)",
@@ -38,23 +25,23 @@ object Stats {
   )
 
   def apply(info: Map[String, Any]): Stats = {
-    val totals: Map[defines.EntityType.Value, Int] = info.get("totals").flatMap {
-      case js: JsValue => (js \ "buckets").validate[Seq[BucketStat]].asOpt
-        .map(bs => bs.map(b => b.`val` -> b.count).toMap)
-    }.getOrElse(Map.empty)
+    // This is somewhat nasty since it relies on the JSON facetting syntax
+    // in Solr 5.2 and above, and the peculiar way Solr returns JSON responses.
+    def getTotal(et: EntityType.Value): Option[Int] = info.get("totals").flatMap {
+      case js: JsValue => (js \ "buckets").as[Seq[JsObject]]
+        .find(_.values.toList.contains(JsString(et.toString)))
+        .flatMap(_.fields.collectFirst { case ("count", JsNumber(n)) => n.toIntExact })
+    }
+
+    def getNum(key: String): Option[Int] = info.get(key)
+      .collect { case JsNumber(num) => num.toInt }
 
     Stats(
-      countryCount = totals.getOrElse(EntityType.Country, 0),
-      repositoryCount = totals.getOrElse(EntityType.Repository, 0),
-      documentaryUnitCount = totals.getOrElse(EntityType.DocumentaryUnit, 0),
-      inRepositoryCount = info.get("inRepositories") match {
-        case Some(JsNumber(num)) => num.toIntExact
-        case _ => 0
-      },
-      inCountryCount = info.get("inCountries") match {
-        case Some(JsNumber(num)) => num.toIntExact
-        case _ => 0
-      }
+      countryCount = getTotal(EntityType.Country).getOrElse(0),
+      repositoryCount = getTotal(EntityType.Repository).getOrElse(0),
+      documentaryUnitCount = getTotal(EntityType.DocumentaryUnit).getOrElse(0),
+      inRepositoryCount = getNum("inRepositories").getOrElse(0),
+      inCountryCount = getNum("inCountries").getOrElse(0)
     )
   }
 }
