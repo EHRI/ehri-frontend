@@ -1,52 +1,49 @@
 package utils
 
 import defines.EntityType
-import models.Isaar
-import utils.search.{SearchConstants, Facet, FacetClass}
+import play.api.libs.json._
 
-/**
- * Class for holding useful stats for the data in our system.
- */
 case class Stats(
   countryCount: Int,
   repositoryCount: Int,
   inCountryCount: Int,
   documentaryUnitCount: Int,
-  inRepositoryCount: Int,
-  historicalAgentCount: Int,
-  corpCount: Int,
-  personCount: Int,
-  familyCount: Int
+  inRepositoryCount: Int
 )
 
 object Stats {
-
-  /**
-   * Extract the count of a particular facet within the given class.
-   */
-  private def typeCount(facets: Seq[FacetClass[Facet]], key: String, facetName: Any): Int =
-    facets.find(_.key == key).flatMap(_.facets.find(_.value == facetName.toString).map(_.count)).getOrElse(0)
-
-  /**
-   * Extract the total number of facets for a given class.
-   */
-  private def allCount(facets: Seq[FacetClass[Facet]], key: String): Int =
-    facets.find(_.key == key).map(_.count).getOrElse(0)
-
-  /**
-   * Construct a Stats value from a list of facets.
-   */
-  def apply(facets: Seq[FacetClass[Facet]]): Stats = new Stats(
-    countryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Country),
-    repositoryCount = typeCount(facets, SearchConstants.TYPE, EntityType.Repository),
-    inCountryCount = allCount(facets, SearchConstants.COUNTRY_CODE),
-    documentaryUnitCount = typeCount(facets, SearchConstants.TYPE, EntityType.DocumentaryUnit),
-    inRepositoryCount = allCount(facets, SearchConstants.HOLDER_ID),
-    historicalAgentCount = typeCount(facets, SearchConstants.TYPE, EntityType.HistoricalAgent),
-    corpCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.CorporateBody),
-    personCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.Person),
-    familyCount = typeCount(facets, Isaar.ENTITY_TYPE, Isaar.HistoricalAgentType.Family)
+  val analyticsQuery: String = Json.stringify(
+    Json.obj(
+      "inRepositories" -> "unique(holderId)",
+      "inCountries" -> "unique(countryCode)",
+      "totals" -> Json.obj(
+        "terms" -> Json.obj(
+          "field" -> "type"
+        )
+      )
+    )
   )
+
+  def apply(info: Map[String, Any]): Stats = {
+    // This is somewhat nasty since it relies on the JSON facetting syntax
+    // in Solr 5.2 and above, and the peculiar way Solr returns JSON responses.
+    def getTotal(et: EntityType.Value): Option[Int] = info.get("totals").flatMap {
+      case js: JsValue => (js \ "buckets").as[Seq[JsObject]]
+        .find(_.values.toList.contains(JsString(et.toString)))
+        .flatMap(_.fields.collectFirst { case ("count", JsNumber(n)) => n.toIntExact })
+    }
+
+    def getNum(key: String): Option[Int] = info.get(key)
+      .collect { case JsNumber(num) => num.toInt }
+
+    Stats(
+      countryCount = getTotal(EntityType.Country).getOrElse(0),
+      repositoryCount = getTotal(EntityType.Repository).getOrElse(0),
+      documentaryUnitCount = getTotal(EntityType.DocumentaryUnit).getOrElse(0),
+      inRepositoryCount = getNum("inRepositories").getOrElse(0),
+      inCountryCount = getNum("inCountries").getOrElse(0)
+    )
+  }
 }
 
 

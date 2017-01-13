@@ -32,7 +32,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       )
       val facetData = qp.extractFacetData(List.empty, allFacets)
       facetData.size must equalTo(1)
-      facetData.head.count must equalTo(2)
+      facetData.head.facets.size must equalTo(2)
       facetData.head.facets.head.value must equalTo("eng")
       facetData.head.facets(1).value must equalTo("fre")
       facetData.head.facets.headOption must beSome.which { top =>

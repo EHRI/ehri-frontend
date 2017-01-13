@@ -9,6 +9,7 @@ case class SearchResult[+T](
   params: SearchParams,
   facets: Seq[AppliedFacet] = Seq.empty,
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
+  facetInfo: Map[String, Any] = Map.empty,
   spellcheck: Option[(String,String)] = None
 ) {
 
