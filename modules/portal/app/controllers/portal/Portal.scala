@@ -112,13 +112,7 @@ case class Portal @Inject()(
    * types.
    */
   def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[AnyModel](
-      // we don't need results here because we're only using
-      // json facet analytics...
-      defaultParams = SearchParams(count = Some(0)),
-      entities = defaultSearchTypes,
-      extra = Map("json.facet" -> Stats.analyticsQuery)
-    ).map(r => Ok(views.html.portal(Stats(r.facetInfo))))
+    getStats.map(s => Ok(views.html.portal(s)))
   }
 
   def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
@@ -191,5 +185,18 @@ case class Portal @Inject()(
       }
     }
   }
+
+  private def getStats(implicit request: RequestHeader): Future[Stats] =
+    FutureCache.getOrElse("index:metrics", Duration(5, TimeUnit.MINUTES)) {
+      // Assume no user for fetching global stats
+      implicit val userOpt: Option[UserProfile] = None
+      find[AnyModel](
+        // we don't need results here because we're only using
+        // json facet analytics...
+        defaultParams = SearchParams(count = Some(0)),
+        entities = defaultSearchTypes,
+        extra = Map("json.facet" -> Stats.analyticsQuery)
+      ).map(r => Stats(r.facetInfo))
+    }
 }
 
