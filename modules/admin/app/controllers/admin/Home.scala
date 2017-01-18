@@ -13,7 +13,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc._
 import utils.search._
-import utils.{RangeParams, SystemEventParams}
+import utils.{PageParams, SystemEventParams}
 import views.Helpers
 
 import scala.concurrent.Future.{successful => immediate}
@@ -63,8 +63,7 @@ case class Home @Inject()(components: Components) extends AdminController with S
     )
   }
 
-
-  def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def index(params: SystemEventParams, range: utils.RangeParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val activityEventTypes = List(
       EventType.deletion,
       EventType.creation,
@@ -84,11 +83,9 @@ case class Home @Inject()(components: Components) extends AdminController with S
     )
 
     request.userOpt.map { user =>
-      val listParams = RangeParams.fromRequest(request)
-      val eventFilter = SystemEventParams.fromRequest(request)
-        .copy(eventTypes = activityEventTypes)
+      val eventFilter = params.copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      userDataApi.userEvents[SystemEvent](user.id, listParams, eventFilter).map { events =>
+      userDataApi.userEvents[SystemEvent](user.id, range, eventFilter).map { events =>
         Ok(views.html.admin.index(Some(events)))
       }
     } getOrElse {
@@ -107,10 +104,7 @@ case class Home @Inject()(components: Components) extends AdminController with S
   // NB: This page now just handles metrics and only provides facet
   // data via JSON.
   def overview: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[AnyModel](
-      defaultParams = SearchParams(count=Some(0)),
-      facetBuilder = entityFacets
-    ).map { result =>
+    find[AnyModel](SearchParams.empty, PageParams(limit = 0), facetBuilder = entityFacets).map { result =>
         render {
           case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> result.facetClasses)))
           case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)
@@ -129,5 +123,4 @@ case class Home @Inject()(components: Components) extends AdminController with S
       )
     ).as(MimeTypes.JAVASCRIPT)
   }
-
 }

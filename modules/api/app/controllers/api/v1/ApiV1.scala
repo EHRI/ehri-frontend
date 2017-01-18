@@ -23,7 +23,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
-import utils.Page
+import utils.{Page, PageParams}
 import utils.search.SearchConstants._
 import utils.search._
 import views.{Helpers, MarkdownRenderer}
@@ -305,14 +305,15 @@ case class ApiV1 @Inject()(
       ))
     )
 
-  def search(q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]): Action[AnyContent] =
+  def search(`type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       find[AnyModel](
-        defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+        params = params,
+        paging = paging,
         entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
         facetBuilder = apiSearchFacets
       ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(q, `type`, p, limit, facets).absoluteURL())))
+        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(`type`, params, paging.copy(page = p)).absoluteURL())))
           .as(JSONAPI_MIMETYPE)
       }
     }
@@ -333,19 +334,20 @@ case class ApiV1 @Inject()(
     }
   }
 
-  def searchIn(id: String, q: Option[String], `type`: Seq[defines.EntityType.Value], page: Int, limit: Int, facets: Seq[String]): Action[AnyContent] =
+  def searchIn(id: String, `type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       userDataApi.getAny[AnyModel](id).flatMap { item =>
         for {
           filters <- hierarchySearchFilters(item)
           result <- find[AnyModel](
             filters = filters,
-            defaultParams = SearchParams(query = q, page = Some(page), count = Some(limit), facets = facets),
+            params = params,
+            paging = paging,
             entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
             facetBuilder = apiSearchFacets
           )
         } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, q, `type`, p, limit, facets).absoluteURL(), Some(Seq(item))))
+          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p)).absoluteURL(), Some(Seq(item))))
         ).as(JSONAPI_MIMETYPE)
       } recover {
         case e: ItemNotFound => error(NOT_FOUND, e.message)

@@ -1,6 +1,6 @@
 @(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@import utils.search.SearchOrder
+@import utils.search.SearchSort
 
 @js = {
     <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-facet.js")"></script>
@@ -112,7 +112,7 @@
                     </span>
                 </div>
             </div>
-            @common.search.searchSort(result.params, Seq(SearchOrder.Score, SearchOrder.Name, SearchOrder.Detail))
+            @common.search.searchSort(result.params, Seq(SearchSort.Score, SearchSort.Name, SearchSort.Detail))
             @facets
         }
     </div>

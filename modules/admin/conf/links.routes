@@ -1,9 +1,9 @@
 # Routes for linking functionality
 
-GET     /                             @controllers.links.Links.search
+GET     /                             @controllers.links.Links.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id                          @controllers.links.Links.get(id: String)
 GET     /:id/rd                       @controllers.links.Links.getAndRedirect(id: String, redirect: Option[String] ?= None)
-GET     /:id/history                  @controllers.links.Links.history(id: String)
+GET     /:id/history                  @controllers.links.Links.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET     /:id/visibility               @controllers.links.Links.visibility(id: String)
 POST    /:id/visibility               @controllers.links.Links.visibilityPost(id: String)
 GET     /:id/update                   @controllers.links.Links.update(id: String, redirect: Option[String] ?= None)

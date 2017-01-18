@@ -17,7 +17,8 @@ import models.{Annotation, AnnotationF, UserProfile}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
-import utils.ContributionVisibility
+import utils.search.SearchParams
+import utils.{ContributionVisibility, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -42,11 +43,8 @@ case class Annotations @Inject()(
     AnnotationF.IS_PRIVATE -> true.toString
   )
 
-  def searchAll: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[Annotation](
-      entities = List(EntityType.Annotation),
-      facetBuilder = annotationFacets
-    ).map { result =>
+  def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    find[Annotation](params, paging, entities = List(EntityType.Annotation), facetBuilder = annotationFacets).map { result =>
       Ok(views.html.annotation.list(result, annotationRoutes.searchAll()))
     }
   }

@@ -19,24 +19,22 @@ case class SystemEvents @Inject()(
 ) extends AdminController
   with Read[SystemEvent] {
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+  def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
-    val params = PageParams.fromRequest(request)
-    val subjectParams = PageParams.fromRequest(request, namespace = "s")
-    userDataApi.subjectsForEvent[AnyModel](id, subjectParams).map { page =>
-      Ok(views.html.admin.systemEvent.show(request.item, page, params))
+    userDataApi.subjectsForEvent[AnyModel](id, paging).map { page =>
+      Ok(views.html.admin.systemEvent.show(request.item, page, paging))
     }
   }
 
-  def list: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val listParams = RangeParams.fromRequest(request)
-    val eventFilter = SystemEventParams.fromRequest(request)
-    val filterForm = SystemEventParams.form.fill(eventFilter)
-
+  def list(range: RangeParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    // Binding event params from the form instead of the query string binder
+    // here because it allows doing multiselect values
+    val form = SystemEventParams.form.bindFromRequest
+    val params = form.value.getOrElse(SystemEventParams.empty)
     for {
       users <- dataHelpers.getUserList
-      events <- userDataApi.events[SystemEvent](listParams, eventFilter)
-    } yield Ok(views.html.admin.systemEvent.list(events, listParams,
-      filterForm, users, controllers.events.routes.SystemEvents.list()))
+      events <- userDataApi.events[SystemEvent](range, params)
+    } yield Ok(views.html.admin.systemEvent.list(events, range,
+      form, users, controllers.events.routes.SystemEvents.list()))
   }
 }

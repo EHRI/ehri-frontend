@@ -1,5 +1,5 @@
 # Event routes
 
-GET        /           @controllers.events.SystemEvents.list
-GET        /:id        @controllers.events.SystemEvents.get(id: String)
+GET        /           @controllers.events.SystemEvents.list(range: utils.RangeParams ?= utils.RangeParams.empty)
+GET        /:id        @controllers.events.SystemEvents.get(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 

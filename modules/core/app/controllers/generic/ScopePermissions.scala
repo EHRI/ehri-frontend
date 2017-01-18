@@ -35,15 +35,13 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def ScopePermissionGrantAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest] =
+  protected def ScopePermissionGrantAction(id: String, itemPaging: PageParams, scopePaging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest] =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
         implicit val req = request
-        val itemParams = PageParams.fromRequest(request)
-        val scopeParams = PageParams.fromRequest(request, namespace = "s")
         for {
-          permGrants <- userDataApi.itemPermissionGrants[PermissionGrant](id, itemParams)
-          scopeGrants <- userDataApi.scopePermissionGrants[PermissionGrant](id, scopeParams)
+          permGrants <- userDataApi.itemPermissionGrants[PermissionGrant](id, itemPaging)
+          scopeGrants <- userDataApi.scopePermissionGrants[PermissionGrant](id, scopePaging)
         } yield ScopePermissionGrantRequest(request.item, permGrants, scopeGrants, request.userOpt, request)
       }
     }

@@ -1,4 +1,4 @@
-@(result: utils.search.SearchResult[VirtualUnit], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(paging: utils.PageParams, result: utils.search.SearchResult[VirtualUnit], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @js = {
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-ui/jquery-ui.js")" type="text/javascript"></script>
@@ -11,10 +11,10 @@
 
 @* user should always be defined here *@
 @userOpt.map { user =>
-    @views.html.layout.searchLayout(Messages("bookmarkSet.list"), EntityType.UserProfile.toString, result, scripts = js, styles = css) {
+    @views.html.layout.searchLayout(Messages("bookmarkSet.list"), defines.EntityType.UserProfile.toString, result, scripts = js, styles = css) {
         @views.html.common.itemHeader(Messages("bookmarkSet.list")) {
         }
-        @itemList(None, user, result, more = false, watched)
+        @views.html.bookmarks.itemList(None, user, paging, result, more = false, watched)
         <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("bookmarkSet.create")</a>
     }
 

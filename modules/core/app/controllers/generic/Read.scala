@@ -125,42 +125,39 @@ trait Read[MT] extends CoreActionBuilders {
       }
     }
 
-  protected def ItemPageAction(implicit rs: Resource[MT]): ActionBuilder[ItemPageRequest] =
+  protected def ItemPageAction(paging: PageParams)(implicit rs: Resource[MT]): ActionBuilder[ItemPageRequest] =
     OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ItemPageRequest] {
       def transform[A](input: OptionalUserRequest[A]): Future[ItemPageRequest[A]] = {
         implicit val userOpt = input.userOpt
-        val params = PageParams.fromRequest(input)
         for {
-          page <- userDataApi.list[MT](params)
-        } yield ItemPageRequest[A](page, params, input.userOpt, input)
+          page <- userDataApi.list[MT](paging)
+        } yield ItemPageRequest[A](page, paging, input.userOpt, input)
       }
     }
 
-  protected def ItemHistoryAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemHistoryRequest] =
+  protected def ItemHistoryAction(itemId: String, range: RangeParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemHistoryRequest] =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
         implicit val req = request
-        val params = RangeParams.fromRequest(request)
         val getF: Future[MT] = userDataApi.get(itemId)
-        val historyF: Future[RangePage[Seq[SystemEvent]]] = userDataApi.history[SystemEvent](itemId, params)
+        val historyF: Future[RangePage[Seq[SystemEvent]]] = userDataApi.history[SystemEvent](itemId, range)
         for {
           item <- getF
           events <- historyF
-        } yield ItemHistoryRequest(request.item, events, params, request.userOpt, request)
+        } yield ItemHistoryRequest(request.item, events, range, request.userOpt, request)
       }
     }
 
-  protected def ItemVersionsAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest] =
+  protected def ItemVersionsAction(itemId: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest] =
     ItemPermissionAction(itemId) andThen new ActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req = request
-        val params = PageParams.fromRequest(request)
         val getF: Future[MT] = userDataApi.get(itemId)
-        val versionsF: Future[Page[Version]] = userDataApi.versions[Version](itemId, params)
+        val versionsF: Future[Page[Version]] = userDataApi.versions[Version](itemId, paging)
         for {
           item <- getF
           versions <- versionsF
-        } yield ItemVersionsRequest(request.item, versions, params, request.userOpt, request)
+        } yield ItemVersionsRequest(request.item, versions, paging, request.userOpt, request)
       }
     }
 }

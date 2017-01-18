@@ -1,11 +1,9 @@
 package eu.ehri.project.search.solr
 
 import com.github.seratch.scalikesolr.request.query._
-import com.github.seratch.scalikesolr.request.query.highlighting.{
-    IsPhraseHighlighterEnabled, HighlightingParams}
+import com.github.seratch.scalikesolr.request.query.highlighting.{HighlightingParams, IsPhraseHighlighterEnabled}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
-import com.github.seratch.scalikesolr.request.query.group.{GroupParams,GroupField,GroupFormat,WithNumberOfGroups}
-
+import com.github.seratch.scalikesolr.request.query.group.{GroupField, GroupFormat, GroupParams, WithNumberOfGroups}
 import defines.EntityType
 import models.UserProfile
 import utils.search._
@@ -87,15 +85,9 @@ object SolrQueryBuilder {
  * QueryRequest class.
  */
 case class SolrQueryBuilder(
+  query: SearchQuery,
   writerType: WriterType.Value,
-  debugQuery: Boolean = false,
-  params: SearchParams = SearchParams.empty,
-  facets: Seq[AppliedFacet] = Seq.empty,
-  facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
-  filters: Map[String,Any] = Map.empty,
-  idFilters: Seq[String] = Seq.empty,
-  extraParams: Map[String,Any] = Map.empty,
-  mode: SearchMode.Value = SearchMode.DefaultAll
+  debugQuery: Boolean = false
 )(implicit config: Configuration) extends QueryBuilder {
 
   import SearchConstants._
@@ -160,7 +152,7 @@ case class SolrQueryBuilder(
     ))
 
     request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
-    request.set("facet.mincount", 1)
+    request.set("facet.mincout", 1)
   }
 
   /**
@@ -177,8 +169,8 @@ case class SolrQueryBuilder(
       field=GroupField(ITEM_ID),
       format=GroupFormat("simple"),
       ngroups=WithNumberOfGroups(ngroups = true),
-      start = StartRow(params.offset),
-      rows = MaximumRowsReturned(params.countOrDefault)
+      start = StartRow(query.paging.offset),
+      rows = MaximumRowsReturned(query.paging.limit)
     ))
 
     // Not yet supported by scalikesolr
@@ -202,30 +194,30 @@ case class SolrQueryBuilder(
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
    */
-  override def simpleFilterQuery(alphabetical: Boolean = false)(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def simpleFilterQuery(alphabetical: Boolean = false): Map[String,Seq[String]] = {
 
-    val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
-    val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
-    val queryString = params.query.getOrElse("*").trim + excludeIds + searchFilters
+    val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
+    val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
+    val queryString = query.params.query.getOrElse("*").trim + excludeIds + searchFilters
 
     val req: QueryRequest = QueryRequest(
       query = Query(queryString),
       writerType = SWriterType.as(writerType.toString),
-      startRow = StartRow(params.offset),
-      maximumRowsReturned = MaximumRowsReturned(params.countOrDefault),
+      startRow = StartRow(query.paging.offset),
+      maximumRowsReturned = MaximumRowsReturned(query.paging.limit),
       isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
       queryParserType = QueryParserType("edismax")
     )
 
-    constrainEntities(req, params.entities)
-    applyAccessFilter(req, userOpt)
-    applyIdFilters(req, idFilters)
-    setGrouping(req, params)
+    constrainEntities(req, query.params.entities)
+    applyAccessFilter(req, query.user)
+    applyIdFilters(req, query.withinIds)
+    setGrouping(req, query.params)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
     if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
 
-    extraParams.foreach { case (key, value) =>
+    query.extraParams.foreach { case (key, value) =>
       req.set(key, value)
     }
 
@@ -236,13 +228,13 @@ case class SolrQueryBuilder(
   /**
    * Build a query given a set of search parameters.
    */
-  override def searchQuery()(implicit userOpt: Option[UserProfile]): Map[String,Seq[String]] = {
+  override def searchQuery(): Map[String,Seq[String]] = {
 
-    val excludeIds = params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
+    val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
-    val searchFilters = params.filters.toList.flatten.filter(_.contains(":")).map(f => " +" + f).mkString
+    val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
 
-    val defaultQuery = mode match {
+    val defaultQuery = query.mode match {
       case SearchMode.DefaultAll => "*"
       case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
     }
@@ -251,13 +243,13 @@ case class SolrQueryBuilder(
     // query only work on the default field - disabled for now...
     val queryString =
         //s"{!boost b=$CHILD_COUNT}" +
-        params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
+    query.params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
 
     val req: QueryRequest = QueryRequest(
       query = Query(queryString),
       writerType = SWriterType.as(writerType.toString),
-      startRow = StartRow(params.offset),
-      maximumRowsReturned = MaximumRowsReturned(params.countOrDefault),
+      startRow = StartRow(query.paging.offset),
+      maximumRowsReturned = MaximumRowsReturned(query.paging.limit),
       isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
       queryParserType = QueryParserType("edismax")
     )
@@ -269,7 +261,7 @@ case class SolrQueryBuilder(
     ))
 
     // Highlight, but only if we have a query...
-    if (params.query.isDefined) {
+    if (query.params.query.isDefined) {
       //req.set("highlight.q", params.query)
       req.setHighlighting(HighlightingParams(
           enabled=true,
@@ -281,15 +273,15 @@ case class SolrQueryBuilder(
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
     // FIXME: This horrid concatenation of name/order
-    params.sort.foreach { sort =>
+    query.params.sort.foreach { sort =>
       req.setSort(Sort(s"${sort.toString.split("""\.""").mkString(" ")}"))
     }
 
     // Apply search to specific fields. Can't find a way to do this using
     // Scalikesolr's built-in classes so we have to use it's extension-param
     // facility
-    if(params.fields.nonEmpty) {
-      req.set("qf", params.fields.mkString(" "))
+    if(query.params.fields.nonEmpty) {
+      req.set("qf", query.params.fields.mkString(" "))
     } else {
       val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
@@ -314,22 +306,22 @@ case class SolrQueryBuilder(
     }
 
     // Facet the request accordingly
-    constrainToFacets(req, facets, facetClasses)
+    constrainToFacets(req, query.appliedFacets, query.facetClasses)
 
     // if we're using a specific index, constrain on that as well
-    constrainEntities(req, params.entities)
+    constrainEntities(req, query.params.entities)
 
     // Currently returning all the fields, but this might change...
     //req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
 
     // Return only fields we care about...
-    applyAccessFilter(req, userOpt)
+    applyAccessFilter(req, query.user)
 
     // Constrain to specific ids
-    applyIdFilters(req, idFilters)
+    applyIdFilters(req, query.withinIds)
 
     // Apply other arbitrary hard filters
-    filters.foreach { case (key, value) =>
+    query.filters.foreach { case (key, value) =>
       val filter = value match {
         // Have to quote strings
         case s: String => key + ":\"" + value + "\""
@@ -345,9 +337,9 @@ case class SolrQueryBuilder(
     // be the same)
     // NB: Group params ALSO set (or override) start and row parameters, which
     // is a major gotcha!
-    setGrouping(req, params)
+    setGrouping(req, query.params)
 
-    extraParams.foreach { case (key, value) =>
+    query.extraParams.foreach { case (key, value) =>
       req.set(key, value)
     }
 
@@ -355,19 +347,5 @@ case class SolrQueryBuilder(
     // TODO: Implement a light-weight request builder
     utils.http.parseQueryString(req.queryString())
   }
-
-  override def withIdFilters(ids: Seq[String]): QueryBuilder = copy(idFilters = idFilters ++ ids)
-
-  override def withFacets(f: Seq[AppliedFacet]): QueryBuilder = copy(facets = facets ++ f)
-
-  override def setMode(mode: SearchMode.Value): QueryBuilder = copy(mode = mode)
-
-  override def withFilters(f: Map[String, Any]): QueryBuilder = copy(filters = filters ++ f)
-
-  override def setParams(params: SearchParams): QueryBuilder = copy(params = params)
-
-  override def withFacetClasses(fc: Seq[FacetClass[Facet]]): QueryBuilder = copy(facetClasses = facetClasses ++ fc)
-
-  override def withExtraParams(extra: Map[String, Any]): QueryBuilder = copy(extraParams = extraParams ++ extra)
 }
 

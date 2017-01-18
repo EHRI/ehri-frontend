@@ -8,6 +8,7 @@ import controllers.base.AdminController
 import controllers.generic._
 import models.{Annotation, AnnotationF}
 import play.api.mvc.{Action, AnyContent}
+import utils.RangeParams
 
 
 case class Annotations @Inject()(
@@ -28,7 +29,7 @@ case class Annotations @Inject()(
     Ok(views.html.admin.annotation.show(request.item, request.annotations))
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 

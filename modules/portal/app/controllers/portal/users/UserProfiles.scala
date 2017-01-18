@@ -81,27 +81,27 @@ case class UserProfiles @Inject()(
     implicit val writes: OWrites[ExportWatchItem] = Json.writes[ExportWatchItem]
   }
 
-  def activity(from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def activity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
-    val listParams = RangeParams.fromRequest(request)
-    val eventParams: SystemEventParams = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes, from = from, to = to)
+    val eventParams: SystemEventParams = params
+      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes)
     val events: Future[RangePage[Seq[SystemEvent]]] =
-      userDataApi.userActions[SystemEvent](request.user.id, listParams, eventParams)
+      userDataApi.userActions[SystemEvent](request.user.id, range, eventParams)
 
     events.map { myActivity =>
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))
         .withHeaders("activity-more" -> myActivity.more.toString)
       else Ok(views.html.userProfile.show(request.user, myActivity,
-        listParams, eventParams, followed = false, canMessage = false))
+        range, eventParams, followed = false, canMessage = false))
     }
   }
 
-  def watching(format: DataFormat.Value = DataFormat.Html): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def watching(format: DataFormat.Value = DataFormat.Html, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    println(params)
     for {
       watching <- userDataApi.watching[AnyModel](request.user.id)
-      result <- findIn[AnyModel](watching)
+      result <- findIn[AnyModel](watching, params, paging)
     } yield {
       val watchList = result.mapItems(_._1).page
       format match {
@@ -155,10 +155,8 @@ case class UserProfiles @Inject()(
     implicit val writes: OWrites[ExportAnnotation] = Json.writes[ExportAnnotation]
   }
 
-  def annotations(format: DataFormat.Value = DataFormat.Html): Action[AnyContent] = WithUserAction.async { implicit request =>
-    findType[Annotation](
-      filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id)
-    ).map { result =>
+  def annotations(format: DataFormat.Value = DataFormat.Html, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    findType[Annotation](params, paging, filters = Map(SearchConstants.ANNOTATOR_ID -> request.user.id)).map { result =>
       val itemsOnly = result.mapItems(_._1).page
       format match {
         case DataFormat.Text =>
@@ -188,7 +186,7 @@ case class UserProfiles @Inject()(
     = Json.toJson(annotations.map(ExportAnnotation.fromAnnotation))
 
   // For now the user's profile main page is just their notes.
-  def profile: Action[AnyContent] = annotations(format = DataFormat.Html)
+  def profile(params: SearchParams, paging: PageParams): Action[AnyContent] = annotations(format = DataFormat.Html, params, paging)
 
   import play.api.data.Form
   import play.api.data.Forms._

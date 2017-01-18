@@ -11,7 +11,7 @@ import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent}
-import utils.PageParams
+import utils.{PageParams, RangeParams}
 import utils.search._
 import views.Helpers
 
@@ -57,22 +57,22 @@ case class Concepts @Inject()(
   }
 
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    val params = PageParams.fromRequest(request)
-    userDataApi.children[Concept, Concept](id, params).map { page =>
-      Ok(views.html.admin.concept.show(request.item, page, params, request.links, request.annotations))
+  def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    userDataApi.children[Concept, Concept](id, paging).map { page =>
+      Ok(views.html.admin.concept.show(request.item, page, paging, request.links, request.annotations))
     }
   }
 
-  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
-    Ok(views.html.admin.concept.search(request.result, conceptRoutes.search()))
-  }
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>
+      Ok(views.html.admin.concept.search(request.result, conceptRoutes.search()))
+    }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.concept.list(request.page, request.params))
   }
 
@@ -150,8 +150,8 @@ case class Concepts @Inject()(
     Ok(views.html.admin.concept.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
-    LinkSelectAction(id, toType).apply { implicit request =>
+  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    LinkSelectAction(id, toType, params, paging).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         conceptRoutes.linkAnnotateSelect(id, toType),

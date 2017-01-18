@@ -35,9 +35,10 @@ case class Portal @Inject()(
   private val portalRoutes = controllers.portal.routes.Portal
 
   /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
+    * Full text search action that returns a complete page of item data.
+    *
+    * @return
+    */
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private val defaultSearchTypes = List(
     EntityType.Repository,
@@ -66,38 +67,35 @@ case class Portal @Inject()(
       .withPreferences(request.preferences.copy(language = Some(lang)))
   }
 
-  def personalisedActivity: Action[AnyContent] = WithUserAction.async{ implicit request =>
+  def personalisedActivity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // NB: Increasing the limit by 1 over the default so we can
     // detect if there are additional items to display
-    val listParams = RangeParams.fromRequest(request)
-    val eventFilter = SystemEventParams.fromRequest(request)
+    val eventFilter = params
       .copy(eventTypes = activityEventTypes)
       .copy(itemTypes = activityItemTypes)
-    userDataApi.userEvents[SystemEvent](request.user.id, listParams, eventFilter).map { events =>
+    userDataApi.userEvents[SystemEvent](request.user.id, range, eventFilter).map { events =>
       if (isAjax) Ok(views.html.activity.eventItems(events))
         .withHeaders("activity-more" -> events.more.toString)
-      else Ok(views.html.activity.activity(events, listParams))
+      else Ok(views.html.activity.activity(events, range))
     }
   }
 
-  def search: Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    find[AnyModel](
-      defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
+    find[AnyModel](params, paging,
       facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
-      entities = defaultSearchTypes
-    ).map { result =>
+      sort = SearchSort.Score,
+      entities = defaultSearchTypes).map { result =>
       Ok(views.html.search.globalSearch(result, portalRoutes.search(), request.watched))
     }
   }
 
 
   /**
-   * Quick filter action that searches applies a 'q' string filter to
-   * only the name_ngram field and returns an id/name pair.
-   * @return
-   */
-  def filterItems: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    filter().map { page =>
+    * Quick filter action that searches applies a 'q' string filter to
+    * only the name_ngram field and returns an id/name pair.
+    */
+  def filterItems(paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    filter(paging = paging).map { page =>
       Ok(Json.obj(
         "numPages" -> page.numPages,
         "page" -> page.page,
@@ -107,10 +105,10 @@ case class Portal @Inject()(
   }
 
   /**
-   * Portal index. Currently this just shows an overview of the data
-   * extracted from the search engine facet counts for different
-   * types.
-   */
+    * Portal index. Currently this just shows an overview of the data
+    * extracted from the search engine facet counts for different
+    * types.
+    */
   def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
     getStats.map(s => Ok(views.html.portal(s)))
   }
@@ -122,26 +120,24 @@ case class Portal @Inject()(
     else Redirect(call)
   }
 
-  def itemHistory(id: String, modal: Boolean = false): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val params: RangeParams = RangeParams.fromRequest(request)
-    val filters = SystemEventParams.fromRequest(request)
-    userDataApi.history[SystemEvent](id, params, filters).map { events =>
-      if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
-      else if (isAjax) Ok(views.html.activity.eventItems(events))
-        .withHeaders("activity-more" -> events.more.toString)
-      else Ok(views.html.activity.itemActivity(events, params))
+  def itemHistory(id: String, params: SystemEventParams, range: RangeParams, modal: Boolean = false): Action[AnyContent] =
+    OptionalUserAction.async { implicit request =>
+      userDataApi.history[SystemEvent](id, range, params).map { events =>
+        if (isAjax && modal) Ok(views.html.activity.itemActivityModal(events))
+        else if (isAjax) Ok(views.html.activity.eventItems(events))
+          .withHeaders("activity-more" -> events.more.toString)
+        else Ok(views.html.activity.itemActivity(events, range))
+      }
     }
-  }
 
-  def eventDetails(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val params: PageParams = PageParams.fromRequest(request)
+  def eventDetails(id: String, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val eventF: Future[SystemEvent] = userDataApi.get[SystemEvent](id)
-    val subjectsF: Future[Page[AnyModel]] = userDataApi.subjectsForEvent[AnyModel](id, params)
+    val subjectsF: Future[Page[AnyModel]] = userDataApi.subjectsForEvent[AnyModel](id, paging)
     for {
       event <- eventF
       subjects <- subjectsF
     } yield {
-      Ok(views.html.activity.eventSubjects(event, subjects, params))
+      Ok(views.html.activity.eventSubjects(event, subjects, paging))
     }
   }
 
@@ -193,7 +189,8 @@ case class Portal @Inject()(
       find[AnyModel](
         // we don't need results here because we're only using
         // json facet analytics...
-        defaultParams = SearchParams(count = Some(0)),
+        params = SearchParams.empty,
+        paging = PageParams(limit = 0),
         entities = defaultSearchTypes,
         extra = Map("json.facet" -> Stats.analyticsQuery)
       ).map(r => Stats(r.facetInfo))

@@ -10,6 +10,7 @@ import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent}
+import utils.PageParams
 import utils.search._
 import views.Helpers
 
@@ -19,9 +20,6 @@ case class AdminSearch @Inject()(
   components: Components,
   searchIndexer: SearchIndexMediator
 ) extends AdminController with Search {
-
-  // i.e. Everything
-
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -67,29 +65,15 @@ case class AdminSearch @Inject()(
     EntityType.Link
   )
 
-  /**
-   * Full text search action that returns a complete page of item data.
-   * @return
-   */
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-
-  def search: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[AnyModel](
-      defaultParams = SearchParams(sort = Some(SearchOrder.Score)),
-      entities = searchTypes.toList,
-      facetBuilder = entityFacets
-    ).map { result =>
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    find[AnyModel](params, paging, entities = searchTypes, facetBuilder = entityFacets).map { result =>
       render {
-        case Accepts.Json() =>
-          Ok(Json.toJson(Json.obj(
+        case Accepts.Json() => Ok(Json.obj(
             "numPages" -> result.page.numPages,
             "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
             "facets" -> result.facetClasses
-          )))
-        case _ => Ok(views.html.admin.search.search(
-          result,
-          controllers.admin.routes.AdminSearch.search())
-        )
+          ))
+        case _ => Ok(views.html.admin.search.search(result, controllers.admin.routes.AdminSearch.search()))
       }
     }
   }

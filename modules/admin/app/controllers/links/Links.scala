@@ -12,6 +12,7 @@ import models.{Link, LinkF}
 import play.api.mvc.{Action, AnyContent, Call}
 import play.api.mvc.Call
 import play.api.i18n.Messages
+import utils.{PageParams, RangeParams}
 import utils.search._
 
 
@@ -56,7 +57,7 @@ case class Links @Inject()(
     )
   }
 
-  def search(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     // We only care here about links which:
     // - don't have a body, i.e. are not connected to access points
     // - connect only 2 items
@@ -72,10 +73,7 @@ case class Links @Inject()(
       s"targetTypes:(${targetTypes.mkString(" ")})" -> Unit
     )
 
-    findType[Link](
-      filters = filters,
-      facetBuilder = entityFacets
-    ).map { result =>
+    findType[Link](params, paging, filters = filters, facetBuilder = entityFacets ).map { result =>
       Ok(views.html.admin.link.search(result, linkRoutes.search()))
     }
   }
@@ -89,7 +87,7 @@ case class Links @Inject()(
     Ok(views.html.admin.link.show(request.item, request.annotations, redirect))
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 

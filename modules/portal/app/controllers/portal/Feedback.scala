@@ -108,9 +108,8 @@ case class Feedback @Inject()(
     )
   }
 
-  def list: Action[AnyContent] = AdminAction.async { implicit request =>
-    feedbackService.list(PageParams.fromRequest(request),
-        params = Map("order" -> "-createdAt")).map { flist =>
+  def list(paging: PageParams): Action[AnyContent] = AdminAction.async { implicit request =>
+    feedbackService.list(paging, params = Map("order" -> "-createdAt")).map { flist =>
       Ok(views.html.feedback.list(flist.copy(items = flist.filter(_.text.isDefined))))
     }
   }

@@ -1,11 +1,11 @@
-@(parent: Option[AnyModel], items: Seq[AnyModel], params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, globalConfig: global.GlobalConfig)
+@(parent: Option[models.base.AnyModel], items: Seq[models.base.AnyModel], paging: utils.PageParams, params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, globalConfig: global.GlobalConfig)
 
 @items.map { item =>
     <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA @(if(parent.exists(_.isInstanceOf[VirtualUnit])) "moveable") @(if(item.isInstanceOf[VirtualUnit]) "droppable")" data-id="@item.id">
         <div class="bookmark-data">
             <div class="drag-handle">&nbsp;</div>
             @views.html.helpers.linkTo(item) [@item.id]
-            @item.asInstanceOf[Holder[_]].childCount.map { count =>
+            @item.asInstanceOf[models.base.Holder[_]].childCount.map { count =>
                 <a class="badge bookmark-fetch-contents closed item-count" href="@controllers.portal.routes.Bookmarks.contents(item.id)">
                     @count
                 </a>
@@ -16,7 +16,7 @@
 
 @if(more) {
     <li class="list-group-item">
-        <a href="@controllers.portal.routes.Bookmarks.moreContents(parent.get.id, params.pageOrDefault + 1)" data-count="@params.count" data-page="@(params.pageOrDefault + 1)"
+        <a href="@controllers.portal.routes.Bookmarks.contents(parent.get.id, params, paging.next)" data-count="@paging.limit" data-page="@(paging.next.page)"
                 class="bookmarks-fetchmore btn btn-default btn-block">
             @Messages("activity.fetchMore")
         </a>

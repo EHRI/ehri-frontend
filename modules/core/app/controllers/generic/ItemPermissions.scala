@@ -35,12 +35,11 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   protected def WithGrantPermission(id: String)(implicit ct: ContentType[MT]) =
     WithItemPermissionAction(id, PermissionType.Grant)
 
-  protected def PermissionGrantAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionGrantRequest] =
+  protected def PermissionGrantAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionGrantRequest] =
     WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
-        val params = PageParams.fromRequest(request)
-        userDataApi.itemPermissionGrants[PermissionGrant](id, params).map { permGrants =>
+        userDataApi.itemPermissionGrants[PermissionGrant](id, paging).map { permGrants =>
           ItemPermissionGrantRequest(request.item, permGrants, request.userOpt, request)
         }
       }

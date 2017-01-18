@@ -18,7 +18,7 @@ import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import utils.search._
-import utils.{CsvHelpers, PageParams}
+import utils.{CsvHelpers, PageParams, RangeParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -185,20 +185,21 @@ case class UserProfiles @Inject()(
     Ok(views.html.admin.userProfile.show(request.item, request.annotations))
   }
 
-  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).async { implicit request =>
-    accounts.findAllById(ids = request.result.page.items.map(_._1.id)).map { accs =>
-      val pageWithAccounts = request.result.mapItems { case(up, hit) =>
-        up.copy(account = accs.find(_.id == up.id)) -> hit
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging, facetBuilder = entityFacets).async { implicit request =>
+      accounts.findAllById(ids = request.result.page.items.map(_._1.id)).map { accs =>
+        val pageWithAccounts = request.result.mapItems { case(up, hit) =>
+          up.copy(account = accs.find(_.id == up.id)) -> hit
+        }
+        Ok(views.html.admin.userProfile.search(pageWithAccounts, userRoutes.search()))
       }
-      Ok(views.html.admin.userProfile.search(pageWithAccounts, userRoutes.search()))
     }
-  }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.userProfile.list(request.page, request.params))
   }
 
@@ -317,7 +318,7 @@ case class UserProfiles @Inject()(
     } yield Ok(out)
   }
 
-  def grantList(id: String): Action[AnyContent] = GrantListAction(id).apply { implicit request =>
+  def grantList(id: String, paging: PageParams): Action[AnyContent] = GrantListAction(id, paging).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionGrantList(
       request.item, request.permissionGrants))
   }
@@ -348,10 +349,11 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
-        userRoutes.addItemPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams): Action[AnyContent] =
+    PermissionGrantAction(id, paging).apply { implicit request =>
+      Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
+          userRoutes.addItemPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,

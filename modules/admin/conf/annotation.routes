@@ -1,7 +1,7 @@
 # Routes for annotation functionality
 
 GET     /:id                         @controllers.annotation.Annotations.get(id: String)
-GET     /:id/history                 @controllers.annotation.Annotations.history(id: String)
+GET     /:id/history                 @controllers.annotation.Annotations.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET     /:id/visibility              @controllers.annotation.Annotations.visibility(id: String)
 POST    /:id/visibility              @controllers.annotation.Annotations.visibilityPost(id: String)
 GET     /:id/update                  @controllers.annotation.Annotations.update(id: String)

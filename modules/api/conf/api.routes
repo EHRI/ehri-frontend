@@ -2,9 +2,9 @@
 
 GET         /                 @controllers.api.ApiHome.index
 GET        /v1                @controllers.api.v1.ApiV1Home.index()
-GET        /v1/search         @controllers.api.v1.ApiV1.search(q: Option[String] ?= None, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, page: Int ?= 1, limit: Int ?= 20, facet: Seq[String] ?= Nil)
+GET        /v1/search         @controllers.api.v1.ApiV1.search(`type`: Seq[defines.EntityType.Value] ?= Seq.empty, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET        /v1/:id            @controllers.api.v1.ApiV1.fetch(id: String)
-GET        /v1/:id/search     @controllers.api.v1.ApiV1.searchIn(id: String, q: Option[String] ?= None, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, page: Int ?= 1, limit: Int ?= 2, facet: Seq[String] ?= Nil)
+GET        /v1/:id/search     @controllers.api.v1.ApiV1.searchIn(id: String, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET        /graphql           @controllers.api.graphql.GraphQL.index()
 POST       /graphql           @controllers.api.graphql.GraphQL.query()
 GET        /graphql/ui        @controllers.api.graphql.GraphQL.graphiql()

@@ -1,20 +1,20 @@
 # Group routes
 
-GET         /                                   @controllers.groups.Groups.search
+GET         /                                   @controllers.groups.Groups.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /create                             @controllers.groups.Groups.create
 POST        /create                             @controllers.groups.Groups.createPost
-GET         /:id                                @controllers.groups.Groups.get(id: String)
-GET         /:id/history                        @controllers.groups.Groups.history(id: String)
+GET         /:id                                @controllers.groups.Groups.get(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id/history                        @controllers.groups.Groups.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                         @controllers.groups.Groups.delete(id: String)
 POST        /:id/delete                         @controllers.groups.Groups.deletePost(id: String)
 GET         /:id/update                         @controllers.groups.Groups.update(id: String)
 POST        /:id/update                         @controllers.groups.Groups.updatePost(id: String)
 GET         /:id/permissions                    @controllers.groups.Groups.permissions(id: String)
 POST        /:id/permissions                    @controllers.groups.Groups.permissionsPost(id: String)
-GET         /:id/permissions/list               @controllers.groups.Groups.grantList(id: String)
+GET         /:id/permissions/list               @controllers.groups.Groups.grantList(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/permissions/revoke/:perm       @controllers.groups.Groups.revokePermission(id: String, perm: String)
 POST        /:id/permissions/revoke/:perm       @controllers.groups.Groups.revokePermissionPost(id: String, perm: String)
-GET         /:id/permissions/manage             @controllers.groups.Groups.managePermissions(id: String)
+GET         /:id/permissions/manage             @controllers.groups.Groups.managePermissions(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/permissions/add                @controllers.groups.Groups.addItemPermissions(id: String)
 GET         /:id/permissions/:userType/:userId  @controllers.groups.Groups.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
 POST        /:id/permissions/:userType/:userId  @controllers.groups.Groups.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)

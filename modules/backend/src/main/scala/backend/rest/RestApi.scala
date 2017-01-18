@@ -232,7 +232,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   override def history[A: Readable](id: String, params: RangeParams,
                                     filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(genericItemUrl, id, "events")
-    fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
 
   override def createDescription[MT: Resource, DT: Writable](id: String, item: DT, logMsg: Option[String] = None): Future[DT] = {
@@ -288,12 +288,12 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   override def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "actions")
-    fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
 
   override def userEvents[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "events")
-    fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
 
 
@@ -355,7 +355,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   override def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.SystemEvent)
-    fetchRange(userCall(url, filters.toSeq), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
 
   override def subjectsForEvent[A: Readable](id: String, params: PageParams): Future[Page[A]] = {

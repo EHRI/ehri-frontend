@@ -17,6 +17,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent}
+import utils.{PageParams, RangeParams}
 import utils.search._
 import views.Helpers
 
@@ -95,49 +96,40 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def search: Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     // What filters we gonna use? How about, only list stuff here that
     // has no parent items - UNLESS there's a query, in which case we're
     // going to peer INSIDE items... dodgy logic, maybe...
-
     val filters = if (request.getQueryString(SearchParams.QUERY).forall(_.trim.isEmpty))
       Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String, Any]
-    find[VirtualUnit](
-      filters = filters,
-      entities = List(EntityType.VirtualUnit),
-      facetBuilder = entityFacets
-    ).map { result =>
+
+    findType[VirtualUnit](params, paging, filters = filters, facetBuilder = entityFacets).map { result =>
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
     }
   }
 
-  def searchChildren(id: String): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
+  def searchChildren(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](
-        filters = filters,
-        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = entityFacets
-      )
+      result <- find[AnyModel](params, paging, filters = filters,
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
     }
   }
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](
-        filters = filters,
-        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = entityFacets)
+      result <- find[AnyModel](params, paging, filters = filters,
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.show(request.item, result,
         vuRoutes.get(id), request.annotations, request.links, Seq.empty))
     }
   }
 
-  def getInVc(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def getInVc(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
@@ -150,21 +142,15 @@ case class VirtualUnits @Inject()(
       links <- linksF
       annotations <- annsF
       filters <- vcSearchFilters(item)
-      children <- find[AnyModel](
-        filters = filters,
-        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = entityFacets)
+      children <- find[AnyModel](params, paging, filters = filters,
+        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
       item, children,
       vuRoutes.getInVc(id, pathStr), annotations, links, path))
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
-  }
-
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
-    Ok(views.html.admin.virtualUnit.list(request.page, request.params))
   }
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
@@ -361,12 +347,13 @@ case class VirtualUnits @Inject()(
       .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(
-      request.item, request.permissionGrants, request.scopePermissionGrants,
-      vuRoutes.addItemPermissions(id),
-      vuRoutes.addScopedPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
+    ScopePermissionGrantAction(id, paging, scopePaging).apply { implicit request =>
+      Ok(views.html.admin.permissions.manageScopedPermissions(
+        request.item, request.permissionGrants, request.scopePermissionGrants,
+        vuRoutes.addItemPermissions(id),
+        vuRoutes.addScopedPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
@@ -412,8 +399,8 @@ case class VirtualUnits @Inject()(
     Ok(views.html.admin.virtualUnit.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
-    LinkSelectAction(id, toType).apply { implicit request =>
+  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    LinkSelectAction(id, toType, params, paging).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))

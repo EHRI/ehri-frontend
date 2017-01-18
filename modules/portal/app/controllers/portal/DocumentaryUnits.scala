@@ -10,6 +10,7 @@ import defines.EntityType
 import models.DocumentaryUnit
 import models.base.AnyModel
 import play.api.mvc.{Action, AnyContent, RequestHeader}
+import utils.PageParams
 import utils.search._
 
 import scala.concurrent.Future.{successful => immediate}
@@ -29,38 +30,32 @@ case class DocumentaryUnits @Inject()(
   private def filterKey(implicit request: RequestHeader): String =
     if (!hasActiveQuery(request)) SearchConstants.PARENT_ID else SearchConstants.ANCESTOR_IDS
 
-  def searchAll: Action[AnyContent] = UserBrowseAction.async { implicit request =>
+  def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     val filters = if (!hasActiveQuery(request))
-      Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String, Any]
+      Map(SearchConstants.TOP_LEVEL -> true)
+    else Map.empty[String, Any]
 
-    find[AnyModel](
-      filters = filters,
-      facetBuilder = docSearchFacets,
-      entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)
-    ).map { result =>
+    find[AnyModel](params, paging, filters = filters, facetBuilder = docSearchFacets,
+      entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)).map { result =>
       Ok(views.html.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))
     }
   }
 
-  def browse(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
-    else findType[DocumentaryUnit](
-      filters = Map(filterKey -> request.item.id),
-      facetBuilder = localDocFacets,
-      defaultOrder = SearchOrder.Id
-    ).map { result =>
+    else findType[DocumentaryUnit](params, paging,
+      filters = Map(filterKey -> request.item.id), facetBuilder = localDocFacets,
+      sort = SearchSort.Id).map { result =>
       Ok(views.html.documentaryUnit.show(request.item, result, request.annotations,
         request.links, portalDocRoutes.search(id), request.watched))
     }
   }
 
-  def search(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
-    findType[DocumentaryUnit](
-      filters = Map(filterKey -> request.item.id),
-      facetBuilder = localDocFacets,
-      defaultOrder = SearchOrder.Id
-    ).map { result =>
+  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+    findType[DocumentaryUnit](params, paging,
+      filters = Map(filterKey -> request.item.id), facetBuilder = localDocFacets,
+      sort = SearchSort.Id).map { result =>
       if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
         portalDocRoutes.search(id), request.watched))
       else Ok(views.html.documentaryUnit.search(request.item, result,

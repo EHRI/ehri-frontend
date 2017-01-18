@@ -1,11 +1,12 @@
 package utils.search
 
-import backend.rest.Constants._
-import defines.EntityType
+import defines.{BindableEnum, EntityType}
 import play.api.libs.json.{Format, Json, Writes}
+import play.api.mvc.QueryStringBindable
+import utils.NamespaceExtractor
 
 
-object SearchField extends Enumeration {
+object SearchField extends BindableEnum {
   type Field = Value
   val Identifier = Value("identifier")
   val Title = Value("title")
@@ -15,11 +16,11 @@ object SearchField extends Enumeration {
   val Subject = Value("subject")
   val Address = Value("address")
 
-  implicit val format: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
+  implicit val _fmt: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
 }
 
-object SearchOrder extends Enumeration {
-  type Order = Value
+object SearchSort extends BindableEnum {
+  type Sort = Value
   val Id = Value("isParent.desc,identifier.asc")
   val Score = Value("score.desc")
   val Name = Value("name_sort.asc")
@@ -30,17 +31,7 @@ object SearchOrder extends Enumeration {
   val Detail = Value("charCount.desc")
   val ChildCount = Value("childCount.desc")
 
-  implicit val format: Format[SearchOrder.Value] = defines.EnumUtils.enumFormat(SearchOrder)
-}
-
-object SearchType extends Enumeration {
-  type Type = Value
-  val All = Value("all")
-  val Collection = Value("collection")
-  val Authority = Value("authority")
-  val Repository = Value("repository")
-
-  implicit val format: Format[SearchType.Value] = defines.EnumUtils.enumFormat(SearchType)
+  implicit val _fmt: Format[SearchSort.Value] = defines.EnumUtils.enumFormat(SearchSort)
 }
 
 object SearchMode extends Enumeration {
@@ -48,60 +39,39 @@ object SearchMode extends Enumeration {
   val DefaultAll = Value("all")
   val DefaultNone = Value("none")
 
-  implicit val format: Format[SearchMode.Value] = defines.EnumUtils.enumFormat(SearchMode)
+  implicit val _fmt: Format[SearchMode.Value] = defines.EnumUtils.enumFormat(SearchMode)
 }
-
 
 /**
   * Class encapsulating the parameters of a Solr search.
   */
 case class SearchParams(
   query: Option[String] = None,
-  page: Option[Int] = None,
-  count: Option[Int] = None,
-  sort: Option[SearchOrder.Value] = None,
-  reverse: Option[Boolean] = Some(false),
+  sort: Option[SearchSort.Value] = None,
   entities: Seq[EntityType.Value] = Nil,
   fields: Seq[SearchField.Value] = Nil,
   facets: Seq[String] = Nil,
-  excludes: Option[List[String]] = None,
-  filters: Option[List[String]] = None
+  excludes: Seq[String] = Nil,
+  filters: Seq[String] = Nil
 ) {
-
-  def pageOrDefault: Int = page.getOrElse(1)
-
-  def countOrDefault: Int = count.getOrElse(DEFAULT_LIST_LIMIT)
-
   /**
     * Is there an active constraint on these params?
-    * TODO: Should this include page etc?
     */
   def isFiltered: Boolean = !query.forall(_.trim.isEmpty)
 
-  def offset: Int = Math.max(0, (pageOrDefault - 1) * countOrDefault)
-
-  /**
-    * Set unset values from another (optional) instance.
-    */
-  def setDefault(default: Option[SearchParams]): SearchParams = default match {
-    case Some(d) => copy(
-      query = query orElse d.query,
-      page = page orElse d.page,
-      count = count orElse d.count,
-      sort = sort orElse d.sort,
-      reverse = reverse orElse d.reverse,
-      entities = if (entities.isEmpty) d.entities else entities,
-      fields = if (fields.isEmpty) d.fields else fields,
-      facets = if (facets.isEmpty) d.facets else facets,
-      excludes = excludes orElse d.excludes,
-      filters = filters orElse d.filters
-    )
-    case None => this
+  def toParams(ns: String = ""): Seq[(String, String)] = {
+    import SearchParams._
+    query.map(q => ns + QUERY -> q).toSeq ++
+      sort.map(s => ns + SORT -> s.toString).toSeq ++
+      entities.map(e => ns + ENTITY -> e.toString) ++
+      fields.map(f => ns + FIELD -> f.toString) ++
+      facets.map(f => ns + FACET -> f.toString) ++
+      excludes.map(e => ns + EXCLUDE -> e) ++
+      filters.map(f => ns + FILTERS -> f)
   }
 }
 
 object SearchParams {
-  val REVERSE = "desc"
   val SORT = "sort"
   val QUERY = "q"
   val FIELD = "qf"
@@ -110,33 +80,36 @@ object SearchParams {
   val EXCLUDE = "ex"
   val FILTERS = "f"
 
-  import defines.EnumUtils._
-  import play.api.data.Form
-  import play.api.data.Forms._
-  import utils.PageParams._
+  import defines.binders._
 
-  def empty: SearchParams = new SearchParams()
+  def empty: SearchParams = SearchParams()
 
   implicit val writes: Writes[SearchParams] = Json.writes[SearchParams]
 
-  // Form deserialization
-  val form = Form(
-    mapping(
-      QUERY -> optional(nonEmptyText),
-      PAGE_PARAM -> optional(number(min = 1)),
-      // ensure the maximum list limit is respected, but as
-      // a limit, not as a constraint that causes binding failure.
-      LIMIT_PARAM -> optional(number(min = 0).transform(
-        i => i.min(MAX_LIST_LIMIT),
-        (i: Int) => i)
-      ),
-      SORT -> optional(enumMapping(SearchOrder)),
-      REVERSE -> optional(boolean),
-      ENTITY -> tolerantSeq(EntityType),
-      FIELD -> tolerantSeq(SearchField),
-      FACET -> seq(nonEmptyText),
-      EXCLUDE -> optional(list(nonEmptyText)),
-      FILTERS -> optional(list(nonEmptyText))
-    )(SearchParams.apply)(SearchParams.unapply)
-  )
+  implicit def searchParamsBinder(
+    implicit intOptBinder: QueryStringBindable[Option[Int]],
+    strOptBinder: QueryStringBindable[Option[String]],
+    seqOptBinder: QueryStringBindable[Option[Seq[String]]],
+    seqStrBinder: QueryStringBindable[Seq[String]],
+    sortBinder: QueryStringBindable[Option[SearchSort.Value]]) = new QueryStringBindable[SearchParams] with NamespaceExtractor {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SearchParams]] = {
+      val namespace: String = ns(key)
+      Some(Right(SearchParams(
+        bindOr(namespace + QUERY, params, Option.empty[String])
+          .filter(_.trim.nonEmpty),
+        bindOr(namespace + SORT, params, Option.empty[SearchSort.Value]),
+        bindOr(namespace + ENTITY, params, Seq.empty[EntityType.Value])(
+          tolerantSeqBinder(queryStringBinder(EntityType))),
+        bindOr(namespace + FIELD, params, Seq.empty[SearchField.Value])(
+          tolerantSeqBinder(queryStringBinder(SearchField))),
+        bindOr(namespace + FACET, params, Seq.empty[String]),
+        bindOr(namespace + EXCLUDE, params, Seq.empty[String]),
+        bindOr(namespace + FILTERS, params, Seq.empty[String])
+      )))
+    }
+
+    override def unbind(key: String, params: SearchParams): String =
+      utils.http.joinQueryString(params.toParams(ns(key)).distinct)
+  }
 }
