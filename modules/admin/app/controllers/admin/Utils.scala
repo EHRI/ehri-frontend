@@ -50,7 +50,7 @@ case class Utils @Inject()(
   def checkServices: Action[AnyContent] = Action.async { implicit request =>
     val checkDbF = dataApi.withContext(AuthenticatedUser("admin")).status()
       .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"ehri\t$s")
-    val checkSearchF = searchEngine.config.status()
+    val checkSearchF = searchEngine.status()
       .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"solr\t$s")
 
     Future.sequence(Seq(checkDbF, checkSearchF)).map(_.mkString("\n")).map { s =>

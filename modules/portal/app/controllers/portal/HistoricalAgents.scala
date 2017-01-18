@@ -9,6 +9,8 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.HistoricalAgent
 import play.api.mvc.{Action, AnyContent}
+import utils.PageParams
+import utils.search.SearchParams
 
 
 @Singleton
@@ -22,8 +24,8 @@ case class HistoricalAgents @Inject()(
 
   private val portalAgentRoutes = controllers.portal.routes.HistoricalAgents
 
-  def searchAll: Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[HistoricalAgent](facetBuilder = historicalAgentFacets).map { result =>
+  def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
+    findType[HistoricalAgent](params = params, paging = paging, facetBuilder = historicalAgentFacets).map { result =>
       Ok(views.html.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }

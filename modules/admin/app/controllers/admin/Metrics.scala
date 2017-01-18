@@ -13,7 +13,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, EssentialAction, Request, Result}
 import utils.search._
-import utils.{Page, search}
+import utils.{Page, PageParams, search}
 import views.Helpers
 
 
@@ -34,9 +34,9 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
         "page" -> Json.toJson(result.mapItems(_._1).page)(Page.pageWrites(w.clientFormat)),
-        "params" -> Json.toJson(result.params),
-        "appliedFacets" -> Json.toJson(result.facets),
-        "facetClasses" -> Json.toJson(result.facetClasses)
+        "params" -> result.params,
+        "appliedFacets" -> result.facets,
+        "facetClasses" -> result.facetClasses
       )).as(play.api.http.ContentTypes.JSON)
       case _ => UnsupportedMediaType
     }
@@ -44,8 +44,6 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   // For all of the metrics we're just using facet counts,
   // so set the result limit to be zero.
-  private val defaultParams = SearchParams(count=Some(0))
-
   private val langCountFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -59,11 +57,9 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   def languageOfMaterial: EssentialAction = statusCache.status(_ => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](
-        defaultParams = defaultParams,
-        entities = List(EntityType.DocumentaryUnit),
-        facetBuilder = langCountFacets
-      ).map(jsonResponse[AnyModel])
+      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+        entities = List(EntityType.DocumentaryUnit), facetBuilder = langCountFacets)
+        .map(jsonResponse[AnyModel])
     }
   }
 
@@ -81,11 +77,9 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   def holdingRepository: EssentialAction = statusCache.status(_ => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](
-        defaultParams = defaultParams,
-        entities = List(EntityType.DocumentaryUnit),
-        facetBuilder = holdingRepoFacets
-      ).map(jsonResponse[AnyModel])
+      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+        entities = List(EntityType.DocumentaryUnit), facetBuilder = holdingRepoFacets)
+        .map(jsonResponse[AnyModel])
     }
   }
 
@@ -104,11 +98,9 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   def repositoryCountries: EssentialAction = statusCache.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](
-        defaultParams = defaultParams,
-        entities = List(EntityType.Repository),
-        facetBuilder = countryRepoFacets
-      ).map(jsonResponse[AnyModel])
+      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+        entities = List(EntityType.Repository), facetBuilder = countryRepoFacets)
+        .map(jsonResponse[AnyModel])
     }
   }
 
@@ -126,12 +118,10 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   def restricted: EssentialAction = statusCache.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](
-        defaultParams = defaultParams,
-        entities = List(EntityType.HistoricalAgent,
-            EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
-        facetBuilder = restrictedFacets
-      ).map(jsonResponse[AnyModel])
+      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+        entities = List(EntityType.HistoricalAgent, EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
+        facetBuilder = restrictedFacets)
+        .map(jsonResponse[AnyModel])
     }
   }
 
@@ -150,10 +140,9 @@ case class Metrics @Inject()(components: Components) extends AdminController wit
 
   def agentTypes: EssentialAction = statusCache.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](
-        entities = List(EntityType.HistoricalAgent),
-        facetBuilder = agentTypeFacets
-      ).map(jsonResponse[AnyModel])
+      find[AnyModel](SearchParams.empty, PageParams.empty,
+        entities = List(EntityType.HistoricalAgent), facetBuilder = agentTypeFacets)
+        .map(jsonResponse[AnyModel])
     }
   }
 

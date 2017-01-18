@@ -11,6 +11,7 @@ import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent}
+import utils.{PageParams, RangeParams}
 import utils.search._
 
 
@@ -50,19 +51,20 @@ case class HistoricalAgents @Inject()(
   }
 
 
-  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = entityFacets).apply { implicit request =>
-    Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
-  }
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>
+      Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
+    }
 
   def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links))
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.list(request.page, request.params))
   }
 
@@ -102,10 +104,11 @@ case class HistoricalAgents @Inject()(
       .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
-      histRoutes.addItemPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams): Action[AnyContent] =
+    PermissionGrantAction(id, paging).apply { implicit request =>
+      Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
+        histRoutes.addItemPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
@@ -132,8 +135,8 @@ case class HistoricalAgents @Inject()(
       Ok(views.html.admin.historicalAgent.linkTo(request.item))
     }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
-    LinkSelectAction(id, toType, facets = entityFacets).apply { implicit request =>
+  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    LinkSelectAction(id, toType, params, paging, facets = entityFacets).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),

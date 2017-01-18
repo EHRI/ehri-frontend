@@ -40,12 +40,11 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     with WithOptionalUser
 
 
-  protected def GrantListAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[HolderPermissionGrantRequest] =
+  protected def GrantListAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[HolderPermissionGrantRequest] =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, HolderPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[HolderPermissionGrantRequest[A]] = {
         implicit val req = request
-        val params = PageParams.fromRequest(request)
-        userDataApi.permissionGrants[PermissionGrant](id, params).map { perms =>
+        userDataApi.permissionGrants[PermissionGrant](id, paging).map { perms =>
           HolderPermissionGrantRequest(request.item, perms, request.userOpt, request)
         }
       }

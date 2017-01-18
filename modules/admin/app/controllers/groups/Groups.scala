@@ -12,7 +12,8 @@ import models.base.Accessor
 import models.{Group, GroupF, UserProfile}
 import play.api.data.{Form, Forms}
 import play.api.mvc.{Action, AnyContent, Request}
-import utils.PageParams
+import utils.search.SearchParams
+import utils.{PageParams, RangeParams}
 
 import scala.concurrent.Future
 
@@ -31,27 +32,27 @@ case class Groups @Inject()(
   private val form = models.Group.form
   private val groupRoutes = controllers.groups.routes.Groups
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    val params = PageParams.fromRequest(request)
+  def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
-      page <- userDataApi.children[Group,Accessor](id, params)
+      page <- userDataApi.children[Group,Accessor](id, paging)
       accs <- accounts.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map {
         case up: UserProfile => up.copy(account = accs.find(_.id == up.id))
         case group => group
       })
-      Ok(views.html.admin.group.show(request.item, pageWithAccounts, params, request.annotations))
+      Ok(views.html.admin.group.show(request.item, pageWithAccounts, paging, request.annotations))
     }
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def search: Action[AnyContent] = SearchTypeAction().apply { implicit request =>
-    Ok(views.html.admin.group.search(request.result, groupRoutes.search()))
-  }
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging).apply { implicit request =>
+      Ok(views.html.admin.group.search(request.result, groupRoutes.search()))
+    }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.group.create(form, VisibilityForm.form,
@@ -104,14 +105,15 @@ case class Groups @Inject()(
         .flashing("success" -> "item.delete.confirmation")
   }
 
-  def grantList(id: String): Action[AnyContent] = GrantListAction(id).apply { implicit request =>
+  def grantList(id: String, paging: PageParams): Action[AnyContent] = GrantListAction(id, paging).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionGrantList(request.item, request.permissionGrants))
   }
 
-  def managePermissions(id: String): Action[AnyContent] = PermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
-      groupRoutes.addItemPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams): Action[AnyContent] =
+    PermissionGrantAction(id, paging).apply { implicit request =>
+      Ok(views.html.admin.permissions.managePermissions(request.item, request.permissionGrants,
+        groupRoutes.addItemPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,

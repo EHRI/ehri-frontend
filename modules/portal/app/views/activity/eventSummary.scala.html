@@ -11,8 +11,7 @@
     @for(timestamp <- summary.timestamp; user <- summary.user) {
         <a href="@controllers.portal.social.routes.Social.userActivity(
             userId = user.id,
-            from = summary.from.map(_.toLocalDateTime),
-            to = summary.to.map(_.toLocalDateTime))"
+            params = utils.SystemEventParams(from = summary.from.map(_.toLocalDateTime), to = summary.to.map(_.toLocalDateTime)))"
             class="timeline-event-time" title="@timestamp">
             <i class="glyphicon glyphicon-time"></i>
             @views.Helpers.relativeDate(timestamp)

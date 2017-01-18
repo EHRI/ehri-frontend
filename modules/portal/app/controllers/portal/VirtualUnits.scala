@@ -12,6 +12,7 @@ import defines.EntityType
 import models._
 import models.base.AnyModel
 import play.api.mvc.{Action, AnyContent, RequestHeader}
+import utils.PageParams
 import utils.search._
 
 import scala.concurrent.Future
@@ -37,10 +38,12 @@ case class VirtualUnits @Inject()(
       request.item, request.annotations, request.links, request.watched))
   }
 
-  def searchVirtualCollection(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def searchVirtualCollection(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
+        params = params,
+        paging = paging,
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = docSearchFacets
@@ -53,11 +56,13 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def browseVirtualCollections: Action[AnyContent] = UserBrowseAction.async { implicit request =>
+  def browseVirtualCollections(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     val filters = if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
     else Map.empty[String,Any]
 
     find[VirtualUnit](
+      params = params,
+      paging = paging,
       filters = filters,
       entities = List(EntityType.VirtualUnit),
       facetBuilder = docSearchFacets
@@ -86,7 +91,7 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def searchVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def searchVirtualUnit(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
@@ -97,6 +102,8 @@ case class VirtualUnits @Inject()(
       path <- pathF
       filters <- vcSearchFilters(item)
       result <- find[AnyModel](
+        params = params,
+        paging = paging,
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
         facetBuilder = docSearchFacets

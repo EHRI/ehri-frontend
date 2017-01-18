@@ -12,7 +12,8 @@ import defines.{ContentTypes, EntityType}
 import models._
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent}
-import utils.search.{SearchConstants, SearchIndexMediator}
+import utils.{PageParams, RangeParams}
+import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -40,20 +41,18 @@ AuthoritativeSets @Inject()(
   private val setRoutes = controllers.sets.routes.AuthoritativeSets
 
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[HistoricalAgent](
-      filters = Map(SearchConstants.HOLDER_ID -> request.item.id)
-    ).map { result =>
+  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    findType[HistoricalAgent](params, paging = paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id)).map { result =>
       Ok(views.html.admin.authoritativeSet.show(
           request.item, result, setRoutes.get(id), request.annotations, request.links))
     }
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.list(request.page, request.params))
   }
 
@@ -129,11 +128,12 @@ AuthoritativeSets @Inject()(
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(
-      request.item, request.permissionGrants, request.scopePermissionGrants,
-        setRoutes.addItemPermissions(id), setRoutes.addScopedPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
+    ScopePermissionGrantAction(id, paging, scopePaging).apply { implicit request =>
+      Ok(views.html.admin.permissions.manageScopedPermissions(
+        request.item, request.permissionGrants, request.scopePermissionGrants,
+          setRoutes.addItemPermissions(id), setRoutes.addScopedPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,

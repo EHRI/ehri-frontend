@@ -3,7 +3,7 @@
 # Routes for portal routes
 
 
-GET         /                                   @controllers.admin.Home.index
+GET         /                                   @controllers.admin.Home.index(params: utils.SystemEventParams ?= utils.SystemEventParams.empty, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /metrics                            @controllers.admin.Home.metrics
 GET         /overview                           @controllers.admin.Home.overview
 GET         /login                              @controllers.admin.Home.loginRedirect
@@ -15,7 +15,7 @@ GET         /updateIndex                        @controllers.admin.Indexing.upda
 GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
 # Search testing
-GET         /search                             @controllers.admin.AdminSearch.search
+GET         /search                             @controllers.admin.AdminSearch.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
 # Metrics
 GET         /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial

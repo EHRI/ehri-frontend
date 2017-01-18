@@ -13,15 +13,24 @@ package object http {
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")
 
   /**
+    * Turn a seq of parameters into an URL parameter string, not including
+    * the initial '?'.
+    * @param qs a seq of key -> value pairs
+    * @return an encoded URL parameter string
+    */
+  def joinQueryString(qs: Seq[(String, String)]): String =
+    qs.map { case (key, value) =>
+      URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8")
+    }.mkString("&")
+
+  /**
    * Turn a map of parameters into an URL parameter string, not including
    * the initial '?'.
    * @param qs a map of key -> value sequences
    * @return an encoded URL parameter string
    */
   def joinQueryString(qs: Map[String, Seq[String]]): String =
-    qs.flatMap { case (key, vals) =>
-      vals.map(v => URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(v, "UTF-8"))
-    }.mkString("&")
+    joinQueryString(qs.toSeq.flatMap { case (key, vals) => vals.map(value => key -> value)})
 
   /**
    * Turn an URL parameter string into a map of key to value sequences.

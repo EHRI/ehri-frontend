@@ -34,12 +34,12 @@
     @views.html.layout.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
-        @details(item)
+        @views.html.userProfile.details(item)
 
         @content
     } {
 
-        @views.html.common.typeLabel(EntityType.UserProfile) {
+        @views.html.common.typeLabel(defines.EntityType.UserProfile) {
             <ul class="list-group">
                 <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">

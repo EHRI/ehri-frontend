@@ -48,8 +48,8 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def listQueries: Action[AnyContent] = WithUserAction.async { implicit request =>
-    cypherQueries.list(PageParams.fromRequest(request)).map { queries =>
+  def listQueries(paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    cypherQueries.list(paging).map { queries =>
       Ok(views.html.admin.cypherQueries.list(queries))
     }
   }

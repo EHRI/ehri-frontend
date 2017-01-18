@@ -5,10 +5,9 @@ import controllers.base.CoreActionBuilders
 import defines.EntityType
 import models.UserProfile
 import play.api.Logger
-import play.api.data.Form
 import play.api.mvc._
-import utils.Page
 import utils.search._
+import utils.{Page, PageParams}
 
 import scala.concurrent.Future
 
@@ -32,7 +31,7 @@ trait Search extends CoreActionBuilders {
   /**
     * A default facet class builder.
     */
-  protected val emptyFacets: FacetBuilder = { lang => List.empty[FacetClass[Facet]] }
+  protected val emptyFacets: FacetBuilder = lang => List.empty[FacetClass[Facet]]
 
   /**
     * Ascertain if the user is making a textual query on this
@@ -44,9 +43,10 @@ trait Search extends CoreActionBuilders {
   private def bindFacetsFromRequest(facetClasses: Seq[FacetClass[Facet]])(implicit request: RequestHeader): Seq[AppliedFacet] = {
     // Facets provided with names as query parameters
     val specific: Seq[AppliedFacet] = facetClasses.flatMap { fc =>
-      request.queryString.get(fc.param).map(_.filterNot(_.trim.isEmpty)).map { values =>
-        AppliedFacet(fc.key, values.toList)
-      }
+      request.queryString
+        .get(fc.param)
+        .map(_.filterNot(_.trim.isEmpty))
+        .map(values => AppliedFacet(fc.key, values.toList))
     }
 
     // Facets provided using ?facet=name:value format
@@ -61,121 +61,51 @@ trait Search extends CoreActionBuilders {
     specific ++ generic
   }
 
-  /**
-    * Search sort logic. By default, if there's a query, items come out
-    * sorted by their score. Otherwise, they are sorted by name.
-    */
-  private type SortFunction = (SearchParams => RequestHeader) => Option[SearchOrder.Value]
+  // Search sort logic. By default, if there's a query, items come out
+  //sorted by their score. Otherwise, they are sorted by name.
+  private def defaultSortFunction(sp: SearchParams, fallback: SearchSort.Value = SearchSort.DateNewest): SearchSort.Value =
+    sp.sort.getOrElse(if (sp.query.exists(!_.trim.isEmpty)) SearchSort.Score else fallback)
 
-  private def defaultSortFunction(sp: SearchParams, request: RequestHeader,
-    fallback: SearchOrder.Value = SearchOrder.DateNewest): Option[SearchOrder.Value] = {
-    sp.sort.orElse {
-      Some {
-        if (request.getQueryString(SearchParams.QUERY).exists(!_.trim.isEmpty))
-          SearchOrder.Score
-        else fallback
-      }
-    }
-  }
-
-  /**
-    * Fetch a search engine with configuration derived from
-    * an incoming request.
-    *
-    * @param defaultParams the default parameters
-    * @param defaultOrder  the default ordering
-    * @param facetBuilder  a facet extractor
-    * @param userOpt       the current (optional user)
-    * @param request       the current request
-    * @return a configured search engine
-    */
-  protected def searchEngineFromRequest(
-    defaultParams: SearchParams = SearchParams.empty,
-    defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
-    facetBuilder: FacetBuilder = emptyFacets
-  )(implicit userOpt: Option[UserProfile], request: RequestHeader): SearchEngineConfig = {
-    val params = defaultParams
-      .copy(sort = defaultSortFunction(defaultParams, request, fallback = defaultOrder))
-
-    val bound: Form[SearchParams] = SearchParams.form.bindFromRequest(request.queryString)
-
-    val sp = bound
-      .value.getOrElse(SearchParams.empty)
-      .setDefault(Some(params))
+  private def queryFromRequest(
+    params: SearchParams,
+    paging: PageParams,
+    sort: SearchSort.Value = SearchSort.DateNewest,
+    facetBuilder: FacetBuilder = emptyFacets)(implicit userOpt: Option[UserProfile], request: RequestHeader): SearchQuery = {
 
     val facetClasses = facetBuilder(request)
     val appliedFacets: Seq[AppliedFacet] = bindFacetsFromRequest(facetClasses)
-    searchEngine.config
-      .setParams(sp)
-      .withFacets(appliedFacets)
-      .withFacetClasses(facetClasses)
-  }
 
-  /**
-    * Helper for searching a set of pre-fetched items and then
-    * combining the resulting search hits with those items.
-    *
-    * This applies an ID filter to the search query from the
-    * IDs of the given items.
-    *
-    * @param items         a sequence of items
-    * @param filters       A map of key/value filter pairs
-    * @param extra         An arbitrary set of key/value parameters
-    * @param defaultOrder  The default ordering
-    * @param defaultParams The default parameters
-    * @param idFilters     Additional ID filters
-    * @param entities      A list of entities to limit the search to
-    * @param facetBuilder  A function to create the set of facets
-    *                      from the incoming request
-    * @param mode          The search mode, default all or default to none
-    * @return A query result containing the page of search data,
-    *         plus the resolved parameters and facets.
-    */
-  protected def findIn[MT <: WithId](
-    items: Seq[MT],
-    filters: Map[String, Any] = Map.empty,
-    extra: Map[String, Any] = Map.empty,
-    defaultParams: SearchParams = SearchParams.empty,
-    defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
-    idFilters: Seq[String] = Seq.empty,
-    entities: Seq[EntityType.Value] = Nil,
-    facetBuilder: FacetBuilder = emptyFacets,
-    mode: SearchMode.Value = SearchMode.DefaultAll)(
-    implicit request: RequestHeader, userOpt: Option[UserProfile]): Future[SearchResult[(MT, SearchHit)]] = {
-
-    val dispatcher = searchEngineFromRequest(defaultParams, defaultOrder, facetBuilder)
-      .withFilters(filters)
-      .withEntities(if (entities.isEmpty) defaultParams.entities else entities)
-      .withIdFilters(idFilters)
-      .withIdFilters(items.map(_.id))
-      .withExtraParams(extra)
-      .setMode(mode)
-
-    dispatcher.search().map { result =>
-      val resolved = result.page.items.flatMap(hit => items.find(_.id == hit.itemId).map(m => m -> hit))
-      result.withItems(resolved)
-    }
+    SearchQuery(
+      params.copy(sort = Some(defaultSortFunction(params, fallback = sort))),
+      paging,
+      appliedFacets = appliedFacets,
+      facetClasses = facetClasses,
+      user = userOpt
+    )
   }
 
   /**
     * Dispatch a search to the search engine.
     *
-    * @param filters       A map of key/value filter pairs
-    * @param extra         An arbitrary set of key/value parameters
-    * @param defaultParams The default parameters
-    * @param idFilters     Additional ID filters
-    * @param entities      A list of entities to limit the search to
-    * @param facetBuilder  A function to create the set of facets
-    *                      from the incoming request
-    * @param mode          The search mode, default all or default to none
+    * @param params       The search parameters
+    * @param paging       The pagination paramenters
+    * @param filters      A map of key/value filter pairs
+    * @param extra        An arbitrary set of key/value parameters
+    * @param sort         The default ordering
+    * @param idFilters    Additional ID filters
+    * @param entities     A list of entities to limit the search to
+    * @param facetBuilder A function to create the set of facets
+    *                     from the incoming request
+    * @param mode         The search mode, default all or default to none
     * @return A query result containing the page of search data,
     *         plus the resolved parameters and facets.
     */
   protected def find[MT](
+    params: SearchParams,
+    paging: PageParams,
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
-    defaultParams: SearchParams = SearchParams.empty,
-    defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
+    sort: SearchSort.Value = SearchSort.DateNewest,
     idFilters: Seq[String] = Seq.empty,
     entities: Seq[EntityType.Value] = Nil,
     facetBuilder: FacetBuilder = emptyFacets,
@@ -183,15 +113,16 @@ trait Search extends CoreActionBuilders {
     resolverOpt: Option[SearchItemResolver] = None)(
     implicit request: RequestHeader, userOpt: Option[UserProfile], rd: Readable[MT]): Future[SearchResult[(MT, SearchHit)]] = {
 
-    val dispatcher = searchEngineFromRequest(defaultParams, defaultOrder, facetBuilder)
-      .withFilters(filters)
-      .withEntities(entities)
-      .withIdFilters(idFilters)
-      .withExtraParams(extra)
-      .setMode(mode)
+    val query = queryFromRequest(params, paging, sort, facetBuilder).copy(
+      params = params.copy(entities = entities),
+      filters = filters,
+      withinIds = idFilters,
+      extraParams = extra,
+      mode = mode
+    )
 
     for {
-      res <- dispatcher.search()
+      res <- searchEngine.search(query)
       list <- resolverOpt.getOrElse(searchResolver).resolve(res.page.items)
     } yield {
       if (list.size != res.page.size) {
@@ -203,38 +134,58 @@ trait Search extends CoreActionBuilders {
   }
 
   /**
-    * Dispatch a search for items of a single content type to the search engine.
+    * Helper for searching a set of pre-fetched items and then
+    * combining the resulting search hits with those items.
     *
-    * @param filters       A map of key/value filter pairs
-    * @param extra         An arbitrary set of key/value parameters
-    * @param defaultParams The default parameters
-    * @param idFilters     Additional ID filters
-    * @param facetBuilder  A function to create the set of facets
-    *                      from the incoming request
-    * @param mode          The search mode, default all or default to none
-    * @return A query result containing the page of search data,
-    *         plus the resolved parameters and facets.
+    * This applies an ID filter to the search query from the
+    * IDs of the given items.
     */
-  protected def findType[MT](
+  protected def findIn[MT <: WithId](
+    items: Seq[MT],
+    params: SearchParams,
+    paging: PageParams,
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
-    defaultParams: SearchParams = SearchParams.empty,
-    defaultOrder: SearchOrder.Value = SearchOrder.DateNewest,
+    sort: SearchSort.Value = SearchSort.DateNewest,
+    idFilters: Seq[String] = Seq.empty,
+    entities: Seq[EntityType.Value] = Nil,
+    facetBuilder: FacetBuilder = emptyFacets,
+    mode: SearchMode.Value = SearchMode.DefaultAll)(
+    implicit request: RequestHeader, userOpt: Option[UserProfile]): Future[SearchResult[(MT, SearchHit)]] = {
+
+    val query = queryFromRequest(params, paging, sort, facetBuilder).copy(
+      filters = filters,
+      withinIds = items.map(_.id),
+      extraParams =  extra,
+      mode = mode
+    )
+
+    searchEngine.search(query).map { result =>
+      val resolved = result.page.items.flatMap(hit => items.find(_.id == hit.itemId).map(m => m -> hit))
+      result.withItems(resolved)
+    }
+  }
+
+  /**
+    * Dispatch a search for items of a single content type to the search engine.
+    */
+  protected def findType[MT](
+    params: SearchParams,
+    paging: PageParams,
+    filters: Map[String, Any] = Map.empty,
+    extra: Map[String, Any] = Map.empty,
+    sort: SearchSort.Value = SearchSort.DateNewest,
     idFilters: Seq[String] = Seq.empty,
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
     resolverOpt: Option[SearchItemResolver] = None)(
     implicit request: RequestHeader, userOpt: Option[UserProfile], rd: ContentType[MT]): Future[SearchResult[(MT, SearchHit)]] = {
 
-    find[MT](filters, extra, defaultParams, defaultOrder, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
+    find[MT](params, paging, filters, extra, sort, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }
 
-  protected def filter[A](filters: Map[String, Any] = Map.empty, defaultParams: Option[SearchParams] = None)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
-    val params = defaultParams.map(p => p.copy(sort = defaultSortFunction(p, request)))
-    // Override the entity type with the controller entity type
-    val sp = SearchParams.form.bindFromRequest
-      .value.getOrElse(SearchParams.empty)
-      .setDefault(params)
-    searchEngine.config.setParams(sp).withFilters(filters).filter().map(_.page)
+  protected def filter[A](filters: Map[String, Any] = Map.empty, paging: PageParams = PageParams.empty, params: SearchParams = SearchParams.empty)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
+    queryFromRequest(params, paging).copy(filters = filters)
+    searchEngine.filter(queryFromRequest(params, paging).copy(filters = filters)).map(_.page)
   }
 }

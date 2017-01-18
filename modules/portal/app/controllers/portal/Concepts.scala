@@ -8,6 +8,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Concept
 import play.api.mvc.{Action, AnyContent}
+import utils.PageParams
 import utils.search._
 
 
@@ -22,18 +23,17 @@ case class Concepts @Inject()(
 
   private val portalConceptRoutes = controllers.portal.routes.Concepts
 
-  def searchAll: Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[Concept](facetBuilder = conceptFacets).map { result =>
+  def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
+    findType[Concept](params, paging, facetBuilder = conceptFacets).map { result =>
       Ok(views.html.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }
   }
 
-  def browse(id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
-    findType[Concept](
+  def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+    findType[Concept](params, paging,
       filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-      facetBuilder = conceptFacets
-    ).map { result =>
+      facetBuilder = conceptFacets).map { result =>
       Ok(views.html.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
     }

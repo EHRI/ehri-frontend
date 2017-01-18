@@ -12,7 +12,8 @@ import forms.VisibilityForm
 import models._
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent}
-import utils.search.{SearchConstants, SearchIndexMediator}
+import utils.{PageParams, RangeParams}
+import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -44,26 +45,21 @@ case class Countries @Inject()(
   private final val countryRoutes = controllers.countries.routes.Countries
 
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[Repository](
-      filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)
-    ).map { result =>
+  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    findType[Repository](params, paging, filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)).map { result =>
       Ok(views.html.admin.country.show(request.item, result,
         countryRoutes.get(id), request.annotations, request.links))
     }
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
-    Ok(views.html.admin.country.list(request.page, request.params))
-  }
-
-  def search: Action[AnyContent] = SearchTypeAction().apply { implicit request =>
-    Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
-  }
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging).apply { implicit request =>
+      Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
+    }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.country.create(form, VisibilityForm.form,
@@ -141,11 +137,12 @@ case class Countries @Inject()(
       .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(
-      request.item, request.permissionGrants, request.scopePermissionGrants,
-      countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
+    ScopePermissionGrantAction(id, paging, scopePaging).apply { implicit request =>
+      Ok(views.html.admin.permissions.manageScopedPermissions(
+        request.item, request.permissionGrants, request.scopePermissionGrants,
+        countryRoutes.addItemPermissions(id), countryRoutes.addScopedPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,

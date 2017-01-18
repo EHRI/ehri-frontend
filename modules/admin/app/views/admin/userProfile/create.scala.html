@@ -3,11 +3,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@import views.html.formHelpers._
-
 @views.html.admin.layout.rightSidebar(Messages("userProfile.create")) {
-
-
     @formHelpers.globalErrors(f)
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
@@ -23,14 +19,14 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
             <div class="control-elements">
                 <select class="form-control select2" data-placeholder="@Messages("visibility.chooseGroups")" name="@(gf("group").name)[]" id="@gf("group").id" multiple>
                     @groups.map { case(id, name) =>
-                        <option value="@id" @{if(gf.value.map(_.contains(id)).getOrElse(false)) "selected"}>@name</option>
+                        <option value="@id" @{if(gf.value.exists(_.contains(id))) "selected"}>@name</option>
                     }
                 </select>
 
             </div>
         </div>
 
-        @formHelpers.submitButton(Messages("userProfile.create.submit"), cancel = Some(controllers.users.routes.UserProfiles.search))
+        @formHelpers.submitButton(Messages("userProfile.create.submit"), cancel = Some(controllers.users.routes.UserProfiles.search()))
 	}
 } {
 

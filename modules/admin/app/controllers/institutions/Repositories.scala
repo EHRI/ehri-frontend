@@ -12,6 +12,7 @@ import models._
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent}
+import utils.{PageParams, RangeParams}
 import utils.search._
 import views.Helpers
 
@@ -85,34 +86,32 @@ case class Repositories @Inject()(
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
 
-  def search: Action[AnyContent] = SearchTypeAction(facetBuilder = repositoryFacets).apply { implicit request =>
-    Ok(views.html.admin.repository.search(request.result, repositoryRoutes.search()))
-  }
+  def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
+    SearchTypeAction(params, paging, facetBuilder = repositoryFacets).apply { implicit request =>
+      Ok(views.html.admin.repository.search(request.result, repositoryRoutes.search()))
+    }
 
   /**
    * Search documents inside repository.
    */
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
 
     val filters = (if (!hasActiveQuery(request))
       Map(SearchConstants.TOP_LEVEL -> true)
       else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
 
-    findType[DocumentaryUnit](
-      filters = filters,
-      facetBuilder = repositoryFacets,
-      defaultOrder = SearchOrder.Id
-    ).map { result =>
+    findType[DocumentaryUnit](params, paging, filters = filters,
+      facetBuilder = repositoryFacets, sort = SearchSort.Id).map { result =>
       Ok(views.html.admin.repository.show(request.item, result,
         repositoryRoutes.get(id), request.annotations, request.links))
     }
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.repository.list(request.page, request.params))
   }
 
@@ -170,11 +169,12 @@ case class Repositories @Inject()(
         .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(
-      request.item, request.permissionGrants, request.scopePermissionGrants,
-        repositoryRoutes.addItemPermissions(id), repositoryRoutes.addScopedPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
+    ScopePermissionGrantAction(id, paging, scopePaging).apply { implicit request =>
+      Ok(views.html.admin.permissions.manageScopedPermissions(
+        request.item, request.permissionGrants, request.scopePermissionGrants,
+          repositoryRoutes.addItemPermissions(id), repositoryRoutes.addScopedPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
@@ -216,8 +216,8 @@ case class Repositories @Inject()(
     Ok(views.html.admin.repository.linkTo(request.item))
   }
 
-  def linkAnnotateSelect(id: String, toType: EntityType.Value): Action[AnyContent] =
-    LinkSelectAction(id, toType).apply { implicit request =>
+  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    LinkSelectAction(id, toType, params, paging).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         repositoryRoutes.linkAnnotateSelect(id, toType),

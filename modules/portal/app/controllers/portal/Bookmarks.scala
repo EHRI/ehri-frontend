@@ -40,15 +40,14 @@ case class Bookmarks @Inject()(
     utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, utils.i18n.defaultLang)
 
   /**
-   * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
-   * into a user profile. Used by views that need a user profile but are only given
-   * a `ProfileRequest`
-   *
-   * @param pr the profile request
-   * @return an optional user profile
-   */
-  private implicit def profileRequest2profile(implicit pr: WithUserRequest[_]): UserProfile =
-    pr.user
+    * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
+    * into a user profile. Used by views that need a user profile but are only given
+    * a `ProfileRequest`
+    *
+    * @param pr the profile request
+    * @return an optional user profile
+    */
+  private implicit def profileRequest2profile(implicit pr: WithUserRequest[_]): UserProfile = pr.user
 
   private def bookmarkSetToVu(genId: String, bs: BookmarkSet): VirtualUnitF = {
     VirtualUnitF(
@@ -71,7 +70,7 @@ case class Bookmarks @Inject()(
     for {
       nextid <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d")
       vuForm = bookmarkSetToVu(s"${user.id}-vu$nextid", bs)
-      vu <- userDataApi.create[VirtualUnit,VirtualUnitF](
+      vu <- userDataApi.create[VirtualUnit, VirtualUnitF](
         vuForm,
         accessors = Seq(user.id),
         params = Map(Constants.ID_PARAM -> items))
@@ -92,9 +91,9 @@ case class Bookmarks @Inject()(
   }
 
   /**
-   * Bookmark an item, creating (if necessary) a default virtual
-   * collection private to the user.
-   */
+    * Bookmark an item, creating (if necessary) a default virtual
+    * collection private to the user.
+    */
   def bookmarkPost(itemId: String, bsId: Option[String] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
 
     def getOrCreateBS(idOpt: Option[String]): Future[VirtualUnit] = {
@@ -102,7 +101,7 @@ case class Bookmarks @Inject()(
         userDataApi.addReferences[VirtualUnit](vu.id, Seq(itemId))
         vu
       } recoverWith {
-        case e: ItemNotFound => userDataApi.create[VirtualUnit,VirtualUnitF](
+        case e: ItemNotFound => userDataApi.create[VirtualUnit, VirtualUnitF](
           item = defaultBookmarkSet(bookmarkLang),
           accessors = Seq(request.user.id),
           params = Map(Constants.ID_PARAM -> Seq(itemId))
@@ -118,15 +117,14 @@ case class Bookmarks @Inject()(
     }
   }
 
-  def listBookmarkSets: Action[AnyContent] = WithUserAction.async { implicit request =>
-    val params: PageParams = PageParams.fromRequest(request)
-    val pageF = userDataApi.userBookmarks[VirtualUnit](request.user.id, params)
+  def listBookmarkSets(paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    val pageF = userDataApi.userBookmarks[VirtualUnit](request.user.id, paging)
     val watchedF = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       page <- pageF
       watched <- watchedF
       result = SearchResult(page, SearchParams.empty)
-    } yield Ok(views.html.bookmarks.list(result, watched))
+    } yield Ok(views.html.bookmarks.list(paging, result, watched))
   }
 
   def createBookmarkSet(items: List[String] = Nil) = WithUserAction { implicit request =>
@@ -148,7 +146,7 @@ case class Bookmarks @Inject()(
     )
   }
 
-  private def buildFilter(v: VirtualUnit): Map[String,Any] = {
+  private def buildFilter(v: VirtualUnit): Map[String, Any] = {
     val pq = v.includedUnits.map(_.id)
     if (pq.isEmpty) Map(s"${SearchConstants.PARENT_ID}:${v.id}" -> Unit)
     else {
@@ -157,19 +155,20 @@ case class Bookmarks @Inject()(
     }
   }
 
-  private def includedChildren(id: String, parent: AnyModel, page: Int = 1)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[SearchResult[(AnyModel,SearchHit)]] = {
-    val params: SearchParams = SearchParams.empty.copy(page = Some(page))
+  private def includedChildren(id: String, parent: AnyModel, params: SearchParams, paging: PageParams = PageParams.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[SearchResult[(AnyModel, SearchHit)]] = {
     parent match {
       case d: DocumentaryUnit =>
         find[AnyModel](
           filters = Map(SearchConstants.PARENT_ID -> d.id),
-          defaultParams = params,
+          paging = paging,
+          params = params,
           entities = List(d.isA),
           facetBuilder = docSearchFacets)
       case d: VirtualUnit => d.includedUnits match {
         case _ => find[AnyModel](
           filters = buildFilter(d),
-          defaultParams = params,
+          paging = paging,
+          params = params,
           entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
           facetBuilder = docSearchFacets)
       }
@@ -178,40 +177,21 @@ case class Bookmarks @Inject()(
   }
 
 
-  def contents(id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def contents(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF
-      children <- includedChildren(id, item)
+      children <- includedChildren(id, item, params, paging)
       watched <- watchedF
-    } yield {
-      Ok(views.html.bookmarks.itemList(
-        Some(item),
-        request.user,
-        children.mapItems(_._1),
-        children.page.hasMore,
-        watched
-      ))
-    }
-  }
-
-  def moreContents(id: String, page: Int): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
-    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
-    for {
-      item <- itemF
-      children <- includedChildren(id, item, page = page)
-      watched <- watchedF
-    } yield {
-      Ok(views.html.bookmarks.itemListItems(
-        Some(item),
-        children.page.copy(items = children.page.items.map(_._1)),
-        children.params,
-        children.page.hasMore,
-        watched
-      ))
-    }
+    } yield Ok(views.html.bookmarks.itemList(
+      Some(item),
+      request.user,
+      paging,
+      children.mapItems(_._1),
+      children.page.hasMore,
+      watched
+    ))
   }
 }
 

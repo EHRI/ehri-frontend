@@ -9,7 +9,8 @@ import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
 import play.api.mvc.{Action, AnyContent}
-import utils.search.SearchConstants
+import utils.PageParams
+import utils.search.{SearchConstants, SearchParams}
 
 
 @Singleton
@@ -22,16 +23,13 @@ case class DocumentaryUnits @Inject()(
   with SearchType[DocumentaryUnit]
   with FacetConfig {
 
-  def browse(path: String, id: String): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def browse(path: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     futureItemOr404 {
       guides.find(path, activeOnly = true).map { guide =>
         val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
           else SearchConstants.ANCESTOR_IDS
 
-        findType[DocumentaryUnit](
-          filters = Map(filterKey -> request.item.id),
-          facetBuilder = docSearchFacets
-        ).map { result =>
+        findType[DocumentaryUnit](params, paging, filters = Map(filterKey -> request.item.id), facetBuilder = docSearchFacets).map { result =>
           Ok(views.html.guides.documentaryUnit(
             guide,
             GuidePage.document(Some(request.item.toStringLang)),

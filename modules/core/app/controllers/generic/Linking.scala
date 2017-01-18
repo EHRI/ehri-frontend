@@ -7,6 +7,7 @@ import models.base._
 import play.api.data.Form
 import play.api.libs.json._
 import play.api.mvc._
+import utils.PageParams
 import utils.search.{SearchHit, _}
 
 import scala.concurrent.Future
@@ -53,14 +54,14 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def LinkSelectAction(id: String, toType: EntityType.Value, facets: FacetBuilder = emptyFacets)(
-    implicit ct: ContentType[MT]): ActionBuilder[LinkSelectRequest] =
+  protected def LinkSelectAction(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[LinkSelectRequest] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req = request
         find[AnyModel](
+          paging = paging,
           facetBuilder = facets,
-          defaultParams = SearchParams(excludes = Some(List(id))),
+          params = params.copy(excludes = params.excludes :+ id),
           entities = Seq(toType)
         ).map { r =>
           LinkSelectRequest(request.item, r, toType, request.userOpt, request)

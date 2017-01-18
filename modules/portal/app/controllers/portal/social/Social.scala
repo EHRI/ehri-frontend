@@ -1,6 +1,5 @@
 package controllers.portal.social
 
-import java.time.LocalDateTime
 import javax.inject._
 
 import backend.ApiUser
@@ -41,19 +40,18 @@ case class Social @Inject()(
   private val usersPerPage = 18
 
   // Profile is currently an alias for the watch list
-  def userProfile(userId: String): Action[AnyContent] = userWatchList(userId)
+  def userProfile(userId: String, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    userWatchList(userId, params, paging)
 
-  def browseUsers: Action[AnyContent] = WithUserAction.async { implicit request =>
+  def browseUsers(params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
     for {
       following <- userDataApi.following[UserProfile](request.user.id, PageParams.empty)
       blocked <- userDataApi.blocked[UserProfile](request.user.id, PageParams.empty)
-      result <- findType[UserProfile](
-        defaultParams = SearchParams(count = Some(usersPerPage)),
-        filters = Map(SearchConstants.ACTIVE -> true.toString)
-      )
+      result <- findType[UserProfile](params, paging.copy(limit = usersPerPage),
+        filters = Map(SearchConstants.ACTIVE -> true.toString))
     } yield Ok(views.html.userProfile.browseUsers(
         request.user,
         result,
@@ -62,14 +60,13 @@ case class Social @Inject()(
     ))
   }
 
-  def userActivity(userId: String, from: Option[LocalDateTime] = None, to: Option[LocalDateTime] = None): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def userActivity(userId: String, params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show the profile home page of a defined user.
     // Activity is the default page
-    val listParams = RangeParams.fromRequest(request)
-    val eventParams = SystemEventParams.fromRequest(request)
-      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes, from = from, to = to)
+    val eventParams = params
+      .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes)
     val events: Future[RangePage[Seq[SystemEvent]]] =
-      userDataApi.userActions[SystemEvent](userId, listParams, eventParams)
+      userDataApi.userActions[SystemEvent](userId, range, eventParams)
 
     if (isAjax) events.map { theirActivity =>
       Ok(views.html.activity.eventItems(theirActivity))
@@ -83,11 +80,11 @@ case class Social @Inject()(
         followed <- isFollowing
         canMessage <- allowMessage
       } yield Ok(views.html.userProfile.show(
-          them, theirActivity, listParams, eventParams, followed, canMessage))
+          them, theirActivity, range, eventParams, followed, canMessage))
     }
   }
 
-  def userWatchList(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def userWatchList(userId: String, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
     val theirWatchingF: Future[Page[AnyModel]] = userDataApi.watching[AnyModel](userId)
     val myWatchingF: Future[Seq[String]] = watchedItemIds(Some(request.user.id))
@@ -98,7 +95,7 @@ case class Social @Inject()(
       them <- userDataApi.get[UserProfile](userId)
       theirWatching <- theirWatchingF
       myWatching <- myWatchingF
-      result <- findIn[AnyModel](theirWatching)
+      result <- findIn[AnyModel](theirWatching, params, paging)
       followed <- isFollowingF
       canMessage <- allowMessageF
     } yield Ok(views.html.userProfile.watched(
@@ -174,35 +171,33 @@ case class Social @Inject()(
   /**
    * Render list of someone else's followers via Ajax...
    */
-  def followersForUser(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val params = PageParams.fromRequest(request)
+  def followersForUser(userId: String, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- userDataApi.get[UserProfile](userId)
-      theirFollowers <- userDataApi.followers[UserProfile](userId, params)
+      theirFollowers <- userDataApi.followers[UserProfile](userId, paging)
       whoImFollowing <- userDataApi.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
-        Ok(views.html.userProfile.followerList(them, theirFollowers, params, whoImFollowing))
+        Ok(views.html.userProfile.followerList(them, theirFollowers, paging, whoImFollowing))
       else
-        Ok(views.html.userProfile.listFollowers(them, theirFollowers, params, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowers(them, theirFollowers, paging, whoImFollowing, canMessage))
     }
   }
 
-  def followingForUser(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val params = PageParams.fromRequest(request)
+  def followingForUser(userId: String, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
     for {
       them <- userDataApi.get[UserProfile](userId)
-      theirFollowing <- userDataApi.following[UserProfile](userId, params)
+      theirFollowing <- userDataApi.following[UserProfile](userId, paging)
       whoImFollowing <- userDataApi.following[UserProfile](request.user.id)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
-        Ok(views.html.userProfile.followingList(them, theirFollowing, params, whoImFollowing))
+        Ok(views.html.userProfile.followingList(them, theirFollowing, paging, whoImFollowing))
       else
-        Ok(views.html.userProfile.listFollowing(them, theirFollowing, params, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowing(them, theirFollowing, paging, whoImFollowing, canMessage))
     }
   }
 

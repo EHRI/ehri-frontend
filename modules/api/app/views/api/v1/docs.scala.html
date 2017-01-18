@@ -243,7 +243,8 @@
         <p>You can copy the code to a file called <code>scopecontent.py</code> and run it with URL for
             a search of EHRI archival descriptions, e.g:</p>
 
-        <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(q = Some("title:Amsterdam"), `type` = Seq(defines.EntityType.DocumentaryUnit)).absoluteURL(globalConfig.https), "UTF-8")"
+        <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(`type` = Seq(defines.EntityType.DocumentaryUnit),
+        params = utils.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(globalConfig.https), "UTF-8")"
         </pre>
 
         <p>This will run a search for documentary unit items with &quot;Amsterdam&quot; in the title and

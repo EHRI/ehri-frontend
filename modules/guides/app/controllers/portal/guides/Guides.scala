@@ -17,6 +17,7 @@ import play.api.data._
 import play.api.http.MimeTypes
 import play.api.libs.json._
 import play.api.mvc._
+import utils.PageParams
 import utils.search._
 
 import scala.concurrent.Future
@@ -33,9 +34,9 @@ case class Guides @Inject()(
   with SearchVC
   with FacetConfig {
 
-  private val ajaxOrder = utils.search.SearchOrder.Name
-  private val htmlAgentOrder = utils.search.SearchOrder.Detail
-  private val htmlConceptOrder = utils.search.SearchOrder.ChildCount
+  private val ajaxOrder = utils.search.SearchSort.Name
+  private val htmlAgentOrder = utils.search.SearchSort.Detail
+  private val htmlConceptOrder = utils.search.SearchSort.ChildCount
 
   def jsRoutes: EssentialAction = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
@@ -57,17 +58,17 @@ case class Guides @Inject()(
   /*
   *  Return SearchParams for items with hierarchy
   */
-  private def getParams(request: Request[Any], eT: EntityType.Value, sort: Option[utils.search.SearchOrder.Value], isAjax: Boolean = false): SearchParams = {
+  private def getParams(params: SearchParams, request: Request[Any], et: EntityType.Value, sort: Option[utils.search.SearchSort.Value], isAjax: Boolean = false): SearchParams = {
     request.getQueryString("parent").map { parent =>
-      SearchParams(
-        query = Some(SearchConstants.PARENT_ID + ":" + parent),
-        entities = List(eT),
+      params.copy(
+        filters = Seq(SearchConstants.PARENT_ID + ":" + parent),
+        entities = Seq(et),
         sort = sort
       )
     }.getOrElse {
-      SearchParams(
-        query = if (!isAjax) Some(SearchConstants.TOP_LEVEL + ":" + true) else None,
-        entities = List(eT),
+      params.copy(
+        filters = if (!isAjax) Seq(SearchConstants.TOP_LEVEL + ":" + true) else params.filters,
+        entities = Seq(et),
         sort = sort
       )
     }
@@ -76,11 +77,11 @@ case class Guides @Inject()(
   /*
   * Return Map extras param if needed
   */
-  private def mapParams(request: Map[String, Seq[String]]): (utils.search.SearchOrder.Value, Map[String, Any]) = {
+  private def mapParams(request: Map[String, Seq[String]]): (utils.search.SearchSort.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request).fold(
-      errorForm => SearchOrder.Name -> Map.empty,
+      errorForm => SearchSort.Name -> Map.empty,
       {
-        case GeoCoordinates(lat, lng, dist) => SearchOrder.Location -> Map(
+        case GeoCoordinates(lat, lng, dist) => SearchSort.Location -> Map(
           "pt" -> s"$lat,$lng",
           "sfield" -> "location",
           "sort" -> "geodist() asc",
@@ -142,18 +143,18 @@ case class Guides @Inject()(
   /*
   * Return a homepage for a guide
   */
-  def home(path: String): Action[AnyContent] = itemOr404Action {
+  def home(path: String, params: SearchParams, paging: PageParams): Action[AnyContent] = itemOr404Action {
     guides.find(path, activeOnly = true).map { guide =>
-      guideLayout(guide, guides.getDefaultPage(guide))
+      guideLayout(guide, guides.getDefaultPage(guide), params, paging)
     }
   }
 
   /*
   * Return a layout for a guide and a given path
   */
-  def layoutRetrieval(path: String, page: String): Action[AnyContent] = itemOr404Action {
+  def layoutRetrieval(path: String, page: String, params: SearchParams, paging: PageParams): Action[AnyContent] = itemOr404Action {
     guides.find(path, activeOnly = true).map { guide =>
-      guideLayout(guide, guides.findPage(guide, page))
+      guideLayout(guide, guides.findPage(guide, page), params, paging)
     }
   }
 
@@ -214,18 +215,19 @@ case class Guides @Inject()(
   */
 
 
-  def guideLayout(guide: Guide, temp: Option[GuidePage]): Action[AnyContent] = itemOr404Action {
-    temp.map { page =>
-      page.layout match {
-        case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide)
-        case Layout.Html => guideHtml(guide, page)
-        case Layout.Markdown => guideMarkdown(guide, page)
-        case Layout.Timeline => guideTimeline(guide, page)
+  def guideLayout(guide: Guide, temp: Option[GuidePage], params: SearchParams, paging: PageParams): Action[AnyContent] =
+    itemOr404Action {
+      temp.map { page =>
+        page.layout match {
+          case Layout.Person => guideAuthority(page, Map(SearchConstants.HOLDER_ID -> page.content), guide, params, paging)
+          case Layout.Map => guideMap(page, Map(SearchConstants.HOLDER_ID -> page.content), guide, params)
+          case Layout.Organisation => guideOrganization(page, Map(SearchConstants.HOLDER_ID -> page.content), guide, params, paging)
+          case Layout.Html => guideHtml(guide, page)
+          case Layout.Markdown => guideMarkdown(guide, page)
+          case Layout.Timeline => guideTimeline(guide, page)
+        }
       }
     }
-  }
 
 
   /*
@@ -237,68 +239,63 @@ case class Guides @Inject()(
   /*
   *   Layout named "person" [HistoricalAgent]
   */
-  def guideAuthority(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    for {
-      r <- find[HistoricalAgent](
-        filters = params,
-        defaultParams = SearchParams(sort = Some(if (isAjax) ajaxOrder else htmlAgentOrder)),
-        entities = List(EntityType.HistoricalAgent)
-      )
-      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
-    } yield render {
-      case Accepts.Html() =>
-        if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(views.html.guides.person(guide, page, guides.findPages(guide), r.page, r.params, links))
-      case Accepts.Json() =>
-        Ok(guideJson(r.page, request, links))
+  def guideAuthority(page: GuidePage, filters: Map[String, String], guide: Guide, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    UserBrowseAction.async { implicit request =>
+      for {
+        r <- findType[HistoricalAgent](
+          params.copy(sort = Some(if (isAjax) ajaxOrder else htmlAgentOrder)), paging, filters)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
+      } yield render {
+        case Accepts.Html() =>
+          if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+          else Ok(views.html.guides.person(guide, page, guides.findPages(guide), r.page, r.params, links))
+        case Accepts.Json() =>
+          Ok(guideJson(r.page, request, links))
+      }
     }
-  }
 
   /*
   *   Layout named "map" [Concept]
   */
-  def guideMap(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    mapParams(
-      if (request.queryString.contains("lat") && request.queryString.contains("lng")) request.queryString
-      else page.getParams
-    ) match {
-      case (sort, geoloc) => for {
-        r <- find[Concept](
-          params,
-          extra = geoloc,
-          defaultParams = SearchParams(sort = Some(sort), count = Some(500)),
-          entities = List(EntityType.Concept),
-          facetBuilder = conceptFacets)
-        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
-      } yield render {
-          case Accepts.Html() =>
-            if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-            else Ok(views.html.guides.places(guide, page, guides.findPages(guide), r.page, r.params, links, guideJson(r.page, request, links)))
-          case Accepts.Json() =>
-            Ok(guideJson(r.page, request, links))
-        }
+  def guideMap(page: GuidePage, filters: Map[String, String], guide: Guide, params: SearchParams): Action[AnyContent] =
+    UserBrowseAction.async { implicit request =>
+      mapParams(
+        if (request.queryString.contains("lat") && request.queryString.contains("lng")) request.queryString
+        else page.getParams
+      ) match {
+        case (sort, geoLocation) => for {
+          r <- findType[Concept](params, PageParams(limit = 500), filters,
+            geoLocation, sort, facetBuilder = conceptFacets)
+          links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
+        } yield render {
+            case Accepts.Html() =>
+              if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+              else Ok(views.html.guides.places(guide, page, guides.findPages(guide), r.page, r.params, links, guideJson(r.page, request, links)))
+            case Accepts.Json() =>
+              Ok(guideJson(r.page, request, links))
+          }
+      }
     }
-  }
 
   /*
    *   Layout named "organisation" [Concept]
    */
-  def guideOrganization(page: GuidePage, params: Map[String, String], guide: Guide): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    for {
-      r <- find[Concept](
-        params,
-        defaultParams = getParams(request, EntityType.Concept, Some(if (isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax),
-        facetBuilder = conceptFacets
-      )
-      links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
-    } yield render {
-      case Accepts.Html() =>
-        if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-        else Ok(views.html.guides.organisation(guide, page, guides.findPages(guide), r.page, r.params, links))
-      case Accepts.Json() =>
-        Ok(guideJson(r.page, request, links))
+  def guideOrganization(page: GuidePage, filters: Map[String, String], guide: Guide, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    UserBrowseAction.async { implicit request =>
+      val defParams = getParams(params, request, EntityType.Concept,
+        Some(if (isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax)
+
+      for {
+        r <- findType[Concept](defParams, paging, filters, facetBuilder = conceptFacets)
+        links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
+      } yield render {
+        case Accepts.Html() =>
+          if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
+          else Ok(views.html.guides.organisation(guide, page, guides.findPages(guide), r.page, r.params, links))
+        case Accepts.Json() =>
+          Ok(guideJson(r.page, request, links))
+      }
     }
-  }
 
   /*
    *   Layout named "html" (Html)
@@ -413,17 +410,14 @@ case class Guides @Inject()(
   /*
   *   Faceted search
   */
-  def guideFacets(path: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def guideFacets(path: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     guides.find(path, activeOnly = true).map { guide =>
       /*
        *  If we have keyword, we make a query 
        */
       val defaultResult: Future[Result] = for {
         filters <- childItemIds(guide.virtualUnit)
-        result <- findType[DocumentaryUnit](
-          filters = filters,
-          defaultOrder = SearchOrder.Name
-        )
+        result <- findType[DocumentaryUnit](params, paging, filters, sort = SearchSort.Name)
       } yield Ok(views.html.guides.facet(
         guide,
         GuidePage.faceted,
@@ -437,9 +431,9 @@ case class Guides @Inject()(
       if (facets.isEmpty) defaultResult
       else for {
           ids <- searchFacets(guide, facets)
-          result <- if(ids.nonEmpty) findType[DocumentaryUnit](
+          result <- if(ids.nonEmpty) findType[DocumentaryUnit](params, paging,
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
-            defaultOrder = SearchOrder.Name
+            sort = SearchSort.Name
           ) else immediate(SearchResult.empty)
           selectedAccessPoints <- userDataApi.fetch[AnyModel](facets)
           availableFacets <- otherFacets(guide, ids)

@@ -11,7 +11,7 @@
     </div>
     <a href="@itemPermAction">@Messages("permissions.itemLevel.manage")</a>
 
-    @permissionList(None, itemPage, "page")
+    @views.html.admin.permissions.permissionList(None, itemPage)
 
     <hr />
 
@@ -22,7 +22,7 @@
     </div>
     <a href="@scopePermAction">@Messages("permissions.scopeLevel.manage")</a>
 
-    @permissionList(None, scopePage, "spage")
+    @views.html.admin.permissions.permissionList(None, scopePage, namespace = "s")
 
 } {
 

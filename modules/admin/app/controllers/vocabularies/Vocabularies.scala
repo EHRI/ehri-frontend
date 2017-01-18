@@ -13,7 +13,8 @@ import play.api.data.Form
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent}
-import utils.search.{SearchConstants, SearchIndexMediator}
+import utils.{PageParams, RangeParams}
+import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -38,21 +39,19 @@ case class Vocabularies @Inject()(
 
   private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[Concept](
-      filters = Map(SearchConstants.HOLDER_ID -> request.item.id)
-    ).map { result =>
+  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    findType[Concept](params, paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id)).map { result =>
       Ok(views.html.admin.vocabulary.show(
         request.item, result,
         vocabRoutes.get(id), request.annotations, request.links))
     }
   }
 
-  def history(id: String): Action[AnyContent] = ItemHistoryAction(id).apply { implicit request =>
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
   }
 
-  def list: Action[AnyContent] = ItemPageAction.apply { implicit request =>
+  def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
     Ok(views.html.admin.vocabulary.list(request.page, request.params))
   }
 
@@ -124,11 +123,12 @@ case class Vocabularies @Inject()(
       .flashing("success" -> "item.update.confirmation")
   }
 
-  def managePermissions(id: String): Action[AnyContent] = ScopePermissionGrantAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.manageScopedPermissions(
-      request.item, request.permissionGrants, request.scopePermissionGrants,
-      vocabRoutes.addItemPermissions(id), vocabRoutes.addScopedPermissions(id)))
-  }
+  def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
+    ScopePermissionGrantAction(id, paging, scopePaging).apply { implicit request =>
+      Ok(views.html.admin.permissions.manageScopedPermissions(
+        request.item, request.permissionGrants, request.scopePermissionGrants,
+        vocabRoutes.addItemPermissions(id), vocabRoutes.addScopedPermissions(id)))
+    }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
