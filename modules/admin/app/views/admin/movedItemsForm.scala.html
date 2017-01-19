@@ -6,16 +6,18 @@
         @formHelpers.csrfToken()
 
         <div class="form-group">
-            <label class="control-label" for="id_path-prefix">Specify the path prefix before the item's id</label>
+            <label class="control-label" for="id_path-prefix">
+                Specify the path prefix before the item's id (comma-separated if there are multiple)
+            </label>
             <div class="control-elements">
                 <input class="form-control" type="text" name="path-prefix" id="id_path-prefix" />
             </div>
         </div>
 
         <div class="form-group">
-            <label class="control-label" for="id_tsv">Select the user TSV file...</label>
+            <label class="control-label" for="id_csv">Select the user CSV file...</label>
             <div class="control-elements">
-                <input class="form-control" type="file" name="tsv" id="id_tsv" />
+                <input class="form-control" type="file" name="csv" id="id_csv" />
             </div>
         </div>
         <div class="form-group">
