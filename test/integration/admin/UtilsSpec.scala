@@ -35,24 +35,25 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
       val f = File.createTempFile("/upload", ".csv")
       f.deleteOnExit()
-      FileUtils.writeStringToFile(f, "ιταλία\tc1\nfoo\tc4", "UTF-8")
+      FileUtils.writeStringToFile(f, "ιταλία,c1\nfoo,c4", "UTF-8")
 
       val result = FakeRequest(controllers.admin.routes.Utils.addMovedItemsPost())
-        .withFileUpload("tsv", f, "text/tsv", Map("path-prefix" -> Seq("/units/")))
+        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
         .withUser(privilegedUser)
         .withCsrf
         .call()
       status(result) must_== OK
 
       // We've added two items...
-      val redirects = movedPages.toList.takeRight(2)
+      val redirects = movedPages.toList.takeRight(4)
+      println(movedPages.toList)
       redirects.headOption must beSome.which { case (from, to) =>
         from must_== "/units/" + java.net.URLEncoder.encode("ιταλία", "UTF-8")
         to must_== "/units/c1"
       }
       redirects.lastOption must beSome.which { case (from, to) =>
-        from must_== "/units/foo"
-        to must_== "/units/c4"
+        from must_== "/admin/units/foo"
+        to must_== "/admin/units/c4"
       }
     }
 

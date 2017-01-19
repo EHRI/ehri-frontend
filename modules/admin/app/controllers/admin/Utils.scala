@@ -59,12 +59,54 @@ case class Utils @Inject()(
   }
 
   private val movedItemsForm = Form(
-    single("path-prefix" -> nonEmptyText.verifying("isPath", s => s.startsWith("/") && s.endsWith("/")))
+    single("path-prefix" -> nonEmptyText.verifying("isPath",
+      s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))))
   )
 
   def addMovedItems() = AdminAction { implicit request =>
     Ok(views.html.admin.movedItemsForm(movedItemsForm,
         controllers.admin.routes.Utils.addMovedItemsPost()))
+  }
+
+  private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] =
+    for {
+    // Delete the old IDs from the search engine...
+      _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
+      // Index the new ones...
+      _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
+      // Add the 301s to the DB...
+      redirectCount <- components.pageRelocator.addMoved(newUrls)
+    } yield redirectCount
+
+
+  def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
+    def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
+
+    val boundForm: Form[String] = movedItemsForm.bindFromRequest
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
+        controllers.admin.routes.Utils.addMovedItemsPost()))),
+      prefix =>
+        request.body.file("csv").map { file =>
+          val items = parseCsv(new FileInputStream(file.ref.file)).collect {
+            case from :: to :: _ => from -> to
+          }
+          val newUrls = items.flatMap { case (from, to) =>
+            prefix.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
+          }
+
+          updateMovedItems(items, newUrls).map { count =>
+            logger.info(s"Added $count redirects")
+            Ok(views.html.admin.movedItemsAdded(newUrls))
+          }
+        }.getOrElse {
+          logger.error("Missing CSV for redirect upload...")
+          immediate(Ok(views.html.admin.movedItemsForm(
+            boundForm.withError("csv", "No CSV file found"),
+            controllers.admin.routes.Utils.addMovedItemsPost())))
+        }
+    )
   }
 
   private val regenerateForm: Form[Seq[(String, String, Boolean)]] = Form(
@@ -79,7 +121,7 @@ case class Utils @Inject()(
         .withRequestTimeout(20.minutes)
         .post("").map { r =>
         val items: Seq[(String,String)] = parseCsv(
-          new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+          new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
           case from :: to :: _ => from -> to
         }
         Ok(views.html.admin.regenerateIdsForm(regenerateForm
@@ -104,7 +146,7 @@ case class Utils @Inject()(
           .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
           .withQueryString("commit" -> true.toString).post("").flatMap { r =>
 
-          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
             case from :: to :: _ => from -> to
           }
           // For each item we're renaming create 301s for the browse, search, and admin URLs
@@ -118,43 +160,12 @@ case class Utils @Inject()(
             Seq(portalBrowse, portalSearch, admin)
           }
 
-          for {
-            // Delete the old IDs from the search engine...
-            _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
-            // Index the new ones...
-            _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
-            // Add the 301s to the DB...
-            redirectCount <- components.pageRelocator.addMoved(newUrls)
-          } yield Ok(views.html.admin.movedItemsAdded(newUrls))
+          updateMovedItems(items, newUrls).map { count =>
+            logger.info(s"Added $count redirects")
+            Ok(views.html.admin.movedItemsAdded(newUrls))
+          }
         }
       }
-    )
-  }
-
-  def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
-    def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
-    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
-
-    val boundForm: Form[String] = movedItemsForm.bindFromRequest
-    boundForm.fold(
-      errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
-          controllers.admin.routes.Utils.addMovedItemsPost()))),
-      prefix =>
-        request.body.file("tsv").map { file =>
-          val data = parseCsv(new FileInputStream(file.ref.file)).collect {
-            case from :: to :: _ => from -> to
-          }.map { case (from, to) =>
-            s"$prefix${enc(from)}" -> s"$prefix${enc(to)}"
-          }
-          components.pageRelocator.addMoved(data).map { inserted =>
-            Ok(views.html.admin.movedItemsAdded(data.map(p => dec(p._1) -> dec(p._2))))
-          }
-        }.getOrElse {
-          logger.error("Missing TSV for redirect upload...")
-          immediate(Ok(views.html.admin.movedItemsForm(
-            boundForm.withError("tsv", "No TSV file found"),
-            controllers.admin.routes.Utils.addMovedItemsPost())))
-        }
     )
   }
 
@@ -177,7 +188,7 @@ case class Utils @Inject()(
       .post(Map(
         FindReplaceTask.FIND -> Seq(task.find),
         FindReplaceTask.REPLACE -> Seq(task.replace))).map { r =>
-      parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray), ',').collect {
+      parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
         case pid :: cid :: textValue :: _ => (pid, cid, textValue)
       }
     }
@@ -210,7 +221,7 @@ case class Utils @Inject()(
     )
   }
 
-  private def parseCsv(ios: InputStream, sep: Char = '\t'): Seq[List[String]] = {
+  private def parseCsv(ios: InputStream, sep: Char = ','): Seq[List[String]] = {
     import com.fasterxml.jackson.dataformat.csv.CsvSchema
     import scala.collection.JavaConverters._
 
