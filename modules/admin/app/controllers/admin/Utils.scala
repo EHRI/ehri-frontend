@@ -1,37 +1,34 @@
 package controllers.admin
 
-import java.io.{ByteArrayInputStream, FileInputStream}
+import java.io.{FileInputStream, InputStream}
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
 import backend.AuthenticatedUser
+import backend.rest.Constants
 import backend.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.Components
 import controllers.base.AdminController
+import defines.EntityType
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.Messages
+import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, MultipartFormData}
+import utils.search.SearchIndexMediator
 import utils.{CsvHelpers, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import java.io.InputStream
-import java.net.URLEncoder
-
-import backend.rest.Constants
-import backend.rest.Constants.LOG_MESSAGE_HEADER_NAME
-import defines.EntityType
-import play.api.i18n.Messages
-import play.api.libs.Files.TemporaryFile
-import utils.search.SearchIndexMediator
 
 /**
- * Controller for various monitoring functions.
- */
+  * Controller for various monitoring functions and admin utilities.
+  */
 @Singleton
 case class Utils @Inject()(
   components: Components,
@@ -44,207 +41,22 @@ case class Utils @Inject()(
   private val logger = play.api.Logger(getClass)
   private val dbBaseUrl = utils.serviceBaseUrl("ehridata", config)
 
-  /**
-   * Check the database is up by trying to load the admin account.
-   */
+  /** Check the database is up by trying to load the admin account.
+    */
   def checkServices: Action[AnyContent] = Action.async { implicit request =>
     val checkDbF = dataApi.withContext(AuthenticatedUser("admin")).status()
-      .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"ehri\t$s")
+      .recover { case e => s"ko: ${e.getMessage}" }.map(s => s"ehri\t$s")
     val checkSearchF = searchEngine.status()
-      .recover { case e => s"ko: ${e.getMessage}"}.map(s => s"solr\t$s")
+      .recover { case e => s"ko: ${e.getMessage}" }.map(s => s"solr\t$s")
 
     Future.sequence(Seq(checkDbF, checkSearchF)).map(_.mkString("\n")).map { s =>
       if (s.contains("ko")) ServiceUnavailable(s) else Ok(s)
     }
   }
 
-  private val movedItemsForm = Form(
-    single("path-prefix" -> nonEmptyText.verifying("isPath",
-      s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))))
-  )
-
-  def addMovedItems() = AdminAction { implicit request =>
-    Ok(views.html.admin.movedItemsForm(movedItemsForm,
-        controllers.admin.routes.Utils.addMovedItemsPost()))
-  }
-
-  private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] =
-    for {
-    // Delete the old IDs from the search engine...
-      _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
-      // Index the new ones...
-      _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
-      // Add the 301s to the DB...
-      redirectCount <- components.pageRelocator.addMoved(newUrls)
-    } yield redirectCount
-
-
-  def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
-    def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
-    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
-
-    val boundForm: Form[String] = movedItemsForm.bindFromRequest
-    boundForm.fold(
-      errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
-        controllers.admin.routes.Utils.addMovedItemsPost()))),
-      prefix =>
-        request.body.file("csv").map { file =>
-          val items = parseCsv(new FileInputStream(file.ref.file)).collect {
-            case from :: to :: _ => from -> to
-          }
-          val newUrls = items.flatMap { case (from, to) =>
-            prefix.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
-          }
-
-          updateMovedItems(items, newUrls).map { count =>
-            logger.info(s"Added $count redirects")
-            Ok(views.html.admin.movedItemsAdded(newUrls))
-          }
-        }.getOrElse {
-          logger.error("Missing CSV for redirect upload...")
-          immediate(Ok(views.html.admin.movedItemsForm(
-            boundForm.withError("csv", "No CSV file found"),
-            controllers.admin.routes.Utils.addMovedItemsPost())))
-        }
-    )
-  }
-
-  private val regenerateForm: Form[Seq[(String, String, Boolean)]] = Form(
-    single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
-  )
-
-  import scala.concurrent.duration._
-
-  def regenerateIds(): Action[AnyContent] = AdminAction.async { implicit request =>
-    if (isAjax) {
-      ws.url(s"$dbBaseUrl/tools/regenerate-ids-for-type/${EntityType.DocumentaryUnit}")
-        .withRequestTimeout(20.minutes)
-        .post("").map { r =>
-        val items: Seq[(String,String)] = parseCsv(
-          new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
-          case from :: to :: _ => from -> to
-        }
-        Ok(views.html.admin.regenerateIdsForm(regenerateForm
-            .fill(items.map{case (f, t) => (f, t, true)}),
-          controllers.admin.routes.Utils.regenerateIdsPost()))
-      }
-    } else immediate(Ok(views.html.admin.regenerateIds(regenerateForm,
-      controllers.admin.routes.Utils.regenerateIds())))
-  }
-
-  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
-    val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
-    boundForm.fold(
-      errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
-        controllers.admin.routes.Utils.regenerateIdsPost()))),
-
-      formItems => {
-        val activeIds = formItems.collect{ case (f, t, true) => f}
-        logger.info(s"Renaming: $activeIds")
-
-        ws.url(s"$dbBaseUrl/tools/regenerate-ids")
-          .withQueryString(activeIds.map(id => Constants.ID_PARAM -> id): _*)
-          .withQueryString("commit" -> true.toString).post("").flatMap { r =>
-
-          val items = parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
-            case from :: to :: _ => from -> to
-          }
-          // For each item we're renaming create 301s for the browse, search, and admin URLs
-          val newUrls = items.flatMap { case (from, to) =>
-            val portalBrowse = (controllers.portal.routes.DocumentaryUnits.browse(from).url,
-              controllers.portal.routes.DocumentaryUnits.browse(to).url)
-            val portalSearch = (controllers.portal.routes.DocumentaryUnits.search(from).url,
-              controllers.portal.routes.DocumentaryUnits.search(to).url)
-            val admin = (controllers.units.routes.DocumentaryUnits.get(from).url,
-              controllers.units.routes.DocumentaryUnits.get(to).url)
-            Seq(portalBrowse, portalSearch, admin)
-          }
-
-          updateMovedItems(items, newUrls).map { count =>
-            logger.info(s"Added $count redirects")
-            Ok(views.html.admin.movedItemsAdded(newUrls))
-          }
-        }
-      }
-    )
-  }
-
-  import models.admin.FindReplaceTask
-
-  private def msgHeader(msg: Option[String]): Seq[(String,String)] =
-    msg
-      .map(m => Seq(LOG_MESSAGE_HEADER_NAME -> URLEncoder.encode(m, StandardCharsets.UTF_8.name)))
-      .getOrElse(Seq.empty)
-
-  private def doFindReplace(task: FindReplaceTask, userId: String, commit: Boolean = false): Future[Seq[(String, String, String)]] =
-    ws.url(s"$dbBaseUrl/tools/find-replace")
-      .withHeaders(Constants.AUTH_HEADER_NAME -> userId)
-      .withHeaders(msgHeader(task.log): _*)
-      .withQueryString(
-        FindReplaceTask.PARENT_TYPE -> task.parentType.toString,
-        FindReplaceTask.SUB_TYPE -> task.subType.toString,
-        FindReplaceTask.PROPERTY -> task.property,
-        "commit" -> commit.toString)
-      .post(Map(
-        FindReplaceTask.FIND -> Seq(task.find),
-        FindReplaceTask.REPLACE -> Seq(task.replace))).map { r =>
-      parseCsv(new ByteArrayInputStream(r.bodyAsBytes.toArray)).collect {
-        case pid :: cid :: textValue :: _ => (pid, cid, textValue)
-      }
-    }
-
-  def findReplace: Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.findReplace(FindReplaceTask.form, None,
-      controllers.admin.routes.Utils.findReplacePost(),
-      controllers.admin.routes.Utils.findReplacePost(commit = true)))
-  }
-
-  def findReplacePost(commit: Boolean = false): Action[AnyContent] = AdminAction.async { implicit request =>
-    val boundForm = FindReplaceTask.form.bindFromRequest()
-    boundForm.fold(
-      errForm => immediate(
-        BadRequest(views.html.admin.findReplace(errForm, None,
-          controllers.admin.routes.Utils.findReplacePost(),
-          controllers.admin.routes.Utils.findReplacePost(commit = true)))
-      ),
-      fr => doFindReplace(fr, request.user.id, commit = commit).flatMap { found =>
-        if (commit) {
-          searchIndexer.handle.indexIds(found.map(_._1): _*).map { _ =>
-            Redirect(controllers.admin.routes.Utils.findReplace())
-              .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
-          }
-        }
-        else immediate(Ok(views.html.admin.findReplace(boundForm, Some(found),
-          controllers.admin.routes.Utils.findReplacePost(),
-          controllers.admin.routes.Utils.findReplacePost(commit = true))))
-      }
-    )
-  }
-
-  private def parseCsv(ios: InputStream, sep: Char = ','): Seq[List[String]] = {
-    import com.fasterxml.jackson.dataformat.csv.CsvSchema
-    import scala.collection.JavaConverters._
-
-    val schema = CsvSchema.builder().setColumnSeparator(sep).build()
-    val all: MappingIterator[Array[String]] = CsvHelpers
-      .mapper
-      .enable(CsvParser.Feature.WRAP_AS_ARRAY)
-      .readerFor(classOf[Array[String]])
-      .`with`(schema)
-      .readValues(ios)
-    try {
-      for {
-        arr <- all.readAll().asScala
-      } yield arr.toList
-    } finally {
-      all.close()
-    }
-  }
-
-  /**
-   * Check users in the accounts DB have profiles in
-   * the graph DB, and vice versa.
-   */
+  /** Check users in the accounts DB have profiles in
+    * the graph DB, and vice versa.
+    */
   def checkUserSync: Action[AnyContent] = Action.async { implicit request =>
     val stringList: Reads[Seq[String]] =
       (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
@@ -264,6 +76,193 @@ case class Utils @Inject()(
         }
       }
       Ok(out)
+    }
+  }
+
+  private val urlMapForm = Form(
+    single("path-prefix" -> nonEmptyText.verifying("isPath",
+      s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))))
+  )
+
+  def addMovedItems(): Action[AnyContent] = AdminAction { implicit request =>
+    Ok(views.html.admin.movedItemsForm(urlMapForm,
+      controllers.admin.routes.Utils.addMovedItemsPost()))
+  }
+
+  def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] =
+    AdminAction.async(parse.multipartFormData) { implicit request =>
+      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      boundForm.fold(
+        errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
+          controllers.admin.routes.Utils.addMovedItemsPost()))),
+        prefix => request.body.file("csv").map { file =>
+          updateFromCsv(new FileInputStream(file.ref.file), prefix)
+            .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+        }.getOrElse {
+          immediate(Ok(views.html.admin.movedItemsForm(
+            boundForm.withError("csv", "No CSV file found"),
+            controllers.admin.routes.Utils.addMovedItemsPost())))
+        }
+      )
+    }
+
+  def renameItems(): Action[AnyContent] = AdminAction { implicit request =>
+    Ok(views.html.admin.renameItemsForm(urlMapForm,
+      controllers.admin.routes.Utils.renameItemsPost()))
+  }
+
+  def renameItemsPost(): Action[MultipartFormData[TemporaryFile]] =
+    AdminAction.async(parse.multipartFormData) { implicit request =>
+      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      boundForm.fold(
+        errForm => immediate(BadRequest(views.html.admin.renameItemsForm(errForm,
+          controllers.admin.routes.Utils.renameItemsPost()))),
+        prefix => request.body.file("csv").map { file =>
+          val todo = parseCsv(new FileInputStream(file.ref.file))
+            .collect { case from :: to :: _ => from -> to }
+          userDataApi.rename(todo).flatMap { items =>
+            updateFromCsv(items, prefix)
+              .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+          }
+        }.getOrElse {
+          immediate(Ok(views.html.admin.movedItemsForm(
+            boundForm.withError("csv", "No CSV file found"),
+            controllers.admin.routes.Utils.renameItemsPost())))
+        }
+      )
+    }
+
+  private val regenerateForm: Form[Seq[(String, String, Boolean)]] = Form(
+    single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
+  )
+
+  def regenerateIds(): Action[AnyContent] = AdminAction.async { implicit request =>
+    if (isAjax) {
+      userDataApi.regenerateIdsForType(EntityType.DocumentaryUnit).map { items =>
+        Ok(views.html.admin.regenerateIdsForm(regenerateForm
+          .fill(items.map { case (f, t) => (f, t, true) }),
+          controllers.admin.routes.Utils.regenerateIdsPost()))
+      }
+    } else immediate(Ok(views.html.admin.regenerateIds(regenerateForm,
+      controllers.admin.routes.Utils.regenerateIds())))
+  }
+
+  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
+    val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
+        controllers.admin.routes.Utils.regenerateIdsPost()))),
+
+      formItems => {
+        val activeIds = formItems.collect { case (f, t, true) => f }
+        logger.info(s"Renaming: $activeIds")
+
+        userDataApi.regenerateIds(activeIds, commit = true).flatMap { items =>
+          // For each item we're renaming create 301s for the browse, search, and admin URLs
+          val genUrls = items.flatMap { case (from, to) =>
+            val portalBrowse = (controllers.portal.routes.DocumentaryUnits.browse(from).url,
+              controllers.portal.routes.DocumentaryUnits.browse(to).url)
+            val portalSearch = (controllers.portal.routes.DocumentaryUnits.search(from).url,
+              controllers.portal.routes.DocumentaryUnits.search(to).url)
+            val admin = (controllers.units.routes.DocumentaryUnits.get(from).url,
+              controllers.units.routes.DocumentaryUnits.get(to).url)
+            Seq(portalBrowse, portalSearch, admin)
+          }
+
+          updateFromCsv(items, genUrls)
+            .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+        }
+      }
+    )
+  }
+
+  import models.admin.FindReplaceTask
+
+  def findReplace: Action[AnyContent] = AdminAction.apply { implicit request =>
+    Ok(views.html.admin.findReplace(FindReplaceTask.form, None,
+      controllers.admin.routes.Utils.findReplacePost(),
+      controllers.admin.routes.Utils.findReplacePost(commit = true)))
+  }
+
+  def findReplacePost(commit: Boolean = false): Action[AnyContent] = AdminAction.async { implicit request =>
+    val boundForm = FindReplaceTask.form.bindFromRequest()
+    boundForm.fold(
+      errForm => immediate(
+        BadRequest(views.html.admin.findReplace(errForm, None,
+          controllers.admin.routes.Utils.findReplacePost(),
+          controllers.admin.routes.Utils.findReplacePost(commit = true)))
+      ),
+      task => userDataApi.findReplace(
+          task.parentType, task.subType, task.property, task.find,
+          task.replace, commit, task.log).flatMap { found =>
+        if (commit) {
+          searchIndexer.handle.indexIds(found.map(_._1): _*).map { _ =>
+            Redirect(controllers.admin.routes.Utils.findReplace())
+              .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
+          }
+        }
+        else immediate(Ok(views.html.admin.findReplace(boundForm, Some(found),
+          controllers.admin.routes.Utils.findReplacePost(),
+          controllers.admin.routes.Utils.findReplacePost(commit = true))))
+      }
+    )
+  }
+
+  private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
+    def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+
+    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
+
+    items.flatMap { case (from, to) =>
+      prefixes.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
+    }
+  }
+
+  private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
+    for {
+    // Delete the old IDs from the search engine...
+      _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
+      // Index the new ones....
+      _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
+      // Add the 301s to the DB...
+      redirectCount <- components.pageRelocator.addMoved(newUrls)
+    } yield redirectCount
+  }
+
+  private def updateFromCsv(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    updateMovedItems(items, newUrls).map { count =>
+      logger.info(s"Added $count redirects")
+      newUrls
+    }
+  }
+
+  private def updateFromCsv(inputStream: InputStream, prefixes: String): Future[Seq[(String, String)]] = {
+    val items = parseCsv(inputStream).collect { case f :: t :: _ => f -> t }
+    updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+  }
+
+  private def updateFromCsv(items: Seq[(String, String)], prefixes: String): Future[Seq[(String, String)]] =
+    updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+
+
+  private def parseCsv(ios: InputStream, sep: Char = ','): Seq[List[String]] = {
+    import com.fasterxml.jackson.dataformat.csv.CsvSchema
+
+    import scala.collection.JavaConverters._
+
+    val schema = CsvSchema.builder().setColumnSeparator(sep).build()
+    val all: MappingIterator[Array[String]] = CsvHelpers
+      .mapper
+      .enable(CsvParser.Feature.WRAP_AS_ARRAY)
+      .readerFor(classOf[Array[String]])
+      .`with`(schema)
+      .readValues(ios)
+    try {
+      for {
+        arr <- all.readAll().asScala
+      } yield arr.toList
+    } finally {
+      all.close()
     }
   }
 }

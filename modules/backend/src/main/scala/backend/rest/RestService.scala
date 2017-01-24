@@ -13,6 +13,7 @@ import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 
 trait RestService {
@@ -34,7 +35,8 @@ trait RestService {
     headers: Seq[(String,String)] = Seq.empty,
     queryString: Seq[(String,String)] = Seq.empty,
     method: String = GET,
-    body: WSBody = EmptyBody
+    body: WSBody = EmptyBody,
+    timeout: Option[Duration] = None
     )(implicit apiUser: ApiUser) {
 
     lazy val credentials: Option[(String, String)] = for {
@@ -55,9 +57,10 @@ trait RestService {
         .withQueryString(queryString: _*)
         .withHeaders(headers: _*)
         .withBody(body)
-      credentials.fold(holder) { case (un, pw) =>
+      val hc = credentials.fold(holder) { case (un, pw) =>
         holder.withAuth(un, pw, WSAuthScheme.BASIC)
       }
+      timeout.fold(hc)(t => hc.withRequestTimeout(t))
     }
 
     private def runWs: Future[WSResponse] = {
@@ -111,6 +114,8 @@ trait RestService {
       copy(queryString = queryString ++ parameters)
 
     def withMethod(method: String): BackendRequest = copy(method = method)
+
+    def withTimeout(duration: Duration): BackendRequest = copy(timeout = Some(duration))
 
     def execute(): Future[WSResponse] = runWs
   }

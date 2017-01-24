@@ -32,7 +32,6 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "allow uploading moved items" in new ITestApp {
-
       val f = File.createTempFile("/upload", ".csv")
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "ιταλία,c1\nfoo,c4", "UTF-8")
@@ -46,7 +45,6 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
       // We've added two items...
       val redirects = movedPages.toList.takeRight(4)
-      println(movedPages.toList)
       redirects.headOption must beSome.which { case (from, to) =>
         from must_== "/units/" + java.net.URLEncoder.encode("ιταλία", "UTF-8")
         to must_== "/units/c1"
@@ -54,6 +52,30 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       redirects.lastOption must beSome.which { case (from, to) =>
         from must_== "/admin/units/foo"
         to must_== "/admin/units/c4"
+      }
+    }
+
+    "allow batch renaming items" in new ITestApp {
+      val f = File.createTempFile("/upload", ".csv")
+      f.deleteOnExit()
+      FileUtils.writeStringToFile(f, "c1,new-c1\nc4,new-c4", "UTF-8")
+
+      val result = FakeRequest(controllers.admin.routes.Utils.renameItemsPost())
+        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must_== OK
+
+      // We've added two items...
+      val redirects = movedPages.toList.takeRight(4)
+      redirects.headOption must beSome.which { case (from, to) =>
+        from must_== "/units/c1"
+        to must_== "/units/nl-r1-new_c1"
+      }
+      redirects.lastOption must beSome.which { case (from, to) =>
+        from must_== "/admin/units/c4"
+        to must_== "/admin/units/nl-r1-new_c4"
       }
     }
 
