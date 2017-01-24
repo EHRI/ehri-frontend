@@ -3,22 +3,22 @@ package backend.rest
 import javax.inject.Inject
 
 import acl.{GlobalPermissionSet, ItemPermissionSet}
+import backend._
 import backend.rest.Constants._
 import defines.{ContentTypes, EntityType}
+import play.api.cache.CacheApi
 import play.api.libs.json._
+import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
+import play.api.mvc.Headers
 import utils._
 import utils.caching.FutureCache
 
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.Headers
-import play.api.cache.CacheApi
-import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
-import backend._
-
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
 
 
-case class RestApi @Inject ()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
+case class RestApi @Inject()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): RestApiHandle =
     RestApiHandle(eventHandler)(
       cache: CacheApi, config, apiUser, executionContext, ws)
@@ -30,7 +30,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   val apiUser: ApiUser,
   val executionContext: ExecutionContext,
   val ws: WSClient
-) extends DataApiHandle with RestService with RestContext  {
+) extends DataApiHandle with RestService with RestContext {
 
   override def withEventHandler(eventHandler: EventHandler): RestApiHandle = this.copy(eventHandler = eventHandler)
 
@@ -44,15 +44,15 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   // Direct API query
-  override def query(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
-    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
+  override def query(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse] =
+    userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).get()
 
-  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[StreamedResponse] =
-    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + joinQueryString(params) else ""))
+  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[StreamedResponse] =
+    userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).withMethod("GET").stream()
 
-  override def createNewUserProfile[T <: WithId: Readable](data: Map[String,String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
+  override def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
     userCall(enc(baseUrl, "admin", "create-default-user-profile"))
       .withQueryString(groups.map(group => Constants.GROUP_PARAM -> group): _*)
       .post(Json.toJson(data)).map { response =>
@@ -80,11 +80,11 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def create[MT <: WithId : Resource, T: Writable](item: T, accessors: Seq[String] = Nil,
-                                                            params: Map[String,Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
+    params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
-      .withQueryString(unpack(params):_*)
+      .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
       val created = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
@@ -97,7 +97,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
     userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
-      .withQueryString(unpack(params):_*)
+      .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
       val created = checkErrorAndParse(response, context = Some(url))(Readable[TT].restReads)
@@ -230,7 +230,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     listWithUrl(enc(genericItemUrl, id, "scope-permission-grants"), params)
 
   override def history[A: Readable](id: String, params: RangeParams,
-                                    filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
+    filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(genericItemUrl, id, "events")
     fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
   }
@@ -339,9 +339,9 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   /**
-   * Create multiple links. NB: This function is NOT transactional.
-   */
-  override def linkMultiple[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, srcToLinks: Seq[(String,AF,Option[String])]): Future[Seq[A]] = {
+    * Create multiple links. NB: This function is NOT transactional.
+    */
+  override def linkMultiple[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, srcToLinks: Seq[(String, AF, Option[String])]): Future[Seq[A]] = {
     val done: Future[Seq[A]] = Future.sequence {
       srcToLinks.map { case (other, ann, accessPoint) =>
         linkItems(id, other, ann, accessPoint)
@@ -368,23 +368,23 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] =
-    userCall(enc(typeBaseUrl,  EntityType.VirtualUnit, vcId, "includes"))
-      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).post("").map { _ =>
+    userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
       eventHandler.handleUpdate(vcId)
       cache.remove(canonicalUrl(vcId))
     }
 
   override def deleteReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] =
     if (ids.isEmpty) immediate(())
-    else userCall(enc(typeBaseUrl,  EntityType.VirtualUnit, vcId, "includes"))
-      .withQueryString(ids.map ( id => ID_PARAM -> id): _*).delete().map { _ =>
+    else userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).delete().map { _ =>
       eventHandler.handleUpdate(vcId)
       cache.remove(canonicalUrl(vcId))
     }
 
   override def moveReferences[MT: Resource](fromVc: String, toVc: String, ids: Seq[String]): Future[Unit] =
     if (ids.isEmpty) immediate(())
-    else userCall(enc(typeBaseUrl,  EntityType.VirtualUnit, fromVc, "includes", toVc))
+    else userCall(enc(typeBaseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
       .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
       // Update both source and target sets in the index
       cache.remove(canonicalUrl(fromVc))
@@ -444,7 +444,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def setScopePermissions(userId: String, id: String, data: Map[String,Seq[String]]): Future[GlobalPermissionSet] = {
+  override def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
@@ -470,7 +470,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  private val userRequestUrl = enc(typeBaseUrl,  EntityType.UserProfile)
+  private val userRequestUrl = enc(typeBaseUrl, EntityType.UserProfile)
 
   private def followingUrl(userId: String) = enc(userRequestUrl, userId, "following")
 
@@ -616,6 +616,54 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
+  private implicit val seqTuple2Format: Format[Seq[(String, String)]] = Format(
+    Reads.seq[List[String]].map(_.collect { case a :: b :: _ => a -> b }),
+    Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2))) }
+  )
+
+  override def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "rename")
+    userCall(url)
+      .post(Json.toJson(mapping))
+      .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+  }
+
+  override def regenerateIdsForType(et: EntityType.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "regenerate-ids-for-type", et)
+    userCall(url).withQueryString("commit" -> commit.toString)
+      .withTimeout(20.minutes).post("")
+      .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+  }
+
+  override def regenerateIdsForScope(scope: String, commit: Boolean = false): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "regenerate-ids-for-scope", scope)
+    userCall(url).withQueryString("commit" -> commit.toString)
+      .withTimeout(20.minutes).post("")
+      .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+  }
+
+  override def regenerateIds(ids: Seq[String], commit: Boolean = false): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "regenerate-ids")
+    userCall(url).withQueryString(ids.map(id => Constants.ID_PARAM -> id): _*)
+      .withQueryString("commit" -> commit.toString).post("")
+      .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+  }
+
+  private implicit val seqTuple3Format: Format[Seq[(String, String, String)]] = Format(
+    Reads.seq[List[String]].map(_.collect { case a :: b :: c :: _ => (a, b, c) }),
+    Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2, t._3))) }
+  )
+
+  override def findReplace(ct: ContentTypes.Value, et: EntityType.Value, property: String, from: String, to: String, commit: Boolean, logMsg: Option[String]): Future[Seq[(String, String, String)]] = {
+    val url = enc(baseUrl, "tools", "find-replace")
+    userCall(url)
+      .withHeaders(msgHeader(logMsg): _*)
+      .withQueryString("type" -> ct.toString, "subtype" -> et.toString,
+        "property" -> property, "commit" -> commit.toString)
+      .post(Map("from" -> Seq(from), "to" -> Seq(to)))
+      .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
+  }
+
   // Helpers
 
   private def getTotal(url: String): Future[Long] =
@@ -643,7 +691,9 @@ object RestApi {
   def withNoopHandler(cache: CacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new RestApi(new EventHandler {
       def handleCreate(id: String): Unit = ()
+
       def handleUpdate(id: String): Unit = ()
+
       def handleDelete(id: String): Unit = ()
     }, cache: CacheApi, config, ws)
 }

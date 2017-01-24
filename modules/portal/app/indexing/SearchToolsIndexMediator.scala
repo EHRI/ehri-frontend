@@ -3,7 +3,7 @@ package indexing
 import java.util.Properties
 import javax.inject.Inject
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
 import backend.rest.Constants
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import defines.EntityType
@@ -20,10 +20,13 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class SearchToolsIndexMediator @Inject()(
-    implicit index: Index,
+    index: Index,
     config: play.api.Configuration,
-    executionContext: ExecutionContext)  extends SearchIndexMediator {
-  override def handle: SearchIndexMediatorHandle = SearchToolsIndexMediatorHandle()
+    actorSystem: ActorSystem)  extends SearchIndexMediator {
+
+  override def handle: SearchIndexMediatorHandle = SearchToolsIndexMediatorHandle()(index, config)(
+    actorSystem.dispatchers.lookup("contexts.blocking-io")
+  )
 
   override def toString = "SearchTools"
 }
@@ -37,16 +40,14 @@ case class SearchToolsIndexMediator @Inject()(
 case class SearchToolsIndexMediatorHandle(
   chan: Option[ActorRef] = None,
   processFunc: String => String = identity[String]
-)(implicit index: Index,
-  config: play.api.Configuration,
-  executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
+)(index: Index, config: play.api.Configuration)(implicit executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
   val logger  = Logger(this.getClass)
 
   val serviceBaseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
   override def withChannel(actorRef: ActorRef, formatter: String => String): SearchToolsIndexMediatorHandle =
-    copy(chan = Some(actorRef), processFunc = formatter)
+    copy(chan = Some(actorRef), processFunc = formatter)(index, config)
 
   private def indexProperties(extra: Map[String,Any] = Map.empty): Properties = {
     val props = new Properties()
@@ -89,7 +90,11 @@ case class SearchToolsIndexMediatorHandle(
 
   override def indexIds(ids: String*): Future[Unit] = Future {
     logger.debug(s"Indexing: $ids")
-    indexHelper(ids.map(id => s"@$id"): _*).run()
+    // NB: Search tools breaks if using too many IDs since the
+    // URL for fetching data is too long, so this is a hacky
+    // workaround...
+    ids.grouped(100).foreach(batch => indexHelper(batch.map(id => s"@$id"): _*).run())
+
   }
 
   override def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = Future {
