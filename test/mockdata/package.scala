@@ -42,7 +42,4 @@ package object mockdata {
 
   val openIdAssociationFixtures: collection.mutable.ListBuffer[OpenIDAssociation] =
     collection.mutable.ListBuffer.empty[OpenIDAssociation]
-
-  val movedPages: collection.mutable.ListBuffer[(String, String)] =
-    collection.mutable.ListBuffer.empty[(String, String)]
 }
