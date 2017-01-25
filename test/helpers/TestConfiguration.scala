@@ -49,6 +49,7 @@ trait TestConfiguration {
   protected val storedFileBuffer: ListBuffer[URI] = collection.mutable.ListBuffer.empty[java.net.URI]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
+  protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]
 
   private def mockMailer: MailerClient = MockBufferedMailer(mailBuffer)
   private def mockIndexer: SearchIndexMediator = MockSearchIndexMediator(indexEventBuffer)
@@ -59,7 +60,7 @@ trait TestConfiguration {
   // in the mocks package.
   protected def mockAccounts: AccountManager = MockAccountManager()
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
-  private def mockRelocator: MovedPageLookup = MockMovedPageLookup()
+  private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 

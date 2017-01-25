@@ -77,6 +77,9 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         from must_== "/admin/units/c4"
         to must_== "/admin/units/nl-r1-new_c4"
       }
+      // Clear the mutable buffer to prevent redirects
+      // interfering in other tests
+      movedPages.clear()
     }
 
     "handle find/replace correctly" in new ITestApp {

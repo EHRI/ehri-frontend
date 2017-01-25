@@ -8,8 +8,9 @@ import utils.{MockMovedPageLookup, MovedPageLookup}
 
 class BrowserSpec extends PlaySpecification {
 
+  private val buffer = collection.mutable.ArrayBuffer.empty[(String, String)]
   private val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
-    .overrides(bind[MovedPageLookup].toInstance(MockMovedPageLookup()))
+    .overrides(bind[MovedPageLookup].toInstance(MockMovedPageLookup(buffer)))
 
   "Application" should {
 
@@ -19,7 +20,7 @@ class BrowserSpec extends PlaySpecification {
     }
 
     "return 301 for moved pages" in new WithBrowser(app = appBuilder.build()) {
-      mockdata.movedPages += "/foo" -> "/bar"
+      buffer += "/foo" -> "/bar"
       browser.goTo("/foo")
       browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
     }
