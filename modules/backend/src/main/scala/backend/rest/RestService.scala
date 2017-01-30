@@ -3,12 +3,12 @@ package backend.rest
 import java.net.{ConnectException, URLEncoder}
 import java.nio.charset.StandardCharsets
 
+import backend.{AnonymousUser, ApiUser, AuthenticatedUser, Resource}
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Writeable}
 import play.api.libs.json._
-import backend.{AnonymousUser, ApiUser, AuthenticatedUser, ErrorSet, Resource}
-import com.fasterxml.jackson.core.JsonParseException
 import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
 
@@ -19,33 +19,34 @@ import scala.concurrent.duration.Duration
 trait RestService {
 
   implicit def config: play.api.Configuration
+
   def ws: WSClient
 
+  import HttpVerbs._
   import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
-  import HttpVerbs._
 
   private def logger: Logger = Logger(this.getClass)
 
   /**
-   * Wrapper for WS.
-   */
+    * Wrapper for WS.
+    */
   private[rest] case class BackendRequest(
     url: String,
-    headers: Seq[(String,String)] = Seq.empty,
-    queryString: Seq[(String,String)] = Seq.empty,
+    headers: Seq[(String, String)] = Seq.empty,
+    queryString: Seq[(String, String)] = Seq.empty,
     method: String = GET,
     body: WSBody = EmptyBody,
     timeout: Option[Duration] = None
-    )(implicit apiUser: ApiUser) {
+  )(implicit apiUser: ApiUser) {
 
     lazy val credentials: Option[(String, String)] = for {
       username <- config.getString("services.ehridata.username")
       password <- config.getString("services.ehridata.password")
     } yield (username, password)
 
-    private def queryStringMap: Map[String,Seq[String]] =
-      queryString.foldLeft(Map.empty[String,Seq[String]]) { case (m, (k, v)) =>
+    private def queryStringMap: Map[String, Seq[String]] =
+      queryString.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
         m.updated(k, v +: m.getOrElse(k, Seq.empty))
       }
 
@@ -76,9 +77,9 @@ trait RestService {
     def stream(): Future[StreamedResponse] = {
       logger.debug(s"WS (stream): $apiUser $method $fullUrl")
       holderWithAuth.stream()
-      .recover {
-        case e: ConnectException => throw BackendOffline(fullUrl, e)
-      }
+        .recover {
+          case e: ConnectException => throw BackendOffline(fullUrl, e)
+        }
     }
 
     def get(): Future[WSResponse] = copy(method = GET).execute()
@@ -92,8 +93,8 @@ trait RestService {
     def delete(): Future[WSResponse] = withMethod(DELETE).execute()
 
     /**
-     * Sets the body for this request. Copy and paste from WSRequest :(
-     */
+      * Sets the body for this request. Copy and paste from WSRequest :(
+      */
     def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
       val wsBody = InMemoryBody(wrt.transform(body))
       if (headers.toMap.contains(HeaderNames.CONTENT_TYPE)) {
@@ -105,7 +106,7 @@ trait RestService {
       }
     }
 
-    def withBody(body: WSBody):BackendRequest = copy(body = body)
+    def withBody(body: WSBody): BackendRequest = copy(body = body)
 
     def withHeaders(hrds: (String, String)*): BackendRequest =
       copy(headers = headers ++ hrds)
@@ -124,54 +125,57 @@ trait RestService {
   import play.api.http.Status._
 
   /**
-   * Header to add for log messages.
-   */
-  protected def msgHeader(msg: Option[String]): Seq[(String,String)] =
+    * Header to add for log messages.
+    */
+  protected def msgHeader(msg: Option[String]): Seq[(String, String)] =
     msg
       .map(m => Seq(LOG_MESSAGE_HEADER_NAME -> URLEncoder.encode(m, StandardCharsets.UTF_8.name)))
       .getOrElse(Seq.empty)
 
   /**
-   * Join params into a query string
-   */
+    * Join params into a query string
+    */
   protected def joinQueryString(qs: Map[String, Seq[String]]): String =
     qs.flatMap { case (key, vals) =>
       vals.map(v => s"$key=${URLEncoder.encode(v, StandardCharsets.UTF_8.name)}")
     }.mkString("&")
 
   /**
-   * Standard headers we sent to every Neo4j/EHRI Server request.
-   */
+    * Standard headers we sent to every Neo4j/EHRI Server request.
+    */
   protected val headers = Map(
     HeaderNames.ACCEPT_CHARSET -> StandardCharsets.UTF_8.name
   )
 
   /**
-   * Transform a query string map into a sequence of tuples.
-   */
-  protected def unpack(m: Map[String,Seq[String]]): Seq[(String,String)] = m.toSeq.flatMap {
+    * Transform a query string map into a sequence of tuples.
+    */
+  protected def unpack(m: Map[String, Seq[String]]): Seq[(String, String)] = m.toSeq.flatMap {
     case (k, vals) => vals.map(v => k -> v)
   }
 
   /**
-   * Headers to add to outgoing request...
-   * @return
-   */
+    * Headers to add to outgoing request...
+    *
+    * @return
+    */
   private[rest] def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser match {
     case AuthenticatedUser(id) => headers + (AUTH_HEADER_NAME -> id)
     case AnonymousUser => headers
   }
 
   /**
-   * Create a web request with correct auth parameters for the REST API.
-   */
+    * Create a web request with correct auth parameters for the REST API.
+    */
+
   import scala.collection.JavaConverters._
+
   private lazy val includeProps =
     config.getStringList("ehri.backend.includedProperties").map(_.asScala)
-        .getOrElse(Seq.empty)
+      .getOrElse(Seq.empty)
 
 
-  protected def userCall(url: String, params: Seq[(String,String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
+  protected def userCall(url: String, params: Seq[(String, String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
     BackendRequest(url)
       .withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)
@@ -179,14 +183,14 @@ trait RestService {
   }
 
   /**
-   * Fetch a range, working out if there are more items by going one-beyond-the-end.
-   */
+    * Fetch a range, working out if there are more items by going one-beyond-the-end.
+    */
   protected def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
-      implicit reader: Reads[T]): Future[RangePage[T]] = {
-    val incParams = if(params.hasLimit) params.copy(limit = params.limit + 1) else params
+    implicit reader: Reads[T]): Future[RangePage[T]] = {
+    val incParams = if (params.hasLimit) params.copy(limit = params.limit + 1) else params
     req.withHeaders(STREAM_HEADER_NAME -> true.toString)
       .withQueryString(incParams.queryParams: _*)
-        .get().map { r =>
+      .get().map { r =>
       val page = parsePage(r, context)(reader)
       val more = if (params.hasLimit) page.size > params.limit else false
       val pageItems = if (params.hasLimit) page.items.take(params.limit) else page.items
@@ -195,8 +199,8 @@ trait RestService {
   }
 
   /**
-   * Encode a bunch of URL parts.
-   */
+    * Encode a bunch of URL parts.
+    */
   protected def enc(base: String, s: Any*): String = {
     def clean(segment: Any): String =
       segment.toString.replace("?", "%3F").replace("#", "%23")
@@ -218,56 +222,48 @@ trait RestService {
     logger.trace(s"Response body ! : ${response.body}")
     response.status match {
       case OK | CREATED | NO_CONTENT => response
-      case e => e match {
-
-        case UNAUTHORIZED =>
-          response.json.validate[PermissionDenied].fold(
-            err => throw PermissionDenied(),
-            perm => {
-              logger.error(s"Permission denied error! : ${response.json}")
-              throw perm
-            }
-          )
-        case BAD_REQUEST => try {
-          response.json.validate[ErrorSet].fold(
-            e => {
-              // Temporary approach to handling random Deserialization errors.
-              // In practice this should happen
-              if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
-                logger.error(s"Derialization error! : ${response.json}")
-                throw DeserializationError()
-              } else {
-                logger.error("Bad request: " + response.body)
-                throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
-              }
-            },
-            errorSet => {
-              logger.warn(s"ValidationError ! : ${response.json}")
-              throw ValidationError(errorSet)
-            }
-          )
-        } catch {
-          case e: JsonParseException =>
-            throw BadRequest(response.body)
+      case FORBIDDEN => response.json.validate[PermissionDenied].fold(
+        err => throw PermissionDenied(),
+        perm => {
+          logger.error(s"Permission denied error! : ${response.json}")
+          throw perm
         }
-        case NOT_FOUND =>
-          //logger.error("404: {} -> {}", Array(response.underlying[AHCRe].getUri, response.body))
-          try {
-            response.json.validate[ItemNotFound].fold(
-              e => throw new ItemNotFound(),
-              err => throw err
-            )
-          } catch {
-            case e @ (_: JsonParseException | _: JsonMappingException) =>
-              val err: String = s"Backend 404 at $uri: '${response.body}"
-              logger.error(err, e)
-              sys.error(err)
+      )
+      case BAD_REQUEST => try {
+        response.json.validate[ValidationError].fold(
+          e => {
+            // Temporary approach to handling random Deserialization errors.
+            // In practice this should happen
+            if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
+              logger.error(s"Derialization error! : ${response.json}")
+              throw DeserializationError()
+            } else {
+              logger.error("Bad request: " + response.body)
+              throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
+            }
+          },
+          ve => {
+            logger.warn(s"ValidationError ! : ${response.json}")
+            throw ve
           }
-        case _ =>
-          val err = s"Unexpected response: ${response.status}: '${response.body}'"
-          logger.error(err)
-          sys.error(err)
+        )
+      } catch {
+        case e: JsonParseException =>
+          throw BadRequest(response.body)
       }
+      case NOT_FOUND => try {
+        response.json.validate[ItemNotFound].fold(
+          e => throw new ItemNotFound(),
+          err => throw err
+        )
+      } catch {
+        case e@(_: JsonParseException | _: JsonMappingException) =>
+          sys.error(s"Backend 404 at $uri: '${response.body}")
+      }
+      case _ =>
+        val err = s"Unexpected response: ${response.status}: '${response.body}'"
+        logger.error(err)
+        sys.error(err)
     }
   }
 
@@ -281,9 +277,10 @@ trait RestService {
     parsePage(response, None)(rd)
 
   /**
-   * List header parser
-   */
-  private[rest] val PaginationExtractor = """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
+    * List header parser
+    */
+  private[rest] val PaginationExtractor =
+    """offset=(-?\d+); limit=(-?\d+); total=(-?\d+)""".r
 
   private[rest] def parsePagination(response: WSResponse, context: Option[String]): Option[(Int, Int, Int)] = {
     val pagination = response.header(HeaderNames.CONTENT_RANGE).getOrElse("")
@@ -304,12 +301,7 @@ trait RestService {
           limit = limit,
           total = total
         )
-        case _ => Page(
-          items = items,
-          offset = 0,
-          limit = Constants.DEFAULT_LIST_LIMIT,
-          total = -1
-        )
+        case _ => Page(items = items, total = -1)
       }
     )
   }

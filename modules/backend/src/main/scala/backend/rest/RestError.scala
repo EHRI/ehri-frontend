@@ -90,3 +90,10 @@ object PermissionDenied {
   implicit val permissionDeniedFormat = Format(
     permissionDeniedReads, permissionDeniedWrites)
 }
+
+object ValidationError {
+  implicit val validationErrorReads: Reads[ValidationError] = (
+    (__ \ "error").read[String] and
+    (__ \ "details").read[ErrorSet]
+  )((_, s) => ValidationError(s))
+}
