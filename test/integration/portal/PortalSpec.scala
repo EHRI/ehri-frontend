@@ -1,7 +1,7 @@
 package integration.portal
 
 import java.io.ByteArrayInputStream
-import java.util.zip.{ZipInputStream, ZipFile, ZipEntry}
+import java.util.zip.{ZipEntry, ZipFile, ZipInputStream}
 
 import akka.util.ByteString
 import controllers.base.SessionPreferences
@@ -10,6 +10,7 @@ import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import utils.SessionPrefs
+import utils.search.SearchParams
 
 import scala.collection.mutable.ListBuffer
 
@@ -147,6 +148,12 @@ class PortalSpec extends IntegrationTestRunner {
     "return 404 for external pages with a malformed id (bug #635)" in new ITestApp {
       val faq = FakeRequest(portalRoutes.externalPage(",b.name,k.length")).call()
       status(faq) must equalTo(NOT_FOUND)
+    }
+
+    "allow search filtering for non-logged in users" in new ITestApp {
+      val filter = FakeRequest(controllers.portal.routes.Portal.filterItems(SearchParams(query = Some("C"))))
+        .call()
+      status(filter) must equalTo(OK)
     }
   }
 

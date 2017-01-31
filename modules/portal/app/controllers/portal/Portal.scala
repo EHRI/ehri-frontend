@@ -94,8 +94,8 @@ case class Portal @Inject()(
     * Quick filter action that searches applies a 'q' string filter to
     * only the name_ngram field and returns an id/name pair.
     */
-  def filterItems(paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    filter(paging = paging).map { page =>
+  def filterItems(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    filter(params, paging).map { page =>
       Ok(Json.obj(
         "numPages" -> page.numPages,
         "page" -> page.page,

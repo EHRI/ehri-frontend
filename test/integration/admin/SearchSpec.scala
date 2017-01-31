@@ -42,12 +42,6 @@ class SearchSpec extends IntegrationTestRunner {
       searchParamBuffer
         .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(None)
     }
-
-    "allow search filtering for non-logged in users" in new ITestApp {
-      val filter = FakeRequest(GET, controllers.admin.routes.SearchFilter.filterItems().url + "?q=c")
-        .call()
-      status(filter) must equalTo(OK)
-    }
   }
 
   "Search index mediator" should {

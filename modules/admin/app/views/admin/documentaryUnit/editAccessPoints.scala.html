@@ -2,7 +2,7 @@
 
 @extrascripts = {
     @helper.javascriptRouter("adminJsRoutes")(
-        controllers.admin.routes.javascript.SearchFilter.filterItems,
+        controllers.portal.routes.javascript.Portal.filterItems,
         controllers.admin.routes.javascript.Data.forward,
         controllers.admin.routes.javascript.Data.getItemType,
         controllers.units.routes.javascript.DocumentaryUnits.linkMultiAnnotatePost,
@@ -18,7 +18,7 @@
 
     <script>
             window.SERVICE = {
-                filter: adminJsRoutes.controllers.admin.SearchFilter.filterItems,
+                filter: adminJsRoutes.controllers.portal.Portal.filterItems,
                 get: adminJsRoutes.controllers.admin.Data.getItem,
                 getItem: adminJsRoutes.controllers.admin.Data.getItemType,
                 createLink: adminJsRoutes.controllers.units.DocumentaryUnits.createLink,

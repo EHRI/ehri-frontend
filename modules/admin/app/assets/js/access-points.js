@@ -27,17 +27,17 @@ $(document).ready(function () {
       if (types && types.length > 0) {
         if (Array.isArray(types)) {
           params = params + "&" + (types.map(function (t) {
-                return "st[]=" + t
+                return "st=" + t
               }).join("&"));
         } else {
-          params = params + "&st[]=" + types;
+          params = params + "&st=" + types;
         }
       }
       if (holders && holders.length > 0) {
         if (Array.isArray(holders)) {
-          params = params + "&f[]=holderId:(" + holders.join(" ") + ")";
+          params = params + "&f=holderId:(" + holders.join(" ") + ")";
         } else {
-          params = params + "&f[]=holderId:" + holders;
+          params = params + "&f=holderId:" + holders;
         }
       }
       if (page > 0) {
@@ -389,7 +389,7 @@ $(document).ready(function () {
           addAccessPointFromExisting(
               $(event.target),
               selection.name,
-              selection.id,
+              seleausction.id,
               selection.did,
               selection.type
           );
