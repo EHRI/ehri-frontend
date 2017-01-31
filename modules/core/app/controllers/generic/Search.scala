@@ -184,8 +184,6 @@ trait Search extends CoreActionBuilders {
     find[MT](params, paging, filters, extra, sort, idFilters, Seq(rd.entityType), facetBuilder, mode, resolverOpt)
   }
 
-  protected def filter[A](filters: Map[String, Any] = Map.empty, paging: PageParams = PageParams.empty, params: SearchParams = SearchParams.empty)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] = {
-    queryFromRequest(params, paging).copy(filters = filters)
+  protected def filter[A](params: SearchParams = SearchParams.empty, paging: PageParams = PageParams.empty, filters: Map[String, Any] = Map.empty)(implicit userOpt: Option[UserProfile], request: Request[A]): Future[Page[FilterHit]] =
     searchEngine.filter(queryFromRequest(params, paging).copy(filters = filters)).map(_.page)
-  }
 }
