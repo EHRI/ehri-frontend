@@ -113,8 +113,7 @@ trait Search extends CoreActionBuilders {
     resolverOpt: Option[SearchItemResolver] = None)(
     implicit request: RequestHeader, userOpt: Option[UserProfile], rd: Readable[MT]): Future[SearchResult[(MT, SearchHit)]] = {
 
-    val query = queryFromRequest(params, paging, sort, facetBuilder).copy(
-      params = params.copy(entities = entities),
+    val query = queryFromRequest(params.copy(entities = entities), paging, sort, facetBuilder).copy(
       filters = filters,
       withinIds = idFilters,
       extraParams = extra,
@@ -153,7 +152,7 @@ trait Search extends CoreActionBuilders {
     mode: SearchMode.Value = SearchMode.DefaultAll)(
     implicit request: RequestHeader, userOpt: Option[UserProfile]): Future[SearchResult[(MT, SearchHit)]] = {
 
-    val query = queryFromRequest(params, paging, sort, facetBuilder).copy(
+    val query = queryFromRequest(params.copy(entities = entities), paging, sort, facetBuilder).copy(
       filters = filters,
       withinIds = items.map(_.id),
       extraParams =  extra,

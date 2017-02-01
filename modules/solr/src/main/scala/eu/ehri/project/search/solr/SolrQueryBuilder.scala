@@ -152,7 +152,7 @@ case class SolrQueryBuilder(
     ))
 
     request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
-    request.set("facet.mincout", 1)
+    request.set("facet.mincount", 1)
   }
 
   /**
