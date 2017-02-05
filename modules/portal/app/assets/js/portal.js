@@ -199,7 +199,7 @@ jQuery(function ($) {
       },
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
-        url : jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&st[]=documentaryUnit&st[]=repository&st[]=country&q=%QUERY",
+        url : jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&st=documentaryUnit&st=repository&st=country&q=%QUERY",
         filter : function(parsedResponse) {
           var result = [];
           var alreadyResult = [];
