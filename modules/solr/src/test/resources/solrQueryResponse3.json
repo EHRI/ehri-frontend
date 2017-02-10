@@ -1,0 +1,191 @@
+{
+  "responseHeader": {
+    "status": 0,
+    "QTime": 110,
+    "params": {
+      "?fl": "*",
+      "debugQuery": "true",
+      "defType": "edismax",
+      "f.address.qf": "addresses",
+      "f.author.qf": "creatorNames",
+      "f.creator.qf": "creatorNames",
+      "f.keyword.qf": "accessPointNames",
+      "f.lang.qf": "languageCode",
+      "f.location.qf": "placeNames",
+      "f.person.qf": "peopleNames",
+      "f.place.qf": "placeNames",
+      "f.subject.qf": "subjectNames",
+      "facet": "true",
+      "facet.field": "type",
+      "facet.mincount": "1",
+      "fq": [
+        "{!collapse field=itemId}",
+        "type:(DocumentaryUnit)"
+      ],
+      "hl": "true",
+      "hl.fl": "*",
+      "hl.simple.post": "</em>",
+      "hl.simple.pre": "<em class='highlight'>",
+      "hl.usePhraseHighlighter": "true",
+      "json.facet": "{\"parent\":{\"type\":\"terms\",\"numBuckets\":true,\"field\":\"isParent\",\"offset\":0,\"limit\":100,\"sort\":\"count\",\"domain\":null,\"lang\":{\"type\":\"terms\",\"numBuckets\":true,\"field\":\"languageCode\",\"offset\":0,\"limit\":100,\"sort\":\"count\",\"domain\":null,\"source\":{\"type\":\"terms\",\"numBuckets\":true,\"field\":\"creationProcess\",\"offset\":0,\"limit\":100,\"sort\":\"index\",\"domain\":null,\"country\":{\"type\":\"terms\",\"numBuckets\":true,\"field\":\"countryCode\",\"offset\":0,\"limit\":100,\"sort\":\"count\",\"domain\":{\"excludeTags\":\"countryCode\"},\"holder\":{\"type\":\"terms\",\"numBuckets\":true,\"field\":\"holderName\",\"offset\":0,\"limit\":100,\"sort\":\"count\",\"domain\":{\"excludeTags\":\"holderName\"}}}",
+      "q": "+auschwitz +amsterdam",
+      "qf": "itemId^15.0 identifier^10.0 name^8.0 title^8.0 otherFormsOfName^8.0 parallelFormsOfName^8.0 altName^10.0 name_sort^5.0 text",
+      "rows": "20",
+      "sort": "score desc",
+      "spellcheck": "true",
+      "spellcheck.accuracy": "0.8",
+      "spellcheck.collate": "true",
+      "spellcheck.count": "10",
+      "spellcheck.extendedResults": "true",
+      "spellcheck.maxCollations": "1",
+      "spellcheck.maxCollationTries": "10",
+      "spellcheck.maxResultsForSuggest": "10",
+      "spellcheck.onlyMorePopular": "true",
+      "start": "0",
+      "wt": "json"
+    }
+  },
+  "response": {
+    "numFound": 1,
+    "start": 0,
+    "docs": [
+      {
+        "creationProcess": "IMPORT",
+        "gid": 214009,
+        "charCount": 732,
+        "levelOfDescription": "file",
+        "dateRange": [
+          "1992-01-01T00:00:00Z",
+          "1992-12-31T00:00:00Z"
+        ],
+        "dateEnd": "1992-12-31T00:00:00Z",
+        "type": "DocumentaryUnit",
+        "lastUpdated": "2015-03-23T16:52:34.797Z",
+        "dateStart": "1992-01-01T00:00:00Z",
+        "ancestorIds": [
+          "nl-002896-mf1235804-mf2049700",
+          "nl-002896-mf1235804"
+        ],
+        "countryCode": "nl",
+        "id": "nl-002896-mf1235804-mf2049700-mf2049701.nld",
+        "identifier": "MF2049701",
+        "holderName": [
+          "NIOD Instituut voor Oorlogs-, Holocaust- en Genocidestudies"
+        ],
+        "isParent": false,
+        "isTopLevel": false,
+        "childCount": [
+          0
+        ],
+        "languageCode": "nld",
+        "repositoryName": "NIOD Instituut voor Oorlogs-, Holocaust- en Genocidestudies",
+        "holderId": [
+          "nl-002896"
+        ],
+        "parentId": [
+          "nl-002896-mf1235804-mf2049700"
+        ],
+        "itemId": "nl-002896-mf1235804-mf2049700-mf2049701",
+        "otherIdentifiers": [
+          "NL-AsdNIOD/829/60"
+        ],
+        "restricted": false,
+        "repositoryId": "nl-002896",
+        "sourceFileId_t": "829#NLD",
+        "countryName": "Netherlands",
+        "extentAndMedium_t": "1 omslag",
+        "name": "Notariële akte betreffende de verplaatsing van het Auschwitz monument van de Nieuwe Oosterbegraafplaats in Amsterdam naar het Wertheimpark in Amsterdam, december 1992.",
+        "title": "Notariële akte betreffende de verplaatsing van het Auschwitz monument van de Nieuwe Oosterbegraafplaats in Amsterdam naar het Wertheimpark in Amsterdam, december 1992.",
+        "_version_": 1558162234749747200,
+        "isPromotable": false,
+        "active": true,
+        "promotionScore": 0,
+        "staff": false,
+        "accessibleTo": [
+          "ALLUSERS"
+        ],
+        "hasBody": false
+      }
+    ]
+  },
+  "facet_counts": {
+    "facet_queries": {},
+    "facet_fields": {},
+    "facet_ranges": {},
+    "facet_intervals": {},
+    "facet_heatmaps": {}
+  },
+  "facets": {
+    "count": 1,
+    "type": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "DocumentaryUnit",
+          "count": 1
+        }
+      ]
+    },
+    "parent": {
+      "numBuckets": 2,
+      "buckets": [
+        {
+          "val": false,
+          "count": 0
+        },
+        {
+          "val": true,
+          "count": 1
+        }
+      ]
+    },
+    "lang": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "nld",
+          "count": 1
+        }
+      ]
+    },
+    "source": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "IMPORT",
+          "count": 1
+        }
+      ]
+    },
+    "country": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "nl",
+          "count": 1
+        }
+      ]
+    },
+    "holder": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "NIOD Instituut voor Oorlogs-, Holocaust- en Genocidestudies",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "highlighting": {
+    "nl-002896-mf1235804-mf2049700-mf2049701.nld": {
+      "title": [
+        "Notariële akte betreffende de verplaatsing van het <em class='highlight'>Auschwitz</em> monument van de Nieuwe"
+      ]
+    }
+  },
+  "spellcheck": {
+    "suggestions": [],
+    "correctlySpelled": true,
+    "collations": []
+  }
+}

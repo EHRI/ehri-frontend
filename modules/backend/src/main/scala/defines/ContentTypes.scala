@@ -3,7 +3,7 @@ package defines
 import eu.ehri.project.definitions.Entities
 import play.api.libs.json.Format
 
-object ContentTypes extends Enumeration() {
+object ContentTypes extends Enumeration {
   type Type = Value
   val DocumentaryUnit = Value(Entities.DOCUMENTARY_UNIT)
   val Repository = Value(Entities.REPOSITORY)

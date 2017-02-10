@@ -3,16 +3,15 @@ package eu.ehri.project.search.solr
 import com.github.seratch.scalikesolr.request.query._
 import com.github.seratch.scalikesolr.request.query.highlighting.{HighlightingParams, IsPhraseHighlighterEnabled}
 import com.github.seratch.scalikesolr.request.query.facet.FacetParams
-import com.github.seratch.scalikesolr.request.query.group.{GroupField, GroupFormat, GroupParams, WithNumberOfGroups}
 import defines.EntityType
 import models.UserProfile
 import utils.search._
 import play.api.{Configuration, Logger}
-import com.github.seratch.scalikesolr.request.query.facet.Value
 import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.request.query.facet.Param
 import com.github.seratch.scalikesolr.request.query.facet.FacetParam
 import com.github.seratch.scalikesolr.{WriterType => SWriterType}
+import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json._
 
 
 object SolrQueryBuilder {
@@ -42,8 +41,7 @@ object SolrQueryBuilder {
   /**
    * Apply filters to the request based on a set of applied facets.
    */
-  def getRequestFilters(facetClasses: Seq[FacetClass[Facet]],
-                                appliedFacets: Seq[AppliedFacet]): Seq[String] = {
+  def getRequestFilters(facetClasses: Seq[FacetClass[Facet]], appliedFacets: Seq[AppliedFacet]): Seq[String] = {
     // See the spec for this to get some insight
     // into how this mess works...
 
@@ -54,9 +52,6 @@ object SolrQueryBuilder {
         else {
           val query: Option[String] = fclass match {
             case fc: FieldFacetClass =>
-              // Choice facets need a tag in front of the parameter so they can be
-              // excluded from count-limiting filters
-              // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
               val filter = paramVals.map(s => "\"" + escape(s) + "\"").mkString(" ")
               Some(s"${fc.key}:($filter)")
             case fc: QueryFacetClass =>
@@ -70,7 +65,10 @@ object SolrQueryBuilder {
               None
           }
           query.map { q =>
-            val tag = if (fclass.multiSelect) "{!tag=" + fclass.key + "}" else ""
+            // Choice facets need a tag in front of the parameter so they can be
+            // excluded from count-limiting filters
+            // http://wiki.apache.org/solr/SimpleFacetParameters#Multi-Select_Faceting_and_LocalParams
+            val tag = if (fclass.multiSelect) s"{!tag=${fclass.key}}" else ""
             tag + q
           }
         }
@@ -85,10 +83,11 @@ object SolrQueryBuilder {
  * QueryRequest class.
  */
 case class SolrQueryBuilder(
-  query: SearchQuery,
   writerType: WriterType.Value,
-  debugQuery: Boolean = false
-)(implicit config: Configuration) extends QueryBuilder {
+  config: Configuration
+) extends QueryBuilder {
+
+  private val debugQuery = config.getBoolean("search.debug").getOrElse(false)
 
   import SearchConstants._
   import SolrQueryBuilder._
@@ -146,41 +145,45 @@ case class SolrQueryBuilder(
    * Constrain a search request with the given facets.
    */
   private def constrainToFacets(request: QueryRequest, appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Unit = {
-    request.setFacet(new FacetParams(
-      enabled=true,
-      params=getRequestFacets(allFacets).toList
-    ))
+
+    // NB: we always facet on type
+    if (config.getBoolean("search.jsonFacets").getOrElse(false)) {
+      val facets: List[(String, JsValueWrapper)] = allFacets.toList.flatMap {
+        case fc: FieldFacetClass => Seq(fc.param -> Json.toJsFieldJsValueWrapper(Json.obj(
+          "type" -> "terms",
+          "numBuckets" -> true,
+          "field" -> fc.key,
+          "offset" -> Json.toJson(fc.offset.getOrElse(0)),
+          "limit" -> Json.toJson(fc.limit.getOrElse(100)),
+          "domain" -> (if(fc.multiSelect) Json.obj("excludeTags" -> fc.key) else JsNull),
+          "sort" -> (if (fc.sort == FacetSort.Name) "index" else "count")
+        )))
+        case fc: QueryFacetClass => fc.facets.map { fv =>
+          val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(fv)}"
+          nameValue -> Json.toJsFieldJsValueWrapper(Json.obj(
+            "type" -> "query",
+            "q" -> s"${fc.key}:${SolrFacetParser.facetValue(fv)}"
+          ))
+        }
+      }
+      request.set("json.facet", Json.stringify(Json.obj(facets: _*)))
+    } else {
+      request.setFacet(new FacetParams(
+        enabled = true,
+        params = getRequestFacets(allFacets).toList
+      ))
+
+      request.set("facet.mincount", 1)
+    }
 
     request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
-    request.set("facet.mincount", 1)
   }
 
   /**
-   * Group results by item id (as opposed to description id). Facet counts
-   * are also set to reflect grouping as opposed to the number of individual
-   * items.
-   *
-   * NOTE: Scalikesolr insists we must set the start and rows parameter
-   * here otherwise it will add default values to the query!
+   * Collapse results by item id (as opposed to description id).
    */
-  private def setGrouping(request: QueryRequest, params: SearchParams): Unit = {
-    request.setGroup(GroupParams(
-      enabled=true,
-      field=GroupField(ITEM_ID),
-      format=GroupFormat("simple"),
-      ngroups=WithNumberOfGroups(ngroups = true),
-      start = StartRow(query.paging.offset),
-      rows = MaximumRowsReturned(query.paging.limit)
-    ))
-
-    // Not yet supported by scalikesolr
-    request.set("group.facet", true)
-
-    // NB: There was previously a group sort by language code, but this
-    // had some pretty unexpected effects, sorting, e.g. Ukrainian items
-    // first, even when the search string was English. Until a more intuitive
-    // method of sorting groups is devised this is being disabled.
-    //request.set("group.sort", s"${SearchConstants.LANGUAGE_CODE} desc")
+  private def setGrouping(request: QueryRequest, field: String) = {
+    request.set("fq", s"{!collapse field=$field}")
   }
 
   private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
@@ -194,7 +197,7 @@ case class SolrQueryBuilder(
    * Run a simple filter on the name_ngram field of all entities
    * of a given type.
    */
-  override def simpleFilterQuery(alphabetical: Boolean = false): Map[String,Seq[String]] = {
+  override def simpleFilterQuery(query: SearchQuery): Map[String,Seq[String]] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
     val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
@@ -212,10 +215,9 @@ case class SolrQueryBuilder(
     constrainEntities(req, query.params.entities)
     applyAccessFilter(req, query.user)
     applyIdFilters(req, query.withinIds)
-    setGrouping(req, query.params)
+    setGrouping(req, ITEM_ID)
     req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
     req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
-    if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
 
     query.extraParams.foreach { case (key, value) =>
       req.set(key, value)
@@ -228,7 +230,7 @@ case class SolrQueryBuilder(
   /**
    * Build a query given a set of search parameters.
    */
-  override def searchQuery(): Map[String,Seq[String]] = {
+  override def searchQuery(query: SearchQuery): Map[String,Seq[String]] = {
 
     val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
 
@@ -254,12 +256,6 @@ case class SolrQueryBuilder(
       queryParserType = QueryParserType("edismax")
     )
 
-    // Always facet on item type
-    req.setFacet(new FacetParams(
-      enabled=true,
-      params=List(new FacetParam(Param("facet.field"), Value(TYPE)))
-    ))
-
     // Highlight, but only if we have a query...
     if (query.params.query.isDefined) {
       //req.set("highlight.q", params.query)
@@ -272,9 +268,9 @@ case class SolrQueryBuilder(
 
     // Set result ordering, defaulting to the solr default 'score asc'
     // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
-    // FIXME: This horrid concatenation of name/order
+    // NB: Sort params have a period (".") separating field and order (asc/desc)
     query.params.sort.foreach { sort =>
-      req.setSort(Sort(s"${sort.toString.split("""\.""").mkString(" ")}"))
+      req.setSort(Sort(s"${sort.toString.replace('.', ' ')}"))
     }
 
     // Apply search to specific fields. Can't find a way to do this using
@@ -335,9 +331,7 @@ case class SolrQueryBuilder(
     // Group results by item id, as opposed to the document-level
     // description (for non-multi-description entities this will
     // be the same)
-    // NB: Group params ALSO set (or override) start and row parameters, which
-    // is a major gotcha!
-    setGrouping(req, query.params)
+    setGrouping(req, ITEM_ID)
 
     query.extraParams.foreach { case (key, value) =>
       req.set(key, value)

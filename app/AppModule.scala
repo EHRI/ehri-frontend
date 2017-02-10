@@ -13,7 +13,7 @@ import backend.sql.{SqlCypherQueryService, SqlFeedbackService}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
-import eu.ehri.project.search.solr.{ResponseHandler, SolrJsonResponseHandler, SolrSearchEngine}
+import eu.ehri.project.search.solr.{ResponseParser, SolrJsonResponseParser, SolrSearchEngine}
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
 import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
@@ -31,7 +31,7 @@ class AppModule extends AbstractModule {
     bind(classOf[AccountManager]).to(classOf[auth.sql.SqlAccountManager])
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
-    bind(classOf[ResponseHandler]).to(classOf[SolrJsonResponseHandler])
+    bind(classOf[ResponseParser]).to(classOf[SolrJsonResponseParser])
     bind(classOf[SearchIndexMediator]).to(classOf[SearchToolsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])

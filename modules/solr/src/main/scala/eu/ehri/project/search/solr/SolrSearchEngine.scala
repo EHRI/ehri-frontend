@@ -18,15 +18,11 @@ import scala.concurrent.{ExecutionContext, Future}
   * Implements the plugin implementation so other search
   * engines/mocks can be substituted.
   */
-case class SolrSearchEngine @Inject()(
-  handler: ResponseHandler,
-  ws: WSClient, config: Configuration)(implicit executionContext: ExecutionContext)
-  extends SearchEngine {
+case class SolrSearchEngine @Inject()(handler: ResponseParser, ws: WSClient, config: Configuration)(implicit executionContext: ExecutionContext) extends SearchEngine {
 
   private val logger: Logger = Logger(this.getClass)
 
-  private val queryBuilder: SearchQuery => QueryBuilder =
-    q => new SolrQueryBuilder(q, WriterType.Json)(config)
+  private val queryBuilder: QueryBuilder = new SolrQueryBuilder(WriterType.Json, config)
 
   private lazy val solrPath = utils.serviceBaseUrl("solr", config)
 
@@ -61,11 +57,11 @@ case class SolrSearchEngine @Inject()(
   }
 
   override def filter(query: SearchQuery): Future[SearchResult[FilterHit]] = {
-    val queryRequest = queryBuilder(query).simpleFilterQuery()
+    val queryRequest = queryBuilder.simpleFilterQuery(query)
 
     logger.trace(fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
-      val parser = handler.getResponseParser(response.body)
+      val parser = handler.parse(response.body, query.facetClasses, query.appliedFacets)
       val items = parser.items.map(i => FilterHit(
         i.itemId,
         i.id,
@@ -81,14 +77,13 @@ case class SolrSearchEngine @Inject()(
 
   override def search(query: SearchQuery): Future[SearchResult[SearchHit]] = {
 
-    val queryRequest = queryBuilder(query).searchQuery()
+    val queryRequest = queryBuilder.searchQuery(query)
 
     logger.debug(fullSearchUrl(queryRequest))
     dispatch(queryRequest).map { response =>
-      val parser = handler.getResponseParser(response.body)
-      val facetClassList: Seq[FacetClass[Facet]] = parser.extractFacetData(query.appliedFacets, query.facetClasses)
+      val parser = handler.parse(response.body, query.facetClasses, query.appliedFacets)
       val page = Page(query.paging.offset, query.paging.limit, parser.count, parser.items)
-      SearchResult(page, query.params, query.appliedFacets, facetClassList, parser.facetInfo, spellcheck = parser.spellcheckSuggestion)
+      SearchResult(page, query.params, query.appliedFacets, parser.facets, parser.facetInfo, spellcheck = parser.spellcheckSuggestion)
     }
   }
 }
