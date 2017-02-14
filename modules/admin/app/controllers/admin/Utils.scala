@@ -1,25 +1,23 @@
 package controllers.admin
 
 import java.io.{FileInputStream, InputStream}
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
 import backend.AuthenticatedUser
-import backend.rest.Constants
 import backend.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.Components
 import controllers.base.AdminController
-import defines.EntityType
+import defines.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, MultipartFormData}
+import play.api.mvc.{Action, AnyContent, BodyParsers, MultipartFormData}
 import utils.search.SearchIndexMediator
 import utils.{CsvHelpers, PageParams}
 
@@ -132,44 +130,65 @@ case class Utils @Inject()(
       )
     }
 
-  private val regenerateForm: Form[Seq[(String, String, Boolean)]] = Form(
-    single("row" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean)))
+  private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String])] = Form(
+    tuple(
+      "type" -> optional(defines.EnumUtils.enumMapping(ContentTypes)),
+      "scope" -> optional(nonEmptyText).transform (_.flatMap {
+          case "" => Option.empty
+          case s => Some(s)
+        }, identity[Option[String]])
+    ).verifying("Choose one option OR the other", t => !(t._1.isDefined && t._2.isDefined))
   )
 
-  def regenerateIds(): Action[AnyContent] = AdminAction.async { implicit request =>
-    if (isAjax) {
-      userDataApi.regenerateIdsForType(EntityType.DocumentaryUnit).map { items =>
-        Ok(views.html.admin.regenerateIdsForm(regenerateForm
-          .fill(items.map { case (f, t) => (f, t, true) }),
-          controllers.admin.routes.Utils.regenerateIdsPost()))
+  def regenerateIds(): Action[AnyContent] = AdminAction.apply { implicit request =>
+    regenerateForm.bindFromRequest.fold(
+      err => BadRequest(views.html.admin.regenerate(err,
+        controllers.admin.routes.Utils.regenerateIds())), {
+        case (Some(et), None) => Redirect(controllers.admin.routes.Utils.regenerateIdsForType(et))
+        case (None, Some(id)) => Redirect(controllers.admin.routes.Utils.regenerateIdsForScope(id))
+        case _ => Ok(views.html.admin.regenerate(regenerateForm,
+          controllers.admin.routes.Utils.regenerateIds()))
       }
-    } else immediate(Ok(views.html.admin.regenerateIds(regenerateForm,
-      controllers.admin.routes.Utils.regenerateIds())))
+    )
   }
 
-  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async { implicit request =>
-    val boundForm: Form[Seq[(String, String, Boolean)]] = regenerateForm.bindFromRequest()
+  private val regenerateIdsForm: Form[(String, Seq[(String, String, Boolean)])] = Form(
+    tuple(
+      "path-prefix" -> nonEmptyText.verifying("isPath",
+        s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))),
+      "items" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean))
+    )
+  )
+
+  def regenerateIdsForType(ct: defines.ContentTypes.Value): Action[AnyContent] = AdminAction.async { implicit request =>
+    if (isAjax) userDataApi.regenerateIdsForType(ct).map { items =>
+        Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
+          .fill("" -> items.map { case (f, t) => (f, t, true) }),
+          controllers.admin.routes.Utils.regenerateIdsPost()))
+    } else immediate(Ok(views.html.admin.regenerateIds(regenerateIdsForm,
+      controllers.admin.routes.Utils.regenerateIdsForType(ct))))
+  }
+
+  def regenerateIdsForScope(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
+    if (isAjax) userDataApi.regenerateIdsForScope(id).map { items =>
+        Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
+          .fill("" -> items.map { case (f, t) => (f, t, true) }),
+          controllers.admin.routes.Utils.regenerateIdsPost()))
+    } else immediate(Ok(views.html.admin.regenerateIds(regenerateIdsForm,
+      controllers.admin.routes.Utils.regenerateIdsForScope(id))))
+  }
+
+  private val parser = BodyParsers.parse.anyContent(maxLength = Some(5 * 1024 * 1024L))
+  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
+    val boundForm: Form[(String, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
-        controllers.admin.routes.Utils.regenerateIdsPost()))),
-
-      formItems => {
-        val activeIds = formItems.collect { case (f, t, true) => f }
+        controllers.admin.routes.Utils.regenerateIdsPost()))), {
+      case (prefix, items) =>
+        val activeIds = items.collect { case (f, t, true) => f }
         logger.info(s"Renaming: $activeIds")
-
         userDataApi.regenerateIds(activeIds, commit = true).flatMap { items =>
-          // For each item we're renaming create 301s for the browse, search, and admin URLs
-          val genUrls = items.flatMap { case (from, to) =>
-            val portalBrowse = (controllers.portal.routes.DocumentaryUnits.browse(from).url,
-              controllers.portal.routes.DocumentaryUnits.browse(to).url)
-            val portalSearch = (controllers.portal.routes.DocumentaryUnits.search(from).url,
-              controllers.portal.routes.DocumentaryUnits.search(to).url)
-            val admin = (controllers.units.routes.DocumentaryUnits.get(from).url,
-              controllers.units.routes.DocumentaryUnits.get(to).url)
-            Seq(portalBrowse, portalSearch, admin)
-          }
-
-          updateFromCsv(items, genUrls)
+          updateFromCsv(items, prefix)
             .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
         }
       }
@@ -257,11 +276,9 @@ case class Utils @Inject()(
       .readerFor(classOf[Array[String]])
       .`with`(schema)
       .readValues(ios)
-    try {
-      for {
+    try for {
         arr <- all.readAll().asScala
-      } yield arr.toList
-    } finally {
+      } yield arr.toList finally {
       all.close()
     }
   }

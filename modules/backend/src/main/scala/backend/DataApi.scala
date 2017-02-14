@@ -92,11 +92,11 @@ trait DataApiHandle {
     * Scan for IDs that require regeneration across an entire item type,
     * and optionally regenerate them.
     *
-    * @param et     the entity type
+    * @param ct     the content type
     * @param commit whether or not to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIdsForType(et: EntityType.Value, commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Scan for IDs that require regeneration within a given scope,
