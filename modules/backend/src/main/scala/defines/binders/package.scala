@@ -44,6 +44,10 @@ package object binders {
 
   implicit val entityTypeQueryBinder: QueryStringBindable[EntityType.Value] = queryStringBinder(EntityType)
 
+  implicit val contentTypeBinder: PathBindable[ContentTypes.Value] = bindableEnum(ContentTypes)
+
+  implicit val contentTypeQueryBinder: QueryStringBindable[ContentTypes.Value] = queryStringBinder(ContentTypes)
+
   private val fullDateTimeFmt: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
   implicit def dateTimeQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[LocalDateTime] =

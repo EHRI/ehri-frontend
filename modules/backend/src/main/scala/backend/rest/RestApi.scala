@@ -628,8 +628,8 @@ case class RestApiHandle(eventHandler: EventHandler)(
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
-  override def regenerateIdsForType(et: EntityType.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
-    val url = enc(baseUrl, "tools", "regenerate-ids-for-type", et)
+  override def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "regenerate-ids-for-type", ct)
     userCall(url).withQueryString("commit" -> commit.toString)
       .withTimeout(20.minutes).post("")
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
@@ -644,8 +644,9 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   override def regenerateIds(ids: Seq[String], commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids")
-    userCall(url).withQueryString(ids.map(id => Constants.ID_PARAM -> id): _*)
-      .withQueryString("commit" -> commit.toString).post("")
+    userCall(url)
+      .withQueryString("commit" -> commit.toString)
+      .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 

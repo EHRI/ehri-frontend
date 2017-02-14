@@ -30,8 +30,12 @@ GET         /movedItems                         @controllers.admin.Utils.addMove
 POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
 GET         /renameItems                        @controllers.admin.Utils.renameItems
 POST        /renameItems                        @controllers.admin.Utils.renameItemsPost
+
+# ID regeneration
 GET         /regenerate                         @controllers.admin.Utils.regenerateIds
 POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost
+GET         /regenerateType/:ct                 @controllers.admin.Utils.regenerateIdsForType(ct: defines.ContentTypes.Value)
+GET         /regenerateScope/:id                @controllers.admin.Utils.regenerateIdsForScope(id: String)
 
 # Find and replace
 GET         /findReplace                        @controllers.admin.Utils.findReplace

@@ -98,7 +98,6 @@ case class UserProfiles @Inject()(
   }
 
   def watching(format: DataFormat.Value = DataFormat.Html, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    println(params)
     for {
       watching <- userDataApi.watching[AnyModel](request.user.id)
       result <- findIn[AnyModel](watching, params, paging)

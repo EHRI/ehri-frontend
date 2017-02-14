@@ -1,0 +1,19 @@
+@(form: Form[(Option[defines.ContentTypes.Value], Option[String])], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("admin.utils.regenerateIds")) {
+
+    @helper.form(action = action) {
+        @formHelpers.globalErrors(form)
+
+        <strong>Choose either:</strong>
+        @formHelpers.choiceInput(form("type"), "Item class",
+            defines.ContentTypes.values.toList.map(et => et.toString -> et.toString),   blank = true)
+        <strong>OR</strong>
+        @formHelpers.lineInput(form(""), "scope", '_label -> "Item scope")
+
+        @formHelpers.submitButton("Regenerate")
+    }
+} {
+
+}
+
