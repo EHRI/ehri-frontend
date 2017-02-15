@@ -18,8 +18,11 @@
     </div>
     <script>
         jQuery(function($) {
-            $("#form-container").load("@action").error(function() {
-                $(".progress").remove();
+            $("#form-container").load("@action", function(r, status, xhr) {
+                if (status === "error") {
+                    $(".progress").remove();
+                    alert("Error: " + xhr.status + " " + xhr.statusText);
+                }
             });
         });
     </script>

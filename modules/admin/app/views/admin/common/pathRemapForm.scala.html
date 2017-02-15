@@ -1,0 +1,26 @@
+@(submitName: String)(html: Html)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+
+@formHelpers.csrfToken()
+
+<div class="form-group">
+    <label class="control-label" for="id_path-prefix">
+        @Messages("admin.utils.renameItems.pathPrefix")
+    </label>
+    <div class="control-elements">
+        <input class="form-control" type="text" name="path-prefix" id="id_path-prefix" />
+    </div>
+</div>
+
+@html
+
+<div class="form-group">
+    <input disabled id="id_submit" type="submit" class="btn btn-danger" value="@submitName" />
+</div>
+<script>
+    jQuery(function($) {
+        $("#id_path-prefix").on("keyup", function(e) {
+            $("#id_submit").attr("disabled", e.target.value.trim() === "");
+        });
+    });
+</script>
+

@@ -223,7 +223,7 @@ trait RestService {
     response.status match {
       case OK | CREATED | NO_CONTENT => response
       case FORBIDDEN => response.json.validate[PermissionDenied].fold(
-        err => throw PermissionDenied(),
+        _ => throw PermissionDenied(),
         perm => {
           logger.error(s"Permission denied error! : ${response.json}")
           throw perm
@@ -248,17 +248,17 @@ trait RestService {
           }
         )
       } catch {
-        case e: JsonParseException =>
+        case _: JsonParseException =>
           throw BadRequest(response.body)
       }
       case NOT_FOUND => try {
         response.json.validate[ItemNotFound].fold(
-          e => throw new ItemNotFound(),
+          _ => throw new ItemNotFound(),
           err => throw err
         )
       } catch {
         case e@(_: JsonParseException | _: JsonMappingException) =>
-          sys.error(s"Backend 404 at $uri: '${response.body}")
+          sys.error(s"Backend 404 at $uri: ${e.getMessage}: '${response.body}")
       }
       case _ =>
         val err = s"Unexpected response: ${response.status}: '${response.body}'"
