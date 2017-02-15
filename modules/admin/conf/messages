@@ -205,8 +205,9 @@ metrics.restrictedMaterial=Restricted Material
 # Moved pages
 #
 admin.utils.movedItems=Moved Item IDs
-admin.utils.movedItems.description=Upload a CSV of items that have had their IDs changed. \
-  These will be automatically redirected.
+admin.utils.movedItems.description=Create permanent redirects for items that have had their IDs changed.
+admin.utils.movedItems.submit=Redirect item IDs
+admin.utils.movedItems.csv=Select the old ID to new ID CSV file...
 admin.utils.movedItems.added=The following URLs will be redirected:
 admin.utils.movedItems.added.none=No new redirects were created
 
@@ -214,15 +215,21 @@ admin.utils.movedItems.added.none=No new redirects were created
 # Renaming items
 #
 admin.utils.renameItems=Rename Item Local Identifiers
-admin.utils.renameItems.description=Upload a CSV of item IDs mapped to new local identifiers. \
-  Redirects will be created for new global IDs.
+admin.utils.renameItems.description=Change item local identifiers, regenerate global IDs, and \
+  create permanent redirects from old ID to new ID.
+admin.utils.renameItems.submit=Rename Items
+admin.utils.renameItems.pathPrefix=Specify the path prefix before the item's id \
+  (comma-separated if there are multiple).
+admin.utils.renameItems.csv=Select the ID to new local identifier CSV file...
 
 #
 # ID regeneration
 #
 admin.utils.regenerateIds=Regenerate Item IDs
-admin.utils.regenerateIds.scanning=Scanning items with stale IDs...
 admin.utils.regenerateIds.description=Items that require ID regeneration.
+admin.utils.regenerateIds.submit=Regenerate IDs
+admin.utils.regenerateIds.scan=Scan Items
+admin.utils.regenerateIds.scanning=Scanning items with stale IDs...
 admin.utils.regenerateIds.noIdsFound=No IDs requiring regeneration found.
 
 #

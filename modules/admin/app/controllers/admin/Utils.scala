@@ -37,7 +37,6 @@ case class Utils @Inject()(
 
   override val staffOnly = false
   private val logger = play.api.Logger(getClass)
-  private val dbBaseUrl = utils.serviceBaseUrl("ehridata", config)
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -77,9 +76,12 @@ case class Utils @Inject()(
     }
   }
 
+
+  private val pathPrefixField = nonEmptyText.verifying("isPath",
+    s => s.split(',').forall(_.startsWith("/") && s.endsWith("/")))
+
   private val urlMapForm = Form(
-    single("path-prefix" -> nonEmptyText.verifying("isPath",
-      s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))))
+    single("path-prefix" -> pathPrefixField)
   )
 
   def addMovedItems(): Action[AnyContent] = AdminAction { implicit request =>
@@ -154,17 +156,16 @@ case class Utils @Inject()(
 
   private val regenerateIdsForm: Form[(String, Seq[(String, String, Boolean)])] = Form(
     tuple(
-      "path-prefix" -> nonEmptyText.verifying("isPath",
-        s => s.split(',').forall(_.startsWith("/") && s.endsWith("/"))),
+      "path-prefix" -> pathPrefixField,
       "items" -> seq(tuple("from" -> nonEmptyText, "to" -> nonEmptyText, "active" -> boolean))
     )
   )
 
   def regenerateIdsForType(ct: defines.ContentTypes.Value): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) userDataApi.regenerateIdsForType(ct).map { items =>
-        Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
-          .fill("" -> items.map { case (f, t) => (f, t, true) }),
-          controllers.admin.routes.Utils.regenerateIdsPost()))
+      Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
+        .fill("" -> items.map { case (f, t) => (f, t, true) }),
+        controllers.admin.routes.Utils.regenerateIdsPost()))
     } else immediate(Ok(views.html.admin.regenerateIds(regenerateIdsForm,
       controllers.admin.routes.Utils.regenerateIdsForType(ct))))
   }
@@ -185,7 +186,7 @@ case class Utils @Inject()(
       errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
         controllers.admin.routes.Utils.regenerateIdsPost()))), {
       case (prefix, items) =>
-        val activeIds = items.collect { case (f, t, true) => f }
+        val activeIds = items.collect { case (f, _, true) => f }
         logger.info(s"Renaming: $activeIds")
         userDataApi.regenerateIds(activeIds, commit = true).flatMap { items =>
           updateFromCsv(items, prefix)
@@ -229,8 +230,6 @@ case class Utils @Inject()(
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
-
-    def dec(s: String) = java.net.URLDecoder.decode(s, StandardCharsets.UTF_8.name())
 
     items.flatMap { case (from, to) =>
       prefixes.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")

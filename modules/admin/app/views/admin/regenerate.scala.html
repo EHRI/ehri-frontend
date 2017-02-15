@@ -1,17 +1,20 @@
 @(form: Form[(Option[defines.ContentTypes.Value], Option[String])], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
+@implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
+
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.regenerateIds")) {
 
     @helper.form(action = action) {
-        @formHelpers.globalErrors(form)
+        <fieldset>
+            @formHelpers.globalErrors(form)
+            <div class="form-group"><strong>Choose either:</strong></div>
+            @formHelpers.choiceInput(form("type"), "Item class",
+                defines.ContentTypes.values.toList.map(et => et.toString -> et.toString), blank = true)
+            <div class="form-group"><strong>OR</strong></div>
+            @formHelpers.lineInput(form(""), "scope", '_label -> "Item scope")
+        </fieldset>
 
-        <strong>Choose either:</strong>
-        @formHelpers.choiceInput(form("type"), "Item class",
-            defines.ContentTypes.values.toList.map(et => et.toString -> et.toString),   blank = true)
-        <strong>OR</strong>
-        @formHelpers.lineInput(form(""), "scope", '_label -> "Item scope")
-
-        @formHelpers.submitButton("Regenerate")
+        @formHelpers.submitButton(Messages("admin.utils.regenerateIds.scan"))
     }
 } {
 

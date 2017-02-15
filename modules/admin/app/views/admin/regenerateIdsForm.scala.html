@@ -7,55 +7,33 @@
         <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
     } else {
         @helper.form(action = action, 'class -> "entity-form form-horizontal", 'id -> "regenerate-ids") {
-            @formHelpers.csrfToken()
-
-            <div class="form-group">
-                <label class="control-label" for="id_path-prefix">
-                    Specify the path prefix before the item's id (comma-separated if there are multiple)
-                </label>
-                <div class="control-elements">
-                    <input class="form-control" type="text" name="path-prefix" id="id_path-prefix" />
-                </div>
-            </div>
-
-            <p>@Messages("admin.utils.regenerateIds.description")</p>
-            <table class="table table-bordered table-striped table-condensed">
-                <thead>
-                    <tr>
-                        <th>From</th>
-                        <th>To</th>
-                        <th><input type="checkbox" id="check-all" checked><label for="check-all"></label> Rename?</th>
-                    </tr>
-                </thead>
-                @helper.repeat(field) { f =>
-                    <tr>
-                        <td>
-                            @f("from").value
-                            @formHelpers.hiddenInput(f("from"))
-                        </td>
-                        <td>
-                            @f("to").value
-                            @formHelpers.hiddenInput(f("to"))
-                        </td>
-                        <td>
+            @views.html.admin.common.pathRemapForm(Messages("admin.utils.regenerateIds.submit")) {
+                <p>@Messages("admin.utils.regenerateIds.description")</p>
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th><input type="checkbox" id="check-all" checked><label for="check-all"></label> Rename?</th>
+                        </tr>
+                    </thead>
+                    @helper.repeat(field) { f =>
+                        <tr>
+                            <td>
+                                @f("from").value
+                                @formHelpers.hiddenInput(f("from"))
+                            </td>
+                            <td>
+                                @f("to").value
+                                @formHelpers.hiddenInput(f("to"))
+                            </td>
+                            <td>
                             @helper.checkbox(f("active"), '_label -> "", 'class -> "select-item")
-                        </td>
-                    </tr>
-                }
-            </table>
-
-            <div class="form-group">
-                <input type="submit" class="btn btn-danger" value="Regenerate IDs" />
-            </div>
-
-            <script>
-                jQuery(function($) {
-                    $("#check-all").click(function (e) {
-                      console.log("checked", e.target.checked)
-                        $(".select-item").prop("checked", e.target.checked);
-                    });
-                });
-            </script>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            }
         }
     }
 }
