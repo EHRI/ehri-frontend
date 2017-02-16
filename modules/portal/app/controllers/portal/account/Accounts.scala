@@ -10,8 +10,7 @@ import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, Yaho
 import backend.AnonymousUser
 import com.google.common.net.HttpHeaders
 import controllers.Components
-import controllers.base.RecaptchaHelper
-import controllers.core.auth.AccountHelpers
+import controllers.base.{AccountHelpers, RecaptchaHelper}
 import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
@@ -27,7 +26,7 @@ import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import utils.forms.{HoneyPotForm, TimeCheckForm}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -83,12 +82,13 @@ case class Accounts @Inject()(
     }
 
     lazy val parser: BodyParser[A] = action.parser
+    lazy val executionContext: ExecutionContext = action.executionContext
   }
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
     accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
 
-  object NotReadOnlyAction extends ActionBuilder[Request] {
+  object NotReadOnlyAction extends CoreActionBuilder[Request, AnyContent] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
     }
@@ -107,7 +107,7 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-  object RateLimit extends ActionBuilder[Request] {
+  object RateLimit extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (request.method != HttpVerbs.POST) block(request)
       else {

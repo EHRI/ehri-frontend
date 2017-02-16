@@ -5,7 +5,7 @@ import backend.rest.DataHelpers
 import defines.PermissionType
 import models.base.Accessor
 import models.{Group, UserProfile}
-import play.api.mvc.{ActionBuilder, ActionTransformer, Request, WrappedRequest}
+import play.api.mvc._
 
 import scala.concurrent.Future
 
@@ -29,8 +29,8 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def MembershipAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MembershipRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, MembershipRequest] {
+  protected def MembershipAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MembershipRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, MembershipRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MembershipRequest[A]] = {
         dataHelpers.getGroupList.map { groups =>
           // filter out the groups the user already belongs to
@@ -52,8 +52,8 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def CheckManageGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ManageGroupRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ManageGroupRequest] {
+  protected def CheckManageGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ManageGroupRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ManageGroupRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageGroupRequest[A]] = {
         implicit val req = request
         userDataApi.get[Group](groupId).map { group =>
@@ -62,16 +62,16 @@ trait Membership[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def AddToGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
-    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+  protected def AddToGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
+    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         userDataApi.addGroup[Group, MT](groupId, id).map(_ => request)
       }
     }
 
-  protected def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
-    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+  protected def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
+    MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         userDataApi.removeGroup[Group, MT](groupId, id).map(_ => request)

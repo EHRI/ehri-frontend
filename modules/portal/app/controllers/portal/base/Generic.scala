@@ -3,7 +3,7 @@ package controllers.portal.base
 import backend.ContentType
 import controllers.generic.Read
 import models.{Annotation, Link, UserProfile}
-import play.api.mvc.{ActionBuilder, ActionTransformer, Request, WrappedRequest}
+import play.api.mvc._
 import utils.Page
 
 import scala.concurrent.Future
@@ -22,8 +22,8 @@ trait Generic[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
   
-  def GetItemAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemBrowseRequest] =
-    ItemPermissionAction(id) andThen new ActionTransformer[ItemPermissionRequest, ItemBrowseRequest] {
+  def GetItemAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemBrowseRequest, AnyContent] =
+    ItemPermissionAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemBrowseRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemBrowseRequest[A]] = {
         implicit val req = request
         val watchedF: Future[Seq[String]] = watchedItemIds(request.userOpt.map(_.id))

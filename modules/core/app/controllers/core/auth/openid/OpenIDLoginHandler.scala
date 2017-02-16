@@ -12,6 +12,7 @@ import play.api.mvc.Result
 import java.net.ConnectException
 
 import controllers.core.auth.AccountHelpers
+
 import play.api.Logger
 
 import scala.concurrent.Future
@@ -51,7 +52,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  protected def OpenIdLoginAction(handler: Call) = new ActionBuilder[OpenIDRequest] {
+  protected def OpenIdLoginAction[B](handler: Call) = new CoreActionBuilder[OpenIDRequest, B] {
     override def invokeBlock[A](request: Request[A], block: (OpenIDRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
       try {
@@ -87,7 +88,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  protected def OpenIdCallbackAction = new ActionBuilder[OpenIdCallbackRequest] {
+  protected def OpenIdCallbackAction[B] = new CoreActionBuilder[OpenIdCallbackRequest, B] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
 

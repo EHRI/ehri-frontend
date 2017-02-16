@@ -34,12 +34,16 @@ val backendDependencies = Seq(
 
 
 val coreDependencies = backendDependencies ++ Seq(
+  guice,
   jdbc,
   evolutions,
   filters,
+  openId,
+
+  "com.typesafe.play" %% "play-json" % "2.6.0-M1",
 
   // Anorm DB lib
-  "com.typesafe.play" %% "anorm" % "2.5.1",
+  "com.typesafe.play" %% "anorm" % "2.6.0-M1",
 
   // Commons IO
   "commons-io" % "commons-io" % "2.5",

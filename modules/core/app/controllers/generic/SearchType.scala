@@ -2,7 +2,7 @@ package controllers.generic
 
 import backend.ContentType
 import models.UserProfile
-import play.api.mvc.{ActionBuilder, ActionTransformer, Request, WrappedRequest}
+import play.api.mvc._
 import utils.PageParams
 import utils.search._
 
@@ -27,8 +27,8 @@ trait SearchType[MT] extends Read[MT] with Search {
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     sort: SearchSort.Value = SearchSort.DateNewest,
-    facetBuilder: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[SearchTypeRequest] =
-    OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, SearchTypeRequest] {
+    facetBuilder: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[SearchTypeRequest, AnyContent] =
+    OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, SearchTypeRequest] {
       override protected def transform[A](request: OptionalUserRequest[A]): Future[SearchTypeRequest[A]] = {
         implicit val r = request
         findType[MT](params, paging, filters, extra, sort, facetBuilder = facetBuilder).map { result =>

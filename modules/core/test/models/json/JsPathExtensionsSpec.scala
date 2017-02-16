@@ -208,7 +208,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
         )
       )
       val testJsonFormat: Format[TestData] = (
-        (__ \ "field1").formatNullableWithDefault("bar") and
+        (__ \ "field1").formatNullableWithDefault(Some("bar")) and
         (__ \ "field2").formatSeqOrSingleNullable[String]
       )(TestData.apply, unlift(TestData.unapply))
 

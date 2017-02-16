@@ -37,8 +37,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
 
 
   protected def CreateDescriptionAction(id: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
@@ -55,8 +55,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   protected def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req = request
         form.bindFromRequest.fold(
@@ -73,8 +73,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   protected def WithDescriptionAction(id: String, did: String)(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
+    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
         request.item.model.description(did) match {
           case Some(d) => immediate(Right(DeleteDescriptionRequest(request.item, d, request.userOpt, request)))
@@ -83,8 +83,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
+  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request
         userDataApi.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>

@@ -27,11 +27,32 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
 
   protected def authHandler: AuthHandler
 
+  protected def parsers: PlayBodyParsers
+  private def _parsers = parsers
+
   protected def executionContext: ExecutionContext
+  private def _exc = executionContext
 
   protected implicit def exc: ExecutionContext = executionContext
 
   protected def accounts: AccountManager
+
+  protected trait CoreActionBuilder[+R[_], B] extends ActionBuilder[R, AnyContent] {
+    override protected def executionContext: ExecutionContext = _exc
+    override def parser: BodyParser[AnyContent] = parsers.defaultBodyParser
+  }
+
+  protected trait CoreActionTransformer[-R[_], +P[_]] extends ActionTransformer[R, P] {
+    override protected def executionContext: ExecutionContext = _exc
+  }
+
+  protected trait CoreActionRefiner[-R[_], +P[_]] extends ActionRefiner[R, P] {
+    override protected def executionContext: ExecutionContext = _exc
+  }
+
+  protected trait CoreActionFilter[R[_]] extends ActionFilter[R] {
+    override protected def executionContext: ExecutionContext = _exc
+  }
 
   /**
     * Obtain a handle to the dataApi database in the context of
@@ -254,6 +275,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     ) { account =>
       fetchProfile(account).map(profileOpt => OptionalUserRequest[A](profileOpt, request))
     }
+
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
@@ -264,12 +287,14 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.readOnly) OptionalAccountRequest(None, request) else request
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   protected object EmbedTransformer extends ActionTransformer[OptionalAccountRequest, OptionalAccountRequest] {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
@@ -281,6 +306,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
       else immediate(None)
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
@@ -296,6 +322,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
         else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
@@ -313,6 +340,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
         else immediate(None)
       }
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
@@ -321,7 +349,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     *  - the site is not in maintenance mode
     *  - they are allowed in this controller
     */
-  protected def OptionalAccountAction: ActionBuilder[OptionalAccountRequest] =
+  protected def OptionalAccountAction: ActionBuilder[OptionalAccountRequest, AnyContent] =
     GenericOptionalAccountFunction andThen
       MaintenanceFilter andThen
       IpFilter andThen
@@ -330,13 +358,13 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       AllowedFilter
 
 
-  protected def GenericOptionalAccountFunction = new ActionBuilder[OptionalAccountRequest] {
+  protected def GenericOptionalAccountFunction = new CoreActionBuilder[OptionalAccountRequest, AnyContent] {
     def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]): Future[Result] = {
-      authHandler.restoreAccount(request) recover {
+      authHandler.restoreAccount(request).recover({
         case _ => None -> identity[Result] _
-      } flatMap { case (user, cookieUpdater) =>
-        block(OptionalAccountRequest[A](user, request)).map(cookieUpdater)
-      }
+      })(_exc).flatMap ({
+        case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request)).map(cookieUpdater)(_exc)
+      })(_exc)
     }
   }
 
@@ -344,12 +372,12 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
   /**
     * Fetch the profile in addition to the account
     */
-  protected def OptionalUserAction: ActionBuilder[OptionalUserRequest] = OptionalAccountAction andThen FetchProfile
+  protected def OptionalUserAction: ActionBuilder[OptionalUserRequest, AnyContent] = OptionalAccountAction andThen FetchProfile
 
   /**
     * Ensure that a user is present
     */
-  protected def WithUserAction: ActionBuilder[WithUserRequest] =
+  protected def WithUserAction: ActionBuilder[WithUserRequest, AnyContent] =
     OptionalUserAction andThen new ActionRefiner[OptionalUserRequest, WithUserRequest] {
       override protected def refine[A](request: OptionalUserRequest[A]): Future[Either[Result, WithUserRequest[A]]] = {
         request.userOpt match {
@@ -357,6 +385,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
           case Some(profile) => immediate(Right(WithUserRequest(profile, request)))
         }
       }
+      override protected def executionContext: ExecutionContext = _exc
     }
 
   /**
@@ -365,31 +394,34 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     * @param permissionType the permission type
     * @param contentType    the content type
     */
-  protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value): ActionBuilder[WithUserRequest] =
+  protected def WithContentPermissionAction(permissionType: PermissionType.Value, contentType: ContentTypes.Value): ActionBuilder[WithUserRequest, AnyContent] =
     WithUserAction andThen new ActionFilter[WithUserRequest] {
       override protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
         if (request.user.hasPermission(contentType, permissionType)) immediate(None)
         else authorizationFailed(request, request.user).map(r => Some(r))
       }
+      override protected def executionContext: ExecutionContext = _exc
     }
 
   /**
     * Check the user belongs to a given group.
     */
-  protected def MustBelongTo(groupId: String): ActionBuilder[WithUserRequest] = WithUserAction andThen new ActionFilter[WithUserRequest] {
+  protected def MustBelongTo(groupId: String): ActionBuilder[WithUserRequest, AnyContent] = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
       if (request.user.isAdmin || request.user.allGroups.exists(_.id == groupId)) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 
   /**
     * Check the user is an administrator to access this request
     */
-  protected def AdminAction: ActionBuilder[WithUserRequest] = WithUserAction andThen new ActionFilter[WithUserRequest] {
+  protected def AdminAction: ActionBuilder[WithUserRequest, AnyContent] = WithUserAction andThen new ActionFilter[WithUserRequest] {
     protected def filter[A](request: WithUserRequest[A]): Future[Option[Result]] = {
       if (request.user.isAdmin) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
+    override protected def executionContext: ExecutionContext = _exc
   }
 }

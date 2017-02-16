@@ -5,8 +5,8 @@ import javax.inject.{Inject, Singleton}
 import controllers.Components
 import play.api.cache.Cached
 import play.api.http.{ContentTypes, MimeTypes}
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, Controller, EssentialAction}
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{Action, Controller, EssentialAction, RequestHeader}
 
 
 @Singleton
@@ -16,7 +16,10 @@ case class PortalData @Inject()(
   with play.api.i18n.I18nSupport {
 
   protected def statusCache: Cached = components.statusCache
-  def messagesApi: MessagesApi = components.messagesApi
+  implicit def messagesApi: MessagesApi = components.messagesApi
+
+  // FIXME: 2.6
+  protected implicit def messages(implicit request: RequestHeader): Messages = request.messages
 
   def jsRoutes: EssentialAction = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>

@@ -7,7 +7,6 @@ import defines.{ContentTypes, EntityType}
 import models._
 import models.json.Utils
 import org.apache.commons.lang3.StringUtils
-import play.api.data.validation.ValidationError
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}
 
@@ -51,7 +50,7 @@ object AnyModel {
       }.getOrElse {
         JsError(
           JsPath(List(KeyPathNode(Entity.TYPE))),
-          ValidationError(s"Unregistered AnyModel type for REST: $et"))
+          JsonValidationError(s"Unregistered AnyModel type for REST: $et"))
       }
     }
   }

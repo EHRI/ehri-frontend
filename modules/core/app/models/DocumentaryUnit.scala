@@ -48,7 +48,7 @@ object DocumentaryUnitF {
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ OTHER_IDENTIFIERS).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ PUBLICATION_STATUS).formatNullable[PublicationStatus.Value] and
-    (__ \ DATA \ COPYRIGHT).formatNullableWithDefault(CopyrightStatus.Unknown) and
+    (__ \ DATA \ COPYRIGHT).formatNullableWithDefault(Some(CopyrightStatus.Unknown)) and
     (__ \ DATA \ SCOPE).formatNullable[Scope.Value] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[DocumentaryUnitDescriptionF]
   )(DocumentaryUnitF.apply, unlift(DocumentaryUnitF.unapply))

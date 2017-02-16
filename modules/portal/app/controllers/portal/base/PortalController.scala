@@ -45,6 +45,10 @@ trait PortalController
   protected implicit def globalConfig: GlobalConfig = components.globalConfig
   protected implicit def markdown: MarkdownRenderer = components.markdown
 
+  override protected val parse = components.parsers
+
+  //protected implicit def messages(implicit request: RequestHeader): Messages = request.messages
+
   protected implicit def executionContext: ExecutionContext = components.executionContext
 
   protected def accounts: AccountManager = components.accounts
@@ -75,7 +79,9 @@ trait PortalController
   override implicit def request2Messages(implicit request: RequestHeader): Messages = {
     request.preferences.language match {
       case None => super.request2Messages(request)
-      case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
+        // FIXME: 2.6
+      //case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
+      case Some(lang) => super.request2Messages(request)
     }
   }
 
@@ -245,7 +251,7 @@ trait PortalController
   /**
    * Action which fetches a user's profile and list of watched items.
    */
-  protected def UserBrowseAction: ActionBuilder[UserDetailsRequest] = OptionalAccountAction andThen new ActionTransformer[OptionalAccountRequest,
+  protected def UserBrowseAction: ActionBuilder[UserDetailsRequest, AnyContent] = OptionalAccountAction andThen new CoreActionTransformer[OptionalAccountRequest,
     UserDetailsRequest] {
     override protected def transform[A](request: OptionalAccountRequest[A]): Future[UserDetailsRequest[A]] = {
       request.accountOpt.map { account =>

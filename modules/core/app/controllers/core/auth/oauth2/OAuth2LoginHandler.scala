@@ -7,8 +7,7 @@ import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Flow, UserData}
 import backend.{AnonymousUser, AuthenticatedUser, DataApi}
-import controllers.base.CoreActionBuilders
-import controllers.core.auth.AccountHelpers
+import controllers.base.{AccountHelpers, CoreActionBuilders}
 import global.GlobalConfig
 import models._
 import play.api.Logger
@@ -132,7 +131,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
    *              phase.
    * @param handler the call from which we are being invoked
    */
-  def OAuth2LoginAction(providerName: String, code: Option[String], state: Option[String], handler: Call) = new ActionBuilder[OAuth2Request] {
+  def OAuth2LoginAction[B](providerName: String, code: Option[String], state: Option[String], handler: Call) = new CoreActionBuilder[OAuth2Request, B] {
     override def invokeBlock[A](request: Request[A], block: (OAuth2Request[A]) => Future[Result]): Future[Result] = {
       oauth2Providers.find(_.name == providerName).map { provider =>
         implicit val r = request
@@ -177,6 +176,6 @@ trait OAuth2LoginHandler extends AccountHelpers {
       } getOrElse {
         notFoundError(request)
       }
-   }
+    }
   }
 }

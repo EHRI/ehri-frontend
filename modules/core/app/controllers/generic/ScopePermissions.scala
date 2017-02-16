@@ -35,8 +35,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def ScopePermissionGrantAction(id: String, itemPaging: PageParams, scopePaging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
+  protected def ScopePermissionGrantAction(id: String, itemPaging: PageParams, scopePaging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
         implicit val req = request
         for {
@@ -47,8 +47,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     }
 
   protected def CheckUpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
@@ -62,8 +62,8 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
 
 
   protected def UpdateScopePermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)
