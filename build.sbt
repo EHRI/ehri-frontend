@@ -32,7 +32,6 @@ val backendDependencies = Seq(
   "ehri-project" % "ehri-definitions" % backendVersion
 )
 
-
 val coreDependencies = backendDependencies ++ Seq(
   guice,
   jdbc,

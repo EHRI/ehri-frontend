@@ -18,7 +18,7 @@ import models.api.v1.JsonApiV1._
 import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
-import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._

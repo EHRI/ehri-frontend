@@ -5,7 +5,7 @@ import models._
 import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{Json, JsObject}
 import defines.EntityType
-import play.api.i18n.{MessagesApi, MessagesProvider, Messages, Lang}
+import play.api.i18n.MessagesApi
 import Description._
 import backend.Entity
 

@@ -3,7 +3,7 @@ package controllers.portal
 import javax.inject.Inject
 
 import models.Isaar
-import play.api.i18n.{I18nSupport, Messages, MessagesApi, MessagesProvider}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import utils.DateFacetUtils
 import utils.DateFacetUtils._

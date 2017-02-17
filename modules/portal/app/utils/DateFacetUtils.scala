@@ -12,7 +12,7 @@ import utils.search._
   * to Solr format.
   */
 @Singleton
-case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi, messagesProvider: MessagesProvider) extends play.api.i18n.I18nSupport {
+case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {
 
   import DateFacetUtils._
 
@@ -39,7 +39,7 @@ case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi, messagesP
   /**
     * Get a formatted representation of the date string.
     */
-  def formatReadable(ds: String): Option[String] = {
+  def formatReadable(ds: String)(implicit messages: MessagesProvider): Option[String] = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
