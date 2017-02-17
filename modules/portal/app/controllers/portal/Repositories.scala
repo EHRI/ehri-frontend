@@ -18,11 +18,11 @@ import scala.concurrent.Future.{successful => immediate}
 @Singleton
 case class Repositories @Inject()(
   components: Components,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[Repository]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalRepoRoutes = controllers.portal.routes.Repositories
 
@@ -32,7 +32,7 @@ case class Repositories @Inject()(
 
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[Repository](params, paging, facetBuilder = repositorySearchFacets,
+    findType[Repository](params, paging, facetBuilder = fc.repositorySearchFacets,
       sort = SearchSort.Name).map { result =>
       Ok(views.html.repository.list(result, portalRepoRoutes.searchAll(),
         request.watched))
@@ -40,7 +40,7 @@ case class Repositories @Inject()(
   }
 
   def searchAllByCountry(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[Repository](params, paging, facetBuilder = repositorySearchFacets,
+    findType[Repository](params, paging, facetBuilder = fc.repositorySearchFacets,
       sort = SearchSort.Country).map { result =>
       Ok(views.html.repository.listByCountry(result,
         portalRepoRoutes.searchAllByCountry(),
@@ -51,7 +51,7 @@ case class Repositories @Inject()(
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.repository.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[DocumentaryUnit](params, paging, filters = filters(request.item.id),
-      facetBuilder = localDocFacets, sort = SearchSort.Id).map { result =>
+      facetBuilder = fc.localDocFacets, sort = SearchSort.Id).map { result =>
       Ok(views.html.repository.show(request.item, result, request.annotations,
         request.links, portalRepoRoutes.search(id), request.watched))
     }
@@ -59,7 +59,7 @@ case class Repositories @Inject()(
 
   def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging, filters = filters(request.item.id),
-      facetBuilder = localDocFacets, sort = SearchSort.Id).map { result =>
+      facetBuilder = fc.localDocFacets, sort = SearchSort.Id).map { result =>
       if (isAjax) Ok(views.html.repository.childItemSearch(request.item, result,
         portalRepoRoutes.search(id), request.watched))
       else Ok(views.html.repository.search(request.item, result,

@@ -45,7 +45,7 @@ trait PortalController
   protected implicit def globalConfig: GlobalConfig = components.globalConfig
   protected implicit def markdown: MarkdownRenderer = components.markdown
 
-  override protected val parse = components.parsers
+  override protected val parsers: PlayBodyParsers = components.parsers
 
   //protected implicit def messages(implicit request: RequestHeader): Messages = request.messages
 

@@ -6,7 +6,7 @@ import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content._
 import play.api.http._
-import play.api.libs.Files.TemporaryFile
+import play.api.libs.Files.{SingletonTemporaryFileCreator, TemporaryFile}
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{AnyContentAsMultipartFormData, Codec, MultipartFormData}
 import play.api.test.FakeRequest
@@ -20,20 +20,18 @@ import scala.language.implicitConversions
  * Borrowed from: http://stackoverflow.com/a/24622059/285374
  */
 trait FakeMultipartUpload {
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   private val boundary = "123455678"
 
   implicit def writeableOf_multiPartFormData(implicit codec: Codec): Writeable[AnyContentAsMultipartFormData] = {
     val builder = MultipartEntityBuilder.create().setBoundary(boundary)
 
     def transform(multipart: AnyContentAsMultipartFormData): akka.util.ByteString = {
-      multipart.mdf.dataParts.foreach { part =>
+      multipart.mfd.dataParts.foreach { part =>
         part._2.foreach { p2 =>
           builder.addPart(part._1, new StringBody(p2, ContentType.create("text/plain", "UTF-8")))
         }
       }
-      multipart.mdf.files.foreach { file =>
+      multipart.mfd.files.foreach { file =>
         val part = new FileBody(file.ref.file, ContentType.create(file.contentType.getOrElse("application/octet-stream")), file.filename)
         builder.addPart(file.key, part)
       }
@@ -51,7 +49,9 @@ trait FakeMultipartUpload {
   MultipartFormData[TemporaryFile] = {
     MultipartFormData(
       dataParts = data,
-      files = Seq(FilePart[TemporaryFile](key, file.getName, Some(contentType), TemporaryFile(file))),
+      files = Seq(FilePart[TemporaryFile](key, file.getName, Some(contentType),
+        // FIXME: 2.6 - rework to use injected TemporaryFileCreator
+        SingletonTemporaryFileCreator.create(file.toPath))),
       badParts = Seq()
     )
   }

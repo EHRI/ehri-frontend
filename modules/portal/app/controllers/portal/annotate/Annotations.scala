@@ -29,13 +29,13 @@ case class Annotations @Inject()(
   components: Components,
   ws: WSClient,
   dataHelpers: DataHelpers,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 
@@ -44,7 +44,7 @@ case class Annotations @Inject()(
   )
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[Annotation](params, paging, entities = List(EntityType.Annotation), facetBuilder = annotationFacets).map { result =>
+    find[Annotation](params, paging, entities = List(EntityType.Annotation), facetBuilder = fc.annotationFacets).map { result =>
       Ok(views.html.annotation.list(result, annotationRoutes.searchAll()))
     }
   }

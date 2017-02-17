@@ -16,8 +16,7 @@ case class Links @Inject()(
   cypher: Cypher
 ) extends PortalController
   with Generic[Link]
-  with Search
-  with FacetConfig {
+  with Search {
 
   def browse(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     Ok(views.html.link.show(request.item))

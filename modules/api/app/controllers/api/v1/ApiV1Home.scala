@@ -27,10 +27,10 @@ case class ApiV1Home @Inject()(
     EntityType.Country
   )
 
-  private def error(status: Int, message: Option[String] = None): Result =
+  private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
 
-  private def errorJson(status: Int, message: Option[String] = None): JsObject = {
+  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
     Json.obj(
       "errors" -> Json.arr(
         JsonApiError(

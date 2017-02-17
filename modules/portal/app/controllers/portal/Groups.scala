@@ -16,8 +16,7 @@ case class Groups @Inject()(
   cypher: Cypher
 ) extends PortalController
   with Generic[Group]
-  with Search
-  with FacetConfig {
+  with Search {
 
   def browse(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     Ok(views.html.group.show(request.item))

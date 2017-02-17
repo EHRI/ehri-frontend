@@ -52,7 +52,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  protected def OpenIdLoginAction[B](handler: Call) = new CoreActionBuilder[OpenIDRequest, B] {
+  protected def OpenIdLoginAction(handler: Call) = new CoreActionBuilder[OpenIDRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (OpenIDRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
       try {
@@ -88,7 +88,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  protected def OpenIdCallbackAction[B] = new CoreActionBuilder[OpenIdCallbackRequest, B] {
+  protected def OpenIdCallbackAction = new CoreActionBuilder[OpenIdCallbackRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
 

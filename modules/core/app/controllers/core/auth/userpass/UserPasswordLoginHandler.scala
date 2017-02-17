@@ -92,7 +92,7 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
   
-  protected def ForgotPasswordAction[B]: ActionBuilder[ForgotPasswordRequest, AnyContent] = OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
+  protected def ForgotPasswordAction: ActionBuilder[ForgotPasswordRequest, AnyContent] = OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ForgotPasswordRequest[A]] = {
       implicit val r = request
       checkRecapture.flatMap {

@@ -18,7 +18,7 @@ import models.api.v1.JsonApiV1._
 import models.base.AnyModel
 import play.api.cache.CacheApi
 import play.api.http.HeaderNames
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -64,6 +64,7 @@ case class ApiV1 @Inject()(
   protected val authHandler: AuthHandler = components.authHandler
   protected val searchEngine: SearchEngine = components.searchEngine
   protected val searchResolver: SearchItemResolver = components.searchResolver
+  protected implicit val parsers: PlayBodyParsers = components.parsers
 
   import ApiV1._
 
@@ -104,10 +105,10 @@ case class ApiV1 @Inject()(
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  private def error(status: Int, message: Option[String] = None): Result =
+  private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
 
-  private def errorJson(status: Int, message: Option[String] = None): JsObject = {
+  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
     Json.obj(
       "errors" -> Json.arr(
         JsonApiError(
@@ -125,32 +126,32 @@ case class ApiV1 @Inject()(
     }
   }
 
-  private object LoggingAuthAction extends ActionBuilder[Request] {
+  private object LoggingAuthAction extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (!authenticated) block(request)
       else checkAuthentication(request).map { token =>
         logger.logger.trace(s"API access for $token: ${request.uri}")
         block(request)
       }.getOrElse {
-        immediate(error(FORBIDDEN, message = Some("Token required")))
+        immediate(error(FORBIDDEN, message = Some("Token required"))(request))
       }
     }
   }
 
-  private object RateLimit extends ActionBuilder[Request] {
+  private object RateLimit extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (checkRateLimit(hitsPerSecond, rateLimitTimeoutDuration)(request)) block(request)
-      else immediate(error(TOO_MANY_REQUESTS))
+      else immediate(error(TOO_MANY_REQUESTS)(request))
     }
   }
 
-  private object JsonApiCheckAcceptFilter extends ActionFilter[Request] {
+  private object JsonApiCheckAcceptFilter extends CoreActionFilter[Request] {
     override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
       // If there is an accept media type for JSON-API than one must be unmodified
       val accept: Seq[String] = request.headers.getAll(HeaderNames.ACCEPT).filter(a =>
         a.startsWith(JSONAPI_MIMETYPE))
       if (accept.isEmpty || accept.contains(JSONAPI_MIMETYPE)) immediate(None)
-      else immediate(Some(error(NOT_ACCEPTABLE)))
+      else immediate(Some(error(NOT_ACCEPTABLE)(request)))
     }
   }
 
@@ -356,22 +357,22 @@ case class ApiV1 @Inject()(
     }
 
   override def authenticationFailed(request: RequestHeader): Future[Result] =
-    immediate(error(UNAUTHORIZED))
+    immediate(error(UNAUTHORIZED)(request))
 
   override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def downForMaintenance(request: RequestHeader): Future[Result] =
-    immediate(error(SERVICE_UNAVAILABLE))
+    immediate(error(SERVICE_UNAVAILABLE)(request))
 
   override protected def notFoundError(request: RequestHeader, msg: Option[String]): Future[Result] =
-    immediate(error(NOT_FOUND, msg))
+    immediate(error(NOT_FOUND, msg)(request))
 
   override def staffOnlyError(request: RequestHeader): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def verifiedOnlyError(request: RequestHeader): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)

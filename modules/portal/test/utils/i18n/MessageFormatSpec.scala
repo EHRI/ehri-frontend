@@ -1,6 +1,6 @@
 package utils.i18n
 
-import play.api.test.{FakeApplication, PlaySpecification}
+import play.api.test.PlaySpecification
 
 /**
  * Test various format-sensitive messages

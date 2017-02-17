@@ -10,16 +10,8 @@ import play.api.mvc.{Action, Controller, EssentialAction, RequestHeader}
 
 
 @Singleton
-case class PortalData @Inject()(
-  components: Components
-) extends Controller
+case class PortalData @Inject()(statusCache: Cached)(implicit val messagesApi: MessagesApi) extends Controller
   with play.api.i18n.I18nSupport {
-
-  protected def statusCache: Cached = components.statusCache
-  implicit def messagesApi: MessagesApi = components.messagesApi
-
-  // FIXME: 2.6
-  protected implicit def messages(implicit request: RequestHeader): Messages = request.messages
 
   def jsRoutes: EssentialAction = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
     Action { implicit request =>
@@ -89,7 +81,7 @@ case class PortalData @Inject()(
   }
 
   def localeData(lang: String): EssentialAction = statusCache.status(_ => "pages:localeData", OK, 3600) {
-    Action { request =>
+    Action { implicit request =>
       implicit val locale = play.api.i18n.Lang(lang)
 
       val js =

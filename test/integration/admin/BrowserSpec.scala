@@ -16,18 +16,18 @@ class BrowserSpec extends PlaySpecification {
 
     "handle 404s properly for missing pages" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.Home.index().url + "/idontexist")
-      browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
+      browser.$("#error-title").text must equalTo(Messages("errors.pageNotFound"))
     }
 
     "return 301 for moved pages" in new WithBrowser(app = appBuilder.build()) {
       buffer += "/foo" -> "/bar"
       browser.goTo("/foo")
-      browser.$("#error-title").getTexts.get(0) must equalTo(Messages("errors.pageNotFound"))
+      browser.$("#error-title").text must equalTo(Messages("errors.pageNotFound"))
     }
 
     "deny access to admin routes" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.title() must contain(Messages("login.title"))
+      browser.$("title").text must contain(Messages("login.title"))
     }
   }
 }

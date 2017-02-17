@@ -1,6 +1,6 @@
 package utils
 
-import play.api.i18n.{MessagesApi, Messages}
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.test.PlaySpecification
 import utils.search.{End, Start, Val}
 
@@ -9,8 +9,9 @@ class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSuppor
 
   implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
   implicit val messagesApi = application.injector.instanceOf[MessagesApi]
+  implicit val messagesProvider = application.injector.instanceOf[MessagesProvider]
 
-  val dateFacetUtils = new DateFacetUtils()(messagesApi)
+  val dateFacetUtils = application.injector.instanceOf[DateFacetUtils]
 
   "date utils" should {
     "format correctly as Solr" in {

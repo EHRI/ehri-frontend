@@ -27,10 +27,10 @@ import scala.concurrent.duration.Duration
 case class Portal @Inject()(
   components: Components,
   htmlPages: HtmlPages,
-  ws: WSClient
+  ws: WSClient,
+  fc: FacetConfig
 ) extends PortalController
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalRoutes = controllers.portal.routes.Portal
 
@@ -82,7 +82,7 @@ case class Portal @Inject()(
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     find[AnyModel](params, paging,
-      facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
+      facetBuilder = fc.globalSearchFacets, mode = SearchMode.DefaultNone,
       sort = SearchSort.Score,
       entities = defaultSearchTypes).map { result =>
       Ok(views.html.search.globalSearch(result, portalRoutes.search(), request.watched))

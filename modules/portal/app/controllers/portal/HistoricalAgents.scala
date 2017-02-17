@@ -16,16 +16,16 @@ import utils.search.SearchParams
 @Singleton
 case class HistoricalAgents @Inject()(
   components: Components,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[HistoricalAgent]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalAgentRoutes = controllers.portal.routes.HistoricalAgents
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[HistoricalAgent](params = params, paging = paging, facetBuilder = historicalAgentFacets).map { result =>
+    findType[HistoricalAgent](params = params, paging = paging, facetBuilder = fc.historicalAgentFacets).map { result =>
       Ok(views.html.historicalAgent.list(result,
         portalAgentRoutes.searchAll(), request.watched))
     }

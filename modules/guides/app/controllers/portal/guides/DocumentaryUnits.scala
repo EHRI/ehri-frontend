@@ -17,11 +17,11 @@ import utils.search.{SearchConstants, SearchParams}
 case class DocumentaryUnits @Inject()(
   components: Components,
   guides: GuideService,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[DocumentaryUnit]
-  with SearchType[DocumentaryUnit]
-  with FacetConfig {
+  with SearchType[DocumentaryUnit] {
 
   def browse(path: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     futureItemOr404 {
@@ -29,7 +29,7 @@ case class DocumentaryUnits @Inject()(
         val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
           else SearchConstants.ANCESTOR_IDS
 
-        findType[DocumentaryUnit](params, paging, filters = Map(filterKey -> request.item.id), facetBuilder = docSearchFacets).map { result =>
+        findType[DocumentaryUnit](params, paging, filters = Map(filterKey -> request.item.id), facetBuilder = fc.docSearchFacets).map { result =>
           Ok(views.html.guides.documentaryUnit(
             guide,
             GuidePage.document(Some(request.item.toStringLang)),

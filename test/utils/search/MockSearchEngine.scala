@@ -12,6 +12,7 @@ import scala.concurrent.Future
 import backend.{ApiUser, DataApi, DataApiHandle}
 import models.base.{AnyModel, Described, DescribedMeta, Description}
 import play.api.libs.json.JsString
+import play.api.i18n.MessagesProvider
 
 
 /**
@@ -21,7 +22,8 @@ import play.api.libs.json.JsString
 case class MockSearchEngine @Inject()(
   dataApi: DataApi,
   paramLog: SearchLogger
-)(implicit val messagesApi: play.api.i18n.MessagesApi) extends SearchEngine with play.api.i18n.I18nSupport {
+)(implicit val messagesApi: play.api.i18n.MessagesApi, messagesProvider: MessagesProvider)
+  extends SearchEngine with play.api.i18n.I18nSupport {
 
   private val allEntities = Seq(
     EntityType.DocumentaryUnit,
@@ -36,12 +38,12 @@ case class MockSearchEngine @Inject()(
     dataApi.withContext(ApiUser(userOpt.map(_.id)))
 
   private def modelToFilterHit(m: AnyModel): FilterHit =
-    FilterHit(m.id, m.id, m.toStringLang, m.isA, None, -1L)
+    FilterHit(m.id, m.id, m.toStringLang(messagesProvider.messages), m.isA, None, -1L)
 
   private def modelToSearchHit(m: AnyModel): SearchHit = m match {
     case d: DescribedMeta[Description,Described[Description]] => descModelToHit(d)
     case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
-      SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
+      SearchConstants.NAME_EXACT -> JsString(m.toStringLang(messagesProvider.messages))
     ))
   }
 
@@ -51,7 +53,7 @@ case class MockSearchEngine @Inject()(
     `type` = m.isA,
     gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
     fields = Map(
-      SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
+      SearchConstants.NAME_EXACT -> JsString(m.toStringLang(messagesProvider.messages))
     )
   )
 
