@@ -2,10 +2,9 @@ package backend.rest.cypher
 
 import play.api.cache.CacheApi
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import play.api.{Logger, PlayException}
-import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.{Json,JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Reads
 import play.api.libs.json.__
 import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
@@ -31,10 +30,10 @@ object CypherErrorReader {
 
 @Singleton
 case class CypherService @Inject ()(
-  implicit val cache: CacheApi,
-  val config: play.api.Configuration,
-  val ws: WSClient
-) extends Cypher
+  ws: WSClient,
+  cache: CacheApi,
+  config: play.api.Configuration)(implicit val executionContext: ExecutionContext)
+  extends Cypher
   with RestService {
 
   val logger: Logger = play.api.Logger(getClass)

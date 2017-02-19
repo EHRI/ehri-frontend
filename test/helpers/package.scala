@@ -61,7 +61,7 @@ package object helpers {
    * Load database fixtures.
    */
   def loadSqlFixtures(implicit db: Database, actorSystem: ActorSystem): List[Option[OpenIDAssociation]] = {
-    val accounts: AccountManager = SqlAccountManager()
+    val accounts: AccountManager = SqlAccountManager(db, actorSystem)
     mockdata.users.foreach { case (profile, account) =>
       val acc = Await.result(accounts.create(account), 1.second)
     }

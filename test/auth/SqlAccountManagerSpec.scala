@@ -21,7 +21,7 @@ class SqlAccountManagerSpec extends PlaySpecification {
   private implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
   private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
-  def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager()(db, actorSystem)
+  def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager(db, actorSystem)
 
   "account manager" should {
     "load fixtures with the right number of accounts" in withFixtures { implicit db =>
@@ -45,10 +45,6 @@ class SqlAccountManagerSpec extends PlaySpecification {
       val testAcc = Account(
         id = "test",
         email = "blah@example.com",
-        verified = false,
-        active = true,
-        staff = false,
-        allowMessaging = true,
         password = Some(HashedPassword.fromPlain("p4ssword"))
       )
       val acc = await(accounts.create(testAcc))

@@ -13,9 +13,7 @@ import utils.{Page, PageParams}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-case class SqlCypherQueryService @Inject()(
-  implicit db: Database, actorSystem: ActorSystem
-) extends CypherQueryService{
+case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSystem) extends CypherQueryService{
 
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")

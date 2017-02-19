@@ -8,7 +8,7 @@ case class AwsConfig(
 )
 
 object AwsConfig {
-  def fromConfig(fallback: Map[String,String] = Map.empty)(implicit config: play.api.Configuration): AwsConfig = {
+  def fromConfig(config: play.api.Configuration, fallback: Map[String,String] = Map.empty): AwsConfig = {
     def getString(key: String): String = config
       .getString(key)
       .orElse(fallback.get(key))

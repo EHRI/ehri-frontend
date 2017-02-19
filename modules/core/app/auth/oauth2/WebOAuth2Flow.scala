@@ -7,10 +7,12 @@ import auth.oauth2.providers.OAuth2Provider
 import play.api.Logger
 import play.api.libs.ws.WSClient
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-case class WebOAuth2Flow @Inject ()(implicit config: play.api.Configuration, ws: WSClient) extends OAuth2Flow {
+case class WebOAuth2Flow @Inject ()(
+  ws: WSClient,
+  config: play.api.Configuration
+)(implicit executionContext: ExecutionContext) extends OAuth2Flow {
 
   override def getAccessToken(provider: OAuth2Provider, handlerUrl: String, code: String): Future[OAuth2Info] = {
     val accessTokenUrl: String = provider.getAccessTokenUrl

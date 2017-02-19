@@ -1,6 +1,7 @@
 package auth.sql
 
 import java.sql.Connection
+import javax.inject.Inject
 
 import auth.OAuth2AssociationManager
 import models.OAuth2Association
@@ -27,7 +28,7 @@ object SqlOAuth2AssociationManager {
   }
 }
 
-case class SqlOAuth2AssociationManager()(implicit db: Database, executionContext: ExecutionContext)
+case class SqlOAuth2AssociationManager @Inject()(db: Database)(implicit executionContext: ExecutionContext)
   extends OAuth2AssociationManager {
 
   import SqlOAuth2AssociationManager._
