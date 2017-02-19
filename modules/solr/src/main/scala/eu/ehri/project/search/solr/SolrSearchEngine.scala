@@ -5,13 +5,12 @@ import javax.inject.Inject
 
 import backend.rest.BadJson
 import play.api.http.{HeaderNames, MimeTypes}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
 import utils.Page
 import utils.search.{SearchHit, _}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 /**
@@ -19,14 +18,17 @@ import scala.concurrent.Future
   * Implements the plugin implementation so other search
   * engines/mocks can be substituted.
   */
-case class SolrSearchEngine @Inject()(handler: ResponseHandler, ws: WSClient, conf: Configuration) extends SearchEngine {
+case class SolrSearchEngine @Inject()(
+  handler: ResponseHandler,
+  ws: WSClient, config: Configuration)(implicit executionContext: ExecutionContext)
+  extends SearchEngine {
 
   private val logger: Logger = Logger(this.getClass)
 
   private val queryBuilder: SearchQuery => QueryBuilder =
-    q => new SolrQueryBuilder(q, WriterType.Json)(conf)
+    q => new SolrQueryBuilder(q, WriterType.Json)(config)
 
-  private lazy val solrPath = utils.serviceBaseUrl("solr", conf)
+  private lazy val solrPath = utils.serviceBaseUrl("solr", config)
 
   private def solrSelectUrl = solrPath + "/select"
 
@@ -43,8 +45,8 @@ case class SolrSearchEngine @Inject()(handler: ResponseHandler, ws: WSClient, co
 
   override def status(): Future[String] = {
     val url = (for {
-      host <- conf.getString("services.solr.host")
-      port <- conf.getString("services.solr.port")
+      host <- config.getString("services.solr.host")
+      port <- config.getString("services.solr.port")
     } yield s"http://$host:$port/solr/admin/cores")
       .getOrElse(sys.error("Missing config key: service.solr.host/port"))
 

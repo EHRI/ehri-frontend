@@ -12,18 +12,17 @@ import play.api.libs.json._
 import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
 
 trait RestService {
 
   implicit def config: play.api.Configuration
-
+  implicit def executionContext: ExecutionContext
   def ws: WSClient
 
   import HttpVerbs._
-  import play.api.libs.concurrent.Execution.Implicits._
   import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
 
   private def logger: Logger = Logger(this.getClass)

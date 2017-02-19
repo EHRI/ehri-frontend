@@ -12,7 +12,7 @@ class SqlCypherQueryServiceSpec extends PlaySpecification {
 
   private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
-  def queryService(implicit db: Database) = new SqlCypherQueryService()(db, actorSystem)
+  def queryService(implicit db: Database) = SqlCypherQueryService(db, actorSystem)
 
   "Cypher Query service" should {
     "locate items correctly" in {

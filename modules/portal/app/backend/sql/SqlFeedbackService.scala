@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-case class SqlFeedbackService @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends FeedbackService {
+case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem) extends FeedbackService {
 
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")

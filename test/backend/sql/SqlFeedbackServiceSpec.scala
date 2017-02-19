@@ -15,7 +15,7 @@ class SqlFeedbackServiceSpec extends PlaySpecification {
   private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
   private implicit val executionContext = new GuiceApplicationBuilder().build().injector.instanceOf[ExecutionContext]
 
-  private def feedbackService(implicit db: Database) = SqlFeedbackService()(db, actorSystem)
+  private def feedbackService(implicit db: Database) = SqlFeedbackService(db, actorSystem)
 
   "Feedback service" should {
     "locate items correctly" in {

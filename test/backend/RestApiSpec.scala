@@ -515,7 +515,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "Cypher operations" should {
     "get a JsValue for a graph item" in new WithApplicationLoader(appLoader) {
-      val dao = new CypherService
+      val dao = CypherService(ws, cache, config)
       val res = await(dao.cypher(
         """MATCH (n:_Entity) WHERE n.__id = {id} RETURN n.identifier, n.name""",
           Map("id" -> JsString("admin"))))
@@ -527,7 +527,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new WithApplicationLoader(appLoader) {
-      val idGen = CypherIdGenerator(CypherService())
+      val idGen = CypherIdGenerator(CypherService(ws, cache, config))
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -535,7 +535,7 @@ class RestApiSpec extends RestApiRunner with PlaySpecification {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = CypherIdGenerator(CypherService())
+      val idGen = CypherIdGenerator(CypherService(ws, cache, config))
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }

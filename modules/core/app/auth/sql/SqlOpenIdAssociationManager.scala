@@ -1,12 +1,13 @@
 package auth.sql
 
 import java.sql.Connection
+import javax.inject.Inject
 
 import auth.OpenIdAssociationManager
 import models.OpenIDAssociation
 import play.api.db.Database
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import anorm.SqlParser._
 import anorm._
 
@@ -25,7 +26,7 @@ object SqlOpenIdAssociationManager {
   }
 }
 
-case class SqlOpenIdAssociationManager()(implicit db: Database, executionContext: ExecutionContext)
+case class SqlOpenIdAssociationManager @Inject()(db: Database)(implicit executionContext: ExecutionContext)
   extends OpenIdAssociationManager{
 
   import SqlOpenIdAssociationManager._

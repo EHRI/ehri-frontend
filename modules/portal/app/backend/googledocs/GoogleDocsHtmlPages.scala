@@ -21,9 +21,10 @@ import scala.concurrent.duration._
  * page css to put all the selectors in a scope so it
  * doesn't affect the rest of the page.
  */
-case class GoogleDocsHtmlPages @Inject ()(implicit cache: play.api.cache.CacheApi,
-                                          config: play.api.Configuration, ws: WSClient,
-                                          executionContext: ExecutionContext) extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(
+  ws: WSClient,
+  config: play.api.Configuration)(implicit cache: play.api.cache.CacheApi, executionContext: ExecutionContext)
+  extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     ws.url(url).withQueryString(
       "e" -> "download",

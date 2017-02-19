@@ -21,16 +21,16 @@ import javax.inject._
 
 
 @Singleton
-case class SqlAccountManager @Inject()(implicit db: Database, actorSystem: ActorSystem) extends AccountManager {
+case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) extends AccountManager {
 
   import SqlAccountManager._
 
   override protected implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  override def oAuth2: OAuth2AssociationManager = new SqlOAuth2AssociationManager()
+  override def oAuth2: OAuth2AssociationManager = SqlOAuth2AssociationManager(db)
 
-  override def openId: OpenIdAssociationManager = new SqlOpenIdAssociationManager()
+  override def openId: OpenIdAssociationManager = SqlOpenIdAssociationManager(db)
 
 
   override def setLoggedIn(account: Account): Future[Account] = Future {
