@@ -20,34 +20,28 @@
     "facet_queries": {},
     "facet_ranges": {}
   },
-  "grouped": {
-    "itemId": {
-      "doclist": {
-        "docs": [
-          {
-            "gid": 19917,
-            "id": "ehri-cb-638-eng-292",
-            "itemId": "ehri-cb-638",
-            "name": "Zentralstelle f\u00fcr j\u00fcdische Auswanderung Amsterdam",
-            "type": "HistoricalAgent",
-            "holderName": [
-              "EHRI Corporate Bodies"
-            ]
-          },
-          {
-            "gid": 34344,
-            "id": "nl",
-            "itemId": "nl",
-            "name": "Netherlands",
-            "type": "Country"
-          }
-        ],
-        "numFound": 2,
-        "start": 0
+  "response": {
+    "docs": [
+      {
+        "gid": 19917,
+        "id": "ehri-cb-638-eng-292",
+        "itemId": "ehri-cb-638",
+        "name": "Zentralstelle f\u00fcr j\u00fcdische Auswanderung Amsterdam",
+        "type": "HistoricalAgent",
+        "holderName": [
+          "EHRI Corporate Bodies"
+        ]
       },
-      "matches": 2,
-      "ngroups": 2
-    }
+      {
+        "gid": 34344,
+        "id": "nl",
+        "itemId": "nl",
+        "name": "Netherlands",
+        "type": "Country"
+      }
+    ],
+    "numFound": 2,
+    "start": 0
   },
   "highlighting": {
     "ehri-cb-638-eng-292": {
@@ -95,31 +89,17 @@
       ],
       "facet.mincount": "1",
       "fl": "id itemId type gid name",
-      "group": "true",
-      "group.cache.percent": "0",
-      "group.facet": "true",
-      "group.field": "itemId",
-      "group.format": "simple",
-      "group.limit": "1",
-      "group.ngroups": "true",
-      "group.offset": "0",
       "hl": "true",
       "hl.fl": "*",
       "hl.usePhraseHighlighter": "true",
       "q": "+auschwitz +amsterdam",
       "qf": "itemId^5 name^4 title^4 otherFormsOfName^4 parallelFormsOfName^4 name_sort^3 text",
-      "rows": [
-        "20",
-        "10"
-      ],
+      "rows": "20",
       "sort": "score desc",
       "spellcheck": "true",
       "spellcheck.extendedResults": "true",
       "spellcheck.q": "+auschwitz +amsterdam",
-      "start": [
-        "0",
-        "0"
-      ],
+      "start": "0",
       "wt": "json"
     },
     "status": 0

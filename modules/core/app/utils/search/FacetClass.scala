@@ -11,7 +11,9 @@ sealed trait FacetClass[+T <: Facet] {
   def sort: FacetSort.Value = FacetSort.Count
   def display: FacetDisplay.Value = FacetDisplay.List
   def displayLimit: Int = 10
+  def offset: Option[Int] = None
   def limit: Option[Int] = None
+  def total: Int = facets.size
   def minCount: Option[Int] = None
 
   /**
@@ -53,10 +55,12 @@ case class FieldFacetClass(
   key: String,
   name: String,
   param: String,
+  facets: Seq[FieldFacet] = Nil,
+  override val offset: Option[Int] = None,
   override val limit: Option[Int] = None,
   override val minCount: Option[Int] = None,
   override val render: (String) => String = s=>s,
-  facets: Seq[FieldFacet] = Nil,
+  override val total: Int = -1,
   override val display: FacetDisplay.Value = FacetDisplay.List,
   override val displayLimit: Int = 20,
   override val sort: FacetSort.Value = FacetSort.Count
