@@ -28,7 +28,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
 
-  protected def logger = Logger(this.getClass)
+  private def logger = Logger(getClass)
 
   protected def dataApi: DataApi
   protected def accounts: auth.AccountManager
@@ -69,8 +69,6 @@ trait OAuth2LoginHandler extends AccountHelpers {
         id = profile.id,
         email = userData.email.toLowerCase,
         verified = true,
-        staff = false,
-        active = true,
         allowMessaging = canMessage
       ))
     } yield account
@@ -167,7 +165,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
               authRequest = OAuth2Request(Right(account), request)
               result <- block(authRequest)
             } yield result) recoverWith {
-              case e@AuthenticationError(msg) =>
+              case AuthenticationError(msg) =>
                 logger.error(msg)
                 block(OAuth2Request(Left(Messages("login.error.oauth2.info",
                   provider.name.toUpperCase)), request))

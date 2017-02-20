@@ -3,7 +3,6 @@ package controllers.core.auth.openid
 import controllers.base.CoreActionBuilders
 import models.{Account, UserProfile}
 import play.api.libs.openid._
-import play.api._
 import play.api.mvc._
 import play.api.i18n.Messages
 import backend.{AnonymousUser, DataApi}
@@ -13,6 +12,7 @@ import play.api.mvc.Result
 import java.net.ConnectException
 
 import controllers.core.auth.AccountHelpers
+import play.api.Logger
 
 import scala.concurrent.Future
 
@@ -22,6 +22,8 @@ import scala.concurrent.Future
 trait OpenIDLoginHandler extends AccountHelpers {
 
   self: Controller with CoreActionBuilders =>
+
+  private def logger = Logger(getClass)
 
   protected def dataApi: DataApi
   protected def accounts: auth.AccountManager
@@ -55,21 +57,19 @@ trait OpenIDLoginHandler extends AccountHelpers {
       try {
         val boundForm: Form[String] = openidForm.bindFromRequest
         boundForm.fold(
-          error => {
-            Logger.info("bad request " + error.toString)
-            block(OpenIDRequest(error, request))
-          }, openidUrl => {
+          error => block(OpenIDRequest(error, request)),
+          openidUrl => {
             openId.redirectURL(
               openidUrl,
               handler.absoluteURL(globalConfig.https),
               attributes).map(url => Redirect(url))
               .recoverWith {
               case t: ConnectException =>
-                Logger.warn("OpenID Login connect exception: {}", t)
+                logger.warn(s"OpenID Login connect exception: $t")
                 block(OpenIDRequest(boundForm
                   .withGlobalError(Messages("error.openId.url", openidUrl)), request))
               case t =>
-                Logger.warn("OpenID Login argument exception: {}", t)
+                logger.warn(s"OpenID Login argument exception: $t")
                 block(OpenIDRequest(boundForm
                   .withGlobalError(Messages("error.openId.url", openidUrl)), request))
             }
@@ -96,7 +96,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
         // check if there's a user with the right id
         accounts.openId.findByUrl(info.id).flatMap {
           case Some(assoc) =>
-            Logger.logger.info("User '{}' logged in via OpenId", assoc.user.get.id)
+            logger.info(s"User '${assoc.user.get.id}' logged in via OpenId")
             block(OpenIdCallbackRequest(Right(assoc.user.get), request))
           case None =>
             val email = extractEmail(info.attributes)
@@ -119,7 +119,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   }
 
   private def addAssociation[A](account: Account, info: UserInfo, request: Request[A]): Future[OpenIdCallbackRequest[A]] = {
-    Logger.logger.info("User '{}' created OpenID association", account.id)
+    logger.info(s"User '${account.id}' created OpenID association")
     for {
       _ <- accounts.openId.addAssociation(account.id, info.id)
     } yield OpenIdCallbackRequest(Right(account), request)
@@ -133,13 +133,11 @@ trait OpenIDLoginHandler extends AccountHelpers {
         id = up.id,
         email = email.toLowerCase,
         verified = true,
-        staff = false,
-        active = true,
         allowMessaging = canMessage
       ))
       _ <- accounts.openId.addAssociation(account.id, info.id)
     } yield {
-      Logger.logger.info("User '{}' created OpenID account", account.id)
+      logger.info(s"User '${account.id}' created OpenID account")
       OpenIdCallbackRequest(Right(account), request)
     }
   }

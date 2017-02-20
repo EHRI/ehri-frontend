@@ -9,6 +9,9 @@ import utils.search.SearchIndexMediator
 import scala.concurrent.Future
 
 case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) extends EventHandler {
+
+  private val logger = Logger(getClass)
+
   // Bind the data API Create/Update/Delete actions
   // to the SearchIndexMediator update/delete handlers. Do this
   // asynchronously and log any failures...
@@ -18,7 +21,7 @@ case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) exte
 
   def logFailure(id: String, func: String => Future[Unit]): Unit = {
     func(id) onFailure {
-      case t => Logger.logger.error("Indexing error: " + t.getMessage)
+      case t => logger.error(s"Indexing error", t)
     }
   }
 

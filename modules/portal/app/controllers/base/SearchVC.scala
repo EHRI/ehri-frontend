@@ -22,7 +22,7 @@ trait SearchVC {
   protected implicit def cache: CacheApi
   protected def cypher: Cypher
 
-  private def logger: Logger = Logger(getClass)
+  private def logger = Logger(getClass)
 
   /**
     * Filters for searching a virtual collection, depending on
@@ -63,7 +63,7 @@ trait SearchVC {
 
       config.getInt("search.vc.maxDescendants").map { vcLimit =>
         if (seq.length > vcLimit) {
-          Logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
+          logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
           seq.distinct.take(vcLimit)
         } else seq
       }.getOrElse(seq)

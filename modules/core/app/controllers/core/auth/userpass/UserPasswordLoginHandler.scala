@@ -18,6 +18,8 @@ trait UserPasswordLoginHandler {
 
   self: CoreActionBuilders with AccountHelpers with RecaptchaHelper =>
 
+  private def logger = Logger(getClass)
+
   protected def config: play.api.Configuration
 
   val passwordLoginForm = Form(
@@ -62,7 +64,7 @@ trait UserPasswordLoginHandler {
               // Legacy accounts have an MD5 password encoded via BCrypt, so
               // we need to re-save this and untag them as legacy.
               if (account.isLegacy) {
-                Logger.logger.info("Updating legacy account for user: {}", account.id)
+                logger.info(s"Updating legacy account for user: ${account.id}")
                 accounts.update(account = account.copy(
                   password = Some(HashedPassword.fromPlain(pw)),
                   isLegacy = false
@@ -70,7 +72,7 @@ trait UserPasswordLoginHandler {
                   block(UserPasswordLoginRequest(Right(updated), request))
                 }
               } else {
-                Logger.logger.info("User logged in via password: {}", account.id)
+                logger.info(s"User logged in via password: ${account.id}")
                 block(UserPasswordLoginRequest(Right(account), request))
               }
             case None =>

@@ -34,6 +34,8 @@ trait PortalController
   with ControllerHelpers
   with SessionPreferences[SessionPrefs] {
 
+  private def logger = Logger(getClass)
+
   // Abstract controller components, injected into super classes
   def components: Components
 
@@ -118,7 +120,7 @@ trait PortalController
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     val uri = request.session.get(ACCESS_URI)
       .getOrElse(controllers.portal.users.routes.UserProfiles.profile().url)
-    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    logger.debug(s"Redirecting logged-in user to: $uri")
     immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
   }
 
@@ -163,7 +165,7 @@ trait PortalController
    */
   override def authenticationFailed(request: RequestHeader): Future[Result] = {
     if (isAjax(request)) {
-      Logger.logger.warn("Auth failed for: {}", request.toString())
+      logger.warn(s"Auth failed for: $request")
       immediate(Unauthorized("authentication failed"))
     } else {
       immediate(Redirect(controllers.portal.account.routes.Accounts.loginOrSignup())

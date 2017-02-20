@@ -21,6 +21,7 @@ package object json {
   }
 
   implicit object anyModelJson extends ClientWriteable[AnyModel] {
+    private val logger = Logger(getClass)
     private val clientFormatRegistry: PartialFunction[EntityType.Value, Format[AnyModel]] = {
       case EntityType.Repository => repositoryJson.clientFormat.asInstanceOf[Format[AnyModel]]
       case EntityType.Country => countryJson.clientFormat.asInstanceOf[Format[AnyModel]]
@@ -57,7 +58,7 @@ package object json {
         .map(Json.toJson(model)(_))
         .getOrElse {
           // FIXME: Throw an error here???
-          Logger.logger.warn("Unregistered AnyModel type {} (Writing to Client)", model.isA)
+          logger.warn(s"Unregistered AnyModel type ${model.isA} (Writing to Client)")
           Json.toJson(Entity(id = model.id, `type` = model.isA, relationships = Map.empty))(Entity.entityFormat)
         }
     }

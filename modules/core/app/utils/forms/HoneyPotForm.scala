@@ -1,6 +1,6 @@
 package utils.forms
 
-import play.api.data.validation.{Invalid, Valid, Constraint}
+import play.api.data.validation.{Constraint, Invalid, Valid}
 
 /**
  * A form with a honey pot field, i.e. one that should
