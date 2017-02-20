@@ -7,7 +7,8 @@ import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Flow, UserData}
 import backend.{AnonymousUser, AuthenticatedUser, DataApi}
-import controllers.base.{AccountHelpers, CoreActionBuilders}
+import controllers.base.CoreActionBuilders
+import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
 import play.api.Logger

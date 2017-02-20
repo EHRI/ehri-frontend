@@ -10,7 +10,8 @@ import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, Yaho
 import backend.AnonymousUser
 import com.google.common.net.HttpHeaders
 import controllers.Components
-import controllers.base.{AccountHelpers, RecaptchaHelper}
+import controllers.base.RecaptchaHelper
+import controllers.core.auth.AccountHelpers
 import controllers.core.auth.oauth2._
 import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler

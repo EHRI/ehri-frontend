@@ -7,7 +7,8 @@ import javax.inject._
 import auth.{AccountFilters, HashedPassword}
 import backend.rest.{DataHelpers, ValidationError}
 import controllers.Components
-import controllers.base.{AccountHelpers, AdminController}
+import controllers.base.AdminController
+import controllers.core.auth.AccountHelpers
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import models._

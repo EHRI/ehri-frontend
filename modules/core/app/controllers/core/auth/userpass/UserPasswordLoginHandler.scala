@@ -12,7 +12,8 @@ import play.api.data.Forms._
 import play.api.mvc.Result
 import java.util.UUID
 
-import controllers.base.{AccountHelpers, CoreActionBuilders, RecaptchaHelper}
+import controllers.base.{CoreActionBuilders, RecaptchaHelper}
+import controllers.core.auth.AccountHelpers
 
 
 trait UserPasswordLoginHandler {
