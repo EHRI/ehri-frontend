@@ -67,7 +67,7 @@ case class ApiV1 @Inject()(
 
   import ApiV1._
 
-  private val logger = play.api.Logger(ApiV1.getClass)
+  private val logger = Logger(ApiV1.getClass)
 
   private implicit val apiUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None
@@ -375,7 +375,7 @@ case class ApiV1 @Inject()(
 
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)
-    Logger.logger.debug("Redirecting logged-in user to: {}", uri)
+    logger.debug(s"Redirecting logged-in user to: $uri")
     immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
   }
 

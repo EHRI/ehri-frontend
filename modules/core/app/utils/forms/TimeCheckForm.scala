@@ -2,7 +2,6 @@ package utils.forms
 
 import java.time.format.DateTimeParseException
 
-import play.api.Logger
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
 /**
@@ -17,8 +16,6 @@ trait TimeCheckForm {
 object TimeCheckForm {
 
   val TIMESTAMP = "timestamp"
-
-  val logger = Logger(TimeCheckForm.getClass)
 
   /**
    * Check submitted form is bound at least 5 seconds after it was
@@ -35,10 +32,7 @@ object TimeCheckForm {
           val renderTime: ZonedDateTime = ZonedDateTime.parse(data.timestamp)
           val diff: Long = renderTime.until(ZonedDateTime.now, ChronoUnit.SECONDS)
           if (diff > delay) Valid
-          else {
-            logger.error(s"Bad timestamp on signup with delay $delay")
-            Invalid("constraints.timeCheckSeconds.failed")
-          }
+          else Invalid("constraints.timeCheckSeconds.failed")
         } catch {
           case e: DateTimeParseException => Invalid("constraints.timeCheckSeconds.failed")
         }

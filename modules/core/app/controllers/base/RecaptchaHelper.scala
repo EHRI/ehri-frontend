@@ -11,6 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 trait RecaptchaHelper {
   self: ControllerHelpers =>
 
+  private def logger = Logger(getClass)
+
   def ws: WSClient
 
   /**
@@ -40,7 +42,7 @@ trait RecaptchaHelper {
           ).post("").map { response =>
           response.body.split("\n").headOption match {
             case Some("true") => true
-            case Some("false") => Logger.logger.error(response.body); false
+            case Some("false") => logger.error(response.body); false
             case _ => sys.error("Unexpected captcha result: " + response.body)
           }
         }

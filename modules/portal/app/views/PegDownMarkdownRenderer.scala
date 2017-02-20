@@ -4,12 +4,16 @@ import javax.inject.{Inject, Provider, Singleton}
 
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
+import org.parboiled.errors.ParserRuntimeException
 import org.pegdown.LinkRenderer.Rendering
 import org.pegdown.ast.{AutoLinkNode, ExpLinkNode}
 import org.pegdown.{Extensions, LinkRenderer, PegDownProcessor}
+import play.api.Logger
 
 
 case class PegDownMarkdownRenderer() extends MarkdownRenderer {
+
+  private val logger = Logger(getClass)
 
   // Pegdown is not thread safe so we need to use a threadlocal
   // for this
@@ -49,14 +53,22 @@ case class PegDownMarkdownRenderer() extends MarkdownRenderer {
     .addAttributes("a", "class", "external")
     .addAttributes("a", "rel", "nofollow")
 
+  private def render(markdown: String): String = try {
+    getPegDown.markdownToHtml(markdown, linkRenderer)
+  } catch {
+    case e: ParserRuntimeException =>
+      logger.warn(s"Timeout parsing markdown starting: ${markdown.substring(0, 200)}...")
+      markdown
+  }
+
   override def renderMarkdown(markdown: String): String =
-    Jsoup.clean(getPegDown.markdownToHtml(markdown, linkRenderer), whiteListStandard)
+    Jsoup.clean(render(markdown), whiteListStandard)
 
   override def renderUntrustedMarkdown(markdown: String): String =
-    Jsoup.clean(getPegDown.markdownToHtml(markdown, linkRenderer), whiteListStrict)
+    Jsoup.clean(render(markdown), whiteListStrict)
 
   override def renderTrustedMarkdown(markdown: String): String =
-    getPegDown.markdownToHtml(markdown, linkRenderer)
+    render(markdown)
 }
 
 @Singleton

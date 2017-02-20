@@ -17,6 +17,8 @@ import scala.concurrent.Future
   */
 trait Search extends CoreActionBuilders {
 
+  private def logger = Logger(getClass)
+
   protected def searchEngine: utils.search.SearchEngine
 
   protected def searchResolver: utils.search.SearchItemResolver
@@ -125,8 +127,7 @@ trait Search extends CoreActionBuilders {
       list <- resolverOpt.getOrElse(searchResolver).resolve(res.page.items)
     } yield {
       if (list.size != res.page.size) {
-        Logger.logger.warn("Items returned by search were not found in database: {} -> {}",
-          (res.page.items.map(_.id), list))
+        logger.warn(s"Items returned by search were not found in database: ${res.page.items.map(_.id)} -> $list")
       }
       res.copy(page = res.page.copy(items = list.zip(res.page.items)))
     }

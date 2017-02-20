@@ -41,5 +41,4 @@ class PegDownMarkdownProcessorSpec extends PlaySpecification {
       s must contain("blah")
     }
   }
-
 }

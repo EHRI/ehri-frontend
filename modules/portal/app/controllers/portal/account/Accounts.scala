@@ -17,7 +17,6 @@ import controllers.core.auth.openid.OpenIDLoginHandler
 import controllers.core.auth.userpass.UserPasswordLoginHandler
 import controllers.portal.base.PortalController
 import models._
-import play.api.Configuration
 import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
@@ -25,6 +24,8 @@ import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
+import play.api.{Configuration, Logger}
+import utils.forms.{HoneyPotForm, TimeCheckForm}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -44,6 +45,8 @@ case class Accounts @Inject()(
   with UserPasswordLoginHandler
   with AccountHelpers
   with RecaptchaHelper {
+
+  private val logger = Logger(getClass)
 
   override protected implicit val config: Configuration = components.configuration
 
@@ -138,7 +141,15 @@ case class Accounts @Inject()(
         badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
       case true =>
         boundForm.fold(
-          errForm => badForm(errForm),
+          errForm => {
+            if (errForm.error(HoneyPotForm.BLANK_CHECK).nonEmpty) {
+              logger.warn(s"Honeypot miss on signup from IP $remoteIp")
+            }
+            if (errForm.error(TimeCheckForm.TIMESTAMP).nonEmpty) {
+              logger.warn(s"Time-to-submit violation on signup from IP $remoteIp")
+            }
+            badForm(errForm)
+          },
           data => {
             accounts.findByEmail(data.email.toLowerCase).flatMap {
               // that email already exists, problem!
@@ -155,9 +166,6 @@ case class Accounts @Inject()(
                   account <- accounts.create(Account(
                     id = profile.id,
                     email = data.email.toLowerCase,
-                    verified = false,
-                    active = true,
-                    staff = false,
                     allowMessaging = data.allowMessaging,
                     password = Some(HashedPassword.fromPlain(data.password))
                   ))
@@ -259,8 +267,7 @@ case class Accounts @Inject()(
           accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
-          oauth2Providers,
-          isLogin = true
+          oauth2Providers
         )
       )
     }
