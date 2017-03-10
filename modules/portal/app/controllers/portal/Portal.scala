@@ -10,7 +10,7 @@ import controllers.portal.base.PortalController
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -63,8 +63,7 @@ case class Portal @Inject()(
 
   def changeLocale(lang: String) = Action { implicit request =>
     val referrer = request.headers.get(REFERER).getOrElse("/")
-    Redirect(referrer)
-      .withPreferences(request.preferences.copy(language = Some(lang)))
+    messagesApi.setLang(Redirect(referrer), Lang(lang))
   }
 
   def personalisedActivity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>

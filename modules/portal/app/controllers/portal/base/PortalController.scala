@@ -7,7 +7,7 @@ import auth.handler.AuthHandler
 import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import utils._
 import controllers.{Components, renderError}
 import models.UserProfile
@@ -71,19 +71,6 @@ trait PortalController
    * **implicit** `preferences` object that can be picked up by views.
    */
   protected val defaultPreferences = new SessionPrefs
-
-  /**
-   * Extract a language from the user's preferences and put it in
-   * the implicit scope.
-   */
-  override implicit def request2Messages(implicit request: RequestHeader): Messages = {
-    request.preferences.language match {
-      case None => super.request2Messages(request)
-        // FIXME: 2.6
-      //case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
-      case Some(lang) => super.request2Messages(request)
-    }
-  }
 
   /**
    * Ensure that functions requiring an optional user in scope

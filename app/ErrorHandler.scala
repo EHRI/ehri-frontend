@@ -2,7 +2,7 @@ import javax.inject.{Inject, Provider}
 
 import backend.rest.{BadJson, ItemNotFound, PermissionDenied}
 import controllers.base.SessionPreferences
-import global.{AppGlobalConfig, GlobalConfig}
+import global.GlobalConfig
 import play.api.http.DefaultHttpErrorHandler
 import play.api.i18n._
 import play.api.mvc.Results._
@@ -29,17 +29,8 @@ with SessionPreferences[SessionPrefs] {
 
   override val defaultPreferences = new SessionPrefs
 
-  override implicit def request2Messages(implicit request: RequestHeader): Messages = {
-    request.preferences.language match {
-      case None => super.request2Messages(request)
-        // FIXME: 2.6
-      //case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
-      case Some(lang) => super.request2Messages(request)
-    }
-  }
-
   // NB: Handling this *also* overrides onNotFound
-  override def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
+  override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     implicit val r = request
 
     statusCode match {
@@ -74,13 +65,13 @@ with SessionPreferences[SessionPrefs] {
     }
   }
 
-  override def onProdServerError(request: RequestHeader, exception: UsefulException) = {
+  override def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
     implicit val r = request
     immediate(InternalServerError(
       renderError("errors.genericProblem", fatalError())))
   }
 
-  override def onForbidden(request: RequestHeader, message: String) = {
+  override def onForbidden(request: RequestHeader, message: String): Future[Result] = {
     implicit val r = request
     immediate(
       Forbidden(renderError("errors.permissionDenied", permissionDenied()))

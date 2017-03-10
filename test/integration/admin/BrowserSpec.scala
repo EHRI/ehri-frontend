@@ -1,7 +1,6 @@
 package integration.admin
 
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.inject._
 import play.api.test._
 import utils.{MockMovedPageLookup, MovedPageLookup}
@@ -12,22 +11,25 @@ class BrowserSpec extends PlaySpecification {
   private val appBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(bind[MovedPageLookup].toInstance(MockMovedPageLookup(buffer)))
 
+  implicit def messagesApi(implicit app: play.api.Application): MessagesApi =
+    app.injector.instanceOf[MessagesApi]
+
   "Application" should {
 
     "handle 404s properly for missing pages" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.Home.index().url + "/idontexist")
-      browser.$("#error-title").text must equalTo(Messages("errors.pageNotFound"))
+      browser.$("#error-title").text must equalTo(messagesApi.apply("errors.pageNotFound"))
     }
 
     "return 301 for moved pages" in new WithBrowser(app = appBuilder.build()) {
       buffer += "/foo" -> "/bar"
       browser.goTo("/foo")
-      browser.$("#error-title").text must equalTo(Messages("errors.pageNotFound"))
+      browser.$("#error-title").text must equalTo(messagesApi.apply("errors.pageNotFound"))
     }
 
     "deny access to admin routes" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.$("title").text must contain(Messages("login.title"))
+      browser.webDriver.getTitle must contain(messagesApi.apply("login.title"))
     }
   }
 }

@@ -213,9 +213,9 @@ val webAppSettings = Seq(
 
   // SBT magic: http://stackoverflow.com/a/12772739/285374
   // pick up additional resources in test
-  resourceDirectory in Test <<= baseDirectory apply {
+  resourceDirectory in Test := baseDirectory.apply {
     (baseDir: File) => baseDir / "test/resources"
-  },
+  }.value,
 
   // Always use nodejs to build the assets - Trireme is too slow...
   JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
