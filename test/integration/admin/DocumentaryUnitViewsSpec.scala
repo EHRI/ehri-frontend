@@ -3,8 +3,6 @@ package integration.admin
 import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models.{Group, UserProfile, _}
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.test.FakeRequest
 
 
@@ -242,7 +240,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         .callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
       // If we were doing validating dates we'd use:
-      contentAsString(cr) must contain(Messages("error.date"))
+      contentAsString(cr) must contain(messagesApi("error.date"))
     }
 
     "allow updating items when logged in as privileged user" in new ITestApp {

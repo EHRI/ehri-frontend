@@ -4,6 +4,7 @@ import java.util.Locale
 import org.apache.commons.text.WordUtils
 import play.api.i18n.Messages
 
+
 package object i18n {
 
   val defaultLang: String = Locale.getDefault.getISO3Language

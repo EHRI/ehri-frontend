@@ -6,9 +6,9 @@ import backend.EventHandler
 import play.api.Logger
 import utils.search.SearchIndexMediator
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) extends EventHandler {
+case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator)(implicit executionContext: ExecutionContext) extends EventHandler {
 
   private val logger = Logger(getClass)
 
@@ -17,7 +17,6 @@ case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator) exte
   // asynchronously and log any failures...
   import java.util.concurrent.TimeUnit
   import scala.concurrent.duration.Duration
-  import play.api.libs.concurrent.Execution.Implicits._
 
   def logFailure(id: String, func: String => Future[Unit]): Unit = {
     func(id) onFailure {

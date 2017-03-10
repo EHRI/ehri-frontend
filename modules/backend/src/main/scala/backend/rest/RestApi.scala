@@ -6,7 +6,7 @@ import acl.{GlobalPermissionSet, ItemPermissionSet}
 import backend._
 import backend.rest.Constants._
 import defines.{ContentTypes, EntityType}
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.libs.json._
 import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import play.api.mvc.Headers
@@ -18,14 +18,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
 
-case class RestApi @Inject()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
+case class RestApi @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): RestApiHandle =
     RestApiHandle(eventHandler)(
-      cache: CacheApi, config, apiUser, executionContext, ws)
+      cache: SyncCacheApi, config, apiUser, executionContext, ws)
 }
 
 case class RestApiHandle(eventHandler: EventHandler)(
-  implicit val cache: CacheApi,
+  implicit val cache: SyncCacheApi,
   val config: play.api.Configuration,
   val apiUser: ApiUser,
   val executionContext: ExecutionContext,
@@ -690,12 +690,12 @@ case class RestApiHandle(eventHandler: EventHandler)(
 }
 
 object RestApi {
-  def withNoopHandler(cache: CacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
+  def withNoopHandler(cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new RestApi(new EventHandler {
       def handleCreate(id: String): Unit = ()
 
       def handleUpdate(id: String): Unit = ()
 
       def handleDelete(id: String): Unit = ()
-    }, cache: CacheApi, config, ws)
+    }, cache: SyncCacheApi, config, ws)
 }

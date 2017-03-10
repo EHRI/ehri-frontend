@@ -2,7 +2,7 @@
 
 @defining(desc(fieldName)) { field =>
     @helper.textarea(
-        field = field.copy(value = field.value.orElse(defaults.flatMap(_.getString(fieldName)))),
+        field = field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
         args = views.Helpers.argsWithDefaults(
             args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
             'rows -> 4,

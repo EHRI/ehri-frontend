@@ -53,13 +53,13 @@ case class Accounts @Inject()(
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private val rateLimitHitsPerSec: Int = getConfigInt("ehri.ratelimit.limit")
-  private val rateLimitTimeoutSecs: Int = getConfigInt("ehri.ratelimit.timeout")
+  private val rateLimitHitsPerSec: Int = config.get[Int]("ehri.ratelimit.limit")
+  private val rateLimitTimeoutSecs: Int = config.get[Int]("ehri.ratelimit.timeout")
   private val rateLimitDuration: FiniteDuration =
     Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
 
 
-  private def recaptchaKey = config.getString("recaptcha.key.public")
+  private def recaptchaKey = config.getOptional[String]("recaptcha.key.public")
     .getOrElse("fakekey")
 
   private def rateLimitError(implicit r: RequestHeader) =

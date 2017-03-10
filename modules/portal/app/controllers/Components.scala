@@ -8,7 +8,7 @@ import auth.handler.AuthHandler
 import backend.DataApi
 import global.GlobalConfig
 import play.api.Configuration
-import play.api.cache.{CacheApi, Cached}
+import play.api.cache.{Cached, SyncCacheApi}
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.mvc._
@@ -25,7 +25,7 @@ case class Components @Inject ()(
   accounts: AccountManager,
   actionBuilder: DefaultActionBuilder,
   authHandler: AuthHandler,
-  cacheApi: CacheApi,
+  cacheApi: SyncCacheApi,
   configuration: Configuration,
   dataApi: DataApi,
   executionContext: ExecutionContext,

@@ -81,7 +81,7 @@ case class Repositories @Inject()(
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
   private val form = models.Repository.form
-  private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
+  private val childFormDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.DocumentaryUnit.toString)
   private val childForm = models.DocumentaryUnit.form
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 

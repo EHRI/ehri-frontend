@@ -1,6 +1,7 @@
 package controllers.base
 
 import play.api.Logger
+import play.api.cache.SyncCacheApi
 import play.api.mvc._
 
 import scala.concurrent.duration.FiniteDuration
@@ -12,7 +13,7 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
 
   protected implicit def config: play.api.Configuration
 
-  protected implicit def cache: play.api.cache.CacheApi
+  protected implicit def cache: SyncCacheApi
 
   /**
     * Session key for last page prior to login

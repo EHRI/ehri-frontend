@@ -20,7 +20,7 @@ import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader, Result}
 case class CookieTokenAccessor @Inject()()(val signer: CookieSigner,
                                            config: Configuration, globalConfig: GlobalConfig) extends TokenAccessor {
 
-  val cookieName: String = config.getString("auth.session.cookieName").getOrElse("PLAY2AUTH_SESS_ID")
+  val cookieName: String = config.getOptional[String]("auth.session.cookieName").getOrElse("PLAY2AUTH_SESS_ID")
   val cookieSecureOption: Boolean = globalConfig.https
   val cookieHttpOnlyOption: Boolean = true
   val cookieDomainOption: Option[String] = None

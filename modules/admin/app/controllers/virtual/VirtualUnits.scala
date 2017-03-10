@@ -81,7 +81,7 @@ case class VirtualUnits @Inject()(
   }
 
   override protected val targetContentTypes = Seq(ContentTypes.VirtualUnit)
-  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.VirtualUnit.toString)
+  private val formDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.VirtualUnit.toString)
   private val form: Form[VirtualUnitF] = models.VirtualUnit.form
   private val childForm: Form[VirtualUnitF] = models.VirtualUnit.form
   private val descriptionForm: Form[DocumentaryUnitDescriptionF] = models.DocumentaryUnitDescription.form

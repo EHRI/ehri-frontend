@@ -17,6 +17,7 @@ import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
 import play.api.{Application, Configuration}
 import play.api.http.{Status, Writeable}
+import play.api.i18n.MessagesApi
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
@@ -133,6 +134,7 @@ trait TestConfiguration {
     new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
     implicit def implicitMaterializer: Materializer = app.materializer
     implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+    implicit def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
     override def around[T: AsResult](t: => T): Result = {
       // Integration tests assume a server running locally. We then use the
@@ -161,7 +163,9 @@ trait TestConfiguration {
    * @param specificConfig A map of config values for this test
    */
   protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
-    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig)))
+    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
+    implicit def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  }
 
   /**
    * Run a spec after loading the given resource name as SQL fixtures.

@@ -79,7 +79,8 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
+  private val formDefaults: Option[Configuration] = config
+    .getOptional[Configuration](EntityType.DocumentaryUnit.toString)
 
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -332,7 +333,7 @@ case class DocumentaryUnits @Inject()(
       // access point suggestions will be constrainted. If this is empty
       // all available vocabs/auth sets will be used.
       val holders = config
-        .getStringSeq("ehri.admin.accessPoints.holders")
+        .getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
         .getOrElse(Seq.empty)
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,
         request.description, holderIds = holders))

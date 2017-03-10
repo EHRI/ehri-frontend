@@ -1,7 +1,6 @@
 package controllers.portal.users
 
 import java.io.File
-import java.time.LocalDateTime
 import javax.inject._
 
 import akka.stream.Materializer
@@ -282,8 +281,8 @@ case class UserProfiles @Inject()(
   def updateProfileImage(): Action[AnyContent] = updateProfile()
 
   // Body parser that'll refuse anything larger than 5MB
-  private def uploadParser = parse.maxLength(
-    getConfigInt("ehri.portal.profile.maxImageSize"), parse.multipartFormData)
+  private def uploadParser = parsers.maxLength(
+    config.get[Int]("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
 
   def updateProfileImagePost(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = WithUserAction.async(uploadParser) { implicit request =>
 
@@ -316,12 +315,12 @@ case class UserProfiles @Inject()(
     file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    val instance = getConfigString("storage.instance", request.host)
-    val classifier = getConfigString("storage.profiles.classifier")
+    val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
+    val classifier = config.get[String]("storage.profiles.classifier")
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
     val storeName = s"images/$instance/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
-    Thumbnails.of(file.ref.file).size(200, 200).toFile(temp)
+    Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
 
     val url: Future[String] = fileStorage.putFile(instance, classifier, storeName, temp).map(_.toString)
     url.onComplete { _ => temp.delete() }

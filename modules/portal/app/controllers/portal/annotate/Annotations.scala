@@ -240,12 +240,10 @@ case class Annotations @Inject()(
     withMods.distinct
   }
 
-  private def optionalConfigList(key: String): List[String] = {
-    import scala.collection.JavaConverters._
-    config.getStringList(key).map(_.asScala.toList).getOrElse(Nil)
-  }
+  private def optionalConfigList(key: String): Seq[String] =
+    config.getOptional[Seq[String]](key).getOrElse(Seq.empty)
 
-  private def getModerators: List[String] = {
+  private def getModerators: Seq[String] = {
     val all = optionalConfigList("ehri.portal.moderators.all")
     val typed = optionalConfigList(s"ehri.portal.moderators.${EntityType.Annotation}")
     all ++ typed
@@ -280,7 +278,7 @@ case class Annotations @Inject()(
         Map("user" -> JsString(user.id),
           "label" -> JsString(Ontology.ACCESSOR_BELONGS_TO_GROUP))).map { json =>
         val users: Seq[(String,String)] = json.as[List[(String,String)]](
-          (__ \ "data").read[List[List[String]]].map(all =>  all.map(l => (l(0), l(1))))
+          (__ \ "data").read[List[List[String]]].map(all =>  all.map(l => (l.head, l(1))))
         )
 
       f(users)(user.groups.map(g => (g.id, g.model.name)))

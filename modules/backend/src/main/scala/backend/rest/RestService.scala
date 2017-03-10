@@ -40,8 +40,8 @@ trait RestService {
   )(implicit apiUser: ApiUser) {
 
     lazy val credentials: Option[(String, String)] = for {
-      username <- config.getString("services.ehridata.username")
-      password <- config.getString("services.ehridata.password")
+      username <- config.getOptional[String]("services.ehridata.username")
+      password <- config.getOptional[String]("services.ehridata.password")
     } yield (username, password)
 
     private def fullUrl: String =
@@ -153,12 +153,9 @@ trait RestService {
   /**
     * Create a web request with correct auth parameters for the REST API.
     */
-
-  import scala.collection.JavaConverters._
-
-  private lazy val includeProps =
-    config.getStringList("ehri.backend.includedProperties").map(_.asScala)
-      .getOrElse(Seq.empty)
+  private lazy val includeProps = config
+    .getOptional[Seq[String]]("ehri.backend.includedProperties")
+    .getOrElse(Seq.empty)
 
 
   protected def userCall(url: String, params: Seq[(String, String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {

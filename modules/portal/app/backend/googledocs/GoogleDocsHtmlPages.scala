@@ -4,6 +4,7 @@ import javax.inject.Inject
 
 import backend.HtmlPages
 import backend.rest.{ItemNotFound, PermissionDenied}
+import play.api.cache.SyncCacheApi
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
@@ -23,7 +24,7 @@ import scala.concurrent.duration._
  */
 case class GoogleDocsHtmlPages @Inject ()(
   ws: WSClient,
-  config: play.api.Configuration)(implicit cache: play.api.cache.CacheApi, executionContext: ExecutionContext)
+  config: play.api.Configuration)(implicit cache: SyncCacheApi, executionContext: ExecutionContext)
   extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     ws.url(url).withQueryString(
@@ -59,8 +60,8 @@ case class GoogleDocsHtmlPages @Inject ()(
 
   override def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]] = {
     def getUrl: Option[String] =
-      config.getString(s"pages.external.google.$key.${messages.lang.code}") orElse
-          config.getString(s"pages.external.google.$key.default")
+      config.getOptional[String](s"pages.external.google.$key.${messages.lang.code}") orElse
+          config.getOptional[String](s"pages.external.google.$key.default")
 
     getUrl.map { url =>
       val cacheKey = s"htmlpages.googledocs.$key.${messages.lang.code}"

@@ -261,7 +261,8 @@ case class Social @Inject()(
   }
 
   def sendMessage(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config.getString("recaptcha.key.public")
+    val recaptchaKey = config
+      .getOptional[String]("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
       userTo <- userDataApi.get[UserProfile](userId)
@@ -279,7 +280,8 @@ case class Social @Inject()(
   }
 
   def sendMessagePost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config.getString("recaptcha.key.public")
+    val recaptchaKey = config
+      .getOptional[String]("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 

@@ -27,6 +27,8 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
 
   protected def authHandler: AuthHandler
 
+  protected def actionBuilder: DefaultActionBuilder
+
   protected def parsers: PlayBodyParsers
   private def _parsers = parsers
 
@@ -37,6 +39,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
 
   protected def accounts: AccountManager
 
+  import scala.languageFeature.higherKinds
   protected trait CoreActionBuilder[+R[_], B] extends ActionBuilder[R, AnyContent] {
     override protected def executionContext: ExecutionContext = _exc
     override def parser: BodyParser[AnyContent] = parsers.defaultBodyParser
@@ -85,7 +88,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     * Indicates that the current controller is secured, which,
     * if set to false, overrides staffOnly and verifiedOnly.
     */
-  protected lazy val secured: Boolean = config.getBoolean("ehri.secured").getOrElse(true)
+  protected lazy val secured: Boolean = config.getOptional[Boolean]("ehri.secured").getOrElse(true)
 
   /**
     * Abstract response methods that should be implemented by inheritors.
@@ -147,6 +150,10 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     */
   protected def gotoLogoutSucceeded(implicit request: RequestHeader): Future[Result] =
     authHandler.logout(logoutSucceeded(request))
+
+
+  // Placeholder for pre-2.6 Action syntax
+  protected def Action: ActionBuilder[Request, AnyContent] = actionBuilder
 
   /**
     * Base trait for any type of request that contains

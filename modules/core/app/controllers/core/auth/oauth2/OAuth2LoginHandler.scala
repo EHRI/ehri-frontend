@@ -12,6 +12,7 @@ import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
 import play.api.Logger
+import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsString, Json}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}
@@ -34,7 +35,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
   protected def accounts: auth.AccountManager
   protected def globalConfig: GlobalConfig
   protected def oAuth2Flow: OAuth2Flow
-  protected def cache: play.api.cache.CacheApi
+  protected def cache: SyncCacheApi
 
   protected def oauth2Providers: Seq[OAuth2Provider]
 

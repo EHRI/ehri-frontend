@@ -6,7 +6,6 @@ import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
 import org.apache.commons.io.FileUtils
-import play.api.i18n.Messages
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
@@ -112,7 +111,7 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
       status(replace) must_== SEE_OTHER
       flash(replace) must_== Flash(
-        Map("success" -> Messages("admin.utils.findReplace.done", 1)))
+        Map("success" -> messagesApi("admin.utils.findReplace.done", 1)))
     }
   }
 }

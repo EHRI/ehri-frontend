@@ -65,7 +65,7 @@ case class CmdlineIndexMediatorHandle(
 
   private val binary = Seq("java", "-jar", jar)
 
-  private def jar = config.getString("solr.indexer.jar")
+  private def jar = config.getOptional[String]("solr.indexer.jar")
     .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
   private val restUrl = utils.serviceBaseUrl("ehridata", config)

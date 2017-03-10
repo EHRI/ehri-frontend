@@ -159,8 +159,8 @@ case class Portal @Inject()(
   def externalFeed(key: String): EssentialAction = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
-        config.getString(s"ehri.portal.externalFeed.$key.rss").map { url =>
-          val numItems = config.getInt(s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
+        config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>
+          val numItems = config.getOptional[Int](s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
           ws.url(url).get().map { r =>
             Ok(views.html.rssFeed(RssFeed(r.body, numItems)))
           }

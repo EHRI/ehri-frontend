@@ -38,7 +38,7 @@ case class Countries @Inject()(
     */
   override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.Repository.toString)
+  private val childFormDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.Repository.toString)
   private val form = models.Country.form
   private val childForm = models.Repository.form
 

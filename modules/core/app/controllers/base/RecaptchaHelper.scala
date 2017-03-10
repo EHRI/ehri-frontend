@@ -28,7 +28,7 @@ trait RecaptchaHelper {
     )
 
     // Allow skipping recaptcha checks globally if recaptcha.skip is true
-    val skipRecapture = config.getBoolean("recaptcha.skip").getOrElse(false)
+    val skipRecapture = config.getOptional[Boolean]("recaptcha.skip").getOrElse(false)
     if (skipRecapture) Future.successful(true)
     else {
       recaptchaForm.bindFromRequest.fold({ badCapture =>
@@ -38,7 +38,7 @@ trait RecaptchaHelper {
           .withQueryString(
             "remoteip" -> request.headers.get("REMOTE_ADDR").getOrElse(""),
             "challenge" -> challenge, "response" -> response,
-            "privatekey" -> config.getString("recaptcha.key.private").getOrElse("")
+            "privatekey" -> config.getOptional[String]("recaptcha.key.private").getOrElse("")
           ).post("").map { response =>
           response.body.split("\n").headOption match {
             case Some("true") => true

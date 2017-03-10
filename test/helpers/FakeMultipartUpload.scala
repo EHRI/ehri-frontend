@@ -32,7 +32,7 @@ trait FakeMultipartUpload {
         }
       }
       multipart.mfd.files.foreach { file =>
-        val part = new FileBody(file.ref.file, ContentType.create(file.contentType.getOrElse("application/octet-stream")), file.filename)
+        val part = new FileBody(file.ref.path.toFile, ContentType.create(file.contentType.getOrElse("application/octet-stream")), file.filename)
         builder.addPart(file.key, part)
       }
 

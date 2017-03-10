@@ -2,8 +2,6 @@ package integration.admin
 
 import helpers.{TestConfiguration, UserFixtures}
 import models.{Account, SignupData}
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.test._
 
 
@@ -36,14 +34,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       try {
         val pageReadOnly = FakeRequest(accountRoutes.forgotPassword()).call()
         status(pageReadOnly) must equalTo(OK)
-        contentAsString(pageReadOnly) must contain(Messages("errors.readonly"))
+        contentAsString(pageReadOnly) must contain(messagesApi("errors.readonly"))
 
         // Deleting the file should make the message go away
         f.delete()
 
         val page = FakeRequest(accountRoutes.forgotPassword()).call
         status(page) must equalTo(OK)
-        contentAsString(page) must not contain Messages("errors.readonly")
+        contentAsString(page) must not contain messagesApi("errors.readonly")
       } finally {
         f.deleteOnExit()
       }
@@ -55,14 +53,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       try {
         val pageOffline = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageOffline) must equalTo(SERVICE_UNAVAILABLE)
-        contentAsString(pageOffline) must contain(Messages("errors.maintenance"))
+        contentAsString(pageOffline) must contain(messagesApi("errors.maintenance"))
 
         // Deleting the file should make the message go away
         f.delete()
 
         val pageOnline = FakeRequest(portalRoutes.dataPolicy()).call()
         status(pageOnline) must equalTo(OK)
-        contentAsString(pageOnline) must not contain Messages("errors.maintenance")
+        contentAsString(pageOnline) must not contain messagesApi("errors.maintenance")
       } finally {
         f.deleteOnExit()
       }
@@ -174,7 +172,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .callWith(data)
       status(forgot) must equalTo(BAD_REQUEST)
-      contentAsString(forgot) must contain(Messages("error.badRecaptcha"))
+      contentAsString(forgot) must contain(messagesApi("error.badRecaptcha"))
     }
 
     "give an error submitting a forgot password form with the right capcha but the wrong email" in new ITestApp(Map("recaptcha.skip" -> true)) {
@@ -186,7 +184,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .callWith(data)
       status(forgot) must equalTo(BAD_REQUEST)
-      contentAsString(forgot) must contain(Messages("error.emailNotFound"))
+      contentAsString(forgot) must contain(messagesApi("error.emailNotFound"))
     }
 
     "create a reset token on password reset with correct email" in new ITestApp(Map("recaptcha.skip" -> true)) {

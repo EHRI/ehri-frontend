@@ -33,7 +33,7 @@ AuthoritativeSets @Inject()(
   with Annotate[AuthoritativeSet]
   with Search {
 
-  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.HistoricalAgent.toString)
+  private val formDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.HistoricalAgent.toString)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form

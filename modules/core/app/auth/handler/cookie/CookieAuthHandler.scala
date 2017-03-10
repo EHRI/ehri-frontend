@@ -32,9 +32,8 @@ case class CookieAuthHandler @Inject()(
 
   import scala.concurrent.duration._
 
-  // Default - one day...
   override def sessionTimeout: FiniteDuration =
-    config.getInt("auth.session.timeout").getOrElse(60 * 60 * 24).seconds
+    config.get[Int]("auth.session.timeout").seconds
 
   override def restoreAccount(implicit request: RequestHeader): Future[(Option[Account], ResultUpdater)] = {
     (for {

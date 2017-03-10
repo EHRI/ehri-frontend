@@ -48,7 +48,7 @@
     </ol>
 
     <h3>@Messages("privacy.complaints.header")</h3>
-    @defining(globalConfig.configString("ehri.portal.emails.privacy", "info@ehri-project.eu")) { email =>
+    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("info@ehri-project.eu")) { email =>
         <p>@Html(Messages(
             "privacy.complaints.1",
             s"<a href='mailto:$email'>$email</a>"

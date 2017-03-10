@@ -1,11 +1,9 @@
 package integration.portal
 
 import helpers.IntegrationTestRunner
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import mockdata._
 import models.{GuidePage, Guide}
-import play.api.i18n.Messages.Implicits._
 
 
 class GuidesSpec extends IntegrationTestRunner {
@@ -50,7 +48,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(Messages("constraints.uniqueness"))
+      contentAsString(create) must contain(messagesApi("constraints.uniqueness"))
     }
 
     "maintain path validity" in new DBTestApp("guide-fixtures.sql") {
@@ -58,7 +56,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(Messages("guide.path.constraint.validity"))
+      contentAsString(create) must contain(messagesApi("guide.path.constraint.validity"))
     }
 
     "be able to edit guides, including changing the URL" in new DBTestApp("guide-fixtures.sql") {
@@ -84,7 +82,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(Messages("constraints.uniqueness"))
+      contentAsString(create) must contain(messagesApi("constraints.uniqueness"))
     }
 
     "redirect after deleting guides" in  new DBTestApp("guide-fixtures.sql") {
@@ -126,7 +124,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(edit) must equalTo(BAD_REQUEST)
-      contentAsString(edit) must contain(Messages("constraints.uniqueness"))
+      contentAsString(edit) must contain(messagesApi("constraints.uniqueness"))
     }
 
     "redirect after deleting guide pages" in  new DBTestApp("guide-fixtures.sql") {

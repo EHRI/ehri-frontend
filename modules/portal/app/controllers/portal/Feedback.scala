@@ -45,11 +45,10 @@ case class Feedback @Inject()(
   )
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value]): Seq[String] = {
-    import scala.collection.JavaConverters._
-    val defaultOpt = config.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
+    val defaultOpt = config.getOptional[Seq[String]]("ehri.portal.feedback.copyTo")
     ((for {
       ft <- feedbackType
-      ct <- config.getStringList(s"ehri.portal.feedback.$ft.copyTo").map(_.asScala)
+      ct <- config.getOptional[Seq[String]](s"ehri.portal.feedback.$ft.copyTo")
     } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 

@@ -17,7 +17,7 @@ import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, BodyParsers, MultipartFormData}
+import play.api.mvc.{Action, AnyContent, MultipartFormData}
 import utils.search.SearchIndexMediator
 import utils.{CsvHelpers, PageParams}
 
@@ -90,13 +90,13 @@ case class Utils @Inject()(
   }
 
   def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] =
-    AdminAction.async(parse.multipartFormData) { implicit request =>
+    AdminAction.async(parsers.multipartFormData) { implicit request =>
       val boundForm: Form[String] = urlMapForm.bindFromRequest
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
           controllers.admin.routes.Utils.addMovedItemsPost()))),
         prefix => request.body.file("csv").map { file =>
-          updateFromCsv(new FileInputStream(file.ref.file), prefix)
+          updateFromCsv(new FileInputStream(file.ref.path.toFile), prefix)
             .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
         }.getOrElse {
           immediate(Ok(views.html.admin.movedItemsForm(
@@ -112,13 +112,13 @@ case class Utils @Inject()(
   }
 
   def renameItemsPost(): Action[MultipartFormData[TemporaryFile]] =
-    AdminAction.async(parse.multipartFormData) { implicit request =>
+    AdminAction.async(parsers.multipartFormData) { implicit request =>
       val boundForm: Form[String] = urlMapForm.bindFromRequest
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.renameItemsForm(errForm,
           controllers.admin.routes.Utils.renameItemsPost()))),
         prefix => request.body.file("csv").map { file =>
-          val todo = parseCsv(new FileInputStream(file.ref.file))
+          val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
             .collect { case from :: to :: _ => from -> to }
           userDataApi.rename(todo).flatMap { items =>
             updateFromCsv(items, prefix)
@@ -179,7 +179,7 @@ case class Utils @Inject()(
       controllers.admin.routes.Utils.regenerateIdsForScope(id))))
   }
 
-  private val parser = BodyParsers.parse.anyContent(maxLength = Some(5 * 1024 * 1024L))
+  private val parser = parsers.anyContent(maxLength = Some(5 * 1024 * 1024L))
   def regenerateIdsPost(): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
     val boundForm: Form[(String, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
     boundForm.fold(

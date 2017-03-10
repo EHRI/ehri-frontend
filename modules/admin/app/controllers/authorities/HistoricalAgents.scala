@@ -178,7 +178,8 @@ case class HistoricalAgents @Inject()(
 
   def manageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
-      val holders = config.getStringSeq("ehri.admin.accessPoints.holders").getOrElse(Seq.empty)
+      val holders = config.getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
+        .getOrElse(Seq.empty)
       Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }

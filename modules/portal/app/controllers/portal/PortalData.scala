@@ -5,16 +5,16 @@ import javax.inject.{Inject, Singleton}
 import controllers.Components
 import play.api.cache.Cached
 import play.api.http.{ContentTypes, MimeTypes}
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{Action, Controller, EssentialAction, RequestHeader}
+import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, AnyContent, Controller, EssentialAction}
 
 
 @Singleton
-case class PortalData @Inject()(statusCache: Cached)(implicit val messagesApi: MessagesApi) extends Controller
+case class PortalData @Inject()(statusCache: Cached, components: Components)(implicit val messagesApi: MessagesApi) extends Controller
   with play.api.i18n.I18nSupport {
 
   def jsRoutes: EssentialAction = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
-    Action { implicit request =>
+    components.actionBuilder { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
           controllers.portal.routes.javascript.Bookmarks.moveBookmarksPost,
@@ -55,11 +55,12 @@ case class PortalData @Inject()(statusCache: Cached)(implicit val messagesApi: M
   }
 
   /**
-   * Render entity types into the view to serve as JS constants.
-   * @return
-   */
+    * Render entity types into the view to serve as JS constants.
+    *
+    * @return
+    */
   def globalData: EssentialAction = statusCache.status(_ => "pages:globalData", OK, 3600) {
-    Action { implicit request =>
+    components.actionBuilder { implicit request =>
       import defines.EntityType
       Ok(
         """
@@ -73,15 +74,15 @@ case class PortalData @Inject()(statusCache: Cached)(implicit val messagesApi: M
   }
 
   /**
-   * Handle trailing slashes with a permanent redirect.
-   */
-  def untrail(path: String) = Action { request =>
+    * Handle trailing slashes with a permanent redirect.
+    */
+  def untrail(path: String): Action[AnyContent] = components.actionBuilder { request =>
     val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
     MovedPermanently("/" + path + query)
   }
 
   def localeData(lang: String): EssentialAction = statusCache.status(_ => "pages:localeData", OK, 3600) {
-    Action { implicit request =>
+    components.actionBuilder { implicit request =>
       implicit val locale = play.api.i18n.Lang(lang)
 
       val js =
@@ -103,10 +104,10 @@ case class PortalData @Inject()(statusCache: Cached)(implicit val messagesApi: M
           |  },
           |}
         """.stripMargin.format(
-          utils.i18n.languagePairList.map{ case (code, name) =>
+          utils.i18n.languagePairList.map { case (code, name) =>
             code + ": \"" + name + "\""
           }.mkString(",\n  "),
-          utils.i18n.countryPairList.map{ case (code, name) =>
+          utils.i18n.countryPairList.map { case (code, name) =>
             code.toLowerCase + ": \"" + name + "\""
           }.mkString(",\n  ")
         )

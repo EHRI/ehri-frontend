@@ -22,7 +22,7 @@ import models.base.AnyModel
 import models.view.UserDetails
 import backend.{ApiUser, DataApi}
 import global.GlobalConfig
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.mvc.Result
 import utils.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
@@ -40,14 +40,12 @@ trait PortalController
   def components: Components
 
   // Implicits hoisted to class scope so as to be provided to views
-  protected implicit def cache: CacheApi = components.cacheApi
+  protected implicit def cache: SyncCacheApi = components.cacheApi
   implicit def messagesApi: MessagesApi = components.messagesApi
   protected implicit def globalConfig: GlobalConfig = components.globalConfig
   protected implicit def markdown: MarkdownRenderer = components.markdown
-
   override protected val parsers: PlayBodyParsers = components.parsers
-
-  //protected implicit def messages(implicit request: RequestHeader): Messages = request.messages
+  override protected val actionBuilder: DefaultActionBuilder = components.actionBuilder
 
   protected implicit def executionContext: ExecutionContext = components.executionContext
 
@@ -61,8 +59,8 @@ trait PortalController
 
   // By default, all controllers require auth unless ehri.portal.secured
   // is set to false in the config, which it is by default.
-  override def staffOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
-  override def verifiedOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override def staffOnly: Boolean = config.getOptional[Boolean]("ehri.portal.secured").getOrElse(true)
+  override def verifiedOnly: Boolean = config.getOptional[Boolean]("ehri.portal.secured").getOrElse(true)
 
   /**
    * The user's default preferences. The `SessionPreferences` trait generates
@@ -136,7 +134,7 @@ trait PortalController
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
-    val doMoveCheck: Boolean = config.getBoolean("ehri.handlePageMoved").getOrElse(false)
+    val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)

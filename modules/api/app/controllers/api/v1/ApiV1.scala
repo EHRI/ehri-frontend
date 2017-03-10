@@ -16,7 +16,7 @@ import global.GlobalConfig
 import models._
 import models.api.v1.JsonApiV1._
 import models.base.AnyModel
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json._
@@ -54,7 +54,7 @@ case class ApiV1 @Inject()(
   with SearchVC {
 
   implicit val messagesApi: MessagesApi = components.messagesApi
-  protected implicit val cache: CacheApi = components.cacheApi
+  protected implicit val cache: SyncCacheApi = components.cacheApi
   protected implicit val globalConfig: GlobalConfig = components.globalConfig
   protected implicit val markdown: MarkdownRenderer = components.markdown
   protected implicit val executionContext: ExecutionContext = components.executionContext
@@ -65,6 +65,7 @@ case class ApiV1 @Inject()(
   protected val searchEngine: SearchEngine = components.searchEngine
   protected val searchResolver: SearchItemResolver = components.searchResolver
   protected implicit val parsers: PlayBodyParsers = components.parsers
+  protected val actionBuilder: DefaultActionBuilder = components.actionBuilder
 
   import ApiV1._
 
@@ -95,13 +96,13 @@ case class ApiV1 @Inject()(
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
   // tokens are in config.
-  private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled")
+  private val authenticated: Boolean = config
+    .getOptional[Boolean]("ehri.api.v1.authorization.enabled")
     .getOrElse(false)
 
-  import scala.collection.JavaConverters._
-
-  private val authenticationTokens: Seq[String] = config.getStringList("ehri.api.v1.authorization.tokens")
-    .map(_.asScala.toSeq).getOrElse(Seq.empty)
+  private val authenticationTokens: Seq[String] = config
+    .getOptional[Seq[String]]("ehri.api.v1.authorization.tokens")
+    .getOrElse(Seq.empty)
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
