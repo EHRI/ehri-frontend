@@ -44,13 +44,8 @@ trait RestService {
       password <- config.getString("services.ehridata.password")
     } yield (username, password)
 
-    private def queryStringMap: Map[String, Seq[String]] =
-      queryString.foldLeft(Map.empty[String, Seq[String]]) { case (m, (k, v)) =>
-        m.updated(k, v +: m.getOrElse(k, Seq.empty))
-      }
-
     private def fullUrl: String =
-      if (queryStringMap.nonEmpty) s"$url?${joinQueryString(queryStringMap)}" else url
+      if (queryString.nonEmpty) s"$url?${utils.http.joinQueryString(queryString)}" else url
 
     private def holderWithAuth: WSRequest = {
       val holder = ws.url(url)
@@ -130,14 +125,6 @@ trait RestService {
     msg
       .map(m => Seq(LOG_MESSAGE_HEADER_NAME -> URLEncoder.encode(m, StandardCharsets.UTF_8.name)))
       .getOrElse(Seq.empty)
-
-  /**
-    * Join params into a query string
-    */
-  protected def joinQueryString(qs: Map[String, Seq[String]]): String =
-    qs.flatMap { case (key, vals) =>
-      vals.map(v => s"$key=${URLEncoder.encode(v, StandardCharsets.UTF_8.name)}")
-    }.mkString("&")
 
   /**
     * Standard headers we sent to every Neo4j/EHRI Server request.
