@@ -9,6 +9,11 @@ package object http {
   def isAjax(implicit request: RequestHeader): Boolean =
     request.headers.get("X-REQUESTED-WITH").exists(_.toUpperCase == "XMLHTTPREQUEST")
 
+  def paramsToForm(seq: Seq[(String, String)]): Map[String, Seq[String]] =
+    seq.foldLeft(Map.empty[String,Seq[String]]) { case (m, (key, vals)) =>
+      m.updated(key, vals +: m.getOrElse(key, Seq.empty))
+    }
+
   def joinPath(path: String, qs: Map[String, Seq[String]]): String =
     List(path, joinQueryString(qs)).filterNot(_=="").mkString("?")
 
@@ -38,9 +43,6 @@ package object http {
    * @return a decoded map of key -> value sequences
    */
   def parseQueryString(s: String): Map[String,Seq[String]] =
-    s.substring(s.indexOf('?')).split("&").map(_.split("=", 2))
-      .map(p => URLDecoder.decode(p(0), "UTF-8") -> URLDecoder.decode(p(1), "UTF-8") )
-      .foldLeft(Map.empty[String,Seq[String]]) { case (m, (key, vals)) =>
-      m.updated(key, vals +: m.getOrElse(key, Seq.empty))
-    }
+    paramsToForm(s.substring(s.indexOf('?')).split("&").map(_.split("=", 2))
+      .map(p => URLDecoder.decode(p(0), "UTF-8") -> URLDecoder.decode(p(1), "UTF-8") ))
 }

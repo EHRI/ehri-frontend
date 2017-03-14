@@ -1,18 +1,10 @@
 package eu.ehri.project.search.solr
 
-import com.github.seratch.scalikesolr.request.query._
-import com.github.seratch.scalikesolr.request.query.highlighting.{HighlightingParams, IsPhraseHighlighterEnabled}
-import com.github.seratch.scalikesolr.request.query.facet.FacetParams
-import com.github.seratch.scalikesolr.request.query.group.{GroupField, GroupFormat, GroupParams, WithNumberOfGroups}
 import defines.EntityType
 import models.UserProfile
 import utils.search._
 import play.api.{Configuration, Logger}
-import com.github.seratch.scalikesolr.request.query.facet.Value
-import com.github.seratch.scalikesolr.request.QueryRequest
-import com.github.seratch.scalikesolr.request.query.facet.Param
-import com.github.seratch.scalikesolr.request.query.facet.FacetParam
-import com.github.seratch.scalikesolr.{WriterType => SWriterType}
+import utils.PageParams
 
 
 object SolrQueryBuilder {
@@ -34,21 +26,15 @@ object SolrQueryBuilder {
   }
 
   /**
-   * Set a list of facets on a request.
-   */
-  def getRequestFacets(flist: Seq[FacetClass[Facet]]): Seq[FacetParam] =
-    flist.flatMap(SolrFacetParser.facetAsParams)
-
-  /**
    * Apply filters to the request based on a set of applied facets.
    */
-  def getRequestFilters(facetClasses: Seq[FacetClass[Facet]],
-                                appliedFacets: Seq[AppliedFacet]): Seq[String] = {
+  def facetFilters(facetClasses: Seq[FacetClass[Facet]],
+                                appliedFacets: Seq[AppliedFacet]): Seq[(String, String)] = {
     // See the spec for this to get some insight
     // into how this mess works...
 
     // filter the results by applied facets
-    facetClasses.flatMap { fclass =>
+    val filters = facetClasses.flatMap { fclass =>
       appliedFacets.filter(_.name == fclass.key).map(_.values).flatMap { paramVals =>
         if (paramVals.isEmpty) None
         else {
@@ -76,6 +62,7 @@ object SolrQueryBuilder {
         }
       }
     }
+    filters.map(f => "fq" -> f)
   }
 }
 
@@ -86,7 +73,6 @@ object SolrQueryBuilder {
  */
 case class SolrQueryBuilder(
   query: SearchQuery,
-  writerType: WriterType.Value,
   debugQuery: Boolean = false
 )(implicit config: Configuration) extends QueryBuilder {
 
@@ -100,137 +86,166 @@ case class SolrQueryBuilder(
     ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
   ).map(f => f -> config.getDouble(s"search.boost.$f"))
 
-  private lazy val spellcheckParams: Seq[(String,Option[String])] = Seq(
+  private lazy val spellcheckConfig: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
   ).map(f => f -> config.getString(s"search.spellcheck.$f"))
 
 
-  /**
-   * Constrain the search to entities of a given type, applying an fq
-   * parameter to the "type" field.
-   */
-  private def constrainEntities(request: QueryRequest, entities: Seq[EntityType.Value]): Unit = {
+  private def entityFilterParams(entities: Seq[EntityType.Value]): Seq[(String, String)] = {
     if (entities.nonEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
-      request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple ++ Seq(s"$TYPE:($filter)")))
-    }
+      Seq("fq" -> s"$TYPE:($filter)")
+    } else Seq.empty
   }
 
-  /**
-   * Filter docs based on access. If the user is empty, only allow
-   * through those which have accessibleTo:ALLUSERS.
-   * If we have a user and they're not admin, add a filter against
-   * all their groups.
-   */
-  private def applyAccessFilter(request: QueryRequest, userOpt: Option[UserProfile]): Unit = {
+  private def accessFilterParams(userOpt: Option[UserProfile]): Seq[(String, String)] = {
+    // Filter docs based on access. If the user is empty, only allow
+    // through those which have accessibleTo:ALLUSERS.
+    // If we have a user and they're not admin, add a filter against
+    // all their groups.
     if (userOpt.isEmpty) {
-      request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple ++
-          Seq(s"$ACCESSOR_FIELD:$ACCESSOR_ALL_PLACEHOLDER")))
+      Seq("fq" -> s"$ACCESSOR_FIELD:$ACCESSOR_ALL_PLACEHOLDER")
     } else if (!userOpt.exists(_.isAdmin)) {
       // Create a boolean or query starting with the ALL placeholder, which
       // includes all the groups the user belongs to, included inherited ones,
       // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
       val accessors = ACCESSOR_ALL_PLACEHOLDER +: userOpt.map(
           u => (u.id +: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+      Seq("fq" -> s"$ACCESSOR_FIELD:(${accessors.mkString(" ")})")
+    } else Seq.empty
+  }
 
-      request.setFilterQuery(
-        FilterQuery(multiple = request.filterQuery.getMultiple ++
-          Seq(s"$ACCESSOR_FIELD:(${accessors.mkString(" ")})")))
+  private def facetFilterParams(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[(String, String)] = {
+    Seq(
+      "facet" -> true.toString,
+      "facet.mincount" -> 1.toString
+    ) ++
+      allFacets.flatMap(SolrFacetParser.facetAsParams) ++
+      facetFilters(allFacets, appliedFacets)
+  }
+
+  private def extraFilterParams(filters: Seq[(String, Any)]): Seq[(String, String)] = {
+    filters.map { case (key, value) =>
+      val filter = value match {
+        // Have to quote strings
+        case s: String => key + ":\"" + value + "\""
+        // not value means the key is a query!
+        case Unit => key
+        case _ => s"$key:$value"
+      }
+      "fq" -> filter
     }
   }
 
-  /**
-   * Constrain a search request with the given facets.
-   */
-  private def constrainToFacets(request: QueryRequest, appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Unit = {
-    request.setFacet(new FacetParams(
-      enabled=true,
-      params=getRequestFacets(allFacets).toList
-    ))
-
-    request.setFilterQuery(FilterQuery(multiple = getRequestFilters(allFacets, appliedFacets)))
-    request.set("facet.mincount", 1)
+  private def groupParams: Seq[(String, String)] = {
+    // Group results by item id (as opposed to description id). Facet counts
+    // are also set to reflect grouping as opposed to the number of individual
+    // items.
+    Seq(
+      "group" -> true.toString,
+      "group.field" -> ITEM_ID,
+      "group.facet" -> true.toString,
+      "group.ngroups" -> true.toString,
+      "group.cache.percent" -> 0.toString,
+      "group.offset" -> 0.toString,
+      "group.limit" -> 1.toString,
+      "group.format" -> "simple"
+    )
   }
 
-  /**
-   * Group results by item id (as opposed to description id). Facet counts
-   * are also set to reflect grouping as opposed to the number of individual
-   * items.
-   *
-   * NOTE: Scalikesolr insists we must set the start and rows parameter
-   * here otherwise it will add default values to the query!
-   */
-  private def setGrouping(request: QueryRequest, params: SearchParams): Unit = {
-    request.setGroup(GroupParams(
-      enabled=true,
-      field=GroupField(ITEM_ID),
-      format=GroupFormat("simple"),
-      ngroups=WithNumberOfGroups(ngroups = true),
-      start = StartRow(query.paging.offset),
-      rows = MaximumRowsReturned(query.paging.limit)
-    ))
-
-    // Not yet supported by scalikesolr
-    request.set("group.facet", true)
-
-    // NB: There was previously a group sort by language code, but this
-    // had some pretty unexpected effects, sorting, e.g. Ukrainian items
-    // first, even when the search string was English. Until a more intuitive
-    // method of sorting groups is devised this is being disabled.
-    //request.set("group.sort", s"${SearchConstants.LANGUAGE_CODE} desc")
-  }
-
-  private def applyIdFilters(request: QueryRequest, ids: Seq[String]): Unit = {
+  private def excludeFilterParams(ids: Seq[String]): Seq[(String, String)] = {
     if (ids.nonEmpty) {
-      request
-        .setFilterQuery(FilterQuery(s"$ITEM_ID:(${ids.mkString(" ")})"))
+      Seq("fq" -> s"$ITEM_ID:(${ids.map(id => s"-$id").mkString(" ")})")
+    } else Seq.empty
+  }
+
+  private def idFilterParams(ids: Seq[String]): Seq[(String, String)] = {
+    if (ids.nonEmpty) {
+      Seq("fq" -> s"$ITEM_ID:(${ids.mkString(" ")})")
+    } else Seq.empty
+  }
+
+  private def basicParams(queryString: String, paging: PageParams): Seq[(String, String)] = Seq(
+    "q" -> queryString,
+    "wt" -> "json",
+    "start" -> paging.offset.toString,
+    "rows" -> paging.limit.toString,
+    "debugQuery" -> debugQuery.toString,
+    "defType" -> "edismax"
+  )
+
+  private def highlightParams(hasQuery: Boolean): Seq[(String, String)] = {
+    // Highlight, but only if we have a query...
+    if (hasQuery) Seq(
+      "hl" -> true.toString,
+      "hl.usePhraseHighlighter" -> true.toString,
+      "hl.simple.pre" -> "<em class='highlight'>",
+      "hl.simple.post" -> "</em>"
+    ) else Seq.empty
+  }
+
+  private def fieldParams(fields: Seq[SearchField.Value]): Seq[(String, String)] = {
+    // Apply search to specific fields. Can't find a way to do this using
+    // Scalikesolr's built-in classes so we have to use it's extension-param
+    // facility
+    val basic = if(fields.nonEmpty) {
+      Seq("qf" -> query.params.fields.mkString(" "))
+    } else {
+      val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
+        boostOpt.map(b => s"$key^$b").getOrElse(key)
+      }.mkString(" ")
+      Logger.trace(s"Query fields: $qfFields")
+      Seq("qf" -> qfFields)
+    }
+
+    // Set field aliases
+    val aliases = for {
+      config <- config.getConfig("search.fieldAliases").toSeq
+      alias <- config.keys.toSeq
+      fieldName <- config.getString(alias).toSeq
+    } yield s"f.$alias.qf" -> fieldName
+
+    basic ++ aliases
+  }
+
+  private def spellcheckParams: Seq[(String, String)] = {
+    Seq("spellcheck" -> true.toString) ++
+    spellcheckConfig.collect { case (key, Some(value)) =>
+      s"spellcheck.$key" -> value
     }
   }
 
+  private def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
+    sort.map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ")}.toSeq
+
   /**
-   * Run a simple filter on the name_ngram field of all entities
-   * of a given type.
-   */
-  override def simpleFilterQuery(alphabetical: Boolean = false): Map[String,Seq[String]] = {
+    * Run a simple filter on the name_ngram field of all entities
+    * of a given type.
+    */
+  override def simpleFilterQuery(alphabetical: Boolean = false): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
     val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = query.params.query.getOrElse("*").trim + excludeIds + searchFilters
 
-    val req: QueryRequest = QueryRequest(
-      query = Query(queryString),
-      writerType = SWriterType.as(writerType.toString),
-      startRow = StartRow(query.paging.offset),
-      maximumRowsReturned = MaximumRowsReturned(query.paging.limit),
-      isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
-      queryParserType = QueryParserType("edismax")
-    )
-
-    constrainEntities(req, query.params.entities)
-    applyAccessFilter(req, query.user)
-    applyIdFilters(req, query.withinIds)
-    setGrouping(req, query.params)
-    req.set("qf", s"$NAME_MATCH^2.0 $NAME_NGRAM")
-    req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"))
-    if (alphabetical) req.setSort(Sort(s"$NAME_SORT asc"))
-
-    query.extraParams.foreach { case (key, value) =>
-      req.set(key, value)
-    }
-
-    utils.http.parseQueryString(req.queryString())
+    Seq(
+      basicParams(queryString, query.paging),
+      entityFilterParams(query.params.entities),
+      accessFilterParams(query.user),
+      idFilterParams(query.withinIds),
+      groupParams,
+      Seq("qf" -> s"$NAME_MATCH^2.0 $NAME_NGRAM"),
+      Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
+      if (alphabetical) Seq("sort" -> s"$NAME_SORT asc") else Seq.empty,
+      query.extraParams.map(kp => kp._1 -> kp._2.toString).toSeq
+    ).flatten
   }
-
 
   /**
    * Build a query given a set of search parameters.
    */
-  override def searchQuery(): Map[String,Seq[String]] = {
-
-    val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
+  override def searchQuery(): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
 
@@ -243,109 +258,23 @@ case class SolrQueryBuilder(
     // query only work on the default field - disabled for now...
     val queryString =
         //s"{!boost b=$CHILD_COUNT}" +
-    query.params.query.getOrElse(defaultQuery).trim + excludeIds + searchFilters
+      query.params.query.getOrElse(defaultQuery).trim + searchFilters
 
-    val req: QueryRequest = QueryRequest(
-      query = Query(queryString),
-      writerType = SWriterType.as(writerType.toString),
-      startRow = StartRow(query.paging.offset),
-      maximumRowsReturned = MaximumRowsReturned(query.paging.limit),
-      isDebugQueryEnabled = IsDebugQueryEnabled(debugQuery = debugQuery),
-      queryParserType = QueryParserType("edismax")
-    )
-
-    // Always facet on item type
-    req.setFacet(new FacetParams(
-      enabled=true,
-      params=List(new FacetParam(Param("facet.field"), Value(TYPE)))
-    ))
-
-    // Highlight, but only if we have a query...
-    if (query.params.query.isDefined) {
-      //req.set("highlight.q", params.query)
-      req.setHighlighting(HighlightingParams(
-          enabled=true,
-          isPhraseHighlighterEnabled=IsPhraseHighlighterEnabled(usePhraseHighlighter = true)))
-      req.set("hl.simple.pre", "<em class='highlight'>")
-      req.set("hl.simple.post", "</em>")
-    }
-
-    // Set result ordering, defaulting to the solr default 'score asc'
-    // (but we have to specify this to allow 'score desc' ??? (Why is this needed?)
-    // FIXME: This horrid concatenation of name/order
-    query.params.sort.foreach { sort =>
-      req.setSort(Sort(s"${sort.toString.split("""\.""").mkString(" ")}"))
-    }
-
-    // Apply search to specific fields. Can't find a way to do this using
-    // Scalikesolr's built-in classes so we have to use it's extension-param
-    // facility
-    if(query.params.fields.nonEmpty) {
-      req.set("qf", query.params.fields.mkString(" "))
-    } else {
-      val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
-        boostOpt.map(b => s"$key^$b").getOrElse(key)
-      }.mkString(" ")
-      Logger.trace(s"Query fields: $qfFields")
-      req.set("qf", qfFields)
-    }
-
-    // Set field aliases
-    for {
-      config <- config.getConfig("search.fieldAliases")
-      alias <- config.keys
-      fieldName <- config.getString(alias) 
-    } {
-      req.set(s"f.$alias.qf", fieldName)
-    }
-
-    // Mmmn, speckcheck
-    req.set("spellcheck", "true")
-    spellcheckParams.collect { case (key, Some(value)) =>
-      req.set(s"spellcheck.$key", value)
-    }
-
-    // Facet the request accordingly
-    constrainToFacets(req, query.appliedFacets, query.facetClasses)
-
-    // if we're using a specific index, constrain on that as well
-    constrainEntities(req, query.params.entities)
-
-    // Currently returning all the fields, but this might change...
-    //req.setFieldsToReturn(FieldsToReturn(s"$ID $ITEM_ID $TYPE $DB_ID"))
-
-    // Return only fields we care about...
-    applyAccessFilter(req, query.user)
-
-    // Constrain to specific ids
-    applyIdFilters(req, query.withinIds)
-
-    // Apply other arbitrary hard filters
-    query.filters.foreach { case (key, value) =>
-      val filter = value match {
-        // Have to quote strings
-        case s: String => key + ":\"" + value + "\""
-        // not value means the key is a query!
-        case Unit => key
-        case _ => s"$key:$value"
-      }
-      req.setFilterQuery(FilterQuery(multiple = req.filterQuery.getMultiple ++ Seq(filter)))
-    }
-
-    // Group results by item id, as opposed to the document-level
-    // description (for non-multi-description entities this will
-    // be the same)
-    // NB: Group params ALSO set (or override) start and row parameters, which
-    // is a major gotcha!
-    setGrouping(req, query.params)
-
-    query.extraParams.foreach { case (key, value) =>
-      req.set(key, value)
-    }
-
-    // FIXME: It's RUBBISH to parse the output of scalikesolr's query string
-    // TODO: Implement a light-weight request builder
-    utils.http.parseQueryString(req.queryString())
+    Seq(
+      basicParams(queryString, query.paging),
+      groupParams,
+      fieldParams(query.params.fields),
+      sortParams(query.params.sort),
+      facetFilterParams(query.appliedFacets, query.facetClasses),
+      entityFilterParams(query.params.entities),
+      accessFilterParams(query.user),
+      idFilterParams(query.withinIds),
+      excludeFilterParams(query.params.excludes),
+      extraFilterParams(query.filters.toSeq),
+      query.extraParams.map(kp => kp._1 -> kp._2.toString).toSeq,
+      highlightParams(query.params.query.isDefined),
+      spellcheckParams
+    ).flatten
   }
 }
 

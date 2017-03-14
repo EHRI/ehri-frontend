@@ -1,6 +1,5 @@
 package eu.ehri.project.search.solr
 
-import com.github.seratch.scalikesolr.request.query.facet.{Param, Value, FacetParam}
 import play.api.Logger
 import utils.search._
 
@@ -26,43 +25,27 @@ object SolrFacetParser {
   def fullKey(fc: FacetClass[_]): String =
     if (fc.multiSelect) s"{!ex=${fc.key}}${fc.key}" else fc.key
 
-  def facetAsParams(fc: FacetClass[_]): Seq[FacetParam] = {
+  def facetAsParams(fc: FacetClass[_]): Seq[(String, String)] = {
     val params = fc match {
-      case ffc: FieldFacetClass => Seq(new FacetParam(
-        Param("facet.field"),
-        Value(fullKey(ffc))
-      ))
+      case ffc: FieldFacetClass => Seq("facet.field" -> fullKey(ffc))
       case qfc: QueryFacetClass => qfc.facets.map(p =>
-        new FacetParam(
-          Param("facet.query"),
-          Value(s"${fullKey(qfc)}:${facetValue(p)}")
-        )
-      )
+        "facet.query" -> s"${fullKey(qfc)}:${facetValue(p)}")
     }
 
     // If the facet class is sort by name (other than the default,
     // by count) add an extra parameter to specify this.
     val sortOpt = if (fc.sort == FacetSort.Name) {
-      Some(new FacetParam(
-        Param(s"f.${fc.key}.facet.sort"),
-        Value("index")
-      ))
-    } else None
+      Seq(s"f.${fc.key}.facet.sort" -> "index")
+    } else Seq.empty
 
     val countOpt = fc.minCount.map { mc =>
-      new FacetParam(
-        Param(s"f.${fc.key}.facet.mincount"),
-        Value(mc.toString)
-      )
+      s"f.${fc.key}.facet.mincount" -> mc.toString
     }
 
-    val limitOpt = fc.limit.map { mc =>
-      new FacetParam(
-        Param(s"f.${fc.key}.facet.limit"),
-        Value(mc.toString)
-      )
+    val limitOpt = fc.limit.map { lm =>
+      s"f.${fc.key}.facet.limit" -> lm.toString
     }
 
-    params ++ sortOpt.toSeq ++ countOpt.toSeq ++ limitOpt.toSeq
+    params ++ sortOpt ++ countOpt.toSeq ++ limitOpt.toSeq
   }
 }

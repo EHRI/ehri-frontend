@@ -4,7 +4,6 @@ import java.net.ConnectException
 import javax.inject.Inject
 
 import backend.rest.BadJson
-import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
 import utils.Page
@@ -26,18 +25,18 @@ case class SolrSearchEngine @Inject()(
   private val logger: Logger = Logger(this.getClass)
 
   private val queryBuilder: SearchQuery => QueryBuilder =
-    q => new SolrQueryBuilder(q, WriterType.Json)(config)
+    q => new SolrQueryBuilder(q)(config)
 
   private lazy val solrPath = utils.serviceBaseUrl("solr", config)
 
   private def solrSelectUrl = solrPath + "/select"
 
-  private def fullSearchUrl(query: Map[String, Seq[String]]) = utils.http.joinPath(solrSelectUrl, query)
+  private def fullSearchUrl(query: Seq[(String, String)]) =
+    utils.http.joinPath(solrSelectUrl, utils.http.paramsToForm(query))
 
-  private def dispatch(query: Map[String, Seq[String]]): Future[WSResponse] = {
+  private def dispatch(query: Seq[(String, String)]): Future[WSResponse] = {
     ws.url(solrSelectUrl)
-      .withHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.FORM)
-      .post(query)
+      .post(utils.http.paramsToForm(query))
       .recover {
         case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
       }

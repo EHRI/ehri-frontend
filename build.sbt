@@ -328,11 +328,9 @@ lazy val guides = Project(appName + "-guides", file("modules/guides"))
 ).settings(commonSettings ++ webAppSettings: _*).dependsOn(admin)
 
 // Solr search engine implementation.
-lazy val solr = Project(appName + "-solr", file("modules/solr")).settings(
-  libraryDependencies ++= Seq(
-    "com.github.seratch" %% "scalikesolr" % "4.10.0"
-  )).settings(commonSettings: _*)
-.dependsOn(core % "test->test;compile->compile")
+lazy val solr = Project(appName + "-solr", file("modules/solr"))
+  .settings(commonSettings: _*)
+  .dependsOn(core % "test->test;compile->compile")
 
 lazy val main = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala).settings(
