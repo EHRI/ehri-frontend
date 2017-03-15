@@ -1,9 +1,10 @@
 package eu.ehri.project.search.solr
 
 import play.api.Logger
+import play.api.libs.json.{JsNull, JsObject, Json}
 import utils.search._
 
-object SolrFacetParser {
+private[solr] object SolrFacetParser {
   def facetValue(q: Facet): String = q match {
     case FieldFacet(value, l_, _, _) => value
     case QueryFacet(value, _, _, range, _) => range match {
@@ -47,5 +48,26 @@ object SolrFacetParser {
     }
 
     params ++ sortOpt ++ countOpt.toSeq ++ limitOpt.toSeq
+  }
+
+  def facetAsJson(fc: FacetClass[_]): Seq[(String, JsObject)] = fc match {
+    case ffc: FieldFacetClass => Seq(ffc.param -> Json.obj(
+      "type" -> "terms",
+      "numBuckets" -> true,
+      "field" -> fc.key,
+      "offset" -> Json.toJson(fc.offset.getOrElse(0)),
+      "limit" -> Json.toJson(fc.limit.getOrElse(100)),
+      "domain" -> (if(fc.multiSelect) Json.obj("excludeTags" -> fc.key) else JsNull),
+      "facet" -> Json.obj("grouped_count" -> "unique(itemId)"),
+      "sort" -> (if (fc.sort == FacetSort.Name) "index" else "grouped_count")
+    ))
+    case fc: QueryFacetClass => fc.facets.map { fv =>
+      val nameValue = s"${SolrFacetParser.fullKey(fc)}:${SolrFacetParser.facetValue(fv)}"
+      nameValue -> Json.obj(
+        "type" -> "query",
+        "facet" -> Json.obj("grouped_count" -> "unique(itemId)"),
+        "q" -> s"${fc.key}:${SolrFacetParser.facetValue(fv)}"
+      )
+    }
   }
 }
