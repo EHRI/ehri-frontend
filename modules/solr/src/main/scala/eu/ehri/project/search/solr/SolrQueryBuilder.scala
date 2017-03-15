@@ -179,6 +179,7 @@ case class SolrQueryBuilder(
     // Highlight, but only if we have a query...
     if (hasQuery) Seq(
       "hl" -> true.toString,
+      "hl.fl" -> "*",
       "hl.usePhraseHighlighter" -> true.toString,
       "hl.simple.pre" -> "<em class='highlight'>",
       "hl.simple.post" -> "</em>"
