@@ -215,7 +215,8 @@ trait FacetConfig extends Search {
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
         display = FacetDisplay.Choice,
-        sort = FacetSort.Name
+        sort = FacetSort.Name,
+        limit = Some(50)
       ),
       FieldFacetClass(
         key = COUNTRY_CODE,
@@ -228,7 +229,8 @@ trait FacetConfig extends Search {
         key = HOLDER_NAME,
         name = Messages("documentaryUnit.heldBy"),
         param = "holder",
-        displayLimit = 10
+        displayLimit = 10,
+        limit = Some(500)
       ),
       FieldFacetClass(
         key = IS_PARENT,

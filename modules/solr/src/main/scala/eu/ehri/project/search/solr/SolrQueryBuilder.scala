@@ -1,13 +1,16 @@
 package eu.ehri.project.search.solr
 
+import javax.inject.Inject
+
 import defines.EntityType
 import models.UserProfile
-import utils.search._
 import play.api.{Configuration, Logger}
 import utils.PageParams
+import utils.search.SearchConstants.{ACCESSOR_ALL_PLACEHOLDER, ACCESSOR_FIELD, ITEM_ID, TYPE}
+import utils.search._
 
 
-object SolrQueryBuilder {
+private[solr] object SolrQueryBuilder {
 
   def escape(s: CharSequence): String = {
     val sb: StringBuffer = new StringBuffer()
@@ -28,7 +31,7 @@ object SolrQueryBuilder {
   /**
    * Apply filters to the request based on a set of applied facets.
    */
-  def facetFilters(facetClasses: Seq[FacetClass[Facet]],
+  def facetFilterParams(facetClasses: Seq[FacetClass[Facet]],
                                 appliedFacets: Seq[AppliedFacet]): Seq[(String, String)] = {
     // See the spec for this to get some insight
     // into how this mess works...
@@ -64,42 +67,15 @@ object SolrQueryBuilder {
     }
     filters.map(f => "fq" -> f)
   }
-}
 
-
-/**
- * Build a Solr query. This class uses the (mutable) scalikesolr
- * QueryRequest class.
- */
-case class SolrQueryBuilder(
-  query: SearchQuery,
-  debugQuery: Boolean = false
-)(implicit config: Configuration) extends QueryBuilder {
-
-  import SearchConstants._
-  import SolrQueryBuilder._
-
-  /**
-   * Look up boost values from configuration for default query fields.
-   */
-  private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
-    ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
-  ).map(f => f -> config.getDouble(s"search.boost.$f"))
-
-  private lazy val spellcheckConfig: Seq[(String,Option[String])] = Seq(
-    "count", "onlyMorePopular", "extendedResults", "accuracy",
-    "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
-  ).map(f => f -> config.getString(s"search.spellcheck.$f"))
-
-
-  private def entityFilterParams(entities: Seq[EntityType.Value]): Seq[(String, String)] = {
+  def entityFilterParams(entities: Seq[EntityType.Value]): Seq[(String, String)] = {
     if (entities.nonEmpty) {
       val filter = entities.map(_.toString).mkString(" OR ")
       Seq("fq" -> s"$TYPE:($filter)")
     } else Seq.empty
   }
 
-  private def accessFilterParams(userOpt: Option[UserProfile]): Seq[(String, String)] = {
+  def accessFilterParams(userOpt: Option[UserProfile]): Seq[(String, String)] = {
     // Filter docs based on access. If the user is empty, only allow
     // through those which have accessibleTo:ALLUSERS.
     // If we have a user and they're not admin, add a filter against
@@ -111,21 +87,28 @@ case class SolrQueryBuilder(
       // includes all the groups the user belongs to, included inherited ones,
       // i.e. accessibleTo:(ALLUSERS OR mike OR admin)
       val accessors = ACCESSOR_ALL_PLACEHOLDER +: userOpt.map(
-          u => (u.id +: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
+        u => (u.id +: u.allGroups.map(_.id)).distinct).getOrElse(Nil)
       Seq("fq" -> s"$ACCESSOR_FIELD:(${accessors.mkString(" ")})")
     } else Seq.empty
   }
 
-  private def facetFilterParams(appliedFacets: Seq[AppliedFacet], allFacets: Seq[FacetClass[Facet]]): Seq[(String, String)] = {
-    Seq(
-      "facet" -> true.toString,
-      "facet.mincount" -> 1.toString
-    ) ++
-      allFacets.flatMap(SolrFacetParser.facetAsParams) ++
-      facetFilters(allFacets, appliedFacets)
+  def facetParams(facets: Seq[FacetClass[Facet]], asJson: Boolean): Seq[(String, String)] = {
+    if (asJson) {
+      import play.api.libs.json.Json
+      import play.api.libs.json.Json.JsValueWrapper
+      val jsonFacets: Seq[(String, JsValueWrapper)] = facets
+        .flatMap(SolrFacetParser.facetAsJson)
+        .map(kv => kv._1 -> Json.toJsFieldJsValueWrapper(kv._2))
+      Seq("json.facet" -> Json.stringify(Json.obj(jsonFacets: _*)))
+    } else {
+      Seq(
+        "facet" -> true.toString,
+        "facet.mincount" -> 1.toString
+      ) ++ facets.flatMap(SolrFacetParser.facetAsParams)
+    }
   }
 
-  private def extraFilterParams(filters: Seq[(String, Any)]): Seq[(String, String)] = {
+  def extraFilterParams(filters: Seq[(String, Any)]): Seq[(String, String)] = {
     filters.map { case (key, value) =>
       val filter = value match {
         // Have to quote strings
@@ -138,7 +121,7 @@ case class SolrQueryBuilder(
     }
   }
 
-  private def groupParams: Seq[(String, String)] = {
+  def groupParams: Seq[(String, String)] = {
     // Group results by item id (as opposed to description id). Facet counts
     // are also set to reflect grouping as opposed to the number of individual
     // items.
@@ -154,46 +137,46 @@ case class SolrQueryBuilder(
     )
   }
 
-  private def excludeFilterParams(ids: Seq[String]): Seq[(String, String)] = {
+  def excludeFilterParams(ids: Seq[String]): Seq[(String, String)] = {
     if (ids.nonEmpty) {
       Seq("fq" -> s"$ITEM_ID:(${ids.map(id => s"-$id").mkString(" ")})")
     } else Seq.empty
   }
 
-  private def idFilterParams(ids: Seq[String]): Seq[(String, String)] = {
+  def idFilterParams(ids: Seq[String]): Seq[(String, String)] = {
     if (ids.nonEmpty) {
       Seq("fq" -> s"$ITEM_ID:(${ids.mkString(" ")})")
     } else Seq.empty
   }
 
-  private def basicParams(queryString: String, paging: PageParams): Seq[(String, String)] = Seq(
+  def basicParams(queryString: String, paging: PageParams, debug: Boolean): Seq[(String, String)] = Seq(
     "q" -> queryString,
     "wt" -> "json",
     "start" -> paging.offset.toString,
     "rows" -> paging.limit.toString,
-    "debugQuery" -> debugQuery.toString,
+    "debugQuery" -> debug.toString,
     "defType" -> "edismax"
   )
 
-  private def highlightParams(hasQuery: Boolean): Seq[(String, String)] = {
+  def highlightParams(hasQuery: Boolean): Seq[(String, String)] = {
     // Highlight, but only if we have a query...
     if (hasQuery) Seq(
       "hl" -> true.toString,
       "hl.fl" -> "*",
       "hl.usePhraseHighlighter" -> true.toString,
-      "hl.simple.pre" -> "<em class='highlight'>",
-      "hl.simple.post" -> "</em>"
+      "hl.tag.pre" -> "<em class='highlight'>",
+      "hl.tag.post" -> "</em>"
     ) else Seq.empty
   }
 
-  private def fieldParams(fields: Seq[SearchField.Value]): Seq[(String, String)] = {
+  def fieldParams(fields: Seq[SearchField.Value], boost: Seq[(String,Option[Double])], config: Configuration): Seq[(String, String)] = {
     // Apply search to specific fields. Can't find a way to do this using
     // Scalikesolr's built-in classes so we have to use it's extension-param
     // facility
     val basic = if(fields.nonEmpty) {
-      Seq("qf" -> query.params.fields.mkString(" "))
+      Seq("qf" -> fields.mkString(" "))
     } else {
-      val qfFields: String = queryFieldsWithBoost.map { case (key, boostOpt) =>
+      val qfFields: String = boost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
       }.mkString(" ")
       Logger.trace(s"Query fields: $qfFields")
@@ -210,28 +193,54 @@ case class SolrQueryBuilder(
     basic ++ aliases
   }
 
-  private def spellcheckParams: Seq[(String, String)] = {
+  def spellcheckParams(config: Seq[(String, Option[String])]): Seq[(String, String)] = {
     Seq("spellcheck" -> true.toString) ++
-    spellcheckConfig.collect { case (key, Some(value)) =>
-      s"spellcheck.$key" -> value
-    }
+      config.collect { case (key, Some(value)) =>
+        s"spellcheck.$key" -> value
+      }
   }
 
-  private def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
+  def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
     sort.map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ")}.toSeq
+}
+
+
+/**
+ * Build a Solr query as a sequence of key/value parameter pairs.
+ */
+case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilder {
+
+  import SearchConstants._
+  import SolrQueryBuilder._
+
+  private val jsonFacets = config.getBoolean("search.jsonFacets").getOrElse(false)
+  private val enableDebug = config.getBoolean("search.debugTiming").getOrElse(false)
+
+  /**
+   * Look up boost values from configuration for default query fields.
+   */
+  private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
+    ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
+  ).map(f => f -> config.getDouble(s"search.boost.$f"))
+
+  private lazy val spellcheckConfig: Seq[(String,Option[String])] = Seq(
+    "count", "onlyMorePopular", "extendedResults", "accuracy",
+    "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
+  ).map(f => f -> config.getString(s"search.spellcheck.$f"))
+
 
   /**
     * Run a simple filter on the name_ngram field of all entities
     * of a given type.
     */
-  override def simpleFilterQuery(alphabetical: Boolean = false): Seq[(String, String)] = {
+  override def simpleFilterQuery(query: SearchQuery, alphabetical: Boolean = false): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
     val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
     val queryString = query.params.query.getOrElse("*").trim + excludeIds + searchFilters
 
     Seq(
-      basicParams(queryString, query.paging),
+      basicParams(queryString, query.paging, enableDebug),
       entityFilterParams(query.params.entities),
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
@@ -246,7 +255,7 @@ case class SolrQueryBuilder(
   /**
    * Build a query given a set of search parameters.
    */
-  override def searchQuery(): Seq[(String, String)] = {
+  override def searchQuery(query: SearchQuery): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
 
@@ -262,11 +271,12 @@ case class SolrQueryBuilder(
       query.params.query.getOrElse(defaultQuery).trim + searchFilters
 
     Seq(
-      basicParams(queryString, query.paging),
+      basicParams(queryString, query.paging, enableDebug),
       groupParams,
-      fieldParams(query.params.fields),
+      fieldParams(query.params.fields, queryFieldsWithBoost, config),
       sortParams(query.params.sort),
-      facetFilterParams(query.appliedFacets, query.facetClasses),
+      facetParams(query.facetClasses, jsonFacets),
+      facetFilterParams(query.facetClasses, query.appliedFacets),
       entityFilterParams(query.params.entities),
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
@@ -274,7 +284,7 @@ case class SolrQueryBuilder(
       extraFilterParams(query.filters.toSeq),
       query.extraParams.map(kp => kp._1 -> kp._2.toString).toSeq,
       highlightParams(query.params.query.isDefined),
-      spellcheckParams
+      spellcheckParams(spellcheckConfig)
     ).flatten
   }
 }

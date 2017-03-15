@@ -6,12 +6,6 @@ import play.api.libs.json.JsNumber
 
 
 
-case object FacetSort extends Enumeration {
-  val Name = Value("name")
-  val Count = Value("count")
-  val Fixed = Value("fixed")
-}
-
 case object FacetDisplay extends Enumeration {
   val Choice = Value("choice")
   val List = Value("list")

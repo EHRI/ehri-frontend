@@ -1,24 +1,39 @@
 {
-  "facet_counts": {
-    "facet_dates": {},
-    "facet_fields": {
-      "copyrightStatus": [],
-      "languageCode": [
-        "eng",
-        2,
-        "fre",
-        1
+  "responseHeader": {
+    "QTime": 7,
+    "params": {
+      "defType": "edismax",
+      "facet": "true",
+      "facet.field": [
+        "languageCode",
+        "type",
+        "copyrightStatus",
+        "scope"
       ],
-      "scope": [],
-      "type": [
-        "Country",
-        1,
-        "HistoricalAgent",
-        1
-      ]
+      "facet.mincount": "1",
+      "fl": "id itemId type gid name",
+      "group": "true",
+      "group.cache.percent": "0",
+      "group.facet": "true",
+      "group.field": "itemId",
+      "group.format": "simple",
+      "group.limit": "1",
+      "group.ngroups": "true",
+      "group.offset": "0",
+      "hl": "true",
+      "hl.fl": "*",
+      "hl.usePhraseHighlighter": "true",
+      "q": "+auschwitz +amsterdam",
+      "qf": "itemId^5 name^4 title^4 otherFormsOfName^4 parallelFormsOfName^4 name_sort^3 text",
+      "rows": "10",
+      "sort": "score desc",
+      "spellcheck": "true",
+      "spellcheck.extendedResults": "true",
+      "spellcheck.q": "+auschwitz +amsterdam",
+      "start": "0",
+      "wt": "json"
     },
-    "facet_queries": {},
-    "facet_ranges": {}
+    "status": 0
   },
   "grouped": {
     "itemId": {
@@ -82,48 +97,6 @@
       ]
     }
   },
-  "responseHeader": {
-    "QTime": 7,
-    "params": {
-      "defType": "edismax",
-      "facet": "true",
-      "facet.field": [
-        "languageCode",
-        "type",
-        "copyrightStatus",
-        "scope"
-      ],
-      "facet.mincount": "1",
-      "fl": "id itemId type gid name",
-      "group": "true",
-      "group.cache.percent": "0",
-      "group.facet": "true",
-      "group.field": "itemId",
-      "group.format": "simple",
-      "group.limit": "1",
-      "group.ngroups": "true",
-      "group.offset": "0",
-      "hl": "true",
-      "hl.fl": "*",
-      "hl.usePhraseHighlighter": "true",
-      "q": "+auschwitz +amsterdam",
-      "qf": "itemId^5 name^4 title^4 otherFormsOfName^4 parallelFormsOfName^4 name_sort^3 text",
-      "rows": [
-        "20",
-        "10"
-      ],
-      "sort": "score desc",
-      "spellcheck": "true",
-      "spellcheck.extendedResults": "true",
-      "spellcheck.q": "+auschwitz +amsterdam",
-      "start": [
-        "0",
-        "0"
-      ],
-      "wt": "json"
-    },
-    "status": 0
-  },
   "spellcheck": {
     "suggestions": [
       "purpusly",
@@ -156,5 +129,87 @@
       "collation",
       "purposely mispelled"
     ]
+  },
+  "facet_counts": {
+    "facet_dates": {},
+    "facet_fields": {
+      "copyrightStatus": [],
+      "languageCode": [
+        "eng",
+        2,
+        "fre",
+        1
+      ],
+      "scope": [],
+      "type": [
+        "Country",
+        1,
+        "HistoricalAgent",
+        1
+      ]
+    },
+    "facet_queries": {},
+    "facet_ranges": {}
+  },
+  "facets": {
+    "count": 1,
+    "type": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "DocumentaryUnit",
+          "count": 1
+        }
+      ]
+    },
+    "parent": {
+      "numBuckets": 2,
+      "buckets": [
+        {
+          "val": false,
+          "count": 0
+        },
+        {
+          "val": true,
+          "count": 1
+        }
+      ]
+    },
+    "lang": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "nld",
+          "count": 1
+        }
+      ]
+    },
+    "source": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "IMPORT",
+          "count": 1
+        }
+      ]
+    },
+    "country": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "nl",
+          "count": 1
+        }
+      ]
+    },
+    "holder": {
+      "numBuckets": 1,
+      "buckets": [
+        {
+          "val": "NIOD Instituut voor Oorlogs-, Holocaust- en Genocidestudies",
+          "count": 1
+        }
+      ]
+    }
   }
 }

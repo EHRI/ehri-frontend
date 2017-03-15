@@ -6,7 +6,7 @@ import play.api.mvc.QueryStringBindable
 import utils.NamespaceExtractor
 
 
-object SearchField extends BindableEnum {
+case object SearchField extends BindableEnum {
   type Field = Value
   val Identifier = Value("identifier")
   val Title = Value("title")
@@ -19,7 +19,7 @@ object SearchField extends BindableEnum {
   implicit val _fmt: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
 }
 
-object SearchSort extends BindableEnum {
+case object SearchSort extends BindableEnum {
   type Sort = Value
   val Id = Value("isParent.desc,identifier.asc")
   val Score = Value("score.desc")
@@ -34,13 +34,23 @@ object SearchSort extends BindableEnum {
   implicit val _fmt: Format[SearchSort.Value] = defines.EnumUtils.enumFormat(SearchSort)
 }
 
-object SearchMode extends Enumeration {
+case object SearchMode extends Enumeration {
   type Type = Value
   val DefaultAll = Value("all")
   val DefaultNone = Value("none")
 
   implicit val _fmt: Format[SearchMode.Value] = defines.EnumUtils.enumFormat(SearchMode)
 }
+
+case object FacetSort extends Enumeration {
+  type FacetSort = Value
+  val Name = Value("name")
+  val Count = Value("count")
+  val Fixed = Value("fixed")
+
+  implicit val _fmt: Format[FacetSort.Value] = defines.EnumUtils.enumFormat(FacetSort)
+}
+
 
 /**
   * Class encapsulating the parameters of a Solr search.
