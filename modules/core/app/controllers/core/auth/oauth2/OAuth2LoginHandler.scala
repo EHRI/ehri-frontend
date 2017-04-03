@@ -170,7 +170,9 @@ trait OAuth2LoginHandler extends AccountHelpers {
                 block(OAuth2Request(Left(Messages("login.error.oauth2.info",
                   provider.name.toUpperCase)), request))
             }
-          } else immediate(BadRequest("Invalid session ID"))
+          } else authenticationFailed(request)
+              .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId",
+                providerName.substring(0, 1).toUpperCase + providerName.substring(1))))
         }
       } getOrElse {
         notFoundError(request)
