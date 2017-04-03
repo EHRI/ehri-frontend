@@ -113,7 +113,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
       } recoverWith {
         case t => block(OpenIdCallbackRequest(
           Left(openidForm.withGlobalError("error.openId", t.getMessage)), request))
-          .map(_.flashing("error" -> Messages("error.openId", t.getMessage)))
+          .map(_.flashing("danger" -> Messages("error.openId", t.getMessage)))
       }
     }
   }

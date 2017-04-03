@@ -251,6 +251,8 @@ login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 login.error.oauth2.info=We apologise but there was a problem creating your account via {0}. Please try another \
   method of registering.
+login.error.oauth2.badSessionId=We were unable to log you in via {0} this time. Please try again and if the error \
+  persists try using a different browser window.
 
 login.password.current=Current Password
 login.password.new=New Password

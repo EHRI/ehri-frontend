@@ -5,12 +5,15 @@ import auth.oauth2.providers.GoogleOAuth2Provider
 import helpers.IntegrationTestRunner
 import models.SignupData
 import play.api.cache.CacheApi
-import play.api.test.{WithApplication, FakeRequest}
+import play.api.i18n.Messages.Implicits._
+import play.api.i18n.Messages
+import play.api.test.{FakeRequest, WithApplication}
 import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
 
 class AccountsSpec extends IntegrationTestRunner {
+
   import mockdata.privilegedUser
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
@@ -62,7 +65,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val randomState = "473284374"
       cache.set(singleUseKey, randomState)
       val login = FakeRequest(accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
-          code = Some("blah"), state=Some(randomState)))
+        code = Some("blah"), state = Some(randomState)))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
       // The handle should have deleted the single-use key
@@ -74,9 +77,10 @@ class AccountsSpec extends IntegrationTestRunner {
       cache.set(singleUseKey, "jdjjjr")
       val login = FakeRequest(
         accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
-          code = Some("blah"), state=Some("dk3kdm34")))
+          code = Some("blah"), state = Some("dk3kdm34")))
         .withSession("sid" -> singleUseKey).call()
-      status(login) must equalTo(BAD_REQUEST)
+      status(login) must equalTo(SEE_OTHER)
+      flash(login).get("danger") must equalTo(Some(Messages("login.error.oauth2.badSessionId", "Google")))
     }
 
     "error with bad provider" in new ITestApp {
