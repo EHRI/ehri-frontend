@@ -11,6 +11,9 @@ import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
 import backend.rest.RestService
 import javax.inject.{Inject, Singleton}
 
+import akka.stream.scaladsl.Source
+import utils.streams.JsonStream
+
 
 case class CypherError(
   message: String, exception: String, stacktrace: Seq[String]
@@ -55,6 +58,16 @@ case class CypherService @Inject ()(
 
   def get[T: Reads](scriptBody: String, params: Map[String,JsValue]): Future[T] =
     cypher(scriptBody, params).map(_.as(implicitly[Reads[T]]))
+
+  def rows(scriptBody: String, params: Map[String,JsValue]): Future[Source[Seq[JsValue], _]] = {
+    stream(scriptBody, params).map { sr =>
+      sr.body
+        .via(JsonStream.items("data.item"))
+        .map { rowBytes =>
+          Json.parse(rowBytes.toArray).as[Seq[JsValue]]
+        }
+    }
+  }
 
   def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[StreamedResponse] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)

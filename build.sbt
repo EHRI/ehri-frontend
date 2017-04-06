@@ -27,6 +27,9 @@ val backendDependencies = Seq(
   ws,
   cache,
 
+  // TESTING
+  "de.undercouch" % "actson" % "1.2.0",
+
   // Ontology
   "ehri-project" % "ehri-definitions" % backendVersion
 )
@@ -84,6 +87,8 @@ val portalDependencies = Seq(
 
 val testDependencies = Seq(
   specs2 % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.17" % Test,
+
   // Used for testing websockets...
   "org.java-websocket" % "Java-WebSocket" % "1.3.0" % Test
 )
