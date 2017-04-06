@@ -12,6 +12,7 @@ import play.api.data.Forms._
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Action, AnyContent}
 import utils.PageParams
+import utils.search.SearchParams
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -48,9 +49,14 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def listQueries(paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    cypherQueries.list(paging).map { queries =>
-      Ok(views.html.admin.cypherQueries.list(queries))
+  def listQueries(q: Option[String], sort: Option[String],
+        paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
+    val params = Seq(SearchParams.QUERY -> q, SearchParams.SORT -> sort)
+      .collect { case (k, Some(v)) => k -> v}
+      .toMap
+    cypherQueries.list(paging, params).map { queries =>
+      Ok(views.html.admin.cypherQueries.list(queries, q, sort,
+        controllers.cypher.routes.CypherQueries.listQueries()))
     }
   }
 

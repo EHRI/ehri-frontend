@@ -45,8 +45,8 @@ case class CypherQuery(
   query: String,
   description: Option[String] = None,
   public: Boolean = false,
-  createdAt: Option[ZonedDateTime] = None,
-  updatedAt: Option[ZonedDateTime] = None
+  created: Option[ZonedDateTime] = None,
+  updated: Option[ZonedDateTime] = None
 ) {
 
   def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[StreamedResponse] =
@@ -63,6 +63,8 @@ object CypherQuery {
   val QUERY = "query"
   val DESCRIPTION = "description"
   val PUBLIC = "public"
+  val CREATED = "created"
+  val UPDATED = "updated"
 
   implicit val _format: Format[CypherQuery] = Json.format[CypherQuery]
 
@@ -84,8 +86,8 @@ object CypherQuery {
       QUERY -> nonEmptyText.verifying(isReadOnly),
       DESCRIPTION -> optional(text),
       PUBLIC -> boolean,
-      "createdAt" -> ignored(Option.empty[ZonedDateTime]),
-      "updatedAt" -> ignored(Option.empty[ZonedDateTime])
+      CREATED -> ignored(Option.empty[ZonedDateTime]),
+      UPDATED -> ignored(Option.empty[ZonedDateTime])
     )(CypherQuery.apply)(CypherQuery.unapply)
   )
 }

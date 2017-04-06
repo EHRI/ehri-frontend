@@ -1,0 +1,27 @@
+@(options: Seq[(String, String)], current: Option[String] = None)(implicit req: RequestHeader, messages: Messages)
+
+@import utils.search.SearchParams
+
+<div class="search-sort btn-group btn-group-xs">
+    <span class="fa fa-sort" title="@Messages("search.sort.title")"></span>
+    @options.map { case (sortKey, i18nKey) =>
+        @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
+            @if(current.contains(sortKey)) {
+                <a class="current-search-sort btn btn-xs btn-default btn-active" title="@title"
+                href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                @name
+                </a>
+            } else {
+                <a class="btn btn-xs btn-default" style="" title="@title"
+                href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                @name
+                </a>
+            }
+        }
+    }
+    @current.map { currentSort =>
+        @if(req.getQueryString(SearchParams.SORT).isDefined) {
+            <input type="hidden" name="@SearchParams.SORT" value="@currentSort">
+        }
+    }
+</div>

@@ -171,6 +171,12 @@ cypherQuery.update.description=Edit query
 cypherQuery.mutatingClauses=Field must not contain mutating clauses
 cypherQuery.mutatingClauses.error=Query contains mutating clause: {0}
 cypherQuery.test=Test Query
+cypherQuery.sort.name=Name
+cypherQuery.sort.name.title=Display results sorted by title
+cypherQuery.sort.created=Created
+cypherQuery.sort.created.title=Display results order of creation
+cypherQuery.sort.updated=Updated
+cypherQuery.sort.updated.title=Display results most recently updated first
 download.format.html=View as HTML
 
 # Provenance

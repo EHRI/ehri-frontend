@@ -1,4 +1,4 @@
-@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @import utils.search.{SearchParams,SearchField}
 
@@ -28,11 +28,15 @@
                 </button>
             </span>
         </div>
-        @views.html.helpers.searchTips()
+        @if(tips) {
+            @views.html.helpers.searchTips()
+        }
     </div>
-    <div class="search-helper-container">
-        <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">
+    @if(tips) {
+        <div class="search-helper-container">
+            <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">
             @Messages("search.helper.linkTitle")
-        </a>
-    </div>
+            </a>
+        </div>
+    }
 </div>
