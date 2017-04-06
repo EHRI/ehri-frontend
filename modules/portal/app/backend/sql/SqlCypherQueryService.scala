@@ -51,13 +51,24 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
 
   override def list(params: PageParams, extra: Map[String, String]): Future[Page[CypherQuery]] = Future {
     db.withTransaction { implicit conn =>
+      val q = extra.get("q").filter(_.trim.nonEmpty).map(q => s"%${q.trim.replaceAll("\\s+", "%")}%")
+      val order = extra.get("sort").filter(Seq("name", "created").contains)
       val items: List[CypherQuery] = SQL"""
         SELECT * FROM cypher_queries
-          ORDER BY created DESC
+          WHERE coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q)
+          ORDER BY
+            CASE $order
+              WHEN 'created' THEN to_char(created, 'YYYY-MM-DD HH24:MI:SS')
+              WHEN 'name' THEN name
+            END ASC,
+            coalesce(updated, created) DESC
           LIMIT ${if (params.hasLimit) params.limit else Integer.MAX_VALUE}
           OFFSET ${params.offset}
         """.as(queryParser.*)
-      val total: Int = SQL"SELECT COUNT(id) FROM cypher_queries".as(SqlParser.scalar[Int].single)
+      val total: Int =
+        SQL"""SELECT COUNT(id) FROM cypher_queries
+          WHERE coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q)
+        """.as(SqlParser.scalar[Int].single)
       Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }
 
@@ -65,7 +76,7 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
 
   override def create(data: CypherQuery): Future[String] = Future {
     val query = data.copy(objectId = data.objectId.orElse(Some(utils.db.newObjectId(10))),
-      createdAt = data.createdAt.orElse(Some(ZonedDateTime.now())))
+      created = data.created.orElse(Some(ZonedDateTime.now())))
     db.withConnection { implicit conn =>
       SQL"""INSERT INTO cypher_queries
         (id, user_id, name, query, description, public, created, updated)
@@ -76,8 +87,8 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
           ${query.query},
           ${query.description},
           ${query.public},
-          ${query.createdAt},
-          ${query.updatedAt}
+          ${query.created},
+          ${query.updated}
       )""".execute()
       query.objectId.get
     }

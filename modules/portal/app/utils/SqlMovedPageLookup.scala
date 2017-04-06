@@ -29,10 +29,6 @@ case class SqlMovedPageLookup @Inject ()(implicit db: Database, actorSystem: Act
     // is a hash of the original path, rather than the path itself (which could
     // easily overflow the 255 varchar limit on MySql 5.0.-something-old.)
 
-    // Unfortunate hack around SQL syntax variations
-    def isPg = db.dataSource.getConnection
-      .getMetaData.getDatabaseProductName.equals("PostgreSQL")
-
     if (moved.isEmpty) 0
     else db.withConnection { implicit conn =>
       val inserts = moved.map { case (from, to) =>
@@ -42,12 +38,22 @@ case class SqlMovedPageLookup @Inject ()(implicit db: Database, actorSystem: Act
           'path -> to
         )
       }
-      val q = """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
+      // Unfortunate hack around SQL syntax variations
+      val dbName = db.dataSource.getConnection.getMetaData.getDatabaseProductName.toLowerCase
+
+      val q = dbName match {
+        case "postgresql" => """
+                        INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
+                        VALUES({hash}, {original}, {path})
+                        ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
+        case "h2" => """MERGE INTO moved_pages(original_path_sha1, original_path, new_path)
+                        KEY(original_path_sha1)
                         VALUES({hash}, {original}, {path})"""
-      val conflict =
-        if (isPg) """ ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
-        else """ ON DUPLICATE KEY UPDATE new_path = {path}"""
-      val batch = BatchSql(q + conflict, inserts.head, inserts.tail: _*)
+        case _ =>    """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
+                        VALUES({hash}, {original}, {path})
+                        ON DUPLICATE KEY UPDATE new_path = {path}"""
+      }
+      val batch = BatchSql(q, inserts.head, inserts.tail: _*)
       val rows: Array[Int] = batch.execute()
       rows.count(_ > 0)
     }
