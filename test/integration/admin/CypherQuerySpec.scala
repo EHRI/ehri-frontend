@@ -87,7 +87,7 @@ class CypherQuerySpec extends IntegrationTestRunner {
         .withUser(privilegedUser)
         .call()
       status(q2) must equalTo(OK)
-      contentAsString(q2) must_== "1\n1\n"
+      contentAsString(q2) must_== "1\n"
     }
   }
 }
