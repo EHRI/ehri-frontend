@@ -17,7 +17,7 @@
             <ul class="concept-broader-terms">
                 <li>@Messages("cvocConcept.broaderTerms")</li>
                 @item.broaderTerms.map { bt =>
-                    <li>@views.html.helpers.linkTo(item)</li>
+                    <li>@views.html.helpers.linkTo(bt)</li>
                 }
             </ul>
         }

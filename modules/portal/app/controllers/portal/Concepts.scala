@@ -32,8 +32,7 @@ case class Concepts @Inject()(
 
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Concept](params, paging,
-      filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-      facetBuilder = conceptFacets).map { result =>
+      filters = Map(SearchConstants.PARENT_ID -> request.item.id)).map { result =>
       Ok(views.html.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
     }

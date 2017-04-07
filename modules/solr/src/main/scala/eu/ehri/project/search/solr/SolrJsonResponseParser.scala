@@ -34,7 +34,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
 
   private implicit val solrDataReads: Reads[SolrData] = (
     (__ \ "responseHeader" \ "params" \ "q").readNullable[String] and
-    (__ \ "grouped" \ "itemId" \ "doclist" \ "numFound").read[Int] and
+    (__ \ "grouped" \ "itemId" \ "ngroups").read[Int] and
     (__ \ "grouped" \ "itemId" \ "doclist" \ "docs").read[Seq[JsObject]] and
     (__ \ "highlighting").readNullable[Map[String, Map[String, Seq[String]]]] and
     (__ \ "spellcheck").readNullable[JsObject].map(_.getOrElse(Json.obj())) and

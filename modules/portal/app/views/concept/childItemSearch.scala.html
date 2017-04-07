@@ -2,10 +2,7 @@
 
 @if(item.childCount.getOrElse(0) > 0) {
     <div id="@item.id-child-item-search" class="child-item-search">
-    @views.html.common.search.searchForm(result, action, key = "", autofocus = false) {
+        <h3>@Messages("cvocConcept.narrowerTermsPageHeader", result.page.total)</h3>
         @views.html.common.search.searchItemList(result, watched)
-    } {
-        @views.html.common.search.facetList(result.facetClasses, action)
-    }
     </div>
 }
