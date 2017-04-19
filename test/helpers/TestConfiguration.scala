@@ -1,6 +1,7 @@
 package helpers
 
 import java.net.URI
+import java.nio.file.Paths
 
 import akka.stream.Materializer
 import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
@@ -14,11 +15,12 @@ import backend.rest.{IdSearchResolver, RestApi}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
-import play.api.Application
-import play.api.http.Writeable
+import play.api.{Application, Configuration}
+import play.api.http.{Status, Writeable}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
+import play.api.libs.ws.WSClient
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
@@ -36,8 +38,6 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 trait TestConfiguration {
 
   this: PlayRunners with RouteInvokers =>
-
-  import helpers.RestApiRunner._
 
   // Stateful buffers for capturing stuff like feedback, search
   // parameters, and reset tokens. These persist across tests in
@@ -130,9 +130,28 @@ trait TestConfiguration {
    * @param specificConfig A map of config values for this test
    */
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
-    new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig))) {
+    new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
     implicit def implicitMaterializer: Materializer = app.materializer
     implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
+    override def around[T: AsResult](t: => T): Result = {
+      // Integration tests assume a server running locally. We then use the
+      // initialise endpoint to clean it before each individual test.
+      import org.specs2.execute.Failure
+
+      val config = app.injector.instanceOf[Configuration]
+      val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
+      val ws = app.injector.instanceOf[WSClient]
+      val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
+      await {
+        ws.url(url).post(fixtures).map { _.status match {
+          case Status.NO_CONTENT => super.around(t) // okay!
+          case s => Failure(s"Unable to initialise test DB, got a status of: $s")
+        }} recover {
+          case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")
+        }
+      }
+    }
   }
 
   /**
@@ -142,7 +161,7 @@ trait TestConfiguration {
    * @param specificConfig A map of config values for this test
    */
   protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
-    resource)(new GuiceApplicationLoader(appBuilder.configure(backendConfig ++ getConfig ++ specificConfig)))
+    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig)))
 
   /**
    * Run a spec after loading the given resource name as SQL fixtures.
