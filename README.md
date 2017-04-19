@@ -11,11 +11,20 @@ The setup docs to get these dependencies up and running ended up horribly out-of
 actively mislead people they've been temporarily removed pending the completion of some [Docker](http://www.docker.com)
 -based dev setup instructions. In the meantime, here's how they'll start:
 
- - Set up the search engine on port 8983: `sudo docker run --publish 8983:8983 -it ehri/ehri-search-tools` 
- - Set up the backend web service on port 7474: `sudo docker run --publish 7474:7474 -it ehri/ehri-rest`
- - [set up PostgreSQL with the right schema]
- - install Typesafe activator
- - `activator run`
+ - Set up the search engine on port 8983: 
+ 
+     `sudo docker run --publish 8983:8983 -it ehri/ehri-search-tools`
+      
+ - Set up the backend web service on port 7474: 
+ 
+     `sudo docker run --publish 7474:7474 -it ehri/ehri-rest`
+     
+ - Set up PostgreSQL (Dockerised) with the right schema: 
+ 
+     `sudo docker run -v $(pwd)/conf/schema:/docker-entrypoint-initdb.d -e POSTGRES_USER=docview -e POSTGRES_PASSWORD=changeme --publish 5432:5432 postgres`
+     
+ - install [sbt](http://www.scala-sbt.org/release/docs/Setup.html)
+ - `sbt run`
  - go to localhost:9000
  - create an account at http://localhost:9000/login
  - get your new account id (probably `user000001`)
