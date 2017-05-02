@@ -57,9 +57,9 @@ case class CypherQueries @Inject()(
     )
   }
 
-  def listQueries(q: Option[String], sort: Option[String],
+  def listQueries(q: Option[String], sort: Option[String], public: Option[Boolean],
         paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val params = Seq(SearchParams.QUERY -> q, SearchParams.SORT -> sort)
+    val params = Seq(SearchParams.QUERY -> q, SearchParams.SORT -> sort, "public" -> public.map(_.toString))
       .collect { case (k, Some(v)) => k -> v}
       .toMap
     cypherQueries.list(paging, params).map { queries =>

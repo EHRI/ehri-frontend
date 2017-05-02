@@ -1,6 +1,6 @@
 # Routes for executing Cypher and pre-baked queries
 
-GET         /                   @controllers.cypher.CypherQueries.listQueries(q: Option[String] ?= None, sort: Option[String] ?= None, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                   @controllers.cypher.CypherQueries.listQueries(q: Option[String] ?= None, sort: Option[String] ?= None, public: Option[Boolean] ?= None, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /query              @controllers.cypher.CypherQueries.cypherForm
 GET         /submit             @controllers.cypher.CypherQueries.cypherQuery
 GET         /create             @controllers.cypher.CypherQueries.createQuery

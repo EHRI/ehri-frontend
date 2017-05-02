@@ -16,7 +16,7 @@ from fabric.contrib.files import exists
 from contextlib import contextmanager as _contextmanager
 
 # globals
-env.play_bin = 'activator'
+env.play_bin = 'sbt'
 env.project_name = 'docview'
 env.prod = False
 env.use_ssh_config = True
