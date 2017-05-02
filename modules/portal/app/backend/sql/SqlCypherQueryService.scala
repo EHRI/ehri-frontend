@@ -52,10 +52,12 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
   override def list(params: PageParams, extra: Map[String, String]): Future[Page[CypherQuery]] = Future {
     db.withTransaction { implicit conn =>
       val q = extra.get("q").filter(_.trim.nonEmpty).map(q => s"%${q.trim.replaceAll("\\s+", "%")}%")
+      val public = extra.get("public").map(_ == true.toString)
       val order = extra.get("sort").filter(Seq("name", "created").contains)
       val items: List[CypherQuery] = SQL"""
         SELECT * FROM cypher_queries
-          WHERE coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q)
+          WHERE (coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q))
+          AND ($public IS NULL OR public = $public)
           ORDER BY
             CASE $order
               WHEN 'created' THEN to_char(created, 'YYYY-MM-DD HH24:MI:SS')
@@ -67,7 +69,8 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
         """.as(queryParser.*)
       val total: Int =
         SQL"""SELECT COUNT(id) FROM cypher_queries
-          WHERE coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q)
+          WHERE (coalesce($q, '') = '' OR (lower(name) LIKE $q OR lower(description) LIKE $q OR lower(query) LIKE $q))
+          AND ($public IS NULL OR public = $public)
         """.as(SqlParser.scalar[Int].single)
       Page(items = items, total = total, offset = params.offset, limit = params.limit)
     }

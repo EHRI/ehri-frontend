@@ -32,6 +32,12 @@ class SqlCypherQueryServiceSpec extends PlaySpecification {
       queries.items.map(_.objectId) must_== Seq(Some("RE3Ye4TBqP"))
     }
 
+    "list only public/non-public items" in withDatabaseFixture("cypher-query-fixtures.sql") { implicit db =>
+      val queries: Page[CypherQuery] = await(queryService.list(PageParams.empty, extra = Map("public" -> "false")))
+      queries.total must_== 1
+      queries.items.map(_.objectId) must_== Seq(Some("zq5xiWjYF6"))
+    }
+
     "list items correctly with name sort" in {
       withDatabaseFixture("cypher-query-fixtures.sql") { implicit db =>
         val queries: Page[CypherQuery] = await(queryService.list(PageParams.empty, extra = Map("sort" -> "name")))
