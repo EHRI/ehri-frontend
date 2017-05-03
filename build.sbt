@@ -23,7 +23,7 @@ val dataConverterVersion = "1.1.10"
 
 val backendDependencies = Seq(
   ws,
-  cache,
+  ehcache,
 
   // Push JSON parser used for stream parsing...
   "de.undercouch" % "actson" % "1.2.0",
@@ -88,7 +88,7 @@ val testDependencies = Seq(
   "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.17" % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.1" % Test,
 
   // Used for testing websockets...
   "org.java-websocket" % "Java-WebSocket" % "1.3.0" % Test
