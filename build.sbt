@@ -20,14 +20,12 @@ val appVersion = "1.0.6-SNAPSHOT"
 
 val backendVersion = "0.13.8-SNAPSHOT"
 val dataConverterVersion = "1.1.10"
-val neo4jVersion = "3.0.4"
-val jerseyVersion = "1.19.1"
 
 val backendDependencies = Seq(
   ws,
   cache,
 
-  // TESTING
+  // Push JSON parser used for stream parsing...
   "de.undercouch" % "actson" % "1.2.0",
 
   // Ontology
@@ -48,11 +46,6 @@ val coreDependencies = backendDependencies ++ Seq(
 
   // Password hashing
   "org.mindrot" % "jbcrypt" % "0.3m",
-
-  // Mysql driver. Note: version 5.1.36 is
-  // incompatible with our old version of MySQL:
-  // https://bugs.mysql.com/bug.php?id=77665
-  "mysql" % "mysql-connector-java" % "5.1.35",
 
   // PostgreSQL
   "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
@@ -78,8 +71,7 @@ val portalDependencies = Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
   // EHRI indexing tools
-  "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j",
-    "slf4j-log4j12"),
+  "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
   "com.github.seratch" %% "awscala" % "0.5.+"
@@ -87,6 +79,8 @@ val portalDependencies = Seq(
 
 val testDependencies = Seq(
   specs2 % Test,
+
+  // Used for testing JSON stream parsing...
   "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.17" % Test,
 
   // Used for testing websockets...
@@ -239,7 +233,8 @@ lazy val backend = Project(appName + "-backend", file("modules/backend"))
   .settings(
     name := appName + "-backend",
     libraryDependencies ++= backendDependencies ++ testDependencies,
-    resolvers ++= additionalResolvers
+    resolvers ++= additionalResolvers,
+    parallelExecution := true
 )
 
 lazy val core = Project(appName + "-core", file("modules/core"))
@@ -300,13 +295,13 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
 
 lazy val api = Project(appName + "-api", file("modules/api"))
   .enablePlugins(play.sbt.PlayScala).settings(
-    libraryDependencies ++= Seq("org.everit.json" % "org.everit.json.schema" % "1.3.0")
+    libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0"
   ).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala).settings(
   libraryDependencies += specs2 % Test
-).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
+).settings(commonSettings ++ webAppSettings: _*).dependsOn(api)
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
   .enablePlugins(play.sbt.PlayScala).settings(
