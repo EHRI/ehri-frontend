@@ -5,17 +5,17 @@ import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
-import services.cypher.{CypherQueryService, CypherService}
-import controllers.base.AdminController
 import controllers.{AppComponents, DataFormat}
-import models.{CypherQuery, ResultFormat}
+import controllers.base.AdminController
+import models.CypherQuery
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import utils.PageParams
+import services.cypher.{CypherQueryService, CypherService, ResultFormat}
 import services.search.SearchParams
+import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.util.Failure

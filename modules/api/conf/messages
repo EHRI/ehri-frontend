@@ -14,3 +14,7 @@ api.v1.header=API V1 Documentation
 
 api.graphql=GraphQL API
 api.graphql.header=GraphQL Documentation
+
+api.datasets.header=EHRI Datasets
+api.datasets.description=These datasets are dynamically-generated structured data \
+  about EHRI''s collections available in JSON, CSV, and TSV formats.

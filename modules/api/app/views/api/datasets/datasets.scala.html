@@ -1,0 +1,29 @@
+@(datasets: utils.Page[CypherQuery])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, md: views.MarkdownRenderer, flash: Flash)
+
+@views.html.api.layout.apiDocLayout(Messages("api.datasets.header")) {
+    <section id="overview">
+        <p>@Messages("api.datasets.description")</p>
+    </section>
+
+    <section id="dataset-list">
+        <ol class="search-result-list">
+        @for(query <- datasets; oid <- query.objectId) {
+            @views.html.common.searchItemOutlineWithActions(oid, "cypherQuery") {
+                @query.name
+            } {
+            } {
+                @query.description.map(Markdown.apply)
+                <ul class="list-inline slash-sep" style="display: inline">
+                    @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                        <li><a
+                        title="@Messages(s"download.format.$fmt")"
+                            href="@controllers.api.datasets.routes.Datasets.run(oid, fmt)">@fmt</a>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+        </ol>
+    </section>
+} {
+}

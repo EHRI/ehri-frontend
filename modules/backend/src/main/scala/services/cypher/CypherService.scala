@@ -1,18 +1,20 @@
 package services.cypher
 
-import play.api.cache.SyncCacheApi
-
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.{Logger, PlayException}
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.json.Reads
-import play.api.libs.json.__
-import play.api.libs.ws.{WSClient, WSResponse}
 import javax.inject.{Inject, Singleton}
 
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Keep, Source}
+import akka.util.ByteString
+import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
+import play.api.libs.json.{JsValue, Json, Reads, __, _}
+import play.api.libs.ws.ahc.StreamedResponse
+import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.{Logger, PlayException}
+import utils.CsvHelpers
 import utils.streams.JsonStream
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
 case class CypherError(
@@ -21,14 +23,53 @@ case class CypherError(
 
 object CypherErrorReader {
 
-  import play.api.libs.json.Reads._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads._
 
   implicit val cypherErrorReads: Reads[CypherError] = (
     (__ \ "message").read[String] and
     (__ \ "exception").read[String] and
     (__ \ "stacktrace").lazyRead(list[String])
   )(CypherError)
+}
+
+case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
+  /**
+    * Convert Cypher JSON results to CSV, with nested arrays pipe-delimited.
+    */
+  def toCsv(sep: Char = ',', quote: Boolean = false): String =
+    CsvHelpers.writeCsv(columns, data
+      .map(_.collect(ResultFormat.jsToString).toArray), sep = sep)
+
+  def toData: Seq[Seq[String]] = data.map(_.collect(ResultFormat.jsToString))
+}
+object ResultFormat {
+  implicit val _reads: Reads[ResultFormat] = Json.reads[ResultFormat]
+
+  def jsToString: PartialFunction[JsValue, String] = {
+    case JsString(s) => s
+    case JsNumber(i) => i.toString()
+    case JsNull => ""
+    case JsBoolean(b) => b.toString
+    case list: JsArray => list.value.map(jsToString).mkString("|")
+  }
+}
+
+
+object CypherResultAdaptor {
+  def toCsv(r: StreamedResponse, sep: Char): Source[ByteString, _] = {
+    import utils.CsvHelpers
+    val csvFormat = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(false)
+    val writer = CsvHelpers.mapper.writer(csvFormat.build())
+    r.bodyAsSource
+      .via(JsonStream.items("data.item"))
+      .map { rowBytes =>
+        Json.parse(rowBytes.toArray).as[Seq[JsValue]]
+      }.map { row =>
+      val cols: Seq[String] = row.collect(ResultFormat.jsToString)
+      ByteString.fromArray(writer.writeValueAsBytes(cols.toArray))
+    }.watchTermination()(Keep.right)
+  }
 }
 
 @Singleton

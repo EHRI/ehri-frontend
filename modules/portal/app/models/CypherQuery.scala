@@ -4,41 +4,19 @@ import java.time.ZonedDateTime
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import services.cypher.CypherService
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json._
-import utils.CsvHelpers
+import services.cypher.CypherService
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 
-case class ResultFormat(columns: Seq[String], data: Seq[Seq[JsValue]]) {
-  /**
-   * Convert Cypher JSON results to CSV, with nested arrays pipe-delimited.
-   */
-  def toCsv(sep: Char = ',', quote: Boolean = false): String =
-    CsvHelpers.writeCsv(columns, data
-      .map(_.collect(ResultFormat.jsToString).toArray), sep = sep)
-
-  def toData: Seq[Seq[String]] = data.map(_.collect(ResultFormat.jsToString))
-}
-object ResultFormat {
-  implicit val _reads: Reads[ResultFormat] = Json.reads[ResultFormat]
-
-  def jsToString: PartialFunction[JsValue, String] = {
-    case JsString(s) => s
-    case JsNumber(i) => i.toString()
-    case JsNull => ""
-    case JsBoolean(b) => b.toString
-    case list: JsArray => list.value.map(jsToString).mkString("|")
-  }
-}
 
 /**
- * A pre-baked Cypher query.
- */
+  * A pre-baked Cypher query.
+  */
 case class CypherQuery(
   objectId: Option[String] = None,
   userId: Option[String] = None,
