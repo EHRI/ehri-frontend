@@ -25,7 +25,9 @@ case class ItemNotFound(
   key: Option[String] = None,
   value: Option[String] = None,
   message: Option[String] = None
-) extends RuntimeException(message.getOrElse("No further info")) with RestError
+) extends RuntimeException(message.getOrElse("No further info")) with RestError {
+  def this(id: String) = this(Some("id"), Some(id))
+}
 
 case class ServerError(error: String) extends RuntimeException(error) with RestError
 

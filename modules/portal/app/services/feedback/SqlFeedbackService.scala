@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils
 import play.api.Mode
 import play.api.db.Database
 import play.api.libs.json.{JsError, JsSuccess, Json}
+import services.data.ItemNotFound
 import utils.{Page, PageParams}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -82,10 +83,10 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
   private implicit val feedbackParser: RowParser[Feedback] =
     Macro.parser[Feedback]("id", "user_id", "name", "email", "text", "type", "copy", "context", "created", "updated", "mode")
 
-  // NB: Not yet in the trait...
-  def get(id: String): Future[Feedback] = Future {
+  override def get(id: String): Future[Feedback] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT * FROM feedback WHERE id = $id".as(feedbackParser.single)
+      SQL"SELECT * FROM feedback WHERE id = $id"
+        .as(feedbackParser.singleOpt).headOption.getOrElse(throw new ItemNotFound(id))
     }
   }
 

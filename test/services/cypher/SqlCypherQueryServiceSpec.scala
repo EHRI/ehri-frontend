@@ -1,8 +1,8 @@
 package services.cypher
 
 import akka.actor.ActorSystem
-import helpers._
 import models.CypherQuery
+import helpers._
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification

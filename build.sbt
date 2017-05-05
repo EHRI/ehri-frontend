@@ -28,6 +28,9 @@ val backendDependencies = Seq(
   // Push JSON parser used for stream parsing...
   "de.undercouch" % "actson" % "1.2.0",
 
+  // CSV parser/writer...
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
+
   // Ontology
   "ehri-project" % "ehri-definitions" % backendVersion
 )
@@ -72,8 +75,8 @@ val coreDependencies = backendDependencies ++ Seq(
 )
 
 val portalDependencies = Seq(
+  // Helper for making thumbnails...
   "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
   // EHRI indexing tools
   "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),

@@ -4,9 +4,10 @@ import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
-import anorm._
+import anorm.{Macro, RowParser, SqlParser, _}
 import models.CypherQuery
 import play.api.db.Database
+import services.data.ItemNotFound
 import utils.{Page, PageParams}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,7 +23,8 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
 
   override def get(id: String): Future[CypherQuery] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT * FROM cypher_queries WHERE id = $id".as(queryParser.single)
+      SQL"SELECT * FROM cypher_queries WHERE id = $id"
+        .as(queryParser.singleOpt).getOrElse(throw new ItemNotFound(id))
     }
   }
 
