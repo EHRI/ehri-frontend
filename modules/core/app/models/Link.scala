@@ -83,7 +83,7 @@ object Link {
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
     (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable[UserProfile] and
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).readSeqOrEmpty[AccessPoint] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
@@ -122,7 +122,7 @@ object Link {
 case class Link(
   model: LinkF,
   targets: Seq[AnyModel] = Nil,
-  user: Option[UserProfile] = None,
+  linker: Option[Accessor] = None,
   bodies: Seq[AccessPoint] = Nil,
   accessors: Seq[Accessor] = Nil,
   promoters: Seq[UserProfile] = Nil,

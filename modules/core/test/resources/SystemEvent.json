@@ -1,0 +1,104 @@
+{
+  "id" : "d90e18ca-3405-11e7-b573-1b059e146c2b",
+  "type" : "SystemEvent",
+  "data" : {
+    "logMessage" : "",
+    "eventType" : "link",
+    "timestamp" : "2017-05-08T16:48:57.915+01:00"
+  },
+  "meta" : {
+    "childCount" : 2,
+    "gid" : 2660759
+  },
+  "relationships" : {
+    "hasActioner" : [ {
+      "id" : "wp9",
+      "type" : "Group",
+      "data" : {
+        "identifier" : "wp9",
+        "name" : "EHRI-2 WP9"
+      },
+      "meta" : {
+        "childCount" : 18
+      },
+      "relationships" : { }
+    } ],
+    "hasEventScope" : [ {
+      "id" : "us-005578-irn73593",
+      "type" : "DocumentaryUnit",
+      "data" : {
+        "identifier" : "irn73593"
+      },
+      "meta" : {
+        "watchedBy" : 0,
+        "childCount" : 0
+      },
+      "relationships" : {
+        "describes" : [ {
+          "id" : "us-005578-irn73593.eng-irn73593_eng",
+          "type" : "DocumentaryUnitDescription",
+          "data" : {
+            "name" : "Centralny Komitet Żydów Polskich (CKŻP). Komisja Specialna (Sygn. 303/VIII)",
+            "languageCode" : "eng"
+          },
+          "relationships" : { }
+        } ],
+        "heldBy" : [ {
+          "id" : "us-005578",
+          "type" : "Repository",
+          "data" : {
+            "identifier" : "005578"
+          },
+          "meta" : {
+            "watchedBy" : 3,
+            "childCount" : 11243
+          },
+          "relationships" : {
+            "describes" : [ {
+              "id" : "us-005578.eng",
+              "type" : "RepositoryDescription",
+              "data" : {
+                "name" : "United States Holocaust Memorial Museum",
+                "languageCode" : "eng"
+              },
+              "relationships" : { }
+            } ],
+            "hasCountry" : [ {
+              "id" : "us",
+              "type" : "Country",
+              "data" : {
+                "identifier" : "us"
+              },
+              "meta" : {
+                "watchedBy" : 1,
+                "childCount" : 82
+              },
+              "relationships" : { }
+            } ]
+          }
+        } ]
+      }
+    } ],
+    "hasFirstSubject" : [ {
+      "id" : "d90e18c6-3405-11e7-b573-1b059e146c2b",
+      "type" : "Link",
+      "data" : {
+        "type" : "associative"
+      },
+      "relationships" : {
+        "hasLinker" : [ {
+          "id" : "wp9",
+          "type" : "Group",
+          "data" : {
+            "identifier" : "wp9",
+            "name" : "EHRI-2 WP9"
+          },
+          "meta" : {
+            "childCount" : 18
+          },
+          "relationships" : { }
+        } ]
+      }
+    } ]
+  }
+}
