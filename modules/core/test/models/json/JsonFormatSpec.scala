@@ -118,6 +118,11 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
     }
   }
 
+  "SystemEvent Format should read correctly" in {
+    val validation = readResource(EntityType.SystemEvent).validate[SystemEvent]
+    validation.asEither must beRight
+  }
+
   "Virtual Unit Format should read correctly" in {
     val validation = readResource(EntityType.VirtualUnit).validate[VirtualUnit]
     // The JSON should parse correctly

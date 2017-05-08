@@ -20,7 +20,7 @@
             }
             </ul>
 
-            @item.user.map { u =>
+            @item.linker.map { u =>
                 <h4>@Messages("link.creator")</h4>
                 <a href="@views.admin.Helpers.linkTo(u)">@u.toStringLang</a>
             }

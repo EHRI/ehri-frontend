@@ -91,7 +91,7 @@ package object json {
     val clientFormat: Format[Link] = (
       JsPath.format[LinkF](linkFormat) and
       (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
-      (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
+      (__ \ "user").lazyFormatNullable(accessorJson.clientFormat) and
       (__ \ "accessPoints").formatSeqOrEmpty(accessPointJson.clientFormat) and
       (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
       (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
