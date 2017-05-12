@@ -129,7 +129,9 @@ trait Search extends CoreActionBuilders {
       if (list.size != res.page.size) {
         logger.warn(s"Items returned by search were not found in database: ${res.page.items.map(_.id)} -> $list")
       }
-      res.copy(page = res.page.copy(items = list.zip(res.page.items)))
+      res.copy(page = res.page.copy(items = list.zip(res.page.items).collect {
+        case (Some(a), h) => (a, h)
+      }))
     }
   }
 

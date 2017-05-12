@@ -146,7 +146,7 @@ trait DataApiHandle {
     * @param ids  a sequence of string IDs
     * @param gids a sequence of graph IDs
     */
-  def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[MT]]
+  def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[Option[MT]]]
 
   /**
     * Set visibility for a given item.

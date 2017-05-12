@@ -3,13 +3,15 @@ package utils.search
 import javax.inject.Inject
 
 import defines.EntityType
-import utils.{PageParams, Page}
+import utils.{Page, PageParams}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import models._
+
 import scala.concurrent.Future
-import backend.{DataApiHandle, DataApi, ApiUser}
-import models.base.{DescribedMeta, Described, Description, AnyModel}
+import backend.{ApiUser, DataApi, DataApiHandle}
+import models.base.{AnyModel, Described, DescribedMeta, Description}
+import play.api.libs.json.JsString
 
 
 /**
@@ -39,7 +41,7 @@ case class MockSearchEngine @Inject()(
   private def modelToSearchHit(m: AnyModel): SearchHit = m match {
     case d: DescribedMeta[Description,Described[Description]] => descModelToHit(d)
     case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
-      SearchConstants.NAME_EXACT -> m.toStringLang
+      SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     ))
   }
 
@@ -49,7 +51,7 @@ case class MockSearchEngine @Inject()(
     `type` = m.isA,
     gid = m.meta.value.get("gid").flatMap(_.asOpt[Long]).getOrElse(-1L),
     fields = Map(
-      SearchConstants.NAME_EXACT -> m.toStringLang
+      SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     )
   )
 

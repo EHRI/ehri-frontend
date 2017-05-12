@@ -28,9 +28,9 @@ case class Data @Inject()(
   def getItem(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     implicit val rd: Readable[AnyModel] = AnyModel.Converter
     userDataApi.fetch(List(id)).map {
-      case Nil => NotFound(views.html.errors.itemNotFound())
-      case mm :: _ => views.admin.Helpers.linkToOpt(mm)
+      case Some(mm) :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())
+      case _ => NotFound(views.html.errors.itemNotFound())
     }
   }
 

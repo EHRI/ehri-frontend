@@ -436,8 +436,10 @@ case class Guides @Inject()(
             sort = SearchSort.Name
           ) else immediate(SearchResult.empty)
           selectedAccessPoints <- userDataApi.fetch[AnyModel](facets)
+            .map(_.collect{ case Some(h) => h})
           availableFacets <- otherFacets(guide, ids)
           tempAccessPoints <- userDataApi.fetch[AnyModel](gids = availableFacets)
+            .map(_.collect{ case Some(h) => h})
         } yield {
           Ok(views.html.guides.facet(
             guide,
@@ -509,7 +511,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t)
         case _ => searchLinks(id)
       })
-      docs <- userDataApi.fetch[AnyModel](gids = gids)
+      docs <- userDataApi.fetch[AnyModel](gids = gids).map(_.collect{ case Some(h) => h})
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
@@ -522,7 +524,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t, Some(context))
         case _ => searchLinks(id, context = Some(context))
       })
-      docs <- userDataApi.fetch[AnyModel](gids = gids)
+      docs <- userDataApi.fetch[AnyModel](gids = gids).map(_.collect{ case Some(h) => h})
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))

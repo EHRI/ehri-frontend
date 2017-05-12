@@ -164,12 +164,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
           fhl <- hl.get(hit.id)
         } yield fhl).getOrElse(Map.empty)
 
-        val fields = jsObj.value.collect {
-          case (field, JsString(str)) => field -> str
-          case (field, JsArray(Seq(JsString(str), _*))) => field -> str
-        }.toMap
-
-        hit.copy(fields = fields, highlights = highlights, phrases = raw.query.toSeq)
+        hit.copy(fields = jsObj.value.toMap, highlights = highlights, phrases = raw.query.toSeq)
       }
     }
 

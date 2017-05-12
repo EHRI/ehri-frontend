@@ -11,5 +11,5 @@ import backend.{Readable, ApiUser}
  * or more optimised internal graph IDs for faster resolution.
  */
 trait SearchItemResolver {
-  def resolve[MT: Readable](results: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[MT]]
+  def resolve[MT: Readable](results: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[Option[MT]]]
 }

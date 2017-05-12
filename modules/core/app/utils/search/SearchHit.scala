@@ -1,10 +1,12 @@
 package utils.search
 
 import defines.EntityType
+
 import scala.annotation.tailrec
 import scala._
 import SearchConstants._
-import play.twirl.api.{HtmlFormat, Html}
+import play.api.libs.json.JsValue
+import play.twirl.api.{Html, HtmlFormat}
 
 /**
  * Class representing a search engine hit
@@ -14,7 +16,7 @@ case class SearchHit(
   itemId: String,
   `type`: EntityType.Value,
   gid: Long,
-  fields: Map[String,String] = Map.empty,
+  fields: Map[String,JsValue] = Map.empty,
   highlights: Map[String,Seq[String]] = Map.empty,
   phrases: Seq[String] = Seq.empty
 ) extends views.Highlighter {
