@@ -2,6 +2,7 @@ package utils.search
 
 import play.api.test.PlaySpecification
 import defines.EntityType
+import play.api.libs.json.JsString
 
 class SearchHitSpec extends PlaySpecification {
 
@@ -11,22 +12,22 @@ class SearchHitSpec extends PlaySpecification {
     `type`= EntityType.DocumentaryUnit,
     gid = 87287L,
     fields = Map(
-      "repositoryName" -> "Archives de la Ville de Luxembourg",
-      "archivistNote_t" -> "Copied from online search engine",
-      "name" -> "Demandes en obtention d' une autorisation de batir",
-      "identifier" -> "LU 11 - IV/3 - 286",
-      "scope" -> "high",
-      "repositoryId" -> "lu-006007",
-      "languageCode" -> "fra",
-      "countryName" -> "Luxembourg",
-      "publicationStatus" -> "Draft",
-      "id" -> "lu-006007-lu-11-iv-3-286-fra",
-      "countryCode" -> "lu",
-      "itemId" -> "lu-006007-lu-11-iv-3-286",
-      "copyright_t" -> "no",
-      "title" -> "Demandes en obtention d' une autorisation de batir",
-      "type" -> "documentaryUnit",
-      "name_fr" -> "Demandes en obtention d' une autorisation de batir"
+      "repositoryName" -> JsString("Archives de la Ville de Luxembourg"),
+      "archivistNote_t" -> JsString("Copied from online search engine"),
+      "name" -> JsString("Demandes en obtention d' une autorisation de batir"),
+      "identifier" -> JsString("LU 11 - IV/3 - 286"),
+      "scope" -> JsString("high"),
+      "repositoryId" -> JsString("lu-006007"),
+      "languageCode" -> JsString("fra"),
+      "countryName" -> JsString("Luxembourg"),
+      "publicationStatus" -> JsString("Draft"),
+      "id" -> JsString("lu-006007-lu-11-iv-3-286-fra"),
+      "countryCode" -> JsString("lu"),
+      "itemId" -> JsString("lu-006007-lu-11-iv-3-286"),
+      "copyright_t" -> JsString("no"),
+      "title" -> JsString("Demandes en obtention d' une autorisation de batir"),
+      "type" -> JsString("documentaryUnit"),
+      "name_fr" -> JsString("Demandes en obtention d' une autorisation de batir")
     ),
     Map(
       "itemId" -> List("<em>lu-006007-lu-11-iv-3-286</em>"),

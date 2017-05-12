@@ -4,6 +4,7 @@ import java.net.ConnectException
 import javax.inject.Inject
 
 import backend.rest.BadJson
+import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
 import utils.Page
@@ -66,9 +67,13 @@ case class SolrSearchEngine @Inject()(
       val items = data.items.map(i => FilterHit(
         i.itemId,
         i.id,
-        i.fields.getOrElse(SearchConstants.NAME_EXACT, i.itemId),
+        i.fields
+          .collect { case (SearchConstants.NAME_EXACT, JsString(id)) => id}
+          .headOption.getOrElse(i.itemId),
         i.`type`,
-        i.fields.get(SearchConstants.HOLDER_NAME),
+        i.fields
+          .collect { case (SearchConstants.HOLDER_NAME, JsString(id)) => id}
+          .headOption,
         i.gid
       ))
       val page = Page(query.paging.offset, query.paging.limit, data.count, items)

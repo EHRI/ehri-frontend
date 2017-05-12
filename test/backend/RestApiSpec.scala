@@ -53,9 +53,18 @@ class RestApiSpec extends IntegrationTestRunner {
   }
 
   "RestBackend" should {
-    "allow fetching objects" in new ITestApp {
+    "allow fetching single objects" in new ITestApp {
       val test: TestResource = await(testBackend.get[TestResource]("c1"))
       test.id must equalTo("c1")
+    }
+
+    "allow fetching multiple objects" in new ITestApp {
+      val test: Seq[Option[TestResource]] = await(testBackend.fetch[TestResource](Seq("c1", "bad)")))
+      test.size must_== 2
+      test.head must beSome.which { i =>
+        i.id must_== "c1"
+      }
+      test(1) must beNone
     }
   }
 

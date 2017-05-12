@@ -5,6 +5,7 @@ import play.api.test.PlaySpecification
 import utils.search.FieldFacetClass
 import models.base.Description
 import play.api.Configuration
+import play.api.libs.json.Json
 
 
 class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
@@ -76,7 +77,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
       place.get must equalTo(Seq("Active in the Netherlands, <em>Amsterdam</em>."))
 
       qp.items.head.fields.get("holderName") must beSome.which { v =>
-        v must equalTo("EHRI Corporate Bodies")
+        v must equalTo(Json.arr("EHRI Corporate Bodies"))
       }
 
       val doc1 = qp.items.head

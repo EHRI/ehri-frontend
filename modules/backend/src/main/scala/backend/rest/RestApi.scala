@@ -172,13 +172,14 @@ case class RestApiHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[MT]] = {
+  override def fetch[MT: Readable](ids: Seq[String] = Seq.empty, gids: Seq[Long] = Seq.empty): Future[Seq[Option[MT]]] = {
     // NB: Using POST here because the list of IDs can
     // potentially overflow the GET param length...
-    if (ids.isEmpty && gids.isEmpty) immediate(Seq.empty[MT]) else {
+    if (ids.isEmpty && gids.isEmpty) immediate(Seq.empty[Option[MT]]) else {
       val payload: JsArray = Json.toJson(ids).as[JsArray] ++ Json.toJson(gids).as[JsArray]
       userCall(enc(genericItemUrl)).post(payload).map { response =>
-        checkErrorAndParse(response)(Reads.seq(implicitly[Readable[MT]].restReads))
+        checkErrorAndParse(response)(Reads.seq(
+          Reads.optionWithNull(implicitly[Readable[MT]].restReads)))
       }
     }
   }
