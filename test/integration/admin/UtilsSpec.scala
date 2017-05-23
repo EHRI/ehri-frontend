@@ -111,7 +111,7 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
       status(replace) must_== SEE_OTHER
       flash(replace) must_== Flash(
-        Map("success" -> messagesApi("admin.utils.findReplace.done", 1)))
+        Map("success" -> message("admin.utils.findReplace.done", 1)(messagesApi)))
     }
   }
 }

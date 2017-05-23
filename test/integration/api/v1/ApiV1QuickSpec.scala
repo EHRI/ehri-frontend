@@ -14,7 +14,7 @@ class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
     "provide docs when requested as HTML" in new ITestApp {
       val docs = FakeRequest(apiHomeRoutes.index())
           .withHeaders(ACCEPT -> ContentTypes.HTML).call()
-      contentAsString(docs) must contain(messagesApi("api.v1.header"))
+      contentAsString(docs) must contain(message("api.v1.header"))
       contentType(docs) must_== Some("text/html")
     }
 

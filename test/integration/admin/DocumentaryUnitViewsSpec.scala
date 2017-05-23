@@ -240,7 +240,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         .callWith(testData)
       status(cr) must equalTo(BAD_REQUEST)
       // If we were doing validating dates we'd use:
-      contentAsString(cr) must contain(messagesApi("error.date"))
+      contentAsString(cr) must contain(message("error.date"))
     }
 
     "allow updating items when logged in as privileged user" in new ITestApp {

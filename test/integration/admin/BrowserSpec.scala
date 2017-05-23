@@ -1,6 +1,6 @@
 package integration.admin
 
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.inject._
 import play.api.test._
 import utils.{MockMovedPageLookup, MovedPageLookup}
@@ -18,18 +18,18 @@ class BrowserSpec extends PlaySpecification {
 
     "handle 404s properly for missing pages" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.Home.index().url + "/idontexist")
-      browser.$("#error-title").text must equalTo(messagesApi.apply("errors.pageNotFound"))
+      browser.$("#error-title").text must_== messagesApi.apply("errors.pageNotFound")(Lang.defaultLang)
     }
 
     "return 301 for moved pages" in new WithBrowser(app = appBuilder.build()) {
       buffer += "/foo" -> "/bar"
       browser.goTo("/foo")
-      browser.$("#error-title").text must equalTo(messagesApi.apply("errors.pageNotFound"))
+      browser.$("#error-title").text must_== messagesApi.apply("errors.pageNotFound")(Lang.defaultLang)
     }
 
     "deny access to admin routes" in new WithBrowser(app = appBuilder.build()) {
       browser.goTo(controllers.admin.routes.AdminSearch.search().url)
-      browser.webDriver.getTitle must contain(messagesApi.apply("login.title"))
+      browser.webDriver.getTitle must contain(messagesApi.apply("login.title")(Lang.defaultLang))
     }
   }
 }

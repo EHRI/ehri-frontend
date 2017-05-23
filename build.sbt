@@ -99,7 +99,10 @@ val additionalResolvers = Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
   "EHRI Snapshots" at "https://dev.ehri-project.eu/artifactory/libs-snapshot/",
-  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/"
+  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/",
+
+  // Temporary!
+  "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")

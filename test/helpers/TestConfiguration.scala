@@ -17,7 +17,7 @@ import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
 import play.api.{Application, Configuration}
 import play.api.http.{Status, Writeable}
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
@@ -125,16 +125,22 @@ trait TestConfiguration {
   protected def getConfig = Map.empty[String,Any]
 
   /**
+    * Access an i18n message with default lang.
+    */
+  protected def message(key: String, args: Any*)(implicit messagesApi: MessagesApi, lang: Lang = Lang.defaultLang): String =
+    messagesApi(key, args: _*)(lang)
+
+  /**
    * Test running Fake Application. We have general all-test configuration,
    * handled in `config`, and per-test configuration (`specificConfig`) that
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
-    new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
-    implicit def implicitMaterializer: Materializer = app.materializer
-    implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-    implicit def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+    new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) with Injecting {
+    implicit def implicitMaterializer: Materializer = inject[Materializer]
+    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
+    implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
     override def around[T: AsResult](t: => T): Result = {
       // Integration tests assume a server running locally. We then use the

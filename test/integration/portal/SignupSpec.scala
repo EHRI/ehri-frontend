@@ -55,7 +55,7 @@ class SignupSpec extends IntegrationTestRunner {
         .updated(SignupData.CONFIRM, Seq("short"))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(messagesApi("error.minLength", length))
+      contentAsString(signup) must contain(message("error.minLength", length))
     }
 
     "prevent signup with mismatched passwords" in new ITestApp {
@@ -63,7 +63,7 @@ class SignupSpec extends IntegrationTestRunner {
         .updated(SignupData.CONFIRM, Seq("blibblob"))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(messagesApi("signup.badPasswords"))
+      contentAsString(signup) must contain(message("signup.badPasswords"))
     }
 
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
@@ -72,27 +72,27 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       println(redirectLocation(signup))
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(messagesApi("constraints.timeCheckSeconds.failed"))
+      contentAsString(signup) must contain(message("constraints.timeCheckSeconds.failed"))
 
       val badData2 = data
         .updated(TIMESTAMP, Seq("bad-date"))
       val signup2 = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData2)
       status(signup2) must equalTo(BAD_REQUEST)
-      contentAsString(signup2) must contain(messagesApi("constraints.timeCheckSeconds.failed"))
+      contentAsString(signup2) must contain(message("constraints.timeCheckSeconds.failed"))
     }
 
     "prevent signup with filled blank field" in new ITestApp {
       val badData = data.updated(BLANK_CHECK, Seq("iAmARobot"))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(messagesApi("constraints.honeypot.failed"))
+      contentAsString(signup) must contain(message("constraints.honeypot.failed"))
     }
 
     "prevent signup where terms are not agreed" in new ITestApp {
       val badData = data.updated(SignupData.AGREE_TERMS, Seq(false.toString))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       status(signup) must equalTo(BAD_REQUEST)
-      contentAsString(signup) must contain(messagesApi("signup.agreeTerms"))
+      contentAsString(signup) must contain(message("signup.agreeTerms"))
     }
 
     "allow unverified user to log in" in new ITestApp {

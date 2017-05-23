@@ -48,7 +48,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(messagesApi("constraints.uniqueness"))
+      contentAsString(create) must contain(message("constraints.uniqueness"))
     }
 
     "maintain path validity" in new DBTestApp("guide-fixtures.sql") {
@@ -56,7 +56,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(messagesApi("guide.path.constraint.validity"))
+      contentAsString(create) must contain(message("guide.path.constraint.validity"))
     }
 
     "be able to edit guides, including changing the URL" in new DBTestApp("guide-fixtures.sql") {
@@ -82,7 +82,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val create = FakeRequest(guideAdminRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(create) must equalTo(BAD_REQUEST)
-      contentAsString(create) must contain(messagesApi("constraints.uniqueness"))
+      contentAsString(create) must contain(message("constraints.uniqueness"))
     }
 
     "redirect after deleting guides" in  new DBTestApp("guide-fixtures.sql") {
@@ -124,7 +124,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val edit = FakeRequest(guidePageAdminRoutes.editPost("terezin", "places"))
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(edit) must equalTo(BAD_REQUEST)
-      contentAsString(edit) must contain(messagesApi("constraints.uniqueness"))
+      contentAsString(edit) must contain(message("constraints.uniqueness"))
     }
 
     "redirect after deleting guide pages" in  new DBTestApp("guide-fixtures.sql") {
