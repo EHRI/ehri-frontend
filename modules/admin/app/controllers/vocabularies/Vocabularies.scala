@@ -175,13 +175,14 @@ case class Vocabularies @Inject()(
           action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def exportSkos(id: String, format: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val baseUrl: Option[String] = request.getQueryString("baseUri")
-    ws.url(utils.serviceBaseUrl("ehridata", config) + s"/classes/${EntityType.Vocabulary}/$id/export")
-      .withQueryString(format.toSeq.map(f => "format" -> f): _*)
-      .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
-      .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
-      Ok(r.body).as(r.header(HeaderNames.CONTENT_TYPE).getOrElse(MimeTypes.TEXT))
+  def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
+      baseUri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
+    userDataApi.stream(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
+      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+        .flatMap(_.headOption)
+        .getOrElse(MimeTypes.TEXT)
+      Ok.chunked(sr.body).as(ct)
     }
   }
 }

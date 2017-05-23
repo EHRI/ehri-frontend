@@ -27,7 +27,7 @@ case class GoogleDocsHtmlPages @Inject ()(
   config: play.api.Configuration)(implicit cache: SyncCacheApi, executionContext: ExecutionContext)
   extends HtmlPages {
   private def googleDocBody(url: String): Future[(Html, Html)] = {
-    ws.url(url).withQueryString(
+    ws.url(url).addQueryStringParameter(
       "e" -> "download",
       "exportFormat" -> "html",
       "format" -> "html"

@@ -41,9 +41,9 @@ case class GraphQL @Inject()(
     val ct = request.contentType.getOrElse(ContentTypes.BINARY)
     val streamHeader: Option[String] = request.headers.get(Constants.STREAM_HEADER_NAME)
     ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/graphql")
-      .withHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
-      .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
-      .withHeaders(HeaderNames.CONTENT_TYPE -> ct)
+      .addHttpHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
+      .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
+      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
       .withMethod(HttpVerbs.POST)
       .withBody(bytes)
       .stream().map { r =>

@@ -49,8 +49,8 @@ trait RestService {
 
     private def holderWithAuth: WSRequest = {
       val holder = ws.url(url)
-        .withQueryString(queryString: _*)
-        .withHeaders(headers: _*)
+        .addQueryStringParameter(queryString: _*)
+        .addHttpHeaders(headers: _*)
         .withBody(body)
       val hc = credentials.fold(holder) { case (un, pw) =>
         holder.withAuth(un, pw, WSAuthScheme.BASIC)
