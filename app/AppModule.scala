@@ -19,7 +19,7 @@ import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
 import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
 import utils.{MovedPageLookup, SqlMovedPageLookup}
-import views.{MarkdownRenderer, PegDownMarkdownRendererProvider}
+import views.{FlexmarkMarkdownRendererProvider, MarkdownRenderer}
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
   override def get(): Index = new SolrIndex(utils.serviceBaseUrl("solr", config))
@@ -46,7 +46,7 @@ class AppModule extends AbstractModule {
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
-    bind(classOf[MarkdownRenderer]).toProvider(classOf[PegDownMarkdownRendererProvider])
+    bind(classOf[MarkdownRenderer]).toProvider(classOf[FlexmarkMarkdownRendererProvider])
     bind(classOf[Cypher]).to(classOf[CypherService])
   }
 }

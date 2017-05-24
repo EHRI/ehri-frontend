@@ -2,8 +2,8 @@ package views
 
 import play.api.test.PlaySpecification
 
-class PegDownMarkdownProcessorSpec extends PlaySpecification {
-  val mdprocessor = new PegDownMarkdownRenderer
+class FlexmarkMarkdownProcessorSpec extends PlaySpecification {
+  val mdprocessor = new FlexmarkMarkdownRenderer
 
   "pegdown markdown processor" should {
     "parse markdown correctly" in {
