@@ -17,44 +17,36 @@ import scala.language.implicitConversions
   * Trait containing Action wrappers to handle different
   * types of site management and request authentication concerns
   */
-trait CoreActionBuilders extends Controller with ControllerHelpers {
+trait CoreActionBuilders extends BaseController with ControllerHelpers {
 
   /**
     * Inheriting controllers need to be provided/injected with
     * a dataApi implementation.
     */
   protected def dataApi: DataApi
-
   protected def authHandler: AuthHandler
-
-  protected def actionBuilder: DefaultActionBuilder
-
-  protected def parsers: PlayBodyParsers
-  private def _parsers = parsers
-
-  protected def executionContext: ExecutionContext
-  private def _exc = executionContext
-
-  protected implicit def exc: ExecutionContext = executionContext
-
   protected def accounts: AccountManager
+  protected def globalConfig: global.GlobalConfig
+
+  protected implicit val implicitEc: ExecutionContext = controllerComponents.executionContext
+  protected val parsers: PlayBodyParsers = controllerComponents.parsers
 
   import scala.languageFeature.higherKinds
   protected trait CoreActionBuilder[+R[_], B] extends ActionBuilder[R, AnyContent] {
-    override protected def executionContext: ExecutionContext = _exc
-    override def parser: BodyParser[AnyContent] = parsers.defaultBodyParser
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
+    override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
   }
 
   protected trait CoreActionTransformer[-R[_], +P[_]] extends ActionTransformer[R, P] {
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   protected trait CoreActionRefiner[-R[_], +P[_]] extends ActionRefiner[R, P] {
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   protected trait CoreActionFilter[R[_]] extends ActionFilter[R] {
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -66,11 +58,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     */
   protected def userDataApi(implicit apiUser: ApiUser): DataApiHandle =
     dataApi.withContext(apiUser)
-
-  /**
-    * Access the global configuration instance.
-    */
-  protected implicit def globalConfig: global.GlobalConfig
 
   /**
     * Indicates that the current controller is only accessible to
@@ -150,10 +137,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     */
   protected def gotoLogoutSucceeded(implicit request: RequestHeader): Future[Result] =
     authHandler.logout(logoutSucceeded(request))
-
-
-  // Placeholder for pre-2.6 Action syntax
-  protected def Action: ActionBuilder[Request, AnyContent] = actionBuilder
 
   /**
     * Base trait for any type of request that contains
@@ -283,7 +266,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       fetchProfile(account).map(profileOpt => OptionalUserRequest[A](profileOpt, request))
     }
 
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -294,14 +277,14 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.readOnly) OptionalAccountRequest(None, request) else request
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   protected object EmbedTransformer extends ActionTransformer[OptionalAccountRequest, OptionalAccountRequest] {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -313,7 +296,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
       else immediate(None)
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -329,7 +312,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
         else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -347,7 +330,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
         else immediate(None)
       }
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -369,9 +352,10 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
     def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]): Future[Result] = {
       authHandler.restoreAccount(request).recover({
         case _ => None -> identity[Result] _
-      })(_exc).flatMap ({
-        case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request)).map(cookieUpdater)(_exc)
-      })(_exc)
+      })(controllerComponents.executionContext).flatMap ({
+        case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request))
+          .map(cookieUpdater)(controllerComponents.executionContext)
+      })(controllerComponents.executionContext)
     }
   }
 
@@ -392,7 +376,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
           case Some(profile) => immediate(Right(WithUserRequest(profile, request)))
         }
       }
-      override protected def executionContext: ExecutionContext = _exc
+      override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     }
 
   /**
@@ -407,7 +391,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
         if (request.user.hasPermission(contentType, permissionType)) immediate(None)
         else authorizationFailed(request, request.user).map(r => Some(r))
       }
-      override protected def executionContext: ExecutionContext = _exc
+      override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     }
 
   /**
@@ -418,7 +402,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       if (request.user.isAdmin || request.user.allGroups.exists(_.id == groupId)) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
   /**
@@ -429,6 +413,6 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       if (request.user.isAdmin) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
-    override protected def executionContext: ExecutionContext = _exc
+    override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 }

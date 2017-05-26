@@ -9,7 +9,7 @@ import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.i18n.MessagesApi
 import utils._
-import controllers.{Components, renderError}
+import controllers.{AppComponents, renderError}
 import models.UserProfile
 import play.api.mvc._
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
@@ -37,25 +37,20 @@ trait PortalController
   private def logger = Logger(getClass)
 
   // Abstract controller components, injected into super classes
-  def components: Components
+  def appComponents: AppComponents
 
   // Implicits hoisted to class scope so as to be provided to views
-  protected implicit def cache: SyncCacheApi = components.cacheApi
-  implicit def messagesApi: MessagesApi = components.messagesApi
-  protected implicit def globalConfig: GlobalConfig = components.globalConfig
-  protected implicit def markdown: MarkdownRenderer = components.markdown
-  override protected val parsers: PlayBodyParsers = components.parsers
-  override protected val actionBuilder: DefaultActionBuilder = components.actionBuilder
+  protected implicit def cache: SyncCacheApi = appComponents.cacheApi
+  protected implicit def globalConfig: GlobalConfig = appComponents.globalConfig
+  protected implicit def markdown: MarkdownRenderer = appComponents.markdown
 
-  protected implicit def executionContext: ExecutionContext = components.executionContext
+  protected def accounts: AccountManager = appComponents.accounts
+  protected def dataApi: DataApi = appComponents.dataApi
+  protected def config: Configuration = appComponents.config
+  protected def authHandler: AuthHandler = appComponents.authHandler
 
-  protected def accounts: AccountManager = components.accounts
-  protected def dataApi: DataApi = components.dataApi
-  protected def config: Configuration = components.configuration
-  protected def authHandler: AuthHandler = components.authHandler
-
-  protected def searchEngine: SearchEngine = components.searchEngine
-  protected def searchResolver: SearchItemResolver = components.searchResolver
+  protected def searchEngine: SearchEngine = appComponents.searchEngine
+  protected def searchResolver: SearchItemResolver = appComponents.searchResolver
 
   // By default, all controllers require auth unless ehri.portal.secured
   // is set to false in the config, which it is by default.
@@ -139,7 +134,7 @@ trait PortalController
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)
     else for {
-      maybeMoved <- components.pageRelocator.hasMovedTo(request.path)
+      maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
     } yield maybeMoved match {
       case Some(path) => MovedPermanently(path)
       case None => notFoundResponse

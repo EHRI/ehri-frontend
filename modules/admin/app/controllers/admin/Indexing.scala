@@ -3,7 +3,7 @@ package controllers.admin
 import javax.inject._
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import defines.EntityType
 import defines.EnumUtils._
@@ -11,7 +11,7 @@ import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
-import play.api.mvc.{Action, AnyContent, WebSocket}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
 import utils.search._
 
 import scala.concurrent.Future
@@ -51,7 +51,8 @@ object IndexChildren {
 
 @Singleton
 case class Indexing @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   actorSystem: ActorSystem,
   searchIndexer: SearchIndexMediator
 ) extends AdminController {
@@ -161,7 +162,7 @@ case class Indexing @Inject()(
       case (Some(account), _) => fetchProfile(account).flatMap {
         case Some(prof) if prof.isAdmin => immediate(Right {
           ActorFlow.actorRef(out => IndexActor.props(out))(
-            actorSystem, components.materializer)
+            actorSystem, appComponents.materializer)
         })
         // user doesn't have a profile, or it's not admin
         case _ => authenticationFailed(request).map(r => Left(r))

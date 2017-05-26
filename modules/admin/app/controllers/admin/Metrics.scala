@@ -3,7 +3,7 @@ package controllers.admin
 import javax.inject._
 
 import client.json.ClientWriteable
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
@@ -11,18 +11,21 @@ import models.Isaar
 import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, EssentialAction, Request, Result}
+import play.api.mvc._
 import utils.search._
 import utils.{Page, PageParams, search}
 import views.Helpers
 
 
 @Singleton
-case class Metrics @Inject()(components: Components) extends AdminController with Search {
+case class Metrics @Inject()(
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents
+) extends AdminController with Search {
 
   private val metricCacheTime = 60 * 60 // 1 hour
 
-  private val statusCache = components.statusCache
+  private val statusCache = appComponents.statusCache
 
   private val searchEntities = List(
     EntityType.DocumentaryUnit,

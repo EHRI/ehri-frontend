@@ -6,7 +6,7 @@ import javax.inject._
 
 import auth.{AccountFilters, HashedPassword}
 import backend.rest.{DataHelpers, ValidationError}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.core.auth.AccountHelpers
 import controllers.generic._
@@ -16,7 +16,7 @@ import play.api.data.{Form, FormError, Forms}
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.libs.json._
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 import utils.search._
 import utils.{CsvHelpers, PageParams, RangeParams}
 
@@ -26,7 +26,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class UserProfiles @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
   with PermissionHolder[UserProfile]

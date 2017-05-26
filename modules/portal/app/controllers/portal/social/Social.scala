@@ -4,7 +4,7 @@ import javax.inject._
 
 import backend.ApiUser
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import controllers.portal.base.PortalController
@@ -14,7 +14,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
+import play.api.mvc._
 import utils._
 import utils.search._
 
@@ -23,7 +23,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Social @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   mailer: MailerClient,
   ws: WSClient,
   cypher: Cypher

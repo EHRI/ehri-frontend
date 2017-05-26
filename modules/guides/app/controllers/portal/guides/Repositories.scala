@@ -3,15 +3,16 @@ package controllers.portal.guides
 import javax.inject._
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 
 
 @Singleton
 case class Repositories @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   guides: GuideService,
   cypher: Cypher
 ) extends PortalController

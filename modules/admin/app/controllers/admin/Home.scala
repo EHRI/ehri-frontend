@@ -2,7 +2,7 @@ package controllers.admin
 
 import javax.inject._
 
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.{EntityType, EventType}
@@ -20,7 +20,10 @@ import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
-case class Home @Inject()(components: Components) extends AdminController with Search {
+case class Home @Inject()(
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents
+) extends AdminController with Search {
 
   val searchEntities = List(
     EntityType.DocumentaryUnit,

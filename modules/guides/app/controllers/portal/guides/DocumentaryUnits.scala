@@ -3,19 +3,20 @@ package controllers.portal.guides
 import javax.inject._
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search.{SearchConstants, SearchParams}
 
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   guides: GuideService,
   cypher: Cypher,
   fc: FacetConfig

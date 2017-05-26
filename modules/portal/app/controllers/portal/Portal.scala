@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject._
 
 import backend.HtmlPages
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
@@ -25,7 +25,8 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 case class Portal @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   htmlPages: HtmlPages,
   ws: WSClient,
   fc: FacetConfig
@@ -156,7 +157,7 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String): EssentialAction = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = appComponents.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
         config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>

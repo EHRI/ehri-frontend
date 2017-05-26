@@ -53,7 +53,7 @@ case class CypherService @Inject ()(
   def cypher(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[JsValue] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     logger.debug(s"Cypher: ${Json.toJson(data)}")
-    ws.url(requestUrl).withHeaders(headers.toSeq: _*).post(data).map(checkCypherError)
+    ws.url(requestUrl).withHttpHeaders(headers.toSeq: _*).post(data).map(checkCypherError)
   }
 
   def get[T: Reads](scriptBody: String, params: Map[String,JsValue]): Future[T] =
@@ -72,7 +72,7 @@ case class CypherService @Inject ()(
   def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[StreamedResponse] = {
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     logger.debug(s"Cypher: ${Json.toJson(data)}")
-    ws.url(requestUrl).withHeaders((headers + ("X-Stream" -> "true")).toSeq: _*)
+    ws.url(requestUrl).withHttpHeaders((headers + ("X-Stream" -> "true")).toSeq: _*)
       .withBody(data)
       .withMethod("POST")
       .stream()

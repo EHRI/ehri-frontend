@@ -3,21 +3,22 @@ package controllers.authorities
 import javax.inject._
 
 import backend.rest.DataHelpers
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search._
 
 
 @Singleton
 case class HistoricalAgents @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController with CRUD[HistoricalAgentF, HistoricalAgent]
   with Visibility[HistoricalAgent]

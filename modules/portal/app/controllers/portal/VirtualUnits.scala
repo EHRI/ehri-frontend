@@ -4,14 +4,14 @@ import javax.inject._
 
 import backend.IdGenerator
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent, RequestHeader}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import utils.PageParams
 import utils.search._
 
@@ -20,7 +20,8 @@ import scala.concurrent.Future
 
 @Singleton
 case class VirtualUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   idGenerator: IdGenerator,
   cypher: Cypher,
   fc: FacetConfig

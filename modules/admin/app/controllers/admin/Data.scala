@@ -3,16 +3,17 @@ package controllers.admin
 import javax.inject._
 
 import backend.Readable
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 
 
 case class Data @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient
 ) extends AdminController {
 

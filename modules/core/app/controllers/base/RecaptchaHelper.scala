@@ -35,7 +35,7 @@ trait RecaptchaHelper {
         Future.successful(false)
       }, { case (challenge, response) =>
         ws.url("http://www.google.com/recaptcha/api/verify")
-          .withQueryString(
+          .withQueryStringParameters(
             "remoteip" -> request.headers.get("REMOTE_ADDR").getOrElse(""),
             "challenge" -> challenge, "response" -> response,
             "privatekey" -> config.getOptional[String]("recaptcha.key.private").getOrElse("")

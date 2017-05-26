@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import backend._
 import controllers.generic.Search
 import controllers.portal.base.PortalController
-import controllers.{Components, DataFormat}
+import controllers.{AppComponents, DataFormat}
 import models._
 import models.base.AnyModel
 import net.coobird.thumbnailator.Thumbnails
@@ -28,14 +28,15 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class UserProfiles @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   mailer: MailerClient,
   fileStorage: FileStorage
 ) extends PortalController
   with Search
   with CsvHelpers {
 
-  private implicit val mat: Materializer = components.materializer
+  private implicit val mat: Materializer = appComponents.materializer
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 

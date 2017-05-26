@@ -50,7 +50,7 @@ case class SolrSearchEngine @Inject()(
 
     val params = Seq("action" -> "STATUS", "wt" -> "json", "core" -> "portal")
 
-    ws.url(url).withQueryString(params: _*).get().map { r =>
+    ws.url(url).withQueryStringParameters(params: _*).get().map { r =>
       (r.json \ "status" \ "portal" \ "uptime").validate[Long]
         .fold(err => throw BadJson(err), _ => "ok")
     }.recover {

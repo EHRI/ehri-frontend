@@ -22,7 +22,7 @@ import scala.concurrent.Future
  */
 trait OpenIDLoginHandler extends AccountHelpers {
 
-  self: Controller with CoreActionBuilders =>
+  self: BaseController with CoreActionBuilders =>
 
   private def logger = Logger(getClass)
 

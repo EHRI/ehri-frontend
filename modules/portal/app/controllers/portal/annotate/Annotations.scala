@@ -5,7 +5,7 @@ import javax.inject._
 import backend.rest.DataHelpers
 import backend.rest.cypher.Cypher
 import com.google.common.net.HttpHeaders
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.{Promotion, Read, Search, Visibility}
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
@@ -26,7 +26,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Annotations @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient,
   dataHelpers: DataHelpers,
   cypher: Cypher,

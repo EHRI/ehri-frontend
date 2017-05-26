@@ -2,7 +2,7 @@ package controllers.api.v1
 
 import javax.inject.{Inject, Singleton}
 
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.PortalController
 import defines.EntityType
 import models.api.v1.JsonApiV1._
@@ -13,7 +13,8 @@ import play.api.mvc._
 
 @Singleton
 case class ApiV1Home @Inject()(
-  components: Components
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents
 ) extends PortalController {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1

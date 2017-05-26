@@ -4,11 +4,11 @@ import javax.inject._
 
 import backend.FeedbackService
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.{Application, Configuration}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
+import play.api.mvc._
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
@@ -16,14 +16,16 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Feedback @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   app: Application,
   feedbackService: FeedbackService,
   mailer: MailerClient,
   cypher: Cypher
 ) extends PortalController {
 
-  override protected implicit val config: Configuration = components.configuration
+  // FIXME
+  override protected implicit val config: Configuration = appComponents.config
 
   import play.api.data.Form
   import play.api.data.Forms._

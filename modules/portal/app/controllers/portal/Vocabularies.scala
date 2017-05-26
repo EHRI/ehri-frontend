@@ -3,11 +3,11 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.{Concept, Vocabulary}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search._
 
@@ -16,7 +16,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Vocabularies @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   cypher: Cypher,
   fc: FacetConfig
 ) extends PortalController

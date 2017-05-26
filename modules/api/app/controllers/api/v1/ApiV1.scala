@@ -8,7 +8,7 @@ import auth.handler.AuthHandler
 import backend.rest.cypher.Cypher
 import backend.rest.{ItemNotFound, PermissionDenied}
 import backend.{AnonymousUser, DataApi}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
@@ -45,7 +45,8 @@ object ApiV1 {
 
 @Singleton
 case class ApiV1 @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient,
   cypher: Cypher
 ) extends CoreActionBuilders
@@ -53,19 +54,15 @@ case class ApiV1 @Inject()(
   with Search
   with SearchVC {
 
-  implicit val messagesApi: MessagesApi = components.messagesApi
-  protected implicit val cache: SyncCacheApi = components.cacheApi
-  protected implicit val globalConfig: GlobalConfig = components.globalConfig
-  protected implicit val markdown: MarkdownRenderer = components.markdown
-  protected implicit val executionContext: ExecutionContext = components.executionContext
-  protected val accounts: AccountManager = components.accounts
-  protected val dataApi: DataApi = components.dataApi
-  protected val config: Configuration = components.configuration
-  protected val authHandler: AuthHandler = components.authHandler
-  protected val searchEngine: SearchEngine = components.searchEngine
-  protected val searchResolver: SearchItemResolver = components.searchResolver
-  protected implicit val parsers: PlayBodyParsers = components.parsers
-  protected val actionBuilder: DefaultActionBuilder = components.actionBuilder
+  protected implicit val cache: SyncCacheApi = appComponents.cacheApi
+  protected implicit val globalConfig: GlobalConfig = appComponents.globalConfig
+  protected val accounts: AccountManager = appComponents.accounts
+  protected val dataApi: DataApi = appComponents.dataApi
+  protected val config: Configuration = appComponents.config
+  protected val authHandler: AuthHandler = appComponents.authHandler
+  protected val searchEngine: SearchEngine = appComponents.searchEngine
+  protected val searchResolver: SearchItemResolver = appComponents.searchResolver
+
 
   import ApiV1._
 

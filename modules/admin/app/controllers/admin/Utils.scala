@@ -8,7 +8,7 @@ import backend.AuthenticatedUser
 import backend.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
 import play.api.data.Form
@@ -17,7 +17,7 @@ import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, MultipartFormData}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import utils.search.SearchIndexMediator
 import utils.{CsvHelpers, PageParams}
 
@@ -29,7 +29,8 @@ import scala.concurrent.Future.{successful => immediate}
   */
 @Singleton
 case class Utils @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   searchIndexer: SearchIndexMediator,
   ws: WSClient,
   cypher: Cypher
@@ -243,7 +244,7 @@ case class Utils @Inject()(
       // Index the new ones....
       _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
       // Add the 301s to the DB...
-      redirectCount <- components.pageRelocator.addMoved(newUrls)
+      redirectCount <- appComponents.pageRelocator.addMoved(newUrls)
     } yield redirectCount
   }
 

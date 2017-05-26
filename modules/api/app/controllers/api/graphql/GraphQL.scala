@@ -4,16 +4,17 @@ import javax.inject.{Inject, Singleton}
 
 import akka.util.ByteString
 import backend.rest.Constants
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, RawBuffer}
+import play.api.mvc.{Action, ControllerComponents, RawBuffer}
 
 
 @Singleton
 case class GraphQL @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient
 ) extends PortalController {
 

@@ -2,19 +2,21 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import controllers.Components
-import play.api.cache.Cached
+import controllers.AppComponents
 import play.api.http.{ContentTypes, MimeTypes}
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, Controller, EssentialAction}
+import play.api.mvc._
 
 
 @Singleton
-case class PortalData @Inject()(statusCache: Cached, components: Components)(implicit val messagesApi: MessagesApi) extends Controller
+case class PortalData @Inject()(
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents
+)(override implicit val messagesApi: MessagesApi) extends BaseController
   with play.api.i18n.I18nSupport {
 
-  def jsRoutes: EssentialAction = statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
-    components.actionBuilder { implicit request =>
+  def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
+    controllerComponents.actionBuilder { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
           controllers.portal.routes.javascript.Bookmarks.moveBookmarksPost,
@@ -59,8 +61,8 @@ case class PortalData @Inject()(statusCache: Cached, components: Components)(imp
     *
     * @return
     */
-  def globalData: EssentialAction = statusCache.status(_ => "pages:globalData", OK, 3600) {
-    components.actionBuilder { implicit request =>
+  def globalData: EssentialAction = appComponents.statusCache.status(_ => "pages:globalData", OK, 3600) {
+    controllerComponents.actionBuilder { implicit request =>
       import defines.EntityType
       Ok(
         """
@@ -76,13 +78,13 @@ case class PortalData @Inject()(statusCache: Cached, components: Components)(imp
   /**
     * Handle trailing slashes with a permanent redirect.
     */
-  def untrail(path: String): Action[AnyContent] = components.actionBuilder { request =>
+  def untrail(path: String): Action[AnyContent] = controllerComponents.actionBuilder { request =>
     val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
     MovedPermanently("/" + path + query)
   }
 
-  def localeData(lang: String): EssentialAction = statusCache.status(_ => "pages:localeData", OK, 3600) {
-    components.actionBuilder { implicit request =>
+  def localeData(lang: String): EssentialAction = appComponents.statusCache.status(_ => "pages:localeData", OK, 3600) {
+    controllerComponents.actionBuilder { implicit request =>
       implicit val locale = play.api.i18n.Lang(lang)
 
       val js =

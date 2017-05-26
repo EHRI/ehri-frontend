@@ -3,18 +3,19 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Concept
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search._
 
 
 @Singleton
 case class Concepts @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   cypher: Cypher,
   fc: FacetConfig
 ) extends PortalController

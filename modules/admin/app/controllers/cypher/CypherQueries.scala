@@ -9,13 +9,13 @@ import akka.util.ByteString
 import backend.CypherQueryService
 import backend.rest.cypher.CypherService
 import controllers.base.AdminController
-import controllers.{Components, DataFormat}
+import controllers.{AppComponents, DataFormat}
 import models.{CypherQuery, ResultFormat}
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search.SearchParams
 
@@ -25,7 +25,8 @@ import scala.util.Failure
 
 @Singleton
 case class CypherQueries @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   cypher: CypherService,
   cypherQueries: CypherQueryService)(implicit mat: Materializer
 ) extends AdminController {

@@ -9,7 +9,7 @@ import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
 import backend.AnonymousUser
 import com.google.common.net.HttpHeaders
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.core.auth.AccountHelpers
 import controllers.core.auth.oauth2._
@@ -34,7 +34,8 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 @Singleton
 case class Accounts @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
   ws: WSClient,
@@ -48,7 +49,7 @@ case class Accounts @Inject()(
 
   private val logger = Logger(getClass)
 
-  override protected implicit val config: Configuration = components.configuration
+  override protected implicit val config: Configuration = appComponents.config
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts

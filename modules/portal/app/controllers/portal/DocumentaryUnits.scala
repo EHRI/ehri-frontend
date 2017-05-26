@@ -3,13 +3,13 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent, RequestHeader}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import utils.PageParams
 import utils.search._
 
@@ -18,7 +18,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   cypher: Cypher,
   fc: FacetConfig
 ) extends PortalController

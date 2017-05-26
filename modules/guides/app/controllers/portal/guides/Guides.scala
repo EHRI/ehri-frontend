@@ -7,7 +7,7 @@ import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
-import controllers.{Components, renderError}
+import controllers.{AppComponents, renderError}
 import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
@@ -26,7 +26,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Guides @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   guides: GuideService,
   cypher: Cypher,
   fc: FacetConfig
@@ -38,7 +39,7 @@ case class Guides @Inject()(
   private val htmlAgentOrder = utils.search.SearchSort.Detail
   private val htmlConceptOrder = utils.search.SearchSort.ChildCount
 
-  def jsRoutes: EssentialAction = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(

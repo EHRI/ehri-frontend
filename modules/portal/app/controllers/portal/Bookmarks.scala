@@ -5,7 +5,7 @@ import javax.inject._
 import backend.IdGenerator
 import backend.rest.cypher.Cypher
 import backend.rest.{Constants, ItemNotFound}
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
@@ -23,7 +23,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Bookmarks @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   idGenerator: IdGenerator,
   cypher: Cypher,
   fc: FacetConfig

@@ -3,18 +3,19 @@ package controllers.events
 import javax.inject._
 
 import backend.rest.DataHelpers
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Read
 import models.SystemEvent
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams, SystemEventParams}
 
 
 @Singleton
 case class SystemEvents @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
   with Read[SystemEvent] {
