@@ -1,6 +1,6 @@
 @(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
 
-@topNavBar {
+@views.html.layout.topNavBar {
     @if(userOpt.isDefined) {
     <div id="navbar-portal-actions" class="pull-left">
         <ul class="nav navbar-nav navbar-left portal-actions">
@@ -14,5 +14,5 @@
     </div>
     }
 } {
-    @accountHeaderRightMenu(showSearch, showFeedback, showAdminLink)
+    @views.html.layout.accountHeaderRightMenu(showSearch, showFeedback, showAdminLink)
 }

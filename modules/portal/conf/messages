@@ -24,6 +24,7 @@ fullscreen.viewOnPortal=View this item on the EHRI Portal
 # Help https://portal.ehri-project.eu (Help menu)
 #
 help=Help
+help.manual=Online Manual
 help.faq=Frequently Asked Questions
 help.contact=Contact EHRI
 
