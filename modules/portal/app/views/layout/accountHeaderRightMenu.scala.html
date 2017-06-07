@@ -22,7 +22,12 @@
         </a>
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
             <li>
-                <a href="@controllers.portal.routes.Portal.externalPage("faq")">@Messages("help.faq")</a>
+                <a href="https://training.ehri-project.eu/unit/7-ehri-portal-manual" target="_blank">
+                    <i class="fa fa-info-circle"></i> @Messages("help.manual")
+                </a>
+                <a href="@controllers.portal.routes.Portal.externalPage("faq")">
+                    <i class="fa fa-question-circle"></i> @Messages("help.faq")
+                </a>
             </li>
             <li class="divider"></li>
             <li>
