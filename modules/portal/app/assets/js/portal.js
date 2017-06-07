@@ -79,13 +79,14 @@ jQuery(function ($) {
       $target.affix({
         offset: {
           top: function() {
-            return $prev.offset().top + $prev.outerHeight(true);
+            return (this.top = $prev.offset().top + $prev.outerHeight(true));
           },
           bottom: function() {
             // the distance of the bottom of the target from the bottom
             // of the document. In this case we want
-            return (this.bottom = $("body").outerHeight(true) -
-            ($parent.offset().top + $parent.outerHeight(true)));
+            var bodyHeight = $(document).outerHeight(true);
+            var parentPos = $parent.position().top + $parent.outerHeight(true);
+            return (this.bottom = bodyHeight - parentPos);
           }
         }
       });
