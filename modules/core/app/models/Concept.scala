@@ -20,6 +20,8 @@ object ConceptF {
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
   val URL = "url"
+  val URI = "uri"
+  val SEEALSO = "seeAlso"
   val LONGITUDE = "longitude"
   val LATITUDE = "latitude"
   val ACCESS_POINTS = "accessPoints"
@@ -37,6 +39,7 @@ object ConceptF {
     (__ \ TYPE).formatIfEquals(EntityType.Concept) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
+    (__ \ DATA \ URI).formatNullable[String] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[ConceptDescriptionF]
   )(ConceptF.apply, unlift(ConceptF.unapply))
 
@@ -49,6 +52,7 @@ case class ConceptF(
   isA: EntityType.Value = EntityType.Concept,
   id: Option[String],
   identifier: String,
+  uri: Option[String],
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
@@ -87,6 +91,7 @@ object Concept {
       ISA -> ignored(EntityType.Concept),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
+      ConceptF.URI -> optional(nonEmptyText),
       DESCRIPTIONS -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)
   )

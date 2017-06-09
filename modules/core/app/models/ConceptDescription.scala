@@ -31,6 +31,7 @@ object ConceptDescriptionF {
     (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).formatNullable[BigDecimal] and
     (__ \ DATA \ URL).formatNullable[String] and
+    (__ \ DATA \ SEEALSO).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
@@ -54,6 +55,7 @@ case class ConceptDescriptionF(
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None,
   url: Option[String] = None,
+  seeAlso: Option[Seq[String]] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
@@ -89,6 +91,7 @@ object ConceptDescription {
     LONGITUDE -> optional(bigDecimal),
     LATITUDE -> optional(bigDecimal),
     URL -> optional(nonEmptyText),
+    SEEALSO -> optional(seq(nonEmptyText)),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),
     MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),

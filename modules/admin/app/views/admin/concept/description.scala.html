@@ -23,7 +23,7 @@
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
             </i>
         </dd>
-        @Map(ALTLABEL -> desc.altLabels, SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, listOpt) =>
+        @Map(ALTLABEL -> desc.altLabels, SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition, SEEALSO -> desc.seeAlso).map { case (key, listOpt) =>
             @listOpt.map { list =>
                 @listItem(list, key)
             }
@@ -33,6 +33,10 @@
                 <dt>@Messages(prefix + "." + key)</dt>
                 <dd>@value</dd>
             }
+        }
+        @item.model.uri.map { uri =>
+            <dt>@Messages(prefix + "." + URI)</dt>
+            <dd><a href="@uri" class="external" target="_blank">@uri</a></dd>
         }
     </dl>
 

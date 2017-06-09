@@ -16,6 +16,7 @@
 
             @listField(item, descId, desc.definition, DEFINITION)
             @listField(item, descId, desc.scopeNote, SCOPENOTE)
+            @listField(item, descId, desc.seeAlso, SEEALSO)
             @for(longitude <- desc.longitude ; latitude <- desc.latitude) {
                 <div class="map" data-longitude="@longitude" data-latitude="@latitude">
 

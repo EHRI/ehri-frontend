@@ -6,6 +6,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+@formHelpers.lineInput(f(""), ConceptF.URI)
 
 @defining("cvocConcept") { implicit prefix =>
     <fieldset id="descriptions-area">
