@@ -1079,6 +1079,8 @@ cvocConcept.narrowerTermsPageHeader={0,choice,0#No narrower terms found|1#One na
 cvocConcept.longitude=Longitude
 cvocConcept.latitude=Latitude
 cvocConcept.url=URL
+cvocConcept.uri=URI
+cvocConcept.seeAlso=See Also
 
 #
 # Virtual documentary units
