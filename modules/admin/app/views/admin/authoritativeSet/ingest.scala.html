@@ -1,0 +1,27 @@
+@(item: AuthoritativeSet, f: Form[models.admin.IngestTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@import models.admin.IngestTask._
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.adminLayout(item.toStringLang) {
+    @views.html.admin.common.breadcrumbs(Seq(item))
+    @common.mainContent {
+        @common.itemDetails {
+            @defining("") { implicit prefix =>
+                @helper.form(action = action, 'enctype -> "multipart/form-data", 'class -> "entity-form form-horizontal") {
+                    @formHelpers.csrfToken()
+
+                    <h2>@Messages("ingest.header")</h2>
+
+                    @formHelpers.checkbox(f(""), ALLOW_UPDATE)
+                    @formHelpers.checkbox(f(""), TOLERANT)
+                    @formHelpers.textInput(f(""), LOG)
+
+                    @helper.inputFile(f(DATA_FILE))
+
+                    @formHelpers.submitButton(Messages("ingest.submit"))
+                }
+            }
+        }
+    }
+}
