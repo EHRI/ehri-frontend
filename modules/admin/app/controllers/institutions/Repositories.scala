@@ -12,8 +12,8 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import utils.{PageParams, RangeParams}
 import services.search._
+import utils.{PageParams, RangeParams}
 import views.Helpers
 
 import scala.concurrent.Future.{successful => immediate}
