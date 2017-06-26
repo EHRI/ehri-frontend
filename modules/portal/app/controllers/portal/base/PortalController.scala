@@ -7,7 +7,6 @@ import auth.handler.AuthHandler
 import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.i18n.MessagesApi
 import utils._
 import controllers.{AppComponents, renderError}
 import models.UserProfile
@@ -16,7 +15,7 @@ import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferenc
 import utils.caching.FutureCache
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
@@ -203,8 +202,9 @@ trait PortalController
     val format: String = request.getQueryString("format")
       .filter(formats.contains).getOrElse(formats.head)
     val params = request.queryString.filterKeys(_ == "lang")
-    userDataApi.stream(s"classes/$entityType/$id/$format", params = params).map { sr =>
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+    userDataApi.query(s"classes/$entityType/$id/$format", params = params,
+      headers = Headers(HeaderNames.ACCEPT -> "text/xml,application/zip")).map { sr =>
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
 
       val disp = if (ct.contains("zip"))
@@ -213,10 +213,10 @@ trait PortalController
         Seq("Content-Disposition" -> s"attachment; filename='$id-$format.xml'")
       else Seq.empty
 
-      val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
+      val heads: Map[String, String] = sr.headers.map(s => (s._1, s._2.head))
       // If we're streaming a zip file, send it as an attachment
       // with a more useful filename...
-      Status(sr.headers.status).chunked(sr.body).as(ct)
+      Status(sr.status).chunked(sr.bodyAsSource).as(ct)
         .withHeaders(heads.toSeq ++ disp: _*)
     }
   }

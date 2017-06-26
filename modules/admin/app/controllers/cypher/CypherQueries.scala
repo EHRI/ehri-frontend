@@ -52,8 +52,8 @@ case class CypherQueries @Inject()(
   def cypherQuery: Action[AnyContent] = AdminAction.async { implicit request =>
     queryForm.bindFromRequest.fold(
       err => immediate(BadRequest(err.errorsAsJson)),
-      q => cypher.stream(q, Map.empty).map { sr =>
-        Status(sr.headers.status).chunked(sr.body)
+      q => cypher.raw(q, Map.empty).map { sr =>
+        Status(sr.status).chunked(sr.bodyAsSource)
       }
     )
   }
@@ -152,8 +152,8 @@ case class CypherQueries @Inject()(
             Ok(views.html.admin.cypherQueries.results(query, r))
           }
         case DataFormat.Json =>
-          cypher.stream(query.query).map { sr =>
-            Ok.chunked(sr.body).as(ContentTypes.JSON)
+          cypher.raw(query.query).map { sr =>
+            Ok.chunked(sr.bodyAsSource).as(ContentTypes.JSON)
               .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
           }
         case _ => immediate(NotAcceptable(s"Unsupported type: $format"))

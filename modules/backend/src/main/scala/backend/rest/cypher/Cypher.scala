@@ -2,7 +2,7 @@ package backend.rest.cypher
 
 import akka.stream.scaladsl.Source
 import play.api.libs.json.{JsValue, Reads}
-import play.api.libs.ws.StreamedResponse
+import play.api.libs.ws.WSResponse
 
 import scala.concurrent.Future
 
@@ -13,5 +13,5 @@ trait Cypher {
 
   def rows(scriptBody: String, params: Map[String,JsValue]): Future[Source[Seq[JsValue], _]]
 
-  def stream(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[StreamedResponse]
+  def raw(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[WSResponse]
 }

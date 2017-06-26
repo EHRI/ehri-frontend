@@ -49,12 +49,12 @@ case class Data @Inject()(
 
   def forward(urlPart: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val url = urlPart + (if(request.rawQueryString.trim.isEmpty) "" else "?" + request.rawQueryString)
-    userDataApi.stream(url).map { sr =>
-      val result:Status = Status(sr.headers.status)
-      val rHeaders = passThroughHeaders(sr.headers.headers)
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+    userDataApi.query(url).map { sr =>
+      val result:Status = Status(sr.status)
+      val rHeaders = passThroughHeaders(sr.headers)
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.JSON)
-      result.chunked(sr.body).as(ct).withHeaders(rHeaders: _*)
+      result.chunked(sr.bodyAsSource).as(ct).withHeaders(rHeaders: _*)
     }
   }
 }

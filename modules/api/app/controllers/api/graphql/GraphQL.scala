@@ -45,10 +45,8 @@ case class GraphQL @Inject()(
       .addHttpHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-      .withMethod(HttpVerbs.POST)
-      .withBody(bytes)
-      .stream().map { r =>
-      Status(r.headers.status).chunked(r.body).as(ContentTypes.JSON)
+      .post(bytes).map { r =>
+      Status(r.status).chunked(r.bodyAsSource).as(ContentTypes.JSON)
     }
   }
 }

@@ -2,12 +2,13 @@ package models
 
 import java.time.ZonedDateTime
 
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import backend.rest.cypher.CypherService
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json._
-import play.api.libs.ws.StreamedResponse
 import utils.CsvHelpers
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,8 +50,8 @@ case class CypherQuery(
   updated: Option[ZonedDateTime] = None
 ) {
 
-  def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[StreamedResponse] =
-    cypher.stream(query)
+  def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[Source[ByteString, _]] =
+    cypher.raw(query).map(_.bodyAsSource)
 
   def execute(implicit cypher: CypherService, executionContext: ExecutionContext): Future[JsValue] =
     cypher.cypher(query)

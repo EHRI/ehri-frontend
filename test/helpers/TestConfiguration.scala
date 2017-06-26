@@ -145,7 +145,7 @@ trait TestConfiguration {
     override def around[T: AsResult](t: => T): Result = {
       // Integration tests assume a server running locally. We then use the
       // initialise endpoint to clean it before each individual test.
-      import org.specs2.execute.Failure
+      import org.specs2.execute.{Error, Failure}
 
       val config = app.injector.instanceOf[Configuration]
       val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
@@ -153,7 +153,8 @@ trait TestConfiguration {
       val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
       await {
         ws.url(url).post(fixtures).map { _.status match {
-          case Status.NO_CONTENT => super.around(t) // okay!
+          case Status.NO_CONTENT =>
+            try super.around(t) catch { case e: Throwable => Error(e) }
           case s => Failure(s"Unable to initialise test DB, got a status of: $s")
         }} recover {
           case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")

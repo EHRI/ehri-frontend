@@ -36,7 +36,7 @@ case class WebOAuth2Flow @Inject ()(
     val headers: Seq[(String, String)] = provider.getUserInfoHeader(info)
     logger.debug(s"Fetching info at $url with headers $headers")
     ws.url(url)
-      .addQueryStringParameter(provider.getUserInfoParams(info): _*)
+      .addQueryStringParameters(provider.getUserInfoParams(info): _*)
       .addHttpHeaders(headers: _*).get()
       .map { r =>
       logger.trace(s"User Info Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")

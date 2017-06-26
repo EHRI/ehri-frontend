@@ -2,7 +2,7 @@ package controllers.vocabularies
 
 import javax.inject._
 
-import backend.rest.{Constants, DataHelpers}
+import backend.rest.DataHelpers
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -179,11 +179,11 @@ case class Vocabularies @Inject()(
   def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
       baseUri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
-    userDataApi.stream(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+    userDataApi.query(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption)
         .getOrElse(MimeTypes.TEXT)
-      Ok.chunked(sr.body).as(ct)
+      Ok.chunked(sr.bodyAsSource).as(ct)
     }
   }
 }
