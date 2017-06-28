@@ -44,6 +44,9 @@ val coreDependencies = backendDependencies ++ Seq(
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
 
+  // Commons Text
+  "org.apache.commons" % "commons-text" % "1.1",
+
   // Password hashing
   "org.mindrot" % "jbcrypt" % "0.3m",
 

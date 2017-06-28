@@ -1,9 +1,7 @@
 package utils
 
-import play.api.i18n.Messages
-import play.api.i18n.{Lang, Messages}
 import java.util.Locale
-import org.apache.commons.lang3.text.WordUtils
+import org.apache.commons.text.WordUtils
 import play.api.i18n.Messages
 
 package object i18n {
@@ -17,7 +15,7 @@ package object i18n {
     }.toList
 
     (localeLangs ::: utils.Data
-      .additionalLanguages.map(l => l -> Messages("languageCode." + l))).sortBy(_._2)
+      .additionalLanguages.toList.map(l => l -> Messages("languageCode." + l))).sortBy(_._2)
   }
 
   /**
@@ -54,15 +52,11 @@ package object i18n {
    * Get a language name for a given code.
    */
   def languageCodeToName(code: String)(implicit messages: Messages): String = code match {
-    case c if c == "mul" => Messages("languageCode.mul")
+    case c if Data.additionalLanguages.contains(c) => Messages(s"languageCode.$c")
     case c if c.length == 2 => languageCode2ToNameOpt(code).getOrElse(code)
     case c =>lang3to2lookup.get(c)
       .flatMap(c2 => languageCode2ToNameOpt(c2))
-      .getOrElse {
-      val key = "languageCode." + c
-      val i18n = Messages(key)
-      if (i18n != key) i18n else c
-    }
+      .getOrElse(c)
   }
 
   def scriptPairList(messages: Messages): List[(String, String)] = utils.Data.scripts.sortBy(_._2)

@@ -6,9 +6,10 @@ object Data {
    * Additional languages not supported by Java Locale. These should
    * have a translation in the messages with the prefix "languageCode".
    */
-  val additionalLanguages = List(
-    "lad",
-    "mul"
+  val additionalLanguages = Set(
+    "lad", // Ladino
+    "mul", // Multiple
+    "sh"   // Serbo-Croatian
   )
 
   /**
