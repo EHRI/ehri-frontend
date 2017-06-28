@@ -6,10 +6,6 @@ import scala.collection.immutable.ListMap
 
 class FacetSpec extends PlaySpecification {
 
-  private val testData = Map(
-    "lang" -> Seq("en", "fr", "de")
-  )
-
   private val testFacetClass = FieldFacetClass(
     key = "lang",
     name = "Language",

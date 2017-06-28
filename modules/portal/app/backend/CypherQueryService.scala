@@ -3,7 +3,7 @@ package backend
 import models.CypherQuery
 import utils.{Page, PageParams}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /**
  * Data access object trait for managing canned

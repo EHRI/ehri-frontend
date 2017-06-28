@@ -19,17 +19,6 @@ facet.linkType=Link Type
 facet.linkField=Link Field
 
 #
-# Additional Language codes
-#
-languageCode.mul=Multiple
-languageCode.lad=Ladino
-
-#
-# Additional/alternate country codes
-#
-countryCode.xk=Kosovo
-
-#
 # Friendly names for content types
 #
 contentTypes=Content types

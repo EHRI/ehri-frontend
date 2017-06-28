@@ -94,6 +94,18 @@ errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 
 #
+# Additional Language codes that aren't official ISO639-2
+#
+languageCode.mul=Multiple
+languageCode.lad=Ladino
+languageCode.sh=Serbo-Croatian
+
+#
+# Additional/alternate country codes
+#
+countryCode.xk=Kosovo
+
+#
 # Pagination etc
 #
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
