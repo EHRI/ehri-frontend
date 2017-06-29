@@ -389,7 +389,7 @@ $(document).ready(function () {
           addAccessPointFromExisting(
               $(event.target),
               selection.name,
-              seleausction.id,
+              selection.id,
               selection.did,
               selection.type
           );
