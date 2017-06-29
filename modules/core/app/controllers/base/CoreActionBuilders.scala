@@ -292,7 +292,7 @@ trait CoreActionBuilders extends Controller with ControllerHelpers {
       globalConfig.ipFilter.map { whitelist =>
         // Extract the client from the forwarded header, falling back
         // on the remote address. This is dependent on the proxy situation.
-        if (whitelist.contains(remoteIp(request))) immediate(None)
+        if (whitelist.contains(request.remoteAddress)) immediate(None)
         else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }

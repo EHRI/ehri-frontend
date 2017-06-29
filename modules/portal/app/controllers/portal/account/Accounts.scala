@@ -143,10 +143,10 @@ case class Accounts @Inject()(
         boundForm.fold(
           errForm => {
             if (errForm.error(HoneyPotForm.BLANK_CHECK).nonEmpty) {
-              logger.warn(s"Honeypot miss on signup from IP $remoteIp")
+              logger.warn(s"Honeypot miss on signup from IP ${request.remoteAddress}")
             }
             if (errForm.error(TimeCheckForm.TIMESTAMP).nonEmpty) {
-              logger.warn(s"Time-to-submit violation on signup from IP $remoteIp")
+              logger.warn(s"Time-to-submit violation on signup from IP ${request.remoteAddress}")
             }
             badForm(errForm)
           },
