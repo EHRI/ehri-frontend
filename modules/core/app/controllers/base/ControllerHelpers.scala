@@ -21,24 +21,6 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
   protected val ACCESS_URI: String = "access_uri"
 
   /**
-    * Fetch a value from config or throw an error.
-    */
-  protected def getConfigInt(key: String): Int =
-    config.getInt(key).getOrElse(sys.error(s"Missing config key: $key"))
-
-  /**
-    * Fetch a value from config or throw an error.
-    */
-  protected def getConfigString(key: String): String =
-    config.getString(key).getOrElse(sys.error(s"Missing config key: $key"))
-
-  /**
-    * Fetch a value from config or default to a fallback.
-    */
-  protected def getConfigString(key: String, fallback: String): String =
-    config.getString(key).getOrElse(fallback)
-
-  /**
     * Check if a request is Ajax.
     */
   protected def isAjax(implicit request: RequestHeader): Boolean = utils.http.isAjax
