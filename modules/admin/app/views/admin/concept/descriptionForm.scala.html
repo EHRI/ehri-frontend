@@ -19,13 +19,9 @@
     @choiceInput(desc(IDENTIFIER), IDENTIFIER, views.Helpers.scriptPairList, blank=true)
     @formHelpers.lineInput(desc, PREFLABEL)
     @formHelpers.inlineNameSet(desc, ALTLABEL)
+    @formHelpers.inlineNameSet(desc, HIDDENLABEL)
     @formHelpers.inlineTextSet(desc, SCOPENOTE, rows = 4)
     @formHelpers.inlineTextSet(desc, DEFINITION, rows = 4)
-    @formHelpers.inlineNameSet(desc, SEEALSO)
 
-    @formHelpers.lineInput(desc, LONGITUDE)
-    @formHelpers.lineInput(desc, LATITUDE)
-
-    @formHelpers.lineInput(desc, URL)
     <hr />
 }

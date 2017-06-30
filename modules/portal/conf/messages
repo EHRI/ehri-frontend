@@ -93,6 +93,9 @@ errors.imageTooLarge=This image was too large. Please select one smaller than 5 
 errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 
+identifier=Identifier
+identifier.description=A locally-unique item identifier.
+
 #
 # Additional Language codes that aren't official ISO639-2
 #
@@ -1081,6 +1084,7 @@ cvocConcept.languageCode=Language
 cvocConcept.identifier=Script (optional)
 cvocConcept.name=Preferred Label
 cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.hiddenLabel=Hidden Label(s)
 cvocConcept.scopeNote=Scope Note
 cvocConcept.definition=Definition
 cvocConcept.inVocabulary=Vocabulary
@@ -1093,6 +1097,16 @@ cvocConcept.latitude=Latitude
 cvocConcept.url=URL
 cvocConcept.uri=URI
 cvocConcept.seeAlso=See Also
+cvocConcept.latLon=Geo-position (lat/lon)
+
+cvocConcept.altLabel.description=
+cvocConcept.hiddenLabel.description=
+cvocConcept.scopeNote.description=
+cvocConcept.longitude.description=Geographical longitude.
+cvocConcept.latitude.description=Geographical latitude.
+cvocConcept.uri.description=The Uniform Resource Identifier.
+cvocConcept.url.description=An optional Uniform Resource Locator.
+cvocConcept.seeAlso.description=Used to indicate a resource that might provide additional information about the subject resource.
 
 #
 # Virtual documentary units
