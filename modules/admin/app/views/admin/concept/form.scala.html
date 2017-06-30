@@ -5,10 +5,15 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@formHelpers.lineInput(f(""), Entity.IDENTIFIER)
-@formHelpers.lineInput(f(""), ConceptF.URI)
+@lineInput(f(""), Entity.IDENTIFIER)
 
 @defining("cvocConcept") { implicit prefix =>
+    @lineInput(f(""), URI)
+    @lineInput(f(""), URL)
+    @lineInput(f(""), LONGITUDE)
+    @lineInput(f(""), LATITUDE)
+    @inlineNameSet(f(""), SEEALSO)
+
     <fieldset id="descriptions-area">
         <div class="inline-formset" data-prefix="descriptions">
             <label>

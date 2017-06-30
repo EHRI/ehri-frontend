@@ -1,7 +1,6 @@
 package models
 
 import base._
-
 import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
@@ -17,6 +16,7 @@ object ConceptF {
 
   val PREFLABEL = "name"
   val ALTLABEL = "altLabel"
+  val HIDDENLABEL = "hiddenLabel"
   val DEFINITION = "definition"
   val SCOPENOTE = "scopeNote"
   val URL = "url"
@@ -40,6 +40,10 @@ object ConceptF {
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ URI).formatNullable[String] and
+    (__ \ DATA \ URL).formatNullable[String] and
+    (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
+    (__ \ DATA \ LATITUDE).formatNullable[BigDecimal] and
+    (__ \ DATA \ SEEALSO).formatSeqOrSingleNullable[String] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[ConceptDescriptionF]
   )(ConceptF.apply, unlift(ConceptF.unapply))
 
@@ -53,6 +57,10 @@ case class ConceptF(
   id: Option[String],
   identifier: String,
   uri: Option[String],
+  url: Option[String] = None,
+  longitude: Option[BigDecimal] = None,
+  latitude: Option[BigDecimal] = None,
+  seeAlso: Option[Seq[String]] = None,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
 ) extends Model with Persistable with Described[ConceptDescriptionF]
 
@@ -62,6 +70,7 @@ object Concept {
   import play.api.libs.functional.syntax._
   import DescribedMeta._
   import Entity._
+  import ConceptF._
 
   private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
   private implicit val vocabularyReads = Vocabulary.VocabularyResource.restReads
@@ -91,7 +100,14 @@ object Concept {
       ISA -> ignored(EntityType.Concept),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
-      ConceptF.URI -> optional(nonEmptyText),
+      URI -> optional(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url))),
+      URL -> optional(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url))),
+      LONGITUDE -> optional(bigDecimal),
+      LATITUDE -> optional(bigDecimal),
+      SEEALSO -> optional(seq(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url)))),
       DESCRIPTIONS -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)
   )

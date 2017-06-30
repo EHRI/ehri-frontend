@@ -2,13 +2,15 @@
 
 @import ConceptF._
 
-@listItem(list: Seq[_], label: String) = {
+@listItem(list: Seq[String], label: String) = {
     <dt>@Messages(prefix + "." + label)</dt>
     <dd>
     @if(list.isEmpty) {
         <i class="text-muted">@Messages("describedEntity.notGiven")</i>
     } else {
-        <ul>@views.html.admin.common.propertyList(list.toList: _*)</ul>
+        <ul class="list-unstyled">
+            @views.html.admin.common.propertyList(list)
+        </ul>
     }
     </dd>
 }
@@ -23,15 +25,10 @@
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
             </i>
         </dd>
-        @Map(ALTLABEL -> desc.altLabels, SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition, SEEALSO -> desc.seeAlso).map { case (key, listOpt) =>
+        @Map(ALTLABEL -> desc.altLabels, HIDDENLABEL -> desc.hiddenLabels,
+            SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, listOpt) =>
             @listOpt.map { list =>
                 @listItem(list, key)
-            }
-        }
-        @Map(LONGITUDE -> desc.longitude.map(_.toString), LATITUDE -> desc.latitude.map(_.toString)).map { case (key, valueOpt) =>
-            @valueOpt.map { value =>
-                <dt>@Messages(prefix + "." + key)</dt>
-                <dd>@value</dd>
             }
         }
         @item.model.uri.map { uri =>
@@ -40,12 +37,26 @@
         }
     </dl>
 
-    @desc.url.map { url =>
+    @item.model.url.map { url =>
         <a href="@url" target="_blank">@url</a>
     }
 
-    @for(lat <- desc.latitude; lng <- desc.longitude; mapsApiKey <- globalConfig.mapsApiKey) {
-        <hr />
-        <iframe width="300" height="225" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/view?key=@mapsApiKey&center=@lat%2C@lng&zoom=12"></iframe>
+    @if(item.model.seeAlso.nonEmpty) {
+        <h4>@Messages("cvocConcept.seeAlso"):</h4>
+        <ul class="list-unstyled">
+            @for(list <- item.model.seeAlso.toList; item <- list) {
+                <li><a href="@item" target="_blank">@item</a></li>
+            }
+        </ul>
+    }
+
+    @for(lat <- item.model.latitude; lng <- item.model.longitude) {
+        <h4>@Messages("cvocConcept.latLon"):</h4>
+        <p>
+            <a target="_blank" href="http://maps.google.com/maps?q=@lat,@lng">@lat,@lng</a>
+            @globalConfig.mapsApiKey.map { mapsApiKey =>
+                <iframe width="300" height="225" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/view?key=@mapsApiKey&center=@lat%2C@lng&zoom=12"></iframe>
+            }
+        </p>
     }
 }

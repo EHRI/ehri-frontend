@@ -26,12 +26,9 @@ object ConceptDescriptionF {
     (__ \ DATA \ IDENTIFIER).formatNullable[String] and
     (__ \ DATA \ PREFLABEL).format[String] and
     (__ \ DATA \ ALTLABEL).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ HIDDENLABEL).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ DEFINITION).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ SCOPENOTE).formatSeqOrSingleNullable[String] and
-    (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
-    (__ \ DATA \ LATITUDE).formatNullable[BigDecimal] and
-    (__ \ DATA \ URL).formatNullable[String] and
-    (__ \ DATA \ SEEALSO).formatSeqOrSingleNullable[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
@@ -50,12 +47,9 @@ case class ConceptDescriptionF(
   identifier: Option[String] = None,
   name: String,
   altLabels: Option[Seq[String]] = None,
+  hiddenLabels: Option[Seq[String]] = None,
   definition: Option[Seq[String]] = None,
   scopeNote: Option[Seq[String]] = None,
-  longitude: Option[BigDecimal] = None,
-  latitude: Option[BigDecimal] = None,
-  url: Option[String] = None,
-  seeAlso: Option[Seq[String]] = None,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
@@ -86,12 +80,9 @@ object ConceptDescription {
     IDENTIFIER -> optional(nonEmptyText),
     PREFLABEL -> nonEmptyText,
     ALTLABEL -> optional(seq(nonEmptyText)),
+    HIDDENLABEL -> optional(seq(nonEmptyText)),
     DEFINITION -> optional(seq(nonEmptyText)),
     SCOPENOTE -> optional(seq(nonEmptyText)),
-    LONGITUDE -> optional(bigDecimal),
-    LATITUDE -> optional(bigDecimal),
-    URL -> optional(nonEmptyText),
-    SEEALSO -> optional(seq(nonEmptyText)),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),
     MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
