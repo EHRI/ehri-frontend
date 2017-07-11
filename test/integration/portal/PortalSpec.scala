@@ -49,8 +49,11 @@ class PortalSpec extends IntegrationTestRunner {
     "allow setting view preferences" in new ITestApp {
       val prefJson = FakeRequest(portalRoutes.prefs()).withUser(privilegedUser).call()
       (contentAsJson(prefJson) \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beTrue
-      val setPrefs = FakeRequest(portalRoutes.updatePrefs()).withUser(privilegedUser)
-        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false").withCsrf.call()
+      val setPrefs = FakeRequest(portalRoutes.updatePrefs())
+        .withUser(privilegedUser)
+        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false")
+        .withCsrf
+        .call()
       status(setPrefs) must equalTo(SEE_OTHER)
       session(setPrefs).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { jsStr =>
         val json = Json.parse(jsStr)

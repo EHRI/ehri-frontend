@@ -39,7 +39,7 @@ val coreDependencies = backendDependencies ++ Seq(
   filters,
   openId,
 
-  "com.typesafe.play" %% "play-json" % "2.6.0-RC2",
+  "com.typesafe.play" %% "play-json" % "2.6.0",
 
   // Anorm DB lib
   "com.typesafe.play" %% "anorm" % "2.6.0-M1",
@@ -54,7 +54,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
 
   // PostgreSQL
-  "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
+  "org.postgresql" % "postgresql" % "42.1.1",
 
   // Markdown rendering
   "com.vladsch.flexmark" % "flexmark-all" % "0.19.3",

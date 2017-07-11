@@ -213,11 +213,9 @@ trait PortalController
         Seq("Content-Disposition" -> s"attachment; filename='$id-$format.xml'")
       else Seq.empty
 
-      val heads: Map[String, String] = sr.headers.map(s => (s._1, s._2.head))
       // If we're streaming a zip file, send it as an attachment
       // with a more useful filename...
-      Status(sr.status).chunked(sr.bodyAsSource).as(ct)
-        .withHeaders(heads.toSeq ++ disp: _*)
+      Status(sr.status).chunked(sr.bodyAsSource).as(ct).withHeaders(disp: _*)
     }
   }
 

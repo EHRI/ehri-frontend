@@ -22,6 +22,8 @@ import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
+import play.api.mvc.request.{Cell, RequestAttrKey}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
@@ -200,37 +202,44 @@ trait TestConfiguration {
   /**
    * Convenience extensions for the FakeRequest object.
    */
-  protected implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+  protected implicit class RequestExtensions[A](fr: Request[A]) {
 
-    def withLoggedIn(implicit app: Application): String => FakeRequest[A] = { id =>
-      fr.withHeaders(AUTH_TEST_HEADER_NAME -> testAuthToken(id))
+    def withLoggedIn(implicit app: Application): String => Request[A] = { id =>
+      fr.withHeaders(fr.headers.add(AUTH_TEST_HEADER_NAME -> testAuthToken(id)))
     }
 
     /**
      * Set the request to be authenticated for the given user.
      */
-    def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
+    def withUser(user: Account)(implicit app: play.api.Application): Request[A] = {
       fr.withLoggedIn(app)(user.id)
+    }
+
+    def withSession(s: (String, String)*): Request[A] = {
+      val newSession = Session(fr.session.data ++ s)
+      fr.withAttrs(fr.attrs.updated(RequestAttrKey.Session, Cell(newSession)))
+    }
+
+    def withFormUrlEncodedBody(data: (String, String)*): Request[AnyContentAsFormUrlEncoded] = {
+      fr.withBody(body = AnyContentAsFormUrlEncoded(play.utils.OrderPreserving.groupBy(data.toSeq)(_._1)))
     }
 
     /**
      * Add a dummy CSRF to the fake request.
      */
-    def withCsrf: FakeRequest[A] = if (fr.method == POST)
-      fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-        .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
+    def withCsrf: Request[A] = CSRFTokenHelper.addCSRFToken(fr)
 
     /**
      * Add a serialized preferences object to the fake request's session.
      */
-    def withPreferences[T: Writes](p: T): FakeRequest[A] =
+    def withPreferences[T: Writes](p: T): Request[A] =
       fr.withSession(SessionPreferences.DEFAULT_STORE_KEY -> Json.stringify(Json.toJson(p)(implicitly[Writes[T]])))
 
     /**
      * Set the accepting header to the given mime-types.
      */
-    def accepting(m: String*): FakeRequest[A] = m.foldLeft(fr) { (c, m) =>
-      c.withHeaders(ACCEPT -> m)
+    def accepting(m: String*): Request[A] = m.foldLeft(fr) { (c, m) =>
+      c.withHeaders(fr.headers.add(ACCEPT -> m))
     }
 
     /**
