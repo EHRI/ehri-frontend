@@ -241,7 +241,7 @@ case class Social @Inject()(
           subject = Messages("mail.message.heading", from.toStringLang),
           to = Seq(s"${to.model.name}} <${accTo.email}>"),
           from = "EHRI User <noreply@ehri-project.eu>",
-          replyTo = Some(s"${from.model.name}} <${accFrom.email}>"),
+          replyTo = Seq(s"${from.model.name}} <${accFrom.email}>"),
           bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
           bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
         )

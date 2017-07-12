@@ -69,7 +69,7 @@ case class Feedback @Inject()(
         subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
         to = Seq(accTo),
         from = "EHRI User <noreply@ehri-project.eu>",
-        replyTo = feedback.email,
+        replyTo = feedback.email.toSeq,
         bodyText = Some(text),
         bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
       )
