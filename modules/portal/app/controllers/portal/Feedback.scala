@@ -24,9 +24,6 @@ case class Feedback @Inject()(
   cypher: Cypher
 ) extends PortalController {
 
-  // FIXME
-  override protected implicit val config: Configuration = appComponents.config
-
   import play.api.data.Form
   import play.api.data.Forms._
   import utils.forms.HoneyPotForm._
@@ -43,7 +40,7 @@ case class Feedback @Inject()(
       TIMESTAMP -> nonEmptyText,
       BLANK_CHECK -> text.verifying(s => s.isEmpty)
     )(CheckFeedbackData.apply)(CheckFeedbackData.unapply)
-      verifying blankFieldIsBlank verifying formSubmissionTime
+      verifying blankFieldIsBlank verifying formSubmissionTime(appComponents.config)
   )
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value]): Seq[String] = {
