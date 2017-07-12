@@ -9,7 +9,6 @@ import models.{AccessPointF, AnnotationF}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.test.FakeRequest
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 /**

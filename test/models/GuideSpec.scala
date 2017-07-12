@@ -120,7 +120,6 @@ class GuideSpec extends PlaySpecification {
         val dao = SqlGuideService()
 
         dao.find("terezin") must beSome.which { guide =>
-          val pages: List[GuidePage] = dao.findAllPages()
           dao.createPage(
             layout = GuidePage.Layout.Map,
             name = "More organisation",

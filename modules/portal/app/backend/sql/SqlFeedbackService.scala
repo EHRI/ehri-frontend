@@ -14,7 +14,6 @@ import play.api.Mode
 import play.api.db.Database
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
-import scala.language.postfixOps
 import scala.languageFeature.postfixOps
 import utils.{Page, PageParams}
 

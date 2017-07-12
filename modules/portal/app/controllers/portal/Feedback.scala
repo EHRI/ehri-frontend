@@ -6,7 +6,7 @@ import backend.FeedbackService
 import backend.rest.cypher.Cypher
 import controllers.AppComponents
 import controllers.portal.base.PortalController
-import play.api.{Application, Configuration}
+import play.api.Application
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
 import utils.PageParams

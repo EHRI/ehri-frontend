@@ -9,7 +9,6 @@ class BookmarksSpec extends IntegrationTestRunner {
   import mockdata.privilegedUser
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
-  private val vuRoutes = controllers.portal.routes.VirtualUnits
 
   private val data = Map(
     BookmarkSet.NAME -> Seq("Test User VU"),

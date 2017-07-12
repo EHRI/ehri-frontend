@@ -1,6 +1,5 @@
-@(form: Form[(Boolean,Boolean,List[EntityType.Value])], types: Seq[EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
+@(form: Form[(Boolean,Boolean,List[defines.EntityType.Value])], types: Seq[defines.EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
 
-@import defines.EntityType
 @import controllers.admin.IndexTypes._
 
 

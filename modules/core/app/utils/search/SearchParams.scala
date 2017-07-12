@@ -97,9 +97,7 @@ object SearchParams {
   implicit val writes: Writes[SearchParams] = Json.writes[SearchParams]
 
   implicit def searchParamsBinder(
-    implicit intOptBinder: QueryStringBindable[Option[Int]],
-    strOptBinder: QueryStringBindable[Option[String]],
-    seqOptBinder: QueryStringBindable[Option[Seq[String]]],
+    implicit strOptBinder: QueryStringBindable[Option[String]],
     seqStrBinder: QueryStringBindable[Seq[String]],
     sortBinder: QueryStringBindable[Option[SearchSort.Value]]) = new QueryStringBindable[SearchParams] with NamespaceExtractor {
 

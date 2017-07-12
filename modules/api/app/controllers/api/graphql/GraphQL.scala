@@ -6,7 +6,7 @@ import akka.util.ByteString
 import backend.rest.Constants
 import controllers.AppComponents
 import controllers.portal.base.PortalController
-import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, ControllerComponents, RawBuffer}
 

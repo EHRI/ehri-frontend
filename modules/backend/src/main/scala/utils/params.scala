@@ -37,19 +37,18 @@ trait Ranged {
 object RangeParams {
   def empty: RangeParams = RangeParams()
 
-  implicit def queryStringBindable(implicit intOptBinder: QueryStringBindable[Option[Int]]) =
-    new QueryStringBindable[RangeParams] with NamespaceExtractor {
-      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, RangeParams]] = {
-        val namespace: String = ns(key)
-        Some(Right(RangeParams(
-          bindOr(namespace + OFFSET_PARAM, params, 0).max(0),
-          bindOr(namespace + LIMIT_PARAM, params, DEFAULT_LIST_LIMIT).min(MAX_LIST_LIMIT)
-        )))
-      }
-
-      override def unbind(key: String, params: RangeParams): String =
-        utils.http.joinQueryString(params.toParams(ns(key)).distinct)
+  implicit def queryStringBindable = new QueryStringBindable[RangeParams] with NamespaceExtractor {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, RangeParams]] = {
+      val namespace: String = ns(key)
+      Some(Right(RangeParams(
+        bindOr(namespace + OFFSET_PARAM, params, 0).max(0),
+        bindOr(namespace + LIMIT_PARAM, params, DEFAULT_LIST_LIMIT).min(MAX_LIST_LIMIT)
+      )))
     }
+
+    override def unbind(key: String, params: RangeParams): String =
+      utils.http.joinQueryString(params.toParams(ns(key)).distinct)
+  }
 }
 
 case class RangeParams(offset: Int = 0, limit: Int = DEFAULT_LIST_LIMIT) extends Ranged {
@@ -72,7 +71,7 @@ object PageParams {
 
   def empty: PageParams = PageParams()
 
-  implicit def queryStringBindable(implicit intOptBinder: QueryStringBindable[Option[Int]]): QueryStringBindable[PageParams] =
+  implicit def queryStringBindable: QueryStringBindable[PageParams] =
     new QueryStringBindable[PageParams] with NamespaceExtractor {
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, PageParams]] = {
         val namespace: String = ns(key)

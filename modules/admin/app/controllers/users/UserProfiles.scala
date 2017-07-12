@@ -73,7 +73,6 @@ case class UserProfiles @Inject()(
     )
   }
 
-  private val form: Form[UserProfileF] = models.UserProfile.form
   private val userRoutes = controllers.users.routes.UserProfiles
   private val groupMembershipForm = Form(Forms.single("group" -> Forms.list(Forms.nonEmptyText)))
 

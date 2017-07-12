@@ -35,12 +35,6 @@ case class Portal @Inject()(
 
   private val portalRoutes = controllers.portal.routes.Portal
 
-  /**
-    * Full text search action that returns a complete page of item data.
-    *
-    * @return
-    */
-  private implicit val anyModelReads = AnyModel.Converter.restReads
   private val defaultSearchTypes = List(
     EntityType.Repository,
     EntityType.DocumentaryUnit,

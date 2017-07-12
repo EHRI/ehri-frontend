@@ -4,15 +4,14 @@ import akka.actor.ActorSystem
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
-import helpers._
 import play.api.Application
 
 import scala.concurrent.ExecutionContext
 
+
 class SqlMovedPageLookupSpec extends PlaySpecification {
   private val app: Application = new GuiceApplicationBuilder().build()
   private implicit val actorSystem = app.injector.instanceOf[ActorSystem]
-  private implicit val executionContext = app.injector.instanceOf[ExecutionContext]
   private implicit def db = app.injector.instanceOf[Database]
 
   private def movedPageService(implicit db: Database) = SqlMovedPageLookup()(db, actorSystem)

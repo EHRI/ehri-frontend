@@ -17,7 +17,6 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
   import mockdata.privilegedUser
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
-  private val portalRoutes = controllers.portal.routes.Portal
 
   private def getProfileImage: File = {
     // Bit dodgy here, upload the project logo as our profile image

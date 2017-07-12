@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
 import play.api.mvc.request.{Cell, RequestAttrKey}
-import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Request, Session}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}

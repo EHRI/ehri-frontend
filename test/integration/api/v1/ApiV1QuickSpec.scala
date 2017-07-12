@@ -7,7 +7,6 @@ import play.api.test.{FakeRequest, PlaySpecification}
 
 class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
 
-  private val apiRoutes = controllers.api.v1.routes.ApiV1
   private val apiHomeRoutes = controllers.api.v1.routes.ApiV1Home
 
   "API/V1" should {

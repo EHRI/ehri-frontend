@@ -11,7 +11,7 @@ import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search._
 

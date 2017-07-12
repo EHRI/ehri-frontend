@@ -4,9 +4,9 @@ import models.{UserProfile, Annotation}
 import java.net.{MalformedURLException, URL}
 import models.base.AnyModel
 import defines.{EntityType, PermissionType}
-import org.apache.commons.codec.digest.{DigestUtils, Md5Crypt}
+import org.apache.commons.codec.digest.DigestUtils
 import play.api.mvc.Call
-import controllers.portal.ReversePortal
+
 
 /**
  * Portal view helpers.
@@ -43,22 +43,19 @@ object Helpers {
 
   def linkTo(item: AnyModel): Call = linkTo(item.isA, item.id)
 
-  def linkTo(isA: EntityType.Value, id: String): Call = {
-    val portalRoutes: ReversePortal = controllers.portal.routes.Portal
-    isA match {
-      case EntityType.Country => controllers.portal.routes.Countries.browse(id)
-      case EntityType.Concept => controllers.portal.routes.Concepts.browse(id)
-      case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(id)
-      case EntityType.Repository => controllers.portal.routes.Repositories.browse(id)
-      case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(id)
-      case EntityType.UserProfile => controllers.portal.social.routes.Social.userProfile(id)
-      case EntityType.Group => controllers.portal.routes.Groups.browse(id)
-      case EntityType.Link => controllers.portal.routes.Links.browse(id)
-      case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
-      case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
-      case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
-      case _ => Call("GET", "#")
-    }
+  def linkTo(isA: EntityType.Value, id: String): Call = isA match {
+    case EntityType.Country => controllers.portal.routes.Countries.browse(id)
+    case EntityType.Concept => controllers.portal.routes.Concepts.browse(id)
+    case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(id)
+    case EntityType.Repository => controllers.portal.routes.Repositories.browse(id)
+    case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(id)
+    case EntityType.UserProfile => controllers.portal.social.routes.Social.userProfile(id)
+    case EntityType.Group => controllers.portal.routes.Groups.browse(id)
+    case EntityType.Link => controllers.portal.routes.Links.browse(id)
+    case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
+    case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
+    case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
+    case _ => Call("GET", "#")
   }
 
   /**

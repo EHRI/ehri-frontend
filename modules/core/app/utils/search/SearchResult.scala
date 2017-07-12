@@ -2,7 +2,6 @@ package utils.search
 
 import utils.Page
 
-import scala.collection.generic.CanBuildFrom
 
 case class SearchResult[+T](
   page: Page[T],

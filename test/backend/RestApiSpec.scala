@@ -2,7 +2,6 @@ package backend
 
 import defines.{ContentTypes, EntityType, PermissionType}
 import play.api.cache.SyncCacheApi
-import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
 import utils.{PageParams, RangePage, RangeParams, SystemEventParams}
@@ -11,12 +10,9 @@ import backend.rest.cypher.CypherService
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import models.base.AnyModel
 import models._
-import play.api.test.{PlaySpecification, WithApplicationLoader}
-import utils.search.{MockSearchIndexMediator, SearchIndexMediator}
 import helpers.IntegrationTestRunner
 import play.api.Configuration
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
 
 /**
@@ -78,7 +74,7 @@ class RestApiSpec extends IntegrationTestRunner {
 
     "not error when retrieving existing items at the wrong path (as per bug #500)" in new ITestApp {
       // Load the item (populating the cache)
-      private val doc: DocumentaryUnit = await(testBackend.get[DocumentaryUnit]("c1"))
+      await(testBackend.get[DocumentaryUnit]("c1"))
       // Now try and fetch it under a different resource path...
       await(testBackend.get[UserProfile]("c1")) must throwA[ItemNotFound]
     }
