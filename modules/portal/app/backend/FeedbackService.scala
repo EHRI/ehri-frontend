@@ -2,7 +2,8 @@ package backend
 
 import models.Feedback
 import utils.{Page, PageParams}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+
 
 trait FeedbackService {
   def create(feedback: Feedback): Future[String]

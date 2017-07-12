@@ -1,9 +1,10 @@
 package integration.admin
 
-import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject._
 import play.api.test._
 import utils.{MockMovedPageLookup, MovedPageLookup}
+
 
 class BrowserSpec extends PlaySpecification {
 

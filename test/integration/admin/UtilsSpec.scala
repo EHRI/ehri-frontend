@@ -83,7 +83,6 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "handle find/replace correctly" in new ITestApp {
       import models.admin.FindReplaceTask._
-      import play.api.i18n.Messages.Implicits._
 
       val data: Map[String,Seq[String]] = Map(
         PARENT_TYPE -> Seq(Entities.REPOSITORY),

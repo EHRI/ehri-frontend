@@ -15,7 +15,6 @@ class AnnotationsSpec extends IntegrationTestRunner {
   import mockdata.{privilegedUser, unprivilegedUser, moderator}
 
   private val annotationRoutes: ReverseAnnotations = controllers.portal.annotate.routes.Annotations
-  private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
 
   override def getConfig = Map("recaptcha.skip" -> true)
 

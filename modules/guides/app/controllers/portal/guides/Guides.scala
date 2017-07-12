@@ -375,11 +375,6 @@ case class Guides @Inject()(
     }
   }
 
-  private def facetSlice(ids: Seq[Long], page: Int, limit: Int): Seq[Long] = {
-    val pages = facetPage(page, limit, ids.size)
-    ids.slice(pages._1, pages._2)
-  }
-
   private def pagify[T](docs: SearchResult[T], accessPoints: Seq[AnyModel])(implicit requestHeader: RequestHeader): SearchResult[T] = {
     docs.copy(
       facets = docs.facets ++ (if (accessPoints.nonEmpty)

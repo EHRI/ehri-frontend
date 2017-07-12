@@ -1,6 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
-
-@import defines._
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @accessPointLink(item: models.base.AnyModel, accessPoint: AccessPointF, links: Seq[Link]) = {
   @accessPoint.target(item, links).map { case (link, other) =>

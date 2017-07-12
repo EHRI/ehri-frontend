@@ -18,7 +18,7 @@ import models.api.v1.JsonApiV1._
 import models.base.AnyModel
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -26,11 +26,11 @@ import play.api.{Configuration, Logger}
 import utils.{Page, PageParams}
 import utils.search.SearchConstants._
 import utils.search._
-import views.{Helpers, MarkdownRenderer}
+import views.Helpers
 
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.concurrent.{ExecutionContext, Future}
 
 
 object ApiV1 {

@@ -22,9 +22,9 @@ class ApiV1Spec extends IntegrationTestRunner {
       schema.validate(new JSONObject(Json.prettyPrint(json)))
     } catch {
       case se: ValidationException =>
-        import scala.collection.JavaConversions._
         println(se.getMessage)
-        se.getCausingExceptions.toList.foreach { e =>
+        import scala.collection.JavaConverters._
+        se.getCausingExceptions.asScala.foreach { e =>
           println(" - " + e.getMessage)
         }
         throw se

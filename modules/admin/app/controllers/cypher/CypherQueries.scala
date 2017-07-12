@@ -3,7 +3,6 @@ package controllers.cypher
 
 import javax.inject.{Inject, Singleton}
 
-import akka.stream.Materializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import backend.CypherQueryService
@@ -28,7 +27,7 @@ case class CypherQueries @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   cypher: CypherService,
-  cypherQueries: CypherQueryService)(implicit mat: Materializer
+  cypherQueries: CypherQueryService
 ) extends AdminController {
 
   private val logger = Logger(CypherQueries.getClass)

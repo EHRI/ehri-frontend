@@ -12,8 +12,8 @@ case class WebSocketClientWrapper(uri: String, headers: Map[String, String] = Ma
 
   val messages: ListBuffer[String] = ListBuffer[String]()
 
-  import scala.collection.JavaConversions._
-  val client = new WebSocketClient(URI.create(uri), new Draft_17(), headers, 0) {
+  import scala.collection.JavaConverters._
+  val client = new WebSocketClient(URI.create(uri), new Draft_17(), headers.asJava, 0) {
     def onError(p1: Exception) = throw p1
 
     def onMessage(message: String): Unit = messages += message

@@ -2,7 +2,7 @@ package utils.i18n
 
 import play.api.http.HttpConfiguration
 import play.api.{Configuration, Environment}
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi, DefaultMessagesApiProvider, Lang}
+import play.api.i18n.{DefaultLangs, DefaultMessagesApiProvider, Lang}
 import play.api.test.PlaySpecification
 
 class I18nSpec extends PlaySpecification {

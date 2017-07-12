@@ -27,12 +27,6 @@ case class Metrics @Inject()(
 
   private val statusCache = appComponents.statusCache
 
-  private val searchEntities = List(
-    EntityType.DocumentaryUnit,
-    EntityType.Repository,
-    EntityType.HistoricalAgent
-  )
-
   private def jsonResponse[T](result: SearchResult[(T, SearchHit)])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
