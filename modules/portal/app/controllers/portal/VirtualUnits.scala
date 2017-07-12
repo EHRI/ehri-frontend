@@ -4,14 +4,14 @@ import javax.inject._
 
 import backend.IdGenerator
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent, RequestHeader}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import utils.PageParams
 import utils.search._
 
@@ -20,14 +20,15 @@ import scala.concurrent.Future
 
 @Singleton
 case class VirtualUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   idGenerator: IdGenerator,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[VirtualUnit]
   with Search
-  with SearchVC
-  with FacetConfig {
+  with SearchVC {
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
@@ -46,7 +47,7 @@ case class VirtualUnits @Inject()(
         paging = paging,
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = docSearchFacets
+        facetBuilder = fc.docSearchFacets
       )
     } yield {
       if (isAjax) Ok(views.html.virtualUnit.childItemSearch(request.item, result,
@@ -65,7 +66,7 @@ case class VirtualUnits @Inject()(
       paging = paging,
       filters = filters,
       entities = List(EntityType.VirtualUnit),
-      facetBuilder = docSearchFacets
+      facetBuilder = fc.docSearchFacets
     ).map { result =>
       Ok(views.html.virtualUnit.list(result, vuRoutes.browseVirtualCollections(),
         request.watched))
@@ -106,7 +107,7 @@ case class VirtualUnits @Inject()(
         paging = paging,
         filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-        facetBuilder = docSearchFacets
+        facetBuilder = fc.docSearchFacets
       )
     } yield {
       if (isAjax)

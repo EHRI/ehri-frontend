@@ -24,8 +24,8 @@ trait Visibility[MT] extends Read[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[VisibilityRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, VisibilityRequest] {
+  protected def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[VisibilityRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, VisibilityRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
         dataHelpers.getUserAndGroupList.map { case (users, groups) =>
           VisibilityRequest(request.item, users, groups, request.userOpt, request)
@@ -33,8 +33,8 @@ trait Visibility[MT] extends Read[MT] {
       }
     }
 
-  protected def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+  protected def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)

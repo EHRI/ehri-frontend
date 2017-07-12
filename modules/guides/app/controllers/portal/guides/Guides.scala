@@ -7,7 +7,7 @@ import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
-import controllers.{Components, renderError}
+import controllers.{AppComponents, renderError}
 import defines.EntityType
 import models.GuidePage.Layout
 import models.base.AnyModel
@@ -26,19 +26,20 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Guides @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   guides: GuideService,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Search
-  with SearchVC
-  with FacetConfig {
+  with SearchVC {
 
   private val ajaxOrder = utils.search.SearchSort.Name
   private val htmlAgentOrder = utils.search.SearchSort.Detail
   private val htmlConceptOrder = utils.search.SearchSort.ChildCount
 
-  def jsRoutes: EssentialAction = components.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
@@ -161,26 +162,26 @@ case class Guides @Inject()(
   /*
    *    Return Ajax 
    */
-  private def guideJsonItem(item: AnyModel, count: Long = 0): JsValue = {
+  private def guideJsonItem(item: AnyModel, count: Long = 0)(implicit requestHeader: RequestHeader): JsValue = {
     item match {
       case it: HistoricalAgent =>
         Json.obj(
-          "name" -> Json.toJson(it.toStringLang),
-          "id" -> Json.toJson(it.id),
-          "type" -> Json.toJson("historicalAgent"),
-          "links" -> Json.toJson(count)
+          "name" -> it.toStringLang,
+          "id" -> it.id,
+          "type" -> EntityType.HistoricalAgent,
+          "links" -> count
         )
       case it: Concept =>
         Json.obj(
-          "name" -> Json.toJson(it.toStringLang),
-          "id" -> Json.toJson(it.id),
-          "type" -> Json.toJson("cvocConcept"),
-          "links" -> Json.toJson(count),
+          "name" -> it.toStringLang,
+          "id" -> it.id,
+          "type" -> EntityType.Concept,
+          "links" -> count,
           "childCount" -> Json.toJson(it.childCount.getOrElse(0)),
           "parent" -> Json.toJson(it.parent match {
             case Some(p) => Json.obj(
-              "name" -> Json.toJson(p.toStringLang),
-              "id" -> Json.toJson(p.id)
+              "name" -> p.toStringLang,
+              "id" -> p.id
             )
             case _ => JsNull
           }),
@@ -197,7 +198,7 @@ case class Guides @Inject()(
     }
   }
 
-  private def guideJson(page: utils.Page[(AnyModel, utils.search.SearchHit)], request: RequestHeader, links: Map[String, Long], pageParam: String = "page"): JsValue = {
+  private def guideJson(page: utils.Page[(AnyModel, utils.search.SearchHit)], links: Map[String, Long], pageParam: String = "page")(implicit request: RequestHeader): JsValue = {
     Json.obj(
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
         guideJsonItem(agent, links.getOrElse(agent.id, 0))
@@ -250,7 +251,7 @@ case class Guides @Inject()(
           if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
           else Ok(views.html.guides.person(guide, page, guides.findPages(guide), r.page, r.params, links))
         case Accepts.Json() =>
-          Ok(guideJson(r.page, request, links))
+          Ok(guideJson(r.page, links))
       }
     }
 
@@ -265,14 +266,14 @@ case class Guides @Inject()(
       ) match {
         case (sort, geoLocation) => for {
           r <- findType[Concept](params, PageParams(limit = 500), filters,
-            geoLocation, sort, facetBuilder = conceptFacets)
+            geoLocation, sort, facetBuilder = fc.conceptFacets)
           links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
         } yield render {
             case Accepts.Html() =>
               if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
-              else Ok(views.html.guides.places(guide, page, guides.findPages(guide), r.page, r.params, links, guideJson(r.page, request, links)))
+              else Ok(views.html.guides.places(guide, page, guides.findPages(guide), r.page, r.params, links, guideJson(r.page, links)))
             case Accepts.Json() =>
-              Ok(guideJson(r.page, request, links))
+              Ok(guideJson(r.page, links))
           }
       }
     }
@@ -286,14 +287,14 @@ case class Guides @Inject()(
         Some(if (isAjax) ajaxOrder else htmlConceptOrder), isAjax = isAjax)
 
       for {
-        r <- findType[Concept](defParams, paging, filters, facetBuilder = conceptFacets)
+        r <- findType[Concept](defParams, paging, filters, facetBuilder = fc.conceptFacets)
         links <- countLinks(guide.virtualUnit, r.page.items.map { case (item, hit) => item.id})
       } yield render {
         case Accepts.Html() =>
           if (isAjax) Ok(views.html.guides.ajax(guide, page, r.page, r.params, links))
           else Ok(views.html.guides.organisation(guide, page, guides.findPages(guide), r.page, r.params, links))
         case Accepts.Json() =>
-          Ok(guideJson(r.page, request, links))
+          Ok(guideJson(r.page, links))
       }
     }
 
@@ -379,7 +380,7 @@ case class Guides @Inject()(
     ids.slice(pages._1, pages._2)
   }
 
-  private def pagify[T](docs: SearchResult[T], accessPoints: Seq[AnyModel]): SearchResult[T] = {
+  private def pagify[T](docs: SearchResult[T], accessPoints: Seq[AnyModel])(implicit requestHeader: RequestHeader): SearchResult[T] = {
     docs.copy(
       facets = docs.facets ++ (if (accessPoints.nonEmpty)
         Seq(AppliedFacet("kw", accessPoints.map(_.id)))

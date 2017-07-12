@@ -3,7 +3,7 @@ package controllers.groups
 import javax.inject._
 
 import backend.rest.{Constants, DataHelpers}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.EntityType
@@ -11,7 +11,7 @@ import forms.VisibilityForm
 import models.base.Accessor
 import models.{Group, GroupF, UserProfile}
 import play.api.data.{Form, Forms}
-import play.api.mvc.{Action, AnyContent, Request}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import utils.search.SearchParams
 import utils.{PageParams, RangeParams}
 
@@ -19,7 +19,8 @@ import scala.concurrent.Future
 
 
 case class Groups @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
   with PermissionHolder[Group]

@@ -23,15 +23,12 @@ package object helpers {
     // NB: There should be an easier way of doing this.
     val env = play.api.Environment.simple()
     val config = Configuration.load(env)
-    LoggerConfigurator(getClass.getClassLoader).foreach(_.configure(env))
     Databases.apply(
-      config.getString("db.default.driver")
-        .getOrElse(sys.error("Missing database config for driver")),
-      config.getString("db.default.url")
-        .getOrElse(sys.error("Missing database config for url")),
+      config.get[String]("db.default.driver"),
+      config.get[String]("db.default.url"),
       config = Map(
-        "username" -> config.getString("db.default.username").getOrElse(""),
-        "password" -> config.getString("db.default.password").getOrElse("")
+        "username" -> config.getOptional[String]("db.default.username").getOrElse(""),
+        "password" -> config.getOptional[String]("db.default.password").getOrElse("")
       )
     )
   }

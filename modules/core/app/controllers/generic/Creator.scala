@@ -31,7 +31,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new ActionTransformer[ItemPermissionRequest, NewChildRequest] {
+  private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new CoreActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         NewChildRequest(request.item, users, groups, request.userOpt, request)
@@ -39,7 +39,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
   }
 
-  protected def NewChildAction(itemId: String)(implicit ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[NewChildRequest] =
+  protected def NewChildAction(itemId: String)(implicit ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[NewChildRequest, AnyContent] =
     WithParentPermissionAction(itemId, PermissionType.Create, cct.contentType) andThen NewChildTransformer
 
   case class CreateChildRequest[A](
@@ -51,7 +51,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   with WithOptionalUser
 
   private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], crd: Readable[CMT], cct: ContentType[CMT]) =
-    new ActionTransformer[ItemPermissionRequest, CreateChildRequest] {
+    new CoreActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request
         val extra = extraParams.apply(request.request)
@@ -73,7 +73,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     }
 
   protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(
-    implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[CreateChildRequest] =
+    implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[CreateChildRequest, AnyContent] =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
   
   

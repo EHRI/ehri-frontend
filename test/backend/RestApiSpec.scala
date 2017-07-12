@@ -1,7 +1,7 @@
 package backend
 
 import defines.{ContentTypes, EntityType, PermissionType}
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.inject.guice.GuiceApplicationLoader
 import play.api.libs.ws.WSClient
 import utils.SystemEventParams.Aggregation
@@ -34,7 +34,7 @@ class RestApiSpec extends IntegrationTestRunner {
 
   private def ws(implicit app: play.api.Application) = app.injector.instanceOf[WSClient]
   private def config(implicit app: play.api.Application) = app.injector.instanceOf[Configuration]
-  private def cache(implicit app: play.api.Application) = app.injector.instanceOf[CacheApi]
+  private def cache(implicit app: play.api.Application) = app.injector.instanceOf[SyncCacheApi]
 
   /**
    * A minimal object that has a resource type and can be read.

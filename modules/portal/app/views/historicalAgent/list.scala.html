@@ -1,6 +1,6 @@
 @(result: utils.search.SearchResult[(HistoricalAgent,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.searchLayout(Messages("type.HistoricalAgent"), EntityType.HistoricalAgent.toString, result, meta = Map("description" -> Messages("type.HistoricalAgent.description")(messages.copy(lang = Lang.defaultLang)))) {
+@views.html.layout.searchLayout(Messages("type.HistoricalAgent"), EntityType.HistoricalAgent.toString, result) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.HistoricalAgent") {
         @views.html.common.search.searchItemList(result, watched)
     } {

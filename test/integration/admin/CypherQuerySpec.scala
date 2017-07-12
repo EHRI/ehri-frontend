@@ -28,7 +28,7 @@ class CypherQuerySpec extends IntegrationTestRunner {
     "allow creating new queries" in new ITestApp {
       val cqCount = cypherQueryBuffer.size
       val post = FakeRequest(controllers.cypher.routes.CypherQueries.createQueryPost())
-        .withUser(privilegedUser).withCsrf.callWith(formData)
+        .withUser(privilegedUser).callWith(formData)
       status(post) must equalTo(SEE_OTHER)
       val newCount = cypherQueryBuffer.size
       newCount must equalTo(cqCount + 1)

@@ -1,5 +1,5 @@
 @(desc: play.api.data.Field, fieldName: String)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @defining(desc(fieldName)) { field =>
-    @helper.checkbox(field.copy(value = field.value.orElse(defaults.flatMap(_.getString(fieldName)))), 'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")), '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+    @helper.checkbox(field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))), 'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")), '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
 }

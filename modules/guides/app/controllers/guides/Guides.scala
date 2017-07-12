@@ -2,17 +2,19 @@ package controllers.guides
 
 import javax.inject._
 
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import models.sql.IntegrityError
 import models.{Guide, GuideService}
+import play.api.mvc.ControllerComponents
 
 import scala.util.{Failure, Success}
 
 
 @Singleton
 case class Guides @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   guides: GuideService
 ) extends AdminController {
 

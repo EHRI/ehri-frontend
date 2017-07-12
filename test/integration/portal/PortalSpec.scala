@@ -1,21 +1,20 @@
 package integration.portal
 
-import java.io.ByteArrayInputStream
-import java.util.zip.{ZipEntry, ZipFile, ZipInputStream}
+import java.util.zip.{ZipEntry, ZipInputStream}
 
 import akka.util.ByteString
 import controllers.base.SessionPreferences
 import controllers.portal.ReversePortal
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
+import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 import utils.SessionPrefs
 import utils.search.SearchParams
 
-import scala.collection.mutable.ListBuffer
-
 
 class PortalSpec extends IntegrationTestRunner {
+
   import mockdata.privilegedUser
 
   private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
@@ -30,7 +29,7 @@ class PortalSpec extends IntegrationTestRunner {
 
     "show index page in other languages" in new ITestApp {
       val doc = FakeRequest(portalRoutes.index())
-        .withPreferences(new SessionPrefs(language = Some("fr")))
+        .withCookies(Cookie("PLAY_LANG", "fr"))
         .call()
       contentAsString(doc) must contain("Bienvenue sur")
     }
@@ -50,10 +49,13 @@ class PortalSpec extends IntegrationTestRunner {
     "allow setting view preferences" in new ITestApp {
       val prefJson = FakeRequest(portalRoutes.prefs()).withUser(privilegedUser).call()
       (contentAsJson(prefJson) \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beTrue
-      val setPrefs = FakeRequest(portalRoutes.updatePrefs()).withUser(privilegedUser)
-        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false").withCsrf.call()
+      val setPrefs = FakeRequest(portalRoutes.updatePrefs())
+        .withUser(privilegedUser)
+        .withFormUrlEncodedBody(SessionPrefs.SHOW_USER_CONTENT -> "false")
+        .withCsrf
+        .call()
       status(setPrefs) must equalTo(SEE_OTHER)
-      session(setPrefs).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which {jsStr =>
+      session(setPrefs).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { jsStr =>
         val json = Json.parse(jsStr)
         (json \ SessionPrefs.SHOW_USER_CONTENT).as[Boolean] must beFalse
       }
@@ -61,12 +63,10 @@ class PortalSpec extends IntegrationTestRunner {
 
     "allow setting the language" in new ITestApp {
       val about = FakeRequest(portalRoutes.about()).call()
-      session(about).get(SessionPreferences.DEFAULT_STORE_KEY) must beNone
       val setLang = FakeRequest(portalRoutes.changeLocale("de")).call()
       status(setLang) must equalTo(SEE_OTHER)
-      session(setLang).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which { jsStr =>
-        val json = Json.parse(jsStr)
-        (json \ SessionPrefs.LANG).asOpt[String] must equalTo(Some("de"))
+      cookies(setLang).get("PLAY_LANG") must beSome.which { cookie =>
+        cookie must_== Cookie("PLAY_LANG", "de", httpOnly = false)
       }
     }
 

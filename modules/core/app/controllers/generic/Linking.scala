@@ -54,8 +54,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def LinkSelectAction(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[LinkSelectRequest] =
-    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
+  protected def LinkSelectAction(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[LinkSelectRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req = request
         find[AnyModel](
@@ -78,8 +78,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     with WithOptionalUser
 
   protected def LinkAction(id: String, toType: EntityType.Value, to: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[LinkItemsRequest] =
-    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[LinkItemsRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
         implicit val req = request
         userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
@@ -97,8 +97,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     with WithOptionalUser
 
   protected def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[CreateLinkRequest] =
-    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[CreateLinkRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
         implicit val req = request
         Link.form.bindFromRequest.fold(
@@ -123,8 +123,8 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MultiLinksRequest] =
-    WithItemPermissionAction(id, PermissionType.Annotate) andThen new ActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
+  protected def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MultiLinksRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MultiLinksRequest[A]] = {
         implicit val req = request
         val multiForm: Form[List[(String, LinkF, Option[String])]] = Link.multiForm
@@ -142,7 +142,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     * Create a link, via Json, for any arbitrary two objects, via an access point.
     */
   def createLink(id: String, apid: String)(implicit ct: ContentType[MT]): Action[JsValue] =
-    WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
+    WithItemPermissionAction(id, PermissionType.Annotate).async(parsers.json) { implicit request =>
       request.body.validate[AccessPointLink].fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
         ann => {
@@ -159,7 +159,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     * other objects.
     */
   def createMultipleLinks(id: String)(implicit ct: ContentType[MT]): Action[JsValue] =
-    WithItemPermissionAction(id, PermissionType.Annotate).async(parse.json) { implicit request =>
+    WithItemPermissionAction(id, PermissionType.Annotate).async(parsers.json) { implicit request =>
       request.body.validate[List[AccessPointLink]].fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
         anns => {
@@ -177,7 +177,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     * Create a link, via Json, for any arbitrary two objects, via an access point.
     */
   def createAccessPoint(id: String, did: String)(implicit ct: ContentType[MT]): Action[JsValue] =
-    WithItemPermissionAction(id, PermissionType.Update).async(parse.json) { implicit request =>
+    WithItemPermissionAction(id, PermissionType.Update).async(parsers.json) { implicit request =>
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
         ap => userDataApi.createAccessPoint(id, did, ap).map { ann =>

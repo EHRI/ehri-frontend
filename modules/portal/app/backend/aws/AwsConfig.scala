@@ -10,7 +10,7 @@ case class AwsConfig(
 object AwsConfig {
   def fromConfig(config: play.api.Configuration, fallback: Map[String,String] = Map.empty): AwsConfig = {
     def getString(key: String): String = config
-      .getString(key)
+      .getOptional[String](key)
       .orElse(fallback.get(key))
       .getOrElse(sys.error(s"Invalid configuration: missing key: $key"))
 

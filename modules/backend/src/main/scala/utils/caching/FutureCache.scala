@@ -3,14 +3,14 @@ package utils.caching
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 
 /**
  * Wrapper around Play's simple Cache api for more convenience when
  * using an asynchronous data source.
  */
 object FutureCache {
-  def getOrElse[A](key: String, expiration: Duration = Duration.Inf)(orElse : => Future[A])(implicit cache: CacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
+  def getOrElse[A](key: String, expiration: Duration = Duration.Inf)(orElse : => Future[A])(implicit cache: SyncCacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
     cache.get[A](key) match {
       case Some(a) => Future.successful(a)
       case _ =>
@@ -22,7 +22,7 @@ object FutureCache {
     }
   }
 
-  def set[A](key: String, expiration: Duration = Duration.Inf)(get: => Future[A])(implicit cache: CacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
+  def set[A](key: String, expiration: Duration = Duration.Inf)(get: => Future[A])(implicit cache: SyncCacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
     val value = get
     value.map { a =>
       cache.set(key, a, expiration)

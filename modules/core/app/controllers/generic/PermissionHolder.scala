@@ -40,8 +40,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     with WithOptionalUser
 
 
-  protected def GrantListAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[HolderPermissionGrantRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, HolderPermissionGrantRequest] {
+  protected def GrantListAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[HolderPermissionGrantRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, HolderPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[HolderPermissionGrantRequest[A]] = {
         implicit val req = request
         userDataApi.permissionGrants[PermissionGrant](id, paging).map { perms =>
@@ -56,8 +56,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
     case _ => None
   }
 
-  protected def CheckGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[GlobalPermissionSetRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
+  protected def CheckGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[GlobalPermissionSetRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
         userDataApi.globalPermissions(id).map { perms =>
@@ -66,8 +66,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def SetGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[GlobalPermissionSetRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
+  protected def SetGlobalPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[GlobalPermissionSetRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, GlobalPermissionSetRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[GlobalPermissionSetRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)
@@ -80,8 +80,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def CheckRevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]): ActionBuilder[PermissionGrantRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
+  protected def CheckRevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]): ActionBuilder[PermissionGrantRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, PermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[PermissionGrantRequest[A]] = {
         implicit val req = request
         userDataApi.get[PermissionGrant](permId).map { perm =>
@@ -90,8 +90,8 @@ trait PermissionHolder[MT <: Accessor] extends Read[MT] {
       }
     }
 
-  protected def RevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest] =
-    WithItemPermissionAction(id, PermissionType.Grant) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
+  protected def RevokePermissionAction(id: String, permId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req = request
         userDataApi.delete[PermissionGrant](permId).map(_ => request)

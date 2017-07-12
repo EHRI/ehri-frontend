@@ -4,11 +4,11 @@ import javax.inject._
 
 import backend.FeedbackService
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.{Application, Configuration}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
+import play.api.mvc._
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
@@ -16,14 +16,13 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Feedback @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   app: Application,
   feedbackService: FeedbackService,
   mailer: MailerClient,
   cypher: Cypher
 ) extends PortalController {
-
-  override protected implicit val config: Configuration = components.configuration
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -41,15 +40,14 @@ case class Feedback @Inject()(
       TIMESTAMP -> nonEmptyText,
       BLANK_CHECK -> text.verifying(s => s.isEmpty)
     )(CheckFeedbackData.apply)(CheckFeedbackData.unapply)
-      verifying blankFieldIsBlank verifying formSubmissionTime
+      verifying blankFieldIsBlank verifying formSubmissionTime(appComponents.config)
   )
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value]): Seq[String] = {
-    import scala.collection.JavaConverters._
-    val defaultOpt = config.getStringList("ehri.portal.feedback.copyTo").map(_.asScala)
+    val defaultOpt = config.getOptional[Seq[String]]("ehri.portal.feedback.copyTo")
     ((for {
       ft <- feedbackType
-      ct <- config.getStringList(s"ehri.portal.feedback.$ft.copyTo").map(_.asScala)
+      ct <- config.getOptional[Seq[String]](s"ehri.portal.feedback.$ft.copyTo")
     } yield ct) orElse defaultOpt).getOrElse(Seq.empty)
   }
 
@@ -68,7 +66,7 @@ case class Feedback @Inject()(
         subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
         to = Seq(accTo),
         from = "EHRI User <noreply@ehri-project.eu>",
-        replyTo = feedback.email,
+        replyTo = feedback.email.toSeq,
         bodyText = Some(text),
         bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
       )

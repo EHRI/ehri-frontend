@@ -12,6 +12,7 @@ import scala.concurrent.Future
 import backend.{ApiUser, DataApi, DataApiHandle}
 import models.base.{AnyModel, Described, DescribedMeta, Description}
 import play.api.libs.json.JsString
+import play.api.i18n.{Lang, LangImplicits, Messages, MessagesImpl}
 
 
 /**
@@ -21,7 +22,10 @@ import play.api.libs.json.JsString
 case class MockSearchEngine @Inject()(
   dataApi: DataApi,
   paramLog: SearchLogger
-)(implicit val messagesApi: play.api.i18n.MessagesApi) extends SearchEngine with play.api.i18n.I18nSupport {
+)(implicit val messagesApi: play.api.i18n.MessagesApi)
+  extends SearchEngine with play.api.i18n.I18nSupport with LangImplicits {
+
+  private implicit val lang: Lang = Lang("en")
 
   private val allEntities = Seq(
     EntityType.DocumentaryUnit,

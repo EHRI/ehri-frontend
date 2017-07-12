@@ -49,7 +49,7 @@ package object json {
         .map(json.validate(_))
         .getOrElse(
           JsError(JsPath(List(KeyPathNode(Entity.TYPE))),
-            ValidationError(s"Unregistered AnyModel type for Client read: ${typeOf(json)}")))
+            JsonValidationError(s"Unregistered AnyModel type for Client read: ${typeOf(json)}")))
     }
 
     implicit val clientWriteAny: Writes[AnyModel] = Writes { model =>

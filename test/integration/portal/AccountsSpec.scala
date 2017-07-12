@@ -4,10 +4,9 @@ import auth.HashedPassword
 import auth.oauth2.providers.GoogleOAuth2Provider
 import helpers.IntegrationTestRunner
 import models.SignupData
-import play.api.cache.CacheApi
-import play.api.i18n.Messages.Implicits._
-import play.api.i18n.Messages
-import play.api.test.{FakeRequest, WithApplication}
+import play.api.i18n.MessagesApi
+import play.api.cache.SyncCacheApi
+import play.api.test.{FakeRequest, Injecting, WithApplication}
 import utils.forms.HoneyPotForm._
 import utils.forms.TimeCheckForm._
 
@@ -18,7 +17,7 @@ class AccountsSpec extends IntegrationTestRunner {
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[CacheApi]
+  private implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[SyncCacheApi]
 
   "Account views" should {
     "redirect to index page on log out" in new ITestApp {
@@ -72,7 +71,8 @@ class AccountsSpec extends IntegrationTestRunner {
       cache.get[String](singleUseKey) must beNone
     }
 
-    "error with bad session state" in new WithApplication {
+    "error with bad session state" in new WithApplication with Injecting {
+      implicit val messagesApi = inject[MessagesApi]
       val singleUseKey = "useOnce"
       cache.set(singleUseKey, "jdjjjr")
       val login = FakeRequest(
@@ -80,7 +80,7 @@ class AccountsSpec extends IntegrationTestRunner {
           code = Some("blah"), state = Some("dk3kdm34")))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
-      flash(login).get("danger") must equalTo(Some(Messages("login.error.oauth2.badSessionId", "Google")))
+      flash(login).get("danger") must_== Some(message("login.error.oauth2.badSessionId", "Google"))
     }
 
     "error with bad provider" in new ITestApp {

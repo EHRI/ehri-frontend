@@ -10,6 +10,7 @@ import anorm._
 import backend.FeedbackService
 import models.{Feedback, FeedbackContext}
 import org.apache.commons.io.IOUtils
+import play.api.Mode
 import play.api.db.Database
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
@@ -26,19 +27,20 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  private implicit def columnToModeEnum: Column[play.api.Mode.Value] = {
-    Column.nonNull[play.api.Mode.Value] { (value, meta) =>
-      try {
-        Right(play.api.Mode.withName(value.toString))
-      } catch {
-        case e: Throwable => Left(TypeDoesNotMatch(
+  private implicit def columnToModeEnum: Column[play.api.Mode] = {
+    Column.nonNull[play.api.Mode] { (value, meta) =>
+      value.toString match {
+        case "Dev" => Right(Mode.Dev)
+        case "Test" => Right(Mode.Test)
+        case "Prod" => Right(Mode.Prod)
+        case _ => Left(TypeDoesNotMatch(
           s"Cannot convert $value: ${value.asInstanceOf[AnyRef].getClass} to ${getClass.getName}"))
       }
     }
   }
 
-  private implicit def modeEnumToStatement = new ToStatement[Option[play.api.Mode.Value]] {
-    def set(s: java.sql.PreparedStatement, index: Int, value: Option[play.api.Mode.Value]): Unit =
+  private implicit def modeEnumToStatement = new ToStatement[Option[play.api.Mode]] {
+    def set(s: java.sql.PreparedStatement, index: Int, value: Option[play.api.Mode]): Unit =
       s.setObject(index, value.map(_.toString).orNull)
   }
 

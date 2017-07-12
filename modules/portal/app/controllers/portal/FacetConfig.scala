@@ -1,30 +1,26 @@
 package controllers.portal
 
-import controllers.generic.Search
+import javax.inject.Inject
+
 import models.Isaar
-import play.api.i18n.{MessagesApi, Messages}
-import play.api.mvc.{Controller, RequestHeader}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.RequestHeader
+import utils.DateFacetUtils
 import utils.DateFacetUtils._
 import utils.search._
 import views.Helpers
 
 
 /**
- * Facet configuration for various kinds of searches.
- */
-trait FacetConfig extends Search {
-
-  this: Controller with play.api.i18n.I18nSupport =>
+  * Facet configuration for various kinds of searches.
+  */
+case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val messagesApi: MessagesApi) extends I18nSupport {
 
   import utils.search.SearchConstants._
 
-  implicit def messagesApi: MessagesApi
-
-  private val dateFacetUtils = utils.DateFacetUtils()(messagesApi)
-
   /**
-   * Return a date query facet if valid start/end params have been given.
-   */
+    * Return a date query facet if valid start/end params have been given.
+    */
   private def dateList(implicit request: RequestHeader): Option[QueryFacet] = {
     for {
       dateString <- dateQueryForm.bindFromRequest(request.queryString).value
@@ -38,8 +34,8 @@ trait FacetConfig extends Search {
   }
 
   /**
-   * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
-   */
+    * Return a date query facet with an optional SolrQueryFacet if valid start/end have been given
+    */
   private def dateQuery(implicit request: RequestHeader): QueryFacetClass = {
     QueryFacetClass(
       key = "dateRange",
@@ -52,7 +48,7 @@ trait FacetConfig extends Search {
   }
 
   // i.e. Everything
-  protected val globalSearchFacets: FacetBuilder = { implicit request =>
+  val globalSearchFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = LANGUAGE_CODE,
@@ -74,7 +70,7 @@ trait FacetConfig extends Search {
 
   // i.e. Metrics to count number and type of repos, docs, authorities
   // for display on the landing page.
-  protected val entityMetrics: FacetBuilder = { implicit request =>
+  val entityMetrics: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = TYPE,
@@ -108,7 +104,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val historicalAgentFacets: FacetBuilder = { implicit request =>
+  val historicalAgentFacets: FacetBuilder = { implicit request =>
     List(
       // dateQuery(request),
       FieldFacetClass(
@@ -136,7 +132,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val annotationFacets: FacetBuilder = { implicit request =>
+  val annotationFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key = "isPromotable",
@@ -164,7 +160,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val countryFacets: FacetBuilder = { implicit request =>
+  val countryFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key = CHILD_COUNT,
@@ -179,7 +175,7 @@ trait FacetConfig extends Search {
     )
   }
 
-  protected val repositorySearchFacets: FacetBuilder = { implicit request =>
+  val repositorySearchFacets: FacetBuilder = { implicit request =>
     List(
       QueryFacetClass(
         key = CHILD_COUNT,
@@ -203,10 +199,10 @@ trait FacetConfig extends Search {
 
   // Don't include country when displaying repository facets withing
   // a country record
-  protected def localRepoFacets: (RequestHeader) => Seq[FacetClass[Facet]] = repositorySearchFacets
+  def localRepoFacets: (RequestHeader) => Seq[FacetClass[Facet]] = repositorySearchFacets
     .andThen(_.filterNot(_.key == COUNTRY_CODE))
 
-  protected val docSearchFacets: FacetBuilder = { implicit request =>
+  val docSearchFacets: FacetBuilder = { implicit request =>
     List(
       //dateQuery(request),
       FieldFacetClass(
@@ -245,11 +241,11 @@ trait FacetConfig extends Search {
 
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
-  protected def localDocFacets: (RequestHeader) => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
-      Seq(TYPE, CREATION_PROCESS).contains(fc.key)
-    })
+  def localDocFacets: (RequestHeader) => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
+    Seq(TYPE, CREATION_PROCESS).contains(fc.key)
+  })
 
-  protected val conceptFacets: FacetBuilder = { implicit request =>
+  val conceptFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
         key = LANGUAGE_CODE,

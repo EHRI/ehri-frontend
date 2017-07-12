@@ -1,10 +1,7 @@
 import javax.inject.Inject
 
-import play.api.http.DefaultHttpFilters
+import play.api.http.{DefaultHttpFilters, EnabledFilters}
 import play.filters.cors.CORSFilter
-import play.filters.csrf.CSRFFilter
 
-class Filters @Inject()(
-  csrfFilter: CSRFFilter,
-  corsFilter: CORSFilter
-) extends DefaultHttpFilters(csrfFilter, corsFilter)
+class Filters @Inject()(enabledFilters: EnabledFilters, corsFilter: CORSFilter)
+  extends DefaultHttpFilters(enabledFilters.filters :+ corsFilter: _*)

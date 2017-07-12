@@ -3,21 +3,22 @@ package controllers.authorities
 import javax.inject._
 
 import backend.rest.DataHelpers
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search._
 
 
 @Singleton
 case class HistoricalAgents @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController with CRUD[HistoricalAgentF, HistoricalAgent]
   with Visibility[HistoricalAgent]
@@ -178,7 +179,8 @@ case class HistoricalAgents @Inject()(
 
   def manageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
-      val holders = config.getStringSeq("ehri.admin.accessPoints.holders").getOrElse(Seq.empty)
+      val holders = config.getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
+        .getOrElse(Seq.empty)
       Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }

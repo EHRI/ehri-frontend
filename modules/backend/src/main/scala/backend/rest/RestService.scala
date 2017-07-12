@@ -7,7 +7,7 @@ import backend.{AnonymousUser, ApiUser, AuthenticatedUser, Resource}
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import play.api.Logger
-import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Writeable}
+import play.api.http._
 import play.api.libs.json._
 import play.api.libs.ws._
 import utils.{Page, RangePage, RangeParams}
@@ -23,7 +23,7 @@ trait RestService {
   def ws: WSClient
 
   import HttpVerbs._
-  import play.api.libs.ws.{EmptyBody, InMemoryBody, WSBody, WSResponse}
+  import play.api.libs.ws.{EmptyBody, WSBody, WSResponse}
 
   private def logger: Logger = Logger(this.getClass)
 
@@ -40,8 +40,8 @@ trait RestService {
   )(implicit apiUser: ApiUser) {
 
     lazy val credentials: Option[(String, String)] = for {
-      username <- config.getString("services.ehridata.username")
-      password <- config.getString("services.ehridata.password")
+      username <- config.getOptional[String]("services.ehridata.username")
+      password <- config.getOptional[String]("services.ehridata.password")
     } yield (username, password)
 
     private def fullUrl: String =
@@ -49,8 +49,8 @@ trait RestService {
 
     private def holderWithAuth: WSRequest = {
       val holder = ws.url(url)
-        .withQueryString(queryString: _*)
-        .withHeaders(headers: _*)
+        .addQueryStringParameters(queryString: _*)
+        .addHttpHeaders(headers: _*)
         .withBody(body)
       val hc = credentials.fold(holder) { case (un, pw) =>
         holder.withAuth(un, pw, WSAuthScheme.BASIC)
@@ -68,20 +68,14 @@ trait RestService {
         }
     }
 
-    def stream(): Future[StreamedResponse] = {
-      logger.debug(s"WS (stream): $apiUser $method $fullUrl")
-      holderWithAuth.stream()
-        .recover {
-          case e: ConnectException => throw BackendOffline(fullUrl, e)
-        }
-    }
-
     def get(): Future[WSResponse] = copy(method = GET).execute()
 
-    def post[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
+    def post(): Future[WSResponse] = withMethod(POST).execute()
+
+    def post[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
       withMethod(POST).withBody(body).execute()
 
-    def put[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
+    def put[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
       withMethod(PUT).withBody(body).execute()
 
     def delete(): Future[WSResponse] = withMethod(DELETE).execute()
@@ -89,8 +83,8 @@ trait RestService {
     /**
       * Sets the body for this request. Copy and paste from WSRequest :(
       */
-    def withBody[T](body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]): BackendRequest = {
-      val wsBody = InMemoryBody(wrt.transform(body))
+    def withBody[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T]): BackendRequest = {
+      val wsBody: WSBody = wrt.transform(body)
       if (headers.toMap.contains(HeaderNames.CONTENT_TYPE)) {
         withBody(wsBody)
       } else {
@@ -153,12 +147,9 @@ trait RestService {
   /**
     * Create a web request with correct auth parameters for the REST API.
     */
-
-  import scala.collection.JavaConverters._
-
-  private lazy val includeProps =
-    config.getStringList("ehri.backend.includedProperties").map(_.asScala)
-      .getOrElse(Seq.empty)
+  private lazy val includeProps = config
+    .getOptional[Seq[String]]("ehri.backend.includedProperties")
+    .getOrElse(Seq.empty)
 
 
   protected def userCall(url: String, params: Seq[(String, String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
@@ -247,7 +238,7 @@ trait RestService {
           sys.error(s"Backend 404 at $uri: ${e.getMessage}: '${response.body}")
       }
       case _ =>
-        val err = s"Unexpected response: ${response.status}: '${response.body}'"
+        val err = s"Unexpected response at ${uri.getOrElse("(?)")}: ${response.status}: '${response.body}'"
         logger.error(err)
         sys.error(err)
     }

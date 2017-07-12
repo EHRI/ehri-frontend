@@ -7,22 +7,21 @@ import auth.handler.AuthHandler
 import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.i18n.{Lang, Messages, MessagesApi}
 import utils._
-import controllers.{Components, renderError}
+import controllers.{AppComponents, renderError}
 import models.UserProfile
 import play.api.mvc._
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
 import utils.caching.FutureCache
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
 import backend.{ApiUser, DataApi}
 import global.GlobalConfig
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.mvc.Result
 import utils.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
@@ -37,28 +36,25 @@ trait PortalController
   private def logger = Logger(getClass)
 
   // Abstract controller components, injected into super classes
-  def components: Components
+  def appComponents: AppComponents
 
   // Implicits hoisted to class scope so as to be provided to views
-  protected implicit def cache: CacheApi = components.cacheApi
-  implicit def messagesApi: MessagesApi = components.messagesApi
-  protected implicit def globalConfig: GlobalConfig = components.globalConfig
-  protected implicit def markdown: MarkdownRenderer = components.markdown
+  protected implicit def cache: SyncCacheApi = appComponents.cacheApi
+  protected implicit def globalConfig: GlobalConfig = appComponents.globalConfig
+  protected implicit def markdown: MarkdownRenderer = appComponents.markdown
 
-  protected implicit def executionContext: ExecutionContext = components.executionContext
+  protected def accounts: AccountManager = appComponents.accounts
+  protected def dataApi: DataApi = appComponents.dataApi
+  protected def config: Configuration = appComponents.config
+  protected def authHandler: AuthHandler = appComponents.authHandler
 
-  protected def accounts: AccountManager = components.accounts
-  protected def dataApi: DataApi = components.dataApi
-  protected def config: Configuration = components.configuration
-  protected def authHandler: AuthHandler = components.authHandler
-
-  protected def searchEngine: SearchEngine = components.searchEngine
-  protected def searchResolver: SearchItemResolver = components.searchResolver
+  protected def searchEngine: SearchEngine = appComponents.searchEngine
+  protected def searchResolver: SearchItemResolver = appComponents.searchResolver
 
   // By default, all controllers require auth unless ehri.portal.secured
   // is set to false in the config, which it is by default.
-  override def staffOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
-  override def verifiedOnly: Boolean = config.getBoolean("ehri.portal.secured").getOrElse(true)
+  override def staffOnly: Boolean = config.getOptional[Boolean]("ehri.portal.secured").getOrElse(true)
+  override def verifiedOnly: Boolean = config.getOptional[Boolean]("ehri.portal.secured").getOrElse(true)
 
   /**
    * The user's default preferences. The `SessionPreferences` trait generates
@@ -67,17 +63,6 @@ trait PortalController
    * **implicit** `preferences` object that can be picked up by views.
    */
   protected val defaultPreferences = new SessionPrefs
-
-  /**
-   * Extract a language from the user's preferences and put it in
-   * the implicit scope.
-   */
-  override implicit def request2Messages(implicit request: RequestHeader): Messages = {
-    request.preferences.language match {
-      case None => super.request2Messages(request)
-      case Some(lang) => super.request2Messages(request).copy(lang = Lang(lang))
-    }
-  }
 
   /**
    * Ensure that functions requiring an optional user in scope
@@ -143,12 +128,12 @@ trait PortalController
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
-    val doMoveCheck: Boolean = config.getBoolean("ehri.handlePageMoved").getOrElse(false)
+    val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
     implicit val r  = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)
     else for {
-      maybeMoved <- components.pageRelocator.hasMovedTo(request.path)
+      maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
     } yield maybeMoved match {
       case Some(path) => MovedPermanently(path)
       case None => notFoundResponse
@@ -217,8 +202,9 @@ trait PortalController
     val format: String = request.getQueryString("format")
       .filter(formats.contains).getOrElse(formats.head)
     val params = request.queryString.filterKeys(_ == "lang")
-    userDataApi.stream(s"classes/$entityType/$id/$format", params = params).map { sr =>
-      val ct = sr.headers.headers.get(HeaderNames.CONTENT_TYPE)
+    userDataApi.query(s"classes/$entityType/$id/$format", params = params,
+      headers = Headers(HeaderNames.ACCEPT -> "text/xml,application/zip")).map { sr =>
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
 
       val disp = if (ct.contains("zip"))
@@ -227,11 +213,9 @@ trait PortalController
         Seq("Content-Disposition" -> s"attachment; filename='$id-$format.xml'")
       else Seq.empty
 
-      val heads: Map[String, String] = sr.headers.headers.map(s => (s._1, s._2.head))
       // If we're streaming a zip file, send it as an attachment
       // with a more useful filename...
-      Status(sr.headers.status).chunked(sr.body).as(ct)
-        .withHeaders(heads.toSeq ++ disp: _*)
+      Status(sr.status).chunked(sr.bodyAsSource).as(ct).withHeaders(disp: _*)
     }
   }
 
@@ -245,7 +229,7 @@ trait PortalController
   /**
    * Action which fetches a user's profile and list of watched items.
    */
-  protected def UserBrowseAction: ActionBuilder[UserDetailsRequest] = OptionalAccountAction andThen new ActionTransformer[OptionalAccountRequest,
+  protected def UserBrowseAction: ActionBuilder[UserDetailsRequest, AnyContent] = OptionalAccountAction andThen new CoreActionTransformer[OptionalAccountRequest,
     UserDetailsRequest] {
     override protected def transform[A](request: OptionalAccountRequest[A]): Future[UserDetailsRequest[A]] = {
       request.accountOpt.map { account =>

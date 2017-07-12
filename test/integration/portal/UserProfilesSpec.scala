@@ -8,10 +8,8 @@ import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import models._
 import org.apache.commons.io.FileUtils
 import play.api.http.MimeTypes
-import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
-import play.api.i18n.Messages.Implicits._
 
 
 
@@ -147,7 +145,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .withCsrf
         .call()
       status(result) must equalTo(BAD_REQUEST)
-      contentAsString(result) must contain(Messages("errors.badFileType"))
+      contentAsString(result) must contain(message("errors.badFileType"))
     }
 
     "allow uploading image files as profile image" in new ITestApp {
@@ -170,7 +168,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .withCsrf
         .call()
       status(result) must equalTo(REQUEST_ENTITY_TOO_LARGE)
-      contentAsString(result) must contain(Messages("errors.imageTooLarge"))
+      contentAsString(result) must contain(message("errors.imageTooLarge"))
     }
 
     "allow deleting profile with correct confirmation" in new ITestApp {

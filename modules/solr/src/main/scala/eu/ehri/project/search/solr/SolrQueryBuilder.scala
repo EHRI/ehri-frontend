@@ -29,10 +29,10 @@ private[solr] object SolrQueryBuilder {
   }
 
   /**
-   * Apply filters to the request based on a set of applied facets.
-   */
+    * Apply filters to the request based on a set of applied facets.
+    */
   def facetFilterParams(facetClasses: Seq[FacetClass[Facet]],
-                                appliedFacets: Seq[AppliedFacet]): Seq[(String, String)] = {
+    appliedFacets: Seq[AppliedFacet]): Seq[(String, String)] = {
     // See the spec for this to get some insight
     // into how this mess works...
 
@@ -185,9 +185,9 @@ private[solr] object SolrQueryBuilder {
 
     // Set field aliases
     val aliases = for {
-      config <- config.getConfig("search.fieldAliases").toSeq
+      config <- config.getOptional[Configuration]("search.fieldAliases").toSeq
       alias <- config.keys.toSeq
-      fieldName <- config.getString(alias).toSeq
+      fieldName <- config.getOptional[String](alias).toSeq
     } yield s"f.$alias.qf" -> fieldName
 
     basic ++ aliases
@@ -206,27 +206,27 @@ private[solr] object SolrQueryBuilder {
 
 
 /**
- * Build a Solr query as a sequence of key/value parameter pairs.
- */
+  * Build a Solr query as a sequence of key/value parameter pairs.
+  */
 case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilder {
 
   import SearchConstants._
   import SolrQueryBuilder._
 
-  private val jsonFacets = config.getBoolean("search.jsonFacets").getOrElse(false)
-  private val enableDebug = config.getBoolean("search.debugTiming").getOrElse(false)
+  private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
+  private val enableDebug = config.getOptional[Boolean]("search.debugTiming").getOrElse(false)
 
   /**
-   * Look up boost values from configuration for default query fields.
-   */
+    * Look up boost values from configuration for default query fields.
+    */
   private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
     ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
-  ).map(f => f -> config.getDouble(s"search.boost.$f"))
+  ).map(f => f -> config.getOptional[Double](s"search.boost.$f"))
 
   private lazy val spellcheckConfig: Seq[(String,Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
-  ).map(f => f -> config.getString(s"search.spellcheck.$f"))
+  ).map(f => f -> config.getOptional[String](s"search.spellcheck.$f"))
 
 
   /**
@@ -253,8 +253,8 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   }
 
   /**
-   * Build a query given a set of search parameters.
-   */
+    * Build a query given a set of search parameters.
+    */
   override def searchQuery(query: SearchQuery): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
@@ -267,8 +267,8 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     // Child count to boost results seems to have an odd affect in making the
     // query only work on the default field - disabled for now...
     val queryString =
-        //s"{!boost b=$CHILD_COUNT}" +
-      query.params.query.getOrElse(defaultQuery).trim + searchFilters
+    //s"{!boost b=$CHILD_COUNT}" +
+    query.params.query.getOrElse(defaultQuery).trim + searchFilters
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
@@ -288,4 +288,3 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     ).flatten
   }
 }
-

@@ -5,7 +5,7 @@ import javax.inject._
 import backend.IdGenerator
 import backend.rest.cypher.Cypher
 import backend.rest.{Constants, ItemNotFound}
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
@@ -23,11 +23,12 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Bookmarks @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   idGenerator: IdGenerator,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
-  with FacetConfig
   with Search {
 
   private val bmRoutes = controllers.portal.routes.Bookmarks
@@ -163,14 +164,14 @@ case class Bookmarks @Inject()(
           paging = paging,
           params = params,
           entities = List(d.isA),
-          facetBuilder = docSearchFacets)
+          facetBuilder = fc.docSearchFacets)
       case d: VirtualUnit => d.includedUnits match {
         case _ => find[AnyModel](
           filters = buildFilter(d),
           paging = paging,
           params = params,
           entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit),
-          facetBuilder = docSearchFacets)
+          facetBuilder = fc.docSearchFacets)
       }
       case _ => Future.successful(SearchResult.empty)
     }

@@ -3,7 +3,7 @@ package controllers.units
 import javax.inject._
 
 import backend.rest.DataHelpers
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
@@ -11,7 +11,7 @@ import forms.VisibilityForm
 import models._
 import play.api.Configuration
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
@@ -21,7 +21,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
   with Read[DocumentaryUnit]
@@ -79,7 +80,8 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.DocumentaryUnit.toString)
+  private val formDefaults: Option[Configuration] = config
+    .getOptional[Configuration](EntityType.DocumentaryUnit.toString)
 
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -332,7 +334,7 @@ case class DocumentaryUnits @Inject()(
       // access point suggestions will be constrainted. If this is empty
       // all available vocabs/auth sets will be used.
       val holders = config
-        .getStringSeq("ehri.admin.accessPoints.holders")
+        .getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
         .getOrElse(Seq.empty)
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,
         request.description, holderIds = holders))

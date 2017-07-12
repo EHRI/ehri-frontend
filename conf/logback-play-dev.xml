@@ -43,6 +43,7 @@
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
   <logger name="play.core.server.netty.NettyModelConversion" level="ERROR"/>
+  <logger name="play.filters.CSRF" level="DEBUG"/>
 
   <!-- Turn down the default level of some classes that log with each
        application restart -->

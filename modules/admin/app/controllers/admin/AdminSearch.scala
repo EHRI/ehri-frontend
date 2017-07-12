@@ -2,14 +2,14 @@ package controllers.admin
 
 import javax.inject._
 
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
 import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search._
 import views.Helpers
@@ -17,7 +17,8 @@ import views.Helpers
 
 @Singleton
 case class AdminSearch @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   searchIndexer: SearchIndexMediator
 ) extends AdminController with Search {
   private val entityFacets: FacetBuilder = { implicit request =>

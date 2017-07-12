@@ -1,17 +1,19 @@
 package controllers.core.auth.userpass
 
 import auth.HashedPassword
-import controllers.core.auth.AccountHelpers
-import models.{UserProfile, Account}
+import models.{Account, UserProfile}
 import play.api.mvc._
+
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import play.api.Logger
-import play.api.data.{Forms, Form}
+import play.api.data.{Form, Forms}
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.util.UUID
-import controllers.base.{RecaptchaHelper, CoreActionBuilders}
+
+import controllers.base.{CoreActionBuilders, RecaptchaHelper}
+import controllers.core.auth.AccountHelpers
 
 
 trait UserPasswordLoginHandler {
@@ -51,7 +53,7 @@ trait UserPasswordLoginHandler {
     request: Request[A]
   ) extends WrappedRequest[A](request)
 
-  protected def UserPasswordLoginAction = new ActionBuilder[UserPasswordLoginRequest] {
+  protected def UserPasswordLoginAction = new CoreActionBuilder[UserPasswordLoginRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (UserPasswordLoginRequest[A]) => Future[Result]): Future[Result] = {
       implicit val r = request
       val boundForm = passwordLoginForm.bindFromRequest
@@ -91,7 +93,7 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
   
-  protected def ForgotPasswordAction: ActionBuilder[ForgotPasswordRequest] = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
+  protected def ForgotPasswordAction: ActionBuilder[ForgotPasswordRequest, AnyContent] = OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, ForgotPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ForgotPasswordRequest[A]] = {
       implicit val r = request
       checkRecapture.flatMap {
@@ -123,7 +125,7 @@ trait UserPasswordLoginHandler {
     request: Request[A]
   ) extends WrappedRequest[A](request)
   
-  protected def ChangePasswordAction: ActionBuilder[ChangePasswordRequest] = WithUserAction andThen new ActionTransformer[WithUserRequest, ChangePasswordRequest] {
+  protected def ChangePasswordAction: ActionBuilder[ChangePasswordRequest, AnyContent] = WithUserAction andThen new CoreActionTransformer[WithUserRequest, ChangePasswordRequest] {
     override protected def transform[A](request: WithUserRequest[A]): Future[ChangePasswordRequest[A]] = {
       implicit val r = request
       val form = changePasswordForm.bindFromRequest
@@ -154,7 +156,7 @@ trait UserPasswordLoginHandler {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def ResetPasswordAction(token: String): ActionBuilder[ResetPasswordRequest] = OptionalUserAction andThen new ActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
+  protected def ResetPasswordAction(token: String): ActionBuilder[ResetPasswordRequest, AnyContent] = OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, ResetPasswordRequest] {
     override protected def transform[A](request: OptionalUserRequest[A]): Future[ResetPasswordRequest[A]] = {
       implicit val r = request
       val form: Form[(String, String)] = resetPasswordForm.bindFromRequest

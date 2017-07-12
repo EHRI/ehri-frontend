@@ -17,7 +17,7 @@ trait Delete[MT] extends Write {
     WithItemPermissionAction(id, PermissionType.Delete)
 
   private[generic] def DeleteTransformer(id: String)(implicit ct: ContentType[MT]) =
-    new ActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
+    new CoreActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req = request
         userDataApi.delete(id, logMsg = getLogMessage).map { _ =>
@@ -26,6 +26,6 @@ trait Delete[MT] extends Write {
       }
     }
 
-  protected def DeleteAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest] =
+  protected def DeleteAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Delete) andThen DeleteTransformer(id)
 }

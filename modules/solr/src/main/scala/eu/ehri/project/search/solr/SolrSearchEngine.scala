@@ -43,14 +43,14 @@ case class SolrSearchEngine @Inject()(
 
   override def status(): Future[String] = {
     val url = (for {
-      host <- config.getString("services.solr.host")
-      port <- config.getString("services.solr.port")
+      host <- config.getOptional[String]("services.solr.host")
+      port <- config.getOptional[String]("services.solr.port")
     } yield s"http://$host:$port/solr/admin/cores")
       .getOrElse(sys.error("Missing config key: service.solr.host/port"))
 
     val params = Seq("action" -> "STATUS", "wt" -> "json", "core" -> "portal")
 
-    ws.url(url).withQueryString(params: _*).get().map { r =>
+    ws.url(url).withQueryStringParameters(params: _*).get().map { r =>
       (r.json \ "status" \ "portal" \ "uptime").validate[Long]
         .fold(err => throw BadJson(err), _ => "ok")
     }.recover {

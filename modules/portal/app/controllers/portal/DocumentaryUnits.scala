@@ -3,13 +3,13 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
 import models.base.AnyModel
-import play.api.mvc.{Action, AnyContent, RequestHeader}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import utils.PageParams
 import utils.search._
 
@@ -18,12 +18,13 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class DocumentaryUnits @Inject()(
-  components: Components,
-  cypher: Cypher
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[DocumentaryUnit]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalDocRoutes = controllers.portal.routes.DocumentaryUnits
 
@@ -35,7 +36,7 @@ case class DocumentaryUnits @Inject()(
       Map(SearchConstants.TOP_LEVEL -> true)
     else Map.empty[String, Any]
 
-    find[AnyModel](params, paging, filters = filters, facetBuilder = docSearchFacets,
+    find[AnyModel](params, paging, filters = filters, facetBuilder = fc.docSearchFacets,
       entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)).map { result =>
       Ok(views.html.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))
@@ -45,7 +46,7 @@ case class DocumentaryUnits @Inject()(
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[DocumentaryUnit](params, paging,
-      filters = Map(filterKey -> request.item.id), facetBuilder = localDocFacets,
+      filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
       Ok(views.html.documentaryUnit.show(request.item, result, request.annotations,
         request.links, portalDocRoutes.search(id), request.watched))
@@ -54,7 +55,7 @@ case class DocumentaryUnits @Inject()(
 
   def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging,
-      filters = Map(filterKey -> request.item.id), facetBuilder = localDocFacets,
+      filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
       if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
         portalDocRoutes.search(id), request.watched))

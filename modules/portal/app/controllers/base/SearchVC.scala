@@ -5,8 +5,8 @@ import controllers.generic.Search
 import models.VirtualUnit
 import models.base.AnyModel
 import play.api.Logger
-import play.api.cache.CacheApi
-import play.api.mvc.{Controller, RequestHeader}
+import play.api.cache.SyncCacheApi
+import play.api.mvc.RequestHeader
 import utils.search.SearchConstants._
 
 import scala.concurrent.Future
@@ -19,7 +19,7 @@ import scala.concurrent.Future.{successful => immediate}
 trait SearchVC {
   this: Search =>
 
-  protected implicit def cache: CacheApi
+  protected implicit def cache: SyncCacheApi
   protected def cypher: Cypher
 
   private def logger = Logger(getClass)
@@ -61,7 +61,7 @@ trait SearchVC {
       """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
       logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
 
-      config.getInt("search.vc.maxDescendants").map { vcLimit =>
+      config.getOptional[Int]("search.vc.maxDescendants").map { vcLimit =>
         if (seq.length > vcLimit) {
           logger.error(s"Truncating clauses on child item search for $id: items ${seq.length}")
           seq.distinct.take(vcLimit)

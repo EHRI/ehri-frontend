@@ -20,7 +20,7 @@ trait Annotate[MT] extends Read[MT] {
     * @param id The item's id
     * @return
     */
-  def createAnnotationJsonPost(id: String): Action[JsValue] = Action.async(parse.json) { request =>
+  def createAnnotationJsonPost(id: String): Action[JsValue] = Action.async(parsers.json) { request =>
     request.body.validate[AnnotationF](AnnotationF.Converter.clientFormat).fold(
       errors => immediate(BadRequest(JsError.toJson(errors))),
       ap => {

@@ -5,15 +5,15 @@
 
     <p>@Messages("contact.p1")</p>
     <address>
-        @globalConfig.configStringList("ehri.portal.contact.address").map { line =>
+        @globalConfig.configuration.getOptional[String]("ehri.portal.contact.address").map { line =>
             @line<br>
         }
     </address>
 
     <p>@Messages("contact.p2")</p>
     @defining((
-            globalConfig.configString("ehri.portal.emails.privacy", "privacy@example.com"),
-            globalConfig.configString("ehri.portal.emails.feedback", "feedback@example.com"))) { case (privacyMail, feedbackMail) =>
+            globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("privacy@example.com"),
+            globalConfig.configuration.getOptional[String]("ehri.portal.emails.feedback").getOrElse("feedback@example.com"))) { case (privacyMail, feedbackMail) =>
     <ul>
         <li>@Html(Messages("contact.p2.1", s"<a href='mailto:$privacyMail'>$privacyMail</a>"))</li>
         <li>@Messages("contact.p2.2")</li>

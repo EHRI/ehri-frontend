@@ -2,8 +2,11 @@ package utils
 
 import defines.EnumUtils
 import play.api.libs.json.Format
+import play.api.mvc.RequestHeader
 
 package object search {
+
+  type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
 
   object FacetQuerySort extends Enumeration {
     val Name = Value("name")

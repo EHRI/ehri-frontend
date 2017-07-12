@@ -8,7 +8,6 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import defines.EnumUtils._
 import backend._
 import play.api.libs.json.JsObject
 
@@ -35,7 +34,7 @@ object AnnotationF {
   implicit val annotationFormat: Format[AnnotationF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Annotation) and
     (__ \ ID).formatNullable[String] and
-    (__ \ DATA \ ANNOTATION_TYPE_PROP).formatNullableWithDefault(AnnotationType.Comment) and
+    (__ \ DATA \ ANNOTATION_TYPE_PROP).formatNullableWithDefault(Some(AnnotationType.Comment)) and
     (__ \ DATA \ BODY).format[String] and
     (__ \ DATA \ FIELD).formatNullable[String] and
     (__ \ DATA \ COMMENT).formatNullable[String] and

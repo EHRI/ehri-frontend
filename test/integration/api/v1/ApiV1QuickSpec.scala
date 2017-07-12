@@ -2,8 +2,6 @@ package integration.api.v1
 
 import helpers.TestConfiguration
 import play.api.http.ContentTypes
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.{JsDefined, JsString}
 import play.api.test.{FakeRequest, PlaySpecification}
 
@@ -16,7 +14,7 @@ class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
     "provide docs when requested as HTML" in new ITestApp {
       val docs = FakeRequest(apiHomeRoutes.index())
           .withHeaders(ACCEPT -> ContentTypes.HTML).call()
-      contentAsString(docs) must contain(Messages("api.v1.header"))
+      contentAsString(docs) must contain(message("api.v1.header"))
       contentType(docs) must_== Some("text/html")
     }
 

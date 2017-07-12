@@ -3,28 +3,29 @@ package controllers.portal
 import javax.inject.{Inject, Singleton}
 
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Concept
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import utils.search._
 
 
 @Singleton
 case class Concepts @Inject()(
-  components: Components,
-  cypher: Cypher
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Generic[Concept]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalConceptRoutes = controllers.portal.routes.Concepts
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[Concept](params, paging, facetBuilder = conceptFacets).map { result =>
+    findType[Concept](params, paging, facetBuilder = fc.conceptFacets).map { result =>
       Ok(views.html.concept.list(result,
         portalConceptRoutes.searchAll(), request.watched))
     }

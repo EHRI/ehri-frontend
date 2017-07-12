@@ -4,13 +4,13 @@ import java.util.concurrent.TimeUnit
 import javax.inject._
 
 import backend.HtmlPages
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
 import models._
 import models.base.AnyModel
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -25,12 +25,13 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 case class Portal @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   htmlPages: HtmlPages,
-  ws: WSClient
+  ws: WSClient,
+  fc: FacetConfig
 ) extends PortalController
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val portalRoutes = controllers.portal.routes.Portal
 
@@ -63,8 +64,7 @@ case class Portal @Inject()(
 
   def changeLocale(lang: String) = Action { implicit request =>
     val referrer = request.headers.get(REFERER).getOrElse("/")
-    Redirect(referrer)
-      .withPreferences(request.preferences.copy(language = Some(lang)))
+    messagesApi.setLang(Redirect(referrer), Lang(lang))
   }
 
   def personalisedActivity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
@@ -82,7 +82,7 @@ case class Portal @Inject()(
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
     find[AnyModel](params, paging,
-      facetBuilder = globalSearchFacets, mode = SearchMode.DefaultNone,
+      facetBuilder = fc.globalSearchFacets, mode = SearchMode.DefaultNone,
       sort = SearchSort.Score,
       entities = defaultSearchTypes).map { result =>
       Ok(views.html.search.globalSearch(result, portalRoutes.search(), request.watched))
@@ -157,11 +157,11 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String): EssentialAction = components.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = appComponents.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
-        config.getString(s"ehri.portal.externalFeed.$key.rss").map { url =>
-          val numItems = config.getInt(s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
+        config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>
+          val numItems = config.getOptional[Int](s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
           ws.url(url).get().map { r =>
             Ok(views.html.rssFeed(RssFeed(r.body, numItems)))
           }

@@ -28,7 +28,6 @@ trait Search extends CoreActionBuilders {
     * incoming request header. The facet rendering can be changed
     * based on request variables such as the user's current language.
     */
-  protected type FacetBuilder = RequestHeader => Seq[FacetClass[Facet]]
 
   /**
     * A default facet class builder.

@@ -5,10 +5,8 @@ import java.time.ZonedDateTime
 import defines.BindableEnum
 import defines.EnumUtils.enumMapping
 import play.api.Mode
-import play.api.Mode.Mode
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{Format, Json}
 
 case class Feedback(
   objectId: Option[String] = None,
@@ -36,12 +34,7 @@ object Feedback {
   object Type extends BindableEnum {
     val Site = Value("site")
     val Data = Value("data")
-
-    implicit val _format: Format[Feedback.Type.Value] = defines.EnumUtils.enumFormat(this)
   }
-
-  implicit val modeFormat: Format[Mode.Value] = defines.EnumUtils.enumFormat(play.api.Mode)
-  implicit val _format: Format[Feedback] = Json.format[Feedback]
 
   implicit val form = Form(
     mapping(
@@ -55,7 +48,7 @@ object Feedback {
       "context" -> ignored(Option.empty[FeedbackContext]),
       "createdAt" -> ignored(Option.empty[ZonedDateTime]),
       "updatedAt" -> ignored(Option.empty[ZonedDateTime]),
-      "mode" -> ignored(Option.empty[play.api.Mode.Value])
+      "mode" -> ignored(Option.empty[play.api.Mode])
     )(Feedback.apply)(Feedback.unapply)
   )
 }

@@ -3,7 +3,6 @@ package models
 import play.api.libs.json._
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsObject
-import play.api.data.validation.ValidationError
 
 package object json {
 
@@ -15,7 +14,7 @@ package object json {
 
     /** Read a value only if it's equal to the given value. */
     def readIfEquals[T](t: T)(implicit r: Reads[T]): Reads[T] =
-      path.read[T](Reads.filter[T](ValidationError("validate.error.incorrectType", t))(_ == t))
+      path.read[T](Reads.filter[T](JsonValidationError("validate.error.incorrectType", t))(_ == t))
 
     /** Attempt to read a list of T, falling back to a single T. */
     def readSeqOrSingle[T](implicit r: Reads[T]): Reads[Seq[T]] =
@@ -56,7 +55,7 @@ package object json {
       OFormat(readWithDefault(t), path.write[T])
 
     /** Read/write a nullable item, with a default read value (and a nullable write) */
-    def formatNullableWithDefault[T](t: T)(implicit fmt: Format[T]): OFormat[Option[T]] =
+    def formatNullableWithDefault[T: Format](t: T): OFormat[Option[T]] =
       OFormat(readNullableWithDefault(t), path.writeNullable[T])
 
     /** Read/write an item, but validating on read that it's equal to the given value  */

@@ -1,16 +1,16 @@
 package utils
 
-import java.time.{ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import utils.search._
 
 /**
- * Utils for converting URL-friendly date facet params
- * to Solr format.
- */
+  * Utils for converting URL-friendly date facet params
+  * to Solr format.
+  */
 @Singleton
 case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {
 
@@ -19,8 +19,8 @@ case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends p
   private val dateParamValueMatcher = new scala.util.matching.Regex("""^(\d{4})?-(\d{4})?$""", "start", "end")
 
   /**
-   * Convert the format to a Solr query.
-   */
+    * Convert the format to a Solr query.
+    */
   def formatAsQuery(ds: String): QueryPoint = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
@@ -37,9 +37,9 @@ case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends p
   }
 
   /**
-   * Get a formatted representation of the date string.
-   */
-  def formatReadable(ds: String): Option[String] = {
+    * Get a formatted representation of the date string.
+    */
+  def formatReadable(ds: String)(implicit messages: MessagesProvider): Option[String] = {
     dateParamValueMatcher.findFirstMatchIn(ds).map { m =>
       val start = Option(m.group("start")).map(_.toInt)
       val end = Option(m.group("end")).map(_.toInt)
@@ -56,6 +56,7 @@ case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends p
 }
 
 object DateFacetUtils {
+
   import play.api.data.Form
   import play.api.data.Forms._
 
@@ -64,6 +65,8 @@ object DateFacetUtils {
   val dateQueryForm = Form(single(DATE_PARAM -> nonEmptyText))
 
   val formatter = DateTimeFormatter.ISO_DATE_TIME
+
   def startDate(year: Int): String = formatter.format(ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneId.of("Z")))
+
   def endDate(year: Int): String = formatter.format(ZonedDateTime.of(year, 12, 12, 23, 59, 59, 0, ZoneId.of("Z")))
 }

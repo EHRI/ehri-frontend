@@ -9,7 +9,7 @@ import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
 import backend.AnonymousUser
 import com.google.common.net.HttpHeaders
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.core.auth.AccountHelpers
 import controllers.core.auth.oauth2._
@@ -27,14 +27,15 @@ import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import utils.forms.{HoneyPotForm, TimeCheckForm}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 @Singleton
 case class Accounts @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
   ws: WSClient,
@@ -48,18 +49,18 @@ case class Accounts @Inject()(
 
   private val logger = Logger(getClass)
 
-  override protected implicit val config: Configuration = components.configuration
+  override protected implicit val config: Configuration = appComponents.config
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private val rateLimitHitsPerSec: Int = getConfigInt("ehri.ratelimit.limit")
-  private val rateLimitTimeoutSecs: Int = getConfigInt("ehri.ratelimit.timeout")
+  private val rateLimitHitsPerSec: Int = config.get[Int]("ehri.ratelimit.limit")
+  private val rateLimitTimeoutSecs: Int = config.get[Int]("ehri.ratelimit.timeout")
   private val rateLimitDuration: FiniteDuration =
     Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
 
 
-  private def recaptchaKey = config.getString("recaptcha.key.public")
+  private def recaptchaKey = config.getOptional[String]("recaptcha.key.public")
     .getOrElse("fakekey")
 
   private def rateLimitError(implicit r: RequestHeader) =
@@ -83,12 +84,13 @@ case class Accounts @Inject()(
     }
 
     lazy val parser: BodyParser[A] = action.parser
+    lazy val executionContext: ExecutionContext = action.executionContext
   }
 
   private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
     accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
 
-  object NotReadOnlyAction extends ActionBuilder[Request] {
+  object NotReadOnlyAction extends CoreActionBuilder[Request, AnyContent] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
     }
@@ -107,7 +109,7 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-  object RateLimit extends ActionBuilder[Request] {
+  object RateLimit extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (request.method != HttpVerbs.POST) block(request)
       else {

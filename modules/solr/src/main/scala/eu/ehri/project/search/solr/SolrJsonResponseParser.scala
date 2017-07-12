@@ -18,7 +18,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
   import play.api.libs.json._
 
   private val logger = play.api.Logger(getClass)
-  private val jsonFacets = config.getBoolean("search.jsonFacets").getOrElse(false)
+  private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
 
   // Intermediate structures...
   private case class SolrData(

@@ -5,7 +5,7 @@ import javax.inject._
 import backend.rest.cypher.Cypher
 import backend.rest.{DataHelpers, ItemNotFound}
 import backend.{Entity, IdGenerator}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
@@ -16,7 +16,7 @@ import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search._
 import views.Helpers
@@ -27,7 +27,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class VirtualUnits @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers,
   idGenerator: IdGenerator,
   cypher: Cypher
@@ -81,7 +82,7 @@ case class VirtualUnits @Inject()(
   }
 
   override protected val targetContentTypes = Seq(ContentTypes.VirtualUnit)
-  private val formDefaults: Option[Configuration] = config.getConfig(EntityType.VirtualUnit.toString)
+  private val formDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.VirtualUnit.toString)
   private val form: Form[VirtualUnitF] = models.VirtualUnit.form
   private val childForm: Form[VirtualUnitF] = models.VirtualUnit.form
   private val descriptionForm: Form[DocumentaryUnitDescriptionF] = models.DocumentaryUnitDescription.form

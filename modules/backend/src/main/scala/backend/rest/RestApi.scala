@@ -6,9 +6,10 @@ import acl.{GlobalPermissionSet, ItemPermissionSet}
 import backend._
 import backend.rest.Constants._
 import defines.{ContentTypes, EntityType}
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
+import play.api.http.HeaderNames
 import play.api.libs.json._
-import play.api.libs.ws.{StreamedResponse, WSClient, WSResponse}
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
 import utils._
 import utils.caching.FutureCache
@@ -18,14 +19,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
 
-case class RestApi @Inject()(eventHandler: EventHandler, cache: CacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
+case class RestApi @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): RestApiHandle =
     RestApiHandle(eventHandler)(
-      cache: CacheApi, config, apiUser, executionContext, ws)
+      cache: SyncCacheApi, config, apiUser, executionContext, ws)
 }
 
 case class RestApiHandle(eventHandler: EventHandler)(
-  implicit val cache: CacheApi,
+  implicit val cache: SyncCacheApi,
   val config: play.api.Configuration,
   val apiUser: ApiUser,
   val executionContext: ExecutionContext,
@@ -36,7 +37,8 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   override def status(): Future[String] = {
     // Using WS directly here to avoid caching and logging
-    ws.url(s"$baseUrl/classes/${EntityType.Group}/admin").get().map { r =>
+    ws.url(s"$baseUrl/classes/${EntityType.Group}/admin")
+      .withHttpHeaders(HeaderNames.ACCEPT -> play.api.http.ContentTypes.JSON).get().map { r =>
       r.json.validate[JsObject].fold(err => throw BadJson(err), _ => "ok")
     } recover {
       case err => throw BackendOffline(err.getMessage, err)
@@ -47,10 +49,6 @@ case class RestApiHandle(eventHandler: EventHandler)(
   override def query(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse] =
     userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).get()
-
-  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[StreamedResponse] =
-    userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
-      .withHeaders(headers.headers: _*).withMethod("GET").stream()
 
   override def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
     userCall(enc(baseUrl, "admin", "create-default-user-profile"))
@@ -188,7 +186,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
     val url: String = enc(genericItemUrl, id, "access")
     userCall(url)
       .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
-      .post("").map { response =>
+      .post().map { response =>
       val r = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       cache.remove(canonicalUrl(id))
       eventHandler.handleUpdate(id)
@@ -197,13 +195,13 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def promote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "promote")).post("").map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "promote")).post().map(itemResponse(id, _))
 
   override def removePromotion[MT: Resource](id: String): Future[MT] =
     userCall(enc(genericItemUrl, id, "promote")).delete().map(itemResponse(id, _))
 
   override def demote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "demote")).post("").map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "demote")).post().map(itemResponse(id, _))
 
   override def removeDemotion[MT: Resource](id: String): Future[MT] =
     userCall(enc(genericItemUrl, id, "demote")).delete().map(itemResponse(id, _))
@@ -370,7 +368,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
 
   override def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] =
     userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post().map { _ =>
       eventHandler.handleUpdate(vcId)
       cache.remove(canonicalUrl(vcId))
     }
@@ -386,7 +384,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   override def moveReferences[MT: Resource](fromVc: String, toVc: String, ids: Seq[String]): Future[Unit] =
     if (ids.isEmpty) immediate(())
     else userCall(enc(typeBaseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post("").map { _ =>
+      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post().map { _ =>
       // Update both source and target sets in the index
       cache.remove(canonicalUrl(fromVc))
       cache.remove(canonicalUrl(toVc))
@@ -486,7 +484,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   private def isBlockingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "is-blocking", otherId)
 
   override def follow[U: Resource](userId: String, otherId: String): Future[Unit] = {
-    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
+    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
       checkError(r)
       cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       cache.remove(followingUrl(userId))
@@ -540,7 +538,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def watch(userId: String, otherId: String): Future[Unit] = {
-    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
+    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
       cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
       cache.remove(watchingUrl(userId))
       checkError(r)
@@ -572,7 +570,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
   }
 
   override def block(userId: String, otherId: String): Future[Unit] = {
-    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post("").map { r =>
+    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
       cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
       cache.remove(blockedUrl(userId))
       checkError(r)
@@ -632,14 +630,14 @@ case class RestApiHandle(eventHandler: EventHandler)(
   override def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-type", ct)
     userCall(url).withQueryString("commit" -> commit.toString)
-      .withTimeout(20.minutes).post("")
+      .withTimeout(20.minutes).post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
   override def regenerateIdsForScope(scope: String, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-scope", scope)
     userCall(url).withQueryString("commit" -> commit.toString)
-      .withTimeout(20.minutes).post("")
+      .withTimeout(20.minutes).post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
@@ -690,12 +688,12 @@ case class RestApiHandle(eventHandler: EventHandler)(
 }
 
 object RestApi {
-  def withNoopHandler(cache: CacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
+  def withNoopHandler(cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new RestApi(new EventHandler {
       def handleCreate(id: String): Unit = ()
 
       def handleUpdate(id: String): Unit = ()
 
       def handleDelete(id: String): Unit = ()
-    }, cache: CacheApi, config, ws)
+    }, cache: SyncCacheApi, config, ws)
 }

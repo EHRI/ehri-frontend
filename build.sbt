@@ -23,7 +23,7 @@ val dataConverterVersion = "1.1.10"
 
 val backendDependencies = Seq(
   ws,
-  cache,
+  ehcache,
 
   // Push JSON parser used for stream parsing...
   "de.undercouch" % "actson" % "1.2.0",
@@ -32,14 +32,17 @@ val backendDependencies = Seq(
   "ehri-project" % "ehri-definitions" % backendVersion
 )
 
-
 val coreDependencies = backendDependencies ++ Seq(
+  guice,
   jdbc,
   evolutions,
   filters,
+  openId,
+
+  "com.typesafe.play" %% "play-json" % "2.6.0",
 
   // Anorm DB lib
-  "com.typesafe.play" %% "anorm" % "2.5.1",
+  "com.typesafe.play" %% "anorm" % "2.6.0-M1",
 
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
@@ -51,7 +54,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
 
   // PostgreSQL
-  "org.postgresql" % "postgresql" % "9.4-1204-jdbc42",
+  "org.postgresql" % "postgresql" % "42.1.1",
 
   // Markdown rendering
   "com.vladsch.flexmark" % "flexmark-all" % "0.19.3",
@@ -60,7 +63,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.8.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "com.typesafe.play" %% "play-mailer" % "6.0.0",
+  "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
@@ -82,9 +86,10 @@ val portalDependencies = Seq(
 
 val testDependencies = Seq(
   specs2 % Test,
+  "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.4.17" % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.1" % Test,
 
   // Used for testing websockets...
   "org.java-websocket" % "Java-WebSocket" % "1.3.0" % Test
@@ -210,9 +215,9 @@ val webAppSettings = Seq(
 
   // SBT magic: http://stackoverflow.com/a/12772739/285374
   // pick up additional resources in test
-  resourceDirectory in Test <<= baseDirectory apply {
+  resourceDirectory in Test := baseDirectory.apply {
     (baseDir: File) => baseDir / "test/resources"
-  },
+  }.value,
 
   // Always use nodejs to build the assets - Trireme is too slow...
   JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,

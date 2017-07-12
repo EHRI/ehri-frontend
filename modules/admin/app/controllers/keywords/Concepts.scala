@@ -3,14 +3,14 @@ package controllers.keywords
 import javax.inject._
 
 import backend.rest.DataHelpers
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search._
 import views.Helpers
@@ -20,7 +20,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Concepts @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
   with Creator[ConceptF, Concept, Concept]

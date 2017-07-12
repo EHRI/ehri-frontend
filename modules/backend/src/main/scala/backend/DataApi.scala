@@ -3,7 +3,7 @@ package backend
 import acl.{GlobalPermissionSet, ItemPermissionSet}
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.JsObject
-import play.api.libs.ws.{StreamedResponse, WSResponse}
+import play.api.libs.ws.WSResponse
 import play.api.mvc.Headers
 import utils._
 
@@ -59,17 +59,6 @@ trait DataApiHandle {
     * @return a web response
     */
   def query(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse]
-
-  /**
-    * Pass a query directly through to the backend API and retrieve
-    * a streaming response.
-    *
-    * @param urlPart the URL backend path
-    * @param headers the required headers
-    * @param params  additional parameters
-    * @return a streaming web response
-    */
-  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[StreamedResponse]
 
   /**
     * Create a new user profile.

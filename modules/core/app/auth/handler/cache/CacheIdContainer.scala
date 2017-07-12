@@ -4,7 +4,7 @@ import java.security.SecureRandom
 import javax.inject.Inject
 
 import auth.handler.AuthIdContainer
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 
 import scala.annotation.tailrec
 import scala.concurrent.Future
@@ -21,7 +21,7 @@ import scala.util.Random
   *
   * Modified for Play 2.5+.
   */
-class CacheIdContainer @Inject()(cacheApi: CacheApi) extends AuthIdContainer {
+class CacheIdContainer @Inject()(cacheApi: SyncCacheApi) extends AuthIdContainer {
 
   private val tokenSuffix = ":token"
   private val userIdSuffix = ":userId"

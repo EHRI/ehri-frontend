@@ -2,8 +2,8 @@ package controllers.vocabularies
 
 import javax.inject._
 
-import backend.rest.{Constants, DataHelpers}
-import controllers.Components
+import backend.rest.DataHelpers
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
@@ -12,7 +12,7 @@ import models._
 import play.api.data.Form
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
@@ -21,7 +21,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Vocabularies @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
   ws: WSClient
@@ -175,13 +176,14 @@ case class Vocabularies @Inject()(
           action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def exportSkos(id: String, format: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val baseUrl: Option[String] = request.getQueryString("baseUri")
-    ws.url(utils.serviceBaseUrl("ehridata", config) + s"/classes/${EntityType.Vocabulary}/$id/export")
-      .withQueryString(format.toSeq.map(f => "format" -> f): _*)
-      .withQueryString(baseUrl.toSeq.map(url => "baseUri" -> url): _*)
-      .withHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*).get().map { r =>
-      Ok(r.body).as(r.header(HeaderNames.CONTENT_TYPE).getOrElse(MimeTypes.TEXT))
+  def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
+      baseUri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
+    userDataApi.query(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
+        .flatMap(_.headOption)
+        .getOrElse(MimeTypes.TEXT)
+      Ok.chunked(sr.bodyAsSource).as(ct)
     }
   }
 }

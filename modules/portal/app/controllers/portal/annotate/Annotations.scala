@@ -5,7 +5,7 @@ import javax.inject._
 import backend.rest.DataHelpers
 import backend.rest.cypher.Cypher
 import com.google.common.net.HttpHeaders
-import controllers.Components
+import controllers.AppComponents
 import controllers.generic.{Promotion, Read, Search, Visibility}
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
@@ -26,16 +26,17 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Annotations @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient,
   dataHelpers: DataHelpers,
-  cypher: Cypher
+  cypher: Cypher,
+  fc: FacetConfig
 ) extends PortalController
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
-  with Search
-  with FacetConfig {
+  with Search {
 
   private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 
@@ -44,7 +45,7 @@ case class Annotations @Inject()(
   )
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[Annotation](params, paging, entities = List(EntityType.Annotation), facetBuilder = annotationFacets).map { result =>
+    find[Annotation](params, paging, entities = List(EntityType.Annotation), facetBuilder = fc.annotationFacets).map { result =>
       Ok(views.html.annotation.list(result, annotationRoutes.searchAll()))
     }
   }
@@ -240,12 +241,10 @@ case class Annotations @Inject()(
     withMods.distinct
   }
 
-  private def optionalConfigList(key: String): List[String] = {
-    import scala.collection.JavaConverters._
-    config.getStringList(key).map(_.asScala.toList).getOrElse(Nil)
-  }
+  private def optionalConfigList(key: String): Seq[String] =
+    config.getOptional[Seq[String]](key).getOrElse(Seq.empty)
 
-  private def getModerators: List[String] = {
+  private def getModerators: Seq[String] = {
     val all = optionalConfigList("ehri.portal.moderators.all")
     val typed = optionalConfigList(s"ehri.portal.moderators.${EntityType.Annotation}")
     all ++ typed
@@ -280,7 +279,7 @@ case class Annotations @Inject()(
         Map("user" -> JsString(user.id),
           "label" -> JsString(Ontology.ACCESSOR_BELONGS_TO_GROUP))).map { json =>
         val users: Seq[(String,String)] = json.as[List[(String,String)]](
-          (__ \ "data").read[List[List[String]]].map(all =>  all.map(l => (l(0), l(1))))
+          (__ \ "data").read[List[List[String]]].map(all =>  all.map(l => (l.head, l(1))))
         )
 
       f(users)(user.groups.map(g => (g.id, g.model.name)))

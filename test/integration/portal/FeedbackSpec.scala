@@ -26,7 +26,7 @@ class FeedbackSpec extends IntegrationTestRunner {
     "allow anon feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
       val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
-        .withCsrf.callWith(fb)
+          .callWith(fb)
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)
@@ -39,7 +39,7 @@ class FeedbackSpec extends IntegrationTestRunner {
     "allow logged-in feedback" in new ITestApp {
       val fbCount = feedbackBuffer.size
       val post = FakeRequest(controllers.portal.routes.Feedback.feedbackPost())
-        .withUser(privilegedUser).withCsrf.callWith(fb)
+        .withUser(privilegedUser).callWith(fb)
       status(post) must equalTo(SEE_OTHER)
       val newCount = feedbackBuffer.size
       newCount must equalTo(fbCount + 1)

@@ -20,7 +20,7 @@ case class WebOAuth2Flow @Inject ()(
     val accessTokenUrl: String = provider.getAccessTokenUrl
     logger.debug(s"Fetching access token for provider ${provider.name} at $accessTokenUrl")
     ws.url(accessTokenUrl)
-      .withHeaders(provider.getAccessTokenHeaders: _*)
+      .addHttpHeaders(provider.getAccessTokenHeaders: _*)
       .post(provider.getAccessTokenParams(code, handlerUrl))
       .map { r =>
       logger.trace(s"Access Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
@@ -36,8 +36,8 @@ case class WebOAuth2Flow @Inject ()(
     val headers: Seq[(String, String)] = provider.getUserInfoHeader(info)
     logger.debug(s"Fetching info at $url with headers $headers")
     ws.url(url)
-      .withQueryString(provider.getUserInfoParams(info): _*)
-      .withHeaders(headers: _*).get()
+      .addQueryStringParameters(provider.getUserInfoParams(info): _*)
+      .addHttpHeaders(headers: _*).get()
       .map { r =>
       logger.trace(s"User Info Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
       provider.parseUserInfo(r.body).getOrElse{

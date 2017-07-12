@@ -4,7 +4,7 @@ import javax.inject._
 
 import backend.ApiUser
 import backend.rest.cypher.Cypher
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import controllers.portal.base.PortalController
@@ -14,7 +14,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, RequestHeader, Result}
+import play.api.mvc._
 import utils._
 import utils.search._
 
@@ -23,7 +23,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Social @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   mailer: MailerClient,
   ws: WSClient,
   cypher: Cypher
@@ -240,7 +241,7 @@ case class Social @Inject()(
           subject = Messages("mail.message.heading", from.toStringLang),
           to = Seq(s"${to.model.name}} <${accTo.email}>"),
           from = "EHRI User <noreply@ehri-project.eu>",
-          replyTo = Some(s"${from.model.name}} <${accFrom.email}>"),
+          replyTo = Seq(s"${from.model.name}} <${accFrom.email}>"),
           bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
           bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
         )
@@ -261,7 +262,8 @@ case class Social @Inject()(
   }
 
   def sendMessage(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config.getString("recaptcha.key.public")
+    val recaptchaKey = config
+      .getOptional[String]("recaptcha.key.public")
       .getOrElse("fakekey")
     for {
       userTo <- userDataApi.get[UserProfile](userId)
@@ -279,7 +281,8 @@ case class Social @Inject()(
   }
 
   def sendMessagePost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config.getString("recaptcha.key.public")
+    val recaptchaKey = config
+      .getOptional[String]("recaptcha.key.public")
       .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 

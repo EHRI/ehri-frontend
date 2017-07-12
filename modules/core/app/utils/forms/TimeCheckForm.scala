@@ -27,7 +27,7 @@ object TimeCheckForm {
       import java.time.ZonedDateTime
       import java.time.temporal.ChronoUnit
 
-      config.getInt("ehri.signup.timeCheckSeconds").map { delay =>
+      config.getOptional[Int]("ehri.signup.timeCheckSeconds").map { delay =>
         try {
           val renderTime: ZonedDateTime = ZonedDateTime.parse(data.timestamp)
           val diff: Long = renderTime.until(ZonedDateTime.now, ChronoUnit.SECONDS)

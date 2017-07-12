@@ -130,10 +130,7 @@ trait OAuth2Provider {
     getSetting(OAuth2Settings.Scope)
   )
 
-  private def getSetting(key: String): String = {
-    val keyName = "oauth2." + name + "." + key
-    config.getString(keyName)
-      .getOrElse(sys.error("Configuration key not found: " + keyName))
-  }
+  private def getSetting(key: String): String =
+    config.get[String]("oauth2." + name + "." + key)
 }
 

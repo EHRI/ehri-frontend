@@ -2,7 +2,7 @@ package controllers.api.v1
 
 import javax.inject.{Inject, Singleton}
 
-import controllers.Components
+import controllers.AppComponents
 import controllers.portal.base.PortalController
 import defines.EntityType
 import models.api.v1.JsonApiV1._
@@ -13,7 +13,8 @@ import play.api.mvc._
 
 @Singleton
 case class ApiV1Home @Inject()(
-  components: Components
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents
 ) extends PortalController {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
@@ -27,10 +28,10 @@ case class ApiV1Home @Inject()(
     EntityType.Country
   )
 
-  private def error(status: Int, message: Option[String] = None): Result =
+  private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
 
-  private def errorJson(status: Int, message: Option[String] = None): JsObject = {
+  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
     Json.obj(
       "errors" -> Json.arr(
         JsonApiError(

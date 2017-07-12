@@ -4,14 +4,14 @@ import javax.inject._
 
 import backend.rest.DataHelpers
 import backend.{Entity, IdGenerator}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import models._
 import play.api.Configuration
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.{PageParams, RangeParams}
 import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
@@ -20,7 +20,8 @@ import scala.concurrent.Future.{successful => immediate}
 
 @Singleton
 case class Countries @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator
@@ -38,7 +39,7 @@ case class Countries @Inject()(
     */
   override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormDefaults: Option[Configuration] = config.getConfig(EntityType.Repository.toString)
+  private val childFormDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.Repository.toString)
   private val form = models.Country.form
   private val childForm = models.Repository.form
 

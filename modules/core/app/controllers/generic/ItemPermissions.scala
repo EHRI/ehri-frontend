@@ -32,11 +32,11 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def WithGrantPermission(id: String)(implicit ct: ContentType[MT]) =
+  protected def WithGrantPermission(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Grant)
 
-  protected def PermissionGrantAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionGrantRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
+  protected def PermissionGrantAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionGrantRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
         implicit val req = request
         userDataApi.itemPermissionGrants[PermissionGrant](id, paging).map { permGrants =>
@@ -45,12 +45,12 @@ trait ItemPermissions[MT] extends Visibility[MT] {
       }
     }
 
-  protected def EditItemPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[VisibilityRequest] =
+  protected def EditItemPermissionsAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[VisibilityRequest, AnyContent] =
     WithGrantPermission(id) andThen EditVisibilityAction(id)
 
   protected def CheckUpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
@@ -69,8 +69,8 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   }
 
   protected def UpdateItemPermissionsAction(id: String, userType: EntityType.Value, userId: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest] =
-    WithGrantPermission(id) andThen new ActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
+    implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest, AnyContent] =
+    WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
         implicit val req = request
         val data = getData(request).getOrElse(Map.empty)

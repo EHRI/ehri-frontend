@@ -8,7 +8,7 @@ import auth.handler.AuthHandler
 import backend.rest.cypher.Cypher
 import backend.rest.{ItemNotFound, PermissionDenied}
 import backend.{AnonymousUser, DataApi}
-import controllers.Components
+import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
@@ -16,7 +16,7 @@ import global.GlobalConfig
 import models._
 import models.api.v1.JsonApiV1._
 import models.base.AnyModel
-import play.api.cache.CacheApi
+import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json._
@@ -45,7 +45,8 @@ object ApiV1 {
 
 @Singleton
 case class ApiV1 @Inject()(
-  components: Components,
+  controllerComponents: ControllerComponents,
+  appComponents: AppComponents,
   ws: WSClient,
   cypher: Cypher
 ) extends CoreActionBuilders
@@ -53,17 +54,15 @@ case class ApiV1 @Inject()(
   with Search
   with SearchVC {
 
-  implicit val messagesApi: MessagesApi = components.messagesApi
-  protected implicit val cache: CacheApi = components.cacheApi
-  protected implicit val globalConfig: GlobalConfig = components.globalConfig
-  protected implicit val markdown: MarkdownRenderer = components.markdown
-  protected implicit val executionContext: ExecutionContext = components.executionContext
-  protected val accounts: AccountManager = components.accounts
-  protected val dataApi: DataApi = components.dataApi
-  protected val config: Configuration = components.configuration
-  protected val authHandler: AuthHandler = components.authHandler
-  protected val searchEngine: SearchEngine = components.searchEngine
-  protected val searchResolver: SearchItemResolver = components.searchResolver
+  protected implicit val cache: SyncCacheApi = appComponents.cacheApi
+  protected implicit val globalConfig: GlobalConfig = appComponents.globalConfig
+  protected val accounts: AccountManager = appComponents.accounts
+  protected val dataApi: DataApi = appComponents.dataApi
+  protected val config: Configuration = appComponents.config
+  protected val authHandler: AuthHandler = appComponents.authHandler
+  protected val searchEngine: SearchEngine = appComponents.searchEngine
+  protected val searchResolver: SearchItemResolver = appComponents.searchResolver
+
 
   import ApiV1._
 
@@ -94,20 +93,20 @@ case class ApiV1 @Inject()(
   // Authentication: currently a stopgap for releasing with
   // internal testing. Not intended for production since
   // tokens are in config.
-  private val authenticated: Boolean = config.getBoolean("ehri.api.v1.authorization.enabled")
+  private val authenticated: Boolean = config
+    .getOptional[Boolean]("ehri.api.v1.authorization.enabled")
     .getOrElse(false)
 
-  import scala.collection.JavaConverters._
-
-  private val authenticationTokens: Seq[String] = config.getStringList("ehri.api.v1.authorization.tokens")
-    .map(_.asScala.toSeq).getOrElse(Seq.empty)
+  private val authenticationTokens: Seq[String] = config
+    .getOptional[Seq[String]]("ehri.api.v1.authorization.tokens")
+    .getOrElse(Seq.empty)
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  private def error(status: Int, message: Option[String] = None): Result =
+  private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
 
-  private def errorJson(status: Int, message: Option[String] = None): JsObject = {
+  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
     Json.obj(
       "errors" -> Json.arr(
         JsonApiError(
@@ -125,32 +124,32 @@ case class ApiV1 @Inject()(
     }
   }
 
-  private object LoggingAuthAction extends ActionBuilder[Request] {
+  private object LoggingAuthAction extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (!authenticated) block(request)
       else checkAuthentication(request).map { token =>
         logger.logger.trace(s"API access for $token: ${request.uri}")
         block(request)
       }.getOrElse {
-        immediate(error(FORBIDDEN, message = Some("Token required")))
+        immediate(error(FORBIDDEN, message = Some("Token required"))(request))
       }
     }
   }
 
-  private object RateLimit extends ActionBuilder[Request] {
+  private object RateLimit extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       if (checkRateLimit(hitsPerSecond, rateLimitTimeoutDuration)(request)) block(request)
-      else immediate(error(TOO_MANY_REQUESTS))
+      else immediate(error(TOO_MANY_REQUESTS)(request))
     }
   }
 
-  private object JsonApiCheckAcceptFilter extends ActionFilter[Request] {
+  private object JsonApiCheckAcceptFilter extends CoreActionFilter[Request] {
     override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
       // If there is an accept media type for JSON-API than one must be unmodified
       val accept: Seq[String] = request.headers.getAll(HeaderNames.ACCEPT).filter(a =>
         a.startsWith(JSONAPI_MIMETYPE))
       if (accept.isEmpty || accept.contains(JSONAPI_MIMETYPE)) immediate(None)
-      else immediate(Some(error(NOT_ACCEPTABLE)))
+      else immediate(Some(error(NOT_ACCEPTABLE)(request)))
     }
   }
 
@@ -356,22 +355,22 @@ case class ApiV1 @Inject()(
     }
 
   override def authenticationFailed(request: RequestHeader): Future[Result] =
-    immediate(error(UNAUTHORIZED))
+    immediate(error(UNAUTHORIZED)(request))
 
   override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def downForMaintenance(request: RequestHeader): Future[Result] =
-    immediate(error(SERVICE_UNAVAILABLE))
+    immediate(error(SERVICE_UNAVAILABLE)(request))
 
   override protected def notFoundError(request: RequestHeader, msg: Option[String]): Future[Result] =
-    immediate(error(NOT_FOUND, msg))
+    immediate(error(NOT_FOUND, msg)(request))
 
   override def staffOnlyError(request: RequestHeader): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def verifiedOnlyError(request: RequestHeader): Future[Result] =
-    immediate(error(FORBIDDEN))
+    immediate(error(FORBIDDEN)(request))
 
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)

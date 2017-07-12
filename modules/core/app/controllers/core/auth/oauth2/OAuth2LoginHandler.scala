@@ -12,6 +12,7 @@ import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
 import models._
 import play.api.Logger
+import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsString, Json}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}
@@ -21,20 +22,24 @@ import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.Duration
 
 /**
- * Oauth2 login handler implementation, cribbed extensively
- * from SecureSocial.
- */
+  * Oauth2 login handler implementation, cribbed extensively
+  * from SecureSocial.
+  */
 trait OAuth2LoginHandler extends AccountHelpers {
 
-  self: Controller with CoreActionBuilders =>
+  self: BaseController with CoreActionBuilders =>
 
   private def logger = Logger(getClass)
 
   protected def dataApi: DataApi
+
   protected def accounts: auth.AccountManager
+
   protected def globalConfig: GlobalConfig
+
   protected def oAuth2Flow: OAuth2Flow
-  protected def cache: play.api.cache.CacheApi
+
+  protected def cache: SyncCacheApi
 
   protected def oauth2Providers: Seq[OAuth2Provider]
 
@@ -121,62 +126,63 @@ trait OAuth2LoginHandler extends AccountHelpers {
   }
 
   /**
-   * Log a user in (or register them) via a third party OAuth2 service.
-   *
-   * @param providerName the provider name, matching one of the supported
-   *                     providers in `oauth2Providers`.
-   * @param code  the access code returned by the provider. This should be
-   *              absent in the first phase
-   * @param state the session track state we create, pass to the client, and
-   *              expect back again. This should also be empty in the first
-   *              phase.
-   * @param handler the call from which we are being invoked
-   */
-  def OAuth2LoginAction(providerName: String, code: Option[String], state: Option[String], handler: Call) = new ActionBuilder[OAuth2Request] {
-    override def invokeBlock[A](request: Request[A], block: (OAuth2Request[A]) => Future[Result]): Future[Result] = {
-      oauth2Providers.find(_.name == providerName).map { provider =>
-        implicit val r = request
+    * Log a user in (or register them) via a third party OAuth2 service.
+    *
+    * @param providerName the provider name, matching one of the supported
+    *                     providers in `oauth2Providers`.
+    * @param code         the access code returned by the provider. This should be
+    *                     absent in the first phase
+    * @param state        the session track state we create, pass to the client, and
+    *                     expect back again. This should also be empty in the first
+    *                     phase.
+    * @param handler      the call from which we are being invoked
+    */
+  def OAuth2LoginAction(providerName: String, code: Option[String], state: Option[String], handler: Call) =
+    new CoreActionBuilder[OAuth2Request, AnyContent] {
+      override def invokeBlock[A](request: Request[A], block: (OAuth2Request[A]) => Future[Result]): Future[Result] = {
+        oauth2Providers.find(_.name == providerName).map { provider =>
+          implicit val r = request
 
-        // Create a random nonce to stamp this OAuth2 session
-        val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
-        val handlerUrl: String = handler.absoluteURL(globalConfig.https)
+          // Create a random nonce to stamp this OAuth2 session
+          val sessionId = request.session.get(SessionKey).getOrElse(UUID.randomUUID().toString)
+          val handlerUrl: String = handler.absoluteURL(globalConfig.https)
 
-        code match {
+          code match {
 
-          // First stage of request. User is redirected to an external URL, where they
-          // authorize our app. The external provider then sends us back to this handler
-          // with a code parameter, initiating the second phase.
-          case None =>
-            val state = UUID.randomUUID().toString
-            cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
-            val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
-            logger.debug(s"OAuth2 redirect URL: $redirectUrl")
-            immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
+            // First stage of request. User is redirected to an external URL, where they
+            // authorize our app. The external provider then sends us back to this handler
+            // with a code parameter, initiating the second phase.
+            case None =>
+              val state = UUID.randomUUID().toString
+              cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
+              val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
+              logger.debug(s"OAuth2 redirect URL: $redirectUrl")
+              immediate(Redirect(redirectUrl).withSession(request.session + (SessionKey -> sessionId)))
 
-          // Second phase of request. Using our new code, and with the same random session
-          // nonce, proceed to get an access token, the user data, and handle the account
-          // creation or updating.
-          case Some(c) => if (checkSessionNonce(sessionId, state)) {
-            cache.remove(sessionId)
-            (for {
-              info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
-              userData <- oAuth2Flow.getUserData(provider, info)
-              account <- getOrCreateAccount(provider, userData)
-              authRequest = OAuth2Request(Right(account), request)
-              result <- block(authRequest)
-            } yield result) recoverWith {
-              case AuthenticationError(msg) =>
-                logger.error(msg)
-                block(OAuth2Request(Left(Messages("login.error.oauth2.info",
-                  provider.name.toUpperCase)), request))
-            }
-          } else authenticationFailed(request)
+            // Second phase of request. Using our new code, and with the same random session
+            // nonce, proceed to get an access token, the user data, and handle the account
+            // creation or updating.
+            case Some(c) => if (checkSessionNonce(sessionId, state)) {
+              cache.remove(sessionId)
+              (for {
+                info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
+                userData <- oAuth2Flow.getUserData(provider, info)
+                account <- getOrCreateAccount(provider, userData)
+                authRequest = OAuth2Request(Right(account), request)
+                result <- block(authRequest)
+              } yield result) recoverWith {
+                case AuthenticationError(msg) =>
+                  logger.error(msg)
+                  block(OAuth2Request(Left(Messages("login.error.oauth2.info",
+                    provider.name.toUpperCase)), request))
+              }
+            } else authenticationFailed(request)
               .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId",
                 providerName.substring(0, 1).toUpperCase + providerName.substring(1))))
+          }
+        } getOrElse {
+          notFoundError(request)
         }
-      } getOrElse {
-        notFoundError(request)
       }
-   }
-  }
+    }
 }

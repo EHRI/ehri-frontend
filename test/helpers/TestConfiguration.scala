@@ -17,10 +17,13 @@ import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
 import play.api.{Application, Configuration}
 import play.api.http.{Status, Writeable}
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
+import play.api.mvc.request.{Cell, RequestAttrKey}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
@@ -124,20 +127,27 @@ trait TestConfiguration {
   protected def getConfig = Map.empty[String,Any]
 
   /**
+    * Access an i18n message with default lang.
+    */
+  protected def message(key: String, args: Any*)(implicit messagesApi: MessagesApi, lang: Lang = Lang.defaultLang): String =
+    messagesApi(key, args: _*)(lang)
+
+  /**
    * Test running Fake Application. We have general all-test configuration,
    * handled in `config`, and per-test configuration (`specificConfig`) that
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
-    new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
-    implicit def implicitMaterializer: Materializer = app.materializer
-    implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+    new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) with Injecting {
+    implicit def implicitMaterializer: Materializer = inject[Materializer]
+    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
+    implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
     override def around[T: AsResult](t: => T): Result = {
       // Integration tests assume a server running locally. We then use the
       // initialise endpoint to clean it before each individual test.
-      import org.specs2.execute.Failure
+      import org.specs2.execute.{Error, Failure}
 
       val config = app.injector.instanceOf[Configuration]
       val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
@@ -145,7 +155,8 @@ trait TestConfiguration {
       val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
       await {
         ws.url(url).post(fixtures).map { _.status match {
-          case Status.NO_CONTENT => super.around(t) // okay!
+          case Status.NO_CONTENT =>
+            try super.around(t) catch { case e: Throwable => Error(e) }
           case s => Failure(s"Unable to initialise test DB, got a status of: $s")
         }} recover {
           case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")
@@ -161,7 +172,9 @@ trait TestConfiguration {
    * @param specificConfig A map of config values for this test
    */
   protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
-    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig)))
+    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
+    implicit def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  }
 
   /**
    * Run a spec after loading the given resource name as SQL fixtures.
@@ -189,37 +202,44 @@ trait TestConfiguration {
   /**
    * Convenience extensions for the FakeRequest object.
    */
-  protected implicit class FakeRequestExtensions[A](fr: FakeRequest[A]) {
+  protected implicit class RequestExtensions[A](fr: Request[A]) {
 
-    def withLoggedIn(implicit app: Application): String => FakeRequest[A] = { id =>
-      fr.withHeaders(AUTH_TEST_HEADER_NAME -> testAuthToken(id))
+    def withLoggedIn(implicit app: Application): String => Request[A] = { id =>
+      fr.withHeaders(fr.headers.add(AUTH_TEST_HEADER_NAME -> testAuthToken(id)))
     }
 
     /**
      * Set the request to be authenticated for the given user.
      */
-    def withUser(user: Account)(implicit app: play.api.Application): FakeRequest[A] = {
+    def withUser(user: Account)(implicit app: play.api.Application): Request[A] = {
       fr.withLoggedIn(app)(user.id)
+    }
+
+    def withSession(s: (String, String)*): Request[A] = {
+      val newSession = Session(fr.session.data ++ s)
+      fr.withAttrs(fr.attrs.updated(RequestAttrKey.Session, Cell(newSession)))
+    }
+
+    def withFormUrlEncodedBody(data: (String, String)*): Request[AnyContentAsFormUrlEncoded] = {
+      fr.withBody(body = AnyContentAsFormUrlEncoded(play.utils.OrderPreserving.groupBy(data.toSeq)(_._1)))
     }
 
     /**
      * Add a dummy CSRF to the fake request.
      */
-    def withCsrf: FakeRequest[A] = if (fr.method == POST)
-      fr.withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
-        .withHeaders(CSRF_HEADER_NAME -> CSRF_HEADER_NOCHECK) else fr
+    def withCsrf: Request[A] = CSRFTokenHelper.addCSRFToken(fr)
 
     /**
      * Add a serialized preferences object to the fake request's session.
      */
-    def withPreferences[T: Writes](p: T): FakeRequest[A] =
+    def withPreferences[T: Writes](p: T): Request[A] =
       fr.withSession(SessionPreferences.DEFAULT_STORE_KEY -> Json.stringify(Json.toJson(p)(implicitly[Writes[T]])))
 
     /**
      * Set the accepting header to the given mime-types.
      */
-    def accepting(m: String*): FakeRequest[A] = m.foldLeft(fr) { (c, m) =>
-      c.withHeaders(ACCEPT -> m)
+    def accepting(m: String*): Request[A] = m.foldLeft(fr) { (c, m) =>
+      c.withHeaders(fr.headers.add(ACCEPT -> m))
     }
 
     /**

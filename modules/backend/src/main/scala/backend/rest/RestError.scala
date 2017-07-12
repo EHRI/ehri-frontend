@@ -1,7 +1,6 @@
 package backend.rest
 
 import backend.ErrorSet
-import play.api.data.validation.{ValidationError => PlayValidationError}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
@@ -34,7 +33,7 @@ case class ServerError(error: String) extends RuntimeException(error) with RestE
 case class CriticalError(error: String) extends RuntimeException(error) with RestError
 
 case class BadJson(
-  error: Seq[(JsPath,Seq[PlayValidationError])],
+  error: Seq[(JsPath,Seq[JsonValidationError])],
   url: Option[String] = None,
   data: Option[String] = None
 ) extends RestError {
