@@ -19,7 +19,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
-import backend.{ApiUser, DataApi}
+import services.{ApiUser, DataApi}
 import global.GlobalConfig
 import play.api.cache.SyncCacheApi
 import play.api.mvc.Result

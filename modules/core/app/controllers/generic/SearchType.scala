@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.ContentType
+import services.ContentType
 import models.UserProfile
 import play.api.mvc._
 import utils.PageParams

@@ -6,7 +6,7 @@ import org.jsoup.safety.Whitelist
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
-import backend.Entity
+import services.Entity
 
 
 object Helpers {

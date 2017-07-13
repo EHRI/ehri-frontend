@@ -4,7 +4,7 @@
 
 <div class="inline-element form-group" id="@desc.id">
     <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
-    @formHelpers.hiddenInput(desc(backend.Entity.ID))
+    @formHelpers.hiddenInput(desc(services.Entity.ID))
     @formHelpers.hiddenInput(desc(TYPE))
     <div class="col-sm-12">
         @List(NAME, DESCRIPTION).map { fname =>

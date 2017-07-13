@@ -1,6 +1,6 @@
 @(page: utils.RangePage[_], namespace: String = "")(implicit req: RequestHeader, messages: Messages)
 
-@import backend.rest.Constants._
+@import services.rest.Constants._
 
 <ul class="pagination" id="pagination">
     @if(page.offset > 0) {

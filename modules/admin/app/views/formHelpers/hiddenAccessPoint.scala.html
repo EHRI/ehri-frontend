@@ -2,6 +2,6 @@
 
 @import AccessPointF._
 
-@List(backend.Entity.ID, NAME, DESCRIPTION, TYPE).map { fname =>
+@List(services.Entity.ID, NAME, DESCRIPTION, TYPE).map { fname =>
     @formHelpers.hiddenInput(desc(fname))
 }

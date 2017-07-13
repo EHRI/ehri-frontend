@@ -9,7 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import backend.{Entity, Writable}
+import services.{Entity, Writable}
 import Description._
 
 

@@ -8,7 +8,7 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -82,7 +82,7 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object AnnotationResource extends backend.ContentType[Annotation]  {
+  implicit object AnnotationResource extends services.ContentType[Annotation]  {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
     val restReads: Reads[Annotation] = metaReads

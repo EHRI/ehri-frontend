@@ -1,7 +1,7 @@
 package utils.search
 
 import scala.concurrent.Future
-import backend.{Readable, ApiUser}
+import services.{Readable, ApiUser}
 
 /**
  * Component responsible for resolving items from the

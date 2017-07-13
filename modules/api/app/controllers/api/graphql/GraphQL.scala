@@ -3,7 +3,7 @@ package controllers.api.graphql
 import javax.inject.{Inject, Singleton}
 
 import akka.util.ByteString
-import backend.rest.Constants
+import services.rest.Constants
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames}
