@@ -19,7 +19,7 @@ trait GlobalConfig {
   def isTestMode: Boolean = configuration.getOptional[Boolean]("ehri.testing").getOrElse(true)
 
   def isStageMode: Boolean = configuration.getOptional[Boolean]("ehri.staging").getOrElse(false)
-  
+
   def isEmbedMode(implicit req: RequestHeader): Boolean =
     req.getQueryString("embed").map(_.toLowerCase).contains("true")
 

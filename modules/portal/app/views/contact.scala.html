@@ -5,7 +5,7 @@
 
     <p>@Messages("contact.p1")</p>
     <address>
-        @globalConfig.configuration.getOptional[String]("ehri.portal.contact.address").map { line =>
+        @globalConfig.configuration.get[Seq[String]]("ehri.portal.contact.address").map { line =>
             @line<br>
         }
     </address>

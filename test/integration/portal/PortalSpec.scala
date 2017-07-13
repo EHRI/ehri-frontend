@@ -34,6 +34,11 @@ class PortalSpec extends IntegrationTestRunner {
       contentAsString(doc) must contain("Bienvenue sur")
     }
 
+    "show contact page" in new ITestApp {
+      val doc = FakeRequest(portalRoutes.contact()).call()
+      status(doc) must equalTo(OK)
+    }
+
     "send 301 when an item has been renamed" in new ITestApp {
       val oldRoute = controllers.portal.routes.DocumentaryUnits.browse("OLD")
       val newRoute = controllers.portal.routes.DocumentaryUnits.browse("NEW")
