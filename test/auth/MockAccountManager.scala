@@ -12,12 +12,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-case class MockAccountManager @Inject()() extends AccountManager {
+case class MockAccountManager @Inject()(executionContext: ExecutionContext) extends AccountManager {
 
   private val self = this
-
-  override protected implicit def executionContext: ExecutionContext =
-    play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   private def updateWith(acc: Account): Account = {
     mockdata.accountFixtures += acc.id -> acc

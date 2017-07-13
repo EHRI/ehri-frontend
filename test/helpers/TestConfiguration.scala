@@ -61,7 +61,7 @@ trait TestConfiguration {
 
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
-  protected def mockAccounts: AccountManager = MockAccountManager()
+  protected def mockAccounts: AccountManager = MockAccountManager(ExecutionContext.Implicits.global)
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
