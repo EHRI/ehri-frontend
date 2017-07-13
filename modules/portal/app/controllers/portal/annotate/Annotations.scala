@@ -2,8 +2,8 @@ package controllers.portal.annotate
 
 import javax.inject._
 
-import backend.rest.DataHelpers
-import backend.rest.cypher.Cypher
+import services.rest.DataHelpers
+import services.rest.cypher.Cypher
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.generic.{Promotion, Read, Search, Visibility}

@@ -3,7 +3,7 @@ package controllers.portal
 import java.util.concurrent.TimeUnit
 import javax.inject._
 
-import backend.HtmlPages
+import services.HtmlPages
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController

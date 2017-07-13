@@ -9,7 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import utils.forms._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.{Entity, Writable}
+import services.{Entity, Writable}
 import models.base.Description._
 
 case class IsadGIdentity(
@@ -67,7 +67,7 @@ case class IsadGControl(
 
 object DocumentaryUnitDescriptionF {
 
-  import backend.Entity._
+  import services.Entity._
   import models.IsadG._
   import Ontology._
 
@@ -196,7 +196,7 @@ case class DocumentaryUnitDescriptionF(
 
 object DocumentaryUnitDescription {
   import models.IsadG._
-  import backend.Entity._
+  import services.Entity._
   import defines.EnumUtils.enumMapping
 
   val form = Form(

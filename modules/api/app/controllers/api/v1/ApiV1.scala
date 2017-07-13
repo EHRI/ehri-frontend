@@ -5,9 +5,9 @@ import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
 import auth.handler.AuthHandler
-import backend.rest.cypher.Cypher
-import backend.rest.{ItemNotFound, PermissionDenied}
-import backend.{AnonymousUser, DataApi}
+import services.rest.cypher.Cypher
+import services.rest.{ItemNotFound, PermissionDenied}
+import services.{AnonymousUser, DataApi}
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search

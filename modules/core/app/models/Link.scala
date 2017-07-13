@@ -7,7 +7,7 @@ import models.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -92,7 +92,7 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object LinkResource extends backend.ContentType[Link]  {
+  implicit object LinkResource extends services.ContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
     val restReads: Reads[Link] = metaReads

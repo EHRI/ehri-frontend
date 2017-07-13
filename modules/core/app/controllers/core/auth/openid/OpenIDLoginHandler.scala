@@ -5,7 +5,7 @@ import models.{Account, UserProfile}
 import play.api.libs.openid._
 import play.api.mvc._
 import play.api.i18n.Messages
-import backend.{AnonymousUser, DataApi}
+import services.{AnonymousUser, DataApi}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result

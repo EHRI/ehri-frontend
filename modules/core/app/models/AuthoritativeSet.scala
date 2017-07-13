@@ -10,7 +10,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -58,7 +58,7 @@ object AuthoritativeSet {
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
 
-  implicit object AuthoritativeSetResource extends backend.ContentType[AuthoritativeSet]  {
+  implicit object AuthoritativeSetResource extends services.ContentType[AuthoritativeSet]  {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
     val restReads: Reads[AuthoritativeSet] = metaReads

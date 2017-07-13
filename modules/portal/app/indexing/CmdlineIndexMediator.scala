@@ -3,7 +3,7 @@ package indexing
 import javax.inject.Inject
 
 import akka.actor.ActorRef
-import backend.rest.Constants
+import services.rest.Constants
 import com.google.common.collect.EvictingQueue
 import defines.EntityType
 import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}

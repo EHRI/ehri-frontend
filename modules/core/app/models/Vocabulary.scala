@@ -11,7 +11,7 @@ import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import eu.ehri.project.definitions.Ontology
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -62,7 +62,7 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object VocabularyResource extends backend.ContentType[Vocabulary]  {
+  implicit object VocabularyResource extends services.ContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
     val restReads: Reads[Vocabulary] = metaReads

@@ -13,7 +13,8 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import backend._
+import utils.forms._
+import services._
 import play.api.libs.json.JsObject
 
 object HistoricalAgentF {
@@ -70,7 +71,7 @@ object HistoricalAgent {
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
 
-  implicit object HistoricalAgentResource extends backend.ContentType[HistoricalAgent]  {
+  implicit object HistoricalAgentResource extends services.ContentType[HistoricalAgent]  {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
     val restReads: Reads[HistoricalAgent] = metaReads

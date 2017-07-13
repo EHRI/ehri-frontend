@@ -3,7 +3,7 @@ package eu.ehri.project.search.solr
 import java.net.ConnectException
 import javax.inject.Inject
 
-import backend.rest.BadJson
+import services.rest.BadJson
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}

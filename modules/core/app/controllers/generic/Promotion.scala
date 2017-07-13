@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.ContentType
+import services.ContentType
 import defines.PermissionType
 import play.api.mvc._
 

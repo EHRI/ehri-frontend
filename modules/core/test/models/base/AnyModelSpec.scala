@@ -7,7 +7,7 @@ import play.api.libs.json.{JsObject, Json}
 import defines.EntityType
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import Description._
-import backend.Entity
+import services.Entity
 
 case class TestDescriptionF(
   id: Option[String],

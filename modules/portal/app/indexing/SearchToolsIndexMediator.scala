@@ -4,7 +4,7 @@ import java.util.Properties
 import javax.inject.Inject
 
 import akka.actor.{ActorRef, ActorSystem}
-import backend.rest.Constants
+import services.rest.Constants
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder

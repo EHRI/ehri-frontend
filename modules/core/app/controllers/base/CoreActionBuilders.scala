@@ -3,7 +3,7 @@ package controllers.base
 
 import auth.AccountManager
 import auth.handler.AuthHandler
-import backend.{ApiUser, _}
+import services.{ApiUser, _}
 import defines.{ContentTypes, PermissionType}
 import models.{Account, UserProfile}
 import play.api.mvc.{Result, _}

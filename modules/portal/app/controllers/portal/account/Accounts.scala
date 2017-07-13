@@ -7,7 +7,7 @@ import javax.inject.{Inject, Singleton}
 import auth.HashedPassword
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
-import backend.AnonymousUser
+import services.AnonymousUser
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper

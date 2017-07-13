@@ -5,7 +5,7 @@ import defines.EntityType
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import backend.{Entity, Readable}
+import services.{Entity, Readable}
 
 
 object ContentType {

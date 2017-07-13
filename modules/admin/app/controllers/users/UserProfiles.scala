@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject._
 
 import auth.{AccountFilters, HashedPassword}
-import backend.rest.{DataHelpers, ValidationError}
+import services.rest.{DataHelpers, ValidationError}
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.core.auth.AccountHelpers

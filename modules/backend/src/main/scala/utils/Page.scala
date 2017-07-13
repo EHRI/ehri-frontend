@@ -1,6 +1,6 @@
 package utils
 
-import backend.rest.Constants
+import services.rest.Constants
 
 /**
  * Class representing a page of data.
