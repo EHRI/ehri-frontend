@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.ContentType
+import services.ContentType
 import defines._
 import models._
 import models.base._

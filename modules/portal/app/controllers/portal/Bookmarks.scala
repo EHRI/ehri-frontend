@@ -2,9 +2,9 @@ package controllers.portal
 
 import javax.inject._
 
-import backend.IdGenerator
-import backend.rest.cypher.Cypher
-import backend.rest.{Constants, ItemNotFound}
+import services.IdGenerator
+import services.rest.cypher.Cypher
+import services.rest.{Constants, ItemNotFound}
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController

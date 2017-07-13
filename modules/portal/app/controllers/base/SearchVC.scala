@@ -1,6 +1,6 @@
 package controllers.base
 
-import backend.rest.cypher.Cypher
+import services.rest.cypher.Cypher
 import controllers.generic.Search
 import models.VirtualUnit
 import models.base.AnyModel

@@ -2,7 +2,7 @@ package controllers.admin
 
 import javax.inject._
 
-import backend.Readable
+import services.Readable
 import controllers.AppComponents
 import controllers.base.AdminController
 import models.base.AnyModel

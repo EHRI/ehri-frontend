@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{Readable, Resource}
+import services.{Readable, Resource}
 import defines.EntityType
 import models.base.{Described, Description, MetaModel, Model}
 import models.{AccessPointF, Link, LinkF}

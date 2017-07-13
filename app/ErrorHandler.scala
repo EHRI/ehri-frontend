@@ -1,6 +1,6 @@
 import javax.inject.{Inject, Provider}
 
-import backend.rest.{BadJson, ItemNotFound, PermissionDenied}
+import services.rest.{BadJson, ItemNotFound, PermissionDenied}
 import controllers.base.SessionPreferences
 import global.GlobalConfig
 import play.api.http.DefaultHttpErrorHandler
@@ -57,7 +57,7 @@ with SessionPreferences[SessionPrefs] {
         renderError("errors.itemNotFound", itemNotFound(e.value))))
       case e: utils.search.SearchEngineOffline => immediate(InternalServerError(
         renderError("errors.searchEngineError", searchEngineError())))
-      case e: backend.rest.BackendOffline => immediate(InternalServerError(
+      case e: services.rest.BackendOffline => immediate(InternalServerError(
         renderError("errors.databaseError", serverTimeout())))
       case e: BadJson => sys.error(e.getMessageWithContext(request))
 

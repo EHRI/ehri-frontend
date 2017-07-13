@@ -1,7 +1,7 @@
 package controllers.generic
 
 import acl.GlobalPermissionSet
-import backend.ContentType
+import services.ContentType
 import defines._
 import models.base._
 import models.{PermissionGrant, UserProfile}

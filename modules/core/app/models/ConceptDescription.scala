@@ -8,7 +8,7 @@ import play.api.libs.json._
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import backend.{Entity, Writable}
+import services.{Entity, Writable}
 import eu.ehri.project.definitions.Ontology
 import models.base.Description._
 
@@ -16,7 +16,7 @@ import models.base.Description._
 object ConceptDescriptionF {
 
   import eu.ehri.project.definitions.Ontology
-  import backend.Entity._
+  import services.Entity._
   import models.ConceptF._
 
   implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = (

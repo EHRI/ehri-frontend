@@ -2,7 +2,7 @@ package controllers.institutions
 
 import javax.inject._
 
-import backend.rest.DataHelpers
+import services.rest.DataHelpers
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._

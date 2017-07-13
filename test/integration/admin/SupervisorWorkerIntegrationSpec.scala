@@ -1,6 +1,6 @@
 package integration.admin
 
-import backend.ApiUser
+import services.ApiUser
 import defines._
 import helpers._
 import models.{Account, UserProfile}

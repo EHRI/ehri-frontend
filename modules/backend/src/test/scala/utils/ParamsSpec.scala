@@ -3,8 +3,8 @@ package utils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import backend.rest.Constants
-import backend.rest.Constants._
+import services.rest.Constants
+import services.rest.Constants._
 import defines.EntityType
 import play.api.test.PlaySpecification
 

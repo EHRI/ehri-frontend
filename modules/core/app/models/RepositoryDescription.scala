@@ -9,7 +9,7 @@ import eu.ehri.project.definitions.Ontology
 import utils.forms._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.{Entity, Readable, Writable}
+import services.{Entity, Readable, Writable}
 import Description._
 
 case class IsdiahDetails(

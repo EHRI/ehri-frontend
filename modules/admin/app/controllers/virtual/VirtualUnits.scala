@@ -2,9 +2,9 @@ package controllers.virtual
 
 import javax.inject._
 
-import backend.rest.cypher.Cypher
-import backend.rest.{DataHelpers, ItemNotFound}
-import backend.{Entity, IdGenerator}
+import services.rest.cypher.Cypher
+import services.rest.{DataHelpers, ItemNotFound}
+import services.{Entity, IdGenerator}
 import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._

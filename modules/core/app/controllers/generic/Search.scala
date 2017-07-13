@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.{ContentType, Readable, WithId}
+import services.{ContentType, Readable, WithId}
 import controllers.base.CoreActionBuilders
 import defines.EntityType
 import models.UserProfile
