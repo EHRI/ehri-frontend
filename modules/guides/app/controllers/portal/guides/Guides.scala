@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import backend.rest.cypher.Cypher
+import services.rest.cypher.Cypher
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig

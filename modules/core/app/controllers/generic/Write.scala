@@ -1,6 +1,6 @@
 package controllers.generic
 
-import backend.rest.Constants
+import services.rest.Constants
 import controllers.base.CoreActionBuilders
 import global.GlobalConfig
 import play.api.mvc.Request

@@ -8,8 +8,8 @@ import models.UserProfile
 import forms.VisibilityForm
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
-import backend.rest.{DataHelpers, ValidationError}
-import backend.{Readable, Writable, ContentType}
+import services.rest.{DataHelpers, ValidationError}
+import services.{Readable, Writable, ContentType}
 
 /**
  * Controller trait for extending Entity classes which server as

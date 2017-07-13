@@ -8,10 +8,10 @@ import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import auth._
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
-import backend._
-import backend.aws.MockFileStorage
-import backend.feedback.MockFeedbackService
-import backend.rest.{IdSearchResolver, RestApi}
+import services._
+import services.aws.MockFileStorage
+import services.feedback.MockFeedbackService
+import services.rest.{IdSearchResolver, RestApi}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}

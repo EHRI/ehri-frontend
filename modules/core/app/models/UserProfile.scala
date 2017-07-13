@@ -14,7 +14,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
 import eu.ehri.project.definitions.Ontology
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -106,7 +106,7 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object UserProfileResource extends backend.ContentType[UserProfile]  {
+  implicit object UserProfileResource extends services.ContentType[UserProfile]  {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
     val restReads: Reads[UserProfile] = metaReads

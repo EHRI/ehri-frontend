@@ -2,8 +2,8 @@ package controllers.portal
 
 import javax.inject._
 
-import backend.IdGenerator
-import backend.rest.cypher.Cypher
+import services.IdGenerator
+import services.rest.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search

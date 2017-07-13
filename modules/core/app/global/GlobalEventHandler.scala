@@ -2,7 +2,7 @@ package global
 
 import javax.inject.Inject
 
-import backend.EventHandler
+import services.EventHandler
 import play.api.Logger
 import utils.search.SearchIndexMediator
 

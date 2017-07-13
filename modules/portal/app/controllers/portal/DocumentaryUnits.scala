@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import backend.rest.cypher.Cypher
+import services.rest.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}

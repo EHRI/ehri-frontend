@@ -2,8 +2,8 @@ package controllers.portal.social
 
 import javax.inject._
 
-import backend.ApiUser
-import backend.rest.cypher.Cypher
+import services.ApiUser
+import services.rest.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search

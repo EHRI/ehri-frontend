@@ -2,7 +2,7 @@ package controllers.groups
 
 import javax.inject._
 
-import backend.rest.{Constants, DataHelpers}
+import services.rest.{Constants, DataHelpers}
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._

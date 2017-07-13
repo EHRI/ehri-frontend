@@ -8,11 +8,11 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
-import backend.rest.Constants
+import services.rest.Constants
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -67,7 +67,7 @@ object VirtualUnit {
   )(VirtualUnit.apply _)
 
 
-  implicit object VirtualUnitResource extends backend.ContentType[VirtualUnit]  {
+  implicit object VirtualUnitResource extends services.ContentType[VirtualUnit]  {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
     implicit val restReads: Reads[VirtualUnit] = metaReads

@@ -10,7 +10,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import backend.Entity
+import services.Entity
 
 object SystemEventF {
 
@@ -35,7 +35,7 @@ object SystemEventF {
     (__ \ DATA \ EVENT_PROP).formatNullable[EventType.Value]
   )(SystemEventF.apply, unlift(SystemEventF.unapply))
 
-  implicit object Converter extends backend.Readable[SystemEventF] {
+  implicit object Converter extends services.Readable[SystemEventF] {
     val restReads: Format[SystemEventF] = systemEventFormat
   }
 }
@@ -65,7 +65,7 @@ object SystemEvent {
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
-  implicit object SystemEventResource extends backend.ContentType[SystemEvent]  {
+  implicit object SystemEventResource extends services.ContentType[SystemEvent]  {
     val entityType = EntityType.SystemEvent
     val contentType = ContentTypes.SystemEvent
     val restReads: Reads[SystemEvent] = metaReads

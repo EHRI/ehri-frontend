@@ -1,6 +1,6 @@
 package models
 
-import backend.{Entity, Writable}
+import services.{Entity, Writable}
 import defines.EntityType
 import eu.ehri.project.definitions.Ontology
 import models.base.Description._

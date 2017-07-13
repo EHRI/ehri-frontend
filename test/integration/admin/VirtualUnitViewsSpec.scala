@@ -1,6 +1,6 @@
 package integration.admin
 
-import backend.{ApiUser, AuthenticatedUser}
+import services.{ApiUser, AuthenticatedUser}
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest

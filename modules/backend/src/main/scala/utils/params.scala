@@ -3,7 +3,7 @@ package utils
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-import backend.rest.Constants._
+import services.rest.Constants._
 import defines.{EntityType, EventType}
 import play.api.mvc.QueryStringBindable
 import utils.SystemEventParams.{Aggregation, ShowType}

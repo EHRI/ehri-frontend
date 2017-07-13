@@ -1,7 +1,7 @@
 package controllers.generic
 
-import backend.ContentType
-import backend.rest.DataHelpers
+import services.ContentType
+import services.rest.DataHelpers
 import defines.PermissionType
 import models.base.Accessor
 import models.{Group, UserProfile}

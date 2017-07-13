@@ -204,7 +204,7 @@ val webAppSettings = Seq(
     "utils.forms._",
     "acl._",
     "defines._",
-    "backend.Entity"
+    "services.Entity"
   ),
 
   // Auto-import EntityType enum into routes

@@ -2,7 +2,7 @@ package models.base
 
 import java.util.NoSuchElementException
 
-import backend.{Entity, Readable, Resource}
+import services.{Entity, Readable, Resource}
 import defines.{ContentTypes, EntityType}
 import models._
 import models.json.Utils
@@ -13,7 +13,7 @@ import play.api.libs.json.{KeyPathNode, _}
 import scala.collection.SortedMap
 
 
-trait AnyModel extends backend.WithId {
+trait AnyModel extends services.WithId {
   def id: String
 
   def isA: EntityType.Value

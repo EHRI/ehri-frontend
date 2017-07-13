@@ -5,7 +5,7 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import auth.AccountManager
 import auth.handler.AuthHandler
-import backend.DataApi
+import services.DataApi
 import com.google.inject.ImplementedBy
 import global.GlobalConfig
 import play.api.Configuration

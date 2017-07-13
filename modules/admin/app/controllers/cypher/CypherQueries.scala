@@ -5,8 +5,8 @@ import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
-import backend.CypherQueryService
-import backend.rest.cypher.CypherService
+import services.CypherQueryService
+import services.rest.cypher.CypherService
 import controllers.base.AdminController
 import controllers.{AppComponents, DataFormat}
 import models.{CypherQuery, ResultFormat}
