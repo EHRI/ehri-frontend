@@ -55,9 +55,11 @@ class SearchSpec extends IntegrationTestRunner {
       ws.client.connectBlocking()
       ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
 
-      eventually { ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString) }
-      indexEventBuffer.lastOption must beSome.which { bufcmd =>
-        bufcmd must equalTo(cmd.toString())
+      eventually {
+        ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString)
+        indexEventBuffer.lastOption must beSome.which { bufcmd =>
+          bufcmd must equalTo(cmd.toString())
+        }
       }
     }
   }
