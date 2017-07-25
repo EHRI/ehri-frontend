@@ -64,7 +64,7 @@ trait RestService {
         .execute(method)
         .map(r => checkError(r, Some(fullUrl)))
         .recover {
-          case e: ConnectException => throw BackendOffline(fullUrl, e)
+          case e: ConnectException => throw ServiceOffline(fullUrl, e)
         }
     }
 
