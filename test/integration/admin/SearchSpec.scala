@@ -1,5 +1,10 @@
 package integration.admin
 
+import akka.NotUsed
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import controllers.admin.{IndexTypes, Indexing}
 import defines.EntityType
 import helpers._
@@ -8,6 +13,8 @@ import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
 import play.api.test.{FakeRequest, WithServer}
 import utils.search.SearchConstants
+
+import scala.concurrent.{Future, Promise}
 
 
 /**
@@ -31,7 +38,7 @@ class SearchSpec extends IntegrationTestRunner {
         .call()
       status(search) must equalTo(OK)
       searchParamBuffer
-        .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(Some(true))
+        .last.filters.get(SearchConstants.TOP_LEVEL) must beSome(true)
     }
 
     "search for hierarchical item with a query should not apply a top-level filter" in new ITestApp {
@@ -40,7 +47,7 @@ class SearchSpec extends IntegrationTestRunner {
         .call()
       status(search) must equalTo(OK)
       searchParamBuffer
-        .last.filters.get(SearchConstants.TOP_LEVEL) must equalTo(None)
+        .last.filters.get(SearchConstants.TOP_LEVEL) must beNone
     }
   }
 
@@ -50,16 +57,45 @@ class SearchSpec extends IntegrationTestRunner {
       val cmd = List(EntityType.DocumentaryUnit)
       val data = IndexTypes(cmd)
       val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
+
       val ws = WebSocketClientWrapper(wsUrl,
         headers = Map(AUTH_TEST_HEADER_NAME -> testAuthToken(privilegedUser.id)))
-      ws.client.connectBlocking()
-      ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
+      try {
+        ws.client.connectBlocking()
+        ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
 
-      eventually {
-        ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString)
-        indexEventBuffer.lastOption must beSome.which { bufcmd =>
-          bufcmd must equalTo(cmd.toString())
+        eventually {
+          ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString)
+          indexEventBuffer.lastOption must beSome.which { bufcmd =>
+            bufcmd must equalTo(cmd.toString())
+          }
         }
+      } finally {
+        ws.client.closeBlocking()
+      }
+    }
+
+    "perform indexing correctly via Websocket endpoint 2" in new WithServer(app = appBuilder.build(), port = port) {
+      implicit val as = app.actorSystem
+      implicit val mat = app.materializer
+
+      val cmd = List(EntityType.DocumentaryUnit)
+      val data = IndexTypes(cmd)
+      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
+      val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
+
+      val source: Source[Message, NotUsed] = Source(List(TextMessage(Json.stringify(Json.toJson(data)))))
+      val flow: Flow[Message, Message, (Future[Option[Message]], Promise[Option[Message]])] =
+        Flow.fromSinkAndSourceCoupledMat(Sink.headOption[Message], source
+          .concatMat(Source.maybe[Message])(Keep.right))(Keep.both)
+
+      val (resp, (out, promise)) =
+        Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), flow)
+
+      promise.success(None)
+      await(out) must_== TextMessage.Strict(JsString(Indexing.DONE_MESSAGE).toString)
+      indexEventBuffer.lastOption must beSome.which { bufcmd =>
+        bufcmd must equalTo(cmd.toString())
       }
     }
   }
@@ -71,7 +107,7 @@ class SearchSpec extends IntegrationTestRunner {
         .accepting(MimeTypes.JSON)
         .call()
       status(repoMetrics) must equalTo(OK)
-      contentType(repoMetrics) must equalTo(Some(MimeTypes.JSON))
+      contentType(repoMetrics) must beSome(MimeTypes.JSON)
     }
   }
 }
