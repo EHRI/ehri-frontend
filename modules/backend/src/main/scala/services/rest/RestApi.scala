@@ -41,7 +41,7 @@ case class RestApiHandle(eventHandler: EventHandler)(
       .withHttpHeaders(HeaderNames.ACCEPT -> play.api.http.ContentTypes.JSON).get().map { r =>
       r.json.validate[JsObject].fold(err => throw BadJson(err), _ => "ok")
     } recover {
-      case err => throw BackendOffline(err.getMessage, err)
+      case err => throw ServiceOffline(err.getMessage, err)
     }
   }
 

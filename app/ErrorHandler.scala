@@ -57,7 +57,7 @@ with SessionPreferences[SessionPrefs] {
         renderError("errors.itemNotFound", itemNotFound(e.value))))
       case e: utils.search.SearchEngineOffline => immediate(InternalServerError(
         renderError("errors.searchEngineError", searchEngineError())))
-      case e: services.rest.BackendOffline => immediate(InternalServerError(
+      case e: services.rest.ServiceOffline => immediate(InternalServerError(
         renderError("errors.databaseError", serverTimeout())))
       case e: BadJson => sys.error(e.getMessageWithContext(request))
 
