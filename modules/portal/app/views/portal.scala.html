@@ -81,19 +81,16 @@
                         )))
                         </div>
                     </div>
-                    @*<hr>*@
-                    @*<h2>Introduction to the EHRI Portal</h2>*@
 
                     <hr>
                     <div class="row">
-                        <div class="col-md-6 video-container">
-                            <h3>Video Introduction</h3>
-                            <div class="embed-responsive embed-responsive-16by9" style="margin-top: 10px;">
+                        <div class="info-container">
+                            <h3>@Messages("welcome.video.heading")</h3>
+                            <div class="embed-responsive embed-responsive-16by9">
                                 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IUFqR7l5qW8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
                             </div>
                         </div>
-                        <div class="col-md-6 feed-container" id="blog-feed" data-name="blog"></div>
-                        @*<div class="feed-container" id="news-feed" data-name="news"></div>*@
+                        <div class="info-container feed" id="blog-feed" data-name="blog"></div>
                     </div>
                 </div>
                 <div id="push"></div>
@@ -105,7 +102,7 @@
 
         <script>
             jQuery(document).ready(function ($) {
-                $(".feed-container").each(function(item, elem) {
+                $(".feed").each(function(item, elem) {
                     var $item = $(elem), name = $item.data("name");
                     $item.load(jsRoutes.controllers.portal.Portal.externalFeed(name).url);
                 });
