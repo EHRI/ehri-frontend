@@ -81,17 +81,19 @@
                         )))
                         </div>
                     </div>
-                    <hr>
-                    <h2>Introduction to the EHRI Portal</h2>
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" width="400" height="225" src="https://www.youtube-nocookie.com/embed/IUFqR7l5qW8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-                        <p>This video gives a short introduction to the what, why and how of the online portal of the European Holocaust Research Infrastructure, in just under 3 minutes. </p>
-                    </div>
+                    @*<hr>*@
+                    @*<h2>Introduction to the EHRI Portal</h2>*@
 
                     <hr>
                     <div class="row">
-                        <div class="feed-container" id="blog-feed" data-name="blog"></div>
-                        <div class="feed-container" id="news-feed" data-name="news"></div>
+                        <div class="col-md-6 video-container">
+                            <h3>Video Introduction</h3>
+                            <div class="embed-responsive embed-responsive-16by9" style="margin-top: 10px;">
+                                <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IUFqR7l5qW8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                        <div class="col-md-6 feed-container" id="blog-feed" data-name="blog"></div>
+                        @*<div class="feed-container" id="news-feed" data-name="news"></div>*@
                     </div>
                 </div>
                 <div id="push"></div>
