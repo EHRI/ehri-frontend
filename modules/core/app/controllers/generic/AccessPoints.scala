@@ -72,7 +72,7 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
     * } ]
     *
     */
-  def getAccessPointsJson(id: String)(implicit rd: Readable[MT], rs: Resource[MT]): Action[AnyContent] =
+  def getAccessPointsJson(id: String)(implicit rs: Resource[MT]): Action[AnyContent] =
     OptionalUserAction.async { implicit request =>
       for (item <- userDataApi.get(id); links <- userDataApi.links[Link](id)) yield {
         implicit val accessPointFormat = Json.format[AccessPointF]

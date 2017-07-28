@@ -10,7 +10,6 @@ import play.api.mvc.{Result, _}
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 
 
 /**
@@ -31,7 +30,6 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
   protected implicit val implicitEc: ExecutionContext = controllerComponents.executionContext
   protected val parsers: PlayBodyParsers = controllerComponents.parsers
 
-  import scala.languageFeature.higherKinds
   protected trait CoreActionBuilder[+R[_], B] extends ActionBuilder[R, AnyContent] {
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser

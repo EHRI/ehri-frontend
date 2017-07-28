@@ -1,16 +1,16 @@
 package models
 
-import models.base._
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import backend.{Entity, Writable}
 import defines.EntityType
-import models.json._
 import eu.ehri.project.definitions.Ontology
-import utils.forms._
+import models.base.Description._
+import models.base._
+import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
-import backend.{Entity, Readable, Writable}
-import Description._
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import utils.forms._
 
 case class IsdiahDetails(
   history: Option[String] = None,
@@ -158,8 +158,9 @@ case class RepositoryDescriptionF(
 }
 
 object RepositoryDescription {
-  import Isdiah._
+
   import Entity._
+  import Isdiah._
   import defines.EnumUtils.enumMapping
 
   val form = Form(
