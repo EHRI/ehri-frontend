@@ -50,7 +50,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
      ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], crd: Readable[CMT], cct: ContentType[CMT]) =
+  private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], cct: ContentType[CMT]) =
     new CoreActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req = request
@@ -72,8 +72,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
       }
     }
 
-  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(
-    implicit fmt: Writable[CF], crd: Readable[CMT], rd: Readable[MT], ct: ContentType[MT], cct: ContentType[CMT]): ActionBuilder[CreateChildRequest, AnyContent] =
+  protected def CreateChildAction(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], cct: ContentType[CMT]): ActionBuilder[CreateChildRequest, AnyContent] =
     WithParentPermissionAction(id, PermissionType.Create, cct.contentType) andThen CreateChildTransformer(id, form, extraParams)
   
   

@@ -55,7 +55,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
     }
 
   protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String,Seq[String]] = _ => Map.empty)(
-    implicit fmt: Writable[F], rd: Readable[MT], ct: ContentType[MT]): ActionBuilder[CreateRequest, AnyContent] =
+    implicit fmt: Writable[F], ct: ContentType[MT]): ActionBuilder[CreateRequest, AnyContent] =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new CoreActionTransformer[WithUserRequest, CreateRequest] {
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req = request

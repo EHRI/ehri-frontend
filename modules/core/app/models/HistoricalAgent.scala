@@ -13,7 +13,6 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.forms._
 import backend._
 import play.api.libs.json.JsObject
 

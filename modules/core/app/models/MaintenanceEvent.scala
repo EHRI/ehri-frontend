@@ -1,6 +1,5 @@
 package models
 
-import backend.Entity._
 import defines.EntityType
 import models.base.{AnyModel, MetaModel, Model, Persistable}
 import models.json._
