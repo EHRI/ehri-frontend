@@ -5,7 +5,7 @@
     @helper.form(action = action) {
         <div class="search-results-no-facets">
             <section class="search-results-body">
-                @common.search.searchBar(utils.search.SearchParams(query = q), tips = false)
+                @common.search.searchBar(services.search.SearchParams(query = q), tips = false)
                 <div class="search-result-errata">
                     <div class="search-summary">
                     @Messages("pagination.displayingItems", queries.start, queries.end, queries.total)

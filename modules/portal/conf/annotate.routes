@@ -1,7 +1,7 @@
 # Annotations...
 
 # List all notes
-GET         /                              @controllers.portal.annotate.Annotations.searchAll(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                              @controllers.portal.annotate.Annotations.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 # Create notes
 GET         /create/:id/:did               @controllers.portal.annotate.Annotations.annotate(id: String, did: String)
 POST        /create/:id/:did               @controllers.portal.annotate.Annotations.annotatePost(id: String, did: String)

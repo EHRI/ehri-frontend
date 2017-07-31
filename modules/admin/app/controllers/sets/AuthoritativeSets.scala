@@ -3,8 +3,6 @@ package controllers.sets
 import javax.inject._
 
 import forms.VisibilityForm
-import services.rest.DataHelpers
-import services.{Entity, IdGenerator}
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,8 +10,9 @@ import defines.{ContentTypes, EntityType}
 import models._
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.{DataHelpers, IdGenerator}
 import utils.{PageParams, RangeParams}
-import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
 import scala.concurrent.Future.{successful => immediate}
 

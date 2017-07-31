@@ -20,7 +20,7 @@ import play.api.libs.mailer.MailerClient
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{MaxSizeExceeded, _}
 import utils._
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

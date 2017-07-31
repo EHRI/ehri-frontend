@@ -3,12 +3,12 @@ package services.googledocs
 import javax.inject.Inject
 
 import services.HtmlPages
-import services.rest.{ItemNotFound, PermissionDenied}
 import play.api.cache.SyncCacheApi
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
+import services.data.{ItemNotFound, PermissionDenied}
 import utils.caching.FutureCache
 
 import scala.concurrent.{ExecutionContext, Future}

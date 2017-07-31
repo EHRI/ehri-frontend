@@ -3,10 +3,10 @@ package indexing
 import javax.inject.Inject
 
 import akka.actor.ActorRef
-import services.rest.Constants
 import com.google.common.collect.EvictingQueue
 import defines.EntityType
-import utils.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
+import services.data.Constants
+import services.search.{IndexingError, SearchIndexMediator, SearchIndexMediatorHandle}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._

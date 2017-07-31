@@ -1,10 +1,10 @@
 # Virtual Documentary Units
 
-GET         /                                         @controllers.virtual.VirtualUnits.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                                         @controllers.virtual.VirtualUnits.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /contents/:id                             @controllers.virtual.VirtualUnits.contentsOf(id: String)
 GET         /create                                   @controllers.virtual.VirtualUnits.create
 POST        /create                                   @controllers.virtual.VirtualUnits.createPost
-GET         /:id                                      @controllers.virtual.VirtualUnits.get(id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id                                      @controllers.virtual.VirtualUnits.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.virtual.VirtualUnits.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.virtual.VirtualUnits.delete(id: String)
 POST        /:id/delete                               @controllers.virtual.VirtualUnits.deletePost(id: String)
@@ -32,7 +32,7 @@ GET         /:id/scope/add                            @controllers.virtual.Virtu
 GET         /:id/scope/:userType/:userId              @controllers.virtual.VirtualUnits.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST        /:id/scope/:userType/:userId              @controllers.virtual.VirtualUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET         /:id/link                                 @controllers.virtual.VirtualUnits.linkTo(id: String)
-GET         /:id/link/:toType                         @controllers.virtual.VirtualUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id/link/:toType                         @controllers.virtual.VirtualUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/link/:toType/:to                     @controllers.virtual.VirtualUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST        /:id/link/:toType/:to                     @controllers.virtual.VirtualUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 GET         /:id/linkm                                @controllers.virtual.VirtualUnits.linkMultiAnnotate(id: String)
@@ -41,5 +41,5 @@ POST        /:id/linkjs/:accessPoint                  @controllers.virtual.Virtu
 GET         /:id/linkjs/:accessPoint                  @controllers.virtual.VirtualUnits.getLink(id: String, accessPoint: String)
 POST        /:id/linkjs                               @controllers.virtual.VirtualUnits.createMultipleLinks(id: String)
 POST        /:id/deleteLink/:link                     @controllers.virtual.VirtualUnits.deleteLink(id: String, link: String)
-GET         /:via/:id                                 @controllers.virtual.VirtualUnits.getInVc(via: String, id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:via/:id                                 @controllers.virtual.VirtualUnits.getInVc(via: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 

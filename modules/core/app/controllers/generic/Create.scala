@@ -1,7 +1,6 @@
 package controllers.generic
 
-import services.rest.{DataHelpers, ValidationError}
-import services.{ContentType, Readable, Writable}
+import services.data.{ContentType, DataHelpers, ValidationError, Writable}
 import defines.PermissionType
 import forms.VisibilityForm
 import models.UserProfile

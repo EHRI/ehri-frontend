@@ -2,7 +2,7 @@ package eu.ehri.project.search.solr
 
 import play.api.Logger
 import play.api.libs.json.{JsNull, JsObject, Json}
-import utils.search._
+import services.search._
 
 private[solr] object SolrFacetParser {
   def facetValue(q: Facet): String = q match {

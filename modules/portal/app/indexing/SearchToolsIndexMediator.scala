@@ -4,7 +4,6 @@ import java.util.Properties
 import javax.inject.Inject
 
 import akka.actor.{ActorRef, ActorSystem}
-import services.rest.Constants
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder
@@ -14,7 +13,8 @@ import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
 import play.api.Logger
-import utils.search.{SearchIndexMediator, SearchIndexMediatorHandle}
+import services.data.Constants
+import services.search.{SearchIndexMediator, SearchIndexMediatorHandle}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}

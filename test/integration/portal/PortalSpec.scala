@@ -10,7 +10,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 import utils.SessionPrefs
-import utils.search.SearchParams
+import services.search.SearchParams
 
 
 class PortalSpec extends IntegrationTestRunner {

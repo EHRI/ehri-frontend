@@ -1,11 +1,11 @@
 package controllers.generic
 
 import acl.GlobalPermissionSet
-import services.ContentType
 import defines.{ContentTypes, PermissionType}
 import models._
 import models.base.Accessor
 import play.api.mvc._
+import services.data.ContentType
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future

@@ -2,9 +2,7 @@ package controllers.portal
 
 import javax.inject._
 
-import services.IdGenerator
-import services.rest.cypher.Cypher
-import services.rest.{Constants, ItemNotFound}
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
@@ -14,8 +12,9 @@ import models.base.AnyModel
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.mvc._
+import services.data.{Constants, IdGenerator, ItemNotFound}
 import utils._
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

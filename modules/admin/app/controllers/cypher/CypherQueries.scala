@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import services.CypherQueryService
-import services.rest.cypher.CypherService
+import services.cypher.CypherService
 import controllers.base.AdminController
 import controllers.{AppComponents, DataFormat}
 import models.{CypherQuery, ResultFormat}
@@ -16,7 +16,7 @@ import play.api.data.Forms._
 import play.api.http._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
-import utils.search.SearchParams
+import services.search.SearchParams
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.util.Failure

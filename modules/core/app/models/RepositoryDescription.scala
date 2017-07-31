@@ -1,6 +1,5 @@
 package models
 
-import services.{Entity, Writable}
 import defines.EntityType
 import eu.ehri.project.definitions.Ontology
 import models.base.Description._
@@ -10,6 +9,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import services.data.Writable
 import utils.forms._
 
 case class IsdiahDetails(

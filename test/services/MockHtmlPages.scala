@@ -1,8 +1,8 @@
 package services
 
-import services.rest.ItemNotFound
 import play.api.i18n.Messages
 import play.twirl.api.Html
+import services.data.ItemNotFound
 
 import scala.concurrent.Future
 

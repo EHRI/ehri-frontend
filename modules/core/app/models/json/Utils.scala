@@ -20,7 +20,7 @@ object Utils {
     case EntityType.Link => Link.LinkResource.restReads.asInstanceOf[Reads[AnyModel]]
     case EntityType.Annotation => Annotation.AnnotationResource.restReads.asInstanceOf[Reads[AnyModel]]
     case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource.restReads.asInstanceOf[Reads[AnyModel]]
-    case EntityType.ContentType => ContentType.Converter.restReads.asInstanceOf[Reads[AnyModel]]
+    case EntityType.ContentType => DataContentType.Converter.restReads.asInstanceOf[Reads[AnyModel]]
     case EntityType.AccessPoint => AccessPoint.Converter.restReads.asInstanceOf[Reads[AnyModel]]
     case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource.restReads.asInstanceOf[Reads[AnyModel]]
   }

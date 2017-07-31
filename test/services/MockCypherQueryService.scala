@@ -1,12 +1,13 @@
 package services
 
-import services.rest.ItemNotFound
 import models.CypherQuery
 import java.time.LocalDateTime
+
+import services.data.ItemNotFound
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate, failed}
+import scala.concurrent.Future.{failed, successful => immediate}
 
 
 case class MockCypherQueryService(buffer: collection.mutable.HashMap[Int, CypherQuery]) extends CypherQueryService{

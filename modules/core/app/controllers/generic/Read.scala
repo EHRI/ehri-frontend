@@ -1,13 +1,12 @@
 package controllers.generic
 
-import services.rest.ItemNotFound
-import services.{ContentType, Resource}
 import controllers.base.CoreActionBuilders
 import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, _}
+import services.data.{ContentType, ItemNotFound, Resource}
 import utils.{Page, PageParams, RangePage, RangeParams}
 
 import scala.concurrent.Future

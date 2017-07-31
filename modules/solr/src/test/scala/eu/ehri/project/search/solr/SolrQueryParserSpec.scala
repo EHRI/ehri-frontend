@@ -2,7 +2,7 @@ package eu.ehri.project.search.solr
 
 import helpers.ResourceUtils
 import play.api.test.PlaySpecification
-import utils.search.FieldFacetClass
+import services.search.FieldFacetClass
 import models.base.Description
 import play.api.Configuration
 import play.api.libs.json.Json

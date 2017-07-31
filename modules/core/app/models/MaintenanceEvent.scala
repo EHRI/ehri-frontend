@@ -1,6 +1,6 @@
 package models
 
-import services.Entity._
+import Entity._
 import defines.EntityType
 import models.base.{AnyModel, MetaModel, Model, Persistable}
 import models.json._
@@ -9,6 +9,7 @@ import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import services.data.Readable
 
 case class MaintenanceEventF(
   isA: EntityType.Value = EntityType.MaintenanceEvent,
@@ -35,7 +36,7 @@ object MaintenanceEventF {
   val EVENT_TYPE = "eventType"
   val ORDER = "order"
 
-  import services.Entity._
+  import Entity._
 
   implicit val maintenanceEventFormat: Format[MaintenanceEventF] = (
     (__ \ TYPE).formatIfEquals(EntityType.MaintenanceEvent) and
@@ -60,14 +61,14 @@ object MaintenanceEventF {
 
 object MaintenanceEvent {
 
-  import services.Entity.META
+  import Entity.META
 
   implicit val metaReads: Reads[MaintenanceEvent] = (
     __.read[MaintenanceEventF] and
     (__ \ META).readWithDefault(Json.obj())
   )(MaintenanceEvent.apply _)
 
-  implicit object Converter extends services.Readable[MaintenanceEvent] {
+  implicit object Converter extends Readable[MaintenanceEvent] {
     val restReads: Reads[MaintenanceEvent] = metaReads
   }
 }

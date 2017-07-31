@@ -2,9 +2,7 @@ package controllers.virtual
 
 import javax.inject._
 
-import services.rest.cypher.Cypher
-import services.rest.{DataHelpers, ItemNotFound}
-import services.{Entity, IdGenerator}
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
@@ -17,8 +15,9 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.{DataHelpers, IdGenerator, ItemNotFound}
 import utils.{PageParams, RangeParams}
-import utils.search._
+import services.search._
 import views.Helpers
 
 import scala.concurrent.Future

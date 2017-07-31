@@ -1,6 +1,6 @@
-@(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], call: Call)(implicit req: RequestHeader, messages: Messages)
+@(facetClasses: Seq[services.search.FacetClass[services.search.Facet]], call: Call)(implicit req: RequestHeader, messages: Messages)
 
-@import utils.search._
+@import services.search._
 
 @facetLabel(fc: FacetClass[_]) = {
     <h4 data-toggle="tooltip" title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label">@Messages("facet." + fc.param)</h4>

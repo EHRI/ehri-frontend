@@ -1,10 +1,10 @@
 package integration.admin
 
-import services.ApiUser
 import defines._
 import helpers._
 import models.{Account, UserProfile}
 import play.api.test.FakeRequest
+import services.data.ApiUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.

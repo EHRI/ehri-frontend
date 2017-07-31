@@ -1,10 +1,10 @@
 package controllers.generic
 
-import services.ContentType
 import models.UserProfile
 import play.api.mvc._
+import services.data.ContentType
 import utils.PageParams
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 

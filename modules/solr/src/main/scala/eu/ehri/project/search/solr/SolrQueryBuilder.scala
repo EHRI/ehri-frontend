@@ -6,8 +6,8 @@ import defines.EntityType
 import models.UserProfile
 import play.api.{Configuration, Logger}
 import utils.PageParams
-import utils.search.SearchConstants.{ACCESSOR_ALL_PLACEHOLDER, ACCESSOR_FIELD, ITEM_ID, TYPE}
-import utils.search._
+import services.search.SearchConstants.{ACCESSOR_ALL_PLACEHOLDER, ACCESSOR_FIELD, ITEM_ID, TYPE}
+import services.search._
 
 
 private[solr] object SolrQueryBuilder {

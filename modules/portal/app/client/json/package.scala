@@ -1,8 +1,7 @@
 package client
 
-import services.Entity
 import defines.EntityType
-import models._
+import models.{Entity, _}
 import models.base.{Accessor, AnyModel}
 import models.json._
 import play.api.Logger
@@ -66,8 +65,8 @@ package object json {
     implicit val clientFormat: Format[AnyModel] = Format(clientReadAny, clientWriteAny)
   }
 
-  implicit object contentTypeJson extends ClientWriteable[ContentType] {
-    val clientFormat: Format[ContentType] = Json.format[ContentType]
+  implicit object contentTypeJson extends ClientWriteable[DataContentType] {
+    val clientFormat: Format[DataContentType] = Json.format[DataContentType]
   }
 
   implicit object permissionGrantJson extends ClientWriteable[PermissionGrant] {

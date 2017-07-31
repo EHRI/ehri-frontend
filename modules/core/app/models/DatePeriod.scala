@@ -4,9 +4,9 @@ import java.time.format.DateTimeParseException
 import java.time.temporal.TemporalAccessor
 import java.time.{LocalDate, Year, YearMonth}
 
-import services.{Entity, Writable}
 import defines.EntityType
 import models.base.Model
+import services.data.Writable
 
 
 object DatePeriodF {

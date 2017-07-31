@@ -11,7 +11,6 @@ import auth.handler.{AuthHandler, AuthIdContainer}
 import services._
 import services.aws.MockFileStorage
 import services.feedback.MockFeedbackService
-import services.rest.{IdSearchResolver, RestApi}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
@@ -26,8 +25,9 @@ import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
+import services.data.{IdSearchResolver, _}
 import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
-import utils.search.{MockSearchIndexMediator, _}
+import services.search.{MockSearchIndexMediator, _}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -98,7 +98,7 @@ trait TestConfiguration {
       bind[FeedbackService].toInstance(mockFeedback),
       bind[CypherQueryService].toInstance(mockCypherQueries),
       bind[EventHandler].toInstance(testEventHandler),
-      bind[DataApi].to[RestApi],
+      bind[DataApi].to[DataApiService],
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       // NB: Graph IDs are not stable during testing due to

@@ -3,7 +3,7 @@ package utils
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-import services.rest.Constants._
+import services.data.Constants._
 import defines.{EntityType, EventType}
 import play.api.mvc.QueryStringBindable
 import utils.SystemEventParams.{Aggregation, ShowType}
@@ -12,7 +12,7 @@ object Ranged {
   def streamHeader: (String, String) = STREAM_HEADER_NAME -> true.toString
 }
 
-private[utils] trait NamespaceExtractor {
+trait NamespaceExtractor {
   protected def ns(key: String): String =
     if (key.contains("_")) key.substring(key.lastIndexOf("_") + 1) else ""
 

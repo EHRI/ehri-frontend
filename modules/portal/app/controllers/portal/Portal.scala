@@ -16,7 +16,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import utils._
 import utils.caching.FutureCache
-import utils.search._
+import services.search._
 import views.html.errors.pageNotFound
 
 import scala.concurrent.Future

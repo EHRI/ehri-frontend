@@ -3,7 +3,7 @@ package controllers.portal
 import javax.inject._
 
 import services.FeedbackService
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.Application

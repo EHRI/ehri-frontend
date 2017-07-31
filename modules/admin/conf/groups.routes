@@ -1,6 +1,6 @@
 # Group routes
 
-GET         /                                   @controllers.groups.Groups.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                                   @controllers.groups.Groups.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /create                             @controllers.groups.Groups.create
 POST        /create                             @controllers.groups.Groups.createPost
 GET         /:id                                @controllers.groups.Groups.get(id: String, paging: utils.PageParams ?= utils.PageParams.empty)

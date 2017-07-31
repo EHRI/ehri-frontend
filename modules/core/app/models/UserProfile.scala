@@ -1,9 +1,8 @@
 package models
 
-import defines.{PermissionType,ContentTypes}
+import defines.{ContentTypes, PermissionType}
 import acl._
 import models.base._
-
 import base.Persistable
 import defines.EntityType
 import play.api.libs.json._
@@ -16,6 +15,7 @@ import utils.forms._
 import eu.ehri.project.definitions.Ontology
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object UserProfileF {
@@ -106,7 +106,7 @@ object UserProfile {
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
 
-  implicit object UserProfileResource extends services.ContentType[UserProfile]  {
+  implicit object UserProfileResource extends ContentType[UserProfile]  {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
     val restReads: Reads[UserProfile] = metaReads

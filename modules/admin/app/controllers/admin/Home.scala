@@ -12,7 +12,7 @@ import play.api.http.MimeTypes
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc._
-import utils.search._
+import services.search._
 import utils.{PageParams, SystemEventParams}
 import views.Helpers
 

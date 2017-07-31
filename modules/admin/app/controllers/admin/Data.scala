@@ -2,13 +2,13 @@ package controllers.admin
 
 import javax.inject._
 
-import services.Readable
 import controllers.AppComponents
 import controllers.base.AdminController
 import models.base.AnyModel
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.Readable
 
 
 case class Data @Inject()(

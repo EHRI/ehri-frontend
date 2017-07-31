@@ -7,7 +7,7 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import utils.DateFacetUtils
 import utils.DateFacetUtils._
-import utils.search._
+import services.search._
 import views.Helpers
 
 
@@ -16,7 +16,7 @@ import views.Helpers
   */
 case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val messagesApi: MessagesApi) extends I18nSupport {
 
-  import utils.search.SearchConstants._
+  import services.search.SearchConstants._
 
   /**
     * Return a date query facet if valid start/end params have been given.

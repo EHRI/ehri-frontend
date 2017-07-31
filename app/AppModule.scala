@@ -7,8 +7,7 @@ import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
 import services._
 import services.aws.S3FileStorage
 import services.googledocs.GoogleDocsHtmlPages
-import services.rest.cypher.{Cypher, CypherService}
-import services.rest.{CypherIdGenerator, GidSearchResolver, RestApi}
+import services.cypher.{Cypher, CypherService}
 import services.sql.{SqlCypherQueryService, SqlFeedbackService}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
@@ -17,7 +16,8 @@ import eu.ehri.project.search.solr._
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
 import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
-import utils.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
+import services.data.{GidSearchResolver, _}
+import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
 import utils.{MovedPageLookup, SqlMovedPageLookup}
 import views.{FlexmarkMarkdownRendererProvider, MarkdownRenderer}
 
@@ -37,7 +37,7 @@ class AppModule extends AbstractModule {
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
-    bind(classOf[DataApi]).to(classOf[RestApi])
+    bind(classOf[DataApi]).to(classOf[DataApiService])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])

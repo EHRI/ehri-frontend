@@ -1,14 +1,14 @@
 package controllers.generic
 
-import services.ContentType
 import defines._
 import models._
 import models.base._
 import play.api.data.Form
 import play.api.libs.json._
 import play.api.mvc._
+import services.data.ContentType
 import utils.PageParams
-import utils.search.{SearchHit, _}
+import services.search.{SearchHit, _}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

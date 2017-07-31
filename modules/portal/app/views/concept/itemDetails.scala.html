@@ -1,4 +1,4 @@
-@(item: Concept, result: utils.search.SearchResult[(Concept,utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.itemDetails {
     @defining("cvocConcept") { implicit fieldPrefix =>

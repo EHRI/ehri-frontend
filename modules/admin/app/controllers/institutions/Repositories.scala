@@ -2,7 +2,6 @@ package controllers.institutions
 
 import javax.inject._
 
-import services.rest.DataHelpers
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,8 +11,9 @@ import models._
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.DataHelpers
 import utils.{PageParams, RangeParams}
-import utils.search._
+import services.search._
 import views.Helpers
 
 import scala.concurrent.Future.{successful => immediate}

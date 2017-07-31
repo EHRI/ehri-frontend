@@ -1,8 +1,8 @@
 package controllers.generic
 
-import services.ContentType
 import defines.PermissionType
 import play.api.mvc._
+import services.data.ContentType
 
 import scala.concurrent.Future
 

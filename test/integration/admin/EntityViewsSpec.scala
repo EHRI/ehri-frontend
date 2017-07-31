@@ -1,11 +1,11 @@
 package integration.admin
 
-import services.ApiUser
 import defines._
 import helpers._
 import models.{Group, HistoricalAgent, UserProfile, UserProfileF}
 import play.api.http.HeaderNames
 import play.api.test.FakeRequest
+import services.data.ApiUser
 
 /**
  * Spec to test various page views operate as expected.

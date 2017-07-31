@@ -1,14 +1,14 @@
-@(facetClasses: Seq[utils.search.FacetClass[utils.search.Facet]], applied: Seq[utils.search.AppliedFacet])(implicit req: RequestHeader, messages: Messages)
+@(facetClasses: Seq[services.search.FacetClass[services.search.Facet]], applied: Seq[services.search.AppliedFacet])(implicit req: RequestHeader, messages: Messages)
 
 <div class="selected-facets">
-    @applied.collect { case utils.search.AppliedFacet(key, values) =>
+    @applied.collect { case services.search.AppliedFacet(key, values) =>
         @facetClasses.find(_.key == key).map { fclass =>
             @values.distinct.filter(v => fclass.isValidValue(v)).map { value =>
                 <div class="selected-facet">
                     <span class="facet"><span class="facet-type">@fclass.name:</span> @fclass.render(value)
                         <input type="hidden" name="@fclass.param" value="@value" />
                     </span>
-                    <a class="remove-filter" href="@utils.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_!="page"))">
+                    <a class="remove-filter" href="@services.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_!="page"))">
                         <span class="remove"></span>
                     </a>
                 </div>

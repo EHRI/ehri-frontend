@@ -1,6 +1,6 @@
 # Routes for authority files and authoritative sets
 
-GET     /                                           @controllers.authorities.HistoricalAgents.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET     /                                           @controllers.authorities.HistoricalAgents.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /list                                       @controllers.authorities.HistoricalAgents.list(paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id                                        @controllers.authorities.HistoricalAgents.get(id: String)
 GET     /:id/history                                @controllers.authorities.HistoricalAgents.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
@@ -15,7 +15,7 @@ GET     /:id/perms/add                              @controllers.authorities.His
 GET     /:id/perms/:userType/:userId                @controllers.authorities.HistoricalAgents.setItemPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /:id/perms/:userType/:userId                @controllers.authorities.HistoricalAgents.setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET     /:id/link                                   @controllers.authorities.HistoricalAgents.linkTo(id: String)
-GET     /:id/link/:toType                           @controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: EntityType.Value, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET     /:id/link/:toType                           @controllers.authorities.HistoricalAgents.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/link/:toType/:to                       @controllers.authorities.HistoricalAgents.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST    /:id/link/:toType/:to                       @controllers.authorities.HistoricalAgents.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 GET     /:id/linkm                                  @controllers.authorities.HistoricalAgents.linkMultiAnnotate(id: String)

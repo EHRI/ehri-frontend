@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import defines.EntityType
 import play.api.PlayException
-import utils.search.{SearchHit, _}
+import services.search.{SearchHit, _}
 
 
 

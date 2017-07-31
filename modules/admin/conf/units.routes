@@ -1,8 +1,8 @@
 # Documentary Unit Routes
 
-GET     /                                          @controllers.units.DocumentaryUnits.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET     /                                          @controllers.units.DocumentaryUnits.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /list                                      @controllers.units.DocumentaryUnits.list(paging: utils.PageParams ?= utils.PageParams.empty)
-GET     /:id                                       @controllers.units.DocumentaryUnits.get(id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET     /:id                                       @controllers.units.DocumentaryUnits.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/history                               @controllers.units.DocumentaryUnits.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET     /:id/delete                                @controllers.units.DocumentaryUnits.delete(id: String)
 POST    /:id/delete                                @controllers.units.DocumentaryUnits.deletePost(id: String)
@@ -27,7 +27,7 @@ GET     /:id/scope/:userType/:userId               @controllers.units.Documentar
 POST    /:id/scope/:userType/:userId               @controllers.units.DocumentaryUnits.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 
 GET     /:id/link                                  @controllers.units.DocumentaryUnits.linkTo(id: String)
-GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST    /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 GET     /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotate(id: String)

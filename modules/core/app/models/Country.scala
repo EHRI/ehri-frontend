@@ -1,7 +1,6 @@
 package models
 
 import base._
-
 import models.base.Persistable
 import defines.{ContentTypes, EntityType}
 import models.json._
@@ -12,6 +11,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object CountryF {
@@ -68,7 +68,7 @@ object Country {
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
 
-  implicit object CountryResource extends services.ContentType[Country]  {
+  implicit object CountryResource extends ContentType[Country]  {
     val entityType = EntityType.Country
     val contentType = ContentTypes.Country
     val restReads: Reads[Country] = metaReads

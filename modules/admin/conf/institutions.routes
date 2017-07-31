@@ -1,8 +1,8 @@
 # Repositories
 
-GET         /                                         @controllers.institutions.Repositories.search(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                                         @controllers.institutions.Repositories.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /list                                     @controllers.institutions.Repositories.list(paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /:id                                      @controllers.institutions.Repositories.get(id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id                                      @controllers.institutions.Repositories.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.institutions.Repositories.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.institutions.Repositories.delete(id: String)
 POST        /:id/delete                               @controllers.institutions.Repositories.deletePost(id: String)
@@ -20,7 +20,7 @@ GET         /:id/scope/add                            @controllers.institutions.
 GET         /:id/scope/:userType/:userId              @controllers.institutions.Repositories.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST        /:id/scope/:userType/:userId              @controllers.institutions.Repositories.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET         /:id/link                                 @controllers.institutions.Repositories.linkTo(id: String)
-GET         /:id/link/:toType                         @controllers.institutions.Repositories.linkAnnotateSelect(id: String, toType: EntityType.Value, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id/link/:toType                         @controllers.institutions.Repositories.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/link/:toType/:to                     @controllers.institutions.Repositories.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST        /:id/link/:toType/:to                     @controllers.institutions.Repositories.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
 GET         /:id/reindex                              @controllers.institutions.Repositories.updateIndex(id: String)

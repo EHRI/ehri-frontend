@@ -4,7 +4,7 @@ import defines.EntityType
 import models.base.Model
 import play.api.libs.json._
 import models.json._
-import services.{Entity, Writable}
+import services.data.Writable
 
 
 object AddressF {

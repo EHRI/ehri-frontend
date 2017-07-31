@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], item: DocumentaryUnit, result: utils.search.SearchResult[(DocumentaryUnit, utils.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
 
 @wrapParent(doc: DocumentaryUnit)(html: Html) = {
     @doc.parent.map { parent =>

@@ -6,11 +6,11 @@ GET        /                                 @controllers.portal.guides.Guides.l
 GET        /accesspoints/:id                 @controllers.portal.guides.Guides.linkedData(id:String)
 GET        /accesspoints/:id/:context        @controllers.portal.guides.Guides.linkedDataInContext(id:String, context: String)
 
-GET        /:guide                           @controllers.portal.guides.Guides.home(guide: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET        /:guide/browse                    @controllers.portal.guides.Guides.guideFacets(guide: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET        /:guide/document/:id              @controllers.portal.guides.DocumentaryUnits.browse(guide: String, id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET        /:guide                           @controllers.portal.guides.Guides.home(guide: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET        /:guide/browse                    @controllers.portal.guides.Guides.guideFacets(guide: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET        /:guide/document/:id              @controllers.portal.guides.DocumentaryUnits.browse(guide: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET        /:guide/repository/:id            @controllers.portal.guides.Repositories.browse(guide: String, id: String)
-GET        /:guide/:page                     @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET        /:guide/:page                     @controllers.portal.guides.Guides.layoutRetrieval(guide: String, page: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
 GET        /assets/*file                     @controllers.portal.guides.GuideAssets.at(path="/public/lib/docview-guides", file)
 GET        /v/*file                          @controllers.portal.guides.GuideAssets.versioned(path="/public/lib/docview-guides", file: Asset)

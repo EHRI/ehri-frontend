@@ -1,6 +1,6 @@
 @(filterForm: Form[utils.SystemEventParams], range: utils.RangeParams, action: Call, users: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@import services.rest.Constants._
+@import services.data.Constants._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
 

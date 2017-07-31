@@ -3,7 +3,7 @@ package integration.portal
 import helpers.IntegrationTestRunner
 import controllers.portal.ReverseVirtualUnits
 import play.api.test.FakeRequest
-import utils.search.SearchConstants
+import services.search.SearchConstants
 
 
 class VirtualUnitsSpec extends IntegrationTestRunner {

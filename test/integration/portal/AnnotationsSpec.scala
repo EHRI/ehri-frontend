@@ -5,10 +5,9 @@ import models._
 import utils.ContributionVisibility
 import controllers.portal.ReversePortal
 import controllers.portal.annotate.ReverseAnnotations
-import services.ApiUser
 import com.google.common.net.HttpHeaders
-import services.rest.PermissionDenied
 import play.api.test.FakeRequest
+import services.data.{ApiUser, PermissionDenied}
 
 
 class AnnotationsSpec extends IntegrationTestRunner {

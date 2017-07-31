@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
@@ -18,7 +18,7 @@ import play.api.http.MimeTypes
 import play.api.libs.json._
 import play.api.mvc._
 import utils.PageParams
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -35,9 +35,9 @@ case class Guides @Inject()(
   with Search
   with SearchVC {
 
-  private val ajaxOrder = utils.search.SearchSort.Name
-  private val htmlAgentOrder = utils.search.SearchSort.Detail
-  private val htmlConceptOrder = utils.search.SearchSort.ChildCount
+  private val ajaxOrder = services.search.SearchSort.Name
+  private val htmlAgentOrder = services.search.SearchSort.Detail
+  private val htmlConceptOrder = services.search.SearchSort.ChildCount
 
   def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
     Action { implicit request =>
@@ -59,7 +59,7 @@ case class Guides @Inject()(
   /*
   *  Return SearchParams for items with hierarchy
   */
-  private def getParams(params: SearchParams, request: Request[Any], et: EntityType.Value, sort: Option[utils.search.SearchSort.Value], isAjax: Boolean = false): SearchParams = {
+  private def getParams(params: SearchParams, request: Request[Any], et: EntityType.Value, sort: Option[services.search.SearchSort.Value], isAjax: Boolean = false): SearchParams = {
     request.getQueryString("parent").map { parent =>
       params.copy(
         filters = Seq(SearchConstants.PARENT_ID + ":" + parent),
@@ -78,7 +78,7 @@ case class Guides @Inject()(
   /*
   * Return Map extras param if needed
   */
-  private def mapParams(request: Map[String, Seq[String]]): (utils.search.SearchSort.Value, Map[String, Any]) = {
+  private def mapParams(request: Map[String, Seq[String]]): (services.search.SearchSort.Value, Map[String, Any]) = {
     GeoCoordinates.form.bindFromRequest(request).fold(
       errorForm => SearchSort.Name -> Map.empty,
       {
@@ -198,7 +198,7 @@ case class Guides @Inject()(
     }
   }
 
-  private def guideJson(page: utils.Page[(AnyModel, utils.search.SearchHit)], links: Map[String, Long], pageParam: String = "page")(implicit request: RequestHeader): JsValue = {
+  private def guideJson(page: utils.Page[(AnyModel, services.search.SearchHit)], links: Map[String, Long], pageParam: String = "page")(implicit request: RequestHeader): JsValue = {
     Json.obj(
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
         guideJsonItem(agent, links.getOrElse(agent.id, 0))

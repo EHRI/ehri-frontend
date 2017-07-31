@@ -3,13 +3,13 @@ package integration.portal
 import java.io.File
 import java.nio.charset.StandardCharsets
 
-import services.AuthenticatedUser
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import models._
 import org.apache.commons.io.FileUtils
 import play.api.http.MimeTypes
 import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
+import services.data.AuthenticatedUser
 
 
 

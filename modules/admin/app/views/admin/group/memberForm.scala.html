@@ -1,6 +1,6 @@
 @(users: Seq[(String,String)], groups: Seq[(String,String)])(implicit messages: Messages, md: views.MarkdownRenderer)
 
-@import services.rest.Constants.MEMBER
+@import services.data.Constants.MEMBER
 
 <div class="form-group">
     <label class="control-label" for="id_group_members">@Messages("group.members")</label>

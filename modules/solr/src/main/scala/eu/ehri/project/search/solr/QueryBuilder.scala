@@ -1,6 +1,6 @@
 package eu.ehri.project.search.solr
 
-import utils.search.SearchQuery
+import services.search.SearchQuery
 
 trait QueryBuilder {
   /**
