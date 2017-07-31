@@ -19,11 +19,11 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
-import services.{ApiUser, DataApi}
 import global.GlobalConfig
 import play.api.cache.SyncCacheApi
 import play.api.mvc.Result
-import utils.search.{SearchEngine, SearchItemResolver}
+import services.data.{ApiUser, DataApi}
+import services.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance}
 

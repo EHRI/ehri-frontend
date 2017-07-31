@@ -1,6 +1,6 @@
-@(params: utils.search.SearchParams, values: Seq[utils.search.SearchSort.Value] = Seq.empty)(implicit req: RequestHeader, messages: Messages)
+@(params: services.search.SearchParams, values: Seq[services.search.SearchSort.Value] = Seq.empty)(implicit req: RequestHeader, messages: Messages)
 
-@import utils.search.{SearchParams, SearchSort}
+@import services.search.{SearchParams, SearchSort}
 
 @defaultValues = @{if(values.nonEmpty) values else Seq(SearchSort.Score, SearchSort.Id, SearchSort.Name, SearchSort.DateNewest, SearchSort.Detail)}
 

@@ -1,6 +1,6 @@
 @(options: Seq[(String, String)], current: Option[String] = None)(implicit req: RequestHeader, messages: Messages)
 
-@import utils.search.SearchParams
+@import services.search.SearchParams
 
 <div class="search-sort btn-group btn-group-xs">
     <span class="fa fa-sort" title="@Messages("search.sort.title")"></span>

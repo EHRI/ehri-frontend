@@ -1,13 +1,12 @@
 package models.base
 
 import play.api.test.PlaySpecification
-import models._
+import models.{Entity, _}
 import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{JsObject, Json}
 import defines.EntityType
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import Description._
-import services.Entity
 
 case class TestDescriptionF(
   id: Option[String],

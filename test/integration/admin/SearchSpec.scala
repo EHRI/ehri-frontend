@@ -13,7 +13,7 @@ import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
 import play.api.test.{FakeRequest, WithServer}
-import utils.search.SearchConstants
+import services.search.SearchConstants
 
 import scala.concurrent.{Future, Promise}
 

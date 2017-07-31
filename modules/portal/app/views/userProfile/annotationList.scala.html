@@ -1,4 +1,4 @@
-@(annotations: utils.search.SearchResult[(Annotation,utils.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(annotations: services.search.SearchResult[(Annotation,services.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @if(annotations.nonEmpty) {
     <ul class="user-annotation-list">

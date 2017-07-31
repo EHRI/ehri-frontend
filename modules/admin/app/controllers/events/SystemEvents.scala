@@ -2,13 +2,13 @@ package controllers.events
 
 import javax.inject._
 
-import services.rest.DataHelpers
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Read
 import models.SystemEvent
 import models.base.AnyModel
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.DataHelpers
 import utils.{PageParams, RangeParams, SystemEventParams}
 
 

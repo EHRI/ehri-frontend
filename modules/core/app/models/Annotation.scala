@@ -10,6 +10,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object AnnotationF {
@@ -82,7 +83,7 @@ object Annotation {
     (__ \ META).readWithDefault(Json.obj())
   )(Annotation.apply _)
 
-  implicit object AnnotationResource extends services.ContentType[Annotation]  {
+  implicit object AnnotationResource extends ContentType[Annotation]  {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
     val restReads: Reads[Annotation] = metaReads

@@ -5,7 +5,7 @@ import java.time.{ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
 import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
-import utils.search._
+import services.search._
 
 /**
   * Utils for converting URL-friendly date facet params

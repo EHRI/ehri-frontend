@@ -29,7 +29,7 @@
         <li>
             @Messages("permissionGrant.targets"):
             @t match {
-            case c: ContentType => {
+            case c: DataContentType => {
             <strong>@Messages("contentTypes." + c.id)</strong>
             }
             case t => {

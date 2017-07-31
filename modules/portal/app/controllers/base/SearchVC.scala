@@ -1,13 +1,13 @@
 package controllers.base
 
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.generic.Search
 import models.VirtualUnit
 import models.base.AnyModel
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.mvc.RequestHeader
-import utils.search.SearchConstants._
+import services.search.SearchConstants._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -107,7 +107,7 @@ trait SearchVC {
       // - load the VU from the graph along with its included DUs
       // - query for anything that has the VUs parent ID *or* anything
       // with an itemId among its included DUs
-      import utils.search.SearchConstants._
+      import services.search.SearchConstants._
       logger.debug(s"Building child search for: ${item.id}")
       item match {
         case v: VirtualUnit =>

@@ -5,13 +5,13 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import auth.AccountManager
 import auth.handler.AuthHandler
-import services.DataApi
 import com.google.inject.ImplementedBy
 import global.GlobalConfig
 import play.api.Configuration
 import play.api.cache.{Cached, SyncCacheApi}
+import services.data.DataApi
 import utils.MovedPageLookup
-import utils.search.{SearchEngine, SearchItemResolver}
+import services.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer
 
 

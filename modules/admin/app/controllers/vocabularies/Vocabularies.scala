@@ -2,7 +2,6 @@ package controllers.vocabularies
 
 import javax.inject._
 
-import services.rest.DataHelpers
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -13,8 +12,9 @@ import play.api.data.Form
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.DataHelpers
 import utils.{PageParams, RangeParams}
-import utils.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
 import scala.concurrent.Future.{successful => immediate}
 

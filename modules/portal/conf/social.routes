@@ -1,8 +1,8 @@
 # Social networking stuff...
 
-GET         /                         @controllers.portal.social.Social.browseUsers(params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /:userId                  @controllers.portal.social.Social.userProfile(userId: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /:userId/watched          @controllers.portal.social.Social.userWatchList(userId: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /                         @controllers.portal.social.Social.browseUsers(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:userId                  @controllers.portal.social.Social.userProfile(userId: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:userId/watched          @controllers.portal.social.Social.userWatchList(userId: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:userId/activity         @controllers.portal.social.Social.userActivity(userId: String, params: utils.SystemEventParams ?= utils.SystemEventParams.empty, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:userId/follow           @controllers.portal.social.Social.followUser(userId: String)
 POST        /:userId/follow           @controllers.portal.social.Social.followUserPost(userId: String)

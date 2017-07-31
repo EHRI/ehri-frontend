@@ -7,9 +7,9 @@ import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import services.rest.Constants
 import services._
 import play.api.libs.json.JsObject
+import services.data.{Constants, ContentType, Writable}
 
 
 object ConceptF {
@@ -85,7 +85,7 @@ object Concept {
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
 
-  implicit object ConceptResource extends services.ContentType[Concept]  {
+  implicit object ConceptResource extends ContentType[Concept]  {
     val entityType = EntityType.Concept
     val contentType = ContentTypes.Concept
     val restReads: Reads[Concept] = metaReads

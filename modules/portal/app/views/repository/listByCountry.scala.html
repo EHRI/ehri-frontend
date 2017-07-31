@@ -1,4 +1,4 @@
-@(result: utils.search.SearchResult[(Repository,utils.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(result: services.search.SearchResult[(Repository,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @countryHeaderLink(id: String) = {
     <h2 class="search-group-heading">
@@ -6,7 +6,7 @@
     </h2>
 }
 
-@itemByCountryList(repos: Seq[(Repository,utils.search.SearchHit)], lastOpt: Option[(Repository,utils.search.SearchHit)]) = {
+@itemByCountryList(repos: Seq[(Repository,services.search.SearchHit)], lastOpt: Option[(Repository,services.search.SearchHit)]) = {
     
     @repos.headOption.map { case (repo, hit) =>
         @lastOpt.map { case (last, lhit) =>

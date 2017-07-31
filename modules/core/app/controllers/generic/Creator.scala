@@ -6,10 +6,10 @@ import defines.PermissionType
 import models.base._
 import models.UserProfile
 import forms.VisibilityForm
+import services.data.{ContentType, DataHelpers, ValidationError, Writable}
+
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
-import services.rest.{DataHelpers, ValidationError}
-import services.{Readable, Writable, ContentType}
 
 /**
  * Controller trait for extending Entity classes which server as

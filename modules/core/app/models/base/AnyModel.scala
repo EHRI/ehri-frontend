@@ -2,18 +2,18 @@ package models.base
 
 import java.util.NoSuchElementException
 
-import services.{Entity, Readable, Resource}
 import defines.{ContentTypes, EntityType}
 import models._
 import models.json.Utils
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}
+import services.data.{Readable, Resource, WithId}
 
 import scala.collection.SortedMap
 
 
-trait AnyModel extends services.WithId {
+trait AnyModel extends WithId {
   def id: String
 
   def isA: EntityType.Value

@@ -1,6 +1,6 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: utils.search.SearchResult[(DocumentaryUnit,utils.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], available: Map[String, Seq[models.base.AnyModel]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@import utils.search.SearchSort
+@import services.search.SearchSort
 
 @js = {
     <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-facet.js")"></script>

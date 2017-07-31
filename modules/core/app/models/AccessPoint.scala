@@ -1,16 +1,15 @@
 package models
 
 import models.base._
-
+import models.json.JsPathExtensions
 import defines.EntityType
-import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import services.{Entity, Readable, Writable}
 import play.api.i18n.Messages
+import services.data.{Readable, Writable}
 
 
 object AccessPointF {

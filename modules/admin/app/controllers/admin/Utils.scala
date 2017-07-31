@@ -4,8 +4,7 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import services.AuthenticatedUser
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
@@ -18,7 +17,8 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
-import utils.search.SearchIndexMediator
+import services.data.AuthenticatedUser
+import services.search.SearchIndexMediator
 import utils.{CsvHelpers, PageParams}
 
 import scala.concurrent.Future

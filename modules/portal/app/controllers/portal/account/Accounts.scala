@@ -7,7 +7,6 @@ import javax.inject.{Inject, Singleton}
 import auth.HashedPassword
 import auth.oauth2.OAuth2Flow
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
-import services.AnonymousUser
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
@@ -25,6 +24,7 @@ import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
+import services.data.AnonymousUser
 import utils.forms.{HoneyPotForm, TimeCheckForm}
 
 import scala.concurrent.{ExecutionContext, Future}

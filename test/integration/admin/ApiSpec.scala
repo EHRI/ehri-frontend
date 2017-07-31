@@ -1,6 +1,5 @@
 package integration.admin
 
-import services.rest.Constants
 import controllers.generic.AccessPointLink
 import defines.EntityType
 import helpers._
@@ -8,6 +7,7 @@ import models.LinkF.LinkType
 import models.{AccessPointF, AnnotationF}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.test.FakeRequest
+import services.data.Constants
 
 import scala.util.{Failure, Success, Try}
 

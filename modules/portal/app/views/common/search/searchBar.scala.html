@@ -1,6 +1,6 @@
-@(params: utils.search.SearchParams, fields: Seq[utils.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(params: services.search.SearchParams, fields: Seq[services.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
-@import utils.search.{SearchParams,SearchField}
+@import services.search.{SearchParams,SearchField}
 
 @defaultFields = @{if(fields.isEmpty) SearchField.values.toSeq else fields}
 

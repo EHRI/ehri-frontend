@@ -1,6 +1,6 @@
 package eu.ehri.project.search.solr
 
-import utils.search.{Facet, FacetClass, SearchHit}
+import services.search.{Facet, FacetClass, SearchHit}
 
 case class QueryResult(
   phrases: Seq[String],

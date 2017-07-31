@@ -2,8 +2,7 @@ package controllers.portal.annotate
 
 import javax.inject._
 
-import services.rest.DataHelpers
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.generic.{Promotion, Read, Search, Visibility}
@@ -17,7 +16,8 @@ import models.{Annotation, AnnotationF, UserProfile}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
-import utils.search.SearchParams
+import services.data.DataHelpers
+import services.search.SearchParams
 import utils.{ContributionVisibility, PageParams}
 
 import scala.concurrent.Future

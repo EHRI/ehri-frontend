@@ -9,8 +9,8 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
-import services.{Entity, Writable}
 import Description._
+import services.data.Writable
 
 
 case class IsaarDetail(

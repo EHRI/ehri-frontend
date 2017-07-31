@@ -1,6 +1,6 @@
-@(params: utils.search.SearchParams, id: String, label: String)(implicit req: RequestHeader, messages: Messages)
+@(params: services.search.SearchParams, id: String, label: String)(implicit req: RequestHeader, messages: Messages)
 
-@import utils.search.SearchParams.QUERY
+@import services.search.SearchParams.QUERY
 
 <div class="inline-search-filter">
     <label for="@id" class="sr-only" aria-hidden="true">@label</label>

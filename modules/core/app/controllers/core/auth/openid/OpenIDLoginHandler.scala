@@ -5,15 +5,14 @@ import models.{Account, UserProfile}
 import play.api.libs.openid._
 import play.api.mvc._
 import play.api.i18n.Messages
-import services.{AnonymousUser, DataApi}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.mvc.Result
 import java.net.ConnectException
 
 import controllers.core.auth.AccountHelpers
-
 import play.api.Logger
+import services.data.{AnonymousUser, DataApi}
 
 import scala.concurrent.Future
 

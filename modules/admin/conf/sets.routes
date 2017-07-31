@@ -1,7 +1,7 @@
 GET         /                                         @controllers.sets.AuthoritativeSets.list(paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /create                                   @controllers.sets.AuthoritativeSets.create
 POST        /create                                   @controllers.sets.AuthoritativeSets.createPost
-GET         /:id                                      @controllers.sets.AuthoritativeSets.get(id: String, params: utils.search.SearchParams ?= utils.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id                                      @controllers.sets.AuthoritativeSets.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.sets.AuthoritativeSets.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.sets.AuthoritativeSets.delete(id: String)
 POST        /:id/delete                               @controllers.sets.AuthoritativeSets.deletePost(id: String)

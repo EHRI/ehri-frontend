@@ -1,7 +1,8 @@
 package utils
 
 import java.net.{MalformedURLException, URL}
-import services.Entity
+
+import models.Entity
 
 /**
  * Form-related utilities

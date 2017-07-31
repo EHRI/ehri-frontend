@@ -1,7 +1,6 @@
 package models
 
 import base._
-
 import models.base.Persistable
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
@@ -13,6 +12,7 @@ import play.api.data.Forms._
 import eu.ehri.project.definitions.Ontology
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object VocabularyType extends Enumeration {
@@ -62,7 +62,7 @@ object Vocabulary {
     (__ \ META).readWithDefault(Json.obj())
   )(Vocabulary.apply _)
 
-  implicit object VocabularyResource extends services.ContentType[Vocabulary]  {
+  implicit object VocabularyResource extends ContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
     val restReads: Reads[Vocabulary] = metaReads

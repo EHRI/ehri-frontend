@@ -396,7 +396,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val test1 = FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser).call()
       status(test1) must equalTo(NOT_FOUND)
       // Make item visible to user
-      val data = Map(services.rest.Constants.ACCESSOR_PARAM -> Seq(unprivilegedUser.id))
+      val data = Map(services.data.Constants.ACCESSOR_PARAM -> Seq(unprivilegedUser.id))
       val cr = FakeRequest(docRoutes.visibilityPost("c1"))
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(cr) must equalTo(SEE_OTHER)

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit
 import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Flow, UserData}
-import services.{AnonymousUser, AuthenticatedUser, DataApi}
 import controllers.base.CoreActionBuilders
 import controllers.core.auth.AccountHelpers
 import global.GlobalConfig
@@ -16,6 +15,7 @@ import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsString, Json}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}
+import services.data.{AnonymousUser, AuthenticatedUser, DataApi}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

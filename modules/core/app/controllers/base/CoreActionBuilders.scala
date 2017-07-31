@@ -3,10 +3,11 @@ package controllers.base
 
 import auth.AccountManager
 import auth.handler.AuthHandler
-import services.{ApiUser, _}
+import services._
 import defines.{ContentTypes, PermissionType}
 import models.{Account, UserProfile}
 import play.api.mvc.{Result, _}
+import services.data.{ApiUser, AuthenticatedUser, DataApi, DataApiHandle}
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}

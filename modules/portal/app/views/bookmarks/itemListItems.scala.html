@@ -1,4 +1,4 @@
-@(parent: Option[models.base.AnyModel], items: Seq[models.base.AnyModel], paging: utils.PageParams, params: utils.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, globalConfig: global.GlobalConfig)
+@(parent: Option[models.base.AnyModel], items: Seq[models.base.AnyModel], paging: utils.PageParams, params: services.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, globalConfig: global.GlobalConfig)
 
 @items.map { item =>
     <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA @(if(parent.exists(_.isInstanceOf[VirtualUnit])) "moveable") @(if(item.isInstanceOf[VirtualUnit]) "droppable")" data-id="@item.id">

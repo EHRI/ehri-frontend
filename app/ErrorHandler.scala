@@ -1,6 +1,5 @@
 import javax.inject.{Inject, Provider}
 
-import services.rest.{BadJson, ItemNotFound, PermissionDenied}
 import controllers.base.SessionPreferences
 import global.GlobalConfig
 import play.api.http.DefaultHttpErrorHandler
@@ -14,7 +13,10 @@ import scala.concurrent.Future.{successful => immediate}
 import controllers.renderError
 import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulException}
 import play.api.mvc.{RequestHeader, Result}
+import services.ServiceOffline
+import services.data.{BadJson, ItemNotFound, PermissionDenied}
 import views.html.errors._
+
 
 class ErrorHandler @Inject() (
   env: Environment,
@@ -55,9 +57,9 @@ with SessionPreferences[SessionPrefs] {
         renderError("errors.permissionDenied", permissionDenied(Some(e)))))
       case e: ItemNotFound => immediate(NotFound(
         renderError("errors.itemNotFound", itemNotFound(e.value))))
-      case e: utils.search.SearchEngineOffline => immediate(InternalServerError(
+      case e: services.search.SearchEngineOffline => immediate(InternalServerError(
         renderError("errors.searchEngineError", searchEngineError())))
-      case e: services.rest.ServiceOffline => immediate(InternalServerError(
+      case e: ServiceOffline => immediate(InternalServerError(
         renderError("errors.databaseError", serverTimeout())))
       case e: BadJson => sys.error(e.getMessageWithContext(request))
 

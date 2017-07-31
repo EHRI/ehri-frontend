@@ -2,8 +2,7 @@ package controllers.portal
 
 import javax.inject._
 
-import services.IdGenerator
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
@@ -12,8 +11,9 @@ import defines.EntityType
 import models._
 import models.base.AnyModel
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.data.IdGenerator
 import utils.PageParams
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 

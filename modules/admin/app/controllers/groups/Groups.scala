@@ -2,7 +2,6 @@ package controllers.groups
 
 import javax.inject._
 
-import services.rest.{Constants, DataHelpers}
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,7 +11,8 @@ import models.base.Accessor
 import models.{Group, GroupF, UserProfile}
 import play.api.data.{Form, Forms}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
-import utils.search.SearchParams
+import services.data.{Constants, DataHelpers}
+import services.search.SearchParams
 import utils.{PageParams, RangeParams}
 
 import scala.concurrent.Future

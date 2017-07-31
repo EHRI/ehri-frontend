@@ -1,9 +1,9 @@
 package integration.admin
 
-import services.{ApiUser, AuthenticatedUser}
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
+import services.data.{ApiUser, AuthenticatedUser}
 
 
 class VirtualUnitViewsSpec extends IntegrationTestRunner {

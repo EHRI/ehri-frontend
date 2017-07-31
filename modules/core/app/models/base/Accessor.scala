@@ -1,16 +1,16 @@
 package models.base
 
 import acl.{GlobalPermissionSet, ItemPermissionSet, Permission}
-import services.ContentType
 import defines.{ContentTypes, EntityType, PermissionType}
 import models._
 import play.api.libs.json._
+import services.data.{ContentType, Readable}
 
 object Accessor {
   final val ADMIN_GROUP_NAME = "admin"
   final val BELONGS_REL = "belongsTo"
 
-  implicit object Converter extends services.Readable[Accessor] {
+  implicit object Converter extends Readable[Accessor] {
     implicit val restReads: Reads[Accessor] = Reads[Accessor](
       _.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]]))
   }
@@ -19,7 +19,7 @@ object Accessor {
    * This function allows getting a dynamic Resource for an Accessor given
    * the entity type.
    */
-  def resourceFor(t: EntityType.Value): ContentType[Accessor] = new services.ContentType[Accessor] {
+  def resourceFor(t: EntityType.Value): ContentType[Accessor] = new ContentType[Accessor] {
     val restReads: Reads[Accessor] = Converter.restReads
     def entityType: EntityType.Value = t
     def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)

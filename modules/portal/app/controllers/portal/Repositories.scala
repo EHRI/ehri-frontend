@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
@@ -10,7 +10,7 @@ import defines.EntityType
 import models.{DocumentaryUnit, Repository}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import utils.PageParams
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future.{successful => immediate}
 

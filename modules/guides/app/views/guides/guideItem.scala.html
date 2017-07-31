@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, hit: utils.search.SearchHit, action: Call, guidePath: Option[String] = None, mode: GuidePage.Layout.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: models.base.AnyModel, hit: services.search.SearchHit, action: Call, guidePath: Option[String] = None, mode: GuidePage.Layout.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @item match {
     case d: Concept => {

@@ -138,7 +138,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Content type format should read and write correctly" in {
-    val validation = readResource(EntityType.ContentType).validate[ContentType](ContentType.format)
+    val validation = readResource(EntityType.ContentType).validate[DataContentType](DataContentType.format)
     validation.asEither must beRight
   }
 }

@@ -1,12 +1,12 @@
 package controllers.generic
 
-import services.{ContentType, Readable, WithId}
 import controllers.base.CoreActionBuilders
 import defines.EntityType
 import models.UserProfile
 import play.api.Logger
 import play.api.mvc._
-import utils.search._
+import services.data.{ContentType, Readable, WithId}
+import services.search._
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future
@@ -19,9 +19,9 @@ trait Search extends CoreActionBuilders {
 
   private def logger = Logger(getClass)
 
-  protected def searchEngine: utils.search.SearchEngine
+  protected def searchEngine: services.search.SearchEngine
 
-  protected def searchResolver: utils.search.SearchItemResolver
+  protected def searchResolver: services.search.SearchItemResolver
 
   /**
     * A function that generates a list of facet classes from an

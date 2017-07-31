@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
@@ -10,7 +10,7 @@ import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
-import utils.search.{SearchConstants, SearchParams}
+import services.search.{SearchConstants, SearchParams}
 
 
 @Singleton

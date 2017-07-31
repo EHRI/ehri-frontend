@@ -3,12 +3,12 @@ package eu.ehri.project.search.solr
 import java.net.ConnectException
 import javax.inject.Inject
 
-import services.rest.BadJson
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
+import services.data.BadJson
 import utils.Page
-import utils.search.{SearchHit, _}
+import services.search.{SearchHit, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 

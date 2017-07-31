@@ -5,18 +5,19 @@ package models
  */
 
 import defines.{ContentTypes, EntityType}
-
 import play.api.libs.json._
 import models.base._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import java.net.URL
+
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object RepositoryF {
@@ -112,7 +113,7 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object RepositoryResource extends services.ContentType[Repository]  {
+  implicit object RepositoryResource extends ContentType[Repository]  {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
     val restReads: Reads[Repository] = metaReads

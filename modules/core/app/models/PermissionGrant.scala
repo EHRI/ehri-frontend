@@ -8,7 +8,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject
 import play.api.i18n.Messages
-import services.{Entity, Readable, Resource}
+import services.data.{Readable, Resource}
 
 
 object PermissionGrantF {

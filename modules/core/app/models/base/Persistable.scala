@@ -13,7 +13,7 @@ package models.base
  */
 
 import models.Relation
-import services.ErrorSet
+import services.data.ErrorSet
 
 
 object Persistable {

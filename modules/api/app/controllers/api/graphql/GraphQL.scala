@@ -3,12 +3,12 @@ package controllers.api.graphql
 import javax.inject.{Inject, Singleton}
 
 import akka.util.ByteString
-import services.rest.Constants
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, ControllerComponents, RawBuffer}
+import services.data.Constants
 
 
 @Singleton

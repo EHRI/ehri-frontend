@@ -244,7 +244,7 @@
             a search of EHRI archival descriptions, e.g:</p>
 
         <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(`type` = Seq(defines.EntityType.DocumentaryUnit),
-        params = utils.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(globalConfig.https), "UTF-8")"
+            params = services.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(globalConfig.https), "UTF-8")"
         </pre>
 
         <p>This will run a search for documentary unit items with &quot;Amsterdam&quot; in the title and

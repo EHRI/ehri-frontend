@@ -5,9 +5,7 @@ import javax.inject.{Inject, Singleton}
 
 import auth.AccountManager
 import auth.handler.AuthHandler
-import services.rest.cypher.Cypher
-import services.rest.{ItemNotFound, PermissionDenied}
-import services.{AnonymousUser, DataApi}
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
@@ -23,9 +21,10 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
+import services.data.{AnonymousUser, DataApi, ItemNotFound, PermissionDenied}
 import utils.{Page, PageParams}
-import utils.search.SearchConstants._
-import utils.search._
+import services.search.SearchConstants._
+import services.search._
 import views.Helpers
 
 import scala.concurrent.Future

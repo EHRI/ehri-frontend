@@ -3,10 +3,9 @@ package utils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import services.rest.Constants
-import services.rest.Constants._
 import defines.EntityType
 import play.api.test.PlaySpecification
+import services.data.Constants.{FROM => TFROM, _}
 
 
 class ParamsSpec extends PlaySpecification {
@@ -39,16 +38,16 @@ class ParamsSpec extends PlaySpecification {
     "bind correctly with tolerant defaults" in {
       SystemEventParams.queryStringBindable.bind("params", Map()) must_== Some(Right(SystemEventParams.empty))
       SystemEventParams.queryStringBindable
-        .bind("params", Map(Constants.FROM -> Seq("2017-01-01"))) must_== Some(Right(SystemEventParams(from = Some(
+        .bind("params", Map(TFROM -> Seq("2017-01-01"))) must_== Some(Right(SystemEventParams(from = Some(
         LocalDate.parse("2017-01-01").atStartOfDay()))))
       SystemEventParams.queryStringBindable
-        .bind("params", Map(Constants.FROM -> Seq("2017-01"))) must_== Some(Right(SystemEventParams(from = Some(
+        .bind("params", Map(TFROM -> Seq("2017-01"))) must_== Some(Right(SystemEventParams(from = Some(
         LocalDate.parse("2017-01-01").atStartOfDay()))))
       SystemEventParams.queryStringBindable
-        .bind("params_a", Map("a" + Constants.FROM -> Seq("2017-01-01"))) must_== Some(Right(SystemEventParams(from = Some(
+        .bind("params_a", Map("a" + TFROM -> Seq("2017-01-01"))) must_== Some(Right(SystemEventParams(from = Some(
         LocalDate.parse("2017-01-01", DateTimeFormatter.ISO_DATE).atStartOfDay()))))
       SystemEventParams.queryStringBindable
-        .bind("params", Map(Constants.FROM -> Seq("bad-date"))) must_== Some(Right(SystemEventParams.empty))
+        .bind("params", Map(TFROM -> Seq("bad-date"))) must_== Some(Right(SystemEventParams.empty))
       SystemEventParams.queryStringBindable
         .bind("params", Map(ITEM_TYPE -> Seq("bad-item", EntityType.DocumentaryUnit.toString))) must_== Some(
         Right(SystemEventParams(itemTypes = Seq(EntityType.DocumentaryUnit))))

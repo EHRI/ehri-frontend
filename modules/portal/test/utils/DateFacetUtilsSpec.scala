@@ -2,7 +2,7 @@ package utils
 
 import play.api.i18n._
 import play.api.test.PlaySpecification
-import utils.search.{End, Start, Val}
+import services.search.{End, Start, Val}
 
 class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSupport with LangImplicits {
   import utils.DateFacetUtils._

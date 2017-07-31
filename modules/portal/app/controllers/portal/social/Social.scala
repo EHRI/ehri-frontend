@@ -2,8 +2,7 @@ package controllers.portal.social
 
 import javax.inject._
 
-import services.ApiUser
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
@@ -15,8 +14,9 @@ import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import services.data.ApiUser
 import utils._
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

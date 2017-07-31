@@ -1,12 +1,11 @@
 package controllers.generic
 
-import services.rest.ValidationError
-import services.{ContentType, Writable}
 import defines.PermissionType
 import models.UserProfile
 import models.base._
 import play.api.data.Form
 import play.api.mvc._
+import services.data.{ContentType, ValidationError, Writable}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

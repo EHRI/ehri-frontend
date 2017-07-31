@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.rest.cypher.Cypher
+import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}

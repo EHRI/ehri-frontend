@@ -20,7 +20,7 @@
     <p>
     @Messages("search.helper.field.available")
     <ul class="available-fields comma-sep">
-    @utils.search.SearchField.values.toSeq.map { v =>
+    @services.search.SearchField.values.toSeq.map { v =>
         <li>@v</li>
     }
     </ul>

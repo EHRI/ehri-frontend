@@ -9,6 +9,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 
 object LinkF {
@@ -92,7 +93,7 @@ object Link {
     (__ \ META).readWithDefault(Json.obj())
   )(Link.apply _)
 
-  implicit object LinkResource extends services.ContentType[Link]  {
+  implicit object LinkResource extends ContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
     val restReads: Reads[Link] = metaReads

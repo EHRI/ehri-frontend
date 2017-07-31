@@ -2,7 +2,7 @@ package models.base
 
 import play.api.test.PlaySpecification
 import models.{DatePeriod, DatePeriodF}
-import services.ErrorSet
+import services.data.ErrorSet
 
 
 class PersistableSpec extends PlaySpecification {

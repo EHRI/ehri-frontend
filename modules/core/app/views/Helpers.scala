@@ -1,12 +1,12 @@
 package views
 
 import defines.EntityType
+import models.Entity
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
-import services.Entity
 
 
 object Helpers {

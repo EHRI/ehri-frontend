@@ -1,7 +1,7 @@
 package eu.ehri.project.search.solr
 
 import play.api.test.PlaySpecification
-import utils.search._
+import services.search._
 
 class SolrQueryBuilderSpec extends PlaySpecification {
   val testFieldFacetClass = FieldFacetClass(

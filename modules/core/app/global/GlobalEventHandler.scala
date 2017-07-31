@@ -2,9 +2,9 @@ package global
 
 import javax.inject.Inject
 
-import services.EventHandler
 import play.api.Logger
-import utils.search.SearchIndexMediator
+import services.data.EventHandler
+import services.search.SearchIndexMediator
 
 import scala.concurrent.{ExecutionContext, Future}
 

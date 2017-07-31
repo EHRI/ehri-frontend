@@ -1,6 +1,6 @@
-@(result: utils.search.SearchResult[_])(implicit req: RequestHeader, messages: Messages)
+@(result: services.search.SearchResult[_])(implicit req: RequestHeader, messages: Messages)
 
-@import utils.search.SearchParams
+@import services.search.SearchParams
 
 <div class="search-summary">
     @Messages("pagination.displayingItems", result.page.start, result.page.end, result.page.total)

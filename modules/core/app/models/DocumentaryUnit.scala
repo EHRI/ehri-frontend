@@ -2,18 +2,18 @@ package models
 
 import defines._
 import models.base._
-
 import models.base.Persistable
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
-import services.rest.Constants
 import java.net.URL
+
 import play.api.data.Form
 import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
+import services.data.{Constants, ContentType, Writable}
 
 
 object DocumentaryUnitF {
@@ -94,7 +94,7 @@ object DocumentaryUnit {
   )(DocumentaryUnit.apply _)
 
 
-  implicit object DocumentaryUnitResource extends services.ContentType[DocumentaryUnit]  {
+  implicit object DocumentaryUnitResource extends ContentType[DocumentaryUnit]  {
     val entityType = EntityType.DocumentaryUnit
     val contentType = ContentTypes.DocumentaryUnit
     implicit val restReads: Reads[DocumentaryUnit] = metaReads

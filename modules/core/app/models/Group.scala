@@ -11,6 +11,7 @@ import play.api.data.Forms._
 import eu.ehri.project.definitions.Ontology
 import services._
 import play.api.libs.json.JsObject
+import services.data.{ContentType, Writable}
 
 object GroupF {
 
@@ -55,7 +56,7 @@ object Group {
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
 
-  implicit object GroupResource extends services.ContentType[Group]  {
+  implicit object GroupResource extends ContentType[Group]  {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
     val restReads: Reads[Group] = metaReads

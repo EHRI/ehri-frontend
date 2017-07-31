@@ -1,12 +1,12 @@
 package integration.admin
 
-import services.ApiUser
 import defines._
 import helpers._
-import models.{PermissionGrant, Account, Group, UserProfile}
+import models.{Account, Group, PermissionGrant, UserProfile}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import utils.{PageParams, Page}
+import services.data.ApiUser
+import utils.{Page, PageParams}
 
 import scala.concurrent.ExecutionContext
 

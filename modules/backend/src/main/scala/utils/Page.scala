@@ -1,6 +1,6 @@
 package utils
 
-import services.rest.Constants
+import services.data.Constants
 
 /**
  * Class representing a page of data.

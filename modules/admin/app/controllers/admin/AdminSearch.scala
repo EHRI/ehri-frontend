@@ -11,7 +11,7 @@ import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
-import utils.search._
+import services.search._
 import views.Helpers
 
 

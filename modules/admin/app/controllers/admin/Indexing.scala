@@ -12,7 +12,7 @@ import play.api.libs.json.{Format, JsString, JsValue, Json}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
-import utils.search._
+import services.search._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

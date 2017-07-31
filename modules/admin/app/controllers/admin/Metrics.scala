@@ -12,8 +12,8 @@ import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc._
-import utils.search._
-import utils.{Page, PageParams, search}
+import services.search._
+import utils.{Page, PageParams}
 import views.Helpers
 
 
@@ -105,7 +105,7 @@ case class Metrics @Inject()(
     List(
       // Historical agent type
       FieldFacetClass(
-        key=search.SearchConstants.RESTRICTED_FIELD,
+        key=services.search.SearchConstants.RESTRICTED_FIELD,
         name=Messages("search.isRestricted"),
         param="restricted",
         render=s => Messages("restricted" + "." + s)
