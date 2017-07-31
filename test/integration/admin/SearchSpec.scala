@@ -1,6 +1,6 @@
 package integration.admin
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.RawHeader
@@ -55,28 +55,6 @@ class SearchSpec extends IntegrationTestRunner {
   "Search index mediator" should {
     val port = 9902
     "perform indexing correctly via Websocket endpoint" in new WithServer(app = appBuilder.build(), port = port) {
-      val cmd = List(EntityType.DocumentaryUnit)
-      val data = IndexTypes(cmd)
-      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
-
-      val ws = WebSocketClientWrapper(wsUrl,
-        headers = Map(AUTH_TEST_HEADER_NAME -> testAuthToken(privilegedUser.id)))
-      try {
-        ws.client.connectBlocking()
-        ws.client.send(Json.stringify(Json.toJson(data)).getBytes("UTF-8"))
-
-        eventually {
-          ws.messages.contains(JsString(Indexing.DONE_MESSAGE).toString)
-          indexEventBuffer.lastOption must beSome.which { bufcmd =>
-            bufcmd must equalTo(cmd.toString())
-          }
-        }
-      } finally {
-        ws.client.closeBlocking()
-      }
-    }
-
-    "perform indexing correctly via Websocket endpoint 2" in new WithServer(app = appBuilder.build(), port = port) {
       implicit val as = app.actorSystem
       implicit val mat = app.materializer
       import as.dispatcher
@@ -86,14 +64,15 @@ class SearchSpec extends IntegrationTestRunner {
       val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
 
-      val source: Source[Message, NotUsed] = Source(List(TextMessage(Json.stringify(Json.toJson(data)))))
+      val source: Source[Message, NotUsed] = Source(
+        List(TextMessage(Json.stringify(Json.toJson(data)))))
 
-      val flow: Flow[Message, Message, (Promise[Option[Message]])] =
-        Flow.fromSinkAndSourceMat(Sink.foreach[Message](println), source
-          .concatMat(Source.maybe[Message])(Keep.right))(Keep.right)
+      val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
+        Flow.fromSinkAndSourceMat(Sink.seq[Message], source
+          .concatMat(Source.maybe[Message])(Keep.right))(Keep.both)
 
-      val (resp, promise) =
-        Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), flow)
+      val (resp, (out, promise)) =
+        Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
       val connected = resp.map { upgrade =>
         if (upgrade.response.status == StatusCodes.SwitchingProtocols) {
@@ -103,17 +82,13 @@ class SearchSpec extends IntegrationTestRunner {
         }
       }
 
-      connected.onComplete(println)
-      await(connected) == StatusCodes.SwitchingProtocols
-
-      //promise.success(None)
-      //println(await(out))
-
-
-      //await(out) must_== Seq(TextMessage.Strict(JsString(Indexing.DONE_MESSAGE).toString))
-      indexEventBuffer.lastOption must beSome.which { bufcmd =>
-        bufcmd must equalTo(cmd.toString())
-      }
+      await(connected) must_== StatusCodes.SwitchingProtocols
+      // bodge: if this test fails it's probably because we need more time here
+      Thread.sleep(500)
+      // close the connection...
+      promise.success(None)
+      indexEventBuffer.lastOption must beSome(cmd.toString)
+      await(out).last must_== TextMessage.Strict(JsString(Indexing.DONE_MESSAGE).toString)
     }
   }
 
