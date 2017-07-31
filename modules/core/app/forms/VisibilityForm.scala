@@ -7,6 +7,6 @@ import play.api.data.Forms._
 object VisibilityForm {
 
   val form = Form(single(
-    backend.rest.Constants.ACCESSOR_PARAM -> seq(nonEmptyText)
+    services.rest.Constants.ACCESSOR_PARAM -> seq(nonEmptyText)
   ))
 }

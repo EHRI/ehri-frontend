@@ -1,6 +1,6 @@
 package integration.admin
 
-import backend.rest.Constants
+import services.rest.Constants
 import controllers.generic.AccessPointLink
 import defines.EntityType
 import helpers._

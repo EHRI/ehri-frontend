@@ -1,6 +1,6 @@
 package utils.search
 
-import backend.ServiceException
+import services.ServiceException
 
 /**
   * Indicates that we could not reach the search engine.

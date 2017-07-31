@@ -4,7 +4,7 @@ import java.time.ZonedDateTime
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import backend.rest.cypher.CypherService
+import services.rest.cypher.CypherService
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}

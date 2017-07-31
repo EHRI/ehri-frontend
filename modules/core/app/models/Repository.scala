@@ -15,7 +15,7 @@ import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import backend._
+import services._
 import play.api.libs.json.JsObject
 
 
@@ -112,7 +112,7 @@ object Repository {
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
 
-  implicit object RepositoryResource extends backend.ContentType[Repository]  {
+  implicit object RepositoryResource extends services.ContentType[Repository]  {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
     val restReads: Reads[Repository] = metaReads

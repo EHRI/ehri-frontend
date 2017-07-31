@@ -5,9 +5,9 @@ import models._
 import utils.ContributionVisibility
 import controllers.portal.ReversePortal
 import controllers.portal.annotate.ReverseAnnotations
-import backend.ApiUser
+import services.ApiUser
 import com.google.common.net.HttpHeaders
-import backend.rest.PermissionDenied
+import services.rest.PermissionDenied
 import play.api.test.FakeRequest
 
 

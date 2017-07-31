@@ -4,12 +4,12 @@ import auth.AccountManager
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
-import backend._
-import backend.aws.S3FileStorage
-import backend.googledocs.GoogleDocsHtmlPages
-import backend.rest.cypher.{Cypher, CypherService}
-import backend.rest.{CypherIdGenerator, GidSearchResolver, RestApi}
-import backend.sql.{SqlCypherQueryService, SqlFeedbackService}
+import services._
+import services.aws.S3FileStorage
+import services.googledocs.GoogleDocsHtmlPages
+import services.rest.cypher.{Cypher, CypherService}
+import services.rest.{CypherIdGenerator, GidSearchResolver, RestApi}
+import services.sql.{SqlCypherQueryService, SqlFeedbackService}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex

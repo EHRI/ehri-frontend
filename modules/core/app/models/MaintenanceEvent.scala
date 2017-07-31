@@ -1,5 +1,6 @@
 package models
 
+import services.Entity._
 import defines.EntityType
 import models.base.{AnyModel, MetaModel, Model, Persistable}
 import models.json._
@@ -34,7 +35,7 @@ object MaintenanceEventF {
   val EVENT_TYPE = "eventType"
   val ORDER = "order"
 
-  import backend.Entity._
+  import services.Entity._
 
   implicit val maintenanceEventFormat: Format[MaintenanceEventF] = (
     (__ \ TYPE).formatIfEquals(EntityType.MaintenanceEvent) and
@@ -59,14 +60,14 @@ object MaintenanceEventF {
 
 object MaintenanceEvent {
 
-  import backend.Entity.META
+  import services.Entity.META
 
   implicit val metaReads: Reads[MaintenanceEvent] = (
     __.read[MaintenanceEventF] and
     (__ \ META).readWithDefault(Json.obj())
   )(MaintenanceEvent.apply _)
 
-  implicit object Converter extends backend.Readable[MaintenanceEvent] {
+  implicit object Converter extends services.Readable[MaintenanceEvent] {
     val restReads: Reads[MaintenanceEvent] = metaReads
   }
 }

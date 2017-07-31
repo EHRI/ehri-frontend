@@ -6,7 +6,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.json.JsPathExtensions
 import com.fasterxml.jackson.core.JsonParseException
-import backend.{Entity, Readable}
+import services.{Entity, Readable}
 
 /**
  * Class that holds data about a version of another item.

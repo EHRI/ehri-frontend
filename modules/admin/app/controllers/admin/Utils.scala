@@ -4,8 +4,8 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import backend.AuthenticatedUser
-import backend.rest.cypher.Cypher
+import services.AuthenticatedUser
+import services.rest.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents

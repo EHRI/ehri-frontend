@@ -2,6 +2,6 @@
 
 @import MaintenanceEventF._
 
-@List(backend.Entity.ID, DATE, SOURCE, AGENT_TYPE, EVENT_TYPE, ORDER).map { fname =>
+@List(services.Entity.ID, DATE, SOURCE, AGENT_TYPE, EVENT_TYPE, ORDER).map { fname =>
     @formHelpers.hiddenInput(desc(fname))
 }

@@ -1,6 +1,6 @@
 package client
 
-import backend.Entity
+import services.Entity
 import defines.EntityType
 import models._
 import models.base.{Accessor, AnyModel}

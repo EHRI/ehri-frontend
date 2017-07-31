@@ -1,7 +1,7 @@
 package controllers.generic
 
-import backend.rest.ItemNotFound
-import backend.{ContentType, Resource}
+import services.rest.ItemNotFound
+import services.{ContentType, Resource}
 import controllers.base.CoreActionBuilders
 import defines.{ContentTypes, PermissionType}
 import models._

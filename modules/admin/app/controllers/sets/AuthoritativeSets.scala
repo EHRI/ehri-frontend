@@ -3,8 +3,8 @@ package controllers.sets
 import javax.inject._
 
 import forms.VisibilityForm
-import backend.rest.DataHelpers
-import backend.{Entity, IdGenerator}
+import services.rest.DataHelpers
+import services.{Entity, IdGenerator}
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._

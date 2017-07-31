@@ -1,6 +1,6 @@
 package controllers.portal.base
 
-import backend.ContentType
+import services.ContentType
 import controllers.generic.Read
 import models.{Annotation, Link, UserProfile}
 import play.api.mvc._

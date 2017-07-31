@@ -1,7 +1,7 @@
 package controllers.generic
 
-import backend.rest.ValidationError
-import backend.{ContentType, Writable}
+import services.rest.ValidationError
+import services.{ContentType, Writable}
 import defines.PermissionType
 import models.UserProfile
 import models.base._
