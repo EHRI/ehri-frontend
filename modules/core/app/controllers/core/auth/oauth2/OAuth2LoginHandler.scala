@@ -108,7 +108,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
     }
   }
 
-  private def checkSessionNonce[A](sessionId: String, state: Option[String])(implicit request: Request[A]): Boolean = {
+  private def checkSessionNonce[A](sessionId: String, state: Option[String]): Boolean = {
     val origStateOpt: Option[String] = cache.get[String](sessionId)
     (for {
     // check if the state we sent is equal to the one we're receiving now before continuing the flow.

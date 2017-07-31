@@ -2,8 +2,6 @@ package defines
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import scala.language.implicitConversions
-
 /**
  * Enum that can be used in path parameters and query strings to
  * provide a value constraint.

@@ -1,7 +1,5 @@
 package utils.search
 
-import java.io.IOException
-
 import services.ServiceException
 
 /**

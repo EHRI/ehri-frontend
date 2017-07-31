@@ -242,14 +242,13 @@ lazy val backend = Project(appName + "-backend", file("modules/backend"))
     name := appName + "-backend",
     libraryDependencies ++= backendDependencies ++ testDependencies,
     resolvers ++= additionalResolvers,
-    parallelExecution := true
-)
+    parallelExecution := true)
 
 lazy val core = Project(appName + "-core", file("modules/core"))
-  .enablePlugins(play.sbt.PlayScala).settings(
-    name := appName + "-core",
-    libraryDependencies ++= coreDependencies
-).settings(commonSettings: _*).dependsOn(backend % "test->test;compile->compile")
+  .enablePlugins(play.sbt.PlayScala)
+  .settings(name := appName + "-core", libraryDependencies ++= coreDependencies)
+  .settings(commonSettings: _*)
+  .dependsOn(backend % "test->test;compile->compile")
 
 lazy val portal = Project(appName + "-portal", file("modules/portal"))
   .enablePlugins(play.sbt.PlayScala)
@@ -302,18 +301,21 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
   ).dependsOn(core % "test->test;compile->compile")
 
 lazy val api = Project(appName + "-api", file("modules/api"))
-  .enablePlugins(play.sbt.PlayScala).settings(
-    libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0"
-  ).settings(commonSettings ++ webAppSettings: _*).dependsOn(portal)
+  .enablePlugins(play.sbt.PlayScala)
+  .settings(libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0")
+  .settings(commonSettings ++ webAppSettings: _*)
+  .dependsOn(portal)
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
-  .enablePlugins(play.sbt.PlayScala).settings(
-  libraryDependencies += specs2 % Test
-).settings(commonSettings ++ webAppSettings: _*).dependsOn(api)
+  .enablePlugins(play.sbt.PlayScala)
+  .settings(libraryDependencies += specs2 % Test)
+  .settings(commonSettings ++ webAppSettings: _*)
+  .dependsOn(api)
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
-  .enablePlugins(play.sbt.PlayScala).settings(
-).settings(commonSettings ++ webAppSettings: _*).dependsOn(admin)
+  .enablePlugins(play.sbt.PlayScala)
+  .settings(commonSettings ++ webAppSettings: _*)
+  .dependsOn(admin)
 
 // Solr search engine implementation.
 lazy val solr = Project(appName + "-solr", file("modules/solr"))
@@ -321,9 +323,9 @@ lazy val solr = Project(appName + "-solr", file("modules/solr"))
   .dependsOn(core % "test->test;compile->compile")
 
 lazy val main = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala).settings(
-
-    libraryDependencies ++= coreDependencies ++ testDependencies
-).settings(commonSettings: _*)
+  .enablePlugins(play.sbt.PlayScala)
+  .enablePlugins(LauncherJarPlugin)
+  .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
+  .settings(commonSettings: _*)
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
   .aggregate(backend, core, admin, portal, guides, api, solr)

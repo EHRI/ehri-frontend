@@ -75,7 +75,7 @@ object Link {
   import Ontology._
   import play.api.libs.functional.syntax._
   import defines.EnumUtils.enumMapping
-  private implicit val anyModelReads = AnyModel.Converter.restReads
+
   private implicit val userProfileMetaReads = models.UserProfile.UserProfileResource.restReads
   private implicit val accessPointReads = models.AccessPoint.Converter.restReads
   private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads

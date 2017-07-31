@@ -3,10 +3,9 @@ package utils.search
 import defines.EntityType
 
 import scala.annotation.tailrec
-import scala._
 import SearchConstants._
 import play.api.libs.json.JsValue
-import play.twirl.api.{Html, HtmlFormat}
+import play.twirl.api.HtmlFormat
 
 /**
  * Class representing a search engine hit

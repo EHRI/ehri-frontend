@@ -47,16 +47,12 @@ object PermissionGrant {
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
 
-  private implicit val accessorReads = Accessor.Converter.restReads
-  private implicit val anyModelReads = AnyModel.Converter.restReads
-  private implicit val userProfileMetaReads = models.UserProfile.UserProfileResource.restReads
-
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read(permissionGrantReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadHeadNullable(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadSeqOrEmpty(AnyModel.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadHeadNullable(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).readHeadNullable[UserProfile] and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).readHeadNullable[UserProfile](UserProfile.UserProfileResource.restReads) and
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 

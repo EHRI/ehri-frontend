@@ -90,7 +90,6 @@ trait OpenIDLoginHandler extends AccountHelpers {
 
   protected def OpenIdCallbackAction = new CoreActionBuilder[OpenIdCallbackRequest, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: (OpenIdCallbackRequest[A]) => Future[Result]): Future[Result] = {
-      implicit val r = request
 
       openId.verifiedId(request).flatMap { info =>
 
