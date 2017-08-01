@@ -45,7 +45,6 @@ case class PortalData @Inject()(
           controllers.portal.annotate.routes.javascript.Annotations.deleteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.promoteAnnotationPost,
           controllers.portal.annotate.routes.javascript.Annotations.demoteAnnotationPost,
-          controllers.portal.annotate.routes.javascript.Annotations.setAnnotationVisibilityPost,
           controllers.portal.routes.javascript.Portal.updatePrefs,
           controllers.portal.routes.javascript.Portal.personalisedActivity,
           controllers.portal.routes.javascript.Portal.filterItems,
