@@ -7,13 +7,12 @@ GET         /create/:id/:did               @controllers.portal.annotate.Annotati
 POST        /create/:id/:did               @controllers.portal.annotate.Annotations.annotatePost(id: String, did: String)
 GET         /create/:id/:did/:field        @controllers.portal.annotate.Annotations.annotateField(id: String, did: String, field: String)
 POST        /create/:id/:did/:field        @controllers.portal.annotate.Annotations.annotateFieldPost(id: String, did: String, field: String)
-# Manage existing notesi
+# Manage existing notes
 GET         /:id                           @controllers.portal.annotate.Annotations.browse(id: String)
 GET         /:aid/delete                   @controllers.portal.annotate.Annotations.deleteAnnotation(aid: String)
 POST        /:aid/delete                   @controllers.portal.annotate.Annotations.deleteAnnotationPost(aid: String)
 GET         /:aid/edit                     @controllers.portal.annotate.Annotations.editAnnotation(aid: String, context: AnnotationContext.Value ?= AnnotationContext.List)
 POST        /:aid/edit                     @controllers.portal.annotate.Annotations.editAnnotationPost(aid: String, context: AnnotationContext.Value ?= AnnotationContext.List)
-POST        /:aid/visibility               @controllers.portal.annotate.Annotations.setAnnotationVisibilityPost(aid: String)
 GET         /:aid/promote                  @controllers.portal.annotate.Annotations.promoteAnnotation(aid: String, context: AnnotationContext.Value ?= AnnotationContext.List)
 POST        /:aid/promote                  @controllers.portal.annotate.Annotations.promoteAnnotationPost(aid: String, context: AnnotationContext.Value ?= AnnotationContext.List)
 GET         /:aid/promote/undo             @controllers.portal.annotate.Annotations.removeAnnotationPromotion(aid: String, context: AnnotationContext.Value ?= AnnotationContext.List)

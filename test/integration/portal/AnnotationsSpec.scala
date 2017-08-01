@@ -2,8 +2,6 @@ package integration.portal
 
 import helpers.IntegrationTestRunner
 import models._
-import utils.ContributionVisibility
-import controllers.portal.ReversePortal
 import controllers.portal.annotate.ReverseAnnotations
 import com.google.common.net.HttpHeaders
 import play.api.test.FakeRequest
@@ -19,8 +17,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
   private val testAnnotationBody = "Test Annotation!!!"
   private val testAnnotation: Map[String,Seq[String]] = Map(
-    AnnotationF.BODY -> Seq(testAnnotationBody),
-    ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+    AnnotationF.BODY -> Seq(testAnnotationBody)
   )
   private def testPromotableAnnotation: Map[String,Seq[String]] =
     testAnnotation.updated(AnnotationF.IS_PRIVATE, Seq(false.toString))
@@ -58,8 +55,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
       val evilText = "This is bad"
       val evilScript = s"<script>alert('$evilText');</script>"
       val badAnnotation = Map(
-        AnnotationF.BODY -> Seq(innocuousText + evilScript),
-        ContributionVisibility.PARAM -> Seq(ContributionVisibility.Me.toString)
+        AnnotationF.BODY -> Seq(innocuousText + evilScript)
       )
       val post = FakeRequest(annotationRoutes.annotateFieldPost("c4", "cd4", IsadG.SCOPE_CONTENT))
         .withUser(privilegedUser).withCsrf.callWith(badAnnotation)
@@ -109,40 +105,6 @@ class AnnotationsSpec extends IntegrationTestRunner {
         val delpost = FakeRequest(annotationRoutes.deleteAnnotationPost(aid))
           .withUser(unprivilegedUser).withCsrf.call()
         status(delpost) must equalTo(OK)
-      }
-    }
-
-    "allow changing annotation visibility" in new ITestApp {
-      val post = FakeRequest(annotationRoutes.annotateFieldPost("c4", "cd4", IsadG.SCOPE_CONTENT))
-        .withUser(privilegedUser).withCsrf.callWith(testAnnotation)
-      status(post) must equalTo(CREATED)
-      contentAsString(post) must contain(testAnnotationBody)
-
-      // Ensure the unprivileged user can't see the annotation...
-      val doc = FakeRequest(controllers.portal.routes.DocumentaryUnits.browse("c4"))
-        .withUser(unprivilegedUser).call()
-      status(doc) must equalTo(OK)
-      contentAsString(doc) must not contain testAnnotationBody
-
-      // Mmmn, need to get the id - this is faffy... assume there is
-      // only one annotation on the item and fetch it via the api...
-      implicit val apiUser = ApiUser(Some(privilegedUser.id))
-      await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
-      // The privilegedUser and unprivilegedUser belong to the same group (kcl)
-      // so if we set the visibility to groups it should be visible to the other
-      // guy...
-        val visData = Map(
-          ContributionVisibility.PARAM -> Seq(ContributionVisibility.Groups.toString)
-        )
-        val setVis = FakeRequest(annotationRoutes.setAnnotationVisibilityPost(aid.id))
-          .withUser(privilegedUser).withCsrf.callWith(visData)
-        status(setVis) must equalTo(OK)
-
-        // Ensure the unprivileged user CAN now see the annotation...
-        val doc2 = FakeRequest(controllers.portal.routes.DocumentaryUnits.browse("c4"))
-          .withUser(unprivilegedUser).call()
-        status(doc2) must equalTo(OK)
-        contentAsString(doc2) must contain(testAnnotationBody)
       }
     }
 

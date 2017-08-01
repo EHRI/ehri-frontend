@@ -98,7 +98,7 @@ jQuery(function ($) {
   $(window).on('keyup', function (e){
     // key code taken from http://www.quirksmode.org/js/keys.html
     // safari fires 63273 instead of 36
-    (e.keyCode == 36 || e.keyCode == 63273) && $(window).trigger('scroll')
+    (e.keyCode === 36 || e.keyCode === 63273) && $(window).trigger('scroll')
   });
 
 
@@ -157,7 +157,7 @@ jQuery(function ($) {
         $dat = $(this),
         $parent = $dat.parents(".facet-date"),
         getDate = function(date) {
-          if (date.length == 4 && !isNaN(parseInt(date))) {
+          if (date.length === 4 && !isNaN(parseInt(date))) {
             return date;
           }
           return ""
@@ -168,7 +168,7 @@ jQuery(function ($) {
       vals[$(this).data("target")] = getDate($(this).val());
     });
 
-    if(val != "-") {
+    if(val !== "-") {
        $parent.find(".target").val(val)
     }
   });
@@ -237,7 +237,7 @@ jQuery(function ($) {
           }
         }
     ).keypress(function(e) {
-      if(e.which == 13) {
+      if(e.which === 13) {
         $(this).parents("form").submit();
       }
     });

@@ -1,25 +1,19 @@
-@(f: Form[AnnotationF], visForm: Form[utils.ContributionVisibility.Value], accessorsForm: Form[Seq[String]], action: Call, users: Seq[(String,String)], groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(f: Form[AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import AnnotationF._
-@import utils.ContributionVisibility.{Me,Groups,Custom,PARAM}
 
-@implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateEmpty.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateCheckbox.f) }
 
-
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'class -> "annotation-form edit-annotation-form validate-form") {
+@helper.form(action = action, 'role -> "form", 'class -> "form validate-form", 'class -> "annotation-form edit-annotation-form validate-form") {
     <div class="annotation-right">
         <div class="annotation-form-controls">
             @formHelpers.hiddenInput(f(FIELD))
-            @form(f)
+            @views.html.annotation.form(f)
             <div class="annotation-submit-controls form-group">
-                @views.html.annotation.customVisibility(f, visForm, accessorsForm, users, groups)
                 <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPrivate.title")">
-                    @helper.checkbox(
-                        f(IS_PRIVATE),
-                        '_label -> Messages("contribution.visibility.isPrivate")
-                    )
+                    @helper.checkbox(f(IS_PRIVATE), '_label -> Messages("contribution.visibility.isPrivate"))
                 </div>
-                <button class="btn btn-primary" type="submit" class="submit-annotation">
+                <button type="submit" class="submit-annotation btn btn-primary">
                     @Messages("annotation.update.submit")
                 </button>
             </div>

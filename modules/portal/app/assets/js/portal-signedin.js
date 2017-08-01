@@ -68,7 +68,7 @@ jQuery(function ($) {
     $.ajax({
       url: href,
       success: function (data, _, response) {
-        var done = response.getResponseHeader("activity-more") != 'true';
+        var done = response.getResponseHeader("activity-more") !== 'true';
         $("#activity-stream").append(data);
         if (done) {
           $elem.hide();
@@ -102,7 +102,7 @@ jQuery(function ($) {
         $elem.removeClass(loadingClass + spinningClass).addClass(formerIcon);
       }
     } else {
-      if ($elem.find("." + loadingClass).length == 1) {
+      if ($elem.find("." + loadingClass).length === 1) {
         $elem.find("." + loadingClass).remove();
       } else {
         $elem.prepend('<span class="glyphicon ' + loadingClass + spinningClass + '"></span> ')
@@ -193,7 +193,7 @@ jQuery(function ($) {
 
       //If it is on profile page, remove the row
       if (watch === false) {
-        if ($("#user-watch-list").length == 1) {
+        if ($("#user-watch-list").length === 1) {
           var par = $("#" + id);
           par.hide(300, function () {
             par.remove();
@@ -306,7 +306,7 @@ jQuery(function ($) {
 
   // POST back an annotation form and then replace it with the returned
   // data.
-  $(document).on("submit", ".annotate-item-form", function (e) {
+  $(document).on("submit", ".create-annotation-form", function (e) {
     e.preventDefault();
     var $form = $(this);
     var action = $form.attr("action");
@@ -341,15 +341,15 @@ jQuery(function ($) {
     e.preventDefault();
     var $form = $(e.target).parents(".edit-annotation-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
-    if (!hasData || confirm("Discard comment?")) {
+    if (!hasData || confirm("Discard changes?")) {
       $form.prev(".annotation").show();
       $form.remove();
     }
   });
 
-  $(document).on("click", ".annotate-item-form .close", function (e) {
+  $(document).on("click", ".create-annotation-form .close", function (e) {
     e.preventDefault();
-    var $form = $(e.target).parents(".annotate-item-form");
+    var $form = $(e.target).parents(".create-annotation-form");
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
       showAnnotationControl($form);
