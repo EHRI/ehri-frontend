@@ -1,6 +1,6 @@
 package models.view
 
-import defines.BindableEnum
+import play.api.mvc.QueryStringBindable
 
 /**
  * An enum encoding the different ways in which
@@ -9,9 +9,12 @@ import defines.BindableEnum
  *  - field - inline with an item field
  *  - list  - in a list of annotations
  */
-object AnnotationContext extends BindableEnum {
+object AnnotationContext extends Enumeration {
   type Type = Value
   val Block = Value("block")
   val List = Value("list")
   val Field = Value("field")
+
+  implicit val _binder: QueryStringBindable[AnnotationContext.Value] =
+    utils.binders.queryStringBinder(this)
 }

@@ -1,0 +1,218 @@
+package utils
+
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
+import java.time.{LocalDate, LocalDateTime, YearMonth}
+
+import defines.{ContentTypes, EntityType, EventType}
+import play.api.mvc.QueryStringBindable.bindableOption
+import play.api.mvc.{PathBindable, QueryStringBindable}
+import services.data.Constants
+import services.search.{SearchField, SearchParams, SearchSort}
+import utils.SystemEventParams.{Aggregation, ShowType}
+
+import scala.annotation.tailrec
+
+/**
+  * The implicit values in this package allow the Play routes
+  * to bind/unbind enumeration values, without those enums having
+  * to be specifically aware of Play functionality.
+  *
+  * These values are imported into the generated routes files by
+  * the build.
+  */
+package object binders {
+
+  import services.data.Constants._
+
+  def bindableEnum[E <: Enumeration](enum: E): PathBindable[E#Value] = new PathBindable[E#Value] {
+    def bind(key: String, value: String): Either[String, enum.Value] =
+      enum.values.find(_.toString.toLowerCase == value.toLowerCase) match {
+        case Some(v) => Right(v)
+        case None => Left(s"Unknown url path segment '$value'")
+      }
+
+    def unbind(key: String, value: E#Value): String = value.toString.toLowerCase
+  }
+
+  def queryStringBinder[E <: Enumeration](enum: E)(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[E#Value] =
+    new QueryStringBindable[E#Value] {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, E#Value]] =
+        for (v <- stringBinder.bind(key, params)) yield v match {
+          case Right(p) => enum.values.find(_.toString.toLowerCase == p.toLowerCase) match {
+            case Some(ev) => Right(ev)
+            case None => Left(s"Unable to bind a valid value from '$p' alternatives: ${enum.values}")
+          }
+          case _ => Left(s"Unable to bind a valid value from alternatives: ${enum.values}")
+        }
+
+      override def unbind(key: String, value: E#Value): String = stringBinder.unbind(key, value.toString)
+    }
+
+  implicit val entityTypePathBinder: PathBindable[EntityType.Value] = bindableEnum(EntityType)
+
+  implicit val entityTypeQueryBinder: QueryStringBindable[EntityType.Value] = queryStringBinder(EntityType)
+
+  implicit val contentTypePathBinder: PathBindable[ContentTypes.Value] = bindableEnum(ContentTypes)
+
+  implicit val contentTypeQueryBinder: QueryStringBindable[ContentTypes.Value] = queryStringBinder(ContentTypes)
+
+  private val fullDateTimeFmt: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+  implicit def dateTimeQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[LocalDateTime] =
+    new QueryStringBindable[LocalDateTime] {
+      def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, LocalDateTime]] = {
+        stringBinder.bind(key, params).collect {
+          case Right(ds) if !ds.trim.isEmpty => try {
+            Right(LocalDateTime.parse(ds))
+          } catch {
+            case e: DateTimeParseException => try {
+              Right(LocalDate.parse(ds).atStartOfDay())
+            } catch {
+              case e: DateTimeParseException => try {
+                Right(YearMonth.parse(ds).atDay(1).atStartOfDay())
+              } catch {
+                case e: DateTimeParseException =>
+                  Left(s"Invalid date format: $ds")
+              }
+            }
+          }
+        }
+      }
+
+      def unbind(key: String, value: LocalDateTime): String = {
+        stringBinder.unbind(key, fullDateTimeFmt.format(value))
+      }
+    }
+
+  implicit def optionalDateTimeQueryBinder: QueryStringBindable[Option[LocalDateTime]] =
+    bindableOption(dateTimeQueryBinder)
+
+  def tolerantSeqBinder[T](implicit qbs: QueryStringBindable[T]): QueryStringBindable[Seq[T]] =
+    new QueryStringBindable[Seq[T]] {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Seq[T]]] = {
+        @tailrec
+        def collectResults(values: List[String], results: List[T]): Either[String, Seq[T]] = {
+          values match {
+            case Nil => Right(results.reverse) // to preserve the original order
+            case head :: rest => qbs.bind(key, Map(key -> Seq(head))) match {
+              case None => collectResults(rest, results)
+              case Some(Right(result)) => collectResults(rest, result :: results)
+              // Ignore errors
+              case Some(Left(err)) => collectResults(rest, results)
+            }
+          }
+        }
+
+        params.get(key) match {
+          case None => Some(Right(Nil))
+          case Some(values) => Some(collectResults(values.toList, Nil))
+        }
+      }
+
+      override def unbind(key: String, value: Seq[T]): String =
+        utils.http.joinQueryString(value.map(v => key -> qbs.unbind(key, v)))
+    }
+
+
+  implicit def pageParamsQueryBinder: QueryStringBindable[PageParams] =
+    new QueryStringBindable[PageParams] with NamespaceExtractor {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, PageParams]] = {
+        val namespace: String = ns(key)
+        Some(Right(PageParams(
+          bindOr(namespace + PAGE_PARAM, params, 1).max(1),
+          bindOr(namespace + LIMIT_PARAM, params, DEFAULT_LIST_LIMIT).min(MAX_LIST_LIMIT)
+        )))
+      }
+
+      override def unbind(key: String, params: PageParams): String =
+        utils.http.joinQueryString(toParams(params, ns(key)).distinct)
+
+
+      private def toParams(p: PageParams, ns: String = ""): Seq[(String, String)] = {
+        val pg = if (p.page == 1) Seq.empty else Seq(p.page.toString)
+        val lm = if (p.limit == DEFAULT_LIST_LIMIT) Seq.empty else Seq(p.limit.toString)
+        pg.map(ns + PAGE_PARAM -> _) ++ lm.map(ns + Constants.LIMIT_PARAM -> _)
+      }
+    }
+
+
+  implicit def rangeParamsQueryBinder: QueryStringBindable[RangeParams] =
+    new QueryStringBindable[RangeParams] with NamespaceExtractor {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, RangeParams]] = {
+        val namespace: String = ns(key)
+        Some(Right(RangeParams(
+          bindOr(namespace + OFFSET_PARAM, params, 0).max(0),
+          bindOr(namespace + LIMIT_PARAM, params, DEFAULT_LIST_LIMIT).min(MAX_LIST_LIMIT)
+        )))
+      }
+
+      override def unbind(key: String, params: RangeParams): String =
+        utils.http.joinQueryString(toParams(params, ns(key)).distinct)
+
+      private def toParams(p: RangeParams, ns: String = ""): Seq[(String, String)] = {
+        val os = if (p.offset == 0) Seq.empty else Seq(p.offset.toString)
+        val lm = if (p.limit == DEFAULT_LIST_LIMIT) Seq.empty else Seq(p.limit.toString)
+        os.map(ns + OFFSET_PARAM -> _) ++ lm.map(ns + LIMIT_PARAM -> _)
+      }
+    }
+
+  implicit def systemEventParamsQueryBinder: QueryStringBindable[SystemEventParams] =
+    new QueryStringBindable[SystemEventParams] with NamespaceExtractor {
+
+      private implicit val aggBinder = queryStringBinder(Aggregation)
+      private implicit val showBinder = queryStringBinder(ShowType)
+
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SystemEventParams]] = {
+        val namespace = ns(key)
+        Some(Right(SystemEventParams(
+          bindOr(namespace + USERS, params, Seq.empty[String]),
+          bindOr(namespace + EVENT_TYPE, params, Seq.empty[EventType.Value])(
+            tolerantSeqBinder(queryStringBinder(EventType))),
+          bindOr(namespace + ITEM_TYPE, params, Seq.empty[EntityType.Value])(
+            tolerantSeqBinder(queryStringBinder(EntityType))),
+          bindOr(namespace + FROM, params, Option.empty[LocalDateTime])(optionalDateTimeQueryBinder),
+          bindOr(namespace + TO, params, Option.empty[LocalDateTime])(optionalDateTimeQueryBinder),
+          bindOr(namespace + SHOW, params, Option.empty[ShowType.Value]),
+          bindOr(namespace + AGGREGATION, params, Option.empty[Aggregation.Value])
+        )))
+      }
+
+      override def unbind(key: String, value: SystemEventParams): String =
+        utils.http.joinQueryString(value.toSeq(ns(key)))
+    }
+
+
+  implicit def searchParamsQueryBinder(
+    implicit seqStrBinder: QueryStringBindable[Seq[String]]) = new QueryStringBindable[SearchParams] with NamespaceExtractor {
+    import services.search.SearchParams._
+
+    private implicit val sortBinder = utils.binders.queryStringBinder(SearchSort)
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SearchParams]] = {
+      val namespace: String = ns(key)
+      Some(Right(SearchParams(
+        bindOr(namespace + QUERY, params, Option.empty[String]).filter(_.trim.nonEmpty),
+        bindOr(namespace + SORT, params, Option.empty[SearchSort.Value]),
+        bindOr(namespace + ENTITY, params, Seq.empty[EntityType.Value])(tolerantSeqBinder(queryStringBinder(EntityType))),
+        bindOr(namespace + FIELD, params, Seq.empty[SearchField.Value])(tolerantSeqBinder(queryStringBinder(SearchField))),
+        bindOr(namespace + FACET, params, Seq.empty[String]),
+        bindOr(namespace + EXCLUDE, params, Seq.empty[String]),
+        bindOr(namespace + FILTERS, params, Seq.empty[String])
+      )))
+    }
+
+    override def unbind(key: String, params: SearchParams): String =
+      utils.http.joinQueryString(toParams(params, ns(key)).distinct)
+
+    private def toParams(p: SearchParams, ns: String = ""): Seq[(String, String)] = {
+      p.query.map(q => ns + QUERY -> q).toSeq ++
+        p.sort.map(s => ns + SORT -> s.toString).toSeq ++
+        p.entities.map(e => ns + ENTITY -> e.toString) ++
+        p.fields.map(f => ns + FIELD -> f.toString) ++
+        p.facets.map(f => ns + FACET -> f.toString) ++
+        p.excludes.map(e => ns + EXCLUDE -> e) ++
+        p.filters.map(f => ns + FILTERS -> f)
+    }
+  }
+}
+

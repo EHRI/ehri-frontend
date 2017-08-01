@@ -206,7 +206,7 @@ val webAppSettings = Seq(
   // Auto-import EntityType enum into routes
   routesImport ++= Seq(
     "defines.EntityType",
-    "defines.binders._"
+    "utils.binders._"
   ),
 
   // SBT magic: http://stackoverflow.com/a/12772739/285374

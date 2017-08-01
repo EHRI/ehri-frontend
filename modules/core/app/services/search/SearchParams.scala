@@ -1,12 +1,11 @@
 package services.search
 
-import defines.{BindableEnum, EntityType}
+import defines.EntityType
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.mvc.QueryStringBindable
-import utils.NamespaceExtractor
 
 
-case object SearchField extends BindableEnum {
+case object SearchField extends Enumeration {
   type Field = Value
   val Identifier = Value("identifier")
   val Title = Value("title")
@@ -19,7 +18,7 @@ case object SearchField extends BindableEnum {
   implicit val _fmt: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
 }
 
-case object SearchSort extends BindableEnum {
+case object SearchSort extends Enumeration {
   type Sort = Value
   val Id = Value("isParent.desc,identifier.asc")
   val Score = Value("score.desc")
@@ -68,17 +67,6 @@ case class SearchParams(
     * Is there an active constraint on these params?
     */
   def isFiltered: Boolean = !query.forall(_.trim.isEmpty)
-
-  def toParams(ns: String = ""): Seq[(String, String)] = {
-    import SearchParams._
-    query.map(q => ns + QUERY -> q).toSeq ++
-      sort.map(s => ns + SORT -> s.toString).toSeq ++
-      entities.map(e => ns + ENTITY -> e.toString) ++
-      fields.map(f => ns + FIELD -> f.toString) ++
-      facets.map(f => ns + FACET -> f.toString) ++
-      excludes.map(e => ns + EXCLUDE -> e) ++
-      filters.map(f => ns + FILTERS -> f)
-  }
 }
 
 object SearchParams {
@@ -90,31 +78,7 @@ object SearchParams {
   val EXCLUDE = "ex"
   val FILTERS = "f"
 
-  import defines.binders._
-
   def empty: SearchParams = SearchParams()
 
   implicit val writes: Writes[SearchParams] = Json.writes[SearchParams]
-
-  implicit def searchParamsBinder(
-    implicit strOptBinder: QueryStringBindable[Option[String]],
-    seqStrBinder: QueryStringBindable[Seq[String]],
-    sortBinder: QueryStringBindable[Option[SearchSort.Value]]) = new QueryStringBindable[SearchParams] with NamespaceExtractor {
-
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SearchParams]] = {
-      val namespace: String = ns(key)
-      Some(Right(SearchParams(
-        bindOr(namespace + QUERY, params, Option.empty[String]).filter(_.trim.nonEmpty),
-        bindOr(namespace + SORT, params, Option.empty[SearchSort.Value]),
-        bindOr(namespace + ENTITY, params, Seq.empty[EntityType.Value])(tolerantSeqBinder(queryStringBinder(EntityType))),
-        bindOr(namespace + FIELD, params, Seq.empty[SearchField.Value])(tolerantSeqBinder(queryStringBinder(SearchField))),
-        bindOr(namespace + FACET, params, Seq.empty[String]),
-        bindOr(namespace + EXCLUDE, params, Seq.empty[String]),
-        bindOr(namespace + FILTERS, params, Seq.empty[String])
-      )))
-    }
-
-    override def unbind(key: String, params: SearchParams): String =
-      utils.http.joinQueryString(params.toParams(ns(key)).distinct)
-  }
 }
