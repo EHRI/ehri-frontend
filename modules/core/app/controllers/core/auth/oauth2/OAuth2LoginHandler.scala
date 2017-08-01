@@ -15,6 +15,7 @@ import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsString, Json}
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Result, _}
+import services.accounts.AccountManager
 import services.data.{AnonymousUser, AuthenticatedUser, DataApi}
 
 import scala.concurrent.Future
@@ -33,7 +34,7 @@ trait OAuth2LoginHandler extends AccountHelpers {
 
   protected def dataApi: DataApi
 
-  protected def accounts: auth.AccountManager
+  protected def accounts: AccountManager
 
   protected def globalConfig: GlobalConfig
 

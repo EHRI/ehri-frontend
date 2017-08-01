@@ -3,7 +3,6 @@ package controllers.api.v1
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
-import auth.AccountManager
 import auth.handler.AuthHandler
 import services.cypher.Cypher
 import controllers.AppComponents
@@ -21,6 +20,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
+import services.accounts.AccountManager
 import services.data.{AnonymousUser, DataApi, ItemNotFound, PermissionDenied}
 import utils.{Page, PageParams}
 import services.search.SearchConstants._

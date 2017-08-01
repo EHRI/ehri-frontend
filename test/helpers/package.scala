@@ -2,10 +2,9 @@
 import java.io._
 
 import akka.actor.ActorSystem
-import auth.AccountManager
-import auth.sql.SqlAccountManager
 import models.OpenIDAssociation
 import play.api.Configuration
+import services.accounts.{AccountManager, SqlAccountManager}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

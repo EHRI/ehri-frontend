@@ -2,7 +2,6 @@ package controllers.portal.base
 
 import java.util.concurrent.TimeUnit
 
-import auth.AccountManager
 import auth.handler.AuthHandler
 import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
@@ -22,6 +21,7 @@ import models.view.UserDetails
 import global.GlobalConfig
 import play.api.cache.SyncCacheApi
 import play.api.mvc.Result
+import services.accounts.AccountManager
 import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
 import views.MarkdownRenderer

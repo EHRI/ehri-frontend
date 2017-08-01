@@ -3,7 +3,7 @@ package integration.admin
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject._
 import play.api.test._
-import utils.{MockMovedPageLookup, MovedPageLookup}
+import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 
 
 class BrowserSpec extends PlaySpecification {
