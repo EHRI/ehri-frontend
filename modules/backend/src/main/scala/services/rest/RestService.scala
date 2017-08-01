@@ -68,6 +68,13 @@ trait RestService {
         }
     }
 
+    def stream(): Future[WSResponse] = {
+      logger.debug(s"WS (stream): $apiUser $method $fullUrl")
+      holderWithAuth.stream().recover {
+        case e: ConnectException => throw ServiceOffline(fullUrl, e)
+      }
+    }
+
     def get(): Future[WSResponse] = copy(method = GET).execute()
 
     def post(): Future[WSResponse] = withMethod(POST).execute()

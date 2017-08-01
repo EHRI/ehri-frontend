@@ -30,7 +30,6 @@
     <body>
         <div id="graphiql">Loading...</div>
         <script>
-
                 var action = "@action";
 
                 /**
@@ -91,6 +90,7 @@
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
+                            'X-Requested-With': 'ajax'
                         },
                         body: JSON.stringify(graphQLParams),
                         credentials: 'include',
