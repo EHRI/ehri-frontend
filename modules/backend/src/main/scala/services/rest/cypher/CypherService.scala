@@ -12,6 +12,7 @@ import services.rest.RestService
 import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.Source
+import play.api.http.HttpVerbs
 import utils.streams.JsonStream
 
 
@@ -73,7 +74,9 @@ case class CypherService @Inject ()(
     val data = Json.obj("query" -> scriptBody, "params" -> params)
     logger.debug(s"Cypher: ${Json.toJson(data)}")
     ws.url(requestUrl)
+      .withMethod(HttpVerbs.POST)
       .withHttpHeaders((headers + ("X-Stream" -> "true")).toSeq: _*)
-      .post(data)
+      .withBody(data)
+      .stream()
   }
 }

@@ -115,8 +115,6 @@ trait TestConfiguration {
 
   protected val AUTH_TEST_HEADER_NAME = "PLAY2_AUTH_TEST_TOKEN"
   protected val CSRF_TOKEN_NAME = "csrfToken"
-  protected val CSRF_HEADER_NAME = "Csrf-Token"
-  protected val CSRF_HEADER_NOCHECK = "nocheck"
   protected val fakeCsrfString = "fake-csrf-token"
   protected val testPassword = "testpass"
 

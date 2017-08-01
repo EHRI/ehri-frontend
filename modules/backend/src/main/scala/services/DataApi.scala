@@ -61,6 +61,16 @@ trait DataApiHandle {
   def query(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse]
 
   /**
+    * Pass a query directly through to the backend API and retrieve the result as a stream.
+    *
+    * @param urlPart the URL backend path
+    * @param headers the required headers
+    * @param params  additional parameters
+    * @return a web response
+    */
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
+
+  /**
     * Create a new user profile.
     *
     * @param data   the user data
