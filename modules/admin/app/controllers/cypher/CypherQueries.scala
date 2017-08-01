@@ -137,7 +137,7 @@ case class CypherQueries @Inject()(
               ByteString.fromArray(writer.writeValueAsBytes(cols.toArray))
             }.watchTermination()(Keep.right).mapMaterializedValue { f =>
               f.onComplete {
-                case Failure(e) => logger.error(s"Error generating ${format.toUpperCase}: ", e)
+                case Failure(e) => logger.error(s"Error generating $format: ", e)
                 case _ =>
               }
               f

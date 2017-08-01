@@ -2,7 +2,6 @@ package models
 
 import java.time.ZonedDateTime
 
-import defines.BindableEnum
 import defines.EnumUtils.enumMapping
 import play.api.Mode
 import play.api.data.Form
@@ -32,7 +31,7 @@ object Feedback {
   val EMAIL = "email"
   val COPY_ME = "copyMe"
 
-  object Type extends BindableEnum {
+  object Type extends Enumeration {
     val Site = Value("site")
     val Data = Value("data")
   }

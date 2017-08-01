@@ -1,6 +1,6 @@
 @(page: utils.AbstractPage[_], call: Option[Call] = None, namespace: String = "")(implicit req: RequestHeader)
 
-@import utils.PageParams._
+@import services.data.Constants.PAGE_PARAM
 
 @if(page.hasMultiplePages) {
     <ul id="pagination" class="pagination">

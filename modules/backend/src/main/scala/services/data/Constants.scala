@@ -70,6 +70,11 @@ object Constants {
   val cacheTime: FiniteDuration = (60 * 5).seconds
 
   /**
+    * Pagination
+    */
+  final val PAGE_PARAM = "page"
+
+  /**
    * Limit for lists
    */
   final val LIMIT_PARAM = "limit"
@@ -113,6 +118,16 @@ object Constants {
    * Event type filter
    */
   val EVENT_TYPE = "et"
+
+  /**
+    * Type of events to show
+    */
+  val SHOW = "show"
+
+  /**
+    * Event aggregation strategy
+    */
+  val AGGREGATION = "aggregation"
 
   /**
    * Pattern for form input datetime objects

@@ -10,7 +10,7 @@ import defines.EntityType
 import models.Isaar
 import models.base.{AnyModel, Description}
 import play.api.i18n.Messages
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Writes, __}
 import play.api.mvc._
 import services.search._
 import utils.{Page, PageParams}
@@ -27,10 +27,19 @@ case class Metrics @Inject()(
 
   private val statusCache = appComponents.statusCache
 
+  import play.api.libs.functional.syntax._
+  private implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (
+    (__ \ "offset").write[Int] and
+      (__ \ "limit").write[Int] and
+      (__ \ "total").write[Int] and
+      (__ \ "values").lazyWrite(Writes.seq[T](r))
+    )(unlift(Page.unapply[T]))
+
+
   private def jsonResponse[T](result: SearchResult[(T, SearchHit)])(implicit request: Request[AnyContent], w: ClientWriteable[T]): Result = {
     render {
       case Accepts.Json() | Accepts.JavaScript() => Ok(Json.obj(
-        "page" -> Json.toJson(result.mapItems(_._1).page)(Page.pageWrites(w.clientFormat)),
+        "page" -> Json.toJson(result.mapItems(_._1).page)(pageWrites(w.clientFormat)),
         "params" -> result.params,
         "appliedFacets" -> result.facets,
         "facetClasses" -> result.facetClasses

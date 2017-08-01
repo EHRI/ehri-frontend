@@ -163,7 +163,6 @@ class CountryScopeIntegrationSpec extends IntegrationTestRunner {
       contentAsString(docRead) must contain(docRoutes.createDoc(docId).url)
 
       // Test we CAN'T create extra docs in an existing doc (c1)
-      println("Checking cannot create in other doc...")
       val otherDocRead = FakeRequest(docRoutes.get(otherDocId))
         .withUser(fakeAccount).call()
       status(otherDocRead) must equalTo(OK)
