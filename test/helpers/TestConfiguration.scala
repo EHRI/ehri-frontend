@@ -9,8 +9,7 @@ import auth._
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import services._
-import services.aws.MockFileStorage
-import services.feedback.MockFeedbackService
+import services.feedback.{FeedbackService, MockFeedbackService}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
@@ -25,9 +24,14 @@ import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
+import services.accounts.{AccountManager, MockAccountManager}
+import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data.{IdSearchResolver, _}
-import utils.{MockBufferedMailer, MockMovedPageLookup, MovedPageLookup}
+import services.htmlpages.{HtmlPages, MockHtmlPages}
+import services.redirects.{MockMovedPageLookup, MovedPageLookup}
+import utils.MockBufferedMailer
 import services.search.{MockSearchIndexMediator, _}
+import services.storage.{FileStorage, MockFileStorage}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

@@ -12,6 +12,7 @@ import java.net.ConnectException
 
 import controllers.core.auth.AccountHelpers
 import play.api.Logger
+import services.accounts.AccountManager
 import services.data.{AnonymousUser, DataApi}
 
 import scala.concurrent.Future
@@ -26,7 +27,7 @@ trait OpenIDLoginHandler extends AccountHelpers {
   private def logger = Logger(getClass)
 
   protected def dataApi: DataApi
-  protected def accounts: auth.AccountManager
+  protected def accounts: AccountManager
   protected def globalConfig: global.GlobalConfig
   protected def openId: OpenIdClient
 

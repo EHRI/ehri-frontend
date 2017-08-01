@@ -2,13 +2,13 @@ package controllers.portal
 
 import javax.inject._
 
-import services.FeedbackService
 import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.Application
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
+import services.feedback.FeedbackService
 import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}

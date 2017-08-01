@@ -3,7 +3,6 @@ package controllers.portal
 import java.util.concurrent.TimeUnit
 import javax.inject._
 
-import services.HtmlPages
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
@@ -14,6 +13,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import services.htmlpages.HtmlPages
 import utils._
 import utils.caching.FutureCache
 import services.search._

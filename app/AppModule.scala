@@ -1,24 +1,22 @@
 import javax.inject.{Inject, Provider}
 
-import auth.AccountManager
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
-import services._
-import services.aws.S3FileStorage
-import services.googledocs.GoogleDocsHtmlPages
-import services.cypher.{Cypher, CypherService}
-import services.sql.{SqlCypherQueryService, SqlFeedbackService}
+import services.cypher.{Cypher, CypherQueryService, CypherService, SqlCypherQueryService}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
-import indexing.SearchToolsIndexMediator
 import models.{GuideService, SqlGuideService}
+import services.accounts.{AccountManager, SqlAccountManager}
 import services.data.{GidSearchResolver, _}
-import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver}
-import utils.{MovedPageLookup, SqlMovedPageLookup}
+import services.feedback.{FeedbackService, SqlFeedbackService}
+import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
+import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
+import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver, SearchToolsIndexMediator}
+import services.storage.{FileStorage, S3FileStorage}
 import views.{FlexmarkMarkdownRendererProvider, MarkdownRenderer}
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
@@ -28,7 +26,7 @@ private class SolrIndexProvider @Inject()(config: play.api.Configuration) extend
 class AppModule extends AbstractModule {
   protected def configure(): Unit = {
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
-    bind(classOf[AccountManager]).to(classOf[auth.sql.SqlAccountManager])
+    bind(classOf[AccountManager]).to(classOf[SqlAccountManager])
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
     bind(classOf[ResponseParser]).to(classOf[SolrJsonResponseParser])
