@@ -10,6 +10,7 @@ import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Messages
 import services.data.{Readable, Writable}
+import utils.EnumUtils
 
 
 object AccessPointF {
@@ -28,7 +29,7 @@ object AccessPointF {
     val PlaceAccess = Value("place")
     val GenreAccess = Value("genre")
 
-    implicit val format: Format[AccessPointType.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[AccessPointType.Value] = EnumUtils.enumFormat(this)
 
     def exceptCreator: ValueSet = values.filterNot(_ == CreatorAccess)
   }
@@ -82,7 +83,7 @@ case class AccessPointF(
 object AccessPoint {
   import Entity._
   import AccessPointF.{TYPE => ETYPE, _}
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
 
   implicit val metaReads: Reads[AccessPoint] = (
     __.read[AccessPointF] and

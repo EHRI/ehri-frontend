@@ -2,7 +2,7 @@ package models
 
 import java.time.ZonedDateTime
 
-import defines.EnumUtils.enumMapping
+import utils.EnumUtils.enumMapping
 import play.api.Mode
 import play.api.data.Form
 import play.api.data.Forms._

@@ -103,7 +103,7 @@ object Repository {
   import DescribedMeta._
   import RepositoryF._
   import Ontology._
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   implicit lazy val metaReads: Reads[Repository] = (
     __.read[RepositoryF](repositoryFormat) and

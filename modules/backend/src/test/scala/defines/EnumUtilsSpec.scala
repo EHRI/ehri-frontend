@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 
 class EnumUtilsSpec extends Specification {
   "tolerant enum seq binder should" should {
-    import EnumUtils.tolerantSeq
+    import utils.EnumUtils.tolerantSeq
     object MyEnum extends scala.Enumeration {
       val a1 = Value("a1")
       val a2 = Value("a2")

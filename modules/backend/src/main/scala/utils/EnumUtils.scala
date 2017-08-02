@@ -1,5 +1,4 @@
-package defines
-
+package utils
 
 import play.api.data.format.Formatter
 import play.api.data.{FormError, Forms, Mapping}
@@ -25,10 +24,9 @@ object EnumUtils {
     case _ => JsError("String value expected")
   }
 
-  implicit def enumWrites[E <: Enumeration]: Writes[E#Value] =
-    Writes[E#Value]( v => JsString(v.toString) )
+  def enumWrites[E <: Enumeration]: Writes[E#Value] = Writes[E#Value]( v => JsString(v.toString) )
 
-  implicit def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(enumReads(enum), enumWrites)
+  def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(enumReads(enum), enumWrites)
 
   /**
    * Constructs a simple mapping for a text field (mapped as `scala.Enumeration`)

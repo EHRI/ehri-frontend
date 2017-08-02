@@ -139,7 +139,7 @@ case class HistoricalAgentDescriptionF(
 object HistoricalAgentDescription {
   import Isaar._
   import Entity._
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   val form = Form(
     mapping(

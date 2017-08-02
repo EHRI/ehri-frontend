@@ -14,6 +14,7 @@ import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
 import services.data.{Constants, ContentType, Writable}
+import utils.EnumUtils
 
 
 object DocumentaryUnitF {
@@ -23,7 +24,7 @@ object DocumentaryUnitF {
     val No = Value("no")
     val Unknown = Value("unknown")
 
-    implicit val format: Format[CopyrightStatus.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[CopyrightStatus.Value] = EnumUtils.enumFormat(this)
   }
 
   object Scope extends Enumeration {
@@ -31,7 +32,7 @@ object DocumentaryUnitF {
     val Medium = Value("medium")
     val Low = Value("low")
 
-    implicit val format: Format[Scope.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[Scope.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   val OTHER_IDENTIFIERS = "otherIdentifiers"
@@ -82,7 +83,7 @@ object DocumentaryUnit {
   import DescribedMeta._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
 
   implicit val metaReads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitFormat) and

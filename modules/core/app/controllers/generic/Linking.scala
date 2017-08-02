@@ -7,7 +7,7 @@ import play.api.data.Form
 import play.api.libs.json._
 import play.api.mvc._
 import services.data.ContentType
-import utils.PageParams
+import utils.{EnumUtils, PageParams}
 import services.search.{SearchHit, _}
 
 import scala.concurrent.Future
@@ -28,8 +28,8 @@ case class AccessPointLink(
 
 object AccessPointLink {
   // handlers for creating/listing/deleting links via JSON
-  implicit val linkTypeFormat: Format[LinkF.LinkType.Value] = defines.EnumUtils.enumFormat(LinkF.LinkType)
-  implicit val accessPointTypeFormat: Format[AccessPointF.AccessPointType.Value] = defines.EnumUtils.enumFormat(AccessPointF.AccessPointType)
+  implicit val linkTypeFormat: Format[LinkF.LinkType.Value] = EnumUtils.enumFormat(LinkF.LinkType)
+  implicit val accessPointTypeFormat: Format[AccessPointF.AccessPointType.Value] = utils.EnumUtils.enumFormat(AccessPointF.AccessPointType)
   implicit val accessPointFormat: Format[AccessPointF] = Json.format[AccessPointF]
   implicit val accessPointLinkReads: Format[AccessPointLink] = Json.format[AccessPointLink]
 }

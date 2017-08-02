@@ -7,6 +7,7 @@ import java.time.{LocalDate, Year, YearMonth}
 import defines.EntityType
 import models.base.Model
 import services.data.Writable
+import utils.EnumUtils
 
 
 object DatePeriodF {
@@ -26,7 +27,7 @@ object DatePeriodF {
     val Creation = Value("creation")
     val Existence = Value("existence")
 
-    implicit val format: Format[DatePeriodType.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[DatePeriodType.Value] = EnumUtils.enumFormat(this)
   }
 
   object DatePeriodPrecision extends Enumeration {
@@ -37,7 +38,7 @@ object DatePeriodF {
     val Week = Value("week")
     val Day = Value("day")
 
-    implicit val format: Format[DatePeriodPrecision.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[DatePeriodPrecision.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   import Entity.{TYPE => ETYPE, _}
@@ -79,7 +80,7 @@ object DatePeriod {
 
   import DatePeriodF._
   import Entity.{TYPE => _, _}
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
 
   val formats: List[String => TemporalAccessor] = List(
     LocalDate.parse, YearMonth.parse, Year.parse
