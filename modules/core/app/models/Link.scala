@@ -10,6 +10,7 @@ import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
+import utils.EnumUtils
 
 
 object LinkF {
@@ -28,7 +29,7 @@ object LinkF {
     val Hierarchical = Value("hierarchical")
     val Temporal = Value("temporal")
 
-    implicit val _fmt: Format[LinkType.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val _fmt: Format[LinkType.Value] = EnumUtils.enumFormat(this)
   }
 
   object LinkField extends Enumeration {
@@ -37,7 +38,7 @@ object LinkF {
     val LocationOfCopies = Value(IsadG.LOCATION_COPIES)
     val RelatedUnits = Value(IsadG.RELATED_UNITS)
 
-    implicit val _fmt: Format[LinkField.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val _fmt: Format[LinkField.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   import Entity._
@@ -75,7 +76,7 @@ object Link {
   import Entity._
   import Ontology._
   import play.api.libs.functional.syntax._
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
 
   private implicit val userProfileMetaReads = models.UserProfile.UserProfileResource.restReads
   private implicit val accessPointReads = models.AccessPoint.Converter.restReads

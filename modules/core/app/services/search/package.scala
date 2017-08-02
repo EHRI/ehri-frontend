@@ -1,8 +1,8 @@
 package services
 
-import defines.EnumUtils
 import play.api.libs.json.Format
 import play.api.mvc.RequestHeader
+import utils.EnumUtils
 
 package object search {
 

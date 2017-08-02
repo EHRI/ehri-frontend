@@ -3,6 +3,7 @@ package services.search
 import defines.EntityType
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.mvc.QueryStringBindable
+import utils.EnumUtils
 
 
 case object SearchField extends Enumeration {
@@ -15,7 +16,7 @@ case object SearchField extends Enumeration {
   val Subject = Value("subject")
   val Address = Value("address")
 
-  implicit val _fmt: Format[SearchField.Value] = defines.EnumUtils.enumFormat(SearchField)
+  implicit val _fmt: Format[SearchField.Value] = EnumUtils.enumFormat(SearchField)
 }
 
 case object SearchSort extends Enumeration {
@@ -30,7 +31,7 @@ case object SearchSort extends Enumeration {
   val Detail = Value("charCount.desc")
   val ChildCount = Value("childCount.desc")
 
-  implicit val _fmt: Format[SearchSort.Value] = defines.EnumUtils.enumFormat(SearchSort)
+  implicit val _fmt: Format[SearchSort.Value] = utils.EnumUtils.enumFormat(SearchSort)
 }
 
 case object SearchMode extends Enumeration {
@@ -38,7 +39,7 @@ case object SearchMode extends Enumeration {
   val DefaultAll = Value("all")
   val DefaultNone = Value("none")
 
-  implicit val _fmt: Format[SearchMode.Value] = defines.EnumUtils.enumFormat(SearchMode)
+  implicit val _fmt: Format[SearchMode.Value] = utils.EnumUtils.enumFormat(SearchMode)
 }
 
 case object FacetSort extends Enumeration {
@@ -47,7 +48,7 @@ case object FacetSort extends Enumeration {
   val Count = Value("count")
   val Fixed = Value("fixed")
 
-  implicit val _fmt: Format[FacetSort.Value] = defines.EnumUtils.enumFormat(FacetSort)
+  implicit val _fmt: Format[FacetSort.Value] = utils.EnumUtils.enumFormat(FacetSort)
 }
 
 

@@ -80,7 +80,7 @@ case class SystemEventParams(
 
 object SystemEventParams {
 
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
   import play.api.data.Form
   import play.api.data.Forms._
 

@@ -161,7 +161,7 @@ object RepositoryDescription {
 
   import Entity._
   import Isdiah._
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   val form = Form(
     mapping(

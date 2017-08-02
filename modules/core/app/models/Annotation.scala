@@ -11,6 +11,7 @@ import play.api.data.Forms._
 import services._
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
+import utils.EnumUtils
 
 
 object AnnotationF {
@@ -25,7 +26,7 @@ object AnnotationF {
     val Comment = Value("comment")
     val Aggregation = Value("aggregation")
 
-    implicit val _format: Format[AnnotationType.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val _format: Format[AnnotationType.Value] = EnumUtils.enumFormat(this)
   }
 
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP}
@@ -62,7 +63,7 @@ case class AnnotationF(
 object Annotation {
   import Entity._
   import Ontology._
-  import defines.EnumUtils.enumMapping
+  import EnumUtils.enumMapping
 
   private implicit val anyModelReads = AnyModel.Converter.restReads
   private implicit val userProfileMetaReads = UserProfile.UserProfileResource.restReads

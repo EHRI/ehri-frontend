@@ -29,7 +29,7 @@ case class GuidePage(
 }
 
 object GuidePage {
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   val PREFIX = "guidePage"
   val OBJECTID = "id"

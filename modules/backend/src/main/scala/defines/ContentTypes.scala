@@ -2,6 +2,7 @@ package defines
 
 import eu.ehri.project.definitions.Entities
 import play.api.libs.json.Format
+import utils.EnumUtils
 
 object ContentTypes extends Enumeration() {
   type Type = Value
@@ -19,5 +20,5 @@ object ContentTypes extends Enumeration() {
   val Country = Value(Entities.COUNTRY)
   val VirtualUnit = Value(Entities.VIRTUAL_UNIT)
 
-  implicit val _format: Format[ContentTypes.Value] = defines.EnumUtils.enumFormat(this)
+  implicit val _format: Format[ContentTypes.Value] = EnumUtils.enumFormat(this)
 }

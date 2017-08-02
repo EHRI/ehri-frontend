@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.EntityType
-import defines.EnumUtils._
+import utils.EnumUtils._
 import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
 import play.api.libs.streams.ActorFlow

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}
 import services.data.{Readable, Resource, WithId}
+import utils.EnumUtils
 
 import scala.collection.SortedMap
 
@@ -44,7 +45,7 @@ object AnyModel {
   implicit object Converter extends Readable[AnyModel] {
     implicit val restReads: Reads[AnyModel] = Reads[AnyModel] { json =>
       // Sniff the type...
-      val et = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+      val et = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
       Utils.restReadRegistry.lift(et).map { reads =>
         json.validate(reads)
       }.getOrElse {
@@ -245,7 +246,7 @@ object Description {
     val Import = Value("IMPORT")
     val Manual = Value("MANUAL")
 
-    implicit val format: Format[CreationProcess.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val format: Format[CreationProcess.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   /**

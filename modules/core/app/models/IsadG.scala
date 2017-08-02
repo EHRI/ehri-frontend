@@ -1,6 +1,7 @@
 package models
 
 import play.api.libs.json.Format
+import utils.EnumUtils
 
 case object IsadG {
 
@@ -19,7 +20,7 @@ case object IsadG {
     val Other = Value("otherlevel")
     val Class = Value("class")
 
-    implicit val _format: Format[IsadG.LevelOfDescription.Value] = defines.EnumUtils.enumFormat(this)
+    implicit val _format: Format[IsadG.LevelOfDescription.Value] = EnumUtils.enumFormat(this)
   }
 
   /* ISAD(G)-based field set */

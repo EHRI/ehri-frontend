@@ -8,6 +8,7 @@ import play.api.Logger
 import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsObject, KeyPathNode, _}
+import utils.EnumUtils
 
 package object json {
 
@@ -40,7 +41,7 @@ package object json {
       case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[AnyModel]]
     }
 
-    def typeOf(json: JsValue): EntityType.Value = (json \ Entity.TYPE).as(defines.EnumUtils.enumReads(EntityType))
+    def typeOf(json: JsValue): EntityType.Value = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
 
     implicit val clientReadAny: Reads[AnyModel] = Reads { json =>
       clientFormatRegistry

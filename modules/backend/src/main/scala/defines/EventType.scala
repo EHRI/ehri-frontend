@@ -1,6 +1,7 @@
 package defines
 
 import play.api.libs.json.Format
+import utils.EnumUtils
 
 object EventType extends Enumeration {
   type Type = Value
@@ -28,5 +29,5 @@ object EventType extends Enumeration {
     block,
     unblock = Value
 
-  implicit val _format: Format[EventType.Value] = defines.EnumUtils.enumFormat(this)
+  implicit val _format: Format[EventType.Value] = EnumUtils.enumFormat(this)
 }

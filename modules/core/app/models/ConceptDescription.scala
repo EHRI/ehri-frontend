@@ -71,7 +71,7 @@ object ConceptDescription {
 
   import ConceptF._
   import Entity._
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   val form = Form(mapping(
     ISA -> ignored(EntityType.ConceptDescription),

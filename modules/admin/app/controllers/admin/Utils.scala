@@ -19,7 +19,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import services.data.AuthenticatedUser
 import services.search.SearchIndexMediator
-import utils.{CsvHelpers, PageParams}
+import utils.{CsvHelpers, EnumUtils, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -135,7 +135,7 @@ case class Utils @Inject()(
 
   private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String])] = Form(
     tuple(
-      "type" -> optional(defines.EnumUtils.enumMapping(ContentTypes)),
+      "type" -> optional(EnumUtils.enumMapping(ContentTypes)),
       "scope" -> optional(nonEmptyText).transform (_.flatMap {
           case "" => Option.empty
           case s => Some(s)

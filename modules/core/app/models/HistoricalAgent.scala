@@ -57,7 +57,7 @@ object HistoricalAgent {
   import DescribedMeta._
   import HistoricalAgentF._
   import Ontology._
-  import defines.EnumUtils.enumMapping
+  import utils.EnumUtils.enumMapping
 
   private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
   private implicit val authoritativeSetReads = AuthoritativeSet.AuthoritativeSetResource.restReads
