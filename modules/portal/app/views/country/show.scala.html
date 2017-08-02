@@ -1,7 +1,7 @@
 @(item: Country, result: services.search.SearchResult[(Repository, services.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.Country.toString) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @itemDetails(item, annotations, links, watched)
         @childItemSearch(item, result, action, watched)
     }

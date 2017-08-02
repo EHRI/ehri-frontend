@@ -20,13 +20,13 @@
 }
 
 <html>
-    @views.html.layout.head(
+    @views.html.common.head(
         title = s"${guide.name} | ${otherTitle.getOrElse(page.name)}",
         meta = page.description.map(s => "description" -> s).toMap,
         styles = extraStyles
     )
     <body>
-        @views.html.layout.preambleScripts()
+        @views.html.common.preambleScripts()
         <header id="top">
             @views.html.layout.guideHeader(guide, page, pages)
         </header>
@@ -40,6 +40,6 @@
                 </div>
             </div>
         </div>
-        @views.html.layout.postambleScripts(extra = extraScripts)
+        @views.html.common.postambleScripts(extra = extraScripts)
     </body>
 </html>

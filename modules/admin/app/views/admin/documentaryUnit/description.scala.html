@@ -4,7 +4,7 @@
 @import models.IsadG._
 @import views.html.admin.common.{descriptionSection,listValue,stringValue,dateSet}
 
-@views.html.admin.layout.descriptionOutline(item, desc, actions = actions) {
+@views.html.admin.common.descriptionOutline(item, desc, actions = actions) {
     @views.html.admin.common.descriptionHeader(desc.name)
 
     @descriptionSection(IDENTITY_AREA) {

@@ -3,8 +3,8 @@
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @views.html.admin.virtualUnit.vcHeader(item, path)
     @views.html.admin.common.breadcrumbs(path.toList :+ item)
-    @layout.mainContent {
-        @layout.itemDetails {
+    @common.mainContent {
+        @common.itemDetails {
             <div class="header-actions clearfix">
                 @item.holder.map { holder =>
                 <h4>@Messages("documentaryUnit.heldBy"):
@@ -18,7 +18,7 @@
                 }
             </div>
             @defining("documentaryUnit") { implicit fieldPrefix =>
-                @layout.descriptionContainer(item.model.descriptions) {
+                @common.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
                         @views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }

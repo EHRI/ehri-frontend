@@ -3,7 +3,7 @@
 @views.html.layout.portalLayout(item.toStringLang, EntityType.DocumentaryUnit.toString) {
     @infobar(item)
 
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @itemDetails(item, annotations, links, watched)
 
         @childItemSearch(item, result, action, watched)

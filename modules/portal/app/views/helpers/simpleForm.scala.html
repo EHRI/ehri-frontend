@@ -1,7 +1,7 @@
 @(title: String, action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages(title)) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         <h1>@Messages(title)</h1>
         @helper.form(action = action, 'role -> "role") {
             @formHelpers.csrfToken()

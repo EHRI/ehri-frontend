@@ -13,7 +13,7 @@
 }
 
 @defining(utils.SessionPrefs()) { implicit prefs =>
-    @views.html.layout.topNavBar {
+    @views.html.common.topNavBar {
         <ul class="nav navbar-nav navbar-left">
             <li><a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a></li>
             @views.admin.Helpers.mainMenu.map { case (key, url) =>
@@ -38,6 +38,6 @@
             </li>
         </ul>
     } {
-        @views.html.layout.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = true)
+        @views.html.common.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = true)
     }
 }

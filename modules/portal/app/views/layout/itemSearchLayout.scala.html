@@ -2,7 +2,7 @@
 
 @views.html.layout.portalLayout(Messages("search.item.results.list", title, result.page.start, result.page.end, result.page.total, result.params.query.getOrElse("")), itemClass, styles = styles, scripts = scripts) {
     @breadcrumbs
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @html
     }
 }

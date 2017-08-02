@@ -1,6 +1,6 @@
 @(item: Concept, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
-@views.html.layout.searchItemOutline(item, watched) {
+@views.html.common.searchItemOutline(item, watched) {
     @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
 } {
     @listItemBody(item, highlighter = highlighter)

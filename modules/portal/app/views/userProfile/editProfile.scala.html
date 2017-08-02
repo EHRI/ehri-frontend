@@ -3,7 +3,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
 @views.html.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("profile.edit")) {
         }
         @userOpt.flatMap(_.account).map { account =>

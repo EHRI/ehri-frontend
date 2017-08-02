@@ -3,7 +3,7 @@
 @views.html.layout.portalLayout(item.toStringLang, EntityType.Concept.toString) {
     @infobar(item)
 
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @itemDetails(item, result, action, annotations, links, watched)
     }
 }

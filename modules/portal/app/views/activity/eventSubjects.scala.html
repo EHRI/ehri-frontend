@@ -1,7 +1,7 @@
 @(event: SystemEvent, subjects: utils.Page[models.base.AnyModel], params: utils.PageParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("activity"), defines.EntityType.UserProfile.toString) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("activity")) {
         }
         <div class="timeline-heading">

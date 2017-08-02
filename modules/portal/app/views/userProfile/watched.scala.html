@@ -1,7 +1,7 @@
 @(item: UserProfile, watchList: services.search.SearchResult[(models.base.AnyModel,services.search.SearchHit)], searchAction: Call, followed: Boolean, canMessage: Boolean, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @itemDetails(item, followed = followed, canMessage = canMessage) {
             @helper.form(action = searchAction) {
                 <div class="user-profile-content">

@@ -3,16 +3,16 @@
 <!DOCTYPE html>
 
 <html lang="@messages.lang.code">
-    @head(title, styles = styles)
+    @views.html.common.head(title, styles = styles)
     <body>
-        @views.html.layout.readOnly()
-        @views.html.layout.message()
-        @views.html.layout.preambleScripts()
+        @views.html.common.readOnly()
+        @views.html.common.message()
+        @views.html.common.preambleScripts()
         <div id="wrap">
             @defining(utils.SessionPrefs()) { implicit prefs =>
                 <header id="header" class="navigation">
-                    @accountHeader(showSearch = false)
-                    @primaryHeader()
+                    @views.html.common.accountHeader(showSearch = false)
+                    @views.html.common.primaryHeader()
                 </header>
             }
             @views.html.common.flash(flash)
@@ -21,7 +21,7 @@
                 <div id="push"></div>
             </div>
         </div>
-        @views.html.layout.footer()
+        @views.html.common.footer()
 
         <script>
             // Validate any forms with 'validate-form' class...

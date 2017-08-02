@@ -1,8 +1,8 @@
 @(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
 
-@views.html.layout.itemDetails {
+@views.html.common.itemDetails {
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @views.html.layout.descriptionContainer(item.model.descriptions) {
+        @views.html.common.descriptionContainer(item.model.descriptions) {
             @item.model.descriptions.map { desc =>
                 @description(item, desc, links, annotations)
             }
@@ -12,7 +12,7 @@
         } {
             @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
-            @views.html.layout.sidepanelToc {
+            @views.html.common.sidepanelToc {
                 @archivalContext(item)
                 @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                 @views.html.common.exportItem(

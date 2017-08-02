@@ -19,7 +19,7 @@
 
                 <ol class="search-result-list">
                 @for(query <- queries; oid <- query.objectId) {
-                    @views.html.layout.searchItemOutlineWithActions(oid, "cypherQuery") {
+                    @views.html.common.searchItemOutlineWithActions(oid, "cypherQuery") {
                         @query.name
                     } {
                     } {

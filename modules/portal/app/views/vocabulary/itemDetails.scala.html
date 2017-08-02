@@ -1,7 +1,7 @@
 @(item: Vocabulary, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.itemDetails {
-    @views.html.layout.rightSidebar {
+@views.html.common.itemDetails {
+    @views.html.common.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
         @item.model.description.map { desc =>

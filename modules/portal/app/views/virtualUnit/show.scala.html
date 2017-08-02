@@ -3,7 +3,7 @@
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.VirtualUnit.toString) {
     @infobar(item, path, watched.contains(item.id))
 
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @itemDetailsVc(item, annotations, links, watched, path)
 
         @childItemLinkVc(item, views.Helpers.virtualUnitSearchUrl(path, item.id))

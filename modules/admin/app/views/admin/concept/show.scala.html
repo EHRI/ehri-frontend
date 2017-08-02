@@ -2,10 +2,10 @@
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
-    @layout.mainContent {
-        @layout.itemDetails {
+    @common.mainContent {
+        @common.itemDetails {
             @defining("cvocConcept") { implicit fieldPrefix =>
-                @layout.descriptionContainer(item.model.descriptions) {
+                @common.descriptionContainer(item.model.descriptions) {
                     <div class="row">
                         <div class="col-md-8">
                             @item.model.descriptions.map { desc =>

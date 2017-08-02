@@ -1,6 +1,6 @@
 @(items: Seq[models.base.AnyModel] = Nil)(implicit messages: Messages, globalConfig: global.GlobalConfig)
 
-@layout.infobar {
+@common.infobar {
     @defining(if (items.nonEmpty) 200 / items.length else 300) { truncateLength =>
         @if(items.nonEmpty) {
             @items.init.map { i =>
