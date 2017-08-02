@@ -108,7 +108,7 @@ case class Portal @Inject()(
   }
 
   def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
-    val call = views.p.Helpers.linkTo(entityType, id)
+    val call = views.Helpers.linkTo(entityType, id)
     if (call.url.equals("#"))
       NotFound(controllers.renderError("errors.pageNotFound", pageNotFound()))
     else Redirect(call)

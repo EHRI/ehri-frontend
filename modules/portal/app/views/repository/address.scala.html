@@ -37,7 +37,7 @@
                 </a><br>
             }
             @address.url.map { t =>
-                <a class="url" target="_blank" href="@views.p.Helpers.normalizeUrl(t)" title="Website">
+                <a class="url" target="_blank" href="@views.Helpers.normalizeUrl(t)" title="Website">
                     <span class="glyphicon glyphicon-globe" title="@t"></span>
                     @views.Helpers.ellipsize(t, 30)
                 </a><br>

@@ -9,7 +9,7 @@
     }
    
     <a href="#" class="gravitar">
-        <img src="@views.p.Helpers.gravitar(user.model.imageUrl)" alt="@user.model.name"/>
+        <img src="@views.Helpers.gravitar(user.model.imageUrl)" alt="@user.model.name"/>
     </a>
     <h1><a 
         @for(us <- userOpt if user.id != us.id) { href="@controllers.portal.social.routes.Social.userProfile(user.id)" }

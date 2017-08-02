@@ -1,3 +1,3 @@
 @(item: models.base.AnyModel, fragment: String, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit globalConfig: global.GlobalConfig, req: RequestHeader, messages: Messages)
 
-<a @{if(globalConfig.isEmbedMode) "target=\"_top\""} href="@call.getOrElse(views.p.Helpers.linkTo(item))@fragment" class="@{if(globalConfig.isEmbedMode) "external "}@("type-highlight " + item.isA)" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@{if(content.body.trim.isEmpty) Html(item.toStringLang) else content}</a>
+<a @{if(globalConfig.isEmbedMode) "target=\"_top\""} href="@call.getOrElse(views.Helpers.linkTo(item))@fragment" class="@{if(globalConfig.isEmbedMode) "external "}@("type-highlight " + item.isA)" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@{if(content.body.trim.isEmpty) Html(item.toStringLang) else content}</a>

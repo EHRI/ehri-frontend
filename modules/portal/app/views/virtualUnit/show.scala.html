@@ -6,6 +6,6 @@
     @views.html.layout.mainContent {
         @itemDetailsVc(item, annotations, links, watched, path)
 
-        @childItemLinkVc(item, views.p.Helpers.virtualUnitSearchUrl(path, item.id))
+        @childItemLinkVc(item, views.Helpers.virtualUnitSearchUrl(path, item.id))
     }
 }

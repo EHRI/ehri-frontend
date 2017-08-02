@@ -12,7 +12,7 @@
         </ul>
         @views.html.common.childCount(item) { count =>
             @if(count > 0) {
-                @views.html.helpers.link(views.p.Helpers.virtualUnitSearchUrl(path, item.id)) {
+                @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, item.id)) {
                     @Messages("documentaryUnit.childCount", count)
                 }
             }

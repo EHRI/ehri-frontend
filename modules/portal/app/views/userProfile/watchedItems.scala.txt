@@ -6,5 +6,5 @@
 @watchList.map { item =>
 * @item.toStringLang
 
-  @views.p.Helpers.linkTo(item).absoluteURL(secure = globalConfig.https)
+  @views.Helpers.linkTo(item).absoluteURL(secure = globalConfig.https)
 }

@@ -4,7 +4,7 @@
     @views.html.activity.eventContainer {
         @event.actioner.collect {
             case up: UserProfile => {
-                <img src="@views.p.Helpers.gravitar(up.model.imageUrl)" alt="@up.model.name" class="timeline-event-title-image" />
+                <img src="@views.Helpers.gravitar(up.model.imageUrl)" alt="@up.model.name" class="timeline-event-title-image" />
             }
         }
 
