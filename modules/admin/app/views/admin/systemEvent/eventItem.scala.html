@@ -16,16 +16,14 @@
 </div>
 <div class="small">
     @item.firstSubject.map { s =>
-    <a href="@controllers.events.routes.SystemEvents.get(item.id)#subjects">
-    @Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))
-    </a>
+        <a href="@controllers.events.routes.SystemEvents.get(item.id)#subjects">
+            @Messages("systemEvent.subjects.list", s.toStringLang, item.childCount.map(_ - 1).getOrElse(0))
+        </a>
     }.getOrElse {
         @item.version.map { version =>
-            @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId)
+            @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId, item.childCount.map(_ - 1).getOrElse(0))
             @version.model.entity.map { entity =>
-            <p>@entity.toStringLang</p>
-            }.getOrElse {
-                @Messages("systemEvent.deletion.noInfo")
+                <p>@entity.toStringLang</p>
             }
         }.getOrElse {
             @Messages("systemEvent.deletion.noInfo")

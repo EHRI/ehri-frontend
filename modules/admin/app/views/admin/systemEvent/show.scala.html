@@ -31,11 +31,9 @@
             the last connected item version. *@
         @if(item.model.eventType.contains(defines.EventType.deletion)) {
             @item.version.map { version =>
-                @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId)
+                @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId, item.childCount.map(_ - 1).getOrElse(0))
                 @version.model.entity.map { entity =>
                     <h4>@entity.toStringLang</h4>
-                }.getOrElse {
-                    @Messages("systemEvent.deletion.noInfo")
                 }
             }.getOrElse {
                 @Messages("systemEvent.deletion.noInfo")
