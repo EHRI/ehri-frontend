@@ -4,7 +4,7 @@
     <li>@views.html.helpers.linkTo(item, call = Some(views.Helpers.virtualUnitUrl(path, item.id)), content = Html(item.toStringAbbr))</li>
 }
 
-@layout.infobar {
+@common.infobar {
     @for((prev, i) <- path.zipWithIndex) {
         @linkVc(prev, path.take(i))
     }

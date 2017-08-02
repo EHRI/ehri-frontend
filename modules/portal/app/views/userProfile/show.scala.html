@@ -2,7 +2,7 @@
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
 
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @views.html.userProfile.itemDetails(item, followed = followed, canMessage = canMessage) {
             @views.html.userProfile.userActivity(item, events, params, eventParams)
         }

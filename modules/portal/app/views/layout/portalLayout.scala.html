@@ -11,17 +11,17 @@
 
 <html lang="@messages.lang.code">
     @defining(globalConfig.isEmbedMode) { fullscreen =>
-        @views.html.layout.head(title, styles = fsstyles, meta = meta)
+        @views.html.common.head(title, styles = fsstyles, meta = meta)
         <body class="@itemClass @(if(fullscreen) "fullscreen")">
-            @views.html.layout.preambleScripts()
+            @views.html.common.preambleScripts()
             <div id="wrap">
                 @if(!fullscreen) {
-                    @views.html.layout.readOnly()
-                    @views.html.layout.message()
-                    @views.html.layout.ipFilter()
+                    @views.html.common.readOnly()
+                    @views.html.common.message()
+                    @views.html.common.ipFilter()
                     <header id="header" class="navigation">
-                        @views.html.layout.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
-                        @views.html.layout.primaryHeader()
+                        @views.html.common.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
+                        @views.html.common.primaryHeader()
                     </header>
                     @views.html.common.flash(flash)
                 }
@@ -31,14 +31,14 @@
                 </div>
             </div>
             @if(!fullscreen) {
-                @views.html.layout.footer()
+                @views.html.common.footer()
                 @views.html.dataPolicyModal()
             } else {
                 <footer id="fullscreen-footer" class="footer sticky">
                     <a id="open-in-portal" class="external" target="_blank" href="@globalConfig.absolutePath">@Messages("fullscreen.viewOnPortal")</a>
                 </footer>
             }
-            @views.html.layout.postambleScripts(extra = scripts)
+            @views.html.common.postambleScripts(extra = scripts)
         </body>
     }
 </html>

@@ -127,14 +127,19 @@ body.modal-open {
     overflow: hidden;
 }
 
-/* Prettification for unknown-data-section collapsable trigger */
+/* Prettification for unknown-data-section collapseable trigger */
 .unknown-data-toggle:after {
-    content: '\u25BC';
+    content: "\25BC";
 }
 
 .unknown-data-toggle.collapsed:after {
     font-size: 0.9em;
-    content: '\u25B6';
+    content: "\25B6";
+}
+
+.unknown-data-toggle:hover {
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /** 'Sticky' footers which pin themselves to the

@@ -27,11 +27,11 @@
         @scripts
 
         <div id="wrap">
-            @views.html.layout.readOnly()
-            @views.html.layout.message()
-            @views.html.layout.ipFilter()
+            @views.html.common.readOnly()
+            @views.html.common.message()
+            @views.html.common.ipFilter()
             <header id="header" class="navigation">
-            @views.html.admin.layout.adminNavBar()
+            @views.html.admin.common.adminNavBar()
             </header>
             @if(globalConfig.isStageMode) {
                 <div class="testing-banner alert-info">
@@ -55,7 +55,7 @@
                 <div id="push"></div>
             </div>
         </div>
-        @views.html.layout.footer()
+        @views.html.common.footer()
 
     </body>
 </html>

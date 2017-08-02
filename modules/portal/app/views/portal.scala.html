@@ -7,15 +7,15 @@
 <!DOCTYPE html>
 
 <html lang="@messages.lang.code">
-    @views.html.layout.head(Messages("welcome.title"))
+    @views.html.common.head(Messages("welcome.title"))
     <body>
-        @views.html.layout.preambleScripts()
+        @views.html.common.preambleScripts()
         <div id="wrap">
-            @views.html.layout.readOnly()
-            @views.html.layout.message()
-            @views.html.layout.ipFilter()
+            @views.html.common.readOnly()
+            @views.html.common.message()
+            @views.html.common.ipFilter()
             <header id="header" class="navigation">
-                @views.html.layout.accountHeader(showSearch = false, showAdminLink = true)
+                @views.html.common.accountHeader(showSearch = false, showAdminLink = true)
             </header>
             <div class="page-content">
                 <div class="jumbotron-container">
@@ -31,7 +31,7 @@
                 </div>
 
                 @views.html.common.flash(flash)
-                @views.html.layout.mainContent {
+                @views.html.common.mainContent {
                     <div class="row">
                         <div class="welcome-lead">
                             @Markdown(Messages("welcome.blurb"))
@@ -96,9 +96,9 @@
                 <div id="push"></div>
             }
         </div>
-        @views.html.layout.footer()
+        @views.html.common.footer()
         @views.html.dataPolicyModal()
-        @views.html.layout.postambleScripts()
+        @views.html.common.postambleScripts()
 
         <script>
             jQuery(document).ready(function ($) {

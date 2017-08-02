@@ -2,8 +2,8 @@
 
 @views.html.layout.portalLayout(title, itemClass = itemClass, scripts = scripts, styles = styles, meta = meta) {
     @breadcrumbs
-    @views.html.layout.mainContent {
-        @views.html.layout.rightSidebar {
+    @views.html.common.mainContent {
+        @views.html.common.rightSidebar {
            @content
         } {
             @sidebar

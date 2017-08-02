@@ -2,8 +2,8 @@
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
-    @layout.mainContent {
-        @layout.itemDetails {
+    @common.mainContent {
+        @common.itemDetails {
             @defining("repository") { implicit fieldPrefix =>
                 @item.model.identifier
                 @item.model.priority.map { p =>
@@ -20,7 +20,7 @@
                     }
                     </span>
                 }
-                @layout.descriptionContainer(item.model.descriptions) {
+                @common.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
                         @description(item, desc, links, annotations)
                     }

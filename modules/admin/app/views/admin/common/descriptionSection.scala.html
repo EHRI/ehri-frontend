@@ -1,4 +1,5 @@
 @(name:String)(html: Html)(implicit fieldPrefix: String, messages: Messages)
+
 <h4>@Messages(fieldPrefix + "." + name)</h4>
 <div class="description-section @{name}-section">
     @if(html.toString.trim.isEmpty) {

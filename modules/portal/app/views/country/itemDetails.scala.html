@@ -3,8 +3,8 @@
 @import CountryF._
 @import views.html.common.textField
 
-@views.html.layout.itemDetails {
-    @views.html.layout.rightSidebar {
+@views.html.common.itemDetails {
+    @views.html.common.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
         @views.html.helpers.contentOrEmpty {
@@ -23,7 +23,7 @@
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
-        @views.html.layout.sidepanelToc {
+        @views.html.common.sidepanelToc {
             <div class="child-items panel-details">
                 <div class="panel-heading">
                     <h3 class="panel-title">@Messages("country.report.toc")</h3>

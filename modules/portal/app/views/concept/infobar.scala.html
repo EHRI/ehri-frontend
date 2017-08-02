@@ -1,6 +1,6 @@
 @(item: Concept)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-@layout.infobar {
+@common.infobar {
     @item.vocabulary.map { vocab =>
         <li>@views.html.helpers.linkTo(vocab, Html(views.Helpers.ellipsize(vocab.toStringLang, 100)))</li>
     }

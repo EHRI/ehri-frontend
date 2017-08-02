@@ -1,7 +1,7 @@
 @(f: Form[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         <h1>@Messages("profile")</h1>
         <h3>@Messages("profile.image.edit")</h3>
         @imageUploadForm(f, controllers.portal.users.routes.UserProfiles.updateProfileImagePost)

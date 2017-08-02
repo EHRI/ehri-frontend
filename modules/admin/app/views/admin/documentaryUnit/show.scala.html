@@ -2,8 +2,8 @@
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
-    @layout.mainContent {
-        @layout.itemDetails {
+    @common.mainContent {
+        @common.itemDetails {
             <div class="header-actions clearfix">
                 @item.holder.map { holder =>
                 <h4>@Messages("documentaryUnit.heldBy"):
@@ -17,7 +17,7 @@
                 }
             </div>
             @defining("documentaryUnit") { implicit fieldPrefix =>
-                @layout.descriptionContainer(item.model.descriptions) {
+                @common.descriptionContainer(item.model.descriptions) {
                     @item.model.descriptions.map { desc =>
                         @description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }

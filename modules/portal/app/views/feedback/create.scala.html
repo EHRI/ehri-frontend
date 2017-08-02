@@ -2,7 +2,7 @@
 
 
 @views.html.layout.portalLayout(Messages("feedback")) {
-    @views.html.layout.mainContent {
+    @views.html.common.mainContent {
         @views.html.feedback.form(form)
     }
 }(userOpt, request, prefs, globalConfig, messages, flash)
