@@ -1,6 +1,6 @@
 @(annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@defining(views.p.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
+@defining(views.Helpers.sortAnnotations(annotations)) { case (mine, promoted, others) =>
     <ul class="annotation-list">
         @for(ann <- mine) {
             <li class="personal">@views.html.annotation.annotationBlock(ann, editable = true)</li>

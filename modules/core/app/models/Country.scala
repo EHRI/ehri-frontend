@@ -100,5 +100,5 @@ case class Country(
   with Accessible
   with Holder[Repository] {
 
-  override def toStringLang(implicit messages: Messages): String = views.Helpers.countryCodeToName(id)
+  override def toStringLang(implicit messages: Messages): String = utils.i18n.countryCodeToName(id)
 }

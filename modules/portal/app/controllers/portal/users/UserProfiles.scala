@@ -77,7 +77,7 @@ case class UserProfiles @Inject()(
   object ExportWatchItem {
     def fromItem(item: AnyModel)(implicit request: RequestHeader): ExportWatchItem = new ExportWatchItem(
       item.toStringLang,
-      views.p.Helpers.linkTo(item).absoluteURL(globalConfig.https)
+      views.Helpers.linkTo(item).absoluteURL(globalConfig.https)
     )
     implicit val writes: OWrites[ExportWatchItem] = Json.writes[ExportWatchItem]
   }
@@ -149,7 +149,7 @@ case class UserProfiles @Inject()(
       annotation.model.body,
       annotation.latestEvent.map(_.time),
       annotation.target
-        .map(t => views.p.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
+        .map(t => views.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
     )
     import play.api.libs.json._
     implicit val writes: OWrites[ExportAnnotation] = Json.writes[ExportAnnotation]

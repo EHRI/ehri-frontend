@@ -4,7 +4,7 @@
     @if(includeCountry) {
         @item.country.map { ct =>
             <li>
-                @views.html.helpers.link(views.p.Helpers.linkTo(ct), Symbol("class") -> "alt") {
+                @views.html.helpers.link(views.Helpers.linkTo(ct), Symbol("class") -> "alt") {
                     @Html(highlighter.highlight(ct.toStringLang))
                 }
             </li>

@@ -7,7 +7,7 @@
             @if(showRepository) {
                 @item.holder.map { holder =>
                   <li>
-                      @views.html.helpers.link(views.p.Helpers.linkTo(holder), Symbol("class") -> "alt") {
+                      @views.html.helpers.link(views.Helpers.linkTo(holder), Symbol("class") -> "alt") {
                           @Html(highlighter.highlight(holder.toStringLang))
                       }
                   </li>

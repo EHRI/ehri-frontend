@@ -8,5 +8,5 @@
 
   @annotation.model.body
         @for(user <- annotation.user ; event <- annotation.latestEvent ; src <- annotation.target) {
-  @{views.p.Helpers.linkTo(src).absoluteURL(globalConfig.https).trim + "#" + annotation.id}
+  @{views.Helpers.linkTo(src).absoluteURL(globalConfig.https).trim + "#" + annotation.id}
   @event.model.timestamp}}
