@@ -9,7 +9,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
-import models.admin.IngestTask
+import models.admin.IngestParams
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.HeaderNames
@@ -233,25 +233,24 @@ case class Utils @Inject()(
 
 
   def ingestPost(id: String, dataType: String): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
-    import IngestTask._
-
-    val boundForm = IngestTask.form.bindFromRequest()
-    request.body.file(IngestTask.DATA_FILE).map { data =>
+    val boundForm = IngestParams.ingestForm.bindFromRequest()
+    request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
-        errForm => immediate(BadRequest(errForm.errorsAsJson)),
+        errForm => immediate(BadRequest(Json.obj("form" -> errForm.errorsAsJson))),
         ingestTask => {
           // We only want XML types here, everything else is just binary
           val ct = data.contentType.filter(_.endsWith("xml"))
             .getOrElse(play.api.http.ContentTypes.BINARY)
+          // NB: Overcomplicated due to https://github.com/playframework/playframework/issues/6203
+          val props: Option[java.io.File] = request.body.file(IngestParams.PROPERTIES_FILE)
+            .flatMap(f => if (f.filename.nonEmpty) Some(f.ref.path.toFile) else None)
+
           ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
             .addHttpHeaders(Constants.AUTH_HEADER_NAME -> request.user.id)
             .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-            .addQueryStringParameters(
-              "scope" -> id,
-              TOLERANT -> ingestTask.tolerant.toString,
-              LOG -> ingestTask.log,
-              ALLOW_UPDATE -> ingestTask.allowUpdate.toString
-            ).post(data.ref.path.toFile).map { r =>
+            .addQueryStringParameters("scope" -> id)
+            .addQueryStringParameters(ingestTask.copy(properties = props).toParams: _*)
+            .post(data.ref.path.toFile).map { r =>
             r.status match {
               case OK => if (isAjax) Ok(r.json) else Ok(r.body)
               case BAD_REQUEST => BadRequest(r.body)
@@ -262,7 +261,7 @@ case class Utils @Inject()(
         }
       )
     }.getOrElse(immediate(BadRequest(
-      boundForm.withError(IngestTask.DATA_FILE, "required").errorsAsJson)))
+      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson))))
   }
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
