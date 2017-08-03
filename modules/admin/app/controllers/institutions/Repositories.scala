@@ -8,6 +8,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
+import models.admin.IngestParams
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -246,5 +247,10 @@ case class Repositories @Inject()(
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
       action = controllers.admin.routes.Indexing.indexer()))
+  }
+
+  def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    Ok(views.html.admin.utils.ingest(request.item, IngestParams.ingestForm,
+      controllers.admin.routes.Utils.ingestPost(id, "ead")))
   }
 }
