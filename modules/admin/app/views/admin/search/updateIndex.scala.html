@@ -3,19 +3,6 @@
 @import controllers.admin.IndexTypes._
 
 
-@extraStyle = {
-    <style>
-    #update-progress {
-        max-height: 200px;
-        overflow: auto;
-    }
-    #update-progress pre {
-        background-color: #fff;
-        font-size: 0.7em;
-    }
-    </style>
-}
-
 @extraScripts = {
     <script>
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
@@ -34,7 +21,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts, styles = extraStyle) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @helper.checkbox(form(CLEAR_ALL), '_label -> Messages("search.index.clear.all"))
         @helper.checkbox(form(CLEAR_TYPES), '_label -> Messages("search.index.clear.types"))

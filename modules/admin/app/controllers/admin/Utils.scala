@@ -4,20 +4,22 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import services.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
+import models.admin.IngestTask
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
-import services.data.AuthenticatedUser
+import services.cypher.Cypher
+import services.data.{AuthenticatedUser, Constants}
 import services.search.SearchIndexMediator
 import utils.{CsvHelpers, EnumUtils, PageParams}
 
@@ -205,7 +207,7 @@ case class Utils @Inject()(
       controllers.admin.routes.Utils.findReplacePost(commit = true)))
   }
 
-  def findReplacePost(commit: Boolean = false): Action[AnyContent] = AdminAction.async { implicit request =>
+  def findReplacePost(commit: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     val boundForm = FindReplaceTask.form.bindFromRequest()
     boundForm.fold(
       errForm => immediate(
@@ -227,6 +229,40 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.findReplacePost(commit = true))))
       }
     )
+  }
+
+
+  def ingestPost(id: String, dataType: String): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
+    import IngestTask._
+
+    val boundForm = IngestTask.form.bindFromRequest()
+    request.body.file(IngestTask.DATA_FILE).map { data =>
+      boundForm.fold(
+        errForm => immediate(BadRequest(errForm.errorsAsJson)),
+        ingestTask => {
+          // We only want XML types here, everything else is just binary
+          val ct = data.contentType.filter(_.endsWith("xml"))
+            .getOrElse(play.api.http.ContentTypes.BINARY)
+          ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
+            .addHttpHeaders(Constants.AUTH_HEADER_NAME -> request.user.id)
+            .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
+            .addQueryStringParameters(
+              "scope" -> id,
+              TOLERANT -> ingestTask.tolerant.toString,
+              LOG -> ingestTask.log,
+              ALLOW_UPDATE -> ingestTask.allowUpdate.toString
+            ).post(data.ref.path.toFile).map { r =>
+            r.status match {
+              case OK => if (isAjax) Ok(r.json) else Ok(r.body)
+              case BAD_REQUEST => BadRequest(r.body)
+              case _ => InternalServerError(r.body)
+            }
+
+          }
+        }
+      )
+    }.getOrElse(immediate(BadRequest(
+      boundForm.withError(IngestTask.DATA_FILE, "required").errorsAsJson)))
   }
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {

@@ -2,19 +2,6 @@
 
 @import controllers.admin.IndexChildren._
 
-@extraStyle = {
-    <style>
-    #update-progress {
-        max-height: 200px;
-        overflow: auto;
-    }
-    #update-progress pre {
-        background-color: #fff;
-        font-size: 0.7em;
-    }
-    </style>
-}
-
 @extraScript = {
     <script type="application/javascript">
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
@@ -33,7 +20,8 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript, styles = extraStyle, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript,
+        breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 

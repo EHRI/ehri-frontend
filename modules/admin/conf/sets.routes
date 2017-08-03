@@ -21,4 +21,3 @@ POST        /:id/scope/:userType/:userId              @controllers.sets.Authorit
 GET         /:id/reindex                              @controllers.sets.AuthoritativeSets.updateIndex(id: String)
 GET         /:id/export                               @controllers.sets.AuthoritativeSets.export(id: String)
 GET         /:id/ingest                               @controllers.sets.AuthoritativeSets.ingest(id: String)
-POST        /:id/ingest                               @controllers.sets.AuthoritativeSets.ingestPost(id: String)
