@@ -8,7 +8,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import models.{Entity, _}
-import models.admin.IngestTask
+import models.admin.IngestParams
 import play.api.Configuration
 import play.api.http.HeaderNames
 import play.api.libs.Files.TemporaryFile
@@ -190,7 +190,7 @@ AuthoritativeSets @Inject()(
   }
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    Ok(views.html.admin.authoritativeSet.ingest(request.item, IngestTask.form,
+    Ok(views.html.admin.authoritativeSet.ingest(request.item, IngestParams.ingestForm,
       controllers.admin.routes.Utils.ingestPost(id, "eac")))
   }
 }
