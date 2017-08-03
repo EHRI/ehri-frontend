@@ -1301,6 +1301,8 @@ systemEvent.filter=Filter Events
 systemEvent.user=Users
 systemEvent.list=System Events
 
-
-
-
+#
+# Common ingest messages
+#
+ingest.header=Ingest Data
+ingest.submit=Submit

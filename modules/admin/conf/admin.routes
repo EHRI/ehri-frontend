@@ -41,6 +41,9 @@ GET         /regenerateScope/:id                @controllers.admin.Utils.regener
 GET         /findReplace                        @controllers.admin.Utils.findReplace
 POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
 
+# Ingest
+POST        /ingest/:id/:dataType               @controllers.admin.Utils.ingestPost(id: String, dataType: String)
+
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync

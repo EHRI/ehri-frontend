@@ -189,47 +189,9 @@ AuthoritativeSets @Inject()(
     exportXml(EntityType.AuthoritativeSet, id, Seq("eac"))
   }
 
-
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.ingest(request.item, IngestTask.form,
-      controllers.sets.routes.AuthoritativeSets.ingestPost(id)))
-  }
-
-  def ingestPost(id: String): Action[MultipartFormData[TemporaryFile]] = (AdminAction andThen ItemPermissionAction(id)).async(parse.multipartFormData) { implicit request =>
-
-    import IngestTask._
-
-    val boundForm = IngestTask.form.bindFromRequest()
-    request.body.file(IngestTask.DATA_FILE).map { data =>
-
-      boundForm.fold(
-        errForm => {
-          println("FORM error " + errForm.errorsAsJson)
-          immediate(BadRequest(views.html.admin.authoritativeSet.ingest(request.item, errForm,
-            controllers.sets.routes.AuthoritativeSets.ingestPost(id))))
-        },
-        ingestTask => {
-          // We only want XML types here, everything else is just binary
-          val ct = data.contentType.filter(_.endsWith("xml")).getOrElse(play.api.http.ContentTypes.BINARY)
-          println(s"Ingest of type: $ct")
-          ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/eac")
-            .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
-            .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-            .addQueryStringParameters(
-              "scope" -> id,
-              TOLERANT -> ingestTask.tolerant.toString,
-              LOG -> ingestTask.log,
-              ALLOW_UPDATE -> ingestTask.allowUpdate.toString
-            ).post(data.ref.path.toFile).map { r =>
-            println(r.status + ": " + r.body)
-            Ok(r.body)
-          }
-        }
-      )
-    }.getOrElse(
-      immediate(BadRequest(views.html.admin.authoritativeSet.ingest(request.item,
-        boundForm.withError(IngestTask.DATA_FILE, "required"),
-        controllers.sets.routes.AuthoritativeSets.ingestPost(id)))))
+      controllers.admin.routes.Utils.ingestPost(id, "eac")))
   }
 }
 
