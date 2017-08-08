@@ -11,6 +11,7 @@ case class IngestParams(
   tolerant: Boolean = false,
   handler: Option[String] = None,
   importer: Option[String] = None,
+  excludes: Seq[String] = Nil,
   file: Option[File] = None,
   properties: Option[File] = None
 ) {
@@ -22,6 +23,7 @@ case class IngestParams(
       LOG -> log) ++
     handler.map(HANDLER -> _).toSeq ++
     importer.map(IMPORTER -> _).toSeq ++
+    excludes.map(EXCLUDES -> _) ++
     // NB: Hack that assumes the server is on the same
     // host and we really shouldn't do this!
     properties.map(PROPERTIES_FILE -> _.getAbsolutePath)
@@ -34,6 +36,7 @@ object IngestParams {
   val LOG = "log"
   val HANDLER = "handler"
   val IMPORTER = "importer"
+  val EXCLUDES = "ex"
   val DATA_FILE = "data"
   val PROPERTIES_FILE = "properties"
 
@@ -44,6 +47,9 @@ object IngestParams {
       TOLERANT -> boolean,
       HANDLER -> optional(text),
       IMPORTER -> optional(text),
+      EXCLUDES -> optional(text).transform[Seq[String]](
+        _.map(_.split("\n").toSeq).toSeq.flatten,
+        s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       DATA_FILE -> ignored(Option.empty[File]),
       PROPERTIES_FILE -> ignored(Option.empty[File])
     )(IngestParams.apply)(IngestParams.unapply)
