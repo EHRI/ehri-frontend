@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, form: Form[models.admin.IngestParams], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: models.base.AnyModel, form: Form[models.admin.IngestParams], action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import models.admin.IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
@@ -9,19 +9,32 @@
         <script>
             $(function() {
 
-                function appendProgressMessage(msg) {
+                var stop = -1;
+
+                function appendProgressMessage(msg, newline) {
+                    newline =  typeof newline !== "undefined" ? newline : true;
                     var $elem = $("#update-progress");
                     var $inner = $elem.find("> pre");
                     if ($inner.length === 0) {
                         $inner = $("<pre></pre>");
                         $elem.append($inner);
                     }
-                    $inner.append(msg + "<br/>");
+                    $inner.append(msg + (newline ? "<br/>" : ""));
                     $elem.show().scrollTop($inner.height());
+                }
+
+                function tick() {
+                  appendProgressMessage(".", false);
+                  stop = setTimeout(tick, 1000);
                 }
 
                 function setRunning($elem, run) {
                     $elem.attr("disabled", run).toggleClass("running", run);
+                    if (run) {
+                      tick();
+                    } else {
+                      clearInterval(stop);
+                    }
                 }
 
                 console.log("running...");
@@ -88,6 +101,12 @@
                             @formHelpers.lineInput(f, IMPORTER)
                             @formHelpers.fileInput(f, PROPERTIES_FILE)
                         </fieldset>
+
+                        @if(sync) {
+                            <fieldset>
+                                @formHelpers.textInput(f, EXCLUDES)
+                            </fieldset>
+                        }
 
                         <fieldset>
                             @formHelpers.textInput(f, LOG, 'required -> true)

@@ -39,7 +39,7 @@ case class Utils @Inject()(
 ) extends AdminController {
 
   override val staffOnly = false
-  private val logger = play.api.Logger(getClass)
+  private def logger = play.api.Logger(classOf[Utils])
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -231,8 +231,10 @@ case class Utils @Inject()(
     )
   }
 
+  def ingestPost(id: String, dataType: String, fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData(Int.MaxValue)) { implicit request =>
 
-  def ingestPost(id: String, dataType: String): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData) { implicit request =>
+    import scala.concurrent.duration._
+
     val boundForm = IngestParams.ingestForm.bindFromRequest()
     request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
@@ -245,12 +247,18 @@ case class Utils @Inject()(
           val props: Option[java.io.File] = request.body.file(IngestParams.PROPERTIES_FILE)
             .flatMap(f => if (f.filename.nonEmpty) Some(f.ref.path.toFile) else None)
 
+          val task = ingestTask.copy(properties = props)
+          logger.info(s"Dispatching ingest: $task")
+
           ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
+            .withRequestTimeout(20.minutes)
             .addHttpHeaders(Constants.AUTH_HEADER_NAME -> request.user.id)
             .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
             .addQueryStringParameters("scope" -> id)
-            .addQueryStringParameters(ingestTask.copy(properties = props).toParams: _*)
+            .addQueryStringParameters(fonds.map("fonds" -> _).toSeq: _*)
+            .addQueryStringParameters(task.toParams: _*)
             .post(data.ref.path.toFile).map { r =>
+            logger.info(s"Ingest response: ${r.body}")
             r.status match {
               case OK => if (isAjax) Ok(r.json) else Ok(r.body)
               case BAD_REQUEST => BadRequest(r.body)

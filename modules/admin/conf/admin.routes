@@ -42,7 +42,7 @@ GET         /findReplace                        @controllers.admin.Utils.findRep
 POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
 
 # Ingest
-POST        /ingest/:id/:dataType               @controllers.admin.Utils.ingestPost(id: String, dataType: String)
+POST        /ingest/:id/:dataType               @controllers.admin.Utils.ingestPost(id: String, dataType: String, fonds: Option[String] ?= None)
 
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices

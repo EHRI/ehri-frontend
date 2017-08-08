@@ -340,6 +340,14 @@ case class DocumentaryUnits @Inject()(
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }
+
+
+  def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    request.item.holder.map(_.id).map { scope =>
+      Ok(views.html.admin.utils.ingest(request.item, IngestParams.ingestForm,
+        controllers.admin.routes.Utils.ingestPost(scope, "ead-sync", Some(id)), sync = true))
+    }.getOrElse(InternalServerError(views.html.errors.fatalError()))
+  }
 }
 
 
