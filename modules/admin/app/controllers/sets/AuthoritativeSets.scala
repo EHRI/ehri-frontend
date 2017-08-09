@@ -190,8 +190,8 @@ AuthoritativeSets @Inject()(
   }
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    Ok(views.html.admin.utils.ingest(request.item, IngestParams.ingestForm,
-      controllers.admin.routes.Utils.ingestPost(id, "eac")))
+    Ok(views.html.admin.utils.ingest(request.item, None, IngestParams.ingestForm,
+      controllers.admin.routes.Utils.ingestPost(request.item.isA, id, "eac")))
   }
 }
 

@@ -1,10 +1,10 @@
-@(item: models.base.AnyModel, form: Form[models.admin.IngestParams], action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(scope: models.base.Holder[models.base.AnyModel], fonds: Option[models.base.AnyModel], form: Form[models.admin.IngestParams], action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @import models.admin.IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.adminLayout(item.toStringLang) {
-    @views.html.admin.common.breadcrumbs(Seq(item))
+@views.html.admin.layout.adminLayout(Messages("ingest.header")) {
+    @views.html.admin.common.breadcrumbs(scope +: fonds.toSeq)
     @common.mainContent {
         <script>
             $(function() {
@@ -19,7 +19,7 @@
                         $inner = $("<pre></pre>");
                         $elem.append($inner);
                     }
-                    $inner.append(msg + (newline ? "<br/>" : ""));
+                    $inner.append(msg.replace("\n", "<br/>") + (newline ? "<br/>" : ""));
                     $elem.show().scrollTop($inner.height());
                 }
 
@@ -43,6 +43,9 @@
                           $submit = $(this).find("[type='submit']"),
                           $progress = $(this).find("#upload-progress");
 
+                  // chunked response position...
+                  var pos = -1;
+
                   $.ajax({
                       url: $(this).attr("action"),
                       type: 'POST',
@@ -53,6 +56,12 @@
                       processData: false,
                       xhr: function() {
                         var xhr = $.ajaxSettings.xhr();
+                        xhr.onprogress = function() {
+                            var text = xhr.responseText;
+                            console.log(text);
+                            appendProgressMessage(text.slice(pos + 1));
+                            pos += text.length;
+                        }
                         if (xhr.upload) {
                           xhr.upload.addEventListener("progress", function (e) {
                               var percent = (e.loaded / e.total) * 100;
@@ -68,7 +77,7 @@
                           setRunning($submit, true);
                       },
                       success: function (data) {
-                          appendProgressMessage(JSON.stringify(data));
+                          appendProgressMessage(JSON.stringify(data), true);
                       },
                       error: function (xhr, text) {
                         console.log(xhr, text)
@@ -88,9 +97,17 @@
             @defining("ingest") { implicit prefix =>
                 @helper.form(action = action, 'enctype -> "multipart/form-data", 'class -> "validate-form form-horizontal", 'id -> "ingest-form") {
                     @formHelpers.csrfToken()
+                    @formHelpers.hiddenInput(form(SCOPE).copy(value = Some(scope.id)))
+                    @formHelpers.hiddenInput(form(FONDS).copy(value = fonds.map(_.id)))
 
                     <h2>@Messages("ingest.header")</h2>
-                    @defining(ingestForm("")) { f =>
+                    @if(sync) {
+                        <p class="alert alert-warning">
+                            <strong>@Messages("ingest.sync.warning.note")</strong>: @Messages("ingest.sync.warning")
+                        </p>
+                    }
+
+                    @defining(form("")) { f =>
                         <fieldset>
                             @formHelpers.checkbox(f, ALLOW_UPDATE)
                             @formHelpers.checkbox(f, TOLERANT)
@@ -112,6 +129,15 @@
                             @formHelpers.textInput(f, LOG, 'required -> true)
                             @formHelpers.fileInput(f, DATA_FILE, 'required -> true)
                         </fieldset>
+                    }
+
+                    @if(sync) {
+                        <div class="form-group">
+                            <label class="control-label text-danger" for="confirm">@Messages("ingest.sync.confirm")</label>
+                            <div class="control-elements">
+                                <input id="confirm" type="checkbox" required/>
+                            </div>
+                        </div>
                     }
 
                     <div class="form-actions">

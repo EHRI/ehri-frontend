@@ -65,11 +65,10 @@
   <!-- <logger name="eu.ehri.project.core.impl" level="TRACE" /> -->
 
   <!-- Uncomment to see misc controller logging -->
-  <!-- <logger name="controllers" level="DEBUG" /> -->
+  <logger name="controllers" level="INFO" />
 
   <!-- Uncomment to show LOTS of debug info about HTTP calls -->
-  <!-- <logger name="com.ning.http.client" level="DEBUG" /> -->
-  <!-- <logger name="play.api.libs.ws" level="DEBUG" /> -->
+  <!-- <logger name="play.shaded.ahc.org.asynchttpclient" level="DEBUG" />-->
 
   <!-- Configure SQL statement logging (depends on configuration value of
        db.default.logSql being set to true -->
@@ -77,7 +76,7 @@
   <logger name="org.jdbcdslog.StatementLogger"  level="OFF" />
   <logger name="org.jdbcdslog.ResultSetLogger"  level="OFF"  />
 
-  <logger name="application" level="WARN" />
+  <logger name="application" level="INFO" />
 
   <root level="ERROR">
     <appender-ref ref="ASYNCSTDOUT" />

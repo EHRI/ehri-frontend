@@ -6,6 +6,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 case class IngestParams(
+  scope: String,
+  fonds: Option[String] = None,
   log: String,
   allowUpdate: Boolean = false,
   tolerant: Boolean = false,
@@ -18,9 +20,11 @@ case class IngestParams(
   def toParams: Seq[(String, String)] = {
     import IngestParams._
     Seq(
+      SCOPE -> scope,
       TOLERANT -> tolerant.toString,
       ALLOW_UPDATE -> allowUpdate.toString,
       LOG -> log) ++
+    fonds.map(FONDS -> _).toSeq ++
     handler.map(HANDLER -> _).toSeq ++
     importer.map(IMPORTER -> _).toSeq ++
     excludes.map(EXCLUDES -> _) ++
@@ -31,6 +35,8 @@ case class IngestParams(
 }
 
 object IngestParams {
+  val SCOPE = "scope"
+  val FONDS = "fonds"
   val TOLERANT = "tolerant"
   val ALLOW_UPDATE = "allow-update"
   val LOG = "log"
@@ -42,13 +48,15 @@ object IngestParams {
 
   val ingestForm = Form(
     mapping(
+      SCOPE -> nonEmptyText,
+      FONDS -> optional(nonEmptyText),
       LOG -> nonEmptyText,
       ALLOW_UPDATE -> boolean,
       TOLERANT -> boolean,
       HANDLER -> optional(text),
       IMPORTER -> optional(text),
       EXCLUDES -> optional(text).transform[Seq[String]](
-        _.map(_.split("\n").toSeq).toSeq.flatten,
+        _.map(_.split("\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       DATA_FILE -> ignored(Option.empty[File]),
       PROPERTIES_FILE -> ignored(Option.empty[File])

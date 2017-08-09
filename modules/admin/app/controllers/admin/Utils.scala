@@ -4,15 +4,18 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
+import akka.stream.scaladsl.{Sink, Source}
+import akka.util.ByteString
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
 import controllers.base.AdminController
-import defines.ContentTypes
+import defines.{ContentTypes, EntityType}
+import models.UserProfile
 import models.admin.IngestParams
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.http.HeaderNames
+import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
@@ -207,6 +210,8 @@ case class Utils @Inject()(
       controllers.admin.routes.Utils.findReplacePost(commit = true)))
   }
 
+  private val indexer = searchIndexer.handle
+
   def findReplacePost(commit: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     val boundForm = FindReplaceTask.form.bindFromRequest()
     boundForm.fold(
@@ -219,7 +224,7 @@ case class Utils @Inject()(
           task.parentType, task.subType, task.property, task.find,
           task.replace, commit, task.log).flatMap { found =>
         if (commit) {
-          searchIndexer.handle.indexIds(found.map(_._1): _*).map { _ =>
+          indexer.indexIds(found.map(_._1): _*).map { _ =>
             Redirect(controllers.admin.routes.Utils.findReplace())
               .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
           }
@@ -231,14 +236,90 @@ case class Utils @Inject()(
     )
   }
 
-  def ingestPost(id: String, dataType: String, fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData(Int.MaxValue)) { implicit request =>
-
+  private def doIngest(dataType: String, params: IngestParams, ct: String, data: java.io.File, user: UserProfile): Future[JsValue] = {
     import scala.concurrent.duration._
+    implicit val mat = appComponents.materializer
+
+    logger.info(s"Dispatching ingest: $params")
+    ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
+      .withRequestTimeout(20.minutes)
+      .addHttpHeaders(Constants.AUTH_HEADER_NAME -> user.id)
+      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
+      .addQueryStringParameters(params.toParams: _*)
+      .withMethod(HttpVerbs.POST)
+      .withBody(data)
+      .stream().flatMap { r =>
+      //logger.debug(s"Ingest response: ${r.body}")
+      logger.info(s"Got status from ingest of: ${r.status}")
+      r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
+        logger.info("Parsing data...")
+        Json.parse(s.toArray)
+      }
+    } recoverWith {
+      case e: Throwable =>
+        e.printStackTrace()
+        Future.failed(e)
+    }
+  }
+
+  case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String])
+  object SyncLog {
+    implicit val reads: Reads[SyncLog] = Json.reads[SyncLog]
+  }
+
+  sealed trait IngestOp
+  case class Ingest(scopeType: EntityType.Value, dataType: String, params: IngestParams, ct: String, data: java.io.File, user: UserProfile) extends IngestOp
+  case class Relocate(ids: Seq[(String, String)]) extends IngestOp
+  case class Index(scopeType: EntityType.Value, id: String) extends IngestOp
+
+  private def doSync(ingest: Ingest): Source[String, akka.NotUsed] = {
+
+    Source.unfoldAsync[Option[(IngestOp, Option[SyncLog])], String](Some(ingest -> None)) {
+      case Some((Ingest(scopeType, dataType, params, ct, data, user), _)) =>
+        doIngest(dataType, params, ct, data, user).map { json =>
+          logger.info("Got JSON...")
+          val logOpt = json.asOpt[SyncLog]
+          if (logOpt.isEmpty) {
+            logger.info("Unable to parse sync log")
+          } else {
+            logger.info("JSON is valid!")
+          }
+          logOpt.map(log => Some(Relocate(log.moved.toSeq) -> Some(log)) ->
+            "Ingest complete, handling sync...\n")
+        }
+      case Some((Relocate(ids), Some(log))) =>
+        logger.info(s"Relocating ${ids.size} items...")
+        remapMovedUnits(ids).map(r => Some(Some(Index(ingest.scopeType, ingest.params.scope) -> Some(log)) ->
+          s"Relocated $r item(s)\n"))
+
+      case Some((Index(ct, id), Some(log))) => indexer.indexChildren(ct, id)
+        .map(r => Some(None -> s"Added ${log.moved.size} items to the index...\n"))
+
+      case e =>
+        logger.info(s"Ending chain: $e")
+        Future.successful(None)
+    }
+  }
+
+  private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
+    val prefixes = Seq(
+      controllers.portal.routes.DocumentaryUnits.browse("TEST").url,
+      controllers.units.routes.DocumentaryUnits.get("TEST").url
+    ).mkString(",").replaceAll("TEST", "")
+
+    val newURLS = remapUrlsFromPrefixes(movedIds, prefixes)
+    appComponents.pageRelocator.addMoved(newURLS)
+  }
+
+  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String,
+        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)) { implicit request =>
+
+    implicit val mat = appComponents.materializer
 
     val boundForm = IngestParams.ingestForm.bindFromRequest()
     request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
-        errForm => immediate(BadRequest(Json.obj("form" -> errForm.errorsAsJson))),
+        errForm => BadRequest(Json.obj("form" -> errForm.errorsAsJson)),
         ingestTask => {
           // We only want XML types here, everything else is just binary
           val ct = data.contentType.filter(_.endsWith("xml"))
@@ -248,28 +329,20 @@ case class Utils @Inject()(
             .flatMap(f => if (f.filename.nonEmpty) Some(f.ref.path.toFile) else None)
 
           val task = ingestTask.copy(properties = props)
-          logger.info(s"Dispatching ingest: $task")
 
-          ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
-            .withRequestTimeout(20.minutes)
-            .addHttpHeaders(Constants.AUTH_HEADER_NAME -> request.user.id)
-            .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-            .addQueryStringParameters("scope" -> id)
-            .addQueryStringParameters(fonds.map("fonds" -> _).toSeq: _*)
-            .addQueryStringParameters(task.toParams: _*)
-            .post(data.ref.path.toFile).map { r =>
-            logger.info(s"Ingest response: ${r.body}")
-            r.status match {
-              case OK => if (isAjax) Ok(r.json) else Ok(r.body)
-              case BAD_REQUEST => BadRequest(r.body)
-              case _ => InternalServerError(r.body)
+          val src: Source[String, akka.NotUsed] = doSync(Ingest(scopeType, dataType, task, ct, data.ref.path.toFile, request.user))
+            .map {s =>
+              logger.info(s)
+              s
             }
 
-          }
+
+
+          Ok.chunked(src.log("ingest"))
         }
       )
-    }.getOrElse(immediate(BadRequest(
-      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson))))
+    }.getOrElse(BadRequest(
+      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson)))
   }
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
@@ -283,9 +356,9 @@ case class Utils @Inject()(
   private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
     for {
     // Delete the old IDs from the search engine...
-      _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
+      _ <- indexer.clearIds(items.map(_._1): _*)
       // Index the new ones....
-      _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
+      _ <- indexer.indexIds(items.map(_._2): _*)
       // Add the 301s to the DB...
       redirectCount <- appComponents.pageRelocator.addMoved(newUrls)
     } yield redirectCount
