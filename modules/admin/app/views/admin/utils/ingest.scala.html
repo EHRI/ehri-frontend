@@ -54,6 +54,7 @@
                       cache: false,
                       contentType: false,
                       processData: false,
+                      timeout: 20 * 60 * 60 * 1000,
                       xhr: function() {
                         var xhr = $.ajaxSettings.xhr();
                         xhr.onprogress = function() {
