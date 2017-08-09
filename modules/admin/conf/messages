@@ -1304,8 +1304,13 @@ systemEvent.list=System Events
 #
 # Common ingest messages
 #
+ingest=Ingest
 ingest.header=Ingest Data
 ingest.submit=Submit
+ingest.sync.warning.note=Warning
+ingest.sync.warning=Sync ingest will delete items not present in the incoming data unless their IDs are explicitly excluded \
+  in the excluded IDs section.
+ingest.sync.confirm=Confirm synchronisation
 ingest.parameters=Parameters
 ingest.parameters.advanced=Advanced
 ingest.allow-update=Allow item updates
@@ -1324,3 +1329,6 @@ ingest.importer=Importer class (Optional)
 ingest.importer.description=The fully-qualified class name of the XML importer class
 ingest.properties=Import properties (Optional)
 ingest.properties.description=A properties file
+ingest.format.ead=EAD
+ingest.format.ead-sync=EAD (Synchronisation)
+ingest.format.eac=EAC
