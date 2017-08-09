@@ -312,14 +312,14 @@ case class Utils @Inject()(
   }
 
   def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String,
-        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)) { implicit request =>
+        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData(Int.MaxValue)) { implicit request =>
 
     implicit val mat = appComponents.materializer
 
     val boundForm = IngestParams.ingestForm.bindFromRequest()
     request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
-        errForm => BadRequest(Json.obj("form" -> errForm.errorsAsJson)),
+        errForm => immediate(BadRequest(Json.obj("form" -> errForm.errorsAsJson))),
         ingestTask => {
           // We only want XML types here, everything else is just binary
           val ct = data.contentType.filter(_.endsWith("xml"))
@@ -336,13 +336,11 @@ case class Utils @Inject()(
               s
             }
 
-
-
-          Ok.chunked(src.log("ingest"))
+          src.runWith(Sink.seq).map(s => Ok(s.mkString("\n")))
         }
       )
-    }.getOrElse(BadRequest(
-      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson)))
+    }.getOrElse(immediate(BadRequest(
+      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson))))
   }
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
