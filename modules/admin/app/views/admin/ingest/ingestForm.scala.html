@@ -1,0 +1,14 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.adminLayout(Messages("ingest.header")) {
+    @common.mainContent {
+        <h1>@Messages("ingest.header")</h1>
+
+        @helper.form(controllers.admin.routes.IngestUtils.ingestPost()) {
+            @formHelpers.csrfToken()
+            <button>Submit!</button>
+        }
+    }
+}

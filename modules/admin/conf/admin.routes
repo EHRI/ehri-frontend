@@ -14,6 +14,12 @@ GET         /metricRoutes                       @controllers.admin.Home.metricsJ
 GET         /updateIndex                        @controllers.admin.Indexing.updateIndex
 GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
+# Ingest TESTING
+GET         /ingest                             @controllers.admin.IngestUtils.ingest
+POST        /ingest                             @controllers.admin.IngestUtils.ingestPost
+GET         /ingest/:job                        @controllers.admin.IngestUtils.ingestMonitor(job: String)
+GET         /ingest/:job/monitor                @controllers.admin.IngestUtils.ingestMonitorWS(job: String)
+
 # Search testing
 GET         /search                             @controllers.admin.AdminSearch.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 

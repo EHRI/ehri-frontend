@@ -1,0 +1,58 @@
+@(action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@extraScripts = {
+    <script>
+            var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
+            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
+            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+
+            jQuery(function($) {
+                $("#update-progress").show();
+
+                function appendProgressMessage(msg) {
+                    var $elem = $("#update-progress");
+                    var $inner = $elem.find("> pre");
+                    if ($inner.length === 0) {
+                        $inner = $("<pre></pre>");
+                        $elem.append($inner);
+                    }
+                    $inner.append(msg + "<br/>");
+                    $elem.show().scrollTop($inner.height());
+                }
+
+
+                var websocket = new WebSocket(SOCKET_URI);
+                websocket.onopen = function() {
+                    //websocket.send();
+                    console.log("Opened connection!")
+                };
+                websocket.onerror = function(e) {
+                    appendProgressMessage("ERROR. Try refreshing the page.");
+                    $submit.attr("disabled", false);
+                    console.log("Socket error!");
+                }
+                websocket.onclose = function() {
+                  console.log("Closed!")
+                }
+                websocket.onmessage = function(e) {
+                    var msg = JSON.parse(e.data);
+                    appendProgressMessage(msg);
+                    if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+                        websocket.close();
+                        console.log("Closed socket")
+                    }
+                };
+            });
+    </script>
+}
+
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.adminLayout(Messages("ingest.header"), extraScripts) {
+    @common.mainContent {
+        <h1>@Messages("ingest.header")</h1>
+
+        <div id="update-progress"></div>
+    }
+}
