@@ -196,7 +196,6 @@ val webAppSettings = Seq(
   // Classes to auto-import into templates
   templateImports in Compile ++= Seq(
     "models.base._",
-    "utils.forms._",
     "acl._",
     "defines._"
   ),
