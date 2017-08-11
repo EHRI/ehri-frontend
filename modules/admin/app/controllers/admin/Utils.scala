@@ -4,7 +4,9 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import akka.stream.scaladsl.{Sink, Source}
+import akka.actor.ActorRef
+import akka.stream.{KillSwitches, OverflowStrategy}
+import akka.stream.scaladsl.{Keep, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
@@ -23,7 +25,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import services.cypher.Cypher
 import services.data.{AuthenticatedUser, Constants}
-import services.search.SearchIndexMediator
+import services.search.{SearchConstants, SearchIndexMediator}
 import utils.{CsvHelpers, EnumUtils, PageParams}
 
 import scala.concurrent.Future
@@ -292,12 +294,41 @@ case class Utils @Inject()(
         remapMovedUnits(ids).map(r => Some(Some(Index(ingest.scopeType, ingest.params.scope) -> Some(log)) ->
           s"Relocated $r item(s)\n"))
 
-      case Some((Index(ct, id), Some(log))) => indexer.indexChildren(ct, id)
-        .map(r => Some(None -> s"Added ${log.moved.size} items to the index...\n"))
+      case Some((Index(ct, id), Some(log))) =>
+        logger.info(s"Indexing $ct:$id...")
+        indexer.indexChildren(ct, id)
+          .map(r => Some(None -> s"Added ${log.moved.size} items to the index...\n"))
 
       case e =>
         logger.info(s"Ending chain: $e")
         Future.successful(None)
+    }
+  }
+
+  def msg(s: String)(implicit actorRef: ActorRef): Unit = {
+    logger.info(s)
+    actorRef ! s"$s\n"
+  }
+
+  def doSync2(ingest: Ingest)(implicit chan: ActorRef): Future[Unit] = {
+    doIngest(ingest.dataType, ingest.params, ingest.ct, ingest.data, ingest.user).flatMap { json =>
+      val logOpt = json.asOpt[SyncLog]
+      logOpt.map { log =>
+        msg("JSON is valid!")
+        remapMovedUnits(logOpt.get.moved.toSeq).flatMap { num =>
+          msg(s"Relocated $num item(s)")
+          msg("Reindexing...")
+          val indexer = searchIndexer.handle.withChannel(chan, s => s"$s\n")
+          indexer.clearKeyValue(SearchConstants.HOLDER_ID, ingest.params.scope).flatMap { _ =>
+            indexer.indexChildren(ingest.scopeType, ingest.params.scope).map { _ =>
+              msg("Done!")
+            }
+          }
+        }
+      }.getOrElse {
+        msg("Unable to parse sync log")
+        Future.successful(())
+      }
     }
   }
 
@@ -312,14 +343,15 @@ case class Utils @Inject()(
   }
 
   def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String,
-        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction.async(parse.multipartFormData(Int.MaxValue)) { implicit request =>
+        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)) { implicit request =>
 
     implicit val mat = appComponents.materializer
+    import scala.concurrent.duration._
 
     val boundForm = IngestParams.ingestForm.bindFromRequest()
     request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
-        errForm => immediate(BadRequest(Json.obj("form" -> errForm.errorsAsJson))),
+        errForm => BadRequest(Json.obj("form" -> errForm.errorsAsJson)),
         ingestTask => {
           // We only want XML types here, everything else is just binary
           val ct = data.contentType.filter(_.endsWith("xml"))
@@ -336,11 +368,18 @@ case class Utils @Inject()(
               s
             }
 
-          src.runWith(Sink.seq).map(s => Ok(s.mkString("\n")))
+          //src.runWith(Sink.seq).map(s => Ok(s.mkString("\n")))
+          val s = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { actor =>
+            doSync2(Ingest(scopeType, dataType, task, ct, data.ref.path.toFile, request.user))(actor).map { _ =>
+              actor ! akka.actor.Status.Success
+              "done"
+            }
+          }
+          Ok.chunked(s)
         }
       )
-    }.getOrElse(immediate(BadRequest(
-      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson))))
+    }.getOrElse(BadRequest(
+      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson)))
   }
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
