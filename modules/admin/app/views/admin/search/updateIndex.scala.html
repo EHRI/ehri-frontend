@@ -6,8 +6,8 @@
 @extraScripts = {
     <script>
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
-            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
-            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+            var DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+            var ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
             function getData() {
                 return JSON.stringify({
                     @CLEAR_ALL: $("[name=@(CLEAR_ALL)]").prop("checked"),

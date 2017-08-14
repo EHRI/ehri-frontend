@@ -2,10 +2,12 @@ package models.admin
 
 import java.io.File
 
+import defines.EntityType
 import play.api.data.Form
 import play.api.data.Forms._
 
 case class IngestParams(
+  scopeType: EntityType.Value,
   scope: String,
   fonds: Option[String] = None,
   log: String,
@@ -35,6 +37,7 @@ case class IngestParams(
 }
 
 object IngestParams {
+  val SCOPE_TYPE = "scope-type"
   val SCOPE = "scope"
   val FONDS = "fonds"
   val TOLERANT = "tolerant"
@@ -48,6 +51,7 @@ object IngestParams {
 
   val ingestForm = Form(
     mapping(
+      SCOPE_TYPE -> utils.EnumUtils.enumMapping(EntityType),
       SCOPE -> nonEmptyText,
       FONDS -> optional(nonEmptyText),
       LOG -> nonEmptyText,

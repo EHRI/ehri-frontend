@@ -15,10 +15,9 @@ GET         /updateIndex                        @controllers.admin.Indexing.upda
 GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
 # Ingest TESTING
-GET         /ingest                             @controllers.admin.IngestUtils.ingest
-POST        /ingest                             @controllers.admin.IngestUtils.ingestPost
-GET         /ingest/:job                        @controllers.admin.IngestUtils.ingestMonitor(job: String)
-GET         /ingest/:job/monitor                @controllers.admin.IngestUtils.ingestMonitorWS(job: String)
+POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.EntityType.Value, scopeId: String, dataType: String, fonds: Option[String] ?= None)
+GET         /ingest                             @controllers.admin.Ingest.ingestMonitor(jobId: String)
+GET         /ingest/monitor                     @controllers.admin.Ingest.ingestMonitorWS(jobId: String)
 
 # Search testing
 GET         /search                             @controllers.admin.AdminSearch.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
@@ -46,9 +45,6 @@ GET         /regenerateScope/:id                @controllers.admin.Utils.regener
 # Find and replace
 GET         /findReplace                        @controllers.admin.Utils.findReplace
 POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
-
-# Ingest
-POST        /ingest/:scopeType/:scopeId/:dataType  @controllers.admin.Utils.ingestPost(scopeType: defines.EntityType.Value, scopeId: String, dataType: String, fonds: Option[String] ?= None)
 
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices

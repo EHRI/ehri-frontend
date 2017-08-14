@@ -345,7 +345,7 @@ case class DocumentaryUnits @Inject()(
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     request.item.holder.map { scope =>
       Ok(views.html.admin.utils.ingest(scope, Some(request.item), IngestParams.ingestForm,
-        controllers.admin.routes.Utils.ingestPost(scope.isA, scope.id, "ead-sync", Some(id)), sync = true))
+        controllers.admin.routes.Ingest.ingestPost(scope.isA, scope.id, "ead-sync", Some(id)), sync = true))
     }.getOrElse(InternalServerError(views.html.errors.fatalError()))
   }
 }
