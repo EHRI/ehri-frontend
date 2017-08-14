@@ -3,8 +3,8 @@
 @extraScripts = {
     <script>
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
-            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
-            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+            var DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+            var ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
 
             jQuery(function($) {
                 $("#update-progress").show();
@@ -49,10 +49,13 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.adminLayout(Messages("ingest.header"), extraScripts) {
+@views.html.admin.layout.adminLayout(Messages("ingest.monitor"), extraScripts) {
     @common.mainContent {
-        <h1>@Messages("ingest.header")</h1>
+        <h1>@Messages("ingest.monitor")</h1>
 
-        <div id="update-progress"></div>
+        <form class="form-horizontal">
+
+            <div id="update-progress"></div>
+        </form>
     }
 }

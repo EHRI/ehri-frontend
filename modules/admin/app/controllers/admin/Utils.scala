@@ -4,32 +4,26 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import akka.actor.ActorRef
-import akka.stream.{KillSwitches, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source}
-import akka.util.ByteString
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
 import controllers.base.AdminController
-import defines.{ContentTypes, EntityType}
-import models.UserProfile
-import models.admin.IngestParams
+import defines.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import services.cypher.Cypher
-import services.data.{AuthenticatedUser, Constants}
-import services.search.{SearchConstants, SearchIndexMediator}
+import services.data.AuthenticatedUser
+import services.search.SearchIndexMediator
 import utils.{CsvHelpers, EnumUtils, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+
 
 /**
   * Controller for various monitoring functions and admin utilities.
@@ -238,100 +232,6 @@ case class Utils @Inject()(
     )
   }
 
-  private def doIngest(dataType: String, params: IngestParams, ct: String, data: java.io.File, user: UserProfile): Future[JsValue] = {
-    import scala.concurrent.duration._
-    implicit val mat = appComponents.materializer
-
-    logger.info(s"Dispatching ingest: $params")
-    ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
-      .withRequestTimeout(20.minutes)
-      .addHttpHeaders(Constants.AUTH_HEADER_NAME -> user.id)
-      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-      .addQueryStringParameters(params.toParams: _*)
-      .withMethod(HttpVerbs.POST)
-      .withBody(data)
-      .stream().flatMap { r =>
-      //logger.debug(s"Ingest response: ${r.body}")
-      logger.info(s"Got status from ingest of: ${r.status}")
-      r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
-        logger.info("Parsing data...")
-        Json.parse(s.toArray)
-      }
-    } recoverWith {
-      case e: Throwable =>
-        e.printStackTrace()
-        Future.failed(e)
-    }
-  }
-
-  case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String])
-  object SyncLog {
-    implicit val reads: Reads[SyncLog] = Json.reads[SyncLog]
-  }
-
-  sealed trait IngestOp
-  case class Ingest(scopeType: EntityType.Value, dataType: String, params: IngestParams, ct: String, data: java.io.File, user: UserProfile) extends IngestOp
-  case class Relocate(ids: Seq[(String, String)]) extends IngestOp
-  case class Index(scopeType: EntityType.Value, id: String) extends IngestOp
-
-  private def doSync(ingest: Ingest): Source[String, akka.NotUsed] = {
-
-    Source.unfoldAsync[Option[(IngestOp, Option[SyncLog])], String](Some(ingest -> None)) {
-      case Some((Ingest(scopeType, dataType, params, ct, data, user), _)) =>
-        doIngest(dataType, params, ct, data, user).map { json =>
-          logger.info("Got JSON...")
-          val logOpt = json.asOpt[SyncLog]
-          if (logOpt.isEmpty) {
-            logger.info("Unable to parse sync log")
-          } else {
-            logger.info("JSON is valid!")
-          }
-          logOpt.map(log => Some(Relocate(log.moved.toSeq) -> Some(log)) ->
-            "Ingest complete, handling sync...\n")
-        }
-      case Some((Relocate(ids), Some(log))) =>
-        logger.info(s"Relocating ${ids.size} items...")
-        remapMovedUnits(ids).map(r => Some(Some(Index(ingest.scopeType, ingest.params.scope) -> Some(log)) ->
-          s"Relocated $r item(s)\n"))
-
-      case Some((Index(ct, id), Some(log))) =>
-        logger.info(s"Indexing $ct:$id...")
-        indexer.indexChildren(ct, id)
-          .map(r => Some(None -> s"Added ${log.moved.size} items to the index...\n"))
-
-      case e =>
-        logger.info(s"Ending chain: $e")
-        Future.successful(None)
-    }
-  }
-
-  def msg(s: String)(implicit actorRef: ActorRef): Unit = {
-    logger.info(s)
-    actorRef ! s"$s\n"
-  }
-
-  def doSync2(ingest: Ingest)(implicit chan: ActorRef): Future[Unit] = {
-    doIngest(ingest.dataType, ingest.params, ingest.ct, ingest.data, ingest.user).flatMap { json =>
-      val logOpt = json.asOpt[SyncLog]
-      logOpt.map { log =>
-        msg("JSON is valid!")
-        remapMovedUnits(logOpt.get.moved.toSeq).flatMap { num =>
-          msg(s"Relocated $num item(s)")
-          msg("Reindexing...")
-          val indexer = searchIndexer.handle.withChannel(chan, s => s"$s\n")
-          indexer.clearKeyValue(SearchConstants.HOLDER_ID, ingest.params.scope).flatMap { _ =>
-            indexer.indexChildren(ingest.scopeType, ingest.params.scope).map { _ =>
-              msg("Done!")
-            }
-          }
-        }
-      }.getOrElse {
-        msg("Unable to parse sync log")
-        Future.successful(())
-      }
-    }
-  }
-
   private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
     val prefixes = Seq(
       controllers.portal.routes.DocumentaryUnits.browse("TEST").url,
@@ -341,48 +241,6 @@ case class Utils @Inject()(
     val newURLS = remapUrlsFromPrefixes(movedIds, prefixes)
     appComponents.pageRelocator.addMoved(newURLS)
   }
-
-  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String,
-        fonds: Option[String] = None): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)) { implicit request =>
-
-    implicit val mat = appComponents.materializer
-    import scala.concurrent.duration._
-
-    val boundForm = IngestParams.ingestForm.bindFromRequest()
-    request.body.file(IngestParams.DATA_FILE).map { data =>
-      boundForm.fold(
-        errForm => BadRequest(Json.obj("form" -> errForm.errorsAsJson)),
-        ingestTask => {
-          // We only want XML types here, everything else is just binary
-          val ct = data.contentType.filter(_.endsWith("xml"))
-            .getOrElse(play.api.http.ContentTypes.BINARY)
-          // NB: Overcomplicated due to https://github.com/playframework/playframework/issues/6203
-          val props: Option[java.io.File] = request.body.file(IngestParams.PROPERTIES_FILE)
-            .flatMap(f => if (f.filename.nonEmpty) Some(f.ref.path.toFile) else None)
-
-          val task = ingestTask.copy(properties = props)
-
-          val src: Source[String, akka.NotUsed] = doSync(Ingest(scopeType, dataType, task, ct, data.ref.path.toFile, request.user))
-            .map {s =>
-              logger.info(s)
-              s
-            }
-
-          //src.runWith(Sink.seq).map(s => Ok(s.mkString("\n")))
-          val s = Source.actorRef[String](1000, OverflowStrategy.dropTail).mapMaterializedValue { actor =>
-            doSync2(Ingest(scopeType, dataType, task, ct, data.ref.path.toFile, request.user))(actor).map { _ =>
-              actor ! akka.actor.Status.Success
-              "done"
-            }
-          }
-          Ok.chunked(s)
-        }
-      )
-    }.getOrElse(BadRequest(
-      Json.obj("form" -> boundForm.withError(IngestParams.DATA_FILE, "required").errorsAsJson)))
-  }
-
-
 
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
