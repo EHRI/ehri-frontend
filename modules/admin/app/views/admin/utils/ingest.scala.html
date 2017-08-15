@@ -3,7 +3,7 @@
 @import models.admin.IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.adminLayout(Messages("ingest.header")) {
+@views.html.admin.layout.adminLayout(Messages("ingest.header", fonds.getOrElse(scope).toStringLang)) {
     @views.html.admin.common.breadcrumbs(scope +: fonds.toSeq)
     @common.mainContent {
         <script>
@@ -101,7 +101,7 @@
                     @formHelpers.hiddenInput(form(SCOPE).copy(value = Some(scope.id)))
                     @formHelpers.hiddenInput(form(FONDS).copy(value = fonds.map(_.id)))
 
-                    <h2>@Messages("ingest.header")</h2>
+                    <h2>@Messages("ingest.header", fonds.getOrElse(scope).toStringLang)</h2>
                     @if(sync) {
                         <p class="alert alert-warning">
                             <strong>@Messages("ingest.sync.warning.note")</strong>: @Messages("ingest.sync.warning")
@@ -130,15 +130,8 @@
                             @formHelpers.textInput(f, LOG, 'required -> true)
                             @formHelpers.fileInput(f, DATA_FILE, 'required -> true)
                         </fieldset>
-                    }
 
-                    @if(sync) {
-                        <div class="form-group">
-                            <label class="control-label text-danger" for="confirm">@Messages("ingest.sync.confirm")</label>
-                            <div class="control-elements">
-                                <input id="confirm" type="checkbox" required/>
-                            </div>
-                        </div>
+                        @formHelpers.checkbox(f, COMMIT)
                     }
 
                     <div class="form-actions">
@@ -152,7 +145,6 @@
                             <span class="sr-only">0% Complete</span>
                         </div>
                     </div>
-
 
                     <div id="update-progress"></div>
                 }

@@ -1298,7 +1298,7 @@ systemEvent.list=System Events
 # Common ingest messages
 #
 ingest=Ingest
-ingest.header=Ingest Data
+ingest.header=Ingest Data: {0}
 ingest.submit=Submit
 ingest.monitor=Ingest Progress
 ingest.sync.warning.note=Warning
@@ -1326,3 +1326,5 @@ ingest.properties.description=A properties file
 ingest.format.ead=EAD
 ingest.format.ead-sync=EAD (Synchronisation)
 ingest.format.eac=EAC
+ingest.commit=Commit Ingest
+ingest.commit.description=Apply the ingest. Leave unchecked to dry-run.

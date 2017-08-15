@@ -17,7 +17,8 @@ case class IngestParams(
   importer: Option[String] = None,
   excludes: Seq[String] = Nil,
   file: Option[File] = None,
-  properties: Option[File] = None
+  properties: Option[File] = None,
+  commit: Boolean = false
 ) {
   def toParams: Seq[(String, String)] = {
     import IngestParams._
@@ -25,7 +26,8 @@ case class IngestParams(
       SCOPE -> scope,
       TOLERANT -> tolerant.toString,
       ALLOW_UPDATE -> allowUpdate.toString,
-      LOG -> log) ++
+      LOG -> log,
+      COMMIT -> commit.toString) ++
     fonds.map(FONDS -> _).toSeq ++
     handler.map(HANDLER -> _).toSeq ++
     importer.map(IMPORTER -> _).toSeq ++
@@ -48,6 +50,7 @@ object IngestParams {
   val EXCLUDES = "ex"
   val DATA_FILE = "data"
   val PROPERTIES_FILE = "properties"
+  val COMMIT = "commit"
 
   val ingestForm = Form(
     mapping(
@@ -63,7 +66,8 @@ object IngestParams {
         _.map(_.split("\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       DATA_FILE -> ignored(Option.empty[File]),
-      PROPERTIES_FILE -> ignored(Option.empty[File])
+      PROPERTIES_FILE -> ignored(Option.empty[File]),
+      COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )
 }
