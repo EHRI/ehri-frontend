@@ -47,7 +47,11 @@
                           xhr.upload.addEventListener("progress", function (e) {
                               var percent = (e.loaded / e.total) * 100;
                               $progress.css("width", percent.toString() + "%");
+                              if (percent > 0) {
+                                  $progress.addClass("active")
+                              }
                               if (percent === 100) {
+                                $progress.removeClass("active")
                                 appendProgressMessage("Finished uploading data...")
                               }
                           });
