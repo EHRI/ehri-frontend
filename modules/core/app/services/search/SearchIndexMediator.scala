@@ -24,7 +24,7 @@ trait SearchIndexMediatorHandle {
     * @param formatter a formatter for event strings
     * @return
     */
-  def withChannel(actorRef: ActorRef, formatter: String => String = identity[String]): SearchIndexMediatorHandle = this
+  def withChannel(actorRef: ActorRef, formatter: String => String = identity[String], filter: Int => Boolean = _ => true): SearchIndexMediatorHandle = this
 
   /**
     * Index single items by id.
