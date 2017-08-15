@@ -168,11 +168,12 @@ case class Ingest @Inject()(
       appComponents.pageRelocator.addMoved(newURLS)
     }
 
-    private def handleSync(job: IngestJob, log: SyncLog, chan: ActorRef): Future[Unit] = {
+    private def handleSync(job: IngestJob, sync: SyncLog, chan: ActorRef): Future[Unit] = {
       val indexer = searchIndexer.handle.withChannel(chan)
-      msg("Got a valid sync manifest...", chan)
-      msg(s"    - Created: ${log.created.size}, Deleted: ${log.deleted.size}, Moved: ${log.moved.size}", chan)
-      if (job.data.params.commit) remapMovedUnits(log.moved.toSeq).flatMap { num =>
+      msg("Received a valid sync manifest...", chan)
+      msg(s"  Data: created: ${sync.log.created}, updated: ${sync.log.updated}, unchanged: ${sync.log.unchanged}", chan)
+      msg(s"  Sync: deleted: ${sync.deleted.size}, moved: ${sync.moved.size}", chan)
+      if (job.data.params.commit) remapMovedUnits(sync.moved.toSeq).flatMap { num =>
         msg(s"Relocated $num item(s)", chan)
         msg("Reindexing...", chan)
         indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
@@ -186,8 +187,8 @@ case class Ingest @Inject()(
 
     private def handleImport(job: IngestJob, log: ImportLog, chan: ActorRef): Future[Unit] = {
       val indexer = searchIndexer.handle.withChannel(chan)
-      msg("Got a valid import manifest...", chan)
-      msg(s"    - Created: ${log.created}, Updated: ${log.updated}, Unchanged: ${log.unchanged}", chan)
+      msg("Received a valid import manifest...", chan)
+      msg(s"  Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}", chan)
       if (job.data.params.commit) {
         if (log.created > 0 || log.updated > 0) {
           indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
