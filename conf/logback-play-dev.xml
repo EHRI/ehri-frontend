@@ -67,7 +67,7 @@
   <!-- Uncomment to see misc controller logging -->
   <logger name="controllers" level="INFO" />
   
-  <logger name="akka.stream" level="TRACE" />
+  <!--<logger name="akka.stream" level="TRACE" />-->
 
   <!-- Uncomment to show LOTS of debug info about HTTP calls -->
   <!-- <logger name="play.shaded.ahc.org.asynchttpclient" level="DEBUG" />-->
@@ -78,7 +78,7 @@
   <logger name="org.jdbcdslog.StatementLogger"  level="OFF" />
   <logger name="org.jdbcdslog.ResultSetLogger"  level="OFF"  />
 
-  <logger name="application" level="INFO" />
+  <logger name="application" level="WARN" />
 
   <root level="ERROR">
     <appender-ref ref="ASYNCSTDOUT" />
