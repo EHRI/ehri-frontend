@@ -144,11 +144,8 @@ case class Ingest @Inject()(
       logger.info(s)
       chan ! s
     }
-  }
 
-  case class IngestActor() extends Actor {
-
-    import IngestActor._
+    private def indexer(implicit chan: ActorRef) = searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
     private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
       def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
@@ -168,8 +165,7 @@ case class Ingest @Inject()(
       appComponents.pageRelocator.addMoved(newURLS)
     }
 
-    private def handleSync(job: IngestJob, sync: SyncLog, chan: ActorRef): Future[Unit] = {
-      val indexer = searchIndexer.handle.withChannel(chan)
+    private def handleSync(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
       msg("Received a valid sync manifest...", chan)
       msg(s"  Data: created: ${sync.log.created}, updated: ${sync.log.updated}, unchanged: ${sync.log.unchanged}", chan)
       msg(s"  Sync: deleted: ${sync.deleted.size}, moved: ${sync.moved.size}", chan)
@@ -185,8 +181,7 @@ case class Ingest @Inject()(
       }
     }
 
-    private def handleImport(job: IngestJob, log: ImportLog, chan: ActorRef): Future[Unit] = {
-      val indexer = searchIndexer.handle.withChannel(chan)
+    private def handleImport(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
       msg("Received a valid import manifest...", chan)
       msg(s"  Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}", chan)
       if (job.data.params.commit) {
@@ -204,19 +199,23 @@ case class Ingest @Inject()(
       }
     }
 
-    private def handleError(job: IngestJob, err: ErrorLog, chan: ActorRef): Future[Unit] = {
+    private def handleError(job: IngestJob, err: ErrorLog)(implicit chan: ActorRef): Future[Unit] = {
       msg(s"${WebsocketConstants.ERR_MESSAGE}: ${err.details}", chan)
       immediate(())
     }
+  }
+
+  case class IngestActor() extends Actor {
+
+    import IngestActor._
 
     override def receive: Receive = waiting
 
     def waiting: Receive = {
-      case job: IngestJob =>
-        context.become(init(job))
+      case job: IngestJob => context.become(run(job))
     }
 
-    def init(job: IngestJob): Receive = {
+    def run(job: IngestJob): Receive = {
       case chan: ActorRef =>
         msg(s"Initialising ingest for job: ${job.id}...", chan)
 
@@ -230,9 +229,9 @@ case class Ingest @Inject()(
 
         val allTasks = mainTask.flatMap {
           case Right(result) => result match {
-            case log: ImportLog => handleImport(job, log, chan)
-            case log: SyncLog => handleSync(job, log, chan)
-            case err: ErrorLog => handleError(job, err, chan)
+            case log: ImportLog => handleImport(job, log)(chan)
+            case log: SyncLog => handleSync(job, log)(chan)
+            case err: ErrorLog => handleError(job, err)(chan)
           }
           case Left(errorString) =>
             msg(errorString, chan)
