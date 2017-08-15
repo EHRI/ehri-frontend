@@ -2,7 +2,7 @@ package integration.admin
 
 import akka.NotUsed
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
@@ -54,9 +54,8 @@ class SearchSpec extends IntegrationTestRunner {
 
   "Search index mediator" should {
     val port = 9902
-    "perform indexing correctly via Websocket endpoint" in new WithServer(app = appBuilder.build(), port = port) {
+    "perform indexing correctly via Websocket endpoint" in new ITestServer(app = appBuilder.build(), port = port) {
       implicit val as = app.actorSystem
-      implicit val mat = app.materializer
       import as.dispatcher
 
       val cmd = List(EntityType.DocumentaryUnit)
@@ -88,7 +87,7 @@ class SearchSpec extends IntegrationTestRunner {
       // close the connection...
       promise.success(None)
       indexEventBuffer.lastOption must beSome(cmd.toString)
-      await(out).last must_== TextMessage.Strict(JsString(Indexing.DONE_MESSAGE).toString)
+      await(out).last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
     }
   }
 
