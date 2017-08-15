@@ -2,7 +2,7 @@ package controllers.admin
 
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import javax.inject._
+import javax.inject.{Inject, Singleton}
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
 import akka.stream.Materializer
@@ -18,19 +18,18 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.libs.Files.TemporaryFile
-import play.api.libs.json.{JsValue, Json, Reads}
+import play.api.libs.json.{JsResultException, JsValue, Json, Reads}
 import play.api.libs.streams.ActorFlow
 import play.api.libs.ws.WSClient
 import play.api.mvc.WebSocket.MessageFlowTransformer
-import play.api.mvc.{Action, _}
+import play.api.mvc._
 import services.data.Constants
-import services.search._
+import services.search.{SearchConstants, SearchIndexMediator}
 import utils.WebsocketConstants
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.util.{Failure, Success, Try}
-
+import scala.util.{Failure, Success}
 
 @Singleton
 case class Ingest @Inject()(
@@ -82,7 +81,7 @@ case class Ingest @Inject()(
       file: java.io.File,
       user: UserProfile
     ) {
-      def run(): Future[Either[String, JsValue]] = {
+      def run(): Future[Either[String, IngestResult]] = {
         import scala.concurrent.duration._
 
         logger.info(s"Dispatching ingest: $params")
@@ -99,9 +98,9 @@ case class Ingest @Inject()(
           r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
             logger.info("Parsing data...")
             try {
-              Right(Json.parse(s.toArray))
+              Right(Json.parse(s.toArray).as[IngestResult])
             } catch {
-              case e: JsonParseException => Left(s.utf8String)
+              case e @ (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
             }
           }
         } recover {
@@ -112,21 +111,38 @@ case class Ingest @Inject()(
       }
     }
 
+    // A job with a given ID tag
     case class IngestJob(id: String, data: IngestData)
 
-    case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String])
+    // A result from the import endpoint
+    sealed trait IngestResult
+    object IngestResult {
+      implicit val reads: Reads[IngestResult] = Reads { json =>
+        json.validate[ErrorLog].orElse(json.validate[ImportLog].orElse(json.validate[SyncLog]))
+      }
+    }
+
+    // The result of a regular import
+    case class ImportLog(created: Int, updated: Int, unchanged: Int, message: Option[String] = None) extends IngestResult
+    object ImportLog {
+      implicit val reads: Reads[ImportLog] = Json.reads[ImportLog]
+    }
+
+    // The result of an EAD synchronisation, which incorporates an import
+    case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String], log: ImportLog) extends IngestResult
     object SyncLog {
       implicit val reads: Reads[SyncLog] = Json.reads[SyncLog]
     }
 
-    case class ErrorLog(error: String, details: String)
+    // An import error we can understand, e.g. not a crash!
+    case class ErrorLog(error: String, details: String) extends IngestResult
     object ErrorLog {
       implicit val reads: Reads[ErrorLog] = Json.reads[ErrorLog]
     }
 
-    def msg(s: String, actorRef: ActorRef): Unit = {
+    def msg(s: String, chan: ActorRef): Unit = {
       logger.info(s)
-      actorRef ! s
+      chan ! s
     }
   }
 
@@ -152,6 +168,46 @@ case class Ingest @Inject()(
       appComponents.pageRelocator.addMoved(newURLS)
     }
 
+    private def handleSync(job: IngestJob, log: SyncLog, chan: ActorRef): Future[Unit] = {
+      val indexer = searchIndexer.handle.withChannel(chan)
+      msg("Got a valid sync manifest...", chan)
+      msg(s"    - Created: ${log.created.size}, Deleted: ${log.deleted.size}, Moved: ${log.moved.size}", chan)
+      if (job.data.params.commit) remapMovedUnits(log.moved.toSeq).flatMap { num =>
+        msg(s"Relocated $num item(s)", chan)
+        msg("Reindexing...", chan)
+        indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
+          indexer.indexChildren(job.data.params.scopeType, job.data.params.scope)
+        }
+      } else {
+        msg("Task was a dry run so not proceeding to reindex", chan)
+        immediate(())
+      }
+    }
+
+    private def handleImport(job: IngestJob, log: ImportLog, chan: ActorRef): Future[Unit] = {
+      val indexer = searchIndexer.handle.withChannel(chan)
+      msg("Got a valid import manifest...", chan)
+      msg(s"    - Created: ${log.created}, Updated: ${log.updated}, Unchanged: ${log.unchanged}", chan)
+      if (job.data.params.commit) {
+        if (log.created > 0 || log.updated > 0) {
+          indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
+            indexer.indexChildren(job.data.params.scopeType, job.data.params.scope)
+          }
+        } else {
+          msg("No reindexing necessary", chan)
+          immediate(())
+        }
+      } else {
+        msg("Task was a dry run so not proceeding to reindex", chan)
+        immediate(())
+      }
+    }
+
+    private def handleError(job: IngestJob, err: ErrorLog, chan: ActorRef): Future[Unit] = {
+      msg(s"${WebsocketConstants.ERR_MESSAGE}: ${err.details}", chan)
+      immediate(())
+    }
+
     override def receive: Receive = waiting
 
     def waiting: Receive = {
@@ -160,46 +216,33 @@ case class Ingest @Inject()(
     }
 
     def init(job: IngestJob): Receive = {
-      case monitor: ActorRef =>
-        msg(s"Initialising ingest for job: ${job.id}...", monitor)
+      case chan: ActorRef =>
+        msg(s"Initialising ingest for job: ${job.id}...", chan)
 
-        val mainTask: Future[Either[String, JsValue]] = job.data.run()
+        val mainTask: Future[Either[String, IngestResult]] = job.data.run()
 
         val ticker = system.actorOf(Ticker.props)
-        ticker ! (monitor -> "Ingesting")
+        ticker ! (chan -> "Ingesting")
         mainTask.onComplete { _ =>
           ticker ! Ticker.Stop
         }
 
         val allTasks = mainTask.flatMap {
-          case Right(json) =>
-            val logOpt = json.asOpt[SyncLog]
-            logOpt.map { log =>
-              msg("Got a valid sync manifest...", monitor)
-              msg(s"    - Created: ${log.created.size}, Deleted: ${log.deleted.size}, Moved: ${log.moved.size}", monitor)
-              remapMovedUnits(logOpt.get.moved.toSeq).flatMap { num =>
-                msg(s"Relocated $num item(s)", monitor)
-                msg("Reindexing...", monitor)
-                val indexer = searchIndexer.handle.withChannel(monitor)
-                indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
-                  indexer.indexChildren(job.data.params.scopeType, job.data.params.scope)
-                }
-              }
-            }.getOrElse {
-              json.asOpt[ErrorLog].fold(msg(Json.stringify(json), monitor)) { err =>
-                msg(s"${WebsocketConstants.ERR_MESSAGE}: ${err.details}", monitor)
-              }
-              Future.successful(())
-            }
-          case Left(ex) =>
-            msg(ex, monitor)
-            Future.successful(())
+          case Right(result) => result match {
+            case log: ImportLog => handleImport(job, log, chan)
+            case log: SyncLog => handleSync(job, log, chan)
+            case err: ErrorLog => handleError(job, err, chan)
+          }
+          case Left(errorString) =>
+            msg(errorString, chan)
+            immediate(())
         }
 
         allTasks.onComplete { _ =>
-          msg(WebsocketConstants.DONE_MESSAGE, monitor)
+          msg(WebsocketConstants.DONE_MESSAGE, chan)
         }
 
+        // Terminate the actor...
         context.stop(self)
     }
   }

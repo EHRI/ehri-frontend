@@ -18,7 +18,7 @@ function readDataStream(method, actionUrl, handlers) {
     }
   };
   xhr.onreadystatechange = function(e) {
-    if (xhr.readyState == 4) {
+    if (xhr.readyState === 4) {
       if (handlers.stop) {
         handlers.stop();
       }
@@ -62,10 +62,10 @@ jQuery(function($) {
   }).on("keydown", function(e) {
     var $formgroup = $(this);
     if($formgroup.hasClass("quiet")) {
-      if (e.keyCode == 27) {
+      if (e.keyCode === 27) {
           e.preventDefault();
           $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
-      } else if (e.keyCode == 9) {
+      } else if (e.keyCode === 9) {
         e.preventDefault();
         $formgroup.find(".quiet-toggle").trigger("quiet-toggle");
 
@@ -119,7 +119,7 @@ jQuery(function($) {
         var sticky = top > vpend + innerHeight - height;
 
         if (sticky) {
-          if (!that.isSticky === sticky || ($(window).outerHeight() != that.attr("data-windows"))) {
+          if (!that.isSticky === sticky || ($(window).outerHeight() !== that.attr("data-windows"))) {
             that.css({
               position: "fixed",
               left: 0,
@@ -150,7 +150,7 @@ jQuery(function($) {
   $("nav.responsive").stickyFormFooter();
 
   function addPopover($elem, trigger) {
-    var trigger = trigger || "blur";
+    trigger = trigger || "blur";
     $elem.popover({
       html: true,
       delay:{
@@ -164,12 +164,13 @@ jQuery(function($) {
 
   // Add Bootstrap tooltip on input boxes with a title.
   // Filter items with an empty title.
-  $("input[type=text][title!=''],textarea[title!='']").each(function() {
-      var that = $(this);
-      that.attr("data-content", that.attr("title"));
-      that.attr("title", that.parents(".control-group").find(".control-label").text());
-      if(!that.parents(".control-group").hasClass("quiet")) {
-        addPopover(that);
+  $("input[type=text][title!=''],textarea[title!=''],input[type=checkbox][title!=''],input[type=file][title!='']").each(function() {
+      var trigger = $(this).attr("type") === "file" || $(this).attr("type") === "checkbox" ? "hover" : "blur";
+      var $that = $(this);
+      $that.attr("data-content", $that.attr("title"));
+      $that.attr("title", $that.parents(".control-group").find(".control-label").text());
+      if(!$that.parents(".control-group").hasClass("quiet")) {
+        addPopover($that, trigger);
       }
   });
 
