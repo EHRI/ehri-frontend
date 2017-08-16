@@ -178,12 +178,12 @@ class JsPathExtensionsSpec extends PlaySpecification {
 
       testJson1.validate(testJsonReads).asOpt must beSome.which { data =>
         data.field2 must beSome.which { value =>
-          value.headOption must equalTo(Some("foo"))
+          value.headOption must beSome("foo")
         }
       }
       testJson2.validate(testJsonReads).asOpt must beSome.which { data =>
         data.field2 must beSome.which { value =>
-          value.headOption must equalTo(Some("foo"))
+          value.headOption must beSome("foo")
         }
       }
       testJson3.validate(testJsonReads).asEither must beLeft
@@ -217,7 +217,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
           value must_== "bar"
         }
         data.field2 must beSome.which { value =>
-          value.headOption must equalTo(Some("foo"))
+          value.headOption must beSome("foo")
         }
       }
 
@@ -226,7 +226,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
           value must_== "val"
         }
         data.field2 must beSome.which { value =>
-          value.headOption must equalTo(Some("foo"))
+          value.headOption must beSome("foo")
         }
       }
 
@@ -237,7 +237,7 @@ class JsPathExtensionsSpec extends PlaySpecification {
           value must_== "bar"
         }
         data.field2 must beSome.which { value =>
-          value.headOption must_== Some("foo")
+          value.headOption must beSome("foo")
         }
       }
     }

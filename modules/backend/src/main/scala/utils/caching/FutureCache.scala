@@ -22,7 +22,7 @@ object FutureCache {
     }
   }
 
-  def set[A](key: String, expiration: Duration = Duration.Inf)(get: => Future[A])(implicit cache: SyncCacheApi, ct: ClassTag[A], executionContext: ExecutionContext): Future[A] = {
+  def set[A](key: String, expiration: Duration = Duration.Inf)(get: => Future[A])(implicit cache: SyncCacheApi, executionContext: ExecutionContext): Future[A] = {
     val value = get
     value.map { a =>
       cache.set(key, a, expiration)

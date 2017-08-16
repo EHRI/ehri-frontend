@@ -2,7 +2,7 @@ package views
 
 import javax.inject.{Inject, Provider, Singleton}
 
-import com.vladsch.flexmark.ast.{AutoLink, LinkNode, Node}
+import com.vladsch.flexmark.ast.{LinkNode, Node}
 import com.vladsch.flexmark.html.HtmlRenderer.{Builder, HtmlRendererExtension}
 import com.vladsch.flexmark.html.renderer.{AttributablePart, NodeRendererContext}
 import com.vladsch.flexmark.html.{AttributeProvider, AttributeProviderFactory, HtmlRenderer, IndependentAttributeProviderFactory}
@@ -16,9 +16,7 @@ import play.api.Logger
 
 
 case class FlexmarkMarkdownRenderer() extends MarkdownRenderer {
-
-  private val logger = Logger(getClass)
-
+  
   private class LinkAttributeProvider extends AttributeProvider {
     override def setAttributes(node: Node, part: AttributablePart, attributes: Attributes): Unit = {
       node match {

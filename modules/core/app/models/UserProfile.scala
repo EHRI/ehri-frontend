@@ -13,7 +13,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import utils.forms._
 import eu.ehri.project.definitions.Ontology
-import services._
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
 

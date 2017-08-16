@@ -2,7 +2,6 @@ package services.search
 
 import defines.EntityType
 import play.api.libs.json.{Format, Json, Writes}
-import play.api.mvc.QueryStringBindable
 import utils.EnumUtils
 
 

@@ -5,7 +5,7 @@ import models.base.{Described, Description, MetaModel, Model}
 import models.{AccessPointF, Link, LinkF}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import services.data.{Readable, Resource}
+import services.data.Resource
 
 
 trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {

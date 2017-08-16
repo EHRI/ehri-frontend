@@ -1,6 +1,5 @@
 package models
 
-import Entity._
 import defines.EntityType
 import models.base.{AnyModel, MetaModel, Model, Persistable}
 import models.json._
@@ -10,6 +9,7 @@ import play.api.i18n.Messages
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import services.data.Readable
+
 
 case class MaintenanceEventF(
   isA: EntityType.Value = EntityType.MaintenanceEvent,

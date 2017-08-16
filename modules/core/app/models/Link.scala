@@ -7,7 +7,6 @@ import models.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import services._
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
 import utils.EnumUtils

@@ -64,7 +64,7 @@ object DateFacetUtils {
 
   val dateQueryForm = Form(single(DATE_PARAM -> nonEmptyText))
 
-  val formatter = DateTimeFormatter.ISO_DATE_TIME
+  val formatter: DateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
 
   def startDate(year: Int): String = formatter.format(ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneId.of("Z")))
 
