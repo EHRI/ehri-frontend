@@ -31,7 +31,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
     ) extends WrappedRequest[A](request)
   with WithOptionalUser
 
-  private[generic] def NewChildTransformer(implicit ct: ContentType[MT]) = new CoreActionTransformer[ItemPermissionRequest, NewChildRequest] {
+  private[generic] def NewChildTransformer = new CoreActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
       dataHelpers.getUserAndGroupList.map { case (users, groups) =>
         NewChildRequest(request.item, users, groups, request.userOpt, request)

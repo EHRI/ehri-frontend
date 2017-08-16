@@ -10,7 +10,6 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import services._
 import play.api.libs.json.JsObject
 import services.data.{Constants, ContentType, Writable}
 

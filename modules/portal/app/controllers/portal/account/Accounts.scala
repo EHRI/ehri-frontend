@@ -200,7 +200,6 @@ case class Accounts @Inject()(
 
   def openIDCallback: Action[AnyContent] = OpenIdCallbackAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
-    implicit val accountOpt: Option[Account] = None
     request.formOrAccount match {
       case Right(account) => doLogin(account)
       case Left(formError) => immediate(
@@ -244,7 +243,6 @@ case class Accounts @Inject()(
 
   def openIDLoginPost(isLogin: Boolean = true): Action[AnyContent] = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
-    implicit val accountOpt: Option[Account] = None
     BadRequest(
       views.html.account.login(
         passwordLoginForm,

@@ -72,7 +72,7 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
     }
 
   protected def WithDescriptionAction(id: String, did: String)(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest, AnyContent] =
+    implicit ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
         request.item.model.description(did) match {
