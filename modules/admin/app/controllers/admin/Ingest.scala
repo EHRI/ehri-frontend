@@ -1,5 +1,6 @@
 package controllers.admin
 
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
@@ -100,7 +101,7 @@ case class Ingest @Inject()(
             try {
               Right(Json.parse(s.toArray).as[IngestResult])
             } catch {
-              case e @ (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
+              case (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
             }
           }
         } recover {
@@ -269,23 +270,36 @@ case class Ingest @Inject()(
       boundForm.fold(
         errForm => showForm(errForm),
         ingestTask => {
+
+          // Tag this task with a unique ID...
+          val jobId = UUID.randomUUID().toString
+
           // We only want XML types here, everything else is just binary
           val ct = data.contentType.filter(_.endsWith("xml"))
             .getOrElse(play.api.http.ContentTypes.BINARY)
+
+          // Save the properties file, if given, to a temp file on the server.
           // NB: Overcomplicated due to https://github.com/playframework/playframework/issues/6203
-          val props: Option[java.io.File] = request.body.file(IngestParams.PROPERTIES_FILE)
-            .flatMap(f => if (f.filename.nonEmpty) Some(f.ref.path.toFile) else None)
+          val props: Option[java.io.File] = request.body
+              .file(IngestParams.PROPERTIES_FILE)
+              .filter(_.filename.nonEmpty)
+              .map { f =>
+            val propsTmp: java.io.File = File.createTempFile(s"ingest-$jobId", ".properties")
+            propsTmp.deleteOnExit()
+            f.ref.moveTo(propsTmp)
+            propsTmp
+          }
 
           val task = ingestTask.copy(properties = props)
           val ingest = IngestActor.IngestData(dataType, task, ct, data.ref.path.toFile, request.user)
-          val jobId = UUID.randomUUID().toString
 
           val runner = system.actorOf(Props(IngestActor()), jobId)
           runner ! IngestActor.IngestJob(jobId, ingest)
+          logger.info(s"Submitted ingest job: $jobId")
 
           immediate {
             if (isAjax) Ok(Json.obj(
-              "url" -> controllers.admin.routes.Ingest.ingestMonitorWS(jobId).webSocketURL(request.secure),
+              "url" -> controllers.admin.routes.Ingest.ingestMonitorWS(jobId).webSocketURL(globalConfig.https),
               "jobId" -> jobId
             ))
             else Redirect(controllers.admin.routes.Ingest.ingestMonitor(jobId))
@@ -302,8 +316,12 @@ case class Ingest @Inject()(
   def ingestMonitorWS(jobId: String): WebSocket = AdminWebsocket { implicit request =>
     ActorFlow.actorRef { out =>
       system.actorSelection("user/" + jobId).resolveOne(5.seconds).onComplete {
-        case Success(ref) => ref ! out
-        case Failure(ex) => out ! s"No running job found with id: $jobId."
+        case Success(ref) =>
+          logger.info(s"Monitoring job: $jobId")
+          ref ! out
+        case Failure(ex) =>
+          logger.warn(s"Unable to find ingest job: $jobId")
+          out ! s"No running job found with id: $jobId."
       }
 
       Props(IngestActor())

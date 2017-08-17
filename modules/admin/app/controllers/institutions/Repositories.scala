@@ -249,8 +249,8 @@ case class Repositories @Inject()(
       action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+  def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     Ok(views.html.admin.utils.ingest(request.item, None, IngestParams.ingestForm,
-      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, "ead-sync"), sync = true))
+      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, s"ead${if (sync) "-sync" else ""}"), sync = sync))
   }
 }
