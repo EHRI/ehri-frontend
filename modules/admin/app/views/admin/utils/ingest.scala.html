@@ -65,7 +65,7 @@
                           var websocket = new WebSocket(data.url);
                           websocket.onopen = function() {
                               //websocket.send();
-                              console.log("Opened connection!")
+                              console.log("Opened monitoring socket...")
                           };
                           websocket.onerror = function(e) {
                             console.log(e);
