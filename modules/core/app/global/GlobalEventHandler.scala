@@ -7,7 +7,7 @@ import services.data.EventHandler
 import services.search.SearchIndexMediator
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Failure
+
 
 case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator)(implicit executionContext: ExecutionContext) extends EventHandler {
 
@@ -19,8 +19,8 @@ case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator)(impl
   import java.util.concurrent.TimeUnit
   import scala.concurrent.duration.Duration
 
-  def logFailure(id: String, func: String => Future[Unit]): Unit = func(id).onComplete {
-    case Failure(t) => logger.error(s"Indexing error", t)
+  def logFailure(id: String, func: String => Future[Unit]): Unit = func(id).failed.foreach {
+    t => logger.error(s"Indexing error", t)
   }
 
   def handleCreate(id: String): Unit = logFailure(id, id => searchIndexer.handle.indexIds(id))
