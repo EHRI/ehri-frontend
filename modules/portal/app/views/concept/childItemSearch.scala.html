@@ -4,5 +4,6 @@
     <div id="@item.id-child-item-search" class="child-item-search">
         <h3>@Messages("cvocConcept.narrowerTermsPageHeader", result.page.total)</h3>
         @views.html.common.search.searchItemList(result, watched)
+        @views.html.common.pagination(result.page, call = Some(action))
     </div>
 }
