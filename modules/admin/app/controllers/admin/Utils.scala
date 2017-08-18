@@ -232,16 +232,6 @@ case class Utils @Inject()(
     )
   }
 
-  private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
-    val prefixes = Seq(
-      controllers.portal.routes.DocumentaryUnits.browse("TEST").url,
-      controllers.units.routes.DocumentaryUnits.get("TEST").url
-    ).mkString(",").replaceAll("TEST", "")
-
-    val newURLS = remapUrlsFromPrefixes(movedIds, prefixes)
-    appComponents.pageRelocator.addMoved(newURLS)
-  }
-
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 

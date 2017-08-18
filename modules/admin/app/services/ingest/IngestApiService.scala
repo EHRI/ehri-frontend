@@ -1,6 +1,8 @@
 package services.ingest
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermission
 import javax.inject.Inject
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
@@ -17,8 +19,8 @@ import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator}
 import utils.WebsocketConstants
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 /**
@@ -136,20 +138,53 @@ case class IngestApiService @Inject()(
   private def handleIngest(data: IngestData): Future[Either[String, IngestResult]] = {
     import scala.concurrent.duration._
 
+    // We need to pass the server a reference of the properties file
+    // which it can read, which involves copying it.
+    // NB: Hack that assumes the server is on the same
+    // host and we really shouldn't do this!
+    val props: Option[java.nio.file.Path] = data.params.properties.map { propTmp =>
+      import scala.collection.JavaConverters._
+      val readTmp = Files.createTempFile(s"ingest", ".properties")
+      propTmp.moveTo(readTmp, replace = true)
+      val perms = Set(
+        PosixFilePermission.OTHERS_READ,
+        PosixFilePermission.GROUP_READ,
+        PosixFilePermission.OWNER_READ,
+        PosixFilePermission.OWNER_WRITE)
+      Files.setPosixFilePermissions(readTmp, perms.asJava)
+      readTmp
+    }
+
+    def wsParams(params: IngestParams): Seq[(String, String)] = {
+      import IngestParams._
+      Seq(
+        SCOPE -> params.scope,
+        TOLERANT -> params.tolerant.toString,
+        ALLOW_UPDATE -> params.allowUpdate.toString,
+        LOG -> params.log,
+        COMMIT -> params.commit.toString) ++
+        params.fonds.map(FONDS -> _).toSeq ++
+        params.handler.map(HANDLER -> _).toSeq ++
+        params.importer.map(IMPORTER -> _).toSeq ++
+        params.excludes.map(EXCLUDES -> _) ++
+        props.map(PROPERTIES_FILE -> _.toAbsolutePath.toString)
+    }
+
     logger.info(s"Dispatching ingest: ${data.params}")
-    ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${data.dataType}")
+    val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${data.dataType}")
       .withRequestTimeout(20.minutes)
       .addHttpHeaders(data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> data.contentType)
-      .addQueryStringParameters(data.params.toParams: _*)
+      .addQueryStringParameters(wsParams(data.params): _*)
       .withMethod(HttpVerbs.POST)
-      .withBody(data.file)
+      .withBody(data.params.file.map(_.toFile)
+        .getOrElse(sys.error("Unexpectedly empty ingest data!")))
       .stream()
       .flatMap { r =>
         //logger.debug(s"Ingest response: ${r.body}")
-        logger.info(s"Got status from ingest of: ${r.status}")
+        logger.debug(s"Got status from ingest of: ${r.status}")
         r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
-          logger.info("Parsing data...")
+          logger.debug("Parsing ingest output data...")
           try {
             Right(Json.parse(s.toArray).as[IngestResult])
           } catch {
@@ -161,13 +196,20 @@ case class IngestApiService @Inject()(
         logger.error("Error running ingest", e)
         Left(e.getMessage)
     }
+
+    upload.onComplete { _ =>
+      // Delete properties temp file...
+      props.foreach(f => f.toFile.delete())
+    }
+
+    upload
   }
 
   // If we ran a sync job, handle moving and reindexing
   private def handleSyncResult(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
     msg("Received a valid sync manifest...", chan)
     handleIngestResult(job, sync.log).andThen { case _ =>
-      msg(s"Sync: deleted: ${sync.deleted.size}, moved: ${sync.moved.size}", chan)
+      msg(s"Sync: deleted: ${sync.deleted.size}, created: ${sync.created.size}, moved: ${sync.moved.size}", chan)
       if (job.data.params.commit) {
         if (sync.moved.nonEmpty) {
           remapMovedUnits(sync.moved.toSeq)

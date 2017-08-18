@@ -9,10 +9,9 @@ import scala.concurrent.Future
 object IngestApi {
 
   case class IngestData(
-    dataType: String,
     params: IngestParams,
+    dataType: String,
     contentType: String,
-    file: java.io.File,
     user: ApiUser
   )
 

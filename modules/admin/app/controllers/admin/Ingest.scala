@@ -1,6 +1,8 @@
 package controllers.admin
 
 import java.io.File
+import java.nio.file.attribute.{PosixFileAttributes, PosixFilePermission, PosixFilePermissions}
+import java.nio.file.{Files, Paths}
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
@@ -83,23 +85,18 @@ case class Ingest @Inject()(
           val jobId = UUID.randomUUID().toString
 
           // We only want XML types here, everything else is just binary
-          val ct = data.contentType.filter(_.endsWith("xml"))
+          val contentType = data.contentType.filter(_.endsWith("xml"))
             .getOrElse(play.api.http.ContentTypes.BINARY)
 
           // Save the properties file, if given, to a temp file on the server.
           // NB: Overcomplicated due to https://github.com/playframework/playframework/issues/6203
-          val props: Option[java.io.File] = request.body
+          val props: Option[TemporaryFile] = request.body
               .file(IngestParams.PROPERTIES_FILE)
               .filter(_.filename.nonEmpty)
-              .map { f =>
-            val propsTmp: java.io.File = File.createTempFile(s"ingest-$jobId", ".properties")
-            propsTmp.deleteOnExit()
-            f.ref.moveTo(propsTmp, replace = true)
-            propsTmp
-          }
+              .map(_.ref)
 
-          val task = ingestTask.copy(properties = props)
-          val ingest = IngestData(dataType, task, ct, data.ref.path.toFile, AuthenticatedUser(request.user.id))
+          val task = ingestTask.copy(properties = props, file = Some(data.ref))
+          val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id))
 
           val runner = system.actorOf(Props(IngestActor()), jobId)
           runner ! IngestJob(jobId, ingest)
