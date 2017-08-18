@@ -73,7 +73,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
         val messages = await(out)
         messages.head.asTextMessage.getStrictText must contain(jobId)
         messages must contain(TextMessage.Strict(JsString("Data: created: 5, updated: 0, unchanged: 0").toString))
-        messages must contain(TextMessage.Strict(JsString("Sync: deleted: 0, created: 5, moved: 0").toString))
+        messages must contain(TextMessage.Strict(JsString("Sync: moved: 0, new: 5, deleted: 0").toString))
         messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
       }
     }
