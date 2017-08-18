@@ -5,6 +5,7 @@ import java.io.File
 import defines.EntityType
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.libs.Files.TemporaryFile
 
 
 case class IngestParams(
@@ -17,27 +18,10 @@ case class IngestParams(
   handler: Option[String] = None,
   importer: Option[String] = None,
   excludes: Seq[String] = Nil,
-  file: Option[File] = None,
-  properties: Option[File] = None,
+  file: Option[TemporaryFile] = None,
+  properties: Option[TemporaryFile] = None,
   commit: Boolean = false
-) {
-  def toParams: Seq[(String, String)] = {
-    import IngestParams._
-    Seq(
-      SCOPE -> scope,
-      TOLERANT -> tolerant.toString,
-      ALLOW_UPDATE -> allowUpdate.toString,
-      LOG -> log,
-      COMMIT -> commit.toString) ++
-    fonds.map(FONDS -> _).toSeq ++
-    handler.map(HANDLER -> _).toSeq ++
-    importer.map(IMPORTER -> _).toSeq ++
-    excludes.map(EXCLUDES -> _) ++
-    // NB: Hack that assumes the server is on the same
-    // host and we really shouldn't do this!
-    properties.map(PROPERTIES_FILE -> _.getAbsolutePath)
-  }
-}
+)
 
 object IngestParams {
   val SCOPE_TYPE = "scope-type"
@@ -66,8 +50,8 @@ object IngestParams {
       EXCLUDES -> optional(text).transform[Seq[String]](
         _.map(_.split("\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
-      DATA_FILE -> ignored(Option.empty[File]),
-      PROPERTIES_FILE -> ignored(Option.empty[File]),
+      DATA_FILE -> ignored(Option.empty[TemporaryFile]),
+      PROPERTIES_FILE -> ignored(Option.empty[TemporaryFile]),
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )
