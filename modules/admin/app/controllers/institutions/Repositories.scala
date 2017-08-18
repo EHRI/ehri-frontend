@@ -8,11 +8,11 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
-import models.admin.IngestParams
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.ingest.IngestParams
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers

@@ -8,10 +8,10 @@ import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import defines.EntityType
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
-import models.admin.IngestParams
 import org.apache.commons.io.FileUtils
 import play.api.libs.json.JsString
 import play.api.test.FakeRequest
+import services.ingest.IngestParams
 
 import scala.concurrent.{Future, Promise}
 
