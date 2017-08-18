@@ -8,13 +8,13 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import models.{Entity, _}
-import models.admin.IngestParams
 import play.api.Configuration
 import play.api.http.HeaderNames
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import services.data.{Constants, DataHelpers, IdGenerator}
+import services.ingest.IngestParams
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
