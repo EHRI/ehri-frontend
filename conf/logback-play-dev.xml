@@ -51,8 +51,8 @@
   <logger name="com.zaxxer.hikari" level="ERROR" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
 
-  <!-- Uncomment to see backend request HTTP calls -->
-  <!-- <logger name="services" level="DEBUG" /> -->
+  <!-- Change to DEBUG to see backend request HTTP calls -->
+  <logger name="services" level="INFO" />
 
   <!-- Uncomment to see how indexed entities are converted to Solr docs.
        Don't leave this on in production. -->
