@@ -7,10 +7,9 @@ import javax.inject.Inject
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
 import akka.stream.Materializer
-import akka.util.ByteString
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 import defines.EntityType
-import play.api.http.{HeaderNames, HttpVerbs}
+import play.api.http.HeaderNames
 import play.api.libs.json.{JsResultException, Json, Reads}
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
@@ -21,6 +20,7 @@ import utils.WebsocketConstants
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
 
 
 /**
@@ -34,7 +34,9 @@ case class IngestApiService @Inject()(
   pageRelocator: MovedPageLookup
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestApi {
 
-  import IngestApi._
+  import services.ingest.IngestApi._
+  import scala.concurrent.duration._
+
 
   private implicit val ec: ExecutionContext = mat.executionContext
   private val logger = Logger(getClass)
@@ -77,7 +79,6 @@ case class IngestApiService @Inject()(
   }
 
   case class Ticker() extends Actor {
-    import scala.concurrent.duration._
     private val states = Vector("|", "/", "-", "\\")
 
     override def receive: Receive = init
@@ -121,7 +122,6 @@ case class IngestApiService @Inject()(
     ).map(_.replace("TEST", ""))
 
     pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, prefixes)).map { num =>
-      msg(s"Relocated $num item(s)", chan)
       num
     }
   }
@@ -130,6 +130,7 @@ case class IngestApiService @Inject()(
   private def reindex(entityType: EntityType.Value, id: String)(implicit chan: ActorRef): Future[Unit] = {
     msg(s"Reindexing... $entityType $id", chan)
     indexer.clearKeyValue(SearchConstants.HOLDER_ID, id).flatMap { _ =>
+      msg(s"Cleared ${SearchConstants.HOLDER_ID}: $id", chan)
       indexer.indexChildren(entityType, id)
     }
   }
@@ -176,25 +177,17 @@ case class IngestApiService @Inject()(
       .addHttpHeaders(data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> data.contentType)
       .addQueryStringParameters(wsParams(data.params): _*)
-      .withMethod(HttpVerbs.POST)
-      .withBody(data.params.file.map(_.toFile)
+      .post(data.params.file.map(_.toFile)
         .getOrElse(sys.error("Unexpectedly empty ingest data!")))
-      .stream()
-      .flatMap { r =>
-        //logger.debug(s"Ingest response: ${r.body}")
-        logger.debug(s"Got status from ingest of: ${r.status}")
-        r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
-          logger.debug("Parsing ingest output data...")
-          try {
-            Right(Json.parse(s.toArray).as[IngestResult])
-          } catch {
-            case (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
-          }
+      .map { r =>
+        logger.debug(s"Ingest WS status: ${r.status}")
+        try Right(r.json.as[IngestResult]) catch {
+          case (_: JsonMappingException | _: JsResultException) => Left(r.body)
         }
       } recover {
       case e: Throwable =>
         logger.error("Error running ingest", e)
-        Left(e.getMessage)
+        Left(s"Error running ingest: ${e.getMessage}")
     }
 
     upload.onComplete { _ =>
@@ -208,11 +201,14 @@ case class IngestApiService @Inject()(
   // If we ran a sync job, handle moving and reindexing
   private def handleSyncResult(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
     msg("Received a valid sync manifest...", chan)
-    handleIngestResult(job, sync.log).andThen { case _ =>
-      msg(s"Sync: deleted: ${sync.deleted.size}, created: ${sync.created.size}, moved: ${sync.moved.size}", chan)
+    handleIngestResult(job, sync.log).flatMap { _ =>
+      msg(s"Sync: moved: ${sync.moved.size}, new: ${sync.created.size}, deleted: ${sync.deleted.size}", chan)
       if (job.data.params.commit) {
         if (sync.moved.nonEmpty) {
-          remapMovedUnits(sync.moved.toSeq)
+          msg("Creating redirects...", chan)
+          remapMovedUnits(sync.moved.toSeq).map { num =>
+            msg(s"Relocated $num item(s)", chan)
+          }
         } else {
           msg("No reindexing necessary", chan)
           immediate(())
@@ -251,13 +247,13 @@ case class IngestApiService @Inject()(
 
     val mainTask: Future[Either[String, IngestResult]] = handleIngest(job.data)
 
-    val ticker = actorSystem.actorOf(Ticker.props)
+    val ticker: ActorRef = actorSystem.actorOf(Ticker.props)
     ticker ! (chan -> "Ingesting")
     mainTask.onComplete { _ =>
       ticker ! Ticker.Stop
     }
 
-    val allTasks = mainTask.flatMap {
+    val allTasks: Future[Unit] = mainTask.flatMap {
       case Right(result) => result match {
         case log: ImportLog => handleIngestResult(job, log)(chan)
         case log: SyncLog => handleSyncResult(job, log)(chan)
@@ -268,8 +264,11 @@ case class IngestApiService @Inject()(
         immediate(())
     }
 
-    allTasks.onComplete { _ =>
-      msg(WebsocketConstants.DONE_MESSAGE, chan)
+    allTasks.onComplete {
+      case Failure(e) =>
+        logger.error("Ingest error: ", e)
+        msg(WebsocketConstants.ERR_MESSAGE, chan)
+      case _ => msg(WebsocketConstants.DONE_MESSAGE, chan)
     }
 
     allTasks
