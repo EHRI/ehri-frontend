@@ -47,9 +47,9 @@ case class Ingest @Inject()(
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
 
 
+  // Actor that just prints out a progress indicator
   object Ticker {
     def props = Props(new Ticker())
-
     case object Stop
     case object Run
   }
@@ -73,44 +73,15 @@ case class Ingest @Inject()(
     }
   }
 
+  // Actor that runs the actual index tasks
   object IngestActor {
-
     case class IngestData(
       dataType: String,
       params: IngestParams,
       ct: String,
       file: java.io.File,
       user: UserProfile
-    ) {
-      def run(): Future[Either[String, IngestResult]] = {
-        import scala.concurrent.duration._
-
-        logger.info(s"Dispatching ingest: $params")
-        ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/$dataType")
-          .withRequestTimeout(20.minutes)
-          .addHttpHeaders(Constants.AUTH_HEADER_NAME -> user.id)
-          .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)
-          .addQueryStringParameters(params.toParams: _*)
-          .withMethod(HttpVerbs.POST)
-          .withBody(file)
-          .stream().flatMap { r =>
-          //logger.debug(s"Ingest response: ${r.body}")
-          logger.info(s"Got status from ingest of: ${r.status}")
-          r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
-            logger.info("Parsing data...")
-            try {
-              Right(Json.parse(s.toArray).as[IngestResult])
-            } catch {
-              case (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
-            }
-          }
-        } recover {
-          case e: Throwable =>
-            e.printStackTrace()
-            Left(e.getMessage)
-        }
-      }
-    }
+    )
 
     // A job with a given ID tag
     case class IngestJob(id: String, data: IngestData)
@@ -141,55 +112,100 @@ case class Ingest @Inject()(
       implicit val reads: Reads[ErrorLog] = Json.reads[ErrorLog]
     }
 
-    def msg(s: String, chan: ActorRef): Unit = {
+    private def msg(s: String, chan: ActorRef): Unit = {
       logger.info(s)
       chan ! s
     }
 
-    private def indexer(implicit chan: ActorRef) = searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
+    // Get an indexer handle with our our channel and filtered output
+    private def indexer(implicit chan: ActorRef) =
+      searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
-    private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
-      def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
-
-      items.flatMap { case (from, to) =>
-        prefixes.split(',').map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
+    // Create 301 redirects for items that have moved URLs
+    private def remapMovedUnits(movedIds: Seq[(String, String)])(implicit chan: ActorRef): Future[Int] = {
+      def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
+        def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+        items.flatMap { case (from, to) =>
+          prefixes.map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
+        }
       }
-    }
-
-    private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
+      // Bit of a hack. Use the reverse routes to get relative URLs
+      // with a fake ID, then remove the ID.
       val prefixes = Seq(
         controllers.portal.routes.DocumentaryUnits.browse("TEST").url,
         controllers.units.routes.DocumentaryUnits.get("TEST").url
-      ).mkString(",").replaceAll("TEST", "")
+      ).map(_.replace("TEST", ""))
 
-      val newURLS = remapUrlsFromPrefixes(movedIds, prefixes)
-      appComponents.pageRelocator.addMoved(newURLS)
-    }
-
-    private def handleSync(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
-      msg("Received a valid sync manifest...", chan)
-      msg(s"  Data: created: ${sync.log.created}, updated: ${sync.log.updated}, unchanged: ${sync.log.unchanged}", chan)
-      msg(s"  Sync: deleted: ${sync.deleted.size}, moved: ${sync.moved.size}", chan)
-      if (job.data.params.commit) remapMovedUnits(sync.moved.toSeq).flatMap { num =>
+      appComponents.pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, prefixes)).map { num =>
         msg(s"Relocated $num item(s)", chan)
-        msg("Reindexing...", chan)
-        indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
-          indexer.indexChildren(job.data.params.scopeType, job.data.params.scope)
-        }
-      } else {
-        msg("Task was a dry run so not proceeding to reindex", chan)
-        immediate(())
+        num
       }
     }
 
-    private def handleImport(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
-      msg("Received a valid import manifest...", chan)
+    // Re-index the scope in which the ingest was run
+    private def reindex(entityType: EntityType.Value, id: String)(implicit chan: ActorRef): Future[Unit] = {
+      msg(s"Reindexing... $entityType $id", chan)
+      indexer.clearKeyValue(SearchConstants.HOLDER_ID, id).flatMap { _ =>
+        indexer.indexChildren(entityType, id)
+      }
+    }
+
+    // Run the actual data ingest on the backend
+    private def handleIngest(data: IngestData): Future[Either[String, IngestResult]] = {
+      import scala.concurrent.duration._
+
+      logger.info(s"Dispatching ingest: ${data.params}")
+      ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${data.dataType}")
+        .withRequestTimeout(20.minutes)
+        .addHttpHeaders(Constants.AUTH_HEADER_NAME -> data.user.id)
+        .addHttpHeaders(HeaderNames.CONTENT_TYPE -> data.ct)
+        .addQueryStringParameters(data.params.toParams: _*)
+        .withMethod(HttpVerbs.POST)
+        .withBody(data.file)
+        .stream()
+        .flatMap { r =>
+        //logger.debug(s"Ingest response: ${r.body}")
+        logger.info(s"Got status from ingest of: ${r.status}")
+        r.bodyAsSource.runFold(ByteString.empty)(_ ++ _).map{ s =>
+          logger.info("Parsing data...")
+          try {
+            Right(Json.parse(s.toArray).as[IngestResult])
+          } catch {
+            case (_: JsonParseException | _: JsResultException) => Left(s.utf8String)
+          }
+        }
+      } recover {
+        case e: Throwable =>
+          logger.error("Error running ingest", e)
+          Left(e.getMessage)
+      }
+    }
+
+    // If we ran a sync job, handle moving and reindexing
+    private def handleSyncResult(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
+      msg("Received a valid sync manifest...", chan)
+      handleIngestResult(job, sync.log).andThen { case _ =>
+        msg(s"  Sync: deleted: ${sync.deleted.size}, moved: ${sync.moved.size}", chan)
+        if (job.data.params.commit) {
+          if (sync.moved.nonEmpty) {
+            remapMovedUnits(sync.moved.toSeq)
+          } else {
+            msg("No reindexing necessary", chan)
+            immediate(())
+          }
+        } else {
+          msg("Task was a dry run so not creating redirects", chan)
+          immediate(())
+        }
+      }
+    }
+
+    // Handle reindexing if item have changed
+    private def handleIngestResult(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
       msg(s"  Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}", chan)
       if (job.data.params.commit) {
         if (log.created > 0 || log.updated > 0) {
-          indexer.clearKeyValue(SearchConstants.HOLDER_ID, job.data.params.scope).flatMap { _ =>
-            indexer.indexChildren(job.data.params.scopeType, job.data.params.scope)
-          }
+          reindex(job.data.params.scopeType, job.data.params.scope)
         } else {
           msg("No reindexing necessary", chan)
           immediate(())
@@ -220,7 +236,7 @@ case class Ingest @Inject()(
       case chan: ActorRef =>
         msg(s"Initialising ingest for job: ${job.id}...", chan)
 
-        val mainTask: Future[Either[String, IngestResult]] = job.data.run()
+        val mainTask: Future[Either[String, IngestResult]] = handleIngest(job.data)
 
         val ticker = system.actorOf(Ticker.props)
         ticker ! (chan -> "Ingesting")
@@ -230,8 +246,8 @@ case class Ingest @Inject()(
 
         val allTasks = mainTask.flatMap {
           case Right(result) => result match {
-            case log: ImportLog => handleImport(job, log)(chan)
-            case log: SyncLog => handleSync(job, log)(chan)
+            case log: ImportLog => handleIngestResult(job, log)(chan)
+            case log: SyncLog => handleSyncResult(job, log)(chan)
             case err: ErrorLog => handleError(job, err)(chan)
           }
           case Left(errorString) =>
@@ -319,7 +335,7 @@ case class Ingest @Inject()(
         case Success(ref) =>
           logger.info(s"Monitoring job: $jobId")
           ref ! out
-        case Failure(ex) =>
+        case Failure(_) =>
           logger.warn(s"Unable to find ingest job: $jobId")
           out ! s"No running job found with id: $jobId."
       }
