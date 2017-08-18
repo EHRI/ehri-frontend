@@ -22,18 +22,18 @@ extends SearchIndexMediator {
   */
 case class CmdlineIndexMediatorHandle(
   chan: Option[ActorRef] = None,
-  processFunc: String => String = identity[String]
+  processFunc: String => String = identity[String],
+  progressFilter: Int => Boolean = _ % 100 == 0
 )(implicit config: play.api.Configuration, executionContext: ExecutionContext)
   extends SearchIndexMediatorHandle {
 
-  override def withChannel(actorRef: ActorRef, formatter: String => String): CmdlineIndexMediatorHandle =
-    copy(chan = Some(actorRef), processFunc = formatter)
+  override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): CmdlineIndexMediatorHandle =
+    copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)
 
   /**
     * Process logger which buffers output to `bufferCount` lines
     */
   object logger extends ProcessLogger {
-    val bufferCount = 100
     // number of lines to buffer...
     var count = 0
     val errBuffer: EvictingQueue[String] = EvictingQueue.create[String](10)
@@ -56,7 +56,7 @@ case class CmdlineIndexMediatorHandle(
 
     private def report(): Unit = {
       count += 1
-      if (count % bufferCount == 0) {
+      if (progressFilter(count)) {
         chan.foreach(_ ! processFunc("Items processed: " + count))
       }
     }

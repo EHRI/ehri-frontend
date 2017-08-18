@@ -12,6 +12,7 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.ingest.IngestParams
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
@@ -339,6 +340,14 @@ case class DocumentaryUnits @Inject()(
       Ok(views.html.admin.documentaryUnit.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }
+
+
+  def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    request.item.holder.map { scope =>
+      Ok(views.html.admin.utils.ingest(scope, Some(request.item), IngestParams.ingestForm,
+        controllers.admin.routes.Ingest.ingestPost(scope.isA, scope.id, "ead-sync", Some(id)), sync = true))
+    }.getOrElse(InternalServerError(views.html.errors.fatalError()))
+  }
 }
 
 

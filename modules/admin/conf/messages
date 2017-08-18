@@ -1294,6 +1294,37 @@ systemEvent.filter=Filter Events
 systemEvent.user=Users
 systemEvent.list=System Events
 
-
-
-
+#
+# Common ingest messages
+#
+ingest=Ingest
+ingest.header=Ingest Data: {0}
+ingest.submit=Submit
+ingest.monitor=Ingest Progress
+ingest.sync.warning.note=Warning
+ingest.sync.warning=Sync ingest will delete items not present in the incoming data unless their IDs are explicitly excluded \
+  in the excluded IDs section.
+ingest.sync.confirm=Confirm synchronisation
+ingest.parameters=Parameters
+ingest.parameters.advanced=Advanced
+ingest.allow-update=Allow item updates
+ingest.allow-update.description=Permit the importer to update existing items
+ingest.tolerant=Tolerant
+ingest.tolerant.description=Continue importing items even if there are individual validation errors
+ingest.ex=Excluded IDs
+ingest.ex.description=Items IDs, one per line, to exclude from post-synchronisation removal if they are not in the ingest data   
+ingest.log=Log message
+ingest.log.description=Tell people what you''re doing
+ingest.data=Data file
+ingest.data.description=A single XML file or an archive containing multiple files
+ingest.handler=Handler class (Optional)
+ingest.handler.description=The fully-qualified class name of the XML handler class
+ingest.importer=Importer class (Optional)
+ingest.importer.description=The fully-qualified class name of the XML importer class
+ingest.properties=Import properties (Optional)
+ingest.properties.description=A properties file
+ingest.format.ead=EAD
+ingest.format.ead-sync=EAD (Synchronisation)
+ingest.format.eac=EAC
+ingest.commit=Commit Ingest
+ingest.commit.description=Apply the ingest. Leave unchecked to dry-run.

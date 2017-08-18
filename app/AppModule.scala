@@ -14,6 +14,7 @@ import services.accounts.{AccountManager, SqlAccountManager}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
+import services.ingest.{IngestApi, IngestApiService}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver, SearchToolsIndexMediator}
 import services.storage.{FileStorage, S3FileStorage}
@@ -46,5 +47,6 @@ class AppModule extends AbstractModule {
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[MarkdownRenderer]).toProvider(classOf[FlexmarkMarkdownRendererProvider])
     bind(classOf[Cypher]).to(classOf[CypherService])
+    bind(classOf[IngestApi]).to(classOf[IngestApiService])
   }
 }

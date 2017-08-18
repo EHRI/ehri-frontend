@@ -281,3 +281,20 @@ a.inline-action {
 a.inline-action:hover {
   opacity: 1;
 }
+
+// Progress for long-running tasks
+#update-progress {
+  display: none;
+  margin-top: @large-margin;
+  max-height: 200px;
+  overflow: auto;
+  border: 1px solid #ccc;
+
+  pre {
+    margin: 1px;
+    background-color: #fff;
+    font-size: 0.7em;
+    border: none;
+  }
+}
+

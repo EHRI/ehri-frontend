@@ -4,7 +4,6 @@ import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 import javax.inject._
 
-import services.cypher.Cypher
 import com.fasterxml.jackson.databind.MappingIterator
 import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
@@ -17,12 +16,14 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
+import services.cypher.Cypher
 import services.data.AuthenticatedUser
 import services.search.SearchIndexMediator
 import utils.{CsvHelpers, EnumUtils, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+
 
 /**
   * Controller for various monitoring functions and admin utilities.
@@ -37,7 +38,7 @@ case class Utils @Inject()(
 ) extends AdminController {
 
   override val staffOnly = false
-  private val logger = play.api.Logger(getClass)
+  private def logger = play.api.Logger(classOf[Utils])
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -86,7 +87,7 @@ case class Utils @Inject()(
   )
 
   def addMovedItems(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.movedItemsForm(urlMapForm,
+    Ok(views.html.admin.utils.movedItemsForm(urlMapForm,
       controllers.admin.routes.Utils.addMovedItemsPost()))
   }
 
@@ -94,13 +95,13 @@ case class Utils @Inject()(
     AdminAction.async(parsers.multipartFormData) { implicit request =>
       val boundForm: Form[String] = urlMapForm.bindFromRequest
       boundForm.fold(
-        errForm => immediate(BadRequest(views.html.admin.movedItemsForm(errForm,
+        errForm => immediate(BadRequest(views.html.admin.utils.movedItemsForm(errForm,
           controllers.admin.routes.Utils.addMovedItemsPost()))),
         prefix => request.body.file("csv").map { file =>
           updateFromCsv(new FileInputStream(file.ref.path.toFile), prefix)
-            .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+            .map(newUrls => Ok(views.html.admin.utils.movedItemsAdded(newUrls)))
         }.getOrElse {
-          immediate(Ok(views.html.admin.movedItemsForm(
+          immediate(Ok(views.html.admin.utils.movedItemsForm(
             boundForm.withError("csv", "No CSV file found"),
             controllers.admin.routes.Utils.addMovedItemsPost())))
         }
@@ -108,7 +109,7 @@ case class Utils @Inject()(
     }
 
   def renameItems(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.renameItemsForm(urlMapForm,
+    Ok(views.html.admin.utils.renameItemsForm(urlMapForm,
       controllers.admin.routes.Utils.renameItemsPost()))
   }
 
@@ -116,17 +117,17 @@ case class Utils @Inject()(
     AdminAction.async(parsers.multipartFormData) { implicit request =>
       val boundForm: Form[String] = urlMapForm.bindFromRequest
       boundForm.fold(
-        errForm => immediate(BadRequest(views.html.admin.renameItemsForm(errForm,
-          controllers.admin.routes.Utils.renameItemsPost()))),
+        errForm => immediate(BadRequest(views.html.admin.utils
+          .renameItemsForm(errForm, controllers.admin.routes.Utils.renameItemsPost()))),
         prefix => request.body.file("csv").map { file =>
           val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
             .collect { case from :: to :: _ => from -> to }
           userDataApi.rename(todo).flatMap { items =>
             updateFromCsv(items, prefix)
-              .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+              .map(newUrls => Ok(views.html.admin.utils.movedItemsAdded(newUrls)))
           }
         }.getOrElse {
-          immediate(Ok(views.html.admin.movedItemsForm(
+          immediate(Ok(views.html.admin.utils.movedItemsForm(
             boundForm.withError("csv", "No CSV file found"),
             controllers.admin.routes.Utils.renameItemsPost())))
         }
@@ -145,11 +146,11 @@ case class Utils @Inject()(
 
   def regenerateIds(): Action[AnyContent] = AdminAction.apply { implicit request =>
     regenerateForm.bindFromRequest.fold(
-      err => BadRequest(views.html.admin.regenerate(err,
+      err => BadRequest(views.html.admin.utils.regenerate(err,
         controllers.admin.routes.Utils.regenerateIds())), {
         case (Some(et), None) => Redirect(controllers.admin.routes.Utils.regenerateIdsForType(et))
         case (None, Some(id)) => Redirect(controllers.admin.routes.Utils.regenerateIdsForScope(id))
-        case _ => Ok(views.html.admin.regenerate(regenerateForm,
+        case _ => Ok(views.html.admin.utils.regenerate(regenerateForm,
           controllers.admin.routes.Utils.regenerateIds()))
       }
     )
@@ -164,19 +165,19 @@ case class Utils @Inject()(
 
   def regenerateIdsForType(ct: defines.ContentTypes.Value): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) userDataApi.regenerateIdsForType(ct).map { items =>
-      Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
+      Ok(views.html.admin.utils.regenerateIdsForm(regenerateIdsForm
         .fill("" -> items.map { case (f, t) => (f, t, true) }),
         controllers.admin.routes.Utils.regenerateIdsPost()))
-    } else immediate(Ok(views.html.admin.regenerateIds(regenerateIdsForm,
+    } else immediate(Ok(views.html.admin.utils.regenerateIds(regenerateIdsForm,
       controllers.admin.routes.Utils.regenerateIdsForType(ct))))
   }
 
   def regenerateIdsForScope(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) userDataApi.regenerateIdsForScope(id).map { items =>
-        Ok(views.html.admin.regenerateIdsForm(regenerateIdsForm
+        Ok(views.html.admin.utils.regenerateIdsForm(regenerateIdsForm
           .fill("" -> items.map { case (f, t) => (f, t, true) }),
           controllers.admin.routes.Utils.regenerateIdsPost()))
-    } else immediate(Ok(views.html.admin.regenerateIds(regenerateIdsForm,
+    } else immediate(Ok(views.html.admin.utils.regenerateIds(regenerateIdsForm,
       controllers.admin.routes.Utils.regenerateIdsForScope(id))))
   }
 
@@ -184,14 +185,14 @@ case class Utils @Inject()(
   def regenerateIdsPost(): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
     val boundForm: Form[(String, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
     boundForm.fold(
-      errForm => immediate(BadRequest(views.html.admin.regenerateIds(errForm,
+      errForm => immediate(BadRequest(views.html.admin.utils.regenerateIds(errForm,
         controllers.admin.routes.Utils.regenerateIdsPost()))), {
       case (prefix, items) =>
         val activeIds = items.collect { case (f, _, true) => f }
         logger.info(s"Renaming: $activeIds")
         userDataApi.regenerateIds(activeIds, commit = true).flatMap { items =>
           updateFromCsv(items, prefix)
-            .map(newUrls => Ok(views.html.admin.movedItemsAdded(newUrls)))
+            .map(newUrls => Ok(views.html.admin.utils.movedItemsAdded(newUrls)))
         }
       }
     )
@@ -200,16 +201,18 @@ case class Utils @Inject()(
   import models.admin.FindReplaceTask
 
   def findReplace: Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.findReplace(FindReplaceTask.form, None,
+    Ok(views.html.admin.utils.findReplace(FindReplaceTask.form, None,
       controllers.admin.routes.Utils.findReplacePost(),
       controllers.admin.routes.Utils.findReplacePost(commit = true)))
   }
 
-  def findReplacePost(commit: Boolean = false): Action[AnyContent] = AdminAction.async { implicit request =>
+  private val indexer = searchIndexer.handle
+
+  def findReplacePost(commit: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     val boundForm = FindReplaceTask.form.bindFromRequest()
     boundForm.fold(
       errForm => immediate(
-        BadRequest(views.html.admin.findReplace(errForm, None,
+        BadRequest(views.html.admin.utils.findReplace(errForm, None,
           controllers.admin.routes.Utils.findReplacePost(),
           controllers.admin.routes.Utils.findReplacePost(commit = true)))
       ),
@@ -217,12 +220,12 @@ case class Utils @Inject()(
           task.parentType, task.subType, task.property, task.find,
           task.replace, commit, task.log).flatMap { found =>
         if (commit) {
-          searchIndexer.handle.indexIds(found.map(_._1): _*).map { _ =>
+          indexer.indexIds(found.map(_._1): _*).map { _ =>
             Redirect(controllers.admin.routes.Utils.findReplace())
               .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
           }
         }
-        else immediate(Ok(views.html.admin.findReplace(boundForm, Some(found),
+        else immediate(Ok(views.html.admin.utils.findReplace(boundForm, Some(found),
           controllers.admin.routes.Utils.findReplacePost(),
           controllers.admin.routes.Utils.findReplacePost(commit = true))))
       }
@@ -240,9 +243,9 @@ case class Utils @Inject()(
   private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
     for {
     // Delete the old IDs from the search engine...
-      _ <- searchIndexer.handle.clearIds(items.map(_._1): _*)
+      _ <- indexer.clearIds(items.map(_._1): _*)
       // Index the new ones....
-      _ <- searchIndexer.handle.indexIds(items.map(_._2): _*)
+      _ <- indexer.indexIds(items.map(_._2): _*)
       // Add the 301s to the DB...
       redirectCount <- appComponents.pageRelocator.addMoved(newUrls)
     } yield redirectCount

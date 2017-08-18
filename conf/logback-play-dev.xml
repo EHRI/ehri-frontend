@@ -51,12 +51,12 @@
   <logger name="com.zaxxer.hikari" level="ERROR" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
 
-  <!-- Uncomment to see backend request HTTP calls -->
-  <!-- <logger name="backend" level="DEBUG" /> -->
+  <!-- Change to DEBUG to see backend request HTTP calls -->
+  <logger name="services" level="INFO" />
 
   <!-- Uncomment to see how indexed entities are converted to Solr docs.
        Don't leave this on in production. -->
-  <!-- <logger name="indexing" level="TRACE" /> -->
+  <!-- <logger name="services.search" level="TRACE" /> -->
 
   <!-- Uncomment to see Solr requests -->
   <!-- <logger name="eu.ehri.project.search.solr" level="DEBUG" /> -->
@@ -65,11 +65,12 @@
   <!-- <logger name="eu.ehri.project.core.impl" level="TRACE" /> -->
 
   <!-- Uncomment to see misc controller logging -->
-  <!-- <logger name="controllers" level="DEBUG" /> -->
+  <logger name="controllers" level="INFO" />
+  
+  <!--<logger name="akka.stream" level="TRACE" />-->
 
   <!-- Uncomment to show LOTS of debug info about HTTP calls -->
-  <!-- <logger name="com.ning.http.client" level="DEBUG" /> -->
-  <!-- <logger name="play.api.libs.ws" level="DEBUG" /> -->
+  <!-- <logger name="play.shaded.ahc.org.asynchttpclient" level="DEBUG" />-->
 
   <!-- Configure SQL statement logging (depends on configuration value of
        db.default.logSql being set to true -->

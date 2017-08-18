@@ -2,24 +2,11 @@
 
 @import controllers.admin.IndexChildren._
 
-@extraStyle = {
-    <style>
-    #update-progress {
-        max-height: 200px;
-        overflow: auto;
-    }
-    #update-progress pre {
-        background-color: #fff;
-        font-size: 0.7em;
-    }
-    </style>
-}
-
 @extraScript = {
     <script type="application/javascript">
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
-            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
-            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+            var DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+            var ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
             function getData() {
                 return JSON.stringify({
                     @ID: "@item.id",
@@ -33,7 +20,8 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript, styles = extraStyle, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript,
+        breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @formHelpers.csrfToken()
 

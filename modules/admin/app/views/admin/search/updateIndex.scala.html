@@ -3,24 +3,11 @@
 @import controllers.admin.IndexTypes._
 
 
-@extraStyle = {
-    <style>
-    #update-progress {
-        max-height: 200px;
-        overflow: auto;
-    }
-    #update-progress pre {
-        background-color: #fff;
-        font-size: 0.7em;
-    }
-    </style>
-}
-
 @extraScripts = {
     <script>
             var SOCKET_URI = "@action.webSocketURL(globalConfig.https)";
-            var DONE_MSG = "@controllers.admin.Indexing.DONE_MESSAGE";
-            var ERR_MSG = "@controllers.admin.Indexing.ERR_MESSAGE";
+            var DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+            var ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
             function getData() {
                 return JSON.stringify({
                     @CLEAR_ALL: $("[name=@(CLEAR_ALL)]").prop("checked"),
@@ -34,7 +21,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts, styles = extraStyle) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts) {
     @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
         @helper.checkbox(form(CLEAR_ALL), '_label -> Messages("search.index.clear.all"))
         @helper.checkbox(form(CLEAR_TYPES), '_label -> Messages("search.index.clear.types"))
