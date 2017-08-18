@@ -1,21 +1,27 @@
 package services.ingest
 
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
 import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import defines.EntityType
 import play.api.http.HeaderNames
-import play.api.libs.json.{JsResultException, Json, Reads}
+import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 import services.data.Constants
 import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator}
+import services.storage.FileStorage
 import utils.WebsocketConstants
 
 import scala.concurrent.Future.{successful => immediate}
@@ -31,7 +37,8 @@ case class IngestApiService @Inject()(
   config: Configuration,
   ws: WSClient,
   searchIndexer: SearchIndexMediator,
-  pageRelocator: MovedPageLookup
+  pageRelocator: MovedPageLookup,
+  fileStorage: FileStorage
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestApi {
 
   import services.ingest.IngestApi._
@@ -48,27 +55,33 @@ case class IngestApiService @Inject()(
     implicit val reads: Reads[IngestResult] = Reads { json =>
       json.validate[ErrorLog].orElse(json.validate[ImportLog].orElse(json.validate[SyncLog]))
     }
+    implicit val writes: Writes[IngestResult] = Writes {
+      case i: ImportLog => Json.toJson(i)(ImportLog.format)
+      case i: SyncLog => Json.toJson(i)(SyncLog.format)
+      case i: ErrorLog => Json.toJson(i)(ErrorLog.format)
+    }
+    implicit val format: Format[IngestResult] = Format(reads, writes)
   }
 
   // The result of a regular import
   case class ImportLog(created: Int, updated: Int, unchanged: Int, message: Option[String] = None) extends IngestResult
 
   object ImportLog {
-    implicit val reads: Reads[ImportLog] = Json.reads[ImportLog]
+    implicit val format: Format[ImportLog] = Json.format[ImportLog]
   }
 
   // The result of an EAD synchronisation, which incorporates an import
   case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String], log: ImportLog) extends IngestResult
 
   object SyncLog {
-    implicit val reads: Reads[SyncLog] = Json.reads[SyncLog]
+    implicit val format: Format[SyncLog] = Json.format[SyncLog]
   }
 
   // An import error we can understand, e.g. not a crash!
   case class ErrorLog(error: String, details: String) extends IngestResult
 
   object ErrorLog {
-    implicit val reads: Reads[ErrorLog] = Json.reads[ErrorLog]
+    implicit val format: Format[ErrorLog] = Json.format[ErrorLog]
   }
 
   // Actor that just prints out a progress indicator
@@ -106,6 +119,38 @@ case class IngestApiService @Inject()(
   private def indexer(implicit chan: ActorRef) =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
+  private def storeManifestAndLog(job: IngestJob, res: Either[String, IngestResult]): Future[URI] = {
+    import play.api.libs.json._
+    val out: JsValue = res match {
+      case Left(s) => JsString(s)
+      case Right(r: IngestResult) => Json.toJson(r)
+    }
+
+    val data = Json.obj(
+      "id" -> job.id,
+      "type" -> job.data.dataType,
+      "params" -> Json.obj(
+        "scope" -> job.data.params.scope,
+        "fonds" -> job.data.params.fonds,
+        "update" -> job.data.params.allowUpdate,
+        "log" -> job.data.params.log,
+        "handler" -> job.data.params.handler,
+        "importer" -> job.data.params.importer,
+        "excludes" -> job.data.params.excludes,
+        "properties" -> job.data.params.properties.nonEmpty
+      ),
+      "user" -> job.data.user.toOption,
+      "out" -> out
+    )
+
+    val bytes = Source.single(ByteString.fromArray(
+      Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8)))
+    val classifier = config.get[String]("storage.ingest.classifier")
+    val now = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+    val path = s"ingest-$now-$job.json"
+    fileStorage.putBytes(classifier, path, bytes, public = true)
+  }
+
   // Create 301 redirects for items that have moved URLs
   private def remapMovedUnits(movedIds: Seq[(String, String)])(implicit chan: ActorRef): Future[Int] = {
     def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
@@ -136,14 +181,14 @@ case class IngestApiService @Inject()(
   }
 
   // Run the actual data ingest on the backend
-  private def handleIngest(data: IngestData): Future[Either[String, IngestResult]] = {
+  private def handleIngest(job: IngestJob): Future[Either[String, IngestResult]] = {
     import scala.concurrent.duration._
 
     // We need to pass the server a reference of the properties file
     // which it can read, which involves copying it.
     // NB: Hack that assumes the server is on the same
     // host and we really shouldn't do this!
-    val props: Option[java.nio.file.Path] = data.params.properties.map { propTmp =>
+    val props: Option[java.nio.file.Path] = job.data.params.properties.map { propTmp =>
       import scala.collection.JavaConverters._
       val readTmp = Files.createTempFile(s"ingest", ".properties")
       propTmp.moveTo(readTmp, replace = true)
@@ -171,13 +216,13 @@ case class IngestApiService @Inject()(
         props.map(PROPERTIES_FILE -> _.toAbsolutePath.toString)
     }
 
-    logger.info(s"Dispatching ingest: ${data.params}")
-    val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${data.dataType}")
+    logger.info(s"Dispatching ingest: ${job.data.params}")
+    val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
       .withRequestTimeout(20.minutes)
-      .addHttpHeaders(data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
-      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> data.contentType)
-      .addQueryStringParameters(wsParams(data.params): _*)
-      .post(data.params.file.map(_.toFile)
+      .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
+      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
+      .addQueryStringParameters(wsParams(job.data.params): _*)
+      .post(job.data.params.file.map(_.toFile)
         .getOrElse(sys.error("Unexpectedly empty ingest data!")))
       .map { r =>
         logger.debug(s"Ingest WS status: ${r.status}")
@@ -245,7 +290,7 @@ case class IngestApiService @Inject()(
 
     msg(s"Initialising ingest for job: ${job.id}...", chan)
 
-    val mainTask: Future[Either[String, IngestResult]] = handleIngest(job.data)
+    val mainTask: Future[Either[String, IngestResult]] = handleIngest(job)
 
     val ticker: ActorRef = actorSystem.actorOf(Ticker.props)
     ticker ! (chan -> "Ingesting")
@@ -253,7 +298,15 @@ case class IngestApiService @Inject()(
       ticker ! Ticker.Stop
     }
 
-    val allTasks: Future[Unit] = mainTask.flatMap {
+    val uploadLog: Future[URI] = mainTask.flatMap { out =>
+      msg("Uploading log...", chan)
+      storeManifestAndLog(job, out).map { url =>
+        msg(s"Log stored at $url", chan)
+        url
+      }
+    }
+
+    val ingestTasks: Future[Unit] = mainTask.flatMap {
       case Right(result) => result match {
         case log: ImportLog => handleIngestResult(job, log)(chan)
         case log: SyncLog => handleSyncResult(job, log)(chan)
@@ -263,6 +316,12 @@ case class IngestApiService @Inject()(
         msg(errorString, chan)
         immediate(())
     }
+
+    // Do uploading and result handling asynchronously
+    val allTasks: Future[Unit] = for {
+      _ <- uploadLog
+      _ <- ingestTasks
+    } yield ()
 
     allTasks.onComplete {
       case Failure(e) =>

@@ -1,7 +1,5 @@
 package services.ingest
 
-import java.io.File
-
 import defines.EntityType
 import play.api.data.Form
 import play.api.data.Forms._

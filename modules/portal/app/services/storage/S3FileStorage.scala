@@ -23,8 +23,7 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   private implicit val ec: ExecutionContext = mat.executionContext
   private val s3config: AwsConfig = AwsConfig.fromConfig(config)
   private val cred = AWSCredentials(s3config.accessKey, s3config.secret)
-  private val settings = new S3Settings(MemoryBufferType, "", None, cred, s3config.region, pathStyleAccess = false)
-  println(s"Setting: $settings")
+  private val settings = new S3Settings(MemoryBufferType, "", None, cred, s3config.region, pathStyleAccess = true)
   private val client = new S3Client(settings)
 
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
