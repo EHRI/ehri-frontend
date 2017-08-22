@@ -146,8 +146,9 @@ case class IngestApiService @Inject()(
     val bytes = Source.single(ByteString.fromArray(
       Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8)))
     val classifier = config.get[String]("storage.ingest.classifier")
-    val now = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
-    val path = s"ingest-$now-$job.json"
+    val time = ZonedDateTime.now()
+    val now = time.format(DateTimeFormatter.ofPattern("YYYYMMddHHmmss"))
+    val path = s"ingest-logs/ingest-$now-${job.id}.json"
     fileStorage.putBytes(classifier, path, bytes, public = true)
   }
 
