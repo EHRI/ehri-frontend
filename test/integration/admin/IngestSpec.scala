@@ -75,6 +75,11 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
         messages must contain(TextMessage.Strict(JsString("Data: created: 5, updated: 0, unchanged: 0").toString))
         messages must contain(TextMessage.Strict(JsString("Sync: moved: 0, new: 5, deleted: 0").toString))
         messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
+
+        // check the log has been stored
+        storedFileBuffer.lastOption must beSome.which { f =>
+          f.toString must contain(jobId)
+        }
       }
     }
   }
