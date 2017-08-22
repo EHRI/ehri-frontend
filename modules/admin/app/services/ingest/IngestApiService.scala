@@ -132,15 +132,15 @@ case class IngestApiService @Inject()(
       "params" -> Json.obj(
         "scope" -> job.data.params.scope,
         "fonds" -> job.data.params.fonds,
-        "update" -> job.data.params.allowUpdate,
-        "log" -> job.data.params.log,
+        "allow-update" -> job.data.params.allowUpdate,
         "handler" -> job.data.params.handler,
         "importer" -> job.data.params.importer,
         "excludes" -> job.data.params.excludes,
-        "properties" -> job.data.params.properties.nonEmpty
+        "properties" -> job.data.params.properties.nonEmpty,
+        "commit" -> job.data.params.commit
       ),
       "user" -> job.data.user.toOption,
-      "out" -> out
+      "stats" -> out
     )
 
     val bytes = Source.single(ByteString.fromArray(
@@ -299,11 +299,14 @@ case class IngestApiService @Inject()(
       ticker ! Ticker.Stop
     }
 
-    val uploadLog: Future[URI] = mainTask.flatMap { out =>
+    val uploadLog: Future[Unit] = mainTask.flatMap { out =>
       msg("Uploading log...", chan)
       storeManifestAndLog(job, out).map { url =>
         msg(s"Log stored at $url", chan)
-        url
+      } recover {
+        case e =>
+          logger.error("Unable to upload ingest log:", e)
+          msg(s"Error uploading ingest log: ${e.getMessage}", chan)
       }
     }
 
@@ -320,8 +323,8 @@ case class IngestApiService @Inject()(
 
     // Do uploading and result handling asynchronously
     val allTasks: Future[Unit] = for {
-      _ <- uploadLog
       _ <- ingestTasks
+      _ <- uploadLog
     } yield ()
 
     allTasks.onComplete {
