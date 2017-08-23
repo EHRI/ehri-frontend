@@ -1,8 +1,5 @@
 package controllers.admin
 
-import java.io.File
-import java.nio.file.attribute.{PosixFileAttributes, PosixFilePermission, PosixFilePermissions}
-import java.nio.file.{Files, Paths}
 import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
@@ -58,27 +55,23 @@ case class Ingest @Inject()(
     }
   }
 
-  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] =
-    AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
+  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
 
-      def showForm(form: Form[IngestParams]): Future[Result] = {
-        val scopeItemF: Future[AnyModel] = userDataApi.getAny[AnyModel](scopeId)
-        val fondsItemF: Future[Option[AnyModel]] = fonds
-          .map(id => userDataApi.getAny[AnyModel](id)
-            .map(item => Some(item))).getOrElse(Future.successful(None))
+    def showErrorForm(form: Form[IngestParams]): Future[Result] = {
+      val scopeItemF: Future[AnyModel] = userDataApi.getAny[AnyModel](scopeId)
+      val fondsItemF: Future[Option[AnyModel]] = fonds
+        .map(id => userDataApi.getAny[AnyModel](id)
+          .map(item => Some(item))).getOrElse(Future.successful(None))
 
-        for {
-          scopeItem <- scopeItemF
-          fondsItem <- fondsItemF
-        } yield BadRequest(views.html.admin.utils
-          .ingest(scopeItem, fondsItem, form,
-            controllers.admin.routes.Ingest.ingestPost(scopeType, scopeId, dataType, fonds)))
-      }
+      for (scopeItem <- scopeItemF; fondsItem <- fondsItemF)
+        yield BadRequest(views.html.admin.utils.ingest(scopeItem, fondsItem, form,
+          controllers.admin.routes.Ingest.ingestPost(scopeType, scopeId, dataType, fonds)))
+    }
 
     val boundForm = IngestParams.ingestForm.bindFromRequest()
     request.body.file(IngestParams.DATA_FILE).map { data =>
       boundForm.fold(
-        errForm => showForm(errForm),
+        errForm => showErrorForm(errForm),
         ingestTask => {
 
           // Tag this task with a unique ID...
@@ -111,7 +104,7 @@ case class Ingest @Inject()(
           }
         }
       )
-    }.getOrElse(showForm(boundForm.withError(IngestParams.DATA_FILE, "required")))
+    }.getOrElse(showErrorForm(boundForm.withError(IngestParams.DATA_FILE, "required")))
   }
 
   def ingestMonitor(jobId: String): Action[AnyContent] = AdminAction.apply { implicit request =>

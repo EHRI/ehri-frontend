@@ -167,9 +167,7 @@ case class IngestApiService @Inject()(
       controllers.units.routes.DocumentaryUnits.get("TEST").url
     ).map(_.replace("TEST", ""))
 
-    pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, prefixes)).map { num =>
-      num
-    }
+    pageRelocator.addMoved(remapUrlsFromPrefixes(movedIds, prefixes))
   }
 
   // Re-index the scope in which the ingest was run
@@ -323,9 +321,9 @@ case class IngestApiService @Inject()(
 
     // Do uploading and result handling asynchronously
     val allTasks: Future[Unit] = for {
-      _ <- ingestTasks
       _ <- uploadLog
-    } yield ()
+      r <- ingestTasks
+    } yield r
 
     allTasks.onComplete {
       case Failure(e) =>
