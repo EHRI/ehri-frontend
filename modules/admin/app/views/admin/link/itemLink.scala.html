@@ -1,6 +1,6 @@
-@(link: Link, item: models.base.AnyModel, src: Option[models.base.AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(link: Link, item: models.base.AnyModel, src: Option[models.base.AnyModel], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-<a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
+@views.html.admin.helpers.linkTo(item, content = Html(text.getOrElse(item.toStringLang)))
 <small>
     <span class="label label-default">@Messages("link." + link.model.linkType.toString)</span>
 </small>
