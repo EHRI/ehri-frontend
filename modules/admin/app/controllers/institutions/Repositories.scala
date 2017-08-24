@@ -96,7 +96,6 @@ case class Repositories @Inject()(
    * Search documents inside repository.
    */
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-
     val filters = (if (!hasActiveQuery(request))
       Map(SearchConstants.TOP_LEVEL -> true)
       else Map.empty[String,Any]) ++ Map(SearchConstants.HOLDER_ID -> request.item.id)
@@ -105,6 +104,7 @@ case class Repositories @Inject()(
       facetBuilder = repositoryFacets, sort = SearchSort.Id).map { result =>
       Ok(views.html.admin.repository.show(request.item, result,
         repositoryRoutes.get(id), request.annotations, request.links))
+        .withPreferences(preferences.withRecentItem(id))
     }
   }
 

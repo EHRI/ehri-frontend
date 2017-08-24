@@ -9,7 +9,7 @@ trait SessionPreferences[T] {
 
   protected val defaultPreferences: T
   
-  protected def storeKey = DEFAULT_STORE_KEY
+  protected def storeKey: String = DEFAULT_STORE_KEY
 
   /**
    * Load preferences, ensuring we never error.

@@ -13,9 +13,10 @@ import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.search._
-import utils.{PageParams, SystemEventParams}
+import utils.{PageParams, RangePage, SystemEventParams}
 import views.Helpers
 
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -67,6 +68,7 @@ case class Home @Inject()(
   }
 
   def index(params: SystemEventParams, range: utils.RangeParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+
     val activityEventTypes = List(
       EventType.deletion,
       EventType.creation,
@@ -88,11 +90,16 @@ case class Home @Inject()(
     request.userOpt.map { user =>
       val eventFilter = params.copy(eventTypes = activityEventTypes)
         .copy(itemTypes = activityItemTypes)
-      userDataApi.userEvents[SystemEvent](user.id, range, eventFilter).map { events =>
-        Ok(views.html.admin.index(Some(events)))
-      }
+      val eventsF: Future[RangePage[Seq[SystemEvent]]] = userDataApi
+        .userEvents[SystemEvent](user.id, range, eventFilter)
+      val recentF: Future[Seq[AnyModel]] = userDataApi
+        .fetch[AnyModel](preferences.recentItems)
+        .map(_.collect { case Some(m) => m })
+
+      for (recent <- recentF; events <- eventsF)
+        yield Ok(views.html.admin.index(events, recent))
     } getOrElse {
-      immediate(Ok(views.html.admin.index(None)))
+      immediate(Ok(views.html.admin.index(Seq.empty, Seq.empty)))
     }
   }
 

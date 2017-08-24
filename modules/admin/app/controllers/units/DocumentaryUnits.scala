@@ -124,6 +124,7 @@ case class DocumentaryUnits @Inject()(
       facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
       Ok(views.html.admin.documentaryUnit.show(request.item, result,
         docRoutes.get(id), request.annotations, request.links))
+          .withPreferences(preferences.withRecentItem(id))
     }
   }
 
