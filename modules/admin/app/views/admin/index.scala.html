@@ -1,8 +1,18 @@
-@(activityOpt: Option[Iterable[Seq[SystemEvent]]])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(events: Iterable[Seq[SystemEvent]], recentItems: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
-    @activityOpt.map { events =>
+    @if(recentItems.nonEmpty) {
+        <h3>@Messages("admin.recentlyViewed")</h3>
+        <ul class="list-unstyled">
+            @recentItems.map { item =>
+                <li><h4>@views.html.admin.helpers.linkTo(item)</h4></li>
+            }
+        </ul>
+        <hr/>
+    }
+
+    @if(events.nonEmpty) {
         <h3>@Messages("admin.recentActivity")</h3>
         <ul id="activity-stream" class="list-unstyled">
             @views.html.admin.systemEvent.aggregateList(events)

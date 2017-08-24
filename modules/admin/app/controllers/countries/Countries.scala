@@ -49,6 +49,7 @@ case class Countries @Inject()(
     findType[Repository](params, paging, filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)).map { result =>
       Ok(views.html.admin.country.show(request.item, result,
         countryRoutes.get(id), request.annotations, request.links))
+        .withPreferences(preferences.withRecentItem(id))
     }
   }
 

@@ -8,6 +8,7 @@ pages.more=More
 pages.admin=Admin Site
 
 admin.recentActivity=Recent Activity
+admin.recentlyViewed=Recently Viewed
 admin.home.title=Welcome to the EHRI Administration interface
 admin.metrics=Data Metrics
 admin.metrics.show=Data Overview Graphs

@@ -1,5 +1,6 @@
 package integration.admin
 
+import controllers.base.SessionPreferences
 import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models.{Group, UserProfile, _}
@@ -91,6 +92,13 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "throw a 404 when fetching items with a dodgily encoded id" in new ITestApp {
       val show = FakeRequest(docRoutes.get("c1#desc-eng")).withUser(privilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
+    }
+
+    "save visited items to the session" in new ITestApp {
+      val show = FakeRequest(docRoutes.get("c1")).withUser(privilegedUser).call()
+      session(show).get(SessionPreferences.DEFAULT_STORE_KEY) must beSome.which {
+        _ must contain("c1")
+      }
     }
   }
 

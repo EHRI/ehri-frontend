@@ -59,6 +59,7 @@ case class HistoricalAgents @Inject()(
 
   def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links))
+      .withPreferences(preferences.withRecentItem(id))
   }
 
   def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
