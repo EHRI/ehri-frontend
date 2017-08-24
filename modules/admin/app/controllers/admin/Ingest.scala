@@ -64,7 +64,7 @@ case class Ingest @Inject()(
           .map(item => Some(item))).getOrElse(Future.successful(None))
 
       for (scopeItem <- scopeItemF; fondsItem <- fondsItemF)
-        yield BadRequest(views.html.admin.utils.ingest(scopeItem, fondsItem, form,
+        yield BadRequest(views.html.admin.tools.ingest(scopeItem, fondsItem, form,
           controllers.admin.routes.Ingest.ingestPost(scopeType, scopeId, dataType, fonds)))
     }
 
