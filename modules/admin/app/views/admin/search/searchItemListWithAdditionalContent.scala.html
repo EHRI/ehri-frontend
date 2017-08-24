@@ -5,47 +5,7 @@
         @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
             <li>
                 @priorContent(item)
-                @item match {
-                    case d: DocumentaryUnit => {
-                        @views.html.admin.documentaryUnit.listItem(d)
-                    }
-                    case d: HistoricalAgent => {
-                        @views.html.admin.historicalAgent.listItem(d)
-                    }
-                    case d: Repository => {
-                        @views.html.admin.repository.listItem(d)
-                    }
-                    case d: Concept => {
-                        @views.html.admin.concept.listItem(d)
-                    }
-                    case d: Country => {
-                        @views.html.admin.country.searchItem(d)
-                    }
-                    case d: UserProfile => {
-                        @views.html.admin.userProfile.listItem(d)
-                    }
-                    case d: Group => {
-                        @views.html.admin.group.listItem(d)
-                    }
-                    case d: AuthoritativeSet => {
-                        @views.html.admin.authoritativeSet.listItem(d)
-                    }
-                    case d: VirtualUnit => {
-                        @views.html.admin.virtualUnit.listItem(d, Seq.empty)
-                    }
-                    case d: Vocabulary => {
-                        @views.html.admin.vocabulary.listItem(d)
-                    }
-                    case d: Link => {
-                        @views.html.admin.link.listItem(d)
-                    }
-                    case d: Annotation => {
-                        @views.html.annotation.searchItem(d)
-                    }
-                    case _ => {
-                        @views.html.admin.search.searchItem(item)
-                    }
-                }
+                @views.html.admin.search.searchItem(item)
             </li>
         }
     }

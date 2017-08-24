@@ -1,6 +1,6 @@
 @(items: Seq[SystemEvent])(implicit globalConfig: global.GlobalConfig, messages: Messages)
 
-<li class="list-item">
+<li class="event-item">
     @items.headOption.map { item =>
         @views.html.admin.systemEvent.eventItem(item)
         @defining(items.tail.size) { restCount =>

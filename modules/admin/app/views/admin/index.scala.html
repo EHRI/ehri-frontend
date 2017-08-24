@@ -1,23 +1,28 @@
-@(events: Iterable[Seq[SystemEvent]], recentItems: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(events: Iterable[Seq[SystemEvent]], recentItems: Seq[models.base.AnyModel])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
-    @if(recentItems.nonEmpty) {
-        <h3>@Messages("admin.recentlyViewed")</h3>
-        <ul class="list-unstyled">
-            @recentItems.map { item =>
-                <li><h4>@views.html.admin.helpers.linkTo(item)</h4></li>
-            }
-        </ul>
-        <hr/>
-    }
+    <div class="row">
+        @if(recentItems.nonEmpty) {
+            <div class="col-md-6">
+                <h3>@Messages("admin.recentlyViewed")</h3>
+                <ol class="search-result-list">
+                    @recentItems.map { item =>
+                        <li>@views.html.admin.search.searchItem(item)</li>
+                    }
+                </ol>
+            </div>
+        }
+        @if(events.nonEmpty) {
+            <div class="col-md-6">
+                <h3>@Messages("admin.recentActivity")</h3>
+                <ol id="activity-stream" class="list-unstyled">
+                    @views.html.admin.systemEvent.aggregateList(events)
+                </ol>
+            </div>
+        }
+    </div>
 
-    @if(events.nonEmpty) {
-        <h3>@Messages("admin.recentActivity")</h3>
-        <ul id="activity-stream" class="list-unstyled">
-            @views.html.admin.systemEvent.aggregateList(events)
-        </ul>
-    }
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin) {
