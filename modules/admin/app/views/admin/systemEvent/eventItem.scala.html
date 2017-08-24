@@ -1,13 +1,13 @@
 @(item: SystemEvent)(implicit globalConfig: global.GlobalConfig, messages: Messages)
 
-<h4 class="event-title">
+<h4 class="event-item-heading">
     <a data-timestamp="@item.time" href="@controllers.events.routes.SystemEvents.get(item.id)">
         @item.scope.map(_.toStringLang)
-        <i>@item.toStringLang</i>
+        <i class="event-item-action">@item.toStringLang</i>
     </a>
 </h4>
-<div class="event-details">
-    <ul class="event-meta">
+<div class="event-item-details">
+    <ul class="event-item-meta">
         @item.actioner.map { accessor =>
             <li><a class="alt" href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a></li>
         }
@@ -30,6 +30,6 @@
         }
     }
     @item.model.logMessage.filterNot(_.trim.isEmpty).map { lm =>
-        <blockquote>@lm</blockquote>
+        <div class="event-item-message">@lm</div>
     }
 </div>
