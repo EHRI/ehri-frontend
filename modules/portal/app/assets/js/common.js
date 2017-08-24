@@ -192,5 +192,63 @@ jQuery(function($) {
       })
     }
   });
+
+  /**
+   * Handle cookie pref loading/saving
+   */
+  window.Preferences = {
+    update: function(prefsObj) {
+      var prefs = prefsObj || {};
+      jsRoutes.controllers.portal.Portal.updatePrefs().ajax({
+        data: prefsObj
+      }).error(function(err) {
+        console.error("Unable to update preferences: ", err);
+      });
+    },
+
+    updateValue: function(key, value) {
+      var tmp = {};
+      tmp[key] = value;
+      return this.update(tmp);
+    }
+  };
+
+  /**
+   * Handle updating global preferences when certain
+   * items are clicked.
+   */
+  $(document).on("click", ".toggle-boolean-preference", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var $item = $(this),
+        name = $item.data("preference-name"),
+        value = $item.data("preference-value");
+    $item
+        .addClass("boolean-" + !value).removeClass("boolean-" + value)
+        .data("preference-value", !value);
+    Preferences.updateValue(name, !value);
+    $(window.Preferences).trigger(name, !value);
+  });
+
+  /**
+   * Preference events
+   */
+  $(window.Preferences).bind("showUserContent", function(event, doShow) {
+    if (doShow) {
+      $(".user-content").removeClass("hidden");
+      $(".hidden-toggle").addClass("fa-comments").removeClass("fa-comments-o")
+    } else {
+      $(".user-content").addClass("hidden");
+      $(".hidden-toggle").addClass("fa-comments-o").removeClass("fa-comments")
+    }
+  });
+
+  $(document).on("click", ".hidden-toggle", function(e) {
+    e.preventDefault();
+    var $item = $(e.target);
+    $item.closest(".item-text-field").find(".annotation-list > .user-content")
+        .toggleClass("hidden");
+    $item.toggleClass("fa-comments fa-comments-o")
+  });
 });
 

@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs)
 
 @activeIfCurrent(url: String, text: String) = {
     <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
@@ -12,32 +12,30 @@
     }
 }
 
-@defining(utils.SessionPrefs()) { implicit prefs =>
-    @views.html.common.topNavBar {
-        <ul class="nav navbar-nav navbar-left">
-            <li><a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a></li>
-            @views.admin.Helpers.mainMenu.map { case (key, url) =>
-                @activeIfCurrent(url, Messages(key))
-            }
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="more-menu">
-                    @Messages("pages.more")
-                    <b class="caret"></b>
-                </a>
+@views.html.common.topNavBar {
+    <ul class="nav navbar-nav navbar-left">
+        <li><a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a></li>
+        @views.admin.Helpers.mainMenu.map { case (key, url) =>
+            @activeIfCurrent(url, Messages(key))
+        }
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="more-menu">
+                @Messages("pages.more")
+                <b class="caret"></b>
+            </a>
 
-                <ul class="dropdown-menu" role="menu" aria-labelledby="more-menu">
-                    @views.admin.Helpers.moreMenu.map { case (key, url) =>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="more-menu">
+                @views.admin.Helpers.moreMenu.map { case (key, url) =>
+                    @dropdownMenu(key, url)
+                }
+                @if(userOpt.exists(_.isAdmin)) {
+                    @views.admin.Helpers.adminMenu.map { case (key, url) =>
                         @dropdownMenu(key, url)
                     }
-                    @if(userOpt.exists(_.isAdmin)) {
-                        @views.admin.Helpers.adminMenu.map { case (key, url) =>
-                            @dropdownMenu(key, url)
-                        }
-                    }
-                </ul>
-            </li>
-        </ul>
-    } {
-        @views.html.common.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = true)
-    }
+                }
+            </ul>
+        </li>
+    </ul>
+} {
+    @views.html.common.accountHeaderRightMenu(showSearch = false, showFeedback = false, showAdminLink = true)
 }
