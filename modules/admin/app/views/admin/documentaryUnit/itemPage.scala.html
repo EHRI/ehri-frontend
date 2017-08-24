@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""), sidebar: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: DocumentaryUnit, scripts: Html = Html(""), styles: Html = Html(""), sidebar: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(item.model.identifier, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
     @html

@@ -1,5 +1,4 @@
-@(g: Guide, page:GuidePage, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(
-implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(g: Guide, page:GuidePage, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @breadcrumbs = {
 	<ol class="breadcrumb">
