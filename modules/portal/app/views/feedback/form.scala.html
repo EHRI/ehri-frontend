@@ -4,6 +4,11 @@
     @import utils.forms.HoneyPotForm.BLANK_CHECK
     @import utils.forms.TimeCheckForm.TIMESTAMP
 
+<div class="feedback-thanks">
+    <h4>@Messages("feedback.thanks")</h4>
+    @Messages("feedback.thanks.message")
+</div>
+
 @helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'class -> "feedback-form") {
     <fieldset>
         @formHelpers.csrfToken()
@@ -24,7 +29,7 @@
         </div>
     </fieldset>
     <div class="feedback-form-footer">
-        <a tabindex="-1" class="feedback-cancel" href="@controllers.portal.routes.Portal.index()">@Messages("cancel")</a>
+        <a tabindex="-1" class="feedback-cancel dropdown-toggle" data-toggle="dropdown" href="@controllers.portal.routes.Portal.index()">@Messages("cancel")</a>
         <button type="submit" class="feedback-submit">@Messages("feedback.submit")</button>
     </div>
 }

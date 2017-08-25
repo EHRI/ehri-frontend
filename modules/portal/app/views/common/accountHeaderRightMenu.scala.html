@@ -11,8 +11,16 @@
         </li>
     }
     @if(showFeedback) {
-        <li class="feedback-container">
-            @views.html.feedback.modal(models.Feedback.form)
+        <li class="feedback-container dropdown">
+            <a href="#" id="feedback-toggle" class="dropbox-toggle" data-toggle="dropdown" aria-expanded="false">
+                @Messages("feedback")
+                <span class="caret"></span>
+            </a>
+            <ul id="feedback-dropdown" class="dropdown-menu" role="menu">
+                <li class="feedback">
+                    @views.html.feedback.form(models.Feedback.form)
+                </li>
+            </ul>
         </li>
     }
     <li class="dropdown">
