@@ -1,31 +1,18 @@
 
-.feedback {
-  display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 2000;
-  padding-top: 12px;
+#feedback-dropdown {
+  padding-bottom: 0;
+  padding-top: 0;
+}
 
-  > div, > form {
-    color: @almost-black;
-    width: 250px;
-    background-color: white;
-    border: 1px solid @medium-gray;
-    border-top: 0;
-    position: relative;
-    -webkit-box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.5);
-    -moz-box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.5);
-    box-shadow: 2px 2px 15px rgba(50, 50, 50, 0.5);
-  }
-  > div {
-    display: none;
-  }
+.feedback {
+  min-width: 250px;
 }
 
 .feedback-thanks {
   &:extend(.alert, .alert-success);
   display: none;
+  position: absolute;
+  z-index: 5000;
 }
 
 .feedback-form fieldset {
@@ -49,19 +36,6 @@
     text-decoration: none;
     color: #fff;
   }
-}
-
-.feedback-close {
-  display: block;
-
-  position: absolute;
-  top: 2px;
-  right: 2px;
-
-  color: black;
-  opacity: 0.8;
-  cursor: pointer;
-  z-index: 2001;
 }
 
 .feedback-form {
