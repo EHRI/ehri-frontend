@@ -2,8 +2,7 @@
 
 @views.html.common.topNavBar {
     @if(userOpt.isDefined) {
-    <div id="navbar-portal-actions" class="pull-left">
-        <ul class="nav navbar-nav navbar-left portal-actions">
+        <ul class="nav navbar-nav navbar-left">
             <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.personalisedActivity().url)">
                 <a href="@controllers.portal.routes.Portal.personalisedActivity()">@Messages("activity")</a>
             </li>
@@ -11,7 +10,6 @@
                 <a href="@controllers.portal.social.routes.Social.browseUsers()">@Messages("social.users")</a>
             </li>
         </ul>
-    </div>
     }
 } {
     @views.html.common.accountHeaderRightMenu(showSearch, showFeedback, showAdminLink)

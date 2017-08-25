@@ -3,11 +3,7 @@ header#header {
   color: white;
   font-size: 0.9em;
 
-  .portal-actions {
-    font-weight: bold;
-  }
-
-  #navbar-account, #navbar-portal-actions {
+  #navbar-account, #navbar-actions {
     ul.navbar-nav > li > a {
       padding: @small-padding @medium-padding;
     }
@@ -44,7 +40,8 @@ header#header {
     background-size: auto;
   }
 
-  #navbar-portal-actions {
+  #navbar-actions {
+    font-weight: bold;
     .pull-left;
     .navbar-nav>li, .navbar-nav {
       float: left !important;
@@ -54,8 +51,12 @@ header#header {
     }
   }
 
-  #navbar-account-toggle, #navbar-primary-toggle {
+  #navbar-account, #navbar-account-toggle, #navbar-primary-toggle {
     .pull-right;
+  }
+
+  #navbar-account {
+    margin-right: @large-margin;
   }
 
   #navbar-primary-container {

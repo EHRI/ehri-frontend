@@ -5,8 +5,8 @@
         <li>
             @helper.form(action = controllers.portal.routes.Portal.search(), 'class ->
                     "global-search inactive inline-search-filter") {
-                <label for="quicksearch" aria-hidden="true" class="sr-only">@Messages("search.global")</label>
-                <input type="text" name="q" id="quicksearch" />
+                <label for="quicksearch" class="sr-only">@Messages("search.global")</label>
+                <input name="q" id="quicksearch" />
             }
         </li>
     }
@@ -16,7 +16,7 @@
         </li>
     }
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
             @Messages("help")
             <span class="caret"></span>
         </a>
@@ -51,7 +51,7 @@
                      src="@views.Helpers.gravitar(user.model.imageUrl)"/>
                 <span class="caret"></span>
             </a>
-            <ul class="boolean-preferences dropdown-menu pull-right" role="menu">
+            <ul class="boolean-preferences dropdown-menu" role="menu">
                 <li class="">
                     <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="gravitar">
                         <span class="glyphicon glyphicon-user"></span>
