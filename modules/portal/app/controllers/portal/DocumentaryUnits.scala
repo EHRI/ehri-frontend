@@ -53,16 +53,21 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging,
       filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
-      if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
+      if (inline) Ok(views.html.documentaryUnit.childItemsInline(request.item, result,
+        portalDocRoutes.search(id), request.watched))
+          .withHeaders("more" -> result.page.hasMore.toString)
+      else if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
         portalDocRoutes.search(id), request.watched))
       else Ok(views.html.documentaryUnit.search(request.item, result,
         portalDocRoutes.search(id), request.watched))
     }
   }
+
+
 
   def export(id: String, asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     exportXml(EntityType.DocumentaryUnit, id, Seq("ead"), asFile)

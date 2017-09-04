@@ -15,18 +15,22 @@
             }
             @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
         </ul>
-        @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-              @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
-                @Messages("documentaryUnit.childCount", count)
-              }
-            }
-        }
     </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(md.renderMarkdown(sc)))
     }
+    <div class="search-item-meta">
+        @item.childCount.filter(_ > 0).map { count =>
+            <div class="child-count">
+                @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
+                    @Messages("documentaryUnit.childCount", count)
+                }
+                <a class="child-items-inline-load fa fa-plus-square-o" href="@controllers.portal.routes.DocumentaryUnits.search(item.id, inline = true)">
+                </a>
+            </div>
+        }
+    </div>
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>
 }

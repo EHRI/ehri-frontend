@@ -43,7 +43,7 @@ GET         /institutions/:id/search              @controllers.portal.Repositori
 GET         /institutions/:id/export              @controllers.portal.Repositories.export(id: String, asFile: Boolean ?= false)
 GET         /units                                @controllers.portal.DocumentaryUnits.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /units/:id                            @controllers.portal.DocumentaryUnits.browse(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /units/:id/search                     @controllers.portal.DocumentaryUnits.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /units/:id/search                     @controllers.portal.DocumentaryUnits.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /units/:id/export                     @controllers.portal.DocumentaryUnits.export(id: String, asFile: Boolean ?= false)
 
 GET         /authorities                          @controllers.portal.HistoricalAgents.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
