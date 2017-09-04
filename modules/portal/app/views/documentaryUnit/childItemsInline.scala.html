@@ -1,0 +1,39 @@
+@(item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash, context: Option[models.base.Holder[_]] = None)
+
+@import services.data.Constants.PAGE_PARAM
+
+<div class="child-items-inline">
+    <ol class="child-items-inline-list">
+        @result.page.map { case (child, hit) =>
+            <li class="child-items-inline-item">
+                <h5>@views.html.helpers.linkTo(child)</h5>
+                @child.model.primaryDescription.map { desc =>
+                    <div class="search-item-details">
+                        <ul class="doc-search-details">
+                            @views.html.documentaryUnit.listItemMeta(child, desc, hit)
+                        </ul>
+                    </div>
+                }
+                <div class="search-item-meta">
+                @child.childCount.filter(_ > 0).map { count =>
+                    <div class="child-count">
+                        @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(child.id)) {
+                            @Messages("documentaryUnit.childCount", count)
+                        }
+                    <a class="child-items-inline-load fa fa-plus-square-o" href="@controllers.portal.routes.DocumentaryUnits.search(child.id, inline = true)"></a>
+                    </div>
+                }
+            </div>
+            </li>
+        }
+    </ol>
+
+    @if(result.page.hasMore) {
+        <a class="child-items-inline-list-more"
+        data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
+        href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
+                .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+        @Messages("activity.fetchMore")
+        </a>
+    }
+</div>
