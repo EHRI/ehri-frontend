@@ -182,12 +182,13 @@ jQuery(function($) {
 
   $(document).on("click", "a.child-items-inline-load.fa-plus-square-o", function(e) {
     e.preventDefault();
-    var $self = $(this);
-    var url = this.href;
-    $self.addClass("disabled loading");
+    var $self = $(this),
+        url = this.href;
+    $self.addClass("disabled loading").removeAttr("href");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       $self.parent().append(data);
+      $self.attr("href", url);
       markup($self.parent());
       $self.removeClass("fa-plus-square-o disabled loading")
           .addClass("fa-minus-square-o");
@@ -196,11 +197,13 @@ jQuery(function($) {
 
   $(document).on("click", "a.child-items-inline-list-more", function(e) {
     e.preventDefault();
-    var $self = $(this);
-    var url = this.href;
+    var $self = $(this),
+        url = this.href;
+    $self.addClass("loading").removeAttr("href");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
+      $self.removeClass("loading").attr("href", url);
       $self.parent().find("> .child-items-inline-list").append($items);
       markup($self.parent());
       $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val, offset, orig) {
