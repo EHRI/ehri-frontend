@@ -57,11 +57,13 @@ case class DocumentaryUnits @Inject()(
     findType[DocumentaryUnit](params, paging,
       filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
-      if (inline) Ok(views.html.documentaryUnit.childItemsInline(request.item, result,
-        portalDocRoutes.search(id), request.watched))
+      if (isAjax) {
+        if (inline) Ok(views.html.documentaryUnit.childItemsInline(request.item, result,
+          portalDocRoutes.search(id), request.watched))
           .withHeaders("more" -> result.page.hasMore.toString)
-      else if (isAjax) Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
-        portalDocRoutes.search(id), request.watched))
+        else Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
+          portalDocRoutes.search(id), request.watched))
+      }
       else Ok(views.html.documentaryUnit.search(request.item, result,
         portalDocRoutes.search(id), request.watched))
     }

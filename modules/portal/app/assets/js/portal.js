@@ -255,12 +255,11 @@ jQuery(function ($) {
     e.preventDefault();
     var $self = $(this);
     var url = this.href;
-    $self.removeClass("fa-plus-square-o")
-        .addClass("fa-circle-o-notch fa-spin disabled");
+    $self.addClass("fa-spin disabled");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       $self.parent().append(data);
-      $self.removeClass("fa-circle-o-notch fa-spin disabled")
+      $self.removeClass("fa-plus-square-o fa-spin disabled")
           .addClass("fa-minus-square-o");
     })
   });

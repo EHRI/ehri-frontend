@@ -23,11 +23,11 @@
     <div class="search-item-meta">
         @item.childCount.filter(_ > 0).map { count =>
             <div class="child-count">
+                <a class="child-items-inline-load fa fa-plus-square-o" href="@controllers.portal.routes.DocumentaryUnits.search(item.id, inline = true)">
+                </a>
                 @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
                     @Messages("documentaryUnit.childCount", count)
                 }
-                <a class="child-items-inline-load fa fa-plus-square-o" href="@controllers.portal.routes.DocumentaryUnits.search(item.id, inline = true)">
-                </a>
             </div>
         }
     </div>
