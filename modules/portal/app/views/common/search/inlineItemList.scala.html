@@ -26,10 +26,11 @@
 
     @if(result.page.hasMore) {
         <a class="child-items-inline-list-more progress-button"
-        data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
-        href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
-                .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
-        @Messages("activity.fetchMore")
+            data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
+            href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
+                    .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+            @Messages("activity.fetchMore")
+            <i class="fa fa-caret-down"></i>
         </a>
     }
 </div>
