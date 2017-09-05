@@ -153,6 +153,65 @@ jQuery(function($) {
     $(e.target).closest("form").submit();
   });
 
+  // Inline tree navigation
+  // Add inline load class to all child-count items
+  function markup(scope) {
+    $(".child-count > a", scope)
+        .addClass("child-items-inline-load fa fa-plus-square-o")
+        .map(function () {
+          $(this)
+              .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));
+        });
+  }
+
+  markup(document);
+
+  $(document).on(".child-count > a", function() {
+    $(this)
+        .addClass("child-items-inline-load fa fa-plus-square-o")
+        .attr("href", this.href + "?inline=true");
+  })
+
+  $(document).on("click", "a.child-items-inline-load.fa-minus-square-o", function(e) {
+    e.preventDefault();
+    var $self = $(this);
+    $self.parent().find(".child-items-inline").remove();
+    $self.removeClass("fa-minus-square-o")
+        .addClass("fa-plus-square-o");
+  });
+
+  $(document).on("click", "a.child-items-inline-load.fa-plus-square-o", function(e) {
+    e.preventDefault();
+    var $self = $(this);
+    var url = this.href;
+    $self.addClass("disabled");
+    $.get(url, function(data, _, res) {
+      var more = res.getResponseHeader("more") === true.toString();
+      $self.parent().append(data);
+      markup($self.parent());
+      $self.removeClass("fa-plus-square-o disabled")
+          .addClass("fa-minus-square-o");
+    })
+  });
+
+  $(document).on("click", "a.child-items-inline-list-more", function(e) {
+    e.preventDefault();
+    var $self = $(this);
+    var url = this.href;
+    $.get(url, function(data, _, res) {
+      var more = res.getResponseHeader("more") === true.toString();
+      var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
+      $self.parent().find("> .child-items-inline-list").append($items);
+      markup($self.parent());
+      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val, offset, orig) {
+        return param + (parseInt(val) +  1);
+      }));
+      if (!more) {
+        $self.hide();
+      }
+    })
+  });
+
   // Toggle text content on expander buttons
   // for long facet lists
   $(".more-less-options").click(function(e) {

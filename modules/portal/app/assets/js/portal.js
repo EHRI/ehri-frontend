@@ -243,44 +243,6 @@ jQuery(function ($) {
     });
   }
 
-  $(document).on("click", "a.child-items-inline-load.fa-minus-square-o", function(e) {
-    e.preventDefault();
-    var $self = $(this);
-    $self.parent().find(".child-items-inline").remove();
-    $self.removeClass("fa-minus-square-o")
-        .addClass("fa-plus-square-o");
-  });
-
-  $(document).on("click", "a.child-items-inline-load.fa-plus-square-o", function(e) {
-    e.preventDefault();
-    var $self = $(this);
-    var url = this.href;
-    $self.addClass("fa-spin disabled");
-    $.get(url, function(data, _, res) {
-      var more = res.getResponseHeader("more") === true.toString();
-      $self.parent().append(data);
-      $self.removeClass("fa-plus-square-o fa-spin disabled")
-          .addClass("fa-minus-square-o");
-    })
-  });
-
-  $(document).on("click", "a.child-items-inline-list-more", function(e) {
-    e.preventDefault();
-    var $self = $(this);
-    var url = this.href;
-    $.get(url, function(data, _, res) {
-      var more = res.getResponseHeader("more") === true.toString();
-      var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
-      $self.parent().find(".child-items-inline-list").append($items);
-      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val, offset, orig) {
-        return param + (parseInt(val) +  1);
-      }));
-      if (!more) {
-        $self.hide();
-      }
-    })
-  });
-
   /*
     Loadings
   */

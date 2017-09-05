@@ -3,12 +3,10 @@
 @item.model.primaryDescription(descriptionId).map { desc =>
     @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
     <div class="search-item-details">
-        @conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
+        @views.html.repository.conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
         @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-                @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
-                    @Messages("repository.childCount", count)
-                }
+            @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
+                @Messages("repository.childCount", count)
             }
         }
     </div>

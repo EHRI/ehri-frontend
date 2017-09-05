@@ -20,17 +20,12 @@
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(md.renderMarkdown(sc)))
     }
-    <div class="search-item-meta">
-        @item.childCount.filter(_ > 0).map { count =>
-            <div class="child-count">
-                <a class="child-items-inline-load fa fa-plus-square-o" href="@controllers.portal.routes.DocumentaryUnits.search(item.id, inline = true)">
-                </a>
-                @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
-                    @Messages("documentaryUnit.childCount", count)
-                }
-            </div>
+
+    @views.html.common.childCount(item) { count =>
+        @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
+            @Messages("documentaryUnit.childCount", count)
         }
-    </div>
+    }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>
 }

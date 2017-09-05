@@ -172,8 +172,7 @@ trait Holder[+T] extends AnyModel {
   self: MetaModel[_] =>
 
   /**
-   * Convenience cache of items 'below' this one. Not to
-   * be relied on since it's just a volatile cache value.
+   * Number of items 'below' this one.
    */
   def childCount: Option[Int] =
     meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])

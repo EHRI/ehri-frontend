@@ -43,12 +43,16 @@ case class Countries @Inject()(
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Repository](params, paging,
       filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id),
       facetBuilder = fc.localRepoFacets, sort = SearchSort.Name).map { result =>
-      if (isAjax) Ok(views.html.country.childItemSearch(request.item, result,
-        portalCountryRoutes.search(id), request.watched))
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
+            .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.country.childItemSearch(request.item, result,
+          portalCountryRoutes.search(id), request.watched))
+      }
       else Ok(views.html.country.search(request.item, result,
         portalCountryRoutes.search(id), request.watched))
     }

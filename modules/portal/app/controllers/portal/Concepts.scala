@@ -6,7 +6,7 @@ import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import models.Concept
+import models.{Concept, DocumentaryUnit}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import utils.PageParams
 import services.search._
@@ -36,6 +36,20 @@ case class Concepts @Inject()(
       filters = Map(SearchConstants.PARENT_ID -> request.item.id)).map { result =>
       Ok(views.html.concept.show(request.item, result,
         portalConceptRoutes.browse(id), request.annotations, request.links, request.watched))
+    }
+  }
+
+  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+    findType[Concept](params, paging,
+      filters = Map(SearchConstants.PARENT_ID -> id), facetBuilder = fc.conceptFacets).map { result =>
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
+          .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.concept.childItemSearch(request.item, result,
+          portalConceptRoutes.search(id), request.watched))
+      }
+      else Ok(views.html.concept.search(request.item, result,
+        portalConceptRoutes.search(id), request.watched))
     }
   }
 }

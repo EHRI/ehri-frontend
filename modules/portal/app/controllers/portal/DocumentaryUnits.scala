@@ -58,8 +58,7 @@ case class DocumentaryUnits @Inject()(
       filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
       if (isAjax) {
-        if (inline) Ok(views.html.documentaryUnit.childItemsInline(request.item, result,
-          portalDocRoutes.search(id), request.watched))
+        if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
           .withHeaders("more" -> result.page.hasMore.toString)
         else Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
           portalDocRoutes.search(id), request.watched))
