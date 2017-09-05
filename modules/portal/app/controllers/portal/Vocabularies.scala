@@ -35,7 +35,7 @@ case class Vocabularies @Inject()(
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.vocabulary.itemDetails(request.item, request.annotations, request.links, request.watched)))
     else findType[Concept](params, paging,
-        filters = Map(SearchConstants.HOLDER_ID -> id, SearchConstants.TOP_LEVEL -> true), facetBuilder = fc.conceptFacets).map { result =>
+        filters = Map(SearchConstants.HOLDER_ID -> id), facetBuilder = fc.conceptFacets).map { result =>
       Ok(views.html.vocabulary.show(request.item, result, request.annotations,
         request.links, portalVocabRoutes.search(id), request.watched))
     }
@@ -43,7 +43,7 @@ case class Vocabularies @Inject()(
 
   def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Concept](params, paging,
-        filters = Map(SearchConstants.HOLDER_ID -> id, SearchConstants.TOP_LEVEL -> true), facetBuilder = fc.conceptFacets).map { result =>
+        filters = Map(SearchConstants.HOLDER_ID -> id), facetBuilder = fc.conceptFacets).map { result =>
       if (isAjax) {
         if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
             .withHeaders("more" -> result.page.hasMore.toString)
