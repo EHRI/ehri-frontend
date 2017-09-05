@@ -170,9 +170,8 @@ jQuery(function($) {
   $(document).on("click", "a.child-items-inline-load.fa-minus-square-o", function(e) {
     e.preventDefault();
     var $self = $(this);
-    $self.parent().find(".child-items-inline").remove();
-    $self.removeClass("fa-minus-square-o")
-        .addClass("fa-plus-square-o");
+    $self.parent().find("> .child-items-inline").remove();
+    $self.toggleClass("fa-minus-square-o fa-plus-square-o");
   });
 
   // load inline lists when the [+] is clicked
@@ -187,8 +186,7 @@ jQuery(function($) {
       addInlineLoadLinks($data);
       $self.parent().append($data);
       $self.attr("href", url);
-      $self.removeClass("fa-plus-square-o disabled loading")
-          .addClass("fa-minus-square-o");
+      $self.toggleClass("fa-minus-square-o fa-plus-square-o disabled loading");
     })
   });
 
