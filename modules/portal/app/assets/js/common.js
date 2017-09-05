@@ -107,7 +107,7 @@ jQuery(function($) {
         } else {
           var search = filterUrl + "?q=itemId:" + value;
           $.getJSON(search, function(data) {
-            if(data.items.length == 0) {
+            if(data.items.length === 0) {
               cb({id: value, text: value});
             } else {
               cb({
@@ -166,12 +166,7 @@ jQuery(function($) {
 
   addInlineLoadLinks(document);
 
-  $(document).on(".child-count > a", function() {
-    $(this)
-        .addClass("child-items-inline-load")
-        .attr("href", this.href + "?inline=true");
-  })
-
+  // remove inline lists when the [-] is clicked
   $(document).on("click", "a.child-items-inline-load.fa-minus-square-o", function(e) {
     e.preventDefault();
     var $self = $(this);
@@ -180,6 +175,7 @@ jQuery(function($) {
         .addClass("fa-plus-square-o");
   });
 
+  // load inline lists when the [+] is clicked
   $(document).on("click", "a.child-items-inline-load.fa-plus-square-o", function(e) {
     e.preventDefault();
     var $self = $(this),
@@ -196,6 +192,7 @@ jQuery(function($) {
     })
   });
 
+  // load more content in a long list
   $(document).on("click", "a.child-items-inline-list-more", function(e) {
     e.preventDefault();
     var $self = $(this),
@@ -207,7 +204,7 @@ jQuery(function($) {
       addInlineLoadLinks($items);
       $self.removeClass("loading").attr("href", url);
       $self.parent().find("> .child-items-inline-list").append($items);
-      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val, offset, orig) {
+      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val) {
         return param + (parseInt(val) +  1);
       }));
       if (!more) {
