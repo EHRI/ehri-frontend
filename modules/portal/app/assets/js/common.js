@@ -155,7 +155,7 @@ jQuery(function($) {
 
   // Inline tree navigation
   // Add inline load class to all child-count items
-  function markup(scope) {
+  function addInlineLoadLinks(scope) {
     $(".child-count > a", scope)
         .addClass("child-items-inline-load fa fa-plus-square-o")
         .map(function () {
@@ -164,7 +164,7 @@ jQuery(function($) {
         });
   }
 
-  markup(document);
+  addInlineLoadLinks(document);
 
   $(document).on(".child-count > a", function() {
     $(this)
@@ -187,9 +187,10 @@ jQuery(function($) {
     $self.addClass("disabled loading").removeAttr("href");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
-      $self.parent().append(data);
+      var $data = $.parseHTML(data, false);
+      addInlineLoadLinks($data);
+      $self.parent().append($data);
       $self.attr("href", url);
-      markup($self.parent());
       $self.removeClass("fa-plus-square-o disabled loading")
           .addClass("fa-minus-square-o");
     })
@@ -203,9 +204,9 @@ jQuery(function($) {
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
+      addInlineLoadLinks($items);
       $self.removeClass("loading").attr("href", url);
       $self.parent().find("> .child-items-inline-list").append($items);
-      markup($self.parent());
       $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val, offset, orig) {
         return param + (parseInt(val) +  1);
       }));
