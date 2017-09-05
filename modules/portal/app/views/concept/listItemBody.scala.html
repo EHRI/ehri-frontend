@@ -26,5 +26,11 @@
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(sc))
     }
+
+    @views.html.common.childCount(item) { count =>
+        @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "fa fa-plus-square-o") {
+            @Messages("cvocVocabulary.childCount.search", count)
+        }
+    }
 }
 

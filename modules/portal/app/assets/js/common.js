@@ -168,7 +168,7 @@ jQuery(function($) {
 
   $(document).on(".child-count > a", function() {
     $(this)
-        .addClass("child-items-inline-load fa fa-plus-square-o")
+        .addClass("child-items-inline-load")
         .attr("href", this.href + "?inline=true");
   })
 
@@ -184,12 +184,12 @@ jQuery(function($) {
     e.preventDefault();
     var $self = $(this);
     var url = this.href;
-    $self.addClass("disabled");
+    $self.addClass("disabled loading");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       $self.parent().append(data);
       markup($self.parent());
-      $self.removeClass("fa-plus-square-o disabled")
+      $self.removeClass("fa-plus-square-o disabled loading")
           .addClass("fa-minus-square-o");
     })
   });

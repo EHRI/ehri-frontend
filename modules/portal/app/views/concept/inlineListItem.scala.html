@@ -20,7 +20,7 @@
     </div>
 }
 @views.html.common.childCount(item) { count =>
-    @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id)) {
+    @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "fa fa-plus-square-o") {
         @Messages("cvocVocabulary.childItems.search", count)
     }
 }

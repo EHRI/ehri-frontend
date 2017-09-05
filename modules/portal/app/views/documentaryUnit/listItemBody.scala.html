@@ -22,7 +22,7 @@
     }
 
     @views.html.common.childCount(item) { count =>
-        @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
+        @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id), 'class -> "fa fa-plus-square-o") {
             @Messages("documentaryUnit.childCount", count)
         }
     }
