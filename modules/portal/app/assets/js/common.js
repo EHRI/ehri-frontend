@@ -18,7 +18,7 @@ jQuery(function($) {
   function isDescriptionRef(descId) {
     // NB: The _=_ is what Facebook adds to Oauth login redirects
     return descId
-        && descId != FB_REDIRECT_HASH
+        && descId !== FB_REDIRECT_HASH
         && $(descId).hasClass("description-holder");
   }
 
