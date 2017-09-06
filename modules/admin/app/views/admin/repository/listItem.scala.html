@@ -1,6 +1,5 @@
-@(item: Repository)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Repository)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@import Isdiah._
 @import org.apache.commons.lang3.StringUtils
 
 @common.search.searchItemOutline(item) {
@@ -22,9 +21,6 @@
                     </li>
                 }
             </ul>
-            @views.html.common.childCount(item) { count =>
-                <a href="@controllers.institutions.routes.Repositories.get(item.id)#search-items">@Messages("repository.childCount", count)</a>
-            }
         </div>
 
         @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
@@ -32,5 +28,9 @@
         }
     }.getOrElse {
         <small>@Messages("description.noDescriptions")</small>
+    }
+
+    @views.html.common.childCount(item) { count =>
+        @views.html.admin.helpers.linkToWithFragment(item, "#search-items", Html(Messages("repository.childCount", count)))
     }
 }

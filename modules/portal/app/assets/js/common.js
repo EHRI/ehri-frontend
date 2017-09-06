@@ -18,7 +18,7 @@ jQuery(function($) {
   function isDescriptionRef(descId) {
     // NB: The _=_ is what Facebook adds to Oauth login redirects
     return descId
-        && descId != FB_REDIRECT_HASH
+        && descId !== FB_REDIRECT_HASH
         && $(descId).hasClass("description-holder");
   }
 
@@ -107,7 +107,7 @@ jQuery(function($) {
         } else {
           var search = filterUrl + "?q=itemId:" + value;
           $.getJSON(search, function(data) {
-            if(data.items.length == 0) {
+            if(data.items.length === 0) {
               cb({id: value, text: value});
             } else {
               cb({
@@ -151,6 +151,63 @@ jQuery(function($) {
   // when facets are clicked
   $(document).on("change", ".autosubmit", function (e) {
     $(e.target).closest("form").submit();
+  });
+
+  // Inline tree navigation
+  // Add inline load class to all child-count items
+  function addInlineLoadLinks(scope) {
+    $(".child-count > a.child-items-inline-load.collapsed", scope)
+        .map(function () {
+          $(this)
+              .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));
+        });
+  }
+
+  addInlineLoadLinks(document);
+
+  // remove inline lists when the [-] is clicked
+  $(document).on("click", "a.child-items-inline-load.expanded", function(e) {
+    e.preventDefault();
+    var $self = $(this);
+    $self.parent().find("> .child-items-inline").remove();
+    $self.toggleClass("expanded collapsed");
+  });
+
+  // load inline lists when the [+] is clicked
+  $(document).on("click", "a.child-items-inline-load.collapsed", function(e) {
+    e.preventDefault();
+    var $self = $(this),
+        url = this.href;
+    $self.addClass("disabled loading").removeAttr("href");
+    $.get(url, function(data, _, res) {
+      var more = res.getResponseHeader("more") === true.toString();
+      var $data = $.parseHTML(data, false);
+      addInlineLoadLinks($data);
+      $self.parent().append($data);
+      $self.attr("href", url);
+      $self.toggleClass("expanded collapsed disabled loading");
+    })
+  });
+
+  // load more content in a long list
+  $(document).on("click", "a.child-items-inline-list-more", function(e) {
+    e.preventDefault();
+    var $self = $(this),
+        url = this.href;
+    $self.addClass("loading").removeAttr("href");
+    $.get(url, function(data, _, res) {
+      var more = res.getResponseHeader("more") === true.toString();
+      var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
+      addInlineLoadLinks($items);
+      $self.removeClass("loading").attr("href", url);
+      $self.parent().find("> .child-items-inline-list").append($items);
+      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val) {
+        return param + (parseInt(val) +  1);
+      }));
+      if (!more) {
+        $self.hide();
+      }
+    })
   });
 
   // Toggle text content on expander buttons

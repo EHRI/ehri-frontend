@@ -2,15 +2,15 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{DocumentaryUnit, Repository}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
-import utils.PageParams
+import services.cypher.Cypher
 import services.search._
+import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
 
@@ -58,11 +58,15 @@ case class Repositories @Inject()(
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging, filters = filters(request.item.id),
       facetBuilder = fc.localDocFacets, sort = SearchSort.Id).map { result =>
-      if (isAjax) Ok(views.html.repository.childItemSearch(request.item, result,
-        portalRepoRoutes.search(id), request.watched))
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
+            .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.repository.childItemSearch(request.item, result,
+          portalRepoRoutes.search(id), request.watched))
+      }
       else Ok(views.html.repository.search(request.item, result,
         portalRepoRoutes.search(id), request.watched))
     }

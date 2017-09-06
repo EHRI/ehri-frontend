@@ -41,11 +41,15 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Concept](params, paging,
         filters = Map(SearchConstants.HOLDER_ID -> id), facetBuilder = fc.conceptFacets).map { result =>
-      if (isAjax) Ok(views.html.vocabulary.childItemSearch(request.item, result,
-        portalVocabRoutes.search(id), request.watched))
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
+            .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.vocabulary.childItemSearch(request.item, result,
+          portalVocabRoutes.search(id), request.watched))
+      }
       else Ok(views.html.vocabulary.search(request.item, result,
         portalVocabRoutes.search(id), request.watched))
     }

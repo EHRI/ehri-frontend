@@ -1,6 +1,6 @@
-@(item: Holder[_])(link: Int => Html)
+@(item: models.base.Holder[_])(link: Int => Html)
 
-@item.childCount.map { count =>
+@item.childCount.filter(_ > 0).map { count =>
     <div class="child-count">
         @link(count)
     </div>

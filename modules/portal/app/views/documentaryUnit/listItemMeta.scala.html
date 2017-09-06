@@ -1,9 +1,6 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, highlighter: views.Highlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-@import org.apache.commons.lang3.StringUtils
-
-<li title="@Messages("documentaryUnit.identifier"): @item.model.identifier">@Html(highlighter.highlight(StringUtils
-        .abbreviate(item.model.identifier, 15)))</li>
+<li class="truncate truncate-100" title="@Messages("documentaryUnit.identifier"): @item.model.identifier">@item.model.identifier</li>
 
 @defining(item.model.descriptions.map(_.languageCode).distinct.sorted.map(views.Helpers.languageCodeToName).mkString(", ")) { langCodes =>
     <li title="@Messages("documentaryUnit.languageCode"): @langCodes">@langCodes</li>
@@ -13,7 +10,7 @@
     <li title="@Messages("documentaryUnit.dates"): @dp.years">@dp.years</li>
 }
 @desc.identity.extentAndMedium.map { s =>
-    <li title="@Messages("documentaryUnit.extentAndMedium"): @s">@StringUtils.abbreviate(s, 25)</li>
+    <li class="truncate truncate-200">@Html(s)</li>
 }
 @item.latestEvent.map { event =>
     <li title="@common.eventTitle(event)">

@@ -171,10 +171,9 @@ form[method="GET"], form:not([method="POST"]) {
 .progress-button {
   padding-left: @large-padding;
   padding-right: @large-padding;
-  &.running {
+  &.running, &.loading {
     background-image: url('../img/ajax-loader-small.gif');
-    background-position: center;
-    background-position-x: 3px;
+    background-position: right @small-margin center;
     background-repeat: no-repeat;
   }
 }

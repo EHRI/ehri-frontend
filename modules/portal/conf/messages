@@ -1108,6 +1108,7 @@ cvocConcept.latitude.description=Geographical latitude.
 cvocConcept.uri.description=The Uniform Resource Identifier.
 cvocConcept.url.description=An optional Uniform Resource Locator.
 cvocConcept.seeAlso.description=Used to indicate a resource that might provide additional information about the subject resource.
+cvocConcept.childCount={0,choice,0#No narrower keywords|1#1 narrower keyword|1<{0,number,integer} narrower keywords}
 
 #
 # Virtual documentary units
@@ -1144,4 +1145,4 @@ country.description.empty=There is currently no EHRI country report available fo
 # Vocabularies
 #
 cvocVocabulary.childItems=Keywords
-cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+cvocVocabulary.childCount={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}

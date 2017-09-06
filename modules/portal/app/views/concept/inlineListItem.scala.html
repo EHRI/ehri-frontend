@@ -1,0 +1,26 @@
+@(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+<h5>@views.html.helpers.linkTo(item)</h5>
+@item.model.primaryDescription.map { desc =>
+    <div class="search-item-details">
+        <ul class="concept-search-details">
+            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+            @item.latestEvent.map { event =>
+                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            }
+        </ul>
+        @if(item.broaderTerms.nonEmpty) {
+            <ul class="concept-broader-terms">
+                <li>@Messages("cvocConcept.broaderTerms")</li>
+                @item.broaderTerms.map { bt =>
+                    <li>@views.html.helpers.linkTo(bt)</li>
+                }
+            </ul>
+        }
+    </div>
+}
+@views.html.common.childCount(item) { count =>
+    @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "child-items-inline-load collapsed") {
+        @Messages("cvocConcept.childCount", count)
+    }
+}

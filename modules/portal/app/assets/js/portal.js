@@ -47,8 +47,8 @@ jQuery(function ($) {
   $('input, textarea').placeholder();
 
   function isSafari() {
-    return navigator.userAgent.indexOf("Chrome") == -1 &&
-            navigator.userAgent.indexOf("Safari") != -1;
+    return navigator.userAgent.indexOf("Chrome") === -1 &&
+            navigator.userAgent.indexOf("Safari") !== -1;
   }
 
   // Affix side-scrolling sidebars. This is really

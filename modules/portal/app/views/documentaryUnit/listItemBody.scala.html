@@ -15,17 +15,16 @@
             }
             @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
         </ul>
-        @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-              @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id)) {
-                @Messages("documentaryUnit.childCount", count)
-              }
-            }
-        }
     </div>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(md.renderMarkdown(sc)))
+    }
+
+    @views.html.common.childCount(item) { count =>
+        @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id), 'class -> "collapsed") {
+            @Messages("documentaryUnit.childCount", count)
+        }
     }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>

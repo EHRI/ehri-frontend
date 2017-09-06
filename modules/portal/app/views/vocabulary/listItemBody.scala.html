@@ -1,13 +1,20 @@
-@(item: Vocabulary)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@views.html.common.childCount(item) { count =>
-    @if(count > 0) {
-        <div class="search-item-details">
-            <a href="@controllers.portal.routes.Vocabularies.search(item.id)">@Messages("cvocVocabulary.childItems.search", count)</a>
-        </div>
-    }
-}
+<div class="search-item-details">
+    <ul class="vocabulary-search-details">
+        @item.latestEvent.map { event =>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+        }
+    </ul>
+</div>
 
 @item.model.description.map { desc =>
     @Markdown(desc)
 }
+
+@views.html.common.childCount(item) { count =>
+    @views.html.helpers.link(controllers.portal.routes.Vocabularies.search(item.id), 'class -> "child-items-inline-load collapsed") {
+        @Messages("cvocVocabulary.childCount", count)
+    }
+}
+

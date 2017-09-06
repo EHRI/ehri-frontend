@@ -11,10 +11,8 @@
             @views.html.documentaryUnit.listItemMeta(item.asDocumentaryUnit, desc, highlighter)
         </ul>
         @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-                @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, item.id)) {
-                    @Messages("documentaryUnit.childCount", count)
-                }
+            @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, item.id)) {
+                @Messages("documentaryUnit.childCount", count)
             }
         }
     </div>
