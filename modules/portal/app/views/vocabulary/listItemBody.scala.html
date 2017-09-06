@@ -14,7 +14,7 @@
 
 @views.html.common.childCount(item) { count =>
     @views.html.helpers.link(controllers.portal.routes.Vocabularies.search(item.id)) {
-        @Messages("cvocVocabulary.childItems.search", count)
+        @Messages("cvocVocabulary.childCount", count)
     }
 }
 

@@ -825,7 +825,7 @@ country.dataSummary=Recherche EHRI (récapitulatif)
 country.dataExtensive=Recherche EHRI (extensif)
 country.list=Pays
 cvocVocabulary.childItems=Mots clés
-cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 mot-clé|1<{0,number,integer} mots-clés}
+cvocVocabulary.childCount={0,choice,0#{0} |1#1 mot-clé|1<{0,number,integer} mots-clés}
 
 project.site=Site Web du projet EHRI
 help.faq=Foire Aux Questions

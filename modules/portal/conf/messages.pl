@@ -824,7 +824,7 @@ country.dataSummary=Badania EHRI (streszczenie)
 country.dataExtensive=Badania EHRI (szeroko zakrojone)
 country.list=Kraje
 cvocVocabulary.childItems=Słowa kluczowe
-cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 słowo kluczowe|1<{0,number,integer} słów kluczowych}
+cvocVocabulary.childCount={0,choice,0#{0} |1#1 słowo kluczowe|1<{0,number,integer} słów kluczowych}
 
 
 project.site=Witryna projektu EHRI
