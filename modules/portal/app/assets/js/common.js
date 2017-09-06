@@ -156,8 +156,7 @@ jQuery(function($) {
   // Inline tree navigation
   // Add inline load class to all child-count items
   function addInlineLoadLinks(scope) {
-    $(".child-count > a", scope)
-        .addClass("child-items-inline-load collapsed")
+    $(".child-count > a.child-items-inline-load.collapsed", scope)
         .map(function () {
           $(this)
               .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));

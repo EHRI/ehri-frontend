@@ -107,17 +107,17 @@
 }
 
 /** child items */
-.child-count > a.collapsed {
+.search-item-body .child-count > a.collapsed {
   &:extend(.fa, .small);
   &:before { content: @fa-var-plus-square-o; }
 }
 
-.child-count > a.expanded {
+.search-item-body .child-count > a.expanded {
   &:extend(.fa, .small);
   &:before { content: @fa-var-minus-square-o; }
 }
 
-.child-count > a {
+.search-item-body .child-count > a {
   &:extend(.small);
   padding-right: @medium-padding + @small-padding;
   font-weight: lighter;

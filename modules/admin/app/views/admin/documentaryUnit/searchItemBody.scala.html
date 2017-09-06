@@ -34,13 +34,13 @@
             </li>
         }
     </ul>
-    @views.html.common.childCount(item) { count =>
-        @if(count > 0) {
-            <a href="@controllers.units.routes.DocumentaryUnits.get(item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
-        }
-    }
 </div>
+
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Markdown(sc)
+}
+
+@views.html.common.childCount(item) { count =>
+    @views.html.admin.helpers.linkToWithFragment(item, "#search-items", Html(Messages("documentaryUnit.childCount", count)))
 }
 

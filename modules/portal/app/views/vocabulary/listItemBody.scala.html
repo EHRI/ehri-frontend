@@ -13,7 +13,7 @@
 }
 
 @views.html.common.childCount(item) { count =>
-    @views.html.helpers.link(controllers.portal.routes.Vocabularies.search(item.id)) {
+    @views.html.helpers.link(controllers.portal.routes.Vocabularies.search(item.id), 'class -> "child-items-inline-load collapsed") {
         @Messages("cvocVocabulary.childCount", count)
     }
 }

@@ -6,7 +6,7 @@
         @views.html.repository.conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
     </div>
     @views.html.common.childCount(item) { count =>
-        @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
+        @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id), 'class -> "child-items-inline-load collapsed") {
             @Messages("repository.childCount", count)
         }
     }
