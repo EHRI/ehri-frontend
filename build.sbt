@@ -258,7 +258,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     Concat.groups := Seq(
      "css/portal-all.css" -> group(
         Seq(
-          "css/font-awesome.css",
           "css/portal.css"
         )
        ),

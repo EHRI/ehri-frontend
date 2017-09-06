@@ -9,7 +9,7 @@
     </div>
 }
 @views.html.common.childCount(item) { count =>
-    @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id), 'class -> "fa fa-plus-square-o") {
+    @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id), 'class -> "collapsed") {
         @Messages("documentaryUnit.childCount", count)
     }
 }

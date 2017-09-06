@@ -1,4 +1,6 @@
 
+@import (less) "../font-awesome.less";
+
 .inline-search-filter {
   &:extend(.pull-right);
   input {
@@ -105,22 +107,30 @@
 }
 
 /** child items */
-.child-count {
-  > a {
-    padding-right: @medium-padding + @small-padding;
-    &:extend(.small);
-    font-weight: lighter;
-    color: @almost-black;
+.child-count > a.collapsed {
+  &:extend(.fa, .small);
+  &:before { content: @fa-var-plus-square-o; }
+}
+
+.child-count > a.expanded {
+  &:extend(.fa, .small);
+  &:before { content: @fa-var-minus-square-o; }
+}
+
+.child-count > a {
+  &:extend(.small);
+  padding-right: @medium-padding + @small-padding;
+  font-weight: lighter;
+  color: @almost-black;
+  text-decoration: none;
+  .highlight-glow();
+  &:hover {
     text-decoration: none;
-    .highlight-glow();
-    &:hover {
-      text-decoration: none;
-    }
-    &.loading {
-      background-image: url('../img/ajax-loader-small.gif');
-      background-repeat: no-repeat;
-      background-position: right;
-    }
+  }
+  &.loading {
+    background-image: url('../img/ajax-loader-small.gif');
+    background-repeat: no-repeat;
+    background-position: right;
   }
 }
 

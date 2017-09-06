@@ -157,7 +157,7 @@ jQuery(function($) {
   // Add inline load class to all child-count items
   function addInlineLoadLinks(scope) {
     $(".child-count > a", scope)
-        .addClass("child-items-inline-load fa fa-plus-square-o")
+        .addClass("child-items-inline-load collapsed")
         .map(function () {
           $(this)
               .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));
@@ -167,15 +167,15 @@ jQuery(function($) {
   addInlineLoadLinks(document);
 
   // remove inline lists when the [-] is clicked
-  $(document).on("click", "a.child-items-inline-load.fa-minus-square-o", function(e) {
+  $(document).on("click", "a.child-items-inline-load.expanded", function(e) {
     e.preventDefault();
     var $self = $(this);
     $self.parent().find("> .child-items-inline").remove();
-    $self.toggleClass("fa-minus-square-o fa-plus-square-o");
+    $self.toggleClass("expanded collapsed");
   });
 
   // load inline lists when the [+] is clicked
-  $(document).on("click", "a.child-items-inline-load.fa-plus-square-o", function(e) {
+  $(document).on("click", "a.child-items-inline-load.collapsed", function(e) {
     e.preventDefault();
     var $self = $(this),
         url = this.href;
@@ -186,7 +186,7 @@ jQuery(function($) {
       addInlineLoadLinks($data);
       $self.parent().append($data);
       $self.attr("href", url);
-      $self.toggleClass("fa-minus-square-o fa-plus-square-o disabled loading");
+      $self.toggleClass("expanded collapsed disabled loading");
     })
   });
 
