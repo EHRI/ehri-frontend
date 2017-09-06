@@ -125,12 +125,13 @@
 }
 
 .child-items-inline {
-  margin-bottom: @small-margin + @medium-margin;
+  margin: @medium-margin 0;
+  padding-left: @large-padding;
 }
 
 .child-items-inline .child-items-inline-list {
-  margin-top: @small-margin;
-  padding-left: @large-padding;
+  margin: @small-margin 0;
+  padding: 0;
   display: block;
 }
 
@@ -149,7 +150,6 @@
 
 .child-items-inline-list-more {
   &:extend(.btn, .btn-sm, .btn-default);
-  margin-left: @large-margin;
   width: 100%;
   padding: 3px;
   &:hover {
