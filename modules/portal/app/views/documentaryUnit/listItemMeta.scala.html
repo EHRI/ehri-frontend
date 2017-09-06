@@ -3,7 +3,7 @@
 @import org.apache.commons.lang3.StringUtils
 
 <li title="@Messages("documentaryUnit.identifier"): @item.model.identifier">@Html(highlighter.highlight(StringUtils
-        .abbreviate(item.model.identifier, 15)))</li>
+        .abbreviate(item.model.identifier, 20)))</li>
 
 @defining(item.model.descriptions.map(_.languageCode).distinct.sorted.map(views.Helpers.languageCodeToName).mkString(", ")) { langCodes =>
     <li title="@Messages("documentaryUnit.languageCode"): @langCodes">@langCodes</li>
@@ -13,7 +13,7 @@
     <li title="@Messages("documentaryUnit.dates"): @dp.years">@dp.years</li>
 }
 @desc.identity.extentAndMedium.map { s =>
-    <li title="@Messages("documentaryUnit.extentAndMedium"): @s">@StringUtils.abbreviate(s, 25)</li>
+    <li title="@Messages("documentaryUnit.extentAndMedium"): @s">@StringUtils.abbreviate(s, 50)</li>
 }
 @item.latestEvent.map { event =>
     <li title="@common.eventTitle(event)">
