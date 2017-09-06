@@ -4,12 +4,12 @@
     @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
     <div class="search-item-details">
         @views.html.repository.conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
-        @views.html.common.childCount(item) { count =>
-            @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
-                @Messages("repository.childCount", count)
-            }
-        }
     </div>
+    @views.html.common.childCount(item) { count =>
+        @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id)) {
+            @Messages("repository.childCount", count)
+        }
+    }
 }.getOrElse {
     <small>@Messages("description.noDescriptions")</small>
 }

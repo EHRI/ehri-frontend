@@ -2,15 +2,15 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import services.cypher.Cypher
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.{DocumentaryUnit, Repository}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
-import utils.PageParams
+import services.cypher.Cypher
 import services.search._
+import utils.PageParams
 
 import scala.concurrent.Future.{successful => immediate}
 
