@@ -1,6 +1,4 @@
 
-@import (less) "../font-awesome.less";
-
 .inline-search-filter {
   &:extend(.pull-right);
   input {
@@ -26,8 +24,6 @@
     }
   }
 }
-
-@search-glow: #508fd1;
 
 .facet-list li a {
   color: #666;
@@ -107,16 +103,6 @@
 }
 
 /** child items */
-.search-item-body .child-count > a.collapsed {
-  &:extend(.fa, .small);
-  &:before { content: @fa-var-plus-square-o; }
-}
-
-.search-item-body .child-count > a.expanded {
-  &:extend(.fa, .small);
-  &:before { content: @fa-var-minus-square-o; }
-}
-
 .search-item-body .child-count > a {
   &:extend(.small);
   padding-right: @medium-padding + @small-padding;
