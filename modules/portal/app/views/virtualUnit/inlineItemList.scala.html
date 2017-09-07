@@ -1,0 +1,23 @@
+@(result: services.search.SearchResult[(models.base.AnyModel,services.search.SearchHit)], path: Seq[models.base.AnyModel], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+@import services.data.Constants.PAGE_PARAM
+
+<div class="child-items-inline">
+    <ol class="child-items-inline-list">
+    @result.page.map { case (child, hit) =>
+        <li class="child-items-inline-item @itemClass">
+            @views.html.virtualUnit.inlineListItem(child, path, hit)
+        </li>
+    }
+    </ol>
+
+    @if(result.page.hasMore) {
+        <a class="child-items-inline-list-more progress-button"
+            data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
+            href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
+                    .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+            @Messages("activity.fetchMore")
+            <i class="fa fa-caret-down"></i>
+        </a>
+    }
+</div>

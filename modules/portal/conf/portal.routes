@@ -67,8 +67,8 @@ GET         /item/:entityType/:id                 @controllers.portal.Portal.bro
 # Virtual Units
 GET         /virtual                              @controllers.portal.VirtualUnits.browseVirtualCollections(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /virtual/:id                          @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
-GET         /virtual/:id/search                   @controllers.portal.VirtualUnits.searchVirtualCollection(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /virtual/:via/:id/search              @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /virtual/:id/search                   @controllers.portal.VirtualUnits.searchVirtualCollection(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
+GET         /virtual/:via/:id/search              @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /virtual/:via/:id                     @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
 
 # Bookmark Sets (user-friendly virtual units)

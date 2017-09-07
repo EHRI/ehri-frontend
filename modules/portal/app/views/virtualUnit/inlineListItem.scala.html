@@ -1,0 +1,33 @@
+@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+@details(d: DocumentaryUnit) = {
+    @d.model.primaryDescription.map { desc =>
+        <div class="search-item-details">
+            <ul class="doc-search-details">
+                @views.html.documentaryUnit.listItemMeta(d, desc, highlighter)
+            </ul>
+        </div>
+    }
+
+    @views.html.common.childCount(d) { count =>
+        @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, d.id), 'class -> "child-items-inline-load collapsed") {
+            <i class="fa fa-plus-square-o"></i>
+            @Messages("documentaryUnit.childCount", count)
+        }
+    }
+}
+
+<h5>
+    @views.html.helpers.link(views.Helpers.virtualUnitUrl(path, item.id), 'class -> ("type-highlight " + item.isA.toString)) {
+        @item.toStringLang
+    }
+</h5>
+@item match {
+    case d: DocumentaryUnit => {
+        @details(d)
+    }
+    case v: VirtualUnit => {
+        @details(v.asDocumentaryUnit)
+    }
+    case _ => {}
+}
