@@ -182,8 +182,11 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply {  implicit request =>
-    Ok(views.html.admin.userProfile.show(request.item, request.annotations))
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async {  implicit request =>
+    accounts.findById(request.item.id).map { accountOpt =>
+      val userWithAccount = request.item.copy(account = accountOpt)
+      Ok(views.html.admin.userProfile.show(userWithAccount, request.annotations))
+    }
   }
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
@@ -240,7 +243,7 @@ case class UserProfiles @Inject()(
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
       accounts.findById(request.item.id).map { accountOpt =>
         val userWithAccount = request.item.copy(account = accountOpt)
-        Ok(views.html.admin.userProfile.edit(request.item, AdminUserData.form.fill(
+        Ok(views.html.admin.userProfile.edit(userWithAccount, AdminUserData.form.fill(
           AdminUserData.fromUserProfile(userWithAccount)),
           userRoutes.updatePost(id)))
       }
@@ -256,7 +259,8 @@ case class UserProfiles @Inject()(
           data => accountOpt match {
             case Some(account) => for {
               profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-              newAccount <- accounts.update(account.copy(active = data.active, staff = data.staff))
+              newAccount <- accounts.update(account.copy(
+                active = data.active, staff = data.staff, verified = data.verified))
             } yield Redirect(userRoutes.search())
                 .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
             case None => for {
