@@ -170,7 +170,8 @@ jQuery(function($) {
     e.preventDefault();
     var $self = $(this);
     $self.parent().find("> .child-items-inline").remove();
-    $self.toggleClass("expanded collapsed");
+    $self.toggleClass("expanded collapsed")
+        .find(".fa").toggleClass("fa-plus-square-o fa-minus-square-o");
   });
 
   // load inline lists when the [+] is clicked
@@ -185,7 +186,8 @@ jQuery(function($) {
       addInlineLoadLinks($data);
       $self.parent().append($data);
       $self.attr("href", url);
-      $self.toggleClass("expanded collapsed disabled loading");
+      $self.toggleClass("expanded collapsed disabled loading")
+          .find(".fa").toggleClass("fa-plus-square-o fa-minus-square-o");
     })
   });
 
