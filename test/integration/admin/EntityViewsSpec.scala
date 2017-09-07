@@ -211,14 +211,16 @@ class EntityViewsSpec extends IntegrationTestRunner {
       await(mockAccounts.findById(unprivilegedUser.id)) must beSome.which { before =>
         before.staff must beTrue
         before.active must beTrue
+        before.verified must beTrue
       }
-      val data = Map("staff" -> Seq(false.toString), "active" -> Seq(false.toString))
+      val data = Map("staff" -> Seq(false.toString), "active" -> Seq(false.toString), "verified" -> Seq(false.toString))
       val update = FakeRequest(controllers.users.routes.UserProfiles.updatePost(unprivilegedUser.id))
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(update) must equalTo(SEE_OTHER)
       await(mockAccounts.findById(unprivilegedUser.id)) must beSome.which { after =>
         after.staff must beFalse
         after.active must beFalse
+        after.verified must beFalse
       }
     }
 

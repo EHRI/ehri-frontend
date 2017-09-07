@@ -128,6 +128,7 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
         UPDATE users
         SET
           email = ${account.email},
+          verified = ${account.verified},
           staff = ${account.staff},
           active = ${account.active},
           allow_messaging = ${account.allowMessaging},

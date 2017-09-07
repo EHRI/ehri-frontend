@@ -3,6 +3,18 @@
 @import UserProfileF._
 
 @defining("userProfile") { implicit fieldPrefix =>
+
+    @item.account.map { account =>
+        @if(!account.verified) {
+            <p class="alert alert-warning">
+                @Html(Messages("userProfile.email.verify", Html(s"<strong>${account.email}</strong>").body.trim))
+                @formHelpers.checkbox(f(""), "verified")
+            </p>
+        } else {
+            @formHelpers.hiddenInput(f("verified"))
+        }
+    }
+
     @formHelpers.checkbox(f(""), "staff")
     @formHelpers.checkbox(f(""), ACTIVE)
 }

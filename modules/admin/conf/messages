@@ -281,9 +281,15 @@ accessor.groups.remove.submit=Remove
 # Users
 #
 userProfile.staff=Staff
-userProfile.staff.description=User can access admin pages
+userProfile.staff.description=Whether the user can access admin pages
 userProfile.staff.true=Staff
 userProfile.staff.false=Non-staff
+userProfile.verified=Verified
+userProfile.verified.description=Whether the user''s email has been verified
+userProfile.email.verify=User''s email address {0} has not been verified and this will prevent them accessing admin pages. \
+  Verify it now?
+userProfile.unverified=Unverified
+userProfile.unverified.description=User has not verified their email address
 userProfile.active=Active
 userProfile.active.description=Whether this user profile is currently active.
 userProfile.active.true=Active

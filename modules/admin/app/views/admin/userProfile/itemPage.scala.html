@@ -1,23 +1,6 @@
 @(item: UserProfile)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@import UserProfileF._
-
-@activeBadge(user: UserProfile) = {
-    @if(user.model.active) {
-    <div class="label label-info">
-        @Messages("userProfile.active.true")
-    </div>
-    } else {
-    <div class="label label-warning">
-        @Messages("userProfile.active.false")
-    </div>
-    }
-}
-
-
-
-@views.html.admin.layout.rightSidebar(Html(item.toStringLang + activeBadge(item)), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
+@views.html.admin.layout.rightSidebar(Html(item.toStringLang + views.html.admin.userProfile.statusBadges(item)), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @html
 } {
     @views.html.admin.common.latestAction(item, controllers.users.routes.UserProfiles.history(item.id))
