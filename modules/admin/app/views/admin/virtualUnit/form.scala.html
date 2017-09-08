@@ -3,7 +3,6 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining("virtualUnit") { implicit fieldPrefix =>
-
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
 
     @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>

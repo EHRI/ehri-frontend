@@ -22,12 +22,4 @@
         @item.toStringLang
     }
 </h5>
-@item match {
-    case d: DocumentaryUnit => {
-        @details(d)
-    }
-    case v: VirtualUnit => {
-        @details(v.asDocumentaryUnit)
-    }
-    case _ => {}
-}
+@views.html.virtualUnit.ifVirtual(item)(v => details(v.asDocumentaryUnit))(d => details(d))

@@ -11,7 +11,11 @@
                     @views.html.repository.inlineListItem(r, hit)
                 }
                 case d: DocumentaryUnit => {
-                    @views.html.documentaryUnit.inlineListItem(d, hit)
+                    @if(path.isEmpty) {
+                        @views.html.documentaryUnit.inlineListItem(d, hit)
+                    } else {
+                        @views.html.virtualUnit.inlineListItem(d, path, hit)
+                    }
                 }
                 case c: Concept => {
                     @views.html.concept.inlineListItem(c, hit)

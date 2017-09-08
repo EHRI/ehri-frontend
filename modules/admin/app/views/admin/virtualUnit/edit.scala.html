@@ -3,12 +3,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.update"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
-		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
 		@form(f)
         @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-
 }

@@ -53,7 +53,7 @@ case class VirtualUnits @Inject()(
       )
     } yield {
       if (isAjax) {
-        if (inline) Ok(views.html.virtualUnit.inlineItemList(result, path = Seq(request.item)))
+        if (inline) Ok(views.html.common.search.inlineItemList(result, watched, path = Seq(request.item)))
           .withHeaders("more" -> result.page.hasMore.toString)
         else Ok(views.html.virtualUnit.childItemSearch(request.item, result,
           vuRoutes.searchVirtualCollection(id), request.watched))
@@ -81,7 +81,7 @@ case class VirtualUnits @Inject()(
 
   def browseVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
     val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
@@ -100,7 +100,7 @@ case class VirtualUnits @Inject()(
 
   def searchVirtualUnit(pathStr: String, id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
@@ -117,7 +117,7 @@ case class VirtualUnits @Inject()(
       )
     } yield {
       if (isAjax) {
-        if (inline) Ok(views.html.virtualUnit.inlineItemList(result, path = path :+ item))
+        if (inline) Ok(views.html.common.search.inlineItemList(result, watched, path = path :+ item))
           .withHeaders("more" -> result.page.hasMore.toString)
         else Ok(views.html.virtualUnit.childItemSearch(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))

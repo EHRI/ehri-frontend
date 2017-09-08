@@ -3,7 +3,6 @@
 @views.html.admin.layout.rightSidebar(item.model.identifier, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
     @html
 } {
-
     @sidebar
 
     @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)

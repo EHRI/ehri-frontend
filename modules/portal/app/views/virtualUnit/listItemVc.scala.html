@@ -5,15 +5,10 @@
         @item.toStringLang
     }
 } {
-    @item match {
-        case d: DocumentaryUnit => {
-            @views.html.documentaryUnit.listItemBody(d, showContext)
-        }
-        case v: VirtualUnit => {
-            @views.html.virtualUnit.listItemBody(v, path, showContext)
-        }
-        case _ => {
-        }
+    @views.html.virtualUnit.ifVirtual(item) { v =>
+        @views.html.virtualUnit.listItemBody(v, path, showContext)
+    } { d =>
+        @views.html.documentaryUnit.listItemBody(d, showContext)
     }
 }
 

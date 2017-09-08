@@ -36,16 +36,12 @@
             <a class="@item.isA" href="@views.Helpers.virtualUnitUrl(path, item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
         </h3>
         <div class="search-item-body">
-            @item match {
-                case d: DocumentaryUnit => {
-                    <ol class="breadcrumb">@wrapParent(d, path)</ol>
-                    @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
-                }
-                case v: VirtualUnit => {
-                    <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
-                    @listItemBody(v, path, highlighter = highlighter)
-                }
-                case _ => {}
+            @views.html.virtualUnit.ifVirtual(item) { v =>
+                <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
+                @views.html.virtualUnit.listItemBody(v, path, highlighter = highlighter)
+            } { d =>
+                <ol class="breadcrumb">@wrapParent(d, path)</ol>
+                @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
             }
         </div>
 </div>
