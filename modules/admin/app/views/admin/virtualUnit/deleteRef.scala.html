@@ -4,15 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@breadcrumbs = {
-    @item match {
-        case _ => {
-            @Html("")
-        }
-    }
-}
-
-@views.html.admin.layout.rightSidebar(Messages("virtualUnit.deleteRef"), breadcrumbs = breadcrumbs) {
+@views.html.admin.layout.rightSidebar(Messages("virtualUnit.deleteRef"), breadcrumbs = breadcrumbs(item)) {
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

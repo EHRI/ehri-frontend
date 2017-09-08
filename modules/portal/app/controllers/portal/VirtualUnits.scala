@@ -39,8 +39,10 @@ case class VirtualUnits @Inject()(
       request.item, request.annotations, request.links, request.watched))
   }
 
-  def searchVirtualCollection(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def searchVirtualCollection(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+    val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
+      watched <- watchedF
       filters <- vcSearchFilters(request.item)
       result <- find[AnyModel](
         params = params,
@@ -50,8 +52,12 @@ case class VirtualUnits @Inject()(
         facetBuilder = fc.docSearchFacets
       )
     } yield {
-      if (isAjax) Ok(views.html.virtualUnit.childItemSearch(request.item, result,
-        vuRoutes.searchVirtualCollection(id), request.watched))
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, watched, path = Seq(request.item)))
+          .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.virtualUnit.childItemSearch(request.item, result,
+          vuRoutes.searchVirtualCollection(id), request.watched))
+      }
       else Ok(views.html.virtualUnit.search(request.item, result,
         vuRoutes.searchVirtualCollection(id), request.watched))
     }
@@ -75,7 +81,7 @@ case class VirtualUnits @Inject()(
 
   def browseVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
     val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
@@ -87,14 +93,14 @@ case class VirtualUnits @Inject()(
       annotations <- annsF
       path <- pathF
     } yield {
-      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(item, annotations, links, watched, path))
+      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(item, annotations, links, watched, path :+ item))
       else Ok(views.html.virtualUnit.show(item, annotations, links, watched, path))
     }
   }
 
-  def searchVirtualUnit(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def searchVirtualUnit(pathStr: String, id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
+    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
     val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
@@ -110,9 +116,12 @@ case class VirtualUnits @Inject()(
         facetBuilder = fc.docSearchFacets
       )
     } yield {
-      if (isAjax)
-        Ok(views.html.virtualUnit.childItemSearch(item, result,
+      if (isAjax) {
+        if (inline) Ok(views.html.common.search.inlineItemList(result, watched, path = path :+ item))
+          .withHeaders("more" -> result.page.hasMore.toString)
+        else Ok(views.html.virtualUnit.childItemSearch(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
+      }
       else Ok(views.html.virtualUnit.search(item, result,
           vuRoutes.searchVirtualUnit(pathStr, id), watched, path))
     }

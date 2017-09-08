@@ -1,9 +1,7 @@
 @(item: VirtualUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @itemPage(item) {
-
     <h3>@Messages("link.create")</h3>
-
     <ul>
         <li><a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.HistoricalAgent)">@Messages("link.create.to.historicalAgent")</a></li>
         <li><a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, defines.EntityType.Concept)">@Messages("link.create.to.cvocConcept")</a></li>

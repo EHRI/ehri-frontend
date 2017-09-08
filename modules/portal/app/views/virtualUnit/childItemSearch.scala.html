@@ -7,9 +7,7 @@
             @result.page.items.map { case(doc, hit) =>
                 @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
                     @defining(watched.contains(doc.id)) { watched =>
-                    <li>
-                        @searchItem(doc, path :+ item, hit, watched)
-                    </li>
+                        <li>@searchItem(doc, path :+ item, hit, watched)</li>
                     }
                 }
             }

@@ -1,34 +1,30 @@
-@(item: models.base.AnyModel, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], path: Seq[AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
+@(item: models.base.AnyModel, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], path: Seq[models.base.AnyModel] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, md: views.MarkdownRenderer)
 
-@if(item.isInstanceOf[DocumentaryUnit]) {
-    @itemDetails(item.asInstanceOf[DocumentaryUnit], annotations, links, watched, path)
-} else {
-    @if(item.isInstanceOf[VirtualUnit]) {
-        @defining(item.asInstanceOf[VirtualUnit]) { vc =>
-            @views.html.common.itemDetails {
-                @defining("documentaryUnit") { implicit fieldPrefix =>
-                    @views.html.common.descriptionContainer(vc.model.descriptions) {
-                        @vc.model.descriptions.map { desc =>
-                            @views.html.documentaryUnit.description(vc.asDocumentaryUnit, desc, links, annotations)
-                        }
+@views.html.virtualUnit.ifVirtual(item) { vc =>
+    @views.html.common.itemDetails {
+        @defining("documentaryUnit") { implicit fieldPrefix =>
+            @views.html.common.descriptionContainer(vc.model.descriptions) {
+                @vc.model.descriptions.map { desc =>
+                    @views.html.documentaryUnit.description(vc.asDocumentaryUnit, desc, links, annotations)
+                }
 
-                        @views.html.common.externalLinks(item.asInstanceOf[VirtualUnit], links)
-                        @views.html.common.annotationLinks(item.asInstanceOf[VirtualUnit], links)
-                    } {
-                        @views.html.common.typeLabel(vc.isA) {
-                            @if(userOpt.isDefined) {
-                                <ul class="item-sidebar-actions list-group">
-                                    <li class="list-group-item btn-group-justified watch-controls" role="group">
-                                    @views.html.common.watchButtons(item, watched.contains(item.id))
-                                    </li>
-                                </ul>
-                            }
-                        }
-                    } {
-                        @views.html.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                @views.html.common.externalLinks(vc, links)
+                @views.html.common.annotationLinks(vc, links)
+            } {
+                @views.html.common.typeLabel(vc.isA) {
+                    @if(userOpt.isDefined) {
+                        <ul class="item-sidebar-actions list-group">
+                            <li class="list-group-item btn-group-justified watch-controls" role="group">
+                                @views.html.common.watchButtons(item, watched.contains(item.id))
+                            </li>
+                        </ul>
                     }
                 }
+            } {
+                @views.html.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         }
     }
+} { d =>
+    @views.html.virtualUnit.itemDetails(d, annotations, links, watched, path)
 }
