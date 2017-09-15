@@ -34,12 +34,13 @@ case class Guides @Inject()(
 ) extends PortalController
   with Search
   with SearchVC {
+  import scala.concurrent.duration._
 
   private val ajaxOrder = services.search.SearchSort.Name
   private val htmlAgentOrder = services.search.SearchSort.Detail
   private val htmlConceptOrder = services.search.SearchSort.ChildCount
 
-  def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:guideJsRoutes", OK, 3600) {
+  def jsRoutes: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:guideJsRoutes", OK, 1.hour) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(

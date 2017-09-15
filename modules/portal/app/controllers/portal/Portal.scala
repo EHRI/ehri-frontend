@@ -151,7 +151,7 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String): EssentialAction = appComponents.statusCache.status(_ => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futureItemOr404 {
         config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>
