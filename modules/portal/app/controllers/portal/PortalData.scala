@@ -15,7 +15,11 @@ case class PortalData @Inject()(
 )(override implicit val messagesApi: MessagesApi) extends BaseController
   with play.api.i18n.I18nSupport {
 
-  def jsRoutes: EssentialAction = appComponents.statusCache.status(_ => "pages:portalJsRoutes", OK, 3600) {
+  import scala.concurrent.duration._
+
+  private val cacheTime = 1.hour
+
+  def jsRoutes: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:portalJsRoutes", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
@@ -60,7 +64,7 @@ case class PortalData @Inject()(
     *
     * @return
     */
-  def globalData: EssentialAction = appComponents.statusCache.status(_ => "pages:globalData", OK, 3600) {
+  def globalData: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:globalData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       import defines.EntityType
       Ok(
@@ -82,9 +86,9 @@ case class PortalData @Inject()(
     MovedPermanently("/" + path + query)
   }
 
-  def localeData(lang: String): EssentialAction = appComponents.statusCache.status(_ => "pages:localeData", OK, 3600) {
+  def localeData(lang: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:localeData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
-      implicit val locale = play.api.i18n.Lang(lang)
+      //implicit val locale: Lang = request.lang
 
       val js =
         """

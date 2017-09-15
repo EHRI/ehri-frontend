@@ -22,9 +22,9 @@ case class Metrics @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents
 ) extends AdminController with Search {
+  import scala.concurrent.duration._
 
-  private val metricCacheTime = 60 * 60 // 1 hour
-
+  private val metricCacheTime = 1.hour
   private val statusCache = appComponents.statusCache
 
   import play.api.libs.functional.syntax._
@@ -61,7 +61,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def languageOfMaterial: EssentialAction = statusCache.status(_ => "pages:langMetric", OK, metricCacheTime) {
+  def languageOfMaterial: EssentialAction = statusCache.status((_: RequestHeader) => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.DocumentaryUnit), facetBuilder = langCountFacets)
@@ -81,7 +81,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def holdingRepository: EssentialAction = statusCache.status(_ => "pages:repoMetric", OK, metricCacheTime) {
+  def holdingRepository: EssentialAction = statusCache.status((_: RequestHeader) => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.DocumentaryUnit), facetBuilder = holdingRepoFacets)
@@ -102,7 +102,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def repositoryCountries: EssentialAction = statusCache.status(_ => "pages:repoCountryMetric", OK, metricCacheTime) {
+  def repositoryCountries: EssentialAction = statusCache.status((_: RequestHeader) => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.Repository), facetBuilder = countryRepoFacets)
@@ -122,7 +122,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def restricted: EssentialAction = statusCache.status(_ => "pages:restrictedMetric", OK, metricCacheTime) {
+  def restricted: EssentialAction = statusCache.status((_: RequestHeader) => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.HistoricalAgent, EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
@@ -144,7 +144,7 @@ case class Metrics @Inject()(
     )
   }
 
-  def agentTypes: EssentialAction = statusCache.status(_ => "pages:agentTypeMetric", OK, metricCacheTime) {
+  def agentTypes: EssentialAction = statusCache.status((_: RequestHeader) => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
       find[AnyModel](SearchParams.empty, PageParams.empty,
         entities = List(EntityType.HistoricalAgent), facetBuilder = agentTypeFacets)
