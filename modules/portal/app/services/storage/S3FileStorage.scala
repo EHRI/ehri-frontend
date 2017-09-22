@@ -8,11 +8,11 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.acl.CannedAcl
-import akka.stream.alpakka.s3.auth.AWSCredentials
 import akka.stream.alpakka.s3.scaladsl.S3Client
 import akka.stream.alpakka.s3.{MemoryBufferType, S3Settings}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
 import play.api.Logger
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,8 +22,8 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
   private val s3config: AwsConfig = AwsConfig.fromConfig(config)
-  private val cred = AWSCredentials(s3config.accessKey, s3config.secret)
-  private val settings = new S3Settings(MemoryBufferType, "", None, cred, s3config.region, pathStyleAccess = true)
+  private val cred = new AWSStaticCredentialsProvider(new BasicAWSCredentials(s3config.accessKey, s3config.secret))
+  private val settings = new S3Settings(MemoryBufferType, None, cred, s3config.region, pathStyleAccess = true)
   private val client = new S3Client(settings)
 
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
