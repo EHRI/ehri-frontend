@@ -9,9 +9,9 @@ import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SqlMovedPageLookup @Inject ()(implicit db: Database, actorSystem: ActorSystem) extends MovedPageLookup {
+case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: ActorSystem) extends MovedPageLookup {
 
-  implicit def executionContext: ExecutionContext =
+  implicit val executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
   override def hasMovedTo(path: String): Future[Option[String]] = Future {
@@ -24,39 +24,40 @@ case class SqlMovedPageLookup @Inject ()(implicit db: Database, actorSystem: Act
     }
   }
 
-  override def addMoved(moved: Seq[(String, String)]): Future[Int] = Future {
+  override def addMoved(moved: Seq[(String, String)]): Future[Int] = {
     // NB: Due to a very annoying character limit imposed by the ancient
-    // version of MySql on which we are forced to run, the lookup key here
+    // version of MySql on which we were forced to run, the lookup key here
     // is a hash of the original path, rather than the path itself (which could
     // easily overflow the 255 varchar limit on MySql 5.0.-something-old.)
+    if (moved.isEmpty) Future.successful(0)
+    else Future {
+      db.withConnection { implicit conn =>
+        val inserts = moved.map { case (from, to) =>
+          Seq[NamedParameter](
+            'hash -> DigestUtils.sha1Hex(from),
+            'original -> from,
+            'path -> to
+          )
+        }
+        // Unfortunate hack around SQL syntax variations
+        val dbName = db.dataSource.getConnection.getMetaData.getDatabaseProductName.toLowerCase
 
-    if (moved.isEmpty) 0
-    else db.withConnection { implicit conn =>
-      val inserts = moved.map { case (from, to) =>
-        Seq[NamedParameter](
-          'hash -> DigestUtils.sha1Hex(from),
-          'original -> from,
-          'path -> to
-        )
-      }
-      // Unfortunate hack around SQL syntax variations
-      val dbName = db.dataSource.getConnection.getMetaData.getDatabaseProductName.toLowerCase
-
-      val q = dbName match {
-        case "postgresql" => """
+        val q = dbName match {
+          case "postgresql" => """
                         INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
                         VALUES({hash}, {original}, {path})
                         ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
-        case "h2" => """MERGE INTO moved_pages(original_path_sha1, original_path, new_path)
+          case "h2" => """MERGE INTO moved_pages(original_path_sha1, original_path, new_path)
                         KEY(original_path_sha1)
                         VALUES({hash}, {original}, {path})"""
-        case _ =>    """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
+          case _ =>    """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
                         VALUES({hash}, {original}, {path})
                         ON DUPLICATE KEY UPDATE new_path = {path}"""
+        }
+        val batch = BatchSql(q, inserts.head, inserts.tail: _*)
+        val rows: Array[Int] = batch.execute()
+        rows.count(_ > 0)
       }
-      val batch = BatchSql(q, inserts.head, inserts.tail: _*)
-      val rows: Array[Int] = batch.execute()
-      rows.count(_ > 0)
     }
   }
 }

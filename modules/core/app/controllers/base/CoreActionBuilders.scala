@@ -1,9 +1,10 @@
 package controllers.base
 
+import akka.stream.scaladsl.Flow
 import auth.handler.AuthHandler
-import services._
 import defines.{ContentTypes, PermissionType}
 import models.{Account, UserProfile}
+import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
 import services.accounts.AccountManager
 import services.data.{ApiUser, AuthenticatedUser, DataApi, DataApiHandle}
@@ -23,8 +24,11 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * a dataApi implementation.
     */
   protected def dataApi: DataApi
+
   protected def authHandler: AuthHandler
+
   protected def accounts: AccountManager
+
   protected def globalConfig: global.GlobalConfig
 
   protected implicit val implicitEc: ExecutionContext = controllerComponents.executionContext
@@ -32,6 +36,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
 
   protected trait CoreActionBuilder[+R[_], B] extends ActionBuilder[R, AnyContent] {
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
+
     override def parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
   }
 
@@ -275,6 +280,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.readOnly) OptionalAccountRequest(None, request) else request
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -282,6 +288,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
       if (globalConfig.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -294,6 +301,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
       if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
       else immediate(None)
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -310,6 +318,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
         else downForMaintenance(request).map(r => Some(r))
       }.getOrElse(immediate(None))
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -328,6 +337,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
         else immediate(None)
       }
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -350,7 +360,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]): Future[Result] = {
       authHandler.restoreAccount(request).recover({
         case _ => None -> identity[Result] _
-      })(controllerComponents.executionContext).flatMap ({
+      })(controllerComponents.executionContext).flatMap({
         case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request))
           .map(cookieUpdater)(controllerComponents.executionContext)
       })(controllerComponents.executionContext)
@@ -374,6 +384,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
           case Some(profile) => immediate(Right(WithUserRequest(profile, request)))
         }
       }
+
       override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     }
 
@@ -389,6 +400,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
         if (request.user.hasPermission(contentType, permissionType)) immediate(None)
         else authorizationFailed(request, request.user).map(r => Some(r))
       }
+
       override protected def executionContext: ExecutionContext = controllerComponents.executionContext
     }
 
@@ -400,6 +412,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
       if (request.user.isAdmin || request.user.allGroups.exists(_.id == groupId)) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
@@ -411,6 +424,30 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
       if (request.user.isAdmin) immediate(None)
       else authorizationFailed(request, request.user).map(r => Some(r))
     }
+
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
+
+  /**
+    * Validate an incoming websocket request.
+    */
+  def AuthenticatedWebsocket[I, O](f: UserProfile => Boolean)(a: RequestHeader => Flow[I, O, _])(implicit transformer: MessageFlowTransformer[I, O]): WebSocket =
+    WebSocket.acceptOrResult[I, O] { implicit request =>
+      authHandler.restoreAccount(request).flatMap {
+        case (Some(account), _) => fetchProfile(account).flatMap {
+          case Some(prof) if prof.isAdmin => immediate(Right {
+            a(request)
+          })
+          // user doesn't have a profile, or it's not admin
+          case _ => authenticationFailed(request).map(r => Left(r))
+        }
+        case _ => authenticationFailed(request).map(r => Left(r))
+      }
+    }
+
+  /**
+    * A websocket that requires administrator privileges.
+    */
+  def AdminWebsocket[I, O](a: RequestHeader => Flow[I, O, _])(implicit transformer: MessageFlowTransformer[I, O]): WebSocket =
+    AuthenticatedWebsocket(_.isAdmin)(a)
 }

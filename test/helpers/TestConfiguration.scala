@@ -134,6 +134,23 @@ trait TestConfiguration {
   protected def message(key: String, args: Any*)(implicit messagesApi: MessagesApi, lang: Lang = Lang.defaultLang): String =
     messagesApi(key, args: _*)(lang)
 
+  private def loadFixtures(f: () => Result)(implicit app: Application, ex: ExecutionContext): Future[Result] = {
+    val config = app.injector.instanceOf[Configuration]
+    val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
+    val ws = app.injector.instanceOf[WSClient]
+    val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
+
+    import org.specs2.execute.{Error, Failure}
+    // Integration tests assume a server running locally. We then use the
+    // initialise endpoint to clean it before each individual test.
+    ws.url(url).post(fixtures).map(_.status).map {
+        case Status.NO_CONTENT => try f() catch { case e: Throwable => Error(e) }
+        case s => Failure(s"Unable to initialise test DB, got a status of: $s")
+      } recover {
+        case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")
+      }
+  }
+
   /**
    * Test running Fake Application. We have general all-test configuration,
    * handled in `config`, and per-test configuration (`specificConfig`) that
@@ -143,28 +160,24 @@ trait TestConfiguration {
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
     new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) with Injecting {
     implicit def implicitMaterializer: Materializer = inject[Materializer]
-    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
+    implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
     implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
-    override def around[T: AsResult](t: => T): Result = {
-      // Integration tests assume a server running locally. We then use the
-      // initialise endpoint to clean it before each individual test.
-      import org.specs2.execute.{Error, Failure}
+    override def around[T: AsResult](t: => T): Result =
+      await(loadFixtures(() => super.around(t)))
+  }
 
-      val config = app.injector.instanceOf[Configuration]
-      val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
-      val ws = app.injector.instanceOf[WSClient]
-      val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
-      await {
-        ws.url(url).post(fixtures).map { _.status match {
-          case Status.NO_CONTENT =>
-            try super.around(t) catch { case e: Throwable => Error(e) }
-          case s => Failure(s"Unable to initialise test DB, got a status of: $s")
-        }} recover {
-          case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")
-        }
-      }
-    }
+  /**
+    * Same as ITestApp but running a server.
+    * @param app the app to use
+    * @param port the server port
+    */
+  protected abstract class ITestServer(app: Application = GuiceApplicationBuilder().build(),
+    port: Int = Helpers.testServerPort) extends WithServer(app, port) with Injecting {
+    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
+
+    override def around[T: AsResult](t: => T): Result =
+      await(loadFixtures(() => super.around(t)))
   }
 
   /**

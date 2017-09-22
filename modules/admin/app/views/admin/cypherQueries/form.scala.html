@@ -24,9 +24,8 @@
                 </div>
             </div>
         }
-        <hr/>
-        <div id="update-progress">
-        </div>
+
+        <div id="update-progress"></div>
 
         <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/codemirror.css")">
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror.js")"></script>
@@ -39,7 +38,7 @@
                     mode:'cypher'
                 });
                 var $test = $("#test-query"),
-                    update = document.getElementById("update-progress");
+                    $update = $("#update-progress");
 
                 editor.on("change", function() {
                     var match = editor.getValue().match(danger);
@@ -60,7 +59,7 @@
                             setRunning(true);
                         },
                         progress: function(xhr) {
-                            update.innerHTML = "<pre>" + xhr.responseText + "</pre>";
+                            $update.show().html("<pre>" + xhr.responseText + "</pre>");
                         },
                         stop: function() {
                             setRunning(false);

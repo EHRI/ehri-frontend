@@ -14,13 +14,13 @@ jQuery(function($) {
 
   function appendProgressMessage(msg) {
     var $elem = $("#update-progress");
-    var $inner = $("#update-progress > pre");
+    var $inner = $elem.find("> pre");
     if ($inner.length === 0) {
       $inner = $("<pre></pre>");
       $elem.append($inner);
     }
     $inner.append(msg + "<br/>");
-    $elem.scrollTop($inner.height());
+    $elem.show().scrollTop($inner.height());
   }
 
   var $submit = $("#submit-update");
@@ -43,7 +43,7 @@ jQuery(function($) {
     websocket.onmessage = function(e) {
       var msg = JSON.parse(e.data);
       appendProgressMessage(msg);
-      if (msg.indexOf(DONE_MSG) != -1 || msg.indexOf(ERR_MSG) != -1) {
+      if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
         websocket.close();
         $submit.attr("disabled", false);
         console.log("Closed socket")

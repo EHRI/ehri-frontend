@@ -38,15 +38,16 @@ case class SearchToolsIndexMediator @Inject()(
  */
 case class SearchToolsIndexMediatorHandle(
   chan: Option[ActorRef] = None,
-  processFunc: String => String = identity[String]
+  processFunc: String => String = identity[String],
+  progressFilter: Int => Boolean = _ % 100 == 0
 )(index: Index, config: play.api.Configuration)(implicit executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
   val logger  = Logger(this.getClass)
 
   val serviceBaseUrl: String = utils.serviceBaseUrl("ehridata", config)
 
-  override def withChannel(actorRef: ActorRef, formatter: String => String): SearchToolsIndexMediatorHandle =
-    copy(chan = Some(actorRef), processFunc = formatter)(index, config)
+  override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): SearchToolsIndexMediatorHandle =
+    copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)(index, config)
 
   private def indexProperties(extra: Map[String,Any] = Map.empty): Properties = {
     val props = new Properties()
@@ -70,7 +71,7 @@ case class SearchToolsIndexMediatorHandle(
          override def call(node: JsonNode): Unit = {
            logger.trace(writer.writeValueAsString(node))
            count += 1
-           if (count % 100 == 0) {
+           if (progressFilter(count)) {
              chan.foreach(_ ! processFunc(s"Items processed: $count"))
            }
          }

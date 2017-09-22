@@ -42,5 +42,4 @@ GET     /:id/accessPointsJs                        @controllers.units.Documentar
 POST    /:id/deleteAccess/:did/:accessPoint        @controllers.units.DocumentaryUnits.deleteAccessPoint(id: String, did: String, accessPoint: String)
 POST    /:id/deleteLink/:link                      @controllers.units.DocumentaryUnits.deleteLink(id: String, link: String)
 POST    /:id/deleteLink/:did/:accessPoint/:link    @controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint(id: String, did: String, accessPoint: String, link: String)
-
-
+GET     /:id/ingest                                @controllers.units.DocumentaryUnits.ingest(id: String)

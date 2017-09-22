@@ -13,18 +13,10 @@ import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
 import services.search._
+import utils.WebsocketConstants
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 
-object Indexing {
-  /**
-    * Message that terminates a long-lived streaming response, such
-    * as the search index update job.
-    */
-  val DONE_MESSAGE = "Done"
-  val ERR_MESSAGE = "Index Error"
-}
 
 case class IndexTypes(
   types: Seq[EntityType.Value],
@@ -48,6 +40,7 @@ object IndexChildren {
   val TYPE = "entityType"
   implicit val _fmt: Format[IndexChildren] = Json.format[IndexChildren]
 }
+
 
 @Singleton
 case class Indexing @Inject()(
@@ -74,8 +67,8 @@ case class Indexing @Inject()(
     EntityType.Link
   )
 
-  private implicit val messageTransformer = MessageFlowTransformer
-    .jsonMessageFlowTransformer[JsValue, String]
+  private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
+    MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
 
   object IndexActor {
     def props(out: ActorRef) = Props(new IndexActor(out))
@@ -103,11 +96,11 @@ case class Indexing @Inject()(
         } yield task
 
         job.map { _ =>
-          out ! Indexing.DONE_MESSAGE
+          out ! WebsocketConstants.DONE_MESSAGE
         } recover {
           case t =>
             logger.logger.error(t.getMessage)
-            out ! s"${Indexing.ERR_MESSAGE}: ${t.getMessage}"
+            out ! s"${WebsocketConstants.ERR_MESSAGE}: ${t.getMessage}"
         }
 
       case js: JsValue if js.validate[IndexChildren].isSuccess =>
@@ -119,18 +112,18 @@ case class Indexing @Inject()(
         } yield task
 
         job map { _ =>
-          out ! Indexing.DONE_MESSAGE
+          out ! WebsocketConstants.DONE_MESSAGE
         } recover {
           case t =>
             logger.logger.error(t.getMessage)
-            out ! s"${Indexing.ERR_MESSAGE}: ${t.getMessage}"
+            out ! s"${WebsocketConstants.ERR_MESSAGE}: ${t.getMessage}"
         }
 
       case JsString(id) =>
         indexer.indexIds(id).recover {
-          case t => out ! s"${Indexing.ERR_MESSAGE}: ${t.getMessage}"
+          case t => out ! s"${WebsocketConstants.ERR_MESSAGE}: ${t.getMessage}"
         }.onComplete { _ =>
-          out ! Indexing.DONE_MESSAGE
+          out ! WebsocketConstants.DONE_MESSAGE
         }
     }
   }
@@ -152,22 +145,7 @@ case class Indexing @Inject()(
       action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def indexer(): WebSocket = WebSocket.acceptOrResult[JsValue, String] { implicit request =>
-    // When connecting we need to authenticate the request...
-    // This is currently a bit awkward when not dealing with standard
-    // actions, so using the authHandler directly to retrieve
-    // the user account from the request cookies, then manually fetching
-    // the profile and checking it's an admin account.
-    authHandler.restoreAccount(request).flatMap {
-      case (Some(account), _) => fetchProfile(account).flatMap {
-        case Some(prof) if prof.isAdmin => immediate(Right {
-          ActorFlow.actorRef(out => IndexActor.props(out))(
-            actorSystem, appComponents.materializer)
-        })
-        // user doesn't have a profile, or it's not admin
-        case _ => authenticationFailed(request).map(r => Left(r))
-      }
-      case _ => authenticationFailed(request).map(r => Left(r))
-    }
+  def indexer(): WebSocket = AdminWebsocket { implicit request =>
+    ActorFlow.actorRef(out => IndexActor.props(out))(actorSystem, appComponents.materializer)
   }
 }

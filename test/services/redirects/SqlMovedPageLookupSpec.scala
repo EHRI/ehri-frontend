@@ -12,7 +12,7 @@ class SqlMovedPageLookupSpec extends PlaySpecification {
   private implicit val actorSystem = app.injector.instanceOf[ActorSystem]
   private implicit def db = app.injector.instanceOf[Database]
 
-  private def movedPageService(implicit db: Database) = SqlMovedPageLookup()(db, actorSystem)
+  private def movedPageService(implicit db: Database) = SqlMovedPageLookup(db)
 
   "Moved Page lookup" should {
     "fetch redirect items" in {

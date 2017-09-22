@@ -12,8 +12,9 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import utils.{PageParams, RangeParams}
+import services.ingest.IngestParams
 import services.search._
+import utils.{PageParams, RangeParams}
 import views.Helpers
 
 import scala.concurrent.Future.{successful => immediate}
@@ -246,5 +247,10 @@ case class Repositories @Inject()(
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
       action = controllers.admin.routes.Indexing.indexer()))
+  }
+
+  def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
+    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm,
+      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, s"ead${if (sync) "-sync" else ""}"), sync = sync))
   }
 }

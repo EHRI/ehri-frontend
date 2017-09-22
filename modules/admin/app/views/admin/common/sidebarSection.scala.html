@@ -1,8 +1,10 @@
 @(name: Option[String] = None)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-<div class="sidebar-section">
-    @name.map { n =>
-        <header><h3>@n</h3></header>
-    }
-    @html
-</div>
+@if(html.body.trim.nonEmpty) {
+    <div class="sidebar-section">
+        @name.map { n =>
+            <header><h3>@n</h3></header>
+        }
+        @html
+    </div>
+}
