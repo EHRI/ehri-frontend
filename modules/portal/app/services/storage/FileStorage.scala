@@ -31,4 +31,13 @@ trait FileStorage {
     * @return the file URI of the stored file
     */
   def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI]
+
+  /**
+    * List files which share this classifier.
+    *
+    * @param classifier the "bucket", or set, to which this file belongs
+    * @param prefix     an option path prefix
+    * @return a stream of file paths
+    */
+  def listFiles(classifier: String, prefix: Option[String] = None): Source[String, _]
 }

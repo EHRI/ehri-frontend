@@ -4,6 +4,7 @@ import java.io.File
 import java.net.URI
 import javax.inject.Inject
 
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
@@ -38,4 +39,7 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   override def putFile(classifier: String, path: String, file: File, public: Boolean = false): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
+
+  override def listFiles(classifier: String, prefix: Option[String]): Source[String, NotUsed] =
+    client.listBucket(classifier, prefix).map(_.key)
 }
