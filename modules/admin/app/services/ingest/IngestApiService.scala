@@ -64,7 +64,7 @@ case class IngestApiService @Inject()(
   }
 
   // The result of a regular import
-  case class ImportLog(created: Int, updated: Int, unchanged: Int, message: Option[String] = None) extends IngestResult
+  case class ImportLog(created: Int, updated: Int, unchanged: Int, message: Option[String] = None, errors: Map[String, String] = Map.empty) extends IngestResult
 
   object ImportLog {
     implicit val format: Format[ImportLog] = Json.format[ImportLog]
@@ -224,6 +224,7 @@ case class IngestApiService @Inject()(
       .post(job.data.params.file.map(_.toFile)
         .getOrElse(sys.error("Unexpectedly empty ingest data!")))
       .map { r =>
+        logger.trace(r.body)
         logger.debug(s"Ingest WS status: ${r.status}")
         try Right(r.json.as[IngestResult]) catch {
           case (_: JsonMappingException | _: JsResultException) => Left(r.body)
@@ -266,7 +267,7 @@ case class IngestApiService @Inject()(
 
   // Handle reindexing if item have changed
   private def handleIngestResult(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
-    msg(s"Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}", chan)
+    msg(s"Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}, errors: ${log.errors.size}", chan)
     if (job.data.params.commit) {
       if (log.created > 0 || log.updated > 0) {
         reindex(job.data.params.scopeType, job.data.params.scope)
