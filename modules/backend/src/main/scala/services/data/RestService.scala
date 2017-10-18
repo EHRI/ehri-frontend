@@ -214,26 +214,28 @@ trait RestService {
         }
       )
       case BAD_REQUEST => try {
-        response.json.validate[ValidationError].fold(
-          e => {
-            // Temporary approach to handling random Deserialization errors.
-            // In practice this should happen
-            if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
-              logger.error(s"Derialization error! : ${response.json}")
-              throw DeserializationError()
-            } else {
-              logger.error("Bad request: " + response.body)
-              throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
+        response.json.validate[ValidationError]
+          .orElse(response.json.validate[InputDataError])
+          .fold(
+            e => {
+              // Temporary approach to handling random Deserialization errors.
+              // In practice this should happen
+              if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
+                logger.error(s"Derialization error! : ${response.json}")
+                throw DeserializationError()
+              } else {
+                logger.error("Bad request: " + response.body)
+                throw sys.error(s"Unexpected BAD REQUEST: $e \n${response.body}")
+              }
+            },
+            ve => {
+              logger.warn(s"Validation or Data error! : ${response.json}")
+              throw ve
             }
-          },
-          ve => {
-            logger.warn(s"ValidationError ! : ${response.json}")
-            throw ve
-          }
         )
       } catch {
         case _: JsonParseException =>
-          throw BadRequest(response.body)
+          throw JsonError(response.body)
       }
       case NOT_FOUND => try {
         response.json.validate[ItemNotFound].fold(

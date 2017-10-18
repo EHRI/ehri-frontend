@@ -1,9 +1,11 @@
 @(form: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.movedItems")) {
     <p>@Messages("admin.utils.movedItems.description")</p>
     @helper.form(action = action, 'class -> "entity-form form-horizontal", 'enctype -> "multipart/form-data") {
-        @views.html.admin.common.pathRemapForm(Messages("admin.utils.movedItems.submit")) {
+        @views.html.admin.common.pathRemapForm(Messages("admin.utils.movedItems.submit"), form) {
             <div class="form-group">
                 <label class="control-label" for="id_csv">
                     @Messages("admin.utils.movedItems.csv")

@@ -15,7 +15,12 @@ case class PermissionDenied(
 
 case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError
 
-case class BadRequest(msg: String) extends RuntimeException(msg) with RestError
+case class JsonError(msg: String) extends RuntimeException(msg) with RestError
+
+case class InputDataError(error: String, details: String) extends RestError
+object InputDataError {
+  implicit val _fmt: Format[InputDataError] = Json.format[InputDataError]
+}
 
 case class DeserializationError() extends RestError
 
@@ -58,15 +63,15 @@ case class BadJson(
 object ItemNotFound {
   val itemNotFoundReads: Reads[ItemNotFound] = (
     (__ \ "details" \ "key").readNullable[String] and
-      (__ \ "details" \ "value").readNullable[String] and
-      (__ \ "details" \ "message").readNullable[String]
-    )(ItemNotFound.apply _)
+    (__ \ "details" \ "value").readNullable[String] and
+    (__ \ "details" \ "message").readNullable[String]
+  )(ItemNotFound.apply _)
 
   val itemNotFoundWrites: Writes[ItemNotFound] = (
     (__ \ "key").writeNullable[String] and
-      (__ \ "value").writeNullable[String] and
-      (__ \ "message").writeNullable[String]
-    )(unlift(ItemNotFound.unapply))
+    (__ \ "value").writeNullable[String] and
+    (__ \ "message").writeNullable[String]
+  )(unlift(ItemNotFound.unapply))
 
   implicit val itemNotFoundFormat = Format(itemNotFoundReads, itemNotFoundWrites)
 }
@@ -75,17 +80,17 @@ object ItemNotFound {
 object PermissionDenied {
   val permissionDeniedReads: Reads[PermissionDenied] = (
     (__ \ "details" \ "accessor").readNullable[String] and
-      (__ \ "details" \ "permission").readNullable[String] and
-      (__ \ "details" \ "item").readNullable[String] and
-      (__ \ "details" \ "scope").readNullable[String]
-    )(PermissionDenied.apply _)
+    (__ \ "details" \ "permission").readNullable[String] and
+    (__ \ "details" \ "item").readNullable[String] and
+    (__ \ "details" \ "scope").readNullable[String]
+  )(PermissionDenied.apply _)
 
   val permissionDeniedWrites: Writes[PermissionDenied] = (
     (__ \ "accessor").writeNullable[String] and
-      (__ \ "permission").writeNullable[String] and
-      (__ \ "item").writeNullable[String] and
-      (__ \ "scope").writeNullable[String]
-    )(unlift(PermissionDenied.unapply))
+    (__ \ "permission").writeNullable[String] and
+    (__ \ "item").writeNullable[String] and
+    (__ \ "scope").writeNullable[String]
+  )(unlift(PermissionDenied.unapply))
 
   implicit val permissionDeniedFormat = Format(
     permissionDeniedReads, permissionDeniedWrites)
