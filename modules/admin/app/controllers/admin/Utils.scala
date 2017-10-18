@@ -17,7 +17,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
 import services.cypher.Cypher
-import services.data.AuthenticatedUser
+import services.data.{AuthenticatedUser, InputDataError}
 import services.search.SearchIndexMediator
 import utils.{CsvHelpers, EnumUtils, PageParams}
 
@@ -119,16 +119,21 @@ case class Utils @Inject()(
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools
           .renameItemsForm(errForm, controllers.admin.routes.Utils.renameItemsPost()))),
-        prefix => request.body.file("csv").map { file =>
+        prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
           val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
             .collect { case from :: to :: _ => from -> to }
           userDataApi.rename(todo).flatMap { items =>
             updateFromCsv(items, prefix)
               .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+          } recover {
+            case e: InputDataError =>
+              BadRequest(views.html.admin.tools.movedItemsForm(
+                boundForm.withGlobalError(e.details),
+                controllers.admin.routes.Utils.renameItemsPost()))
           }
         }.getOrElse {
-          immediate(Ok(views.html.admin.tools.movedItemsForm(
-            boundForm.withError("csv", "No CSV file found"),
+          immediate(BadRequest(views.html.admin.tools.movedItemsForm(
+            boundForm.withGlobalError("No CSV file found"),
             controllers.admin.routes.Utils.renameItemsPost())))
         }
       )

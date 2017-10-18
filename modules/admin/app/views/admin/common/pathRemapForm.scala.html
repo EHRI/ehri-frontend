@@ -1,15 +1,9 @@
-@(submitName: String)(html: Html)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(submitName: String, form: Form[_])(html: Html)(implicit fieldConstructor: views.html.helper.FieldConstructor, request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @formHelpers.csrfToken()
+@views.html.formHelpers.globalErrors(form)
 
-<div class="form-group">
-    <label class="control-label" for="id_path-prefix">
-        @Messages("admin.utils.renameItems.pathPrefix")
-    </label>
-    <div class="control-elements">
-        <input class="form-control" type="text" name="path-prefix" id="id_path-prefix" />
-    </div>
-</div>
+@helper.inputText(form("path-prefix"), 'class -> "form-control", '_label -> Messages("admin.utils.renameItems.pathPrefix"))
 
 @html
 
@@ -18,8 +12,11 @@
 </div>
 <script>
     jQuery(function($) {
-        $("#id_path-prefix").on("keyup", function(e) {
-            $("#id_submit").attr("disabled", e.target.value.trim() === "");
+        var $path = $("#path-prefix"),
+            $submit = $("#id_submit");
+        $submit.attr("disabled", $path.val().trim() === "");
+        $path.on("keyup", function(e) {
+            $submit.attr("disabled", e.target.value.trim() === "");
         });
     });
 </script>
