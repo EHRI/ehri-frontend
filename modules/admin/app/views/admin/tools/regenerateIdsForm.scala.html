@@ -33,6 +33,13 @@
                         </tr>
                     }
                 </table>
+                <script>
+                    jQuery(function($) {
+                        $("#check-all").on("change", function () {
+                            $(".select-item").prop("checked", this.checked);
+                        });
+                    });
+                </script>
             }
         }
     }
