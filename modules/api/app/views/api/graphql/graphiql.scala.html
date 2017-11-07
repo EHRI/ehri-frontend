@@ -16,12 +16,17 @@
         #graphiql {
             height: 100vh;
         }
+        #graphiql #home-link img {
+            margin-right: 5px;
+            vertical-align: middle;
+
+        }
         </style>
-        <link href="//cdn.jsdelivr.net/graphiql/0.7.8/graphiql.css" rel="stylesheet" />
-        <script src="//cdn.jsdelivr.net/fetch/0.9.0/fetch.min.js"></script>
-        <script src="//cdn.jsdelivr.net/react/15.0.1/react.min.js"></script>
-        <script src="//cdn.jsdelivr.net/react/15.0.1/react-dom.min.js"></script>
-        <script src="//cdn.jsdelivr.net/graphiql/0.7.8/graphiql.min.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.10/graphiql.min.css" rel="stylesheet" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.2/react.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/15.6.1/react-dom.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.10/graphiql.min.js"></script>
 
         <meta charset="UTF-8">
         <meta name="copyright" content="EHRI Consortium 2015">
@@ -93,7 +98,7 @@
                             'X-Requested-With': 'ajax'
                         },
                         body: JSON.stringify(graphQLParams),
-                        credentials: 'include',
+                        credentials: 'include'
                     }).then(function (response) {
                         return response.text();
                     }).then(function (responseBody) {
@@ -107,15 +112,32 @@
                 // Render <GraphiQL /> into the body.
                 ReactDOM.render(
                         React.createElement(GraphiQL, {
-                            fetcher: graphQLFetcher,
-                            query: parameters.query,
-                            variables: parameters.variables,
-                            operationName: parameters.operationName,
-                            docExplorerOpen: true,
-                            onEditQuery: onEditQuery,
-                            onEditVariables: onEditVariables,
-                            onEditOperationName: onEditOperationName
-                        }),
+                                fetcher: graphQLFetcher,
+                                query: parameters.query,
+                                variables: parameters.variables,
+                                operationName: parameters.operationName,
+                                docExplorerOpen: true,
+                                onEditQuery: onEditQuery,
+                                onEditVariables: onEditVariables,
+                                onEditOperationName: onEditOperationName
+                            },
+                            React.createElement(GraphiQL.Logo, {},
+                                React.createElement("a", {
+                                        href: "@controllers.portal.routes.Portal.index().absoluteURL(req.secure)",
+                                        id: "home-link",
+                                        title: "@Messages("home")"
+                                    },
+                                    React.createElement("img", {
+                                      src: "https://ehri-assets.s3.amazonaws.com/logo-rect-bw-small.png",
+                                      alt: "@Messages("home")",
+                                      height: 36,
+                                      width: 60
+                                    })
+                                ),
+                                React.createElement("span", {id: "graphiql-logo"},
+                                    "Graph", React.createElement("em", {}, "i"), "QL")
+                            )
+                        ),
                         document.getElementById('graphiql')
                 );
         </script>
