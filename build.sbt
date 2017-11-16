@@ -3,7 +3,7 @@ import com.typesafe.sbt.gzip.Import._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
-import com.typesafe.sbt.rjs.Import._
+import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import play.sbt.Play.autoImport._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
@@ -253,14 +253,16 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
   .settings(
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
-    RjsKeys.mainModule := "portal-main",
-    pipelineStages in Assets := Seq(concat, digest, gzip),
+    uglifyMangle := false, // Mangling and compressing causes problems so don't
+    uglifyCompress := false,
+    // Should really add cssCompress stage here but it's too slow currently
+    pipelineStages in Assets := Seq(concat, uglify, digest, gzip),
     Concat.groups := Seq(
-     "css/portal-all.css" -> group(
+      "css/portal-all.css" -> group(
         Seq(
           "css/portal.css"
         )
-       ),
+      ),
       "js/script-pre.js" -> group(
         Seq(
           "js/lib/jquery-1.11.2.js",
@@ -290,6 +292,13 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
           "js/lib/bootstrap.js",
           "js/portal.js",
           "js/portal-signedin.js"
+        )
+      ),
+      "js/codemirror-all.js" -> group(
+        Seq(
+          "js/lib/codemirror.js",
+          "js/lib/javascript.js",
+          "js/lib/clipboard.js"
         )
       )
     )
