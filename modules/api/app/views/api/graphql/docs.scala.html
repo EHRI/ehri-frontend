@@ -37,7 +37,7 @@
         <div id="api-usage-example">
             @helper.form(controllers.api.graphql.routes.GraphQL.query(), 'class -> "api-example-form form-inline", 'id -> "api-usage-form") {
                 <label for="api-usage-input" class="">Example Query</label>
-                <textarea rows="8" id="api-usage-input">@query</textarea>
+                <textarea class="api-example" rows="8" id="api-usage-input">@query</textarea>
                 <br/>
                 <div class="form-group">
                     <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
@@ -46,7 +46,7 @@
                 <hr/>
 
                 <label for="api-usage-output" class="">Example Results</label>
-                <textarea rows="8" id="api-usage-output"></textarea>
+                <textarea class="api-example" rows="8" id="api-usage-output"></textarea>
             }
 
             <br/>
@@ -170,7 +170,7 @@
                         var slashes = http.concat("//");
                         var value = e.getValue();
                         var host = slashes.concat(window.location.hostname)
-                                .concat((window.location.port != ""
+                                .concat((window.location.port !== ""
                                         ? (":" + window.location.port) : ""));
                         return "curl --header Content-type:application/json \\\n"
                                 + "            " + host + action + " \\\n"

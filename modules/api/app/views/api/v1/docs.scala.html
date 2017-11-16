@@ -270,18 +270,18 @@
 
                     var params = $form.find(":input")
                             .filter(function (index, element) {
-                                return $(element).val().trim() != ""
-                                        && $(element).attr("name") != "id";
+                                return $(element).val().trim() !== ""
+                                        && $(element).attr("name") !== "id";
                             })
                             .serialize();
-                    return action + (params != "" ? "?" + params : "");
+                    return action + (params !== "" ? "?" + params : "");
                 }
 
                 function curlCommand(action) {
                     var http = location.protocol;
                     var slashes = http.concat("//");
                     var host = slashes.concat(window.location.hostname)
-                            .concat((window.location.port != ""
+                            .concat((window.location.port !== ""
                                     ? (":" + window.location.port) : ""));
                     return "curl " + "\"" + host + action + "\"";
                 }

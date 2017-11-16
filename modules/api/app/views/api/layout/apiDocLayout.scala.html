@@ -2,9 +2,7 @@
 
 @includeScripts = {
     @scripts
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/javascript.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/clipboard.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/codemirror-all.js")"></script>
 }
 
 @includeStyles = {
@@ -38,6 +36,18 @@
 
     .api-example-form input[type=number] {
         width: 6em;
+    }
+
+    .api-example {
+        width: 100%;
+        float: left;
+        margin-bottom: 20px;
+        height: 300px;
+        font-size: 14px;
+        font-weight: 400;
+        font-family: monospace;
+        padding: 4px;
+        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
     }
     </style>
 }

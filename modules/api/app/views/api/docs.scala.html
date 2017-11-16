@@ -1,7 +1,14 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
+@includeCss = {
+    <style>
+            section {
+                margin-bottom: 60px;
+            }
+    </style>
+}
 
-@views.html.layout.rightSidebarLayout(Messages("api.header")) {
+@views.html.layout.rightSidebarLayout(Messages("api.header"), styles = includeCss) {
     <h1>@Messages("api.header")</h1>
 
     <section id="overview">
