@@ -36,7 +36,8 @@ object Helpers {
     ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
     ("admin.utils.findReplace",     controllers.admin.routes.Utils.findReplace().url),
     ("admin.utils.regenerateIds",   controllers.admin.routes.Utils.regenerateIds().url),
-    ("admin.utils.renameItems",   controllers.admin.routes.Utils.renameItems().url)
+    ("admin.utils.renameItems",     controllers.admin.routes.Utils.renameItems().url),
+    ("admin.utils.reparentItems",   controllers.admin.routes.Utils.reparentItems().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

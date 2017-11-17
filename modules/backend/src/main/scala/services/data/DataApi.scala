@@ -88,6 +88,14 @@ trait DataApiHandle {
   def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]]
 
   /**
+    * Reparent a batch of items.
+    *
+    * @param mapping a mapping of current global ID to new parent global ID
+    * @return a mapping of old global ID to new (regenerated) global ID
+    */
+  def reparent(mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]]
+
+  /**
     * Scan for IDs that require regeneration across an entire item type,
     * and optionally regenerate them.
     *

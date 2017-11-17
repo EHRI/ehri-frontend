@@ -35,6 +35,8 @@ GET         /movedItems                         @controllers.admin.Utils.addMove
 POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
 GET         /renameItems                        @controllers.admin.Utils.renameItems
 POST        /renameItems                        @controllers.admin.Utils.renameItemsPost
+GET         /reparentItems                      @controllers.admin.Utils.reparentItems
+POST        /reparentItems                      @controllers.admin.Utils.reparentItemsPost
 
 # ID regeneration
 GET         /regenerate                         @controllers.admin.Utils.regenerateIds

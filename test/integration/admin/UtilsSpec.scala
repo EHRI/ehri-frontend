@@ -81,6 +81,29 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       movedPages.clear()
     }
 
+    "allow batch reparenting items" in new ITestApp {
+      val f = File.createTempFile("/upload", ".csv")
+      f.deleteOnExit()
+      FileUtils.writeStringToFile(f, "c4,c1", "UTF-8")
+
+      val result = FakeRequest(controllers.admin.routes.Utils.reparentItemsPost())
+        .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must_== OK
+
+      // We've added two items...
+      val redirects = movedPages.toList.takeRight(4)
+      redirects.headOption must beSome.which { case (from, to) =>
+        from must_== "/units/c4"
+        to must_== "/units/nl-r1-c1-c4"
+      }
+      // Clear the mutable buffer to prevent redirects
+      // interfering in other tests
+      movedPages.clear()
+    }
+
     "handle find/replace correctly" in new ITestApp {
       import models.admin.FindReplaceTask._
 
