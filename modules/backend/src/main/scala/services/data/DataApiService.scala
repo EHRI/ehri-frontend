@@ -631,6 +631,13 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
+  override def reparent(mapping: Seq[(String, String)], commit: Boolean = false): Future[Seq[(String, String)]] = {
+    val url = enc(baseUrl, "tools", "reparent")
+    userCall(url).withQueryString("commit" -> commit.toString)
+      .post(Json.toJson(mapping))
+      .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
+  }
+
   override def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-type", ct)
     userCall(url).withQueryString("commit" -> commit.toString)

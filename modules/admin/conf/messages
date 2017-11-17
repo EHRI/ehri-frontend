@@ -219,6 +219,15 @@ admin.utils.renameItems.pathPrefix=Specify the path prefix before the item's id 
 admin.utils.renameItems.csv=Select the ID to new local identifier CSV file...
 
 #
+# Re-parenting items
+#
+admin.utils.reparentItems=Reparent Items
+admin.utils.reparentItems.description=Move items to a new parent item, regenerate global IDs, and \
+  create permanent redirects from old ID to new ID.
+admin.utils.reparentItems.submit=Reparent Items
+admin.utils.reparentItems.csv=Select the ID to new parent ID CSV file...
+
+#
 # ID regeneration
 #
 admin.utils.regenerateIds=Regenerate Item IDs

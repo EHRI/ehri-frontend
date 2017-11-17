@@ -127,14 +127,45 @@ case class Utils @Inject()(
               .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
           } recover {
             case e: InputDataError =>
-              BadRequest(views.html.admin.tools.movedItemsForm(
+              BadRequest(views.html.admin.tools.renameItemsForm(
                 boundForm.withGlobalError(e.details),
                 controllers.admin.routes.Utils.renameItemsPost()))
           }
         }.getOrElse {
-          immediate(BadRequest(views.html.admin.tools.movedItemsForm(
+          immediate(BadRequest(views.html.admin.tools.renameItemsForm(
             boundForm.withGlobalError("No CSV file found"),
             controllers.admin.routes.Utils.renameItemsPost())))
+        }
+      )
+    }
+
+  def reparentItems(): Action[AnyContent] = AdminAction { implicit request =>
+    Ok(views.html.admin.tools.reparentItemsForm(urlMapForm,
+      controllers.admin.routes.Utils.reparentItemsPost()))
+  }
+
+  def reparentItemsPost(): Action[MultipartFormData[TemporaryFile]] =
+    AdminAction.async(parsers.multipartFormData) { implicit request =>
+      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      boundForm.fold(
+        errForm => immediate(BadRequest(views.html.admin.tools
+          .reparentItemsForm(errForm, controllers.admin.routes.Utils.reparentItemsPost()))),
+        prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
+          val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
+            .collect { case id :: parent :: _ => id -> parent }
+          userDataApi.reparent(todo, commit = true).flatMap { items =>
+            updateFromCsv(items, prefix)
+              .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+          } recover {
+            case e: InputDataError =>
+              BadRequest(views.html.admin.tools.reparentItemsForm(
+                boundForm.withGlobalError(e.details),
+                controllers.admin.routes.Utils.reparentItemsPost()))
+          }
+        }.getOrElse {
+          immediate(BadRequest(views.html.admin.tools.reparentItemsForm(
+            boundForm.withGlobalError("No CSV file found"),
+            controllers.admin.routes.Utils.reparentItemsPost())))
         }
       )
     }
