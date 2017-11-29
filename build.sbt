@@ -58,7 +58,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.postgresql" % "postgresql" % "42.1.1",
 
   // Markdown rendering
-  "com.vladsch.flexmark" % "flexmark-all" % "0.19.3",
+  "com.vladsch.flexmark" % "flexmark-all" % "0.28.10",
 
   // HTML sanitising...
   "org.jsoup" % "jsoup" % "1.8.3",
