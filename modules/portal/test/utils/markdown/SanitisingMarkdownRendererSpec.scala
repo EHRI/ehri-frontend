@@ -1,11 +1,11 @@
-package views
+package utils.markdown
 
 import play.api.test.PlaySpecification
 
-class FlexmarkMarkdownProcessorSpec extends PlaySpecification {
-  val mdprocessor = new FlexmarkMarkdownRenderer
+class SanitisingMarkdownRendererSpec extends PlaySpecification {
+  val mdprocessor = SanitisingMarkdownRenderer(CommonmarkMarkdownRenderer())
 
-  "pegdown markdown processor" should {
+  "sanitising markdown renderer" should {
     "parse markdown correctly" in {
       val md =
         """

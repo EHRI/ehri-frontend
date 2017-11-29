@@ -1,6 +1,4 @@
-package views
-
-import javax.inject.{Inject, Provider, Singleton}
+package utils.markdown
 
 import com.vladsch.flexmark.ast.{LinkNode, Node}
 import com.vladsch.flexmark.html.HtmlRenderer.{Builder, HtmlRendererExtension}
@@ -10,12 +8,9 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.profiles.pegdown.{Extensions, PegdownOptionsAdapter}
 import com.vladsch.flexmark.util.html.Attributes
 import com.vladsch.flexmark.util.options.{DataHolder, MutableDataHolder}
-import org.jsoup.Jsoup
-import org.jsoup.safety.Whitelist
-import play.api.Logger
 
 
-case class FlexmarkMarkdownRenderer() extends MarkdownRenderer {
+case class FlexmarkMarkdownRenderer() extends RawMarkdownRenderer {
   
   private class LinkAttributeProvider extends AttributeProvider {
     override def setAttributes(node: Node, part: AttributablePart, attributes: Attributes): Unit = {
@@ -47,30 +42,5 @@ case class FlexmarkMarkdownRenderer() extends MarkdownRenderer {
   private val parser = Parser.builder(options).build()
   private val renderer = HtmlRenderer.builder(options).build()
 
-  private val whiteListStandard: Whitelist = Whitelist.basic()
-    .addAttributes("a", "target", "_blank")
-    .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
-
-  private val whiteListStrict: Whitelist = Whitelist.simpleText()
-    .addTags("p", "a")
-    .addAttributes("a", "target", "_blank")
-    .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
-
-  private def render(markdown: String): String = renderer.render(parser.parse(markdown))
-
-  override def renderMarkdown(markdown: String): String =
-    Jsoup.clean(render(markdown), whiteListStandard)
-
-  override def renderUntrustedMarkdown(markdown: String): String =
-    Jsoup.clean(render(markdown), whiteListStrict)
-
-  override def renderTrustedMarkdown(markdown: String): String =
-    render(markdown)
-}
-
-@Singleton
-case class FlexmarkMarkdownRendererProvider @Inject()() extends Provider[MarkdownRenderer] {
-  override lazy val get: MarkdownRenderer = new FlexmarkMarkdownRenderer
+  override def render(markdown: String): String = renderer.render(parser.parse(markdown))
 }

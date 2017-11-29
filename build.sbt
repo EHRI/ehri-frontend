@@ -60,6 +60,9 @@ val coreDependencies = backendDependencies ++ Seq(
   // Markdown rendering
   "com.vladsch.flexmark" % "flexmark-all" % "0.28.10",
 
+  "com.atlassian.commonmark" % "commonmark" % "0.10.0",
+  "com.atlassian.commonmark" % "commonmark-ext-autolink" % "0.10.0",
+
   // HTML sanitising...
   "org.jsoup" % "jsoup" % "1.8.3",
 
