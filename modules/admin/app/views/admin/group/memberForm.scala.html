@@ -4,7 +4,7 @@
 
 <div class="form-group">
     <label class="control-label" for="id_group_members">@Messages("group.members")</label>
-    <div class="control-element">
+    <div class="control-elements">
         <select class="form-control select2" name="@{MEMBER}[]" multiple id="id_group_members">
             <optgroup label="@Messages("contentTypes.UserProfile")">
             @users.map { case (id,name) =>
