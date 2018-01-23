@@ -145,7 +145,11 @@ val commonSettings = Seq(
   // Don't execute tests in parallel
   parallelExecution := false,
 
-  resolvers ++= additionalResolvers
+  resolvers ++= additionalResolvers,
+
+  // Disable documentation generation
+  sources in (Compile, doc) := Seq.empty,
+  publishArtifact in (Compile, packageDoc) := false
 )
 
 val webAppSettings = Seq(
