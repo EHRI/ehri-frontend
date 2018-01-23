@@ -121,6 +121,7 @@ object DocumentaryUnitDescriptionF {
       (__ \ DATES_DESCRIPTIONS).formatNullable[String] and
       (__ \ PROCESS_INFO).formatSeqOrSingleNullable[String]
     )(IsadGControl.apply, unlift(IsadGControl.unapply))) and
+    (__ \ DATA \ SOURCE_FILE_ID).formatNullable[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
     (__ \ RELATIONSHIPS \ HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
@@ -143,6 +144,7 @@ case class DocumentaryUnitDescriptionF(
   materials: IsadGMaterials = IsadGMaterials(),
   notes: Option[Seq[String]] = None,
   control: IsadGControl = IsadGControl(),
+  sourceFileId: Option[String] = None,
   creationProcess: CreationProcess.Value = CreationProcess.Manual,
   @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
@@ -250,6 +252,7 @@ object DocumentaryUnitDescription {
         DATES_DESCRIPTIONS -> optional(text),
         PROCESS_INFO -> optional(seq(nonEmptyText))
       )(IsadGControl.apply)(IsadGControl.unapply),
+      SOURCE_FILE_ID -> optional(nonEmptyText),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),

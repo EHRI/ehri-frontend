@@ -1,7 +1,7 @@
 @(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.base.Description.CreationProcess
-@import models.base.Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS}
+@import models.base.Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS, SOURCE_FILE_ID}
 
 <div class="@cls" id="@descriptionField("form").id">
     @*
@@ -17,6 +17,7 @@
     }
 
     @views.html.formHelpers.hiddenInput(descriptionField(Entity.ID))
+    @views.html.formHelpers.hiddenInput(descriptionField(SOURCE_FILE_ID))
     @views.html.formHelpers.hiddenInput(descriptionField(CREATION_PROCESS))
 
     @data
