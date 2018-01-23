@@ -1025,6 +1025,7 @@ documentaryUnit.publicationNote=Publication Note
 documentaryUnit.notes=Note(s)
 documentaryUnit.sources=Sources
 documentaryUnit.datesOfDescriptions=Dates of Descriptions
+documentaryUnit.sourceFileId=Source File ID
 documentaryUnit.processInfo=Process Info
 documentaryUnit.creationProcess=Source
 documentaryUnit.creationProcess.MANUAL=EHRI

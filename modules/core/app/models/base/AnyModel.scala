@@ -232,6 +232,7 @@ trait Description extends Model {
 
 object Description {
 
+  val SOURCE_FILE_ID = "sourceFileId"
   val LANG_CODE = "languageCode"
   val CREATION_PROCESS = "creationProcess"
   val ACCESS_POINTS = "accessPoints"
