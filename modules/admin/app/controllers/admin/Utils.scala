@@ -9,6 +9,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
+import models.admin.BatchDeleteTask
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -264,6 +265,29 @@ case class Utils @Inject()(
         else immediate(Ok(views.html.admin.tools.findReplace(boundForm, Some(found),
           controllers.admin.routes.Utils.findReplacePost(),
           controllers.admin.routes.Utils.findReplacePost(commit = true))))
+      }
+    )
+  }
+
+  def batchDelete: Action[AnyContent] = AdminAction.apply { implicit request =>
+    Ok(views.html.admin.tools.batchDelete(BatchDeleteTask.form,
+      controllers.admin.routes.Utils.batchDeletePost()))
+  }
+
+  def batchDeletePost: Action[AnyContent] = AdminAction.async { implicit request =>
+    val boundForm = BatchDeleteTask.form.bindFromRequest
+    boundForm.fold(
+      err => immediate(BadRequest(views.html.admin.tools.batchDelete(err,
+        controllers.admin.routes.Utils.batchDeletePost()))),
+      data => userDataApi.batchDelete(
+        data.ids, data.scope, data.log, version = data.version, commit = data.commit
+      ).map { deleted =>
+        Redirect(controllers.admin.routes.Utils.batchDelete())
+          .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+      } recover {
+        case e: InputDataError =>
+          BadRequest(views.html.admin.tools.batchDelete(boundForm.withGlobalError(e.details),
+            controllers.admin.routes.Utils.batchDeletePost()))
       }
     )
   }
