@@ -675,6 +675,17 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
       .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
   }
 
+  override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int] = {
+    val url = enc(baseUrl, "batch", "delete")
+    userCall(url).withQueryString(
+        "version" -> version.toString,
+        "commit" -> commit.toString,
+        "log" -> logMsg)
+      .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
+      .post(Json.toJson(ids.map(id => Seq(id))))
+      .map(r => checkErrorAndParse[Int](r, Some(url)))
+  }
+
   // Helpers
 
   private def getTotal(url: String): Future[Long] =

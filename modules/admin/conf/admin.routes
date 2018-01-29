@@ -48,6 +48,10 @@ GET         /regenerateScope/:id                @controllers.admin.Utils.regener
 GET         /findReplace                        @controllers.admin.Utils.findReplace
 POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
 
+# Batch delete
+GET         /delete                             @controllers.admin.Utils.batchDelete
+POST        /delete                             @controllers.admin.Utils.batchDeletePost
+
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync

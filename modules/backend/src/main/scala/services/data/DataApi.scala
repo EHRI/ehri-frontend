@@ -68,7 +68,7 @@ trait DataApiHandle {
     * @param params  additional parameters
     * @return a web response
     */
-  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse]
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse]
 
   /**
     * Create a new user profile.
@@ -138,6 +138,17 @@ trait DataApiHandle {
     * @return a list of content type ID, entity ID, and the new property value
     */
   def findReplace(ct: ContentTypes.Value, et: EntityType.Value, property: String, from: String, to: String, commit: Boolean, logMsg: Option[String]): Future[Seq[(String, String, String)]]
+
+  /**
+    * Delete a batch of items.
+    *
+    * @param ids     a sequence of item IDs
+    * @param scope   an optional item scope
+    * @param logMsg  a log message
+    * @param version whether or not to create pre-delete versions of the deleted items
+    * @return the number of items deleted
+    */
+  def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int]
 
   /**
     * Fetch any type of item by ID.

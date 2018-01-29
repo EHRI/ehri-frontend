@@ -135,5 +135,28 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       flash(replace) must_== Flash(
         Map("success" -> message("admin.utils.findReplace.done", 1)(messagesApi)))
     }
+
+
+    "handle batch delete correctly" in new ITestApp {
+      import models.admin.BatchDeleteTask._
+
+      val data: Map[String,Seq[String]] = Map(
+        IDS -> Seq("a1\na2"),
+        SCOPE -> Seq("auths"),
+        COMMIT -> Seq("true"),
+        VERSION -> Seq("true"),
+        LOG_MSG -> Seq("Testing")
+      )
+
+      val del = FakeRequest(controllers.admin
+        .routes.Utils.batchDeletePost())
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(data)
+
+      status(del) must_== SEE_OTHER
+      flash(del) must_== Flash(
+        Map("success" -> message("admin.utils.batchDelete.done", 2)(messagesApi)))
+    }
   }
 }

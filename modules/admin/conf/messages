@@ -263,6 +263,26 @@ admin.utils.findReplace.to.description=The replacement text.
 admin.utils.findReplace.logMessage=Log message
 admin.utils.findReplace.logMessage.description=Describe why you are making this change.
 
+#
+# Batch operations
+#
+admin.utils.batchDelete=Batch Delete Items
+admin.utils.batchDelete.description=Delete multiple items in one go.
+admin.utils.batchDelete.warning=Be very careful with this since it is NOT reversable.
+admin.utils.batchDelete.submit=Delete Items
+admin.utils.batchDelete.scope=Item scope
+admin.utils.batchDelete.scope.description=If items share a common scope you specify it here. Otherwise omit
+admin.utils.batchDelete.version=Create pre-delete version
+admin.utils.batchDelete.version.description=Create a version of each item before deleting it
+admin.utils.batchDelete.commit=Commit changes
+admin.utils.batchDelete.commit.description=Actually commit deletions to the database
+admin.utils.batchDelete.logMessage=Log message
+admin.utils.batchDelete.logMessage.description=Describe why you are making this change.
+admin.utils.batchDelete.ids=IDs (one item ID per line)
+admin.utils.batchDelete.ids.description=Specify IDs of items to be deleted with one item per line
+admin.utils.batchDelete.done=Items deleted: {0}
+
+
 # Admin search index
 search.index.update=Refresh Search Index
 search.index.update.for=Refresh searching index for {0}
