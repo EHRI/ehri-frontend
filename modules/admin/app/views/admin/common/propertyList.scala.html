@@ -1,4 +1,4 @@
-@(properties: Any*)(implicit messages: Messages, highlighter: views.Highlighter = views.NoopHighlighter)
+@(properties: Seq[Any])(implicit messages: Messages, highlighter: views.Highlighter = views.NoopHighlighter)
 
 @properties.map { property =>
     @property match {
