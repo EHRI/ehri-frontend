@@ -220,21 +220,22 @@ case class Repositories @Inject()(
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         repositoryRoutes.linkAnnotateSelect(id, toType),
-        repositoryRoutes.linkAnnotate))
+        (other, copy) => repositoryRoutes.linkAnnotate(id, toType, other, copy)))
     }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String, copy: Boolean): Action[AnyContent] =
     LinkAction(id, toType, to).apply { implicit request =>
       Ok(views.html.admin.link.create(request.from, request.to,
-        Link.form, repositoryRoutes.linkAnnotatePost(id, toType, to)))
+        Link.formWithCopyOptions(copy, request.from, request.to),
+        repositoryRoutes.linkAnnotatePost(id, toType, to, copy), copy))
     }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean): Action[AnyContent] =
     CreateLinkAction(id, toType, to).apply { implicit request =>
       request.formOrLink match {
         case Left((target,errorForm)) =>
           BadRequest(views.html.admin.link.create(request.from, target,
-            errorForm, repositoryRoutes.linkAnnotatePost(id, toType, to)))
+            errorForm, repositoryRoutes.linkAnnotatePost(id, toType, to, copy), copy))
         case Right(_) =>
           Redirect(repositoryRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")

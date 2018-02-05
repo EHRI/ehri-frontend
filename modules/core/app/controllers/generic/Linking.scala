@@ -43,7 +43,7 @@ object AccessPointLink {
 trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   // This is used to send the link data back to JSON endpoints...
-  private implicit val linkFormatForClient = Json.format[LinkF]
+  private implicit val linkFormatForClient: Format[LinkF] = Json.format[LinkF]
 
   case class LinkSelectRequest[A](
     item: MT,
@@ -57,7 +57,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   protected def LinkSelectAction(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams, facets: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[LinkSelectRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         find[AnyModel](
           paging = paging,
           facetBuilder = facets,
@@ -81,7 +81,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     implicit ct: ContentType[MT]): ActionBuilder[LinkItemsRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
           LinkItemsRequest(request.item, toItem, request.userOpt, request)
         }
@@ -100,7 +100,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     implicit ct: ContentType[MT]): ActionBuilder[CreateLinkRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         Link.form.bindFromRequest.fold(
           errorForm => {
             // oh dear, we have an error...
@@ -126,7 +126,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
   protected def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MultiLinksRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[MultiLinksRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val multiForm: Form[List[(String, LinkF, Option[String])]] = Link.multiForm
         multiForm.bindFromRequest.fold(
           errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.userOpt, request)),

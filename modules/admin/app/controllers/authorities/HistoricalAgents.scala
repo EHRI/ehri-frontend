@@ -142,7 +142,7 @@ case class HistoricalAgents @Inject()(
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         histRoutes.linkAnnotateSelect(id, toType),
-        histRoutes.linkAnnotate))
+        (other, _) => histRoutes.linkAnnotate(id, toType, other)))
     }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =

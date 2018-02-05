@@ -1,13 +1,26 @@
-@(item: models.base.AnyModel, result: services.search.SearchResult[(models.base.AnyModel, services.search.SearchHit)], entityType: defines.EntityType.Value, action: Call, linkAction: (String, defines.EntityType.Value, String) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.AnyModel, result: services.search.SearchResult[(models.base.AnyModel, services.search.SearchHit)], entityType: defines.EntityType.Value, action: Call, linkAction: (String, Boolean) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("link.create"), result, action, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    <div class="search-section" id="search-items">
+    <div class="search-section striped" id="search-items">
         <hr />
         <h4>@Messages("contentTypes." + entityType.toString)</h4>
         @if(result.nonEmpty) {
             @views.html.admin.search.searchItemListWithAdditionalContent(result) { otherItem =>
-                <div class="select-link-target">
-                    <a href="@linkAction(item.id, entityType, otherItem.id)">@Messages("link.linkTo.item", item.toStringLang)</a>
+                <div class="copy-links">
+                    <div class="select-link-target">
+                        <a href="@linkAction(otherItem.id, false)">
+                            <i class="glyphicon glyphicon-link"></i>
+                            @Messages("link.linkTo.item")
+                        </a>
+                    </div>
+                    @Link.copyLinkType(item, otherItem).map { _ =>
+                        <div class="select-copy-link-target">
+                            <a href="@linkAction(otherItem.id, true)">
+                                <i class="glyphicon glyphicon-copy"></i>
+                                @Messages("link.linkTo.copy")
+                            </a>
+                        </div>
+                    }
                 </div>
             }
         }

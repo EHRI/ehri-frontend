@@ -400,7 +400,8 @@ case class VirtualUnits @Inject()(
     LinkSelectAction(id, toType, params, paging).apply { implicit request =>
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
-        vuRoutes.linkAnnotateSelect(id, toType), vuRoutes.linkAnnotate))
+        vuRoutes.linkAnnotateSelect(id, toType),
+        (other, _) => vuRoutes.linkAnnotate(id, toType, other)))
     }
 
   def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =

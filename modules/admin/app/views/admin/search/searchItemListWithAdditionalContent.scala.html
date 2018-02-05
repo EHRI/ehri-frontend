@@ -3,9 +3,13 @@
 <ol class="search-result-list">
     @result.page.map { case(item, hit) =>
         @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
-            <li>
-                @priorContent(item)
-                @views.html.admin.search.searchItem(item)
+            <li class="row">
+                <div class="col-md-10">
+                    @views.html.admin.search.searchItem(item)
+                </div>
+                <div class="col-md-2">
+                    @priorContent(item)
+                </div>
             </li>
         }
     }

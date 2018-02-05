@@ -290,21 +290,22 @@ case class DocumentaryUnits @Inject()(
       Ok(views.html.admin.link.linkSourceList(
         request.item, request.searchResult, request.entityType,
         docRoutes.linkAnnotateSelect(id, toType),
-        docRoutes.linkAnnotate))
+        (other, copy) => docRoutes.linkAnnotate(id, toType, other, copy)))
     }
 
-  def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+  def linkAnnotate(id: String, toType: EntityType.Value, to: String, copy: Boolean): Action[AnyContent] =
     LinkAction(id, toType, to).apply { implicit request =>
       Ok(views.html.admin.link.create(request.from, request.to,
-        Link.form, docRoutes.linkAnnotatePost(id, toType, to)))
+        Link.formWithCopyOptions(copy, request.from, request.to),
+          docRoutes.linkAnnotatePost(id, toType, to, copy), copy))
     }
 
-  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
+  def linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean): Action[AnyContent] =
     CreateLinkAction(id, toType, to).apply { implicit request =>
       request.formOrLink match {
         case Left((target, errorForm)) =>
           BadRequest(views.html.admin.link.create(request.from, target,
-            errorForm, docRoutes.linkAnnotatePost(id, toType, to)))
+            errorForm, docRoutes.linkAnnotatePost(id, toType, to, copy), copy))
         case Right(_) =>
           Redirect(docRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
