@@ -1,17 +1,17 @@
 package models
 
-import javax.inject.{Singleton, Inject}
+import javax.inject.{Inject, Singleton}
 
-import models.GuidePage.{MenuPosition, Layout}
+import anorm.SqlParser._
+import anorm._
+import models.GuidePage.{Layout, MenuPosition}
+import models.sql.withIntegrityCheck
 import play.api.data.Form
 import play.api.data.Forms._
-
-import anorm._
-import anorm.SqlParser._
 import play.api.db.Database
-import language.postfixOps
+
+import scala.language.postfixOps
 import scala.util.Try
-import models.sql.withIntegrityCheck
 
 
 case class Guide(
@@ -38,7 +38,7 @@ object Guide {
   val DEFAULT_PAGE = "default_page"
   val CSS = "css"
 
-  implicit val form = Form(
+  implicit val form: Form[Guide] = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       NAME -> nonEmptyText,
@@ -68,7 +68,7 @@ object Guide {
     }
   }
 
-  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""), active = true)
+  def blueprint(): Guide = Guide(Some(0), "", "", Some(""), "", Some(""), Some(""))
 }
 
 trait GuideService {
@@ -92,7 +92,7 @@ trait GuideService {
 }
 
 @Singleton
-case class SqlGuideService @Inject()(implicit db: Database) extends GuideService {
+case class SqlGuideService @Inject()(db: Database) extends GuideService {
 
   override def findPages(guide: Guide): List[GuidePage] = db.withConnection { implicit connection =>
     guide.id.map { id =>
@@ -108,7 +108,7 @@ case class SqlGuideService @Inject()(implicit db: Database) extends GuideService
     }
   }
 
-  override def update(guide: Guide): Try[Unit] = withIntegrityCheck { implicit connection =>
+  override def update(guide: Guide): Try[Unit] = withIntegrityCheck(db) { implicit connection =>
     SQL"""
       UPDATE
         research_guide
@@ -156,7 +156,7 @@ case class SqlGuideService @Inject()(implicit db: Database) extends GuideService
       .as(Guide.rowExtractor.singleOpt)
   }
 
-  override def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Boolean): Try[Option[Guide]] = withIntegrityCheck { implicit connection =>
+  override def create(name: String, path: String, picture: Option[String] = None, virtualUnit: String, description: Option[String] = None, css: Option[String] = None, active: Boolean): Try[Option[Guide]] = withIntegrityCheck(db) { implicit connection =>
     val id: Option[Long] = SQL"""
     INSERT INTO research_guide
       (name, path, picture, virtual_unit, description, css, active)
@@ -168,7 +168,7 @@ case class SqlGuideService @Inject()(implicit db: Database) extends GuideService
   /*
   * Edit a page
   */
-  override def updatePage(page: GuidePage): Try[Unit] = withIntegrityCheck { implicit connection =>
+  override def updatePage(page: GuidePage): Try[Unit] = withIntegrityCheck(db) { implicit connection =>
     SQL"""
       UPDATE
         research_guide_page
@@ -197,7 +197,7 @@ case class SqlGuideService @Inject()(implicit db: Database) extends GuideService
   */
   override def createPage(layout: Layout.Value, name: String, path: String, menu: MenuPosition.Value = MenuPosition.Side,
              cypher: String, parent: Option[Long] = None, description: Option[String] = None, params: Option[String] = None): Try[Option[GuidePage]] =
-    withIntegrityCheck { implicit connection =>
+    withIntegrityCheck(db) { implicit connection =>
       val id: Option[Long] = SQL"""
       INSERT INTO research_guide_page
         (layout, name, path, position, content, research_guide_id, description, params)

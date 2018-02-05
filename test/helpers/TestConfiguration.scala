@@ -4,16 +4,12 @@ import java.net.URI
 import java.nio.file.Paths
 
 import akka.stream.Materializer
-import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
-import auth._
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
-import services._
-import services.feedback.{FeedbackService, MockFeedbackService}
+import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
 import controllers.base.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
-import play.api.{Application, Configuration}
 import play.api.http.{Status, Writeable}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
@@ -24,14 +20,16 @@ import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
+import play.api.{Application, Configuration}
 import services.accounts.{AccountManager, MockAccountManager}
 import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data.{IdSearchResolver, _}
+import services.feedback.{FeedbackService, MockFeedbackService}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
-import utils.MockBufferedMailer
 import services.search.{MockSearchIndexMediator, _}
 import services.storage.{FileStorage, MockFileStorage}
+import utils.MockBufferedMailer
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

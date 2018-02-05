@@ -11,7 +11,7 @@ package object sql {
   // It also won't tell you which field on which the error occurred.
   private val integrityMatch = """.*(primary key violation|Duplicate entry|already exists).*""".r
 
-  def withIntegrityCheck[T](f: => Connection => T)(implicit db: Database): Try[T] = Try {
+  def withIntegrityCheck[T](db: Database)(f: => Connection => T): Try[T] = Try {
     db.withConnection { connection =>
       f(connection)
     }
