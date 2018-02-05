@@ -1,9 +1,12 @@
-@(item: AnyModel, src: AnyModel, form: play.api.data.Form[LinkF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.AnyModel, src: models.base.AnyModel, form: play.api.data.Form[LinkF], action: Call, copy: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("link.create.item", item.toStringLang, src.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-	
+
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
-        @linkForm(form)
+        @if(copy) {
+            <div class="alert alert-warning">@Messages("link.copy.create")</div>
+        }
+        @views.html.admin.link.linkForm(form)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("link.linkTo.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

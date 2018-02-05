@@ -126,6 +126,19 @@ case class Concepts @Inject()(
       .flashing("success" -> "item.update.confirmation")
   }
 
+
+  def linkTo(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
+    Ok(views.html.admin.concept.linkTo(request.item))
+  }
+
+  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
+    LinkSelectAction(id, toType, params, paging).apply { implicit request =>
+      Ok(views.html.admin.link.linkSourceList(
+        request.item, request.searchResult, request.entityType,
+        conceptRoutes.linkAnnotateSelect(id, toType),
+        (other, _) => conceptRoutes.linkAnnotate(id, toType, other)))
+    }
+
   def linkAnnotate(id: String, toType: EntityType.Value, to: String): Action[AnyContent] =
     LinkAction(id, toType, to).apply { implicit request =>
       Ok(views.html.admin.link.create(request.from, request.to,
@@ -142,18 +155,6 @@ case class Concepts @Inject()(
           Redirect(conceptRoutes.get(id))
             .flashing("success" -> "item.update.confirmation")
       }
-    }
-
-  def linkTo(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-    Ok(views.html.admin.concept.linkTo(request.item))
-  }
-
-  def linkAnnotateSelect(id: String, toType: EntityType.Value, params: SearchParams, paging: PageParams): Action[AnyContent] =
-    LinkSelectAction(id, toType, params, paging).apply { implicit request =>
-      Ok(views.html.admin.link.linkSourceList(
-        request.item, request.searchResult, request.entityType,
-        conceptRoutes.linkAnnotateSelect(id, toType),
-        conceptRoutes.linkAnnotate))
     }
 }
 

@@ -28,8 +28,8 @@ POST    /:id/scope/:userType/:userId               @controllers.units.Documentar
 
 GET     /:id/link                                  @controllers.units.DocumentaryUnits.linkTo(id: String)
 GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET     /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
-POST    /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
+GET     /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String, copy: Boolean ?= false)
+POST    /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean ?= false)
 GET     /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotate(id: String)
 POST    /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotatePost(id)
 POST    /:id/linkjs/:accessPoint                   @controllers.units.DocumentaryUnits.createLink(id: String, accessPoint: String)

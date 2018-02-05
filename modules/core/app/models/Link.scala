@@ -7,6 +7,7 @@ import models.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
 import utils.EnumUtils
@@ -27,6 +28,7 @@ object LinkF {
     val Family = Value("family")
     val Hierarchical = Value("hierarchical")
     val Temporal = Value("temporal")
+    val Copy = Value("copy")
 
     implicit val _fmt: Format[LinkType.Value] = EnumUtils.enumFormat(this)
   }
@@ -38,6 +40,15 @@ object LinkF {
     val RelatedUnits = Value(IsadG.RELATED_UNITS)
 
     implicit val _fmt: Format[LinkField.Value] = utils.EnumUtils.enumFormat(this)
+  }
+
+  object LinkCopyType extends Enumeration {
+    val OriginalRepositoryToCopyRepository= Value("originalRepositoryToCopyRepository")
+    val CopyCollectionToOriginalCollection = Value("copyCollectionToOriginalCollection")
+    val CopyCollectionToOriginalRepository = Value("copyCollectionToOriginalRepository")
+    val CopyRepositoryToOriginalCollection = Value("copyRepositoryToOriginalCollection")
+
+    implicit val _fmt: Format[LinkCopyType.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   import Entity._
@@ -118,6 +129,33 @@ object Link {
       "accessPoint" -> optional(nonEmptyText)
     ))
   ))
+
+  def formWithCopyOptions(copy: Boolean, src: AnyModel, dest: AnyModel)(implicit messages: Messages): Form[LinkF] =
+    if (!copy) form
+    else form.fill(LinkF(
+      id = None,
+      linkType = LinkType.Copy,
+      linkField = copyLinkField(src, dest),
+      description = copyLinkDescription(src, dest)
+    ))
+
+  def copyLinkType(src: AnyModel, dest: AnyModel): Option[LinkCopyType.Value] =
+    (src, dest) match {
+      case (r1: Repository, r: Repository) => Some(LinkCopyType.OriginalRepositoryToCopyRepository)
+      case (d1: DocumentaryUnit, d2: DocumentaryUnit) => Some(LinkCopyType.CopyCollectionToOriginalCollection)
+      case (d: DocumentaryUnit, r: Repository) => Some(LinkCopyType.CopyCollectionToOriginalRepository)
+      case (r1: Repository, d: DocumentaryUnit) => Some(LinkCopyType.CopyRepositoryToOriginalCollection)
+      case _ => None
+    }
+
+  def copyLinkField(src: AnyModel, dest: AnyModel): Option[LinkField.Value] =
+    copyLinkType(src, dest).map {
+      case LinkCopyType.OriginalRepositoryToCopyRepository => LinkField.LocationOfCopies
+      case _ => LinkField.LocationOfOriginals
+    }
+
+  def copyLinkDescription(src: AnyModel, dest: AnyModel)(implicit messages: Messages): Option[String] =
+    copyLinkType(src, dest).map( t => Messages(s"link.copy.preset.$t", src.toStringLang, dest.toStringLang))
 }
 
 case class Link(

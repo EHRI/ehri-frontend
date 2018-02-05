@@ -4,24 +4,5 @@
 //Admin
 @import "./admin/_admin.less";
 @import "./admin/_geoname.less";
+@import "./admin/_forms.less";
 
-.testing-banner {
-  font-size: 2.2em;
-}
-
-@import "admin/_forms.less";
-
-// This is a hack: in the admin make typeahead
-// bigger: it's used on the access point form
-// with regular inputs whereas on the portal it's
-// only used on the global search bar
-.twitter-typeahead {
-  display: block !important;
-  height: @input-height-base;
-}
-
-.select-link-target {
-  a {
-    &:extend(.btn, .btn-xs, .btn-warning, .pull-right);
-  }
-}
