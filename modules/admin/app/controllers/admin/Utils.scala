@@ -171,22 +171,30 @@ case class Utils @Inject()(
       )
     }
 
-  private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String])] = Form(
+  private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String], Boolean)] = Form(
     tuple(
       "type" -> optional(EnumUtils.enumMapping(ContentTypes)),
       "scope" -> optional(nonEmptyText).transform (_.flatMap {
           case "" => Option.empty
           case s => Some(s)
-        }, identity[Option[String]])
+        }, identity[Option[String]]),
+      "tolerant" -> boolean
     ).verifying("Choose one option OR the other", t => !(t._1.isDefined && t._2.isDefined))
   )
 
   def regenerateIds(): Action[AnyContent] = AdminAction.apply { implicit request =>
-    regenerateForm.bindFromRequest.fold(
-      err => BadRequest(views.html.admin.tools.regenerate(err,
-        controllers.admin.routes.Utils.regenerateIds())), {
-        case (Some(et), None) => Redirect(controllers.admin.routes.Utils.regenerateIdsForType(et))
-        case (None, Some(id)) => Redirect(controllers.admin.routes.Utils.regenerateIdsForScope(id))
+    val form = regenerateForm.bindFromRequest
+    form.fold(
+      err => BadRequest(views.html.admin.tools.regenerate(err, controllers.admin.routes.Utils.regenerateIds())), {
+        case (Some(et), None, t) =>
+          Redirect(controllers.admin.routes.Utils.regenerateIdsForType(et, t))
+        case (None, Some(id), t) =>
+          Redirect(controllers.admin.routes.Utils.regenerateIdsForScope(id, t))
+        case d@(Some(_), Some(_), t) =>
+          Ok(views.html.admin.tools.regenerate(
+            regenerateForm.fill(d)
+              .withGlobalError(Messages("admin.utils.regenerateIds.chooseOne")),
+            controllers.admin.routes.Utils.regenerateIds()))
         case _ => Ok(views.html.admin.tools.regenerate(regenerateForm,
           controllers.admin.routes.Utils.regenerateIds()))
       }
@@ -200,34 +208,44 @@ case class Utils @Inject()(
     )
   )
 
-  def regenerateIdsForType(ct: defines.ContentTypes.Value): Action[AnyContent] = AdminAction.async { implicit request =>
-    if (isAjax) userDataApi.regenerateIdsForType(ct).map { items =>
-      Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-        .fill("" -> items.map { case (f, t) => (f, t, true) }),
-        controllers.admin.routes.Utils.regenerateIdsPost()))
+  def regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
+    if (isAjax) {
+      userDataApi.regenerateIdsForType(ct, tolerant).map { items =>
+        Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
+          .fill(value = ("", items.map { case (f, t) => (f, t, true) })),
+          controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
+      } recover {
+        case e: InputDataError =>
+          Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
+            .withGlobalError(e.details),
+            controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
+      }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
-      controllers.admin.routes.Utils.regenerateIdsForType(ct))))
+      controllers.admin.routes.Utils.regenerateIdsForType(ct, tolerant))))
   }
 
-  def regenerateIdsForScope(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
-    if (isAjax) userDataApi.regenerateIdsForScope(id).map { items =>
+  def regenerateIdsForScope(id: String, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
+    if (isAjax) {
+      userDataApi.regenerateIdsForScope(id, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-          .fill("" -> items.map { case (f, t) => (f, t, true) }),
-          controllers.admin.routes.Utils.regenerateIdsPost()))
+          .fill(value = ("", items.map { case (f, t) => (f, t, true)})),
+          controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
+      }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
       controllers.admin.routes.Utils.regenerateIdsForScope(id))))
   }
 
   private val parser = parsers.anyContent(maxLength = Some(5 * 1024 * 1024L))
-  def regenerateIdsPost(): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
+
+  def regenerateIdsPost(tolerant: Boolean): Action[AnyContent] = AdminAction.async(parser) { implicit request =>
     val boundForm: Form[(String, Seq[(String, String, Boolean)])] = regenerateIdsForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.admin.tools.regenerateIds(errForm,
-        controllers.admin.routes.Utils.regenerateIdsPost()))), {
+        controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))), {
       case (prefix, items) =>
         val activeIds = items.collect { case (f, _, true) => f }
         logger.info(s"Renaming: $activeIds")
-        userDataApi.regenerateIds(activeIds, commit = true).flatMap { items =>
+        userDataApi.regenerateIds(activeIds, tolerant, commit = true).flatMap { items =>
           updateFromCsv(items, prefix)
             .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
         }

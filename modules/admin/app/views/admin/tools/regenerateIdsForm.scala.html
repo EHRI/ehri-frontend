@@ -4,7 +4,12 @@
 
 @defining(form("items")) { field =>
     @if(field.indexes.isEmpty) {
-        <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
+        @if(form.hasGlobalErrors) {
+            @formHelpers.globalErrors(form)
+            <div class="alert alert-warning">@Messages("admin.utils.regenerateIds.collisions")</div>
+        } else {
+            <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
+        }
     } else {
         @helper.form(action = action, 'class -> "entity-form form-horizontal", 'id -> "regenerate-ids") {
             @views.html.admin.common.pathRemapForm(Messages("admin.utils.regenerateIds.submit"), form) {
