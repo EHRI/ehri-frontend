@@ -13,11 +13,12 @@ import scala.concurrent.Future
 
 /**
  * Controller trait which handles the listing and showing of Entities that
- * implement the AccessibleEntity trait.
+ * implement the [[models.base.Accessible]] trait.
  *
  * @tparam MT Meta-model
  */
-trait Read[MT] extends CoreActionBuilders {
+trait
+Read[MT] extends CoreActionBuilders {
 
   private def logger = Logger(getClass)
 
@@ -78,7 +79,7 @@ trait Read[MT] extends CoreActionBuilders {
   protected def ItemPermissionAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     OptionalUserAction andThen new CoreActionRefiner[OptionalUserRequest, ItemPermissionRequest] {
       private def transform[A](input: OptionalUserRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = input.userOpt
+        implicit val user: Option[UserProfile] = input.userOpt
         input.userOpt.map { profile =>
           val itemF = userDataApi.get[MT](itemId)
           val scopedPermsF = userDataApi.scopePermissions(profile.id, itemId)
@@ -116,7 +117,7 @@ trait Read[MT] extends CoreActionBuilders {
   protected def ItemMetaAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemMetaRequest, AnyContent] =
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest, ItemMetaRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[ItemMetaRequest[A]] = {
-        implicit val userOpt = request.userOpt
+        implicit val user: Option[UserProfile] = request.userOpt
         val annotationsF = userDataApi.annotations[Annotation](itemId)
         val linksF = userDataApi.links[Link](itemId)
         for {
@@ -129,7 +130,7 @@ trait Read[MT] extends CoreActionBuilders {
   protected def ItemPageAction(paging: PageParams)(implicit rs: Resource[MT]): ActionBuilder[ItemPageRequest, AnyContent] =
     OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, ItemPageRequest] {
       def transform[A](input: OptionalUserRequest[A]): Future[ItemPageRequest[A]] = {
-        implicit val userOpt = input.userOpt
+        implicit val user: Option[UserProfile] = input.userOpt
         for {
           page <- userDataApi.list[MT](paging)
         } yield ItemPageRequest[A](page, paging, input.userOpt, input)
@@ -139,7 +140,7 @@ trait Read[MT] extends CoreActionBuilders {
   protected def ItemHistoryAction(itemId: String, range: RangeParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemHistoryRequest, AnyContent] =
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val getF: Future[MT] = userDataApi.get(itemId)
         val historyF: Future[RangePage[Seq[SystemEvent]]] = userDataApi.history[SystemEvent](itemId, range)
         for {
@@ -152,7 +153,7 @@ trait Read[MT] extends CoreActionBuilders {
   protected def ItemVersionsAction(itemId: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemVersionsRequest, AnyContent] =
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val getF: Future[MT] = userDataApi.get(itemId)
         val versionsF: Future[Page[Version]] = userDataApi.versions[Version](itemId, paging)
         for {

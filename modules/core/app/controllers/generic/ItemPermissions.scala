@@ -38,7 +38,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
   protected def PermissionGrantAction(id: String, paging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionGrantRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionGrantRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         userDataApi.itemPermissionGrants[PermissionGrant](id, paging).map { permGrants =>
           ItemPermissionGrantRequest(request.item, permGrants, request.userOpt, request)
         }
@@ -52,7 +52,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
     implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
         val permsF = userDataApi.itemPermissions(userId, ct.contentType, id)
         for {
@@ -72,7 +72,7 @@ trait ItemPermissions[MT] extends Visibility[MT] {
     implicit ct: ContentType[MT]): ActionBuilder[SetItemPermissionRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetItemPermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val data = getData(request).getOrElse(Map.empty)
         val perms: Seq[String] = data.getOrElse(ct.contentType.toString, Seq.empty)
         for {

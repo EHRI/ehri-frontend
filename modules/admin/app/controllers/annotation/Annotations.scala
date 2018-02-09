@@ -37,7 +37,7 @@ case class Annotations @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       forms.VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, annotationRoutes.visibilityPost(id)))
+      request.usersAndGroups, annotationRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>

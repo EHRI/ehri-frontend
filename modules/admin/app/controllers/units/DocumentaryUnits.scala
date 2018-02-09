@@ -154,18 +154,17 @@ case class DocumentaryUnits @Inject()(
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
       request.item, childForm, formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, docRoutes.createDocPost(id)))
+      request.usersAndGroups, docRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
-          errorForm, formDefaults, accForm, users, groups,
+          errorForm, formDefaults, accForm, usersAndGroups,
           docRoutes.createDocPost(id)))
-      }
-      case Right(doc) => immediate(Redirect(docRoutes.get(doc.id))
-        .flashing("success" -> "item.create.confirmation"))
+      case Right(doc) => Redirect(docRoutes.get(doc.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -229,7 +228,7 @@ case class DocumentaryUnits @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, docRoutes.visibilityPost(id)))
+      request.usersAndGroups, docRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -246,12 +245,12 @@ case class DocumentaryUnits @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       docRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
       docRoutes.setScopedPermissions))
   }
 

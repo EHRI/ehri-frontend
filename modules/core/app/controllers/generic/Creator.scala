@@ -4,11 +4,10 @@ import play.api.mvc._
 import play.api.data.Form
 import defines.PermissionType
 import models.base._
-import models.UserProfile
+import models.{UserProfile, UsersAndGroups}
 import forms.VisibilityForm
 import services.data.{ContentType, DataHelpers, ValidationError, Writable}
 
-import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.Future
 
 /**
@@ -24,8 +23,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   case class NewChildRequest[A](
     item: MT,
-    users: Seq[(String,String)],
-    groups: Seq[(String,String)],
+    usersAndGroups: UsersAndGroups,
     userOpt: Option[UserProfile],
     request: Request[A]
     ) extends WrappedRequest[A](request)
@@ -33,8 +31,8 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   private[generic] def NewChildTransformer = new CoreActionTransformer[ItemPermissionRequest, NewChildRequest] {
     override protected def transform[A](request: ItemPermissionRequest[A]): Future[NewChildRequest[A]] = {
-      dataHelpers.getUserAndGroupList.map { case (users, groups) =>
-        NewChildRequest(request.item, users, groups, request.userOpt, request)
+      dataHelpers.getUserAndGroupList.map { usersAndGroups =>
+        NewChildRequest(request.item, usersAndGroups, request.userOpt, request)
       }
     }
   }
@@ -44,7 +42,7 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
 
   case class CreateChildRequest[A](
      item: MT,
-     formOrItem: Either[(Form[CF],Form[Seq[String]]),CMT],
+     formOrItem: Either[(Form[CF],Form[Seq[String]], UsersAndGroups),CMT],
      userOpt: Option[UserProfile],
      request: Request[A]
      ) extends WrappedRequest[A](request)
@@ -53,19 +51,23 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
   private[generic] def CreateChildTransformer(id: String, form: Form[CF], extraParams: ExtraParams = defaultExtra)(implicit ct: ContentType[MT], fmt: Writable[CF], cct: ContentType[CMT]) =
     new CoreActionTransformer[ItemPermissionRequest, CreateChildRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val extra = extraParams.apply(request.request)
         val visForm = VisibilityForm.form.bindFromRequest
         form.bindFromRequest.fold(
-          errorForm => immediate(CreateChildRequest(request.item, Left((errorForm, visForm)), request.userOpt, request.request)),
+          errorForm => dataHelpers.getUserAndGroupList.map { usersAndGroups =>
+            CreateChildRequest(request.item, Left((errorForm, visForm, usersAndGroups)), request.userOpt, request.request)
+          },
           citem => {
             val accessors = visForm.value.getOrElse(Nil)
             userDataApi.createInContext[MT, CF, CMT](id, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
               CreateChildRequest(request.item, Right(citem), request.userOpt, request)
-            } recover {
+            } recoverWith {
               case ValidationError(errorSet) =>
                 val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
-                CreateChildRequest(request.item, Left((filledForm, visForm)), request.userOpt, request)
+                dataHelpers.getUserAndGroupList.map { usersAndGroups =>
+                  CreateChildRequest(request.item, Left((filledForm, visForm, usersAndGroups)), request.userOpt, request)
+                }
             }
           }
         )

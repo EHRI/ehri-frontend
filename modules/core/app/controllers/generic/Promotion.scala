@@ -1,6 +1,7 @@
 package controllers.generic
 
 import defines.PermissionType
+import models.UserProfile
 import play.api.mvc._
 import services.data.ContentType
 
@@ -19,7 +20,7 @@ trait Promotion[MT] {
   protected def PromoteItemAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     EditPromotionAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.userOpt
+        implicit val user: Option[UserProfile] = request.userOpt
         userDataApi.promote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
@@ -29,7 +30,7 @@ trait Promotion[MT] {
   protected def RemovePromotionAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     EditPromotionAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.userOpt
+        implicit val user: Option[UserProfile] = request.userOpt
         userDataApi.removePromotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
@@ -39,7 +40,7 @@ trait Promotion[MT] {
   protected def DemoteItemAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     EditPromotionAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.userOpt
+        implicit val user: Option[UserProfile] = request.userOpt
         userDataApi.demote(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }
@@ -49,7 +50,7 @@ trait Promotion[MT] {
   protected def RemoveDemotionAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     EditPromotionAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val userOpt = request.userOpt
+        implicit val user: Option[UserProfile] = request.userOpt
         userDataApi.removeDemotion(id).map { updated =>
           ItemPermissionRequest(updated, request.userOpt, request)
         }

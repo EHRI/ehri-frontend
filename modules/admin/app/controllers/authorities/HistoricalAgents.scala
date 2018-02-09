@@ -11,8 +11,8 @@ import models._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import utils.{PageParams, RangeParams}
 import services.search._
+import utils.{PageParams, RangeParams}
 
 
 @Singleton
@@ -98,7 +98,7 @@ case class HistoricalAgents @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, histRoutes.visibilityPost(id)))
+      request.usersAndGroups, histRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -113,7 +113,7 @@ case class HistoricalAgents @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       histRoutes.setItemPermissions))
   }
 

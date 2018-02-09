@@ -15,8 +15,6 @@ import services.data.{Constants, DataHelpers}
 import services.search.SearchParams
 import utils.{PageParams, RangeParams}
 
-import scala.concurrent.Future
-
 
 case class Groups @Inject()(
   controllerComponents: ControllerComponents,
@@ -57,7 +55,7 @@ case class Groups @Inject()(
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.group.create(form, VisibilityForm.form,
-      request.users, request.groups, groupRoutes.createPost()))
+      request.usersAndGroups, groupRoutes.createPost()))
   }
 
   /**
@@ -70,14 +68,13 @@ case class Groups @Inject()(
     )).bindFromRequest().value.getOrElse(Seq.empty))
   }
 
-  def createPost: Action[AnyContent] = CreateItemAction(form, memberExtractor).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form, memberExtractor).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.group.create(
-          errorForm, accForm, users, groups, groupRoutes.createPost()))
-      }
-      case Right(item) => Future.successful(Redirect(groupRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation"))
+          errorForm, accForm, usersAndGroups, groupRoutes.createPost()))
+      case Right(item) => Redirect(groupRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -117,7 +114,7 @@ case class Groups @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       groupRoutes.setItemPermissions))
   }
 

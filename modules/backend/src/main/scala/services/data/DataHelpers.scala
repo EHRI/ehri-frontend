@@ -3,6 +3,7 @@ package services.data
 import javax.inject.{Inject, Singleton}
 
 import defines.EntityType
+import models.UsersAndGroups
 import play.api.libs.json.JsValue
 import services.cypher.Cypher
 
@@ -28,9 +29,9 @@ case class DataHelpers @Inject()(cypher: Cypher)(implicit executionContext: Exec
     .cypher(s"MATCH (n:${EntityType.UserProfile}) WHERE n.active AND n.staff RETURN n.__id, n.name")
     .map(parseIds)
 
-  def getUserAndGroupList: Future[(Seq[(String, String)], Seq[(String, String)])] = {
+  def getUserAndGroupList: Future[UsersAndGroups] = {
     val usersF = getUserList
     val groupsF = getGroupList
-    for (users <- usersF; groups <- groupsF) yield (users, groups)
+    for (users <- usersF; groups <- groupsF) yield UsersAndGroups(users, groups)
   }
 }

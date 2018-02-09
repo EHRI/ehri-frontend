@@ -361,7 +361,7 @@ case class UserProfiles @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
         userRoutes.setItemPermissions))
   }
 

@@ -16,8 +16,6 @@ import services.ingest.IngestParams
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
-import scala.concurrent.Future.{successful => immediate}
-
 
 @Singleton
 case class
@@ -61,17 +59,16 @@ AuthoritativeSets @Inject()(
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.create(form, VisibilityForm.form,
-      request.users, request.groups, setRoutes.createPost()))
+      request.usersAndGroups, setRoutes.createPost()))
   }
 
-  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm,
-          users, groups, setRoutes.createPost()))
-      }
-      case Right(item) => immediate(Redirect(setRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation"))
+          usersAndGroups, setRoutes.createPost()))
+      case Right(item) => Redirect(setRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -94,19 +91,18 @@ AuthoritativeSets @Inject()(
       Ok(views.html.admin.historicalAgent.create(
         request.item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
         formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups,
+        request.usersAndGroups,
           setRoutes.createHistoricalAgentPost(id)))
     }
   }
 
-  def createHistoricalAgentPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createHistoricalAgentPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm,accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.historicalAgent.create(request.item,
-          errorForm, formDefaults, accForm, users, groups, setRoutes.createHistoricalAgentPost(id)))
-      }
-      case Right(citem) => immediate(Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
-        .flashing("success" -> "item.create.confirmation"))
+          errorForm, formDefaults, accForm, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
+      case Right(citem) => Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -123,7 +119,7 @@ AuthoritativeSets @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
         VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, setRoutes.visibilityPost(id)))
+        request.usersAndGroups, setRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -139,12 +135,12 @@ AuthoritativeSets @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
         setRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
         setRoutes.setScopedPermissions))
   }
 
@@ -192,5 +188,3 @@ AuthoritativeSets @Inject()(
       controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, "eac")))
   }
 }
-
-

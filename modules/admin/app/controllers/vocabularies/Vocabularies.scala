@@ -16,8 +16,6 @@ import services.data.DataHelpers
 import utils.{PageParams, RangeParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
-import scala.concurrent.Future.{successful => immediate}
-
 
 @Singleton
 case class Vocabularies @Inject()(
@@ -58,17 +56,16 @@ case class Vocabularies @Inject()(
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form,
-      request.users, request.groups, vocabRoutes.createPost()))
+      request.usersAndGroups, vocabRoutes.createPost()))
   }
 
-  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
-          users, groups, vocabRoutes.createPost()))
-      }
-      case Right(item) => immediate(Redirect(vocabRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation"))
+          usersAndGroups, vocabRoutes.createPost()))
+      case Right(item) => Redirect(vocabRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -89,17 +86,16 @@ case class Vocabularies @Inject()(
   def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
       request.item, childForm, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, vocabRoutes.createConceptPost(id)))
+      request.usersAndGroups, vocabRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.concept.create(request.item,
-          errorForm, accForm, users, groups, vocabRoutes.createConceptPost(id)))
-      }
-      case Right(_) => immediate(Redirect(vocabRoutes.get(id))
-        .flashing("success" -> "item.create.confirmation"))
+          errorForm, accForm, usersAndGroups, vocabRoutes.createConceptPost(id)))
+      case Right(_) => Redirect(vocabRoutes.get(id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -116,7 +112,7 @@ case class Vocabularies @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, vocabRoutes.visibilityPost(id)))
+      request.usersAndGroups, vocabRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -132,12 +128,12 @@ case class Vocabularies @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       vocabRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
       vocabRoutes.setScopedPermissions))
   }
 
