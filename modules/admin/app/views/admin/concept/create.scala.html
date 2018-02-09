@@ -1,4 +1,4 @@
-@(item: models.base.AnyModel, f: play.api.data.Form[models.ConceptF], vf: Form[Seq[String]], users: Seq[(String,String)], groups: Seq[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.AnyModel, f: play.api.data.Form[models.ConceptF], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -25,7 +25,7 @@
         @formHelpers.csrfToken()
         @form(None, f)
 
-        @views.html.admin.permissions.visibilityForm(vf, users, groups)
+        @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

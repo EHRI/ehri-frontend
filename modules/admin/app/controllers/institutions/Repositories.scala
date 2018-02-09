@@ -17,8 +17,6 @@ import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
-import scala.concurrent.Future.{successful => immediate}
-
 
 @Singleton
 case class Repositories @Inject()(
@@ -135,18 +133,17 @@ case class Repositories @Inject()(
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(request.item, childForm, childFormDefaults,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, repositoryRoutes.createDocPost(id)))
+      request.usersAndGroups, repositoryRoutes.createDocPost(id)))
   }
 
-  def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm,accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
           errorForm, childFormDefaults, accForm,
-          users, groups, repositoryRoutes.createDocPost(id)))
-      }
-      case Right(citem) => immediate(Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
-        .flashing("success" -> "item.create.confirmation"))
+          usersAndGroups, repositoryRoutes.createDocPost(id)))
+      case Right(citem) => Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -163,7 +160,7 @@ case class Repositories @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, repositoryRoutes.visibilityPost(id)))
+      request.usersAndGroups, repositoryRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -179,12 +176,12 @@ case class Repositories @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
         repositoryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
         repositoryRoutes.setScopedPermissions))
   }
 

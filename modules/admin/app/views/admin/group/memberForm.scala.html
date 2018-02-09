@@ -1,4 +1,4 @@
-@(users: Seq[(String,String)], groups: Seq[(String,String)])(implicit messages: Messages, md: views.MarkdownRenderer)
+@(usersAndGroups: UsersAndGroups)(implicit messages: Messages, md: views.MarkdownRenderer)
 
 @import services.data.Constants.MEMBER
 
@@ -7,12 +7,12 @@
     <div class="control-elements">
         <select class="form-control select2" name="@{MEMBER}[]" multiple id="id_group_members">
             <optgroup label="@Messages("contentTypes.UserProfile")">
-            @users.map { case (id,name) =>
+            @usersAndGroups.users.map { case (id,name) =>
             <option value="@id">@name (@id)</option>
             }
             </optgroup>
             <optgroup label="@Messages("contentTypes.Group")">
-            @groups.map { case (id,name) =>
+            @usersAndGroups.groups.map { case (id,name) =>
             <option value="@id">@name</option>
             }
             </optgroup>

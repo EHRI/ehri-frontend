@@ -170,19 +170,17 @@ case class VirtualUnits @Inject()(
   def create: Action[AnyContent] = NewItemAction.async { implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        VisibilityForm.form,
-        request.users, request.groups, vuRoutes.createPost()))
+        VisibilityForm.form, request.usersAndGroups, vuRoutes.createPost()))
     }
   }
 
-  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm,
-          users, groups, vuRoutes.createPost()))
-      }
-      case Right(item) => immediate(Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation"))
+          usersAndGroups, vuRoutes.createPost()))
+      case Right(item) => Redirect(vuRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -191,19 +189,18 @@ case class VirtualUnits @Inject()(
       Ok(views.html.admin.virtualUnit.create(
         Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
         VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, vuRoutes.createChildPost(id)))
+        request.usersAndGroups, vuRoutes.createChildPost(id)))
     }
   }
 
-  def createChildPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createChildPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.virtualUnit.create(Some(request.item),
-          errorForm, accForm, users, groups,
+          errorForm, accForm, usersAndGroups,
           vuRoutes.createChildPost(id)))
-      }
-      case Right(doc) => immediate(Redirect(vuRoutes.getInVc(id, doc.id))
-        .flashing("success" -> "item.create.confirmation"))
+      case Right(doc) => Redirect(vuRoutes.getInVc(id, doc.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -339,7 +336,7 @@ case class VirtualUnits @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, vuRoutes.visibilityPost(id)))
+      request.usersAndGroups, vuRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -356,12 +353,12 @@ case class VirtualUnits @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       vuRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
       vuRoutes.setScopedPermissions))
   }
 

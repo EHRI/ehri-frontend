@@ -30,7 +30,7 @@ trait SearchType[MT] extends Read[MT] with Search {
     facetBuilder: FacetBuilder = emptyFacets)(implicit ct: ContentType[MT]): ActionBuilder[SearchTypeRequest, AnyContent] =
     OptionalUserAction andThen new CoreActionTransformer[OptionalUserRequest, SearchTypeRequest] {
       override protected def transform[A](request: OptionalUserRequest[A]): Future[SearchTypeRequest[A]] = {
-        implicit val r = request
+        implicit val req: OptionalUserRequest[A] = request
         findType[MT](params, paging, filters, extra, sort, facetBuilder = facetBuilder).map { result =>
           SearchTypeRequest(result, request.userOpt, request)
         }

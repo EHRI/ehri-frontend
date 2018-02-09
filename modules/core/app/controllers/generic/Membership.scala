@@ -54,7 +54,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   protected def CheckManageGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ManageGroupRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ManageGroupRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageGroupRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         userDataApi.get[Group](groupId).map { group =>
           ManageGroupRequest(request.item, group, request.userOpt, request)
         }
@@ -64,7 +64,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   protected def AddToGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         userDataApi.addGroup[Group, MT](groupId, id).map(_ => request)
       }
     }
@@ -72,7 +72,7 @@ trait Membership[MT <: Accessor] extends Read[MT] {
   protected def RemoveFromGroupAction(id: String, groupId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     MustBelongTo(groupId) andThen WithItemPermissionAction(id, PermissionType.Grant) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         userDataApi.removeGroup[Group, MT](groupId, id).map(_ => request)
       }
     }

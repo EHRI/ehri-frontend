@@ -11,10 +11,8 @@ import models._
 import play.api.Configuration
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.{DataHelpers, IdGenerator}
-import utils.{PageParams, RangeParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
-
-import scala.concurrent.Future.{successful => immediate}
+import utils.{PageParams, RangeParams}
 
 
 @Singleton
@@ -64,16 +62,16 @@ case class Countries @Inject()(
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.country.create(form, VisibilityForm.form,
-      request.users, request.groups, countryRoutes.createPost()))
+      request.usersAndGroups, countryRoutes.createPost()))
   }
 
-  def createPost: Action[AnyContent] = CreateItemAction(form).async { implicit request =>
+  def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
-        BadRequest(views.html.admin.country.create(errorForm, accForm, users, groups, countryRoutes.createPost()))
-      }
-      case Right(item) => immediate(Redirect(countryRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation"))
+      case Left((errorForm, accForm, usersAndGroups)) =>
+        BadRequest(views.html.admin.country.create(
+          errorForm, accForm, usersAndGroups, countryRoutes.createPost()))
+      case Right(item) => Redirect(countryRoutes.get(item.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -101,18 +99,17 @@ case class Countries @Inject()(
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.admin.repository.create(
         request.item, form, childFormDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups, countryRoutes.createRepositoryPost(id)))
+        request.usersAndGroups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
-  def createRepositoryPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createRepositoryPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.repository.create(request.item,
-          errorForm, childFormDefaults, accForm, users, groups, countryRoutes.createRepositoryPost(id)))
-      }
-      case Right(citem) => immediate(Redirect(controllers.institutions.routes.Repositories.get(citem.id))
-        .flashing("success" -> "item.create.confirmation"))
+          errorForm, childFormDefaults, accForm, usersAndGroups, countryRoutes.createRepositoryPost(id)))
+      case Right(citem) => Redirect(controllers.institutions.routes.Repositories.get(citem.id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -130,7 +127,7 @@ case class Countries @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, countryRoutes.visibilityPost(id)))
+      request.usersAndGroups, countryRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
@@ -146,12 +143,12 @@ case class Countries @Inject()(
     }
 
   def addItemPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionItem(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionItem(request.item, request.usersAndGroups,
       countryRoutes.setItemPermissions))
   }
 
   def addScopedPermissions(id: String): Action[AnyContent] = EditItemPermissionsAction(id).apply { implicit request =>
-    Ok(views.html.admin.permissions.permissionScope(request.item, request.users, request.groups,
+    Ok(views.html.admin.permissions.permissionScope(request.item, request.usersAndGroups,
       countryRoutes.setScopedPermissions))
   }
 

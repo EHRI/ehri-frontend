@@ -32,7 +32,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
     implicit ct: ContentType[MT], wd: Writable[F]): ActionBuilder[UpdateRequest, AnyContent] =
     EditAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         form.bindFromRequest.fold(
           errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.userOpt, request.request)),
           mod => {

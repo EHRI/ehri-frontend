@@ -94,7 +94,7 @@ case class Links @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
         VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-        request.users, request.groups,  linkRoutes.visibilityPost(id)))
+        request.usersAndGroups,  linkRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>

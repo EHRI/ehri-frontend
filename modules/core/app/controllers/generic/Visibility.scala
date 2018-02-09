@@ -1,7 +1,7 @@
 package controllers.generic
 
 import defines.PermissionType
-import models.UserProfile
+import models.{UserProfile, UsersAndGroups}
 import play.api.mvc._
 import services.data.{ContentType, DataHelpers}
 
@@ -16,8 +16,7 @@ trait Visibility[MT] extends Read[MT] {
 
   case class VisibilityRequest[A](
     item: MT,
-    users: Seq[(String, String)],
-    groups: Seq[(String, String)],
+    usersAndGroups: UsersAndGroups,
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -26,8 +25,8 @@ trait Visibility[MT] extends Read[MT] {
   protected def EditVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[VisibilityRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, VisibilityRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[VisibilityRequest[A]] = {
-        dataHelpers.getUserAndGroupList.map { case (users, groups) =>
-          VisibilityRequest(request.item, users, groups, request.userOpt, request)
+        dataHelpers.getUserAndGroupList.map { usersAndGroups =>
+          VisibilityRequest(request.item, usersAndGroups, request.userOpt, request)
         }
       }
     }
@@ -35,7 +34,7 @@ trait Visibility[MT] extends Read[MT] {
   protected def UpdateVisibilityAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
         userDataApi.setVisibility(id, data).map { newItem =>
           ItemPermissionRequest(newItem, request.userOpt, request)

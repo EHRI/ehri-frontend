@@ -38,7 +38,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
   protected def ScopePermissionGrantAction(id: String, itemPaging: PageParams, scopePaging: PageParams)(implicit ct: ContentType[MT]): ActionBuilder[ScopePermissionGrantRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, ScopePermissionGrantRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ScopePermissionGrantRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         for {
           permGrants <- userDataApi.itemPermissionGrants[PermissionGrant](id, itemPaging)
           scopeGrants <- userDataApi.scopePermissionGrants[PermissionGrant](id, scopePaging)
@@ -50,7 +50,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val accessorF = userDataApi.get[Accessor](Accessor.resourceFor(userType), userId)
         val permsF = userDataApi.scopePermissions(userId, id)
         for {
@@ -65,7 +65,7 @@ trait ScopePermissions[MT] extends ItemPermissions[MT] {
     implicit ct: ContentType[MT]): ActionBuilder[SetScopePermissionRequest, AnyContent] =
     WithGrantPermission(id) andThen new CoreActionTransformer[ItemPermissionRequest, SetScopePermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[SetScopePermissionRequest[A]] = {
-        implicit val req = request
+        implicit val req: ItemPermissionRequest[A] = request
         val data = getData(request).getOrElse(Map.empty)
         val perms: Map[String, Seq[String]] = targetContentTypes.map { ct =>
           ct.toString -> data.getOrElse(ct.toString, Seq.empty)

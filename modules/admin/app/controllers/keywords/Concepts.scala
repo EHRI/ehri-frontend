@@ -15,8 +15,6 @@ import utils.{PageParams, RangeParams}
 import services.search._
 import views.Helpers
 
-import scala.concurrent.Future.{successful => immediate}
-
 
 @Singleton
 case class Concepts @Inject()(
@@ -94,17 +92,16 @@ case class Concepts @Inject()(
   def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
       request.item, childForm, VisibilityForm.form,
-      request.users, request.groups, conceptRoutes.createConceptPost(id)))
+      request.usersAndGroups, conceptRoutes.createConceptPost(id)))
   }
 
-  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).async { implicit request =>
+  def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm)) => dataHelpers.getUserAndGroupList.map { case (users, groups) =>
+      case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.concept.create(request.item,
-          errorForm, accForm, users, groups, conceptRoutes.createConceptPost(id)))
-      }
-      case Right(citem) => immediate(Redirect(conceptRoutes.get(id))
-        .flashing("success" -> "item.create.confirmation"))
+          errorForm, accForm, usersAndGroups, conceptRoutes.createConceptPost(id)))
+      case Right(citem) => Redirect(conceptRoutes.get(id))
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -121,7 +118,7 @@ case class Concepts @Inject()(
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
-      request.users, request.groups, conceptRoutes.visibilityPost(id)))
+      request.usersAndGroups, conceptRoutes.visibilityPost(id)))
   }
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>

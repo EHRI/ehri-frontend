@@ -1,4 +1,4 @@
-@(f: Form[Seq[String]], users: Seq[(String,String)], groups: Seq[(String,String)])(implicit req: RequestHeader, messages: Messages)
+@(f: Form[Seq[String]], usersAndGroups: UsersAndGroups)(implicit req: RequestHeader, messages: Messages)
 
 @import services.data.Constants.ACCESSOR_PARAM
 
@@ -9,7 +9,7 @@
         <div class="control-elements">
             <select class="form-control select2" data-placeholder="@Messages("visibility.chooseGroups")" multiple
             name="@(ACCESSOR_PARAM)[]">
-            @groups.map{ case(id, name) =>
+            @usersAndGroups.groups.map{ case(id, name) =>
                 <option value="@id" @(if(f.value.exists(_.contains(id))) "selected")>@name</option>
             }
             </select>
@@ -20,7 +20,7 @@
         <div class="control-elements">
             <select class="form-control select2" data-placeholder="@Messages("visibility.chooseUsers")" multiple
             name="@(ACCESSOR_PARAM)[]">
-            @users.map { case(id, name) =>
+            @usersAndGroups.users.map { case(id, name) =>
                 <option value="@id" @(if(f.value.exists(_.contains(id))) "selected")>@name</option>
             }
             </select>
