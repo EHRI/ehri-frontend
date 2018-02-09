@@ -638,24 +638,24 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
-  override def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-type", ct)
-    userCall(url).withQueryString("commit" -> commit.toString)
+    userCall(url).withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
       .withTimeout(20.minutes).post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
-  override def regenerateIdsForScope(scope: String, commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-scope", scope)
-    userCall(url).withQueryString("commit" -> commit.toString)
+    userCall(url).withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
       .withTimeout(20.minutes).post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
-  override def regenerateIds(ids: Seq[String], commit: Boolean = false): Future[Seq[(String, String)]] = {
+  override def regenerateIds(ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids")
     userCall(url)
-      .withQueryString("commit" -> commit.toString)
+      .withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }

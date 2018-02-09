@@ -232,10 +232,17 @@ admin.utils.reparentItems.csv=Select the ID to new parent ID CSV file...
 #
 admin.utils.regenerateIds=Regenerate Item IDs
 admin.utils.regenerateIds.description=Items that require ID regeneration.
+admin.utils.regenerateIds.scope=Item scope
+admin.utils.regenerateIds.type=Item type
 admin.utils.regenerateIds.submit=Regenerate IDs
 admin.utils.regenerateIds.scan=Scan Items
 admin.utils.regenerateIds.scanning=Scanning items with stale IDs...
 admin.utils.regenerateIds.noIdsFound=No IDs requiring regeneration found.
+admin.utils.regenerateIds.chooseOne=Choose either scope or type, you cannot choose both.
+admin.utils.regenerateIds.tolerant=Ignore Collisions
+admin.utils.regenerateIds.collisions=Note: if you recieve collision errors these can sometimes be remedied by \
+  opting to ignore collisions first, then making a second attempt.
+admin.utils.regenerateIds.tolerant.description=Skip items where regenerating an ID would conflict with an existing item ID.
 
 #
 # Find and replace

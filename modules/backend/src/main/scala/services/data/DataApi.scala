@@ -103,7 +103,7 @@ trait DataApiHandle {
     * @param commit whether or not to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIdsForType(ct: ContentTypes.Value, commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Scan for IDs that require regeneration within a given scope,
@@ -113,7 +113,7 @@ trait DataApiHandle {
     * @param commit whether or not to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIdsForScope(scope: String, commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Check of any of the given items require ID regeneration,
@@ -123,7 +123,7 @@ trait DataApiHandle {
     * @param commit whether or not to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
-  def regenerateIds(ids: Seq[String], commit: Boolean = false): Future[Seq[(String, String)]]
+  def regenerateIds(ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
     * Find and replace a text value for a given property across an entire entity type.

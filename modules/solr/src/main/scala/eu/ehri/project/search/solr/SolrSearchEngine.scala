@@ -21,8 +21,9 @@ import scala.concurrent.{ExecutionContext, Future}
 case class SolrSearchEngine @Inject()(
   queryBuilder: QueryBuilder,
   parser: ResponseParser,
-  ws: WSClient, config: Configuration)(implicit executionContext: ExecutionContext)
-  extends SearchEngine {
+  ws: WSClient,
+  config: Configuration
+)(implicit executionContext: ExecutionContext) extends SearchEngine {
 
   private val logger: Logger = Logger(this.getClass)
 

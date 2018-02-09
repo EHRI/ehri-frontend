@@ -40,9 +40,9 @@ POST        /reparentItems                      @controllers.admin.Utils.reparen
 
 # ID regeneration
 GET         /regenerate                         @controllers.admin.Utils.regenerateIds
-POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost
-GET         /regenerateType/:ct                 @controllers.admin.Utils.regenerateIdsForType(ct: defines.ContentTypes.Value)
-GET         /regenerateScope/:id                @controllers.admin.Utils.regenerateIdsForScope(id: String)
+POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost(tolerant: Boolean ?= false)
+GET         /regenerateType/:ct                 @controllers.admin.Utils.regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean ?= false)
+GET         /regenerateScope/:id                @controllers.admin.Utils.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
 
 # Find and replace
 GET         /findReplace                        @controllers.admin.Utils.findReplace
