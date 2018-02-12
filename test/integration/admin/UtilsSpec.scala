@@ -2,6 +2,7 @@ package integration.admin
 
 import java.io.File
 
+import defines.ContentTypes
 import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
@@ -52,6 +53,35 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         from must_== "/admin/units/foo"
         to must_== "/admin/units/c4"
       }
+    }
+
+    "perform ID regeneration" in new ITestApp {
+      val result = FakeRequest(controllers.admin.routes.Utils
+          .regenerateIdsForType(ContentTypes.DocumentaryUnit))
+          .withHeaders("X-REQUESTED-WITH" -> "xmlhttprequest")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must_== OK
+      contentAsString(result) must contain("nl-r1-c1")
+      contentAsString(result) must contain("nl-r1-c1-c2")
+      contentAsString(result) must contain("nl-r1-c1-c2-c3")
+      contentAsString(result) must contain("nl-r1-c4")
+
+      val rename = FakeRequest(controllers.admin.routes.Utils.regenerateIdsPost())
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(Map(
+          "path-prefix" -> Seq("/units/"),
+          "items[0].from" -> Seq("c1"), "items[0].to" -> Seq("nl-r1-c1"), "items[0].active" -> Seq("true"),
+          "items[1].from" -> Seq("c2"), "items[1].to" -> Seq("nl-r1-c1-c2"), "items[1].active" -> Seq("true"),
+          "items[2].from" -> Seq("c3"), "items[2].to" -> Seq("nl-r1-c1-c2-c3"), "items[2].active" -> Seq("true"),
+          "items[3].from" -> Seq("c4"), "items[3].to" -> Seq("nl-r1-c4"), "items[3].active" -> Seq("true")
+        ))
+
+      status(rename) must_== OK
+      contentAsString(rename) must contain(
+        controllers.portal.routes.DocumentaryUnits.browse("nl-r1-c1-c2-c3").url)
     }
 
     "allow batch renaming items" in new ITestApp {
