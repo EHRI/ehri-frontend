@@ -12,7 +12,7 @@
             });
             var $f = $("#query-form"),
                 $submit = $f.find("[type='submit']"),
-                $update = ("#update-progress");
+                $update = $("#update-progress");
 
             function setRunning(running) {
                 $submit.attr("disabled", running)
@@ -25,7 +25,7 @@
                         setRunning(true);
                     },
                     progress: function(xhr) {
-                        $update.html("<pre>" + xhr.responseText + "</pre>");
+                        $update.show().html("<pre>" + xhr.responseText + "</pre>");
                     },
                     stop: function() {
                         setRunning(false);
