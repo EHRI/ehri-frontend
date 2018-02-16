@@ -1,8 +1,8 @@
 @(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
-@import SignupData.{form => _, _}
 @import utils.forms.HoneyPotForm.BLANK_CHECK
 @import utils.forms.TimeCheckForm.TIMESTAMP
+@import SignupData._
 
 @helper.form(action = action, 'class -> "login-form signup-form", 'role -> "form") {
     @formHelpers.csrfToken()

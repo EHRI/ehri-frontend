@@ -12,6 +12,24 @@ trait GlobalConfig {
   def configuration: play.api.Configuration
 
   /**
+    * Default group(s) new users belong to.
+    */
+  def defaultPortalGroups: Seq[String] = configuration
+    .getOptional[Seq[String]]("ehri.portal.defaultUserGroups")
+    .getOrElse(Seq.empty)
+
+  /**
+    * Whether new users are signed up for messaging or not.
+    */
+  def canMessage: Boolean = configuration
+    .getOptional[Boolean]("ehri.users.messaging.default")
+    .getOrElse(false)
+
+  def minPasswordLength: Int = configuration
+    .getOptional[Int]("ehri.passwords.minLength")
+    .getOrElse(6)
+
+  /**
    * Flag to indicate whether we're running a testing config or not.
    * This is different from the usual dev/prod run configuration because
    * we might be running experimental stuff on a real life server.

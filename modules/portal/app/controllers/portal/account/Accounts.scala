@@ -1,35 +1,35 @@
 package controllers.portal.account
 
+import java.net.ConnectException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 
-import auth.HashedPassword
-import auth.oauth2.OAuth2Flow
-import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, YahooOAuth2Provider}
+import auth.oauth2.providers.OAuth2Provider
+import auth.oauth2.{OAuth2Config, OAuth2Flow, UserData}
+import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
-import controllers.core.auth.AccountHelpers
-import controllers.core.auth.oauth2._
-import controllers.core.auth.openid.OpenIDLoginHandler
-import controllers.core.auth.userpass.UserPasswordLoginHandler
 import controllers.portal.base.PortalController
 import models._
-import play.api.data.Form
+import play.api.Logger
+import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Invalid, Valid}
+import play.api.data.{Form, Forms}
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
+import play.api.libs.json.{JsString, Json}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
-import play.api.{Configuration, Logger}
-import services.data.AnonymousUser
+import services.data.{AnonymousUser, AuthenticatedUser}
 import utils.forms.{HoneyPotForm, TimeCheckForm}
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
@@ -39,38 +39,88 @@ case class Accounts @Inject()(
   mailer: MailerClient,
   oAuth2Flow: OAuth2Flow,
   ws: WSClient,
-  openId: OpenIdClient
-) extends PortalController
-  with OpenIDLoginHandler
-  with OAuth2LoginHandler
-  with UserPasswordLoginHandler
-  with AccountHelpers
-  with RecaptchaHelper {
+  openId: OpenIdClient,
+  oauth2Providers: OAuth2Config
+) extends PortalController with RecaptchaHelper {
+
+  import SignupData._
+  import utils.forms.HoneyPotForm._
+  import utils.forms.TimeCheckForm._
 
   private val logger = Logger(getClass)
-
-  override protected implicit val config: Configuration = appComponents.config
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
   private val rateLimitHitsPerSec: Int = config.get[Int]("ehri.ratelimit.limit")
   private val rateLimitTimeoutSecs: Int = config.get[Int]("ehri.ratelimit.timeout")
-  private val rateLimitDuration: FiniteDuration =
-    Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
+  private val rateLimitDuration: FiniteDuration = Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
+  private def rateLimitError(implicit r: RequestHeader) = Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
+
+  private val recaptchaKey = config.getOptional[String]("recaptcha.key.public").getOrElse("fakekey")
 
 
-  private def recaptchaKey = config.getOptional[String]("recaptcha.key.public")
-    .getOrElse("fakekey")
-
-  private def rateLimitError(implicit r: RequestHeader) =
-    Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
-
-  override val oauth2Providers = Seq(
-    GoogleOAuth2Provider(config),
-    FacebookOAuth2Provider(config),
-    YahooOAuth2Provider(config)
+  private val openIDAttributes = Seq(
+    "email" -> "http://schema.openid.net/contact/email",
+    "axemail" -> "http://axschema.org/contact/email",
+    "axname" -> "http://axschema.org/namePerson",
+    "name" -> "http://openid.netdr/schema/media/spokenname",
+    "firstname" -> "http://openid.net/schema/namePerson/first",
+    "lastname" -> "http://openid.net/schema/namePerson/last",
+    "friendly" -> "http://openid.net/schema/namePerson/friendly"
   )
+
+  private val openidForm = Form(single(
+    "openid_identifier" -> nonEmptyText
+  ) verifying("error.badUrl", url => utils.forms.isValidUrl(url)))
+
+  private val passwordLoginForm = Form(
+    tuple(
+      EMAIL -> email,
+      PASSWORD -> nonEmptyText
+    )
+  )
+
+  private val changePasswordForm = Form(
+    tuple(
+      "current" -> nonEmptyText,
+      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
+    ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
+  )
+
+  private val resetPasswordForm = Form(
+    tuple(
+      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
+    ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
+  )
+
+  private val forgotPasswordForm = Form(Forms.single("email" -> email))
+
+  //
+  // Signup data validation. This does several checks:
+  //  - passwords must be over 6 characters
+  //  - form must be submitted over 5 seconds after it was rendered
+  //  - the blank check field must be present, but left blank (this
+  //    is a honeypot check)
+  //
+  private val signupForm = Form(
+    mapping(
+      NAME -> nonEmptyText,
+      EMAIL -> email,
+      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength),
+      ALLOW_MESSAGING -> ignored(true),
+      TIMESTAMP -> text, // submission time check
+      BLANK_CHECK -> text, // honeypot
+      AGREE_TERMS -> checked("signup.agreeTerms")
+    )(SignupData.apply)(SignupData.unapply)
+      verifying formSubmissionTime(config)
+      verifying blankFieldIsBlank
+      verifying("signup.badPasswords", s => s.password == s.confirm)
+  )
+
 
   /**
    * Prevent people signin up, logging in etc when in read-only mode.
@@ -87,26 +137,12 @@ case class Accounts @Inject()(
     lazy val executionContext: ExecutionContext = action.executionContext
   }
 
-  private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
-    accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
-
   object NotReadOnlyAction extends CoreActionBuilder[Request, AnyContent] {
     def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
     }
 
     override def composeAction[A](action: Action[A]) = NotReadOnly(action)
-  }
-
-  def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
-    val email = Email(
-      subject = "Please confirm your EHRI Account Email",
-      from = "EHRI Email Validation <noreply@ehri-project.eu>",
-      to = Seq(emailAddress),
-      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body),
-      bodyHtml = Some(views.html.account.mail.confirmEmail(uuid).body)
-    )
-    mailer.send(email)
   }
 
   object RateLimit extends CoreActionBuilder[Request, AnyContent] {
@@ -134,8 +170,7 @@ case class Accounts @Inject()(
       )
     }
 
-    val boundForm: Form[SignupData] = SignupData.form.bindFromRequest
-
+    val boundForm: Form[SignupData] = signupForm.bindFromRequest
     checkRecapture.flatMap {
       case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
@@ -159,12 +194,12 @@ case class Accounts @Inject()(
                 badForm(boundForm.withError(SignupData.EMAIL, "error.emailExists"))
               // we're okay to proceed...
               case None =>
-                implicit val apiUser = AnonymousUser
+                implicit val apiUser: AnonymousUser.type = AnonymousUser
                 val uuid = UUID.randomUUID()
                 val profileData = Map(UserProfileF.NAME -> data.name)
                 for {
                   profile <- userDataApi.createNewUserProfile[UserProfile](
-                    data = profileData, groups = defaultPortalGroups)
+                    data = profileData, groups = globalConfig.defaultPortalGroups)
                   account <- accounts.create(Account(
                     id = profile.id,
                     email = data.email.toLowerCase,
@@ -198,19 +233,52 @@ case class Accounts @Inject()(
     }
   }
 
-  def openIDCallback: Action[AnyContent] = OpenIdCallbackAction.async { implicit request =>
+  def openIDCallback: Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
-    request.formOrAccount match {
-      case Right(account) => doLogin(account)
-      case Left(formError) => immediate(
-        BadRequest(
-          views.html.account.login(
-            passwordLoginForm,
-            SignupData.form,
-            accountRoutes.signupPost(),
-            recaptchaKey,
-            formError,
-            oauth2Providers)
+
+    openId.verifiedId(request).flatMap { info =>
+      // check if there's a user with the right id
+      accounts.openId.findByUrl(info.id).flatMap {
+        case Some(assoc) =>
+          logger.info(s"User '${assoc.user.get.id}' logged in via OpenId")
+          doLogin(assoc.user.get)
+        case None =>
+          val email = extractOpenIDEmail(info.attributes)
+            .getOrElse(sys.error("Unable to retrieve email info via OpenID"))
+
+          val data = Map("name" -> extractOpenIDName(info.attributes)
+            .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
+
+          accounts.findByEmail(email).flatMap {
+            case Some(account) =>
+              logger.info(s"User '${account.id}' created OpenID association")
+              accounts.openId.addAssociation(account.id, info.id)
+              doLogin(account)
+            case None =>
+              implicit val apiUser: AnonymousUser.type = AnonymousUser
+              for {
+                up <- userDataApi.createNewUserProfile[UserProfile](
+                  data, groups = globalConfig.defaultPortalGroups)
+                account <- accounts.create(Account(
+                  id = up.id,
+                  email = email.toLowerCase,
+                  verified = true,
+                  allowMessaging = globalConfig.canMessage
+                ))
+                _ <- accounts.openId.addAssociation(account.id, info.id)
+                r <- doLogin(account)
+              } yield r
+          }
+      }
+    } recover {
+      case t: Throwable => BadRequest(
+        views.html.account.login(
+          passwordLoginForm,
+          signupForm,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm.withGlobalError("error.openId", t.getMessage),
+          oauth2Providers
         )
       )
     }
@@ -218,52 +286,68 @@ case class Accounts @Inject()(
 
   def signup: Action[AnyContent] = loginOrSignup(isLogin = false)
 
-  def loginOrSignup(isLogin: Boolean) = OptionalAccountAction { implicit authRequest =>
-    if (globalConfig.readOnly) {
-      Redirect(portalRoutes.index()).flashing("warning" -> "login.disabled")
-    } else {
-      implicit val userOpt: Option[UserProfile] = None
-      implicit val accountOpt = authRequest.accountOpt
-      accountOpt match {
-        case Some(user) => Redirect(portalRoutes.index())
-          .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
-        case None =>
-          Ok(views.html.account.login(
-            passwordLoginForm,
-            SignupData.form,
-            accountRoutes.signupPost(),
-            recaptchaKey,
-            openidForm,
-            oauth2Providers,
-            isLogin = isLogin)
-          )
-      }
+  def loginOrSignup(isLogin: Boolean) = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+    implicit val userOpt: Option[UserProfile] = None
+    request.accountOpt match {
+      case Some(user) => Redirect(portalRoutes.index())
+        .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
+      case None =>
+        Ok(views.html.account.login(
+          passwordLoginForm,
+          signupForm,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          openidForm,
+          oauth2Providers,
+          isLogin = isLogin)
+        )
     }
   }
 
-  def openIDLoginPost(isLogin: Boolean = true): Action[AnyContent] = OpenIdLoginAction(accountRoutes.openIDCallback()) { implicit request =>
-    implicit val userOpt: Option[UserProfile] = None
-    BadRequest(
-      views.html.account.login(
-        passwordLoginForm,
-        SignupData.form,
-        accountRoutes.signupPost(),
-        recaptchaKey,
-        request.errorForm,
-        oauth2Providers,
-        isLogin
+  def openIDLoginPost(isLogin: Boolean = true): Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
+    def badForm(f: Form[String], status: Status = BadRequest): Result = {
+      implicit val userOpt: Option[UserProfile] = None
+      status(
+        views.html.account.login(
+          passwordLoginForm,
+          signupForm,
+          accountRoutes.signupPost(),
+          recaptchaKey,
+          f,
+          oauth2Providers,
+          isLogin
+        )
       )
-    )
+    }
+
+    try {
+      val boundForm: Form[String] = openidForm.bindFromRequest
+      boundForm.fold(
+        error => immediate(badForm(error)),
+        openidUrl => openId
+          .redirectURL(openidUrl, accountRoutes.openIDCallback().absoluteURL(globalConfig.https),
+            openIDAttributes)
+          .map(url => Redirect(url))
+          .recover {
+            case t: ConnectException =>
+              logger.warn(s"OpenID Login connect exception: $t")
+              badForm(boundForm.withGlobalError(Messages("error.openId.url", openidUrl)))
+            case t =>
+              logger.warn(s"OpenID Login argument exception: $t")
+              badForm(boundForm.withGlobalError(Messages("error.openId.url", openidUrl)))
+          }
+      )
+    } catch {
+      case _: Throwable => immediate(badForm(openidForm.withGlobalError(Messages("error.openId"))))
+    }
   }
 
-  def passwordLoginPost: Action[AnyContent] = (NotReadOnlyAction andThen UserPasswordLoginAction).async { implicit request =>
-    implicit val userOpt: Option[UserProfile] = None
-
+  def passwordLoginPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
     def badForm(f: Form[(String, String)], status: Status = BadRequest): Future[Result] = immediate {
       status(
         views.html.account.login(
           f,
-          SignupData.form,
+          signupForm,
           accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
@@ -272,50 +356,120 @@ case class Accounts @Inject()(
       )
     }
 
-    val boundForm: Form[(String, String)] = passwordLoginForm.bindFromRequest
+    val boundForm = passwordLoginForm.bindFromRequest
     if (!checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) {
       badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
-    } else request.formOrAccount match {
-      case Left(errorForm) => badForm(errorForm)
-      case Right(account) => doLogin(account)
-    }
+    } else boundForm.fold(
+      errForm => badForm(errForm),
+      data => {
+        val (email, pw) = data
+        accounts.authenticateByEmail(email, pw).flatMap {
+          case Some(account) =>
+            // Legacy accounts have an MD5 password encoded via BCrypt, so
+            // we need to re-save this and untag them as legacy.
+            if (account.isLegacy) {
+              logger.info(s"Updating legacy account for user: ${account.id}")
+              accounts.update(account = account.copy(
+                password = Some(HashedPassword.fromPlain(pw)),
+                isLegacy = false
+              )).flatMap(doLogin)
+            } else {
+              logger.info(s"User logged in via password: ${account.id}")
+              doLogin(account)
+            }
+          case None =>
+            badForm(boundForm.withGlobalError("login.error.badUsernameOrPassword"))
+        }
+      }
+    )
   }
 
   def logout: Action[AnyContent] = Action.async { implicit authRequest =>
     gotoLogoutSucceeded(authRequest)
   }
 
-  def oauth2(provider: String, code: Option[String], state: Option[String]): Action[AnyContent] =
-    OAuth2LoginAction(provider, code, state, accountRoutes.oauth2(provider)).async { implicit request =>
-      request.accountOrErr match {
-        case Left(error) => immediate(Redirect(accountRoutes.loginOrSignup())
-          .flashing("danger" -> error))
-        case Right(account) => doLogin(account)
+  def oauth2(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] =
+    NotReadOnlyAction.async { implicit request =>
+      oauth2Providers.providers.find(_.name == providerId).map { provider =>
+
+        // Create a random nonce to stamp this OAuth2 session
+        val sessionId = request.session.get("sid").getOrElse(UUID.randomUUID().toString)
+        val handlerUrl: String = accountRoutes.oauth2(providerId).absoluteURL(globalConfig.https)
+
+        code match {
+
+          // First stage of request. User is redirected to an external URL, where they
+          // authorize our app. The external provider then sends us back to this handler
+          // with a code parameter, initiating the second phase.
+          case None =>
+            val state = UUID.randomUUID().toString
+            cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
+            val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
+            logger.debug(s"OAuth2 redirect URL: $redirectUrl")
+            immediate(Redirect(redirectUrl).withSession(request.session + ("sid" -> sessionId)))
+
+          // Second phase of request. Using our new code, and with the same random session
+          // nonce, proceed to get an access token, the user data, and handle the account
+          // creation or updating.
+          case Some(c) => if (checkSessionNonce(sessionId, state)) {
+            cache.remove(sessionId)
+            (for {
+              info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
+              userData <- oAuth2Flow.getUserData(provider, info)
+              account <- getOrCreateAccount(provider, userData)
+              result <- doLogin(account)
+            } yield result) recover {
+              case AuthenticationError(msg) =>
+                logger.error(msg)
+                Redirect(accountRoutes.loginOrSignup())
+                  .flashing("danger" -> "login.error.oauth2.info")
+            }
+          } else authenticationFailed(request)
+            .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId",
+              provider.name.substring(0, 1).toUpperCase + provider.name.substring(1))))
+        }
+      } getOrElse {
+        notFoundError(request)
       }
     }
 
-  def forgotPassword = OptionalUserAction { implicit request =>
+  def forgotPassword: Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.account.forgotPassword(forgotPasswordForm,
       recaptchaKey, accountRoutes.forgotPasswordPost()))
   }
 
-  def forgotPasswordPost = ForgotPasswordAction { implicit request =>
-    request.formOrAccount match {
-      case Right((account, uuid)) =>
-        sendResetEmail(account.email, uuid)
-        Redirect(portalRoutes.index())
-          .flashing("warning" -> "login.password.reset.sentLink")
-      case Left(errForm) =>
-        BadRequest(views.html.account.forgotPassword(errForm,
-          recaptchaKey, accountRoutes.forgotPasswordPost()))
+  def forgotPasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+    checkRecapture.flatMap {
+      case false =>
+        val errForm = forgotPasswordForm.withGlobalError("error.badRecaptcha")
+        immediate(BadRequest(views.html.account.forgotPassword(errForm,
+          recaptchaKey, accountRoutes.forgotPasswordPost())))
+      case true =>
+        forgotPasswordForm.bindFromRequest.fold({ errForm =>
+          immediate(BadRequest(views.html.account.forgotPassword(errForm,
+            recaptchaKey, accountRoutes.forgotPasswordPost())))
+        }, { email =>
+          accounts.findByEmail(email).flatMap {
+            case Some(account) =>
+              val uuid = UUID.randomUUID()
+              accounts.createToken(account.id, uuid, isSignUp = false).map { _ =>
+                sendResetEmail(account.email, uuid)
+                Redirect(portalRoutes.index()).flashing("warning" -> "login.password.reset.sentLink")
+              }
+            case None =>
+              val errForm = forgotPasswordForm.withError("email", "error.emailNotFound")
+              immediate(BadRequest(views.html.account.forgotPassword(errForm,
+                recaptchaKey, accountRoutes.forgotPasswordPost())))
+          }
+        })
     }
   }
 
-  def passwordReminderSent = Action { implicit request =>
+  def passwordReminderSent: Action[AnyContent] = Action { implicit request =>
     Ok(views.html.account.passwordReminderSent())
   }
 
-  def changePassword = WithUserAction { implicit request =>
+  def changePassword: Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.account.changePassword(request.user.account.get, changePasswordForm,
       accountRoutes.changePasswordPost()))
   }
@@ -323,14 +477,29 @@ case class Accounts @Inject()(
   /**
    * Store a changed password.
    */
-  def changePasswordPost = ChangePasswordAction { implicit request =>
-    implicit val userOpt = Some(request.user)
+  def changePasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen WithUserAction).async { implicit request =>
     val account = request.user.account.get
-    request.errForm.fold(
-      Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
-        .flashing("success" -> "login.password.change.confirmation")
-    )(errForm => BadRequest(views.html.account.changePassword(
-      account, errForm, accountRoutes.changePasswordPost())))
+    val boundForm = changePasswordForm.bindFromRequest
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.account.changePassword(
+        account, errForm, accountRoutes.changePasswordPost()))),
+      data => {
+        val (current, newPw, _) = data
+        accounts.authenticateById(request.user.id, current).flatMap {
+          case Some(acc) => accounts.update(acc.copy(
+            password = Some(HashedPassword.fromPlain(newPw)),
+            isLegacy = false
+          )).map { _ =>
+            Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+              .flashing("success" -> "login.password.change.confirmation")
+          }
+          case None =>
+            immediate(BadRequest(views.html.account.changePassword(
+              account, boundForm.withGlobalError("login.error.badUsernameOrPassword"),
+              accountRoutes.changePasswordPost())))
+        }
+      }
+    )
   }
 
   def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
@@ -350,19 +519,127 @@ case class Accounts @Inject()(
           sendValidationEmail(account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
-          Redirect(redirect)
-            .flashing("success" -> "mail.emailConfirmationResent")
+          Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
         }
       case _ => authenticationFailed(request)
     }
   }
 
-  def resetPasswordPost(token: String): Action[AnyContent] = ResetPasswordAction(token).async { implicit request =>
-    request.formOrAccount match {
-      case Left(errForm) => immediate(BadRequest(views.html.account.resetPassword(errForm,
-        accountRoutes.resetPasswordPost(token))))
-      case Right(account) => doLogin(account)
-        .map(_.flashing("success" -> "login.password.reset.confirmation"))
+  def resetPasswordPost(token: String): Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+    val boundForm: Form[(String, String)] = resetPasswordForm.bindFromRequest
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.account.resetPassword(errForm,
+        accountRoutes.resetPasswordPost(token)))),
+      { case (pw, _) =>
+        accounts.findByToken(token).flatMap {
+          case Some(account) =>
+            for {
+              _ <- accounts.expireTokens(account.id)
+              _ <- accounts.update(account.copy(
+                password = Some(HashedPassword.fromPlain(pw)),
+                isLegacy = false
+              ))
+              request <- doLogin(account)
+                .map(_.flashing("success" -> "login.password.reset.confirmation"))
+            } yield request
+          case None => immediate(BadRequest(views.html.account.resetPassword(
+              boundForm.withGlobalError("login.error.badResetToken"),
+              accountRoutes.resetPasswordPost(token))))
+        }
+      }
+    )
+  }
+
+  //
+  // Helpers
+  //
+
+  private def extractOpenIDEmail(attrs: Map[String, String]): Option[String] =
+    attrs.get("email").orElse(attrs.get("axemail"))
+
+  private def extractOpenIDName(attrs: Map[String,String]): Option[String] = {
+    val fullName = for {
+      fn <- attrs.get("firstname")
+      ln <- attrs.get("lastname")
+    } yield s"$fn $ln"
+    attrs.get("name").orElse(attrs.get("fullname")).orElse(fullName)
+  }
+
+  private def doLogin(account: Account)(implicit request: RequestHeader): Future[Result] =
+    accounts.setLoggedIn(account).flatMap(_ => gotoLoginSucceeded(account.id))
+
+  private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
+    implicit val apiUser: AuthenticatedUser = AuthenticatedUser(account.id)
+    userDataApi.get[UserProfile](account.id).flatMap { up =>
+      userDataApi.patch[UserProfile](account.id, Json.obj(
+        UserProfileF.NAME -> JsString(userData.name),
+        // Only update the user image if it hasn't already been set
+        UserProfileF.IMAGE_URL -> JsString(up.model.imageUrl.getOrElse(userData.imageUrl))
+      ))
+    }
+  }
+
+  private def createNewProfile(userData: UserData, provider: OAuth2Provider): Future[Account] = {
+    implicit val apiUser: AnonymousUser.type = AnonymousUser
+    val profileData = Map(
+      UserProfileF.NAME -> userData.name,
+      UserProfileF.IMAGE_URL -> userData.imageUrl
+    )
+    for {
+      profile <- userDataApi.createNewUserProfile[UserProfile](
+        profileData, groups = globalConfig.defaultPortalGroups)
+      account <- accounts.create(Account(
+        id = profile.id,
+        email = userData.email.toLowerCase,
+        verified = true,
+        allowMessaging = globalConfig.canMessage
+      ))
+    } yield account
+  }
+
+  private def getOrCreateAccount(provider: OAuth2Provider, userData: UserData): Future[Account] = {
+    accounts.oAuth2.findByProviderInfo(userData.providerId, provider.name).flatMap { assocOpt =>
+      assocOpt.flatMap(_.user).map { account =>
+        logger.info(s"Found existing association for ${userData.name} -> ${provider.name}")
+        for {
+          updated <- accounts.update(account.copy(verified = true))
+          _ <- updateUserInfo(updated, userData)
+        } yield updated
+      } getOrElse {
+        accounts.findByEmail(userData.email).flatMap { accountOpt =>
+          accountOpt.map { account =>
+            logger.info(s"Creating new association for ${userData.name} -> ${provider.name}")
+            for {
+              updated <- accounts.update(account.copy(verified = true))
+              _ <- accounts.oAuth2.addAssociation(updated.id, userData.providerId, provider.name)
+              _ <- updateUserInfo(updated, userData)
+            } yield updated
+          } getOrElse {
+            logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
+            for {
+              newAccount <- createNewProfile(userData, provider)
+              _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
+            } yield newAccount
+          }
+        }
+      }
+    }
+  }
+
+  private def checkSessionNonce[A](sessionId: String, state: Option[String]): Boolean = {
+    val origStateOpt: Option[String] = cache.get[String](sessionId)
+    (for {
+      // check if the state we sent is equal to the one we're receiving now before continuing the flow.
+      originalState <- origStateOpt
+      currentState <- state
+    } yield {
+      val check = originalState == currentState
+      if (!check) logger.error(s"OAuth2 state mismatch: sessionId: $sessionId, " +
+        s"original token: $origStateOpt, new token: $state")
+      check
+    }).getOrElse {
+      logger.error(s"Missing OAuth2 state data: session key -> $sessionId")
+      false
     }
   }
 
@@ -373,6 +650,17 @@ case class Accounts @Inject()(
       from = "EHRI Password Reset <noreply@ehri-project.eu>",
       bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body),
       bodyHtml = Some(views.html.account.mail.forgotPassword(uuid).body)
+    )
+    mailer.send(email)
+  }
+
+  private def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+    val email = Email(
+      subject = "Please confirm your EHRI Account Email",
+      from = "EHRI Email Validation <noreply@ehri-project.eu>",
+      to = Seq(emailAddress),
+      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body),
+      bodyHtml = Some(views.html.account.mail.confirmEmail(uuid).body)
     )
     mailer.send(email)
   }
