@@ -1,11 +1,11 @@
-@(loginOrSignup: String, openIdForm: Form[String], oauthProviders: Seq[auth.oauth2.providers.OAuth2Provider], isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
+@(loginOrSignup: String, openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
 
     <div class="oauth-providers">
-        @oauthProviders.map { provider =>
+        @oauth2Config.providers.map { provider =>
             <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
                 title="@Html(Messages(loginOrSignup, provider.name.capitalize))">
                @Html(Messages(loginOrSignup, Html("<i class='icon-social " + provider.name + "'></i>")))

@@ -7,7 +7,6 @@ import javax.inject._
 import auth.HashedPassword
 import controllers.AppComponents
 import controllers.base.AdminController
-import controllers.core.auth.AccountHelpers
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import models._
@@ -39,7 +38,6 @@ case class UserProfiles @Inject()(
   with Membership[UserProfile]
   with SearchType[UserProfile]
   with Search
-  with AccountHelpers
   with CsvHelpers {
 
   private val entityFacets: FacetBuilder = { implicit request =>
@@ -82,8 +80,8 @@ case class UserProfiles @Inject()(
       "email" -> Forms.email,
       "identifier" -> Forms.nonEmptyText(minLength= 3, maxLength = 20),
       "name" -> Forms.nonEmptyText,
-      "password" -> Forms.nonEmptyText(minLength = minPasswordLength),
-      "confirm" -> Forms.nonEmptyText(minLength = minPasswordLength)
+      "password" -> Forms.nonEmptyText(minLength = globalConfig.minPasswordLength),
+      "confirm" -> Forms.nonEmptyText(minLength = globalConfig.minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
   )
 
@@ -159,7 +157,8 @@ case class UserProfiles @Inject()(
         // It's not registered, so create the account...
         val user = UserProfileF(id = None, identifier = username, name = name,
           location = None, about = None, languages = Nil)
-        val groups = (groupMembershipForm.bindFromRequest.value.getOrElse(List.empty) ++ defaultPortalGroups).distinct
+        val groups = (groupMembershipForm.bindFromRequest.value
+          .getOrElse(List.empty) ++ globalConfig.defaultPortalGroups).distinct
         createUserProfile(user, groups, allGroups).flatMap {
           case Left(ValidationError(errorSet)) =>
             val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)

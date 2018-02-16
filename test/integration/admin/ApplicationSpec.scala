@@ -148,6 +148,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val login = FakeRequest(accountRoutes.loginOrSignup())
         .withUser(mockdata.publicUser)
         .call()
+      println(contentAsString(login))
       status(login) must equalTo(SEE_OTHER)
     }
 

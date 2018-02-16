@@ -130,7 +130,6 @@ trait OAuth2Provider {
     getSetting(OAuth2Settings.Scope)
   )
 
-  private def getSetting(key: String): String =
-    config.get[String]("oauth2." + name + "." + key)
+  private def getSetting(key: String): String = config.get[String](s"oauth2.$name.$key")
 }
 

@@ -2,7 +2,8 @@ import javax.inject.{Inject, Provider}
 
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
-import auth.oauth2.{OAuth2Flow, WebOAuth2Flow}
+import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
+import auth.oauth2.{OAuth2Flow, OAuth2Config, WebOAuth2Flow}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
@@ -25,6 +26,16 @@ private class SolrIndexProvider @Inject()(config: play.api.Configuration) extend
   override def get(): Index = new SolrIndex(utils.serviceBaseUrl("solr", config))
 }
 
+private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) extends Provider[OAuth2Config] {
+  override def get(): OAuth2Config = new OAuth2Config {
+    override def providers: Seq[OAuth2Provider] =  Seq(
+      GoogleOAuth2Provider(config),
+      FacebookOAuth2Provider(config),
+      YahooOAuth2Provider(config)
+    )
+  }
+}
+
 class AppModule extends AbstractModule {
   protected def configure(): Unit = {
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
@@ -42,6 +53,7 @@ class AppModule extends AbstractModule {
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
     bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
+    bind(classOf[OAuth2Config]).toProvider(classOf[OAuth2ConfigProvider])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
