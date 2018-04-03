@@ -210,7 +210,7 @@ case class Accounts @Inject()(
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
-                  sendValidationEmail(data.email, uuid)
+                  sendValidationEmail(profile.model.name, data.email, uuid)
                   result
                 }
             }
@@ -452,8 +452,11 @@ case class Accounts @Inject()(
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
-              accounts.createToken(account.id, uuid, isSignUp = false).map { _ =>
-                sendResetEmail(account.email, uuid)
+              for {
+                p <- userDataApi.get[UserProfile](account.id)
+                _ <- accounts.createToken(account.id, uuid, isSignUp = false)
+                _ = sendResetEmail(p.model.name, account.email, uuid)
+              } yield {
                 Redirect(portalRoutes.index()).flashing("warning" -> "login.password.reset.sentLink")
               }
             case None =>
@@ -516,7 +519,7 @@ case class Accounts @Inject()(
       case Some(account) =>
         val uuid = UUID.randomUUID()
         accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
-          sendValidationEmail(account.email, uuid)
+          sendValidationEmail(request.user.model.name, account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
           Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
@@ -643,24 +646,22 @@ case class Accounts @Inject()(
     }
   }
 
-  private def sendResetEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+  private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
     val email = Email(
       subject = "EHRI Password Reset",
-      to = Seq(emailAddress),
+      to = Seq(s"$name <$emailAddress>"),
       from = "EHRI Password Reset <noreply@ehri-project.eu>",
-      bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body),
-      bodyHtml = Some(views.html.account.mail.forgotPassword(uuid).body)
+      bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body)
     )
     mailer.send(email)
   }
 
-  private def sendValidationEmail(emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+  private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
     val email = Email(
       subject = "Please confirm your EHRI Account Email",
       from = "EHRI Email Validation <noreply@ehri-project.eu>",
-      to = Seq(emailAddress),
-      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body),
-      bodyHtml = Some(views.html.account.mail.confirmEmail(uuid).body)
+      to = Seq(s"$name <$emailAddress>"),
+      bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
     )
     mailer.send(email)
   }

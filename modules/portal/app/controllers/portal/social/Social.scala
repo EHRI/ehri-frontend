@@ -251,7 +251,7 @@ case class Social @Inject()(
           val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
           val copyEmailMessage = emailMessage.copy(
             subject = Messages("mail.message.copy.heading", to.toStringLang),
-            to = Seq(accFrom.email),
+            to = Seq(s"${from.model.name} <${accFrom.email}>"),
             bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
             bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
           )

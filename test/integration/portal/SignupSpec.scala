@@ -40,7 +40,7 @@ class SignupSpec extends IntegrationTestRunner {
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
       status(signup) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.to must contain(testEmail)
+      mailBuffer.last.to must contain(s"$testName <$testEmail>")
       mockdata.accountFixtures.size must equalTo(numAccounts + 1)
       val userOpt = mockdata.accountFixtures.values.find(u => u.email == testEmail)
       userOpt must beSome.which { user =>

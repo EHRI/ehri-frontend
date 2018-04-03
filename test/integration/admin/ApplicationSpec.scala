@@ -199,7 +199,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.to must contain(mockdata.unprivilegedUser.email)
+      mailBuffer.last.to must contain(s"Reto <${mockdata.unprivilegedUser.email}>")
     }
 
     "check password reset token works (but only once)" in new ITestApp(Map("recaptcha.skip" -> true)) {
@@ -213,7 +213,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         .callWith(data)
       status(forgot) must equalTo(SEE_OTHER)
       mailBuffer.size must beEqualTo(numSentMails + 1)
-      mailBuffer.last.to must contain(mockdata.unprivilegedUser.email)
+      mailBuffer.last.to must contain(s"Reto <${mockdata.unprivilegedUser.email}>")
 
       val token = mockdata.tokenFixtures.last._1
       val resetForm = FakeRequest(accountRoutes.resetPassword(token))
