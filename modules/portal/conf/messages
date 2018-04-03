@@ -295,9 +295,8 @@ signup.validation.confirmation=Your account has been validated.
 # Mail stuff
 #
 mail.forgotPasswordMailHeading=EHRI Password Reset
-mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used \
-  to reset your password once.
-mail.forgotPasswordFooter=
+mail.forgotPasswordMessage=To reset your password, please follow the link below. Note: this link can only be used to reset your password once.
+mail.forgotPasswordFooter=Best wishes - the EHRI team
 mail.confirmEmailHeading=Please confirm your email address
 mail.confirmEmailMessage=Please confirm your email address by visiting the following address:
 mail.confirmEmailFooter=This link will be valid for 1 week, after which your account will\
