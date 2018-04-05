@@ -2,18 +2,20 @@ package services.storage
 
 import java.io.File
 import java.net.URI
-import javax.inject.Inject
 
+import javax.inject.Inject
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.acl.CannedAcl
+import akka.stream.alpakka.s3.impl.ListBucketVersion2
 import akka.stream.alpakka.s3.scaladsl.S3Client
 import akka.stream.alpakka.s3.{MemoryBufferType, S3Settings}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
+import com.amazonaws.regions.AwsRegionProvider
 import play.api.Logger
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,7 +26,10 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   private implicit val ec: ExecutionContext = mat.executionContext
   private val s3config: AwsConfig = AwsConfig.fromConfig(config)
   private val cred = new AWSStaticCredentialsProvider(new BasicAWSCredentials(s3config.accessKey, s3config.secret))
-  private val settings = new S3Settings(MemoryBufferType, None, cred, s3config.region, pathStyleAccess = true)
+  private val region = new AwsRegionProvider {
+    override def getRegion: String = s3config.region
+  }
+  private val settings = new S3Settings(MemoryBufferType, None, cred, region, pathStyleAccess = true, endpointUrl = None, ListBucketVersion2)
   private val client = new S3Client(settings)
 
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
