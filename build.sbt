@@ -43,7 +43,7 @@ val coreDependencies = backendDependencies ++ Seq(
   openId,
 
   // Anorm DB lib
-  "com.typesafe.play" %% "anorm" % "2.5.3",
+  "org.playframework.anorm" %% "anorm" % "2.6.1",
 
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
@@ -67,8 +67,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.8.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "6.0.0",
-  "com.typesafe.play" %% "play-mailer-guice" % "6.0.0",
+  "com.typesafe.play" %% "play-mailer" % "6.0.1",
+  "com.typesafe.play" %% "play-mailer-guice" % "6.0.1",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
@@ -85,7 +85,7 @@ val portalDependencies = Seq(
   "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
-  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.12"
+  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.18"
 )
 
 val testDependencies = Seq(
@@ -93,7 +93,7 @@ val testDependencies = Seq(
   "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.1" % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.11" % Test
 )
 
 val additionalResolvers = Seq(
