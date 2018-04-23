@@ -32,5 +32,5 @@
     <![endif]-->
 
     @styles
-    @views.html.common.analytics()
+    @globalConfig.extraHeadContent.map(c => Html(c))
 </head>
