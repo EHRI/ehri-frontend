@@ -30,7 +30,7 @@
 
         <meta charset="UTF-8">
         <meta name="copyright" content="EHRI Consortium 2015">
-        @views.html.common.analytics()
+        @globalConfig.extraHeadContent.map(c => Html(c))
     </head>
     <body>
         <div id="graphiql">Loading...</div>

@@ -47,20 +47,17 @@ trait GlobalConfig {
   lazy val skipRecaptcha: Boolean =
     configuration.getOptional[Boolean]("recaptcha.skip").getOrElse(false)
 
-  lazy val analyticsEnabled: Boolean =
-    configuration.getOptional[Boolean]("analytics.enabled").getOrElse(false)
-
   lazy val logMessageMaxLength: Int =
     configuration.getOptional[Int]("ehri.logMessage.maxLength").getOrElse(400)
-
-  lazy val analyticsId: Option[String] =
-    configuration.getOptional[String]("analytics.trackingId")
 
   lazy val mapsApiKey: Option[String] =
     configuration.getOptional[String]("google.maps.browserApiKey")
 
   lazy val languages: Seq[String] =
     configuration.getOptional[Seq[String]]("play.i18n.langs").getOrElse(Seq.empty)
+
+  lazy val extraHeadContent: Option[String] =
+    configuration.getOptional[String]("ehri.portal.extraHeadContent")
 
   def protocol(implicit req: RequestHeader): String =
     "http" + (if (req.secure) "s" else "") + "://"
