@@ -130,7 +130,7 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
       err => throw Json.parse(responseBody).asOpt[SolrServerError]
         .getOrElse(new PlayException(s"Unexpected Solr response: ", responseBody)),
       data => {
-        logger.info(s"Debug: ${data.debugTiming}")
+        logger.debug(s"Timings: ${data.debugTiming}")
         data
       }
     )
