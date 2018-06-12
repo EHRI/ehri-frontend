@@ -38,6 +38,7 @@ object Helpers {
     ("admin.utils.regenerateIds",   controllers.admin.routes.Utils.regenerateIds().url),
     ("admin.utils.renameItems",     controllers.admin.routes.Utils.renameItems().url),
     ("admin.utils.reparentItems",   controllers.admin.routes.Utils.reparentItems().url),
+    ("admin.utils.movedItems",   controllers.admin.routes.Utils.addMovedItems().url),
     ("admin.utils.batchDelete",   controllers.admin.routes.Utils.batchDelete().url)
   )
 

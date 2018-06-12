@@ -200,7 +200,7 @@ metrics.restrictedMaterial=Restricted Material
 #
 # Moved pages
 #
-admin.utils.movedItems=Moved Item IDs
+admin.utils.movedItems=Add ID Redirects
 admin.utils.movedItems.description=Create permanent redirects for items that have had their IDs changed.
 admin.utils.movedItems.submit=Redirect item IDs
 admin.utils.movedItems.csv=Select the old ID to new ID CSV file...
