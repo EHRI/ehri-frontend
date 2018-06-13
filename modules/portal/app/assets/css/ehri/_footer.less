@@ -5,10 +5,7 @@ footer#portal-footer {
   }
 
   background-color: @pale-gray;
-  padding-left: @large-padding;
-  padding-right: @large-padding;
-
-  padding-top: @large-padding;
+  padding: @large-padding;
 
   #navbar-tertiary, #lang-switcher {
     &:extend(.list-unstyled, .small);
@@ -23,11 +20,11 @@ footer#portal-footer {
   .footer-blurb {
     &:extend(.clearfix);
     font-size: 0.95em;
-    margin-top: @large-margin;
-    img.eu-logo {
+    margin: 2*@large-margin 0;
+    img {
       vertical-align: top;
-      margin-left: @medium-margin;
-      width: 50px;
+      margin: 0 @medium-margin;
+      height: 70px;
     }
   }
 }
