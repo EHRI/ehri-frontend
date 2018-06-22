@@ -33,6 +33,23 @@
                         </div>
                     </div>
 
+
+                    @item.model.url.map { url =>
+                        <a href="@url" target="_blank">@url</a>
+                    }
+
+                    @if(item.model.seeAlso.nonEmpty) {
+                        <h4>@Messages("cvocConcept.seeAlso"):</h4>
+                        <ul class="list-unstyled">
+                        @for(list <- item.model.seeAlso.toList; item <- list) {
+                            <li><a href="@item" target="_blank">@item</a></li>
+                        }
+                        </ul>
+                    }
+                    @for(longitude <- item.model.longitude ; latitude <- item.model.latitude; apiKey <- globalConfig.mapsApiKey) {
+                        <iframe width="100%" height="400" frameborder="0" style="border: 1px solid lightgray"
+                        src="https://www.google.com/maps/embed/v1/place?zoom=8&key=@apiKey&q=@latitude,@longitude"></iframe>
+                    }
                     @views.html.admin.common.filterableList("cvocConcept.narrowerTermsPageHeader", page, params) {
                         <ul>
                             @page.items.map(c => views.html.admin.concept.listItem(c))
