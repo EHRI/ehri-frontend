@@ -117,6 +117,7 @@ val excludedResources = Seq(
   "aws.conf",
   "test.conf",
   "external_pages.conf",
+  "api-keys.conf",
   "logback-play-dev.xml"
 )
 

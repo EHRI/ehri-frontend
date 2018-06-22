@@ -9,7 +9,6 @@
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
-
             @views.html.common.itemHeader(desc.name) {
                 @views.html.common.otherNameList(desc.altLabels)
             }
@@ -17,11 +16,6 @@
             @listField(item, descId, desc.definition, DEFINITION)
             @listField(item, descId, desc.scopeNote, SCOPENOTE)
             @listField(item, descId, item.model.seeAlso, SEEALSO)
-            @for(longitude <- item.model.longitude ; latitude <- item.model.latitude) {
-                <div class="map" data-longitude="@longitude" data-latitude="@latitude">
-
-                </div>
-            }
 
             @descriptionSection(ACCESS_POINTS) {
                 @views.html.common.accessPointLinks(item, desc, links)

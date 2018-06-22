@@ -36,27 +36,4 @@
             <dd><a href="@uri" class="external" target="_blank">@uri</a></dd>
         }
     </dl>
-
-    @item.model.url.map { url =>
-        <a href="@url" target="_blank">@url</a>
-    }
-
-    @if(item.model.seeAlso.nonEmpty) {
-        <h4>@Messages("cvocConcept.seeAlso"):</h4>
-        <ul class="list-unstyled">
-            @for(list <- item.model.seeAlso.toList; item <- list) {
-                <li><a href="@item" target="_blank">@item</a></li>
-            }
-        </ul>
-    }
-
-    @for(lat <- item.model.latitude; lng <- item.model.longitude) {
-        <h4>@Messages("cvocConcept.latLon"):</h4>
-        <p>
-            <a target="_blank" href="http://maps.google.com/maps?q=@lat,@lng">@lat,@lng</a>
-            @globalConfig.mapsApiKey.map { mapsApiKey =>
-                <iframe width="300" height="225" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/view?key=@mapsApiKey&center=@lat%2C@lng&zoom=12"></iframe>
-            }
-        </p>
-    }
 }
