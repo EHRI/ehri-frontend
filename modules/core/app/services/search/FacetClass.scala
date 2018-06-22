@@ -28,6 +28,7 @@ sealed trait FacetClass[+T <: Facet] {
    * non-zero item count.
    */
   def isActive: Boolean = facets.exists(_.applied) || facets.exists(_.count > 0)
+  def isApplied: Boolean = facets.exists(_.applied)
   def render: String => String = identity
   def pretty[U <: Facet](f: U): String = f.name.map(render).getOrElse(render(f.value))
 

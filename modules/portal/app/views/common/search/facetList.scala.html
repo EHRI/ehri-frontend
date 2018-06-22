@@ -3,7 +3,10 @@
 @import services.search._
 
 @facetLabel(fc: FacetClass[_]) = {
-    <h4 data-toggle="tooltip" title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label">@Messages("facet." + fc.param)</h4>
+    <h4 data-toggle="tooltip"
+        title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label@{if(fc.isApplied) " active"}">@fc.name
+        <i class="fa fa-question-circle"></i>
+    </h4>
 }
 
 @facetItem(fc: FacetClass[Facet], f: Facet) = {
@@ -145,26 +148,31 @@
 
 @defining(facetClasses.filter(_.isActive)) { activeClasses =>
     @if(activeClasses.nonEmpty) {
-        <ul class="facet-classes">
-        @activeClasses.map { fc =>
-            @fc.display match {
-                case FacetDisplay.DropDown => {
-                    @facetDropDown(fc)
-                }
-                case FacetDisplay.Boolean => {
-                    @facetBoolean(fc)
-                }
-                case FacetDisplay.Choice => {
-                    @facetChoiceList(fc)
-                }
-                case FacetDisplay.Date => {
-                    @facetDate(fc)
-                }
-                case _ => {
-                    @facetList(fc)
+        <div class="search-facets">
+            <div class="search-facets-heading panel-heading">
+                <h3>@Messages("search.facets.heading")</h3>
+            </div>
+            <ul class="facet-classes">
+            @activeClasses.map { fc =>
+                @fc.display match {
+                    case FacetDisplay.DropDown => {
+                        @facetDropDown(fc)
+                    }
+                    case FacetDisplay.Boolean => {
+                        @facetBoolean(fc)
+                    }
+                    case FacetDisplay.Choice => {
+                        @facetChoiceList(fc)
+                    }
+                    case FacetDisplay.Date => {
+                        @facetDate(fc)
+                    }
+                    case _ => {
+                        @facetList(fc)
+                    }
                 }
             }
-        }
-        </ul>
+            </ul>
+        </div>
     }
 }
