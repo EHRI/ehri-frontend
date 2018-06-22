@@ -448,6 +448,7 @@ search.field.scopeAndContent=Content
 search.field.person=People
 search.field.subject=Subjects
 search.field.place=Places
+search.facets.heading=Filter Results
 
 #
 # Facets - these are ways of filtering search results
@@ -523,6 +524,8 @@ facet.promoted=Promoted
 facet.promoted.tooltip=Items that are currently promoted or demoted
 facet.score=Promotion Score
 facet.score.tooltip=The sum total of all promotions and demotions, if any
+
+
 
 #
 # Activity: https://portal.ehri-project.eu/activity

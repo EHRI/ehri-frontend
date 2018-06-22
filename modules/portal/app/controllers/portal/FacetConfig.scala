@@ -55,7 +55,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("documentaryUnit." + LANGUAGE_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.Choice,
+        display = FacetDisplay.List,
         sort = FacetSort.Name
       ),
       FieldFacetClass(
@@ -63,7 +63,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages(TYPE),
         param = TYPE,
         render = s => Messages(TYPE + "." + s),
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       )
     )
   }
@@ -77,14 +77,14 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("facet.type"),
         param = TYPE,
         render = s => Messages("contentTypes." + s),
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key = Isaar.ENTITY_TYPE,
         name = Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param = "cpf",
         render = s => Messages("historicalAgent." + s),
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key = COUNTRY_CODE,
@@ -112,7 +112,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("historicalAgent." + LANGUAGE_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.Choice,
+        display = FacetDisplay.List,
         sort = FacetSort.Name
       ),
       FieldFacetClass(
@@ -120,14 +120,14 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("historicalAgent." + Isaar.ENTITY_TYPE),
         param = "cpf",
         render = s => Messages("historicalAgent." + s),
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       ),
       FieldFacetClass(
         key = HOLDER_NAME,
         name = Messages("historicalAgent.authoritativeSet"),
         param = "set",
         render = s => s,
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       )
     )
   }
@@ -161,35 +161,14 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
   }
 
   val countryFacets: FacetBuilder = { implicit request =>
-    List(
-      QueryFacetClass(
-        key = CHILD_COUNT,
-        name = Messages("facet.itemsHeldOnline"),
-        param = "data",
-        render = s => Messages("facet.itemsHeldOnline." + s),
-        facets = List(
-          QueryFacet(value = "yes", range = Val("1") to End)
-        ),
-        display = FacetDisplay.Boolean
-      )
-    )
+    List()
   }
 
   val repositorySearchFacets: FacetBuilder = { implicit request =>
     List(
-      QueryFacetClass(
-        key = CHILD_COUNT,
-        name = Messages("facet.itemsHeldOnline"),
-        param = "data",
-        render = s => Messages("facet.itemsHeldOnline." + s),
-        facets = List(
-          QueryFacet(value = "yes", range = Val("1") to End)
-        ),
-        display = FacetDisplay.Boolean
-      ),
       FieldFacetClass(
         key = COUNTRY_CODE,
-        name = Messages("repository." + COUNTRY_CODE),
+        name = Messages("facet.country"),
         param = "country",
         render = (s: String) => Helpers.countryCodeToName(s),
         displayLimit = 100
@@ -199,7 +178,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
 
   // Don't include country when displaying repository facets withing
   // a country record
-  def localRepoFacets: (RequestHeader) => Seq[FacetClass[Facet]] = repositorySearchFacets
+  def localRepoFacets: RequestHeader => Seq[FacetClass[Facet]] = repositorySearchFacets
     .andThen(_.filterNot(_.key == COUNTRY_CODE))
 
   val docSearchFacets: FacetBuilder = { implicit request =>
@@ -210,38 +189,30 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("documentaryUnit." + LANGUAGE_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.Choice,
+        display = FacetDisplay.List,
         sort = FacetSort.Name,
         limit = Some(50)
       ),
       FieldFacetClass(
         key = COUNTRY_CODE,
-        name = Messages("repository." + COUNTRY_CODE),
+        name = Messages("facet.country"),
         param = "country",
         render = (s: String) => Helpers.countryCodeToName(s),
         displayLimit = 10
       ),
       FieldFacetClass(
         key = HOLDER_NAME,
-        name = Messages("documentaryUnit.heldBy"),
+        name = Messages("facet.holder"),
         param = "holder",
         displayLimit = 10,
         limit = Some(500)
-      ),
-      FieldFacetClass(
-        key = IS_PARENT,
-        name = Messages("facet.parent"),
-        param = "parent",
-        render = s => Messages("facet.parent." + s),
-        sort = FacetSort.Fixed,
-        display = FacetDisplay.List
       )
     )
   }
 
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
-  def localDocFacets: (RequestHeader) => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
+  def localDocFacets: RequestHeader => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
     Seq(TYPE, CREATION_PROCESS).contains(fc.key)
   })
 
@@ -252,7 +223,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("cvocConcept." + LANGUAGE_CODE),
         param = "lang",
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.Choice,
+        display = FacetDisplay.List,
         sort = FacetSort.Name
       ),
       QueryFacetClass(
@@ -270,7 +241,7 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         name = Messages("cvocConcept.inVocabulary"),
         param = "vocab",
         render = s => s,
-        display = FacetDisplay.Choice
+        display = FacetDisplay.List
       )
     )
   }
