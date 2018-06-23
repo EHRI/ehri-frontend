@@ -1,6 +1,18 @@
 @(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.Concept.toString) {
+@extraCss = {
+    @for(_ <- item.model.longitude ; _ <- item.model.latitude) {
+        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.css")"/>
+    }
+}
+
+@extraScript = {
+    @for(_ <- item.model.longitude ; _ <- item.model.latitude) {
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.js")"></script>
+    }
+}
+
+@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.Concept.toString, styles = extraCss, scripts = extraScript) {
     @infobar(item)
 
     @views.html.common.mainContent {
