@@ -6,9 +6,9 @@
             @item.model.descriptions.map { desc =>
                 @description(item, desc, links, annotations)
             }
-            @for(longitude <- item.model.longitude ; latitude <- item.model.latitude; apiKey <- globalConfig.mapsApiKey) {
-                <iframe width="100%" height="400" frameborder="0" style="border: 1px solid lightgray"
-                    src="https://www.google.com/maps/embed/v1/place?zoom=8&key=@apiKey&q=@latitude,@longitude"></iframe>
+            @for(longitude <- item.model.longitude ; latitude <- item.model.latitude) {
+                <div class="point-map" style="height: 400px" data-lat="@latitude" data-lon="@longitude" data-point="@item.toStringLang"></div>
+                <script src="@controllers.portal.routes.PortalAssets.versioned("js/point-map.js")"></script>
             }
             @views.html.concept.childItemSearch(item, result, action, watched)
             @views.html.common.externalLinks(item, links)

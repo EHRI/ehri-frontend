@@ -1,8 +1,8 @@
 package controllers.portal
 
 import java.util.concurrent.TimeUnit
-import javax.inject._
 
+import javax.inject._
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
