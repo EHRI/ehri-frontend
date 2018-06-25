@@ -25,5 +25,7 @@
         }
         @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
     }
+    @formHelpers.hiddenInput(f(LONGITUDE))
+    @formHelpers.hiddenInput(f(LATITUDE))
 }
 
