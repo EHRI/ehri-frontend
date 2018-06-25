@@ -188,11 +188,33 @@ package object binders {
 
     private implicit val sortBinder = utils.binders.queryStringBinder(SearchSort)
 
+    // Backwards compatibility for old Solr-based `sort parameters. We fall
+    // back to these if none of the new sort values are valid.
+    def bindOldSort(key: String, params: Map[String, Seq[String]]): Option[SearchSort.Value] = {
+      val oldSortMap: Map[String, SearchSort.Value] = Map(
+        "identifier.asc" -> SearchSort.Id,
+        "isParent.desc,identifier.asc" -> SearchSort.Id,
+        "score.desc" -> SearchSort.Score,
+        "name_sort.asc" -> SearchSort.Name,
+        "lastUpdated.desc" -> SearchSort.DateNewest,
+        "countryCode.asc" -> SearchSort.Country,
+        "repositoryName.asc" -> SearchSort.Holder,
+        "geodist().asc" -> SearchSort.Location,
+        "charCount.desc" -> SearchSort.Detail,
+        "childCount.desc" -> SearchSort.ChildCount
+      )
+      params
+        .get(key)
+        .map(_.flatMap(oldSortMap.get).headOption)
+        .getOrElse(Option.empty)
+    }
+
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SearchParams]] = {
       val namespace: String = ns(key)
       Some(Right(SearchParams(
         bindOr(namespace + QUERY, params, Option.empty[String]).filter(_.trim.nonEmpty),
-        bindOr(namespace + SORT, params, Option.empty[SearchSort.Value]),
+        bindOr(namespace + SORT, params, bindOldSort(namespace + SORT, params)),
         bindOr(namespace + ENTITY, params, Seq.empty[EntityType.Value])(tolerantSeqBinder(queryStringBinder(EntityType))),
         bindOr(namespace + FIELD, params, Seq.empty[SearchField.Value])(tolerantSeqBinder(queryStringBinder(SearchField))),
         bindOr(namespace + FACET, params, Seq.empty[String]),

@@ -20,15 +20,15 @@ case object SearchField extends Enumeration {
 
 case object SearchSort extends Enumeration {
   type Sort = Value
-  val Id = Value("isParent.desc,identifier.asc")
-  val Score = Value("score.desc")
-  val Name = Value("name_sort.asc")
-  val DateNewest = Value("lastUpdated.desc")
-  val Country = Value("countryCode.asc")
-  val Holder = Value("repositoryName.asc")
-  val Location = Value("geodist().asc")
-  val Detail = Value("charCount.desc")
-  val ChildCount = Value("childCount.desc")
+  val Id = Value("id")
+  val Score = Value("score")
+  val Name = Value("name")
+  val DateNewest = Value("updated")
+  val Country = Value("country")
+  val Holder = Value("holder")
+  val Location = Value("location")
+  val Detail = Value("detail")
+  val ChildCount = Value("holdings")
 
   implicit val _fmt: Format[SearchSort.Value] = utils.EnumUtils.enumFormat(SearchSort)
 }
