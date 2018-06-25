@@ -12,6 +12,18 @@ import services.search._
 
 private[solr] object SolrQueryBuilder {
 
+  val sortMap: Map[SearchSort.Value, String] = Map(
+    SearchSort.Id -> "isParent.desc,identifier.asc",
+    SearchSort.Score -> "score.desc",
+    SearchSort.Name -> "name_sort.asc",
+    SearchSort.DateNewest -> "lastUpdated.desc",
+    SearchSort.Country -> "countryCode.asc",
+    SearchSort.Holder -> "repositoryName.asc",
+    SearchSort.Location -> "geodist().asc",
+    SearchSort.Detail -> "charCount.desc",
+    SearchSort.ChildCount -> "childCount.desc"
+  )
+
   def escape(s: CharSequence): String = {
     val sb: StringBuffer = new StringBuffer()
     0.until(s.length()).foreach { i =>
@@ -201,7 +213,8 @@ private[solr] object SolrQueryBuilder {
   }
 
   def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
-    sort.map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ")}.toSeq
+    sort.flatMap(sortMap.get)
+      .map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ")}.toSeq
 }
 
 
