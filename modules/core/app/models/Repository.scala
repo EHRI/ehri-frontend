@@ -22,9 +22,11 @@ import services.data.{ContentType, Writable}
 object RepositoryF {
 
   val PUBLICATION_STATUS = "publicationStatus"
-  final val PRIORITY = "priority"
-  final val URL_PATTERN = "urlPattern"
+  val PRIORITY = "priority"
+  val URL_PATTERN = "urlPattern"
   final val LOGO_URL = "logoUrl"
+  val LONGITUDE = "longitude"
+  val LATITUDE = "latitude"
 
   import Entity._
   import Ontology._
@@ -37,7 +39,9 @@ object RepositoryF {
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[RepositoryDescriptionF] and
     (__ \ DATA \ PRIORITY).formatNullable[Int] and
     (__ \ DATA \ URL_PATTERN).formatNullable[String] and
-    (__ \ DATA \ LOGO_URL).formatNullable[String]
+    (__ \ DATA \ LOGO_URL).formatNullable[String] and
+    (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
+    (__ \ DATA \ LATITUDE).formatNullable[BigDecimal]
   )(RepositoryF.apply, unlift(RepositoryF.unapply))
 
   implicit object Converter extends Writable[RepositoryF] {
@@ -58,7 +62,9 @@ case class RepositoryF(
 
   priority: Option[Int] = None,
   urlPattern: Option[String] = None,
-  logoUrl: Option[String] = None
+  logoUrl: Option[String] = None,
+  longitude: Option[BigDecimal] = None,
+  latitude: Option[BigDecimal] = None
 ) extends Model
   with Persistable
   with Described[RepositoryDescriptionF]
@@ -142,7 +148,9 @@ object Repository {
       )),
       LOGO_URL -> optional(nonEmptyText verifying("error.badUrl",
         url => utils.forms.isValidUrl(url)
-      ))
+      )),
+      LONGITUDE -> optional(bigDecimal),
+      LATITUDE -> optional(bigDecimal)
     )(RepositoryF.apply)(RepositoryF.unapply)
   )
 
