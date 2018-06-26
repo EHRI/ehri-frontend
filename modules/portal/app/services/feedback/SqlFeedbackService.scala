@@ -2,6 +2,7 @@ package services.feedback
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
+import java.sql.PreparedStatement
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
@@ -37,10 +38,9 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def modeEnumToStatement = new ToStatement[Option[play.api.Mode]] {
-    def set(s: java.sql.PreparedStatement, index: Int, value: Option[play.api.Mode]): Unit =
+  private implicit def modeEnumToStatement: ToStatement[Option[play.api.Mode]] =
+    (s: java.sql.PreparedStatement, index: Int, value: Option[play.api.Mode]) =>
       s.setObject(index, value.map(_.toString).orNull)
-  }
 
   private implicit def columnToTypeEnum: Column[Feedback.Type.Value] = {
     Column.nonNull[Feedback.Type.Value] { (value, meta) =>
@@ -53,10 +53,9 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def typeEnumToStatement = new ToStatement[Option[Feedback.Type.Value]] {
-    def set(s: java.sql.PreparedStatement, index: Int, value: Option[Feedback.Type.Value]): Unit =
+  private implicit def typeEnumToStatement: ToStatement[Option[Feedback.Type.Value]] =
+    (s: java.sql.PreparedStatement, index: Int, value: Option[Feedback.Type.Value]) =>
       s.setObject(index, value.map(_.toString).orNull)
-  }
 
   private implicit def columnToContext: Column[FeedbackContext] = {
     Column.nonNull[FeedbackContext] { (value, meta) =>
@@ -75,7 +74,9 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def contextToStatement = new ToStatement[Option[FeedbackContext]] {
+  private implicit def contextToStatement: ToStatement[Option[FeedbackContext]] {
+    def set(s: PreparedStatement, index: Int, value: Option[FeedbackContext]): Unit
+  } = new ToStatement[Option[FeedbackContext]] {
     def set(s: java.sql.PreparedStatement, index: Int, value: Option[FeedbackContext]): Unit =
       s.setObject(index, value.map(v => Json.stringify(Json.toJson(v))).orNull)
   }
@@ -86,7 +87,7 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
   override def get(id: String): Future[Feedback] = Future {
     db.withConnection { implicit conn =>
       SQL"SELECT * FROM feedback WHERE id = $id"
-        .as(feedbackParser.singleOpt).headOption.getOrElse(throw new ItemNotFound(id))
+        .as(feedbackParser.singleOpt).getOrElse(throw new ItemNotFound(id))
     }
   }
 

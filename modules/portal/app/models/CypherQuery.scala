@@ -28,10 +28,10 @@ case class CypherQuery(
   updated: Option[ZonedDateTime] = None
 ) {
 
-  def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[Source[ByteString, _]] =
+  def download(implicit cypher: CypherService, ec: ExecutionContext): Future[Source[ByteString, _]] =
     cypher.raw(query).map(_.bodyAsSource)
 
-  def execute(implicit cypher: CypherService, executionContext: ExecutionContext): Future[JsValue] =
+  def execute(implicit cypher: CypherService): Future[JsValue] =
     cypher.cypher(query)
 }
 
@@ -57,7 +57,7 @@ object CypherQuery {
     }
   }
 
-  implicit val form = Form(
+  implicit val form: Form[CypherQuery] = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
       ID -> optional(text),
