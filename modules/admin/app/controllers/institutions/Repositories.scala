@@ -47,7 +47,7 @@ case class Repositories @Inject()(
         render = s => Messages("repository." + s),
         facets = List(
           QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
-          QueryFacet(value = "true", range = Val("1"), name = Some("hasChildItems"))
+          QueryFacet(value = "true", range = Val("1").to(End), name = Some("hasChildItems"))
         )
       ),
       FieldFacetClass(
