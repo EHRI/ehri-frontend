@@ -7,6 +7,9 @@
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
         <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create")</a>
     }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
+        <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.Repository)">@Messages("link.create.to.Repository")</a>
+    }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
         <a href="@controllers.units.routes.DocumentaryUnits.createDescription(item.id)">@Messages("describedEntity.createDescription")</a>
     }
