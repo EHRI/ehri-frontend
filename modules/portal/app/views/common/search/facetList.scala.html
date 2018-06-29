@@ -11,14 +11,14 @@
 
 @facetItem(fc: FacetClass[Facet], f: Facet) = {
     @if(f.applied) {
-        <li class="remove-filter" title="@fc.pretty(f)">
+        <li class="remove-filter">
             <a href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                 <span class="facet-name">@fc.pretty(f)</span>
                 <span class="facet-count">(@f.count)</span>
             </a>
         </li>
     } else {
-        <li class="apply-filter" title="@fc.pretty(f)">
+        <li class="apply-filter">
             <a href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                 <span class="facet-name">@fc.pretty(f)</span>
                 <span class="facet-count">(@f.count)</span>

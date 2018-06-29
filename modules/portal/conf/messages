@@ -458,10 +458,6 @@ facet.type.tooltip=The type of item, e.g. institutions, archival descriptions,\
 facet.lang=Language of Description
 facet.lang.placeholder=Filter Language
 facet.lang.tooltip=The language of the electronic description.
-facet.data=Structure
-facet.data.tooltip=Whether this item is a container for other records.
-facet.data.hasChildItems=Container (multi-level)
-facet.data.placeholder=Filter Structure
 facet.parent=Structure
 facet.parent.tooltip=Whether this item is a container for other records.
 facet.parent.true=Container Item
@@ -522,6 +518,9 @@ facet.promoted=Promoted
 facet.promoted.tooltip=Items that are currently promoted or demoted
 facet.score=Promotion Score
 facet.score.tooltip=The sum total of all promotions and demotions, if any
+facet.data=Data Availability
+facet.data.tooltip=Show only institutions for which EHRI has archival descriptions
+facet.data.yes=Archival Descriptions
 
 
 
@@ -931,8 +930,8 @@ repository.childItems.search={0,choice,0#{0} item |1#1 item|1<{0,number,integer}
 repository.search=Search Repositories
 repository.searchInside=Search items held by {0}
 repository.itemsHeldOnline=Items on EHRI
-repository.hasChildItems=Yes
-repository.noChildItems=No
+repository.itemsHeldOnline.true=Yes
+repository.itemsHeldOnline.false=No
 repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
 repository.list=Repositories
 repository.create=Create Repository
