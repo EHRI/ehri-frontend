@@ -166,6 +166,15 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
 
   val repositorySearchFacets: FacetBuilder = { implicit request =>
     List(
+      QueryFacetClass(
+        key = CHILD_COUNT,
+        name = Messages("facet.data"),
+        param = "data",
+        render = s => Messages("facet.data." + s),
+        facets = List(
+           QueryFacet(value = "yes", range = Val("1") to End)
+        )
+      ),
       FieldFacetClass(
         key = COUNTRY_CODE,
         name = Messages("facet.country"),

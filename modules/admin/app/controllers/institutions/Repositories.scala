@@ -44,10 +44,10 @@ case class Repositories @Inject()(
         key = CHILD_COUNT,
         name = Messages("repository.itemsHeldOnline"),
         param = "data",
-        render = s => Messages("repository." + s),
+        render = s => Messages("repository.itemsHeldOnline." + s),
         facets = List(
-          QueryFacet(value = "false", range = Val("0"), name = Some("noChildItems")),
-          QueryFacet(value = "true", range = Val("1").to(End), name = Some("hasChildItems"))
+          QueryFacet(value = "false", range = Val("0")),
+          QueryFacet(value = "true", range = Val("1").to(End))
         )
       ),
       FieldFacetClass(
