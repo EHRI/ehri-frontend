@@ -213,7 +213,7 @@ trait RestService {
           throw perm
         }
       )
-      case BAD_REQUEST => try {
+      case BAD_REQUEST | CONFLICT => try {
         response.json.validate[ValidationError]
           .orElse(response.json.validate[InputDataError])
           .fold(
