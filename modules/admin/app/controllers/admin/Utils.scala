@@ -216,9 +216,10 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
       } recover {
         case e: InputDataError =>
-          Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-            .withGlobalError(e.details),
-            controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
+          Ok(views.html.admin.tools.regenerateForm(regenerateForm
+              .fill((Some(ct), None, tolerant))
+              .withGlobalError(e.details),
+            controllers.admin.routes.Utils.regenerateIds()))
       }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
       controllers.admin.routes.Utils.regenerateIdsForType(ct, tolerant))))
