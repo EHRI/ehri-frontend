@@ -50,6 +50,20 @@ package object json {
       )
     }
 
+    /** Read the first item from a list that may be none, if
+      * the path is missing.
+      */
+    def readHeadNullable[T](implicit r: Reads[T]): Reads[Option[T]] =
+      readSeqOrEmpty(r).map(_.headOption)
+
+    /** Read a single item or the head of a sequence. */
+    def readHeadOrSingleNullable[T](implicit r: Reads[T]): Reads[Option[T]] =
+      path.read[Seq[T]].map(_.headOption).orElse(path.readNullable[T])
+
+    /** Lazy variant of [[models.json.JsPathExtensions.readHeadNullable]]. */
+    def lazyReadHeadNullable[T](r: => Reads[T]): Reads[Option[T]] =
+      Reads(js => readHeadNullable(r).reads(js))
+
     /** Attempt to read a path, falling back on a default value. */
     def formatWithDefault[T](t: T)(implicit fmt: Format[T]): OFormat[T] =
       OFormat(readWithDefault(t), path.write[T])
@@ -84,20 +98,13 @@ package object json {
     def formatSeqOrSingleNullable[T](implicit fmt: Format[T]): OFormat[Option[Seq[T]]] =
       OFormat(readSeqOrSingleNullable(fmt), writeNullableSeqOrEmpty(fmt))
 
+    def formatHeadOrSingleNullable[T](implicit fmt: Format[T]): OFormat[Option[T]] =
+      OFormat(readHeadOrSingleNullable(fmt), path.writeNullable[T])
+
     def lazyNullableSeqWrites[T](w: => Writes[T]): OWrites[Seq[T]] =
       OWrites((t: Seq[T]) => writeSeqOrEmpty[T](w).writes(t).as[JsObject])
 
     def lazyNullableSeqFormat[T](fmt: => Format[T]): OFormat[Seq[T]] =
       OFormat[Seq[T]](lazyReadSeqOrEmpty(fmt), lazyNullableSeqWrites(fmt))
-
-    /** Read the first item from a list that may be none, if
-     * the path is missing.
-     */
-    def readHeadNullable[T](implicit r: Reads[T]): Reads[Option[T]] =
-      readSeqOrEmpty(r).map(_.headOption)
-
-    /** Lazy variant of [[models.json.JsPathExtensions.readHeadNullable]]. */
-    def lazyReadHeadNullable[T](r: => Reads[T]): Reads[Option[T]] =
-      Reads(js => readHeadNullable(r).reads(js))
   }
 }
