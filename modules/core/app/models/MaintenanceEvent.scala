@@ -41,7 +41,7 @@ object MaintenanceEventF {
   implicit val maintenanceEventFormat: Format[MaintenanceEventF] = (
     (__ \ TYPE).formatIfEquals(EntityType.MaintenanceEvent) and
     (__ \ ID).formatNullable[String] and
-    (__ \ DATA \ DATE).formatNullable[String] and
+    (__ \ DATA \ DATE).formatHeadOrSingleNullable[String] and
     (__ \ DATA \ SOURCE).formatNullable[String] and
     (__ \ DATA \ AGENT_TYPE).formatNullable[String] and
     (__ \ DATA \ EVENT_TYPE).formatNullable[String] and
