@@ -2,11 +2,9 @@
 implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
 @breadcrumbs = {
-	<ol class="breadcrumb">
-		<li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
-		<li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
-		<li><a class="active" href="@controllers.guides.routes.GuidePages.edit(g.path, page.path)">@page.name</a></li>
-	</ol>
+    <li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
+    <li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
+    <li><a class="active" href="@controllers.guides.routes.GuidePages.edit(g.path, page.path)">@page.name</a></li>
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guidePage.delete.item", page.name), guides, Some(g -> pages), breadcrumbs) {

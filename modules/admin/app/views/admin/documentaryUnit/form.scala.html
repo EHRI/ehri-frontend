@@ -17,14 +17,14 @@
     }
 
     @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-        @defining("publicationStatus") { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(PUB_STATUS), PublicationStatus, Messages(PUB_STATUS))
+        @defining(PUB_STATUS) { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus)
         }
-        @defining("copyrightStatus") { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(COPYRIGHT), CopyrightStatus, Messages(COPYRIGHT))
+        @defining(COPYRIGHT) { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus)
         }
-        @defining("scope") { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(SCOPE), Scope, Messages(SCOPE))
+        @defining(SCOPE) { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(""), SCOPE, Scope)
         }
     }
 }

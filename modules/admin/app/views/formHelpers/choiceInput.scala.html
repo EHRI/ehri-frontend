@@ -1,8 +1,10 @@
-@(f: play.api.data.Field, label: String, options: List[(String,String)], blank: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: play.api.data.Field, fieldName: String, options: List[(String,String)], blank: Boolean = false)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
 
-@helper.select(
-  field = f,
-  options = (if(blank) List("" -> "---") else Nil) ::: options,
-  args = '_label -> Messages(if(fieldPrefix.isEmpty) label else fieldPrefix + "." + label), 'class -> "form-control select2"
-)
+@defining(desc(fieldName)) { field =>
+    @helper.select(
+      field = field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
+      options = (if(blank) List("" -> "---") else Nil) ::: options,
+      args = '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"), 'class -> "form-control select2"
+    )
+}
 

@@ -5,11 +5,11 @@
 @defining(GuidePage.PREFIX) { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), GuidePage.NAME)
     @formHelpers.lineInput(f(""), GuidePage.PATH)
-   	@formHelpers.choiceInput(f("position"), GuidePage.POSITION, GuidePage.MenuPosition.values.toList.map(row => {
+   	@formHelpers.choiceInput(f(""), GuidePage.POSITION, GuidePage.MenuPosition.values.toList.map(row => {
    		row.toString -> Messages(fieldPrefix + "." + row)
 	}))
 
-   	@formHelpers.choiceInput(f("layout"), GuidePage.LAYOUT, GuidePage.Layout.values.toList.map(row => {
+   	@formHelpers.choiceInput(f(""), GuidePage.LAYOUT, GuidePage.Layout.values.toList.map(row => {
    		row.toString -> Messages(fieldPrefix + "." + row)
 	}))
     @formHelpers.textInput(f(""), GuidePage.CONTENT)
