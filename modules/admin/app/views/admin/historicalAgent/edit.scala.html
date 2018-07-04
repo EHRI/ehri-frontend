@@ -2,15 +2,12 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
+@import Isaar._
+
 @views.html.admin.layout.rightSidebar(Messages("historicalAgent.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @form(f)
-
-        <fieldset id="admin-area">
-        <legend>@Messages("Administration")</legend>
-        @formHelpers.enumChoiceInput(f("publicationStatus"), PublicationStatus, "Publication Status")
-        </fieldset>
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }

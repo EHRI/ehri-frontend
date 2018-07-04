@@ -36,8 +36,8 @@ object DocumentaryUnitF {
 
   val OTHER_IDENTIFIERS = "otherIdentifiers"
   val PUBLICATION_STATUS = "publicationStatus"
-  final val SCOPE = "scope"
-  final val COPYRIGHT = "copyright"
+  val SCOPE = "scope"
+  val COPYRIGHT = "copyrightStatus"
 
   import Entity._
   import eu.ehri.project.definitions.Ontology._

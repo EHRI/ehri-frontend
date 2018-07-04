@@ -1,10 +1,8 @@
 @(g: Guide, guides: List[Guide], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
 @breadcrumbs = {
-	<ol class="breadcrumb">
-		<li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
-		<li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
-	</ol>
+    <li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
+    <li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guide.delete.item", g.name), guides, breadcrumbs = breadcrumbs) {

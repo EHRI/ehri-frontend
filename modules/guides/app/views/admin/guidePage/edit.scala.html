@@ -1,11 +1,9 @@
 @(g: Guide, page:GuidePage, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @breadcrumbs = {
-	<ol class="breadcrumb">
-		<li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
-		<li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
-		<li><a class="active" href="@controllers.guides.routes.GuidePages.edit(g.path, page.path)">@page.name</a></li>
-	</ol>
+    <li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>
+    <li><a class="active" href="@controllers.guides.routes.Guides.show(g.path)">@g.name</a></li>
+    <li><a class="active" href="@controllers.guides.routes.GuidePages.edit(g.path, page.path)">@page.name</a></li>
 }
 @sidebar = {
 	<a class="btn btn-danger" href="@controllers.guides.routes.GuidePages.deletePost(g.path, page.path)">

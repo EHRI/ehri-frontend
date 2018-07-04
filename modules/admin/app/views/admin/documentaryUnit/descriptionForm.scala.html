@@ -9,7 +9,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank = true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
 
     @descriptionFormSection(IDENTITY_AREA) {
         @defining(desc(IDENTITY_AREA)) { desc =>
@@ -38,7 +38,7 @@
                 </div>
             </div>
             @hiddenInputSet(desc, UNIT_DATES)
-            @enumChoiceInput(desc(LEVEL_OF_DESCRIPTION), LevelOfDescription, LEVEL_OF_DESCRIPTION, blank=true)
+            @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, blank=true)
             @hiddenInputSet(desc, PHYSICAL_LOCATION)
             @textInput(desc, EXTENT_MEDIUM)
         }

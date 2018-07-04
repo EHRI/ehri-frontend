@@ -421,7 +421,7 @@ publicationStatus.publicationStatus=Publication Status
 publicationStatus.Published=Published
 publicationStatus.Draft=Draft
 
-copyrightStatus.copyright=Copyright Status
+copyrightStatus.copyrightStatus=Copyright Status
 copyrightStatus.no=No
 copyrightStatus.yes=Copyrighted
 copyrightStatus.unknown=Unknown
@@ -1090,6 +1090,7 @@ historicalAgent.identityArea=Identity Area
 
 historicalAgent.dates=Dates
 historicalAgent.creation=Creation
+historicalAgent.existence=Existence
 
 historicalAgent.identifier.description=To identify the authority record uniquely within the\
   context in which it will be used. (5.4.1)

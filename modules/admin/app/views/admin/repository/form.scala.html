@@ -20,10 +20,10 @@
     @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
         @formHelpers.lineInput(f(""), URL_PATTERN)
         @formHelpers.lineInput(f(""), LOGO_URL)
-        @defining("publicationStatus") { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(PUBLICATION_STATUS), PublicationStatus, Messages(PUBLICATION_STATUS))
+        @defining(PUBLICATION_STATUS) { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(f(""), PUBLICATION_STATUS, PublicationStatus)
         }
-        @formHelpers.choiceInput(f(PRIORITY), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
+        @formHelpers.choiceInput(f(""), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
     }
     @formHelpers.hiddenInput(f(LONGITUDE))
     @formHelpers.hiddenInput(f(LATITUDE))

@@ -9,10 +9,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc(LANG_CODE), LANG_CODE, views.Helpers.languagePairList, blank=true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank=true)
 
     @descriptionFormSection(IDENTITY_AREA) {
-        @enumChoiceInput(desc(ENTITY_TYPE), HistoricalAgentType, ENTITY_TYPE, blank=true)
+        @enumChoiceInput(desc, ENTITY_TYPE, HistoricalAgentType, blank=true)
         @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
         @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
         @inlineNameSet(desc, OTHER_FORMS_OF_NAME)

@@ -1,9 +1,7 @@
 @(title: String, guides: List[Guide], layouts: Option[(Guide, List[GuidePage])] = None, breadcrumbs:Html = Html(""), sideBar: Html= Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(title, breadcrumbs = breadcrumbs) {
-	<div>
-		@content
-	</div>
+@views.html.admin.layout.rightSidebar(title, breadcrumbs = views.html.common.infobar(breadcrumbs)) {
+    @content
 } {
 	<h4>@Messages("guide.list")</h4>
 	<ul class="nav nav-pills nav-stacked">

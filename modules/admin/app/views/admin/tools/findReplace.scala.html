@@ -16,8 +16,8 @@
             @formHelpers.csrfToken()
 
             @defining("") { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(PARENT_TYPE), defines.ContentTypes, PARENT_TYPE, blank = true)
-                @formHelpers.enumChoiceInput(f(SUB_TYPE), defines.EntityType, SUB_TYPE, blank = true)
+                @formHelpers.enumChoiceInput(f(""), PARENT_TYPE, defines.ContentTypes, blank = true)
+                @formHelpers.enumChoiceInput(f(""), SUB_TYPE, defines.EntityType, blank = true)
             }
             @formHelpers.lineInput(f(""), PROPERTY)
             @formHelpers.textInput(f(""), FIND)

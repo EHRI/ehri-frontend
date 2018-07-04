@@ -2,20 +2,11 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@import Isaar._
-
 @views.html.admin.layout.rightSidebar(Messages("historicalAgent.create")) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @form(f, defaults)
-
-        @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-            @defining("publicationStatus") { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(PUBLICATION_STATUS), PublicationStatus, Messages(PUBLICATION_STATUS))
-            }
-
-            @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
-        }
+        @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("historicalAgent.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
