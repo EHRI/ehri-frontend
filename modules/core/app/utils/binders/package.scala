@@ -7,7 +7,7 @@ import defines.{ContentTypes, EntityType, EventType}
 import play.api.mvc.QueryStringBindable.bindableOption
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import services.data.Constants
-import services.search.{SearchField, SearchParams, SearchSort}
+import services.search.{BoundingBox, SearchField, SearchParams, SearchSort}
 import utils.SystemEventParams.{Aggregation, ShowType}
 
 import scala.annotation.tailrec
@@ -181,9 +181,17 @@ package object binders {
         utils.http.joinQueryString(value.toSeq(ns(key)))
     }
 
+  implicit def bboxQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[BoundingBox] =
+    new QueryStringBindable[BoundingBox] {
+
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, BoundingBox]] =
+        params.get(key).flatMap(_.headOption).map(BoundingBox.fromString)
+
+      override def unbind(key: String, value: BoundingBox): String = stringBinder.unbind(key, value.toString)
+    }
 
   implicit def searchParamsQueryBinder(
-    implicit seqStrBinder: QueryStringBindable[Seq[String]]) = new QueryStringBindable[SearchParams] with NamespaceExtractor {
+    implicit seqStrBinder: QueryStringBindable[Seq[String]]): QueryStringBindable[SearchParams] with NamespaceExtractor = new QueryStringBindable[SearchParams] with NamespaceExtractor {
     import services.search.SearchParams._
 
     private implicit val sortBinder = utils.binders.queryStringBinder(SearchSort)
@@ -219,7 +227,8 @@ package object binders {
         bindOr(namespace + FIELD, params, Seq.empty[SearchField.Value])(tolerantSeqBinder(queryStringBinder(SearchField))),
         bindOr(namespace + FACET, params, Seq.empty[String]),
         bindOr(namespace + EXCLUDE, params, Seq.empty[String]),
-        bindOr(namespace + FILTERS, params, Seq.empty[String])
+        bindOr(namespace + FILTERS, params, Seq.empty[String]),
+        bindOr(namespace + BBOX, params, Option.empty[BoundingBox])
       )))
     }
 
@@ -233,7 +242,8 @@ package object binders {
         p.fields.map(f => ns + FIELD -> f.toString) ++
         p.facets.map(f => ns + FACET -> f.toString) ++
         p.excludes.map(e => ns + EXCLUDE -> e) ++
-        p.filters.map(f => ns + FILTERS -> f)
+        p.filters.map(f => ns + FILTERS -> f) ++
+        p.bbox.map { box => ns + BBOX -> box.toString}.toSeq
     }
   }
 }
