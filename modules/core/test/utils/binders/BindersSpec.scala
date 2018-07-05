@@ -6,8 +6,8 @@ import java.time.{LocalDate, LocalDateTime}
 import defines.EntityType
 import play.api.test.PlaySpecification
 import services.data.Constants.{FROM => TFROM, _}
-import services.search.SearchParams
-import services.search.SearchParams.{ENTITY, QUERY}
+import services.search.{BoundingBox, SearchParams}
+import services.search.SearchParams.{BBOX, ENTITY, QUERY}
 import utils.{PageParams, RangeParams, SystemEventParams}
 
 class BindersSpec extends PlaySpecification {
@@ -80,11 +80,20 @@ class BindersSpec extends PlaySpecification {
         .bind("params", Map(QUERY -> Seq(""))) must_== Some(Right(SearchParams(query = None)))
       searchParamsQueryBinder
         .bind("params_a", Map("a" + QUERY -> Seq("foo"))) must_== Some(Right(SearchParams(query = Some("foo"))))
+      // one invalid entity name
       searchParamsQueryBinder
         .bind("params", Map(ENTITY -> Seq("bad"))) must_== Some(Right(SearchParams.empty))
+      // one invalid entity name
       searchParamsQueryBinder
         .bind("params", Map(ENTITY -> Seq(EntityType.DocumentaryUnit.toString, "bad"))) must_== Some(
         Right(SearchParams(entities = Seq(EntityType.DocumentaryUnit))))
+      // valid bounding box
+      searchParamsQueryBinder
+        .bind("params", Map(BBOX -> Seq("-1,-1,2,2"))) must_== Some(
+        Right(SearchParams(bbox = Some(BoundingBox(-1,-1,2,2)))))
+      // out-of-range bounding box
+      searchParamsQueryBinder
+        .bind("params", Map(BBOX -> Seq("-91,-181,0,0"))) must_== Some(Right(SearchParams.empty))
     }
   }
 }

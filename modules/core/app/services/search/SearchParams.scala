@@ -50,6 +50,38 @@ case object FacetSort extends Enumeration {
   implicit val _fmt: Format[FacetSort.Value] = utils.EnumUtils.enumFormat(FacetSort)
 }
 
+case class BoundingBox(
+  latMin: BigDecimal,
+  lonMin: BigDecimal,
+  latMax: BigDecimal,
+  lonMax: BigDecimal
+) {
+  // NB: should we ensure lat/lon min is always less then max?
+  // For now just check the range...
+  def isValid: Boolean = latMin >= -90 && latMin <= 90 &&
+                          lonMin >= -180 && lonMin <= 180 &&
+                          latMax >= -90 && latMax <= 90 &&
+                          lonMax >= -180 && lonMax <= 180
+  override def toString: String = s"$latMin,$lonMin,$latMax,$lonMax"
+}
+
+object BoundingBox {
+  def fromString(s: String): Either[String, BoundingBox] = {
+    val err = s"Invalid bounding box format '$s', should be lat-min,lon-min,lat-max,lon-max"
+    try {
+      s.split(",").toList.map(BigDecimal.exact) match {
+        case l1 :: l2 :: l3:: l4 :: Nil =>
+          val box = BoundingBox(l1, l2, l3, l4)
+          if (box.isValid) Right(box) else Left(err)
+        case _ => Left(err)
+      }
+    } catch {
+      case e: Throwable => Left(err)
+    }
+  }
+
+  implicit val writes: Writes[BoundingBox] = Json.writes[BoundingBox]
+}
 
 /**
   * Class encapsulating the parameters of a Solr search.
@@ -61,7 +93,8 @@ case class SearchParams(
   fields: Seq[SearchField.Value] = Nil,
   facets: Seq[String] = Nil,
   excludes: Seq[String] = Nil,
-  filters: Seq[String] = Nil
+  filters: Seq[String] = Nil,
+  bbox: Option[BoundingBox] = None
 ) {
   /**
     * Is there an active constraint on these params?
@@ -77,6 +110,7 @@ object SearchParams {
   val ENTITY = "st"
   val EXCLUDE = "ex"
   val FILTERS = "f"
+  val BBOX = "bbox"
 
   def empty: SearchParams = SearchParams()
 

@@ -87,6 +87,12 @@ private[solr] object SolrQueryBuilder {
     } else Seq.empty
   }
 
+  def bboxParams(bbox: Option[BoundingBox]): Seq[(String, String)] = {
+    bbox.map { b =>
+      Seq("fq" -> s"location:[${b.latMin},${b.lonMin} TO ${b.latMax},${b.lonMax}]")
+    }.toSeq.flatten
+  }
+
   def accessFilterParams(userOpt: Option[UserProfile]): Seq[(String, String)] = {
     // Filter docs based on access. If the user is empty, only allow
     // through those which have accessibleTo:ALLUSERS.
@@ -255,6 +261,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     Seq(
       basicParams(queryString, query.paging, enableDebug),
       entityFilterParams(query.params.entities),
+      bboxParams(query.params.bbox),
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
       groupParams,
@@ -291,6 +298,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       facetParams(query.facetClasses, jsonFacets),
       facetFilterParams(query.facetClasses, query.appliedFacets),
       entityFilterParams(query.params.entities),
+      bboxParams(query.params.bbox),
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
       excludeFilterParams(query.params.excludes),
