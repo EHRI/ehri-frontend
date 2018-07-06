@@ -288,7 +288,8 @@ $(document).ready(function () {
         $input = $accesslist.find(".form-control.quicksearch.tt-input"),
         $name = $input.val();
 
-    appends($accesslist, $name, null, null, null)
+    appends($accesslist, $name, null, null, null);
+    $(this).attr("disabled", true);
   });
 
   // Save pending items
@@ -382,18 +383,31 @@ $(document).ready(function () {
           }
         }
     ).keypress(function (e) {
-          if (e.which == 13) {
-            e.preventDefault();
-          }
-        }).on("typeahead:selected", function (event, selection) {
-          addAccessPointFromExisting(
-              $(event.target),
-              selection.name,
-              selection.id,
-              selection.did,
-              selection.type
-          );
-        });
+      if (e.which === 13) {
+        e.preventDefault();
+      }
+    }).on("typeahead:selected", function (event, selection) {
+      addAccessPointFromExisting(
+          $(event.target),
+          selection.name,
+          selection.id,
+          selection.did,
+          selection.type
+      );
+    }).keyup(function() {
+        var noText = $(this).val().trim() === "",
+            noElems = $(this).parents(".new-access-point")
+                .find(".append-in")
+                .find(".element:visible").length === 0;
+
+        $(this)
+            .parents(".new-access-point")
+            .find(".element-save")
+            .attr("disabled", noText && noElems)
+            .end()
+            .find(".add-access-text")
+            .attr("disabled", noText);
+    });
   });
 
   $("ul.type-filters, ul.holder-filters").on("click", function (e) {
@@ -414,13 +428,13 @@ $(document).ready(function () {
         $val = $input.val(),
         $next = $actual;
 
-    if ($element.find(".glyphicon-minus").length == 1 && $actual - 1 >= 1) {
+    if ($element.find(".glyphicon-minus").length === 1 && $actual - 1 >= 1) {
       $next = $actual - 1;
-    } else if ($element.find(".glyphicon-plus").length == 1 && $actual + 1 <= $max) {
+    } else if ($element.find(".glyphicon-plus").length === 1 && $actual + 1 <= $max) {
       $next = $actual + 1;
     }
 
-    if ($next != $actual) {
+    if ($next !== $actual) {
       $page.find(".page").text($next);
       $input.typeahead("val", "");
       $input.typeahead("val", $val);
