@@ -22,7 +22,7 @@ import play.api.mvc._
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
 import services.data._
-import utils.{Page, PageParams}
+import utils.{FieldFilter, Page, PageParams}
 import services.search.SearchConstants._
 import services.search._
 import views.Helpers
@@ -74,7 +74,7 @@ case class ApiV1 @Inject()(
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
 
-  // i.e. Everything
+  // Available facets, currently just language
   private val apiSearchFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -124,7 +124,7 @@ case class ApiV1 @Inject()(
   }
 
   private object LoggingAuthAction extends CoreActionBuilder[Request, AnyContent] {
-    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
       if (!authenticated) block(request)
       else checkAuthentication(request).map { token =>
         logger.logger.trace(s"API access for $token: ${request.uri}")
@@ -136,7 +136,7 @@ case class ApiV1 @Inject()(
   }
 
   private object RateLimit extends CoreActionBuilder[Request, AnyContent] {
-    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
       if (checkRateLimit(hitsPerSecond, rateLimitTimeoutDuration)(request)) block(request)
       else immediate(error(TOO_MANY_REQUESTS)(request))
     }
@@ -154,7 +154,27 @@ case class ApiV1 @Inject()(
 
   private def JsonApiAction = RateLimit andThen JsonApiCheckAcceptFilter andThen LoggingAuthAction
 
-  implicit def anyModelWrites(implicit request: RequestHeader): Writes[AnyModel] = Writes[AnyModel] {
+  /**
+    * Filter attributes object based on sparse fieldsets per type.
+    */
+  private def filterAttributes(js: JsValue, fields: Seq[FieldFilter]): JsValue = {
+    def filterObject(js: JsObject, keys: Seq[String]): JsObject =
+    JsObject(js.fields.filter { case (k, v) => keys.contains(k) })
+
+    def filterType(js: JsObject, filter: FieldFilter): JsObject =
+    (for {
+      tp <- js.value.get("type") if tp == JsString(filter.et.toString)
+      attrs <- js.value.get("attributes").flatMap(_.asOpt[JsObject])
+    } yield JsObject(js.value.updated("attributes", filterObject(attrs, filter.fields)).toSeq))
+      .getOrElse(js)
+
+    fields.foldLeft(js.as[JsObject])(filterType)
+  }
+
+  /**
+    * Convert models into response objects
+    */
+  private def modelWriter(fields: Seq[FieldFilter])(implicit request: RequestHeader): Writes[AnyModel] = Writes[AnyModel] {
     case doc: DocumentaryUnit => Json.toJson(
       JsonApiResponseData(
         id = doc.id,
@@ -267,15 +287,11 @@ case class ApiV1 @Inject()(
       )
     )
     case _ => throw new ItemNotFound()
-  }
+  }.transform((js: JsValue) => filterAttributes(js, fields))
 
-  private def includedData(any: AnyModel)(implicit requestHeader: RequestHeader): Option[Seq[AnyModel]] = any match {
-    case doc: DocumentaryUnit =>
-      val inc = Seq[Option[_ <: AnyModel]](doc.holder, doc.parent).collect { case Some(m) => m }
-      if (inc.isEmpty) None else Some(inc)
-    case _ => None
-  }
-
+  /**
+    * Type-specific search constraint for hierarchical items.
+    */
   private def hierarchySearchFilters(item: AnyModel): Future[Map[String, Any]] = item match {
     case repo: Repository => immediate(Map(SearchConstants.HOLDER_ID -> item.id))
     case country: Country => immediate(Map(SearchConstants.COUNTRY_CODE -> item.id))
@@ -283,18 +299,27 @@ case class ApiV1 @Inject()(
     case _ => immediate(Map(SearchConstants.PARENT_ID -> item.id))
   }
 
-  private def pageData[T <: AnyModel](page: Page[T],
-    urlFunc: Int => String,
-    included: Option[Seq[AnyModel]] = None)(implicit w: Writes[AnyModel]): JsonApiListResponse =
+  /**
+    * Additional data included per type.
+    */
+  private def includedData(any: AnyModel)(implicit requestHeader: RequestHeader): Option[Seq[AnyModel]] = any match {
+    case doc: DocumentaryUnit =>
+      val inc = Seq[Option[_ <: AnyModel]](doc.holder, doc.parent).collect { case Some(m) => m }
+      if (inc.isEmpty) None else Some(inc)
+    case _ => None
+  }
+
+  /**
+    * Paginated response data.
+    */
+  private def pageData[T <: AnyModel](page: Page[T], urlFunc: Int => String, included: Option[Seq[AnyModel]] = None)(implicit w: Writes[AnyModel]): JsonApiListResponse =
     JsonApiListResponse(
       data = page.items,
       links = PaginationLinks(
         first = urlFunc(1),
         last = urlFunc(page.numPages),
-        prev = if (page.page == 1) Option.empty[String]
-        else Some(urlFunc(page.page - 1)),
-        next = if (!page.hasMore) Option.empty[String]
-        else Some(urlFunc(page.page + 1))
+        prev = if (page.page == 1) Option.empty[String] else Some(urlFunc(page.page - 1)),
+        next = if (!page.hasMore) Option.empty[String] else Some(urlFunc(page.page + 1))
       ),
       included = included,
       meta = Some(Json.obj(
@@ -303,37 +328,43 @@ case class ApiV1 @Inject()(
       ))
     )
 
-  def search(`type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams): Action[AnyContent] =
+
+  def search(`type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
+      implicit val writer: Writes[AnyModel] = modelWriter(fields)
       find[AnyModel](
         params = params,
         paging = paging,
         entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
         facetBuilder = apiSearchFacets
       ).map { r =>
-        Ok(Json.toJson(pageData(r.mapItems(_._1).page, p => apiRoutes.search(`type`, params, paging.copy(page = p)).absoluteURL())))
-          .as(JSONAPI_MIMETYPE)
-      }
-    }
-
-  def fetch(id: String): Action[AnyContent] = JsonApiAction.async { implicit request =>
-    userDataApi.getAny[AnyModel](id).map { item =>
-      Ok(
-        Json.toJson(
-          JsonApiResponse(
-            data = item,
-            included = includedData(item)
+        Ok(Json.toJson(
+          pageData(
+            r.mapItems(_._1).page,
+            p => apiRoutes.search(`type`, params, paging.copy(page = p), fields).absoluteURL()
           )
-        )
-      ).as(JSONAPI_MIMETYPE)
-    } recover {
-      case e: ItemNotFound => error(NOT_FOUND, e.message)
-      case e: PermissionDenied => error(FORBIDDEN)
+        )).as(JSONAPI_MIMETYPE)
+      } recoverWith errorHandler
     }
-  }
 
-  def searchIn(id: String, `type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams): Action[AnyContent] =
+  def fetch(id: String, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
+      implicit val writer: Writes[AnyModel] = modelWriter(fields)
+      userDataApi.getAny[AnyModel](id).map { item =>
+        Ok(
+          Json.toJson(
+            JsonApiResponse(
+              data = item,
+              included = includedData(item)
+            )
+          )
+        ).as(JSONAPI_MIMETYPE)
+      } recoverWith errorHandler
+    }
+
+  def searchIn(id: String, `type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
+    JsonApiAction.async { implicit request =>
+      implicit val writer: Writes[AnyModel] = modelWriter(fields)
       userDataApi.getAny[AnyModel](id).flatMap { item =>
         for {
           filters <- hierarchySearchFilters(item)
@@ -345,12 +376,9 @@ case class ApiV1 @Inject()(
             facetBuilder = apiSearchFacets
           )
         } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p)).absoluteURL(), Some(Seq(item))))
+          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p), fields).absoluteURL(), Some(Seq(item))))
         ).as(JSONAPI_MIMETYPE)
-      } recover {
-        case e: ItemNotFound => error(NOT_FOUND, e.message)
-        case e: PermissionDenied => error(FORBIDDEN)
-      }
+      } recoverWith errorHandler
     }
 
   override def authenticationFailed(request: RequestHeader): Future[Result] =
@@ -379,4 +407,10 @@ case class ApiV1 @Inject()(
 
   override def logoutSucceeded(request: RequestHeader): Future[Result] =
     immediate(Redirect(controllers.api.routes.ApiHome.index()))
+
+  private def errorHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
+    case e: ItemNotFound => immediate(error(NOT_FOUND, e.message))
+    case e: PermissionDenied => immediate(error(FORBIDDEN))
+    case _ => immediate(error(INTERNAL_SERVER_ERROR))
+  }
 }

@@ -7,7 +7,6 @@ import services.data.Constants._
 import defines.{EntityType, EventType}
 import utils.SystemEventParams.{Aggregation, ShowType}
 
-
 object Ranged {
   def streamHeader: (String, String) = STREAM_HEADER_NAME -> true.toString
 }
@@ -114,3 +113,18 @@ object SystemEventParams {
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
 }
+
+// Sparse field filters, used by the search API
+case class FieldFilter(
+  et: EntityType.Value,
+  fields: Seq[String] = Seq.empty
+) {
+  def toSeq(ns: String = ""): Seq[(String, String)] =
+    Seq(s"$ns${FieldFilter.FIELDS}[$et]" -> fields.mkString(","))
+}
+
+object FieldFilter {
+  val FIELDS = "fields"
+}
+
+

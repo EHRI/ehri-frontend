@@ -6,6 +6,7 @@ api.error.405=Method Not Allowed
 api.error.406=Not Acceptable
 api.error.415=Unsupported Media Type
 api.error.429=Too Many Requests
+api.error.500=Internal Server Error
 
 api.header=EHRI Data APIs
 

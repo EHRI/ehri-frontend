@@ -1,9 +1,9 @@
 package models.api.v1
 
 import models._
-import models.base.{Accessible, Holder, AnyModel}
+import models.base.{Accessible, AnyModel, Holder}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsValue, Json, Writes}
+import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
 object JsonApiV1 {
@@ -38,7 +38,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitDescriptionAttrs {
-    implicit val writes = Json.writes[DocumentaryUnitDescriptionAttrs]
+    implicit val writes: Writes[DocumentaryUnitDescriptionAttrs] = Json.writes[DocumentaryUnitDescriptionAttrs]
 
     def apply(d: DocumentaryUnitDescriptionF)(implicit messages: Messages): DocumentaryUnitDescriptionAttrs =
       new DocumentaryUnitDescriptionAttrs(
@@ -69,7 +69,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitAttrs {
-    implicit val writes = Json.writes[DocumentaryUnitAttrs]
+    implicit val writes: Writes[DocumentaryUnitAttrs] = Json.writes[DocumentaryUnitAttrs]
 
     def apply(d: DocumentaryUnit)(implicit messages: Messages): DocumentaryUnitAttrs =
       new DocumentaryUnitAttrs(
@@ -95,7 +95,7 @@ object JsonApiV1 {
   )
 
   object AddressAttrs {
-    implicit val writes = Json.writes[AddressAttrs]
+    implicit val writes: Writes[AddressAttrs] = Json.writes[AddressAttrs]
 
     def apply(a: AddressF)(implicit messages: Messages): AddressAttrs = new AddressAttrs(
       a.name,
@@ -136,7 +136,7 @@ object JsonApiV1 {
   )
 
   object RepositoryAttrs {
-    implicit val writes = Json.writes[RepositoryAttrs]
+    implicit val writes: Writes[RepositoryAttrs] = Json.writes[RepositoryAttrs]
 
     def apply(r: Repository)(implicit messages: Messages): RepositoryAttrs = {
       r.model.primaryDescription.map { d =>
@@ -175,7 +175,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitLinks {
-    implicit val writes = Json.writes[DocumentaryUnitLinks]
+    implicit val writes: Writes[DocumentaryUnitLinks] = Json.writes[DocumentaryUnitLinks]
   }
 
   case class DocumentaryUnitRelations(
@@ -187,7 +187,7 @@ object JsonApiV1 {
     // Not using default writes here because missing (Optional)
     // relations should be expressed using null
     // http://jsonapi.org/format/#document-resource-object-related-resource-links
-    implicit val writes = Writes[DocumentaryUnitRelations] { r =>
+    implicit val writes: Writes[DocumentaryUnitRelations] = Writes[DocumentaryUnitRelations] { r =>
       Json.obj(
         "holder" -> r.holder,
         "parent" -> r.parent
@@ -209,7 +209,7 @@ object JsonApiV1 {
   )
 
   object HistoricalAgentAttrs {
-    implicit val writes = Json.writes[HistoricalAgentAttrs]
+    implicit val writes: Writes[HistoricalAgentAttrs] = Json.writes[HistoricalAgentAttrs]
 
     def apply(a: HistoricalAgent)(implicit messages: Messages): HistoricalAgentAttrs = {
       a.model.primaryDescription.map { d =>
@@ -238,7 +238,7 @@ object JsonApiV1 {
   )
 
   object RepositoryLinks {
-    implicit val writes = Json.writes[RepositoryLinks]
+    implicit val writes: Writes[RepositoryLinks] = Json.writes[RepositoryLinks]
   }
 
   case class RepositoryRelations(
@@ -246,7 +246,7 @@ object JsonApiV1 {
   )
 
   object RepositoryRelations {
-    implicit val writes = Json.writes[RepositoryRelations]
+    implicit val writes: Writes[RepositoryRelations] = Json.writes[RepositoryRelations]
   }
 
   case class CountryAttrs(
@@ -260,7 +260,7 @@ object JsonApiV1 {
   )
 
   object CountryAttrs {
-    implicit val writes = Json.writes[CountryAttrs]
+    implicit val writes: Writes[CountryAttrs] = Json.writes[CountryAttrs]
 
     def apply(c: Country)(implicit requestHeader: RequestHeader, messages: Messages): CountryAttrs =
       new CountryAttrs(
@@ -280,7 +280,7 @@ object JsonApiV1 {
   )
 
   object CountryLinks {
-    implicit val writes = Json.writes[CountryLinks]
+    implicit val writes: Writes[CountryLinks] = Json.writes[CountryLinks]
   }
 
   case class JsonApiResponse(
@@ -303,7 +303,8 @@ object JsonApiV1 {
   )
 
   object JsonApiResponseData {
-    implicit val writes = Json.writes[JsonApiResponseData]
+    implicit def writes(implicit requestHeader: RequestHeader): Writes[JsonApiResponseData] =
+      Json.writes[JsonApiResponseData]
   }
 
   case class ResourceIdentifier(
@@ -312,7 +313,7 @@ object JsonApiV1 {
   )
 
   object ResourceIdentifier {
-    implicit val writes = Json.writes[ResourceIdentifier]
+    implicit val writes: Writes[ResourceIdentifier] = Json.writes[ResourceIdentifier]
 
     def apply(m: AnyModel) = new ResourceIdentifier(m.id, m.isA.toString)
   }
@@ -325,7 +326,7 @@ object JsonApiV1 {
   )
 
   object PaginationLinks {
-    implicit val writes = Json.writes[PaginationLinks]
+    implicit val writes: Writes[PaginationLinks] = Json.writes[PaginationLinks]
   }
 
   case class JsonApiError(
@@ -338,7 +339,7 @@ object JsonApiV1 {
   )
 
   object JsonApiError {
-    implicit val writes = Json.writes[JsonApiError]
+    implicit val writes: Writes[JsonApiError] = Json.writes[JsonApiError]
   }
 
   case class GeoPoint(
