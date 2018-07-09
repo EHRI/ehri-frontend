@@ -1,8 +1,8 @@
 package controllers.api.v1
 
 import java.util.concurrent.TimeUnit
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import auth.handler.AuthHandler
 import services.cypher.Cypher
 import controllers.AppComponents
@@ -21,7 +21,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
-import services.data.{AnonymousUser, DataApi, ItemNotFound, PermissionDenied}
+import services.data._
 import utils.{Page, PageParams}
 import services.search.SearchConstants._
 import services.search._
@@ -67,7 +67,7 @@ case class ApiV1 @Inject()(
 
   private val logger = Logger(ApiV1.getClass)
 
-  private implicit val apiUser = AnonymousUser
+  private implicit val apiUser: ApiUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None
 
   private val hitsPerSecond = 1000

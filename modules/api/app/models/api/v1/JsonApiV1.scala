@@ -131,7 +131,8 @@ object JsonApiV1 {
     accessibility: Option[String] = None,
     researchServices: Option[String] = None,
     reproductionServices: Option[String] = None,
-    publicAreas: Option[String] = None
+    publicAreas: Option[String] = None,
+    geo: Option[GeoPoint] = None
   )
 
   object RepositoryAttrs {
@@ -156,7 +157,9 @@ object JsonApiV1 {
           accessibility = d.access.accessibility,
           researchServices = d.services.researchServices,
           reproductionServices = d.services.reproductionServices,
-          publicAreas = d.services.publicAreas
+          publicAreas = d.services.publicAreas,
+          geo = for(lat <- r.model.latitude; lon <- r.model.longitude)
+            yield GeoPoint(lat, lon)
         )
       }.getOrElse {
         RepositoryAttrs()
@@ -336,6 +339,20 @@ object JsonApiV1 {
 
   object JsonApiError {
     implicit val writes = Json.writes[JsonApiError]
+  }
+
+  case class GeoPoint(
+    latitude: BigDecimal,
+    longitude: BigDecimal
+  )
+
+  object GeoPoint {
+    implicit val writes: Writes[GeoPoint] = Writes { p =>
+      Json.obj(
+        "type" -> "Point",
+        "coordinates" -> Json.arr(p.latitude, p.longitude)
+      )
+    }
   }
 
   case class JsonApiListResponse(
