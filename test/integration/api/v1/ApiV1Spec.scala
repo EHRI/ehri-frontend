@@ -1,5 +1,6 @@
 package integration.api.v1
 
+import defines.EntityType
 import helpers.IntegrationTestRunner
 import models.api.v1.JsonApiV1
 import org.everit.json.schema.ValidationException
@@ -8,13 +9,14 @@ import org.json.{JSONObject, JSONTokener}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json._
 import play.api.test.FakeRequest
+import utils.FieldFilter
 
 
 class ApiV1Spec extends IntegrationTestRunner {
 
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
-  private def validateJson(json: JsValue) = {
+  private def validateJson(json: JsValue): Unit = {
     val is = getClass.getResourceAsStream("/jsonapi-schema.json")
     try {
       val rawSchema = new JSONObject(new JSONTokener(is))
@@ -80,12 +82,12 @@ class ApiV1Spec extends IntegrationTestRunner {
       val api = FakeRequest(apiRoutes.search())
         .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
         .call()
-      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, api) must_== Some(testOrigin)
+      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, api) must beSome(testOrigin)
 
       val nonApi = FakeRequest(GET, "/")
         .withHeaders(HeaderNames.HOST -> testHost, HeaderNames.ORIGIN -> testOrigin)
         .call()
-      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, nonApi) must_== None
+      header(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, nonApi) must beNone
     }
 
     "contain the right metadata" in new ITestApp {
@@ -93,6 +95,18 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(fetch) must_== OK
       validateJson(contentAsJson(fetch))
       contentAsJson(fetch) \ "data" \ "meta" \ "subitems" must_== JsDefined(JsNumber(3))
+    }
+
+    "contain the right attributes with sparse fieldsets" in new ITestApp {
+      val fetch = FakeRequest(apiRoutes.fetch("r1",
+        fields = Seq(FieldFilter(EntityType.Repository, Seq("name"))))).call()
+      status(fetch) must_== OK
+      validateJson(contentAsJson(fetch))
+      val attrs = (contentAsJson(fetch) \ "data" \ "attributes")
+        .asOpt[JsObject].map(_.value) must beSome.which { obj =>
+        obj must haveKey("name")
+        obj must not(haveKey("otherFormsOfName"))
+      }
     }
 
     "allow searching all items" in new ITestApp {

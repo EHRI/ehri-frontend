@@ -181,6 +181,32 @@ package object binders {
         utils.http.joinQueryString(value.toSeq(ns(key)))
     }
 
+  implicit def fieldFilterQueryBinder: QueryStringBindable[Seq[FieldFilter]] with NamespaceExtractor =
+    new QueryStringBindable[Seq[FieldFilter]] with NamespaceExtractor {
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Seq[FieldFilter]]] = {
+        def parse(key: String, value: Seq[String]): Option[Either[String, FieldFilter]] = {
+          if (key.startsWith(s"${FieldFilter.FIELDS}[") && key.endsWith("]")) {
+            val et = key.substring(7, key.length - 1)
+            val fields = value.flatMap(_.split(",")).filter(_.trim.nonEmpty)
+            try Some(Right(FieldFilter(EntityType.withName(et), fields))) catch {
+              case e: Throwable => Some(Left(e.getMessage))
+            }
+          } else None
+        }
+
+        val filters = params.foldLeft(Seq.empty[FieldFilter]) { case (s, (k, v)) =>
+          parse(k, v) match {
+            case Some(Right(f)) => f +: s
+            case _ => s
+          }
+        }
+        Some(Right(filters))
+      }
+
+      override def unbind(key: String, value: Seq[FieldFilter]): String =
+        utils.http.joinQueryString(value.flatMap(_.toSeq(ns(key))))
+    }
+
   implicit def bboxQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[BoundingBox] =
     new QueryStringBindable[BoundingBox] {
 

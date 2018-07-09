@@ -33,7 +33,7 @@ with SessionPreferences[SessionPrefs] {
 
   // NB: Handling this *also* overrides onNotFound
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
 
     statusCode match {
       case play.api.http.Status.NOT_FOUND => onNotFound(request, message)
@@ -45,12 +45,12 @@ with SessionPreferences[SessionPrefs] {
   }
 
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
     immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
   }
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
 
     exception match {
       case e: PermissionDenied => immediate(Unauthorized(
@@ -68,15 +68,14 @@ with SessionPreferences[SessionPrefs] {
   }
 
   override def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = {
-    implicit val r = request
-    immediate(InternalServerError(
-      renderError("errors.genericProblem", fatalError())))
+    implicit val r: RequestHeader = request
+    immediate(
+      InternalServerError(renderError("errors.genericProblem", fatalError())))
   }
 
   override def onForbidden(request: RequestHeader, message: String): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
     immediate(
-      Forbidden(renderError("errors.permissionDenied", permissionDenied()))
-    )
+      Forbidden(renderError("errors.permissionDenied", permissionDenied())))
   }
 }
