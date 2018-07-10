@@ -7,13 +7,11 @@
     @options.map { case (sortKey, i18nKey) =>
         @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
             @if(current.contains(sortKey)) {
-                <a class="current-search-sort btn btn-xs btn-default btn-active" title="@title"
-                href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                <a rel="nofollow" class="current-search-sort btn btn-xs btn-default btn-active" title="@title" href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                 @name
                 </a>
             } else {
-                <a class="btn btn-xs btn-default" style="" title="@title"
-                href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                <a rel="nofollow" class="btn btn-xs btn-default" title="@title" href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
                 @name
                 </a>
             }
