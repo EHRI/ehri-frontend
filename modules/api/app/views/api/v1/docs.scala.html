@@ -242,8 +242,18 @@
         <p>For example, to return only the <code>name</code> attribute for the <code>Repository</code> type add
         a query parameter of the form <code>fields[Repository]=name</code> to the request URL. Multiple attributes
         can be specified as a comma-separated list.</p>
-        <p><strong>Note:</strong> although omitted for clarity above the square brackets must be percent-encoded, e.g.
-            <code>fields%255BRepository%255D=name</code>.</p>
+        <p><strong>Note:</strong> although omitted for clarity above the square brackets must be percent-encoded, e.g:</p>
+
+        <p><code>fields%255BRepository%255D=name</code>.</p>
+
+        <h3>Geospatial Bounding Box</h3>
+
+        <p>For datatypes that have associated geospatial information, such as repositories, it is possible
+        to specify a bounding box to constrain the search results. The bounding box is a query parameter that
+        takes the form <code>bbox=MIN-LAT,MIN-LON,MAX-LAT,MAX-LON</code>. For example, to search repositories
+        just within <i>London</i>, one would use:</p>
+
+        <p><code>bbox=51.28,-0.489,51.686,0.236</code></p>
     </section>
 
     <section id="api-usage-python">
