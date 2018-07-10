@@ -232,6 +232,20 @@
         for an idea of what to expect.</p>
     </section>
 
+    <section id="api-parameters">
+        <h2>Additional Parameters</h2>
+
+        <h3>Attribute Filtering</h3>
+
+        <p>Some datatypes can include a lot of data in their attributes. If you only care about particular
+        attributes you can specify them using a query string parameter of the form <code>fields[TYPE]=field1,field2</code>.</p>
+        <p>For example, to return only the <code>name</code> attribute for the <code>Repository</code> type add
+        a query parameter of the form <code>fields[Repository]=name</code> to the request URL. Multiple attributes
+        can be specified as a comma-separated list.</p>
+        <p><strong>Note:</strong> although omitted for clarity above the square brackets must be percent-encoded, e.g.
+            <code>fields%255BRepository%255D=name</code>.</p>
+    </section>
+
     <section id="api-usage-python">
         <h2>Example usage with Python</h2>
 
@@ -326,6 +340,9 @@
     </li>
     <li role="presentation">
         <a href="#api-responses">Structure of responses</a>
+    </li>
+    <li role="presentation">
+        <a href="#api-parameters">Additional Parameters</a>
     </li>
     <li role="presentation">
         <a href="#api-usage-python">Example usage with Python</a>
