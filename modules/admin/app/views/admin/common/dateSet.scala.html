@@ -7,7 +7,7 @@
         </h4>
         <div class="item-text-field-value">
             <table class="date-periods">
-                @item.dates.map { dp =>
+                @item.dates.sortBy(_.startDate).map { dp =>
                 <tr class="date-period" id="@dp.id">
                     <td>
                         @defining(dp.`type`) { typeOpt =>
@@ -16,7 +16,7 @@
                             }
                         }
                     </td>
-                    <td>@dp.years.trim</td>
+                    <td>@dp.toString.trim</td>
                 </tr>
                 }
             </table>
