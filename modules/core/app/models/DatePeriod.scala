@@ -1,6 +1,6 @@
 package models
 
-import java.time.format.DateTimeParseException
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.TemporalAccessor
 import java.time.{LocalDate, Year, YearMonth}
 
@@ -60,13 +60,32 @@ object DatePeriodF {
 
 case class DatePeriodF(
   isA: EntityType.Value = EntityType.DatePeriod,
-  id: Option[String],
+  id: Option[String] = None,
   `type`: Option[DatePeriodF.DatePeriodType.Type] = None,
   startDate: Option[String] = None,
   endDate: Option[String] = None,
   precision: Option[DatePeriodF.DatePeriodPrecision.Type] = None,
   description: Option[String] = None
 ) extends Model {
+  import scala.util.control.Exception._
+
+  private def formatDateRaw(s: String): String = {
+    val  withDefault  = failAsValue(classOf[DateTimeParseException])(s)
+    if (s.matches("^\\d{4}$"))
+      withDefault(Year.parse(s).toString)
+    else if (s.matches("^\\d{4}-\\d{2}$"))
+      withDefault(YearMonth.parse(s).format(DateTimeFormatter.ofPattern("MMM yyyy")))
+    else if (s.matches("^\\d{4}-\\d{2}-\\d{2}$"))
+      withDefault(LocalDate.parse(s).format(DateTimeFormatter.ofPattern("d MMM yyyy")))
+    else s
+  }
+
+  private def formatDate(s: String): String = precision match {
+    case Some(DatePeriodF.DatePeriodPrecision.Year) => formatDateRaw(s.substring(0, 4))
+    case Some(DatePeriodF.DatePeriodPrecision.Month) => formatDateRaw(s.substring(0, 7))
+    case _ => formatDateRaw(s)
+  }
+
   /**
     * Get a string representing the year-range of this period,
     * i.e. 1939-1945.
@@ -74,6 +93,19 @@ case class DatePeriodF(
   lazy val years: String = Seq(startDate, endDate).collect {
     case Some(d) if d.matches("^\\d{4}.*") => d.substring(0, 4)
   }.distinct.mkString("-")
+
+  override def toString: String = (startDate, endDate) match {
+    // Start and end are the same, show start date
+    case (Some(s), Some(e)) if s == e => formatDate(s)
+      // Start and end are different, show a range
+    case (Some(s), Some(e)) => s"${formatDate(s)} - ${formatDate(e)}"
+    // Only start date present...
+    case (Some(s), None) => formatDate(s)
+      // Only end date?...
+    case (None, Some(e)) => formatDate(e)
+
+    case _ => ""
+  }
 }
 
 object DatePeriod {
@@ -82,7 +114,7 @@ object DatePeriod {
   import Entity.{TYPE => _, _}
   import EnumUtils.enumMapping
 
-  val formats: List[String => TemporalAccessor] = List(
+  val parsers: List[String => TemporalAccessor] = List(
     LocalDate.parse, YearMonth.parse, Year.parse
   )
 
@@ -96,7 +128,7 @@ object DatePeriod {
     case Nil => false
   }
 
-  val dateValidator: (String) => Boolean = date => tryFormats(date, formats)
+  val dateValidator: (String) => Boolean = date => tryFormats(date, parsers)
 
   import play.api.data.Form
   import play.api.data.Forms._

@@ -18,7 +18,7 @@
     }
     @if(desc.dates.nonEmpty) {
         <dt>@Messages("documentaryUnit.dates")</dt>
-        <dd>@desc.dates.map(_.years).mkString(", ")</dd>
+        <dd>@desc.dates.sortBy(_.startDate).map(_.toString).distinct.mkString(", ")</dd>
     }
     @desc.identity.levelOfDescription.map { e =>
         <dt>@Messages("documentaryUnit.levelOfDescription")</dt>
