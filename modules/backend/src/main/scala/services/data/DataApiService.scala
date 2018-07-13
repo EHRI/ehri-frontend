@@ -33,6 +33,8 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   val ws: WSClient
 ) extends DataApiHandle with RestService with DataApiContext {
 
+  private val cacheTime: Duration = config.get[Duration]("ehri.backend.cacheExpiration")
+
   override def withEventHandler(eventHandler: EventHandler): DataApiServiceHandle = this.copy(eventHandler = eventHandler)
 
   override def status(): Future[String] = {
