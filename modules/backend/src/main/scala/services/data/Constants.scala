@@ -64,12 +64,6 @@ object Constants {
   val INCLUDE_PROPERTIES_PARAM = "_ip"
 
   /**
-   * Time to cache rest requests for...
-   */
-  import scala.concurrent.duration._
-  val cacheTime: FiniteDuration = (60 * 5).seconds
-
-  /**
     * Pagination
     */
   final val PAGE_PARAM = "page"
