@@ -1,7 +1,7 @@
 package utils.streams
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import akka.stream.scaladsl.{Keep, Sink, Source, StreamConverters}
 import akka.stream.testkit.scaladsl.{TestSink, TestSource}
 import akka.util.ByteString
@@ -16,8 +16,8 @@ import scala.concurrent.duration._
 
 class JsonStreamSpec extends PlaySpecification {
 
-  private implicit val as = ActorSystem.create("testing")
-  private implicit val mat = ActorMaterializer.create(as)
+  private implicit val as: ActorSystem = ActorSystem.create("testing")
+  private implicit val mat: Materializer = ActorMaterializer.create(as)
 
 
   private val objectBytes: Array[Byte] =
@@ -126,7 +126,7 @@ class JsonStreamSpec extends PlaySpecification {
 
       sub.request(1)
       pub.sendNext(ByteString.fromString("\"start..."))
-      sub.expectNoMsg()
+      sub.expectNoMessage(5.seconds)
       sub.request(1)
       pub.sendNext(ByteString.fromString("...end\""))
       sub.expectNext() must_== ("item" -> JsonStream.JsValueString("start......end"))
