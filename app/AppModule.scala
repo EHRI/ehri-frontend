@@ -1,14 +1,13 @@
 import javax.inject.{Inject, Provider}
-
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
-import auth.oauth2.{OAuth2Flow, OAuth2Config, WebOAuth2Flow}
+import auth.oauth2.{OAuth2Config, OAuth2Flow, WebOAuth2Flow}
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
-import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler}
+import global._
 import models.{GuideService, SqlGuideService}
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{Cypher, CypherQueryService, CypherService, SqlCypherQueryService}
@@ -48,6 +47,7 @@ class AppModule extends AbstractModule {
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
+    bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[DataApi]).to(classOf[DataApiService])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])

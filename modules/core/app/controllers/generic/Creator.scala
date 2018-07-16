@@ -15,9 +15,7 @@ import scala.concurrent.Future
  * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
-trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] extends Write {
-
-  this: Read[MT] =>
+trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] extends Read[MT] with Write {
 
   protected def dataHelpers: DataHelpers
 
@@ -61,9 +59,9 @@ trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] e
           citem => {
             val accessors = visForm.value.getOrElse(Nil)
             (for {
-              pre <- itemLifecycle.preSave(None, citem, EventType.creation)
+              pre <- itemLifecycle.preSave(None, None, citem, EventType.creation)
               saved <- userDataApi.createInContext[MT, CMT#T, CMT](id, pre, accessors, params = extra, logMsg = getLogMessage)
-              post <- itemLifecycle.postSave(Some(saved.id), saved, pre, EventType.creation)
+              post <- itemLifecycle.postSave(saved.id, saved, EventType.creation)
             } yield CreateChildRequest(request.item, Right(post), request.userOpt, request)) recoverWith {
               case ValidationError(errorSet) =>
                 val filledForm = citem.getFormErrors(errorSet, form.fill(citem))

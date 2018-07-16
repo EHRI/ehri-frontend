@@ -10,9 +10,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for deleting [[models.base.Accessible]] items.
   */
-trait Delete[MT <: Model] extends Write {
-
-  self: Read[MT] =>
+trait Delete[MT <: Model] extends Read[MT] with Write {
 
   protected def CheckDeleteAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Delete)
@@ -22,9 +20,9 @@ trait Delete[MT <: Model] extends Write {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
         for {
-          pre <- itemLifecycle.preSave(Some(id), req.item.data, EventType.deletion)
+          pre <- itemLifecycle.preSave(Some(id), Some(req.item), req.item.data, EventType.deletion)
           _ <- userDataApi.delete(id, logMsg = getLogMessage)
-          post <- itemLifecycle.postSave(Some(id), req.item, pre, EventType.deletion)
+          post <- itemLifecycle.postSave(id, req.item, EventType.deletion)
         } yield OptionalUserRequest(request.userOpt, request)
       }
     }
