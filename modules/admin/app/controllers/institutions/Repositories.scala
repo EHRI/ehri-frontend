@@ -1,7 +1,6 @@
 package controllers.institutions
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,10 +11,13 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.geocoding.GeocodingService
 import services.ingest.IngestParams
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
+
+import scala.concurrent.Future
 
 
 @Singleton
@@ -23,7 +25,8 @@ case class Repositories @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
-  searchIndexer: SearchIndexMediator
+  searchIndexer: SearchIndexMediator,
+  geocoder: GeocodingService
 ) extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]
@@ -120,7 +123,18 @@ case class Repositories @Inject()(
       form.fill(request.item.model), repositoryRoutes.updatePost(id)))
   }
 
-  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+  private def geocodingTransformer: RepositoryF => Future[RepositoryF] = { r =>
+    r.descriptions.flatMap(_.addresses).find(_.streetAddress.isDefined).map { a =>
+      geocoder.geocode(a).map {
+        case Some(point) =>
+          r.copy(latitude = Some(point.latitude), longitude = Some(point.longitude))
+        case _ => r
+      }
+    }.getOrElse(Future.successful(r))
+  }
+
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form,
+      transformer = geocodingTransformer).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.repository.edit(
