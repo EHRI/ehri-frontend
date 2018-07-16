@@ -13,9 +13,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for creating [[models.base.Accessible]] ites..
   */
-trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Write {
-
-  this: Read[MT] =>
+trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT] with Write {
 
   protected def dataHelpers: DataHelpers
 
@@ -64,9 +62,9 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Write {
           doc => {
             val accessors = visForm.value.getOrElse(Nil)
             (for {
-              pre <- itemLifecycle.preSave(None, doc, EventType.creation)
+              pre <- itemLifecycle.preSave(None, None, doc, EventType.creation)
               saved <- userDataApi.create(pre, accessors, params = pf(request), logMsg = getLogMessage)
-              post <- itemLifecycle.postSave(Some(saved.id), saved, pre, EventType.creation)
+              post <- itemLifecycle.postSave(saved.id, saved, EventType.creation)
             } yield CreateRequest(Right(post), request.user, request)) recoverWith {
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form

@@ -11,6 +11,7 @@ import auth.handler.{AuthHandler, AuthIdContainer}
 import services._
 import services.feedback.{FeedbackService, MockFeedbackService}
 import controllers.base.SessionPreferences
+import global.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
 import org.specs2.execute.{AsResult, Result}
 import play.api.{Application, Configuration}
@@ -105,6 +106,7 @@ trait TestConfiguration {
       bind[DataApi].to[DataApiService],
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
+      bind[ItemLifecycle].to(classOf[NoopItemLifecycle]),
       // NB: Graph IDs are not stable during testing due to
       // DB churn, so using the String ID resolver rather than
       // the more efficient GID one used in production

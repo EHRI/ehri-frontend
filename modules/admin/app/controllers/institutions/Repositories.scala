@@ -1,7 +1,6 @@
 package controllers.institutions
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
