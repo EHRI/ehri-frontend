@@ -2,7 +2,7 @@ package controllers.generic
 
 import play.api.mvc._
 import play.api.data.Form
-import defines.PermissionType
+import defines.{EventType, PermissionType}
 import models.base._
 import models.{UserProfile, UsersAndGroups}
 import forms.VisibilityForm
@@ -60,9 +60,11 @@ trait Creator[CF <: Model with Persistable, CMT <: MetaModel[CF], MT <: MetaMode
           },
           citem => {
             val accessors = visForm.value.getOrElse(Nil)
-            userDataApi.createInContext[MT, CF, CMT](id, citem, accessors, params = extra, logMsg = getLogMessage).map { citem =>
-              CreateChildRequest(request.item, Right(citem), request.userOpt, request)
-            } recoverWith {
+            (for {
+              pre <- itemLifecycle.preSave(None, citem, EventType.creation)
+              saved <- userDataApi.createInContext[MT, CF, CMT](id, pre, accessors, params = extra, logMsg = getLogMessage)
+              post <- itemLifecycle.postSave(Some(saved.id), saved, pre, EventType.creation)
+            } yield CreateChildRequest(request.item, Right(post), request.userOpt, request)) recoverWith {
               case ValidationError(errorSet) =>
                 val filledForm = citem.getFormErrors(errorSet, form.fill(citem))
                 dataHelpers.getUserAndGroupList.map { usersAndGroups =>

@@ -37,7 +37,7 @@ case class VirtualUnits @Inject()(
   with Create[VirtualUnitF, VirtualUnit]
   with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]
   with Update[VirtualUnitF, VirtualUnit]
-  with Delete[VirtualUnit]
+  with Delete[VirtualUnitF, VirtualUnit]
   with ScopePermissions[VirtualUnit]
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]

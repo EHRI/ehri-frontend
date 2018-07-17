@@ -3,6 +3,7 @@ package controllers.base
 import akka.stream.scaladsl.Flow
 import auth.handler.AuthHandler
 import defines.{ContentTypes, PermissionType}
+import global.ItemLifecycle
 import models.{Account, UserProfile}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
@@ -28,6 +29,8 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
   protected def authHandler: AuthHandler
 
   protected def accounts: AccountManager
+
+  protected def itemLifecycle: ItemLifecycle
 
   protected def globalConfig: global.GlobalConfig
 

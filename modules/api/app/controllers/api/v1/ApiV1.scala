@@ -9,7 +9,7 @@ import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
-import global.GlobalConfig
+import global.{GlobalConfig, ItemLifecycle}
 import models._
 import models.api.v1.JsonApiV1._
 import models.base.AnyModel
@@ -61,7 +61,7 @@ case class ApiV1 @Inject()(
   protected val authHandler: AuthHandler = appComponents.authHandler
   protected val searchEngine: SearchEngine = appComponents.searchEngine
   protected val searchResolver: SearchItemResolver = appComponents.searchResolver
-
+  protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
   import ApiV1._
 

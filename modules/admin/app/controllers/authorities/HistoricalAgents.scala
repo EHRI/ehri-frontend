@@ -20,7 +20,8 @@ case class HistoricalAgents @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   dataHelpers: DataHelpers
-) extends AdminController with CRUD[HistoricalAgentF, HistoricalAgent]
+) extends AdminController
+  with CRUD[HistoricalAgentF, HistoricalAgent]
   with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
