@@ -6,8 +6,8 @@
     @common.mainContent {
         @common.itemDetails {
             @defining("historicalAgent") { implicit fieldPrefix =>
-                @common.descriptionContainer(item.model.descriptions) {
-                    @item.model.descriptions.map { desc =>
+                @common.descriptionContainer(item.data.descriptions) {
+                    @item.data.descriptions.map { desc =>
                         @description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                     }
 

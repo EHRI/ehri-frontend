@@ -3,7 +3,7 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.authorities.routes.HistoricalAgents.get(item.id)">@item.toStringLang</a>
 } {
-    @item.model.descriptions.headOption.map { desc =>
+    @item.data.descriptions.headOption.map { desc =>
         @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
         <div class="search-item-details">
             <ul>
@@ -13,7 +13,7 @@
                 }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">
-                        <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
                     </li>
                 }
             </ul>

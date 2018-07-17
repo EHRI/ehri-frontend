@@ -1,4 +1,4 @@
-@(item: VirtualUnit, result: services.search.SearchResult[(models.base.AnyModel, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.AnyModel] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: VirtualUnit, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.Model] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @views.html.admin.virtualUnit.vcHeader(item, path)
@@ -6,14 +6,14 @@
     @common.mainContent {
         @common.itemDetails {
             @defining("documentaryUnit") { implicit fieldPrefix =>
-                @common.descriptionContainer(item.model.descriptions) {
-                    @if(item.model.descriptions.isEmpty) {
+                @common.descriptionContainer(item.data.descriptions) {
+                    @if(item.data.descriptions.isEmpty) {
                         <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
                         <a href="@controllers.virtual.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
                         </a>
                     } else {
-                        @item.model.descriptions.map { desc =>
+                        @item.data.descriptions.map { desc =>
                             @views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc))
                         }
                     }

@@ -1,4 +1,4 @@
-@(link: Link, item: models.base.DescribedMeta)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(link: Link, item: models.base.DescribedModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
 @linkItemHtml(html: Html) = {
     @if(html.body.trim.nonEmpty) {
@@ -12,7 +12,7 @@
     @link.opposingTarget(item).map { t =>
         <div class="link-target">@views.html.helpers.linkTo(t)</div>
     }
-    @link.model.description.filterNot(_.trim.isEmpty).map { desc =>
+    @link.data.description.filterNot(_.trim.isEmpty).map { desc =>
         <p class="link-description">
             @desc
         </p>

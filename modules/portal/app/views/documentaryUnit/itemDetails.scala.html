@@ -2,8 +2,8 @@
 
 @views.html.common.itemDetails {
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @views.html.common.descriptionContainer(item.model.descriptions) {
-            @item.model.descriptions.map { desc =>
+        @views.html.common.descriptionContainer(item.data.descriptions) {
+            @item.data.descriptions.map { desc =>
                 @description(item, desc, links, annotations)
             }
 

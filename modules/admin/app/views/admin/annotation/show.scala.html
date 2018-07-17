@@ -4,7 +4,7 @@
     @views.html.admin.common.annotated(item, annotations) {
 
         <div class="well well-small">
-            @item.model.body
+            @item.data.body
         </div>
 
         @item.user.map { u =>
@@ -18,7 +18,7 @@
         }
     }
 } {
-    @if(item.model.isPromotable) {
+    @if(item.data.isPromotable) {
         @views.html.admin.common.promotion(item, controllers.annotation.routes.Annotations.promote(item.id), controllers.annotation.routes.Annotations.demote(item.id), ContentTypes.Annotation)
     }
     @views.html.admin.common.visibility(item, controllers.annotation.routes.Annotations.visibility(item.id), ContentTypes.Annotation)

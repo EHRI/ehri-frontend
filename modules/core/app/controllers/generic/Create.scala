@@ -2,7 +2,7 @@ package controllers.generic
 
 import defines.{EventType, PermissionType}
 import forms.VisibilityForm
-import models.base.{MetaModel, Model, Persistable}
+import models.base.{Model, ModelData, Persistable}
 import models.{UserProfile, UsersAndGroups}
 import play.api.data._
 import play.api.mvc._
@@ -13,7 +13,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for creating [[models.base.Accessible]] ites..
   */
-trait Create[MT <: MetaModel{type T <: Model with Persistable}] extends Write {
+trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Write {
 
   this: Read[MT] =>
 

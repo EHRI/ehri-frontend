@@ -1,6 +1,6 @@
-@(item: AnyModel, path: Seq[AnyModel])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: models.base.Model, path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-@wrapParent(items: Seq[AnyModel])(html: Html) = {
+@wrapParent(items: Seq[models.base.Model])(html: Html) = {
     @if(items.nonEmpty) {
     <div class="item" style="padding-left: 5px">
         @items.headOption.map { item =>

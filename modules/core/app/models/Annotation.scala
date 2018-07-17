@@ -56,7 +56,7 @@ case class AnnotationF(
   field: Option[String] = None,
   comment: Option[String] = None,
   isPromotable: Boolean = false
-) extends Model with Persistable
+) extends ModelData with Persistable
 
 
 object Annotation {
@@ -64,7 +64,7 @@ object Annotation {
   import Ontology._
   import EnumUtils.enumMapping
 
-  private implicit val anyModelReads = AnyModel.Converter.restReads
+  private implicit val anyModelReads = Model.Converter.restReads
   private implicit val userProfileMetaReads = UserProfile.UserProfileResource.restReads
   private lazy implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
   private implicit val accessorReads = Accessor.Converter.restReads
@@ -73,8 +73,8 @@ object Annotation {
     __.read[AnnotationF] and
     (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadSeqOrEmpty[Annotation](metaReads) and
     (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).readHeadNullable[UserProfile] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadHeadNullable[AnyModel](anyModelReads) and
-    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadHeadNullable[AnyModel](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadHeadNullable[Model](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadHeadNullable[Model](anyModelReads) and
     (__ \ RELATIONSHIPS \ ANNOTATES_PART).readHeadNullable[Entity] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
@@ -93,7 +93,7 @@ object Annotation {
    * Filter annotations on individual fields
    */
   def fieldAnnotations(partId: Option[String], annotations: Seq[Annotation]): Seq[Annotation] =
-    annotations.filter(_.targetParts.exists(p => partId.contains(p.id))).filter(_.model.field.isDefined)
+    annotations.filter(_.targetParts.exists(p => partId.contains(p.id))).filter(_.data.field.isDefined)
 
   /**
    * Filter annotations on the item
@@ -105,7 +105,7 @@ object Annotation {
    * Filter annotations on the item
    */
   def itemAnnotations(annotations: Seq[Annotation]): Seq[Annotation] =
-      annotations.filter(_.targetParts.isEmpty).filter(_.model.field.isDefined)
+      annotations.filter(_.targetParts.isEmpty).filter(_.data.field.isDefined)
 
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
 
@@ -131,22 +131,22 @@ object Annotation {
 }
 
 case class Annotation(
-  model: AnnotationF,
+  data: AnnotationF,
   annotations: Seq[Annotation] = Nil,
   user: Option[UserProfile] = None,
-  source: Option[AnyModel] = None,
-  target: Option[AnyModel] = None,
+  source: Option[Model] = None,
+  target: Option[Model] = None,
   targetParts: Option[Entity] = None,
   accessors: Seq[Accessor] = Nil,
   promoters: Seq[UserProfile] = Nil,
   demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends MetaModel with Accessible with Promotable {
+) extends Model with Accessible with Promotable {
 
   type T = AnnotationF
 
-  def isPromotable: Boolean = model.isPromotable
+  def isPromotable: Boolean = data.isPromotable
   def isOwnedBy(userOpt: Option[UserProfile]): Boolean = {
     (for {
       u <- userOpt
@@ -155,6 +155,6 @@ case class Annotation(
   }
 
   def formatted: String = {
-    s"${model.comment.map(c => s"$c\n\n").getOrElse("")}${model.body}"
+    s"${data.comment.map(c => s"$c\n\n").getOrElse("")}${data.body}"
   }
 }

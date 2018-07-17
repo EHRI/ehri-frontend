@@ -71,7 +71,7 @@ case class Vocabularies @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.vocabulary.edit(
-      request.item, form.fill(request.item.model), vocabRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), vocabRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

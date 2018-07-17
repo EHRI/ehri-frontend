@@ -8,7 +8,7 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.EntityType
-import models.base.AnyModel
+import models.base.Model
 import play.api.Logger
 import play.api.data.Form
 import play.api.libs.Files.TemporaryFile
@@ -58,9 +58,9 @@ case class Ingest @Inject()(
   def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
 
     def showErrorForm(form: Form[IngestParams]): Future[Result] = {
-      val scopeItemF: Future[AnyModel] = userDataApi.getAny[AnyModel](scopeId)
-      val fondsItemF: Future[Option[AnyModel]] = fonds
-        .map(id => userDataApi.getAny[AnyModel](id)
+      val scopeItemF: Future[Model] = userDataApi.getAny[Model](scopeId)
+      val fondsItemF: Future[Option[Model]] = fonds
+        .map(id => userDataApi.getAny[Model](id)
           .map(item => Some(item))).getOrElse(Future.successful(None))
 
       for (scopeItem <- scopeItemF; fondsItem <- fondsItemF)

@@ -77,7 +77,7 @@ case class Concepts @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.edit(
-      request.item, form.fill(request.item.model), conceptRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), conceptRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

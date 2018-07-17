@@ -9,7 +9,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models._
-import models.base.AnyModel
+import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.IdGenerator
 import utils.PageParams
@@ -44,7 +44,7 @@ case class VirtualUnits @Inject()(
     for {
       watched <- watchedF
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](
+      result <- find[Model](
         params = params,
         paging = paging,
         filters = filters,
@@ -81,8 +81,8 @@ case class VirtualUnits @Inject()(
 
   def browseVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val pathF: Future[Seq[Model]] = userDataApi.fetch[Model](pathIds).map(_.collect{ case Some(m) => m})
+    val itemF: Future[Model] = userDataApi.getAny[Model](id)
     val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
     val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
@@ -100,15 +100,15 @@ case class VirtualUnits @Inject()(
 
   def searchVirtualUnit(pathStr: String, id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
-    val pathF: Future[Seq[AnyModel]] = userDataApi.fetch[AnyModel](pathIds).map(_.collect{ case Some(m) => m})
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val pathF: Future[Seq[Model]] = userDataApi.fetch[Model](pathIds).map(_.collect{ case Some(m) => m})
+    val itemF: Future[Model] = userDataApi.getAny[Model](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = request.userOpt.map(_.id))
     for {
       watched <- watchedF
       item <- itemF
       path <- pathF
       filters <- vcSearchFilters(item)
-      result <- find[AnyModel](
+      result <- find[Model](
         params = params,
         paging = paging,
         filters = filters,

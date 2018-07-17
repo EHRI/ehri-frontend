@@ -35,15 +35,15 @@
                         <li class="user-grid-item user-info">
                             <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
                                 <span class="helper"></span>
-                                <img src="@views.Helpers.gravitar(user.model.imageUrl)" />
+                                <img src="@views.Helpers.gravitar(user.data.imageUrl)" />
                             </a>
                             <div class="user-info-details">
                                 <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
                                 @userInfo {
-                                    @user.model.institution.map { inst =>
+                                    @user.data.institution.map { inst =>
                                         <li>@inst</li>
                                     }
-                                    @user.model.location.map { loc =>
+                                    @user.data.location.map { loc =>
                                         <li>@loc</li>
                                     }
                                 }

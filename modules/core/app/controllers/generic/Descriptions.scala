@@ -14,7 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
   * Controller trait for creating, updating, and deleting auxiliary descriptions
   * for entities that can be multiply described.
   */
-trait Descriptions[MT <: DescribedMeta{type T <: Model with Described{type D <: Description with Persistable}}] extends Write {
+trait Descriptions[MT <: DescribedModel{type T <: ModelData with Described{type D <: Description with Persistable}}] extends Write {
 
   this: Read[MT] =>
 
@@ -75,7 +75,7 @@ trait Descriptions[MT <: DescribedMeta{type T <: Model with Described{type D <: 
     implicit ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
       override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
-        request.item.model.description(did) match {
+        request.item.data.description(did) match {
           case Some(d) => immediate(Right(DeleteDescriptionRequest(request.item, d, request.userOpt, request)))
           case None => notFoundError(request).map(r => Left(r))
         }

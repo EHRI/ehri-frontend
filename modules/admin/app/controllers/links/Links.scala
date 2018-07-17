@@ -103,7 +103,7 @@ case class Links @Inject()(
   }
   def update(id: String, redirect: Option[String] = None): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.link.edit(
-      request.item, form.fill(request.item.model), linkRoutes.updatePost(id, redirect)))
+      request.item, form.fill(request.item.data), linkRoutes.updatePost(id, redirect)))
   }
 
   def updatePost(id: String, redirect: Option[String] = None): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

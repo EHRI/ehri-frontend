@@ -14,7 +14,7 @@
 }
 
 @sidebar(page: GuidePage) = {
-    @layout.guideDescriptionChoice(item.model.descriptions)
+    @layout.guideDescriptionChoice(item.data.descriptions)
     <p>
         <small class="text-muted">@Messages("guides.annotation")</small><br />
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
@@ -45,7 +45,7 @@
     <article class="description-viewport">
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(annotations) { implicit annotations =>
-            @item.model.descriptions.map { desc =>
+            @item.data.descriptions.map { desc =>
                 @views.html.documentaryUnit.description(item, desc, links, annotations)
             }
         }

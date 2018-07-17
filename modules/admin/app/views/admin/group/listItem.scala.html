@@ -6,9 +6,9 @@
     <div class="search-item-details">
         <ul>
             @item.latestEvent.map { event =>
-                <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+                <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }
         </ul>
     </div>
-    @item.model.description
+    @item.data.description
 }

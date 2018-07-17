@@ -152,7 +152,7 @@ case class DocumentaryUnitDescriptionF(
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
-) extends Model with Persistable with Description with Temporal {
+) extends ModelData with Persistable with Description with Temporal {
   import models.IsadG._
 
   def name: String = identity.name
@@ -163,8 +163,8 @@ case class DocumentaryUnitDescriptionF(
   def externalLink(item: DocumentaryUnit): Option[String] = identity.ref orElse {
     for {
       holder <- item.holder
-      pattern <- holder.model.urlPattern
-    } yield pattern.replaceAll("\\{identifier\\}", item.model.identifier)
+      pattern <- holder.data.urlPattern
+    } yield pattern.replaceAll("\\{identifier\\}", item.data.identifier)
   }
 
   def toSeq = Seq(

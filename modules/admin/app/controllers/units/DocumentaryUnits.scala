@@ -139,7 +139,7 @@ case class DocumentaryUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.edit(
-      request.item, form.fill(request.item.model), docRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), docRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

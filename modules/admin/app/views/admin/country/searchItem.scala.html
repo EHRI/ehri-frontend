@@ -10,7 +10,7 @@
             </div>
         }
     </div>
-    @item.model.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
+    @item.data.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         <div class="national-report">
             @Markdown(sc)
         </div>

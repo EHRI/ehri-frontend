@@ -4,7 +4,7 @@ import javax.inject._
 
 import controllers.AppComponents
 import controllers.base.AdminController
-import models.base.AnyModel
+import models.base.Model
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -17,7 +17,7 @@ case class Data @Inject()(
   ws: WSClient
 ) extends AdminController {
 
-  implicit val rd: Readable[AnyModel] = AnyModel.Converter
+  implicit val rd: Readable[Model] = Model.Converter
 
   private def passThroughHeaders(headers: Map[String, Seq[String]],
                                  filter: Seq[String] = Seq.empty): Seq[(String, String)] = {
@@ -27,7 +27,7 @@ case class Data @Inject()(
   }
 
   def getItem(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    implicit val rd: Readable[AnyModel] = AnyModel.Converter
+    implicit val rd: Readable[Model] = Model.Converter
     userDataApi.fetch(List(id)).map {
       case Some(mm) :: _ => views.admin.Helpers.linkToOpt(mm)
         .map(Redirect) getOrElse NotFound(views.html.errors.itemNotFound())

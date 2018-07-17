@@ -2,7 +2,7 @@
 
 @import org.apache.commons.lang3.StringUtils
 
-@item.model.primaryDescription(descriptionId).map { desc =>
+@item.data.primaryDescription(descriptionId).map { desc =>
     <small>
         <ul class="list-unstyled text-muted list-inline inline-separator">
             @item.holder.map { holder =>
@@ -18,8 +18,8 @@
             }
             @item.latestEvent.map { event =>
                 <li title="@common.eventTitle(event)">
-                    <time datetime="@event.model.timestamp">
-                        @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                    <time datetime="@event.data.timestamp">
+                        @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
                     </time>
                 </li>
             }

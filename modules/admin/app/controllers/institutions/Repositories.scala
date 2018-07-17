@@ -117,7 +117,7 @@ case class Repositories @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.edit(request.item,
-      form.fill(request.item.model), repositoryRoutes.updatePost(id)))
+      form.fill(request.item.data), repositoryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

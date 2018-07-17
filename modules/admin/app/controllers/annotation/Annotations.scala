@@ -47,7 +47,7 @@ case class Annotations @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.annotation.edit(
-      request.item, form.fill(request.item.model), annotationRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), annotationRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

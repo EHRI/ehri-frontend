@@ -126,7 +126,7 @@ case class RepositoryDescriptionF(
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
-) extends Model with Persistable with Description {
+) extends ModelData with Persistable with Description {
 
   import Isdiah._
 

@@ -3,7 +3,7 @@ package models
 import java.time.ZonedDateTime
 
 import defines.EventType
-import models.base.{Accessor, AnyModel}
+import models.base.{Accessor, Model}
 
 /**
  * Summarise a set of events. Typically the events will be
@@ -13,12 +13,12 @@ import models.base.{Accessor, AnyModel}
  */
 case class EventSummary(events: Seq[SystemEvent]) {
   lazy val user: Option[Accessor] = events.headOption.flatMap(_.actioner)
-  lazy val timestamp: Option[ZonedDateTime] = events.headOption.map(_.model.timestamp)
+  lazy val timestamp: Option[ZonedDateTime] = events.headOption.map(_.data.timestamp)
   lazy val eventTypes: Set[EventType.Value] = events.flatMap(_.effectiveType).toSet
-  lazy val firstSubjects: Set[AnyModel] = events.flatMap(_.effectiveSubject).toSet
+  lazy val firstSubjects: Set[Model] = events.flatMap(_.effectiveSubject).toSet
 
-  def from: Option[ZonedDateTime] = events.headOption.map(_.model.timestamp)
-  def to: Option[ZonedDateTime] = events.lastOption.map(_.model.timestamp)
+  def from: Option[ZonedDateTime] = events.headOption.map(_.data.timestamp)
+  def to: Option[ZonedDateTime] = events.lastOption.map(_.data.timestamp)
 
   def sameSubject: Boolean = firstSubjects.size == 1
   def sameType: Boolean = eventTypes.size == 1
@@ -36,8 +36,8 @@ case class EventSummary(events: Seq[SystemEvent]) {
     }.getOrElse(m)
   }
 
-  def byTypeAndFirstSubject: Map[EventType.Value, Set[AnyModel]] = events
-    .foldLeft(Map.empty[EventType.Value, Set[AnyModel]]) { (m, e) =>
+  def byTypeAndFirstSubject: Map[EventType.Value, Set[Model]] = events
+    .foldLeft(Map.empty[EventType.Value, Set[Model]]) { (m, e) =>
     val et = e.effectiveType.getOrElse(EventType.modification)
     e.effectiveSubject.map { s =>
       m.updated(et, m.getOrElse(et, Set.empty) + s)

@@ -1,12 +1,12 @@
 @(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <h5>@views.html.helpers.linkTo(item)</h5>
-@item.model.primaryDescription.map { desc =>
+@item.data.primaryDescription.map { desc =>
     <div class="search-item-details">
         <ul class="concept-search-details">
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
             @item.latestEvent.map { event =>
-                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }
         </ul>
         @if(item.broaderTerms.nonEmpty) {

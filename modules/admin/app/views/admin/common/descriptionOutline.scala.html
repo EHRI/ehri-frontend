@@ -1,4 +1,4 @@
-@(item: models.base.DescribedMeta, desc: models.base.Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, messages: Messages)
+@(item: models.base.DescribedModel, desc: models.base.Description, actions: Html = Html(""))(html: Html)(implicit fieldPrefix: String, messages: Messages)
 
 <div class="description-holder" id="desc-@desc.localId">
     @actions

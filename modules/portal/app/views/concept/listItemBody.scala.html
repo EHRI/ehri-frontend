@@ -1,6 +1,6 @@
 @(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
-@item.model.primaryDescription(descriptionId).map { desc =>
+@item.data.primaryDescription(descriptionId).map { desc =>
     <div class="search-item-details">
         <ul class="concept-search-details">
             @item.vocabulary.map { vocab =>
@@ -10,7 +10,7 @@
             }
             <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
             @item.latestEvent.map { event =>
-                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }
         </ul>
         @if(item.broaderTerms.nonEmpty) {

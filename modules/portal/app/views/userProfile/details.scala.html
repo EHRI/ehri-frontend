@@ -7,7 +7,7 @@
 }
 
 <dl class="user-profile-info">
-    @user.model.location.map { loc =>
+    @user.data.location.map { loc =>
         <dt>
             @Messages("profile.location")
             <span class="glyphicon glyphicon-map-marker"></span>
@@ -16,22 +16,22 @@
             @loc
         </dd>
     }
-    @user.model.url.map { url =>
+    @user.data.url.map { url =>
         <dt>
             @Messages("profile.url")
             <span class="glyphicon glyphicon-link"></span>
         </dt>
         <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
     }
-    @user.model.workUrl.map { url =>
+    @user.data.workUrl.map { url =>
         <dt>
             @Messages("profile.workUrl")
             <span class="glyphicon glyphicon-link"></span>
         </dt>
         <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
     }
-    @textSection("profile.institution", user.model.institution)
-    @textSection("profile.role", user.model.role)
-    @textSection("profile.about", user.model.about)
-    @textSection("profile.interests", user.model.interests)
+    @textSection("profile.institution", user.data.institution)
+    @textSection("profile.role", user.data.role)
+    @textSection("profile.about", user.data.about)
+    @textSection("profile.interests", user.data.interests)
 </dl>

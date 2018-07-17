@@ -15,7 +15,7 @@ import scala.concurrent.Future
  * context for the creation of DocumentaryUnits, i.e. Repository and
  * DocumentaryUnit itself.
  */
-trait Creator[CMT <: MetaModel{type T <: Model with Persistable}, MT <: MetaModel] extends Write {
+trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] extends Write {
 
   this: Read[MT] =>
 
