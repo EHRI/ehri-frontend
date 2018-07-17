@@ -80,8 +80,10 @@ case class SystemEvent(
   version: Option[Version] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[SystemEventF]
+  with MetaModel
   with Holder[AnyModel] {
+
+  type T = SystemEventF
 
   def time: String = DateTimeFormatter.ISO_INSTANT.format(model.timestamp)
 

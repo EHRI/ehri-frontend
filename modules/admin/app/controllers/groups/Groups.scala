@@ -25,7 +25,7 @@ case class Groups @Inject()(
   with Visibility[Group]
   with Membership[Group]
   with ItemPermissions[Group]
-  with CRUD[GroupF, Group]
+  with CRUD[Group]
   with SearchType[Group] {
 
   private val form = models.Group.form

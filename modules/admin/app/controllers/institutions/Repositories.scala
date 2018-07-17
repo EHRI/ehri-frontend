@@ -29,9 +29,9 @@ case class Repositories @Inject()(
   geocoder: GeocodingService
 ) extends AdminController
   with Read[Repository]
-  with Update[RepositoryF, Repository]
-  with Delete[RepositoryF, Repository]
-  with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]
+  with Update[Repository]
+  with Delete[Repository]
+  with Creator[DocumentaryUnit, Repository]
 	with Visibility[Repository]
   with ScopePermissions[Repository]
   with Annotate[Repository]

@@ -61,7 +61,10 @@ case class ConceptF(
   latitude: Option[BigDecimal] = None,
   seeAlso: Option[Seq[String]] = None,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
-) extends Model with Persistable with Described[ConceptDescriptionF]
+) extends Model with Persistable with Described {
+
+  type D = ConceptDescriptionF
+}
 
 
 object Concept {
@@ -122,8 +125,11 @@ case class Concept(
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[ConceptF]
-  with DescribedMeta[ConceptDescriptionF, ConceptF]
+  with MetaModel
+  with DescribedMeta
   with Hierarchical[Concept]
   with Accessible
-  with Holder[Concept]
+  with Holder[Concept] {
+
+  type T = ConceptF
+}

@@ -10,7 +10,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for deleting [[models.base.Accessible]] items.
   */
-trait Delete[F <: Model, MT <: MetaModel[F]] extends Write {
+trait Delete[MT <: MetaModel] extends Write {
 
   self: Read[MT] =>
 

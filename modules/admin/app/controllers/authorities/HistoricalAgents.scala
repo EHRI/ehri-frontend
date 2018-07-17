@@ -21,14 +21,14 @@ case class HistoricalAgents @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
-  with CRUD[HistoricalAgentF, HistoricalAgent]
+  with CRUD[HistoricalAgent]
   with Visibility[HistoricalAgent]
   with ItemPermissions[HistoricalAgent]
   with Linking[HistoricalAgent]
   with Annotate[HistoricalAgent]
   with SearchType[HistoricalAgent]
-  with Descriptions[HistoricalAgentDescriptionF, HistoricalAgentF, HistoricalAgent]
-  with AccessPoints[HistoricalAgentDescriptionF, HistoricalAgentF, HistoricalAgent] {
+  with Descriptions[HistoricalAgent]
+  with AccessPoints[HistoricalAgent] {
 
   private val form = models.HistoricalAgent.form
   private val histRoutes = controllers.authorities.routes.HistoricalAgents

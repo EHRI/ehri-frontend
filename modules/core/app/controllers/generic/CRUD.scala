@@ -3,8 +3,8 @@ package controllers.generic
 import models.base.{MetaModel, Model, Persistable}
 
 
-trait CRUD[F <: Model with Persistable, T <: MetaModel[F]]
-		extends Create[F,T]
+trait CRUD[T <: MetaModel{type T <: Model with Persistable}]
+		extends Create[T]
 		with Read[T]
-		with Update[F,T]
-		with Delete[F, T]
+		with Update[T]
+		with Delete[T]

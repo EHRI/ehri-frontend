@@ -156,9 +156,11 @@ case class UserProfile(
   globalPermissions: Option[GlobalPermissionSet] = None,
   itemPermissions: Option[ItemPermissionSet] = None
 ) extends AnyModel
-  with MetaModel[UserProfileF]
+  with MetaModel
   with Accessor
   with Accessible {
+
+  type T = UserProfileF
 
   override def toStringLang(implicit messages: Messages): String = model.name
 

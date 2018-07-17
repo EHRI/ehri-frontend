@@ -81,9 +81,11 @@ case class AuthoritativeSet(
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[AuthoritativeSetF]
+  with MetaModel
   with Accessible
   with Holder[HistoricalAgent] {
+
+  type T = AuthoritativeSetF
 
   override def toStringLang(implicit messages: Messages): String = model.name.getOrElse(id)
 }

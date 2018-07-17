@@ -49,7 +49,10 @@ case class Version(
   model: VersionF,
   event: Option[SystemEvent],
   meta: JsObject
-) extends MetaModel[VersionF]
+) extends MetaModel {
+
+  type T = VersionF
+}
 
 object Version {
   import Entity._

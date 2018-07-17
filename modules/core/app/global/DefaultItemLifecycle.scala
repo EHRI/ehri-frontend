@@ -13,7 +13,7 @@ case class DefaultItemLifecycle() extends ItemLifecycle {
     Future.successful(t)
   }
 
-  override def postSave[MT <: MetaModel[T], T <: Model](id: Option[String], mt: MT, t: T, event: EventType.Value)(implicit ec: ExecutionContext): Future[MT] = {
+  override def postSave[MT <: MetaModel](id: Option[String], mt: MT, t: MT#T, event: EventType.Value)(implicit ec: ExecutionContext): Future[MT] = {
     logger.info(s"Post-save: $event: $t")
     Future.successful(mt)
   }

@@ -169,9 +169,12 @@ case class Link(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[LinkF]
+  with MetaModel
   with Accessible
   with Promotable {
+
+  type T = LinkF
+
   def isPromotable: Boolean = model.isPromotable
   def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)

@@ -25,8 +25,8 @@ case class Vocabularies @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient
 ) extends AdminController
-  with CRUD[VocabularyF, Vocabulary]
-  with Creator[ConceptF, Concept, Vocabulary]
+  with CRUD[Vocabulary]
+  with Creator[Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
   with Annotate[Vocabulary]

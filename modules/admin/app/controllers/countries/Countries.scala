@@ -23,8 +23,8 @@ case class Countries @Inject()(
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator
 ) extends AdminController
-  with CRUD[CountryF, Country]
-  with Creator[RepositoryF, Repository, Country]
+  with CRUD[Country]
+  with Creator[Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
   with Annotate[Country]

@@ -22,11 +22,11 @@ case class Concepts @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
-  with Creator[ConceptF, Concept, Concept]
+  with Creator[Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
-  with Update[ConceptF, Concept]
-  with Delete[ConceptF, Concept]
+  with Update[Concept]
+  with Delete[Concept]
   with Linking[Concept]
   with Annotate[Concept]
   with SearchType[Concept] {
