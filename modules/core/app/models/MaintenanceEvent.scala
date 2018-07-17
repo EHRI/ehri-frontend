@@ -76,6 +76,9 @@ object MaintenanceEvent {
 case class MaintenanceEvent(
   model: MaintenanceEventF,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel with MetaModel[MaintenanceEventF] {
+) extends AnyModel with MetaModel {
+
+  type T = MaintenanceEventF
+
   override def toStringLang(implicit messages: Messages): String = model.toString
 }

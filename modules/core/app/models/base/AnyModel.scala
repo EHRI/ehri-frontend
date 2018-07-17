@@ -29,7 +29,7 @@ trait AnyModel extends WithId {
    * Language-dependent version of the name
    */
   def toStringLang(implicit messages: Messages): String = this match {
-    case e: MetaModel[_] => e.toStringLang(messages)
+    case e: MetaModel => e.toStringLang(messages)
     case t => t.toString
   }
 
@@ -106,7 +106,10 @@ trait Promotable extends Accessible {
   def promotionScore: Int = promoters.size - demoters.size
 }
 
-trait MetaModel[+T <: Model] extends AnyModel {
+trait MetaModel extends AnyModel {
+
+  type T <: Model// with Persistable
+
   def model: T
   def meta: JsObject
 
@@ -116,7 +119,7 @@ trait MetaModel[+T <: Model] extends AnyModel {
   def isA: EntityType.Value = model.isA
 
   override def toStringLang(implicit messages: Messages): String = model match {
-    case d: Described[Description] =>
+    case d: Described =>
       d.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
     case _ => id
   }
@@ -124,44 +127,43 @@ trait MetaModel[+T <: Model] extends AnyModel {
   override def toStringAbbr(implicit messages: Messages): String = toStringLang(messages)
 }
 
-trait WithDescriptions[+T <: Description] extends AnyModel {
-  def descriptions: Seq[T]
+trait DescribedMeta extends MetaModel {
+
+  type T <: Described
+
+  def descriptions: Seq[T#D] = model.descriptions
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
   /**
-   * Links that relate to access points on this item's description(s)
-   */
+    * Links that relate to access points on this item's description(s)
+    */
   def accessPointLinks(links: Seq[Link]): Seq[(Link,AccessPointF)] = for {
     link <- links.filterNot(_.bodies.isEmpty)
     accessPoint <- allAccessPoints.find(a => link.bodies.map(_.model.id).contains(a.id))
   } yield (link, accessPoint)
 
   /**
-   * Links that related to access points, ordered by access point type.
-   */
+    * Links that related to access points, ordered by access point type.
+    */
   def accessPointLinksByType(links: Seq[Link]): Map[AccessPointF.AccessPointType.Value, Seq[(Link, AccessPointF)]] =
     accessPointLinks(links).groupBy(_._2.accessPointType)
 
   /**
-   * Links that point to this item from other item's access points.
-   */
+    * Links that point to this item from other item's access points.
+    */
   def externalLinks(links: Seq[Link]): Seq[Link] = for {
     link <- links.filter(_.bodies.nonEmpty)
-      if link.bodies.map(_.model.id).intersect(allAccessPoints.map(_.id)).isEmpty
+    if link.bodies.map(_.model.id).intersect(allAccessPoints.map(_.id)).isEmpty
   } yield link
 
   /**
-   * Links that don't relate to access points at all, such
-   * as annotations that assert a relationship between two
-   * items without "belonging" to either one.
-   */
+    * Links that don't relate to access points at all, such
+    * as annotations that assert a relationship between two
+    * items without "belonging" to either one.
+    */
   def annotationLinks(links: Seq[Link]): Seq[Link] =
     links.filter(link => link.bodies.isEmpty && link.opposingTarget(this).isDefined)
-}
-
-trait DescribedMeta[+TD <: Description, +T <: Described[TD]] extends MetaModel[T] with WithDescriptions[TD] {
-  def descriptions: Seq[TD] = model.descriptions
 }
 
 object DescribedMeta {
@@ -169,7 +171,7 @@ object DescribedMeta {
 }
 
 trait Holder[+T] extends AnyModel {
-  self: MetaModel[_] =>
+  self: MetaModel =>
 
   /**
    * Number of items 'below' this one.
@@ -178,25 +180,24 @@ trait Holder[+T] extends AnyModel {
     meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
 }
 
-trait Hierarchical[+T <: Hierarchical[T]] extends AnyModel {
-  self: MetaModel[_] =>
+trait Hierarchical[+C <: Hierarchical[C]] extends MetaModel {
 
   /**
    * The parent item of this item.
    */
-  def parent: Option[T]
+  def parent: Option[C]
 
   /**
    * List of ancestor items 'above' this one, including the parent.
    */
-  def ancestors: Seq[T] =
-    (parent.map(p => p +: p.ancestors) getOrElse Seq.empty).distinct
+  def ancestors: Seq[C] =
+    (parent.map(p => p +: p.ancestors) getOrElse Seq.empty[C]).distinct
 
   /**
    * Get the top level of the hierarchy, which may or may
    * not be the current item.
    */
-  def topLevel: T = ancestors.lastOption.getOrElse(this.asInstanceOf[T])
+  def topLevel: C = ancestors.lastOption.getOrElse(this.asInstanceOf[C])
 
   /**
    * Determine if an item is top level, i.e. has no parents.
@@ -243,8 +244,8 @@ object Description {
 
   object CreationProcess extends Enumeration {
     type Type = Value
-    val Import = Value("IMPORT")
-    val Manual = Value("MANUAL")
+    val Import: Type = Value("IMPORT")
+    val Manual: Type = Value("MANUAL")
 
     implicit val format: Format[CreationProcess.Value] = utils.EnumUtils.enumFormat(this)
   }
@@ -292,15 +293,18 @@ object Description {
     else None
 }
 
-trait Described[+T <: Description] extends Model {
-  def descriptions: Seq[T]
+trait Described extends Model {
+
+  type D <: Description
+
+  def descriptions: Seq[D]
 
   /**
    * Get a description by ID
    * @param id The description ID
    * @return A description matching that ID, optionally empty
    */
-  def description(id: String): Option[T] = descriptions.find(_.id.contains(id))
+  def description(id: String): Option[D] = descriptions.find(_.id.contains(id))
 
   /**
    * Get a description with an optional ID, falling back on the first
@@ -309,7 +313,7 @@ trait Described[+T <: Description] extends Model {
    * @param messages The current language
    * @return A description matching that ID, or the first found with that language.
    */
-  def primaryDescription(id: Option[String])(implicit messages: Messages): Option[T] =
+  def primaryDescription(id: Option[String])(implicit messages: Messages): Option[D] =
     id.fold(primaryDescription(messages))(s => primaryDescription(s))
 
   /**
@@ -317,12 +321,12 @@ trait Described[+T <: Description] extends Model {
    * @param messages The current language
    * @return The first description found with a matching language code
    */
-  def primaryDescription(implicit messages: Messages): Option[T] = {
+  def primaryDescription(implicit messages: Messages): Option[D] = {
     val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
   }
 
-  def orderedDescriptions(implicit messages: Messages): Seq[T] = {
+  def orderedDescriptions(implicit messages: Messages): Seq[D] = {
     val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     val (matchLang, others) = descriptions.partition(_.languageCode == code3)
     matchLang ++ others
@@ -336,7 +340,7 @@ trait Described[+T <: Description] extends Model {
    * @param messages The current language
    * @return A description matching that ID, or the first found with that language.
    */
-  def primaryDescription(id: String)(implicit messages: Messages): Option[T] =
+  def primaryDescription(id: String)(implicit messages: Messages): Option[D] =
     description(id).orElse(primaryDescription(messages))
 
   def accessPoints: Seq[AccessPointF] =

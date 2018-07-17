@@ -43,13 +43,13 @@ case class MockSearchEngine @Inject()(
     FilterHit(m.id, m.id, m.toStringLang, m.isA, None, -1L)
 
   private def modelToSearchHit(m: AnyModel): SearchHit = m match {
-    case d: DescribedMeta[Description,Described[Description]] => descModelToHit(d)
+    case d: DescribedMeta => descModelToHit(d)
     case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
       SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     ))
   }
 
-  private def descModelToHit[T <: DescribedMeta[Description,Described[Description]]](m: T): SearchHit = SearchHit(
+  private def descModelToHit[T <: DescribedMeta](m: T): SearchHit = SearchHit(
     itemId = m.id,
     id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
     `type` = m.isA,

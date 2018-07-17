@@ -13,13 +13,13 @@ import scala.concurrent.Future.{successful => immediate}
 /**
   * Controller trait which updates an AccessibleEntity.
   */
-trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
+trait Update[MT <: MetaModel{type T <: Model with Persistable}] extends Write {
 
   this: Read[MT] =>
 
   case class UpdateRequest[A](
     item: MT,
-    formOrItem: Either[Form[F], MT],
+    formOrItem: Either[Form[MT#T], MT],
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -28,8 +28,8 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
   protected def EditAction(itemId: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     WithItemPermissionAction(itemId, PermissionType.Update)
 
-  protected def UpdateAction(id: String, form: Form[F], transformer: F => F = identity)(
-    implicit ct: ContentType[MT], wd: Writable[F]): ActionBuilder[UpdateRequest, AnyContent] =
+  protected def UpdateAction(id: String, form: Form[MT#T], transformer: MT#T => MT#T = identity)(
+    implicit ct: ContentType[MT], wd: Writable[MT#T]): ActionBuilder[UpdateRequest, AnyContent] =
     EditAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
@@ -38,7 +38,7 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
           mod => {
             (for {
               pre <- itemLifecycle.preSave(Some(id), mod, EventType.modification)
-              saved <- userDataApi.update[MT, F](id, transformer.apply(pre), logMsg = getLogMessage)
+              saved <- userDataApi.update[MT, MT#T](id, transformer.apply(pre), logMsg = getLogMessage)
               post <- itemLifecycle.postSave(Some(id), saved, pre, EventType.modification)
             } yield UpdateRequest(request.item, Right(post), request.userOpt, request)) recover {
               case ValidationError(errorSet) =>

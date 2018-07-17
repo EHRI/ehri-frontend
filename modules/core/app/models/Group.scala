@@ -80,9 +80,11 @@ case class Group(
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends MetaModel[GroupF]
+) extends MetaModel
   with Accessor
   with Accessible {
+
+  type T = GroupF
 
   override def toStringLang(implicit messages: Messages): String = model.name
 }

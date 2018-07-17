@@ -34,14 +34,14 @@ case class VirtualUnits @Inject()(
 ) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
-  with Create[VirtualUnitF, VirtualUnit]
-  with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]
-  with Update[VirtualUnitF, VirtualUnit]
-  with Delete[VirtualUnitF, VirtualUnit]
+  with Create[VirtualUnit]
+  with Creator[VirtualUnit, VirtualUnit]
+  with Update[VirtualUnit]
+  with Delete[VirtualUnit]
   with ScopePermissions[VirtualUnit]
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
-  with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
+  with Descriptions[VirtualUnit]
   with Search
   with SearchVC {
 

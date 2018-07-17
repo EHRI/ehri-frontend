@@ -70,7 +70,9 @@ case class PermissionGrant(
   grantee: Option[UserProfile] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[PermissionGrantF] {
+  with MetaModel {
+
+  type T = PermissionGrantF
 
   override def toStringLang(implicit messages: Messages): String =
     s"<PermissionGrant: ${accessor.map(_.toStringLang)}: ${targets.headOption.map(_.toStringLang)} [${model.permission}}]>"

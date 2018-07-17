@@ -28,14 +28,14 @@ case class DocumentaryUnits @Inject()(
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
-  with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
-  with Update[DocumentaryUnitF, DocumentaryUnit]
-  with Delete[DocumentaryUnitF, DocumentaryUnit]
+  with Creator[DocumentaryUnit, DocumentaryUnit]
+  with Update[DocumentaryUnit]
+  with Delete[DocumentaryUnit]
   with ScopePermissions[DocumentaryUnit]
   with Annotate[DocumentaryUnit]
   with Linking[DocumentaryUnit]
-  with Descriptions[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
-  with AccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
+  with Descriptions[DocumentaryUnit]
+  with AccessPoints[DocumentaryUnit]
   with Search {
 
   // Documentary unit facets

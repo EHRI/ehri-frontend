@@ -41,7 +41,9 @@ case class VirtualUnitF(
   descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable
-  with Described[DocumentaryUnitDescriptionF] {
+  with Described {
+
+  type D = DocumentaryUnitDescriptionF
 
   override def description(did: String): Option[DocumentaryUnitDescriptionF]
       = descriptions.find(d => d.id.isDefined && d.id.get == did)
@@ -104,11 +106,13 @@ case class VirtualUnit(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[VirtualUnitF]
+  with MetaModel
   with Hierarchical[VirtualUnit]
   with Holder[VirtualUnit]
-  with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
+  with DescribedMeta
   with Accessible {
+
+  type T = VirtualUnitF
 
   override def toStringLang(implicit messages: Messages): String = {
     if (model.descriptions.nonEmpty) super.toStringLang(messages)
