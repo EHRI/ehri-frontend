@@ -19,7 +19,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import models.base.AnyModel
 import models.view.UserDetails
-import global.GlobalConfig
+import global.{GlobalConfig, ItemLifecycle}
 import play.api.cache.SyncCacheApi
 import play.api.mvc.Result
 import services.accounts.AccountManager
@@ -48,6 +48,7 @@ trait PortalController
   protected def dataApi: DataApi = appComponents.dataApi
   protected def config: Configuration = appComponents.config
   protected def authHandler: AuthHandler = appComponents.authHandler
+  protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
   protected def searchEngine: SearchEngine = appComponents.searchEngine
   protected def searchResolver: SearchItemResolver = appComponents.searchResolver

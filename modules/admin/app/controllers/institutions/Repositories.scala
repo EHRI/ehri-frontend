@@ -30,7 +30,7 @@ case class Repositories @Inject()(
 ) extends AdminController
   with Read[Repository]
   with Update[RepositoryF, Repository]
-  with Delete[Repository]
+  with Delete[RepositoryF, Repository]
   with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]
 	with Visibility[Repository]
   with ScopePermissions[Repository]

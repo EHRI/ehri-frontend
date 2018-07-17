@@ -30,7 +30,7 @@ case class DocumentaryUnits @Inject()(
   with Visibility[DocumentaryUnit]
   with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnitF, DocumentaryUnit]
-  with Delete[DocumentaryUnit]
+  with Delete[DocumentaryUnitF, DocumentaryUnit]
   with ScopePermissions[DocumentaryUnit]
   with Annotate[DocumentaryUnit]
   with Linking[DocumentaryUnit]

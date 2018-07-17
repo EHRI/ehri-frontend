@@ -1,11 +1,10 @@
 package controllers
 
 import javax.inject.Inject
-
 import akka.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
-import global.GlobalConfig
+import global.{GlobalConfig, ItemLifecycle}
 import play.api.Configuration
 import play.api.cache.{Cached, SyncCacheApi}
 import services.accounts.AccountManager
@@ -32,6 +31,7 @@ trait AppComponents {
   def pageRelocator: MovedPageLookup
   def searchEngine: SearchEngine
   def searchResolver: SearchItemResolver
+  def itemLifecycle: ItemLifecycle
 }
 
 case class DefaultAppComponents @Inject ()(
@@ -46,6 +46,7 @@ case class DefaultAppComponents @Inject ()(
   pageRelocator: MovedPageLookup,
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
+  itemLifecycle: ItemLifecycle,
   statusCache: Cached
 ) extends AppComponents
 

@@ -19,8 +19,8 @@ case class Annotations @Inject()(
   with Read[Annotation]
   with Visibility[Annotation]
   with Promotion[Annotation]
-  with Update[AnnotationF,Annotation]
-  with Delete[Annotation]
+  with Update[AnnotationF, Annotation]
+  with Delete[AnnotationF, Annotation]
   with Annotate[Annotation] {
 
   private val form = Annotation.form

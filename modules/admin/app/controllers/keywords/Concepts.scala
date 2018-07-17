@@ -26,7 +26,7 @@ case class Concepts @Inject()(
   with Visibility[Concept]
   with Read[Concept]
   with Update[ConceptF, Concept]
-  with Delete[Concept]
+  with Delete[ConceptF, Concept]
   with Linking[Concept]
   with Annotate[Concept]
   with SearchType[Concept] {
