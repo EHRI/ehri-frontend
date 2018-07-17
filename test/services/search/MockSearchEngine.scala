@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits._
 import models._
 
 import scala.concurrent.Future
-import models.base.{AnyModel, Described, DescribedMeta, Description}
+import models.base.{Model, Described, DescribedModel, Description}
 import play.api.libs.json.JsString
 import play.api.i18n.{Lang, LangImplicits}
 import services.data.{ApiUser, DataApi, DataApiHandle}
@@ -39,17 +39,17 @@ case class MockSearchEngine @Inject()(
   private implicit def handle(implicit userOpt: Option[UserProfile]): DataApiHandle =
     dataApi.withContext(ApiUser(userOpt.map(_.id)))
 
-  private def modelToFilterHit(m: AnyModel): FilterHit =
+  private def modelToFilterHit(m: Model): FilterHit =
     FilterHit(m.id, m.id, m.toStringLang, m.isA, None, -1L)
 
-  private def modelToSearchHit(m: AnyModel): SearchHit = m match {
-    case d: DescribedMeta => descModelToHit(d)
+  private def modelToSearchHit(m: Model): SearchHit = m match {
+    case d: DescribedModel => descModelToHit(d)
     case _ => SearchHit(m.id, m.id, m.isA, -1L, Map(
       SearchConstants.NAME_EXACT -> JsString(m.toStringLang)
     ))
   }
 
-  private def descModelToHit[T <: DescribedMeta](m: T): SearchHit = SearchHit(
+  private def descModelToHit[T <: DescribedModel](m: T): SearchHit = SearchHit(
     itemId = m.id,
     id = m.descriptions.headOption.flatMap(_.id).getOrElse("???"),
     `type` = m.isA,
@@ -59,9 +59,9 @@ case class MockSearchEngine @Inject()(
     )
   )
 
-  private def lookupItems(entities: Seq[EntityType.Value], userOpt: Option[UserProfile]): Future[Seq[AnyModel]] = {
+  private def lookupItems(entities: Seq[EntityType.Value], userOpt: Option[UserProfile]): Future[Seq[Model]] = {
     val types = if (entities.nonEmpty) entities else allEntities
-    val resources = types.map(et => AnyModel.resourceFor(et))
+    val resources = types.map(et => Model.resourceFor(et))
     // Get the full listing for each type and concat them together
     // once all futures have completed...
     // FIXME: HACK! If we fire off X parallel queries to the newly instantiated

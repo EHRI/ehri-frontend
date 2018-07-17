@@ -14,10 +14,14 @@ import utils.EnumUtils
 import scala.collection.SortedMap
 
 
-trait AnyModel extends WithId {
-  def id: String
+trait Model extends WithId {
+  type T <: ModelData
 
-  def isA: EntityType.Value
+  def id: String = data.id.getOrElse(sys.error("Model data without ID!"))
+  def isA: EntityType.Value = data.isA
+
+  def data: T
+  def meta: JsObject
 
   def contentType: Option[ContentTypes.Value] = try {
     Some(ContentTypes.withName(isA.toString))
@@ -29,7 +33,8 @@ trait AnyModel extends WithId {
    * Language-dependent version of the name
    */
   def toStringLang(implicit messages: Messages): String = this match {
-    case e: MetaModel => e.toStringLang(messages)
+    case d: DescribedModel =>
+      d.data.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
     case t => t.toString
   }
 
@@ -40,10 +45,10 @@ trait AnyModel extends WithId {
     StringUtils.abbreviate(toStringLang(messages), 80)
 }
 
-object AnyModel {
+object Model {
 
-  implicit object Converter extends Readable[AnyModel] {
-    implicit val restReads: Reads[AnyModel] = Reads[AnyModel] { json =>
+  implicit object Converter extends Readable[Model] {
+    implicit val restReads: Reads[Model] = Reads[Model] { json =>
       // Sniff the type...
       val et = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
       Utils.restReadRegistry.lift(et).map { reads =>
@@ -51,7 +56,7 @@ object AnyModel {
       }.getOrElse {
         JsError(
           JsPath(List(KeyPathNode(Entity.TYPE))),
-          JsonValidationError(s"Unregistered AnyModel type for REST: $et"))
+          JsonValidationError(s"Unregistered Model type: $et"))
       }
     }
   }
@@ -60,19 +65,19 @@ object AnyModel {
     * This function allows getting a dynamic Resource for an Accessor given
     * the entity type.
     */
-  def resourceFor(t: EntityType.Value): Resource[AnyModel] = new Resource[AnyModel] {
+  def resourceFor(t: EntityType.Value): Resource[Model] = new Resource[Model] {
     def entityType: EntityType.Value = t
-    val restReads: Reads[AnyModel] = Converter.restReads
+    val restReads: Reads[Model] = Converter.restReads
   }
 }
 
-trait Model {
+trait ModelData {
   def id: Option[String]
 
   def isA: EntityType.Value
 }
 
-trait Aliased extends AnyModel {
+trait Aliased extends Model {
   def allNames(implicit messages: Messages): Seq[String] = Seq(toStringLang(messages))
 }
 
@@ -80,7 +85,7 @@ trait Named {
   def name: String
 }
 
-trait Accessible extends AnyModel {
+trait Accessible extends Model {
   /**
    * Get the set of accessors to whom this item is visible.
    */
@@ -106,32 +111,11 @@ trait Promotable extends Accessible {
   def promotionScore: Int = promoters.size - demoters.size
 }
 
-trait MetaModel extends AnyModel {
-
-  type T <: Model// with Persistable
-
-  def model: T
-  def meta: JsObject
-
-  // Convenience helpers
-  def id: String = model.id.getOrElse(sys.error(s"Meta-model with no id. This shouldn't happen!: $this"))
-
-  def isA: EntityType.Value = model.isA
-
-  override def toStringLang(implicit messages: Messages): String = model match {
-    case d: Described =>
-      d.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
-    case _ => id
-  }
-
-  override def toStringAbbr(implicit messages: Messages): String = toStringLang(messages)
-}
-
-trait DescribedMeta extends MetaModel {
+trait DescribedModel extends Model {
 
   type T <: Described
 
-  def descriptions: Seq[T#D] = model.descriptions
+  def descriptions: Seq[T#D] = data.descriptions
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
@@ -140,7 +124,7 @@ trait DescribedMeta extends MetaModel {
     */
   def accessPointLinks(links: Seq[Link]): Seq[(Link,AccessPointF)] = for {
     link <- links.filterNot(_.bodies.isEmpty)
-    accessPoint <- allAccessPoints.find(a => link.bodies.map(_.model.id).contains(a.id))
+    accessPoint <- allAccessPoints.find(a => link.bodies.map(_.data.id).contains(a.id))
   } yield (link, accessPoint)
 
   /**
@@ -154,7 +138,7 @@ trait DescribedMeta extends MetaModel {
     */
   def externalLinks(links: Seq[Link]): Seq[Link] = for {
     link <- links.filter(_.bodies.nonEmpty)
-    if link.bodies.map(_.model.id).intersect(allAccessPoints.map(_.id)).isEmpty
+    if link.bodies.map(_.data.id).intersect(allAccessPoints.map(_.id)).isEmpty
   } yield link
 
   /**
@@ -166,12 +150,11 @@ trait DescribedMeta extends MetaModel {
     links.filter(link => link.bodies.isEmpty && link.opposingTarget(this).isDefined)
 }
 
-object DescribedMeta {
+object DescribedModel {
   val DESCRIPTIONS = "descriptions"
 }
 
-trait Holder[+T] extends AnyModel {
-  self: MetaModel =>
+trait Holder[+T] extends Model {
 
   /**
    * Number of items 'below' this one.
@@ -180,7 +163,7 @@ trait Holder[+T] extends AnyModel {
     meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
 }
 
-trait Hierarchical[+C <: Hierarchical[C]] extends MetaModel {
+trait Hierarchical[+C <: Hierarchical[C]] extends Model {
 
   /**
    * The parent item of this item.
@@ -205,7 +188,7 @@ trait Hierarchical[+C <: Hierarchical[C]] extends MetaModel {
   def isTopLevel: Boolean = parent.isEmpty
 }
 
-trait Description extends Model {
+trait Description extends ModelData {
   def name: String
 
   def languageCode: String
@@ -293,7 +276,7 @@ object Description {
     else None
 }
 
-trait Described extends Model {
+trait Described extends ModelData {
 
   type D <: Description
 

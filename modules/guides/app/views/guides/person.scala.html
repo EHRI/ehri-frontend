@@ -28,7 +28,7 @@
                             <div class="small">
                                 <a class="popover-accesspoints" data-count="@linkCount.getOrElse(item.id, 0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
                             </div>
-                            @item.model.descriptions.headOption.map { desc =>
+                            @item.data.descriptions.headOption.map { desc =>
                                 <div class="item-description">
                                     @desc.details.history.map { d =>
                                         <p>@Markdown(d)</p>

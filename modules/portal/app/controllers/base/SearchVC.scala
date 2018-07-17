@@ -3,7 +3,7 @@ package controllers.base
 import services.cypher.Cypher
 import controllers.generic.Search
 import models.VirtualUnit
-import models.base.AnyModel
+import models.base.Model
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.mvc.RequestHeader
@@ -31,7 +31,7 @@ trait SearchVC {
     * Otherwise they will return filters for items at all depths
     * in the virtual collection.
     */
-  protected def vcSearchFilters(item: AnyModel)(implicit request: RequestHeader): Future[Map[String,Any]] =
+  protected def vcSearchFilters(item: Model)(implicit request: RequestHeader): Future[Map[String,Any]] =
     if (!hasActiveQuery(request)) buildChildSearchFilter(item)
     else buildDescendentSearchFilter(item)
 
@@ -79,14 +79,14 @@ trait SearchVC {
    * @param item a documentary unit or virtual collection
    * @return a sequence of descendant IDs
    */
-  protected def descendantIds(item: AnyModel): Future[Seq[String]] = {
+  protected def descendantIds(item: Model): Future[Seq[String]] = {
     item match {
       case v: VirtualUnit => vcDescendantIds(item.id)
       case d => Future.successful(Seq(item.id))
     }
   }
 
-  protected def buildDescendentSearchFilter(item: AnyModel): Future[Map[String, Any]] =
+  protected def buildDescendentSearchFilter(item: Model): Future[Map[String, Any]] =
     item match {
       case v: VirtualUnit => vcDescendantIds(item.id).map { seq =>
         if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
@@ -97,7 +97,7 @@ trait SearchVC {
       case d => immediate(Map(s"$ANCESTOR_IDS:${item.id}" -> Unit))
     }
 
-  protected def buildChildSearchFilter(item: AnyModel): Future[Map[String,Any]] =
+  protected def buildChildSearchFilter(item: Model): Future[Map[String,Any]] =
     immediate {
       // Nastiness. We want a Solr query that will allow searching
       // both the child virtual collections of a VU as well as the

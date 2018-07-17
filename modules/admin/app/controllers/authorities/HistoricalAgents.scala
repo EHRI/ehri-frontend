@@ -73,7 +73,7 @@ case class HistoricalAgents @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.edit(
-      request.item, form.fill(request.item.model), histRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), histRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

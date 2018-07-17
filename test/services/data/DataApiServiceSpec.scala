@@ -3,7 +3,7 @@ package services.data
 import defines.{ContentTypes, EntityType, PermissionType}
 import helpers.IntegrationTestRunner
 import models._
-import models.base.AnyModel
+import models.base.Model
 import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
@@ -96,7 +96,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val history = await(testBackend.history[SystemEvent]("foobar", RangeParams(limit = 1)))
       history.items.size must_== 1
       history.head.size must_== 1
-      history.head.head.model.logMessage must_== Some(msg)
+      history.head.head.data.logMessage must_== Some(msg)
     }
 
     "create an item in (agent) context" in new ITestApp {
@@ -133,9 +133,9 @@ class DataApiServiceSpec extends IntegrationTestRunner {
     "update an item by id" in new ITestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
-      val udata = entity.model.copy(location = Some("London"))
+      val udata = entity.data.copy(location = Some("London"))
       val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
-      res.model.location must equalTo(Some("London"))
+      res.data.location must equalTo(Some("London"))
     }
 
     "delete an item by id" in new ITestApp {
@@ -149,7 +149,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val res = await(testBackend.patch[UserProfile](entity.id, patchData))
-      res.model.imageUrl must equalTo(Some(testVal))
+      res.data.imageUrl must equalTo(Some(testVal))
     }
 
     "patch an item with nulls to unset values" in new ITestApp {
@@ -157,9 +157,9 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar", about = testVal)
       val patchData = Json.obj("about" -> JsNull)
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
-      entity.model.about must_== testVal
+      entity.data.about must_== testVal
       val res = await(testBackend.patch[UserProfile](entity.id, patchData))
-      res.model.about must beNone
+      res.data.about must beNone
     }
 
     "error when creating an item with a non-unique id" in new ITestApp {
@@ -421,9 +421,9 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse
       await(testBackend.watch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beTrue
-      val watching = await(testBackend.watching[AnyModel](userProfile.id))
+      val watching = await(testBackend.watching[Model](userProfile.id))
       watching.exists(_.id == "c1") must beTrue
-      val watchingPage = await(testBackend.watching[AnyModel](userProfile.id))
+      val watchingPage = await(testBackend.watching[Model](userProfile.id))
       watchingPage.total must equalTo(1)
       await(testBackend.unwatch(userProfile.id, "c1"))
       await(testBackend.isWatching(userProfile.id, "c1")) must beFalse

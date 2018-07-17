@@ -1,29 +1,42 @@
 package models
 
-import models.base.AnyModel
+import models.base.{Model, ModelData}
 import defines.EntityType
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import services.data.Readable
 
+case class DataContentTypeF(
+  id: Option[String],
+  isA: EntityType.Value = EntityType.ContentType
+) extends ModelData
+
+object DataContentTypeF {
+  implicit val format: Format[DataContentTypeF] = (
+    (__ \ Entity.ID).formatNullable[String] and
+    (__ \ Entity.TYPE).formatIfEquals(EntityType.ContentType)
+  )(DataContentTypeF.apply, unlift(DataContentTypeF.unapply))
+}
 
 /**
   * A data type limiting the scope of a permission grant.
   * Instances correspond to e.g. "DocumentaryUnit", "Repository" etc
   */
 case class DataContentType(
-  id: String,
-  isA: EntityType.Value = EntityType.ContentType
-) extends AnyModel
+  data: DataContentTypeF,
+  meta: JsObject
+) extends Model {
+  type T = DataContentTypeF
+}
 
 
 object DataContentType {
-  val format: Format[DataContentType] = (
-    (__ \ Entity.ID).format[String] and
-    (__ \ Entity.TYPE).formatIfEquals(EntityType.ContentType)
-  )(DataContentType.apply, unlift(DataContentType.unapply))
-
+  import Entity._
+  implicit val format: Format[DataContentType] = (
+    __.format[DataContentTypeF] and
+      (__ \ META).formatWithDefault(Json.obj())
+    )(DataContentType.apply, unlift(DataContentType.unapply))
   implicit object Converter extends Readable[DataContentType] {
     val restReads: Format[DataContentType] = format
   }

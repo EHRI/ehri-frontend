@@ -77,7 +77,7 @@ case class Annotations @Inject()(
   // Ajax
   def editAnnotation(aid: String, context: AnnotationContext.Value): Action[AnyContent] = {
     WithItemPermissionAction(aid, PermissionType.Update).apply { implicit request =>
-      Ok(views.html.annotation.edit(Annotation.form.fill(request.item.model),
+      Ok(views.html.annotation.edit(Annotation.form.fill(request.item.data),
         annotationRoutes.editAnnotationPost(aid, context)))
     }
   }
@@ -85,14 +85,14 @@ case class Annotations @Inject()(
   def editAnnotationPost(aid: String, context: AnnotationContext.Value): Action[AnyContent] = {
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       // save an override field, becuase it's not possible to change it.
-      val field = request.item.model.field
+      val field = request.item.data.field
       Annotation.form.bindFromRequest.fold(
         errForm => immediate(BadRequest(errForm.errorsAsJson)),
         edited => userDataApi.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
           // Because the user might have marked this item
           // private (removing the isPromotable flag) we need to
           // recalculate who can access it.
-          val newAccessors = getAccessors(updated.model, request.userOpt.get)
+          val newAccessors = getAccessors(updated.data, request.userOpt.get)
           if (newAccessors.sorted == updated.accessors.map(_.id).sorted)
             immediate(annotationResponse(updated, context))
           else userDataApi.setVisibility[Annotation](aid, newAccessors).map { ann =>

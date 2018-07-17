@@ -1,8 +1,8 @@
-@(link: Link, item: models.base.AnyModel, src: Option[models.base.AnyModel], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(link: Link, item: models.base.Model, src: Option[models.base.Model], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @views.html.admin.helpers.linkTo(item, content = Html(text.getOrElse(item.toStringLang)))
 <small>
-    <span class="label label-default">@Messages("link." + link.model.linkType.toString)</span>
+    <span class="label label-default">@Messages("link." + link.data.linkType.toString)</span>
 </small>
 <a class="inline-action" title="@Messages("link.update")" href="@controllers.links.routes.Links.getAndRedirect(link.id, src.map(_.id))">
     <i class="glyphicon glyphicon-link"></i>
@@ -12,9 +12,9 @@
     <i class="glyphicon glyphicon-remove"></i>
 </a>
 
-@if(link.model.dates.nonEmpty) {
-    <small>@link.model.dateRange</small>
+@if(link.data.dates.nonEmpty) {
+    <small>@link.data.dateRange</small>
 }
-@link.model.description.map { desc =>
+@link.data.description.map { desc =>
     <small><p class="text-muted">@desc</p></small>
 }

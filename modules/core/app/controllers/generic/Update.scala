@@ -13,7 +13,7 @@ import scala.concurrent.Future.{successful => immediate}
 /**
   * Controller trait which updates an AccessibleEntity.
   */
-trait Update[MT <: MetaModel{type T <: Model with Persistable}] extends Write {
+trait Update[MT <: Model{type T <: ModelData with Persistable}] extends Write {
 
   this: Read[MT] =>
 

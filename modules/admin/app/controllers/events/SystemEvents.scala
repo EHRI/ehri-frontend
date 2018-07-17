@@ -6,7 +6,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Read
 import models.SystemEvent
-import models.base.AnyModel
+import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
 import utils.{PageParams, RangeParams, SystemEventParams}
@@ -22,7 +22,7 @@ case class SystemEvents @Inject()(
 
   def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     // In addition to the item itself, we also want to fetch the subjects associated with it.
-    userDataApi.subjectsForEvent[AnyModel](id, paging).map { page =>
+    userDataApi.subjectsForEvent[Model](id, paging).map { page =>
       Ok(views.html.admin.systemEvent.show(request.item, page, paging))
     }
   }

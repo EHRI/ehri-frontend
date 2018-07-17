@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit)(implicit req: RequestHeader, messages: Messages)
 
-@item.holder.flatMap(_.model.logoUrl).map { logo =>
+@item.holder.flatMap(_.data.logoUrl).map { logo =>
     @defining(item.url.map(_.toString).getOrElse(req.path)) { url =>
         <a href="@url">
             <img class="repository-logo" src="@logo" alt="@item.toStringLang" />

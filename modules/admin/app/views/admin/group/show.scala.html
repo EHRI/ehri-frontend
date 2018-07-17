@@ -15,7 +15,7 @@
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining("group") { implicit prefix =>
-        @views.html.admin.common.stringValue(item.model.description, models.GroupF.DESCRIPTION)
+        @views.html.admin.common.stringValue(item.data.description, models.GroupF.DESCRIPTION)
     }
 
     @if(item.groups.nonEmpty) {

@@ -1,4 +1,4 @@
-@(items: Seq[models.base.AnyModel] = Nil)(implicit messages: Messages, globalConfig: global.GlobalConfig)
+@(items: Seq[models.base.Model] = Nil)(implicit messages: Messages, globalConfig: global.GlobalConfig)
 
 @common.infobar {
     @defining(if (items.nonEmpty) 200 / items.length else 300) { truncateLength =>

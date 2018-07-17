@@ -1,11 +1,11 @@
 @(item: Country, highlighter: views.Highlighter)(implicit messages: Messages)
 
-<li title="@Messages("country.identifier.description"): @item.model.identifier.toUpperCase(messages.lang.toLocale)">@Html(highlighter.highlight(item.model
+<li title="@Messages("country.identifier.description"): @item.data.identifier.toUpperCase(messages.lang.toLocale)">@Html(highlighter.highlight(item.data
         .identifier.toUpperCase(messages.lang.toLocale)))</li>
 @item.latestEvent.map { event =>
     <li title="@common.eventTitle(event)">
-        <time datetime="@event.model.timestamp">
-            @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+        <time datetime="@event.data.timestamp">
+            @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
         </time>
     </li>
 }

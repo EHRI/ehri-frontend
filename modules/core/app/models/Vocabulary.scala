@@ -44,7 +44,7 @@ case class VocabularyF(
   identifier: String,
   name: Option[String],
   description: Option[String]
-) extends Model with Persistable
+) extends ModelData with Persistable
 
 
 object Vocabulary {
@@ -80,16 +80,15 @@ object Vocabulary {
 
 
 case class Vocabulary(
-  model: VocabularyF,
+  data: VocabularyF,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel
+) extends Model
   with Accessible
   with Holder[Concept] {
 
   type T = VocabularyF
 
-  override def toStringLang(implicit messages: Messages): String = model.name.getOrElse(id)
+  override def toStringLang(implicit messages: Messages): String = data.name.getOrElse(id)
 }

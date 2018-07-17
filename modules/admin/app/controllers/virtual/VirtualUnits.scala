@@ -9,7 +9,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
-import models.base.{AnyModel, Description}
+import models.base.{Model, Description}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
@@ -111,7 +111,7 @@ case class VirtualUnits @Inject()(
   def searchChildren(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](params, paging, filters = filters,
+      result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
@@ -121,7 +121,7 @@ case class VirtualUnits @Inject()(
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](params, paging, filters = filters,
+      result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.show(request.item, result,
@@ -132,8 +132,8 @@ case class VirtualUnits @Inject()(
   def getInVc(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val pathF: Future[Seq[Model]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[Model](pid)))
+    val itemF: Future[Model] = userDataApi.getAny[Model](id)
     val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
     val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
     for {
@@ -142,7 +142,7 @@ case class VirtualUnits @Inject()(
       links <- linksF
       annotations <- annsF
       filters <- vcSearchFilters(item)
-      children <- find[AnyModel](params, paging, filters = filters,
+      children <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
       item, children,
@@ -155,7 +155,7 @@ case class VirtualUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.edit(
-      request.item, form.fill(request.item.model), vuRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), vuRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

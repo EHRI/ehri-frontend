@@ -1,10 +1,10 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link],template: (GuidePage, (Guide, List[GuidePage])))(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@accessPointLink(item: models.base.AnyModel, accessPoint: AccessPointF, links: Seq[Link]) = {
+@accessPointLink(item: models.base.Model, accessPoint: AccessPointF, links: Seq[Link]) = {
   @accessPoint.target(item, links).map { case (link, other) =>
       <li class="resolved-access-point" id="@accessPoint.id">
           <a href="@controllers.portal.guides.routes.Guides.guideFacets(template._2._1.path)?kw=@other.id" data-target="@other.id" class="popover-keyword type-highlight @other.isA.toString">@other.toStringLang</a>
-          @link.model.description.map { desc =>
+          @link.data.description.map { desc =>
           <small><p class="text-muted">@desc</p></small>
           }
       </li>

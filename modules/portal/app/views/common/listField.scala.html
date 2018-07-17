@@ -1,7 +1,7 @@
-@(item: models.base.AnyModel, nodeId: String, value: Option[Seq[String]], key: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
+@(item: models.base.Model, nodeId: String, value: Option[Seq[String]], key: String, transformFunc: (String => String) = s => s)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
 
 @value.map { list =>
-    @defining(fieldAnnotations.filter(_.model.field.contains(key))) { anns =>
+    @defining(fieldAnnotations.filter(_.data.field.contains(key))) { anns =>
         @if(list.nonEmpty) {
             <div class="item-text-field @{if(views.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
                 <h4 class="item-text-field-header">

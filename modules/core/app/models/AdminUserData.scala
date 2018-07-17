@@ -11,7 +11,7 @@ case class AdminUserData(active: Boolean, staff: Boolean, verified: Boolean)
 
 object AdminUserData {
   def fromUserProfile(user: UserProfile): AdminUserData = new AdminUserData(
-    active = user.model.active,
+    active = user.data.active,
     staff = user.account.exists(_.staff),
     verified = user.account.exists(_.verified)
   )

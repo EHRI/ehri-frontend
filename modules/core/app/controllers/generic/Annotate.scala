@@ -28,7 +28,7 @@ trait Annotate[MT] extends Read[MT] {
         // on the server for that
         OptionalUserAction.async { implicit request =>
           userDataApi.createAnnotation[Annotation, AnnotationF](id, ap).map { ann =>
-            Created(Json.toJson(ann.model)(AnnotationF.Converter.clientFormat))
+            Created(Json.toJson(ann.data)(AnnotationF.Converter.clientFormat))
           }
         }(request.map(js => AnyContentAsEmpty))
       }

@@ -7,7 +7,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import defines.EntityType
 import models.DocumentaryUnit
-import models.base.AnyModel
+import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.Cypher
 import services.search._
@@ -36,7 +36,7 @@ case class DocumentaryUnits @Inject()(
       Map(SearchConstants.TOP_LEVEL -> true)
     else Map.empty[String, Any]
 
-    find[AnyModel](params, paging, filters = filters, facetBuilder = fc.docSearchFacets,
+    find[Model](params, paging, filters = filters, facetBuilder = fc.docSearchFacets,
       entities = Seq(EntityType.DocumentaryUnit, EntityType.VirtualUnit)).map { result =>
       Ok(views.html.documentaryUnit.list(result, portalDocRoutes.searchAll(),
         request.watched))

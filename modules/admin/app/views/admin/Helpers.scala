@@ -1,6 +1,6 @@
 package views.admin
 
-import models.base.AnyModel
+import models.base.Model
 import play.api.mvc.Call
 
 /**
@@ -65,8 +65,8 @@ object Helpers {
   def linkToOpt(isA: defines.EntityType.Value, id: String): Option[Call] =
     catching(classOf[IllegalArgumentException]).opt(linkTo(isA, id))
 
-  def linkTo(item: AnyModel): Call = linkTo(item.isA, item.id)
+  def linkTo(item: Model): Call = linkTo(item.isA, item.id)
 
-  def linkToOpt(item: AnyModel): Option[Call] =
+  def linkToOpt(item: Model): Option[Call] =
     catching(classOf[IllegalArgumentException]).opt(linkTo(item))
 }

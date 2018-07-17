@@ -4,7 +4,7 @@
     @views.html.common.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang) {
         }
-        @item.model.description.map { desc =>
+        @item.data.description.map { desc =>
             @Markdown(desc)
         }
     } {

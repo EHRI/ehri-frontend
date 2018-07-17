@@ -4,11 +4,11 @@
     @* include an anchor to the selected description *@
     @defining(descriptionId.map(did => "#desc-" + did).getOrElse("")) { anchor =>
         <a href="@{controllers.units.routes.DocumentaryUnits.get(item.id) + anchor}">
-            <span class="primary-identifier">@item.model.identifier</span> | @item.toStringLang
+            <span class="primary-identifier">@item.data.identifier</span> | @item.toStringLang
         </a>
     }
 } {
-    @item.model.primaryDescription(descriptionId).map { desc =>
+    @item.data.primaryDescription(descriptionId).map { desc =>
         @searchItemBody(item, desc)
     }.getOrElse {
         <small>@Messages("description.noDescriptions")</small>

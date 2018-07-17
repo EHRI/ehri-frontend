@@ -7,7 +7,7 @@
         <li>@views.html.helpers.linkTo(target)</li>
     }
     </ul>
-    @item.model.description.filter(_.nonEmpty).map { desc =>
+    @item.data.description.filter(_.nonEmpty).map { desc =>
         <blockquote>@desc</blockquote>
     }
 }

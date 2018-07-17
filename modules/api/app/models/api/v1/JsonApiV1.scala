@@ -1,7 +1,7 @@
 package models.api.v1
 
 import models._
-import models.base.{Accessible, AnyModel, Holder}
+import models.base.{Accessible, Model, Holder}
 import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
@@ -73,9 +73,9 @@ object JsonApiV1 {
 
     def apply(d: DocumentaryUnit)(implicit messages: Messages): DocumentaryUnitAttrs =
       new DocumentaryUnitAttrs(
-        localId = d.model.identifier,
-        alternateIds = d.model.otherIdentifiers.getOrElse(Seq.empty),
-        descriptions = d.model.orderedDescriptions.map(DocumentaryUnitDescriptionAttrs.apply)
+        localId = d.data.identifier,
+        alternateIds = d.data.otherIdentifiers.getOrElse(Seq.empty),
+        descriptions = d.data.orderedDescriptions.map(DocumentaryUnitDescriptionAttrs.apply)
       )
   }
 
@@ -139,7 +139,7 @@ object JsonApiV1 {
     implicit val writes: Writes[RepositoryAttrs] = Json.writes[RepositoryAttrs]
 
     def apply(r: Repository)(implicit messages: Messages): RepositoryAttrs = {
-      r.model.primaryDescription.map { d =>
+      r.data.primaryDescription.map { d =>
         new RepositoryAttrs(
           name = Some(d.name),
           parallelFormsOfName = d.parallelFormsOfName,
@@ -158,7 +158,7 @@ object JsonApiV1 {
           researchServices = d.services.researchServices,
           reproductionServices = d.services.reproductionServices,
           publicAreas = d.services.publicAreas,
-          geo = for(lat <- r.model.latitude; lon <- r.model.longitude)
+          geo = for(lat <- r.data.latitude; lon <- r.data.longitude)
             yield GeoPoint(lat, lon)
         )
       }.getOrElse {
@@ -212,7 +212,7 @@ object JsonApiV1 {
     implicit val writes: Writes[HistoricalAgentAttrs] = Json.writes[HistoricalAgentAttrs]
 
     def apply(a: HistoricalAgent)(implicit messages: Messages): HistoricalAgentAttrs = {
-      a.model.primaryDescription.map { d =>
+      a.data.primaryDescription.map { d =>
         new HistoricalAgentAttrs(
           name = Some(d.name),
           otherFormsOfName = d.otherFormsOfName,
@@ -264,13 +264,13 @@ object JsonApiV1 {
 
     def apply(c: Country)(implicit requestHeader: RequestHeader, messages: Messages): CountryAttrs =
       new CountryAttrs(
-        identifier = c.model.identifier,
+        identifier = c.data.identifier,
         name = c.toStringLang,
-        `abstract` = c.model.abs,
-        history = c.model.history,
-        situation = c.model.situation,
-        summary = c.model.summary,
-        extensive = c.model.extensive
+        `abstract` = c.data.abs,
+        history = c.data.history,
+        situation = c.data.situation,
+        summary = c.data.summary,
+        extensive = c.data.extensive
       )
   }
 
@@ -284,13 +284,13 @@ object JsonApiV1 {
   }
 
   case class JsonApiResponse(
-    data: AnyModel,
+    data: Model,
     links: Option[JsValue] = None,
-    included: Option[Seq[AnyModel]] = None
+    included: Option[Seq[Model]] = None
   )
 
   object JsonApiResponse {
-    implicit def writes(implicit amw: Writes[AnyModel]): Writes[JsonApiResponse] = Json.writes[JsonApiResponse]
+    implicit def writes(implicit amw: Writes[Model]): Writes[JsonApiResponse] = Json.writes[JsonApiResponse]
   }
 
   case class JsonApiResponseData(
@@ -315,7 +315,7 @@ object JsonApiV1 {
   object ResourceIdentifier {
     implicit val writes: Writes[ResourceIdentifier] = Json.writes[ResourceIdentifier]
 
-    def apply(m: AnyModel) = new ResourceIdentifier(m.id, m.isA.toString)
+    def apply(m: Model) = new ResourceIdentifier(m.id, m.isA.toString)
   }
 
   case class PaginationLinks(
@@ -357,14 +357,14 @@ object JsonApiV1 {
   }
 
   case class JsonApiListResponse(
-    data: Seq[AnyModel],
+    data: Seq[Model],
     links: PaginationLinks,
-    included: Option[Seq[AnyModel]] = None,
+    included: Option[Seq[Model]] = None,
     meta: Option[JsValue] = None
   )
 
   object JsonApiListResponse {
-    implicit def writes(implicit amw: Writes[AnyModel]): Writes[JsonApiListResponse] =
+    implicit def writes(implicit amw: Writes[Model]): Writes[JsonApiListResponse] =
       Json.writes[JsonApiListResponse]
   }
 }

@@ -3,14 +3,14 @@
 <div class="annotation" id="@annotation.id">
     <div class="annotation-header">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {
-            <div class="annotation-meta" title="@event.model.timestamp">
+            <div class="annotation-meta" title="@event.data.timestamp">
             <span class="glyphicon glyphicon-time"></span>
-                @views.Helpers.relativeDate(event.model.timestamp)
+                @views.Helpers.relativeDate(event.data.timestamp)
             </div>
         }
         @annotation.target.map { src =>
             @views.html.helpers.linkToWithFragment(src, "#" + annotation.id, content = Html(highlighter.highlight(src.toStringLang)))
-            @annotation.model.field.map { field =>
+            @annotation.data.field.map { field =>
             - <strong>@Messages(views.Helpers.prefixFor(src.isA) + "." + field)</strong>
             }
         }

@@ -29,18 +29,18 @@
             }
         }
         <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
-            <img height="48" width="48" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(other.model.imageUrl)" />
+            <img height="48" width="48" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(other.data.imageUrl)" />
         </a>
 
         <h3 class="search-item-heading type-highlight UserProfile">
-            <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.model.name</a>
+            <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
         </h3>
         <div class="search-item-body">
             <div class="search-item-details">
             @userListInfo {
-                @textSection(other.model.role)
-                @textSection(other.model.institution)
-                @textSection(other.model.location)
+                @textSection(other.data.role)
+                @textSection(other.data.institution)
+                @textSection(other.data.location)
             }
             </div>
         </div>

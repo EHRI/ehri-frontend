@@ -4,9 +4,9 @@
 @{"=" * title.size}}}
 @annotations.map { annotation =>
         @annotation.target.map { src =>
-* @{src.toStringLang + annotation.model.field.map { field => ": " + Messages(src.isA.toString + "." + field)}.getOrElse("")}}
+* @{src.toStringLang + annotation.data.field.map { field => ": " + Messages(src.isA.toString + "." + field)}.getOrElse("")}}
 
-  @annotation.model.body
+  @annotation.data.body
         @for(user <- annotation.user ; event <- annotation.latestEvent ; src <- annotation.target) {
   @{views.Helpers.linkTo(src).absoluteURL(globalConfig.https).trim + "#" + annotation.id}
-  @event.model.timestamp}}
+  @event.data.timestamp}}

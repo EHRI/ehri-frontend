@@ -3,7 +3,7 @@ package views
 import java.net.{MalformedURLException, URL}
 
 import defines.{EntityType, PermissionType}
-import models.base.AnyModel
+import models.base.Model
 import models.{Annotation, Entity, UserProfile}
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
@@ -171,13 +171,13 @@ object Helpers {
     }
   }
 
-  def isAnnotatable(item: AnyModel, userOpt: Option[models.UserProfile]): Boolean = userOpt.exists { user =>
+  def isAnnotatable(item: Model, userOpt: Option[models.UserProfile]): Boolean = userOpt.exists { user =>
     item.contentType.exists {
       ct => user.hasPermission(ct, PermissionType.Annotate)
     }
   }
 
-  def linkTo(item: AnyModel): Call = linkTo(item.isA, item.id)
+  def linkTo(item: Model): Call = linkTo(item.isA, item.id)
 
   def linkTo(isA: EntityType.Value, id: String): Call = isA match {
     case EntityType.Country => controllers.portal.routes.Countries.browse(id)
@@ -207,12 +207,12 @@ object Helpers {
   }
 
 
-  def virtualUnitUrl(path: Seq[AnyModel], id: String): Call = {
+  def virtualUnitUrl(path: Seq[Model], id: String): Call = {
     if (path.isEmpty) controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
     else controllers.portal.routes.VirtualUnits.browseVirtualUnit(path.map(_.id).mkString(","), id)
   }
 
-  def virtualUnitSearchUrl(path: Seq[AnyModel], id: String): Call = {
+  def virtualUnitSearchUrl(path: Seq[Model], id: String): Call = {
     if (path.isEmpty) controllers.portal.routes.VirtualUnits.searchVirtualCollection(id)
     else controllers.portal.routes.VirtualUnits.searchVirtualUnit(path.map(_.id).mkString(","), id)
   }
