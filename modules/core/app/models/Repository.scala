@@ -67,7 +67,10 @@ case class RepositoryF(
   latitude: Option[BigDecimal] = None
 ) extends Model
   with Persistable
-  with Described[RepositoryDescriptionF]
+  with Described {
+
+  type D = RepositoryDescriptionF
+}
 
 case class Repository(
   model: RepositoryF,
@@ -76,11 +79,13 @@ case class Repository(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[RepositoryF]
+  with MetaModel
   with Aliased
-  with DescribedMeta[RepositoryDescriptionF,RepositoryF]
+  with DescribedMeta
   with Accessible
   with Holder[DocumentaryUnit] {
+
+  type T = RepositoryF
 
   override def allNames(implicit messages: Messages): Seq[String] = model.primaryDescription(messages) match {
     case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)

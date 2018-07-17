@@ -27,8 +27,8 @@ AuthoritativeSets @Inject()(
   idGenerator: IdGenerator,
   ws: WSClient
 ) extends AdminController
-  with CRUD[AuthoritativeSetF,AuthoritativeSet]
-  with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
+  with CRUD[AuthoritativeSet]
+  with Creator[HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
   with Annotate[AuthoritativeSet]

@@ -31,13 +31,19 @@ case class TestModelF(
   @relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[TestDescriptionF] = Nil
 ) extends Model
-  with Described[TestDescriptionF]
+  with Described {
+
+  type D = TestDescriptionF
+}
 
 case class TestModel(
   model: TestModelF,
   meta: JsObject = Json.obj()
-) extends MetaModel[TestModelF]
-  with DescribedMeta[TestDescriptionF, TestModelF]
+) extends MetaModel
+  with DescribedMeta {
+
+  type T = TestModelF
+}
 
 class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 

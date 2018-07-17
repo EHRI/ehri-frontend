@@ -111,7 +111,9 @@ object AccessPoint {
 case class AccessPoint(
   model: AccessPointF,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel with MetaModel[AccessPointF] {
+) extends AnyModel with MetaModel {
+
+  type T = AccessPointF
 
   override def toStringLang(implicit messages: Messages) = s"Access Point: ($id)"
 }

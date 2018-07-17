@@ -1,19 +1,19 @@
 package controllers.generic
 
-import services.data._
 import defines.{EventType, PermissionType}
 import forms.VisibilityForm
-import models.{UserProfile, UsersAndGroups}
 import models.base.{MetaModel, Model, Persistable}
+import models.{UserProfile, UsersAndGroups}
 import play.api.data._
 import play.api.mvc._
+import services.data._
 
 import scala.concurrent.Future
 
 /**
   * Controller trait for creating [[models.base.Accessible]] ites..
   */
-trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
+trait Create[MT <: MetaModel{type T <: Model with Persistable}] extends Write {
 
   this: Read[MT] =>
 
@@ -36,7 +36,7 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
     with WithUser
 
   case class CreateRequest[A](
-    formOrItem: Either[(Form[F], Form[Seq[String]], UsersAndGroups), MT],
+    formOrItem: Either[(Form[MT#T], Form[Seq[String]], UsersAndGroups), MT],
     user: UserProfile,
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -51,8 +51,8 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
       }
     }
 
-  protected def CreateItemAction(form: Form[F], pf: Request[_] => Map[String, Seq[String]] = _ => Map.empty)(
-    implicit fmt: Writable[F], ct: ContentType[MT]): ActionBuilder[CreateRequest, AnyContent] =
+  protected def CreateItemAction(form: Form[MT#T], pf: Request[_] => Map[String, Seq[String]] = _ => Map.empty)(
+    implicit fmt: Writable[MT#T], ct: ContentType[MT]): ActionBuilder[CreateRequest, AnyContent] =
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new CoreActionTransformer[WithUserRequest, CreateRequest] {
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req: WithUserRequest[A] = request

@@ -71,7 +71,9 @@ case class DocumentaryUnitF(
   descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
 ) extends Model
   with Persistable
-  with Described[DocumentaryUnitDescriptionF] {
+  with Described {
+
+  type D = DocumentaryUnitDescriptionF
 
   override def description(did: String): Option[DocumentaryUnitDescriptionF] =
     descriptions.find(d => d.id.isDefined && d.id.get == did)
@@ -135,11 +137,13 @@ case class DocumentaryUnit(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[DocumentaryUnitF]
-  with DescribedMeta[DocumentaryUnitDescriptionF, DocumentaryUnitF]
+  with MetaModel
+  with DescribedMeta
   with Hierarchical[DocumentaryUnit]
   with Holder[DocumentaryUnit]
   with Accessible {
+
+  type T = DocumentaryUnitF
 
   def url: Option[URL] = (for {
     desc <- descriptions

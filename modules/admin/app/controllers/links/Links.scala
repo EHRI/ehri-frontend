@@ -23,8 +23,8 @@ case class Links @Inject()(
   with Read[Link]
   with Visibility[Link]
   with Promotion[Link]
-  with Update[LinkF, Link]
-  with Delete[LinkF, Link]
+  with Update[Link]
+  with Delete[Link]
   with Annotate[Link]
   with Search {
 

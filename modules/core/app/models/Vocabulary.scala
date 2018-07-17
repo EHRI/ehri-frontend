@@ -85,9 +85,11 @@ case class Vocabulary(
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[VocabularyF]
+  with MetaModel
   with Accessible
   with Holder[Concept] {
+
+  type T = VocabularyF
 
   override def toStringLang(implicit messages: Messages): String = model.name.getOrElse(id)
 }

@@ -14,13 +14,13 @@ import scala.concurrent.Future.{successful => immediate}
   * Controller trait for creating, updating, and deleting auxiliary descriptions
   * for entities that can be multiply described.
   */
-trait Descriptions[D <: Description with Persistable, T <: Model with Described[D], MT <: MetaModel[T]] extends Write {
+trait Descriptions[MT <: DescribedMeta{type T <: Model with Described{type D <: Description with Persistable}}] extends Write {
 
   this: Read[MT] =>
 
   case class ManageDescriptionRequest[A](
     item: MT,
-    formOrDescription: Either[Form[D], D],
+    formOrDescription: Either[Form[MT#T#D], MT#T#D],
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -28,15 +28,15 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
 
   case class DeleteDescriptionRequest[A](
     item: MT,
-    description: D,
+    description: MT#T#D,
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
 
-  protected def CreateDescriptionAction(id: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
+  protected def CreateDescriptionAction(id: String, form: Form[MT#T#D])(
+    implicit fmt: Writable[MT#T#D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
@@ -53,8 +53,8 @@ trait Descriptions[D <: Description with Persistable, T <: Model with Described[
       }
     }
 
-  protected def UpdateDescriptionAction(id: String, did: String, form: Form[D])(
-    implicit fmt: Writable[D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
+  protected def UpdateDescriptionAction(id: String, did: String, form: Form[MT#T#D])(
+    implicit fmt: Writable[MT#T#D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request

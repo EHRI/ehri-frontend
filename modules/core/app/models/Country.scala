@@ -95,9 +95,11 @@ case class Country(
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[CountryF]
+  with MetaModel
   with Accessible
   with Holder[Repository] {
+
+  type T = CountryF
 
   override def toStringLang(implicit messages: Messages): String = utils.i18n.countryCodeToName(id)
 }

@@ -142,7 +142,9 @@ case class Annotation(
   demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends MetaModel[AnnotationF] with Accessible with Promotable {
+) extends MetaModel with Accessible with Promotable {
+
+  type T = AnnotationF
 
   def isPromotable: Boolean = model.isPromotable
   def isOwnedBy(userOpt: Option[UserProfile]): Boolean = {

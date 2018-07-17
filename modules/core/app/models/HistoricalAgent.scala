@@ -48,7 +48,10 @@ case class HistoricalAgentF(
   descriptions: Seq[HistoricalAgentDescriptionF] = Nil
 ) extends Model
   with Persistable
-  with Described[HistoricalAgentDescriptionF]
+  with Described {
+
+  type D = HistoricalAgentDescriptionF
+}
 
 
 object HistoricalAgent {
@@ -95,8 +98,11 @@ case class HistoricalAgent(
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends AnyModel
-  with MetaModel[HistoricalAgentF]
-  with DescribedMeta[HistoricalAgentDescriptionF,HistoricalAgentF]
-  with Accessible
+  with MetaModel
+  with DescribedMeta
+  with Accessible {
+
+  type T = HistoricalAgentF
+}
 
 

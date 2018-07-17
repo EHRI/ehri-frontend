@@ -1,14 +1,14 @@
 package controllers.generic
 
 import defines.EntityType
-import models.base.{Described, Description, MetaModel, Model}
+import models.base._
 import models.{AccessPointF, Link, LinkF}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.data.Resource
 
 
-trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
+trait AccessPoints[MT <: DescribedMeta] extends Read[MT] {
 
   // NB: This doesn't work when placed within the function scope
   // should probably check if a bug has been reported.
