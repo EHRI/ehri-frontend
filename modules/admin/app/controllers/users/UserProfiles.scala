@@ -33,8 +33,8 @@ case class UserProfiles @Inject()(
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
   with Read[UserProfile]
-  with Update[UserProfileF,UserProfile]
-  with Delete[UserProfile]
+  with Update[UserProfileF, UserProfile]
+  with Delete[UserProfileF, UserProfile]
   with Membership[UserProfile]
   with SearchType[UserProfile]
   with Search

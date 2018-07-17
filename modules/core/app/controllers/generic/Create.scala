@@ -1,7 +1,7 @@
 package controllers.generic
 
 import services.data._
-import defines.PermissionType
+import defines.{EventType, PermissionType}
 import forms.VisibilityForm
 import models.{UserProfile, UsersAndGroups}
 import models.base.{MetaModel, Model, Persistable}
@@ -63,9 +63,11 @@ trait Create[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
           },
           doc => {
             val accessors = visForm.value.getOrElse(Nil)
-            userDataApi.create(doc, accessors, params = pf(request), logMsg = getLogMessage).map { item =>
-              CreateRequest(Right(item), request.user, request)
-            } recoverWith {
+            (for {
+              pre <- itemLifecycle.preSave(None, doc, EventType.creation)
+              saved <- userDataApi.create(pre, accessors, params = pf(request), logMsg = getLogMessage)
+              post <- itemLifecycle.postSave(Some(saved.id), saved, pre, EventType.creation)
+            } yield CreateRequest(Right(post), request.user, request)) recoverWith {
               // If we have an error, check if it's a validation error.
               // If so, we need to merge those errors back into the form
               // and redisplay it...

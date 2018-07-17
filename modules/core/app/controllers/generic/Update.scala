@@ -1,6 +1,6 @@
 package controllers.generic
 
-import defines.PermissionType
+import defines.{EventType, PermissionType}
 import models.UserProfile
 import models.base._
 import play.api.data.Form
@@ -36,9 +36,11 @@ trait Update[F <: Model with Persistable, MT <: MetaModel[F]] extends Write {
         form.bindFromRequest.fold(
           errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.userOpt, request.request)),
           mod => {
-            userDataApi.update[MT, F](id, transformer(mod), logMsg = getLogMessage).map { citem =>
-              UpdateRequest(request.item, Right(citem), request.userOpt, request)
-            } recover {
+            (for {
+              pre <- itemLifecycle.preSave(Some(id), mod, EventType.modification)
+              saved <- userDataApi.update[MT, F](id, transformer.apply(pre), logMsg = getLogMessage)
+              post <- itemLifecycle.postSave(Some(id), saved, pre, EventType.modification)
+            } yield UpdateRequest(request.item, Right(post), request.userOpt, request)) recover {
               case ValidationError(errorSet) =>
                 val filledForm = mod.getFormErrors(errorSet, form.fill(mod))
                 UpdateRequest(request.item, Left(filledForm), request.userOpt, request)
