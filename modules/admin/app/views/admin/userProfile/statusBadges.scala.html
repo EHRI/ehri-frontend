@@ -1,6 +1,6 @@
 @(user: UserProfile)(implicit messages: Messages)
 
-@if(user.model.active) {
+@if(user.data.active) {
     <span class="label label-info">@Messages("userProfile.active.true")</span>
 } else {
     <span class="label label-warning">@Messages("userProfile.active.false")</span>

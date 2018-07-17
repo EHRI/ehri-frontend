@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
 
-@item.model.descriptions.headOption.map { desc =>
+@item.data.descriptions.headOption.map { desc =>
     @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList, highlighter)
     <div class="search-item-details">
         <ul class="agent-search-details">
@@ -10,8 +10,8 @@
             }
             @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
-                <time datetime="@event.model.timestamp">
-                    @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))
+                <time datetime="@event.data.timestamp">
+                    @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
                 </time>
             </li>
             }

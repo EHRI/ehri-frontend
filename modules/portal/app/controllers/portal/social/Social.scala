@@ -7,7 +7,7 @@ import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import controllers.portal.base.PortalController
-import models.base.AnyModel
+import models.base.Model
 import models.{SystemEvent, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
@@ -87,7 +87,7 @@ case class Social @Inject()(
 
   def userWatchList(userId: String, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
-    val theirWatchingF: Future[Page[AnyModel]] = userDataApi.watching[AnyModel](userId)
+    val theirWatchingF: Future[Page[Model]] = userDataApi.watching[Model](userId)
     val myWatchingF: Future[Seq[String]] = watchedItemIds(Some(request.user.id))
     val isFollowingF: Future[Boolean] = userDataApi.isFollowing(request.user.id, userId)
     val allowMessageF: Future[Boolean] = canMessage(request.user.id, userId)
@@ -96,7 +96,7 @@ case class Social @Inject()(
       them <- userDataApi.get[UserProfile](userId)
       theirWatching <- theirWatchingF
       myWatching <- myWatchingF
-      result <- findIn[AnyModel](theirWatching, params, paging)
+      result <- findIn[Model](theirWatching, params, paging)
       followed <- isFollowingF
       canMessage <- allowMessageF
     } yield Ok(views.html.userProfile.watched(
@@ -239,9 +239,9 @@ case class Social @Inject()(
         val heading = Messages("mail.message.heading", from.toStringLang)
         val emailMessage = Email(
           subject = Messages("mail.message.heading", from.toStringLang),
-          to = Seq(s"${to.model.name}} <${accTo.email}>"),
+          to = Seq(s"${to.data.name}} <${accTo.email}>"),
           from = "EHRI User <noreply@ehri-project.eu>",
-          replyTo = Seq(s"${from.model.name}} <${accFrom.email}>"),
+          replyTo = Seq(s"${from.data.name}} <${accFrom.email}>"),
           bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
           bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)
         )
@@ -251,7 +251,7 @@ case class Social @Inject()(
           val copyHeading = Messages("mail.message.copy.heading", to.toStringLang)
           val copyEmailMessage = emailMessage.copy(
             subject = Messages("mail.message.copy.heading", to.toStringLang),
-            to = Seq(s"${from.model.name} <${accFrom.email}>"),
+            to = Seq(s"${from.data.name} <${accFrom.email}>"),
             bodyText = Some(views.txt.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body),
             bodyHtml = Some(views.html.social.mail.messageEmail(copyHeading, subject, message, isCopy = true).body)
           )

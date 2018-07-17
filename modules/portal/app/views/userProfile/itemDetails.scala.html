@@ -43,7 +43,7 @@
             <ul class="list-group">
                 <li class="list-group-item user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">
-                        <img class="user-img-full" src="@views.Helpers.gravitar(item.model.imageUrl)" alt="@item.model.name"/>
+                        <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
                     </a>
                 </li>
                 @if(isCurrentUser) {

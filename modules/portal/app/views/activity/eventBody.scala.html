@@ -1,9 +1,9 @@
-@(event: SystemEvent, subject: models.base.AnyModel, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import defines.EventType
 
 @annotationBody(ann: Annotation) = {
-    <blockquote>@Html(md.renderUntrustedMarkdown(ann.model.body))</blockquote>
+    <blockquote>@Html(md.renderUntrustedMarkdown(ann.data.body))</blockquote>
 }
 
 @eventModification(subject: models.Annotation) = {
@@ -12,7 +12,7 @@
     }
 }
 
-@eventFooter(item : models.base.AnyModel, link: Html) = {
+@eventFooter(item : models.base.Model, link: Html) = {
     <div class="event-footer @item.isA">@link</div>
 }
 

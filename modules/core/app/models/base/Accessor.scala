@@ -12,7 +12,7 @@ object Accessor {
 
   implicit object Converter extends Readable[Accessor] {
     implicit val restReads: Reads[Accessor] = Reads[Accessor](
-      _.validate[Accessor](AnyModel.Converter.restReads.asInstanceOf[Reads[Accessor]]))
+      _.validate[Accessor](Model.Converter.restReads.asInstanceOf[Reads[Accessor]]))
   }
 
   /**
@@ -26,7 +26,7 @@ object Accessor {
   }
 }
 
-trait Accessor extends AnyModel {
+trait Accessor extends Model {
   def groups: Seq[Group]
   def id: String
   def isA: EntityType.Value

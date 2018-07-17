@@ -40,14 +40,14 @@ object AccessPointLink {
   *
   * @tparam MT the entity's build class
   */
-trait Linking[MT <: AnyModel] extends Read[MT] with Search {
+trait Linking[MT <: Model] extends Read[MT] with Search {
 
   // This is used to send the link data back to JSON endpoints...
   private implicit val linkFormatForClient: Format[LinkF] = Json.format[LinkF]
 
   case class LinkSelectRequest[A](
     item: MT,
-    searchResult: SearchResult[(AnyModel, SearchHit)],
+    searchResult: SearchResult[(Model, SearchHit)],
     entityType: EntityType.Value,
     userOpt: Option[UserProfile],
     request: Request[A]
@@ -58,7 +58,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkSelectRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkSelectRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        find[AnyModel](
+        find[Model](
           paging = paging,
           facetBuilder = facets,
           params = params.copy(excludes = params.excludes :+ id),
@@ -71,7 +71,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   case class LinkItemsRequest[A](
     from: MT,
-    to: AnyModel,
+    to: Model,
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -82,7 +82,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, LinkItemsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[LinkItemsRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+        userDataApi.get[Model](Model.resourceFor(toType), to).map { toItem =>
           LinkItemsRequest(request.item, toItem, request.userOpt, request)
         }
       }
@@ -90,7 +90,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
 
   case class CreateLinkRequest[A](
     from: MT,
-    formOrLink: Either[(AnyModel, Form[LinkF]), Link],
+    formOrLink: Either[(Model, Form[LinkF]), Link],
     userOpt: Option[UserProfile],
     request: Request[A]
   ) extends WrappedRequest[A](request)
@@ -104,7 +104,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         Link.form.bindFromRequest.fold(
           errorForm => {
             // oh dear, we have an error...
-            userDataApi.get[AnyModel](AnyModel.resourceFor(toType), to).map { toItem =>
+            userDataApi.get[Model](Model.resourceFor(toType), to).map { toItem =>
               CreateLinkRequest(request.item, Left((toItem, errorForm)), request.userOpt, request)
             }
           },
@@ -148,7 +148,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
         ann => {
           val link = new LinkF(id = None, linkType = LinkF.LinkType.Associative, description = ann.description)
           userDataApi.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
-            Created(Json.toJson(ann.model))
+            Created(Json.toJson(ann.data))
           }
         }
       )
@@ -167,7 +167,7 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
             (ann.target, new LinkF(id = None, linkType = ann.`type`.getOrElse(LinkF.LinkType.Associative), description = ann.description), None)
           )
           userDataApi.linkMultiple[MT, Link, LinkF](id, links).map { newLinks =>
-            Created(Json.toJson(newLinks.map(_.model)))
+            Created(Json.toJson(newLinks.map(_.data)))
           }
         }
       )
@@ -191,14 +191,14 @@ trait Linking[MT <: AnyModel] extends Read[MT] with Search {
     */
   def getLink(id: String, apid: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     userDataApi.links[Link](id).map { links =>
-      val linkOpt = links.find(link => link.bodies.exists(b => b.model.id.contains(apid)))
+      val linkOpt = links.find(link => link.bodies.exists(b => b.data.id.contains(apid)))
       val res = for {
         link <- linkOpt
         target <- link.opposingTarget(id)
       } yield new AccessPointLink(
         target = target.id,
-        `type` = Some(link.model.linkType),
-        description = link.model.description
+        `type` = Some(link.data.linkType),
+        description = link.data.description
       )
       Ok(Json.toJson(res))
     }

@@ -3,12 +3,12 @@
 <div class="search-item-details">
     <ul class="vocabulary-search-details">
         @item.latestEvent.map { event =>
-            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
         }
     </ul>
 </div>
 
-@item.model.description.map { desc =>
+@item.data.description.map { desc =>
     @Markdown(desc)
 }
 

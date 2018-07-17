@@ -2,7 +2,7 @@
 
 
 @views.html.common.searchItemOutline(item, watched) {
-    <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@item.model.primaryDescription(descriptionId).map(_.name).getOrElse(item.toStringLang)</a>
+    <a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@item.data.primaryDescription(descriptionId).map(_.name).getOrElse(item.toStringLang)</a>
 } {
     @listItemBody(item, showRepository)
 }

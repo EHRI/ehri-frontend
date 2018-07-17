@@ -2,7 +2,7 @@
 
 @item.latestEvent.map { ev =>
     @views.html.common.footerPanel(Messages("item.history"), cls = "history inactive") {
-        <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.model.timestamp)</strong>
+        <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.data.timestamp)</strong>
         <p class="text-muted">
             <em>@ev.toStringLang</em>
         </p>

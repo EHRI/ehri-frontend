@@ -15,7 +15,7 @@
 
             @listField(item, descId, desc.definition, DEFINITION)
             @listField(item, descId, desc.scopeNote, SCOPENOTE)
-            @listField(item, descId, item.model.seeAlso, SEEALSO)
+            @listField(item, descId, item.data.seeAlso, SEEALSO)
 
             @descriptionSection(ACCESS_POINTS) {
                 @views.html.common.accessPointLinks(item, desc, links)

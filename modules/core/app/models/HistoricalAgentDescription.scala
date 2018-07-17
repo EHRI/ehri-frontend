@@ -107,7 +107,7 @@ case class HistoricalAgentDescriptionF(
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
-) extends Model
+) extends ModelData
   with Persistable
   with Description
   with Temporal {

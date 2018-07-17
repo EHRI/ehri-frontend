@@ -31,7 +31,7 @@
                 @listItem(list, key)
             }
         }
-        @item.model.uri.map { uri =>
+        @item.data.uri.map { uri =>
             <dt>@Messages(prefix + "." + URI)</dt>
             <dd><a href="@uri" class="external" target="_blank">@uri</a></dd>
         }

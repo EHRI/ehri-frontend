@@ -8,7 +8,7 @@ import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
 import models.Isaar
-import models.base.{AnyModel, Description}
+import models.base.{Model, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes, __}
 import play.api.mvc._
@@ -63,9 +63,9 @@ case class Metrics @Inject()(
 
   def languageOfMaterial: EssentialAction = statusCache.status((_: RequestHeader) => "pages:langMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+      find[Model](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.DocumentaryUnit), facetBuilder = langCountFacets)
-        .map(jsonResponse[AnyModel])
+        .map(jsonResponse[Model])
     }
   }
 
@@ -83,9 +83,9 @@ case class Metrics @Inject()(
 
   def holdingRepository: EssentialAction = statusCache.status((_: RequestHeader) => "pages:repoMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+      find[Model](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.DocumentaryUnit), facetBuilder = holdingRepoFacets)
-        .map(jsonResponse[AnyModel])
+        .map(jsonResponse[Model])
     }
   }
 
@@ -104,9 +104,9 @@ case class Metrics @Inject()(
 
   def repositoryCountries: EssentialAction = statusCache.status((_: RequestHeader) => "pages:repoCountryMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+      find[Model](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.Repository), facetBuilder = countryRepoFacets)
-        .map(jsonResponse[AnyModel])
+        .map(jsonResponse[Model])
     }
   }
 
@@ -124,10 +124,10 @@ case class Metrics @Inject()(
 
   def restricted: EssentialAction = statusCache.status((_: RequestHeader) => "pages:restrictedMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](SearchParams.empty, PageParams(limit = 0),
+      find[Model](SearchParams.empty, PageParams(limit = 0),
         entities = List(EntityType.HistoricalAgent, EntityType.DocumentaryUnit, EntityType.HistoricalAgent),
         facetBuilder = restrictedFacets)
-        .map(jsonResponse[AnyModel])
+        .map(jsonResponse[Model])
     }
   }
 
@@ -146,9 +146,9 @@ case class Metrics @Inject()(
 
   def agentTypes: EssentialAction = statusCache.status((_: RequestHeader) => "pages:agentTypeMetric", OK, metricCacheTime) {
     OptionalUserAction.async { implicit request =>
-      find[AnyModel](SearchParams.empty, PageParams.empty,
+      find[Model](SearchParams.empty, PageParams.empty,
         entities = List(EntityType.HistoricalAgent), facetBuilder = agentTypeFacets)
-        .map(jsonResponse[AnyModel])
+        .map(jsonResponse[Model])
     }
   }
 

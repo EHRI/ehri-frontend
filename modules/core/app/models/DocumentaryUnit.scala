@@ -69,7 +69,7 @@ case class DocumentaryUnitF(
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
-) extends Model
+) extends ModelData
   with Persistable
   with Described {
 
@@ -81,7 +81,7 @@ case class DocumentaryUnitF(
 
 object DocumentaryUnit {
   import Entity._
-  import DescribedMeta._
+  import DescribedModel._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
   import EnumUtils.enumMapping
@@ -130,15 +130,14 @@ object DocumentaryUnit {
 }
 
 case class DocumentaryUnit(
-  model: DocumentaryUnitF,
+  data: DocumentaryUnitF,
   holder: Option[Repository] = None,
   parent: Option[DocumentaryUnit] = None,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel
-  with DescribedMeta
+) extends Model
+  with DescribedModel
   with Hierarchical[DocumentaryUnit]
   with Holder[DocumentaryUnit]
   with Accessible {

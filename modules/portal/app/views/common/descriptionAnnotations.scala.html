@@ -1,7 +1,7 @@
-@(item: models.base.AnyModel, desc: models.base.Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.Model, desc: models.base.Description, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <div class="description-annotations annotation-set">
-    @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.model.field.isEmpty)) { annotations =>
+    @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.data.field.isEmpty)) { annotations =>
         @if(userOpt.isDefined || annotations.nonEmpty) {
             <h3 class="description-annotations-header block-header">@Messages("annotation.description")</h3>
         }

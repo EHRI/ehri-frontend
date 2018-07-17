@@ -1,20 +1,20 @@
-@(event: SystemEvent, subjects: utils.Page[models.base.AnyModel], params: utils.PageParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(event: SystemEvent, subjects: utils.Page[models.base.Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, prefs: utils.SessionPrefs, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("activity"), defines.EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("activity")) {
         }
         <div class="timeline-heading">
-            @for(eventType <- event.model.eventType; user <- event.actioner; item <- event.effectiveSubject) {
+            @for(eventType <- event.data.eventType; user <- event.actioner; item <- event.effectiveSubject) {
                 <h4 class="event-title">
                     @Html(Messages("timeline.eventType." + eventType, views.html.helpers.linkTo(user), Messages("timeline.target." + item.isA.toString)))
                 </h4>
             }
             <a class="event-time"
                     href="@controllers.portal.routes.Portal.eventDetails(event.id)"
-                    title="@event.model.timestamp">
+                    title="@event.data.timestamp">
                 <i class="glyphicon glyphicon-time"></i>
-                @views.Helpers.relativeDate(event.model.timestamp)
+                @views.Helpers.relativeDate(event.data.timestamp)
             </a>
         </div>
 

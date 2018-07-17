@@ -1,7 +1,7 @@
 @(item: DocumentaryUnit, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 <h5>@views.html.helpers.linkTo(item)</h5>
-@item.model.primaryDescription.map { desc =>
+@item.data.primaryDescription.map { desc =>
     <div class="search-item-details">
         <ul class="doc-search-details">
             @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)

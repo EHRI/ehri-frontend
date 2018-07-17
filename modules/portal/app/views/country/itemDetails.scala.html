@@ -10,11 +10,11 @@
         @views.html.helpers.contentOrEmpty {
             @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
                 @defining("country") { implicit fieldPrefix =>
-                    @textField(item, item.id, item.model.abs, ABSTRACT)
-                    @textField(item, item.id, item.model.history, HISTORY)
-                    @textField(item, item.id, item.model.situation, SITUATION)
-                    @textField(item, item.id, item.model.summary, DATA_SUMMARY)
-                    @textField(item, item.id, item.model.extensive, DATA_EXTENSIVE)
+                    @textField(item, item.id, item.data.abs, ABSTRACT)
+                    @textField(item, item.id, item.data.history, HISTORY)
+                    @textField(item, item.id, item.data.situation, SITUATION)
+                    @textField(item, item.id, item.data.summary, DATA_SUMMARY)
+                    @textField(item, item.id, item.data.extensive, DATA_EXTENSIVE)
                 }
             }
         } {
@@ -30,16 +30,16 @@
                 </div>
                 <div class="panel-body">
                     <ul class="nav">
-                        @if(item.model.history.isDefined) {
+                        @if(item.data.history.isDefined) {
                             <li role="presentation" class="active"><a href="#@{item.id}-@HISTORY">@Messages("country." + HISTORY)</a></li>
                         }
-                        @if(item.model.situation.isDefined) {
+                        @if(item.data.situation.isDefined) {
                             <li role="presentation" class="active"><a href="#@{item.id}-@SITUATION">@Messages("country." + SITUATION)</a></li>
                         }
-                        @if(item.model.summary.isDefined) {
+                        @if(item.data.summary.isDefined) {
                             <li role="presentation" class="active"><a href="#@{item.id}-@DATA_SUMMARY">@Messages("country." + DATA_SUMMARY)</a></li>
                         }
-                        @if(item.model.extensive.isDefined) {
+                        @if(item.data.extensive.isDefined) {
                             <li role="presentation" class="active">
                                 <a href="#@{item.id}-@DATA_EXTENSIVE">@Messages("country." + DATA_EXTENSIVE)</a>
                             </li>

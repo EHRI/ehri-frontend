@@ -17,7 +17,7 @@ import utils.caching.FutureCache
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import models.base.AnyModel
+import models.base.Model
 import models.view.UserDetails
 import global.{GlobalConfig, ItemLifecycle}
 import play.api.cache.SyncCacheApi
@@ -193,7 +193,7 @@ trait PortalController
   protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
     FutureCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
-      userDataApi.watching[AnyModel](userId, PageParams.empty.withoutLimit).map { page =>
+      userDataApi.watching[Model](userId, PageParams.empty.withoutLimit).map { page =>
         page.items.map(_.id)
       }
     }

@@ -14,9 +14,9 @@ from web forms (and in some cases, client side JSON), and writing form deseriali
 metadata can be ignored.
 
 The way this internal/metadata duality manifests itself is best described from example: the model for the documentary
-unit type is called `DocumentaryUnit`, which is a `MetaModel`. `MetaModel`s have an `model` field containing their
-internal data, which for the documentary unit is `DocumentaryUnitF` (a `Model`, the `F` suffix standing for "form" (which is
-unsatisfactory and subject to change!). Alongside the `model` field, `DocumentaryUnit` also has various metadata fields,
+unit type is called `DocumentaryUnit`, which is a `Model`. `Model`s have a `data` field containing their
+internal data, which for the documentary unit is `DocumentaryUnitF` (a `ModelData` instance, the `F` suffix standing for "form" (which is
+unsatisfactory and subject to change!). Alongside the `data` field, `DocumentaryUnit` also has various metadata fields,
 such as it's `holder` (a repository) and its `parent` (another documentary unit, if it exists), which are not directly
 updatable when a particular documentary unit is modified.
 

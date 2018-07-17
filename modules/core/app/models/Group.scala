@@ -39,7 +39,7 @@ case class GroupF(
   identifier: String,
   name: String,
   description: Option[String] = None
-) extends Model with Persistable
+) extends ModelData with Persistable
 
 object Group {
   import GroupF._
@@ -75,17 +75,17 @@ object Group {
 
 
 case class Group(
-  model: GroupF,
+  data: GroupF,
   groups: Seq[Group] = Nil,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends MetaModel
+) extends Model
   with Accessor
   with Accessible {
 
   type T = GroupF
 
-  override def toStringLang(implicit messages: Messages): String = model.name
+  override def toStringLang(implicit messages: Messages): String = data.name
 }
 

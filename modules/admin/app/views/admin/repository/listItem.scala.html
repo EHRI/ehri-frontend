@@ -5,7 +5,7 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.institutions.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
-    @item.model.primaryDescription.map { desc =>
+    @item.data.primaryDescription.map { desc =>
         @common.otherNameListSmall((desc.parallelFormsOfName ++ desc.otherFormsOfName).flatten.toList)
         <div class="search-item-details">
             <ul>
@@ -17,7 +17,7 @@
                 }
                 @item.latestEvent.map { event =>
                     <li title="@common.eventTitle(event)">
-                        <time datetime="@event.model.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</time>
+                        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
                     </li>
                 }
             </ul>

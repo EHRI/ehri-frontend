@@ -1,7 +1,7 @@
 package models
 
 import defines.EntityType
-import models.base.{AnyModel, MetaModel, Model, Persistable}
+import models.base.{Model, ModelData, Persistable}
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -19,7 +19,7 @@ case class MaintenanceEventF(
   agentType: Option[String] = None,
   eventType: Option[String] = None,
   order: Option[Int] = None
-) extends Model with Persistable {
+) extends ModelData with Persistable {
   override def toString: String = this match {
     case MaintenanceEventF(_, _, Some(dt), Some(src), _, _, _) => s"$dt: $src"
     case MaintenanceEventF(_, _, Some(dt), _, _, Some(et), _) => s"$dt: $et"
@@ -74,11 +74,11 @@ object MaintenanceEvent {
 }
 
 case class MaintenanceEvent(
-  model: MaintenanceEventF,
+  data: MaintenanceEventF,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel with MetaModel {
+) extends Model {
 
   type T = MaintenanceEventF
 
-  override def toStringLang(implicit messages: Messages): String = model.toString
+  override def toStringLang(implicit messages: Messages): String = data.toString
 }

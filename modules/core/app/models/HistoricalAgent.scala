@@ -46,7 +46,7 @@ case class HistoricalAgentF(
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: Seq[HistoricalAgentDescriptionF] = Nil
-) extends Model
+) extends ModelData
   with Persistable
   with Described {
 
@@ -57,7 +57,7 @@ case class HistoricalAgentF(
 object HistoricalAgent {
   import play.api.libs.functional.syntax._
   import Entity._
-  import DescribedMeta._
+  import DescribedModel._
   import HistoricalAgentF._
   import Ontology._
   import utils.EnumUtils.enumMapping
@@ -92,14 +92,13 @@ object HistoricalAgent {
 
 
 case class HistoricalAgent(
-  model: HistoricalAgentF,
+  data: HistoricalAgentF,
   set: Option[AuthoritativeSet],
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel
-  with DescribedMeta
+) extends Model
+  with DescribedModel
   with Accessible {
 
   type T = HistoricalAgentF

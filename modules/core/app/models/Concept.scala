@@ -61,7 +61,7 @@ case class ConceptF(
   latitude: Option[BigDecimal] = None,
   seeAlso: Option[Seq[String]] = None,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
-) extends Model with Persistable with Described {
+) extends ModelData with Persistable with Described {
 
   type D = ConceptDescriptionF
 }
@@ -70,7 +70,7 @@ case class ConceptF(
 object Concept {
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
-  import DescribedMeta._
+  import DescribedModel._
   import Entity._
   import ConceptF._
 
@@ -117,16 +117,15 @@ object Concept {
 
 
 case class Concept(
-  model: ConceptF,
+  data: ConceptF,
   vocabulary: Option[Vocabulary],
   parent: Option[Concept] = None,
   broaderTerms: Seq[Concept] = Nil,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel
-  with DescribedMeta
+) extends Model
+  with DescribedModel
   with Hierarchical[Concept]
   with Accessible
   with Holder[Concept] {

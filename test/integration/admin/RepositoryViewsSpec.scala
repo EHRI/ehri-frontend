@@ -13,7 +13,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
+    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 

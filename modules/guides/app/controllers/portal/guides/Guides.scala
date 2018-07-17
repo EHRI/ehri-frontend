@@ -10,7 +10,7 @@ import controllers.portal.base.PortalController
 import controllers.{AppComponents, renderError}
 import defines.EntityType
 import models.GuidePage.Layout
-import models.base.AnyModel
+import models.base.Model
 import models.{GeoCoordinates, Guide, GuidePage, _}
 import play.api.data.Forms._
 import play.api.data._
@@ -163,7 +163,7 @@ case class Guides @Inject()(
   /*
    *    Return Ajax 
    */
-  private def guideJsonItem(item: AnyModel, count: Long = 0)(implicit requestHeader: RequestHeader): JsValue = {
+  private def guideJsonItem(item: Model, count: Long = 0)(implicit requestHeader: RequestHeader): JsValue = {
     item match {
       case it: HistoricalAgent =>
         Json.obj(
@@ -190,8 +190,8 @@ case class Guides @Inject()(
             Json.toJson(Map(
               ConceptF.DEFINITION -> Json.toJson(desc.definition),
               ConceptF.SCOPENOTE -> Json.toJson(desc.scopeNote),
-              ConceptF.LONGITUDE -> Json.toJson(it.model.longitude),
-              ConceptF.LATITUDE -> Json.toJson(it.model.latitude)
+              ConceptF.LONGITUDE -> Json.toJson(it.data.longitude),
+              ConceptF.LATITUDE -> Json.toJson(it.data.latitude)
             ))
           })
         )
@@ -199,7 +199,7 @@ case class Guides @Inject()(
     }
   }
 
-  private def guideJson(page: utils.Page[(AnyModel, services.search.SearchHit)], links: Map[String, Long], pageParam: String = "page")(implicit request: RequestHeader): JsValue = {
+  private def guideJson(page: utils.Page[(Model, services.search.SearchHit)], links: Map[String, Long], pageParam: String = "page")(implicit request: RequestHeader): JsValue = {
     Json.obj(
       "items" -> Json.toJson(page.items.map { case (agent, hit) =>
         guideJsonItem(agent, links.getOrElse(agent.id, 0))
@@ -376,7 +376,7 @@ case class Guides @Inject()(
     }
   }
 
-  private def pagify[T](docs: SearchResult[T], accessPoints: Seq[AnyModel])(implicit requestHeader: RequestHeader): SearchResult[T] = {
+  private def pagify[T](docs: SearchResult[T], accessPoints: Seq[Model])(implicit requestHeader: RequestHeader): SearchResult[T] = {
     docs.copy(
       facets = docs.facets ++ (if (accessPoints.nonEmpty)
         Seq(AppliedFacet("kw", accessPoints.map(_.id)))
@@ -395,7 +395,7 @@ case class Guides @Inject()(
     )
   }
 
-  private def mapAccessPoints(guide: Guide, facets: Seq[AnyModel]): Map[String, Seq[AnyModel]] = {
+  private def mapAccessPoints(guide: Guide, facets: Seq[Model]): Map[String, Seq[Model]] = {
     guides.findPages(guide).map { page =>
       page.content -> facets.collect {
         case f: Concept if f.vocabulary.exists(_.id == page.content) => f
@@ -432,10 +432,10 @@ case class Guides @Inject()(
             filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             sort = SearchSort.Name
           ) else immediate(SearchResult.empty)
-          selectedAccessPoints <- userDataApi.fetch[AnyModel](facets)
+          selectedAccessPoints <- userDataApi.fetch[Model](facets)
             .map(_.collect{ case Some(h) => h})
           availableFacets <- otherFacets(guide, ids)
-          tempAccessPoints <- userDataApi.fetch[AnyModel](gids = availableFacets)
+          tempAccessPoints <- userDataApi.fetch[Model](gids = availableFacets)
             .map(_.collect{ case Some(h) => h})
         } yield {
           Ok(views.html.guides.facet(
@@ -508,7 +508,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t)
         case _ => searchLinks(id)
       })
-      docs <- userDataApi.fetch[AnyModel](gids = gids).map(_.collect{ case Some(h) => h})
+      docs <- userDataApi.fetch[Model](gids = gids).map(_.collect{ case Some(h) => h})
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
@@ -521,7 +521,7 @@ case class Guides @Inject()(
         case Some(t) => searchLinks(id, t, Some(context))
         case _ => searchLinks(id, context = Some(context))
       })
-      docs <- userDataApi.fetch[AnyModel](gids = gids).map(_.collect{ case Some(h) => h})
+      docs <- userDataApi.fetch[Model](gids = gids).map(_.collect{ case Some(h) => h})
     } yield Ok(Json.toJson(docs.zip(gids).map { case (doc, gid) =>
       Json.toJson(FilterHit(doc.id, "", doc.toStringLang, doc.isA, None, gid))
     }))
