@@ -1,0 +1,68 @@
+@(desc: Field)(implicit userOpt: Option[UserProfile], req: RequestHeader)
+
+@import IsadG.{ACCESS_POINTS => _, _}
+@import views.html.formHelpers._
+@import models.base.Description._
+
+
+@hiddenInput(desc(Entity.ID))
+@hiddenInput(desc(SOURCE_FILE_ID))
+@hiddenInput(desc(CREATION_PROCESS))
+@hiddenInput(desc(LANG_CODE))
+
+@defining(desc(IDENTITY_AREA)) { desc =>
+    @hiddenInput(desc(TITLE))
+    @hiddenInputSet(desc, PARALLEL_FORMS_OF_NAME)
+    @hiddenInput(desc(REF))
+    @hiddenInput(desc(Entity.IDENTIFIER))
+    @hiddenDateSet(desc, DATES)
+    @hiddenInputSet(desc, UNIT_DATES)
+    @hiddenInput(desc(LEVEL_OF_DESCRIPTION))
+    @hiddenInputSet(desc, PHYSICAL_LOCATION)
+    @hiddenInput(desc(EXTENT_MEDIUM))
+}
+
+@defining(desc(CONTEXT_AREA)) { desc =>
+    @hiddenInput(desc(ADMIN_BIOG))
+    @hiddenInput(desc(ARCH_HIST))
+    @hiddenInput(desc(ACQUISITION))
+}
+
+@defining(desc(CONTENT_AREA)) { desc =>
+    @hiddenInput(desc(SCOPE_CONTENT))
+    @hiddenInput(desc(APPRAISAL))
+    @hiddenInput(desc(ACCRUALS))
+    @hiddenInput(desc(SYS_ARR))
+}
+
+@defining(desc(CONDITIONS_AREA)) { desc =>
+    @hiddenInput(desc(ACCESS_COND))
+    @hiddenInput(desc(REPROD_COND))
+    @hiddenInputSet(desc, LANG_MATERIALS)
+    @hiddenInputSet(desc, SCRIPT_MATERIALS)
+    @hiddenInput(desc(PHYSICAL_CHARS))
+    @hiddenInputSet(desc, FINDING_AIDS)
+}
+
+@defining(desc(MATERIALS_AREA)) { desc =>
+    @hiddenInputSet(desc, LOCATION_ORIGINALS)
+    @hiddenInputSet(desc, LOCATION_COPIES)
+    @hiddenInputSet(desc, RELATED_UNITS)
+    @hiddenInputSet(desc, SEPARATED_UNITS)
+    @hiddenInput(desc(PUBLICATION_NOTE))
+}
+
+@hiddenInputSet(desc, NOTES)
+
+@defining(desc(CONTROL_AREA)) { desc =>
+    @hiddenInput(desc(ARCHIVIST_NOTE))
+    @hiddenInputSet(desc, SOURCES)
+    @hiddenInput(desc(RULES_CONVENTIONS))
+    @hiddenInput(desc(DATES_DESCRIPTIONS))
+    @hiddenInputSet(desc, PROCESS_INFO)
+}
+
+@hiddenAccessPointSet(desc, ACCESS_POINTS)
+@hiddenMaintenanceEventSet(desc, MAINTENANCE_EVENTS)
+@hiddenUnknownDataSet(desc, UNKNOWN_DATA)
+
