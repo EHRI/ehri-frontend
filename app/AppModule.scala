@@ -47,7 +47,7 @@ class AppModule extends AbstractModule {
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
     bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
-    bind(classOf[ItemLifecycle]).to(classOf[NoopItemLifecycle])
+    bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[DataApi]).to(classOf[DataApiService])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
