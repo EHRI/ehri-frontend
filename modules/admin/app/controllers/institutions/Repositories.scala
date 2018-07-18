@@ -123,18 +123,7 @@ case class Repositories @Inject()(
       form.fill(request.item.data), repositoryRoutes.updatePost(id)))
   }
 
-  private def geocodingTransformer: RepositoryF => Future[RepositoryF] = { r =>
-    r.descriptions.flatMap(_.addresses).find(_.streetAddress.isDefined).map { a =>
-      geocoder.geocode(a).map {
-        case Some(point) =>
-          r.copy(latitude = Some(point.latitude), longitude = Some(point.longitude))
-        case _ => r
-      }
-    }.getOrElse(Future.successful(r))
-  }
-
-  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form,
-      transformer = geocodingTransformer).apply { implicit request =>
+  def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.repository.edit(
