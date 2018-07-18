@@ -1,0 +1,7 @@
+@(desc: play.api.data.Field)
+
+@import models.DatePeriodF._
+
+@List(Entity.ID, DESCRIPTION, TYPE, PRECISION, START_DATE, END_DATE).map { f =>
+    @formHelpers.hiddenInput(desc(f))
+}

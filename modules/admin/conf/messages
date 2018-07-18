@@ -182,14 +182,18 @@ forms.logMessagePlaceholder=Tell people what you''re doing (optional, 400 charac
 # What we say when a logical item has no descriptions
 describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
+describedEntity.deleteDescription.submit=Delete
+describedEntity.deleteDescription.logMessage=Deleted description ''{0}''
 describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
 describedEntity.noData=No information given
 describedEntity.notGiven=Not Given
 describedEntity.createDescription=Add Description
 describedEntity.createDescription.item=Add Description to {0}
 describedEntity.createDescription.submit=Add Description
+describedEntity.createDescription.logMessage=Added Description
 describedEntity.updateDescription=Update Description
 describedEntity.updateDescription.submit=Update Description
+describedEntity.updateDescription.logMessage=Updated description ''{0}''
 describedEntity.manageAccessPoints=Manage Access Points
 describedEntity.creationProcess.importWarning=Warning! This description is marked as being\
   created via an import process. This means that changes to the data may be overwritten if\

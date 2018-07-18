@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitDescriptionF], defaults: Option[play.api.Configuration], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitF], defaults: Option[play.api.Configuration], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -7,11 +7,19 @@
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
-            @defining(defaults) { implicit defs =>
-                @descriptionForm(f(""))
+            @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
+                @helper.repeat(f("descriptions"), min = 0) { desc =>
+                    @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                }
+                @defining(defaults) { implicit defs =>
+                    @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"))
+                }
             }
 
-            @formHelpers.submitButtonWithLogMessageInput(Messages("describedEntity.createDescription.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+            @formHelpers.submitButtonWithLogMessageInput(
+                Messages("describedEntity.createDescription.submit"),
+                defaultLogMessage = Messages("describedEntity.createDescription.logMessage"),
+                cancel = views.admin.Helpers.linkToOpt(item))
         }
     }
 } {
