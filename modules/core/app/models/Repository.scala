@@ -65,24 +65,28 @@ case class RepositoryF(
   logoUrl: Option[String] = None,
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None
-) extends Model
+) extends ModelData
   with Persistable
-  with Described[RepositoryDescriptionF]
+  with Described {
+
+  type D = RepositoryDescriptionF
+}
 
 case class Repository(
-  model: RepositoryF,
+  data: RepositoryF,
   country: Option[Country] = None,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[RepositoryF]
+) extends Model
   with Aliased
-  with DescribedMeta[RepositoryDescriptionF,RepositoryF]
+  with DescribedModel
   with Accessible
   with Holder[DocumentaryUnit] {
 
-  override def allNames(implicit messages: Messages): Seq[String] = model.primaryDescription(messages) match {
+  type T = RepositoryF
+
+  override def allNames(implicit messages: Messages): Seq[String] = data.primaryDescription(messages) match {
     case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)
     case None => Seq(toStringLang(messages))
   }
@@ -105,7 +109,7 @@ case class Repository(
 
 object Repository {
   import Entity._
-  import DescribedMeta._
+  import DescribedModel._
   import RepositoryF._
   import Ontology._
   import utils.EnumUtils.enumMapping

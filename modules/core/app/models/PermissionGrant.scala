@@ -2,7 +2,7 @@ package models
 
 import java.time.ZonedDateTime
 
-import models.base.{Accessor, AnyModel, MetaModel, Model}
+import models.base.{Accessor, Model, ModelData}
 import defines.{EntityType, PermissionType}
 import models.json._
 import play.api.libs.json._
@@ -39,7 +39,7 @@ case class PermissionGrantF(
   id: Option[String],
   timestamp: Option[ZonedDateTime],
   permission: PermissionType.Value
-) extends Model
+) extends ModelData
 
 object PermissionGrant {
   import PermissionGrantF._
@@ -50,8 +50,8 @@ object PermissionGrant {
   implicit val metaReads: Reads[PermissionGrant] = (
     __.read(permissionGrantReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadHeadNullable(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadSeqOrEmpty(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadHeadNullable(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter.restReads) and
     (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).readHeadNullable[UserProfile](UserProfile.UserProfileResource.restReads) and
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
@@ -63,15 +63,16 @@ object PermissionGrant {
 }
 
 case class PermissionGrant(
-  model: PermissionGrantF,
+  data: PermissionGrantF,
   accessor: Option[Accessor] = None,
-  targets: Seq[AnyModel] = Nil,
-  scope: Option[AnyModel] = None,
+  targets: Seq[Model] = Nil,
+  scope: Option[Model] = None,
   grantee: Option[UserProfile] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[PermissionGrantF] {
+) extends Model {
+
+  type T = PermissionGrantF
 
   override def toStringLang(implicit messages: Messages): String =
-    s"<PermissionGrant: ${accessor.map(_.toStringLang)}: ${targets.headOption.map(_.toStringLang)} [${model.permission}}]>"
+    s"<PermissionGrant: ${accessor.map(_.toStringLang)}: ${targets.headOption.map(_.toStringLang)} [${data.permission}}]>"
 }

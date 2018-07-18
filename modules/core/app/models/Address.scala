@@ -1,7 +1,7 @@
 package models
 
 import defines.EntityType
-import models.base.Model
+import models.base.ModelData
 import play.api.libs.json._
 import models.json._
 import services.data.Writable
@@ -50,7 +50,7 @@ case class AddressF(
   telephone: Seq[String] = Nil,
   fax: Seq[String] = Nil,
   url: Seq[String] = Nil
-  ) extends Model {
+  ) extends ModelData {
 
   def toSeq: Seq[String] = Seq(
     streetAddress,

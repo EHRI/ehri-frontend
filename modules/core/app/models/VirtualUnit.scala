@@ -39,9 +39,11 @@ case class VirtualUnitF(
   identifier: String,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
-) extends Model
+) extends ModelData
   with Persistable
-  with Described[DocumentaryUnitDescriptionF] {
+  with Described {
+
+  type D = DocumentaryUnitDescriptionF
 
   override def description(did: String): Option[DocumentaryUnitDescriptionF]
       = descriptions.find(d => d.id.isDefined && d.id.get == did)
@@ -95,7 +97,7 @@ object VirtualUnit {
 }
 
 case class VirtualUnit(
-  model: VirtualUnitF,
+  data: VirtualUnitF,
   includedUnits: Seq[DocumentaryUnit] = List.empty,
   author: Option[Accessor] = None,
   parent: Option[VirtualUnit] = None,
@@ -103,25 +105,26 @@ case class VirtualUnit(
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[VirtualUnitF]
+) extends Model
   with Hierarchical[VirtualUnit]
   with Holder[VirtualUnit]
-  with DescribedMeta[DocumentaryUnitDescriptionF, VirtualUnitF]
+  with DescribedModel
   with Accessible {
 
+  type T = VirtualUnitF
+
   override def toStringLang(implicit messages: Messages): String = {
-    if (model.descriptions.nonEmpty) super.toStringLang(messages)
+    if (data.descriptions.nonEmpty) super.toStringLang(messages)
     else includedUnits.headOption.map(_.toStringLang(messages)).getOrElse(id)
   }
 
   def allDescriptions: Seq[DocumentaryUnitDescriptionF] =
-    includedUnits.flatMap(_.descriptions) ++ model.descriptions
+    includedUnits.flatMap(_.descriptions) ++ data.descriptions
 
   def asDocumentaryUnit: DocumentaryUnit = new DocumentaryUnit(
     new DocumentaryUnitF(
-      id = model.id,
-      identifier = model.identifier,
+      id = data.id,
+      identifier = data.identifier,
       descriptions = if(descriptions.isEmpty) allDescriptions else descriptions
     ),
     holder = holder,

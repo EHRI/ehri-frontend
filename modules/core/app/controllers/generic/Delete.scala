@@ -1,6 +1,7 @@
 package controllers.generic
 
-import defines.PermissionType
+import defines.{EventType, PermissionType}
+import models.base.{Model, ModelData}
 import play.api.mvc._
 import services.data.ContentType
 
@@ -9,9 +10,7 @@ import scala.concurrent.Future
 /**
   * Controller trait for deleting [[models.base.Accessible]] items.
   */
-trait Delete[MT] extends Write {
-
-  self: Read[MT] =>
+trait Delete[MT <: Model] extends Read[MT] with Write {
 
   protected def CheckDeleteAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[ItemPermissionRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Delete)
@@ -20,9 +19,11 @@ trait Delete[MT] extends Write {
     new CoreActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        userDataApi.delete(id, logMsg = getLogMessage).map { _ =>
-          OptionalUserRequest(request.userOpt, request)
-        }
+        for {
+          pre <- itemLifecycle.preSave(Some(id), Some(req.item), req.item.data, EventType.deletion)
+          _ <- userDataApi.delete(id, logMsg = getLogMessage)
+          post <- itemLifecycle.postSave(id, req.item, EventType.deletion)
+        } yield OptionalUserRequest(request.userOpt, request)
       }
     }
 

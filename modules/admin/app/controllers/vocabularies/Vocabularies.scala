@@ -25,8 +25,8 @@ case class Vocabularies @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient
 ) extends AdminController
-  with CRUD[VocabularyF, Vocabulary]
-  with Creator[ConceptF, Concept, Vocabulary]
+  with CRUD[Vocabulary]
+  with Creator[Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
   with Annotate[Vocabulary]
@@ -71,7 +71,7 @@ case class Vocabularies @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.vocabulary.edit(
-      request.item, form.fill(request.item.model), vocabRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), vocabRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

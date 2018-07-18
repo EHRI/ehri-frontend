@@ -1,7 +1,7 @@
-@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.Model, path: Seq[models.base.Model], highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @details(d: DocumentaryUnit) = {
-    @d.model.primaryDescription.map { desc =>
+    @d.data.primaryDescription.map { desc =>
         <div class="search-item-details">
             <ul class="doc-search-details">
                 @views.html.documentaryUnit.listItemMeta(d, desc, highlighter)

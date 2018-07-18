@@ -4,10 +4,10 @@
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("link") { implicit fieldPrefix =>
-            @views.html.admin.common.stringValue(item.model.description, LinkF.DESCRIPTION)
-            @views.html.admin.common.dateSet(item.model, LinkF.DATES)
-            <span class="label label-default">@Messages("link." + item.model.linkType.toString)</span>
-            @item.model.linkField.map { field =>
+            @views.html.admin.common.stringValue(item.data.description, LinkF.DESCRIPTION)
+            @views.html.admin.common.dateSet(item.data, LinkF.DATES)
+            <span class="label label-default">@Messages("link." + item.data.linkType.toString)</span>
+            @item.data.linkField.map { field =>
                 <span class="label label-warning">@Messages("link." + field.toString)</span>
             }
 

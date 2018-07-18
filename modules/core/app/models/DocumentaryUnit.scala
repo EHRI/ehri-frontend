@@ -69,9 +69,11 @@ case class DocumentaryUnitF(
 
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: Seq[DocumentaryUnitDescriptionF] = Nil
-) extends Model
+) extends ModelData
   with Persistable
-  with Described[DocumentaryUnitDescriptionF] {
+  with Described {
+
+  type D = DocumentaryUnitDescriptionF
 
   override def description(did: String): Option[DocumentaryUnitDescriptionF] =
     descriptions.find(d => d.id.isDefined && d.id.get == did)
@@ -79,7 +81,7 @@ case class DocumentaryUnitF(
 
 object DocumentaryUnit {
   import Entity._
-  import DescribedMeta._
+  import DescribedModel._
   import models.DocumentaryUnitF._
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
   import EnumUtils.enumMapping
@@ -128,18 +130,19 @@ object DocumentaryUnit {
 }
 
 case class DocumentaryUnit(
-  model: DocumentaryUnitF,
+  data: DocumentaryUnitF,
   holder: Option[Repository] = None,
   parent: Option[DocumentaryUnit] = None,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[DocumentaryUnitF]
-  with DescribedMeta[DocumentaryUnitDescriptionF, DocumentaryUnitF]
+) extends Model
+  with DescribedModel
   with Hierarchical[DocumentaryUnit]
   with Holder[DocumentaryUnit]
   with Accessible {
+
+  type T = DocumentaryUnitF
 
   def url: Option[URL] = (for {
     desc <- descriptions

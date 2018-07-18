@@ -2,11 +2,11 @@
 
 <dl class="item-meta">
     <dt>@Messages("documentaryUnit.identifier")</dt>
-    <dd class="item-meta-identifier">@item.model.identifier</dd>
+    <dd class="item-meta-identifier">@item.data.identifier</dd>
     <dt>@Messages("documentaryUnit.languageCode")</dt>
     <dd class="item-meta-lang-code">@views.Helpers.languageCodeToName(desc.languageCode)</dd>
 
-    @item.model.otherIdentifiers.map { idents =>
+    @item.data.otherIdentifiers.map { idents =>
         <dt>@Messages("documentaryUnit.otherIdentifiers")</dt>
         <dd class="item-meta-alternate-identifiers">
             <ul>

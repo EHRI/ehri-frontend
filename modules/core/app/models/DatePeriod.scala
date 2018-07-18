@@ -5,7 +5,7 @@ import java.time.temporal.TemporalAccessor
 import java.time.{LocalDate, Year, YearMonth}
 
 import defines.EntityType
-import models.base.Model
+import models.base.ModelData
 import services.data.Writable
 import utils.EnumUtils
 
@@ -66,7 +66,7 @@ case class DatePeriodF(
   endDate: Option[String] = None,
   precision: Option[DatePeriodF.DatePeriodPrecision.Type] = None,
   description: Option[String] = None
-) extends Model {
+) extends ModelData {
   import scala.util.control.Exception._
 
   private def formatDateRaw(s: String): String = {

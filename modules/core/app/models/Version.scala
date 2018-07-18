@@ -1,6 +1,6 @@
 package models
 
-import models.base.{AnyModel, MetaModel, Model}
+import models.base.{Model, ModelData}
 import defines.EntityType
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
@@ -17,11 +17,11 @@ case class VersionF(
   itemType: EntityType.Value,
   itemId: String,
   itemData: Option[String]
-) extends Model {
-  def entity: Option[AnyModel] = try {
+) extends ModelData {
+  def entity: Option[Model] = try {
     for {
       data <- itemData
-      item <- Json.parse(data).validate(AnyModel.Converter.restReads).asOpt
+      item <- Json.parse(data).validate(Model.Converter.restReads).asOpt
     } yield item
   } catch {
     case _: JsonParseException => None
@@ -46,10 +46,13 @@ object VersionF {
 }
 
 case class Version(
-  model: VersionF,
+  data: VersionF,
   event: Option[SystemEvent],
   meta: JsObject
-) extends MetaModel[VersionF]
+) extends Model {
+
+  type T = VersionF
+}
 
 object Version {
   import Entity._

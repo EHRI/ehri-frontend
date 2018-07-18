@@ -13,7 +13,7 @@
 
 @anchor = @{descriptionId.map(id => s"#desc-$id").getOrElse("")}
 
-@item.model.primaryDescription(descriptionId).map { desc =>
+@item.data.primaryDescription(descriptionId).map { desc =>
     @defining(views.Helpers.textDirection(desc)) { dir =>
         <div class="search-item" id="@item.id" dir="@dir">
             <div class="search-item-actions">

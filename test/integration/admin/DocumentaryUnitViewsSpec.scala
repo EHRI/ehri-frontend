@@ -14,7 +14,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   private val repoRoutes = controllers.institutions.routes.Repositories
 
   val userProfile = UserProfile(
-    model = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
+    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
   )
 
@@ -315,70 +315,6 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for c4"
       indexEventBuffer.last must not equalTo "c4"
-    }
-
-    "allow adding extra descriptions" in new ITestApp {
-      val testItem = "c1"
-      val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("eng"),
-        "identityArea.name" -> Seq("A Second Description"),
-        "contentArea.scopeAndContent" -> Seq("This is a second description")
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = FakeRequest(docRoutes.createDescriptionPost(testItem))
-        .withUser(privilegedUser)
-        .withCsrf.callWith(testData)
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)
-        .call()
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("This is a second description")
-      indexEventBuffer.last must equalTo("c1")
-    }
-
-    "allow updating individual descriptions" in new ITestApp {
-      val testItem = "c1"
-      val testItemDesc = "cd1"
-      val testData: Map[String, Seq[String]] = Map(
-        "languageCode" -> Seq("eng"),
-        "id" -> Seq("cd1"),
-        "identityArea.name" -> Seq("An Updated Description"),
-        "contentArea.scopeAndContent" -> Seq("This is an updated description")
-      )
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = FakeRequest(docRoutes.updateDescriptionPost(testItem, testItemDesc))
-        .withUser(privilegedUser)
-        .withCsrf
-        .callWith(testData)
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)
-        .call()
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("This is an updated description")
-      contentAsString(getR) must not contain "Some description text for c1"
-      indexEventBuffer.last must equalTo("c1")
-    }
-
-    "allow deleting individual descriptions" in new ITestApp {
-      val testItem = "c1"
-      val testItemDesc = "cd1-2"
-      // Now try again to update the item, which should succeed
-      // Check we can update the item
-      val cr = FakeRequest(docRoutes.deleteDescriptionPost(testItem, testItemDesc))
-        .withUser(privilegedUser)
-        .withCsrf
-        .call()
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser)
-        .call()
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must not contain "Some alternate description text for c1"
-      indexEventBuffer.last must equalTo("cd1-2")
     }
 
     "allow deleting access points" in new ITestApp {

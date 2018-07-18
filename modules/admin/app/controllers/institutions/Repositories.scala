@@ -1,7 +1,6 @@
 package controllers.institutions
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,10 +11,13 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.geocoding.GeocodingService
 import services.ingest.IngestParams
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
+
+import scala.concurrent.Future
 
 
 @Singleton
@@ -23,12 +25,13 @@ case class Repositories @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
-  searchIndexer: SearchIndexMediator
+  searchIndexer: SearchIndexMediator,
+  geocoder: GeocodingService
 ) extends AdminController
   with Read[Repository]
-  with Update[RepositoryF, Repository]
+  with Update[Repository]
   with Delete[Repository]
-  with Creator[DocumentaryUnitF,DocumentaryUnit, Repository]
+  with Creator[DocumentaryUnit, Repository]
 	with Visibility[Repository]
   with ScopePermissions[Repository]
   with Annotate[Repository]
@@ -117,7 +120,7 @@ case class Repositories @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.edit(request.item,
-      form.fill(request.item.model), repositoryRoutes.updatePost(id)))
+      form.fill(request.item.data), repositoryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

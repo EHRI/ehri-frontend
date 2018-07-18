@@ -8,7 +8,7 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
 import models._
-import models.base.AnyModel
+import models.base.Model
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -75,7 +75,7 @@ case class Portal @Inject()(
   }
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    find[AnyModel](params, paging,
+    find[Model](params, paging,
       facetBuilder = fc.globalSearchFacets, mode = SearchMode.DefaultNone,
       sort = SearchSort.Score,
       entities = defaultSearchTypes).map { result =>
@@ -126,7 +126,7 @@ case class Portal @Inject()(
 
   def eventDetails(id: String, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val eventF: Future[SystemEvent] = userDataApi.get[SystemEvent](id)
-    val subjectsF: Future[Page[AnyModel]] = userDataApi.subjectsForEvent[AnyModel](id, paging)
+    val subjectsF: Future[Page[Model]] = userDataApi.subjectsForEvent[Model](id, paging)
     for {
       event <- eventF
       subjects <- subjectsF
@@ -180,7 +180,7 @@ case class Portal @Inject()(
     FutureCache.getOrElse("index:metrics", Duration(5, TimeUnit.MINUTES)) {
       // Assume no user for fetching global stats
       implicit val userOpt: Option[UserProfile] = None
-      find[AnyModel](
+      find[Model](
         // we don't need results here because we're only using
         // json facet analytics...
         params = SearchParams.empty,

@@ -8,7 +8,7 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
 import models._
-import models.base.AnyModel
+import models.base.Model
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -155,17 +155,17 @@ case class Bookmarks @Inject()(
     }
   }
 
-  private def includedChildren(id: String, parent: AnyModel, params: SearchParams, paging: PageParams = PageParams.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[SearchResult[(AnyModel, SearchHit)]] = {
+  private def includedChildren(id: String, parent: Model, params: SearchParams, paging: PageParams = PageParams.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader): Future[SearchResult[(Model, SearchHit)]] = {
     parent match {
       case d: DocumentaryUnit =>
-        find[AnyModel](
+        find[Model](
           filters = Map(SearchConstants.PARENT_ID -> d.id),
           paging = paging,
           params = params,
           entities = List(d.isA),
           facetBuilder = fc.docSearchFacets)
       case d: VirtualUnit => d.includedUnits match {
-        case _ => find[AnyModel](
+        case _ => find[Model](
           filters = buildFilter(d),
           paging = paging,
           params = params,
@@ -178,7 +178,7 @@ case class Bookmarks @Inject()(
 
 
   def contents(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val itemF: Future[Model] = userDataApi.getAny[Model](id)
     val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(request.user.id))
     for {
       item <- itemF

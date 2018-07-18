@@ -57,7 +57,7 @@ case class ConceptDescriptionF(
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
-) extends Model with Persistable with Description {
+) extends ModelData with Persistable with Description {
 
   override def displayText: Option[String] =
     scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)

@@ -23,8 +23,8 @@ case class Countries @Inject()(
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator
 ) extends AdminController
-  with CRUD[CountryF, Country]
-  with Creator[RepositoryF, Repository, Country]
+  with CRUD[Country]
+  with Creator[Repository, Country]
   with Visibility[Country]
   with ScopePermissions[Country]
   with Annotate[Country]
@@ -77,7 +77,7 @@ case class Countries @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.country.edit(
-      request.item, form.fill(request.item.model), countryRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), countryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

@@ -173,14 +173,14 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     "allow deleting profile with correct confirmation" in new ITestApp {
       // Fetch the current name
       implicit val apiUser = AuthenticatedUser(privilegedUser.id)
-      val cname = await(dataApi.get[UserProfile](privilegedUser.id)).model.name
+      val cname = await(dataApi.get[UserProfile](privilegedUser.id)).data.name
       val data = Map("confirm" -> Seq(cname))
       val delete = FakeRequest(profileRoutes.deleteProfilePost())
         .withUser(privilegedUser).withCsrf.callWith(data)
       status(delete) must equalTo(SEE_OTHER)
 
       // Check user has been anonymised...
-      val cnameAfter = await(dataApi.get[UserProfile](privilegedUser.id)).model.name
+      val cnameAfter = await(dataApi.get[UserProfile](privilegedUser.id)).data.name
       cname must not equalTo cnameAfter
       // The account should be completely deleted...
       await(mockAccounts.findById(privilegedUser.id)) must beNone

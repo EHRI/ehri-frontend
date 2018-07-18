@@ -33,7 +33,7 @@ case class UserProfiles @Inject()(
   with PermissionHolder[UserProfile]
   with ItemPermissions[UserProfile]
   with Read[UserProfile]
-  with Update[UserProfileF,UserProfile]
+  with Update[UserProfile]
   with Delete[UserProfile]
   with Membership[UserProfile]
   with SearchType[UserProfile]
@@ -221,14 +221,14 @@ case class UserProfiles @Inject()(
         account <- accounts.find(_.id == user.id)
       } yield {
         Array(
-          user.model.name,
+          user.data.name,
           account.email,
-          user.model.location.getOrElse(""),
-          user.model.url.orElse(user.model.workUrl).getOrElse(""),
-          user.model.institution.getOrElse(""),
-          user.model.role.getOrElse(""),
-          user.model.about.getOrElse(""),
-          user.model.interests.getOrElse(""),
+          user.data.location.getOrElse(""),
+          user.data.url.orElse(user.data.workUrl).getOrElse(""),
+          user.data.institution.getOrElse(""),
+          user.data.role.getOrElse(""),
+          user.data.about.getOrElse(""),
+          user.data.interests.getOrElse(""),
           account.created.map(_.format(datePattern)).getOrElse("")
         )
       }
@@ -273,7 +273,7 @@ case class UserProfiles @Inject()(
 
   private def deleteForm(user: UserProfile): Form[String] = Form(
     Forms.single("deleteCheck" -> Forms.nonEmptyText
-      .verifying("error.invalidName", name => name == user.model.name))
+      .verifying("error.invalidName", name => name == user.data.name))
   )
 
   def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>

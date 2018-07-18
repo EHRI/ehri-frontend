@@ -86,7 +86,7 @@ case class UserProfileF(
   interests: Option[String] = None,
   active: Boolean = true,
   staff: Boolean = false
-) extends Model with Persistable
+) extends ModelData with Persistable
 
 
 object UserProfile {
@@ -119,7 +119,7 @@ object UserProfile {
      latestEvent: Option[SystemEvent],
      meta: JsObject) = new UserProfile(model, groups, accessors, latestEvent, meta)
 
-  def quickUnapply(up: UserProfile) = Some((up.model, up.groups, up.accessors, up.latestEvent, up.meta))
+  def quickUnapply(up: UserProfile) = Some((up.data, up.groups, up.accessors, up.latestEvent, up.meta))
 
   val form = Form(
     mapping(
@@ -147,7 +147,7 @@ object UserProfile {
 
 
 case class UserProfile(
-  model: UserProfileF,
+  data: UserProfileF,
   groups: Seq[Group] = Nil,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
@@ -155,12 +155,13 @@ case class UserProfile(
   account: Option[Account] = None,
   globalPermissions: Option[GlobalPermissionSet] = None,
   itemPermissions: Option[ItemPermissionSet] = None
-) extends AnyModel
-  with MetaModel[UserProfileF]
+) extends Model
   with Accessor
   with Accessible {
 
-  override def toStringLang(implicit messages: Messages): String = model.name
+  type T = UserProfileF
+
+  override def toStringLang(implicit messages: Messages): String = data.name
 
   def hasPermission(ct: ContentTypes.Value, p: PermissionType.Value): Boolean = {
     globalPermissions.exists(gp =>

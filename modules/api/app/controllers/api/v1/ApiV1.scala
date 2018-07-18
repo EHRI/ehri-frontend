@@ -9,10 +9,10 @@ import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
-import global.GlobalConfig
+import global.{GlobalConfig, ItemLifecycle}
 import models._
 import models.api.v1.JsonApiV1._
-import models.base.AnyModel
+import models.base.Model
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
@@ -61,7 +61,7 @@ case class ApiV1 @Inject()(
   protected val authHandler: AuthHandler = appComponents.authHandler
   protected val searchEngine: SearchEngine = appComponents.searchEngine
   protected val searchResolver: SearchItemResolver = appComponents.searchResolver
-
+  protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
   import ApiV1._
 
@@ -174,7 +174,7 @@ case class ApiV1 @Inject()(
   /**
     * Convert models into response objects
     */
-  private def modelWriter(fields: Seq[FieldFilter])(implicit request: RequestHeader): Writes[AnyModel] = Writes[AnyModel] {
+  private def modelWriter(fields: Seq[FieldFilter])(implicit request: RequestHeader): Writes[Model] = Writes[Model] {
     case doc: DocumentaryUnit => Json.toJson(
       JsonApiResponseData(
         id = doc.id,
@@ -292,7 +292,7 @@ case class ApiV1 @Inject()(
   /**
     * Type-specific search constraint for hierarchical items.
     */
-  private def hierarchySearchFilters(item: AnyModel): Future[Map[String, Any]] = item match {
+  private def hierarchySearchFilters(item: Model): Future[Map[String, Any]] = item match {
     case repo: Repository => immediate(Map(SearchConstants.HOLDER_ID -> item.id))
     case country: Country => immediate(Map(SearchConstants.COUNTRY_CODE -> item.id))
     case vc: VirtualUnit => buildChildSearchFilter(vc)
@@ -302,9 +302,9 @@ case class ApiV1 @Inject()(
   /**
     * Additional data included per type.
     */
-  private def includedData(any: AnyModel)(implicit requestHeader: RequestHeader): Option[Seq[AnyModel]] = any match {
+  private def includedData(any: Model)(implicit requestHeader: RequestHeader): Option[Seq[Model]] = any match {
     case doc: DocumentaryUnit =>
-      val inc = Seq[Option[_ <: AnyModel]](doc.holder, doc.parent).collect { case Some(m) => m }
+      val inc = Seq[Option[_ <: Model]](doc.holder, doc.parent).collect { case Some(m) => m }
       if (inc.isEmpty) None else Some(inc)
     case _ => None
   }
@@ -312,7 +312,7 @@ case class ApiV1 @Inject()(
   /**
     * Paginated response data.
     */
-  private def pageData[T <: AnyModel](page: Page[T], urlFunc: Int => String, included: Option[Seq[AnyModel]] = None)(implicit w: Writes[AnyModel]): JsonApiListResponse =
+  private def pageData[T <: Model](page: Page[T], urlFunc: Int => String, included: Option[Seq[Model]] = None)(implicit w: Writes[Model]): JsonApiListResponse =
     JsonApiListResponse(
       data = page.items,
       links = PaginationLinks(
@@ -331,8 +331,8 @@ case class ApiV1 @Inject()(
 
   def search(`type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
-      implicit val writer: Writes[AnyModel] = modelWriter(fields)
-      find[AnyModel](
+      implicit val writer: Writes[Model] = modelWriter(fields)
+      find[Model](
         params = params,
         paging = paging,
         entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
@@ -349,8 +349,8 @@ case class ApiV1 @Inject()(
 
   def fetch(id: String, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
-      implicit val writer: Writes[AnyModel] = modelWriter(fields)
-      userDataApi.getAny[AnyModel](id).map { item =>
+      implicit val writer: Writes[Model] = modelWriter(fields)
+      userDataApi.getAny[Model](id).map { item =>
         Ok(
           Json.toJson(
             JsonApiResponse(
@@ -364,11 +364,11 @@ case class ApiV1 @Inject()(
 
   def searchIn(id: String, `type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
-      implicit val writer: Writes[AnyModel] = modelWriter(fields)
-      userDataApi.getAny[AnyModel](id).flatMap { item =>
+      implicit val writer: Writes[Model] = modelWriter(fields)
+      userDataApi.getAny[Model](id).flatMap { item =>
         for {
           filters <- hierarchySearchFilters(item)
-          result <- find[AnyModel](
+          result <- find[Model](
             filters = filters,
             params = params,
             paging = paging,

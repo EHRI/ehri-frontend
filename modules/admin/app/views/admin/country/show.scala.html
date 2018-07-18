@@ -1,4 +1,4 @@
-@(item: Country, result: services.search.SearchResult[(models.base.AnyModel, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Country, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @import CountryF._
 
@@ -6,11 +6,11 @@
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("country") { implicit fieldPrefix =>
-            @views.html.admin.common.stringValue(item.model.abs, ABSTRACT)
-            @views.html.admin.common.stringValue(item.model.history, HISTORY)
-            @views.html.admin.common.stringValue(item.model.situation, SITUATION)
-            @views.html.admin.common.stringValue(item.model.summary, DATA_SUMMARY)
-            @views.html.admin.common.stringValue(item.model.extensive, DATA_EXTENSIVE)
+            @views.html.admin.common.stringValue(item.data.abs, ABSTRACT)
+            @views.html.admin.common.stringValue(item.data.history, HISTORY)
+            @views.html.admin.common.stringValue(item.data.situation, SITUATION)
+            @views.html.admin.common.stringValue(item.data.summary, DATA_SUMMARY)
+            @views.html.admin.common.stringValue(item.data.extensive, DATA_EXTENSIVE)
         }
     }
 

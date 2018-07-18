@@ -9,7 +9,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
-import models.base.{AnyModel, Description}
+import models.base.{Model, Description}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
@@ -34,14 +34,14 @@ case class VirtualUnits @Inject()(
 ) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
-  with Create[VirtualUnitF, VirtualUnit]
-  with Creator[VirtualUnitF, VirtualUnit, VirtualUnit]
-  with Update[VirtualUnitF, VirtualUnit]
+  with Create[VirtualUnit]
+  with Creator[VirtualUnit, VirtualUnit]
+  with Update[VirtualUnit]
   with Delete[VirtualUnit]
   with ScopePermissions[VirtualUnit]
   with Annotate[VirtualUnit]
   with Linking[VirtualUnit]
-  with Descriptions[DocumentaryUnitDescriptionF, VirtualUnitF, VirtualUnit]
+  with Descriptions[VirtualUnit]
   with Search
   with SearchVC {
 
@@ -111,7 +111,7 @@ case class VirtualUnits @Inject()(
   def searchChildren(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](params, paging, filters = filters,
+      result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
@@ -121,7 +121,7 @@ case class VirtualUnits @Inject()(
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
-      result <- find[AnyModel](params, paging, filters = filters,
+      result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.show(request.item, result,
@@ -132,8 +132,8 @@ case class VirtualUnits @Inject()(
   def getInVc(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
-    val pathF: Future[Seq[AnyModel]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[AnyModel](pid)))
-    val itemF: Future[AnyModel] = userDataApi.getAny[AnyModel](id)
+    val pathF: Future[Seq[Model]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[Model](pid)))
+    val itemF: Future[Model] = userDataApi.getAny[Model](id)
     val linksF: Future[Seq[Link]] = userDataApi.links[Link](id)
     val annsF: Future[Seq[Annotation]] = userDataApi.annotations[Annotation](id)
     for {
@@ -142,7 +142,7 @@ case class VirtualUnits @Inject()(
       links <- linksF
       annotations <- annsF
       filters <- vcSearchFilters(item)
-      children <- find[AnyModel](params, paging, filters = filters,
+      children <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
       item, children,
@@ -155,7 +155,7 @@ case class VirtualUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.edit(
-      request.item, form.fill(request.item.model), vuRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), vuRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
@@ -285,13 +285,13 @@ case class VirtualUnits @Inject()(
       .flashing("success" -> "item.delete.confirmation")
   }
 
-  def createDescription(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+  def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.createDescription(request.item,
-      descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
+      form.fill(request.item.data), formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String): Action[AnyContent] = CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
-    request.formOrDescription match {
+  def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.createDescription(request.item,
           errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
@@ -300,35 +300,32 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def updateDescription(id: String, did: String): Action[AnyContent] = {
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.virtualUnit.editDescription(request.item,
-        descriptionForm.fill(request.description), vuRoutes.updateDescriptionPost(id, did)))
+  def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.editDescription(request.item,
+      form.fill(request.item.data), did, vuRoutes.updateDescriptionPost(id, did)))
+  }
+
+  def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.virtualUnit.editDescription(request.item,
+          errorForm, did, vuRoutes.updateDescriptionPost(id, did)))
+      case Right(updated) => Redirect(vuRoutes.get(id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def updateDescriptionPost(id: String, did: String): Action[AnyContent] = {
-    UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
-      request.formOrDescription match {
-        case Left(errorForm) =>
-          Ok(views.html.admin.virtualUnit.editDescription(request.item,
-            errorForm, vuRoutes.updateDescriptionPost(id, did)))
-        case Right(updated) => Redirect(vuRoutes.get(id))
-          .flashing("success" -> "item.create.confirmation")
-      }
-    }
+  def deleteDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.deleteDescription(request.item, form.fill(request.item.data), did,
+      vuRoutes.deleteDescriptionPost(id, did)))
   }
 
-  def deleteDescription(id: String, did: String): Action[AnyContent] = {
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.deleteDescription(request.item, request.description,
-        vuRoutes.deleteDescriptionPost(id, did), vuRoutes.get(id)))
-    }
-  }
-
-  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = {
-    DeleteDescriptionAction(id, did).apply { implicit request =>
-      Redirect(vuRoutes.get(id))
+  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.virtualUnit.deleteDescription(request.item,
+          errorForm, did, vuRoutes.deleteDescriptionPost(id, did)))
+      case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
     }
   }

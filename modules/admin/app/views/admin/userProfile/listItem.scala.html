@@ -9,17 +9,17 @@
             @item.groups.distinct.map { acc =>
                 <li><a class="alt" href="@controllers.groups.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
             }
-            @item.model.location.filterNot(_.trim.isEmpty).map { loc =>
+            @item.data.location.filterNot(_.trim.isEmpty).map { loc =>
                 <li>@loc</li>
             }
         </ul>
         <ul>
             @item.latestEvent.map { event =>
-            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.model.timestamp))</li>
+            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }
         </ul>
     </div>
-    @item.model.about.filterNot(_.trim.isEmpty).map { about =>
+    @item.data.about.filterNot(_.trim.isEmpty).map { about =>
         <p>@about</p>
     }
 }

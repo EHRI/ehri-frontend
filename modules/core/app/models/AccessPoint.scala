@@ -55,25 +55,25 @@ case class AccessPointF(
   accessPointType: AccessPointF.AccessPointType.Value,
   name: String,
   description: Option[String] = None
-) extends Model with Persistable {
+) extends ModelData with Persistable {
 
   /**
    * Given a set of links, see if we can find one with this access point
    * as a body.
    */
-  def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.model.id == id))
+  def linkFor(links: Seq[Link]): Option[Link] = links.find(_.bodies.exists(body => body.data.id == id))
 
   /**
    * Given a set of links, see if we can find one with this access point
    * as a body.
    */
-  def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.model.id == id))
+  def linksFor(links: Seq[Link]): Seq[Link] = links.filter(_.bodies.exists(body => body.data.id == id))
 
   /**
    * Given an item and a set of links, see if we can resolve the
    * opposing target item.
    */
-  def target(item: AnyModel, links: Seq[Link]): Option[(Link,AnyModel)] = linkFor(links).flatMap { link =>
+  def target(item: Model, links: Seq[Link]): Option[(Link,Model)] = linkFor(links).flatMap { link =>
     link.opposingTarget(item).map { target =>
       (link, target)
     }
@@ -96,7 +96,7 @@ object AccessPoint {
 
 
   def linksOfType(links: Seq[Link], `type`: AccessPointF.AccessPointType.Value): Seq[Link]
-      = links.filter(_.bodies.exists(body => body.model.accessPointType == `type`))
+      = links.filter(_.bodies.exists(body => body.data.accessPointType == `type`))
 
   val form = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),
@@ -109,9 +109,11 @@ object AccessPoint {
 
 
 case class AccessPoint(
-  model: AccessPointF,
+  data: AccessPointF,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel with MetaModel[AccessPointF] {
+) extends Model {
+
+  type T = AccessPointF
 
   override def toStringLang(implicit messages: Messages) = s"Access Point: ($id)"
 }

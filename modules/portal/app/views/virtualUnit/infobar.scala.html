@@ -1,6 +1,6 @@
-@(item: models.base.AnyModel, path: Seq[models.base.AnyModel], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: models.base.Model, path: Seq[models.base.Model], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-@linkVc(item: models.base.AnyModel, path: Seq[models.base.AnyModel]) = {
+@linkVc(item: models.base.Model, path: Seq[models.base.Model]) = {
     <li>@views.html.helpers.linkTo(item, call = Some(views.Helpers.virtualUnitUrl(path, item.id)), content = Html(item.toStringAbbr))</li>
 }
 

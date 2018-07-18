@@ -1,4 +1,4 @@
-@(item: models.base.DescribedMeta[models.base.Description, models.base.Described[models.base.Description]], desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.DescribedModel, desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @relatedLinks(list: Seq[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
     @if(list.nonEmpty) {
@@ -7,10 +7,10 @@
                 @accessPoint.target(item, links).map { case (link, other) =>
                     <li class="resolved-access-point" id="@accessPoint.id">
                         @views.html.helpers.linkTo(other, Html(accessPoint.name))
-                        @if(link.model.dates.nonEmpty) {
-                            <span class="small">@link.model.dateRange</span>
+                        @if(link.data.dates.nonEmpty) {
+                            <span class="small">@link.data.dateRange</span>
                         }
-                        @link.model.description.map { desc =>
+                        @link.data.description.map { desc =>
                             <p class="small muted">@desc</p>
                         }
                     </li>

@@ -30,7 +30,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
     doc.holder must beSome
     doc.latestEvent must beSome
     doc.meta.value.get("childCount") must beSome
-    doc.model.descriptions.headOption must beSome
+    doc.data.descriptions.headOption must beSome
   }
 
   "HistoricalAgent Format should read and write with no changes" in {
@@ -65,7 +65,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
     repository.country must beSome
     repository.latestEvent must beSome
     repository.meta.value.get("childCount") must beSome
-    repository.model.descriptions.headOption must beSome.which { desc =>
+    repository.data.descriptions.headOption must beSome.which { desc =>
       desc.maintenanceEvents.headOption must beSome
     }
   }
@@ -138,7 +138,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Content type format should read and write correctly" in {
-    val validation = readResource(EntityType.ContentType).validate[DataContentType](DataContentType.format)
+    val validation = readResource(EntityType.ContentType).validate[DataContentType]
     validation.asEither must beRight
   }
 }

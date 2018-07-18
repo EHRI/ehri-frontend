@@ -2,7 +2,7 @@ package client
 
 import defines.EntityType
 import models.{Entity, _}
-import models.base.{Accessor, AnyModel}
+import models.base.{Accessor, Model}
 import models.json._
 import play.api.Logger
 import play.api.data.validation.ValidationError
@@ -20,39 +20,39 @@ package object json {
     lazy val clientFormat: Writes[AddressF] = Json.writes[AddressF]
   }
 
-  implicit object anyModelJson extends ClientWriteable[AnyModel] {
+  implicit object anyModelJson extends ClientWriteable[Model] {
     private val logger = Logger(getClass)
-    private val clientFormatRegistry: PartialFunction[EntityType.Value, Format[AnyModel]] = {
-      case EntityType.Repository => repositoryJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Country => countryJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.DocumentaryUnit => documentaryUnitJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Vocabulary => vocabularyJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Concept => conceptJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.HistoricalAgent => historicalAgentJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.AuthoritativeSet => authoritativeSetJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.SystemEvent => systemEventJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Group => groupJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.UserProfile => userProfileJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Link => linkJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.Annotation => annotationJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.PermissionGrant => permissionGrantJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.ContentType => contentTypeJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.AccessPoint => accessPointJson.clientFormat.asInstanceOf[Format[AnyModel]]
-      case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[AnyModel]]
+    private val clientFormatRegistry: PartialFunction[EntityType.Value, Format[Model]] = {
+      case EntityType.Repository => repositoryJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Country => countryJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.DocumentaryUnit => documentaryUnitJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Vocabulary => vocabularyJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Concept => conceptJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.HistoricalAgent => historicalAgentJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.AuthoritativeSet => authoritativeSetJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.SystemEvent => systemEventJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Group => groupJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.UserProfile => userProfileJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Link => linkJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.Annotation => annotationJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.PermissionGrant => permissionGrantJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.ContentType => contentTypeJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.AccessPoint => accessPointJson.clientFormat.asInstanceOf[Format[Model]]
+      case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[Model]]
     }
 
     def typeOf(json: JsValue): EntityType.Value = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
 
-    implicit val clientReadAny: Reads[AnyModel] = Reads { json =>
+    implicit val clientReadAny: Reads[Model] = Reads { json =>
       clientFormatRegistry
         .lift(typeOf(json))
         .map(json.validate(_))
         .getOrElse(
           JsError(JsPath(List(KeyPathNode(Entity.TYPE))),
-            JsonValidationError(s"Unregistered AnyModel type for Client read: ${typeOf(json)}")))
+            JsonValidationError(s"Unregistered Model type for Client read: ${typeOf(json)}")))
     }
 
-    implicit val clientWriteAny: Writes[AnyModel] = Writes { model =>
+    implicit val clientWriteAny: Writes[Model] = Writes { model =>
       clientFormatRegistry
         .lift(model.isA)
         .map(Json.toJson(model)(_))
@@ -63,7 +63,7 @@ package object json {
         }
     }
 
-    implicit val clientFormat: Format[AnyModel] = Format(clientReadAny, clientWriteAny)
+    implicit val clientFormat: Format[Model] = Format(clientReadAny, clientWriteAny)
   }
 
   implicit object contentTypeJson extends ClientWriteable[DataContentType] {
@@ -76,7 +76,7 @@ package object json {
       JsPath.format(permissionGrantFormat) and
       (__ \ "accessor").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
       (__ \ "targets").formatSeqOrEmpty(anyModelJson.clientFormat) and
-      (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "scope").lazyFormatNullable[Model](anyModelJson.clientFormat) and
       (__ \ "grantedBy").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(PermissionGrant.apply, unlift(PermissionGrant.unapply))
@@ -136,8 +136,8 @@ package object json {
 
     implicit val clientFormat: Format[SystemEvent] = (
       JsPath.format[SystemEventF](fFormat) and
-      (__ \ "scope").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-      (__ \ "firstSubject").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "scope").lazyFormatNullable[Model](anyModelJson.clientFormat) and
+      (__ \ "firstSubject").lazyFormatNullable[Model](anyModelJson.clientFormat) and
       (__ \ "user").lazyFormatNullable[Accessor](accessorJson.clientFormat) and
       (__ \ "version").lazyFormatNullable(versionJson.clientFormat) and
       (__ \ "meta").format[JsObject]
@@ -172,8 +172,8 @@ package object json {
       JsPath.format[AnnotationF](fFormat) and
       (__ \ "annotations").lazyNullableSeqFormat(clientFormat) and
       (__ \ "user").lazyFormatNullable[UserProfile](userProfileJson.clientFormat) and
-      (__ \ "source").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
-      (__ \ "target").lazyFormatNullable[AnyModel](anyModelJson.clientFormat) and
+      (__ \ "source").lazyFormatNullable[Model](anyModelJson.clientFormat) and
+      (__ \ "target").lazyFormatNullable[Model](anyModelJson.clientFormat) and
       (__ \ "targetPart").lazyFormatNullable[Entity](Entity.entityFormat) and
       (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
       (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and

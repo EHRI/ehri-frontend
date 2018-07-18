@@ -210,7 +210,7 @@ case class Accounts @Inject()(
                   result <- doLogin(account)
                     .map(_.flashing("success" -> "signup.confirmation"))
                 } yield {
-                  sendValidationEmail(profile.model.name, data.email, uuid)
+                  sendValidationEmail(profile.data.name, data.email, uuid)
                   result
                 }
             }
@@ -455,7 +455,7 @@ case class Accounts @Inject()(
               for {
                 p <- userDataApi.get[UserProfile](account.id)
                 _ <- accounts.createToken(account.id, uuid, isSignUp = false)
-                _ = sendResetEmail(p.model.name, account.email, uuid)
+                _ = sendResetEmail(p.data.name, account.email, uuid)
               } yield {
                 Redirect(portalRoutes.index()).flashing("warning" -> "login.password.reset.sentLink")
               }
@@ -519,7 +519,7 @@ case class Accounts @Inject()(
       case Some(account) =>
         val uuid = UUID.randomUUID()
         accounts.createToken(account.id, uuid, isSignUp = true).map { _ =>
-          sendValidationEmail(request.user.model.name, account.email, uuid)
+          sendValidationEmail(request.user.data.name, account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
           Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
@@ -577,7 +577,7 @@ case class Accounts @Inject()(
       userDataApi.patch[UserProfile](account.id, Json.obj(
         UserProfileF.NAME -> JsString(userData.name),
         // Only update the user image if it hasn't already been set
-        UserProfileF.IMAGE_URL -> JsString(up.model.imageUrl.getOrElse(userData.imageUrl))
+        UserProfileF.IMAGE_URL -> JsString(up.data.imageUrl.getOrElse(userData.imageUrl))
       ))
     }
   }

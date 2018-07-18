@@ -25,7 +25,7 @@ case class Groups @Inject()(
   with Visibility[Group]
   with Membership[Group]
   with ItemPermissions[Group]
-  with CRUD[GroupF, Group]
+  with CRUD[Group]
   with SearchType[Group] {
 
   private val form = models.Group.form
@@ -80,7 +80,7 @@ case class Groups @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.group.edit(
-        request.item, form.fill(request.item.model), groupRoutes.updatePost(id)))
+        request.item, form.fill(request.item.data), groupRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

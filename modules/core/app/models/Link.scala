@@ -79,7 +79,7 @@ case class LinkF(
   isPromotable: Boolean = false,
   @models.relation(Ontology.ENTITY_HAS_DATE)
   dates: Seq[DatePeriodF] = Nil
-) extends Model with Persistable with Temporal
+) extends ModelData with Persistable with Temporal
 
 
 object Link {
@@ -94,7 +94,7 @@ object Link {
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).readSeqOrEmpty[AccessPoint] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
@@ -130,7 +130,7 @@ object Link {
     ))
   ))
 
-  def formWithCopyOptions(copy: Boolean, src: AnyModel, dest: AnyModel)(implicit messages: Messages): Form[LinkF] =
+  def formWithCopyOptions(copy: Boolean, src: Model, dest: Model)(implicit messages: Messages): Form[LinkF] =
     if (!copy) form
     else form.fill(LinkF(
       id = None,
@@ -139,7 +139,7 @@ object Link {
       description = copyLinkDescription(src, dest)
     ))
 
-  def copyLinkType(src: AnyModel, dest: AnyModel): Option[LinkCopyType.Value] =
+  def copyLinkType(src: Model, dest: Model): Option[LinkCopyType.Value] =
     (src, dest) match {
       case (r1: Repository, r: Repository) => Some(LinkCopyType.OriginalRepositoryToCopyRepository)
       case (d1: DocumentaryUnit, d2: DocumentaryUnit) => Some(LinkCopyType.CopyCollectionToOriginalCollection)
@@ -148,19 +148,19 @@ object Link {
       case _ => None
     }
 
-  def copyLinkField(src: AnyModel, dest: AnyModel): Option[LinkField.Value] =
+  def copyLinkField(src: Model, dest: Model): Option[LinkField.Value] =
     copyLinkType(src, dest).map {
       case LinkCopyType.OriginalRepositoryToCopyRepository => LinkField.LocationOfCopies
       case _ => LinkField.LocationOfOriginals
     }
 
-  def copyLinkDescription(src: AnyModel, dest: AnyModel)(implicit messages: Messages): Option[String] =
+  def copyLinkDescription(src: Model, dest: Model)(implicit messages: Messages): Option[String] =
     copyLinkType(src, dest).map( t => Messages(s"link.copy.preset.$t", src.toStringLang, dest.toStringLang))
 }
 
 case class Link(
-  model: LinkF,
-  targets: Seq[AnyModel] = Nil,
+  data: LinkF,
+  targets: Seq[Model] = Nil,
   linker: Option[Accessor] = None,
   bodies: Seq[AccessPoint] = Nil,
   accessors: Seq[Accessor] = Nil,
@@ -168,11 +168,13 @@ case class Link(
   demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[LinkF]
+) extends Model
   with Accessible
   with Promotable {
-  def isPromotable: Boolean = model.isPromotable
-  def opposingTarget(item: AnyModel): Option[AnyModel] = opposingTarget(item.id)
-  def opposingTarget(itemId: String): Option[AnyModel] = targets.find(_.id != itemId)
+
+  type T = LinkF
+
+  def isPromotable: Boolean = data.isPromotable
+  def opposingTarget(item: Model): Option[Model] = opposingTarget(item.id)
+  def opposingTarget(itemId: String): Option[Model] = targets.find(_.id != itemId)
 }

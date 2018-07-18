@@ -27,8 +27,8 @@ AuthoritativeSets @Inject()(
   idGenerator: IdGenerator,
   ws: WSClient
 ) extends AdminController
-  with CRUD[AuthoritativeSetF,AuthoritativeSet]
-  with Creator[HistoricalAgentF, HistoricalAgent, AuthoritativeSet]
+  with CRUD[AuthoritativeSet]
+  with Creator[HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
   with Annotate[AuthoritativeSet]
@@ -74,7 +74,7 @@ AuthoritativeSets @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.edit(
-      request.item, form.fill(request.item.model),setRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data),setRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

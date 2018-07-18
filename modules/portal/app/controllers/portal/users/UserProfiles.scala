@@ -8,7 +8,7 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
 import models._
-import models.base.AnyModel
+import models.base.Model
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.http.{HeaderNames, MimeTypes}
@@ -74,7 +74,7 @@ case class UserProfiles @Inject()(
   }
 
   object ExportWatchItem {
-    def fromItem(item: AnyModel)(implicit request: RequestHeader): ExportWatchItem = new ExportWatchItem(
+    def fromItem(item: Model)(implicit request: RequestHeader): ExportWatchItem = new ExportWatchItem(
       item.toStringLang,
       views.Helpers.linkTo(item).absoluteURL(globalConfig.https)
     )
@@ -99,8 +99,8 @@ case class UserProfiles @Inject()(
 
   def watching(format: DataFormat.Value = DataFormat.Html, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     for {
-      watching <- userDataApi.watching[AnyModel](request.user.id)
-      result <- findIn[AnyModel](watching, params, paging)
+      watching <- userDataApi.watching[Model](request.user.id)
+      result <- findIn[Model](watching, params, paging)
     } yield {
       val watchList = result.mapItems(_._1).page
       format match {
@@ -144,8 +144,8 @@ case class UserProfiles @Inject()(
   object ExportAnnotation {
     def fromAnnotation(annotation: Annotation)(implicit request: RequestHeader): ExportAnnotation = new ExportAnnotation(
       annotation.target.map(_.toStringLang),
-      annotation.model.field,
-      annotation.model.body,
+      annotation.data.field,
+      annotation.data.body,
       annotation.latestEvent.map(_.time),
       annotation.target
         .map(t => views.Helpers.linkTo(t).absoluteURL(globalConfig.https) + "#" + annotation.id)
@@ -192,7 +192,7 @@ case class UserProfiles @Inject()(
   private def deleteForm(user: UserProfile): Form[String] = Form(
     single(
       "confirm" -> nonEmptyText.verifying("profile.delete.badConfirmation",
-        name => user.model.name.trim == name.trim
+        name => user.data.name.trim == name.trim
       )
     )
   )
@@ -203,7 +203,7 @@ case class UserProfiles @Inject()(
 
   private def profileDataForm(implicit userOpt: Option[UserProfile]): Form[ProfileData] = {
     userOpt.map { user =>
-      ProfileData.form.fill(ProfileData.fromUser(user.model))
+      ProfileData.form.fill(ProfileData.fromUser(user.data))
     } getOrElse {
       ProfileData.form
     }
@@ -242,7 +242,7 @@ case class UserProfiles @Inject()(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
       profile => userDataApi.update[UserProfile, UserProfileF](
-          request.user.id, profile.toUser(request.user.model)).map { userProfile =>
+          request.user.id, profile.toUser(request.user.data)).map { userProfile =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
       }
@@ -265,7 +265,7 @@ case class UserProfiles @Inject()(
         // the provenance of the data. Instead we just anonymize it by
         // updating the record with minimal information
         val anonProfile = UserProfileF(id = Some(request.user.id),
-          identifier = request.user.model.identifier, name = request.user.model.identifier,
+          identifier = request.user.data.identifier, name = request.user.data.identifier,
           active = false)
 
         userDataApi.update[UserProfile,UserProfileF](request.user.id, anonProfile).flatMap { bool =>

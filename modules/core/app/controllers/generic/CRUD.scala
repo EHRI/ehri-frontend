@@ -1,10 +1,10 @@
 package controllers.generic
 
-import models.base.{MetaModel, Model, Persistable}
+import models.base.{Model, ModelData, Persistable}
 
 
-trait CRUD[F <: Model with Persistable, T <: MetaModel[F]]
-		extends Create[F,T]
+trait CRUD[T <: Model{type T <: ModelData with Persistable}]
+		extends Create[T]
 		with Read[T]
-		with Update[F,T]
+		with Update[T]
 		with Delete[T]

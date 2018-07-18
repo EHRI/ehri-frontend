@@ -2,16 +2,16 @@
 
 @views.html.admin.userProfile.itemPage(item) {
 
-    @item.model.location.map { loc =>
+    @item.data.location.map { loc =>
         <strong>@Messages("userProfile.location"): </strong>
         @loc
     }
 
-    @if(item.model.languages.nonEmpty) {
+    @if(item.data.languages.nonEmpty) {
         <div>
             <strong>@Messages("userProfile.languages"):</strong>
             <ul class="inline inline-separator">
-                @item.model.languages.map { lang =>
+                @item.data.languages.map { lang =>
                     <li>@views.Helpers.languageCodeToName(lang)</li>
                 }
             </ul>
@@ -19,7 +19,7 @@
     }
 
     <div class="about">
-        @item.model.about
+        @item.data.about
     </div>
 
     <hr />

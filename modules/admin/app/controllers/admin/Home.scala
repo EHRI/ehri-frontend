@@ -6,7 +6,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.{EntityType, EventType}
-import models.base.{AnyModel, Description}
+import models.base.{Model, Description}
 import models.{Isaar, SystemEvent}
 import play.api.http.MimeTypes
 import play.api.i18n.Messages
@@ -92,8 +92,8 @@ case class Home @Inject()(
         .copy(itemTypes = activityItemTypes)
       val eventsF: Future[RangePage[Seq[SystemEvent]]] = userDataApi
         .userEvents[SystemEvent](user.id, range, eventFilter)
-      val recentF: Future[Seq[AnyModel]] = userDataApi
-        .fetch[AnyModel](preferences.recentItems)
+      val recentF: Future[Seq[Model]] = userDataApi
+        .fetch[Model](preferences.recentItems)
         .map(_.collect { case Some(m) => m })
 
       for (recent <- recentF; events <- eventsF)
@@ -114,7 +114,7 @@ case class Home @Inject()(
   // NB: This page now just handles metrics and only provides facet
   // data via JSON.
   def overview: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[AnyModel](SearchParams.empty, PageParams(limit = 0), facetBuilder = entityFacets).map { result =>
+    find[Model](SearchParams.empty, PageParams(limit = 0), facetBuilder = entityFacets).map { result =>
         render {
           case Accepts.Json() => Ok(Json.toJson(Json.obj("facets" -> result.facetClasses)))
           case _ => MovedPermanently(controllers.admin.routes.Home.metrics().url)

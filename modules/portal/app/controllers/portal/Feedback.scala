@@ -91,7 +91,7 @@ case class Feedback @Inject()(
       errorForm => immediate(response(errorForm)),
       feedback => {
         val moreFeedback = request.userOpt.map { user =>
-          feedback.copy(userId = Some(user.id), name = Some(feedback.name.getOrElse(user.model.name)))
+          feedback.copy(userId = Some(user.id), name = Some(feedback.name.getOrElse(user.data.name)))
             .copy(email = feedback.email.orElse(user.account.map(_.email)))
         }.getOrElse(feedback)
           .copy(context = Some(models.FeedbackContext.fromRequest),

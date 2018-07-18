@@ -19,7 +19,7 @@ case class TestDescriptionF(
   maintenanceEvents: Seq[MaintenanceEventF] = Nil,
   @relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: List[Entity] = Nil
-) extends Model
+) extends ModelData
   with Description {
   def toSeq = Seq.empty
   def displayText = None
@@ -30,33 +30,38 @@ case class TestModelF(
   isA: EntityType.Value = EntityType.DocumentaryUnit,
   @relation(Ontology.DESCRIPTION_FOR_ENTITY)
   descriptions: List[TestDescriptionF] = Nil
-) extends Model
-  with Described[TestDescriptionF]
+) extends ModelData
+  with Described {
+
+  type D = TestDescriptionF
+}
 
 case class TestModel(
-  model: TestModelF,
+  data: TestModelF,
   meta: JsObject = Json.obj()
-) extends MetaModel[TestModelF]
-  with DescribedMeta[TestDescriptionF, TestModelF]
+) extends Model with DescribedModel {
 
-class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
+  type T = TestModelF
+}
+
+class ModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 
   implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
   implicit val messagesApi = application.injector.instanceOf[MessagesApi]
 
-  val accessPoint1 = AccessPoint(model = AccessPointF(
+  val accessPoint1 = AccessPoint(data = AccessPointF(
     id = Some("ap1"),
     accessPointType = AccessPointF.AccessPointType.PersonAccess,
     name = "AP1"
   ))
 
-  val accessPoint2 = AccessPoint(model = AccessPointF(
+  val accessPoint2 = AccessPoint(data = AccessPointF(
     id = Some("ap2"),
     accessPointType = AccessPointF.AccessPointType.CorporateBodyAccess,
     name = "AP2"
   ))
 
-  val accessPoint3 = AccessPoint(model = AccessPointF(
+  val accessPoint3 = AccessPoint(data = AccessPointF(
     id = Some("ap3"),
     accessPointType = AccessPointF.AccessPointType.FamilyAccess,
     name = "AP3"
@@ -70,7 +75,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
           id = Some("did1"),
           name = "name1",
           languageCode = "eng",
-          accessPoints = Seq(accessPoint1.model, accessPoint2.model)
+          accessPoints = Seq(accessPoint1.data, accessPoint2.data)
         ),
         TestDescriptionF(
           id = Some("did2"),
@@ -81,7 +86,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
     )
   )
 
-  "AnyModel" should {
+  "A Model instance" should {
     "pick the right locale-dependent name" in {
       testModel.toStringLang(MessagesImpl(Lang("en"), messagesApi)) must equalTo("name1")
       testModel.toStringLang(MessagesImpl(Lang("fr"), messagesApi)) must equalTo("name2")
@@ -94,17 +99,17 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 
     "order descriptions according to a supplied locale" in {
       val test = testModel.copy(
-        model = testModel.model.copy(
-          descriptions = testModel.model.descriptions.reverse))
-      test.model.descriptions.headOption.map(_.languageCode) must_== Some("fra")
-      test.model.orderedDescriptions(messagesApi.preferred(Seq(Lang("en"))))
-          .headOption.map(_.languageCode) must_== Some("eng")
+        data = testModel.data.copy(
+          descriptions = testModel.data.descriptions.reverse))
+      test.data.descriptions.headOption.map(_.languageCode) must beSome("fra")
+      test.data.orderedDescriptions(messagesApi.preferred(Seq(Lang("en"))))
+                .headOption.map(_.languageCode) must beSome("eng")
     }
 
     "categorise access point links properly" in {
       val links = Seq(
         Link(
-          model = LinkF(
+          data = LinkF(
             id = Some("ln1"),
             linkType = LinkF.LinkType.Associative
           ),
@@ -113,7 +118,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
       )
       testModel.accessPointLinks(links).headOption must beSome.which { case (link, ap) =>
         link.id must_== "ln1"
-        ap.id must_== Some("ap1")
+        ap.id must beSome("ap1")
       }
       testModel.externalLinks(links) must beEmpty
       testModel.annotationLinks(links) must beEmpty
@@ -122,7 +127,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
     "categorise external links properly" in {
       val links = Seq(
         Link(
-          model = LinkF(
+          data = LinkF(
             id = Some("ln1"),
             linkType = LinkF.LinkType.Associative
           ),
@@ -139,7 +144,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
     "categorise annotation links properly" in {
       val links = Seq(
         Link(
-          model = LinkF(
+          data = LinkF(
             id = Some("ln1"),
             linkType = LinkF.LinkType.Associative
           ),
@@ -156,7 +161,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
     "categorise access point links by type" in {
       val links = Seq(
         Link(
-          model = LinkF(
+          data = LinkF(
             id = Some("ln1"),
             linkType = LinkF.LinkType.Associative
           ),
@@ -169,7 +174,7 @@ class AnyModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
         t must_== AccessPointF.AccessPointType.PersonAccess
         aps.headOption must beSome.which { case (link, ap) =>
           link.id must_== "ln1"
-          ap.id must_== Some("ap1")
+          ap.id must beSome("ap1")
         }
       }
       testModel.annotationLinks(links) must beEmpty

@@ -22,10 +22,10 @@ case class Concepts @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers
 ) extends AdminController
-  with Creator[ConceptF, Concept, Concept]
+  with Creator[Concept, Concept]
   with Visibility[Concept]
   with Read[Concept]
-  with Update[ConceptF, Concept]
+  with Update[Concept]
   with Delete[Concept]
   with Linking[Concept]
   with Annotate[Concept]
@@ -77,7 +77,7 @@ case class Concepts @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.edit(
-      request.item, form.fill(request.item.model), conceptRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), conceptRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>

@@ -48,7 +48,7 @@ case class CountryF(
   situation: Option[String],                   
   summary: Option[String],
   extensive: Option[String]                   
-) extends Model with Persistable {
+) extends ModelData with Persistable {
 
   def displayText: Option[String] = abs orElse situation
 }
@@ -90,14 +90,15 @@ object Country {
 
 // Stub
 case class Country(
-  model: CountryF,
+  data: CountryF,
   accessors: Seq[Accessor] = Nil,
   latestEvent: Option[SystemEvent] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[CountryF]
+) extends Model
   with Accessible
   with Holder[Repository] {
+
+  type T = CountryF
 
   override def toStringLang(implicit messages: Messages): String = utils.i18n.countryCodeToName(id)
 }

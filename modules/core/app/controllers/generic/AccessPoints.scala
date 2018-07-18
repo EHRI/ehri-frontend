@@ -1,14 +1,14 @@
 package controllers.generic
 
 import defines.EntityType
-import models.base.{Described, Description, MetaModel, Model}
+import models.base._
 import models.{AccessPointF, Link, LinkF}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.data.Resource
 
 
-trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaModel[T]] extends Read[MT] {
+trait AccessPoints[MT <: DescribedModel] extends Read[MT] {
 
   // NB: This doesn't work when placed within the function scope
   // should probably check if a bug has been reported.
@@ -80,13 +80,13 @@ trait AccessPoints[D <: Description, T <: Model with Described[D], MT <: MetaMod
         implicit val targetWrites = Json.format[Target]
         implicit val itemWrites = Json.format[LinkItem]
 
-        val list = item.model.descriptions.map { desc =>
+        val list = item.data.descriptions.map { desc =>
           val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
             val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
-              val linkOpt = links.find(_.bodies.exists(b => b.model.id == ap.id))
+              val linkOpt = links.find(_.bodies.exists(b => b.data.id == ap.id))
               LinkItem(
                 ap,
-                linkOpt.map(_.model),
+                linkOpt.map(_.data),
                 linkOpt.flatMap(l => l.opposingTarget(item).map(t => Target(t.id, t.isA)))
               )
             }

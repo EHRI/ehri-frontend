@@ -6,7 +6,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
-import models.base.{AnyModel, Description}
+import models.base.{Model, Description}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -67,7 +67,7 @@ case class AdminSearch @Inject()(
   )
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    find[AnyModel](params, paging, entities = searchTypes, facetBuilder = entityFacets).map { result =>
+    find[Model](params, paging, entities = searchTypes, facetBuilder = entityFacets).map { result =>
       render {
         case Accepts.Json() => Ok(Json.obj(
             "numPages" -> result.page.numPages,

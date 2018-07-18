@@ -11,7 +11,7 @@
         @item.actioner.map { accessor =>
             <li><a class="alt" href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a></li>
         }
-        <li title="@item.model.datetime">@views.Helpers.relativeDate(item.model.timestamp)</li>
+        <li title="@item.data.datetime">@views.Helpers.relativeDate(item.data.timestamp)</li>
     </ul>
 </div>
 <div class="small">
@@ -21,15 +21,15 @@
         </a>
     }.getOrElse {
         @item.version.map { version =>
-            @Messages("systemEvent.deletion.itemInfo", version.model.itemType, version.model.itemId, item.childCount.map(_ - 1).getOrElse(0))
-            @version.model.entity.map { entity =>
+            @Messages("systemEvent.deletion.itemInfo", version.data.itemType, version.data.itemId, item.childCount.map(_ - 1).getOrElse(0))
+            @version.data.entity.map { entity =>
                 <p>@entity.toStringLang</p>
             }
         }.getOrElse {
             @Messages("systemEvent.deletion.noInfo")
         }
     }
-    @item.model.logMessage.filterNot(_.trim.isEmpty).map { lm =>
+    @item.data.logMessage.filterNot(_.trim.isEmpty).map { lm =>
         <div class="event-item-message">@lm</div>
     }
 </div>

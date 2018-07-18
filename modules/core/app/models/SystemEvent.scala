@@ -46,7 +46,7 @@ case class SystemEventF(
   timestamp: ZonedDateTime,
   logMessage: Option[String] = None,
   eventType: Option[EventType.Value] = None
-) extends Model {
+) extends ModelData {
   lazy val datetime: String = DateTimeFormatter.ISO_DATE_TIME.format(timestamp)
 }
 
@@ -58,8 +58,8 @@ object SystemEvent {
 
   implicit val metaReads: Reads[SystemEvent] = (
     __.read[SystemEventF] and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadHeadNullable(AnyModel.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadHeadNullable(AnyModel.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadHeadNullable(Model.Converter.restReads) and
     (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadHeadNullable(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable(Version.Converter.restReads) and
     (__ \ META).readWithDefault(Json.obj())
@@ -73,25 +73,26 @@ object SystemEvent {
 }
 
 case class SystemEvent(
-  model: SystemEventF,
-  scope: Option[AnyModel] = None,
-  firstSubject: Option[AnyModel] = None,
+  data: SystemEventF,
+  scope: Option[Model] = None,
+  firstSubject: Option[Model] = None,
   actioner: Option[Accessor] = None,
   version: Option[Version] = None,
   meta: JsObject = JsObject(Seq())
-) extends AnyModel
-  with MetaModel[SystemEventF]
-  with Holder[AnyModel] {
+) extends Model
+  with Holder[Model] {
 
-  def time: String = DateTimeFormatter.ISO_INSTANT.format(model.timestamp)
+  type T = SystemEventF
+
+  def time: String = DateTimeFormatter.ISO_INSTANT.format(data.timestamp)
 
   /**
    * If the event is of a certain type (link, annotate) the effective
    * subject is the scope in which the link or annotation is made,
    * rather than the link/annotation itself.
    */
-  def effectiveSubject: Option[AnyModel] =
-    if (model.eventType.contains(EventType.link) || model.eventType.contains(EventType.annotation))
+  def effectiveSubject: Option[Model] =
+    if (data.eventType.contains(EventType.link) || data.eventType.contains(EventType.annotation))
       scope else firstSubject
 
   import EventType._
@@ -100,13 +101,13 @@ case class SystemEvent(
    * For display purposes, collapse certain specific event types to a more
    * general "effective" type: create, modify,delete, etc.
    */
-  def effectiveType: Option[EventType.Value] = model.eventType.map {
+  def effectiveType: Option[EventType.Value] = data.eventType.map {
     case `createDependent`|`modifyDependent`|`deleteDependent` => modification
     case `setGlobalPermissions`|`setItemPermissions`|`setVisibility`|`addGroup`|`removeGroup` => modification
     case et => et
   }
 
   override def toStringLang(implicit messages: play.api.i18n.Messages): String =
-    Messages("systemEvent." + model.eventType.map(_.toString).getOrElse("unknown"))(messages)
+    Messages("systemEvent." + data.eventType.map(_.toString).getOrElse("unknown"))(messages)
 }
 

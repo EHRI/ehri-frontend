@@ -28,14 +28,14 @@ case class DocumentaryUnits @Inject()(
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
-  with Creator[DocumentaryUnitF, DocumentaryUnit, DocumentaryUnit]
-  with Update[DocumentaryUnitF, DocumentaryUnit]
+  with Creator[DocumentaryUnit, DocumentaryUnit]
+  with Update[DocumentaryUnit]
   with Delete[DocumentaryUnit]
   with ScopePermissions[DocumentaryUnit]
   with Annotate[DocumentaryUnit]
   with Linking[DocumentaryUnit]
-  with Descriptions[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
-  with AccessPoints[DocumentaryUnitDescriptionF, DocumentaryUnitF, DocumentaryUnit]
+  with Descriptions[DocumentaryUnit]
+  with AccessPoints[DocumentaryUnit]
   with Search {
 
   // Documentary unit facets
@@ -139,7 +139,7 @@ case class DocumentaryUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.edit(
-      request.item, form.fill(request.item.model), docRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), docRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
@@ -171,49 +171,49 @@ case class DocumentaryUnits @Inject()(
   def createDescription(id: String): Action[AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
       Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-        descriptionForm, formDefaults, docRoutes.createDescriptionPost(id)))
+        form.fill(request.item.data), formDefaults, docRoutes.createDescriptionPost(id)))
     }
 
-  def createDescriptionPost(id: String): Action[AnyContent] =
-    CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
-      request.formOrDescription match {
-        case Left(errorForm) =>
-          Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-            errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
-        case Right(_) => Redirect(docRoutes.get(id))
-          .flashing("success" -> "item.create.confirmation")
-      }
+  def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.documentaryUnit.createDescription(request.item,
+          errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
+      case Right(_) => Redirect(docRoutes.get(id))
+        .flashing("success" -> "item.create.confirmation")
     }
+  }
 
-  def updateDescription(id: String, did: String): Action[AnyContent] =
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-        descriptionForm.fill(request.description),
-        docRoutes.updateDescriptionPost(id, did)))
+  def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.editDescription(request.item,
+      form.fill(request.item.data), did, docRoutes.updateDescriptionPost(id, did)))
+  }
+
+  def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.documentaryUnit.editDescription(request.item,
+          errorForm, did, docRoutes.updateDescriptionPost(id, did)))
+      case Right(_) => Redirect(docRoutes.get(id))
+        .flashing("success" -> "item.update.confirmation")
     }
+  }
 
-  def updateDescriptionPost(id: String, did: String): Action[AnyContent] =
-    UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
-      request.formOrDescription match {
-        case Left(errorForm) =>
-          Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-            errorForm, docRoutes.updateDescriptionPost(id, did)))
-        case Right(_) => Redirect(docRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
-      }
-    }
+  def deleteDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.deleteDescription(request.item, form.fill(request.item.data),
+      did, docRoutes.deleteDescriptionPost(id, did)))
+  }
 
-  def deleteDescription(id: String, did: String): Action[AnyContent] =
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.deleteDescription(request.item, request.description,
-        docRoutes.deleteDescriptionPost(id, did), docRoutes.get(id)))
-    }
-
-  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] =
-    DeleteDescriptionAction(id, did).apply { implicit request =>
-      Redirect(docRoutes.get(id))
+  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.documentaryUnit.deleteDescription(request.item,
+          errorForm, did, docRoutes.deleteDescriptionPost(id, did)))
+      case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
+
     }
+  }
 
   def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
