@@ -3,30 +3,20 @@ package controllers.generic
 import defines.PermissionType
 import models.UserProfile
 import models.base._
-import play.api.data.Form
 import play.api.mvc._
-import services.data.{ContentType, ValidationError, Writable}
+import services.data.ContentType
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 /**
-  * Controller trait for creating, updating, and deleting auxiliary descriptions
-  * for entities that can be multiply described.
+  * Provides helpers for managing items that can have multiple descriptions.
   */
 trait Descriptions[MT <: DescribedModel{type T <: ModelData with Described{type D <: Description with Persistable}}] extends Write {
 
   this: Read[MT] =>
 
-  case class ManageDescriptionRequest[A](
-    item: MT,
-    formOrDescription: Either[Form[MT#T#D], MT#T#D],
-    userOpt: Option[UserProfile],
-    request: Request[A]
-  ) extends WrappedRequest[A](request)
-    with WithOptionalUser
-
-  case class DeleteDescriptionRequest[A](
+  case class DescriptionRequest[A](
     item: MT,
     description: MT#T#D,
     userOpt: Option[UserProfile],
@@ -35,59 +25,12 @@ trait Descriptions[MT <: DescribedModel{type T <: ModelData with Described{type 
     with WithOptionalUser
 
 
-  protected def CreateDescriptionAction(id: String, form: Form[MT#T#D])(
-    implicit fmt: Writable[MT#T#D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
-        implicit val req: ItemPermissionRequest[A] = request
-        form.bindFromRequest.fold(
-          ef => immediate(ManageDescriptionRequest(request.item, Left(ef), request.userOpt, request)),
-          desc => userDataApi.createDescription(id, desc, logMsg = getLogMessage).map { updated =>
-            ManageDescriptionRequest(request.item, Right(updated), request.userOpt, request)
-          } recover {
-            case ValidationError(errorSet) =>
-              val badForm = desc.getFormErrors(errorSet, form.fill(desc))
-              ManageDescriptionRequest(request.item, Left(badForm), request.userOpt, request)
-          }
-        )
-      }
-    }
-
-  protected def UpdateDescriptionAction(id: String, did: String, form: Form[MT#T#D])(
-    implicit fmt: Writable[MT#T#D], ct: ContentType[MT]): ActionBuilder[ManageDescriptionRequest, AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ManageDescriptionRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[ManageDescriptionRequest[A]] = {
-        implicit val req: ItemPermissionRequest[A] = request
-        form.bindFromRequest.fold(
-          ef => immediate(ManageDescriptionRequest(request.item, Left(ef), request.userOpt, request)),
-          desc => userDataApi.updateDescription(id, did, desc, logMsg = getLogMessage).map { updated =>
-            ManageDescriptionRequest(request.item, Right(updated), request.userOpt, request)
-          } recover {
-            case ValidationError(errorSet) =>
-              val badForm = desc.getFormErrors(errorSet, form.fill(desc))
-              ManageDescriptionRequest(request.item, Left(badForm), request.userOpt, request)
-          }
-        )
-      }
-    }
-
-  protected def WithDescriptionAction(id: String, did: String)(
-    implicit ct: ContentType[MT]): ActionBuilder[DeleteDescriptionRequest, AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionRefiner[ItemPermissionRequest, DeleteDescriptionRequest] {
-      override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DeleteDescriptionRequest[A]]] = {
+  protected def WithDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]): ActionBuilder[DescriptionRequest, AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionRefiner[ItemPermissionRequest, DescriptionRequest] {
+      override protected def refine[A](request: ItemPermissionRequest[A]): Future[Either[Result, DescriptionRequest[A]]] = {
         request.item.data.description(did) match {
-          case Some(d) => immediate(Right(DeleteDescriptionRequest(request.item, d, request.userOpt, request)))
+          case Some(d) => immediate(Right(DescriptionRequest(request.item, d, request.userOpt, request)))
           case None => notFoundError(request).map(r => Left(r))
-        }
-      }
-    }
-
-  protected def DeleteDescriptionAction(id: String, did: String)(implicit ct: ContentType[MT]): ActionBuilder[OptionalUserRequest, AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, OptionalUserRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[OptionalUserRequest[A]] = {
-        implicit val req: ItemPermissionRequest[A] = request
-        userDataApi.deleteDescription(id, did, logMsg = getLogMessage).map { _ =>
-          OptionalUserRequest(request.userOpt, request)
         }
       }
     }

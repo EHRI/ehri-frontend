@@ -1,28 +1,25 @@
 @(item: VirtualUnit, f: Form[models.VirtualUnitF], did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
  
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@views.html.admin.layout.rightSidebar(Messages("describedEntity.deleteDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
-@views.html.admin.layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
-
+    <p>@Messages("describedEntity.deleteDescription.info", did)</p>
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
 
             @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
             @helper.repeat(f("descriptions"), min = 0) { desc =>
-                @if(desc(Entity.ID).value.contains(did)) {
-                    @views.html.admin.documentaryUnit.descriptionForm(desc)
-                } else {
+                @if(!desc(Entity.ID).value.contains(did)) {
                     @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                } else {
                 }
             }
 
             @formHelpers.submitButtonWithLogMessageInput(
-                Messages("describedEntity.updateDescription.submit"),
-                defaultLogMessage = Messages("describedEntity.updateDescription.logMessage", did),
+                Messages("describedEntity.deleteDescription.submit"),
+                defaultLogMessage = Messages("describedEntity.deleteDescription.logMessage", did),
                 cancel = views.admin.Helpers.linkToOpt(item))
         }
     }
 } {
-   @views.html.admin.documentaryUnit.formNav()
 }
