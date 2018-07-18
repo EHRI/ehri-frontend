@@ -285,13 +285,13 @@ case class VirtualUnits @Inject()(
       .flashing("success" -> "item.delete.confirmation")
   }
 
-  def createDescription(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+  def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.createDescription(request.item,
-      descriptionForm, formDefaults, vuRoutes.createDescriptionPost(id)))
+      form.fill(request.item.data), formDefaults, vuRoutes.createDescriptionPost(id)))
   }
 
-  def createDescriptionPost(id: String): Action[AnyContent] = CreateDescriptionAction(id, descriptionForm).apply { implicit request =>
-    request.formOrDescription match {
+  def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.createDescription(request.item,
           errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
@@ -300,35 +300,32 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def updateDescription(id: String, did: String): Action[AnyContent] = {
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.virtualUnit.editDescription(request.item,
-        descriptionForm.fill(request.description), vuRoutes.updateDescriptionPost(id, did)))
+  def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.editDescription(request.item,
+      form.fill(request.item.data), did, vuRoutes.updateDescriptionPost(id, did)))
+  }
+
+  def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.virtualUnit.editDescription(request.item,
+          errorForm, did, vuRoutes.updateDescriptionPost(id, did)))
+      case Right(updated) => Redirect(vuRoutes.get(id))
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
-  def updateDescriptionPost(id: String, did: String): Action[AnyContent] = {
-    UpdateDescriptionAction(id, did, descriptionForm).apply { implicit request =>
-      request.formOrDescription match {
-        case Left(errorForm) =>
-          Ok(views.html.admin.virtualUnit.editDescription(request.item,
-            errorForm, vuRoutes.updateDescriptionPost(id, did)))
-        case Right(updated) => Redirect(vuRoutes.get(id))
-          .flashing("success" -> "item.create.confirmation")
-      }
-    }
+  def deleteDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.virtualUnit.deleteDescription(request.item, form.fill(request.item.data), did,
+      vuRoutes.deleteDescriptionPost(id, did)))
   }
 
-  def deleteDescription(id: String, did: String): Action[AnyContent] = {
-    WithDescriptionAction(id, did).apply { implicit request =>
-      Ok(views.html.admin.deleteDescription(request.item, request.description,
-        vuRoutes.deleteDescriptionPost(id, did), vuRoutes.get(id)))
-    }
-  }
-
-  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = {
-    DeleteDescriptionAction(id, did).apply { implicit request =>
-      Redirect(vuRoutes.get(id))
+  def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
+    request.formOrItem match {
+      case Left(errorForm) =>
+        Ok(views.html.admin.virtualUnit.deleteDescription(request.item,
+          errorForm, did, vuRoutes.deleteDescriptionPost(id, did)))
+      case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
     }
   }

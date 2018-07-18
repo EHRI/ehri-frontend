@@ -2,28 +2,27 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebar(Messages("describedEntity.deleteDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
+    <p>@Messages("describedEntity.deleteDescription.info", did)</p>
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @helper.form(action = action, 'class -> "entity-form form-horizontal") {
             @formHelpers.csrfToken()
 
             @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
                 @helper.repeat(f("descriptions"), min = 0) { desc =>
-                    @if(desc(Entity.ID).value.contains(did)) {
-                        @views.html.admin.documentaryUnit.descriptionForm(desc)
-                    } else {
+                    @if(!desc(Entity.ID).value.contains(did)) {
                         @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                    } else {
                     }
                 }
             }
 
             @formHelpers.submitButtonWithLogMessageInput(
-                Messages("describedEntity.updateDescription.submit"),
-                defaultLogMessage = Messages("describedEntity.updateDescription.logMessage", did),
+                Messages("describedEntity.deleteDescription.submit"),
+                defaultLogMessage = Messages("describedEntity.deleteDescription.logMessage", did),
                 cancel = views.admin.Helpers.linkToOpt(item))
         }
     }
 } {
-   @formNav()
 }
