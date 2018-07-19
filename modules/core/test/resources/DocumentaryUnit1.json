@@ -3,7 +3,7 @@
   "data" : {
     "scope" : "high",
     "publicationStatus" : "Draft",
-    "copyright" : "unknown",
+    "copyrightStatus" : "yes",
     "identifier" : "123456"
   },
   "type" : "DocumentaryUnit",

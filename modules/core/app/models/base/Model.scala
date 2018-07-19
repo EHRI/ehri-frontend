@@ -203,12 +203,6 @@ trait Description extends ModelData {
 
   def displayText: Option[String]
 
-  // Unknown, unparsed data
-  def toSeq: Seq[(String, Option[String])]
-
-  def toMap: SortedMap[String, Option[String]] =
-    scala.collection.immutable.TreeMap(toSeq: _*)
-
   def isRightToLeft: Boolean = languageCode == "heb" || languageCode == "ara"
 
   def localId: Option[String] = id.flatMap(Description.localId)

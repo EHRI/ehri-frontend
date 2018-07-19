@@ -25,7 +25,7 @@
     @* NB: Access points are hidden in this form because they are managed *@
     @* separately from the accessPoints page. Maintenance events are not *@
     @* currently editable. *@
-    @views.html.formHelpers.hiddenAccessPointSet(descriptionField, ACCESS_POINTS)
-    @views.html.formHelpers.hiddenMaintenanceEventSet(descriptionField, MAINTENANCE_EVENTS)
-    @views.html.formHelpers.hiddenUnknownDataSet(descriptionField, UNKNOWN_DATA)
+    @views.html.formHelpers.hiddenAccessPointSet(descriptionField(ACCESS_POINTS))
+    @views.html.formHelpers.hiddenMaintenanceEventSet(descriptionField(MAINTENANCE_EVENTS))
+    @views.html.formHelpers.hiddenUnknownDataSet(descriptionField(UNKNOWN_DATA))
 </div>

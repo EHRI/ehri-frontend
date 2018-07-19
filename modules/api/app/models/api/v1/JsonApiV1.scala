@@ -25,7 +25,7 @@ object JsonApiV1 {
     name: String,
     parallelFormsOfName: Seq[String],
     extentAndMedium: Option[String],
-    unitDates: Option[Seq[String]],
+    unitDates: Seq[String],
     biographicalHistory: Option[String],
     archivalHistory: Option[String],
     acquisition: Option[String],
@@ -33,8 +33,8 @@ object JsonApiV1 {
     appraisal: Option[String] = None,
     accruals: Option[String] = None,
     systemOfArrangement: Option[String] = None,
-    languageOfMaterials: Option[Seq[String]] = None,
-    scriptOfMaterials: Option[Seq[String]] = None
+    languageOfMaterials: Seq[String] = Nil,
+    scriptOfMaterials: Seq[String] = Nil
   )
 
   object DocumentaryUnitDescriptionAttrs {
@@ -46,7 +46,7 @@ object JsonApiV1 {
         languageCode = d.languageCode,
         language = utils.i18n.languageCodeToName(d.languageCode),
         name = d.name,
-        parallelFormsOfName = d.identity.parallelFormsOfName.getOrElse(Seq.empty),
+        parallelFormsOfName = d.identity.parallelFormsOfName,
         extentAndMedium = d.identity.extentAndMedium,
         unitDates = d.identity.unitDates,
         biographicalHistory = d.context.biographicalHistory,
@@ -55,10 +55,8 @@ object JsonApiV1 {
         scopeAndContent = d.content.scopeAndContent,
         appraisal = d.content.appraisal,
         systemOfArrangement = d.content.systemOfArrangement,
-        languageOfMaterials = d.conditions.languageOfMaterials
-          .map(_.map(utils.i18n.languageCodeToName)),
-        scriptOfMaterials = d.conditions.scriptOfMaterials
-          .map(_.map(utils.i18n.scriptCodeToName))
+        languageOfMaterials = d.conditions.languageOfMaterials.map(utils.i18n.languageCodeToName),
+        scriptOfMaterials = d.conditions.scriptOfMaterials.map(utils.i18n.scriptCodeToName)
       )
   }
 
@@ -115,8 +113,8 @@ object JsonApiV1 {
 
   case class RepositoryAttrs(
     name: Option[String] = None,
-    parallelFormsOfName: Option[Seq[String]] = None,
-    otherFormsOfName: Option[Seq[String]] = None,
+    parallelFormsOfName: Seq[String] = Nil,
+    otherFormsOfName: Seq[String] = Nil,
     address: Option[AddressAttrs] = None,
     history: Option[String] = None,
     generalContext: Option[String] = None,
@@ -197,13 +195,13 @@ object JsonApiV1 {
 
   case class HistoricalAgentAttrs(
     name: Option[String] = None,
-    otherFormsOfName: Option[Seq[String]] = None,
+    otherFormsOfName: Seq[String] = Nil,
     datesOfExistence: Option[String] = None,
     history: Option[String] = None,
-    places: Option[Seq[String]] = None,
-    legalStatus: Option[Seq[String]] = None,
-    functions: Option[Seq[String]] = None,
-    mandates: Option[Seq[String]] = None,
+    places: Seq[String] = Nil,
+    legalStatus: Seq[String] = Nil,
+    functions: Seq[String] = Nil,
+    mandates: Seq[String] = Nil,
     internalStructure: Option[String] = None,
     generalContext: Option[String] = None
   )

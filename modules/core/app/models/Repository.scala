@@ -87,7 +87,7 @@ case class Repository(
   type T = RepositoryF
 
   override def allNames(implicit messages: Messages): Seq[String] = data.primaryDescription(messages) match {
-    case Some(desc) => desc.name +: (desc.otherFormsOfName.toSeq.flatten ++ desc.parallelFormsOfName.toSeq.flatten)
+    case Some(desc) => desc.name +: (desc.otherFormsOfName ++ desc.parallelFormsOfName)
     case None => Seq(toStringLang(messages))
   }
 

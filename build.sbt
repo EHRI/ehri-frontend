@@ -67,7 +67,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "com.atlassian.commonmark" % "commonmark-ext-autolink" % "0.11.0",
 
   // HTML sanitising...
-  "org.jsoup" % "jsoup" % "1.8.3",
+  "org.jsoup" % "jsoup" % "1.11.3",
 
   // Mailer...
   "com.typesafe.play" %% "play-mailer" % "6.0.1",
@@ -320,13 +320,13 @@ lazy val api = Project(appName + "-api", file("modules/api"))
   .enablePlugins(play.sbt.PlayScala)
   .settings(libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0")
   .settings(commonSettings ++ webAppSettings: _*)
-  .dependsOn(portal)
+  .dependsOn(portal % "test->test;compile->compile")
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala)
   .settings(libraryDependencies += specs2 % Test)
   .settings(commonSettings ++ webAppSettings: _*)
-  .dependsOn(api)
+  .dependsOn(api % "test->test;compile->compile")
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
   .enablePlugins(play.sbt.PlayScala)

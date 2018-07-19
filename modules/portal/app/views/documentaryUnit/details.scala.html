@@ -24,29 +24,25 @@
         <dt>@Messages("documentaryUnit.levelOfDescription")</dt>
         <dd>@Messages("documentaryUnit.levelOfDescription." + e)</dd>
     }
-    @desc.conditions.languageOfMaterials.map { langs =>
-        @if(langs.nonEmpty) {
-            <dt>@Messages("documentaryUnit.languageOfMaterials")</dt>
-            <dd class="item-meta-languages">
-                <ul>
-                    @langs.map { l =>
-                        <li>@views.Helpers.languageCodeToName(l)</li>
-                    }
-                </ul>
-            </dd>
-        }
+    @if(desc.conditions.languageOfMaterials.nonEmpty) {
+        <dt>@Messages("documentaryUnit.languageOfMaterials")</dt>
+        <dd class="item-meta-languages">
+            <ul>
+                @desc.conditions.languageOfMaterials.map { l =>
+                    <li>@views.Helpers.languageCodeToName(l)</li>
+                }
+            </ul>
+        </dd>
     }
-    @desc.conditions.scriptOfMaterials.map { scr =>
-        @if(scr.nonEmpty) {
-            <dt>@Messages("documentaryUnit.scriptOfMaterials")</dt>
-            <dd>
-                <ul class="list-unstyled list-inline comma-sep">
-                    @scr.map { s =>
+    @if(desc.conditions.scriptOfMaterials.nonEmpty) {
+        <dt>@Messages("documentaryUnit.scriptOfMaterials")</dt>
+        <dd>
+            <ul class="list-unstyled list-inline comma-sep">
+                @desc.conditions.scriptOfMaterials.map { s =>
                     <li>@views.Helpers.scriptCodeToName(s)</li>
-                    }
-                </ul>
-            </dd>
-        }
+                }
+            </ul>
+        </dd>
     }
     <dt>@Messages("documentaryUnit.creationProcess")</dt>
     <dd>@Messages("documentaryUnit.creationProcess." + desc.creationProcess)</dd>

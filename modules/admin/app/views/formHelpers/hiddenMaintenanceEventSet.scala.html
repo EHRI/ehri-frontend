@@ -1,5 +1,5 @@
-@(field: play.api.data.Field, name: String)
+@(field: play.api.data.Field)
 
-@helper.repeat(field(name), min = 0) { desc =>
+@helper.repeat(field, min = 0) { desc =>
     @formHelpers.hiddenMaintenanceEvent(desc)
 }

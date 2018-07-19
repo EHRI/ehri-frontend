@@ -26,8 +26,8 @@
             </i>
         </dd>
         @Map(ALTLABEL -> desc.altLabels, HIDDENLABEL -> desc.hiddenLabels,
-            SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, listOpt) =>
-            @listOpt.map { list =>
+                SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, list) =>
+            @if(list.nonEmpty) {
                 @listItem(list, key)
             }
         }
