@@ -1,4 +1,4 @@
-@(desc: Field)(implicit userOpt: Option[UserProfile], req: RequestHeader)
+@(desc: Field)
 
 @import IsadG.{ACCESS_POINTS => _, _}
 @import views.html.formHelpers._
@@ -12,13 +12,13 @@
 
 @defining(desc(IDENTITY_AREA)) { desc =>
     @hiddenInput(desc(TITLE))
-    @hiddenInputSet(desc, PARALLEL_FORMS_OF_NAME)
+    @hiddenInputSet(desc(PARALLEL_FORMS_OF_NAME))
     @hiddenInput(desc(REF))
     @hiddenInput(desc(Entity.IDENTIFIER))
-    @hiddenDateSet(desc, DATES)
-    @hiddenInputSet(desc, UNIT_DATES)
+    @hiddenDateSet(desc(DATES))
+    @hiddenInputSet(desc(UNIT_DATES))
     @hiddenInput(desc(LEVEL_OF_DESCRIPTION))
-    @hiddenInputSet(desc, PHYSICAL_LOCATION)
+    @hiddenInputSet(desc(PHYSICAL_LOCATION))
     @hiddenInput(desc(EXTENT_MEDIUM))
 }
 
@@ -38,31 +38,31 @@
 @defining(desc(CONDITIONS_AREA)) { desc =>
     @hiddenInput(desc(ACCESS_COND))
     @hiddenInput(desc(REPROD_COND))
-    @hiddenInputSet(desc, LANG_MATERIALS)
-    @hiddenInputSet(desc, SCRIPT_MATERIALS)
+    @hiddenInputSet(desc(LANG_MATERIALS))
+    @hiddenInputSet(desc(SCRIPT_MATERIALS))
     @hiddenInput(desc(PHYSICAL_CHARS))
-    @hiddenInputSet(desc, FINDING_AIDS)
+    @hiddenInputSet(desc(FINDING_AIDS))
 }
 
 @defining(desc(MATERIALS_AREA)) { desc =>
-    @hiddenInputSet(desc, LOCATION_ORIGINALS)
-    @hiddenInputSet(desc, LOCATION_COPIES)
-    @hiddenInputSet(desc, RELATED_UNITS)
-    @hiddenInputSet(desc, SEPARATED_UNITS)
+    @hiddenInputSet(desc(LOCATION_ORIGINALS))
+    @hiddenInputSet(desc(LOCATION_COPIES))
+    @hiddenInputSet(desc(RELATED_UNITS))
+    @hiddenInputSet(desc(SEPARATED_UNITS))
     @hiddenInput(desc(PUBLICATION_NOTE))
 }
 
-@hiddenInputSet(desc, NOTES)
+@hiddenInputSet(desc(NOTES))
 
 @defining(desc(CONTROL_AREA)) { desc =>
     @hiddenInput(desc(ARCHIVIST_NOTE))
-    @hiddenInputSet(desc, SOURCES)
+    @hiddenInputSet(desc(SOURCES))
     @hiddenInput(desc(RULES_CONVENTIONS))
     @hiddenInput(desc(DATES_DESCRIPTIONS))
-    @hiddenInputSet(desc, PROCESS_INFO)
+    @hiddenInputSet(desc(PROCESS_INFO))
 }
 
-@hiddenAccessPointSet(desc, ACCESS_POINTS)
-@hiddenMaintenanceEventSet(desc, MAINTENANCE_EVENTS)
-@hiddenUnknownDataSet(desc, UNKNOWN_DATA)
+@hiddenAccessPointSet(desc(ACCESS_POINTS))
+@hiddenMaintenanceEventSet(desc(MAINTENANCE_EVENTS))
+@hiddenUnknownDataSet(desc(UNKNOWN_DATA))
 

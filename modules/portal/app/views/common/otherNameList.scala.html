@@ -1,12 +1,10 @@
-@(list: Option[Seq[String]])(implicit messages: Messages)
+@(names: Seq[String])(implicit messages: Messages)
 
-@defining(list.toList.flatten) { pfn =>
-    @if(pfn.nonEmpty) {
+@if(names.nonEmpty) {
     <ul class="slash-sep other-name-list">
-        @pfn.map { p =>
+        @names.map { p =>
             <li>@p</li>
         }
     </ul>
-    }
 }
 

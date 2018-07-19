@@ -42,7 +42,7 @@ object ConceptF {
     (__ \ DATA \ URL).formatNullable[String] and
     (__ \ DATA \ LONGITUDE).formatNullable[BigDecimal] and
     (__ \ DATA \ LATITUDE).formatNullable[BigDecimal] and
-    (__ \ DATA \ SEEALSO).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ SEEALSO).formatSeqOrSingle[String] and
     (__ \ RELATIONSHIPS \ DESCRIPTION_FOR_ENTITY).formatSeqOrEmpty[ConceptDescriptionF]
   )(ConceptF.apply, unlift(ConceptF.unapply))
 
@@ -59,7 +59,7 @@ case class ConceptF(
   url: Option[String] = None,
   longitude: Option[BigDecimal] = None,
   latitude: Option[BigDecimal] = None,
-  seeAlso: Option[Seq[String]] = None,
+  seeAlso: Seq[String] = Nil,
   @models.relation(Ontology.DESCRIPTION_FOR_ENTITY) descriptions: Seq[ConceptDescriptionF] = Nil
 ) extends ModelData with Persistable with Described {
 
@@ -108,8 +108,8 @@ object Concept {
         url => utils.forms.isValidUrl(url))),
       LONGITUDE -> optional(bigDecimal),
       LATITUDE -> optional(bigDecimal),
-      SEEALSO -> optional(seq(nonEmptyText verifying("error.badUrl",
-        url => utils.forms.isValidUrl(url)))),
+      SEEALSO -> seq(nonEmptyText verifying("error.badUrl",
+        url => utils.forms.isValidUrl(url))),
       DESCRIPTIONS -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)
   )

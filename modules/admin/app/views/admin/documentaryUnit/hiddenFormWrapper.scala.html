@@ -1,10 +1,10 @@
-@(f: play.api.data.Form[DocumentaryUnitF])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(f: play.api.data.Form[DocumentaryUnitF])(html: Html)
 
 @import models.IsadG._
 @import models.DocumentaryUnitF._
 
 @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-@formHelpers.hiddenInputSet(f(""), OTHER_IDENTIFIERS)
+@formHelpers.hiddenInputSet(f(OTHER_IDENTIFIERS))
 @html
 @formHelpers.hiddenInput(f(PUB_STATUS))
 @formHelpers.hiddenInput(f(COPYRIGHT))

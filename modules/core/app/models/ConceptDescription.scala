@@ -25,10 +25,10 @@ object ConceptDescriptionF {
     (__ \ DATA \ LANG_CODE).format[String] and
     (__ \ DATA \ IDENTIFIER).formatNullable[String] and
     (__ \ DATA \ PREFLABEL).format[String] and
-    (__ \ DATA \ ALTLABEL).formatSeqOrSingleNullable[String] and
-    (__ \ DATA \ HIDDENLABEL).formatSeqOrSingleNullable[String] and
-    (__ \ DATA \ DEFINITION).formatSeqOrSingleNullable[String] and
-    (__ \ DATA \ SCOPENOTE).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ ALTLABEL).formatSeqOrSingle[String] and
+    (__ \ DATA \ HIDDENLABEL).formatSeqOrSingle[String] and
+    (__ \ DATA \ DEFINITION).formatSeqOrSingle[String] and
+    (__ \ DATA \ SCOPENOTE).formatSeqOrSingle[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
     (__ \ RELATIONSHIPS \ Ontology.HAS_MAINTENANCE_EVENT).formatSeqOrEmpty[MaintenanceEventF] and
@@ -46,10 +46,10 @@ case class ConceptDescriptionF(
   languageCode: String,
   identifier: Option[String] = None,
   name: String,
-  altLabels: Option[Seq[String]] = None,
-  hiddenLabels: Option[Seq[String]] = None,
-  definition: Option[Seq[String]] = None,
-  scopeNote: Option[Seq[String]] = None,
+  altLabels: Seq[String] = Nil,
+  hiddenLabels: Seq[String] = Nil,
+  definition: Seq[String] = Nil,
+  scopeNote: Seq[String] = Nil,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   @models.relation(Ontology.HAS_ACCESS_POINT)
   accessPoints: Seq[AccessPointF] = Nil,
@@ -60,11 +60,7 @@ case class ConceptDescriptionF(
 ) extends ModelData with Persistable with Description {
 
   override def displayText: Option[String] =
-    scopeNote.flatMap(_.headOption) orElse definition.flatMap(_.headOption)
-
-  // NA - no single valued optional text fields
-  // here...
-  def toSeq = Seq()
+    scopeNote.headOption orElse definition.headOption
 }
 
 object ConceptDescription {
@@ -79,10 +75,10 @@ object ConceptDescription {
     LANG_CODE -> nonEmptyText,
     IDENTIFIER -> optional(nonEmptyText),
     PREFLABEL -> nonEmptyText,
-    ALTLABEL -> optional(seq(nonEmptyText)),
-    HIDDENLABEL -> optional(seq(nonEmptyText)),
-    DEFINITION -> optional(seq(nonEmptyText)),
-    SCOPENOTE -> optional(seq(nonEmptyText)),
+    ALTLABEL -> seq(nonEmptyText),
+    HIDDENLABEL -> seq(nonEmptyText),
+    DEFINITION -> seq(nonEmptyText),
+    SCOPENOTE -> seq(nonEmptyText),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),
     MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),

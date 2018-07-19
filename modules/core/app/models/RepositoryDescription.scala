@@ -42,9 +42,9 @@ case class IsdiahControl(
   status: Option[String] = None,
   levelOfDetail: Option[String] = None,
   datesCDR: Option[String] = None,
-  languages: Option[Seq[String]] = None,
-  scripts: Option[Seq[String]] = None,
-  sources: Option[Seq[String]] = None,
+  languages: Seq[String] = Nil,
+  scripts: Seq[String] = Nil,
+  sources: Seq[String] = Nil,
   maintenanceNotes: Option[String] = None
 ) extends AttributeSet
 
@@ -59,8 +59,8 @@ object RepositoryDescriptionF {
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
     (__ \ DATA \ AUTHORIZED_FORM_OF_NAME).format[String] and
-    (__ \ DATA \ OTHER_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
-    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingleNullable[String] and
+    (__ \ DATA \ OTHER_FORMS_OF_NAME).formatSeqOrSingle[String] and
+    (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingle[String] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_ADDRESS).formatSeqOrEmpty[AddressF] and
     (__ \ DATA).format[IsdiahDetails]((
       (__ \ HISTORY).formatNullable[String] and
@@ -89,9 +89,9 @@ object RepositoryDescriptionF {
       (__ \ STATUS).formatNullable[String] and
       (__ \ LEVEL_OF_DETAIL).formatNullable[String] and
       (__ \ DATES_CVD).formatNullable[String] and
-      (__ \ LANGUAGES_USED).formatNullable[Seq[String]] and
-      (__ \ SCRIPTS_USED).formatSeqOrSingleNullable[String] and
-      (__ \ SOURCES).formatSeqOrSingleNullable[String] and
+      (__ \ LANGUAGES_USED).formatSeqOrSingle[String] and
+      (__ \ SCRIPTS_USED).formatSeqOrSingle[String] and
+      (__ \ SOURCES).formatSeqOrSingle[String] and
       (__ \ MAINTENANCE_NOTES).formatNullable[String]
     )(IsdiahControl.apply, unlift(IsdiahControl.unapply))) and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
@@ -111,8 +111,8 @@ case class RepositoryDescriptionF(
   id: Option[String],
   languageCode: String,
   name: String,
-  otherFormsOfName: Option[Seq[String]] = None,
-  parallelFormsOfName: Option[Seq[String]] = None,
+  otherFormsOfName: Seq[String] = Nil,
+  parallelFormsOfName: Seq[String] = Nil,
   @models.relation(Ontology.ENTITY_HAS_ADDRESS)
   addresses: Seq[AddressF] = Nil,
   details: IsdiahDetails,
@@ -128,33 +128,7 @@ case class RepositoryDescriptionF(
   unknownProperties: Seq[Entity] = Nil
 ) extends ModelData with Persistable with Description {
 
-  import Isdiah._
-
   override def displayText: Option[String] = details.history orElse details.generalContext
-
-  def toSeq = Seq(
-    HISTORY -> details.history,
-    GEOCULTURAL_CONTEXT -> details.generalContext,
-    MANDATES -> details.mandates,
-    ADMINISTRATIVE_STRUCTURE -> details.administrativeStructure,
-    RECORDS -> details.records,
-    BUILDINGS -> details.buildings,
-    HOLDINGS -> details.holdings,
-    FINDING_AIDS -> details.findingAids,
-    OPENING_TIMES -> access.openingTimes,
-    CONDITIONS -> access.conditions,
-    ACCESSIBILITY -> access.accessibility,
-    RESEARCH_SERVICES -> services.researchServices,
-    REPROD_SERVICES -> services.reproductionServices,
-    PUBLIC_AREAS -> services.publicAreas,
-    DESCRIPTION_IDENTIFIER -> control.descriptionIdentifier,
-    INSTITUTION_IDENTIFIER -> control.institutionIdentifier,
-    RULES_CONVENTIONS -> control.rulesAndConventions,
-    STATUS -> control.status,
-    LEVEL_OF_DETAIL -> control.levelOfDetail,
-    DATES_CVD -> control.datesCDR,
-    MAINTENANCE_NOTES -> control.maintenanceNotes
-  )
 }
 
 object RepositoryDescription {
@@ -169,8 +143,8 @@ object RepositoryDescription {
       ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
       AUTHORIZED_FORM_OF_NAME -> text,
-      OTHER_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
-      PARALLEL_FORMS_OF_NAME -> optional(seq(nonEmptyText)),
+      OTHER_FORMS_OF_NAME -> seq(nonEmptyText),
+      PARALLEL_FORMS_OF_NAME -> seq(nonEmptyText),
       ADDRESS_AREA -> seq(Address.form.mapping),
       DESCRIPTION_AREA -> mapping(
         HISTORY -> optional(nonEmptyText),
@@ -199,9 +173,9 @@ object RepositoryDescription {
         STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> optional(seq(nonEmptyText)),
-        SCRIPTS_USED -> optional(seq(nonEmptyText)),
-        SOURCES -> optional(seq(nonEmptyText)),
+        LANGUAGES_USED -> seq(nonEmptyText),
+        SCRIPTS_USED -> seq(nonEmptyText),
+        SOURCES -> seq(nonEmptyText),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),

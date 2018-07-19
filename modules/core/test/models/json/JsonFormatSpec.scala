@@ -8,9 +8,6 @@ import defines.EntityType
 
 class JsonFormatSpec extends PlaySpecification with ResourceUtils {
 
-  private def readResource(v: EntityType.Value): JsValue = readResource(v.toString + ".json")
-  private def readResource(name: String): JsValue = Json.parse(resourceAsString(name))
-
   "Documentary Unit Format should read and write with no changes" in {
     val validation = readResource(EntityType.DocumentaryUnit).validate[DocumentaryUnitF]
     // The JSON should parse correctly
