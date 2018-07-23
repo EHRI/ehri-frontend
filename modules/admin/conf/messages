@@ -1383,3 +1383,8 @@ ingest.format.ead-sync=EAD (Synchronisation)
 ingest.format.eac=EAC
 ingest.commit=Commit Ingest
 ingest.commit.description=Apply the ingest. Leave unchecked to dry-run.
+
+#
+# Geocoding
+#
+geocode.monitor=Geocoding {0}
