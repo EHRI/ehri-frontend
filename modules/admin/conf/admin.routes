@@ -14,7 +14,7 @@ GET         /metricRoutes                       @controllers.admin.Home.metricsJ
 GET         /updateIndex                        @controllers.admin.Indexing.updateIndex
 GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
-# Ingest TESTING
+# Ingest
 POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.EntityType.Value, scopeId: String, dataType: String, fonds: Option[String] ?= None)
 GET         /ingest                             @controllers.admin.Ingest.ingestMonitor(jobId: String)
 

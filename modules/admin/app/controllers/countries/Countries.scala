@@ -1,18 +1,27 @@
 package controllers.countries
 
-import javax.inject._
+import java.util.UUID
 
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.stream.Materializer
+import akka.stream.scaladsl.Sink
+import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType}
+import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.Configuration
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.data.{DataHelpers, IdGenerator}
+import services.data.{ApiUser, DataHelpers, IdGenerator}
+import services.geocoding.GeocodingService
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
+
+import scala.concurrent.Future
 
 
 @Singleton
@@ -21,8 +30,9 @@ case class Countries @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
-  idGenerator: IdGenerator
-) extends AdminController
+  idGenerator: IdGenerator,
+  geocoder: GeocodingService
+)(implicit actorSystem: ActorSystem, mat: Materializer) extends AdminController
   with CRUD[Country]
   with Creator[Repository, Country]
   with Visibility[Country]
@@ -181,5 +191,66 @@ case class Countries @Inject()(
         .flashing("success" -> "item.update.confirmation")
     }
   }
+
+  case class CountryGeocoder(id: String)(implicit apiUser: ApiUser, messages: Messages) extends Actor {
+
+    private def logger = play.api.Logger(getClass)
+
+    private def geocodeRepo(r: Repository, chan: ActorRef): Future[Option[RepositoryF]] = {
+      r.data.descriptions.flatMap(_.addresses).headOption.map { a =>
+        geocoder.geocode(a).map { point =>
+            chan ! s"${r.id}: ${a.concise} = $point"
+            Some(r.data.copy(latitude = point.map(_.latitude), longitude = point.map(_.longitude)))
+        }
+      }.getOrElse {
+        chan ! s"${r.id}: no address found"
+        Future.successful(Option.empty[RepositoryF])
+      }
+    }
+
+    override def receive: Receive = {
+      case chan: ActorRef =>
+        val data = userDataApi
+        .streamChildren[Country, Repository](id)
+        .mapAsync(
+          config.get[Option[Int]]("services.geocoding.parallelism").getOrElse(1))(
+            r => geocodeRepo(r, chan))
+        .mapError {
+          case e => logger.error("Geocoding error: ", e); e
+        }
+        .collect { case Some(r) => r }
+        .map(r => Json.obj(
+          Entity.ID -> r.id,
+          Entity.TYPE -> r.isA,
+          Entity.DATA -> Json.obj(
+            RepositoryF.LONGITUDE -> r.longitude,
+            RepositoryF.LATITUDE -> r.latitude)
+          )
+        )
+
+        userDataApi.batchUpdate(data, Some(id), version = true, commit = true,
+              logMsg = "Update geographical info").map { done =>
+            val msg = s"Finished Geocoding: $id: ${done.updated} updated, ${done.unchanged} unchanged"
+            chan ! msg
+            chan ! utils.WebsocketConstants.DONE_MESSAGE
+            context.stop(self)
+        }
+    }
+  }
+
+  def geocode(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
+    userDataApi.get[Country](id).map { c =>
+      val jobId = UUID.randomUUID().toString
+      actorSystem.actorOf(Props(CountryGeocoder(id)), jobId)
+      Redirect(countryRoutes.geocodeMonitor(id, jobId))
+    }
+  }
+
+  def geocodeMonitor(id: String, jobId: String): Action[AnyContent] =
+    WithParentPermissionAction(id, PermissionType.Update, ContentTypes.Repository).apply { implicit request =>
+      Ok(views.html.admin.tasks.taskMonitor(
+        Messages("geocode.monitor", request.item.toStringLang),
+        controllers.admin.routes.Tasks.taskMonitorWS(jobId)))
+    }
 }
 

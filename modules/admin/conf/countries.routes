@@ -20,4 +20,5 @@ POST    /:id/permissions/:userType/:userId      @controllers.countries.Countries
 GET     /:id/scope/add                          @controllers.countries.Countries.addScopedPermissions(id: String)
 GET     /:id/scope/:userType/:userId            @controllers.countries.Countries.setScopedPermissions(id: String, userType: EntityType.Value, userId: String)
 POST    /:id/scope/:userType/:userId            @controllers.countries.Countries.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
-
+GET     /:id/geocode                            @controllers.countries.Countries.geocode(id: String)
+GET     /:id/geocode/monitor                    @controllers.countries.Countries.geocodeMonitor(id: String, jobId: String)
