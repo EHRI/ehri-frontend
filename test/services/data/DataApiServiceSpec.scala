@@ -96,7 +96,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val history = await(testBackend.history[SystemEvent]("foobar", RangeParams(limit = 1)))
       history.items.size must_== 1
       history.head.size must_== 1
-      history.head.head.data.logMessage must_== Some(msg)
+      history.head.head.data.logMessage must beSome(msg)
     }
 
     "create an item in (agent) context" in new ITestApp {
@@ -135,7 +135,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val udata = entity.data.copy(location = Some("London"))
       val res = await(testBackend.update[UserProfile,UserProfileF](entity.id, udata))
-      res.data.location must equalTo(Some("London"))
+      res.data.location must beSome("London")
     }
 
     "delete an item by id" in new ITestApp {
@@ -149,7 +149,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       val patchData = Json.obj(UserProfileF.IMAGE_URL -> testVal)
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))
       val res = await(testBackend.patch[UserProfile](entity.id, patchData))
-      res.data.imageUrl must equalTo(Some(testVal))
+      res.data.imageUrl must beSome(testVal)
     }
 
     "patch an item with nulls to unset values" in new ITestApp {
@@ -192,7 +192,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
         import models.json.JsPathExtensions
         import play.api.libs.functional.syntax._
         import play.api.libs.json._
-        val badDeserializer = new ContentType[UserProfile] {
+        val badDeserializer: ContentType[UserProfile] = new ContentType[UserProfile] {
           val restReads: Reads[UserProfile] = (
             __.read[UserProfileF] and
             __.lazyReadSeqOrEmpty(Group.GroupResource.restReads) and
@@ -227,6 +227,11 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       r.page mustEqual 1
       r.limit mustEqual services.data.Constants.DEFAULT_LIST_LIMIT
       r.total mustEqual 5
+    }
+
+    "stream items" in new ITestApp {
+      val s = testBackend.stream[UserProfile]()
+      await(s.runFold(0) { case (acc, _) => acc + 1}) must_== 5
     }
 
     "count items" in new ITestApp {
