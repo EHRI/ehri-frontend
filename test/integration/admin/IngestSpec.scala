@@ -56,7 +56,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       redirectLocation(result) must beSome.which { relativeUrl =>
 
         val jobId = relativeUrl.split("=")(1)
-        val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Ingest.ingestMonitorWS(jobId)}"
+        val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
 
         val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
         val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
