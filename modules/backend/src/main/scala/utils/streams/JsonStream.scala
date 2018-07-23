@@ -74,6 +74,7 @@ private[streams] case class JsonStream() extends GraphStage[FlowShape[ByteString
       // Icky mutable vars...
       private var path = ""
       private var objStart = false
+      private var emptyObj = false
       private var pos = 0
       private var buffer: Array[Byte] = Array.empty
       private var stack: List[String] = List.empty
@@ -151,18 +152,24 @@ private[streams] case class JsonStream() extends GraphStage[FlowShape[ByteString
             case JsonEvent.START_ARRAY =>
               pushEvent(ev)
               pushPath("item")
-            case JsonEvent.END_ARRAY | JsonEvent.END_OBJECT =>
+            case JsonEvent.END_ARRAY =>
               popPath()
               pushEvent(ev)
             case JsonEvent.START_OBJECT =>
               objStart = true
+              emptyObj = true
               pushEvent(ev)
             case JsonEvent.FIELD_NAME =>
-              if (!objStart) popPath()
-              else objStart = false
+              if (objStart) objStart = false
+              else popPath()
+              emptyObj = false
               pushEvent(ev)
               pushPath(currentString)
-
+            case JsonEvent.END_OBJECT =>
+              if (emptyObj) emptyObj = false
+              else popPath()
+              objStart = false
+              pushEvent(ev)
             case JsonEvent.ERROR => failStage(new IllegalStateException(
                 s"Malformed JSON found at position: ${parser.getParsedCharacterCount}, " +
                   s"position: $pos, current buffer: '${new String(buffer)}'"))

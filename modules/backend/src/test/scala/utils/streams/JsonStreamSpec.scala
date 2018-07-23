@@ -27,6 +27,8 @@ class JsonStreamSpec extends PlaySpecification {
       |    "f": -3,
       |    "g": 1.0,
       |    "h": "Hello, \"world\"",
+      |    "z": {},
+      |    "x": [],
       |    "i": null,
       |    "j": true,
       |    "k": [true, false, {"foo": "bar", "bar": ["baz"]}]
@@ -145,6 +147,8 @@ class JsonStreamSpec extends PlaySpecification {
       items(objectBytes, "b.k.item") must_== Seq(JsBoolean(true),
           JsBoolean(false), Json.obj("foo" -> "bar", "bar" -> Json.arr("baz")))
       items(objectBytes, "b.i") must_== Seq(JsNull)
+      items(objectBytes, "b.z") must_== Seq(Json.obj())
+      items(objectBytes, "b.x") must_== Seq(Json.arr())
       items(objectBytes, "c") must_== Seq(JsNumber(1.0))
       items(objectBytes, "l.foo") must_== Seq(JsString("bar"))
       items(objectBytes, "m") must_== Seq(JsString("ø"))
@@ -153,6 +157,17 @@ class JsonStreamSpec extends PlaySpecification {
     "parse arrays" in {
       items(arrayBytes, "") must_== Seq(Json.parse(arrayBytes))
       items(arrayBytes, "item").head must_== JsString("a")
+      items(arrayBytes, "item")(1) must_== Json.obj(
+        "f" -> 3,
+        "g" -> 1.0,
+        "h" -> "Hello, world",
+        "i" -> JsNull,
+        "j" -> true,
+        "k" -> Json.arr(true, false, Json.obj(
+          "foo" -> "bar",
+          "bar" -> Json.arr("baz")
+        ))
+      )
       items(arrayBytes, "item")(2) must_== Json.arr(1, 2)
       items(arrayBytes, "item").last must_== JsBoolean(false)
     }
