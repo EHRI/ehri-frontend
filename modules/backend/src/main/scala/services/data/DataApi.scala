@@ -1,6 +1,7 @@
 package services.data
 
 import acl.{GlobalPermissionSet, ItemPermissionSet}
+import akka.stream.scaladsl.Source
 import defines.{ContentTypes, EntityType}
 import play.api.libs.json.JsObject
 import play.api.libs.ws.WSResponse
@@ -269,6 +270,14 @@ trait DataApiHandle {
   def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]]
 
   /**
+    * Stream items with the implicit resource type.
+    *
+    * @tparam MT the generic type of the items
+    * @return a Source of items
+    */
+  def stream[MT: Resource](): Source[MT, _]
+
+  /**
     * List child items of this parent type.
     *
     * @param id     the parent item id
@@ -277,6 +286,16 @@ trait DataApiHandle {
     * @tparam CMT the child generic resource type
     */
   def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]]
+
+  /**
+    * Fetch child items as a stream.
+    *
+    * @param id the parent item id
+    * @tparam MT the parent generic type
+    * @tparam CMT the child generic resource type
+    * @return a Source of child items
+    */
+  def streamChildren[MT: Resource, CMT: Readable](id: String): Source[CMT, _]
 
   /**
     * Count child items of a resource.

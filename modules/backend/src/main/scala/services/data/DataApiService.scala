@@ -1,9 +1,9 @@
 package services.data
 
-import javax.inject.Inject
-
 import acl.{GlobalPermissionSet, ItemPermissionSet}
+import akka.stream.scaladsl.{JsonFraming, Source}
 import defines.{ContentTypes, EntityType}
+import javax.inject.Inject
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.libs.json._
@@ -147,19 +147,17 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] =
     list(Resource[MT], params)
 
-  override def list[MT](resource: Resource[MT], params: PageParams): Future[Page[MT]] = {
-    val url = enc(typeBaseUrl, resource.entityType)
-    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(resource.restReads)
-    }
-  }
+  override def list[MT](resource: Resource[MT], params: PageParams): Future[Page[MT]] =
+    listWithUrl[MT](enc(typeBaseUrl, resource.entityType), params)(resource)
 
-  override def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] = {
-    val url: String = enc(typeBaseUrl, Resource[MT].entityType, id, "list")
-    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[CMT].restReads)
-    }
-  }
+  override def stream[MT: Resource](): Source[MT, _] =
+    streamWithUrl[MT](enc(typeBaseUrl, Resource[MT].entityType))
+
+  override def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] =
+    listWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"), params)
+
+  override def streamChildren[MT: Resource, CMT: Readable](id: String): Source[CMT, _] =
+    streamWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"))
 
   override def count[MT: Resource](): Future[Long] =
     getTotal(enc(typeBaseUrl, Resource[MT].entityType))
@@ -677,6 +675,17 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
       parsePage(response, context = Some(url))(Readable[A].restReads)
     }
+  }
+
+  private def streamWithUrl[A: Readable](url: String): Source[A, _] = {
+    val reader = implicitly[Readable[A]]
+    Source.fromFuture(userCall(url)
+      .withQueryString(PageParams.empty.withoutLimit.queryParams: _*)
+      .stream().map (_.bodyAsSource
+      .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
+      .map { bytes => Json.parse(bytes.utf8String).validate[A](reader.restReads) }
+      .collect { case JsSuccess(item, _) => item}
+    )).flatMapConcat(identity)
   }
 }
 
