@@ -11,6 +11,7 @@ import javax.inject.{Inject, Singleton}
 import models.base.Model
 import play.api.Logger
 import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.WebSocket.MessageFlowTransformer
@@ -105,6 +106,8 @@ case class Ingest @Inject()(
   }
 
   def ingestMonitor(jobId: String): Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.ingest.ingestMonitor(controllers.admin.routes.Tasks.taskMonitorWS(jobId)))
+    Ok(views.html.admin.tasks.taskMonitor(
+      Messages("ingest.monitor"),
+      controllers.admin.routes.Tasks.taskMonitorWS(jobId)))
   }
 }

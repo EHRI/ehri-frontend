@@ -1,4 +1,4 @@
-@(action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(title: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @extraScripts = {
     <script>
@@ -30,10 +30,10 @@
                     appendProgressMessage("ERROR. Try refreshing the page.");
                     $submit.attr("disabled", false);
                     console.log("Socket error!");
-                }
+                };
                 websocket.onclose = function() {
                   console.log("Closed!")
-                }
+                };
                 websocket.onmessage = function(e) {
                     var msg = JSON.parse(e.data);
                     appendProgressMessage(msg);
@@ -49,12 +49,10 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.adminLayout(Messages("ingest.monitor"), extraScripts) {
+@views.html.admin.layout.adminLayout(title, extraScripts) {
     @common.mainContent {
-        <h1>@Messages("ingest.monitor")</h1>
-
+        <h1>@title</h1>
         <form class="form-horizontal">
-
             <div id="update-progress"></div>
         </form>
     }
