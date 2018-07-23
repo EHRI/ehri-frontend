@@ -4,6 +4,7 @@ import defines.EntityType
 import models.base.ModelData
 import play.api.libs.json._
 import models.json._
+import play.api.i18n.DefaultMessagesApi
 import services.data.Writable
 
 
@@ -51,24 +52,11 @@ case class AddressF(
   fax: Seq[String] = Nil,
   url: Seq[String] = Nil
   ) extends ModelData {
-
-  def toSeq: Seq[String] = Seq(
-    streetAddress,
-    city,
-    region,
-    postalCode,
-    countryCode, // FIXME: Convert to country
-    email.headOption,
-    telephone.headOption,
-    fax.headOption,
-    url.headOption
-  ).flatten
-
   def concise: String =
     Seq(streetAddress, city, region).flatten.filterNot(_.trim.isEmpty).mkString(", ")
 
   override def toString: String =
-    Seq(name, contactPerson, streetAddress, city).filter(_.isDefined).mkString(", ")
+    Seq(name, contactPerson, streetAddress, city, region, countryCode).filter(_.isDefined).mkString(", ")
 }
 
 object Address {
