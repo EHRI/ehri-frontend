@@ -1,19 +1,18 @@
 package controllers.admin
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.EntityType
+import javax.inject.{Inject, Singleton}
 import models.base.Model
 import play.api.Logger
 import play.api.data.Form
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
@@ -22,7 +21,6 @@ import services.ingest.{IngestApi, IngestParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.util.{Failure, Success}
 
 
 @Singleton
@@ -33,7 +31,6 @@ case class Ingest @Inject()(
 )(implicit system: ActorSystem, mat: Materializer) extends AdminController {
 
   private def logger = Logger(this.getClass)
-  import scala.concurrent.duration._
 
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
@@ -97,7 +94,7 @@ case class Ingest @Inject()(
 
           immediate {
             if (isAjax) Ok(Json.obj(
-              "url" -> controllers.admin.routes.Ingest.ingestMonitorWS(jobId).webSocketURL(globalConfig.https),
+              "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
               "jobId" -> jobId
             ))
             else Redirect(controllers.admin.routes.Ingest.ingestMonitor(jobId))
@@ -108,21 +105,6 @@ case class Ingest @Inject()(
   }
 
   def ingestMonitor(jobId: String): Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.ingest.ingestMonitor(controllers.admin.routes.Ingest.ingestMonitorWS(jobId)))
-  }
-
-  def ingestMonitorWS(jobId: String): WebSocket = AdminWebsocket { implicit request =>
-    ActorFlow.actorRef { out =>
-      system.actorSelection("user/" + jobId).resolveOne(5.seconds).onComplete {
-        case Success(ref) =>
-          logger.info(s"Monitoring job: $jobId")
-          ref ! out
-        case Failure(_) =>
-          logger.warn(s"Unable to find ingest job: $jobId")
-          out ! s"No running job found with id: $jobId."
-      }
-
-      Props(IngestActor())
-    }
+    Ok(views.html.admin.ingest.ingestMonitor(controllers.admin.routes.Tasks.taskMonitorWS(jobId)))
   }
 }
