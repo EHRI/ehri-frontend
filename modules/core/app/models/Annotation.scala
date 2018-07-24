@@ -8,6 +8,7 @@ import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import services.data.{ContentType, Writable}
 import utils.EnumUtils
@@ -157,4 +158,8 @@ case class Annotation(
   def formatted: String = {
     s"${data.comment.map(c => s"$c\n\n").getOrElse("")}${data.body}"
   }
+
+  override def toStringLang(implicit messages: Messages): String =
+    Messages("annotation.label", user.map(_.toStringLang).getOrElse("unknown"),
+      latestEvent.map(_.data.datetime).getOrElse("?"))
 }
