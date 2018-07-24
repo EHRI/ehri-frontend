@@ -2,12 +2,13 @@ package services.data
 
 import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.stream.scaladsl.{JsonFraming, Source}
+import akka.util.ByteString
 import defines.{ContentTypes, EntityType}
 import javax.inject.Inject
 import play.api.cache.SyncCacheApi
-import play.api.http.HeaderNames
+import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
 import play.api.libs.json._
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
 import play.api.mvc.Headers
 import services._
 import services.data.Constants._
@@ -642,6 +643,36 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
         "property" -> property, "commit" -> commit.toString)
       .post(Map("from" -> Seq(from), "to" -> Seq(to)))
       .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
+  }
+
+  override def batchUpdate(data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
+    val url = enc(baseUrl, "batch", "update")
+    val src: Source[ByteString, _] = data
+      .map(js => ByteString.fromArray(Json.toBytes(js)))
+      .intersperse(ByteString('['), ByteString(','), ByteString(']'))
+    implicit val ct: ContentTypeOf[Source[ByteString, _]] = ContentTypeOf(
+      implicitly[ContentTypeOf[JsValue]].mimeType)
+    userCall(url).withQueryString(
+      "version" -> version.toString,
+      "commit" -> commit.toString,
+      "log" -> logMsg)
+      .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
+      .withBody(src)
+      .withMethod(HttpVerbs.PUT)
+      .execute()
+      .map(r => checkErrorAndParse[BatchResult](r, Some(url)))
+  }
+
+  override def batchUpdate[T: Writable](data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
+    implicit val writes: Writes[T] = Writable[T].restFormat
+    val url = enc(baseUrl, "batch", "update")
+    userCall(url).withQueryString(
+      "version" -> version.toString,
+      "commit" -> commit.toString,
+      "log" -> logMsg)
+      .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
+      .put(Json.toJson(data))
+      .map(r => checkErrorAndParse[BatchResult](r, Some(url)))
   }
 
   override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int] = {

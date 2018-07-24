@@ -3,7 +3,7 @@ package services.data
 import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.stream.scaladsl.Source
 import defines.{ContentTypes, EntityType}
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Headers
 import utils._
@@ -147,9 +147,33 @@ trait DataApiHandle {
     * @param scope   an optional item scope
     * @param logMsg  a log message
     * @param version whether or not to create pre-delete versions of the deleted items
+    * @param commit  whether to commit the changes
     * @return the number of items deleted
     */
   def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int]
+
+  /**
+    * Update a batch of items via a stream of partial JSON bundles.
+    *
+    * @param data    partial model data a JSON stream
+    * @param scope   the optional shared item scope
+    * @param version whether or not to create pre-update versions of updated items
+    * @param commit  whether to commit the changes
+    * @return the number of items updated
+    */
+  def batchUpdate(data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
+
+  /**
+    * Update a batch of items.
+    *
+    * @param data    the model data
+    * @param scope   the optional shared item scope
+    * @param version whether or not to create pre-update versions of updated items
+    * @param commit  whether to commit the changes
+    * @tparam T the generic model data type
+    * @return the number of items updated
+    */
+  def batchUpdate[T: Writable](data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult]
 
   /**
     * Fetch any type of item by ID.
@@ -291,7 +315,7 @@ trait DataApiHandle {
     * Fetch child items as a stream.
     *
     * @param id the parent item id
-    * @tparam MT the parent generic type
+    * @tparam MT  the parent generic type
     * @tparam CMT the child generic resource type
     * @return a Source of child items
     */
