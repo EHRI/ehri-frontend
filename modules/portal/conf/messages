@@ -576,6 +576,7 @@ social.unblock.submit=Unblock User
 # Annotations
 #
 annotation=Notes
+annotation.label=Note by ''{0}'' at {1}
 annotation.description=Notes on this description
 annotation.search=Search Notes
 annotation.search.noneFound=No notes found matching ''{0}''.

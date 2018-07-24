@@ -30,13 +30,9 @@ trait Model extends WithId {
   }
 
   /**
-   * Language-dependent version of the name
-   */
-  def toStringLang(implicit messages: Messages): String = this match {
-    case d: DescribedModel =>
-      d.data.primaryDescription(messages).orElse(d.descriptions.headOption).fold(id)(_.name)
-    case t => t.toString
-  }
+    * Language-dependent version of the name. This is a fallback value.
+    */
+  def toStringLang(implicit messages: Messages): String = s"$isA: $id"
 
   /**
    * Abbreviated version of the canonical name
@@ -116,6 +112,9 @@ trait DescribedModel extends Model {
   type T <: Described
 
   def descriptions: Seq[T#D] = data.descriptions
+
+  override def toStringLang(implicit messages: Messages): String =
+    data.primaryDescription(messages).orElse(descriptions.headOption).fold(id)(_.name)
 
   private lazy val allAccessPoints = descriptions.flatMap(_.accessPoints)
 
