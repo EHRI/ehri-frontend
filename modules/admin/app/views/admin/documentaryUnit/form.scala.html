@@ -10,7 +10,7 @@
     @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
     @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
-    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+    @formHelpers.descriptionFormTabs(f) { desc =>
         @defining(defaults) { implicit defs =>
             @descriptionForm(desc)
         }

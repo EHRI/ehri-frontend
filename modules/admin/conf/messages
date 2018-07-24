@@ -180,6 +180,7 @@ download.format.html=View as HTML
 forms.logMessagePlaceholder=Tell people what you''re doing (optional, 400 characters max)...
 
 # What we say when a logical item has no descriptions
+describedEntity.description=Description {0}
 describedEntity.editDescription=Edit Description
 describedEntity.deleteDescription=Delete Description
 describedEntity.deleteDescription.submit=Delete
