@@ -1,5 +1,6 @@
 package services.data
 
+import akka.stream.scaladsl.Source
 import defines.{ContentTypes, EntityType, PermissionType}
 import helpers.IntegrationTestRunner
 import models._
@@ -251,6 +252,30 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       notes.size must_== 1
       val vus = await(testBackend.userBookmarks[VirtualUnit]("linda"))
       vus.size must_== 1
+    }
+  }
+
+  "Batch operations" should {
+    "delete items as a batch" in new ITestApp {
+      val count = await(testBackend.batchDelete(Seq("c1", "c4"),
+        scope = Some("r1"), version = true, commit = true, logMsg = "test"))
+      count must_== 2
+    }
+
+    "update items via a JSON stream" in new ITestApp {
+      val src = Source(List(Json.obj(
+        "id" -> "r1",
+        "type" -> "Repository",
+        "data" -> Json.obj("longitude" -> 0.5, "latitude" -> 0.5)
+      ), Json.obj(
+        "id" -> "r2",
+        "type" -> "Repository",
+        "data" -> Json.obj("longitude" -> 0.5, "latitude" -> 0.5)
+      )))
+
+      val log = await(testBackend.batchUpdate(src, scope = None, version = true,
+        commit = true, logMsg = "test"))
+      log.updated must_== 2
     }
   }
 
