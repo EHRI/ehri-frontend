@@ -10,11 +10,11 @@
         @views.html.helpers.contentOrEmpty {
             @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
                 @defining("country") { implicit fieldPrefix =>
-                    @textField(item, item.id, item.data.abs, ABSTRACT)
-                    @textField(item, item.id, item.data.history, HISTORY)
-                    @textField(item, item.id, item.data.situation, SITUATION)
-                    @textField(item, item.id, item.data.summary, DATA_SUMMARY)
-                    @textField(item, item.id, item.data.extensive, DATA_EXTENSIVE)
+                    @textField(item, item.id, ABSTRACT, item.data.abs)
+                    @textField(item, item.id, HISTORY, item.data.history)
+                    @textField(item, item.id, SITUATION, item.data.situation)
+                    @textField(item, item.id, DATA_SUMMARY, item.data.summary)
+                    @textField(item, item.id, DATA_EXTENSIVE, item.data.extensive)
                 }
             }
         } {

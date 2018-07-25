@@ -1,11 +1,11 @@
-@(list: Seq[String], fieldName: String, transformFunc: String => String = identity)(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
+@(key: String, list: Seq[String], transformFunc: String => String = identity)(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
 
 @if(list.nonEmpty) {
-    <div class="item-text-field" id="@fieldName">
-        <h4 class="item-text-field-header">@Messages(if (fieldPrefix.isEmpty) fieldName else s"$fieldPrefix.$fieldName")</h4>
-        <ul class="item-text-field-value item-text-field-list" dir="auto">
+    <div class="item-text-field" id="@key">
+        <h4 class="item-text-field-header">@Messages(if (fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")</h4>
+        <ul class="item-text-field-value item-text-field-list">
             @list.map { item =>
-                <li>@Markdown(transformFunc(item))</li>
+                <li dir="@views.Helpers.textDirectionAttr(item)">@Markdown(transformFunc(item))</li>
             }
         </ul>
     </div>

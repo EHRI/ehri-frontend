@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining("authoritativeSet") { implicit  prefix =>
-        @views.html.admin.common.stringValue(item.data.description, models.AuthoritativeSetF.DESCRIPTION)
+        @views.html.admin.common.textValue(models.AuthoritativeSetF.DESCRIPTION, item.data.description)
     }
 
     @views.html.common.search.searchSection(item, Messages("authoritativeSet.items"), result) {

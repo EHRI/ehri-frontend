@@ -7,9 +7,9 @@
     @views.html.admin.common.descriptionHeader(desc.name)
 
     @descriptionSection(IDENTITY_AREA) {
-        @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
-        @views.html.admin.common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
-        @views.html.admin.common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+        @views.html.admin.common.textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
+        @views.html.admin.common.listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
+        @views.html.admin.common.listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
     }
 
     @descriptionSection(ADDRESS_AREA) {
@@ -55,39 +55,39 @@
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
-        @views.html.admin.common.stringValue(desc.details.history, HISTORY)
-        @views.html.admin.common.stringValue(desc.details.generalContext, GEOCULTURAL_CONTEXT)
-        @views.html.admin.common.stringValue(desc.details.mandates, MANDATES)
-        @views.html.admin.common.stringValue(desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
-        @views.html.admin.common.stringValue(desc.details.records, RECORDS)
-        @views.html.admin.common.stringValue(desc.details.buildings, BUILDINGS)
-        @views.html.admin.common.stringValue(desc.details.holdings, HOLDINGS)
-        @views.html.admin.common.stringValue(desc.details.findingAids, FINDING_AIDS)
+        @views.html.admin.common.textValue(HISTORY, desc.details.history)
+        @views.html.admin.common.textValue(GEOCULTURAL_CONTEXT, desc.details.generalContext)
+        @views.html.admin.common.textValue(MANDATES, desc.details.mandates)
+        @views.html.admin.common.textValue(ADMINISTRATIVE_STRUCTURE, desc.details.administrativeStructure)
+        @views.html.admin.common.textValue(RECORDS, desc.details.records)
+        @views.html.admin.common.textValue(BUILDINGS, desc.details.buildings)
+        @views.html.admin.common.textValue(HOLDINGS, desc.details.holdings)
+        @views.html.admin.common.textValue(FINDING_AIDS, desc.details.findingAids)
     }
 
     @descriptionSection(ACCESS_AREA) {
-        @views.html.admin.common.stringValue(desc.access.openingTimes, OPENING_TIMES)
-        @views.html.admin.common.stringValue(desc.access.conditions, CONDITIONS)
-        @views.html.admin.common.stringValue(desc.access.accessibility, ACCESSIBILITY)
+        @views.html.admin.common.textValue(OPENING_TIMES, desc.access.openingTimes)
+        @views.html.admin.common.textValue(CONDITIONS, desc.access.conditions)
+        @views.html.admin.common.textValue(ACCESSIBILITY, desc.access.accessibility)
     }
 
     @descriptionSection(SERVICES_AREA) {
-        @views.html.admin.common.stringValue(desc.services.researchServices, RESEARCH_SERVICES)
-        @views.html.admin.common.stringValue(desc.services.reproductionServices, REPROD_SERVICES)
-        @views.html.admin.common.stringValue(desc.services.publicAreas, PUBLIC_AREAS)
+        @views.html.admin.common.textValue(RESEARCH_SERVICES, desc.services.researchServices)
+        @views.html.admin.common.textValue(REPROD_SERVICES, desc.services.reproductionServices)
+        @views.html.admin.common.textValue(PUBLIC_AREAS, desc.services.publicAreas)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @views.html.admin.common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
-        @views.html.admin.common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
-        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-        @views.html.admin.common.stringValue(desc.control.status, STATUS)
-        @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
-        @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
-        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = s => views.Helpers.languageCodeToName(s))
-        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
-        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
-        @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+        @views.html.admin.common.textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
+        @views.html.admin.common.textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
+        @views.html.admin.common.textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
+        @views.html.admin.common.textValue(STATUS, desc.control.status)
+        @views.html.admin.common.textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
+        @views.html.admin.common.textValue(DATES_CVD, desc.control.datesCDR)
+        @views.html.admin.common.listValue(LANGUAGES_USED, desc.control.languages, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @views.html.admin.common.listValue(SCRIPTS_USED, desc.control.scripts, transformFunc = s => views.Helpers.scriptCodeToName(s))
+        @views.html.admin.common.listValue(SOURCES, desc.control.sources)
+        @views.html.admin.common.textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
     }
 
     @views.html.admin.link.accessPointLinks(item, desc, links)

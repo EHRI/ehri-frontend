@@ -1,4 +1,4 @@
-@(item: models.base.Model, nodeId: String, list: Seq[String], key: String, transformFunc: String => String = identity)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
+@(item: models.base.Model, nodeId: String, key: String, list: Seq[String], transformFunc: String => String = identity)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldAnnotations: Seq[Annotation])
 
 @if(list.nonEmpty) {
     @defining(fieldAnnotations.filter(_.data.field.contains(key))) { anns =>
@@ -7,9 +7,9 @@
                 @Messages(if(fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
                 @fieldAnnotationButton(item, nodeId, key, anns)
             </h4>
-            <ul class="item-text-field-value item-text-field-list" dir="auto">
+            <ul class="item-text-field-value item-text-field-list">
             @list.map { item =>
-                <li>@Markdown(transformFunc(item))</li>
+                <li dir="@views.Helpers.textDirectionAttr(item)">@Markdown(transformFunc(item))</li>
             }
             </ul>
             @fieldAnnotationControls(item, nodeId, key, anns)

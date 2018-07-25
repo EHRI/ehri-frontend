@@ -1,0 +1,16 @@
+@(key: String, value: Option[String])(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
+
+@value.map { str =>
+    @if(str.trim.nonEmpty) {
+        <div class="item-text-field" id="@key">
+            <h4 class="item-text-field-header">
+                @Messages(if (fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
+            </h4>
+            <div class="item-text-field-value" dir="@views.Helpers.textDirectionAttr(str)">
+                @Markdown(str)
+            </div>
+        </div>
+    }
+}
+
+

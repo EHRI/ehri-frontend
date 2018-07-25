@@ -13,50 +13,50 @@
             @views.html.documentaryUnit.details(item, desc)
 
             @descriptionSection(IDENTITY_AREA) {
-                @textField(item, descId, desc.externalLink(item), REF)
-                @textField(item, descId, desc.identity.`abstract`, ABSTRACT)
-                @textField(item, descId, desc.identity.extentAndMedium, EXTENT_MEDIUM)
+                @textField(item, descId, REF, desc.externalLink(item))
+                @textField(item, descId, ABSTRACT, desc.identity.`abstract`)
+                @textField(item, descId, EXTENT_MEDIUM, desc.identity.extentAndMedium)
             }
 
             @descriptionSection(CONTEXT_AREA) {
                 @views.html.common.accessPointLinks(item, desc, links, List(AccessPointF.AccessPointType.CreatorAccess))
-                @textField(item, descId, desc.context.biographicalHistory, ADMIN_BIOG)
-                @textField(item, descId, desc.context.archivalHistory, ARCH_HIST)
-                @textField(item, descId, desc.context.acquisition, ACQUISITION)
+                @textField(item, descId, ADMIN_BIOG, desc.context.biographicalHistory)
+                @textField(item, descId, ARCH_HIST, desc.context.archivalHistory)
+                @textField(item, descId, ACQUISITION, desc.context.acquisition)
             }
             
             @descriptionSection(CONTENT_AREA) {
-                @textField(item, descId, desc.content.scopeAndContent, SCOPE_CONTENT)
-                @textField(item, descId, desc.content.appraisal, APPRAISAL)
-                @textField(item, descId, desc.content.accruals, ACCRUALS)
-                @textField(item, descId, desc.content.systemOfArrangement, SYS_ARR)
+                @textField(item, descId, SCOPE_CONTENT, desc.content.scopeAndContent)
+                @textField(item, descId, APPRAISAL, desc.content.appraisal)
+                @textField(item, descId, ACCRUALS, desc.content.accruals)
+                @textField(item, descId, SYS_ARR, desc.content.systemOfArrangement)
             }
             
             @descriptionSection(CONDITIONS_AREA) {
-                @textField(item, descId, desc.conditions.conditionsOfAccess, ACCESS_COND)
-                @textField(item, descId, desc.conditions.conditionsOfReproduction, REPROD_COND)
-                @textField(item, descId, desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
-                @listField(item, descId, desc.conditions.findingAids, FINDING_AIDS)
+                @textField(item, descId, ACCESS_COND, desc.conditions.conditionsOfAccess)
+                @textField(item, descId, REPROD_COND, desc.conditions.conditionsOfReproduction)
+                @textField(item, descId, PHYSICAL_CHARS, desc.conditions.physicalCharacteristics)
+                @listField(item, descId, FINDING_AIDS, desc.conditions.findingAids)
             }
             
             @descriptionSection(MATERIALS_AREA) {
-                @listField(item, descId, desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-                @listField(item, descId, desc.materials.locationOfCopies, LOCATION_COPIES)
-                @listField(item, descId, desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
-                @listField(item, descId, desc.materials.separatedUnitsOfDescription, SEPARATED_UNITS)
-                @textField(item, descId, desc.materials.publicationNote, PUBLICATION_NOTE)
+                @listField(item, descId, LOCATION_ORIGINALS, desc.materials.locationOfOriginals)
+                @listField(item, descId, LOCATION_COPIES, desc.materials.locationOfCopies)
+                @listField(item, descId, RELATED_UNITS, desc.materials.relatedUnitsOfDescription)
+                @listField(item, descId, SEPARATED_UNITS, desc.materials.separatedUnitsOfDescription)
+                @textField(item, descId, PUBLICATION_NOTE, desc.materials.publicationNote)
             }
             
             @descriptionSection(NOTES_AREA) {
-                @listField(item, descId, desc.notes, NOTES)
+                @listField(item, descId, NOTES, desc.notes)
             }
             
             @descriptionSection(CONTROL_AREA) {
-                @textField(item, descId, desc.control.archivistNote, ARCHIVIST_NOTE)
-                @listField(item, descId, desc.control.sources, SOURCES)
-                @textField(item, descId, desc.control.rulesAndConventions, RULES_CONVENTIONS)
-                @textField(item, descId, desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
-                @listField(item, descId, desc.control.processInfo, PROCESS_INFO)
+                @textField(item, descId, ARCHIVIST_NOTE, desc.control.archivistNote)
+                @listField(item, descId, SOURCES, desc.control.sources)
+                @textField(item, descId, RULES_CONVENTIONS, desc.control.rulesAndConventions)
+                @textField(item, descId, DATES_DESCRIPTIONS, desc.control.datesOfDescriptions)
+                @listField(item, descId, PROCESS_INFO, desc.control.processInfo)
             }
 
             @descriptionSection(ACCESS_POINTS) {

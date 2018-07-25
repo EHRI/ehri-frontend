@@ -6,7 +6,7 @@
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("cvocVocabulary") { implicit  prefix =>
-            @views.html.admin.common.stringValue(item.data.description, VocabularyF.DESCRIPTION)
+            @views.html.admin.common.textValue(VocabularyF.DESCRIPTION, item.data.description)
         }
     }
 

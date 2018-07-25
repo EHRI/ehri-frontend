@@ -13,9 +13,9 @@
                 @views.html.common.otherNameList(desc.altLabels)
             }
 
-            @listField(item, descId, desc.definition, DEFINITION)
-            @listField(item, descId, desc.scopeNote, SCOPENOTE)
-            @listField(item, descId, item.data.seeAlso, SEEALSO)
+            @listField(item, descId, DEFINITION, desc.definition)
+            @listField(item, descId, SCOPENOTE, desc.scopeNote)
+            @listField(item, descId, SEEALSO, item.data.seeAlso)
 
             @descriptionSection(ACCESS_POINTS) {
                 @views.html.common.accessPointLinks(item, desc, links)
