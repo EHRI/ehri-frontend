@@ -1,6 +1,6 @@
 @(name: String)(content: Html)
 
 <div class="item-header">
-    <h1 dir="auto">@name</h1>
+    <h1 dir="@views.Helpers.textDirectionAttr(name)">@name</h1>
     @content
 </div>

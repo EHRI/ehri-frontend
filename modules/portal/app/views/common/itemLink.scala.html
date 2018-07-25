@@ -10,7 +10,9 @@
 
 @linkItemHtml {
     @link.opposingTarget(item).map { t =>
-        <div class="link-target">@views.html.helpers.linkTo(t)</div>
+        <div class="link-target" dir="@views.Helpers.textDirectionAttr(t.toStringLang)">
+            @views.html.helpers.linkTo(t)
+        </div>
     }
     @link.data.description.filterNot(_.trim.isEmpty).map { desc =>
         <p class="link-description">

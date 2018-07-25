@@ -12,37 +12,37 @@
             }
 
             @descriptionSection(DESCRIPTION_AREA) {
-                @textField(item, descId, desc.details.history, HISTORY)
-                @textField(item, descId, desc.details.generalContext, GEOCULTURAL_CONTEXT)
-                @textField(item, descId, desc.details.mandates, MANDATES)
-                @textField(item, descId, desc.details.administrativeStructure, ADMINISTRATIVE_STRUCTURE)
-                @textField(item, descId, desc.details.records, RECORDS)
-                @textField(item, descId, desc.details.buildings, BUILDINGS)
-                @textField(item, descId, desc.details.holdings, HOLDINGS)
-                @textField(item, descId, desc.details.findingAids, FINDING_AIDS)
+                @textField(item, descId, HISTORY, desc.details.history)
+                @textField(item, descId, GEOCULTURAL_CONTEXT, desc.details.generalContext)
+                @textField(item, descId, MANDATES, desc.details.mandates)
+                @textField(item, descId, ADMINISTRATIVE_STRUCTURE, desc.details.administrativeStructure)
+                @textField(item, descId, RECORDS, desc.details.records)
+                @textField(item, descId, BUILDINGS, desc.details.buildings)
+                @textField(item, descId, HOLDINGS, desc.details.holdings)
+                @textField(item, descId, FINDING_AIDS, desc.details.findingAids)
             }
     
             @descriptionSection(ACCESS_AREA) {
-                @textField(item, descId, desc.access.openingTimes, OPENING_TIMES)
-                @textField(item, descId, desc.access.conditions, CONDITIONS)
-                @textField(item, descId, desc.access.accessibility, ACCESSIBILITY)
+                @textField(item, descId, OPENING_TIMES, desc.access.openingTimes)
+                @textField(item, descId, CONDITIONS, desc.access.conditions)
+                @textField(item, descId, ACCESSIBILITY, desc.access.accessibility)
             }
     
             @descriptionSection(SERVICES_AREA) {
-                @textField(item, descId, desc.services.researchServices, RESEARCH_SERVICES)
-                @textField(item, descId, desc.services.reproductionServices, REPROD_SERVICES)
-                @textField(item, descId, desc.services.publicAreas, PUBLIC_AREAS)
+                @textField(item, descId, RESEARCH_SERVICES, desc.services.researchServices)
+                @textField(item, descId, REPROD_SERVICES, desc.services.reproductionServices)
+                @textField(item, descId, PUBLIC_AREAS, desc.services.publicAreas)
             }
     
             @descriptionSection(CONTROL_AREA) {
-                @textField(item, descId, desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
-                @textField(item, descId, desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
-                @textField(item, descId, desc.control.status, STATUS)
-                @textField(item, descId, desc.control.levelOfDetail, LEVEL_OF_DETAIL)
-                @textField(item, descId, desc.control.datesCDR, DATES_CVD)
-                @listField(item, descId, desc.control.languages, LANGUAGES_USED, transformFunc = s => views.Helpers.languageCodeToName(s))
-                @listField(item, descId, desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
-                @listField(item, descId, desc.control.sources, SOURCES)
+                @textField(item, descId, DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
+                @textField(item, descId, INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
+                @textField(item, descId, STATUS, desc.control.status)
+                @textField(item, descId, LEVEL_OF_DETAIL, desc.control.levelOfDetail)
+                @textField(item, descId, DATES_CVD, desc.control.datesCDR)
+                @listField(item, descId, LANGUAGES_USED, desc.control.languages, transformFunc = s => views.Helpers.languageCodeToName(s))
+                @listField(item, descId, SCRIPTS_USED, desc.control.scripts, transformFunc = s => views.Helpers.scriptCodeToName(s))
+                @listField(item, descId, SOURCES, desc.control.sources)
             }
 
             @descriptionSection(ACCESS_POINTS) {

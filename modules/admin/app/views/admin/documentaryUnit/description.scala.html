@@ -2,63 +2,63 @@
 
 @import models.IsadG._
 @import models.base.Description._
-@import views.html.admin.common.{descriptionSection,listValue,stringValue,dateSet}
+@import views.html.admin.common.{descriptionSection,listValue,textValue,dateSet}
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions) {
     @views.html.admin.common.descriptionHeader(desc.name)
-    @stringValue(desc.sourceFileId, SOURCE_FILE_ID)
+    @textValue(SOURCE_FILE_ID, desc.sourceFileId)
     @descriptionSection(IDENTITY_AREA) {
-        @listValue(desc.identity.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
-        @stringValue(desc.identity.ref, REF)
-        @stringValue(desc.identity.`abstract`, ABSTRACT)
+        @listValue(PARALLEL_FORMS_OF_NAME, desc.identity.parallelFormsOfName)
+        @textValue(REF, desc.identity.ref)
+        @textValue(ABSTRACT, desc.identity.`abstract`)
         @dateSet(desc, DATES)
-        @listValue(desc.identity.unitDates, UNIT_DATES)
-        @stringValue(desc.identity.levelOfDescription, LEVEL_OF_DESCRIPTION)
-        @listValue(desc.identity.physicalLocation, PHYSICAL_LOCATION)
-        @stringValue(desc.identity.extentAndMedium, EXTENT_MEDIUM)
+        @listValue(UNIT_DATES, desc.identity.unitDates)
+        @textValue(LEVEL_OF_DESCRIPTION, desc.identity.levelOfDescription)
+        @listValue(PHYSICAL_LOCATION, desc.identity.physicalLocation)
+        @textValue(EXTENT_MEDIUM, desc.identity.extentAndMedium)
     }
 
     @descriptionSection(CONTEXT_AREA) {
-        @stringValue(desc.context.biographicalHistory, ADMIN_BIOG)
-        @stringValue(desc.context.archivalHistory, ARCH_HIST)
-        @stringValue(desc.context.acquisition, ACQUISITION)
+        @textValue(ADMIN_BIOG, desc.context.biographicalHistory)
+        @textValue(ARCH_HIST, desc.context.archivalHistory)
+        @textValue(ACQUISITION, desc.context.acquisition)
     }
 
     @descriptionSection(CONTENT_AREA) {
-        @stringValue(desc.content.scopeAndContent, SCOPE_CONTENT)
-        @stringValue(desc.content.appraisal, APPRAISAL)
-        @stringValue(desc.content.accruals, ACCRUALS)
-        @stringValue(desc.content.systemOfArrangement, SYS_ARR)
+        @textValue(SCOPE_CONTENT, desc.content.scopeAndContent)
+        @textValue(APPRAISAL, desc.content.appraisal)
+        @textValue(ACCRUALS, desc.content.accruals)
+        @textValue(SYS_ARR, desc.content.systemOfArrangement)
     }
 
     @descriptionSection(CONDITIONS_AREA) {
-        @stringValue(desc.conditions.conditionsOfAccess, ACCESS_COND)
-        @stringValue(desc.conditions.conditionsOfReproduction, REPROD_COND)
+        @textValue(ACCESS_COND, desc.conditions.conditionsOfAccess)
+        @textValue(REPROD_COND, desc.conditions.conditionsOfReproduction)
 
-        @listValue(desc.conditions.languageOfMaterials, LANG_MATERIALS, transformFunc = s => views.Helpers.languageCodeToName(s))
-        @listValue(desc.conditions.scriptOfMaterials, SCRIPT_MATERIALS, transformFunc = s => views.Helpers.scriptCodeToName(s))
-        @stringValue(desc.conditions.physicalCharacteristics, PHYSICAL_CHARS)
-        @listValue(desc.conditions.findingAids, FINDING_AIDS)
+        @listValue(LANG_MATERIALS, desc.conditions.languageOfMaterials, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @listValue(SCRIPT_MATERIALS, desc.conditions.scriptOfMaterials, transformFunc = s => views.Helpers.scriptCodeToName(s))
+        @textValue(PHYSICAL_CHARS, desc.conditions.physicalCharacteristics)
+        @listValue(FINDING_AIDS, desc.conditions.findingAids)
     }
 
     @descriptionSection(MATERIALS_AREA) {
-        @listValue(desc.materials.locationOfOriginals, LOCATION_ORIGINALS)
-        @listValue(desc.materials.locationOfCopies, LOCATION_COPIES)
-        @listValue(desc.materials.relatedUnitsOfDescription, RELATED_UNITS)
-        @listValue(desc.materials.separatedUnitsOfDescription, SEPARATED_UNITS)
-        @stringValue(desc.materials.publicationNote, PUBLICATION_NOTE)
+        @listValue(LOCATION_ORIGINALS, desc.materials.locationOfOriginals)
+        @listValue(LOCATION_COPIES, desc.materials.locationOfCopies)
+        @listValue(RELATED_UNITS, desc.materials.relatedUnitsOfDescription)
+        @listValue(SEPARATED_UNITS, desc.materials.separatedUnitsOfDescription)
+        @textValue(PUBLICATION_NOTE, desc.materials.publicationNote)
     }
 
     @descriptionSection(NOTES_AREA) {
-        @listValue(desc.notes, NOTES)
+        @listValue(NOTES, desc.notes)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @stringValue(desc.control.archivistNote, ARCHIVIST_NOTE)
-        @listValue(desc.control.sources, SOURCES)
-        @stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-        @stringValue(desc.control.datesOfDescriptions, DATES_DESCRIPTIONS)
-        @listValue(desc.control.processInfo, PROCESS_INFO)
+        @textValue(ARCHIVIST_NOTE, desc.control.archivistNote)
+        @listValue(SOURCES, desc.control.sources)
+        @textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
+        @textValue(DATES_DESCRIPTIONS, desc.control.datesOfDescriptions)
+        @listValue(PROCESS_INFO, desc.control.processInfo)
     }
 
     @views.html.admin.link.accessPointLinks(item, desc, links)

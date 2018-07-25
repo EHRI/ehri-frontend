@@ -8,34 +8,34 @@
     @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 
     @descriptionSection(IDENTITY_AREA) {
-        @views.html.admin.common.stringValue(Some(desc.entityType.toString), ENTITY_TYPE)
-        @views.html.admin.common.stringValue(Some(desc.name), AUTHORIZED_FORM_OF_NAME)
-        @views.html.admin.common.listValue(desc.parallelFormsOfName, PARALLEL_FORMS_OF_NAME)
-        @views.html.admin.common.listValue(desc.otherFormsOfName, OTHER_FORMS_OF_NAME)
+        @views.html.admin.common.textValue(ENTITY_TYPE, Some(desc.entityType.toString))
+        @views.html.admin.common.textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
+        @views.html.admin.common.listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
+        @views.html.admin.common.listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
-        @views.html.admin.common.stringValue(desc.details.datesOfExistence, DATES_OF_EXISTENCE)
-        @views.html.admin.common.stringValue(desc.details.history, HISTORY)
-        @views.html.admin.common.listValue(desc.details.places, PLACES)
-        @views.html.admin.common.listValue(desc.details.legalStatus, LEGAL_STATUS)
-        @views.html.admin.common.listValue(desc.details.functions, FUNCTIONS)
-        @views.html.admin.common.listValue(desc.details.mandates, MANDATES)
-        @views.html.admin.common.stringValue(desc.details.internalStructure, INTERNAL_STRUCTURE)
-        @views.html.admin.common.stringValue(desc.details.generalContext, GENERAL_CONTEXT)
+        @views.html.admin.common.textValue(DATES_OF_EXISTENCE, desc.details.datesOfExistence)
+        @views.html.admin.common.textValue(HISTORY, desc.details.history)
+        @views.html.admin.common.listValue(PLACES, desc.details.places)
+        @views.html.admin.common.listValue(LEGAL_STATUS, desc.details.legalStatus)
+        @views.html.admin.common.listValue(FUNCTIONS, desc.details.functions)
+        @views.html.admin.common.listValue(MANDATES, desc.details.mandates)
+        @views.html.admin.common.textValue(INTERNAL_STRUCTURE, desc.details.internalStructure)
+        @views.html.admin.common.textValue(GENERAL_CONTEXT, desc.details.generalContext)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @views.html.admin.common.stringValue(desc.control.descriptionIdentifier, DESCRIPTION_IDENTIFIER)
-        @views.html.admin.common.stringValue(desc.control.institutionIdentifier, INSTITUTION_IDENTIFIER)
-        @views.html.admin.common.stringValue(desc.control.rulesAndConventions, RULES_CONVENTIONS)
-        @views.html.admin.common.stringValue(desc.control.status, STATUS)
-        @views.html.admin.common.stringValue(desc.control.levelOfDetail, LEVEL_OF_DETAIL)
-        @views.html.admin.common.stringValue(desc.control.datesCDR, DATES_CVD)
-        @views.html.admin.common.listValue(desc.control.languages, LANGUAGES_USED, transformFunc = s => views.Helpers.languageCodeToName(s))
-        @views.html.admin.common.listValue(desc.control.scripts, SCRIPTS_USED, transformFunc = s => views.Helpers.scriptCodeToName(s))
-        @views.html.admin.common.listValue(desc.control.sources, SOURCES)
-        @views.html.admin.common.stringValue(desc.control.maintenanceNotes, MAINTENANCE_NOTES)
+        @views.html.admin.common.textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
+        @views.html.admin.common.textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
+        @views.html.admin.common.textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
+        @views.html.admin.common.textValue(STATUS, desc.control.status)
+        @views.html.admin.common.textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
+        @views.html.admin.common.textValue(DATES_CVD, desc.control.datesCDR)
+        @views.html.admin.common.listValue(LANGUAGES_USED, desc.control.languages, transformFunc = s => views.Helpers.languageCodeToName(s))
+        @views.html.admin.common.listValue(SCRIPTS_USED, desc.control.scripts, transformFunc = s => views.Helpers.scriptCodeToName(s))
+        @views.html.admin.common.listValue(SOURCES, desc.control.sources)
+        @views.html.admin.common.textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
     }
 
     @views.html.admin.link.accessPointLinks(item, desc, links)

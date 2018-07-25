@@ -150,6 +150,29 @@ object Helpers {
   def textDirection(d: models.base.Description): String = if (d.isRightToLeft) "rtl" else "ltr"
 
   /**
+    * Attempt to detect the direction of a piece of text, given
+    * a context which assumes it is left-to-right.
+    *
+    * @param s the string
+    * @param rtlContext if the context is right-to-left
+    * @return true if the text is right-to-left
+    */
+  def isRightToLeft(s: String, rtlContext: Boolean = false): Boolean = {
+    import com.ibm.icu.text.Bidi
+    if (s.trim.isEmpty) rtlContext
+    else Bidi.getBaseDirection(s) == Bidi.RTL
+  }
+
+  /**
+    * The value of the HTML5 dir attribute based on the text.
+    *
+    * @param s the text string
+    * @param rtl if the context is right-to-left
+    * @return either "rtl" or "auto"
+    */
+  def textDirectionAttr(s: String, rtl: Boolean = false): String = if(isRightToLeft(s, rtl)) "rtl" else "auto"
+
+  /**
     * Sort a set of annotations into three types.
     * @param annotations A list of annotations
     * @param userOpt An optional user context
