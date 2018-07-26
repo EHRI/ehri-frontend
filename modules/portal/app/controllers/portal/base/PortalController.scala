@@ -120,30 +120,30 @@ trait PortalController
 
 
   override def verifiedOnlyError(request: RequestHeader): Future[Result] = {
-    implicit val r  = request
+    implicit val r: RequestHeader = request
     immediate(Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly())))
   }
 
   override def staffOnlyError(request: RequestHeader): Future[Result] = {
-    implicit val r  = request
+    implicit val r: RequestHeader = request
     immediate(Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly())))
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
     val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
-    implicit val r  = request
+    implicit val r: RequestHeader = request
     val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
     if (!doMoveCheck) immediate(notFoundResponse)
     else for {
       maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
     } yield maybeMoved match {
-      case Some(path) => MovedPermanently(path)
+      case Some(path) => MovedPermanently(utils.http.iriToUri(path))
       case None => notFoundResponse
     }
   }
 
   override def downForMaintenance(request: RequestHeader): Future[Result] = {
-    implicit val r  = request
+    implicit val r: RequestHeader = request
     immediate(ServiceUnavailable(renderError("errors.maintenance", maintenance())))
   }
 
@@ -161,7 +161,7 @@ trait PortalController
   }
 
   override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] = {
-    implicit val r = request
+    implicit val r: RequestHeader = request
     immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
   }
 
