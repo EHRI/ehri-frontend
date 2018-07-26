@@ -311,6 +311,30 @@ case class Utils @Inject()(
     )
   }
 
+  private val redirectForm: Form[(String,String)] = Form(
+    tuple(
+      "from" -> nonEmptyText.verifying("admin.utils.redirect.badPathError", p => p.startsWith("/")),
+      "to" -> nonEmptyText.verifying("admin.utils.redirect.badPathError", p => p.startsWith("/"))
+    )
+  )
+
+  def redirect: Action[AnyContent] = AdminAction.apply { implicit request =>
+    Ok(views.html.admin.tools.redirectForm(redirectForm,
+      controllers.admin.routes.Utils.redirectPost()))
+  }
+
+  def redirectPost: Action[AnyContent] = AdminAction.async { implicit request =>
+    val boundForm = redirectForm.bindFromRequest()
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.admin.tools.redirectForm(errForm,
+        controllers.admin.routes.Utils.redirectPost()))),
+      fromTo => appComponents.pageRelocator.addMoved(Seq(fromTo)).map { _ =>
+        Redirect(controllers.admin.routes.Utils.redirect())
+          .flashing("success" -> Messages("admin.utils.redirect.done"))
+      }
+    )
+  }
+
   private def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: String): Seq[(String, String)] = {
     def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 

@@ -188,5 +188,23 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       flash(del) must_== Flash(
         Map("success" -> message("admin.utils.batchDelete.done", 2)(messagesApi)))
     }
+
+    "allow creating arbitrary redirects" in new ITestApp {
+      val from = "/foo"
+      val to = controllers.admin.routes.Home.overview().url
+
+      val res = FakeRequest(controllers.admin.routes.Utils.redirectPost())
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(Map("from" -> Seq(from), "to" -> Seq(to)))
+
+      status(res) must_== SEE_OTHER
+      flash(res) must_== Flash(Map(
+        "success" -> message("admin.utils.redirect.done")(messagesApi)))
+
+      val redir = FakeRequest(GET, from).withUser(privilegedUser).call()
+      status(redir) must_== MOVED_PERMANENTLY
+      redirectLocation(redir) must beSome(to)
+    }
   }
 }
