@@ -48,7 +48,7 @@ class PortalSpec extends IntegrationTestRunner {
       movedPages += oldRoute.url -> newRoute.url
       val rename = FakeRequest(oldRoute).call()
       status(rename) must equalTo(MOVED_PERMANENTLY)
-      redirectLocation(rename) must equalTo(Some(newRoute.url))
+      redirectLocation(rename) must beSome(newRoute.url)
     }
 
     "allow setting view preferences" in new ITestApp {

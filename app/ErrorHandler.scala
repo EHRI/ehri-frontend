@@ -1,5 +1,4 @@
 import javax.inject.{Inject, Provider}
-
 import controllers.base.SessionPreferences
 import global.GlobalConfig
 import play.api.http.DefaultHttpErrorHandler
@@ -8,13 +7,14 @@ import play.api.mvc.Results._
 import play.api.routing.Router
 import utils.SessionPrefs
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
 import controllers.renderError
 import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulException}
 import play.api.mvc.{RequestHeader, Result}
 import services.ServiceOffline
 import services.data.{BadJson, ItemNotFound, PermissionDenied}
+import services.redirects.MovedPageLookup
 import views.html.errors._
 
 
@@ -22,9 +22,10 @@ class ErrorHandler @Inject() (
   env: Environment,
   config: Configuration,
   sourceMapper: OptionalSourceMapper,
+  pageRelocator: MovedPageLookup,
   router: Provider[Router],
   langs: Langs
-)(implicit val messagesApi: MessagesApi, globalConfig: GlobalConfig)
+)(implicit val messagesApi: MessagesApi, globalConfig: GlobalConfig, executionContext: ExecutionContext)
   extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
 with I18nSupport
 with SessionPreferences[SessionPrefs] {
@@ -46,7 +47,10 @@ with SessionPreferences[SessionPrefs] {
 
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     implicit val r: RequestHeader = request
-    immediate(NotFound(renderError("errors.pageNotFound", pageNotFound())))
+    pageRelocator.hasMovedTo(request.path).map {
+      case Some(newPath) => MovedPermanently(newPath)
+      case None => NotFound(renderError("errors.pageNotFound", pageNotFound()))
+    }
   }
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {

@@ -301,6 +301,18 @@ admin.utils.batchDelete.ids=IDs (one item ID per line)
 admin.utils.batchDelete.ids.description=Specify IDs of items to be deleted with one item per line
 admin.utils.batchDelete.done=Items deleted: {0}
 
+#
+# Redirects
+#
+admin.utils.redirect=Create Page Redirect
+admin.utils.redirect.description=Create a permanent (301) redirect from one page URL to another.
+admin.utils.redirect.from=From Path
+admin.utils.redirect.from.description=The path (starting with ''/'') from which should be redirected.
+admin.utils.redirect.to=To Path
+admin.utils.redirect.to.description=The path (starting with ''/'') to which the redirect should point.
+admin.utils.redirect.submit=Submit
+admin.utils.redirect.badPathError=To/From paths must be local (e.g. starting with ''/'')
+admin.utils.redirect.done=Redirect successfully created
 
 # Admin search index
 search.index.update=Refresh Search Index

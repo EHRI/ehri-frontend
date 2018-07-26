@@ -54,6 +54,11 @@ POST        /findReplace                        @controllers.admin.Utils.findRep
 GET         /delete                             @controllers.admin.Utils.batchDelete
 POST        /delete                             @controllers.admin.Utils.batchDeletePost
 
+# Redirects
+GET         /redirect                           @controllers.admin.Utils.redirect
+POST        /redirect                           @controllers.admin.Utils.redirectPost
+
+
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync

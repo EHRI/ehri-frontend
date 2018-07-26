@@ -1,0 +1,19 @@
+@(form: Form[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("admin.utils.redirect")) {
+    <p>@Messages("admin.utils.redirect.description")</p>
+    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @defining("admin.utils.redirect") { implicit fieldPrefix =>
+            @formHelpers.lineInput(form(""), "from")
+            @formHelpers.lineInput(form(""), "to")
+
+            @formHelpers.submitButton(Messages("admin.utils.redirect.submit"))
+        }
+    }
+} {
+
+}
+
