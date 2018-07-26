@@ -1,21 +1,21 @@
-import javax.inject.{Inject, Provider}
 import controllers.base.SessionPreferences
+import controllers.renderError
 import global.GlobalConfig
+import javax.inject.{Inject, Provider}
 import play.api.http.DefaultHttpErrorHandler
 import play.api.i18n._
 import play.api.mvc.Results._
-import play.api.routing.Router
-import utils.SessionPrefs
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.Future.{successful => immediate}
-import controllers.renderError
-import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulException}
 import play.api.mvc.{RequestHeader, Result}
+import play.api.routing.Router
+import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulException}
 import services.ServiceOffline
 import services.data.{BadJson, ItemNotFound, PermissionDenied}
 import services.redirects.MovedPageLookup
+import utils.SessionPrefs
 import views.html.errors._
+
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class ErrorHandler @Inject() (
@@ -48,7 +48,7 @@ with SessionPreferences[SessionPrefs] {
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     implicit val r: RequestHeader = request
     pageRelocator.hasMovedTo(request.path).map {
-      case Some(newPath) => MovedPermanently(newPath)
+      case Some(newPath) => MovedPermanently(utils.http.iriToUri(newPath))
       case None => NotFound(renderError("errors.pageNotFound", pageNotFound()))
     }
   }

@@ -31,6 +31,9 @@ val backendDependencies = Seq(
   // CSV parser/writer...
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
 
+  // IRI helper...
+  "org.apache.jena" % "jena-iri" % "3.8.0",
+
   // Ontology
   "ehri-project" % "ehri-definitions" % backendVersion
 )

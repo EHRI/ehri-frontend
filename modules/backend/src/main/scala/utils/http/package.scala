@@ -1,5 +1,7 @@
 package utils
 
+import org.apache.jena.iri.IRIFactory
+
 package object http {
 
   import java.net.{URLDecoder, URLEncoder}
@@ -45,4 +47,12 @@ package object http {
   def parseQueryString(s: String): Map[String,Seq[String]] =
     paramsToForm(s.substring(s.indexOf('?')).split("&").map(_.split("=", 2))
       .map(p => URLDecoder.decode(p(0), "UTF-8") -> URLDecoder.decode(p(1), "UTF-8") ))
+
+  /**
+    * Convert a unicode IRI into an appropriately encoded URI.
+    *
+    * @param iri the IRI string
+    * @return a URI-encoding string
+    */
+  def iriToUri(iri: String): String = IRIFactory.iriImplementation().create(iri).toURI.toASCIIString
 }
