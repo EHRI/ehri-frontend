@@ -5,7 +5,7 @@
 
         <ul class="list-unstyled search-result-list">
             @result.page.items.map { case(doc, hit) =>
-                @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
+                @defining(result.params.query.map(_ => hit.id)) { implicit descriptionId =>
                     @defining(watched.contains(doc.id)) { watched =>
                         <li>@searchItem(doc, path :+ item, hit, watched)</li>
                     }
