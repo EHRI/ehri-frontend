@@ -2,7 +2,7 @@
 
 <ul class="list-unstyled">
     @result.page.map { case(item, hit) =>
-        @defining(models.base.Description.localId(hit.id)) { implicit descriptionId =>
+        @defining(result.params.query.map(_ => hit.id)) { implicit descriptionId =>
             <li>
                 @views.html.virtualUnit.ifVirtual(item)(v => listItem(v, path))(d => listItem(d, path))
             </li>
