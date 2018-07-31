@@ -454,7 +454,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentType(skos) must beSome.which { ct =>
         ct must equalTo("text/turtle")
       }
-      contentAsString(skos) must contain("<http://data.ehri-project.eu#cvoc1>")
+      contentAsString(skos) must contain("<http://data.ehri-project.eu/cvoc1>")
     }
   }
 }

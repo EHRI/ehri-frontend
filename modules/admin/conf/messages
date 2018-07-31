@@ -1391,9 +1391,14 @@ ingest.importer=Importer class (Optional)
 ingest.importer.description=The fully-qualified class name of the XML importer class
 ingest.properties=Import properties (Optional)
 ingest.properties.description=A properties file
+ingest.baseURI=Base URI
+ingest.baseURI.description=The common URI prefix for items in this vocabulary.
+ingest.suffix=URI suffix
+ingest.suffix.description=The common URI suffix for items in this vocabulary.
 ingest.format.ead=EAD
 ingest.format.ead-sync=EAD (Synchronisation)
 ingest.format.eac=EAC
+ingest.format.skos=SKOS
 ingest.commit=Commit Ingest
 ingest.commit.description=Apply the ingest. Leave unchecked to dry-run.
 

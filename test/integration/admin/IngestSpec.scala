@@ -11,7 +11,7 @@ import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import org.apache.commons.io.FileUtils
 import play.api.libs.json.JsString
 import play.api.test.FakeRequest
-import services.ingest.IngestParams
+import services.ingest.{IngestApi, IngestParams}
 
 import scala.concurrent.{Future, Promise}
 
@@ -40,7 +40,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       private implicit val mat = app.materializer
 
       val result = FakeRequest(controllers.admin.routes.Ingest
-          .ingestPost(EntityType.Repository, "r1", "ead-sync"))
+          .ingestPost(EntityType.Repository, "r1", IngestApi.IngestDataType.EadSync))
         .withFileUpload(IngestParams.DATA_FILE, getEadFile, "text/xml", data = Map(
           IngestParams.SCOPE_TYPE -> Seq(EntityType.Repository.toString),
           IngestParams.SCOPE -> Seq("r1"),

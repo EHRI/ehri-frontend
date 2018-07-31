@@ -16,6 +16,8 @@ case class IngestParams(
   handler: Option[String] = None,
   importer: Option[String] = None,
   excludes: Seq[String] = Nil,
+  baseURI: Option[String] = None,
+  suffix: Option[String] = None,
   file: Option[TemporaryFile] = None,
   properties: Option[TemporaryFile] = None,
   commit: Boolean = false
@@ -32,6 +34,8 @@ object IngestParams {
   val IMPORTER = "importer"
   val EXCLUDES = "ex"
   val DATA_FILE = "data"
+  val BASE_URI = "baseURI"
+  val SUFFIX = "suffix"
   val PROPERTIES_FILE = "properties"
   val COMMIT = "commit"
 
@@ -48,6 +52,8 @@ object IngestParams {
       EXCLUDES -> optional(text).transform[Seq[String]](
         _.map(_.split("\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
+      BASE_URI -> optional(text),
+      SUFFIX -> optional(text),
       DATA_FILE -> ignored(Option.empty[TemporaryFile]),
       PROPERTIES_FILE -> ignored(Option.empty[TemporaryFile]),
       COMMIT -> default(boolean, false)

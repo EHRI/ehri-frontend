@@ -22,4 +22,5 @@ GET         /:id/scope/:userType/:userId              @controllers.vocabularies.
 POST        /:id/scope/:userType/:userId              @controllers.vocabularies.Vocabularies.setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String)
 GET         /:id/reindex                              @controllers.vocabularies.Vocabularies.updateIndex(id: String)
 GET         /:id/export                               @controllers.vocabularies.Vocabularies.exportSkos(id: String, format: Option[String] ?= None, baseUri: Option[String] ?= None)
+GET         /:id/ingest                               @controllers.vocabularies.Vocabularies.ingest(id: String)
 

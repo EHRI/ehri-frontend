@@ -53,7 +53,7 @@ case class Ingest @Inject()(
     }
   }
 
-  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: String, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
+  def ingestPost(scopeType: EntityType.Value, scopeId: String, dataType: IngestApi.IngestDataType.Value, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] = AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
 
     def showErrorForm(form: Form[IngestParams]): Future[Result] = {
       val scopeItemF: Future[Model] = userDataApi.getAny[Model](scopeId)
@@ -62,7 +62,7 @@ case class Ingest @Inject()(
           .map(item => Some(item))).getOrElse(Future.successful(None))
 
       for (scopeItem <- scopeItemF; fondsItem <- fondsItemF)
-        yield BadRequest(views.html.admin.tools.ingest(scopeItem, fondsItem, form,
+        yield BadRequest(views.html.admin.tools.ingest(scopeItem, fondsItem, form, dataType,
           controllers.admin.routes.Ingest.ingestPost(scopeType, scopeId, dataType, fonds)))
     }
 

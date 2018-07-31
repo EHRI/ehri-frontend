@@ -597,6 +597,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   override def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "rename")
     userCall(url)
+      .withQueryString("commit" -> true.toString)
       .post(Json.toJson(mapping))
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
