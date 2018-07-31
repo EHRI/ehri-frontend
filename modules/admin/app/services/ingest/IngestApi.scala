@@ -1,6 +1,7 @@
 package services.ingest
 
 import akka.actor.ActorRef
+import play.api.mvc.QueryStringBindable
 import services.data.ApiUser
 import services.ingest.IngestApi.IngestJob
 
@@ -8,9 +9,19 @@ import scala.concurrent.Future
 
 object IngestApi {
 
+  case object IngestDataType extends Enumeration() {
+    val Eac = Value("eac")
+    val Ead = Value("ead")
+    val EadSync = Value("ead-sync")
+    val Skos = Value("skos")
+
+    implicit val binder: QueryStringBindable[IngestDataType.Value] =
+      utils.binders.queryStringBinder(this)
+  }
+
   case class IngestData(
     params: IngestParams,
-    dataType: String,
+    dataType: IngestDataType.Value,
     contentType: String,
     user: ApiUser
   )

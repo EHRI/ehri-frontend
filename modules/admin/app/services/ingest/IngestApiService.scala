@@ -227,7 +227,7 @@ case class IngestApiService @Inject()(
         logger.trace(r.body)
         logger.debug(s"Ingest WS status: ${r.status}")
         try Right(r.json.as[IngestResult]) catch {
-          case (_: JsonMappingException | _: JsResultException) => Left(r.body)
+          case _: JsonMappingException | _: JsResultException => Left(r.body)
         }
       } recover {
       case e: Throwable =>

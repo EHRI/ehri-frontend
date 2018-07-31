@@ -1,11 +1,10 @@
 package controllers.vocabularies
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType}
+import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
 import play.api.data.Form
@@ -13,6 +12,7 @@ import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.ingest.{IngestApi, IngestParams}
 import utils.{PageParams, RangeParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 
@@ -181,6 +181,12 @@ case class Vocabularies @Inject()(
         .getOrElse(MimeTypes.TEXT)
       Ok.chunked(sr.bodyAsSource).as(ct)
     }
+  }
+
+  def ingest(id: String): Action[AnyContent] = WithParentPermissionAction(id, PermissionType.Create, ContentTypes.Concept).apply { implicit request =>
+    val dataType = IngestApi.IngestDataType.Skos
+    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
+      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, dataType)))
   }
 }
 

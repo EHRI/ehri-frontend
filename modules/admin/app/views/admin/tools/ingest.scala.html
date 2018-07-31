@@ -1,4 +1,4 @@
-@(scope: models.base.Model, fonds: Option[models.base.Model], form: Form[services.ingest.IngestParams], action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(scope: models.base.Model, fonds: Option[models.base.Model], form: Form[services.ingest.IngestParams], dataType: services.ingest.IngestApi.IngestDataType.Value, action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @import services.ingest.IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
@@ -64,30 +64,27 @@
                       success: function (data) {
                           var websocket = new WebSocket(data.url);
                           websocket.onopen = function() {
-                              //websocket.send();
-                              console.log("Opened monitoring socket...")
+                              console.debug("Opened monitoring socket...")
                           };
                           websocket.onerror = function(e) {
-                            console.log(e);
                               appendProgressMessage("ERROR. Try refreshing the page. ");
                               $submit.attr("disabled", false);
-                              console.log("Socket error!");
-                          }
+                              console.error("Socket error!", e);
+                          };
                           websocket.onclose = function() {
-                              console.log("Closed!");
-                          }
+                              console.debug("Closed!");
+                          };
                           websocket.onmessage = function(e) {
                               var msg = JSON.parse(e.data);
                               appendProgressMessage(msg);
                               if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
                                   websocket.close();
-                                  console.log("Closed socket")
+                                  console.debug("Closed socket")
                                   setRunning($submit, false);
                               }
                           };
                       },
                       error: function (xhr, text) {
-                        console.log(xhr, text)
                           appendProgressMessage(xhr.responseText);
                       }
                   });
@@ -119,9 +116,14 @@
                         </fieldset>
 
                         <fieldset>
+                        @if(dataType == services.ingest.IngestApi.IngestDataType.Skos) {
+                            @formHelpers.lineInput(f, BASE_URI)
+                            @formHelpers.lineInput(f, SUFFIX)
+                        } else {
                             @formHelpers.lineInput(f, HANDLER)
                             @formHelpers.lineInput(f, IMPORTER)
                             @formHelpers.fileInput(f, PROPERTIES_FILE)
+                        }
                         </fieldset>
 
                         @if(sync) {

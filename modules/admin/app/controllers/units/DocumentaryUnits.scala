@@ -1,7 +1,6 @@
 package controllers.units
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -12,7 +11,7 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.IngestParams
+import services.ingest.{IngestApi, IngestParams}
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
@@ -345,8 +344,9 @@ case class DocumentaryUnits @Inject()(
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     request.item.holder.map { scope =>
-      Ok(views.html.admin.tools.ingest(scope, Some(request.item), IngestParams.ingestForm,
-        controllers.admin.routes.Ingest.ingestPost(scope.isA, scope.id, "ead-sync", Some(id)), sync = true))
+      val dataType = IngestApi.IngestDataType.Eac
+      Ok(views.html.admin.tools.ingest(scope, Some(request.item), IngestParams.ingestForm, dataType,
+        controllers.admin.routes.Ingest.ingestPost(scope.isA, scope.id, dataType, Some(id)), sync = true))
     }.getOrElse(InternalServerError(views.html.errors.fatalError()))
   }
 }

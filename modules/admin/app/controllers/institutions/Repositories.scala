@@ -11,7 +11,7 @@ import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.IngestParams
+import services.ingest.{IngestApi, IngestParams}
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
@@ -247,7 +247,8 @@ case class Repositories @Inject()(
   }
 
   def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm,
-      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, s"ead${if (sync) "-sync" else ""}"), sync = sync))
+    val dataType = if (sync) IngestApi.IngestDataType.EadSync else IngestApi.IngestDataType.Ead
+    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
+      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, dataType), sync = sync))
   }
 }
