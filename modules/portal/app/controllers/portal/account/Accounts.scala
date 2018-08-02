@@ -15,7 +15,6 @@ import controllers.portal.base.PortalController
 import models._
 import play.api.Logger
 import play.api.data.Forms._
-import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.data.{Form, Forms}
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
@@ -138,7 +137,7 @@ case class Accounts @Inject()(
   }
 
   object NotReadOnlyAction extends CoreActionBuilder[Request, AnyContent] {
-    def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+    def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
       block(request)
     }
 
@@ -146,7 +145,7 @@ case class Accounts @Inject()(
   }
 
   object RateLimit extends CoreActionBuilder[Request, AnyContent] {
-    override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
       if (request.method != HttpVerbs.POST) block(request)
       else {
         if (checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) block(request)
@@ -287,10 +286,12 @@ case class Accounts @Inject()(
   def signup: Action[AnyContent] = loginOrSignup(isLogin = false)
 
   def loginOrSignup(isLogin: Boolean) = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+    logger.debug(s"Login or signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
       case Some(user) => Redirect(portalRoutes.index())
-        .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
+          .removingFromSession(ACCESS_URI)
+          .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
         Ok(views.html.account.login(
           passwordLoginForm,
@@ -393,7 +394,8 @@ case class Accounts @Inject()(
       oauth2Providers.providers.find(_.name == providerId).map { provider =>
 
         // Create a random nonce to stamp this OAuth2 session
-        val sessionId = request.session.get("sid").getOrElse(UUID.randomUUID().toString)
+        val sessionKey = "sid"
+        val sessionId = request.session.get(sessionKey).getOrElse(UUID.randomUUID().toString)
         val handlerUrl: String = accountRoutes.oauth2(providerId).absoluteURL(globalConfig.https)
 
         code match {
@@ -406,7 +408,7 @@ case class Accounts @Inject()(
             cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
             val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
             logger.debug(s"OAuth2 redirect URL: $redirectUrl")
-            immediate(Redirect(redirectUrl).withSession(request.session + ("sid" -> sessionId)))
+            immediate(Redirect(redirectUrl).addingToSession(sessionKey -> sessionId))
 
           // Second phase of request. Using our new code, and with the same random session
           // nonce, proceed to get an access token, the user data, and handle the account
@@ -417,11 +419,12 @@ case class Accounts @Inject()(
               info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
               userData <- oAuth2Flow.getUserData(provider, info)
               account <- getOrCreateAccount(provider, userData)
-              result <- doLogin(account)
+              result <- doLogin(account).map(_.removingFromSession(sessionKey))
             } yield result) recover {
               case AuthenticationError(msg) =>
                 logger.error(msg)
                 Redirect(accountRoutes.loginOrSignup())
+                  .removingFromSession(sessionKey)
                   .flashing("danger" -> "login.error.oauth2.info")
             }
           } else authenticationFailed(request)

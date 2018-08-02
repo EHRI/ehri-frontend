@@ -402,7 +402,7 @@ case class ApiV1 @Inject()(
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     val uri = request.session.get(ACCESS_URI).getOrElse(apiRoutes.search().url)
     logger.debug(s"Redirecting logged-in user to: $uri")
-    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
+    immediate(Redirect(uri).removingFromSession(ACCESS_URI)(request))
   }
 
   override def logoutSucceeded(request: RequestHeader): Future[Result] =

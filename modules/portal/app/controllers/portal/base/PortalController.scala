@@ -3,6 +3,7 @@ package controllers.portal.base
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
+import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
 import play.api.{Configuration, Logger}
 import defines.{EntityType, EventType}
@@ -105,10 +106,12 @@ trait PortalController
     * A redirect target after a successful user login.
     */
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
+    logger.debug(s"Access URI: ${request.session.get(ACCESS_URI)}")
     val uri = request.session.get(ACCESS_URI)
+      .filterNot(Uri(_).path.toString() == controllers.portal.account.routes.Accounts.loginOrSignup().url)
       .getOrElse(controllers.portal.users.routes.UserProfiles.profile().url)
     logger.debug(s"Redirecting logged-in user to: $uri")
-    immediate(Redirect(uri).withSession(request.session - ACCESS_URI))
+    immediate(Redirect(uri).removingFromSession(ACCESS_URI)(request))
   }
 
   /**
@@ -151,12 +154,13 @@ trait PortalController
    * A redirect target after a failed authentication.
    */
   override def authenticationFailed(request: RequestHeader): Future[Result] = {
+    implicit val r: RequestHeader = request
+    logger.warn(s"Auth failed for: ${request.uri}")
     if (isAjax(request)) {
-      logger.warn(s"Auth failed for: $request")
       immediate(Unauthorized("authentication failed"))
     } else {
       immediate(Redirect(controllers.portal.account.routes.Accounts.loginOrSignup())
-        .withSession(ACCESS_URI -> request.uri))
+        .addingToSession(ACCESS_URI -> request.uri))
     }
   }
 

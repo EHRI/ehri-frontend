@@ -41,8 +41,7 @@ trait SessionPreferences[T] {
    */
   implicit class ResultOps(result: Result) {
     def withPreferences(preferences: T)(implicit request: RequestHeader, wts: Writes[T]): Result = {
-      result.withSession(
-        request.session + (storeKey -> Json.stringify(Json.toJson(preferences)(wts))))
+      result.addingToSession(storeKey -> Json.stringify(Json.toJson(preferences)(wts)))
     }
   }
 }
