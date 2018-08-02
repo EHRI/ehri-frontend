@@ -185,6 +185,6 @@ AuthoritativeSets @Inject()(
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     val dataType = IngestApi.IngestDataType.Eac
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
-      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, dataType)))
+      controllers.admin.routes.Ingest.ingestPost(ContentTypes.AuthoritativeSet, id, dataType)))
   }
 }
