@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import defines.EntityType
+import defines.ContentTypes
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import org.apache.commons.io.FileUtils
 import play.api.libs.json.JsString
@@ -40,9 +40,9 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       private implicit val mat = app.materializer
 
       val result = FakeRequest(controllers.admin.routes.Ingest
-          .ingestPost(EntityType.Repository, "r1", IngestApi.IngestDataType.EadSync))
+          .ingestPost(ContentTypes.Repository, "r1", IngestApi.IngestDataType.EadSync))
         .withFileUpload(IngestParams.DATA_FILE, getEadFile, "text/xml", data = Map(
-          IngestParams.SCOPE_TYPE -> Seq(EntityType.Repository.toString),
+          IngestParams.SCOPE_TYPE -> Seq(ContentTypes.Repository.toString),
           IngestParams.SCOPE -> Seq("r1"),
           IngestParams.EXCLUDES -> Seq("c1\nc2\nc3\nc4\nnl-r1-m19"),
           IngestParams.LOG -> Seq("test"),

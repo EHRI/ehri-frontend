@@ -6,14 +6,14 @@ import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
+import javax.inject.Inject
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
-import defines.EntityType
+import defines.{ContentTypes, EntityType}
 import play.api.http.HeaderNames
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
@@ -171,11 +171,11 @@ case class IngestApiService @Inject()(
   }
 
   // Re-index the scope in which the ingest was run
-  private def reindex(entityType: EntityType.Value, id: String)(implicit chan: ActorRef): Future[Unit] = {
-    msg(s"Reindexing... $entityType $id", chan)
+  private def reindex(scopeType: ContentTypes.Value, id: String)(implicit chan: ActorRef): Future[Unit] = {
+    msg(s"Reindexing... $scopeType $id", chan)
     indexer.clearKeyValue(SearchConstants.HOLDER_ID, id).flatMap { _ =>
       msg(s"Cleared ${SearchConstants.HOLDER_ID}: $id", chan)
-      indexer.indexChildren(entityType, id)
+      indexer.indexChildren(EntityType.withName(scopeType.toString), id)
     }
   }
 

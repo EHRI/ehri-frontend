@@ -346,7 +346,8 @@ case class DocumentaryUnits @Inject()(
     request.item.holder.map { scope =>
       val dataType = IngestApi.IngestDataType.Eac
       Ok(views.html.admin.tools.ingest(scope, Some(request.item), IngestParams.ingestForm, dataType,
-        controllers.admin.routes.Ingest.ingestPost(scope.isA, scope.id, dataType, Some(id)), sync = true))
+        controllers.admin.routes.Ingest.ingestPost(ContentTypes.DocumentaryUnit,
+          scope.id, dataType, Some(id)), sync = true))
     }.getOrElse(InternalServerError(views.html.errors.fatalError()))
   }
 }

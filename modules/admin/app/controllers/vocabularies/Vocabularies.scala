@@ -183,10 +183,10 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def ingest(id: String): Action[AnyContent] = WithParentPermissionAction(id, PermissionType.Create, ContentTypes.Concept).apply { implicit request =>
+  def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     val dataType = IngestApi.IngestDataType.Skos
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
-      controllers.admin.routes.Ingest.ingestPost(request.item.isA, id, dataType)))
+      controllers.admin.routes.Ingest.ingestPost(ContentTypes.Vocabulary, id, dataType)))
   }
 }
 

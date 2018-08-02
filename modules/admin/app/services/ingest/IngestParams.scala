@@ -1,13 +1,13 @@
 package services.ingest
 
-import defines.EntityType
+import defines.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.Files.TemporaryFile
 
 
 case class IngestParams(
-  scopeType: EntityType.Value,
+  scopeType: ContentTypes.Value,
   scope: String,
   fonds: Option[String] = None,
   log: String,
@@ -41,7 +41,7 @@ object IngestParams {
 
   val ingestForm = Form(
     mapping(
-      SCOPE_TYPE -> utils.EnumUtils.enumMapping(EntityType),
+      SCOPE_TYPE -> utils.EnumUtils.enumMapping(ContentTypes),
       SCOPE -> nonEmptyText,
       FONDS -> optional(nonEmptyText),
       LOG -> nonEmptyText,
