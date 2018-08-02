@@ -359,16 +359,17 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
       AllowedFilter
 
 
-  protected def GenericOptionalAccountFunction = new CoreActionBuilder[OptionalAccountRequest, AnyContent] {
-    def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]): Future[Result] = {
-      authHandler.restoreAccount(request).recover({
-        case _ => None -> identity[Result] _
-      })(controllerComponents.executionContext).flatMap({
-        case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request))
-          .map(cookieUpdater)(controllerComponents.executionContext)
-      })(controllerComponents.executionContext)
+  protected def GenericOptionalAccountFunction: CoreActionBuilder[OptionalAccountRequest, AnyContent] =
+    new CoreActionBuilder[OptionalAccountRequest, AnyContent] {
+      def invokeBlock[A](request: Request[A], block: OptionalAccountRequest[A] => Future[Result]): Future[Result] = {
+        authHandler.restoreAccount(request).recover({
+          case _ => None -> identity[Result] _
+        })(controllerComponents.executionContext).flatMap({
+          case (user, cookieUpdater) => block(OptionalAccountRequest[A](user, request))
+            .map(cookieUpdater)(controllerComponents.executionContext)
+        })(controllerComponents.executionContext)
+      }
     }
-  }
 
 
   /**
