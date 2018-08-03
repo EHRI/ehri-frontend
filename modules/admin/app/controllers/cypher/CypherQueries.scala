@@ -13,7 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, CypherService, ResultFormat}
+import services.cypher.{CypherQueryService, Neo4jCypherService, CypherResult}
 import services.search.SearchParams
 import utils.PageParams
 
@@ -25,7 +25,7 @@ import scala.util.Failure
 case class CypherQueries @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: CypherService,
+  cypher: Neo4jCypherService,
   cypherQueries: CypherQueryService
 ) extends AdminController {
 
@@ -47,12 +47,10 @@ case class CypherQueries @Inject()(
       controllers.cypher.routes.CypherQueries.cypherQuery(), "Cypher"))
   }
 
-  def cypherQuery: Action[AnyContent] = AdminAction.async { implicit request =>
+  def cypherQuery: Action[AnyContent] = AdminAction.apply { implicit request =>
     queryForm.bindFromRequest.fold(
-      err => immediate(BadRequest(err.errorsAsJson)),
-      q => cypher.raw(q, Map.empty).map { sr =>
-        Status(sr.status).chunked(sr.bodyAsSource)
-      }
+      err => BadRequest(err.errorsAsJson),
+      q => Ok.chunked(cypher.legacy(q, Map.empty))
     )
   }
 
@@ -130,9 +128,8 @@ case class CypherQueries @Inject()(
           val sep: Char = if (format == DataFormat.Csv) ',' else '\t'
           val csvFormat = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(false)
           val writer = CsvHelpers.mapper.writer(csvFormat.build())
-          cypher.rows(query.query, Map.empty).map { rowJson =>
-            val csvRows: Source[ByteString, _] = rowJson.map { row =>
-              val cols: Seq[String] = row.collect(ResultFormat.jsToString)
+            val csvRows: Source[ByteString, _] = cypher.rows(query.query).map { row =>
+              val cols: Seq[String] = row.collect(CypherResult.jsToString)
               ByteString.fromArray(writer.writeValueAsBytes(cols.toArray))
             }.watchTermination()(Keep.right).mapMaterializedValue { f =>
               f.onComplete {
@@ -141,19 +138,16 @@ case class CypherQueries @Inject()(
               }
               f
             }
-            Ok.chunked(csvRows)
+            immediate(Ok.chunked(csvRows)
               .as(s"text/$format; charset=utf-8")
-              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
-          }
+              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename"))
         case DataFormat.Html =>
-          cypher.get[ResultFormat](query.query, Map.empty).map { r =>
-            Ok(views.html.admin.cypherQueries.results(query, r))
+          cypher.get(query.query).map { rows =>
+            Ok(views.html.admin.cypherQueries.results(query, rows))
           }
         case DataFormat.Json =>
-          cypher.raw(query.query).map { sr =>
-            Ok.chunked(sr.bodyAsSource).as(ContentTypes.JSON)
-              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
-          }
+          immediate(Ok.chunked(cypher.legacy(query.query)).as(ContentTypes.JSON)
+              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename"))
         case _ => immediate(NotAcceptable(s"Unsupported type: $format"))
       }
     }

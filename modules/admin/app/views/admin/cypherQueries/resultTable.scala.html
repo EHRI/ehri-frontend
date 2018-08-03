@@ -1,4 +1,4 @@
-@(data: services.cypher.ResultFormat)(implicit req: RequestHeader, md: Messages)
+@(data: services.cypher.CypherResult)(implicit req: RequestHeader, md: Messages)
 
 @maybeLink(s: String) = {
     @if(s.startsWith("http://") || s.startsWith("https://")) {

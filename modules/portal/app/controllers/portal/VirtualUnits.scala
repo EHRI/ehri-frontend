@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
@@ -23,7 +23,7 @@ case class VirtualUnits @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   idGenerator: IdGenerator,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Generic[VirtualUnit]

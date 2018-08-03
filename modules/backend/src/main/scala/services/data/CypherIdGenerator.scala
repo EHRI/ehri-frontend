@@ -1,29 +1,27 @@
 package services.data
 
-import javax.inject.{Inject, Singleton}
-
 import defines.EntityType
 import eu.ehri.project.definitions.Ontology
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
-import services.cypher.Cypher
+import services.cypher.CypherService
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
+case class CypherIdGenerator @Inject ()(cypher: CypherService) extends IdGenerator {
 
-  private def nextId(idList: JsValue, pattern: String): String = {
-    val result = idList.as[Map[String,JsValue]]
-    val data: JsValue = result.getOrElse("data", Json.arr())
-    val id = IdGenerator.nextNumericId(data.as[Seq[Seq[String]]].flatten)
-    pattern.format(id)
+  private def nextId(rows: Seq[List[JsValue]], pattern: String): String = {
+    val allIds: Seq[String] = rows.collect { case JsString(id) :: _ => id }
+    val intId = IdGenerator.nextNumericId(allIds)
+    pattern.format(intId)
   }
 
   def getNextNumericIdentifier(entityType: EntityType.Value, pattern: String)(implicit executionContent:
   ExecutionContext): Future[String] = {
     val allIds = """MATCH (n:_Entity) WHERE n.__type = {isA} RETURN n.identifier"""
     val params = Map("isA" -> JsString(entityType.toString))
-    cypher.cypher(allIds, params).map(id => nextId(id, pattern))
+    cypher.get(allIds, params).map(res => nextId(res.data, pattern))
   }
 
   def getNextChildNumericIdentifier(parentId: String, entityType: EntityType.Value, pattern: String)(implicit executionContent: ExecutionContext): Future[String] = {
@@ -38,6 +36,6 @@ case class CypherIdGenerator @Inject ()(cypher: Cypher) extends IdGenerator {
       "isA" -> JsString(entityType.toString),
       "id" -> JsString(parentId)
     )
-    cypher.cypher(allIds, params).map(id => nextId(id, pattern))
+    cypher.get(allIds, params).map(res => nextId(res.data, pattern))
   }
 }

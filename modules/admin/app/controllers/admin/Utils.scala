@@ -17,7 +17,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData}
-import services.cypher.Cypher
+import services.cypher.CypherService
 import services.data.{AuthenticatedUser, InputDataError}
 import services.search.SearchIndexMediator
 import utils.{CsvHelpers, EnumUtils, PageParams}
@@ -35,7 +35,7 @@ case class Utils @Inject()(
   appComponents: AppComponents,
   searchIndexer: SearchIndexMediator,
   ws: WSClient,
-  cypher: Cypher
+  cypher: CypherService
 ) extends AdminController {
 
   override val staffOnly = false
@@ -58,12 +58,12 @@ case class Utils @Inject()(
     * the graph DB, and vice versa.
     */
   def checkUserSync: Action[AnyContent] = Action.async { implicit request =>
-    val stringList: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[String]]].map(_.flatMap(_.headOption))
 
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
-      profileIds <- cypher.get("MATCH (n:UserProfile) RETURN n.__id", Map.empty)(stringList)
+      profileIds <- cypher.get("MATCH (n:UserProfile) RETURN n.__id").map {
+        res => res.data.collect { case JsString(id) :: _ => id}.flatten
+      }
       accountIds = allAccounts.map(_.id)
     } yield {
       val noProfile = accountIds.diff(profileIds)

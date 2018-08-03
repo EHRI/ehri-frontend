@@ -2,7 +2,7 @@ package controllers.virtual
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
@@ -30,7 +30,7 @@ case class VirtualUnits @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
   idGenerator: IdGenerator,
-  cypher: Cypher
+  cypher: CypherService
 ) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]

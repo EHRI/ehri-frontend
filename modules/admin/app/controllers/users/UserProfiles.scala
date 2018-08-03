@@ -312,14 +312,14 @@ case class UserProfiles @Inject()(
         filters = AccountFilters(staff = Some(true), active = Some(true)),
         params = PageParams.empty.withoutLimit)
       ids = JsArray(staff.map(a => JsString(a.id)))
-      out <-  dataHelpers.cypher.cypher(
+      out <-  dataHelpers.cypher.get(
         """
           |MATCH (u:UserProfile)
           |WHERE u.__id IN {ids}
           |SET u.staff = true, u.active = true
           |RETURN u.__id as id
         """.stripMargin, Map("ids" -> ids))
-    } yield Ok(out)
+    } yield Ok(Json.toJson(out))
   }
 
   def grantList(id: String, paging: PageParams): Action[AnyContent] = GrantListAction(id, paging).apply { implicit request =>

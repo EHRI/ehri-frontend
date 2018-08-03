@@ -9,7 +9,7 @@ import defines.EntityType
 import models.DocumentaryUnit
 import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
-import services.cypher.Cypher
+import services.cypher.CypherService
 import services.search._
 import utils.PageParams
 
@@ -20,7 +20,7 @@ import scala.concurrent.Future.{successful => immediate}
 case class DocumentaryUnits @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Generic[DocumentaryUnit]

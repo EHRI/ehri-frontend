@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.Application
@@ -21,7 +21,7 @@ case class Feedback @Inject()(
   app: Application,
   feedbackService: FeedbackService,
   mailer: MailerClient,
-  cypher: Cypher
+  cypher: CypherService
 ) extends PortalController {
 
   import play.api.data.Form

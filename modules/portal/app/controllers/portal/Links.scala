@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
@@ -14,7 +14,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 case class Links @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: Cypher
+  cypher: CypherService
 ) extends PortalController
   with Generic[Link]
   with Search {

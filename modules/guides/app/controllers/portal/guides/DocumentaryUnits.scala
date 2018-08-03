@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.generic.SearchType
 import controllers.portal.FacetConfig
@@ -18,7 +18,7 @@ case class DocumentaryUnits @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   guides: GuideService,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Generic[DocumentaryUnit]
