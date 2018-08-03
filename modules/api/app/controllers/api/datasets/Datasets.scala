@@ -1,20 +1,18 @@
 package controllers.api.datasets
 
-import javax.inject.{Inject, Singleton}
-
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
-import controllers.{AppComponents, DataFormat}
 import controllers.portal.base.PortalController
+import controllers.{AppComponents, DataFormat}
+import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, CypherResultAdaptor, CypherService, ResultFormat}
+import services.cypher.{CypherQueryService, Neo4jCypherService, CypherResult}
 import services.data.ItemNotFound
 import utils.PageParams
 
-import scala.concurrent.Future.{successful => immediate}
 import scala.util.Failure
 
 
@@ -22,7 +20,7 @@ import scala.util.Failure
 case class Datasets @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: CypherService,
+  cypher: Neo4jCypherService,
   cypherQueries: CypherQueryService)(
   implicit mat: Materializer
 ) extends PortalController {
@@ -36,7 +34,7 @@ case class Datasets @Inject()(
   }
 
   def run(id: String, format: DataFormat.Value): Action[AnyContent] = Action.async { implicit request =>
-    cypherQueries.get(id).flatMap { query =>
+    cypherQueries.get(id).map { query =>
       if (!query.public) throw new ItemNotFound(id) else {
         val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
         val filename = s"$name-$id.$format"
@@ -48,9 +46,8 @@ case class Datasets @Inject()(
             val sep: Char = if (format == DataFormat.Csv) ',' else '\t'
             val csvFormat = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(false)
             val writer = CsvHelpers.mapper.writer(csvFormat.build())
-            cypher.rows(query.query, Map.empty).map { rowJson =>
-              val csvRows: Source[ByteString, _] = rowJson.map { row =>
-                val cols: Seq[String] = row.collect(ResultFormat.jsToString)
+              val csvRows: Source[ByteString, _] = cypher.rows(query.query).map { row =>
+                val cols: Seq[String] = row.collect(CypherResult.jsToString)
                 ByteString.fromArray(writer.writeValueAsBytes(cols.toArray))
               }.watchTermination()(Keep.right).mapMaterializedValue { f =>
                 f.onComplete {
@@ -62,13 +59,11 @@ case class Datasets @Inject()(
               Ok.chunked(csvRows)
                 .as(s"text/$format; charset=utf-8")
                 .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
-            }
           case DataFormat.Json =>
-            cypher.raw(query.query).map { sr =>
-              Ok.chunked(sr.bodyAsSource).as(ContentTypes.JSON)
+              Ok.chunked(cypher.legacy(query.query))
+                .as(ContentTypes.JSON)
                 .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
-            }
-          case _ => immediate(NotAcceptable(s"Unsupported type: $format"))
+          case _ => NotAcceptable(s"Unsupported type: $format")
         }
       }
     }

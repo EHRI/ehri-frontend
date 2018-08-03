@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.FacetConfig
@@ -29,7 +29,7 @@ case class Guides @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   guides: GuideService,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Search
@@ -111,8 +111,7 @@ case class Guides @Inject()(
         "inContext" -> JsString(virtualUnit),
         "accessPoints" -> Json.toJson(target)
       )
-      cypher.cypher(query, params).map { json =>
-        (json \ "data").as[List[List[JsValue]]].collect {
+      cypher.get(query, params).map { _.data.collect {
           case JsString(id) :: JsNumber(count) :: _ => id -> count.toLong
         }.toMap
       }
@@ -343,14 +342,12 @@ case class Guides @Inject()(
                    WHERE x IN accessPointsId)
          RETURN ID(doc)
         """.stripMargin
-    cypher.cypher(query, Map(
+    cypher.get(query, Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
       "accessList" -> Json.toJson(ids)
       /* End IDS */
-    )).map { r =>
-      (r \ "data").as[Seq[Seq[Long]]].flatten
-    }
+    )).map(_.data.flatMap(_.map(_.as[Long])))
   }
 
   /*
@@ -366,14 +363,12 @@ case class Guides @Inject()(
           WHERE vc.__id = {guide} AND doc <> ap
          RETURN DISTINCT ID(ap)
         """.stripMargin
-    cypher.cypher(query, Map(
+    cypher.get(query, Map(
       /* All IDS */
       "guide" -> JsString(guide.virtualUnit),
       "docList" -> Json.toJson(ids)
       /* End IDS */
-    )).map { r =>
-      (r \ "data").as[Seq[Seq[Long]]].flatten
-    }
+    )).map(_.data.flatMap(_.map(_.as[Long])))
   }
 
   private def pagify[T](docs: SearchResult[T], accessPoints: Seq[Model])(implicit requestHeader: RequestHeader): SearchResult[T] = {
@@ -480,9 +475,7 @@ case class Guides @Inject()(
           "accessPoint" -> JsString(target),
           "type" -> JsString(documentType)
         )
-        cypher.cypher(query, params).map { r =>
-          (r \ "data").as[Seq[Seq[Long]]].flatten
-        }
+        cypher.get(query, params).map(_.data.flatMap(_.map(_.as[Long])))
       case _ =>
         val query: String = s"""
           |MATCH
@@ -495,9 +488,7 @@ case class Guides @Inject()(
           "accessPoint" -> JsString(target),
           "type" -> JsString(documentType)
         )
-        cypher.cypher(query, params).map { r =>
-          (r \ "data").as[Seq[Seq[Long]]].flatten
-        }
+        cypher.get(query, params).map(_.data.flatMap(_.map(_.as[Long])))
     }
   }
 

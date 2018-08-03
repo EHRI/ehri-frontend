@@ -10,7 +10,7 @@ import eu.ehri.project.search.solr._
 import global._
 import models.{GuideService, SqlGuideService}
 import services.accounts.{AccountManager, SqlAccountManager}
-import services.cypher.{Cypher, CypherQueryService, CypherService, SqlCypherQueryService}
+import services.cypher.{CypherService, CypherQueryService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
@@ -60,7 +60,7 @@ class AppModule extends AbstractModule {
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
     bind(classOf[MarkdownRenderer]).to(classOf[SanitisingMarkdownRenderer])
-    bind(classOf[Cypher]).to(classOf[CypherService])
+    bind(classOf[CypherService]).to(classOf[Neo4jCypherService])
     bind(classOf[IngestApi]).to(classOf[IngestApiService])
   }
 }

@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import javax.inject.{Inject, Singleton}
 import auth.handler.AuthHandler
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
@@ -47,7 +47,7 @@ case class ApiV1 @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   ws: WSClient,
-  cypher: Cypher
+  cypher: CypherService
 ) extends CoreActionBuilders
   with ControllerHelpers
   with Search

@@ -2,7 +2,7 @@ package controllers.portal
 
 import javax.inject.{Inject, Singleton}
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
@@ -17,7 +17,7 @@ import services.search.SearchParams
 case class HistoricalAgents @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Generic[HistoricalAgent]

@@ -8,7 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import play.api.libs.json._
-import services.cypher.CypherService
+import services.cypher.Neo4jCypherService
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
@@ -26,14 +26,7 @@ case class CypherQuery(
   public: Boolean = false,
   created: Option[ZonedDateTime] = None,
   updated: Option[ZonedDateTime] = None
-) {
-
-  def download(implicit cypher: CypherService, executionContext: ExecutionContext): Future[Source[ByteString, _]] =
-    cypher.raw(query).map(_.bodyAsSource)
-
-  def execute(implicit cypher: CypherService, executionContext: ExecutionContext): Future[JsValue] =
-    cypher.cypher(query)
-}
+)
 
 object CypherQuery {
 

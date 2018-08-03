@@ -1,32 +1,30 @@
 package services.data
 
-import javax.inject.{Inject, Singleton}
-
 import defines.EntityType
+import javax.inject.{Inject, Singleton}
 import models.UsersAndGroups
-import play.api.libs.json.JsValue
-import services.cypher.Cypher
+import play.api.libs.json.{JsString, JsValue}
+import services.cypher.{CypherResult, CypherService}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-case class DataHelpers @Inject()(cypher: Cypher)(implicit executionContext: ExecutionContext) {
+case class DataHelpers @Inject()(cypher: CypherService)(implicit executionContext: ExecutionContext) {
 
-  private def parseIds(json: JsValue): Seq[(String, String)] = {
-    (json \ "data").as[Seq[Seq[String]]].flatMap {
-      case x :: y :: _ => Some((x, y))
-      case _ => None
+  private def parseIds(res: CypherResult): Seq[(String, String)] = {
+    res.data.collect {
+      case JsString(id) :: JsString(name) :: _ => id -> name
     }
   }
 
   private def getTypeIdAndName(s: EntityType.Value): Future[Seq[(String, String)]] =
-    cypher.cypher(s"MATCH (n:$s) RETURN n.__id, n.name").map(parseIds)
+    cypher.get(s"MATCH (n:$s) RETURN n.__id, n.name", Map.empty).map(parseIds)
 
   def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
   
   def getUserList: Future[Seq[(String,String)]] = cypher
-    .cypher(s"MATCH (n:${EntityType.UserProfile}) WHERE n.active AND n.staff RETURN n.__id, n.name")
+    .get(s"MATCH (n:${EntityType.UserProfile}) WHERE n.active AND n.staff RETURN n.__id, n.name", Map.empty)
     .map(parseIds)
 
   def getUserAndGroupList: Future[UsersAndGroups] = {

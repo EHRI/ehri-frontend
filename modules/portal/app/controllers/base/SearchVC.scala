@@ -1,6 +1,6 @@
 package controllers.base
 
-import services.cypher.Cypher
+import services.cypher.{CypherResult, CypherService}
 import controllers.generic.Search
 import models.VirtualUnit
 import models.base.Model
@@ -20,7 +20,7 @@ trait SearchVC {
   this: Search =>
 
   protected implicit def cache: SyncCacheApi
-  protected def cypher: Cypher
+  protected def cypher: CypherService
 
   private def logger = Logger(getClass)
 
@@ -45,20 +45,19 @@ trait SearchVC {
    * @return a sequence of descendant IDs
    */
   protected def vcDescendantIds(id: String): Future[Seq[String]] = {
-    import play.api.libs.json._
 
-    val reader: Reads[Seq[String]] =
-      (__ \ "data").read[Seq[Seq[Seq[String]]]]
-        .map { r => r.flatten.flatten }
+    def parseRows(res: CypherResult): Seq[String] = res.data.flatMap(_.flatMap(_.as[Seq[String]]))
 
-    cypher.get[Seq[String]](
+    cypher.get(
       """
         |MATCH (vc:VirtualUnit {__id: {vcid}})
         |OPTIONAL MATCH (vc)<-[:isPartOf*]-(child)
         |OPTIONAL MATCH (ddoc)<-[:includesUnit]-(vc)
         |OPTIONAL MATCH (doc)<-[:includesUnit]-(child)
         |RETURN DISTINCT collect(DISTINCT child.__id) + collect(DISTINCT doc.__id) + collect(DISTINCT ddoc.__id)
-      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id)))(reader).map { seq =>
+      """.stripMargin, Map("vcid" -> play.api.libs.json.JsString(id))).map(parseRows).map { seq =>
+
+
       logger.debug(s"Elements: ${seq.length}, distinct: ${seq.distinct.length}")
 
       config.getOptional[Int]("search.vc.maxDescendants").map { vcLimit =>

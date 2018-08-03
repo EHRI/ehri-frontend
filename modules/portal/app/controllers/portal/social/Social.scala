@@ -2,7 +2,7 @@ package controllers.portal.social
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
@@ -27,7 +27,7 @@ case class Social @Inject()(
   appComponents: AppComponents,
   mailer: MailerClient,
   ws: WSClient,
-  cypher: Cypher
+  cypher: CypherService
 ) extends PortalController
   with RecaptchaHelper
   with Search {

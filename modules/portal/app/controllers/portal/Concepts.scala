@@ -7,7 +7,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
 import models.Concept
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.Cypher
+import services.cypher.CypherService
 import services.search._
 import utils.PageParams
 
@@ -16,7 +16,7 @@ import utils.PageParams
 case class Concepts @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  cypher: Cypher,
+  cypher: CypherService,
   fc: FacetConfig
 ) extends PortalController
   with Generic[Concept]

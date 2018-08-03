@@ -2,7 +2,7 @@ package controllers.portal.guides
 
 import javax.inject._
 
-import services.cypher.Cypher
+import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.portal.base.{Generic, PortalController}
 import models.{GuidePage, _}
@@ -14,7 +14,7 @@ case class Repositories @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   guides: GuideService,
-  cypher: Cypher
+  cypher: CypherService
 ) extends PortalController
   with Generic[Repository] {
 
