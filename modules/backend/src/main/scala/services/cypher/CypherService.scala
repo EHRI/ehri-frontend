@@ -1,10 +1,10 @@
 package services.cypher
 
-import javax.inject.{Inject, Singleton}
-
+import akka.stream.alpakka.json.scaladsl.JsonReader
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import javax.inject.{Inject, Singleton}
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
 import play.api.libs.json.{JsValue, Json, Reads, __, _}
@@ -12,7 +12,6 @@ import play.api.libs.ws.ahc.StreamedResponse
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Logger, PlayException}
 import utils.CsvHelpers
-import utils.streams.JsonStream
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,7 +61,7 @@ object CypherResultAdaptor {
     val csvFormat = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(false)
     val writer = CsvHelpers.mapper.writer(csvFormat.build())
     r.bodyAsSource
-      .via(JsonStream.items("data.item"))
+      .via(JsonReader.select("$.data[*]"))
       .map { rowBytes =>
         Json.parse(rowBytes.toArray).as[Seq[JsValue]]
       }.map { row =>
@@ -102,7 +101,7 @@ case class CypherService @Inject ()(
   def rows(scriptBody: String, params: Map[String,JsValue]): Future[Source[Seq[JsValue], _]] = {
     raw(scriptBody, params).map { sr =>
       sr.bodyAsSource
-        .via(JsonStream.items("data.item"))
+        .via(JsonReader.select("$.data[*]"))
         .map { rowBytes =>
           Json.parse(rowBytes.toArray).as[Seq[JsValue]]
         }

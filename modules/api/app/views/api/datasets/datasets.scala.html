@@ -1,4 +1,4 @@
-@(datasets: utils.Page[CypherQuery])(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, md: views.MarkdownRenderer, flash: Flash)
+@(datasets: utils.Page[CypherQuery])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.api.layout.apiDocLayout(Messages("api.datasets.header")) {
     <section id="overview">
