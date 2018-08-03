@@ -26,7 +26,7 @@ val backendDependencies = Seq(
   ehcache,
 
   // Push JSON parser used for stream parsing...
-  "de.undercouch" % "actson" % "1.2.0",
+  "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % "0.20",
 
   // CSV parser/writer...
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
@@ -91,7 +91,7 @@ val portalDependencies = Seq(
   "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
-  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.18"
+  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "0.20"
 )
 
 val testDependencies = Seq(

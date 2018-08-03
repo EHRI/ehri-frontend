@@ -29,7 +29,7 @@ case class Datasets @Inject()(
 
   private val logger = Logger(Datasets.getClass)
 
-  def list(): Action[AnyContent] = Action.async { implicit request =>
+  def list(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     cypherQueries.list(PageParams.empty.withoutLimit, Map("public" -> "true")).map { queries =>
       Ok(views.html.api.datasets.datasets(queries))
     }
