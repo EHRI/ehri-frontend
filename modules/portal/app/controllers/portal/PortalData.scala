@@ -78,14 +78,6 @@ case class PortalData @Inject()(
     }
   }
 
-  /**
-    * Handle trailing slashes with a permanent redirect.
-    */
-  def untrail(path: String): Action[AnyContent] = controllerComponents.actionBuilder { request =>
-    val query = if (request.rawQueryString != "") "?" + request.rawQueryString else ""
-    MovedPermanently("/" + path + query)
-  }
-
   def localeData(lang: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:localeData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       //implicit val locale: Lang = request.lang

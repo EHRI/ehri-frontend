@@ -22,9 +22,7 @@ POST        /prefs                                @controllers.portal.Portal.upd
 GET         /locale/:lang                         @controllers.portal.Portal.changeLocale(lang: String)
 GET         /localeData                           @controllers.portal.PortalData.localeData(lang: String ?= "en")
 
-# Remove trailing slash from all URL and redirect to slashless path
-GET         /*path/                               @controllers.portal.PortalData.untrail(path)
-
+# Feedback
 GET         /feedback                             @controllers.portal.Feedback.feedback
 POST        /feedback                             @controllers.portal.Feedback.feedbackPost
 GET         /feedback/list                        @controllers.portal.Feedback.list(paging: utils.PageParams ?= utils.PageParams.empty)

@@ -121,7 +121,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     }
 
     "redirect 301 for trailing-slash URLs" in new ITestApp {
-      val home = FakeRequest(GET, controllers.admin.routes.Home.index().url + "/")
+      val home = FakeRequest(GET, controllers.admin.routes.Home.overview().url + "/")
         .withUser(mockdata.publicUser)
         .call()
       status(home) must equalTo(MOVED_PERMANENTLY)
