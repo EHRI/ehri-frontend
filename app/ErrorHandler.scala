@@ -47,7 +47,10 @@ with SessionPreferences[SessionPrefs] {
 
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     implicit val r: RequestHeader = request
-    pageRelocator.hasMovedTo(request.path).map {
+    // if the page has a trailing slash, permanently redirect without the slash...
+    if (request.path.endsWith("/")) {
+      immediate(MovedPermanently(request.path.dropRight(1)))
+    } else pageRelocator.hasMovedTo(request.path).map {
       case Some(newPath) => MovedPermanently(utils.http.iriToUri(newPath))
       case None => NotFound(renderError("errors.pageNotFound", pageNotFound()))
     }
