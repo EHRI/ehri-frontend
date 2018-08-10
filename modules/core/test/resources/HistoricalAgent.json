@@ -11,9 +11,7 @@
       "id" : "cdb5d0aa-2100-49f9-8481-2b7b278825fa",
       "data" : {
         "otherFormsOfName" : [ "Another name for Test Authority 2" ],
-        "languages" : [ "en" ],
-        "scripts" : [ "Latn" ],
-        "languageCode" : "en",
+        "languageCode" : "eng",
         "name" : "Test Authority 2",
         "typeOfEntity" : "corporateBody",
         "parallelFormsOfName" : [ "Parellel name for Test Authority 2" ],

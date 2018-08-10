@@ -39,11 +39,8 @@ case class IsdiahControl(
   descriptionIdentifier: Option[String] = None,
   institutionIdentifier: Option[String] = None,
   rulesAndConventions: Option[String] = None,
-  status: Option[String] = None,
   levelOfDetail: Option[String] = None,
   datesCDR: Option[String] = None,
-  languages: Seq[String] = Nil,
-  scripts: Seq[String] = Nil,
   sources: Seq[String] = Nil,
   maintenanceNotes: Option[String] = None
 ) extends AttributeSet
@@ -86,11 +83,8 @@ object RepositoryDescriptionF {
       (__ \ DESCRIPTION_IDENTIFIER).formatNullable[String] and
       (__ \ INSTITUTION_IDENTIFIER).formatNullable[String] and
       (__ \ RULES_CONVENTIONS).formatNullable[String] and
-      (__ \ STATUS).formatNullable[String] and
       (__ \ LEVEL_OF_DETAIL).formatNullable[String] and
       (__ \ DATES_CVD).formatNullable[String] and
-      (__ \ LANGUAGES_USED).formatSeqOrSingle[String] and
-      (__ \ SCRIPTS_USED).formatSeqOrSingle[String] and
       (__ \ SOURCES).formatSeqOrSingle[String] and
       (__ \ MAINTENANCE_NOTES).formatNullable[String]
     )(IsdiahControl.apply, unlift(IsdiahControl.unapply))) and
@@ -170,11 +164,8 @@ object RepositoryDescription {
         DESCRIPTION_IDENTIFIER -> optional(text),
         INSTITUTION_IDENTIFIER -> optional(text),
         RULES_CONVENTIONS -> optional(text),
-        STATUS -> optional(text),
         LEVEL_OF_DETAIL -> optional(text),
         DATES_CVD -> optional(text),
-        LANGUAGES_USED -> seq(nonEmptyText),
-        SCRIPTS_USED -> seq(nonEmptyText),
         SOURCES -> seq(nonEmptyText),
         MAINTENANCE_NOTES -> optional(text)
       )(IsdiahControl.apply)(IsdiahControl.unapply),

@@ -28,11 +28,8 @@
                 @textField(item, descId, DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
                 @textField(item, descId, INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
                 @textField(item, descId, RULES_CONVENTIONS, desc.control.rulesAndConventions)
-                @textField(item, descId, STATUS, desc.control.status)
                 @textField(item, descId, LEVEL_OF_DETAIL, desc.control.levelOfDetail)
                 @textField(item, descId, DATES_CVD, desc.control.datesCDR)
-                @listField(item, descId, LANGUAGES_USED, desc.control.languages, transformFunc = s => views.Helpers.languageCodeToName(s))
-                @listField(item, descId, SCRIPTS_USED, desc.control.scripts, transformFunc = s => views.Helpers.scriptCodeToName(s))
                 @listField(item, descId, SOURCES, desc.control.sources)
                 @textField(item, descId, MAINTENANCE_NOTES, desc.control.maintenanceNotes)
             }
