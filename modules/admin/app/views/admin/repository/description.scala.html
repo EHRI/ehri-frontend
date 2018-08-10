@@ -81,11 +81,8 @@
         @views.html.admin.common.textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
         @views.html.admin.common.textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
         @views.html.admin.common.textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
-        @views.html.admin.common.textValue(STATUS, desc.control.status)
         @views.html.admin.common.textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
         @views.html.admin.common.textValue(DATES_CVD, desc.control.datesCDR)
-        @views.html.admin.common.listValue(LANGUAGES_USED, desc.control.languages, transformFunc = s => views.Helpers.languageCodeToName(s))
-        @views.html.admin.common.listValue(SCRIPTS_USED, desc.control.scripts, transformFunc = s => views.Helpers.scriptCodeToName(s))
         @views.html.admin.common.listValue(SOURCES, desc.control.sources)
         @views.html.admin.common.textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
     }

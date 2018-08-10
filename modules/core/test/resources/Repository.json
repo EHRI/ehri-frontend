@@ -10,7 +10,7 @@
     "describes" : [ {
       "id" : "9c5eadd2-6c57-4467-ba02-cd4b2c49ffa6",
       "data" : {
-        "languageCode" : "en",
+        "languageCode" : "eng",
         "name" : "Wiener Library"
       },
       "type" : "RepositoryDescription",

@@ -54,11 +54,8 @@
             @lineInput(desc, DESCRIPTION_IDENTIFIER)
             @lineInput(desc, INSTITUTION_IDENTIFIER)
             @textInput(desc, RULES_CONVENTIONS)
-            @textInput(desc, STATUS)
             @textInput(desc, LEVEL_OF_DETAIL)
             @textInput(desc, DATES_CVD)
-            @multiselectInput(desc(LANGUAGES_USED), LANGUAGES_USED, views.Helpers.languagePairList)
-            @multiselectInput(desc(SCRIPTS_USED), SCRIPTS_USED, views.Helpers.scriptPairList)
             @inlineTextSet(desc, SOURCES)
             @textInput(desc, MAINTENANCE_NOTES)
         }
