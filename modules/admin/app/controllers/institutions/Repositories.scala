@@ -1,13 +1,13 @@
 package controllers.institutions
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
+import javax.inject._
 import models._
-import play.api.Configuration
+import models.forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -79,8 +79,9 @@ case class Repositories @Inject()(
 
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
+  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.Repository, config)
   private val form = models.Repository.form
-  private val childFormDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.DocumentaryUnit.toString)
+  private val childFormDefaults: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
   private val childForm = models.DocumentaryUnit.form
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
@@ -116,21 +117,21 @@ case class Repositories @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.edit(request.item,
-      form.fill(request.item.data), repositoryRoutes.updatePost(id)))
+      form.fill(request.item.data), formConfig.forUpdate, repositoryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.repository.edit(
-          request.item, errorForm, repositoryRoutes.updatePost(id)))
+          request.item, errorForm, formConfig.forUpdate, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
-    Ok(views.html.admin.documentaryUnit.create(request.item, childForm, childFormDefaults,
+    Ok(views.html.admin.documentaryUnit.create(request.item, childForm, childFormDefaults.forCreate,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, repositoryRoutes.createDocPost(id)))
   }
@@ -139,7 +140,7 @@ case class Repositories @Inject()(
     request.formOrItem match {
       case Left((errorForm,accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
-          errorForm, childFormDefaults, accForm,
+          errorForm, childFormDefaults.forCreate, accForm,
           usersAndGroups, repositoryRoutes.createDocPost(id)))
       case Right(citem) => Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> "item.create.confirmation")

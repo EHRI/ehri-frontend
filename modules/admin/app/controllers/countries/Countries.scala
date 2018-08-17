@@ -12,6 +12,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
+import models.forms.FormConfigBuilder
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.libs.json.Json
@@ -46,7 +47,7 @@ case class Countries @Inject()(
     */
   override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.Repository.toString)
+  private val childFormConfig: FormConfigBuilder = FormConfigBuilder(EntityType.Repository, config)
   private val form = models.Country.form
   private val childForm = models.Repository.form
 
@@ -108,7 +109,7 @@ case class Countries @Inject()(
     idGenerator.getNextNumericIdentifier(EntityType.Repository, "%06d").map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.admin.repository.create(
-        request.item, form, childFormDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        request.item, form, childFormConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups, countryRoutes.createRepositoryPost(id)))
     }
   }
@@ -117,7 +118,7 @@ case class Countries @Inject()(
     request.formOrItem match {
       case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.repository.create(request.item,
-          errorForm, childFormDefaults, accForm, usersAndGroups, countryRoutes.createRepositoryPost(id)))
+          errorForm, childFormConfig.forCreate, accForm, usersAndGroups, countryRoutes.createRepositoryPost(id)))
       case Right(citem) => Redirect(controllers.institutions.routes.Repositories.get(citem.id))
         .flashing("success" -> "item.create.confirmation")
     }

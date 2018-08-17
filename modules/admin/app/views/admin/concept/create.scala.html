@@ -23,7 +23,7 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @form(None, f)
+        @form(f)
 
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 

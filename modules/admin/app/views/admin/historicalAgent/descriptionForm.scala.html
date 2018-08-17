@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(desc: Field, config: forms.FormConfig)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.Isaar._
 @import HistoricalAgentF._
@@ -9,55 +9,57 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank=true)
+    @defining(Some(config)) { implicit implicitConfig =>
+        @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
 
-    @descriptionFormSection(IDENTITY_AREA) {
-        @enumChoiceInput(desc, ENTITY_TYPE, HistoricalAgentType, blank=true)
-        @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
-        @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
-        @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
-    }
+        @descriptionFormSection(IDENTITY_AREA) {
+            @enumChoiceInput(desc, ENTITY_TYPE, HistoricalAgentType, blank = true)
+            @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
+            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+        }
 
-    @descriptionFormSection(DESCRIPTION_AREA) {
+        @descriptionFormSection(DESCRIPTION_AREA) {
 
-        <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-            <!-- Template for adding inline date forms via JS -->
-            <label class="control-label">
-                @Messages(fieldPrefix + "." + DATES)
-                <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
-            </label>
-            <div class="inline-element-template form-template">
+            <div class="inline-formset form-group clearfix" data-prefix="@DATES">
+                    <!-- Template for adding inline date forms via JS -->
+                <label class="control-label">
+                    @Messages(fieldPrefix + "." + DATES)
+                    <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                </label>
+                <div class="inline-element-template form-template">
                 @inlineDateSet(desc(DATES + "[IDX]"))
-            </div>
-            <div class="inline-element-list">
+                </div>
+                <div class="inline-element-list">
                 @helper.repeat(desc(DATES), min = 0) { desc =>
                     @inlineDateSet(desc)
                 }
+                </div>
             </div>
-        </div>
 
 
-        @defining(desc(DESCRIPTION_AREA)) { desc =>
-            @textInput(desc, DATES_OF_EXISTENCE)
-            @textInput(desc, HISTORY)
-            @inlineNameSet(desc, PLACES)
-            @inlineNameSet(desc, LEGAL_STATUS)
-            @inlineNameSet(desc, FUNCTIONS)
-            @inlineNameSet(desc, MANDATES)
-            @textInput(desc, INTERNAL_STRUCTURE)
-            @textInput(desc, GENERAL_CONTEXT)
+            @defining(desc(DESCRIPTION_AREA)) { desc =>
+                @textInput(desc, DATES_OF_EXISTENCE)
+                @textInput(desc, HISTORY)
+                @inlineNameSet(desc, PLACES)
+                @inlineNameSet(desc, LEGAL_STATUS)
+                @inlineNameSet(desc, FUNCTIONS)
+                @inlineNameSet(desc, MANDATES)
+                @textInput(desc, INTERNAL_STRUCTURE)
+                @textInput(desc, GENERAL_CONTEXT)
+            }
         }
-    }
 
-    @descriptionFormSection(CONTROL_AREA) {
-        @defining(desc(CONTROL_AREA)) { desc =>
-            @lineInput(desc, DESCRIPTION_IDENTIFIER)
-            @lineInput(desc, INSTITUTION_IDENTIFIER)
-            @textInput(desc, RULES_CONVENTIONS)
-            @textInput(desc, LEVEL_OF_DETAIL)
-            @textInput(desc, DATES_CVD)
-            @inlineTextSet(desc, SOURCES)
-            @textInput(desc, MAINTENANCE_NOTES)
+        @descriptionFormSection(CONTROL_AREA) {
+            @defining(desc(CONTROL_AREA)) { desc =>
+                @lineInput(desc, DESCRIPTION_IDENTIFIER)
+                @lineInput(desc, INSTITUTION_IDENTIFIER)
+                @textInput(desc, RULES_CONVENTIONS)
+                @textInput(desc, LEVEL_OF_DETAIL)
+                @textInput(desc, DATES_CVD)
+                @inlineTextSet(desc, SOURCES)
+                @textInput(desc, MAINTENANCE_NOTES)
+            }
         }
     }
 }

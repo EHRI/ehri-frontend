@@ -1,4 +1,4 @@
-@(item: VirtualUnit, f: Form[models.VirtualUnitF], defaults: Option[play.api.Configuration], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: VirtualUnit, f: Form[models.VirtualUnitF], config: forms.FormConfig, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -12,9 +12,7 @@
             @helper.repeat(f("descriptions"), min = 0) { desc =>
                 @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
             }
-            @defining(defaults) { implicit defs =>
-                @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"))
-            }
+            @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"), config)
 
             @formHelpers.submitButtonWithLogMessageInput(
                 Messages("describedEntity.createDescription.submit"),

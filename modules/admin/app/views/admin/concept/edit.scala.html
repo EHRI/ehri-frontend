@@ -6,7 +6,7 @@
 		
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@form(Some(item), f)
+		@form(f)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

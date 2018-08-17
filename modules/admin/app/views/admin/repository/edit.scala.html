@@ -1,11 +1,11 @@
-@(item: Repository, f: play.api.data.Form[RepositoryF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Repository, f: play.api.data.Form[RepositoryF], config: forms.FormConfig, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("repository.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-        @form(f)
+        @form(f, config)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }

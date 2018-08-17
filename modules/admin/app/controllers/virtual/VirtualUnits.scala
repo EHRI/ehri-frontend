@@ -1,23 +1,22 @@
 package controllers.virtual
 
-import javax.inject._
-
-import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
+import javax.inject._
 import models._
-import models.base.{Model, Description}
-import play.api.Configuration
+import models.base.{Description, Model}
+import models.forms.FormConfigBuilder
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.cypher.CypherService
 import services.data.{DataHelpers, IdGenerator, ItemNotFound}
-import utils.{PageParams, RangeParams}
 import services.search._
+import utils.{PageParams, RangeParams}
 import views.Helpers
 
 import scala.concurrent.Future
@@ -81,10 +80,9 @@ case class VirtualUnits @Inject()(
   }
 
   override protected val targetContentTypes = Seq(ContentTypes.VirtualUnit)
-  private val formDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.VirtualUnit.toString)
+  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
   private val form: Form[VirtualUnitF] = models.VirtualUnit.form
   private val childForm: Form[VirtualUnitF] = models.VirtualUnit.form
-  private val descriptionForm: Form[DocumentaryUnitDescriptionF] = models.DocumentaryUnitDescription.form
 
   private def makeId(id: String) = s"vu-$id"
 
@@ -155,13 +153,13 @@ case class VirtualUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.edit(
-      request.item, form.fill(request.item.data), vuRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data),formConfig.forUpdate, vuRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.virtualUnit.edit(
-        request.item, errorForm, vuRoutes.updatePost(id)))
+        request.item, errorForm, formConfig.forUpdate, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -170,14 +168,14 @@ case class VirtualUnits @Inject()(
   def create: Action[AnyContent] = NewItemAction.async { implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        VisibilityForm.form, request.usersAndGroups, vuRoutes.createPost()))
+        formConfig.forCreate, VisibilityForm.form, request.usersAndGroups, vuRoutes.createPost()))
     }
   }
 
   def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
       case Left((errorForm, accForm, usersAndGroups)) =>
-        BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm,
+        BadRequest(views.html.admin.virtualUnit.create(None, errorForm, formConfig.forCreate, accForm,
           usersAndGroups, vuRoutes.createPost()))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
@@ -188,7 +186,7 @@ case class VirtualUnits @Inject()(
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(
         Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups, vuRoutes.createChildPost(id)))
     }
   }
@@ -197,7 +195,7 @@ case class VirtualUnits @Inject()(
     request.formOrItem match {
       case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.virtualUnit.create(Some(request.item),
-          errorForm, accForm, usersAndGroups,
+          errorForm, formConfig.forCreate, accForm, usersAndGroups,
           vuRoutes.createChildPost(id)))
       case Right(doc) => Redirect(vuRoutes.getInVc(id, doc.id))
         .flashing("success" -> "item.create.confirmation")
@@ -287,14 +285,14 @@ case class VirtualUnits @Inject()(
 
   def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.createDescription(request.item,
-      form.fill(request.item.data), formDefaults, vuRoutes.createDescriptionPost(id)))
+      form.fill(request.item.data), formConfig.forCreate, vuRoutes.createDescriptionPost(id)))
   }
 
   def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.createDescription(request.item,
-          errorForm, formDefaults, vuRoutes.createDescriptionPost(id)))
+          errorForm, formConfig.forCreate, vuRoutes.createDescriptionPost(id)))
       case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }
@@ -302,14 +300,14 @@ case class VirtualUnits @Inject()(
 
   def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.editDescription(request.item,
-      form.fill(request.item.data), did, vuRoutes.updateDescriptionPost(id, did)))
+      form.fill(request.item.data), formConfig.forUpdate, did, vuRoutes.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.editDescription(request.item,
-          errorForm, did, vuRoutes.updateDescriptionPost(id, did)))
+          errorForm, formConfig.forUpdate, did, vuRoutes.updateDescriptionPost(id, did)))
       case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
     }

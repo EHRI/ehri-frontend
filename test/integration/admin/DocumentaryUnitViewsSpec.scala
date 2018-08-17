@@ -125,14 +125,14 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
   "Documentary unit CRUD functionality" should {
 
     "show correct default values in the form when creating new items" in new ITestApp(
-      Map("DocumentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("formConfig.DocumentaryUnit.rulesAndConventions.default" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(repoRoutes.createDoc("r1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
-      Map("DocumentaryUnit.rulesAndConventions" -> "SOME RANDOM VALUE")) {
+      Map("formConfig.DocumentaryUnit.rulesAndConventions.default" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must not contain "SOME RANDOM VALUE"
