@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[DocumentaryUnitF], defaults: Option[play.api.Configuration] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(f: play.api.data.Form[DocumentaryUnitF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.IsadG._
 @import models.DocumentaryUnitF._
@@ -11,9 +11,7 @@
     @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
     @formHelpers.descriptionFormTabs(f) { desc =>
-        @defining(defaults) { implicit defs =>
-            @descriptionForm(desc)
-        }
+        @descriptionForm(desc, config)
     }
 
     @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {

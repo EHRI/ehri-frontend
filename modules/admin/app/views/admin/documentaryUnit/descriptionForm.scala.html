@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, defaults: Option[play.api.Configuration] = None, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(desc: Field, config: forms.FormConfig)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import IsadG._
 @import Entity._
@@ -8,91 +8,93 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
+@defining(Some(config)) { implicit implicitConfig =>
+    @views.html.admin.common.descriptionForm(desc) {
+        @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
 
-    @descriptionFormSection(IDENTITY_AREA) {
-        @defining(desc(IDENTITY_AREA)) { desc =>
+        @descriptionFormSection(IDENTITY_AREA) {
+            @defining(desc(IDENTITY_AREA)) { desc =>
 
-            @lineInput(desc, TITLE)
-            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+                @lineInput(desc, TITLE)
+                @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
 
-            @lineInput(desc, REF)
-            @defining("description") { implicit fieldPrefix =>
-                @lineInput(desc, IDENTIFIER)
-            }
+                @lineInput(desc, REF)
+                @defining("description") { implicit fieldPrefix =>
+                    @lineInput(desc, IDENTIFIER)
+                }
 
             <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-                <!-- Template for adding inline date forms via JS -->
+                    <!-- Template for adding inline date forms via JS -->
                 <label class="control-label">
                     @Messages(fieldPrefix + "." + DATES)
-                    <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                <a href="#" class="add-inline-element"><i class="glyphicon glyphicon-plus-sign"></i></a>
                 </label>
                 <div class="inline-element-template form-template">
-                    @inlineDateSet(desc(DATES + "[IDX]"))
+                @inlineDateSet(desc(DATES + "[IDX]"))
                 </div>
                 <div class="inline-element-list">
-                    @helper.repeat(desc(DATES), min = 0) { desc =>
-                        @inlineDateSet(desc)
-                    }
+                @helper.repeat(desc(DATES), min = 0) { desc =>
+                    @inlineDateSet(desc)
+                }
                 </div>
             </div>
-            @hiddenInputSet(desc(UNIT_DATES))
-            @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, blank=true)
-            @hiddenInputSet(desc(PHYSICAL_LOCATION))
-            @textInput(desc, EXTENT_MEDIUM)
+                @hiddenInputSet(desc(UNIT_DATES))
+                @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, blank = true)
+                @hiddenInputSet(desc(PHYSICAL_LOCATION))
+                @textInput(desc, EXTENT_MEDIUM)
+            }
         }
-    }
 
-    @descriptionFormSection(CONTEXT_AREA) {
-        @defining(desc(CONTEXT_AREA)) { desc =>
-            @textInput(desc, ADMIN_BIOG)
-            @textInput(desc, ARCH_HIST)
-            @textInput(desc, ACQUISITION)
+        @descriptionFormSection(CONTEXT_AREA) {
+            @defining(desc(CONTEXT_AREA)) { desc =>
+                @textInput(desc, ADMIN_BIOG)
+                @textInput(desc, ARCH_HIST)
+                @textInput(desc, ACQUISITION)
+            }
         }
-    }
 
-    @descriptionFormSection(CONTENT_AREA) {
-        @defining(desc(CONTENT_AREA)) { desc =>
-            @textInput(desc, SCOPE_CONTENT)
-            @textInput(desc, APPRAISAL)
-            @textInput(desc, ACCRUALS)
-            @textInput(desc, SYS_ARR)
+        @descriptionFormSection(CONTENT_AREA) {
+            @defining(desc(CONTENT_AREA)) { desc =>
+                @textInput(desc, SCOPE_CONTENT)
+                @textInput(desc, APPRAISAL)
+                @textInput(desc, ACCRUALS)
+                @textInput(desc, SYS_ARR)
+            }
         }
-    }
 
-    @descriptionFormSection(CONDITIONS_AREA) {
-        @defining(desc(CONDITIONS_AREA)) { desc =>
-            @textInput(desc, ACCESS_COND)
-            @textInput(desc, REPROD_COND)
-            @multiselectInput(desc(LANG_MATERIALS), LANG_MATERIALS, views.Helpers.languagePairList)
-            @multiselectInput(desc(SCRIPT_MATERIALS), SCRIPT_MATERIALS, views.Helpers.scriptPairList)
-            @textInput(desc, PHYSICAL_CHARS)
-            @inlineTextSet(desc, FINDING_AIDS, rows = 4)
+        @descriptionFormSection(CONDITIONS_AREA) {
+            @defining(desc(CONDITIONS_AREA)) { desc =>
+                @textInput(desc, ACCESS_COND)
+                @textInput(desc, REPROD_COND)
+                @multiselectInput(desc(LANG_MATERIALS), LANG_MATERIALS, views.Helpers.languagePairList)
+                @multiselectInput(desc(SCRIPT_MATERIALS), SCRIPT_MATERIALS, views.Helpers.scriptPairList)
+                @textInput(desc, PHYSICAL_CHARS)
+                @inlineTextSet(desc, FINDING_AIDS, rows = 4)
+            }
         }
-    }
 
-    @descriptionFormSection(MATERIALS_AREA) {
-        @defining(desc(MATERIALS_AREA)) { desc =>
-            @inlineTextSet(desc, LOCATION_ORIGINALS)
-            @inlineTextSet(desc, LOCATION_COPIES)
-            @inlineTextSet(desc, RELATED_UNITS)
-            @inlineTextSet(desc, SEPARATED_UNITS)
-            @textInput(desc, PUBLICATION_NOTE)
+        @descriptionFormSection(MATERIALS_AREA) {
+            @defining(desc(MATERIALS_AREA)) { desc =>
+                @inlineTextSet(desc, LOCATION_ORIGINALS)
+                @inlineTextSet(desc, LOCATION_COPIES)
+                @inlineTextSet(desc, RELATED_UNITS)
+                @inlineTextSet(desc, SEPARATED_UNITS)
+                @textInput(desc, PUBLICATION_NOTE)
+            }
         }
-    }
 
-    @descriptionFormSection(NOTES_AREA) {
-        @inlineTextSet(desc, NOTES)
-    }
+        @descriptionFormSection(NOTES_AREA) {
+            @inlineTextSet(desc, NOTES)
+        }
 
-    @descriptionFormSection(CONTROL_AREA) {
-        @defining(desc(CONTROL_AREA)) { desc =>
-            @textInput(desc, ARCHIVIST_NOTE)
-            @inlineTextSet(desc, SOURCES)
-            @textInput(desc, RULES_CONVENTIONS)
-            @textInput(desc, DATES_DESCRIPTIONS)
-            @inlineTextSet(desc, PROCESS_INFO)
+        @descriptionFormSection(CONTROL_AREA) {
+            @defining(desc(CONTROL_AREA)) { desc =>
+                @textInput(desc, ARCHIVIST_NOTE)
+                @inlineTextSet(desc, SOURCES)
+                @textInput(desc, RULES_CONVENTIONS)
+                @textInput(desc, DATES_DESCRIPTIONS)
+                @inlineTextSet(desc, PROCESS_INFO)
+            }
         }
     }
 }

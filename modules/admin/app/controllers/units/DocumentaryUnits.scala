@@ -1,13 +1,13 @@
 package controllers.units
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
 import forms.VisibilityForm
+import javax.inject._
 import models._
-import play.api.Configuration
+import models.forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -15,8 +15,6 @@ import services.ingest.{IngestApi, IngestParams}
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
-
-import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
@@ -80,8 +78,7 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-  private val formDefaults: Option[Configuration] = config
-    .getOptional[Configuration](EntityType.DocumentaryUnit.toString)
+  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
 
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
@@ -138,13 +135,13 @@ case class DocumentaryUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.edit(
-      request.item, form.fill(request.item.data), docRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), formConfig.forUpdate, docRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.documentaryUnit.edit(
-        request.item, errorForm, docRoutes.updatePost(id)))
+        request.item, errorForm, formConfig.forUpdate, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -152,7 +149,7 @@ case class DocumentaryUnits @Inject()(
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
-      request.item, childForm, formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.item, childForm, formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, docRoutes.createDocPost(id)))
   }
 
@@ -160,7 +157,7 @@ case class DocumentaryUnits @Inject()(
     request.formOrItem match {
       case Left((errorForm, accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
-          errorForm, formDefaults, accForm, usersAndGroups,
+          errorForm, formConfig.forCreate, accForm, usersAndGroups,
           docRoutes.createDocPost(id)))
       case Right(doc) => Redirect(docRoutes.get(doc.id))
         .flashing("success" -> "item.create.confirmation")
@@ -170,14 +167,14 @@ case class DocumentaryUnits @Inject()(
   def createDescription(id: String): Action[AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
       Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-        form.fill(request.item.data), formDefaults, docRoutes.createDescriptionPost(id)))
+        form.fill(request.item.data), formConfig.forCreate, docRoutes.createDescriptionPost(id)))
     }
 
   def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-          errorForm, formDefaults, docRoutes.createDescriptionPost(id)))
+          errorForm, formConfig.forCreate, docRoutes.createDescriptionPost(id)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }
@@ -185,14 +182,14 @@ case class DocumentaryUnits @Inject()(
 
   def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-      form.fill(request.item.data), did, docRoutes.updateDescriptionPost(id, did)))
+      form.fill(request.item.data), formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-          errorForm, did, docRoutes.updateDescriptionPost(id, did)))
+          errorForm, formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
     }

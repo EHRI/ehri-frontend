@@ -1,4 +1,4 @@
-@(item: models.base.Model, f: Form[DocumentaryUnitF], defaults: Option[play.api.Configuration], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.Model, f: Form[DocumentaryUnitF], config: forms.FormConfig, vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -22,7 +22,7 @@
 
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
-		@views.html.admin.documentaryUnit.form(f, defaults)
+		@views.html.admin.documentaryUnit.form(f, config)
 
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 		@formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))

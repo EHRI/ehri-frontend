@@ -1,13 +1,13 @@
 package controllers.sets
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
+import javax.inject._
+import models.forms.FormConfigBuilder
 import models.{Entity, _}
-import play.api.Configuration
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.{DataHelpers, IdGenerator}
@@ -33,7 +33,7 @@ AuthoritativeSets @Inject()(
   with Annotate[AuthoritativeSet]
   with Search {
 
-  private val formDefaults: Option[Configuration] = config.getOptional[Configuration](EntityType.HistoricalAgent.toString)
+  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.HistoricalAgent, config)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form
@@ -89,7 +89,7 @@ AuthoritativeSets @Inject()(
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent, "%06d").map { newid =>
       Ok(views.html.admin.historicalAgent.create(
         request.item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-        formDefaults, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups,
           setRoutes.createHistoricalAgentPost(id)))
     }
@@ -99,7 +99,7 @@ AuthoritativeSets @Inject()(
     request.formOrItem match {
       case Left((errorForm,accForm, usersAndGroups)) =>
         BadRequest(views.html.admin.historicalAgent.create(request.item,
-          errorForm, formDefaults, accForm, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
+          errorForm, formConfig.forCreate, accForm, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
       case Right(citem) => Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> "item.create.confirmation")
     }

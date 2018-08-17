@@ -1,13 +1,13 @@
 package controllers.authorities
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
+import models.forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -52,6 +52,7 @@ case class HistoricalAgents @Inject()(
     )
   }
 
+  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.HistoricalAgent, config)
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
     SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>
@@ -73,14 +74,14 @@ case class HistoricalAgents @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.edit(
-      request.item, form.fill(request.item.data), histRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), formConfig.forUpdate, histRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.historicalAgent
-          .edit(request.item, errorForm, histRoutes.updatePost(id)))
+          .edit(request.item, errorForm, formConfig.forUpdate, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
         .flashing("success" -> "item.update.confirmation")
     }

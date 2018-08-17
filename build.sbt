@@ -121,7 +121,7 @@ val excludedResources = Seq(
   "test.conf",
   "external_pages.conf",
   "api-keys.conf",
-  "form-defaults.conf",
+  "form-config.conf",
   "logback-play-dev.xml"
 )
 

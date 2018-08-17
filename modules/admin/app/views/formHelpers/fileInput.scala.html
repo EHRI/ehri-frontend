@@ -1,8 +1,8 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @defining(desc(fieldName)) { field =>
     @helper.inputFile(
-        field = field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
+        field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
         args = views.Helpers.argsWithDefaults(
             args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
             '_label -> Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
