@@ -1,6 +1,6 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, holderIds: Seq[String] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@extrascripts = {
+@views.html.admin.documentaryUnit.itemPage(item) {
     @helper.javascriptRouter("adminJsRoutes")(
         controllers.portal.routes.javascript.Portal.filterItems,
         controllers.admin.routes.javascript.Data.forward,
@@ -17,24 +17,21 @@
     )
 
     <script>
-            window.SERVICE = {
-                filter: adminJsRoutes.controllers.portal.Portal.filterItems,
-                get: adminJsRoutes.controllers.admin.Data.getItem,
-                getItem: adminJsRoutes.controllers.admin.Data.getItemType,
-                createLink: adminJsRoutes.controllers.units.DocumentaryUnits.createLink,
-                createMultipleLinks: adminJsRoutes.controllers.units.DocumentaryUnits.linkMultiAnnotatePost,
-                createAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.createAccessPoint,
-                getAccessPoints: adminJsRoutes.controllers.units.DocumentaryUnits.getAccessPointsJson,
-                deleteLink: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLink,
-                deleteAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteAccessPoint,
-                deleteLinkAndAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint,
-                redirectUrl: function (id) {
-                    return adminJsRoutes.controllers.units.DocumentaryUnits.get(id).url;
-                }
-            };
+        window.SERVICE = {
+            filter: adminJsRoutes.controllers.portal.Portal.filterItems,
+            get: adminJsRoutes.controllers.admin.Data.getItem,
+            getItem: adminJsRoutes.controllers.admin.Data.getItemType,
+            createLink: adminJsRoutes.controllers.units.DocumentaryUnits.createLink,
+            createMultipleLinks: adminJsRoutes.controllers.units.DocumentaryUnits.linkMultiAnnotatePost,
+            createAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.createAccessPoint,
+            getAccessPoints: adminJsRoutes.controllers.units.DocumentaryUnits.getAccessPointsJson,
+            deleteLink: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLink,
+            deleteAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteAccessPoint,
+            deleteLinkAndAccessPoint: adminJsRoutes.controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint,
+            redirectUrl: function (id) {
+                return adminJsRoutes.controllers.units.DocumentaryUnits.get(id).url;
+            }
+        };
     </script>
-}
-
-@views.html.admin.documentaryUnit.itemPage(item, scripts = extrascripts) {
     @views.html.admin.common.accessPointForm(item, desc, holderIds)
 }

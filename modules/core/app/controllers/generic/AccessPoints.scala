@@ -30,44 +30,44 @@ trait AccessPoints[MT <: DescribedModel] extends Read[MT] {
     * [ {
     * "id" : "e6410af3-c45e-4649-9b5e-6753b2aa1156",
     * "data" : [ {
-    * "type" : "creator",
-    * "data" : [ ]
+    *   "type" : "creator",
+    *   "data" : [ ]
     * }, {
-    * "type" : "person",
-    * "data" : [ ]
+    *   "type" : "person",
+    *   "data" : [ ]
     * }, {
-    * "type" : "family",
-    * "data" : [ ]
+    *   "type" : "family",
+    *   "data" : [ ]
     * }, {
-    * "type" : "corporateBody",
-    * "data" : [ ]
+    *   "type" : "corporateBody",
+    *   "data" : [ ]
     * }, {
-    * "type" : "subject",
-    * "data" : [ ]
+    *   "type" : "subject",
+    *   "data" : [ ]
     * }, {
-    * "type" : "place",
-    * "data" : [ {
-    * "accessPoint" : {
-    * "isA" : "AccessPoint",
-    * "id" : "07238843-5b75-4af0-80b6-67c17c285686",
-    * "accessPointType" : "placeAccess",
-    * "name" : "Wiener Library Archives",
-    * "description" : ""
-    * },
-    * "link" : {
-    * "isA" : "Link",
-    * "id" : "1fdb1ece-8202-496d-a01d-33cdddede00f",
-    * "linkType" : "associative",
-    * "description" : ""
-    * },
-    * "target" : {
-    * "id" : "il-002821",
-    * "type" : "Repository"
-    * }
-    * } ]
+    *   "type" : "place",
+    *   "data" : [ {
+    *     "accessPoint" : {
+    *       "isA" : "AccessPoint",
+    *       "id" : "07238843-5b75-4af0-80b6-67c17c285686",
+    *       "accessPointType" : "placeAccess",
+    *       "name" : "Wiener Library Archives",
+    *       "description" : ""
+    *     },
+    *     "link" : {
+    *       "isA" : "Link",
+    *       "id" : "1fdb1ece-8202-496d-a01d-33cdddede00f",
+    *       "linkType" : "associative",
+    *       "description" : ""
+    *     },
+    *     "target" : {
+    *       "id" : "il-002821",
+    *       "type" : "Repository"
+    *     }
+    *   } ]
     * }, {
-    * "type" : "genre",
-    * "data" : [ ]
+    *   "type" : "genre",
+    *   "data" : [ ]
     * } ]
     * } ]
     *
