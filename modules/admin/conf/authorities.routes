@@ -25,6 +25,7 @@ GET     /:id/linkjs/:accessPoint                    @controllers.authorities.His
 POST    /:id/linkjs                                 @controllers.authorities.HistoricalAgents.createMultipleLinks(id: String)
 POST    /:id/accessPoints/create/:desc              @controllers.authorities.HistoricalAgents.createAccessPoint(id: String, desc: String)
 GET     /:id/accessPoints/:desc                     @controllers.authorities.HistoricalAgents.manageAccessPoints(id: String, desc: String)
+GET     /:id/legacyAccessPoints/:desc               @controllers.authorities.HistoricalAgents.legacyManageAccessPoints(id: String, desc: String)
 GET     /:id/accessPointsJs                         @controllers.authorities.HistoricalAgents.getAccessPointsJson(id: String)
 POST    /:id/deleteAccess/:did/:accessPoint         @controllers.authorities.HistoricalAgents.deleteAccessPoint(id: String, did: String, accessPoint: String)
 POST    /:id/deleteLink/:link                       @controllers.authorities.HistoricalAgents.deleteLink(id: String, link: String)

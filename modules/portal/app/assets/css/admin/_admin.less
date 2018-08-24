@@ -353,3 +353,90 @@ a.inline-action:hover {
   width: 100%;
   margin-bottom: @medium-margin;
 }
+
+.ap-editor-types {
+  .list-unstyled;
+}
+
+.ap-editor-remove-access-point {
+  cursor: pointer;
+}
+
+.ap-editor-new-access-point {
+  .clearfix;
+  border: 1px solid @medium-gray;
+  padding: @medium-padding;
+}
+
+.ap-editor-autocomplete-widget {
+  .clearfix;
+}
+
+.ap-editor-autocomplete-widget .suggestion-type {
+  .pull-right;
+}
+
+.ap-editor-autocomplete-widget .dropdown-list {
+  position: relative;
+}
+
+.ap-editor-autocomplete-widget-suggestions {
+  cursor: pointer;
+  box-shadow: 0 0 5px 2px rgba(153,153,153,0.54);
+  border: 1px solid #ebebeb;
+  position: absolute;
+  top: 100%;
+  z-index: 100;
+  right: auto;
+  width: 100%;
+  background-color: #fff;
+}
+
+.ap-editor-autocomplete-widget-input {
+  position: relative;
+}
+
+.ap-editor-autocomplete-widget-suggestion {
+  padding: 5px;
+}
+
+.ap-editor-autocomplete-widget .suggestion:hover, .ap-editor-autocomplete-widget .suggestion.selected {
+  background-color: #ebebeb;
+}
+
+.ap-editor-pending-items {
+  .list-unstyled;
+}
+
+.ap-editor-pending-item-link-note {
+  .text-info;
+  .bg-info;
+}
+
+.ap-editor-new-access-point-controls, .ap-editor-pending-items li {
+  margin-top: @medium-margin;
+  .make-md-column-offset(3);
+  .make-md-column(9);
+}
+
+.ap-editor-access-points {
+ .list-unstyled;
+  margin-bottom: @medium-margin;
+}
+
+.ap-editor-add-toggle {
+  cursor: pointer;
+  .small;
+}
+
+.ap-editor-access-point-description {
+  &:extend(.small, .text-muted);
+}
+
+.ap-editor-access-point .loading-spinner {
+  background-image: url('../img/ajax-loader-small.gif');
+  background-position: left top;
+  background-repeat: no-repeat;
+  padding-left: 15px;
+  .text-muted;
+}
