@@ -344,7 +344,7 @@ case class DocumentaryUnits @Inject()(
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     request.item.holder.map { scope =>
-      val dataType = IngestApi.IngestDataType.Eac
+      val dataType = IngestApi.IngestDataType.EadSync
       Ok(views.html.admin.tools.ingest(scope, Some(request.item), IngestParams.ingestForm, dataType,
         controllers.admin.routes.Ingest.ingestPost(ContentTypes.DocumentaryUnit,
           scope.id, dataType, Some(id)), sync = true))
