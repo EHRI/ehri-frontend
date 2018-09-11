@@ -48,7 +48,7 @@ case class BingGeocodingService @Inject()(ws: WSClient, config: Configuration)(i
         .withQueryStringParameters(params: _*)
         .addQueryStringParameters("key" -> bingKey.getOrElse("-"))
         .get().map { r =>
-      logger.debug(s"Bing response: ${Json.prettyPrint(r.json)}")
+      logger.debug(s"Bing response: ${r.body}")
       r.json.validate[Response] match {
         case JsSuccess(Response(point, "High"), _) =>
           logger.debug(s"Geocode for $address: $point")
@@ -57,7 +57,7 @@ case class BingGeocodingService @Inject()(ws: WSClient, config: Configuration)(i
           logger.warn(s"Geocode confidence ($confidence) not high for: $address")
           None
         case JsError(e) =>
-          logger.error(s"Unable to parse Geocode response: $e")
+          logger.error(s"Unable to parse Geocode response for $address: $e")
           None
       }
     } recover {
