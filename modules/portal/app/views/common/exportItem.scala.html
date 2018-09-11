@@ -1,7 +1,7 @@
 @(fmts: Map[String, Call])(implicit request: RequestHeader, messages: Messages)
 
 @if(fmts.nonEmpty) {
-    @views.html.common.panel(Messages("export")) {
+    @views.html.common.panel(Messages("export.metadata")) {
         <ul class="export-formats">
         @for((fmt, url) <- fmts) {
             <li class="export-format-item">
