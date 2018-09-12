@@ -58,7 +58,7 @@ case class IsadGMaterials(
 
 
 case class IsadGControl(
-  archivistNote: Option[String] = None,
+  archivistNote: Seq[String] = Nil,
   sources: Seq[String] = Nil,
   rulesAndConventions: Option[String] = None,
   datesOfDescriptions: Option[String] = None,
@@ -115,7 +115,7 @@ object DocumentaryUnitDescriptionF {
     )(IsadGMaterials.apply, unlift(IsadGMaterials.unapply))) and
     (__ \ DATA \ NOTES).formatSeqOrSingle[String] and
     (__ \ DATA).format[IsadGControl]((
-      (__ \ ARCHIVIST_NOTE).formatNullable[String] and
+      (__ \ ARCHIVIST_NOTE).formatSeqOrSingle[String] and
       (__ \ SOURCES).formatSeqOrSingle[String] and
       (__ \ RULES_CONVENTIONS).formatNullable[String] and
       (__ \ DATES_DESCRIPTIONS).formatNullable[String] and
@@ -218,7 +218,7 @@ object DocumentaryUnitDescription {
       )(IsadGMaterials.apply)(IsadGMaterials.unapply),
       NOTES -> seq(nonEmptyText),
       CONTROL_AREA -> mapping(
-        ARCHIVIST_NOTE -> optional(text),
+        ARCHIVIST_NOTE -> seq(nonEmptyText),
         SOURCES -> seq(nonEmptyText),
         RULES_CONVENTIONS -> optional(text),
         DATES_DESCRIPTIONS -> optional(text),
