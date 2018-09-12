@@ -68,13 +68,9 @@ case class SolrSearchEngine @Inject()(
       val items = data.items.map(i => FilterHit(
         i.itemId,
         i.id,
-        i.fields
-          .collect { case (SearchConstants.NAME_EXACT, JsString(id)) => id}
-          .headOption.getOrElse(i.itemId),
+        i.fields.collectFirst { case (SearchConstants.NAME_EXACT, JsString(id)) => id }.getOrElse(i.itemId),
         i.`type`,
-        i.fields
-          .collect { case (SearchConstants.HOLDER_NAME, JsString(id)) => id}
-          .headOption,
+        i.fields.collectFirst { case (SearchConstants.HOLDER_NAME, JsString(id)) => id },
         i.gid
       ))
       val page = Page(query.paging.offset, query.paging.limit, data.count, items)
