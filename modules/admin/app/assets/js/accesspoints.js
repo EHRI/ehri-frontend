@@ -44,7 +44,7 @@ let DAO = {
       limit: 10,
       q: text,
       st: CONFIG.typeFilters[type],
-      f: "holderId:(" + CONFIG.holderIds.join(" ") + ")"
+      f: CONFIG.holderIds.length ? ("holderId:(" + CONFIG.holderIds.join(" ") + ")") : ""
     };
     return fetch(SERVICE.filter().url + "?" + this.objToQueryString(params))
         .then(r => r.json())
