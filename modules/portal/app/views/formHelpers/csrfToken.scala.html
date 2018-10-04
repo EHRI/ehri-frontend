@@ -1,3 +1,5 @@
 @()(implicit request: RequestHeader)
 
-@helper.CSRF.formField(request)
+@play.filters.csrf.CSRF.getToken.map { token =>
+    <input type="hidden" name="@token.name" value="@token.value"/>
+}
