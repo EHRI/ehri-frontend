@@ -6,10 +6,12 @@ import akka.util.ByteString
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
 import javax.inject.{Inject, Singleton}
+import models.CypherQuery
 import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
+import play.api.libs.json.Writes
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, Neo4jCypherService, CypherResult}
+import services.cypher.{CypherQueryService, CypherResult, Neo4jCypherService}
 import services.data.ItemNotFound
 import utils.PageParams
 
@@ -27,9 +29,23 @@ case class Datasets @Inject()(
 
   private val logger = Logger(Datasets.getClass)
 
-  def list(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  import play.api.libs.json._
+  private implicit val cypherQueryWrites: Writes[CypherQuery] = Writes { query =>
+    Json.obj(
+      "id" -> query.objectId,
+      "name" -> query.name,
+      "description" -> query.description,
+      "created" -> query.created,
+      "updated" -> query.updated
+    )
+  }
+
+  def list(format: DataFormat.Value): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     cypherQueries.list(PageParams.empty.withoutLimit, Map("public" -> "true")).map { queries =>
-      Ok(views.html.api.datasets.datasets(queries))
+      format match {
+        case DataFormat.Json => Ok(Json.toJson(queries))
+        case _ => Ok(views.html.api.datasets.datasets(queries))
+      }
     }
   }
 
