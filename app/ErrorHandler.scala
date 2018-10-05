@@ -68,8 +68,6 @@ with SessionPreferences[SessionPrefs] {
         renderError("errors.searchEngineError", searchEngineError())))
       case e: ServiceOffline => immediate(InternalServerError(
         renderError("errors.databaseError", serverTimeout())))
-      case e: BadJson => sys.error(e.getMessageWithContext(request))
-
       case e => super.onServerError(request, exception)
     }
   }
