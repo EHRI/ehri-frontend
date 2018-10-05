@@ -4,7 +4,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
-sealed trait RestError extends Throwable
+sealed trait RestError extends RuntimeException
 
 case class PermissionDenied(
   user: Option[String] = None,
@@ -13,18 +13,44 @@ case class PermissionDenied(
   scope: Option[String] = None
 ) extends RuntimeException(s"Permission denied on $item for $user") with RestError
 
+object PermissionDenied {
+  val permissionDeniedReads: Reads[PermissionDenied] = (
+    (__ \ "details" \ "accessor").readNullable[String] and
+      (__ \ "details" \ "permission").readNullable[String] and
+      (__ \ "details" \ "item").readNullable[String] and
+      (__ \ "details" \ "scope").readNullable[String]
+    )(PermissionDenied.apply _)
+
+  val permissionDeniedWrites: Writes[PermissionDenied] = (
+    (__ \ "accessor").writeNullable[String] and
+      (__ \ "permission").writeNullable[String] and
+      (__ \ "item").writeNullable[String] and
+      (__ \ "scope").writeNullable[String]
+    )(unlift(PermissionDenied.unapply))
+
+  implicit val permissionDeniedFormat: Format[PermissionDenied] = Format(
+    permissionDeniedReads, permissionDeniedWrites)
+}
+
 case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError
+
+object ValidationError {
+  implicit val validationErrorReads: Reads[ValidationError] = (
+    (__ \ "error").read[String] and
+      (__ \ "details").read[ErrorSet]
+    )((_, s) => ValidationError(s))
+}
 
 case class JsonError(msg: String) extends RuntimeException(msg) with RestError
 
-case class InputDataError(error: String, details: String) extends RestError
+case class InputDataError(error: String, details: String) extends RuntimeException(error) with RestError
 object InputDataError {
   implicit val _fmt: Format[InputDataError] = Json.format[InputDataError]
 }
 
-case class DeserializationError() extends RestError
+case class DeserializationError() extends RuntimeException() with RestError
 
-case class IntegrityError() extends RestError
+case class IntegrityError() extends RuntimeException() with RestError
 
 case class ItemNotFound(
   key: Option[String] = None,
@@ -42,7 +68,7 @@ case class BadJson(
   error: Seq[(JsPath,Seq[JsonValidationError])],
   url: Option[String] = None,
   data: Option[String] = None
-) extends RestError {
+) extends RuntimeException(error.toString) with RestError {
   def prettyError: String = Json.prettyPrint(JsError.toJson(error))
   override def getMessage: String = s"""
         |Parsing error ${url.getOrElse("(no context)")}
@@ -73,32 +99,8 @@ object ItemNotFound {
     (__ \ "message").writeNullable[String]
   )(unlift(ItemNotFound.unapply))
 
-  implicit val itemNotFoundFormat = Format(itemNotFoundReads, itemNotFoundWrites)
+  implicit val itemNotFoundFormat: Format[ItemNotFound] = Format(
+    itemNotFoundReads, itemNotFoundWrites)
 }
 
 
-object PermissionDenied {
-  val permissionDeniedReads: Reads[PermissionDenied] = (
-    (__ \ "details" \ "accessor").readNullable[String] and
-    (__ \ "details" \ "permission").readNullable[String] and
-    (__ \ "details" \ "item").readNullable[String] and
-    (__ \ "details" \ "scope").readNullable[String]
-  )(PermissionDenied.apply _)
-
-  val permissionDeniedWrites: Writes[PermissionDenied] = (
-    (__ \ "accessor").writeNullable[String] and
-    (__ \ "permission").writeNullable[String] and
-    (__ \ "item").writeNullable[String] and
-    (__ \ "scope").writeNullable[String]
-  )(unlift(PermissionDenied.unapply))
-
-  implicit val permissionDeniedFormat = Format(
-    permissionDeniedReads, permissionDeniedWrites)
-}
-
-object ValidationError {
-  implicit val validationErrorReads: Reads[ValidationError] = (
-    (__ \ "error").read[String] and
-    (__ \ "details").read[ErrorSet]
-  )((_, s) => ValidationError(s))
-}
