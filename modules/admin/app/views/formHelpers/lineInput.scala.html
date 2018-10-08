@@ -6,12 +6,12 @@
     } else {
         @helper.inputText(
             field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
-            args = views.Helpers.argsWithDefaults(
+            args = views.admin.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
                 args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
                 '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
                 'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
                 'class -> "form-control"
-            ): _*
+            )): _*
         )
     }
 }

@@ -6,23 +6,24 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining("documentaryUnit") { implicit fieldPrefix =>
+    @defining(Some(config)) { implicit implicitConfig =>
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
-    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
-    @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
-
-    @formHelpers.descriptionFormTabs(f) { desc =>
-        @descriptionForm(desc, config)
-    }
-
-    @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-        @defining(PUB_STATUS) { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus)
+        @formHelpers.descriptionFormTabs(f) { desc =>
+            @descriptionForm(desc)
         }
-        @defining(COPYRIGHT) { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus)
-        }
-        @defining(SCOPE) { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(""), SCOPE, Scope)
+
+        @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
+            @defining(PUB_STATUS) { implicit fieldPrefix =>
+                @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus)
+            }
+            @defining(COPYRIGHT) { implicit fieldPrefix =>
+                @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus)
+            }
+            @defining(SCOPE) { implicit fieldPrefix =>
+                @formHelpers.enumChoiceInput(f(""), SCOPE, Scope)
+            }
         }
     }
 }

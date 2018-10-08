@@ -10,20 +10,22 @@
 <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/address.js")"></script>
 
 @defining("repository") { implicit fieldPrefix =>
-    @formHelpers.lineInput(f(""), IDENTIFIER)
+    @defining(Some(config)) { implicit implicitConfig =>
+        @formHelpers.lineInput(f(""), IDENTIFIER)
 
-    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-        @descriptionForm(desc, config)
-    }
-    @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-        @formHelpers.lineInput(f(""), URL_PATTERN)
-        @formHelpers.lineInput(f(""), LOGO_URL)
-        @defining(PUBLICATION_STATUS) { implicit fieldPrefix =>
-            @formHelpers.enumChoiceInput(f(""), PUBLICATION_STATUS, PublicationStatus)
+        @helper.repeat(f("descriptions"), min = math.max(f("descriptions").indexes.length, 1)) { desc =>
+            @descriptionForm(desc)
         }
-        @formHelpers.choiceInput(f(""), PRIORITY, 1.to(5).map(i => (i.toString,i.toString)).toList ++ List(("-1", "Reject")), blank=true)
+        @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
+            @formHelpers.lineInput(f(""), URL_PATTERN, '_showConstraints -> false)
+            @formHelpers.lineInput(f(""), LOGO_URL, '_showConstraints -> false)
+            @defining(PUBLICATION_STATUS) { implicit fieldPrefix =>
+                @formHelpers.enumChoiceInput(f(""), PUBLICATION_STATUS, PublicationStatus)
+            }
+            @formHelpers.choiceInput(f(""), PRIORITY, 1.to(5).map(i => (i.toString, i.toString)).toList ++ List(("-1", "Reject")), '_blank -> true)
+        }
+        @formHelpers.hiddenInput(f(LONGITUDE))
+        @formHelpers.hiddenInput(f(LATITUDE))
     }
-    @formHelpers.hiddenInput(f(LONGITUDE))
-    @formHelpers.hiddenInput(f(LATITUDE))
 }
 

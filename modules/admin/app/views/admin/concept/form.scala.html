@@ -8,35 +8,37 @@
 @lineInput(f(""), Entity.IDENTIFIER)
 
 @defining("cvocConcept") { implicit prefix =>
-    @lineInput(f(""), URI)
-    @lineInput(f(""), URL)
-    @lineInput(f(""), LONGITUDE)
-    @lineInput(f(""), LATITUDE)
-    @inlineNameSet(f(""), SEEALSO)
+    @defining(Option.empty[forms.FormConfig]) { implicit implicitConfig =>
+        @lineInput(f(""), URI)
+        @lineInput(f(""), URL)
+        @lineInput(f(""), LONGITUDE)
+        @lineInput(f(""), LATITUDE)
+        @inlineNameSet(f(""), SEEALSO)
 
-    <fieldset id="descriptions-area">
-        <div class="inline-formset" data-prefix="descriptions">
-            <label>
-                <strong>@Messages(prefix + ".descriptions")</strong>
-            </label>
-            <hr />
-            <div class="inline-element-template form-template">
-                @descriptionForm(f("descriptions[IDX]"))
-            </div>
-            <div class="inline-element-list inline-element-block">
-                @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                    @descriptionForm(desc)
-                }
-            </div>
+        <fieldset id="descriptions-area">
+            <div class="inline-formset" data-prefix="descriptions">
+                <label>
+                    <strong>@Messages(prefix + ".descriptions")</strong>
+                </label>
+                <hr />
+                <div class="inline-element-template form-template">
+                    @descriptionForm(f("descriptions[IDX]"))
+                </div>
+                <div class="inline-element-list inline-element-block">
+                    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+                        @descriptionForm(desc)
+                    }
+                </div>
 
-            <div class="form-group">
-                <div class="col-sm-9 col-sm-offset-3 text-right">
-                    <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
-                        <i class="glyphicon glyphicon-plus"></i>
-                    @Messages("cvocConcept.createDescription")
-                    </a>
+                <div class="form-group">
+                    <div class="col-sm-9 col-sm-offset-3 text-right">
+                        <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
+                            <i class="glyphicon glyphicon-plus"></i>
+                        @Messages("cvocConcept.createDescription")
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </fieldset>
+        </fieldset>
+    }
 }

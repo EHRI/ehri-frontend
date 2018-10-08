@@ -4,6 +4,7 @@ import defines._
 import helpers._
 import models.{Group, HistoricalAgent, UserProfile, UserProfileF}
 import play.api.http.HeaderNames
+import play.api.i18n.Lang
 import play.api.test.FakeRequest
 import services.data.ApiUser
 
@@ -127,9 +128,9 @@ class EntityViewsSpec extends IntegrationTestRunner {
 
       val a1 = await(dataApi.get[HistoricalAgent]("a1"))
       a1.descriptions.flatMap(_.maintenanceEvents).headOption must beSome.which { me =>
-        me.source must_== Some("Test Event")
-        me.eventType must_== Some("created")
-        me.order must_== Some(0)
+        me.source must beSome("Test Event")
+        me.eventType must beSome("created")
+        me.order must beSome(0)
       }
 
       val form = FakeRequest(histAgentRoutes.update("a1")).withUser(privilegedUser).call()
@@ -152,7 +153,24 @@ class EntityViewsSpec extends IntegrationTestRunner {
       val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
         .withUser(privilegedUser).call()
       status(form) must equalTo(OK)
+      contentAsString(form) must contain(messagesApi("historicalAgent.rulesAndConventions")(Lang.defaultLang))
       contentAsString(form) must contain("SOME RANDOM VALUE")
+    }
+
+    "show form hints from config values" in new ITestApp(
+      Map("formConfig.HistoricalAgent.rulesAndConventions.hint" -> "HINTHINTHINT")) {
+      val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
+        .withUser(privilegedUser).call()
+      status(form) must equalTo(OK)
+      contentAsString(form) must contain("HINTHINTHINT")
+    }
+
+    "not show fields configured as hidden" in new ITestApp(
+      Map("formConfig.HistoricalAgent.rulesAndConventions.hidden" -> true)) {
+      val form = FakeRequest(controllers.sets.routes.AuthoritativeSets.createHistoricalAgent("auths"))
+        .withUser(privilegedUser).call()
+      status(form) must equalTo(OK)
+      contentAsString(form) must not contain messagesApi("historicalAgent.rulesAndConventions")(Lang.defaultLang)
     }
 
     "contain links to external items" in new ITestApp {

@@ -1,9 +1,9 @@
-@(f: play.api.data.Field, label: String, enum: Enumeration, blank: Boolean = false)(implicit fieldPrefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages)
+@(f: play.api.data.Field, fieldName: String, enum: Enumeration, args: (Symbol,Any)*)(implicit fieldPrefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @formHelpers.choiceInput(
   f,
-  label,
+  fieldName,
   enum.values.toList.sortBy(_.id).map(m => (m.toString,
         Messages(if (fieldPrefix.isEmpty) m.toString else fieldPrefix + "." + m.toString))),
-  blank
+  args: _*
 )
