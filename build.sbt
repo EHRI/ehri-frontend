@@ -227,7 +227,7 @@ val webAppSettings = Seq(
   // SBT magic: http://stackoverflow.com/a/12772739/285374
   // pick up additional resources in test
   resourceDirectory in Test := baseDirectory.apply {
-    (baseDir: File) => baseDir / "test/resources"
+    baseDir: File => baseDir / "test/resources"
   }.value,
 
   // Always use nodejs to build the assets - Trireme is too slow...
@@ -345,6 +345,6 @@ lazy val main = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala)
   .enablePlugins(LauncherJarPlugin)
   .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
-  .settings(commonSettings: _*)
+  .settings(commonSettings ++ webAppSettings: _*)
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
   .aggregate(backend, core, admin, portal, guides, api, solr)
