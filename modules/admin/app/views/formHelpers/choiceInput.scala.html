@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, options: List[(String,String)], blank: Boolean = false)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, messages: Messages, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: play.api.data.Field, fieldName: String, options: List[(String,String)], args: (Symbol, Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 @defining(desc(fieldName)) { field =>
     @if(config.exists(_.hidden(fieldName))) {
@@ -6,8 +6,13 @@
     } else {
         @helper.select(
             field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
-            options = (if(blank) List("" -> "---") else Nil) ::: options,
-            args = '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"), 'class -> "form-control select2"
+            options = (if(args.contains('_blank -> true)) List("" -> "---") else Nil) ::: options,
+            args = views.admin.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+                args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
+                '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
+                'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
+                'class -> "form-control select2"
+            )): _*
         )
     }
 }

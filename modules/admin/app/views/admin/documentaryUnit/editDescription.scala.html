@@ -5,23 +5,25 @@
 @views.html.admin.layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
-            @formHelpers.csrfToken()
+        @defining(Some(config)) { implicit implicitConfig =>
+            @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+                @formHelpers.csrfToken()
 
-            @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
-                @helper.repeat(f("descriptions"), min = 0) { desc =>
-                    @if(desc(Entity.ID).value.contains(did)) {
-                        @views.html.admin.documentaryUnit.descriptionForm(desc, config)
-                    } else {
-                        @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
+                    @helper.repeat(f("descriptions"), min = 0) { desc =>
+                        @if(desc(Entity.ID).value.contains(did)) {
+                            @views.html.admin.documentaryUnit.descriptionForm(desc)
+                        } else {
+                            @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                        }
                     }
                 }
-            }
 
-            @formHelpers.submitButtonWithLogMessageInput(
-                Messages("describedEntity.updateDescription.submit"),
-                defaultLogMessage = Messages("describedEntity.updateDescription.logMessage", did),
-                cancel = views.admin.Helpers.linkToOpt(item))
+                @formHelpers.submitButtonWithLogMessageInput(
+                    Messages("describedEntity.updateDescription.submit"),
+                    defaultLogMessage = Messages("describedEntity.updateDescription.logMessage", did),
+                    cancel = views.admin.Helpers.linkToOpt(item))
+            }
         }
     }
 } {

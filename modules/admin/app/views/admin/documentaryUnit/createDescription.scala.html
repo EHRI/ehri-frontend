@@ -3,21 +3,22 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("describedEntity.createDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
-
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
-            @formHelpers.csrfToken()
-            @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
-                @helper.repeat(f("descriptions"), min = 0) { desc =>
-                    @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+        @defining(Some(config)) { implicit implicitConfig =>
+            @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+                @formHelpers.csrfToken()
+                @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
+                    @helper.repeat(f("descriptions"), min = 0) { desc =>
+                        @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                    }
+                    @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"))
                 }
-                @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"), config)
-            }
 
-            @formHelpers.submitButtonWithLogMessageInput(
-                Messages("describedEntity.createDescription.submit"),
-                defaultLogMessage = Messages("describedEntity.createDescription.logMessage"),
-                cancel = views.admin.Helpers.linkToOpt(item))
+                @formHelpers.submitButtonWithLogMessageInput(
+                    Messages("describedEntity.createDescription.submit"),
+                    defaultLogMessage = Messages("describedEntity.createDescription.logMessage"),
+                    cancel = views.admin.Helpers.linkToOpt(item))
+            }
         }
     }
 } {

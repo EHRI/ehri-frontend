@@ -1,4 +1,4 @@
-@(desc: Field, config: forms.FormConfig)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(desc: Field)(implicit fieldPrefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import Isdiah._
 @import views.html.formHelpers._
@@ -7,74 +7,72 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @defining(Some(config)) { implicit implicitConfig =>
-        @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
 
-        @descriptionFormSection(IDENTITY_AREA) {
-            @hiddenInput(desc(Entity.ID))
-            @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
-            @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
-            @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
-        }
+    @descriptionFormSection(IDENTITY_AREA) {
+        @hiddenInput(desc(Entity.ID))
+        @lineInput(desc, AUTHORIZED_FORM_OF_NAME)
+        @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
+        @inlineNameSet(desc, OTHER_FORMS_OF_NAME)
+    }
 
-        @descriptionFormSection(ADDRESS_AREA) {
-            <div class="inline-formset" data-prefix="@ADDRESS_AREA">
-                <label>
-                    <a href="#" class="add-inline-element">
-                        @Messages(fieldPrefix + ".addresses.create")
-                        <i class="glyphicon glyphicon-plus-sign"></i>
-                    </a>
-                </label>
-                <script type="application/x-js-template" class="inline-element-template">
-                @addressForm(desc(ADDRESS_AREA + "[IDX]"))
-                </script>
-                <div class="inline-element-list">
-                @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
-                    @addressForm(desc)
-                }
-                </div>
+    @descriptionFormSection(ADDRESS_AREA) {
+        <div class="inline-formset" data-prefix="@ADDRESS_AREA">
+            <label>
+                <a href="#" class="add-inline-element">
+                    @Messages(fieldPrefix + ".addresses.create")
+                    <i class="glyphicon glyphicon-plus-sign"></i>
+                </a>
+            </label>
+            <script type="application/x-js-template" class="inline-element-template">
+            @addressForm(desc(ADDRESS_AREA + "[IDX]"))
+            </script>
+            <div class="inline-element-list">
+            @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
+                @addressForm(desc)
+            }
             </div>
-        }
+        </div>
+    }
 
-        @descriptionFormSection(DESCRIPTION_AREA) {
-            @defining(desc(DESCRIPTION_AREA)) { desc =>
-                @textInput(desc, HISTORY)
-                @textInput(desc, GEOCULTURAL_CONTEXT)
-                @textInput(desc, MANDATES)
-                @textInput(desc, ADMINISTRATIVE_STRUCTURE)
-                @textInput(desc, RECORDS)
-                @textInput(desc, BUILDINGS)
-                @textInput(desc, HOLDINGS)
-                @textInput(desc, FINDING_AIDS)
-            }
+    @descriptionFormSection(DESCRIPTION_AREA) {
+        @defining(desc(DESCRIPTION_AREA)) { desc =>
+            @textInput(desc, HISTORY)
+            @textInput(desc, GEOCULTURAL_CONTEXT)
+            @textInput(desc, MANDATES)
+            @textInput(desc, ADMINISTRATIVE_STRUCTURE)
+            @textInput(desc, RECORDS)
+            @textInput(desc, BUILDINGS)
+            @textInput(desc, HOLDINGS)
+            @textInput(desc, FINDING_AIDS)
         }
+    }
 
-        @descriptionFormSection(ACCESS_AREA) {
-            @defining(desc(ACCESS_AREA)) { desc =>
-                @textInput(desc, OPENING_TIMES)
-                @textInput(desc, CONDITIONS)
-                @textInput(desc, ACCESSIBILITY)
-            }
+    @descriptionFormSection(ACCESS_AREA) {
+        @defining(desc(ACCESS_AREA)) { desc =>
+            @textInput(desc, OPENING_TIMES)
+            @textInput(desc, CONDITIONS)
+            @textInput(desc, ACCESSIBILITY)
         }
+    }
 
-        @descriptionFormSection(SERVICES_AREA) {
-            @defining(desc(SERVICES_AREA)) { desc =>
-                @textInput(desc, RESEARCH_SERVICES)
-                @textInput(desc, REPROD_SERVICES)
-                @textInput(desc, PUBLIC_AREAS)
-            }
+    @descriptionFormSection(SERVICES_AREA) {
+        @defining(desc(SERVICES_AREA)) { desc =>
+            @textInput(desc, RESEARCH_SERVICES)
+            @textInput(desc, REPROD_SERVICES)
+            @textInput(desc, PUBLIC_AREAS)
         }
+    }
 
-        @descriptionFormSection(CONTROL_AREA) {
-            @defining(desc(CONTROL_AREA)) { desc =>
-                @lineInput(desc, DESCRIPTION_IDENTIFIER)
-                @lineInput(desc, INSTITUTION_IDENTIFIER)
-                @textInput(desc, RULES_CONVENTIONS)
-                @textInput(desc, LEVEL_OF_DETAIL)
-                @textInput(desc, DATES_CVD)
-                @inlineTextSet(desc, SOURCES)
-                @textInput(desc, MAINTENANCE_NOTES)
-            }
+    @descriptionFormSection(CONTROL_AREA) {
+        @defining(desc(CONTROL_AREA)) { desc =>
+            @lineInput(desc, DESCRIPTION_IDENTIFIER)
+            @lineInput(desc, INSTITUTION_IDENTIFIER)
+            @textInput(desc, RULES_CONVENTIONS)
+            @textInput(desc, LEVEL_OF_DETAIL)
+            @textInput(desc, DATES_CVD)
+            @inlineTextSet(desc, SOURCES)
+            @textInput(desc, MAINTENANCE_NOTES)
         }
     }
 }

@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, prefix: String, messages: Messages, md: views.MarkdownRenderer)
+@(desc: play.api.data.Field)(implicit prefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import Entity.IDENTIFIER
 @import models.ConceptF._
@@ -15,8 +15,8 @@
     </div>
 
 
-    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, blank = true)
-    @choiceInput(desc, IDENTIFIER, views.Helpers.scriptPairList, blank = true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
+    @choiceInput(desc, IDENTIFIER, views.Helpers.scriptPairList, '_blank -> true)
     @formHelpers.lineInput(desc, PREFLABEL)
     @formHelpers.inlineNameSet(desc, ALTLABEL)
     @formHelpers.inlineNameSet(desc, HIDDENLABEL)

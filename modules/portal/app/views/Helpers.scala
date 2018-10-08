@@ -59,6 +59,7 @@ object Helpers {
   def argsWithDefaults(args: Seq[(Symbol,Any)], defaults: (Symbol, Any)*): Seq[(Symbol, Any)] =
     args ++ defaults.filterNot(v => args.exists(a => a._1 == v._1))
 
+
   /*
    * Helper to provide Digg-style pagination, like:
    *    1, 2 ... 18, 19, 20, 21, 22 ... 55, 56
