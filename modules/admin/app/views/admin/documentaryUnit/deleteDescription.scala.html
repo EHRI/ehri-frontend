@@ -4,25 +4,33 @@
 
 @views.html.admin.layout.rightSidebar(Messages("describedEntity.deleteDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
-    <p>@Messages("describedEntity.deleteDescription.info", did)</p>
-    @defining("documentaryUnit") { implicit fieldPrefix =>
-        @helper.form(action = action, 'class -> "entity-form form-horizontal") {
-            @formHelpers.csrfToken()
+    @if(item.descriptions.size > 1) {
+        <p>@Messages("describedEntity.deleteDescription.info", did)</p>
+        @defining("documentaryUnit") { implicit fieldPrefix =>
+            @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+                @formHelpers.csrfToken()
 
-            @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
-                @helper.repeat(f("descriptions"), min = 0) { desc =>
-                    @if(!desc(Entity.ID).value.contains(did)) {
-                        @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
-                    } else {
+                @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
+                    @helper.repeat(f("descriptions"), min = 0) { desc =>
+                        @if(!desc(Entity.ID).value.contains(did)) {
+                            @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                        } else {
+                        }
                     }
                 }
-            }
 
-            @formHelpers.submitButtonWithLogMessageInput(
-                Messages("describedEntity.deleteDescription.submit"),
-                defaultLogMessage = Messages("describedEntity.deleteDescription.logMessage", did),
-                cancel = views.admin.Helpers.linkToOpt(item))
+                @formHelpers.submitButtonWithLogMessageInput(
+                    Messages("describedEntity.deleteDescription.submit"),
+                    defaultLogMessage = Messages("describedEntity.deleteDescription.logMessage", did),
+                    cancel = views.admin.Helpers.linkToOpt(item))
+            }
         }
+    } else {
+        <p class="alert alert-danger">
+            @Messages("describedEntity.deleteDescription.lastError")
+
+            <strong><a href="@views.admin.Helpers.linkTo(item)">@Messages("admin.goBack")</a></strong>
+        </p>
     }
 } {
 }
