@@ -12,6 +12,7 @@ admin.recentlyViewed=Recently Viewed
 admin.home.title=Welcome to the EHRI Administration interface
 admin.metrics=Data Metrics
 admin.metrics.show=Data Overview Graphs
+admin.goBack=Go back
 
 facet.group=Group
 facet.admin=Administrators
@@ -186,6 +187,7 @@ describedEntity.deleteDescription=Delete Description
 describedEntity.deleteDescription.submit=Delete
 describedEntity.deleteDescription.logMessage=Deleted description ''{0}''
 describedEntity.deleteDescription.info=Are you sure you want to delete item description: "{0}"?  This action cannot be undone.
+describedEntity.deleteDescription.lastError=You cannot delete the last description from an item. Delete the item instead.
 describedEntity.noData=No information given
 describedEntity.notGiven=Not Given
 describedEntity.createDescription=Add Description
