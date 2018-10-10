@@ -9,5 +9,6 @@ Disallow: /links
 Disallow: /locale
 Disallow: /feedback
 Disallow: /activity
+Disallow: /api/datasets
 Disallow: /guides
 Disallow: */export

@@ -54,6 +54,16 @@
                 </a></strong>
             </p>
         </section>
+
+        <section id="api-datasets">
+            <h2>@Messages("api.datasets.header")</h2>
+
+            <p>@Messages("api.datasets.description")</p>
+
+                <strong><a href="@controllers.api.datasets.routes.Datasets.list()">
+                    Browse EHRI Datasets.
+                </a></strong>
+        </section>
     </div>
 } {
     <div id="doc-navbar" class="vertical-navbar" data-spy="affix" data-offset-top="100">
@@ -69,6 +79,9 @@
                         <a href="#api-graphql">GraphQL API</a>
                     </li>
                 </ul>
+            </li>
+            <li role="presentation">
+                <a href="#api-datasets">Datasets</a>
             </li>
         </ul>
     </div>

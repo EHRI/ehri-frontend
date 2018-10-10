@@ -17,5 +17,5 @@ api.graphql=GraphQL API
 api.graphql.header=GraphQL Documentation
 
 api.datasets.header=EHRI Datasets
-api.datasets.description=These datasets are dynamically-generated structured data \
-  about EHRI''s collections available in JSON, CSV, and TSV formats.
+api.datasets.description=EHRI datasets are dynamically-generated structured data \
+  about EHRI''s collections and related information, available in JSON, CSV, and TSV formats.
