@@ -13,6 +13,7 @@ import play.api.libs.json.Writes
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.cypher.{CypherQueryService, CypherResult, Neo4jCypherService}
 import services.data.ItemNotFound
+import services.search.SearchParams
 import utils.PageParams
 
 import scala.util.Failure
@@ -40,14 +41,19 @@ case class Datasets @Inject()(
     )
   }
 
-  def list(format: DataFormat.Value): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    cypherQueries.list(PageParams.empty.withoutLimit, Map("public" -> "true")).map { queries =>
-      format match {
-        case DataFormat.Json => Ok(Json.toJson(queries))
-        case _ => Ok(views.html.api.datasets.datasets(queries))
+  def list(q: Option[String], sort: Option[String], paging: PageParams, format: DataFormat.Value): Action[AnyContent] =
+    WithUserAction.async { implicit request =>
+      val params = Seq(SearchParams.QUERY -> q, SearchParams.SORT -> sort, "public" -> Some(true.toString))
+        .collect { case (k, Some(v)) => k -> v}
+        .toMap
+      cypherQueries.list(paging, params).map { queries =>
+        format match {
+          case DataFormat.Json => Ok(Json.toJson(queries))
+          case _ => Ok(views.html.api.datasets.datasets(queries, q, sort,
+            controllers.api.datasets.routes.Datasets.list(q, sort, paging, format)))
+        }
       }
     }
-  }
 
   def run(id: String, format: DataFormat.Value): Action[AnyContent] = Action.async { implicit request =>
     cypherQueries.get(id).map { query =>
