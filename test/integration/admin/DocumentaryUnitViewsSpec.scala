@@ -131,6 +131,11 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       contentAsString(form) must contain("SOME RANDOM VALUE")
     }
 
+    "include description IDs in form when editing items" in new ITestApp {
+      val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
+      contentAsString(form) must contain("name=\"descriptions[0].id\" value=\"cd1\"")
+    }
+
     "NOT show default values in the form when editing items" in new ITestApp(
       Map("formConfig.DocumentaryUnit.rulesAndConventions.default" -> "SOME RANDOM VALUE")) {
       val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
