@@ -13,6 +13,7 @@ import services.feedback.{FeedbackService, MockFeedbackService}
 import controllers.base.SessionPreferences
 import global.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
+import org.jsoup.Jsoup
 import org.specs2.execute.{AsResult, Result}
 import play.api.{Application, Configuration}
 import play.api.http.{Status, Writeable}
@@ -204,6 +205,22 @@ trait TestConfiguration {
           AsResult.effectively(t)
         }
       }
+    }
+  }
+
+  protected def formData(html: String): Map[String, Seq[String]] = {
+    import scala.collection.JavaConversions._
+    val doc = Jsoup.parse(html)
+    val inputData = doc.select("input,textarea")
+        .toSeq.foldLeft(Map.empty[String,Seq[String]]) { case (acc, elem) =>
+      val name = elem.attr("name")
+      val data = elem.`val`()
+      acc.updated(name, acc.getOrElse(name, Seq.empty[String]) :+ data)
+    }
+    doc.select("select").toSeq.foldLeft(inputData) { case (acc, elem) =>
+      val name = elem.attr("name")
+      val data = elem.select("option[selected]").toSeq.map(_.attr("value"))
+      acc.updated(name, acc.getOrElse(name, Seq.empty[String]) ++ data)
     }
   }
 

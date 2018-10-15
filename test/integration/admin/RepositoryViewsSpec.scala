@@ -1,8 +1,9 @@
 package integration.admin
 
 import helpers._
-import models.{Group, GroupF, UserProfile, UserProfileF}
+import models._
 import play.api.test.FakeRequest
+import services.data.{ApiUser, AuthenticatedUser}
 
 
 class RepositoryViewsSpec extends IntegrationTestRunner {
@@ -154,6 +155,20 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       val show = FakeRequest(repoRoutes.get("r1")).withUser(unprivilegedUser).call()
       status(show) must equalTo(OK)
       contentAsString(show) must not contain "New Content for r1"
+    }
+
+    "not change items when submitting an unedited form" in new ITestApp {
+      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      val r1 = await(dataApi.get[Repository]("r1"))
+      val form = FakeRequest(repoRoutes.update("r1")).withUser(privilegedUser).call()
+      val data = formData(contentAsString(form))
+      val cr = FakeRequest(repoRoutes.updatePost("r1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(data)
+      status(cr) must equalTo(SEE_OTHER)
+      val r2 = await(dataApi.get[Repository]("r1"))
+      r2.data must_== r1.data
     }
   }
 }

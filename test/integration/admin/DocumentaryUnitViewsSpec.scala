@@ -5,6 +5,7 @@ import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models.{Group, UserProfile, _}
 import play.api.test.FakeRequest
+import services.data.{ApiUser, AuthenticatedUser}
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
@@ -129,11 +130,6 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val form = FakeRequest(repoRoutes.createDoc("r1")).withUser(privilegedUser).call()
       status(form) must equalTo(OK)
       contentAsString(form) must contain("SOME RANDOM VALUE")
-    }
-
-    "include description IDs in form when editing items" in new ITestApp {
-      val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
-      contentAsString(form) must contain("name=\"descriptions[0].id\" value=\"cd1\"")
     }
 
     "NOT show default values in the form when editing items" in new ITestApp(
@@ -351,6 +347,27 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       status(cr) must equalTo(SEE_OTHER)
       val test2 = FakeRequest(docRoutes.get("c1")).withUser(unprivilegedUser).call()
       status(test2) must equalTo(OK)
+    }
+
+    "include description IDs in form when editing items" in new ITestApp {
+      val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
+      val data = formData(contentAsString(form))
+      data.get("descriptions[0].id") must beSome(Seq("cd1"))
+      data.get("descriptions[1].id") must beSome(Seq("cd1-2"))
+    }
+
+    "not change items when submitting an unedited form" in new ITestApp {
+      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      val c1 = await(dataApi.get[DocumentaryUnit]("c1"))
+      val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
+      val data = formData(contentAsString(form))
+      val cr = FakeRequest(docRoutes.updatePost("c1"))
+        .withUser(privilegedUser)
+        .withCsrf
+        .callWith(data)
+      status(cr) must equalTo(SEE_OTHER)
+      val c2 = await(dataApi.get[DocumentaryUnit]("c1"))
+      c2.data must_== c1.data
     }
   }
   
