@@ -352,8 +352,9 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "include description IDs in form when editing items" in new ITestApp {
       val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
       val data = formData(contentAsString(form))
-      data.get("descriptions[0].id") must beSome(Seq("cd1"))
-      data.get("descriptions[1].id") must beSome(Seq("cd1-2"))
+      // NB: description order is currently not determined...
+      data.get("descriptions[0].id") must beOneOf(Some(Seq("cd1")), Some(Seq("cd1-2")))
+      data.get("descriptions[1].id") must beOneOf(Some(Seq("cd1")), Some(Seq("cd1-2")))
     }
 
     "not change items when submitting an unedited form" in new ITestApp {
