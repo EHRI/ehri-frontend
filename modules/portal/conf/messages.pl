@@ -6,7 +6,7 @@ language=Język
 contact=Kontakt
 welcome.blurb=Portal EHRI oferuje dostęp do informacji związanych z materiałami archiwalnymi dotyczącymi zagłady Żydów \
   dostępnymi w instytucjach w całej Europie i poza nią. \
-  Więcej informacji na temat projektu EHRI można znaleźć na stronie http://ehri-project.eu.
+  Więcej informacji na temat projektu EHRI można znaleźć na stronie https://ehri-project.eu.
 footerText=To jest rozwojowa wersja interfejsu portalu EHRI.
 footer.funding=Projekt EHRI jest wspierany przez Komisję Europejską
 close=Zamknij

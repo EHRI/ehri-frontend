@@ -8,7 +8,7 @@ This app has a few depependencies in addition to the backend:
  - Solr, running configurated as per the config in [EHRI Search Tools](https://github.com/EHRI/ehri-search-tools)
 
 The setup docs to get these dependencies up and running ended up horribly out-of-date, so rather than
-actively mislead people they've been temporarily removed pending the completion of some [Docker](http://www.docker.com)
+actively mislead people they've been temporarily removed pending the completion of some [Docker](https://www.docker.com)
 -based dev setup instructions. In the meantime, here's how they'll start:
 
  - Set up the search engine on port 8983: 
