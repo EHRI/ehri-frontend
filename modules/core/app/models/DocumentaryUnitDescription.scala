@@ -15,7 +15,6 @@ import services.data.Writable
 case class IsadGIdentity(
   name: String,
   parallelFormsOfName: Seq[String] = Nil,
-  identifier: Option[String] = None,
   ref: Option[String] = None,
   `abstract`: Option[String] = None,
   @models.relation(Ontology.ENTITY_HAS_DATE)
@@ -75,10 +74,10 @@ object DocumentaryUnitDescriptionF {
     (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnitDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
+    (__ \ DATA \ IDENTIFIER).formatNullable[String] and
     __.format[IsadGIdentity]((
       (__ \ DATA \ TITLE).format[String] and
       (__ \ DATA \ PARALLEL_FORMS_OF_NAME).formatSeqOrSingle[String] and
-      (__ \ DATA \ IDENTIFIER).formatNullable[String] and
       (__ \ DATA \ REF).formatNullable[String] and
       (__ \ DATA \ ABSTRACT).formatNullable[String] and
       (__ \ RELATIONSHIPS \ ENTITY_HAS_DATE).formatSeqOrEmpty[DatePeriodF] and
@@ -137,6 +136,7 @@ case class DocumentaryUnitDescriptionF(
   isA: EntityType.Value = EntityType.DocumentaryUnitDescription,
   id: Option[String] = None,
   languageCode: String,
+  identifier: Option[String] = None,
   identity: IsadGIdentity,
   context: IsadGContext = IsadGContext(),
   content: IsadGContent = IsadGContent(),
@@ -178,10 +178,10 @@ object DocumentaryUnitDescription {
       ISA -> ignored(EntityType.DocumentaryUnitDescription),
       ID -> optional(nonEmptyText),
       LANG_CODE -> nonEmptyText,
+      Entity.IDENTIFIER -> optional(nonEmptyText),
       IDENTITY_AREA -> mapping(
         TITLE -> nonEmptyText,
         PARALLEL_FORMS_OF_NAME -> seq(nonEmptyText),
-        Entity.IDENTIFIER -> optional(nonEmptyText),
         REF -> optional(text),
         ABSTRACT -> optional(nonEmptyText),
         DATES -> seq(DatePeriod.form.mapping),

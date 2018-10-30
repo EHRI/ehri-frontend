@@ -2,7 +2,7 @@
 
 @views.html.admin.common.sidebarActions { user =>
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-        <a href="@controllers.institutions.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
+        <a href="@controllers.institutions.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.create")</a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
         <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.Repository)">@Messages("link.create.to.Repository")</a>
