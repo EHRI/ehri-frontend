@@ -1,4 +1,0 @@
-@(f: play.api.data.Field, label: String, options: Seq[(String,String)], autosubmit: Boolean = false)(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer, fc: helper.FieldConstructor)
-
-@selectInput(f, label, options, autosubmit, multiple = true)
-

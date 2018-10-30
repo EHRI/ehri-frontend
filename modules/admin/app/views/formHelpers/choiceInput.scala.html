@@ -8,7 +8,7 @@
             args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
             '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
             'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
-            'class -> "form-control select2"
+            'class -> s"form-control select2 ${if (args.contains('multiple -> true)) "multiple" else ""} ${if (args.contains('_autosubmit -> true)) "autosubmit" else ""}"
         )): _*
     )
 }

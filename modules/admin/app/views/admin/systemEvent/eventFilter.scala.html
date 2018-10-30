@@ -9,17 +9,19 @@
     <input type="hidden" name="@OFFSET_PARAM" value="@range.offset" />
     <input type="hidden" name="@LIMIT_PARAM" value="@range.limit" />
     @defining("systemEvent") { implicit fieldPrefix =>
-        @formHelpers.multiselectInput(
-            filterForm(EVENT_TYPE),
+        @formHelpers.enumChoiceInput(
+            filterForm(""),
             EVENT_TYPE,
-            defines.EventType.values.map(e => e.toString -> Messages(fieldPrefix + "." + e.toString)).toSeq.sorted,
-            autosubmit = true
+            defines.EventType,
+            '_autosubmit -> true,
+            'multiple -> true
         )
-        @formHelpers.multiselectInput(
-            filterForm(USERS),
+        @formHelpers.choiceInput(
+            filterForm(""),
             USERS,
-            users,
-            autosubmit = true
+            users.toList,
+            '_autosubmit -> true,
+            'multiple -> true
         )
     }
 }

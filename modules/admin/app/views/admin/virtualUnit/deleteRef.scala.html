@@ -9,7 +9,7 @@
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()
         @defining("virtualUnit") { implicit fieldPrefix =>
-            @formHelpers.selectInput(rf(INCLUDE_REF), INCLUDE_REF, Seq("" -> "") ++ refs, multiple = false)
+            @formHelpers.choiceInput(rf(""), INCLUDE_REF, refs.toList, '_blank -> true)
         }
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.deleteRef.submit"), cancel = Some(views.admin.Helpers.linkTo(item)))
