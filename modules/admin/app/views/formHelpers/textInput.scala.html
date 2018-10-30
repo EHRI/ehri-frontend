@@ -1,18 +1,14 @@
 @(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
-@defining(desc(fieldName)) { field =>
-    @if(config.exists(_.hidden(fieldName))) {
-        @formHelpers.hiddenInput(field)
-    } else {
-        @helper.textarea(
-            field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
-            args = views.admin.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
-                args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-                '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
-                'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
-                'class -> "form-control",
-                'rows -> config.flatMap(_.rows(fieldName)).getOrElse(4)
-            )): _*
-        )
-    }
+@views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
+    @helper.textarea(
+        field = field,
+        args = views.admin.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
+            '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
+            'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
+            'class -> "form-control",
+            'rows -> config.flatMap(_.rows(fieldName)).getOrElse(4)
+        )): _*
+    )
 }

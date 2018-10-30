@@ -1,6 +1,6 @@
 @(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
-@defining(desc(fieldName)) { field =>
+@views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.inputFile(
         field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
         args = views.Helpers.argsWithDefaults(
