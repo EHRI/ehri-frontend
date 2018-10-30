@@ -10,6 +10,9 @@
 
 @views.html.admin.common.descriptionForm(desc) {
     @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
+    @defining("description") { implicit fieldPrefix =>
+        @lineInput(desc, IDENTIFIER)
+    }
 
     @descriptionFormSection(IDENTITY_AREA) {
         @defining(desc(IDENTITY_AREA)) { desc =>
@@ -18,9 +21,6 @@
             @inlineNameSet(desc, PARALLEL_FORMS_OF_NAME)
 
             @lineInput(desc, REF)
-            @defining("description") { implicit fieldPrefix =>
-                @lineInput(desc, IDENTIFIER)
-            }
 
             <div class="inline-formset form-group clearfix" data-prefix="@DATES">
                 @* Template for adding inline date forms via JS *@
