@@ -1,0 +1,11 @@
+@(desc: play.api.data.Field, fieldName: String, config: Option[models.forms.FormConfig])(html: play.api.data.Field => Html)
+
+@defining(desc(fieldName)) { field =>
+    @defining(field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName))))) { fieldWithDefault =>
+        @if(config.exists(_.hidden(fieldName))) {
+            @formHelpers.hiddenInput(fieldWithDefault)
+        } else {
+            @html(fieldWithDefault)
+        }
+    }
+}
