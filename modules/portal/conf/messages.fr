@@ -6,7 +6,7 @@ language=Langue
 contact=Contact
 welcome.blurb=Le portail de l''EHRI permet d''accéder à des informations sur des documents d''archives concernant l''Holocauste \
   conservés dans des institutions à travers l''Europe et au-delà. \
-  Pour obtenir plus d''informations sur le projet EHRI, veuillez-vous rendre sur le site : http://ehri-project.eu.
+  Pour obtenir plus d''informations sur le projet EHRI, veuillez-vous rendre sur le site : https://ehri-project.eu.
 footerText=Il s''agit d''une version en cours du développement de l''interface du portail de l''EHRI
 footer.funding=Le projet EHRI est soutenu par la Commission européenne
 close=Fermer
