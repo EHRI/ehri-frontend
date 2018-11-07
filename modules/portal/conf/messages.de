@@ -811,6 +811,7 @@ country.dataExtensive=EHRI-Recherche (Erweitert)
 country.list=Länder
 cvocVocabulary.childItems=Stichwörter
 cvocVocabulary.childCount={0,choice,0#{0} |1#1 Stichwort|1<{0,number,integer} Stichwörter}
+cvocVocabulary.childCount.search={0,choice,0#{0} |1#1 Stichwort|1<{0,number,integer} Stichwörter}
 project.site=EHRI-Projektwebseite
 help.faq=Häufig gestellte Fragen
 help.contact=EHRI kontaktieren

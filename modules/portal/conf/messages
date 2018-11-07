@@ -1160,3 +1160,4 @@ country.description.empty=There is currently no EHRI country report available fo
 #
 cvocVocabulary.childItems=Keywords
 cvocVocabulary.childCount={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
