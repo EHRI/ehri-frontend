@@ -42,7 +42,7 @@ case class Datasets @Inject()(
   }
 
   def list(q: Option[String], sort: Option[String], paging: PageParams, format: DataFormat.Value): Action[AnyContent] =
-    WithUserAction.async { implicit request =>
+    OptionalUserAction.async { implicit request =>
       val params = Seq(SearchParams.QUERY -> q, SearchParams.SORT -> sort, "public" -> Some(true.toString))
         .collect { case (k, Some(v)) => k -> v}
         .toMap
