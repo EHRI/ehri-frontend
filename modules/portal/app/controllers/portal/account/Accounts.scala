@@ -663,7 +663,7 @@ case class Accounts @Inject()(
     val email = Email(
       subject = "Please confirm your EHRI Account Email",
       from = "EHRI Email Validation <noreply@ehri-project.eu>",
-      to = Seq(s"$name <$emailAddress>"),
+      to = Seq(emailAddress),
       bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
     )
     mailer.send(email)
