@@ -21,14 +21,47 @@ actively mislead people they've been temporarily removed pending the completion 
      
  - Set up PostgreSQL (Dockerised) with the right schema: 
  
-     `sudo docker run -v $(pwd)/conf/schema:/docker-entrypoint-initdb.d -e POSTGRES_USER=docview -e POSTGRES_PASSWORD=changeme --publish 5432:5432 postgres`
-     
+     `sudo docker run -e POSTGRES_USER=docview -e POSTGRES_PASSWORD=changeme --publish 5432:5432 postgres`
+
+ - Create an additional group on the backend named "portal":
+
+```bash 
+curl  --header content-type:application/json \
+      --header X-User:admin \
+      --data-binary '{
+           "id":"portal", 
+           "type":"Group",
+           "data":{"identifier": "portal", "name":"Portal"}
+      }' \
+      http://localhost:7474/ehri/classes/Group
+```
+
  - install [sbt](http://www.scala-sbt.org/release/docs/Setup.html)
  - `sbt run`
  - go to localhost:9000
+ - when you get a message about database evolutions being required, click "Apply this script now"
  - create an account at http://localhost:9000/login
- - get your new account id (probably `user000001`)
- - run `curl -X POST http://localhost:7474/ehri/group/admin/{userId}` to make dev admin 
+ - get your new account ID, which can be found by looking at the URL for you account on the people page (`http://localhost:9000/people`). It should be `user000001`.
+ - make developer account an admin on the backend (replace `{userId}` with actual ID):
+ 
+ ```bash
+curl -X POST \
+        --header X-User:admin \
+        http://localhost:7474/ehri/classes/Group/admin/{userId}
+ ```
+ 
+ - make account verified and staff on the front end (replace {userId} with actual ID and use default password 'changeme'):
+ 
+ ```bash
+psql -hlocalhost -Udocview docview \
+        -c "update users set verified = true, staff = true where id = '{userId}'"
+```
+
+At this point you should be able to access the admin pages and create data, e.g:
+
+ - create a country record at `http://localhost:9000/admin/countries/create`. You only have to provide the country code, e.g. "us"
+ - create an institution in that country
+ - create archival records in the institution
 
 ### Testing
 
