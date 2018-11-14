@@ -652,7 +652,7 @@ case class Accounts @Inject()(
   private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
     val email = Email(
       subject = "EHRI Password Reset",
-      to = Seq(s"$name <$emailAddress>"),
+      to = Seq(emailAddress),
       from = "EHRI Password Reset <noreply@ehri-project.eu>",
       bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body)
     )
