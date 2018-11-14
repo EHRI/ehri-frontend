@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/EHRI/ehri-frontend.svg?branch=master)](https://travis-ci.org/EHRI/frontend)
+[![Build Status](https://travis-ci.org/EHRI/ehri-frontend.svg?branch=master)](https://travis-ci.org/EHRI/ehri-frontend)
 
 Front-end for  the [EHRI REST](https://github.com/EHRI/ehri-rest) web service.
 
