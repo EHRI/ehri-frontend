@@ -1,0 +1,6 @@
+s3.region="eu-west-1"
+s3.host="s3-eu-west-1.amazonaws.com"
+aws.bucket=ehri-users
+aws.userImages.bucketName=ehri-users
+aws.accessKeyId=
+aws.secretKey=

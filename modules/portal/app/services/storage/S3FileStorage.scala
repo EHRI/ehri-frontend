@@ -24,13 +24,14 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
-  private val s3config: AwsConfig = AwsConfig.fromConfig(config)
-  private val cred = new AWSStaticCredentialsProvider(new BasicAWSCredentials(s3config.accessKey, s3config.secret))
-  private val region = new AwsRegionProvider {
+
+  private def s3config: AwsConfig = AwsConfig.fromConfig(config)
+  private def cred = new AWSStaticCredentialsProvider(new BasicAWSCredentials(s3config.accessKey, s3config.secret))
+  private def region = new AwsRegionProvider {
     override def getRegion: String = s3config.region
   }
-  private val settings = new S3Settings(MemoryBufferType, None, cred, region, pathStyleAccess = true, endpointUrl = None, ListBucketVersion2)
-  private val client = new S3Client(settings)
+  private def settings = new S3Settings(MemoryBufferType, None, cred, region, pathStyleAccess = true, endpointUrl = None, ListBucketVersion2)
+  private def client = new S3Client(settings)
 
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
     val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))
