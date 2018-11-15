@@ -36,6 +36,7 @@ curl  --header content-type:application/json \
       http://localhost:7474/ehri/classes/Group
 ```
 
+ - install postfix or a suitable email-sending program
  - install [sbt](http://www.scala-sbt.org/release/docs/Setup.html)
  - `sbt run`
  - go to localhost:9000
@@ -62,6 +63,9 @@ At this point you should be able to access the admin pages and create data, e.g:
  - create a country record at `http://localhost:9000/admin/countries/create`. You only have to provide the country code, e.g. "us"
  - create an institution in that country
  - create archival records in the institution
+ 
+NOTE: certain functionality also depends on a valid AWS S3 configuration set in the `conf/aws.conf` file.
+Use the `conf/aws.conf.example` as a template.
 
 ### Testing
 
