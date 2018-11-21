@@ -5,9 +5,9 @@ Disallow: /admin/
 Disallow: /event/
 Disallow: /login
 Disallow: /notes
-Disallow: /links
+Disallow: /links/
 Disallow: /locale
-Disallow: /feedback
+Disallow: /feedback/
 Disallow: /activity
 Disallow: /api/datasets
 Disallow: /guides
