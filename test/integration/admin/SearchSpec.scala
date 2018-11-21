@@ -86,7 +86,7 @@ class SearchSpec extends IntegrationTestRunner {
       Thread.sleep(500)
       // close the connection...
       promise.success(None)
-      indexEventBuffer.lastOption must beSome(cmd.toString)
+      indexEventBuffer.lastOption must beSome.which(_ must contain(EntityType.DocumentaryUnit.toString))
       await(out).last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
     }
   }

@@ -25,6 +25,9 @@ val backendDependencies = Seq(
   ws,
   ehcache,
 
+  // commons text
+  "org.apache.commons" % "commons-text" % "1.4",
+
   // Push JSON parser used for stream parsing...
   "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % "1.0-M1",
 
@@ -46,7 +49,7 @@ val coreDependencies = backendDependencies ++ Seq(
   openId,
 
   // Logback helpers
-  "com.typesafe.play" %% "play-logback" % "2.6.20",
+  "com.typesafe.play" %% "play-logback" % "2.7.0-RC3",
 
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.6.2",
@@ -54,8 +57,8 @@ val coreDependencies = backendDependencies ++ Seq(
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
 
-  // Commons Text
-  "org.apache.commons" % "commons-text" % "1.1",
+  // Commons codec
+  "commons-codec" % "commons-codec" % "1.11",
 
   // Password hashing
   "org.mindrot" % "jbcrypt" % "0.3m",

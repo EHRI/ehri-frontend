@@ -1,22 +1,23 @@
 package services.ingest
 
+import java.io.File
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.nio.file.attribute.PosixFilePermission
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 import javax.inject.Inject
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
-import akka.stream.Materializer
-import akka.stream.scaladsl.Source
+import akka.stream.{IOResult, Materializer}
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
 import play.api.http.HeaderNames
 import play.api.libs.json._
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{BodyWritable, DefaultBodyWritables, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
 import services.data.Constants
 import services.redirects.MovedPageLookup
@@ -217,14 +218,18 @@ case class IngestApiService @Inject()(
         props.map(PROPERTIES_FILE -> _.toAbsolutePath.toString)
     }
 
+
+    val bodyWritable: BodyWritable[Path] =
+        BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
+
     logger.info(s"Dispatching ingest: ${job.data.params}")
     val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
       .withRequestTimeout(20.minutes)
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
       .addQueryStringParameters(wsParams(job.data.params): _*)
-      .post(job.data.params.file.map(_.toFile)
-        .getOrElse(sys.error("Unexpectedly empty ingest data!")))
+      .post(job.data.params.file.map(_.path)
+        .getOrElse(sys.error("Unexpectedly empty ingest data!")))(bodyWritable)
       .map { r =>
         logger.trace(r.body)
         logger.debug(s"Ingest WS status: ${r.status}")

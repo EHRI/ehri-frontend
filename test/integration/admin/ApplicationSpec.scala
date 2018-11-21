@@ -116,7 +116,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       robots must contain("Disallow: " + accountRoutes.loginOrSignup().url)
       robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
       robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
-      robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll())
+      robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll().url.replaceFirst("/$", ""))
       robots must contain("Disallow: " + controllers.admin.routes.Home.index())
     }
 

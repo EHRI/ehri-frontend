@@ -36,7 +36,7 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
 }
 
 class AppModule extends AbstractModule {
-  protected def configure(): Unit = {
+  override def configure(): Unit = {
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
     bind(classOf[AccountManager]).to(classOf[SqlAccountManager])
     bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])

@@ -66,7 +66,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
           Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
         // bodge: if this test fails it's probably because we need more time here
-        Thread.sleep(500)
+        Thread.sleep(750)
         // close the connection...
         promise.success(None)
 
