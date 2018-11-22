@@ -1,22 +1,19 @@
 package utils
 
-import com.fasterxml.jackson.core.FormatSchema
-import com.fasterxml.jackson.dataformat.csv.{CsvGenerator, CsvMapper, CsvSchema}
+import akka.NotUsed
+import akka.stream.alpakka.csv.scaladsl.CsvFormatting
+import akka.stream.scaladsl.Source
 
 trait CsvHelpers {
-  def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ','): String = {
-    val format = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(true)
-    val schema: FormatSchema = headers.foldLeft(format) { (s, h) =>
-      s.addColumn(h)
-    }.build()
+  def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ','): Source[String, NotUsed] = {
 
-    CsvHelpers.mapper.writer(schema).writeValueAsString(data.toArray)
+    val s: Seq[scala.collection.immutable.Iterable[String]] = (headers +: data.map(_.toSeq))
+      .map(_.to[scala.collection.immutable.Iterable])
+
+    val src: Source[scala.collection.immutable.Iterable[String], NotUsed] = Source.apply(s.toList)
+    val csvFormat = CsvFormatting.format(delimiter = sep)
+    src.via(csvFormat).map(_.utf8String)
   }
 }
 
-object CsvHelpers extends CsvHelpers {
-  // String quoting check necessary to avoid over-cautious quoting
-  // of unicode-containing values
-  val mapper: CsvMapper = new CsvMapper()
-    .enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING)
-}
+object CsvHelpers extends CsvHelpers

@@ -1,8 +1,8 @@
 package controllers.cypher
 
 
+import akka.stream.alpakka.csv.scaladsl.CsvFormatting
 import javax.inject.{Inject, Singleton}
-
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import controllers.{AppComponents, DataFormat}
@@ -13,7 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, Neo4jCypherService, CypherResult}
+import services.cypher.{CypherQueryService, CypherResult, Neo4jCypherService}
 import services.search.SearchParams
 import utils.PageParams
 
@@ -123,24 +123,21 @@ case class CypherQueries @Inject()(
       val filename = s"$name-$id.$format"
       format match {
         case DataFormat.Csv | DataFormat.Tsv =>
-          import com.fasterxml.jackson.dataformat.csv.CsvSchema
-          import utils.CsvHelpers
           val sep: Char = if (format == DataFormat.Csv) ',' else '\t'
-          val csvFormat = CsvSchema.builder().setColumnSeparator(sep).setUseHeader(false)
-          val writer = CsvHelpers.mapper.writer(csvFormat.build())
-            val csvRows: Source[ByteString, _] = cypher.rows(query.query).map { row =>
-              val cols: Seq[String] = row.collect(CypherResult.jsToString)
-              ByteString.fromArray(writer.writeValueAsBytes(cols.toArray))
-            }.watchTermination()(Keep.right).mapMaterializedValue { f =>
-              f.onComplete {
-                case Failure(e) => logger.error(s"Error generating $format: ", e)
-                case _ =>
-              }
-              f
+          val csvFormat = CsvFormatting.format(delimiter = sep)
+          val csvRows: Source[ByteString, _] = cypher.rows(query.query)
+              .map(_.collect(CypherResult.jsToString))
+              .via(csvFormat)
+              .watchTermination()(Keep.right).mapMaterializedValue { f =>
+            f.onComplete {
+              case Failure(e) => logger.error(s"Error generating $format: ", e)
+              case _ =>
             }
-            immediate(Ok.chunked(csvRows)
-              .as(s"text/$format; charset=utf-8")
-              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename"))
+            f
+          }
+          immediate(Ok.chunked(csvRows)
+            .as(s"text/$format; charset=utf-8")
+            .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename"))
         case DataFormat.Html =>
           cypher.get(query.query).map { rows =>
             Ok(views.html.admin.cypherQueries.results(query, rows))
