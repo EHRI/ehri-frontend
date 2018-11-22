@@ -8,7 +8,7 @@
             @formHelpers.globalErrors(form)
             @formHelpers.csrfToken()
             <div class="form-group"><strong>Choose either:</strong></div>
-            @formHelpers.choiceInput(form("type"), "type",
+            @formHelpers.choiceInput(form(""), "type",
                 defines.ContentTypes.values.toList.map(et => et.toString -> et.toString), '_blank -> true)
             <div class="form-group"><strong>OR</strong></div>
             @formHelpers.lineInput(form(""), "scope")
@@ -17,7 +17,6 @@
 
         </fieldset>
     }
-
 
     @formHelpers.submitButton(Messages("admin.utils.regenerateIds.scan"))
 }
