@@ -29,7 +29,7 @@ val backendDependencies = Seq(
   "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % "1.0-M1",
 
   // CSV parser/writer...
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.6.4",
+  "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "1.0-M1",
 
   // IRI helper...
   "org.apache.jena" % "jena-iri" % "3.8.0",

@@ -106,7 +106,7 @@ case class UserProfiles @Inject()(
       format match {
         case DataFormat.Text => Ok(views.txt.userProfile.watchedItems(watchList))
           .as(MimeTypes.TEXT)
-        case DataFormat.Csv | DataFormat.Tsv => Ok(writeCsv(
+        case DataFormat.Csv | DataFormat.Tsv => Ok.chunked(writeCsv(
           List("Item", "URL"),
           watchList.items.map(a => ExportWatchItem.fromItem(a).toCsv),
             sep = if (format == DataFormat.Csv) ',' else '\t'))
@@ -161,7 +161,7 @@ case class UserProfiles @Inject()(
         case DataFormat.Text =>
           Ok(views.txt.userProfile.annotations(itemsOnly).body.trim)
             .as(MimeTypes.TEXT)
-        case DataFormat.Csv | DataFormat.Tsv => Ok(writeCsv(
+        case DataFormat.Csv | DataFormat.Tsv => Ok.chunked(writeCsv(
             List("Item", "Field", "Note", "Time", "URL"),
             itemsOnly.items.map(a => ExportAnnotation.fromAnnotation(a).toCsv),
               sep = if (format == DataFormat.Csv) ',' else '\t'))

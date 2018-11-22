@@ -232,7 +232,7 @@ case class UserProfiles @Inject()(
           account.created.map(_.format(datePattern)).getOrElse("")
         )
       }
-      Ok(writeCsv(headers, data))
+      Ok.chunked(writeCsv(headers, data))
         .as("text/csv")
         .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=users_$exportDate.csv")
     }

@@ -1,14 +1,15 @@
 package controllers.admin
 
-import java.io.{FileInputStream, InputStream}
 import java.nio.charset.StandardCharsets
-import javax.inject._
 
-import com.fasterxml.jackson.databind.MappingIterator
-import com.fasterxml.jackson.dataformat.csv.CsvParser
+import akka.stream.Materializer
+import akka.stream.alpakka.csv.scaladsl.CsvParsing
+import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
+import javax.inject._
 import models.admin.BatchDeleteTask
 import play.api.data.Form
 import play.api.data.Forms._
@@ -20,7 +21,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, MultipartFormData
 import services.cypher.CypherService
 import services.data.{AuthenticatedUser, InputDataError}
 import services.search.SearchIndexMediator
-import utils.{CsvHelpers, EnumUtils, PageParams}
+import utils.{EnumUtils, PageParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -36,9 +37,10 @@ case class Utils @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient,
   cypher: CypherService
-) extends AdminController {
+)(implicit mat: Materializer) extends AdminController {
 
   override val staffOnly = false
+
   private def logger = play.api.Logger(classOf[Utils])
 
   /** Check the database is up by trying to load the admin account.
@@ -62,7 +64,7 @@ case class Utils @Inject()(
     for {
       allAccounts <- accounts.findAll(PageParams.empty.withoutLimit)
       profileIds <- cypher.get("MATCH (n:UserProfile) RETURN n.__id").map {
-        res => res.data.collect { case JsString(id) :: _ => id}.flatten
+        res => res.data.collect { case JsString(id) :: _ => id }.flatten
       }
       accountIds = allAccounts.map(_.id)
     } yield {
@@ -99,7 +101,7 @@ case class Utils @Inject()(
         errForm => immediate(BadRequest(views.html.admin.tools.movedItemsForm(errForm,
           controllers.admin.routes.Utils.addMovedItemsPost()))),
         prefix => request.body.file("csv").map { file =>
-          updateFromCsv(new FileInputStream(file.ref.path.toFile), prefix)
+          updateFromCsv(FileIO.fromPath(file.ref.path), prefix)
             .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
         }.getOrElse {
           immediate(Ok(views.html.admin.tools.movedItemsForm(
@@ -121,16 +123,18 @@ case class Utils @Inject()(
         errForm => immediate(BadRequest(views.html.admin.tools
           .renameItemsForm(errForm, controllers.admin.routes.Utils.renameItemsPost()))),
         prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
-          val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
-            .collect { case from :: to :: _ => from -> to }
-          userDataApi.rename(todo).flatMap { items =>
-            updateFromCsv(items, prefix)
-              .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
-          } recover {
-            case e: InputDataError =>
-              BadRequest(views.html.admin.tools.renameItemsForm(
-                boundForm.withGlobalError(e.details),
-                controllers.admin.routes.Utils.renameItemsPost()))
+          parseCsv(FileIO.fromPath(file.ref.path))
+              .collect { case from :: to :: _ => from -> to }
+              .runWith(Sink.seq).flatMap { todo =>
+            userDataApi.rename(todo).flatMap { items =>
+              updateFromCsv(items, prefix)
+                .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+            } recover {
+              case e: InputDataError =>
+                BadRequest(views.html.admin.tools.renameItemsForm(
+                  boundForm.withGlobalError(e.details),
+                  controllers.admin.routes.Utils.renameItemsPost()))
+            }
           }
         }.getOrElse {
           immediate(BadRequest(views.html.admin.tools.renameItemsForm(
@@ -152,16 +156,18 @@ case class Utils @Inject()(
         errForm => immediate(BadRequest(views.html.admin.tools
           .reparentItemsForm(errForm, controllers.admin.routes.Utils.reparentItemsPost()))),
         prefix => request.body.file("csv").filter(_.filename.nonEmpty).map { file =>
-          val todo = parseCsv(new FileInputStream(file.ref.path.toFile))
-            .collect { case id :: parent :: _ => id -> parent }
-          userDataApi.reparent(todo, commit = true).flatMap { items =>
-            updateFromCsv(items, prefix)
-              .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
-          } recover {
-            case e: InputDataError =>
-              BadRequest(views.html.admin.tools.reparentItemsForm(
-                boundForm.withGlobalError(e.details),
-                controllers.admin.routes.Utils.reparentItemsPost()))
+          parseCsv(FileIO.fromPath(file.ref.path))
+              .collect { case id :: parent :: _ => id -> parent }
+              .runWith(Sink.seq).flatMap { todo =>
+            userDataApi.reparent(todo, commit = true).flatMap { items =>
+              updateFromCsv(items, prefix)
+                .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+            } recover {
+              case e: InputDataError =>
+                BadRequest(views.html.admin.tools.reparentItemsForm(
+                  boundForm.withGlobalError(e.details),
+                  controllers.admin.routes.Utils.reparentItemsPost()))
+            }
           }
         }.getOrElse {
           immediate(BadRequest(views.html.admin.tools.reparentItemsForm(
@@ -174,10 +180,10 @@ case class Utils @Inject()(
   private val regenerateForm: Form[(Option[ContentTypes.Value], Option[String], Boolean)] = Form(
     tuple(
       "type" -> optional(EnumUtils.enumMapping(ContentTypes)),
-      "scope" -> optional(nonEmptyText).transform (_.flatMap {
-          case "" => Option.empty
-          case s => Some(s)
-        }, identity[Option[String]]),
+      "scope" -> optional(nonEmptyText).transform(_.flatMap {
+        case "" => Option.empty
+        case s => Some(s)
+      }, identity[Option[String]]),
       "tolerant" -> boolean
     ).verifying("Choose one option OR the other", t => !(t._1.isDefined && t._2.isDefined))
   )
@@ -217,8 +223,8 @@ case class Utils @Inject()(
       } recover {
         case e: InputDataError =>
           Ok(views.html.admin.tools.regenerateForm(regenerateForm
-              .fill((Some(ct), None, tolerant))
-              .withGlobalError(e.details),
+            .fill((Some(ct), None, tolerant))
+            .withGlobalError(e.details),
             controllers.admin.routes.Utils.regenerateIds()))
       }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
@@ -229,7 +235,7 @@ case class Utils @Inject()(
     if (isAjax) {
       userDataApi.regenerateIdsForScope(id, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
-          .fill(value = ("", items.map { case (f, t) => (f, t, true)})),
+          .fill(value = ("", items.map { case (f, t) => (f, t, true) })),
           controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))
       }
     } else immediate(Ok(views.html.admin.tools.regenerateIds(regenerateIdsForm,
@@ -243,13 +249,13 @@ case class Utils @Inject()(
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.admin.tools.regenerateIds(errForm,
         controllers.admin.routes.Utils.regenerateIdsPost(tolerant)))), {
-      case (prefix, items) =>
-        val activeIds = items.collect { case (f, _, true) => f }
-        logger.info(s"Renaming: $activeIds")
-        userDataApi.regenerateIds(activeIds, tolerant, commit = true).flatMap { items =>
-          updateFromCsv(items, prefix)
-            .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
-        }
+        case (prefix, items) =>
+          val activeIds = items.collect { case (f, _, true) => f }
+          logger.info(s"Renaming: $activeIds")
+          userDataApi.regenerateIds(activeIds, tolerant, commit = true).flatMap { items =>
+            updateFromCsv(items, prefix)
+              .map(newUrls => Ok(views.html.admin.tools.movedItemsAdded(newUrls)))
+          }
       }
     )
   }
@@ -273,8 +279,8 @@ case class Utils @Inject()(
           controllers.admin.routes.Utils.findReplacePost(commit = true)))
       ),
       task => userDataApi.findReplace(
-          task.parentType, task.subType, task.property, task.find,
-          task.replace, commit, task.log).flatMap { found =>
+        task.parentType, task.subType, task.property, task.find,
+        task.replace, commit, task.log).flatMap { found =>
         if (commit) {
           indexer.indexIds(found.map(_._1): _*).map { _ =>
             Redirect(controllers.admin.routes.Utils.findReplace())
@@ -311,7 +317,7 @@ case class Utils @Inject()(
     )
   }
 
-  private val redirectForm: Form[(String,String)] = Form(
+  private val redirectForm: Form[(String, String)] = Form(
     tuple(
       "from" -> nonEmptyText.verifying("admin.utils.redirect.badPathError", p => p.startsWith("/")),
       "to" -> nonEmptyText.verifying("admin.utils.redirect.badPathError", p => p.startsWith("/"))
@@ -345,7 +351,7 @@ case class Utils @Inject()(
 
   private def updateMovedItems(items: Seq[(String, String)], newUrls: Seq[(String, String)]): Future[Int] = {
     for {
-    // Delete the old IDs from the search engine...
+      // Delete the old IDs from the search engine...
       _ <- indexer.clearIds(items.map(_._1): _*)
       // Index the new ones....
       _ <- indexer.indexIds(items.map(_._2): _*)
@@ -361,31 +367,19 @@ case class Utils @Inject()(
     }
   }
 
-  private def updateFromCsv(inputStream: InputStream, prefixes: String): Future[Seq[(String, String)]] = {
-    val items = parseCsv(inputStream).collect { case f :: t :: _ => f -> t }
-    updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+  private def updateFromCsv(src: Source[ByteString, _], prefixes: String): Future[Seq[(String, String)]] = {
+    parseCsv(src)
+      .collect { case f :: t :: _ => f -> t }
+      .runWith(Sink.seq).flatMap { items =>
+      updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
+    }
   }
 
   private def updateFromCsv(items: Seq[(String, String)], prefixes: String): Future[Seq[(String, String)]] =
     updateFromCsv(items, remapUrlsFromPrefixes(items, prefixes))
 
 
-  private def parseCsv(ios: InputStream, sep: Char = ','): Seq[List[String]] = {
-    import com.fasterxml.jackson.dataformat.csv.CsvSchema
-
-    import scala.collection.JavaConverters._
-
-    val schema = CsvSchema.builder().setColumnSeparator(sep).build()
-    val all: MappingIterator[Array[String]] = CsvHelpers
-      .mapper
-      .enable(CsvParser.Feature.WRAP_AS_ARRAY)
-      .readerFor(classOf[Array[String]])
-      .`with`(schema)
-      .readValues(ios)
-    try for {
-        arr <- all.readAll().asScala
-      } yield arr.toList finally {
-      all.close()
-    }
+  private def parseCsv[M](src: Source[ByteString, M], sep: Char = ','): Source[List[String], M] = {
+    src.via(CsvParsing.lineScanner(sep.toByte)).map(_.map(_.utf8String))
   }
 }
