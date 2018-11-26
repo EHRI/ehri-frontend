@@ -280,11 +280,10 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
       ),
       "js/script-pre.js" -> group(
         Seq(
-          "js/lib/jquery-1.11.2.js",
-          "js/lib/jquery.autosize.js",
-          "js/lib/jquery.validate.js",
-          "js/lib/typeahead.js",
-          "js/lib/handlebar.js",
+          "js/lib/jquery-1.12.4.js",
+          "js/lib/jquery.validate-1.17.0.js",
+          "js/lib/typeahead-1.2.1.js",
+          "js/lib/handlebars-v4.0.12.js",
           "js/lib/jquery.cookie.js",
           "js/lib/jquery.hoverIntent.js",
           "js/select2/select2.js",

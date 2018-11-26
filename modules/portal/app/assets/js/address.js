@@ -1,81 +1,74 @@
-$(document).ready(function(){
-	var geoNamesUsername = 'EhriAdmin';
+jQuery(document).ready(function ($) {
+  var geoNamesUsername = 'EhriAdmin';
 
-	remotes = {
-		city : {
-				template : Handlebars.compile('<b>{{name}}</b><span class="text-muted"> - {{countryCode}} <small>({{adminName}})</small></span>'),
-				selected : function(el, data) {
-					form = el.parents(".address-form");
-					form.find("[name$='countryCode']").select2("val", data.countryCode);
-					form.find("[name$='firstdem']").val(data.adminName);
-				},
-				BH : new Bloodhound({
-						datumTokenizer: function (d) {
-      						return Bloodhound.tokenizers.whitespace(d); 
-						},
-						queryTokenizer: Bloodhound.tokenizers.whitespace,
-						remote: {
-							url : 'http://api.geonames.org/searchJSON?name_startsWith=%QUERY&maxRows=10&username=' + geoNamesUsername + '&lang=en&featureClass=P&style=long',
-							filter : function(parsedResponse) {
-								var result = [];
-								for (var i=0; i<parsedResponse.geonames.length; i++) {
-									var geonameId = parsedResponse.geonames[i].geonameId;
-									result.push({
-										name: parsedResponse.geonames[i].name,
-										value: parsedResponse.geonames[i].name,
-										geonameId: geonameId,
-										countryCode: parsedResponse.geonames[i].countryCode,
-										lat: parsedResponse.geonames[i].lat,
-										lng: parsedResponse.geonames[i].lng,
-										bbox: parsedResponse.geonames[i].bbox,
-										adminName : parsedResponse.geonames[i].adminName1
-									});
-								}
-								return result;
-							}
-						}
-					})
-			}
-	}
+  var remotes = {
+    city: {
+      template: Handlebars.compile('<div><b>{{name}}</b><span class="text-muted"> - {{countryCode}} <small>({{adminName}})</small></span></div>'),
+      selected: function (el, data) {
+        form = el.parents(".address-form");
+        form.find("[name$='countryCode']").select2("val", data.countryCode);
+        form.find("[name$='firstdem']").val(data.adminName);
+      },
+      BH: new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        identify: function (obj) {
+          return obj.geonameId
+        },
+        remote: {
+          url: 'http://api.geonames.org/searchJSON?name_startsWith=%QUERY&maxRows=10&username=' + geoNamesUsername + '&lang=en&featureClass=P&style=long',
+          wildcard: "%QUERY",
+          transform: function (response) {
+            return response.geonames.map(function (item) {
+              return {
+                name: item.name,
+                value: item.name,
+                geonameId: item.geonameId,
+                countryCode: item.countryCode,
+                lat: item.lat,
+                lng: item.lng,
+                bbox: item.bbox,
+                adminName: item.adminName1
+              };
+            });
+          }
+        }
+      })
+    }
+  }
 
-	remotes["city"].BH.initialize();
+  function initTypeahead(that) {
+    var remoteName = that.attr('data-remote');
+    if (remotes[remoteName]) {
+      that.typeahead({
+            highlight: false
+          },
+          {
+            name: remoteName,
+            source: remotes[remoteName].BH,
+            display: 'name',
+            templates: {
+              suggestion: remotes[remoteName].template
+            }
+          }
+      ).bind('typeahead:select', function (e, data) {
+        var elem = $(this);
+        remoteName = elem.attr('data-remote');
+        remotes[remoteName].selected(elem, data);
+      });
+    }
+  }
 
-	function th(that) {
-		remoteName = that.attr('data-remote');
-		if(typeof remotes[remoteName] !== "undefined" && that.hasClass("tt-input") === false && that.hasClass("tt-hint") === false) {
-			that.typeahead(
-				null,
-				{
-					name: remoteName,
-					source: remotes[remoteName].BH.ttAdapter(),
-					templates: {
-						suggestion : remotes[remoteName].template
-					}
-				}
-			);
+  /**
+   * Initialize typeahead.js
+   */
+  $('.typeahead').each(function () {
+    initTypeahead($(this));
+  });
 
-			that.on('typeahead:selected', function(e, data) {
-				that = $(this);
-				remoteName = that.attr('data-remote');
-				remotes[remoteName].selected(that, data);
-			});
-
-		}
-	}
-
-	/**
-	 * Initialize typeahead.js
-	 */
-	$('.typeahead').each(function() {
-		that = $(this);
-		th(that);
-	});
-
-	$("[data-prefix='addressArea'] .add-inline-element").on("click", function() {
-		$('.typeahead').each(function() {
-			that = $(this);
-			th(that);
-		});
-	});
-
+  $(document).on("inlineFormset:added", function (e) {
+    $(".typeahead", e.target).each(function () {
+      initTypeahead($(this));
+    })
+  });
 });
