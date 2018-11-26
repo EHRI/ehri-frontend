@@ -32,7 +32,7 @@ val backendDependencies = Seq(
   "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "1.0-M1",
 
   // IRI helper...
-  "org.apache.jena" % "jena-iri" % "3.8.0",
+  "org.apache.jena" % "jena-iri" % "3.9.0",
 
   // Ontology
   "ehri-project" % "ehri-definitions" % backendVersion
@@ -46,10 +46,10 @@ val coreDependencies = backendDependencies ++ Seq(
   openId,
 
   // Logback helpers
-  "com.typesafe.play" %% "play-logback" % "2.6.15",
+  "com.typesafe.play" %% "play-logback" % "2.6.20",
 
   // Anorm DB lib
-  "org.playframework.anorm" %% "anorm" % "2.6.1",
+  "org.playframework.anorm" %% "anorm" % "2.6.2",
 
   // Commons IO
   "commons-io" % "commons-io" % "2.5",
@@ -66,8 +66,8 @@ val coreDependencies = backendDependencies ++ Seq(
   // Markdown rendering
   "com.vladsch.flexmark" % "flexmark-all" % "0.28.10",
 
-  "com.atlassian.commonmark" % "commonmark" % "0.11.0",
-  "com.atlassian.commonmark" % "commonmark-ext-autolink" % "0.11.0",
+  "com.atlassian.commonmark" % "commonmark" % "0.12.1",
+  "com.atlassian.commonmark" % "commonmark-ext-autolink" % "0.12.1",
 
   // HTML sanitising...
   "org.jsoup" % "jsoup" % "1.11.3",
