@@ -4524,7 +4524,7 @@ div.cc-cookies a:hover {
   height: 18px;
 }
 .tt-suggestions,
-.tt-dropdown-menu {
+.tt-menu {
   width: 100%;
 }
 .tt-suggestions {
@@ -4551,7 +4551,7 @@ div.cc-cookies a:hover {
   cursor: pointer;
   background-color: #f5f5f5;
 }
-.tt-dropdown-menu {
+.tt-menu {
   padding-top: 10px;
   box-sizing: border-box;
 }
