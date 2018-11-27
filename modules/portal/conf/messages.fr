@@ -197,8 +197,6 @@ login.error.oauth2.info=Nous vous prions de nous excuser, mais il y a eu un prob
 login.password.current=Mot de passe actuel
 login.password.new=Nouveau mot de passe
 login.password.new.confirm=Confirmez le nouveau mot de passe
-login.password.reset.sentLink=Nous vous avons un e-mail contenant un lien qui peut être utilisé pour réinitialiser votre mot de passe.\
-    Ce lien ne peut être utilisé qu''une seule fois.
 login.password.reset.confirmation=Votre mot de passe a été réinitialisé.
 login.dataPolicyNag=En m''inscrivant, je déclare avoir pris connaissance de(s) {0} et accepte de me conformer aux {1}.
 logout=Déconnexion
