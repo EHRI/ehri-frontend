@@ -196,8 +196,6 @@ login.error.oauth2.info=Przepraszamy, ale wystąpił problem podczas tworzenia k
 login.password.current=Aktualne hasło
 login.password.new=Nowe hasło
 login.password.new.confirm=Potwierdź nowe hasło
-login.password.reset.sentLink=Wysłaliśmy Ci e-mail z linkiem, którego możesz użyć, aby zresetować hasło.\
-    Z tego linku można skorzystać tylko jeden raz.
 login.password.reset.confirmation=Twoje hasło zostało zresetowane.
 login.dataPolicyNag=Rejestrując się, potwierdzam, że zapoznałem się z dokumentem {0} i zgadzam się przestrzegać postanowień zawartych w dokumencie {1}.
 logout=Wyloguj się

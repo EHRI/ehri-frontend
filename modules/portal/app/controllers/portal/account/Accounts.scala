@@ -452,6 +452,8 @@ case class Accounts @Inject()(
           immediate(BadRequest(views.html.account.forgotPassword(errForm,
             recaptchaKey, accountRoutes.forgotPasswordPost())))
         }, { email =>
+          val resp = Redirect(portalRoutes.index())
+                  .flashing("warning" -> "login.password.reset.sentLink")
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
@@ -459,13 +461,10 @@ case class Accounts @Inject()(
                 p <- userDataApi.get[UserProfile](account.id)
                 _ <- accounts.createToken(account.id, uuid, isSignUp = false)
                 _ = sendResetEmail(p.data.name, account.email, uuid)
-              } yield {
-                Redirect(portalRoutes.index()).flashing("warning" -> "login.password.reset.sentLink")
-              }
-            case None =>
-              val errForm = forgotPasswordForm.withError("email", "error.emailNotFound")
-              immediate(BadRequest(views.html.account.forgotPassword(errForm,
-                recaptchaKey, accountRoutes.forgotPasswordPost())))
+              } yield resp
+            // Note: to avoid leaking email data we send the same response whether or not the email
+            // exists on the system.
+            case None => immediate(resp)
           }
         })
     }

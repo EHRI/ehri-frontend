@@ -275,7 +275,8 @@ login.error.oauth2.badSessionId=We were unable to log you in via {0} this time. 
 login.password.current=Current Password
 login.password.new=New Password
 login.password.new.confirm=Confirm New Password
-login.password.reset.sentLink=We''ve sent you an email containing a link that can be used to reset your password.\
+login.password.reset.sentLink=If your email address exists on our system you will receive\
+  a message containing a link that can be used to reset your password.\
   This link can only be used once.
 login.password.reset.confirmation=Your password has been reset.
 login.dataPolicyNag=By signing in I acknowledge the {0} and agree to abide by the {1}.

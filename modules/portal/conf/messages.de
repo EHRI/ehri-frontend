@@ -196,8 +196,6 @@ login.error.oauth2.info=Leider ist ein Problem beim Erstellen Ihres Kontos über
 login.password.current=Aktuelles Passwort
 login.password.new=Neues Passwort
 login.password.new.confirm=Neues Passwort bestätigen
-login.password.reset.sentLink=Wir haben Ihnen eine E-Mail mit einem Link geschickt, mit dem Sie Ihr Passwort wiederherstellen können.\
-    Dieser Link kann nur einmal verwendet werden.
 login.password.reset.confirmation=Ihr Passwort wurde wiederhergestellt.
 login.dataPolicyNag=Indem ich mich anmelde, erkenne ich die {0} an und erkläre mich mit den {1} einverstanden.
 logout=Abmelden

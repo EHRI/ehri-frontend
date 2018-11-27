@@ -176,7 +176,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       contentAsString(forgot) must contain(message("error.badRecaptcha"))
     }
 
-    "give an error submitting a forgot password form with the right capcha but the wrong email" in new ITestApp(Map("recaptcha.skip" -> true)) {
+    "don't give error submitting a forgot password form with the right capcha but the wrong email" in new ITestApp(Map("recaptcha.skip" -> true)) {
       val data: Map[String,Seq[String]] = Map(
         "email" -> Seq("test@example.com"),
         CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
@@ -184,8 +184,8 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val forgot = FakeRequest(accountRoutes.forgotPasswordPost())
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
         .callWith(data)
-      status(forgot) must equalTo(BAD_REQUEST)
-      contentAsString(forgot) must contain(message("error.emailNotFound"))
+      status(forgot) must equalTo(SEE_OTHER)
+      flash(forgot).apply("warning") must_== "login.password.reset.sentLink"
     }
 
     "create a reset token on password reset with correct email" in new ITestApp(Map("recaptcha.skip" -> true)) {
