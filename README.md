@@ -37,6 +37,7 @@ curl  --header content-type:application/json \
 ```
 
  - install postfix or a suitable email-sending program
+ - install Node JS (which handles client-side asset compilation)
  - install [sbt](http://www.scala-sbt.org/release/docs/Setup.html)
  - `sbt run`
  - go to localhost:9000
