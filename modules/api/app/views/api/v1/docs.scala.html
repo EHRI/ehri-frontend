@@ -244,7 +244,10 @@
         can be specified as a comma-separated list.</p>
         <p><strong>Note:</strong> although omitted for clarity above the square brackets must be percent-encoded, e.g:</p>
 
-        <p><code>fields%255BRepository%255D=name</code>.</p>
+        <p><code>fields%5BRepository%5D=name</code>.</p>
+
+        <p>Also note that using an empty parameter, e.g. <code>fields%5BDocumentaryUnit%5D=</code>, will remove all attributes
+        from the response.</p>
 
         <h3>Geospatial Bounding Box</h3>
 
