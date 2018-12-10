@@ -131,6 +131,7 @@ case class IngestApiService @Inject()(
       "type" -> job.data.dataType,
       "params" -> Json.obj(
         "scope" -> job.data.params.scope,
+        "lang" -> job.data.params.lang,
         "fonds" -> job.data.params.fonds,
         "allow-update" -> job.data.params.allowUpdate,
         "handler" -> job.data.params.handler,
@@ -208,6 +209,7 @@ case class IngestApiService @Inject()(
         ALLOW_UPDATE -> params.allowUpdate.toString,
         LOG -> params.log,
         COMMIT -> params.commit.toString) ++
+        params.lang.map(LANG -> _).toSeq ++
         params.fonds.map(FONDS -> _).toSeq ++
         params.handler.map(HANDLER -> _).toSeq ++
         params.importer.map(IMPORTER -> _).toSeq ++

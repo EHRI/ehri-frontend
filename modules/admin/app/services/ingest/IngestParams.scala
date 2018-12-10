@@ -11,6 +11,7 @@ case class IngestParams(
   scope: String,
   fonds: Option[String] = None,
   log: String,
+  lang: Option[String] = None,
   allowUpdate: Boolean = false,
   tolerant: Boolean = false,
   handler: Option[String] = None,
@@ -29,6 +30,7 @@ object IngestParams {
   val FONDS = "fonds"
   val TOLERANT = "tolerant"
   val ALLOW_UPDATE = "allow-update"
+  val LANG = "lang"
   val LOG = "log"
   val HANDLER = "handler"
   val IMPORTER = "importer"
@@ -45,6 +47,7 @@ object IngestParams {
       SCOPE -> nonEmptyText,
       FONDS -> optional(nonEmptyText),
       LOG -> nonEmptyText,
+      LANG -> optional(text),
       ALLOW_UPDATE -> boolean,
       TOLERANT -> boolean,
       HANDLER -> optional(text),
