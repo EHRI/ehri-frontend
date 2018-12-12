@@ -1,12 +1,10 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
 
-@views.html.layout.textLayout(Messages("dataPolicy.header")) {
-    <h2 id="data-general-statement">@Messages("dataPolicy.general.header")</h2>
-    <p>@Messages("dataPolicy.general.1")</p>
+@views.html.layout.textLayout(Messages("dataPolicy")) {
 
-    <h2 id="data-notice">@Messages("dataPolicy.header")</h2>
-    <p>@Messages("dataPolicy.notice.1")</p>
-    <p>@Messages("dataPolicy.notice.2")</p>
+    <h2 id="data-privacy-policy">@Messages("dataAndPrivacyPolicy.header")</h2>
+    <p>@Messages("dataAndPrivacyPolicy.1")</p>
+    <p>@Messages("dataAndPrivacyPolicy.2")</p>
 
     <h2 id="data-privacy">@Messages("privacy.header")</h2>
 
@@ -15,14 +13,23 @@
     <p>@Messages("privacy.users.2")</p>
     <p>@Messages("privacy.users.3")</p>
     <p>@Messages("privacy.users.4")</p>
+    <p>@Messages("privacy.users.5")</p>
+    <ul>
+        <li>@Messages("privacy.users.5.a")</li>
+        <li>@Messages("privacy.users.5.b")</li>
+        <li>@Messages("privacy.users.5.c")</li>
+    </ul>
+    <p>@Messages("privacy.users.6")</p>
 
-    <h3>@Messages("privacy.data.header")</h3>
-    <p>@Html(Messages(
-        "privacy.data.1",
-        s"<a class='external' target='_blank' href='https://www.ehri-project.eu'>${Messages("privacy.data.1.riskAssessmentLinkText")}</a>"
-    ))</p>
-    <p>@Messages("privacy.data.2")</p>
-    <p>@Messages("privacy.data.3")</p>
+
+    <h2>@Messages("dataPolicy.header")</h2>
+
+    <h3>@Messages("dataPolicy.data.header")</h3>
+    <p>@Messages("dataPolicy.data.1")</p>
+    <p>@Messages("dataPolicy.data.2")</p>
+    <p>@Messages("dataPolicy.data.3")</p>
+    <p>@Messages("dataPolicy.data.4")</p>
+    <p>@Messages("dataPolicy.data.5")</p>
 
     <h3>@Messages("privacy.cookies.header")</h3>
     <p>@Messages("privacy.cookies.1")</p>
@@ -60,16 +67,40 @@
         <li>@Messages("privacy.cookies.7.b")</li>
     </ol>
 
-    <h3>@Messages("privacy.complaints.header")</h3>
-    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("info@ehri-project.eu")) { email =>
+    <h2>@Messages("privacy.rights.header")</h2>
+    <h3>@Messages("privacy.rights.header.2")</h3>
+    <p>@Messages("privacy.rights.1")</p>
+    <ul>
+        <li>@Messages("privacy.rights.1.a")</li>
+        <li>@Messages("privacy.rights.1.b")</li>
+        <li>@Messages("privacy.rights.1.c")</li>
+        <li>@Messages("privacy.rights.1.d")</li>
+        <li>@Messages("privacy.rights.1.e")</li>
+        <li>@Messages("privacy.rights.1.f")</li>
+    </ul>
+
+    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("?")) { email =>
         <p>@Html(Messages(
-            "privacy.complaints.1",
+            "privacy.rights.2",
             s"<a href='mailto:$email'>$email</a>"
         ))</p>
     }
-    <address>
-    @globalConfig.configuration.get[Seq[String]]("ehri.portal.contact.address").map { line =>
-        @line<br>
+    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.contact.dataProtection.name").getOrElse("?")) { name =>
+        @defining(globalConfig.configuration.getOptional[String]("ehri.portal.contact.dataProtection.phone").getOrElse("?")) { phone =>
+            @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.dataProtection").getOrElse("?")) { email =>
+                <p>@Messages("privacy.rights.2.1")</p>
+                <p>@Messages("privacy.rights.2.2", name)</p>
+                <p>@Html(Messages("privacy.rights.2.3", phone, s"<a href='mailto:$email'>$email</a>"))</p>
+            }
+        }
     }
-    </address>
+
+    <h3>@Messages("privacy.authority.header")</h3>
+    <p>@Messages("privacy.authority.1")</p>
+
+    <h3>@Messages("privacy.changes.header")</h3>
+    <p>@Messages("privacy.changes.1")</p>
+
+    <h3>@Messages("privacy.entry.header")</h3>
+    <p>@Messages("privacy.entry.1")</p>
 }
