@@ -1,6 +1,6 @@
 language: scala
 scala:
-    - 2.11.8
+    - 2.12.7
 
 jdk:
     oraclejdk8
@@ -37,10 +37,4 @@ before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -exec rm "{}" ";"
 
 script:
-  # Your normal scripts
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only eu.ehri.*"
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only models.* auth.* utils.* views.* acl.* defines.*"
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only services.*"
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only controllers.*"
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only integration.admin.*"
-  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M "test-only integration.portal.*"
+  - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test

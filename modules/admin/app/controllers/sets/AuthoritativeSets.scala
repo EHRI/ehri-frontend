@@ -67,7 +67,7 @@ AuthoritativeSets @Inject()(
         BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm,
           usersAndGroups, setRoutes.createPost()))
       case Right(item) => Redirect(setRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -81,7 +81,7 @@ AuthoritativeSets @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.authoritativeSet.edit(
         request.item, errorForm, setRoutes.updatePost(id)))
       case Right(item) => Redirect(setRoutes.get(item.id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -101,7 +101,7 @@ AuthoritativeSets @Inject()(
         BadRequest(views.html.admin.historicalAgent.create(request.item,
           errorForm, formConfig.forCreate, accForm, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
       case Right(citem) => Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -112,7 +112,7 @@ AuthoritativeSets @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(setRoutes.list())
-        .flashing("success" -> "item.delete.confirmation")
+        .flash("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -123,7 +123,7 @@ AuthoritativeSets @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(setRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -154,7 +154,7 @@ AuthoritativeSets @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(setRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -169,7 +169,7 @@ AuthoritativeSets @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(setRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
