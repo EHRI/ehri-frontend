@@ -85,7 +85,7 @@ case class Concepts @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.concept.edit(
         request.item, errorForm, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -101,7 +101,7 @@ case class Concepts @Inject()(
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, usersAndGroups, conceptRoutes.createConceptPost(id)))
       case Right(citem) => Redirect(conceptRoutes.get(id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -112,7 +112,7 @@ case class Concepts @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(conceptRoutes.search())
-      .flashing("success" -> "item.delete.confirmation")
+      .flash("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -123,7 +123,7 @@ case class Concepts @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(conceptRoutes.get(id))
-      .flashing("success" -> "item.update.confirmation")
+      .flash("success" -> "item.update.confirmation")
   }
 
 
@@ -153,7 +153,7 @@ case class Concepts @Inject()(
             errorForm, conceptRoutes.linkAnnotatePost(id, toType, to)))
         case Right(_) =>
           Redirect(conceptRoutes.get(id))
-            .flashing("success" -> "item.update.confirmation")
+            .flash("success" -> "item.update.confirmation")
       }
     }
 }

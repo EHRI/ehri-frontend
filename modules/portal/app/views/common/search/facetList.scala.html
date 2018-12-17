@@ -153,7 +153,7 @@
                 <h3>@Messages("search.facets.heading")</h3>
             </div>
             <ul class="facet-classes">
-            @activeClasses.filter(_ != FacetDisplay.Hidden).map { fc =>
+            @activeClasses.filter(_.display != FacetDisplay.Hidden).map { fc =>
                 @fc.display match {
                     case FacetDisplay.DropDown => {
                         @facetDropDown(fc)

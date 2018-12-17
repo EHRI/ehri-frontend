@@ -100,7 +100,7 @@ case class Feedback @Inject()(
           sendMessageEmail(moreFeedback)
           if (isAjax) Ok(id)
           else Redirect(controllers.portal.routes.Portal.index())
-            .flashing("success" -> "feedback.thanks.message")
+            .flash("success" -> "feedback.thanks.message")
         }
       }
     )
@@ -114,6 +114,6 @@ case class Feedback @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     feedbackService.delete(id).map(_ => Redirect(controllers.portal.routes.Feedback.list())
-      .flashing("success" -> "item.delete.confirmation"))
+      .flash("success" -> "item.delete.confirmation"))
   }
 }

@@ -48,7 +48,7 @@ case class GuidePages @Inject()(
           updated => {
             guides.updatePage(updated.copy(id = page.id, parent = guide.id)) match {
               case Success(()) => Redirect(controllers.guides.routes.Guides.show(gPath))
-                .flashing("success" -> "item.update.confirmation")
+                .flash("success" -> "item.update.confirmation")
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
                 BadRequest(views.html.admin.guidePage.edit(guide, page,
@@ -92,7 +92,7 @@ case class GuidePages @Inject()(
               guides.createPage(layout, name, path, menu, cypher, guide.id, description, params) match {
                 case Success(idOpt) => idOpt.map { guidePage =>
                   Redirect(controllers.guides.routes.Guides.show(guide.path))
-                    .flashing("success" -> "item.create.confirmation")
+                    .flash("success" -> "item.create.confirmation")
                 }
                 case Failure(IntegrityError(e)) =>
                   val errorForm = boundForm.withError(GuidePage.PATH, "constraints.uniqueness")
