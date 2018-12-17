@@ -261,11 +261,11 @@ case class UserProfiles @Inject()(
               newAccount <- accounts.update(account.copy(
                 active = data.active, staff = data.staff, verified = data.verified))
             } yield Redirect(userRoutes.search())
-                .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
+                .flash("success" -> Messages("item.update.confirmation", request.item.toStringLang))
             case None => for {
               profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
             } yield Redirect(userRoutes.search())
-                .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
+                .flash("success" -> Messages("item.update.confirmation", request.item.toStringLang))
           }
         )
       }
@@ -296,11 +296,11 @@ case class UserProfiles @Inject()(
               _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
               _ <- accounts.delete(id)
             } yield Redirect(userRoutes.search())
-                .flashing("success" -> Messages("item.delete.confirmation", id))
+                .flash("success" -> Messages("item.delete.confirmation", id))
             case None => for {
               _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
             } yield Redirect(userRoutes.search())
-                .flashing("success" -> Messages("item.delete.confirmation", id))
+                .flash("success" -> Messages("item.delete.confirmation", id))
           }
         }
       )
@@ -335,7 +335,7 @@ case class UserProfiles @Inject()(
 
   def permissionsPost(id: String): Action[AnyContent] = SetGlobalPermissionsAction(id).apply { implicit request =>
     Redirect(userRoutes.get(id))
-        .flashing("success" -> Messages("item.update.confirmation", id))
+        .flash("success" -> Messages("item.update.confirmation", id))
   }
 
   def revokePermission(id: String, permId: String): Action[AnyContent] = {
@@ -349,7 +349,7 @@ case class UserProfiles @Inject()(
   def revokePermissionPost(id: String, permId: String): Action[AnyContent] = {
     RevokePermissionAction(id, permId).apply { implicit request =>
       Redirect(userRoutes.grantList(id))
-        .flashing("success" -> Messages("item.delete.confirmation", id))
+        .flash("success" -> Messages("item.delete.confirmation", id))
     }
   }
 
@@ -375,7 +375,7 @@ case class UserProfiles @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(userRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -392,7 +392,7 @@ case class UserProfiles @Inject()(
   def addToGroup(id: String, groupId: String): Action[AnyContent] =
     AddToGroupAction(id, groupId).apply { implicit request =>
       Redirect(userRoutes.membership(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
 
   def checkRemoveFromGroup(id: String, groupId: String): Action[AnyContent] =
@@ -404,7 +404,7 @@ case class UserProfiles @Inject()(
   def removeFromGroup(id: String, groupId: String): Action[AnyContent] =
     RemoveFromGroupAction(id, groupId).apply { implicit request =>
       Redirect(userRoutes.membership(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
 }
 

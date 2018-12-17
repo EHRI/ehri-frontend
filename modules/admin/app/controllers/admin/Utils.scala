@@ -284,7 +284,7 @@ case class Utils @Inject()(
         if (commit) {
           indexer.indexIds(found.map(_._1): _*).map { _ =>
             Redirect(controllers.admin.routes.Utils.findReplace())
-              .flashing("success" -> Messages("admin.utils.findReplace.done", found.size))
+              .flash("success" -> Messages("admin.utils.findReplace.done", found.size))
           }
         }
         else immediate(Ok(views.html.admin.tools.findReplace(boundForm, Some(found),
@@ -308,7 +308,7 @@ case class Utils @Inject()(
         data.ids, data.scope, data.log, version = data.version, commit = data.commit
       ).map { deleted =>
         Redirect(controllers.admin.routes.Utils.batchDelete())
-          .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+          .flash("success" -> Messages("admin.utils.batchDelete.done", deleted))
       } recover {
         case e: InputDataError =>
           BadRequest(views.html.admin.tools.batchDelete(boundForm.withGlobalError(e.details),
@@ -336,7 +336,7 @@ case class Utils @Inject()(
         controllers.admin.routes.Utils.redirectPost()))),
       fromTo => appComponents.pageRelocator.addMoved(Seq(fromTo)).map { _ =>
         Redirect(controllers.admin.routes.Utils.redirect())
-          .flashing("success" -> Messages("admin.utils.redirect.done"))
+          .flash("success" -> Messages("admin.utils.redirect.done"))
       }
     )
   }
