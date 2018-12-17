@@ -11,6 +11,7 @@ class GuidesSpec extends IntegrationTestRunner {
   private val guideRoutes = controllers.portal.guides.routes.Guides
   private val guideAdminRoutes = controllers.guides.routes.Guides
   private val guidePageAdminRoutes = controllers.guides.routes.GuidePages
+
   override def getConfig = Map("recaptcha.skip" -> true)
 
 
@@ -24,7 +25,7 @@ class GuidesSpec extends IntegrationTestRunner {
       val doc = FakeRequest(guideRoutes.home("BAD")).call()
       status(doc) must equalTo(NOT_FOUND)
     }
-    
+
     val guideData = Map(
       Guide.NAME -> Seq("Hello"),
       Guide.PATH -> Seq("hello"),
@@ -85,7 +86,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(create) must contain(message("constraints.uniqueness"))
     }
 
-    "redirect after deleting guides" in  new DBTestApp("guide-fixtures.sql") {
+    "redirect after deleting guides" in new DBTestApp("guide-fixtures.sql") {
       val del = FakeRequest(guideAdminRoutes.deletePost("jewishcommunity"))
         .withUser(privilegedUser).withCsrf.call()
       status(del) must equalTo(SEE_OTHER)
@@ -127,7 +128,7 @@ class GuidesSpec extends IntegrationTestRunner {
       contentAsString(edit) must contain(message("constraints.uniqueness"))
     }
 
-    "redirect after deleting guide pages" in  new DBTestApp("guide-fixtures.sql") {
+    "redirect after deleting guide pages" in new DBTestApp("guide-fixtures.sql") {
       val del = FakeRequest(guidePageAdminRoutes.deletePost("terezin", "places"))
         .withUser(privilegedUser).withCsrf.call()
       status(del) must equalTo(SEE_OTHER)
