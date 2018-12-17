@@ -1,4 +1,4 @@
-@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @if(item.childCount.getOrElse(0) > 0) {
     <div id="@item.id-child-item-search" class="child-item-search">

@@ -1,18 +1,17 @@
 package services.search
 
 import javax.inject.Inject
-
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
 import defines.EntityType
+import play.api.Configuration
 import services.data.Constants
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 
 
-case class CmdlineIndexMediator @Inject()(implicit config: play.api.Configuration, executionContext: ExecutionContext)
-extends SearchIndexMediator {
+case class CmdlineIndexMediator @Inject()(implicit config: Configuration, executionContext: ExecutionContext) extends SearchIndexMediator {
   def handle = CmdlineIndexMediatorHandle()
 }
 
@@ -24,7 +23,7 @@ case class CmdlineIndexMediatorHandle(
   chan: Option[ActorRef] = None,
   processFunc: String => String = identity[String],
   progressFilter: Int => Boolean = _ % 100 == 0
-)(implicit config: play.api.Configuration, executionContext: ExecutionContext)
+)(implicit config: Configuration, executionContext: ExecutionContext)
   extends SearchIndexMediatorHandle {
 
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): CmdlineIndexMediatorHandle =
