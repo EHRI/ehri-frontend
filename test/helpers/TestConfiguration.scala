@@ -142,7 +142,6 @@ trait TestConfiguration {
     val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
     val ws = app.injector.instanceOf[WSClient]
     val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
-
     import org.specs2.execute.{Error, Failure}
     // Integration tests assume a server running locally. We then use the
     // initialise endpoint to clean it before each individual test.
@@ -166,8 +165,7 @@ trait TestConfiguration {
     implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
     implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
-    override def around[T: AsResult](t: => T): Result =
-      await(loadFixtures(() => super.around(t)))
+    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => super.around(t)))
   }
 
   /**
@@ -179,8 +177,7 @@ trait TestConfiguration {
     port: Int = Helpers.testServerPort) extends WithServer(app, port) with Injecting {
     implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
 
-    override def around[T: AsResult](t: => T): Result =
-      await(loadFixtures(() => super.around(t)))
+    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => super.around(t)))
   }
 
   /**
@@ -189,9 +186,10 @@ trait TestConfiguration {
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty) extends WithSqlFile(
-    resource)(new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) {
-    implicit def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty)
+      extends ITestApp(specificConfig) {
+    override def around[T: AsResult](t: => T): Result =
+      super.around(withDatabaseFixture(resource)(implicit db => AsResult.effectively(t)))
   }
 
   /**
@@ -199,13 +197,8 @@ trait TestConfiguration {
    */
   protected abstract class WithSqlFile(val resource: String)(implicit appLoader: play.api.ApplicationLoader)
     extends WithApplicationLoader(appLoader) {
-    override def around[T: AsResult](t: => T): Result = {
-      running(app) {
-        withDatabaseFixture(resource) { implicit db =>
-          AsResult.effectively(t)
-        }
-      }
-    }
+    override def around[T: AsResult](t: => T): Result =
+      running(app)(withDatabaseFixture(resource)(implicit db => AsResult.effectively(t)))
   }
 
   protected def formData(html: String): Map[String, Seq[String]] = {

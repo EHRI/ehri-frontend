@@ -128,7 +128,7 @@ case class Accounts @Inject()(
     def apply(request: Request[A]): Future[Result] = {
       if (globalConfig.readOnly) {
         Future.successful(Redirect(portalRoutes.index())
-          .flashing("warning" -> "login.disabled"))
+          .flash("warning" -> "login.disabled"))
       } else action(request)
     }
 
@@ -207,7 +207,7 @@ case class Accounts @Inject()(
                   ))
                   _ <- accounts.createToken(account.id, uuid, isSignUp = true)
                   result <- doLogin(account)
-                    .map(_.flashing("success" -> "signup.confirmation"))
+                    .map(_.flash("success" -> "signup.confirmation"))
                 } yield {
                   sendValidationEmail(profile.data.name, data.email, uuid)
                   result
@@ -223,7 +223,7 @@ case class Accounts @Inject()(
       case Some(account) => for {
         _ <- accounts.verify(account, token)
         result <- doLogin(account)
-          .map(_.flashing("success" -> "signup.validation.confirmation"))
+          .map(_.flash("success" -> "signup.validation.confirmation"))
       } yield result
       case None =>
         immediate(BadRequest(
@@ -291,7 +291,7 @@ case class Accounts @Inject()(
     request.accountOpt match {
       case Some(user) => Redirect(portalRoutes.index())
           .removingFromSession(ACCESS_URI)
-          .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
+          .flash("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
         Ok(views.html.account.login(
           passwordLoginForm,
@@ -425,10 +425,10 @@ case class Accounts @Inject()(
                 logger.error(msg)
                 Redirect(accountRoutes.loginOrSignup())
                   .removingFromSession(sessionKey)
-                  .flashing("danger" -> "login.error.oauth2.info")
+                  .flash("danger" -> "login.error.oauth2.info")
             }
           } else authenticationFailed(request)
-            .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId",
+            .map(_.flash("danger" -> Messages("login.error.oauth2.badSessionId",
               provider.name.substring(0, 1).toUpperCase + provider.name.substring(1))))
         }
       } getOrElse {
@@ -453,7 +453,7 @@ case class Accounts @Inject()(
             recaptchaKey, accountRoutes.forgotPasswordPost())))
         }, { email =>
           val resp = Redirect(portalRoutes.index())
-                  .flashing("warning" -> "login.password.reset.sentLink")
+                  .flash("warning" -> "login.password.reset.sentLink")
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
@@ -496,7 +496,7 @@ case class Accounts @Inject()(
             isLegacy = false
           )).map { _ =>
             Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
-              .flashing("success" -> "login.password.change.confirmation")
+              .flash("success" -> "login.password.change.confirmation")
           }
           case None =>
             immediate(BadRequest(views.html.account.changePassword(
@@ -512,7 +512,7 @@ case class Accounts @Inject()(
       case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
-        .flashing("danger" -> "login.error.badResetToken")
+        .flash("danger" -> "login.error.badResetToken")
     }
   }
 
@@ -524,7 +524,7 @@ case class Accounts @Inject()(
           sendValidationEmail(request.user.data.name, account.email, uuid)
           val redirect = request.headers.get(HttpHeaders.REFERER)
             .getOrElse(portalRoutes.index().url)
-          Redirect(redirect).flashing("success" -> "mail.emailConfirmationResent")
+          Redirect(redirect).flash("success" -> "mail.emailConfirmationResent")
         }
       case _ => authenticationFailed(request)
     }
@@ -545,7 +545,7 @@ case class Accounts @Inject()(
                 isLegacy = false
               ))
               request <- doLogin(account)
-                .map(_.flashing("success" -> "login.password.reset.confirmation"))
+                .map(_.flash("success" -> "login.password.reset.confirmation"))
             } yield request
           case None => immediate(BadRequest(views.html.account.resetPassword(
               boundForm.withGlobalError("login.error.badResetToken"),

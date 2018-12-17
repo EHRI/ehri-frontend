@@ -41,8 +41,9 @@ class GuideSpec extends PlaySpecification {
       withDatabaseFixture("guide-fixtures.sql") { implicit db =>
         val dao = SqlGuideService()
         dao.findAll(activeOnly = true).size must equalTo(2)
-        dao.create(name = "Test", path = "terezin", virtualUnit = "test", active = true) must beFailedTry
-          .withThrowable[models.sql.IntegrityError]
+        dao.create(
+          name = "Test", path = "terezin", virtualUnit = "test", active = true
+        ) must beFailedTry.withThrowable[IntegrityError]
       }
     }
 

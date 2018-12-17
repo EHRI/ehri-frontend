@@ -161,7 +161,7 @@ case class VirtualUnits @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.virtualUnit.edit(
         request.item, errorForm, formConfig.forUpdate, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -178,7 +178,7 @@ case class VirtualUnits @Inject()(
         BadRequest(views.html.admin.virtualUnit.create(None, errorForm, formConfig.forCreate, accForm,
           usersAndGroups, vuRoutes.createPost()))
       case Right(item) => Redirect(vuRoutes.get(item.id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -198,7 +198,7 @@ case class VirtualUnits @Inject()(
           errorForm, formConfig.forCreate, accForm, usersAndGroups,
           vuRoutes.createChildPost(id)))
       case Right(doc) => Redirect(vuRoutes.getInVc(id, doc.id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -222,7 +222,7 @@ case class VirtualUnits @Inject()(
       ))),
       includes => userDataApi.addReferences[VirtualUnit](id, includes.split("[ ,]+").map(_.trim).toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
+          .flash("success" -> "item.update.confirmation")
       } recover {
         case e: ItemNotFound =>
           val errs = boundForm.withError(VirtualUnitF.INCLUDE_REF, e.message.getOrElse(""))
@@ -258,7 +258,7 @@ case class VirtualUnits @Inject()(
       ))),
       delete => userDataApi.deleteReferences[VirtualUnit](id, delete.split("[ ,]+").toSeq).map { _ =>
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
+          .flash("success" -> "item.update.confirmation")
       } recover {
         case e: ItemNotFound =>
           val errs = boundForm.withError(VirtualUnitF.INCLUDE_REF, e.message.getOrElse(""))
@@ -280,7 +280,7 @@ case class VirtualUnits @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(vuRoutes.search())
-      .flashing("success" -> "item.delete.confirmation")
+      .flash("success" -> "item.delete.confirmation")
   }
 
   def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
@@ -294,7 +294,7 @@ case class VirtualUnits @Inject()(
         Ok(views.html.admin.virtualUnit.createDescription(request.item,
           errorForm, formConfig.forCreate, vuRoutes.createDescriptionPost(id)))
       case Right(updated) => Redirect(vuRoutes.get(id))
-        .flashing("success" -> "item.create.confirmation")
+        .flash("success" -> "item.create.confirmation")
     }
   }
 
@@ -309,7 +309,7 @@ case class VirtualUnits @Inject()(
         Ok(views.html.admin.virtualUnit.editDescription(request.item,
           errorForm, formConfig.forUpdate, did, vuRoutes.updateDescriptionPost(id, did)))
       case Right(updated) => Redirect(vuRoutes.get(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -324,7 +324,7 @@ case class VirtualUnits @Inject()(
         Ok(views.html.admin.virtualUnit.deleteDescription(request.item,
           errorForm, did, vuRoutes.deleteDescriptionPost(id, did)))
       case Right(updated) => Redirect(vuRoutes.get(id))
-        .flashing("success" -> "item.delete.confirmation")
+        .flash("success" -> "item.delete.confirmation")
     }
   }
 
@@ -336,7 +336,7 @@ case class VirtualUnits @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(vuRoutes.get(id))
-      .flashing("success" -> "item.update.confirmation")
+      .flash("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -368,7 +368,7 @@ case class VirtualUnits @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -383,7 +383,7 @@ case class VirtualUnits @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vuRoutes.managePermissions(id))
-        .flashing("success" -> "item.update.confirmation")
+        .flash("success" -> "item.update.confirmation")
     }
   }
 
@@ -413,7 +413,7 @@ case class VirtualUnits @Inject()(
             errorForm, vuRoutes.linkAnnotatePost(id, toType, to)))
         case Right(_) =>
           Redirect(vuRoutes.get(id))
-            .flashing("success" -> "item.update.confirmation")
+            .flash("success" -> "item.update.confirmation")
       }
     }
 
@@ -429,7 +429,7 @@ case class VirtualUnits @Inject()(
           errorForms, vuRoutes.linkMultiAnnotatePost(id)))
       case Right(_) =>
         Redirect(vuRoutes.get(id))
-          .flashing("success" -> "item.update.confirmation")
+          .flash("success" -> "item.update.confirmation")
     }
   }
 }

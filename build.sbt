@@ -1,20 +1,20 @@
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
-import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
 import com.typesafe.sbt.less.Import._
+import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
-import play.sbt.Play.autoImport._
-import play.twirl.sbt.Import.TwirlKeys.templateImports
-import play.sbt.routes.RoutesKeys._
 import net.ground5hark.sbt.concat.Import._
+import play.sbt.PlayImport._
+import play.sbt.routes.RoutesKeys._
+import play.twirl.sbt.Import.TwirlKeys.templateImports
 
 
 parallelExecution in ThisBuild := false
 logBuffered := false
 
-val projectScalaVersion = "2.11.8"
+val projectScalaVersion = "2.12.7"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
@@ -47,9 +47,6 @@ val coreDependencies = backendDependencies ++ Seq(
   evolutions,
   filters,
   openId,
-
-  // Logback helpers
-  "com.typesafe.play" %% "play-logback" % "2.7.0-RC3",
 
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.6.2",
@@ -102,7 +99,7 @@ val testDependencies = Seq(
   "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.11" % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.18" % Test
 )
 
 val additionalResolvers = Seq(
@@ -177,10 +174,11 @@ val webAppSettings = Seq(
     }
 
     def validate(messageFile: File): Unit = {
-      import java.util.Properties
-      import java.text.MessageFormat
-      import scala.collection.JavaConverters._
       import java.io.FileInputStream
+      import java.text.MessageFormat
+      import java.util.Properties
+
+      import scala.collection.JavaConverters._
       val properties: Properties = new Properties()
       val fis = new FileInputStream(messageFile)
       try {
@@ -209,7 +207,7 @@ val webAppSettings = Seq(
     }
     val allMessages = messagesFiles(baseDirectory.value)
     if (allMessages.nonEmpty) {
-      streams.value.log.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
+      sLog.value.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
       allMessages.foreach(validate)
     }
   },
