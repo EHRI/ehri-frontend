@@ -12,6 +12,8 @@ import services.search._
 
 private[solr] object SolrQueryBuilder {
 
+  private val logger = Logger(getClass)
+
   val sortMap: Map[SearchSort.Value, String] = Map(
     SearchSort.Id -> "isParent.desc,identifier.asc",
     SearchSort.Score -> "score.desc",
@@ -67,7 +69,7 @@ private[solr] object SolrQueryBuilder {
                 Some(s"${fc.key}:($filter)")
               } else None
             case e =>
-              Logger.logger.warn("Unknown facet class type: {}", e)
+              logger.warn(s"Unknown facet class type: $e")
               None
           }
           query.map { q =>
@@ -197,7 +199,7 @@ private[solr] object SolrQueryBuilder {
       val qfFields: String = boost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
       }.mkString(" ")
-      Logger.trace(s"Query fields: $qfFields")
+      logger.trace(s"Query fields: $qfFields")
       Seq("qf" -> qfFields)
     }
 

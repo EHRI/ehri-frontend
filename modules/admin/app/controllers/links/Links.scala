@@ -99,7 +99,7 @@ case class Links @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(linkRoutes.get(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
   }
   def update(id: String, redirect: Option[String] = None): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.link.edit(
@@ -111,7 +111,7 @@ case class Links @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.link.edit(
           request.item, errorForm, linkRoutes.updatePost(id, redirect)))
       case Right(item) => Redirect(redirectLink(redirect, linkRoutes.get(id)))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -123,7 +123,7 @@ case class Links @Inject()(
 
   def deletePost(id: String, redirect: Option[String] = None): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(redirectLink(redirect, controllers.admin.routes.Home.index()))
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def promote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
@@ -132,7 +132,7 @@ case class Links @Inject()(
 
   def promotePost(id: String): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
     Redirect(linkRoutes.get(id))
-      .flash("success" -> "item.promote.confirmation")
+      .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
@@ -142,6 +142,6 @@ case class Links @Inject()(
 
   def demotePost(id: String): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
     Redirect(linkRoutes.get(id))
-      .flash("success" -> "item.demote.confirmation")
+      .flashing("success" -> "item.demote.confirmation")
   }
 }

@@ -1,10 +1,10 @@
 package models.json
 
-import helpers.ResourceUtils
-import play.api.libs.json.{JsValue, Json}
-import play.api.test.PlaySpecification
-import models._
 import defines.EntityType
+import helpers.ResourceUtils
+import models._
+import play.api.libs.json.Json
+import play.api.test.PlaySpecification
 
 class JsonFormatSpec extends PlaySpecification with ResourceUtils {
 

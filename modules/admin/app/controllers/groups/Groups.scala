@@ -74,7 +74,7 @@ case class Groups @Inject()(
         BadRequest(views.html.admin.group.create(
           errorForm, accForm, usersAndGroups, groupRoutes.createPost()))
       case Right(item) => Redirect(groupRoutes.get(item.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -89,7 +89,7 @@ case class Groups @Inject()(
         BadRequest(views.html.admin.group.edit(
           request.item, errorForm, groupRoutes.updatePost(id)))
       case Right(updated) => Redirect(groupRoutes.get(updated.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -100,7 +100,7 @@ case class Groups @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(groupRoutes.search())
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def grantList(id: String, paging: PageParams): Action[AnyContent] = GrantListAction(id, paging).apply { implicit request =>
@@ -129,7 +129,7 @@ case class Groups @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(groupRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -141,7 +141,7 @@ case class Groups @Inject()(
 
   def permissionsPost(id: String): Action[AnyContent] = SetGlobalPermissionsAction(id).apply { implicit request =>
     Redirect(groupRoutes.get(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def revokePermission(id: String, permId: String): Action[AnyContent] = {
@@ -155,7 +155,7 @@ case class Groups @Inject()(
   def revokePermissionPost(id: String, permId: String): Action[AnyContent] = {
     RevokePermissionAction(id, permId).apply { implicit request =>
       Redirect(groupRoutes.grantList(id))
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
     }
   }
 
@@ -172,7 +172,7 @@ case class Groups @Inject()(
   def addToGroup(id: String, groupId: String): Action[AnyContent] =
     AddToGroupAction(id, groupId).apply { implicit request =>
       Redirect(groupRoutes.membership(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
 
   def checkRemoveFromGroup(id: String, groupId: String): Action[AnyContent] =
@@ -184,6 +184,6 @@ case class Groups @Inject()(
   def removeFromGroup(id: String, groupId: String): Action[AnyContent] =
     RemoveFromGroupAction(id, groupId).apply { implicit request =>
       Redirect(groupRoutes.membership(id))
-                .flash("success" -> "item.update.confirmation")
+                .flashing("success" -> "item.update.confirmation")
     }
 }

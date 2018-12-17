@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @body = {
     <section class="search-results-body">

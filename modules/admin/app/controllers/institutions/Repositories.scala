@@ -126,7 +126,7 @@ case class Repositories @Inject()(
         BadRequest(views.html.admin.repository.edit(
           request.item, errorForm, formConfig.forUpdate, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -143,7 +143,7 @@ case class Repositories @Inject()(
           errorForm, childFormDefaults.forCreate, accForm,
           usersAndGroups, repositoryRoutes.createDocPost(id)))
       case Right(citem) => Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -154,7 +154,7 @@ case class Repositories @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(repositoryRoutes.search())
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -165,7 +165,7 @@ case class Repositories @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(repositoryRoutes.get(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -195,7 +195,7 @@ case class Repositories @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(repositoryRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
@@ -208,7 +208,7 @@ case class Repositories @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(repositoryRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
 
   def linkTo(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
@@ -238,7 +238,7 @@ case class Repositories @Inject()(
             errorForm, repositoryRoutes.linkAnnotatePost(id, toType, to, copy), copy))
         case Right(_) =>
           Redirect(repositoryRoutes.get(id))
-            .flash("success" -> "item.update.confirmation")
+            .flashing("success" -> "item.update.confirmation")
       }
     }
 

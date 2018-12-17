@@ -3,7 +3,7 @@ package services.data
 import defines.EntityType
 import javax.inject.{Inject, Singleton}
 import models.UsersAndGroups
-import play.api.libs.json.{JsString, JsValue}
+import play.api.libs.json.JsString
 import services.cypher.{CypherResult, CypherService}
 
 import scala.concurrent.{ExecutionContext, Future}

@@ -65,7 +65,7 @@ case class Vocabularies @Inject()(
         BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
           usersAndGroups, vocabRoutes.createPost()))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -79,7 +79,7 @@ case class Vocabularies @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.vocabulary.edit(
         request.item, errorForm, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -95,7 +95,7 @@ case class Vocabularies @Inject()(
         BadRequest(views.html.admin.concept.create(request.item,
           errorForm, accForm, usersAndGroups, vocabRoutes.createConceptPost(id)))
       case Right(_) => Redirect(vocabRoutes.get(id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -106,7 +106,7 @@ case class Vocabularies @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(vocabRoutes.list())
-      .flash("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -117,7 +117,7 @@ case class Vocabularies @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(vocabRoutes.get(id))
-      .flash("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -148,7 +148,7 @@ case class Vocabularies @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vocabRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -163,7 +163,7 @@ case class Vocabularies @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(vocabRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 

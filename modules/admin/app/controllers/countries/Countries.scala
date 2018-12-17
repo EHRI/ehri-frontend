@@ -82,7 +82,7 @@ case class Countries @Inject()(
         BadRequest(views.html.admin.country.create(
           errorForm, accForm, usersAndGroups, countryRoutes.createPost()))
       case Right(item) => Redirect(countryRoutes.get(item.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -96,7 +96,7 @@ case class Countries @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.country.edit(
         request.item, errorForm, countryRoutes.updatePost(id)))
       case Right(item) => Redirect(countryRoutes.get(item.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -120,7 +120,7 @@ case class Countries @Inject()(
         BadRequest(views.html.admin.repository.create(request.item,
           errorForm, childFormConfig.forCreate, accForm, usersAndGroups, countryRoutes.createRepositoryPost(id)))
       case Right(citem) => Redirect(controllers.institutions.routes.Repositories.get(citem.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -132,7 +132,7 @@ case class Countries @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(countryRoutes.search())
-      .flash("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -143,7 +143,7 @@ case class Countries @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(countryRoutes.get(id))
-      .flash("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -174,7 +174,7 @@ case class Countries @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(countryRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -189,7 +189,7 @@ case class Countries @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(countryRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
