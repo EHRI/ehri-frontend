@@ -11,8 +11,6 @@ import play.api.libs.json.{KeyPathNode, _}
 import services.data.{Readable, Resource, WithId}
 import utils.EnumUtils
 
-import scala.collection.SortedMap
-
 
 trait Model extends WithId {
   type T <: ModelData

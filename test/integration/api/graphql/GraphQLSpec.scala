@@ -2,7 +2,6 @@ package integration.api.graphql
 
 import helpers.IntegrationTestRunner
 import play.api.libs.json._
-import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 
 

@@ -42,7 +42,7 @@ case class Annotations @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flash("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
@@ -55,7 +55,7 @@ case class Annotations @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.annotation.edit(
         request.item, errorForm, annotationRoutes.updatePost(id)))
       case Right(item) => Redirect(annotationRoutes.get(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -68,7 +68,7 @@ case class Annotations @Inject()(
   def deletePost(id: String, redirect: Option[String] = None): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(redirect.map(r => controllers.admin.routes.Data.getItem(r))
         .getOrElse(controllers.admin.routes.Home.index()))
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
   }
 
   def promote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
@@ -78,7 +78,7 @@ case class Annotations @Inject()(
 
   def promotePost(id: String): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flash("success" -> "item.promote.confirmation")
+      .flashing("success" -> "item.promote.confirmation")
   }
 
   def demote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
@@ -88,6 +88,6 @@ case class Annotations @Inject()(
 
   def demotePost(id: String): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
     Redirect(controllers.annotation.routes.Annotations.get(id))
-      .flash("success" -> "item.demote.confirmation")
+      .flashing("success" -> "item.demote.confirmation")
   }
 }

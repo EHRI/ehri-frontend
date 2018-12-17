@@ -225,7 +225,7 @@ case class UserProfiles @Inject()(
         case Some(account) =>
           accounts.update(account.copy(allowMessaging = accountPrefs.allowMessaging)).map { _ =>
             Redirect(profileRoutes.updateProfile())
-              .flash("success" -> "profile.preferences.updated")
+              .flashing("success" -> "profile.preferences.updated")
           }
         case _ => authenticationFailed(request)
       }
@@ -244,7 +244,7 @@ case class UserProfiles @Inject()(
       profile => userDataApi.update[UserProfile, UserProfileF](
           request.user.id, profile.toUser(request.user.data)).map { userProfile =>
         Redirect(profileRoutes.profile())
-          .flash("success" -> Messages("profile.update.confirmation"))
+          .flashing("success" -> Messages("profile.update.confirmation"))
       }
     )
   }
@@ -271,7 +271,7 @@ case class UserProfiles @Inject()(
         userDataApi.update[UserProfile,UserProfileF](request.user.id, anonProfile).flatMap { bool =>
           accounts.delete(request.user.id).flatMap { _ =>
             gotoLogoutSucceeded
-              .map(_.flash("success" -> "profile.profile.delete.confirmation"))
+              .map(_.flashing("success" -> "profile.profile.delete.confirmation"))
           }
         }
       }
@@ -299,7 +299,7 @@ case class UserProfiles @Inject()(
               url <- convertAndUploadFile(file, request.user, request)
               _ <- userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
             } yield Redirect(profileRoutes.profile())
-                  .flash("success" -> "profile.update.confirmation")
+                  .flashing("success" -> "profile.update.confirmation")
           } catch {
             case e: UnsupportedFormatException => onError("errors.badFileType")
           }

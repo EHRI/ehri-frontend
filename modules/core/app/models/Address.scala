@@ -2,9 +2,8 @@ package models
 
 import defines.EntityType
 import models.base.ModelData
-import play.api.libs.json._
 import models.json._
-import play.api.i18n.DefaultMessagesApi
+import play.api.libs.json._
 import services.data.Writable
 
 

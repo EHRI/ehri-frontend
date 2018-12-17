@@ -119,7 +119,7 @@ trait PortalController
     */
   override def logoutSucceeded(request: RequestHeader): Future[Result] =
     immediate(Redirect(controllers.portal.routes.Portal.index())
-      .flash("success" -> "logout.confirmation"))
+      .flashing("success" -> "logout.confirmation"))
 
 
   override def verifiedOnlyError(request: RequestHeader): Future[Result] = {

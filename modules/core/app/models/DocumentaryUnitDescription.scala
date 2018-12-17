@@ -1,16 +1,16 @@
 package models
 
-import models.base._
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
 import defines.EntityType
-import models.json._
 import eu.ehri.project.definitions.Ontology
-import utils.forms._
+import models.base.Description._
+import models.base._
+import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
-import models.base.Description._
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import services.data.Writable
+import utils.forms._
 
 case class IsadGIdentity(
   name: String,
@@ -67,8 +67,8 @@ case class IsadGControl(
 object DocumentaryUnitDescriptionF {
 
   import Entity._
-  import models.IsadG._
   import Ontology._
+  import models.IsadG._
 
   implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnitDescription) and
@@ -153,7 +153,6 @@ case class DocumentaryUnitDescriptionF(
   @models.relation(Ontology.HAS_UNKNOWN_PROPERTY)
   unknownProperties: Seq[Entity] = Nil
 ) extends ModelData with Persistable with Description with Temporal {
-  import models.IsadG._
 
   def name: String = identity.name
   def dates: Seq[DatePeriodF] = identity.dates
@@ -169,8 +168,8 @@ case class DocumentaryUnitDescriptionF(
 }
 
 object DocumentaryUnitDescription {
-  import models.IsadG._
   import Entity._
+  import models.IsadG._
   import utils.EnumUtils.enumMapping
 
   val form = Form(

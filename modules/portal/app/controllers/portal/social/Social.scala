@@ -306,8 +306,7 @@ case class Social @Inject()(
             sendMessageEmail(request.user, to, subject, message, copyMe).map { _ =>
               val msg = Messages("social.message.send.confirmation")
               if (isAjax) Ok(Json.obj("ok" -> msg))
-              else Redirect(socialRoutes.userProfile(userId))
-                .flash("success" -> msg)
+              else Redirect(socialRoutes.userProfile(userId)).flashing("success" -> msg)
             }
           }
         )

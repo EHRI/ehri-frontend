@@ -8,7 +8,7 @@ import javax.inject.Inject
 import play.api.cache.SyncCacheApi
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
 import play.api.libs.json._
-import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
+import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
 import services._
 import services.data.Constants._

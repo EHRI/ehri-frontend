@@ -76,7 +76,7 @@ case class CypherQueries @Inject()(
         controllers.cypher.routes.CypherQueries.createQueryPost()))),
       queryModel => cypherQueries.create(queryModel.copy(userId = Some(request.user.id))).map { _ =>
         Redirect(controllers.cypher.routes.CypherQueries.listQueries())
-          .flash("success" -> "item.create.confirmation")
+          .flashing("success" -> "item.create.confirmation")
       }
     )
   }
@@ -97,7 +97,7 @@ case class CypherQueries @Inject()(
       },
       queryModel => cypherQueries.update(id, queryModel).map { _ =>
         Redirect(controllers.cypher.routes.CypherQueries.listQueries())
-          .flash("success" -> "item.update.confirmation")
+          .flashing("success" -> "item.update.confirmation")
       }
     )
   }
@@ -113,7 +113,7 @@ case class CypherQueries @Inject()(
   def deleteQueryPost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
     cypherQueries.delete(id).map { _ =>
       Redirect(controllers.cypher.routes.CypherQueries.listQueries())
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
     }
   }
 

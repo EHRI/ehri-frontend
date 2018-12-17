@@ -143,7 +143,7 @@ case class DocumentaryUnits @Inject()(
       case Left(errorForm) => BadRequest(views.html.admin.documentaryUnit.edit(
         request.item, errorForm, formConfig.forUpdate, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -160,7 +160,7 @@ case class DocumentaryUnits @Inject()(
           errorForm, formConfig.forCreate, accForm, usersAndGroups,
           docRoutes.createDocPost(id)))
       case Right(doc) => Redirect(docRoutes.get(doc.id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -176,7 +176,7 @@ case class DocumentaryUnits @Inject()(
         Ok(views.html.admin.documentaryUnit.createDescription(request.item,
           errorForm, formConfig.forCreate, docRoutes.createDescriptionPost(id)))
       case Right(_) => Redirect(docRoutes.get(id))
-        .flash("success" -> "item.create.confirmation")
+        .flashing("success" -> "item.create.confirmation")
     }
   }
 
@@ -191,7 +191,7 @@ case class DocumentaryUnits @Inject()(
         Ok(views.html.admin.documentaryUnit.editDescription(request.item,
           errorForm, formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -206,7 +206,7 @@ case class DocumentaryUnits @Inject()(
         Ok(views.html.admin.documentaryUnit.deleteDescription(request.item,
           errorForm, did, docRoutes.deleteDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
-        .flash("success" -> "item.delete.confirmation")
+        .flashing("success" -> "item.delete.confirmation")
 
     }
   }
@@ -218,7 +218,7 @@ case class DocumentaryUnits @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(docRoutes.search())
-      .flash("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -229,7 +229,7 @@ case class DocumentaryUnits @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(docRoutes.get(id))
-      .flash("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams, scopePaging: PageParams): Action[AnyContent] =
@@ -260,7 +260,7 @@ case class DocumentaryUnits @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(docRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
 
   def setScopedPermissions(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
@@ -273,7 +273,7 @@ case class DocumentaryUnits @Inject()(
   def setScopedPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] =
     UpdateScopePermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(docRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
 
   def linkTo(id: String): Action[AnyContent] =
@@ -304,7 +304,7 @@ case class DocumentaryUnits @Inject()(
             errorForm, docRoutes.linkAnnotatePost(id, toType, to, copy), copy))
         case Right(_) =>
           Redirect(docRoutes.get(id))
-            .flash("success" -> "item.update.confirmation")
+            .flashing("success" -> "item.update.confirmation")
       }
     }
 
@@ -322,7 +322,7 @@ case class DocumentaryUnits @Inject()(
             errorForms, docRoutes.linkMultiAnnotatePost(id)))
         case Right(_) =>
           Redirect(docRoutes.get(id))
-            .flash("success" -> "item.update.confirmation")
+            .flashing("success" -> "item.update.confirmation")
       }
     }
 

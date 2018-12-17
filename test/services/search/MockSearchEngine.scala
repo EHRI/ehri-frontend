@@ -1,18 +1,16 @@
 package services.search
 
-import javax.inject.Inject
-
 import defines.EntityType
+import javax.inject.Inject
+import models._
+import models.base.{DescribedModel, Model}
+import play.api.i18n.{Lang, LangImplicits}
+import play.api.libs.json.JsString
+import services.data.{ApiUser, DataApi, DataApiHandle}
 import utils.{Page, PageParams}
 
 import scala.concurrent.ExecutionContext.Implicits._
-import models._
-
 import scala.concurrent.Future
-import models.base.{Model, Described, DescribedModel, Description}
-import play.api.libs.json.JsString
-import play.api.i18n.{Lang, LangImplicits}
-import services.data.{ApiUser, DataApi, DataApiHandle}
 
 
 /**
