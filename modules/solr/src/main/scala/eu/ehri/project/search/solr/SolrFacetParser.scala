@@ -1,10 +1,10 @@
 package eu.ehri.project.search.solr
 
-import play.api.Logger
 import play.api.libs.json.{JsNull, JsObject, Json}
 import services.search._
 
 private[solr] object SolrFacetParser {
+
   def facetValue(q: Facet): String = q match {
     case FieldFacet(value, l_, _, _) => value
     case QueryFacet(value, _, _, range, _) => range match {
@@ -13,9 +13,7 @@ private[solr] object SolrFacetParser {
         case Val(p1) :: Val(p2) :: Nil => s"[$p1 TO $p2]"
         case Val(p) :: End :: Nil => s"[$p TO *]"
         case Val(p) :: Nil => p.toString
-        case p =>
-          Logger.warn(s"Unsupported facet class points: $r -> $p")
-          "*"
+        case p => "*"
       }
       case Start => "*"
       case End => "*"

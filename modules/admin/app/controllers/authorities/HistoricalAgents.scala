@@ -83,7 +83,7 @@ case class HistoricalAgents @Inject()(
         BadRequest(views.html.admin.historicalAgent
           .edit(request.item, errorForm, formConfig.forUpdate, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -94,7 +94,7 @@ case class HistoricalAgents @Inject()(
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(histRoutes.search())
-      .flash("success" -> "item.delete.confirmation")
+      .flashing("success" -> "item.delete.confirmation")
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
@@ -105,7 +105,7 @@ case class HistoricalAgents @Inject()(
 
   def visibilityPost(id: String): Action[AnyContent] = UpdateVisibilityAction(id).apply { implicit request =>
     Redirect(histRoutes.get(id))
-      .flash("success" -> "item.update.confirmation")
+      .flashing("success" -> "item.update.confirmation")
   }
 
   def managePermissions(id: String, paging: PageParams): Action[AnyContent] =
@@ -130,7 +130,7 @@ case class HistoricalAgents @Inject()(
   def setItemPermissionsPost(id: String, userType: EntityType.Value, userId: String): Action[AnyContent] = {
     UpdateItemPermissionsAction(id, userType, userId).apply { implicit request =>
       Redirect(histRoutes.managePermissions(id))
-        .flash("success" -> "item.update.confirmation")
+        .flashing("success" -> "item.update.confirmation")
     }
   }
 
@@ -161,7 +161,7 @@ case class HistoricalAgents @Inject()(
             errorForm, histRoutes.linkAnnotatePost(id, toType, to)))
         case Right(_) =>
           Redirect(histRoutes.get(id))
-            .flash("success" -> "item.update.confirmation")
+            .flashing("success" -> "item.update.confirmation")
       }
     }
 
@@ -176,7 +176,7 @@ case class HistoricalAgents @Inject()(
         BadRequest(views.html.admin.link.linkMulti(request.item,
           errorForms, histRoutes.linkMultiAnnotatePost(id)))
       case Right(_) =>
-        Redirect(histRoutes.get(id)).flash("success" -> "item.update.confirmation")
+        Redirect(histRoutes.get(id)).flashing("success" -> "item.update.confirmation")
     }
   }
 

@@ -2,17 +2,17 @@ package integration.admin
 
 import akka.NotUsed
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import controllers.admin.{IndexTypes, Indexing}
+import controllers.admin.IndexTypes
 import defines.EntityType
 import helpers._
 import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
-import play.api.test.{FakeRequest, WithServer}
+import play.api.test.FakeRequest
 import services.search.SearchConstants
 
 import scala.concurrent.{Future, Promise}

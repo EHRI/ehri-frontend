@@ -57,7 +57,7 @@ case class Guides @Inject()(
             // has somehow changed it...
             guides.update(updated.copy(id = guide.id)) match {
               case Success(_) => Redirect(guidesRoutes.show(updated.path))
-                .flash("success" -> "item.update.confirmation")
+                .flashing("success" -> "item.update.confirmation")
               case Failure(IntegrityError(e)) =>
                 val errorForm = boundForm.withError(Guide.PATH, "constraints.uniqueness")
                 BadRequest(views.html.admin.guide.edit(guide, errorForm, guides.findAll(),
@@ -108,7 +108,7 @@ case class Guides @Inject()(
     itemOr404 {
       guides.find(path, activeOnly = false).map { guide =>
         guides.delete(guide)
-        Redirect(guidesRoutes.list()).flash("success" -> "item.delete.confirmation")
+        Redirect(guidesRoutes.list()).flashing("success" -> "item.delete.confirmation")
       }
     }
   }
