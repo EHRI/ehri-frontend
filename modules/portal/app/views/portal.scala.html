@@ -18,12 +18,11 @@
                 @views.html.common.accountHeader(showSearch = false, showAdminLink = true)
             </header>
             <div class="page-content">
-                <div class="jumbotron-container">
-                    <div class="jumbotron">
+                <div class="welcome-container">
+                    <div class="jumbotron" id="welcome-banner">
                         <div class="container">
                             <h1>@Messages("welcome")</h1>
-                            @helper.form(action = controllers.portal.routes.Portal.search(
-                                services.search.SearchParams.empty, utils.PageParams.empty)) {
+                            @helper.form(action = controllers.portal.routes.Portal.search(services.search.SearchParams.empty, utils.PageParams.empty)) {
                                 @views.html.common.search.searchBar(services.search.SearchParams.empty, placeholder = Messages("search.global"))
                             }
                         </div>

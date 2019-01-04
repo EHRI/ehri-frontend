@@ -17,7 +17,7 @@ body {
   padding: @large-padding;
 }
 
-.jumbotron-container {
+.welcome-container {
   background-position: top left;
   background-repeat: no-repeat;
   background-size: 100% auto;
@@ -28,11 +28,9 @@ body {
   }
 }
 
-.jumbotron {
+#welcome-banner {
   text-align: center;
   color: #fff;
-  //min-height: 400px;
-  //padding: 100px 0;
   padding-top: 15 * @medium-padding;
   padding-bottom: 15 * @medium-padding;
   background: rgba(0, 0, 0, 0.5);
@@ -52,32 +50,19 @@ body {
     padding-bottom: 10 * @small-padding;
     background-image: none;
   }
+}
 
-  // Make the search bar larger on the welcome page
-  .container {
-    form {
-      .search-bar {
-        .form-group {
-          .input-group {
-            input {
-              &:extend(.input-lg);
-            }
-            .input-group-btn {
-              button {
-                &:extend(.btn-lg);
-              }
-            }
-          }
-        }
-      }
+#welcome-banner .search-bar input[name='q'] {
+  &:extend(.input-lg);
+}
 
-      // Override colour of search helper...
-      #search-helper {
-        background-color: rgba(0,0,0,0.3);
-        border-color: rgba(0,0,0,0);
-      }
-    }
-  }
+#welcome-banner .search-bar button {
+  &:extend(.btn-lg);
+}
+
+#welcome-banner .search-bar #search-helper {
+  background-color: rgba(0,0,0,0.3);
+  border-color: rgba(0,0,0,0);
 }
 
 .welcome-lead {
