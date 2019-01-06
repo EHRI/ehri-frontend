@@ -1,12 +1,13 @@
 package controllers.portal
 
+import java.util.IllformedLocaleException
 import java.util.concurrent.TimeUnit
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
+import javax.inject._
 import models._
 import models.base.Model
 import play.api.i18n.{Lang, Messages}
@@ -14,9 +15,9 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.htmlpages.HtmlPages
+import services.search._
 import utils._
 import utils.caching.FutureCache
-import services.search._
 import views.html.errors.pageNotFound
 
 import scala.concurrent.Future
@@ -58,7 +59,9 @@ case class Portal @Inject()(
 
   def changeLocale(lang: String) = Action { implicit request =>
     val referrer = request.headers.get(REFERER).getOrElse("/")
-    messagesApi.setLang(Redirect(referrer), Lang(lang))
+    try messagesApi.setLang(Redirect(referrer), Lang(lang)) catch {
+      case _: IllformedLocaleException => Redirect(referrer)
+    }
   }
 
   def personalisedActivity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
