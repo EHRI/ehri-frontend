@@ -2,9 +2,9 @@
 
 GET         /                 @controllers.api.ApiHome.index
 GET        /v1                @controllers.api.v1.ApiV1Home.index()
-GET        /v1/search         @controllers.api.v1.ApiV1.search(`type`: Seq[defines.EntityType.Value] ?= Seq.empty, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, fields: Seq[utils.FieldFilter] ?= Seq.empty)
+GET        /v1/search         @controllers.api.v1.ApiV1.search(`type`: Seq[models.api.v1.ApiEntity.Value] ?= Seq.empty, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, fields: Seq[utils.FieldFilter] ?= Seq.empty)
 GET        /v1/:id            @controllers.api.v1.ApiV1.fetch(id: String, fields: Seq[utils.FieldFilter] ?= Seq.empty)
-GET        /v1/:id/search     @controllers.api.v1.ApiV1.searchIn(id: String, `type`: Seq[defines.EntityType.Value] ?= Seq.empty, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, fields: Seq[utils.FieldFilter] ?= Seq.empty)
+GET        /v1/:id/search     @controllers.api.v1.ApiV1.searchIn(id: String, `type`: Seq[models.api.v1.ApiEntity.Value] ?= Seq.empty, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, fields: Seq[utils.FieldFilter] ?= Seq.empty)
 GET        /graphql           @controllers.api.graphql.GraphQL.index()
 POST       /graphql           @controllers.api.graphql.GraphQL.query()
 GET        /graphql/ui        @controllers.api.graphql.GraphQL.graphiql()

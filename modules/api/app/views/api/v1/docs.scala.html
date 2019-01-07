@@ -28,7 +28,7 @@
         <label class="form-label" for="@prefix-type">Type</label>
         <select class="input-sm form-control" id="@prefix-type" name="type">
             <option value="">All</option>
-            @for(t <- controllers.api.v1.ApiV1.apiSupportedEntities) {
+            @for(t <- models.api.v1.ApiEntity.values) {
                 <option value="@t">@t</option>
             }
         </select>
@@ -270,7 +270,7 @@
         <p>You can copy the code to a file called <code>scopecontent.py</code> and run it with URL for
             a search of EHRI archival descriptions, e.g:</p>
 
-        <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(`type` = Seq(defines.EntityType.DocumentaryUnit),
+        <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(`type` = Seq(models.api.v1.ApiEntity.DocumentaryUnit),
             params = services.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(globalConfig.https), "UTF-8")"
         </pre>
 

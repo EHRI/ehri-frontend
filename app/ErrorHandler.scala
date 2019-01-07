@@ -1,3 +1,4 @@
+import controllers.api.v1.ApiV1
 import controllers.base.SessionPreferences
 import controllers.renderError
 import global.GlobalConfig
@@ -37,11 +38,11 @@ with SessionPreferences[SessionPrefs] {
     implicit val r: RequestHeader = request
 
     statusCode match {
+      case _ if request.path.startsWith(controllers.api.v1.routes.ApiV1Home.index().url) =>
+        immediate(Status(statusCode)(ApiV1.errorJson(statusCode, Some(message))))
       case play.api.http.Status.NOT_FOUND => onNotFound(request, message)
-      case _ => immediate(
-        Status(statusCode)(
-          renderError("errors.clientError", genericError(message)))
-      )
+      case _ =>
+        immediate(Status(statusCode)(renderError("errors.clientError", genericError(message))))
     }
   }
 
