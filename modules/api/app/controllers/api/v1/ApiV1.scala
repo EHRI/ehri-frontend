@@ -11,6 +11,7 @@ import controllers.generic.Search
 import defines.EntityType
 import global.{GlobalConfig, ItemLifecycle}
 import models._
+import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._
 import models.base.Model
 import play.api.cache.SyncCacheApi
@@ -33,13 +34,18 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object ApiV1 {
-  val apiSupportedEntities = Seq(
-    EntityType.DocumentaryUnit,
-    EntityType.VirtualUnit,
-    EntityType.Repository,
-    EntityType.HistoricalAgent,
-    EntityType.Country
-  )
+
+  def errorJson(status: Int, message: Option[String] = None)(implicit messages: Messages): JsObject = {
+    Json.obj(
+      "errors" -> Json.arr(
+        JsonApiError(
+          status = status.toString,
+          title = Messages(s"api.error.$status"),
+          detail = message
+        )
+      )
+    )
+  }
 }
 
 @Singleton
@@ -104,18 +110,6 @@ case class ApiV1 @Inject()(
 
   private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
-
-  private def errorJson(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): JsObject = {
-    Json.obj(
-      "errors" -> Json.arr(
-        JsonApiError(
-          status = status.toString,
-          title = Messages(s"api.error.$status"),
-          detail = message
-        )
-      )
-    )
-  }
 
   private def checkAuthentication(request: RequestHeader): Option[String] = {
     request.headers.get(HeaderNames.AUTHORIZATION).flatMap { authValue =>
@@ -309,6 +303,10 @@ case class ApiV1 @Inject()(
     case _ => None
   }
 
+  private def entityTypes(ets: Seq[ApiEntity.Value]): Seq[EntityType.Value] = {
+    if (ets.isEmpty) ApiEntity.asEntityTypes else ets.map(ApiEntity.toEntityType)
+  }
+
   /**
     * Paginated response data.
     */
@@ -329,13 +327,13 @@ case class ApiV1 @Inject()(
     )
 
 
-  def search(`type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
+  def search(`type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)
       find[Model](
         params = params,
         paging = paging,
-        entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+        entities = entityTypes(`type`),
         facetBuilder = apiSearchFacets
       ).map { r =>
         Ok(Json.toJson(
@@ -362,7 +360,7 @@ case class ApiV1 @Inject()(
       } recoverWith errorHandler
     }
 
-  def searchIn(id: String, `type`: Seq[defines.EntityType.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
+  def searchIn(id: String, `type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)
       userDataApi.getAny[Model](id).flatMap { item =>
@@ -372,7 +370,7 @@ case class ApiV1 @Inject()(
             filters = filters,
             params = params,
             paging = paging,
-            entities = apiSupportedEntities.filter(e => `type`.isEmpty || `type`.contains(e)),
+            entities = entityTypes(`type`),
             facetBuilder = apiSearchFacets
           )
         } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,

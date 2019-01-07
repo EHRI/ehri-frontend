@@ -1,10 +1,8 @@
 package controllers.api.v1
 
-import javax.inject.{Inject, Singleton}
-
 import controllers.AppComponents
 import controllers.portal.base.PortalController
-import defines.EntityType
+import javax.inject.{Inject, Singleton}
 import models.api.v1.JsonApiV1._
 import play.api.i18n.Messages
 import play.api.libs.json._
@@ -20,13 +18,6 @@ case class ApiV1Home @Inject()(
   private val apiRoutes = controllers.api.v1.routes.ApiV1
 
   private val AcceptsJsonApi = Accepting(JSONAPI_MIMETYPE)
-
-  private val apiSupportedEntities = Seq(
-    EntityType.DocumentaryUnit,
-    EntityType.Repository,
-    EntityType.HistoricalAgent,
-    EntityType.Country
-  )
 
   private def error(status: Int, message: Option[String] = None)(implicit requestHeader: RequestHeader): Result =
     Status(status)(errorJson(status, message))
