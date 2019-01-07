@@ -38,9 +38,9 @@ with SessionPreferences[SessionPrefs] {
     implicit val r: RequestHeader = request
 
     statusCode match {
+      case play.api.http.Status.NOT_FOUND => onNotFound(request, message)
       case _ if request.path.startsWith(controllers.api.v1.routes.ApiV1Home.index().url) =>
         immediate(Status(statusCode)(ApiV1.errorJson(statusCode, Some(message))))
-      case play.api.http.Status.NOT_FOUND => onNotFound(request, message)
       case _ =>
         immediate(Status(statusCode)(renderError("errors.clientError", genericError(message))))
     }
