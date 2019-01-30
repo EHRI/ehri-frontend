@@ -43,7 +43,7 @@ object LinkF {
   }
 
   object LinkCopyType extends Enumeration {
-    val OriginalRepositoryToCopyRepository= Value("originalRepositoryToCopyRepository")
+    val CopyRepositoryToOriginalRepository = Value("copyRepositoryToOriginalRepository")
     val CopyCollectionToOriginalCollection = Value("copyCollectionToOriginalCollection")
     val CopyCollectionToOriginalRepository = Value("copyCollectionToOriginalRepository")
     val CopyRepositoryToOriginalCollection = Value("copyRepositoryToOriginalCollection")
@@ -141,7 +141,7 @@ object Link {
 
   def copyLinkType(src: Model, dest: Model): Option[LinkCopyType.Value] =
     (src, dest) match {
-      case (r1: Repository, r: Repository) => Some(LinkCopyType.OriginalRepositoryToCopyRepository)
+      case (r1: Repository, r: Repository) => Some(LinkCopyType.CopyRepositoryToOriginalRepository)
       case (d1: DocumentaryUnit, d2: DocumentaryUnit) => Some(LinkCopyType.CopyCollectionToOriginalCollection)
       case (d: DocumentaryUnit, r: Repository) => Some(LinkCopyType.CopyCollectionToOriginalRepository)
       case (r1: Repository, d: DocumentaryUnit) => Some(LinkCopyType.CopyRepositoryToOriginalCollection)
@@ -149,10 +149,7 @@ object Link {
     }
 
   def copyLinkField(src: Model, dest: Model): Option[LinkField.Value] =
-    copyLinkType(src, dest).map {
-      case LinkCopyType.OriginalRepositoryToCopyRepository => LinkField.LocationOfCopies
-      case _ => LinkField.LocationOfOriginals
-    }
+    copyLinkType(src, dest).map(_ => LinkField.LocationOfOriginals)
 
   def copyLinkDescription(src: Model, dest: Model)(implicit messages: Messages): Option[String] =
     copyLinkType(src, dest).map( t => Messages(s"link.copy.preset.$t", src.toStringLang, dest.toStringLang))
