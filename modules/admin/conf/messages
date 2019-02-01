@@ -79,11 +79,11 @@ link.create=Link to another item
 link.create.item=Link ''{0}'' to ''{1}''
 link.update=Edit Relationship
 link.update.submit=Submit
-link.create.to.DocumentaryUnit=Link to a documentary unit
-link.create.to.Repository=Link to an institution
-link.create.to.HistoricalAgent=Link to an authority file
+link.create.to.DocumentaryUnit=Link to an Archival Description
+link.create.to.Repository=Link to an Institution
+link.create.to.HistoricalAgent=Link to an Authority File
 link.create.to.VirtualUnit=Link to Virtual Item
-link.create.to.CvocConcept=Link to a vocabulary term
+link.create.to.CvocConcept=Link to a Vocabulary Term
 link.delete=Delete Relationship
 link.dates=Dates of Relationship
 link.type=Type of Relationship
@@ -477,7 +477,7 @@ permissions.itemLevel.show=Show Item-level Permissions
 permissions.itemLevel.manage=Item-level Permissions
 permissions.itemLevel.manage.item=Item-level Permissions for {0}
 permissions.itemLevel.manage.info=Item-level permissions allow you to grant permissions for users or groups to perform\
-  actions on a single item, i.e. updating a repository''s descriptive information.
+  actions on a single item, i.e. updating an institution''s descriptive information.
 permissions.accessor.itemLevel.item=Item-level Permissions for {0}
 permissions.scopeLevel.grant.item=Manage Permissions in scope {0} for {1}
 permissions.grant.item=Manage Permissions on {0} for {1}
@@ -538,11 +538,11 @@ documentaryUnit.searchInside=Structure
 documentaryUnit.hasChildItems=Container
 documentaryUnit.noChildItems=Single level
 documentaryUnit.childCount={0,choice,0#No child items|1#1 child item|1<{0,number,integer} child items}
-documentaryUnit.list=Collections
-documentaryUnit.create=Create Collection
-documentaryUnit.create.submit=Create Collection
-documentaryUnit.update=Update Collection
-documentaryUnit.update.submit=Update Collection
+documentaryUnit.list=Archival Descriptions
+documentaryUnit.create=Create Archival Description
+documentaryUnit.create.submit=Create Archival Description
+documentaryUnit.update=Update Archival Description
+documentaryUnit.update.submit=Update Archival Description
 documentaryUnit.child.create=Create New Child Item
 
 
@@ -553,9 +553,9 @@ description.identifier.description=Optional field to distinguish a description f
 #
 # Countries
 #
-country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
+country.repositoriesPageHeader={2,choice,0#No institutions found|1#One institution found|1<Institutions {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
-country.searchInside=Search Repositories
+country.searchInside=Search Institutions
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
 country.items=Repositories
 country.identifier=Country Code
@@ -812,17 +812,17 @@ documentaryUnit.endDate=End Date
 #
 # Repositories
 #
-repository.search=Search Repositories
+repository.search=Search Institutions
 repository.searchInside=Search items held by {0}
 repository.itemsHeldOnline=Items on EHRI
 repository.hasChildItems=Yes
 repository.noChildItems=No
 repository.childCount={0,choice,0#No archival descriptions available|1#1 archival description available|1<{0,number,integer} archival descriptions available}
-repository.list=Repositories
-repository.create=Create Repository
-repository.create.submit=Create Repository
-repository.update=Update Repository
-repository.update.submit=Update Repository
+repository.list=Institutions
+repository.create=Create Institution
+repository.create.submit=Create Institution
+repository.update=Update Institution
+repository.update.submit=Update Institution
 
 repository.descriptionArea=Description Area
 repository.identity=Identity Area
