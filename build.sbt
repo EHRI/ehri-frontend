@@ -150,7 +150,7 @@ val commonSettings = Seq(
   // Show warnings and deprecations
   scalacOptions in ThisBuild ++= Seq(
     "-encoding", "UTF-8",
-    "-Xlint",
+    "-Ywarn-unused:imports",
     "-unchecked",
     "-deprecation"
   ),
