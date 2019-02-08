@@ -1,11 +1,11 @@
 package controllers.vocabularies
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
+import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
+import javax.inject._
 import models._
 import play.api.data.Form
 import play.api.http.{HeaderNames, MimeTypes}
@@ -13,8 +13,8 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
 import services.ingest.{IngestApi, IngestParams}
-import utils.{PageParams, RangeParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import utils.{PageParams, RangeParams}
 
 
 @Singleton

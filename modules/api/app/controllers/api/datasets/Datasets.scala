@@ -77,11 +77,11 @@ case class Datasets @Inject()(
               }
             Ok.chunked(csvRows)
               .as(s"text/$format; charset=utf-8")
-              .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
+              .withHeaders(ctHeader)
           case DataFormat.Json =>
               Ok.chunked(cypher.legacy(query.query))
                 .as(ContentTypes.JSON)
-                .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment; filename=$filename")
+                .withHeaders(ctHeader)
           case _ => NotAcceptable(s"Unsupported type: $format")
         }
       }

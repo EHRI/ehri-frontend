@@ -1,11 +1,10 @@
 package controllers.annotation
 
-import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import models.{Annotation, AnnotationF}
+import javax.inject._
+import models.Annotation
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
 import utils.RangeParams

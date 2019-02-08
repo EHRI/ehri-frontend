@@ -54,9 +54,6 @@ case class Guides @Inject()(
     }
   }
 
-
-  private def facetPage(page: Int, limit: Int, total: Int): (Int, Int) = ((page - 1) * limit, limit)
-
   /*
   *  Return SearchParams for items with hierarchy
   */
@@ -185,7 +182,7 @@ case class Guides @Inject()(
             )
             case _ => JsNull
           }),
-          "descriptions" -> Json.toJson(it.descriptions.map { case (desc) =>
+          "descriptions" -> Json.toJson(it.descriptions.map { case desc =>
             Json.toJson(Map(
               ConceptF.DEFINITION -> Json.toJson(desc.definition),
               ConceptF.SCOPENOTE -> Json.toJson(desc.scopeNote),
