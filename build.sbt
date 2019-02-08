@@ -24,7 +24,7 @@ val dataConverterVersion = "1.1.10"
 val backendDependencies = Seq(
   // Play stuff
   ws,
-  ehcache,
+  caffeine,
 
   // commons text
   "org.apache.commons" % "commons-text" % "1.4",
