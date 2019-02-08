@@ -1,14 +1,13 @@
 package controllers.groups
 
-import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.EntityType
 import forms.VisibilityForm
+import javax.inject._
 import models.base.Accessor
-import models.{Group, GroupF, UserProfile}
+import models.{Group, UserProfile}
 import play.api.data.{Form, Forms}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}

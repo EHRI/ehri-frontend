@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 
 
-case class CmdlineIndexMediator @Inject()(implicit config: Configuration, executionContext: ExecutionContext) extends SearchIndexMediator {
+case class CmdlineIndexMediator @Inject()()(implicit config: Configuration, executionContext: ExecutionContext) extends SearchIndexMediator {
   def handle = CmdlineIndexMediatorHandle()
 }
 

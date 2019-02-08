@@ -12,7 +12,7 @@ import services.search._
   * to Solr format.
   */
 @Singleton
-case class DateFacetUtils @Inject()(implicit messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {
+case class DateFacetUtils @Inject()()(implicit val messagesApi: MessagesApi) extends play.api.i18n.I18nSupport {
 
   import DateFacetUtils._
 

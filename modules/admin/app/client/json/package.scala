@@ -1,11 +1,10 @@
 package client
 
 import defines.EntityType
-import models.{Entity, _}
 import models.base.{Accessor, Model}
 import models.json._
+import models.{Entity, _}
 import play.api.Logger
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsObject, KeyPathNode, _}
 import utils.EnumUtils

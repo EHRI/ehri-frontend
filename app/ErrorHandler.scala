@@ -10,7 +10,7 @@ import play.api.mvc.{RequestHeader, Result}
 import play.api.routing.Router
 import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulException}
 import services.ServiceOffline
-import services.data.{BadJson, ItemNotFound, PermissionDenied}
+import services.data.{ItemNotFound, PermissionDenied}
 import services.redirects.MovedPageLookup
 import utils.SessionPrefs
 import views.html.errors._

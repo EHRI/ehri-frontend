@@ -3,7 +3,7 @@ package services.geocoding
 import javax.inject.Inject
 import models.AddressF
 import play.api.Configuration
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsSuccess}
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,8 +16,8 @@ case class BingGeocodingService @Inject()(ws: WSClient, config: Configuration)(i
 
   case class Response(point: Point, confidence: String)
   object Response {
-    import play.api.libs.json._
     import play.api.libs.functional.syntax._
+    import play.api.libs.json._
 
     implicit def pointReads: Reads[Point] = (
       (__ \ "point" \ "coordinates" \ 0).read[BigDecimal] and

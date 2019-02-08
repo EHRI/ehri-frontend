@@ -92,7 +92,7 @@ trait GuideService {
 }
 
 @Singleton
-case class SqlGuideService @Inject()(implicit db: Database) extends GuideService {
+case class SqlGuideService @Inject()()(implicit db: Database) extends GuideService {
 
   override def findPages(guide: Guide): List[GuidePage] = db.withConnection { implicit connection =>
     guide.id.map { id =>

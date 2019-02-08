@@ -3,7 +3,7 @@ package global
 import defines.EventType
 import javax.inject.{Inject, Singleton}
 import models.base.Model
-import models.{AddressF, Repository, RepositoryF}
+import models.{AddressF, RepositoryF}
 import services.geocoding.GeocodingService
 
 import scala.concurrent.{ExecutionContext, Future}

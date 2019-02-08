@@ -1,13 +1,12 @@
 package models
 
+import anorm.SqlParser._
+import anorm._
 import play.api.data.Form
 import play.api.data.Forms._
-
-import anorm._
-import anorm.SqlParser._
-import language.postfixOps
-import utils.db.StorableEnum
 import play.core.parsers.FormUrlEncodedParser
+import utils.db.StorableEnum
+
 
 case class GuidePage(
   id: Option[Long] = None,

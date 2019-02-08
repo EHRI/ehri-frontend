@@ -1,18 +1,17 @@
 package controllers.links
 
-import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.EntityType
 import forms.VisibilityForm
-import models.{Link, LinkF}
-import play.api.mvc.{Action, AnyContent, Call, ControllerComponents}
+import javax.inject._
+import models.Link
 import play.api.i18n.Messages
+import play.api.mvc.{Action, AnyContent, Call, ControllerComponents}
 import services.data.DataHelpers
-import utils.{PageParams, RangeParams}
 import services.search._
+import utils.{PageParams, RangeParams}
 
 
 case class Links @Inject()(

@@ -1,8 +1,6 @@
 package models
 
-import play.api.libs.json._
-import play.api.libs.json.JsSuccess
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsSuccess, _}
 
 package object json {
 

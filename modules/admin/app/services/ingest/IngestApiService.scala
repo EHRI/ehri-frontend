@@ -1,23 +1,22 @@
 package services.ingest
 
-import java.io.File
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
 import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-import javax.inject.Inject
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
-import akka.stream.{IOResult, Materializer}
+import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
+import javax.inject.Inject
 import play.api.http.HeaderNames
 import play.api.libs.json._
-import play.api.libs.ws.{BodyWritable, DefaultBodyWritables, SourceBody, WSClient}
+import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
 import services.data.Constants
 import services.redirects.MovedPageLookup
@@ -43,6 +42,7 @@ case class IngestApiService @Inject()(
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestApi {
 
   import services.ingest.IngestApi._
+
   import scala.concurrent.duration._
 
 
@@ -155,7 +155,7 @@ case class IngestApiService @Inject()(
   }
 
   // Create 301 redirects for items that have moved URLs
-  private def remapMovedUnits(movedIds: Seq[(String, String)])(implicit chan: ActorRef): Future[Int] = {
+  private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
     def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
       def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
       items.flatMap { case (from, to) =>
@@ -192,7 +192,7 @@ case class IngestApiService @Inject()(
     val props: Option[java.nio.file.Path] = job.data.params.properties.map { propTmp =>
       import scala.collection.JavaConverters._
       val readTmp = Files.createTempFile(s"ingest", ".properties")
-      propTmp.moveTo(readTmp, replace = true)
+      propTmp.moveFileTo(readTmp, replace = true)
       val perms = Set(
         PosixFilePermission.OTHERS_READ,
         PosixFilePermission.GROUP_READ,

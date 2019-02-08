@@ -3,10 +3,10 @@ package services.feedback
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
-import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import anorm._
+import javax.inject.{Inject, Singleton}
 import models.{Feedback, FeedbackContext}
 import org.apache.commons.io.IOUtils
 import play.api.Mode
@@ -16,7 +16,6 @@ import services.data.ItemNotFound
 import utils.{Page, PageParams}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.languageFeature.postfixOps
 
 
 @Singleton
@@ -86,7 +85,7 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
   override def get(id: String): Future[Feedback] = Future {
     db.withConnection { implicit conn =>
       SQL"SELECT * FROM feedback WHERE id = $id"
-        .as(feedbackParser.singleOpt).headOption.getOrElse(throw new ItemNotFound(id))
+        .as(feedbackParser.singleOpt).getOrElse(throw new ItemNotFound(id))
     }
   }
 
