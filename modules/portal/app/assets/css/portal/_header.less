@@ -12,11 +12,6 @@ header#header {
     }
   }
 
-  background-position: center center;
-  background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-
   .global-search {
     // Currently, don't show the global search in the
     // collapsed header because it looks terrible, so
@@ -51,55 +46,8 @@ header#header {
     }
   }
 
-  #navbar-account, #navbar-account-toggle, #navbar-primary-toggle {
-    .pull-right;
-  }
-
   #navbar-account {
     margin-right: @large-margin;
-  }
-
-  #navbar-primary-container {
-    padding-top: @medium-padding;
-    padding-bottom: @medium-padding;
-    background: rgba(0, 0, 0, 0.5);
-    //background-color:  @pale-gray;
-    font-family: serif;
-    border: none;
-    border-bottom: 1px solid darken(@pale-gray, 30%);
-
-    .navbar-default > .navbar-nav > .active {
-      background-color: transparent;
-    }
-
-    #navbar-primary {
-      #navbar-logo {
-        // pull the logo into line with the menu items
-        // this is crappy and fragile.
-        margin-top: -13px;
-      }
-      ul {
-        margin-top: 8px; // line up with the logo image
-        margin-left: @large-margin;
-        li {
-          a {
-            color: #fff;
-            font-weight: 700;
-            font-size: 18px;
-            padding: @small-padding @small-padding;
-            border-bottom: @small-padding solid transparent;
-            margin-right: @medium-margin;
-          }
-
-          &.active {
-            a {
-              border-bottom-color: #fff;
-              background-color: transparent;
-            }
-          }
-        }
-      }
-    }
   }
 }
 
@@ -109,32 +57,38 @@ header#header {
   vertical-align: top;
 }
 
-/*
- *    Nav Primary and nav-secondary shared features
- */
-.nav-primary , .nav-secondary {
-  nav {
-    & > ul  {
-      .list-inline;
-      & > li {
-        padding:0 2px;
-      }
-    }
-    &[role="tool"]:after {
-      content: " ";
-      display: table;
-    }
-  }
-  .clearfix();
-}
-
-
-/*
- *    -> Nav Secondary Features
- */
 .account-admin, .toolbar {
   text-align:right;
   > li {
     text-align:left;
   }
 }
+
+#navbar-primary-container {
+  padding-top: @medium-padding;
+  padding-bottom: @medium-padding;
+
+  #navbar-logo {
+    padding-left: @small-padding;
+  }
+
+  #navbar-primary {
+    padding-top: @medium-padding;
+    ul {
+      li {
+        a {
+          font-family: @headings-font-family;
+          font-size: 1.5em;
+          color: @almost-black;
+          text-decoration: none;
+        }
+      }
+
+      li.active a {
+        text-decoration: underline;
+        background-color: inherit;
+      }
+    }
+  }
+}
+

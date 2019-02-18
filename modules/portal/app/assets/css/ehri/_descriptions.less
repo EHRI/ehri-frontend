@@ -34,7 +34,8 @@
 .item-header {
   .other-name-list {
     font-size: 1.3em;
-    &:extend(.list-unstyled, .list-inline, .text-mute);
+    &:extend(.list-inline);
+    margin-left: 0; // corrects Bootstraps -5px neg margin
     display: block;
   }
 
