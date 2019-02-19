@@ -1,4 +1,4 @@
-@(item: Vocabulary, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: AuthoritativeSet, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @views.html.common.rightSidebar {
@@ -9,7 +9,7 @@
         }
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
-        @views.html.common.childItemSidebar(item, EntityType.Concept)
+        @views.html.common.childItemSidebar(item, EntityType.HistoricalAgent)
         @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }
 }

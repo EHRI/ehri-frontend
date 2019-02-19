@@ -4,7 +4,7 @@
     <div class="container">
         <div class="navbar-header" id="navbar-primary-toggle">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#navbar-primary" aria-expanded="false" aria-controls="navbar-primary">
+                    data-target="#navbar-both" aria-expanded="false" aria-controls="navbar-both">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -14,18 +14,30 @@
                 <img alt="European Holocaust Research Infrastructure" height="45" width="90" src="//s3-eu-west-1.amazonaws.com/ehri-assets/logo-color-med.png" rel="logo" />
             </a>
         </div>
-        <div id="navbar-primary" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Countries.searchAll().url)">
-                    <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
-                </li>
-                <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll().url)">
-                    <a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
-                </li>
-                <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
-                    <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
-                </li>
-            </ul>
+        <div id="navbar-both" class="navbar-collapse collapse">
+            <div id="navbar-primary">
+                <ul class="nav navbar-nav">
+                    <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Countries.searchAll().url)">
+                        <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
+                    </li>
+                    <li class="repository @views.Helpers.maybeActivePath(controllers.portal.routes.Repositories.searchAll().url)">
+                        <a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
+                    </li>
+                    <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
+                        <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="navbar-secondary">
+                <ul class="nav navbar-nav">
+                    <li class="vocabulary @views.Helpers.maybeActivePath(controllers.portal.routes.Vocabularies.searchAll().url)">
+                        <a href="@controllers.portal.routes.Vocabularies.searchAll()">@Messages("type.CvocVocabulary")</a>
+                    </li>
+                    <li class="authoritativeSet @views.Helpers.maybeActivePath(controllers.portal.routes.AuthoritativeSets.searchAll().url)">
+                        <a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">@Messages("type.AuthoritativeSet")</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

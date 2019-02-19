@@ -214,6 +214,7 @@ object Helpers {
     case EntityType.Link => controllers.portal.routes.Links.browse(id)
     case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
     case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
+    case EntityType.AuthoritativeSet => controllers.portal.routes.AuthoritativeSets.browse(id)
     case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
     case _ => Call("GET", "#")
   }

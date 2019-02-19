@@ -30,6 +30,7 @@ case class Vocabularies @Inject()(
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
   with Annotate[Vocabulary]
+  with Promotion[Vocabulary]
   with Search {
 
   override protected val targetContentTypes = Seq(ContentTypes.Concept)
@@ -165,6 +166,25 @@ case class Vocabularies @Inject()(
       Redirect(vocabRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
+  }
+
+  def promote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.promote(request.item, vocabRoutes.promotePost(id)))
+  }
+
+  def promotePost(id: String): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
+    Redirect(vocabRoutes.get(id))
+      .flashing("success" -> "item.promote.confirmation")
+  }
+
+  def demote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.demote(request.item,
+      vocabRoutes.demotePost(id)))
+  }
+
+  def demotePost(id: String): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
+    Redirect(vocabRoutes.get(id))
+      .flashing("success" -> "item.demote.confirmation")
   }
 
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>

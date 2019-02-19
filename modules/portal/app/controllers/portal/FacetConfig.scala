@@ -121,13 +121,6 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
         param = "cpf",
         render = s => Messages("historicalAgent." + s),
         display = FacetDisplay.List
-      ),
-      FieldFacetClass(
-        key = HOLDER_NAME,
-        name = Messages("historicalAgent.authoritativeSet"),
-        param = "set",
-        render = s => s,
-        display = FacetDisplay.List
       )
     )
   }

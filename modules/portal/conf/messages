@@ -41,7 +41,7 @@ landingBlurb.DocumentaryUnit=Browse {0} in {1}.
 landingBlurb.DocumentaryUnit.link={0} archival descriptions
 landingBlurb.DocumentaryUnit.Repository.link={0} institutions
 landingBlurb.HistoricalAgent=Browse {0}, comprised of {1}, {2} and {3}.
-landingBlurb.HistoricalAgent.link={0} historical agents
+landingBlurb.HistoricalAgent.link={0} authorities
 landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
 landingBlurb.person.link={0} Persons
 landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
@@ -198,7 +198,7 @@ type.Repository.description=An inventory of archival institutions that \
   hold Holocaust-related material.
 type.DocumentaryUnit=Archival Descriptions
 type.DocumentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
-type.HistoricalAgent=Historical Agents
+type.HistoricalAgent=Authorities
 type.HistoricalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
 type.Country=Countries
 type.Country.description=EHRI national reports provide an overview of \
@@ -212,6 +212,7 @@ type.VirtualUnit=Virtual Collections
 type.Annotation=Notes
 type.Link=Connections
 type.CvocVocabulary=Vocabularies
+type.AuthoritativeSet=Authority Sets
 
 #
 # Dates
@@ -657,10 +658,10 @@ timeline.eventType.setItemPermissions={0} updated {1}
 timeline.target.Group=a group
 timeline.target.UserProfile=a user
 timeline.target.Repository=a collection holding institution
-timeline.target.HistoricalAgent=a historical agent
+timeline.target.HistoricalAgent=an authority
 timeline.target.DocumentaryUnit=an archival description
-timeline.target.CvocVocabulary=a vocabulariy
-timeline.target.AuthoritativeSet=an authority sets
+timeline.target.CvocVocabulary=a vocabulary
+timeline.target.AuthoritativeSet=an authority list
 timeline.target.CvocConcept=a term
 timeline.target.Annotation=an annotation
 timeline.target.Country=a country
@@ -688,12 +689,13 @@ search.sort.title=Search result ordering
 search.global=Search Institutions, Descriptions, and Country Reports...
 search.Repository=Search Archival Institutions...
 search.DocumentaryUnit=Search Archival Descriptions...
-search.HistoricalAgent=Search Historical Agents...
+search.HistoricalAgent=Search Authorities...
 search.VirtualUnit=Search Virtual Collections...
 search.Country=Search Country Reports...
 search.UserProfile=Search People...
 search.CvocConcept=Search Keywords...
 search.CvocVocabulary=Search Vocabularies...
+search.AuthoritativeSet=Search Authority Sets...
 search.helper.example=Phrase
 search.helper.linkTitle=Advanced query tips
 search.helper=There are several ways to be more specific in your search query:
@@ -1100,7 +1102,7 @@ historicalAgent.entityType=Type of Entity
 historicalAgent.entityType.person=Person
 historicalAgent.entityType.family=Family
 historicalAgent.entityType.corporateBody=Corporate Body
-historicalAgent.set=Historical Agent
+historicalAgent.set=Authority List
 historicalAgent.descriptionArea=Description Area
 historicalAgent.identity=Identity Area
 historicalAgent.services=Services Area
@@ -1201,6 +1203,15 @@ country.description.empty=There is currently no EHRI country report available fo
 #
 # Vocabularies
 #
+cvocVocabulary.intro=Vocabularies are collections of subject headings or places (see also: {0}).
 cvocVocabulary.childItems=Keywords
 cvocVocabulary.childCount={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
 cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+
+#
+# Authoritative Sets
+#
+authoritativeSet.intro=Authority sets are collections of people, families, or corporate bodies (see also: {0}).
+authoritativeSet.childItems=Authorities
+authoritativeSet.childCount={0,choice,0#{0} |1#1 authorities|1<{0,number,integer} authorities}
+authoritativeSet.childItems.search={0,choice,0#{0} |1#1 authorities|1<{0,number,integer} authorities}

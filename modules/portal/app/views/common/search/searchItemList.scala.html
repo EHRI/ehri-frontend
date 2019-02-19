@@ -24,6 +24,9 @@
                     case d: Vocabulary => {
                         @views.html.vocabulary.searchItem(d, hit, watched)
                     }
+                    case d: AuthoritativeSet => {
+                        @views.html.authoritativeSet.searchItem(d, hit, watched)
+                    }
                     case d: VirtualUnit => {
                         @views.html.virtualUnit.searchItem(d, Seq.empty, hit, watched)
                     }

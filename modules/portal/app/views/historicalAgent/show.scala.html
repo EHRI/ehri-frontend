@@ -1,6 +1,8 @@
 @(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
+    @infobar(item)
+
     @views.html.common.mainContent {
         @views.html.historicalAgent.itemDetails(item, annotations, links, watched)
     }

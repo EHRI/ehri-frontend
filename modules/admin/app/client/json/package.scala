@@ -277,6 +277,8 @@ package object json {
     val clientFormat: Format[AuthoritativeSet] = (
       JsPath.format[AuthoritativeSetF](fFormat) and
       (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(AuthoritativeSet.apply, unlift(AuthoritativeSet.unapply))
@@ -287,6 +289,8 @@ package object json {
     val clientFormat: Format[Vocabulary] = (
       JsPath.format[VocabularyF](fFormat) and
       (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
+      (__ \ "promotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
+      (__ \ "demotedBy").formatSeqOrEmpty(userProfileJson.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
       (__ \ "meta").format[JsObject]
     )(Vocabulary.apply, unlift(Vocabulary.unapply))

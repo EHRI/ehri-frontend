@@ -1,5 +1,7 @@
 @(item: Vocabulary, f: play.api.data.Form[models.VocabularyF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
 @views.html.admin.layout.rightSidebar(Messages("cvocVocabulary.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
         @formHelpers.csrfToken()

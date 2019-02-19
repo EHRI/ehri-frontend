@@ -3,6 +3,7 @@ package models
 import base._
 import models.base.Persistable
 import defines.{ContentTypes, EntityType}
+import eu.ehri.project.definitions.Ontology
 import models.json._
 import play.api.i18n.Messages
 import play.api.libs.json._
@@ -17,6 +18,7 @@ object AuthoritativeSetF {
 
   val NAME = "name"
   val DESCRIPTION = "description"
+  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
 
   import Entity._
 
@@ -25,7 +27,8 @@ object AuthoritativeSetF {
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
     (__ \ DATA \ NAME).formatNullable[String] and
-    (__ \ DATA \ DESCRIPTION).formatNullable[String]
+    (__ \ DATA \ DESCRIPTION).formatNullable[String] and
+    (__ \ DATA \ ALLOW_PUBLIC).formatWithDefault(false)
   )(AuthoritativeSetF.apply, unlift(AuthoritativeSetF.unapply))
 
   implicit object Converter extends Writable[AuthoritativeSetF] {
@@ -38,7 +41,8 @@ case class AuthoritativeSetF(
   id: Option[String],
   identifier: String,
   name: Option[String],
-  description: Option[String]
+  description: Option[String],
+  isPromotable: Boolean = false
 ) extends ModelData with Persistable
 
 
@@ -53,6 +57,8 @@ object AuthoritativeSet {
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
+    (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
+    (__ \ RELATIONSHIPS \ DEMOTED_BY).readSeqOrEmpty[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(AuthoritativeSet.apply _)
@@ -69,7 +75,8 @@ object AuthoritativeSet {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> optional(nonEmptyText),
-      DESCRIPTION -> optional(nonEmptyText)
+      DESCRIPTION -> optional(nonEmptyText),
+      ALLOW_PUBLIC -> default(boolean, true)
     )(AuthoritativeSetF.apply)(AuthoritativeSetF.unapply)
   )
 }
@@ -78,13 +85,18 @@ object AuthoritativeSet {
 case class AuthoritativeSet(
   data: AuthoritativeSetF,
   accessors: Seq[Accessor] = Nil,
+  promoters: Seq[UserProfile] = Nil,
+  demoters: Seq[UserProfile] = Nil,
   latestEvent: Option[SystemEvent],
   meta: JsObject = JsObject(Seq())
 ) extends Model
   with Accessible
+  with Promotable
   with Holder[HistoricalAgent] {
 
   type T = AuthoritativeSetF
+
+  override def isPromotable: Boolean = data.isPromotable
 
   override def toStringLang(implicit messages: Messages): String = data.name.getOrElse(id)
 }
