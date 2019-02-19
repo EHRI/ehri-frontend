@@ -33,16 +33,14 @@ case class AuthoritativeSets @Inject()(
 
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     if (isAjax) immediate(Ok(views.html.authoritativeSet.itemDetails(request.item, request.annotations, request.links, request.watched)))
-    else findType[HistoricalAgent](params, paging,
-        filters = Map(SearchConstants.HOLDER_ID -> id)).map { result =>
+    else findType[HistoricalAgent](params, paging, filters = Map(SearchConstants.HOLDER_ID -> id), sort = SearchSort.Name).map { result =>
       Ok(views.html.authoritativeSet.show(request.item, result, request.annotations,
         request.links, portalAuthSetRoutes.search(id), request.watched))
     }
   }
 
   def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
-    findType[HistoricalAgent](params, paging,
-        filters = Map(SearchConstants.HOLDER_ID -> id)).map { result =>
+    findType[HistoricalAgent](params, paging, filters = Map(SearchConstants.HOLDER_ID -> id), sort = SearchSort.Name).map { result =>
       if (isAjax) {
         if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
             .withHeaders("more" -> result.page.hasMore.toString)
