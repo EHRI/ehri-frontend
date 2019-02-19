@@ -29,10 +29,14 @@
             <span class="caret"></span>
         </a>
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
+            @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
+                <li>
+                    <a href="@url" target="_blank">
+                        <i class="fa fa-info-circle"></i> @Messages("help.manual")
+                    </a>
+                </li>
+            }
             <li>
-                <a href="https://training.ehri-project.eu/unit/7-ehri-portal-manual" target="_blank">
-                    <i class="fa fa-info-circle"></i> @Messages("help.manual")
-                </a>
                 <a href="@controllers.portal.routes.Portal.externalPage("faq")">
                     <i class="fa fa-question-circle"></i> @Messages("help.faq")
                 </a>
