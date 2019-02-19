@@ -148,6 +148,7 @@ private[solr] object SolrQueryBuilder {
     Seq(
       "group" -> true.toString,
       "group.field" -> ITEM_ID,
+      "group.sort" -> s"$ITEM_ID asc",
       "group.facet" -> true.toString,
       "group.ngroups" -> true.toString,
       "group.cache.percent" -> 0.toString,
