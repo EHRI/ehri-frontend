@@ -18,7 +18,6 @@ object LinkF {
   val LINK_TYPE = "type"
   val LINK_FIELD = "field"
   val DESCRIPTION = "description"
-  val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
   val DATES = "dates"
 
   object LinkType extends Enumeration {

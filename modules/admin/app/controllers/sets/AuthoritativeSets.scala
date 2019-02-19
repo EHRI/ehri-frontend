@@ -31,6 +31,7 @@ AuthoritativeSets @Inject()(
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
   with Annotate[AuthoritativeSet]
+  with Promotion[AuthoritativeSet]
   with Search {
 
   private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.HistoricalAgent, config)
@@ -171,6 +172,25 @@ AuthoritativeSets @Inject()(
       Redirect(setRoutes.managePermissions(id))
         .flashing("success" -> "item.update.confirmation")
     }
+  }
+
+  def promote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.promote(request.item, setRoutes.promotePost(id)))
+  }
+
+  def promotePost(id: String): Action[AnyContent] = PromoteItemAction(id).apply { implicit request =>
+    Redirect(setRoutes.get(id))
+      .flashing("success" -> "item.promote.confirmation")
+  }
+
+  def demote(id: String): Action[AnyContent] = EditPromotionAction(id).apply { implicit request =>
+    Ok(views.html.admin.permissions.demote(request.item,
+      setRoutes.demotePost(id)))
+  }
+
+  def demotePost(id: String): Action[AnyContent] = DemoteItemAction(id).apply { implicit request =>
+    Redirect(setRoutes.get(id))
+      .flashing("success" -> "item.demote.confirmation")
   }
 
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>

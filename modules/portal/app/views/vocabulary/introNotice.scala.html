@@ -1,0 +1,8 @@
+@()(implicit req: RequestHeader, messages: Messages)
+
+<div class="description-notice-text">
+    @Html(Messages(
+        "cvocVocabulary.intro",
+        s"<a href='${controllers.portal.routes.AuthoritativeSets.searchAll()}'>${Messages("type.AuthoritativeSet")}</a>")
+    )
+</div>

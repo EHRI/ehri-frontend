@@ -1,0 +1,8 @@
+@(item: HistoricalAgent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+
+@common.infobar {
+    @item.set.map { set =>
+        <li>@views.html.helpers.linkTo(set, Html(views.Helpers.ellipsize(set.toStringLang, 100)))</li>
+    }
+}
+

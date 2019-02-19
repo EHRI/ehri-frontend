@@ -1,0 +1,21 @@
+@(item: AuthoritativeSet)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+
+<div class="search-item-details">
+    <ul class="AuthoritativeSet-search-details">
+        @item.latestEvent.map { event =>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+        }
+    </ul>
+</div>
+
+@item.data.description.map { desc =>
+    @Markdown(desc)
+}
+
+@views.html.common.childCount(item) { count =>
+    @views.html.helpers.link(controllers.portal.routes.AuthoritativeSets.search(item.id), 'class -> "child-items-inline-load collapsed") {
+        <i class="fa fa-plus-square-o"></i>
+        @Messages("authoritativeSet.childCount", count)
+    }
+}
+
