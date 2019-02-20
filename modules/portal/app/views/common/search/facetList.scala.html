@@ -149,10 +149,10 @@
 @defining(facetClasses.filter(_.isActive)) { activeClasses =>
     @if(activeClasses.nonEmpty) {
         <div class="search-facets">
-            <div class="search-facets-heading panel-heading">
+            <div class="search-facets-heading panel-heading" data-toggle="collapse" data-target="#facet-class-expander">
                 <h3>@Messages("search.facets.heading")</h3>
             </div>
-            <ul class="facet-classes">
+            <ul class="facet-classes collapse navbar-collapse" id="facet-class-expander">
             @activeClasses.filter(_.display != FacetDisplay.Hidden).map { fc =>
                 @fc.display match {
                     case FacetDisplay.DropDown => {
