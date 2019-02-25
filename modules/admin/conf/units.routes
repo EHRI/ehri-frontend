@@ -38,7 +38,6 @@ POST    /:id/linkjs                                @controllers.units.Documentar
 # Refetch access point HTML@
 POST    /:id/accessPoints/create/:desc             @controllers.units.DocumentaryUnits.createAccessPoint(id: String, desc: String)
 GET     /:id/accessPoints/:desc                    @controllers.units.DocumentaryUnits.manageAccessPoints(id: String, desc: String)
-GET     /:id/legacyAccessPoints/:desc              @controllers.units.DocumentaryUnits.legacyManageAccessPoints(id: String, desc: String)
 GET     /:id/accessPointsJs                        @controllers.units.DocumentaryUnits.getAccessPointsJson(id: String)
 POST    /:id/deleteAccess/:did/:accessPoint        @controllers.units.DocumentaryUnits.deleteAccessPoint(id: String, did: String, accessPoint: String)
 POST    /:id/deleteLink/:link                      @controllers.units.DocumentaryUnits.deleteLink(id: String, link: String)

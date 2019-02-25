@@ -174,10 +174,6 @@ jQuery(function ($) {
     }
   });
 
-  // Make multi-selects pretty
-  $("select.select2:not(.inline-element-template select.select2)").select2();
-
-
   // Fade success flash message after 3 seconds
   $(".success-pullup").fadeOut(3000);
 
@@ -205,7 +201,7 @@ jQuery(function ($) {
       set.append($elem);
       // Add select2 support...
       $elem.find("div.select2-container").remove();
-      $elem.find("select.select2").removeClass(".select2-offscreen").select2();
+      $elem.find("select.select2").removeClass(".select2-offscreen").select2(select2Opts || {});
 
       $elem.trigger("inlineFormset:added");
 

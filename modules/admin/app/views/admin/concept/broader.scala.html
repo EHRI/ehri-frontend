@@ -1,0 +1,52 @@
+@(item: Concept, f: play.api.data.Form[Seq[String]], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@import services.search.SearchConstants.HOLDER_ID
+@import services.search.SearchParams.{SORT, ENTITY, QUERY, EXCLUDE, FILTERS}
+
+@views.html.admin.layout.rightSidebar(Messages("cvocConcept.broaderTerms.set"), breadcrumbs = breadcrumbs(item)) {
+
+	<script>
+        jQuery(function ($) {
+            $('#broaderTerms').select2({
+                theme: "bootstrap",
+                ajax: {
+                    url: '@controllers.portal.routes.Portal.filterItems().url',
+                    data: function (params) {
+                        return {
+                            @ENTITY:  "@item.isA",
+                            @SORT:    "name",
+                            @QUERY:   params.term,
+                            @FILTERS: "@{HOLDER_ID}:@{item.vocabulary.map(_.id).getOrElse("")}",
+                            @EXCLUDE: "@item.id",
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.items.map(function (item) {
+                                return {
+                                    id: item.id,
+                                    text: item.name
+                                }
+                            }),
+                            more: data.page < data.numPages
+                        };
+                    }
+                }
+            });
+        });
+	</script>
+
+	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+        @formHelpers.csrfToken()
+        @defining("cvocConcept") { implicit fieldPrefix =>
+            @formHelpers.choiceInput(f(""), "broaderTerms", item.broaderTerms.map(t => t.id -> t.toStringLang).toList, 'multiple -> true, '_select2 -> false)
+        }
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+	}
+} {
+
+}
+`

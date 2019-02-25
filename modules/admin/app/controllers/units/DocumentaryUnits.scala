@@ -338,18 +338,6 @@ case class DocumentaryUnits @Inject()(
         request.description, holderIds = holders))
     }
 
-  def legacyManageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
-    WithDescriptionAction(id, descriptionId).apply { implicit request =>
-      // Holder IDs for vocabularies and authoritative sets to which
-      // access point suggestions will be constrainted. If this is empty
-      // all available vocabs/auth sets will be used.
-      val holders = config
-        .getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
-        .getOrElse(Seq.empty)
-      Ok(views.html.admin.documentaryUnit.legacyEditAccessPoints(request.item,
-        request.description, holderIds = holders))
-    }
-
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     request.item.holder.map { scope =>
       val dataType = IngestApi.IngestDataType.EadSync

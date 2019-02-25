@@ -475,4 +475,19 @@ class EntityViewsSpec extends IntegrationTestRunner {
       contentAsString(skos) must contain("<http://data.ehri-project.eu/cvoc1>")
     }
   }
+
+  "Concept views" should {
+    "allow setting broader concepts" in new ITestApp {
+      val test1 = FakeRequest(controllers.portal.routes.Concepts.browse("cvocc2")).call()
+      contentAsString(test1) must contain("cvocc1")
+
+      val cr = FakeRequest(controllers.keywords.routes.Concepts.setBroaderPost("cvocc2"))
+        .withUser(privilegedUser).callWith(Map("broaderTerms" -> Seq()))
+      status(cr) must_== SEE_OTHER
+      redirectLocation(cr) must beSome(controllers.keywords.routes.Concepts.get("cvocc2").url)
+
+      val test2 = FakeRequest(controllers.portal.routes.Concepts.browse("cvocc2")).call()
+      contentAsString(test2) must not contain "cvocc1"
+    }
+  }
 }

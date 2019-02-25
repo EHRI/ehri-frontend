@@ -5,6 +5,9 @@
         <a href="@controllers.keywords.routes.Concepts.createConcept(item.id)">@Messages("cvocConcept.narrower.create")</a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
+        <a href="@controllers.keywords.routes.Concepts.setBroader(item.id)">@Messages("cvocConcept.broaderTerms.set")</a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
         <a href="@controllers.keywords.routes.Concepts.update(item.id)">@Messages("item.update")</a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Delete)) {

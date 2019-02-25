@@ -65,6 +65,7 @@ annotation.target=Target
 #
 # Linking
 #
+link.search=Search Links
 link.linkTo=Links to Other Items
 link.linkTo.item=Create Annotation Link
 link.linkTo.copy=Create Copy Link
@@ -1298,6 +1299,7 @@ cvocConcept.update.submit=Update Term
 cvocConcept.topLevel.create=Create Top-level Term
 cvocConcept.topLevel.list={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 cvocConcept.narrower.create=Create Narrower Term
+cvocConcept.broaderTerms.set=Set Broader Terms
 
 #
 # Access points
