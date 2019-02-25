@@ -258,8 +258,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   override def simpleFilterQuery(query: SearchQuery, alphabetical: Boolean = false): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
-    val excludeIds = query.params.excludes.toList.flatten.map(id => s" -$ITEM_ID:$id").mkString
-    val queryString = query.params.query.getOrElse("*").trim + excludeIds + searchFilters
+    val queryString = query.params.query.getOrElse("*").trim + searchFilters
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
@@ -267,6 +266,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       bboxParams(query.params.bbox),
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
+      excludeFilterParams(query.params.excludes),
       groupParams,
       Seq("qf" -> s"$NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
@@ -289,9 +289,9 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
 
     // Child count to boost results seems to have an odd affect in making the
     // query only work on the default field - disabled for now...
-    val queryString =
-    //s"{!boost b=$CHILD_COUNT}" +
-    query.params.query.getOrElse(defaultQuery).trim + searchFilters
+    val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
+      "{!q.op=AND}" else ""
+    val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim + searchFilters
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
