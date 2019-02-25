@@ -187,12 +187,4 @@ case class HistoricalAgents @Inject()(
       Ok(views.html.admin.historicalAgent.editAccessPoints(request.item,
         request.description, holderIds = holders))
     }
-
-  def legacyManageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
-    WithDescriptionAction(id, descriptionId).apply { implicit request =>
-      val holders = config.getOptional[Seq[String]]("ehri.admin.accessPoints.holders")
-        .getOrElse(Seq.empty)
-      Ok(views.html.admin.historicalAgent.legacyEditAccessPoints(request.item,
-        request.description, holderIds = holders))
-    }
 }

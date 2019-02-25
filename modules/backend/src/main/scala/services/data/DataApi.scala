@@ -612,6 +612,11 @@ trait DataApiHandle {
   def permissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
 
   /**
+    * Set broader concepts.
+    */
+  def setBroader[C: Resource](id: String, broader: Seq[String]): Future[C]
+
+  /**
     * Add a user to a particular group.
     *
     * @param groupId the group id

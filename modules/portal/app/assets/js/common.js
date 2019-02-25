@@ -80,12 +80,12 @@ jQuery(function($) {
    * Select2 handling
    */
   window.select2Opts = {
+    theme: "bootstrap",
     allowClear: true,
     dropdownAutoWidth: true,
     dropdownCssClass: "facet-select-dropdown",
     minimumInputLength: 0
   };
-
 
   // Re-check select2s whenever there's an Ajax event that could
   // load a widget (e.g. the profile form)
@@ -94,55 +94,6 @@ jQuery(function($) {
     $select.select2(select2Opts);
     $(document).ajaxComplete(function () {
       $("select.select2").select2(select2Opts);
-    });
-    var filterUrl = jsRoutes.controllers.portal.Portal.filterItems().url;
-
-    $(".select2.item-filter").select2({
-      minimumInputLength: 2,
-      val: $(this).val(),
-      initSelection: function(element, cb) {
-        var value = $(element).val();
-        if (!value) {
-          cb(null);
-        } else {
-          var search = filterUrl + "?q=itemId:" + value;
-          $.getJSON(search, function(data) {
-            if(data.items.length === 0) {
-              cb({id: value, text: value});
-            } else {
-              cb({
-                id: data.items[0].id,
-                text: data.items[0].name
-              });
-            }
-          });
-        }
-      },
-      ajax: {
-        url: filterUrl,
-        dataType: "json",
-        data: function(term, page ) {
-          return {
-            q: term,
-            limit: 20,
-            page: page,
-            "st[]": $(this).data("entity-type")
-          }
-        },
-        results: function(data, page) {
-          return {
-            results: data.items.map(function(value, idx) {
-              return {
-                id: value.id,
-                text: value.name
-              }
-            })
-          };
-        }
-      },
-      formatResult: function(value) {
-        return $("<div>" + value.text + "<span class='label label-primary pull-right'>" + value.id + "</span></div>");
-      }
     });
   }
 

@@ -1,19 +1,22 @@
 package controllers.keywords
 
-import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
+import javax.inject._
 import models._
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import utils.{PageParams, RangeParams}
 import services.search._
+import utils.{PageParams, RangeParams}
 import views.Helpers
+
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
@@ -115,6 +118,27 @@ case class Concepts @Inject()(
       .flashing("success" -> "item.delete.confirmation")
   }
 
+  private val broaderForm: Form[Seq[String]] = Form(
+    single("broaderTerms" -> seq(nonEmptyText))
+  )
+
+  def setBroader(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.concept.broader(request.item,
+      broaderForm.fill(request.item.broaderTerms.map(_.id)),
+      conceptRoutes.setBroaderPost(id)))
+  }
+
+  def setBroaderPost(id: String): Action[AnyContent] =
+    WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
+      broaderForm.bindFromRequest().fold(
+        err => immediate(BadRequest(views.html.admin.concept.broader(request.item, err,
+            conceptRoutes.setBroaderPost(id)))),
+        ids => userDataApi.setBroader[Concept](id, ids).map { item =>
+         Redirect(conceptRoutes.get(id)).flashing("success" -> "item.update.confirmation")
+        }
+      )
+    }
+
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       VisibilityForm.form.fill(request.item.accessors.map(_.id)),
@@ -125,7 +149,6 @@ case class Concepts @Inject()(
     Redirect(conceptRoutes.get(id))
       .flashing("success" -> "item.update.confirmation")
   }
-
 
   def linkTo(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
     Ok(views.html.admin.concept.linkTo(request.item))

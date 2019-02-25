@@ -297,7 +297,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
           "js/lib/handlebars-v4.0.12.js",
           "js/lib/jquery.cookie.js",
           "js/lib/jquery.hoverIntent.js",
-          "js/select2/select2.js",
           "js/feedback.js",
           "js/common.js"
         )

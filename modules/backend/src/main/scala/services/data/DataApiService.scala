@@ -425,6 +425,18 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
+  override def setBroader[C: Resource](id: String, broader: Seq[String]): Future[C] = {
+    val url = enc(typeBaseUrl, EntityType.Concept, id, "broader")
+    userCall(url).withQueryString(broader.map(n => ID_PARAM -> n): _*).post().map { response =>
+      val r = checkErrorAndParse(response, context = Some(url))(Resource[C].restReads)
+      broader.foreach(id => cache.remove(canonicalUrl(id)(Resource[C])))
+      cache.remove(canonicalUrl(id))
+      broader.foreach(eventHandler.handleUpdate)
+      eventHandler.handleUpdate(id)
+      r
+    }
+  }
+
   override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit] = {
     userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
       checkError(response)
