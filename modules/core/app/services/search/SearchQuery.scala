@@ -1,6 +1,7 @@
 package services.search
 
 import models.UserProfile
+import play.api.i18n.Lang
 import utils.PageParams
 
 /**
@@ -15,5 +16,6 @@ case class SearchQuery(
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,
   mode: SearchMode.Value = SearchMode.DefaultAll,
-  user: Option[UserProfile] = None
+  user: Option[UserProfile] = None,
+  lang: Lang
 )

@@ -81,7 +81,8 @@ trait Search extends CoreActionBuilders {
       paging,
       appliedFacets = appliedFacets,
       facetClasses = facetClasses,
-      user = userOpt
+      user = userOpt,
+      lang = request.lang
     )
   }
 
