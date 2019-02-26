@@ -259,7 +259,9 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   override def simpleFilterQuery(query: SearchQuery, alphabetical: Boolean = false): Seq[(String, String)] = {
 
     val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
-    val queryString = query.params.query.getOrElse("*").trim + searchFilters
+    val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
+      "{!q.op=AND}" else ""
+    val queryString = localParam + query.params.query.getOrElse("*").trim + searchFilters
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
