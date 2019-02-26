@@ -1,13 +1,13 @@
 package eu.ehri.project.search.solr
 
-import javax.inject.Inject
-
 import defines.EntityType
+import javax.inject.Inject
 import models.UserProfile
+import play.api.i18n.Lang
 import play.api.{Configuration, Logger}
-import utils.PageParams
-import services.search.SearchConstants.{ACCESSOR_ALL_PLACEHOLDER, ACCESSOR_FIELD, ITEM_ID, TYPE}
+import services.search.SearchConstants._
 import services.search._
+import utils.PageParams
 
 
 private[solr] object SolrQueryBuilder {
@@ -31,9 +31,9 @@ private[solr] object SolrQueryBuilder {
     0.until(s.length()).foreach { i =>
       val c = s.charAt(i)
       if (c == '\\' || c == '!' || c == '(' || c == ')' ||
-        c == ':'  || c == '^' || c == '[' || c == ']' ||
-        c == '{'  || c == '}' || c == '~' || c == '*' || c == '?' ||
-        c == '"'  || c == ' '
+        c == ':' || c == '^' || c == '[' || c == ']' ||
+        c == '{' || c == '}' || c == '~' || c == '*' || c == '?' ||
+        c == '"' || c == ' '
       ) {
         sb.append('\\')
       }
@@ -141,14 +141,15 @@ private[solr] object SolrQueryBuilder {
     }
   }
 
-  def groupParams: Seq[(String, String)] = {
+  def groupParams(lang: Lang): Seq[(String, String)] = {
     // Group results by item id (as opposed to description id). Facet counts
     // are also set to reflect grouping as opposed to the number of individual
     // items.
     Seq(
       "group" -> true.toString,
       "group.field" -> ITEM_ID,
-      "group.sort" -> s"$ITEM_ID asc",
+      "group.sort" -> "query({!v=$gsf}, 0.1) desc",
+      "gsf" -> s"$LANGUAGE_CODE:${lang.locale.getISO3Language}",
       "group.facet" -> true.toString,
       "group.ngroups" -> true.toString,
       "group.cache.percent" -> 0.toString,
@@ -190,11 +191,11 @@ private[solr] object SolrQueryBuilder {
     ) else Seq.empty
   }
 
-  def fieldParams(fields: Seq[SearchField.Value], boost: Seq[(String,Option[Double])], config: Configuration): Seq[(String, String)] = {
+  def fieldParams(fields: Seq[SearchField.Value], boost: Seq[(String, Option[Double])], config: Configuration): Seq[(String, String)] = {
     // Apply search to specific fields. Can't find a way to do this using
     // Scalikesolr's built-in classes so we have to use it's extension-param
     // facility
-    val basic = if(fields.nonEmpty) {
+    val basic = if (fields.nonEmpty) {
       Seq("qf" -> fields.mkString(" "))
     } else {
       val qfFields: String = boost.map { case (key, boostOpt) =>
@@ -223,7 +224,7 @@ private[solr] object SolrQueryBuilder {
 
   def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
     sort.flatMap(sortMap.get)
-      .map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ")}.toSeq
+      .map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ") }.toSeq
 }
 
 
@@ -241,11 +242,11 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   /**
     * Look up boost values from configuration for default query fields.
     */
-  private lazy val queryFieldsWithBoost: Seq[(String,Option[Double])] = Seq(
+  private lazy val queryFieldsWithBoost: Seq[(String, Option[Double])] = Seq(
     ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
   ).map(f => f -> config.getOptional[Double](s"search.boost.$f"))
 
-  private lazy val spellcheckConfig: Seq[(String,Option[String])] = Seq(
+  private lazy val spellcheckConfig: Seq[(String, Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
     "collate", "maxCollations", "maxCollationTries", "maxResultsForSuggest"
   ).map(f => f -> config.getOptional[String](s"search.spellcheck.$f"))
@@ -267,7 +268,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
       excludeFilterParams(query.params.excludes),
-      groupParams,
+      groupParams(query.lang),
       Seq("qf" -> s"$NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
       if (alphabetical) Seq("sort" -> s"$NAME_SORT asc") else Seq.empty,
@@ -295,7 +296,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
-      groupParams,
+      groupParams(query.lang),
       fieldParams(query.params.fields, queryFieldsWithBoost, config),
       sortParams(query.params.sort),
       facetParams(query.facetClasses, jsonFacets),
