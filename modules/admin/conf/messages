@@ -1285,6 +1285,8 @@ cvocVocabulary.create=Create New Vocabulary
 cvocVocabulary.create.submit=Create Vocabulary
 cvocVocabulary.update=Update Vocabulary
 cvocVocabulary.update.submit=Update Vocabulary
+cvocVocabulary.items.edit=Concept Editor
+cvocVocabulary.items.editor={0}: Concept Editor
 
 #
 # Concepts

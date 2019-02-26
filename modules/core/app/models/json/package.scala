@@ -79,6 +79,10 @@ package object json {
       if (o.isEmpty) Json.obj() else path.write[Seq[T]].writes(o)
     }
 
+    def lazyWriteSeqOrEmpty[T](w: => Writes[T]): OWrites[Seq[T]] = OWrites { o =>
+      if (o.isEmpty) Json.obj() else path.write(Writes.seq(w)).writes(o)
+    }
+
     /** Write a list if it is non-empty, otherwise nothing. */
     def writeNullableSeqOrEmpty[T](implicit w: Writes[T]): OWrites[Option[Seq[T]]] = OWrites { o =>
       if (o.toSeq.flatten.isEmpty) Json.obj() else path.write[Seq[T]].writes(o.toSeq.flatten)
@@ -98,6 +102,9 @@ package object json {
 
     def formatHeadOrSingleNullable[T](implicit fmt: Format[T]): OFormat[Option[T]] =
       OFormat(readHeadOrSingleNullable(fmt), path.writeNullable[T])
+
+    def lazyFormatSeqOrEmpty[T](fmt: => Format[T]): OFormat[Seq[T]] =
+      OFormat[Seq[T]](lazyReadSeqOrEmpty(fmt), lazyWriteSeqOrEmpty(fmt))
 
     def lazyNullableSeqWrites[T](w: => Writes[T]): OWrites[Seq[T]] =
       OWrites((t: Seq[T]) => writeSeqOrEmpty[T](w).writes(t).as[JsObject])

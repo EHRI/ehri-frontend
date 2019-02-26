@@ -76,9 +76,9 @@ trait TestConfiguration {
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
   protected val testEventHandler = new EventHandler {
-    def handleCreate(id: String): Unit = mockIndexer.handle.indexIds(id)
-    def handleUpdate(id: String): Unit = mockIndexer.handle.indexIds(id)
-    def handleDelete(id: String): Unit = mockIndexer.handle.clearIds(id)
+    def handleCreate(ids: String*): Unit = mockIndexer.handle.indexIds(ids: _*)
+    def handleUpdate(ids: String*): Unit = mockIndexer.handle.indexIds(ids: _*)
+    def handleDelete(ids: String*): Unit = mockIndexer.handle.clearIds(ids: _*)
   }
 
   protected val searchLogger = new SearchLogger {
