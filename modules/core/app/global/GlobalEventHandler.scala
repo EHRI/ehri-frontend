@@ -19,17 +19,17 @@ case class GlobalEventHandler @Inject()(searchIndexer: SearchIndexMediator)(impl
   import java.util.concurrent.TimeUnit
   import scala.concurrent.duration.Duration
 
-  def logFailure(id: String, func: String => Future[Unit]): Unit = func(id).failed.foreach {
+  def logFailure(ids: Seq[String], func: Seq[String] => Future[Unit]): Unit = func(ids).failed.foreach {
     t => logger.error(s"Indexing error", t)
   }
 
-  def handleCreate(id: String): Unit = logFailure(id, id => searchIndexer.handle.indexIds(id))
-  def handleUpdate(id: String): Unit = logFailure(id, id => searchIndexer.handle.indexIds(id))
+  def handleCreate(ids: String*): Unit = logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
+  def handleUpdate(ids: String*): Unit = logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
 
   // Special case - block when deleting because otherwise we get ItemNotFounds
   // after redirects because the item is still in the search index but not in
   // the database.
-  def handleDelete(id: String): Unit = logFailure(id, id => Future.successful[Unit] {
-    concurrent.Await.result(searchIndexer.handle.clearIds(id), Duration(1, TimeUnit.MINUTES))
+  def handleDelete(ids: String*): Unit = logFailure(ids, ids => Future.successful[Unit] {
+    concurrent.Await.result(searchIndexer.handle.clearIds(ids:_*), Duration(1, TimeUnit.MINUTES))
   })
 }

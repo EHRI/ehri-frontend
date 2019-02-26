@@ -40,7 +40,7 @@ package object json {
       case EntityType.VirtualUnit => virtualUnitJson.clientFormat.asInstanceOf[Format[Model]]
     }
 
-    def typeOf(json: JsValue): EntityType.Value = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
+    def typeOf(json: JsValue): EntityType.Value = (json \ Entity.ISA).as(EnumUtils.enumReads(EntityType))
 
     implicit val clientReadAny: Reads[Model] = Reads { json =>
       clientFormatRegistry
@@ -298,12 +298,13 @@ package object json {
 
   implicit object conceptJson extends ClientWriteable[Concept] {
 
-    private implicit val fFormat = Json.format[ConceptF]
+    private implicit val fdFormat = conceptDescriptionJson.clientFormat
+    implicit val fFormat: Format[ConceptF] = Json.format[ConceptF]
     val clientFormat: Format[Concept] = (
       JsPath.format[ConceptF](fFormat) and
       (__ \ "vocabulary").formatNullable[Vocabulary](vocabularyJson.clientFormat) and
       (__ \ "parent").lazyFormatNullable[Concept](clientFormat) and
-      (__ \ "broaderTerms").lazyNullableSeqFormat(clientFormat) and
+      (__ \ "broaderTerms").lazyFormat[Seq[Concept]](Format(Reads.seq(clientFormat), Writes.seq(clientFormat))) and
       (__ \ "accessibleTo").formatSeqOrEmpty(accessorJson.clientFormat) and
       (__ \ "event").formatNullable[SystemEvent](systemEventJson.clientFormat) and
       (__ \ "meta").format[JsObject]

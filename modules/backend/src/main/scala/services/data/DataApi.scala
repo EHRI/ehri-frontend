@@ -250,11 +250,12 @@ trait DataApiHandle {
     *
     * @param id     the item's id
     * @param item   the item's data
+    * @param params    additional web service parameters
     * @param logMsg the log message
     * @tparam MT the generic type of the item
     * @tparam T  the generic type of the item's data
     */
-  def update[MT: Resource, T: Writable](id: String, item: T, logMsg: Option[String] = None): Future[MT]
+  def update[MT: Resource, T: Writable](id: String, item: T, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT]
 
   /**
     * Partially update (patch) an item's properties.
@@ -262,10 +263,11 @@ trait DataApiHandle {
     * @param id     the item's id
     * @param data   a JSON object contain the properties to be
     *               updated
+    * @param params    additional web service parameters
     * @param logMsg the log message
     * @tparam MT the generic type of the item
     */
-  def patch[MT: Resource](id: String, data: JsObject, logMsg: Option[String] = None): Future[MT]
+  def patch[MT: Resource](id: String, data: JsObject, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT]
 
   /**
     * Delete an item.
@@ -306,20 +308,23 @@ trait DataApiHandle {
     *
     * @param id     the parent item id
     * @param params the list parameters
+    * @param all fetch full tree (children of children)
     * @tparam MT  the parent generic type
     * @tparam CMT the child generic resource type
     */
-  def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]]
+  def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty, all: Boolean = false): Future[Page[CMT]]
 
   /**
     * Fetch child items as a stream.
     *
     * @param id the parent item id
+    * @param params the list parameters
+    * @param all fetch full tree (children of children)
     * @tparam MT  the parent generic type
     * @tparam CMT the child generic resource type
     * @return a Source of child items
     */
-  def streamChildren[MT: Resource, CMT: Readable](id: String): Source[CMT, _]
+  def streamChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty, all: Boolean = false): Source[CMT, _]
 
   /**
     * Count child items of a resource.
@@ -612,9 +617,15 @@ trait DataApiHandle {
   def permissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]]
 
   /**
-    * Set broader concepts.
+    * Set item parent(s). This behaviour is dependent on the item type.
+    *
+    * @param id the item id
+    * @param parentIds a sequence of parent ids
+    * @tparam MT the item's meta model type
+    * @tparam PMT the parent item(s) meta model type
+    * @return the item
     */
-  def setBroader[C: Resource](id: String, broader: Seq[String]): Future[C]
+  def parent[MT: Resource, PMT: Resource](id: String, parentIds: Seq[String]): Future[MT]
 
   /**
     * Add a user to a particular group.

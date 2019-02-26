@@ -133,7 +133,7 @@ case class Concepts @Inject()(
       broaderForm.bindFromRequest().fold(
         err => immediate(BadRequest(views.html.admin.concept.broader(request.item, err,
             conceptRoutes.setBroaderPost(id)))),
-        ids => userDataApi.setBroader[Concept](id, ids).map { item =>
+        ids => userDataApi.parent[Concept, Concept](id, ids).map { item =>
          Redirect(conceptRoutes.get(id)).flashing("success" -> "item.update.confirmation")
         }
       )

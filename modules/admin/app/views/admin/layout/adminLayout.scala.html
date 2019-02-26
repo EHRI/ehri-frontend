@@ -33,24 +33,9 @@
             @views.html.common.message()
             @views.html.common.ipFilter()
             <header id="header" class="navigation">
-            @views.html.admin.common.adminNavBar()
+                @views.html.admin.common.adminNavBar()
             </header>
-            @if(globalConfig.isStageMode) {
-                <div class="testing-banner alert-info">
-                    <div class="container">
-                        STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span>
-                    </div>
-                </div>
-            } else {
-                @if(globalConfig.isTestMode) {
-                    <div class="testing-banner alert-danger">
-                        <div class="container">
-                            TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span>
-                        </div>
-                    </div>
-                }
-            }
-
+            @views.html.admin.common.testWarning()
             @views.html.common.flash(flash)
             <div class="page-content">
                 @content

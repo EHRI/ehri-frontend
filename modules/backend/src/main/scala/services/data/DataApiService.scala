@@ -114,9 +114,10 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def update[MT: Resource, T: Writable](id: String, item: T, logMsg: Option[String] = None): Future[MT] = {
+  override def update[MT: Resource, T: Writable](id: String, item: T, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
     userCall(url).withHeaders(msgHeader(logMsg): _*)
+      .withQueryString(unpack(params): _*)
       .put(Json.toJson(item)(Writable[T].restFormat)).map { response =>
       val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       eventHandler.handleUpdate(id)
@@ -125,7 +126,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def patch[MT: Resource](id: String, data: JsObject, logMsg: Option[String] = None): Future[MT] = {
+  override def patch[MT: Resource](id: String, data: JsObject, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val item = Json.obj("type" -> Resource[MT].entityType, "data" -> data)
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
     userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
@@ -145,6 +146,17 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
+  override def parent[MT: Resource, PMT: Resource](id: String, parentIds: Seq[String]): Future[MT] = {
+    val url = enc(typeBaseUrl, Resource[MT].entityType, id, "parent")
+    userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post().map { response =>
+      val r = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      parentIds.foreach(id => cache.remove(canonicalUrl[PMT](id)(Resource[PMT])))
+      cache.remove(canonicalUrl[MT](id))
+      eventHandler.handleUpdate(parentIds :+ id: _*)
+      r
+    }
+  }
+
   override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] =
     list(Resource[MT], params)
 
@@ -154,11 +166,11 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   override def stream[MT: Resource](): Source[MT, _] =
     streamWithUrl[MT](enc(typeBaseUrl, Resource[MT].entityType))
 
-  override def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty): Future[Page[CMT]] =
-    listWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"), params)
+  override def children[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty, all: Boolean = false): Future[Page[CMT]] =
+    listWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"), params, Seq("all" -> all.toString))
 
-  override def streamChildren[MT: Resource, CMT: Readable](id: String): Source[CMT, _] =
-    streamWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"))
+  override def streamChildren[MT: Resource, CMT: Readable](id: String, params: PageParams = PageParams.empty.withoutLimit, all: Boolean = false): Source[CMT, _] =
+    streamWithUrl[CMT](enc(typeBaseUrl, Resource[MT].entityType, id, "list"), Seq("all" -> all.toString))
 
   override def count[MT: Resource](): Future[Long] =
     getTotal(enc(typeBaseUrl, Resource[MT].entityType))
@@ -362,8 +374,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
       // Update both source and target sets in the index
       cache.remove(canonicalUrl(fromVc))
       cache.remove(canonicalUrl(toVc))
-      eventHandler.handleUpdate(fromVc)
-      eventHandler.handleUpdate(toVc)
+      eventHandler.handleUpdate(toVc, fromVc)
     }
 
   private val permissionRequestUrl = enc(baseUrl, "permissions")
@@ -422,18 +433,6 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     FutureCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
-    }
-  }
-
-  override def setBroader[C: Resource](id: String, broader: Seq[String]): Future[C] = {
-    val url = enc(typeBaseUrl, EntityType.Concept, id, "broader")
-    userCall(url).withQueryString(broader.map(n => ID_PARAM -> n): _*).post().map { response =>
-      val r = checkErrorAndParse(response, context = Some(url))(Resource[C].restReads)
-      broader.foreach(id => cache.remove(canonicalUrl(id)(Resource[C])))
-      cache.remove(canonicalUrl(id))
-      broader.foreach(eventHandler.handleUpdate)
-      eventHandler.handleUpdate(id)
-      r
     }
   }
 
@@ -715,16 +714,16 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     item
   }
 
-  private def listWithUrl[A: Readable](url: String, params: PageParams): Future[Page[A]] = {
-    userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
+  private def listWithUrl[A: Readable](url: String, params: PageParams, extra: Seq[(String,String)] = Seq.empty): Future[Page[A]] = {
+    userCall(url).withQueryString(params.queryParams ++ extra: _*).get().map { response =>
       parsePage(response, context = Some(url))(Readable[A].restReads)
     }
   }
 
-  private def streamWithUrl[A: Readable](url: String): Source[A, _] = {
+  private def streamWithUrl[A: Readable](url: String, extra: Seq[(String, String)] = Seq.empty): Source[A, _] = {
     val reader = implicitly[Readable[A]]
     Source.fromFuture(userCall(url)
-      .withQueryString(PageParams.empty.withoutLimit.queryParams: _*)
+      .withQueryString(PageParams.empty.withoutLimit.queryParams ++ extra: _*)
       .stream().map (_.bodyAsSource
       .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
       .map { bytes => Json.parse(bytes.utf8String).validate[A](reader.restReads) }
@@ -736,10 +735,10 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 object DataApiService {
   def withNoopHandler(cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new DataApiService(new EventHandler {
-      def handleCreate(id: String): Unit = ()
+      def handleCreate(ids: String*): Unit = ()
 
-      def handleUpdate(id: String): Unit = ()
+      def handleUpdate(ids: String*): Unit = ()
 
-      def handleDelete(id: String): Unit = ()
+      def handleDelete(ids: String*): Unit = ()
     }, cache: SyncCacheApi, config, ws)
 }

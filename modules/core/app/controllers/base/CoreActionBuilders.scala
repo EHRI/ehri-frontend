@@ -250,7 +250,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * @return an optional profile
     */
   protected def fetchProfile(account: Account): Future[Option[UserProfile]] = {
-    implicit val apiUser = AuthenticatedUser(account.id)
+    implicit val apiUser: ApiUser = AuthenticatedUser(account.id)
     val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
     val globalPermsF = userDataApi.globalPermissions(account.id)
     for {

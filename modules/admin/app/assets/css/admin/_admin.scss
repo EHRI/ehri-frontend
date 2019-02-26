@@ -4,6 +4,9 @@ $highlight-color: #6c003b;
 
 $background-highlight: #ffffbb;
 
+// gray border
+$admin-border: $input-border; //#ebebeb;
+
 // Spacings
 $search-item-spacing: 1.5em;
 
@@ -152,7 +155,7 @@ body.modal-open {
 /** Search items */
 .search-item {
     padding-bottom: 0.5em;
-    border-bottom: 1px dashed #EBEBEB;
+    border-bottom: 1px dashed $admin-border;
     margin-bottom: 1.5em;
 }
 
@@ -169,7 +172,7 @@ body.modal-open {
 /** List items */
 .event-item {
     padding-bottom: 0.5em;
-    border-bottom: 1px dashed #EBEBEB;
+    border-bottom: 1px dashed $admin-border;
     margin-bottom: 0.5em;
 }
 
@@ -352,89 +355,3 @@ a.inline-action:hover {
   margin-bottom: $medium-margin;
 }
 
-.ap-editor-types {
-  @include list-unstyled;
-}
-
-.ap-editor-remove-access-point {
-  cursor: pointer;
-}
-
-.ap-editor-new-access-point {
-  @include clearfix;
-  border: 1px solid $medium-gray;
-  padding: $medium-padding;
-}
-
-.ap-editor-autocomplete-widget {
-  @include clearfix;
-}
-
-.ap-editor-autocomplete-widget .suggestion-type {
-  @extend .pull-right;
-}
-
-.ap-editor-autocomplete-widget .dropdown-list {
-  position: relative;
-}
-
-.ap-editor-autocomplete-widget-suggestions {
-  cursor: pointer;
-  box-shadow: 0 0 5px 2px rgba(153,153,153,0.54);
-  border: 1px solid #ebebeb;
-  position: absolute;
-  top: 100%;
-  z-index: 100;
-  right: auto;
-  width: 100%;
-  background-color: #fff;
-}
-
-.ap-editor-autocomplete-widget-input {
-  position: relative;
-}
-
-.ap-editor-autocomplete-widget-suggestion {
-  padding: 5px;
-}
-
-.ap-editor-autocomplete-widget-suggestion:hover, .ap-editor-autocomplete-widget-suggestion.selected {
-  background-color: #ebebeb;
-}
-
-.ap-editor-pending-items {
-  @include list-unstyled;
-}
-
-.ap-editor-pending-item-link-note {
-  @extend .text-info;
-  @extend .bg-info;
-}
-
-.ap-editor-new-access-point-controls, .ap-editor-pending-items li {
-  margin-top: $medium-margin;
-  @include make-md-column-offset(3);
-  @include make-md-column(9);
-}
-
-.ap-editor-access-points {
- @include list-unstyled;
-  margin-bottom: $medium-margin;
-}
-
-.ap-editor-add-toggle {
-  cursor: pointer;
-  @extend small;
-}
-
-.ap-editor-access-point-description {
-  @extend .small, .text-muted;
-}
-
-.ap-editor-access-point .loading-spinner {
-  background-image: url('../img/ajax-loader-small.gif');
-  background-position: left top;
-  background-repeat: no-repeat;
-  padding-left: 15px;
-  @extend .text-muted;
-}
