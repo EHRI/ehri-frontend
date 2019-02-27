@@ -225,6 +225,9 @@ private[solr] object SolrQueryBuilder {
   def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
     sort.flatMap(sortMap.get)
       .map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ") }.toSeq
+
+  def filterParams(filters: Seq[String]): Seq[(String, String)] =
+    filters.filter(_.contains(":")).map(f => "fq" -> f)
 }
 
 
@@ -258,10 +261,9 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     */
   override def simpleFilterQuery(query: SearchQuery, alphabetical: Boolean = false): Seq[(String, String)] = {
 
-    val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
     val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
       "{!q.op=AND}" else ""
-    val queryString = localParam + query.params.query.getOrElse("*").trim + searchFilters
+    val queryString = localParam + query.params.query.getOrElse("*").trim
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
@@ -270,6 +272,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       accessFilterParams(query.user),
       idFilterParams(query.withinIds),
       excludeFilterParams(query.params.excludes),
+      filterParams(query.params.filters),
       groupParams(query.lang),
       Seq("qf" -> s"$NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
@@ -283,8 +286,6 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     */
   override def searchQuery(query: SearchQuery): Seq[(String, String)] = {
 
-    val searchFilters = query.params.filters.filter(_.contains(":")).map(f => " +" + f).mkString
-
     val defaultQuery = query.mode match {
       case SearchMode.DefaultAll => "*"
       case _ => "PLACEHOLDER_QUERY_RETURNS_NO_RESULTS" // FIXME! This sucks
@@ -294,7 +295,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     // query only work on the default field - disabled for now...
     val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
       "{!q.op=AND}" else ""
-    val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim + searchFilters
+    val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim
 
     Seq(
       basicParams(queryString, query.paging, enableDebug),
@@ -303,6 +304,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       sortParams(query.params.sort),
       facetParams(query.facetClasses, jsonFacets),
       facetFilterParams(query.facetClasses, query.appliedFacets),
+      filterParams(query.params.filters),
       entityFilterParams(query.params.entities),
       bboxParams(query.params.bbox),
       accessFilterParams(query.user),
