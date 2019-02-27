@@ -262,7 +262,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   override def simpleFilterQuery(query: SearchQuery, alphabetical: Boolean = false): Seq[(String, String)] = {
 
     val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
-      "{!q.op=AND}" else ""
+      "{!q.op=AND} " else ""
     val queryString = localParam + query.params.query.getOrElse("*").trim
 
     Seq(
@@ -294,7 +294,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     // Child count to boost results seems to have an odd affect in making the
     // query only work on the default field - disabled for now...
     val localParam = if (config.getOptional[Boolean]("search.andMode").getOrElse(false))
-      "{!q.op=AND}" else ""
+      "{!q.op=AND} " else ""
     val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim
 
     Seq(
