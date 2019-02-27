@@ -149,7 +149,11 @@ case class SolrJsonResponseParser @Inject()(config: play.api.Configuration) exte
     def collatedSpellcheckSuggestions: Option[(String, String)] = for {
       collationList <- (raw.spellcheck  \ "collations").asOpt[Seq[String]] if collationList.size > 1
       q <- raw.query
-    } yield (q, collationList(1))
+    } yield (
+        // Hack! strip any local param sections in the collated query...
+        q.replaceAll("^\\{![^\\}]+\\}\\s*", ""),
+        collationList(1).replaceAll("^\\{![^\\}]+\\}\\s*", "")
+    )
 
     def rawSpellcheckSuggestions: Option[(String, Seq[Suggestion])] = for {
       suggest <- (raw.spellcheck \ "suggestions").asOpt[Seq[JsValue]] if suggest.size > 2
