@@ -217,7 +217,7 @@ val webAppSettings = Seq(
     }
     val allMessages = messagesFiles(baseDirectory.value)
     if (allMessages.nonEmpty) {
-      sLog.value.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
+      streams.value.log.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
       allMessages.foreach(validate)
     }
   },
