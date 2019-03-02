@@ -215,6 +215,9 @@ trait TestConfiguration {
     }
   }
 
+  protected def formData(r: Future[play.api.mvc.Result]): Map[String, Seq[String]] =
+    formData(contentAsString(r))
+
   /**
     * Generate a test authentication token for the given user ID.
     */

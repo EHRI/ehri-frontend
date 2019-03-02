@@ -202,6 +202,35 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       indexEventBuffer.last must equalTo("nl-r1-c1-childitem")
     }
 
+    "allow creating new descriptions" in new ITestApp {
+      val formReq = FakeRequest(docRoutes.createDescription("nl-r1-m19"))
+        .withUser(privilegedUser)
+        .withCsrf.call()
+
+      val testData = formData(formReq)
+        .updated("descriptions[1].languageCode", Seq("eng"))
+        .updated("descriptions[1].identityArea.name", Seq("Duplicate ID"))
+
+      val badReq = FakeRequest(docRoutes.createDescriptionPost("nl-r1-m19"))
+        .withUser(privilegedUser)
+        .withCsrf.callWith(testData)
+      status(badReq) must_== BAD_REQUEST
+
+      val fixedTestData = formData(badReq)
+        .updated("descriptions[1].identifier", Seq("alt"))
+        .updated("descriptions[1].identityArea.name", Seq("Fixed Duplicate ID"))
+
+      val okReq = FakeRequest(docRoutes.createDescriptionPost("nl-r1-m19"))
+        .withUser(privilegedUser)
+        .withCsrf.callWith(fixedTestData)
+      status(okReq) must_== SEE_OTHER
+
+      val checkReq = FakeRequest(GET, redirectLocation(okReq).get)
+        .withUser(privilegedUser)
+        .call()
+      contentAsString(checkReq) must contain("nl-r1-m19.eng-alt")
+    }
+
     "give a form error when creating items with the same id as existing ones" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c1"),
