@@ -140,8 +140,9 @@ case class DocumentaryUnits @Inject()(
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
-      case Left(errorForm) => BadRequest(views.html.admin.documentaryUnit.edit(
-        request.item, errorForm, formConfig.forUpdate, docRoutes.updatePost(id)))
+      case Left(errorForm) =>
+        BadRequest(views.html.admin.documentaryUnit.edit(request.item,
+          errorForm, formConfig.forUpdate, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -173,7 +174,7 @@ case class DocumentaryUnits @Inject()(
   def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
-        Ok(views.html.admin.documentaryUnit.createDescription(request.item,
+        BadRequest(views.html.admin.documentaryUnit.createDescription(request.item,
           errorForm, formConfig.forCreate, docRoutes.createDescriptionPost(id)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
@@ -188,7 +189,7 @@ case class DocumentaryUnits @Inject()(
   def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
-        Ok(views.html.admin.documentaryUnit.editDescription(request.item,
+        BadRequest(views.html.admin.documentaryUnit.editDescription(request.item,
           errorForm, formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
@@ -203,7 +204,7 @@ case class DocumentaryUnits @Inject()(
   def deleteDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
-        Ok(views.html.admin.documentaryUnit.deleteDescription(request.item,
+        BadRequest(views.html.admin.documentaryUnit.deleteDescription(request.item,
           errorForm, did, docRoutes.deleteDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.delete.confirmation")
