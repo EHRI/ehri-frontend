@@ -240,7 +240,7 @@ case class Social @Inject()(
         val emailMessage = Email(
           subject = Messages("mail.message.heading", from.toStringLang),
           to = Seq(s"${to.data.name}} <${accTo.email}>"),
-          from = "EHRI User <noreply@ehri-project.eu>",
+          from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
           replyTo = Seq(s"${from.data.name}} <${accFrom.email}>"),
           bodyText = Some(views.txt.social.mail.messageEmail(heading, subject, message).body),
           bodyHtml = Some(views.html.social.mail.messageEmail(heading, subject, message).body)

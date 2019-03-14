@@ -65,7 +65,7 @@ case class Feedback @Inject()(
       val email = Email(
         subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
         to = Seq(accTo),
-        from = "EHRI User <noreply@ehri-project.eu>",
+        from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
         replyTo = feedback.email.toSeq,
         bodyText = Some(text),
         bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
