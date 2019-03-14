@@ -652,7 +652,7 @@ case class Accounts @Inject()(
     val email = Email(
       subject = "EHRI Password Reset",
       to = Seq(emailAddress),
-      from = "EHRI Password Reset <noreply@ehri-project.eu>",
+      from = s"EHRI Password Reset <${config.get[String]("ehri.portal.emails.help")}>",
       bodyText = Some(views.txt.account.mail.forgotPassword(uuid).body)
     )
     mailer.send(email)
@@ -661,7 +661,7 @@ case class Accounts @Inject()(
   private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
     val email = Email(
       subject = "Please confirm your EHRI Account Email",
-      from = "EHRI Email Validation <noreply@ehri-project.eu>",
+      from = s"EHRI Email Validation <${config.get[String]("ehri.portal.emails.help")}>",
       to = Seq(emailAddress),
       bodyText = Some(views.txt.account.mail.confirmEmail(uuid).body)
     )
