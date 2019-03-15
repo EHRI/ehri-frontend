@@ -1,7 +1,7 @@
 @(item: models.base.Model, watching: Boolean)(implicit userOpt: Option[UserProfile], messages: Messages)
 
 @if(userOpt.isDefined) {
-    <div class="watch-controls @item.isA">
+    <div class="watch-controls">
         <a data-item="@item.id"
            role="button"
            class="unwatch glyphicon glyphicon-star" title="@Messages("profile.unwatch.tooltip")"
