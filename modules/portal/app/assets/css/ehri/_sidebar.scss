@@ -1,27 +1,27 @@
 
 .sidebar-section {
-  &:extend(.panel);
-  &:extend(.panel-default);
+  @extend .panel;
+  @extend .panel-default;
 
   header {
 
     // FIXME: Can't get this to pull through from
     // the panel-default defaults
-    background-color: @gray-lighter;
+    background-color: $gray-lighter;
 
-    &:extend(.panel-default);
-    &:extend(.panel-heading);
+    @extend .panel-default;
+    @extend .panel-heading;
     h3 {
-      &:extend(.panel-title);
+      @extend .panel-title;
     }
   }
 
   .sidebar-section-body {
-    &:extend(.panel-body);
+    @extend .panel-body;
   }
 
   .sidebar-section-footer {
-    &:extend(.panel-footer);
+    @extend .panel-footer;
   }
 }
 
@@ -42,7 +42,7 @@
 .vertical-navbar > ul > li.active > a:focus,
 .vertical-navbar > ul > li.active > a:hover {
   background-color: #fff;
-  color: @link-color;
+  color: $link-color;
   font-weight: bolder;
 }
 
@@ -55,6 +55,6 @@
 .vertical-navbar > ul > li.active > ul > li.active > a:focus,
 .vertical-navbar > ul > li.active > ul > li.active > a:hover {
   background-color: #fff;
-  color: @link-color;
+  color: $link-color;
   font-weight: bold;
 }

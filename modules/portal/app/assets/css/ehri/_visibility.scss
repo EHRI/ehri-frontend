@@ -1,0 +1,8 @@
+/* Own EHRI visibility property */
+
+.hidden-one-col {
+	@extend .hidden-xs;
+}
+.hidden-two-col {
+	@extend .visible-lg;
+}

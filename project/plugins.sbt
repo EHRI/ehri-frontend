@@ -9,7 +9,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 // Use the Play sbt plugin for Play projects
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.0")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.1.2")
+//addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.1.2")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.12")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-uglify" % "2.0.0")
 

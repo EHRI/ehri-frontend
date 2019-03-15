@@ -1,0 +1,150 @@
+
+.user-grid {
+  @extend .list-unstyled;
+  @include make-row();
+
+  .user-grid-item {
+    @include make-md-column(3);
+    @include make-lg-column(3);
+    @include make-sm-column(4);
+    @include make-xs-column(8);
+
+    margin-bottom: $large-margin;
+  }
+
+  .user-info-details {
+    h3 {
+      font-size: 1.2em;
+      margin: $small-margin 0;
+
+    }
+
+    .user-info {
+      @extend .list-unstyled, .small, .text-muted;
+    }
+  }
+  .img-container {
+    float: left;
+    height: 100px;
+    width: 100px;
+    text-align: center;
+    background-color: $pale-gray;
+    margin-right: $medium-margin;
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    // The helper makes the image vertically centered,
+    // as described: http://stackoverflow.com/a/7310398/285374
+    .helper {
+      display: inline-block;
+      vertical-align: middle;
+      height: 100%;
+    }
+
+    img {
+      zoom: 2;
+      max-height: 100%;
+      height: auto;
+      max-width: 100%;
+      width: auto;
+      margin: auto;
+      margin-left: -4px;
+      vertical-align: middle;
+    }
+  }
+}
+
+// Profile-related less
+.user-list-item {
+  @extend .clearfix;
+}
+
+
+.profile-form-section {
+  @extend .clearfix;
+  .control-label {
+    @include make-md-column(4);
+  }
+
+  .control-elements {
+    @include make-md-column(8);
+  }
+
+  // Labels which are also elements (e.g. checkboxes)
+  // should be pushed right...
+  label.control-elements {
+    @include make-md-column-push(4);
+  }
+
+  .form-submit, .form-global-errors {
+    @include make-md-column-push(4);
+    @include make-md-column(8);
+  }
+}
+
+.user-list-info {
+  .user-locations {
+    @extend .small, .list-unstyled;
+  }
+}
+
+.user-profile-info {
+  dt {
+    float: left;
+    width: ($component-offset-horizontal - 20);
+    clear: left;
+    text-align: right;
+    @include text-overflow();
+  }
+  dd {
+    margin-left: $component-offset-horizontal;
+    @extend .clearfix; // Clear the floated `dt` if an empty `dd` is present
+  }
+}
+
+.user-img-icon, .user-img-full {
+  @extend .img-responsive;
+}
+
+.user-profile-social {
+  a {
+    color: $muted-gray;
+    font-size: $font-size-small;
+  }
+}
+
+.user-list-item {
+  padding: $small-padding 0;
+  @extend .clearfix;
+  position: relative;
+  .gravitar {
+    float: left;
+    width: $gravitar-size;
+    height: $gravitar-size;
+    margin-right: $small-margin;
+    margin-bottom: $small-margin;
+
+    img {
+      border-radius: 5px;
+    }
+  }
+
+  .follow-controls {
+    float: right;
+  }
+}
+
+.user-list-item.current {
+  background-color: $pale-gray;
+}
+
+.watched-items {
+  @extend .list-unstyled;
+}
+
+.message-form {
+  .modal-footer {
+    background-color: $pale-gray;
+  }
+}
