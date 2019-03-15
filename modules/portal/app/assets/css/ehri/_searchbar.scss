@@ -1,10 +1,9 @@
-@import "../bootstrap/forms";
+//@import "../bootstrap/forms";
 
 #search-helper {
 
   @extend .well, .well-sm;
 
-  @include form-group();
   text-align: left;
 
   display: none;
@@ -38,6 +37,7 @@
   margin-bottom: $medium-margin;
 
   .search-box {
+    @include form-group();
     @include make-md-column(10);
   }
 

@@ -54,8 +54,7 @@ body {
 
 #welcome-banner .search-box {
   @include make-md-column-offset(2);
-  // FIXME
-  //@mixin make-md-column(8);
+  @include make-md-column(8);
 }
 
 #welcome-banner .search-bar input[name='q'] {
@@ -286,6 +285,11 @@ input.placeholder, textarea.placeholder {
 
 @mixin highlight-glow {
   text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
+}
+
+// Pagination
+.pagination > li > a, .pagination > li > a:hover {
+  color: $link-color;
 }
 
 // HACK! Grey colour for disabled links in pagination is overridden

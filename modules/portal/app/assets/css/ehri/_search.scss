@@ -1,3 +1,4 @@
+@import "../portal/index";
 
 .inline-search-filter {
   @extend .pull-right;
@@ -32,8 +33,7 @@
   font-weight: lighter;
   color: $almost-black;
   text-decoration: none;
-  // FIXME
-  //@include highlight-glow;
+  @include highlight-glow();
   &:hover {
     text-decoration: none;
   }
