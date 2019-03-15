@@ -1,7 +1,6 @@
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
-import com.typesafe.sbt.less.Import._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
@@ -243,10 +242,6 @@ val webAppSettings = Seq(
 
   // Always use nodejs to build the assets - Trireme is too slow...
   JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
-
-  // Less files with an underscore are excluded
-  includeFilter in (Assets, LessKeys.less) := "*.less",
-  excludeFilter in (Assets, LessKeys.less) := "_*.less",
 
   // Filter out excluded resources from packaging
   mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
