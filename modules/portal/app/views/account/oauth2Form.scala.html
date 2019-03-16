@@ -8,11 +8,11 @@
         @oauth2Config.providers.map { provider =>
             <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
                 title="@Html(Messages(loginOrSignup, provider.name.capitalize))">
-               @Html(Messages(loginOrSignup, Html("<i class='icon-social " + provider.name + "'></i>")))
+               @Html(Messages(loginOrSignup, Html(s"<i class='fa fa-fw fa-${provider.name}'></i>")))
             </a>
         }
         <a href="#" class="btn btn-openid show-more" title="@Messages(loginOrSignup, "OpenID")">
-            @Html(Messages(loginOrSignup, Html("<i class='icon-social openid'></i>")))
+            @Html(Messages(loginOrSignup, Html("<i class='fa fa-fw fa-openid'></i>")))
         </a>
     </div>
 
