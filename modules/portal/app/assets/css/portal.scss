@@ -61,9 +61,11 @@
 
 //IMPORT EHRI STUFF
 @import "ehri/mixins";
+@import "ehri/forms";
 @import "ehri/visibility";
 @import "ehri/markdown";
 @import "ehri/login";
+@import "ehri/signup";
 @import "ehri/lists";
 @import "ehri/search";
 @import "ehri/facets";
@@ -89,7 +91,6 @@
 //
 @import "portal/header";
 @import "portal/annotations";
-@import "portal/signup";   // CSS size: 424k
 //@import "portal/cookies";
 @import "portal/feedback";
 @import "portal/typeahead";
