@@ -219,7 +219,7 @@ textarea.form-control {
 // Designed to help with the organization and spacing of vertical forms. For
 // horizontal forms, use the predefined grid classes.
 
-@mixin form-group {
+.form-group {
   margin-bottom: $form-group-margin-bottom;
 }
 
