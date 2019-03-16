@@ -16,11 +16,12 @@
     h3 {
       font-size: 1.2em;
       margin: $small-margin 0;
-
     }
 
     .user-info {
-      @extend .list-unstyled, .small, .text-muted;
+      @include list-unstyled;
+      color: $text-muted;
+      font-size: $font-size-small;
     }
   }
   .img-container {
@@ -85,7 +86,8 @@
 
 .user-list-info {
   .user-locations {
-    @extend .small, .list-unstyled;
+    @include list-unstyled;
+    font-size: $font-size-small;
   }
 }
 

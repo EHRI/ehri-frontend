@@ -27,7 +27,7 @@
 
 /** child items */
 .search-item-body .child-count > a {
-  @extend .small;
+  font-size: $font-size-small;
   padding-right: $large-padding; //$medium-padding + $small-padding;
   font-weight: lighter;
   color: $almost-black;
@@ -95,7 +95,8 @@ em.highlight {
 
   ul, ol {
     @include list-unstyled;
-    @extend .text-muted, .list-inline;
+    @extend .list-inline;
+    color: $text-muted;
 
     time {
       display: inline;
@@ -179,7 +180,8 @@ em.highlight {
 }
 
 .list-item-actions, .list-item-meta {
-  @extend .small, .text-muted, .list-unstyled, .list-inline;
+  @extend .list-inline;
+  @include small-muted;
   display: inline-block;
   margin-left: $small-margin;
 }

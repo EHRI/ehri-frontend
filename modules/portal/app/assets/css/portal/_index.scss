@@ -119,7 +119,7 @@ body {
   @include list-unstyled;
   .rss-item {
     .date {
-      @extend .text-muted, .small;
+      @include small-muted;
     }
   }
 }
@@ -324,12 +324,13 @@ input.placeholder, textarea.placeholder {
 }
 
 .no-content {
-  @extend .text-muted;
+  color: $text-muted;
   padding: $medium-padding;
 }
 
 .list-export-options {
-  @extend .pull-right, .small, .text-muted;
+  @include small-muted;
+  @extend .pull-right;
 }
 
 ol.cookie-usage {
@@ -348,7 +349,7 @@ ol.cookie-usage {
   }
 
   .caption {
-    @extend .small, .text-muted;
+    @include small-muted;
   }
 }
 

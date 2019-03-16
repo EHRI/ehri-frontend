@@ -8,7 +8,7 @@
 }
 
 .login-disclaimer {
-  @extend .small, .text-muted;
+  @include small-muted;
   a {
     color: inherit;
     text-decoration: none;

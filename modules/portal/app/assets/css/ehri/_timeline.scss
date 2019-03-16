@@ -160,7 +160,7 @@ $badge-size: 50px;
 }
 
 .timeline-event-time {
-  @extend .text-muted, .small;
+  @include small-muted;
   @include clearfix();
   margin-bottom: $small-margin;
 }
@@ -196,7 +196,7 @@ $badge-size: 50px;
 }
 
 .timeline-summary {
-  @extend .small;
+  font-size: $font-size-small;
   dt {
     font-weight: normal;
     font-style: italic;

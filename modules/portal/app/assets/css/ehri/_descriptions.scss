@@ -143,7 +143,7 @@
 
 .resolved-access-point, .unresolved-access-point {
   .access-point-description {
-    @extend .text-muted, .small;
+    @include small-muted;
   }
 }
 
@@ -157,7 +157,7 @@
     padding: $small-padding 0;
   }
   .link-description {
-    @extend .small, .text-muted;
+    @include small-muted;
   }
   margin-bottom: $small-margin;
   border-bottom: 1px dashed $dark-gray;

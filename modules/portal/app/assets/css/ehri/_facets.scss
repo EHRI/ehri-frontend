@@ -39,8 +39,7 @@
   > a.remove-filter {
     color:white!important;
     .remove {
-      @extend .glyphicon;
-      @extend .glyphicon-remove;
+      @extend .glyphicon, .glyphicon-remove;
       &:hover {
         background-color: darken($search-glow, 10%);
       }

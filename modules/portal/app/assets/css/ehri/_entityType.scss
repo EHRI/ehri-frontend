@@ -61,10 +61,6 @@
   @include make-entity-color($doc-color);
 }
 
-//a.text-muted, .text-muted a {
-//  @extend .text-muted;
-//}
-
 .CvocConcept, .CvocVocabulary {
   @include make-entity-color($concept-color);
 }

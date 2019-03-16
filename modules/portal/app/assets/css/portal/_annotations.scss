@@ -26,7 +26,8 @@
 
     }
     .annotation-meta {
-      @extend .text-muted, .small, .pull-right;
+      @include small-muted;
+      @extend .pull-right;
     }
     @include clearfix;
   }
@@ -198,7 +199,7 @@ select.custom-accessors {
 
 .annotation-meta {
   @include clearfix;
-  @extend .small, .text-muted;
+  @include small-muted;
   display: inline-block;
 
   a {
