@@ -260,14 +260,8 @@ input.placeholder, textarea.placeholder {
   margin-bottom: $large-margin;
 }
 
-.header-controls {
-}
-
-.follow-controls, .watch-controls {
-  @extend .header-controls;
-  * {
-    text-decoration: none;
-  }
+.follow-controls, .watch-controls * {
+  text-decoration: none;
 }
 
 .watch-controls {
@@ -281,10 +275,6 @@ input.placeholder, textarea.placeholder {
 
 .watch-controls > a, .watch-controls > a:hover {
   text-decoration: none;
-}
-
-@mixin highlight-glow {
-  text-shadow: rgba(82, 168, 236, 0.8) 0 0 10px;
 }
 
 // Pagination

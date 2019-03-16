@@ -20,10 +20,10 @@
 }
 
 .feedback-submit {
-  @extend .submit, .btn, .btn-default;
+  @extend .btn, .btn-default;
 
   &:disabled {
-    @extend .btn, .disabled;
+    @extend .disabled;
   }
 }
 

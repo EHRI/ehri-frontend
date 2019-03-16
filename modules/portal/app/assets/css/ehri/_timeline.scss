@@ -173,7 +173,7 @@ $badge-size: 50px;
 }
 
 .timeline-event-title-image {
-  @extend .gravitar;
+  @include gravitar-image(5px);
   @extend .pull-left;
   @extend .img-circle;
   height: 40px;

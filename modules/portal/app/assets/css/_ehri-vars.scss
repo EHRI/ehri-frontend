@@ -1,7 +1,7 @@
 $primary-highlight: #360f4f;
 
 //Border radius stuff
-$border-radius: 1;
+$border-radius: 1px;
 $border-radius-base: $border-radius;
 $border-radius-large: $border-radius;
 $border-radius-small: $border-radius;
@@ -88,13 +88,13 @@ $btn-post-color: $btn-primary-color;
 $btn-post-bg: $btn-primary-bg; //$ehri-purple;
 $btn-post-border: $btn-primary-border;
 
-$btn-get-color: $btn-default-color;
-$btn-get-bg: $btn-default-bg;
-$btn-get-border: $btn-default-border;
+$btn-get-color: #333;
+$btn-get-bg: #fff;
+$btn-get-border: #ccc;
 
-$btn-cancel-color: #000;
-$btn-cancel-bg: $btn-default-bg;
-$btn-cancel-border: $btn-default-border;
+$btn-cancel-color: $btn-get-color;
+$btn-cancel-bg: $btn-get-bg;
+$btn-cancel-border: $btn-get-border;
 
 $navbar-inverse-link-active-color: #fff;
 

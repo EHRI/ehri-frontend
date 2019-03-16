@@ -1,9 +1,10 @@
 // <-- Bootstrap
 
+@import "./ehri-vars";
+
 // Core variables and mixins
 @import "./bootstrap/variables";
 //@import "./bootstrap/superhero";
-@import "./ehri-vars";
 @import "./bootstrap/mixins";
 
 // Reset
@@ -59,21 +60,22 @@
 @import "./font-awesome";
 
 //IMPORT EHRI STUFF
+@import "ehri/mixins";
 @import "ehri/visibility";
 @import "ehri/markdown";
 @import "ehri/login";
-@import "ehri/buttons";
+@import "ehri/lists";
 @import "ehri/search";
 @import "ehri/facets";
 @import "ehri/panels";
-@import "ehri/timeline";
+@import "ehri/timeline"; // CSS size: 256k
+@import "ehri/buttons";
 @import "ehri/sidebar";
 @import "ehri/breadcrumb";
 @import "ehri/layouts";
 @import "ehri/responsive";
 @import "ehri/descriptions";
 @import "ehri/panels";
-@import "ehri/lists";
 @import "ehri/searchbar";
 @import "ehri/footer";
 
@@ -84,10 +86,10 @@
 //Portal
 @import "portal/loader";
 @import "portal/index";
-
+//
 @import "portal/header";
 @import "portal/annotations";
-@import "portal/signup";
+@import "portal/signup";   // CSS size: 424k
 //@import "portal/cookies";
 @import "portal/feedback";
 @import "portal/typeahead";
