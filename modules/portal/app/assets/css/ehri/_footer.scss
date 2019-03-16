@@ -22,7 +22,6 @@ footer#portal-footer {
   }
 
   .footer-blurb {
-    @include clearfix;
     @extend .text-center;
     font-size: 0.95em;
     margin: 2*$large-margin 0;
