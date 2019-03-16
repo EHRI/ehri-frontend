@@ -40,3 +40,19 @@
   content: " / ";
   color: #aaa;
 }
+
+.other-name-list {
+  font-size: 1.3em;
+  @extend .list-inline;
+  margin-left: 0; // corrects Bootstraps -5px neg margin
+  display: block;
+}
+
+.other-name-list-small {
+  font-weight: bold;
+  font-size: $font-size-small;
+  @extend .list-inline;
+  margin-left: 0;
+}
+
+

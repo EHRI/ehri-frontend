@@ -1,31 +1,4 @@
 
-.sidebar-section {
-  @extend .panel;
-  @extend .panel-default;
-
-  header {
-
-    // FIXME: Can't get this to pull through from
-    // the panel-default defaults
-    background-color: $gray-lighter;
-
-    @extend .panel-default;
-    @extend .panel-heading;
-    h3 {
-      @extend .panel-title;
-    }
-  }
-
-  .sidebar-section-body {
-    @extend .panel-body;
-  }
-
-  .sidebar-section-footer {
-    @extend .panel-footer;
-  }
-}
-
-
 /** Cut off text in description switch without wrap... */
 .description-switcher > a {
   text-overflow: ellipsis;

@@ -5,7 +5,7 @@
         @sidebarBefore
         @if(descriptions.size > 1) {
         <div class="sidebar-section">
-            <header>@Messages("description.multiple.text")</header>
+            <header class="sidebar-section-heading">@Messages("description.multiple.text")</header>
             <div class="list-group description-switcher">
                 @descriptions.map { desc =>
                     <a class="list-group-item description-switch"

@@ -91,10 +91,11 @@ em.highlight {
 }
 
 .search-item-details {
-  @extend .small;
+  font-size: $font-size-small;
 
   ul, ol {
-    @extend .list-unstyled, .text-muted, .inline-separator, .list-inline;
+    @include list-unstyled;
+    @extend .text-muted, .list-inline;
 
     time {
       display: inline;

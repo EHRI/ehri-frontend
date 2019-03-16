@@ -55,9 +55,43 @@
 }
 
 
+.sidebar-section {
+
+  border: 1px solid $panel-default-border;
+  margin-bottom: 20px;
+
+  .sidebar-section-heading {
+    background-color: $panel-default-heading-bg;
+    padding: $panel-heading-padding;
+
+    h1, h2, h3, h4 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  .list-group {
+    margin-bottom: 0;
+  }
+
+  .list-group-item {
+    border-left: none;
+    border-right: none;
+  }
+
+  .list-group-item:last-child {
+    border-bottom: none;
+  }
+
+
+  .sidebar-section-footer {
+    background-color: $panel-footer-bg;
+    padding: $panel-footer-padding
+  }
+}
+
+
 .panel-history {
-  @extend .panel;
-  @include panel-rework();
   @include panel-color($medium-gray, #000000);
   @include hidden-one-col;
 
@@ -85,15 +119,16 @@
   }
 }
 
-.panel-details {
-  @extend .panel;
+.panel-details, .panel-type {
   @include panel-rework();
   @include panel-color($medium-gray, #000000);
-}
 
-.panel-type {
   margin-bottom: $large-margin;
 }
+
+//.panel-type {
+//  margin-bottom: $large-margin;
+//}
 
 body.DocumentaryUnit .panel-type {
   @include panel-color($doc-color);

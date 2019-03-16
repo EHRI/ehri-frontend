@@ -3,7 +3,9 @@
 @if(html.body.trim.nonEmpty) {
     <div class="sidebar-section">
         @name.map { n =>
-            <header><h3>@n</h3></header>
+            <header class="sidebar-section-heading">
+                <h3 class="panel-title">@n</h3>
+            </header>
         }
         @html
     </div>

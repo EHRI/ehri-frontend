@@ -57,6 +57,10 @@
   @extend .btn-primary;
 }
 
+.btn-cancel {
+  @extend .btn-default;
+}
+
 .btn-facebook, .btn-google, .btn-yahoo, .btn-openid {
   margin: $medium-margin auto;
 }

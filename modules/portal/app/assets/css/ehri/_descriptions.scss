@@ -32,13 +32,6 @@
 }
 
 .item-header {
-  .other-name-list {
-    font-size: 1.3em;
-    @extend .list-inline;
-    margin-left: 0; // corrects Bootstraps -5px neg margin
-    display: block;
-  }
-
   h1, h2 {
     margin-top: 0;
   }
@@ -105,7 +98,8 @@
 
 .item-meta {
   $width: 200px;
-  @extend .panel, .panel-default;
+  //@extend .panel, .panel-default;
+  border: 1px solid #ddd;
   dd {
     @include clearfix; // Clear the floated `dt` if an empty `dd` is present
   }
@@ -187,12 +181,6 @@
 .affix {
   z-index: 1000;
   top: 10px;
-}
-
-.other-name-list-small {
-  font-weight: bold;
-  font-size: $font-size-small;
-  @include list-unstyled;
 }
 
 .empty-description {

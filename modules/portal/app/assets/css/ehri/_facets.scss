@@ -1,19 +1,21 @@
-@import "panels";
-@import "../portal/index";
+//@import "panels";
+//@import "../portal/index";
 
 .search-facets {
-  @extend .panel;
+  //@extend .panel;
   @include panel-rework();
   @include panel-color($medium-gray, #000000);
 }
 
 .search-facets-heading {
-  @extend .panel-heading;
+  //@extend .panel-heading;
   margin-top: 0;
 }
 
 .facet-classes {
-  @extend .panel-body, .list-unstyled;
+  //@extend .panel-body, .list-unstyled;
+  @include list-unstyled;
+  padding: 15px;
   padding-top: 0;
 }
 

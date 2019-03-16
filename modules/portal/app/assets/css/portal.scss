@@ -68,18 +68,17 @@
 @import "ehri/signup";
 @import "ehri/lists";
 @import "ehri/search";
-@import "ehri/facets";
 @import "ehri/panels";
-@import "ehri/timeline"; // CSS size: 256k
+@import "ehri/timeline"; // CSS size: 260k
 @import "ehri/buttons";
 @import "ehri/sidebar";
+@import "ehri/facets";
 @import "ehri/breadcrumb";
 @import "ehri/layouts";
 @import "ehri/responsive";
-@import "ehri/descriptions";
-@import "ehri/panels";
+@import "ehri/descriptions";  // 348k
 @import "ehri/searchbar";
-@import "ehri/footer";
+@import "ehri/footer";  // 364k
 
 @import "ehri/entityType";
 @import "ehri/preferences";
