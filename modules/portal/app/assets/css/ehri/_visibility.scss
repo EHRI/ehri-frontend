@@ -1,8 +1,8 @@
 /* Own EHRI visibility property */
 
-.hidden-one-col {
+@mixin hidden-one-col {
 	@extend .hidden-xs;
 }
-.hidden-two-col {
+@mixin hidden-two-col {
 	@extend .visible-lg;
 }

@@ -58,7 +58,7 @@
 
   .inline-element-block-controls {
     margin-bottom: $medium-margin;
-    @extend .clearfix;
+    @include clearfix;
     .remove-inline-element {
       @extend .pull-right;
     }

@@ -116,7 +116,7 @@ body {
 
 .rss-feed {
   padding-top: $small-padding;
-  @extend .list-unstyled;
+  @include list-unstyled;
   .rss-item {
     .date {
       @extend .text-muted, .small;
@@ -141,7 +141,7 @@ blockquote {
 }
 
 .link-target-list {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 .facet-select-dropdown {
   max-width: 400px;

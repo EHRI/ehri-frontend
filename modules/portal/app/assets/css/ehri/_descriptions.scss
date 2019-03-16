@@ -76,7 +76,7 @@
   }
 
   .item-text-field-list {
-    @extend .list-unstyled;
+    @include list-unstyled;
     // Allows both left-to-right and right-to-left elements
     // in the same list
     li {
@@ -107,7 +107,7 @@
   $width: 200px;
   @extend .panel, .panel-default;
   dd {
-    @extend .clearfix; // Clear the floated `dt` if an empty `dd` is present
+    @include clearfix; // Clear the floated `dt` if an empty `dd` is present
   }
 
   @media (min-width: $grid-float-breakpoint) {
@@ -132,7 +132,7 @@
 
 .item-meta-alternate-identifiers ul, .item-meta-languages ul {
   margin-bottom: inherit;
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .archival-context, .child-items {
@@ -154,7 +154,7 @@
 }
 
 .item-links {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .item-link {
@@ -171,7 +171,7 @@
 
 
 .export-formats {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .sidepanel-toc {

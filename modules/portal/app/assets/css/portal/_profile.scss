@@ -1,6 +1,6 @@
 
 .user-grid {
-  @extend .list-unstyled;
+  @include list-unstyled;
   @include make-row();
 
   .user-grid-item {
@@ -57,12 +57,12 @@
 
 // Profile-related less
 .user-list-item {
-  @extend .clearfix;
+  @include clearfix;
 }
 
 
 .profile-form-section {
-  @extend .clearfix;
+  @include clearfix;
   .control-label {
     @include make-md-column(4);
   }
@@ -99,7 +99,7 @@
   }
   dd {
     margin-left: $component-offset-horizontal;
-    @extend .clearfix; // Clear the floated `dt` if an empty `dd` is present
+    @include clearfix; // Clear the floated `dt` if an empty `dd` is present
   }
 }
 
@@ -116,7 +116,7 @@
 
 .user-list-item {
   padding: $small-padding 0;
-  @extend .clearfix;
+  @include clearfix;
   position: relative;
   .gravitar {
     float: left;
@@ -140,7 +140,7 @@
 }
 
 .watched-items {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .message-form {

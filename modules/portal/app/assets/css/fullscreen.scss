@@ -42,8 +42,6 @@ footer#fullscreen-footer {
   background-color: $pale-gray;
   a#open-in-portal {
     float: right;
-    // FIXME
-    //&:extend(@include text-muted);
     padding: 0 $medium-padding + $small-padding;
     color: $almost-black;
     &:hover {

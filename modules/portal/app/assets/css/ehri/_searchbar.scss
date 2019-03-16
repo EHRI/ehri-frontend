@@ -32,7 +32,7 @@
 
 .search-bar {
   @include make-row();
-  @extend .clearfix;
+  @include clearfix;
 
   margin-bottom: $medium-margin;
 
@@ -60,7 +60,7 @@
       border: 1px solid transparent;
       //@include button-size($padding-base-vertical; $padding-base-horizontal; $font-size-base*0.9; $line-height-base*1.11; 0);
       font-size: 0.85em;
-      @extend .hidden-one-col;
+      @include hidden-one-col;
       color: $muted-gray;
       position: relative;
 

@@ -1,11 +1,11 @@
 .spin {
-    -webkit-animation: spin .5s infinite linear;
-    -moz-animation: spin .5s infinite linear;
-    -o-animation: spin .5s infinite linear;
-    animation: spin .5s infinite linear;
-    -webkit-transform-origin: 50% 58%;
-    transform-origin:50% 58%;
-    -ms-transform-origin:50% 58%; /* IE 9 */
+  -webkit-animation: spin .5s infinite linear;
+  -moz-animation: spin .5s infinite linear;
+  -o-animation: spin .5s infinite linear;
+  animation: spin .5s infinite linear;
+  -webkit-transform-origin: 50% 58%;
+  transform-origin: 50% 58%;
+  -ms-transform-origin: 50% 58%; /* IE 9 */
 }
 
 @-moz-keyframes spin {
@@ -55,41 +55,44 @@
 
 form[method="GET"], form:not([method="POST"]) {
   .btn-default, .btn-primary, button[type="submit"], input[type="submit"], .button.submit {
-    @extend .btn, .btn-get;
+    @extend .btn;
   }
-}
-.btn-link, .btn-default, .btn-primary {
-    @extend .btn, .btn-get;
 }
 
 .btn {
-  &.btn-get, &.btn-link, &.btn-default, &.btn-primary {
+  &.btn-link, &.btn-default, &.btn-primary {
     @include button-variant($btn-get-color, $btn-get-bg, $btn-get-border);
- }
-}
-.btn {
-	&.btn-post {
-  		@include button-variant($btn-post-color, $btn-post-bg, $btn-post-border);
-	}
-	&.btn-cancel {
-  		@include button-variant($btn-cancel-color, $btn-cancel-bg, $btn-cancel-border);
-	}
+  }
+
+  &.btn-post {
+    @include button-variant($btn-post-color, $btn-post-bg, $btn-post-border);
+  }
+
+  &.btn-cancel {
+    @include button-variant($btn-cancel-color, $btn-cancel-bg, $btn-cancel-border);
+  }
+
   &.btn-facebook, &.btn-google, &.btn-linkedin, &.btn-yahoo, &.btn-openid {
-    //&:extend(@include btn-block);
+    @extend .btn-block;
     margin: $medium-margin auto;
   }
+
   &.btn-facebook {
     @include button-variant(#ffffff, #354E84, #354E84);
   }
+
   &.btn-google {
     @include button-variant(#ffffff, #DD4B39, #DD4B39);
   }
+
   &.btn-linkedin {
-    @include button-variant(#ffffff,#0083A8,#0083A8);
+    @include button-variant(#ffffff, #0083A8, #0083A8);
   }
+
   &.btn-yahoo {
     @include button-variant(#ffffff, #7B0099, #7B0099);
   }
+
   &.btn-openid {
     @include button-variant(#ffffff, #949494, #949494);
   }
@@ -97,82 +100,17 @@ form[method="GET"], form:not([method="POST"]) {
   &.btn-danger {
     @include button-variant($btn-danger-color, $btn-danger-bg, $btn-danger-border);
   }
-
-	&.xs {
-       @extend .btn-xs;
-	}
-
-  &.small {
-    @extend .btn-sm;
-  }
-
 }
 
 
 .remove-inline-element {
   text-shadow: rgba(215, 0, 0, 1) 0 0 10px;
 }
-@mixin make-btn-group($btn-color : $btn-primary-color, $btn-bg : $btn-primary-color, $btn-border: $btn-primary-border, $btn-size : 0) {
-
-  position: relative;
-  display: inline-block;
-  vertical-align: middle; // match @mixin btn alignment given font-size hack above
-  > * {
-    @include btn();
-    @include button-variant($btn-primary-color, $btn-primary-bg, $btn-primary-border);
-    position: relative;
-    float: left;
-    // Bring the "active" button to the front
-    &:hover,
-    &:focus,
-    &:active,
-    &.active {
-      z-index: 2;
-    }
-    &:focus {
-      outline: none;
-    }
-  }
-  > * + * {
-    margin-left: -1px;
-  }
-
-
-  > *:not(:first-child):not(:last-child) {
-    border-radius: 0;
-  }
-
-  > *:first-child {
-    margin-left: 0;
-    &:not(:last-child) {
-      @include border-right-radius(0);
-    }
-  }
-
-  > *:last-child:not(:first-child) {
-    @include border-left-radius(0);
-  }
-}
-// FIXME
-//@mixin make-btn-group($btn-color : $btn-primary-color, $btn-bg : $btn-primary-color, $btn-border: $btn-primary-border, $btn-size : 0) when ($btn-size = xs) {
-//  > * {
-//    @include btn-xs();
-//  }
-//}
-//@mixin make-btn-group($btn-color : $btn-primary-color, $btn-bg : $btn-primary-color, $btn-border: $btn-primary-border, $btn-size : 0) when ($btn-size = sm) {
-//  > * {
-//    @include btn-sm();
-//  }
-//}
-//@mixin make-btn-group($btn-color : $btn-primary-color, $btn-bg : $btn-primary-color, $btn-border: $btn-primary-border, $btn-size : 0) when ($btn-size = lg) {
-//  > * {
-//    @include btn-lg();
-//  }
-//}
 
 .progress-button {
   padding-left: $large-padding;
   padding-right: $large-padding;
+
   &.running, &.loading {
     background-image: url('../img/ajax-loader-small.gif');
     background-position: right $small-margin center;

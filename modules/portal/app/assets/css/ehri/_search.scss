@@ -131,7 +131,7 @@ em.highlight {
 
 .search-results, .search-results-no-facets {
   .search-result-errata {
-    @extend .clearfix;
+    @include clearfix;
     .search-summary {
       float: left;
     }
@@ -164,7 +164,7 @@ em.highlight {
 }
 
 .search-result-list {
-  @extend .list-unstyled;
+  @include list-unstyled;
   // Allows both left-to-right and right-to-left elements
   // in the same list
   li {

@@ -17,7 +17,7 @@ footer#portal-footer {
   }
 
   .footer-blurb {
-    @extend .clearfix;
+    @include clearfix;
     font-size: 0.95em;
     margin: 2*$large-margin 0;
     img {

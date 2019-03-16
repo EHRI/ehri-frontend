@@ -17,7 +17,7 @@
 }
 
 .user-annotation-list {
-  @extend .list-unstyled;
+  @include list-unstyled;
   .annotation {
     .annotation-body {
       font-size: 1em;
@@ -28,7 +28,7 @@
     .annotation-meta {
       @extend .text-muted, .small, .pull-right;
     }
-    @extend .clearfix;
+    @include clearfix;
   }
 }
 
@@ -81,7 +81,7 @@ select.custom-accessors {
 }
 
 .annotation-list {
-  @extend .list-unstyled;
+  @include list-unstyled;
 
   >li, >div {
     padding-left: $medium-padding;
@@ -197,7 +197,8 @@ select.custom-accessors {
 }
 
 .annotation-meta {
-  @extend .small, .clearfix, .text-muted;
+  @include clearfix;
+  @extend .small, .text-muted;
   display: inline-block;
 
   a {
@@ -207,7 +208,7 @@ select.custom-accessors {
 
 .annotation-form {
   background-color: $well-bg;
-  font-size: 12px;
+  font-size: $font-size-small;
   line-height: 1.2;
   padding: $small-padding;
 

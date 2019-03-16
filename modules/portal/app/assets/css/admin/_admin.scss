@@ -163,7 +163,7 @@ body.modal-open {
 }
 
 .event-list {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 /** List items */
@@ -187,9 +187,7 @@ body.modal-open {
 }
 
 .event-item-meta {
-  @extend .list-unstyled;
-  @extend .text-muted;
-  @extend .list-inline;
+  @extend .list-inline, .text-muted;
 }
 
 .event-item-message {
@@ -289,7 +287,7 @@ a.alt {
 }
 
 .annotation-links, .external-links {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 a.inline-action {
@@ -355,7 +353,7 @@ a.inline-action:hover {
 }
 
 .ap-editor-types {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .ap-editor-remove-access-point {
@@ -363,7 +361,7 @@ a.inline-action:hover {
 }
 
 .ap-editor-new-access-point {
-  @extend .clearfix;
+  @include clearfix;
   border: 1px solid $medium-gray;
   padding: $medium-padding;
 }
@@ -405,7 +403,7 @@ a.inline-action:hover {
 }
 
 .ap-editor-pending-items {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .ap-editor-pending-item-link-note {
@@ -420,7 +418,7 @@ a.inline-action:hover {
 }
 
 .ap-editor-access-points {
- @extend .list-unstyled;
+ @include list-unstyled;
   margin-bottom: $medium-margin;
 }
 

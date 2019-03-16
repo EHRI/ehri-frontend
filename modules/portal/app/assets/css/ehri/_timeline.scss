@@ -156,7 +156,7 @@ $badge-size: 50px;
 }
 
 .timeline-event-subjects {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }
 
 .timeline-event-time {
@@ -204,7 +204,7 @@ $badge-size: 50px;
 }
 
 .timeline-summary-subjects {
-  @extend .list-unstyled;
+  @include list-unstyled;
 }.timeline-badge.primary {
    background-color: #2e6da4 !important;
  }
