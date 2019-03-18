@@ -1,32 +1,37 @@
-@(loginOrSignup: String, openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
+@(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, forSignup: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
 
-    <div class="oauth-providers">
-        @oauth2Config.providers.map { provider =>
-            <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
-                title="@Html(Messages(loginOrSignup, provider.name.capitalize))">
-               @Html(Messages(loginOrSignup, Html(s"<i class='fa fa-fw fa-${provider.name}'></i>")))
-            </a>
-        }
-        <a href="#" class="btn btn-openid show-more" title="@Messages(loginOrSignup, "OpenID")">
-            @Html(Messages(loginOrSignup, Html("<i class='fa fa-fw fa-openid'></i>")))
+    @defining(if (forSignup) "login.signupWith" else "login.loginWith") { messagePrefix =>
+        <div class="oauth-providers">
+            @oauth2Config.providers.map { provider =>
+                <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
+                title="@Html(Messages(messagePrefix, provider.name.capitalize))">
+                @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name}'></i>")))
+                </a>
+            }
+        <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
+        @Html(Messages(messagePrefix, Html("<i class='fa fa-fw fa-openid'></i>")))
         </a>
-    </div>
+        </div>
 
-    <div class="more-login-options @{if(openIdForm.hasErrors) "errors"}">
-        <div class="form-block">
+        <div class="more-login-options @{
+            if(openIdForm.hasErrors) "errors"
+        }">
+            <div class="form-block">
             @helper.inputText(
                 openIdForm("openid_identifier"),
+                'id -> s"${if(forSignup) "signup" else "login"}_openid_identifier",
                 'placeholder -> Messages("login.openid.urlPlaceholder"),
                 'type -> "url"
             )
-        </div>
+            </div>
 
-        <div class="form-group">
-            <input type="submit" class="btn btn-post login-button openid" value="@Messages(loginOrSignup, "OpenID")" />
+            <div class="form-group">
+                <input type="submit" class="btn btn-post login-button openid" value="@Messages(messagePrefix, "OpenID")" />
+            </div>
         </div>
-    </div>
+    }
 }
