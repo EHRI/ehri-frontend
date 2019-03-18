@@ -2,16 +2,14 @@
 
 @import services.search.SearchSort
 
+@styles = {
+    <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2.css")" rel="stylesheet">
+}
+
 @js = {
     <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-facet.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/select2/select2.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.js")"></script>
 
-    @messages.lang.language match {
-        case "en" => {}
-        case _ => {
-             <script src="@controllers.portal.routes.PortalAssets.at("js/select2/select2_locale_" + messages.lang.language +".js")"></script>
-        }
-    }
     <script type="text/javascript">
         $(".facet-selected").select2(),
 
@@ -120,7 +118,7 @@
 }
 
 
-@views.html.layout.guideLayout(guide, page, pages, scripts = js, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
+@views.html.layout.guideLayout(guide, page, pages, scripts = js, styles = styles, optionalContent = Some(sidebar(page)), otherTitle = Some(Messages("guides.faceted"))) {
     <article>
         <header>
             <h1>@Messages("guides.faceted")</h1>
