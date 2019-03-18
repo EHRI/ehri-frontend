@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], available: Map[String, Seq[models.base.Model]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], available: Map[String, Seq[models.base.Model]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @import services.search.SearchSort
 
@@ -7,59 +7,66 @@
 }
 
 @js = {
-    <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-facet.js")"></script>
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.js")"></script>
+    <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-facet.js")"></script>
 
     <script type="text/javascript">
-        $(".facet-selected").select2(),
+            jQuery(function ($) {
+                $(".facet-selected").select2();
 
-        $(".facet-browse").select2({
-            minimumInputLength: 0,
-            multiple: true,
-            ajax: {
-                url: function() {
-                    console.log($(this));
-                    return $(this).attr("data-target");
-                },
-                dataType: 'json',
-                quietMillis: 100,
-                data: function (term, page) { // page is the one-based page number tracked by Select2
-                    return {
-                        q: term, //search term
-                        page_limit: 10, // page size
-                        page: page // page number
-                    };
-                },
-                results: function (data, page) {
-                    var more = (page * 10) < data.total, // whether or not there are more results available
-                            items = data.items;
+                $(".facet-browse").select2({
+                    minimumInputLength: 0,
+                    multiple: true,
+                    ajax: {
+                        url: function (params) {
+                            console.log(params);
+                            return $(this).attr("data-target");
+                        },
+                        dataType: 'json',
+                        delay: 100,
+                        data: function (params) { // page is the one-based page number tracked by Select2
+                            return {
+                                q: params.term, //search term
+                                limit: 10, // page size
+                                page: params.page // page number
+                            };
+                        },
+                        processResults: function (data, params) {
+                            var more = (params.page * 10) < data.total, // whether or not there are more results available
+                                    items = data.items;
 
-                    $.each(items, function(i, e) {
-                        if(typeof e.childCount !== "undefined" && e.childCount > 0) {
-                          items[i].children = []
+                            $.each(items, function (i, e) {
+                                if (typeof e.childCount !== "undefined" && e.childCount > 0) {
+                                    items[i].children = []
+                                }
+                                if (e.links === 0) {
+                                    items[i].disabled = true;
+                                }
+                            });
+                            // notice we return the value of more so Select2 knows if more results can be loaded
+                            return {results: data.items, more: more};
                         }
-                        if(e.links === 0) {
-                           items[i].disabled = true;
+                    },
+                    templateResult: function (item) {
+                        if (item.name) {
+                            var original = item;
+                            if (typeof original.parent !== "undefined" && original.parent !== null) {
+                                return "<div title ='" + original.parent.name + " > " + original.name + "'>" + original.name + " (" + original.links + ")" + "</div>";
+                            }
+                            return "<div title ='" + original.name + "'>" + original.name + " (" + original.links + ")" + "</div>";
+                        } else {
+                            return item.text;
                         }
-                    })
-                    // notice we return the value of more so Select2 knows if more results can be loaded
-                    return {results: data.items, more: more};
-                }
-            },
-            formatResult: function(item) {
-                var original = item;
-                if(typeof original.parent !== "undefined" && original.parent !== null) {
-                return "<div title ='" + original.parent.name + " > " + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
-                }
-                return "<div title ='" + original.name + "'>" + original.name + " ("+ original.links+")" + "</div>";
-                //return item.name;
-            },
-            formatSelection: function(item) {
-                return item.name
-            },
-            //dropdownCssClass: "bigdrop", // apply css that makes the dropdown taller
-            escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
-        });
+                    },
+                    templateSelection: function (item) {
+                        return item.name
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    } // we do not want to escape markup since we are displaying html in results
+                });
+
+            });
     </script>
 }
 
@@ -67,7 +74,7 @@
     <div class="facet-class">
         <h4 class="facet-label">@page.name</h4>
         <div class="facet-options">
-            <select multiple style="width: 100%" name="kw" data-placeholder="@page.name" class="form-control facet-selected select2 autosubmit">
+            <select multiple style="width: 100%" name="kw" data-placeholder="@page.name" class="form-control facet-selected autosubmit">
                 <option></option>
                 @available.getOrElse(page.content, List.empty).map { f =>
                     <option value="@f.id">@f.toStringLang</option>
@@ -78,43 +85,49 @@
 }
 
 @facets = {
-    @views.html.common.search.selectedFacets(result.facetClasses, result.facets)
-    @if(available.isEmpty) {
-        <p class="small">@Messages("guides.facets.hierarchy")</p>
-    }
-    @for(otherPage <- pages.filterNot(p => GuidePage.Layout.isFreeText(p.layout))) {
-        @if(available.nonEmpty){
-            @selectTwo(otherPage)
-        } else {
-            <div class="facet-class">
-                <h4 class="facet-label">@otherPage.name</h4>
-                <div class="facet-options">
-                    <input type="text" style="width: 100%;" name="kw" data-placeholder="@otherPage.name" data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)" class="form-control select2 facet-browse autosubmit" />
-                </div>
+@views.html.common.search.selectedFacets(result.facetClasses, result.facets)
+@if(available.isEmpty) {
+    <p class="small">@Messages("guides.facets.hierarchy")</p>
+}
+@for(otherPage <- pages.filterNot(p => GuidePage.Layout.isFreeText(p.layout))) {
+    @if(available.nonEmpty) {
+        @selectTwo(otherPage)
+    } else {
+        <div class="facet-class">
+            <h4 class="facet-label">@otherPage.name</h4>
+            <div class="facet-options">
+                <select
+                style="width: 100%;"
+                name="kw"
+                data-placeholder="@otherPage.name"
+                data-target="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)"
+                class="form-control facet-browse autosubmit">
+                </select>
             </div>
-        }
+        </div>
     }
+}
 }
 
 @sidebar(page: GuidePage) = {
     <div id="facets">
-        @helper.form(action = action) {
-            <div class="form-group search-box">
-                <div class="input-group">
-                    <label for="id_q" class="sr-only">@Messages("search")</label>
-                    <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
-                    <span class="input-group-btn">
-                        <button type="submit" class="form-control"><span class="glyphicon glyphicon-search">
-                        </span>@Messages("search")
-                        </button>
-                    </span>
-                </div>
+    @helper.form(action = action) {
+        <div class="form-group search-box">
+            <div class="input-group">
+                <label for="id_q" class="sr-only">@Messages("search")</label>
+                <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
+                <span class="input-group-btn">
+                    <button type="submit" class="form-control"><span class="glyphicon glyphicon-search">
+                    </span>@Messages("search")
+                    </button>
+                </span>
             </div>
-            @common.search.searchSort(result.params, Seq(SearchSort.Score, SearchSort.Name, SearchSort.Detail))
-            @facets
-        }
+        </div>
+        @common.search.searchSort(result.params, Seq(SearchSort.Score, SearchSort.Name, SearchSort.Detail))
+        @facets
+    }
     </div>
-    @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
+@page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 
 
@@ -132,7 +145,7 @@
             </section>
         </section>
         <footer>
-            @common.pagination(result.page)
+        @common.pagination(result.page)
         </footer>
     </article>
 }

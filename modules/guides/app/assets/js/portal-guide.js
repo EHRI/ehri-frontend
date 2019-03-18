@@ -1,4 +1,4 @@
-$(document).ready(function() {
+jQuery(function($) {
 	var resetPopover = function(elem) {
 		$("#main .popover-accesspoints").not(elem).each(function() {
 			var e = $(this);
