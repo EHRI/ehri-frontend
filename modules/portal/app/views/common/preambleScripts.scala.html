@@ -1,6 +1,3 @@
 @()(implicit messages: Messages)
 
 <script src="@controllers.portal.routes.PortalAssets.versioned("js/script-pre.js")"></script>
-@if(messages.lang.language != java.util.Locale.ENGLISH.getLanguage) {
-    <script src="@controllers.portal.routes.PortalAssets.at("js/select2/select2_locale_" + messages.lang.language +".js")"></script>
-}
