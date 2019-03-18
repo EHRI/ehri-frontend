@@ -1,6 +1,6 @@
 // <-- Bootstrap
 
-@import "./ehri-vars";
+@import "./ehri/variables";
 
 // Core variables and mixins
 @import "./bootstrap/variables";
@@ -57,7 +57,7 @@
 // --> Bootstrap
 
 // Font-awesome
-@import "./font-awesome";
+@import "./font-awesome.scss";
 
 //IMPORT EHRI STUFF
 @import "ehri/mixins";
