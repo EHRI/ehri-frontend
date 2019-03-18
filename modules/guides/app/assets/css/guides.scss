@@ -1,12 +1,12 @@
 //
 // Load Dependencies
 // --------------------------------------------------
-// <-- Bootstrap
-@import "portal";
+@import "lib/docview-portal/css/portal.scss";
+
 // Guides Stuff
 // --------------------------------------------------
-@import "./guides/variables";
-@import "./guides/nav";
+@import "guides/variables";
+@import "guides/nav";
 
 //
 // General
