@@ -38,7 +38,7 @@ body {
 }
 
 /* Set the fixed height of the footer here */
-.page-content > #push, footer {
+.page-content > #push, #portal-footer {
   height: $footer-height - 1;
 }
 

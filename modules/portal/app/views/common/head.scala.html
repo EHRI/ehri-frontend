@@ -4,13 +4,8 @@
     <title>EHRI - @title</title>
 
     <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
-    <!--[if lte IE 9]>
     <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/font-awesome.css")">
     <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
-    <![endif]-->
-    <!--[if !IE]> -->
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal-all.css")">
-    <!-- <![endif]-->
 
     @if(messages.lang.code.startsWith("he")) {
         <!-- experimental hebrew right-to-left support -->
