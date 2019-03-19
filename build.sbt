@@ -279,11 +279,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     // Should really add cssCompress stage here but it's too slow currently
     pipelineStages in Assets := Seq(concat, uglify, digest, gzip),
     Concat.groups := Seq(
-      "css/portal-all.css" -> group(
-        Seq(
-          "css/portal.css"
-        )
-      ),
       "js/script-pre.js" -> group(
         Seq(
           "js/lib/jquery-1.12.4.js",
