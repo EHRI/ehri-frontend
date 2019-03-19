@@ -1,7 +1,10 @@
 //
 // Load Dependencies
 // --------------------------------------------------
-@import "lib/docview-portal/css/portal.scss";
+@import "lib/docview-portal/css/ehri/_variables.scss";
+@import "lib/docview-portal/css/ehri/_mixins.scss";
+@import "lib/docview-portal/css/bootstrap/_variables.scss";
+@import "lib/docview-portal/css/bootstrap/_mixins.scss";
 
 // Guides Stuff
 // --------------------------------------------------
@@ -20,6 +23,10 @@ body > .container {
   background-color: $content-color;
 }
 
+#wrap {
+  margin-bottom: auto;
+}
+
 //
 // Content
 // --------------------------------------------------
@@ -36,6 +43,7 @@ h1.guide-title {
   line-height: 30px;
   text-align: right;
   margin-right: 19px;
+
   & > a {
     color: white;
   }
@@ -50,9 +58,11 @@ h1.guide-title {
   .btn-sm {
     cursor: pointer;
   }
+
   .popover-accesspoints {
     display: none;
   }
+
   .facet-type {
     display: none;
   }
@@ -71,15 +81,18 @@ h1.guide-title {
   > h1 > .btn-sm {
     margin-top: -4px;
   }
+
   > ul.facet-search {
     display: none;
   }
+
   > ul.facet-list {
     display: none;
     overflow-y: scroll;
     max-height: 200px;
     position: relative;
   }
+
   .facet-scroll {
     height: 1px;
     min-height: 1px;
@@ -87,6 +100,7 @@ h1.guide-title {
     padding: 0;
     overflow: hidden;
     visibility: hidden;
+
     &.loading {
       height: auto;
       min-height: 20px;
@@ -98,46 +112,57 @@ h1.guide-title {
 #main {
   article {
     background-color: $content-color;
-    padding: 0;
+    padding: $large-padding 0 2 * $large-padding 0;
+
     header {
       margin-top: 0;
       padding-top: 0;
       margin: 0 -15px 10px -15px;
+
       h1, h3 {
         padding: 5px;
         margin: 0;
       }
+
       .breadcrumb {
         li + li:before {
           content: " › ";
         }
+
         li.active {
           color: white;
         }
+
         background-color: $ehri-darkest-grey;
         border-radius: 0;
+
         a, a:hover, a:focus {
           color: #999999;
           text-decoration: none;
         }
+
         &.documentaryUnit {
           background-color: $ehri-documentary-unit;
           color: white;
         }
+
         &.repository {
           background-color: $ehri-repository;
           color: white;
         }
+
         &.virtualCollection {
           background-color: $ehri-virtual-collections;
           color: white;
         }
+
         &.historicalAgent {
           background-color: $ehri-historical-agent;
           color: white;
         }
       }
     }
+
     & > section {
       .person-item {
         h2 {
@@ -159,10 +184,12 @@ h1.guide-title {
           text-shadow: 0.1em 0.1em 0.2em black;
           display: none;
         }
+
         .person-desc {
           dl {
             text-align: right;
           }
+
           display: none;
           font-size: 0.7em;
           color: $ehri-dark-grey;
@@ -173,19 +200,24 @@ h1.guide-title {
           @include border-bottom-radius(5px);
 
         }
+
         .preview-closer {
           display: none;
         }
+
         &.in {
           @include transition(all 2s ease);
           position: relative;
+
           > h2, .person-desc {
             display: block;
           }
+
           &:hover .preview-closer {
             display: block;
             float: left;
             padding: 5px;
+
             .close {
               float: none;
             }
@@ -193,6 +225,7 @@ h1.guide-title {
         }
       }
     }
+
     footer {
       clear: both;
       min-height: 20px;
@@ -201,12 +234,15 @@ h1.guide-title {
 
       .pagination {
         background-color: $ehri-darkest-grey;
+
         li {
           background-color: $ehri-darkest-grey;
+
           a {
             background-color: $ehri-darkest-grey;
             border: none;
             color: $content-color;
+
             &:hover {
               font-weight: bold;
             }
@@ -234,15 +270,19 @@ h1.guide-title {
       padding: 0;
       display: block;
       position: relative;
+
       a {
         color: $ehri-darkest-grey;
+
         &[href] {
           color: $ehri-purple;
         }
+
         &:hover {
           text-decoration: none;
         }
       }
+
       .item-option {
         cursor: pointer;
         position: absolute;
@@ -258,6 +298,7 @@ h1.guide-title {
 
         @include transition(all 0.5s ease);
       }
+
       &:hover, &.checked {
         > .item-option {
           width: 30px;
@@ -280,6 +321,7 @@ h1.guide-title {
 
           .item-parent {
             color: $ehri-dark-grey;
+
             &:after {
               content: " › ";
               opacity: 0.7;
@@ -301,6 +343,7 @@ h1.guide-title {
         max-height: 0;
         text-align: justify;
         @include transition(all 0.5s ease);
+
         &.in {
           display: block;
           min-height: 30px;
@@ -314,64 +357,80 @@ h1.guide-title {
         .item-title {
           border-color: $ehri-documentary-unit;
         }
+
         .item-description {
           border-color: lighten($ehri-documentary-unit, 20%);
         }
+
         .item-option {
           background-color: $ehri-documentary-unit;
           color: white;
         }
       }
+
       &.repository {
         .item-title {
           border-color: $ehri-repository;
         }
+
         .item-description {
           border-color: lighten($ehri-repository, 20%);
         }
+
         .item-option {
           background-color: $ehri-repository;
           color: white;
         }
       }
+
       &.virtualCollection {
         .item-title {
           border-color: $ehri-virtual-collections;
         }
+
         .item-description {
           border-color: lighten($ehri-virtual-collections, 20%);
         }
+
         .item-option {
           background-color: $ehri-virtual-collections;
           color: white;
         }
       }
+
       &.historicalAgent {
         .item-title {
           border-color: $ehri-historical-agent;
         }
+
         .item-description {
           border-color: lighten($ehri-historical-agent, 20%);
         }
+
         .item-option {
           background-color: $ehri-historical-agent;
           color: white;
         }
       }
     }
+
     .list-item {
       padding-top: 1em;
     }
+
     &.hierarchy {
       .list-item {
         margin-left: 20px;
+
         .item-wrapper {
           > .item-title {
             border-left: none !important;
           }
+
           margin: 0;
         }
       }
+
       .item-parent {
         display: none;
       }
@@ -390,6 +449,7 @@ h1.guide-title {
     @include transition(all 1s ease);
     overflow: hidden;
   }
+
   .in > #description-hover {
     height: 100%;
     @include transition(all 1s ease);
@@ -408,6 +468,7 @@ header#top {
   li {
     border-right: 0 !important;
   }
+
   form {
     margin-top: 40px;
   }
@@ -425,13 +486,16 @@ header#top {
     .carousel-inner {
       border-radius: 5px;
     }
+
     .left {
       @include border-left-radius(5px);
     }
+
     .right {
       @include border-right-radius(5px);
     }
   }
+
   //
   //	Well
   //
@@ -439,6 +503,7 @@ header#top {
     border: none;
     background-color: $content-color;
     @include box-shadow(none);
+
     article {
       header {
         h1 {
@@ -449,6 +514,7 @@ header#top {
           padding: 0;
         }
       }
+
       section {
         text-align: justify;
       }
@@ -469,6 +535,7 @@ header#top {
       }
     }
   }
+
   hr {
     opacity: 0;
   }
@@ -484,16 +551,19 @@ header#top {
   #top {
     padding-top: 5px;
     padding-bottom: 5px;
+
     &:after, &:before {
       @include clearfix();
       display: table;
       content: " ";
       clear: both;
     }
+
     .dropdown-toggle {
       display: none !important;
       clear: both;
     }
+
     .dropdown-menu {
       position: static;
       z-index: auto;
@@ -501,9 +571,11 @@ header#top {
       float: none;
       border: none;
       @include box-shadow(none);
+
       > li {
         display: block;
         width: 100%;
+
         > a {
           display: block;
           width: 100%;
@@ -521,15 +593,19 @@ header#top {
     article header {
       margin: 0 0 10px 0;
     }
+
     .btn-group.pull-right, .form-group.pull-right {
       float: none !important;
     }
+
     #slider-range {
       display: none;
     }
+
     .form-noborder {
       border: 1px solid $ehri-input-border-color;
     }
+
     .min-show:before, .max-show:before {
       content: attr(placeholder) " ";
       color: $ehri-input-border-color;
@@ -537,11 +613,13 @@ header#top {
       margin-right: 5px;
       display: block;
     }
+
     .list-item {
       .item-wrapper {
         .item-title {
           padding-left: 40px;
         }
+
         .item-option {
           width: 30px;
           left: 0;

@@ -19,7 +19,7 @@
     @scripts
 }
 
-<html>
+<html lang="en">
     @views.html.common.head(
         title = s"${guide.name} | ${otherTitle.getOrElse(page.name)}",
         meta = page.description.map(s => "description" -> s).toMap,
@@ -27,19 +27,22 @@
     )
     <body>
         @views.html.common.preambleScripts()
-        <header id="top">
-            @views.html.layout.guideHeader(guide, page, pages)
-        </header>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8" id="main">
-                    @content
-                </div>
-                <div class="col-md-4" id="right-bar">
-                    @views.html.layout.guideSidebar(guide, page, pages, optionalContent)
+        <div id="wrap">
+            <header id="top">
+                @views.html.layout.guideHeader(guide, page, pages)
+            </header>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8" id="main">
+                        @content
+                    </div>
+                    <div class="col-md-4" id="right-bar">
+                        @views.html.layout.guideSidebar(guide, page, pages, optionalContent)
+                    </div>
                 </div>
             </div>
         </div>
+        @views.html.common.footer()
         @views.html.common.postambleScripts(extra = extraScripts)
     </body>
 </html>
