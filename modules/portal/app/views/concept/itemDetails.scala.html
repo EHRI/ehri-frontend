@@ -1,19 +1,23 @@
-@(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Concept, annotations: Seq[Annotation], result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("cvocConcept") { implicit fieldPrefix =>
         @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
-            @views.html.common.descriptionContainer(descriptions) {
+            @views.html.common.descriptionContainer(descriptions, dropdown = true, labelKey = "cvocConcept.languageCode") {
                 @descriptions.map { case (desc, selected) =>
-                    @description(item, desc, links, annotations, selected)
+                    @description(item, desc, annotations, selected)
                 }
                 @for(longitude <- item.data.longitude; latitude <- item.data.latitude) {
                     <div class="point-map" style="height: 400px" data-lat="@latitude" data-lon="@longitude" data-point="@item.toStringLang"></div>
                     <script src="@controllers.portal.routes.PortalAssets.versioned("js/point-map.js")"></script>
                 }
-                @views.html.concept.childItemSearch(item, result, action, watched)
-                @views.html.common.externalLinks(item, links)
-                @views.html.common.annotationLinks(item, links)
+
+                @views.html.common.childCount(item) { count =>
+                    @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "child-items-inline-load collapsed") {
+                        <i class="fa fa-plus-square-o"></i>
+                        @Messages("cvocConcept.childCount", count)
+                    }
+                }
             } {
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {

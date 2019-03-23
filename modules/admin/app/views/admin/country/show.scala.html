@@ -14,7 +14,7 @@
         }
     }
 
-    @views.html.common.search.searchSection(item, Messages("country.searchInside", item.toStringAbbr), result) {
+    @views.html.common.search.searchSection(item, Messages("country.searchItems", item.toStringAbbr), result) {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
             @views.html.admin.search.searchItemList(result)
         } {

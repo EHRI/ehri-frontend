@@ -1,4 +1,6 @@
-@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false, inline: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+
+@import services.data.Constants.PAGE_PARAM
 
 @body = {
     <section class="search-results-body">
@@ -11,7 +13,20 @@
         @common.search.selectedFacets(result.facetClasses, result.facets)
 
         @html
-        @views.html.common.pagination(result.page, call = Some(action))
+
+        @if(inline && result.page.page == 1) {
+            @if(result.page.hasMore) {
+                <a class="search-item-list-more progress-button"
+                    data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
+                    href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
+                        .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+                    @Messages("activity.fetchMore")
+                    <i class="fa fa-caret-down"></i>
+                </a>
+            }
+        } else {
+            @views.html.common.pagination(result.page, call = Some(action))
+        }
     </section>
 }
 

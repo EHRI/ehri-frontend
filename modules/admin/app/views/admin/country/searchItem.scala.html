@@ -4,10 +4,8 @@
     <a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
     <div class="search-item-details">
-        @item.childCount.map { count =>
-            <div class="child-count">
-                <a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a>
-            </div>
+        @views.html.common.childCount(item) { count =>
+            <a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a>
         }
     </div>
     @item.data.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>

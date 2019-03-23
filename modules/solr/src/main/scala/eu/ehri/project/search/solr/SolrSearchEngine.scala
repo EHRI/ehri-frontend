@@ -82,10 +82,16 @@ case class SolrSearchEngine @Inject()(
     val queryRequest = queryBuilder.searchQuery(query)
     logger.debug(fullSearchUrl(queryRequest))
 
-    dispatch(queryRequest).map { response =>
-      val data = parser.parse(response.body, query.facetClasses, query.appliedFacets)
-      val page = Page(query.paging.offset, query.paging.limit, data.count, data.items)
-      SearchResult(page, query.params, query.appliedFacets, data.facets, data.facetInfo, spellcheck = data.spellcheckSuggestion)
+    // Skip dispatch if we have an empty ID set
+    query.withinIds match {
+      case Some(ids) if ids.isEmpty =>
+        logger.debug("Empty ID filter set so returning empty search result")
+        Future.successful(SearchResult(Page.empty[SearchHit], query.params, query.appliedFacets))
+      case _ => dispatch(queryRequest).map { response =>
+        val data = parser.parse(response.body, query.facetClasses, query.appliedFacets)
+        val page = Page(query.paging.offset, query.paging.limit, data.count, data.items)
+        SearchResult(page, query.params, query.appliedFacets, data.facets, data.facetInfo, spellcheck = data.spellcheckSuggestion)
+      }
     }
   }
 }

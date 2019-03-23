@@ -15,7 +15,7 @@
                 <span class="item-title">
                     @page.layout match {
                         case GuidePage.Layout.Organisation => {
-                            @if(d.childCount.getOrElse(0) > 0) {
+                            @if(d.hasChildren) {
                                  @getTitle(d, href = true)
                             } else {
                                  @getTitle(d)
@@ -28,7 +28,7 @@
                     @d.toStringLang
                     <a class="popover-accesspoints" data-count="@links.getOrElse(d.id, 0)" data-target="@d.id"><span class="glyphicon glyphicon-search"></span></a>
                 </span>
-                @if(d.childCount.getOrElse(0) > 0) {
+                @if(d.hasChildren) {
                     <ul></ul>
                 }
             }

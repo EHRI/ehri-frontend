@@ -10,7 +10,7 @@
             }
             @mode match {
                 case GuidePage.Layout.Organisation => {
-                    @if(d.childCount.getOrElse(0) > 0) {
+                    @if(d.hasChildren) {
                         <a href="@action?parent=@d.id">@d.toStringLang</a>
                     } else {
                         @d.toStringLang

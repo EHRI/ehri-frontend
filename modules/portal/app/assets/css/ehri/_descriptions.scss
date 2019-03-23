@@ -17,6 +17,7 @@
     @include make-sm-column-push(9);
   }
 
+  margin-bottom: $large-margin * 2;
 }
 
 .description-footer {

@@ -1,9 +1,9 @@
 @(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@if(item.childCount.getOrElse(0) > 0) {
-    <div id="@item.id-child-item-search" class="child-item-search">
+@if(item.hasChildren) {
+    <section id="@item.id-child-item-search" class="child-item-search">
         <h3>@Messages("cvocConcept.narrowerTermsPageHeader", result.page.total)</h3>
         @views.html.common.search.searchItemList(result, watched)
         @views.html.common.pagination(result.page, call = Some(action))
-    </div>
+    </section>
 }

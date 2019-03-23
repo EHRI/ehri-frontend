@@ -1,9 +1,19 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: HistoricalAgent, annotations: Seq[Annotation], result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
     @infobar(item)
 
     @views.html.common.mainContent {
-        @views.html.historicalAgent.itemDetails(item, annotations, links, watched)
+        @views.html.historicalAgent.itemDetails(item, annotations, result, action, watched)
+
+        @if(hasRelated) {
+            <section id="@item.id-related-item-search" class="related-item-search">
+                <h3>@Messages("item.related")</h3>
+                @views.html.common.search.searchForm(result, action, key = Messages("item.related.search")) {
+                    @views.html.common.search.searchItemList(result, watched)
+                } {
+                }
+            </section>
+        }
     }
 }

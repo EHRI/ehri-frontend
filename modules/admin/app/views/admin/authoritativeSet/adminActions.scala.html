@@ -24,10 +24,9 @@
             <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
         }
     }
-    @if(item.childCount.getOrElse(0) > 0) {
+    @if(item.hasChildren) {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.sets.routes.AuthoritativeSets.export(item.id)?format=eac">@Messages("export.format.eac")
-            </a>
+            <a href="@controllers.sets.routes.AuthoritativeSets.export(item.id)?format=eac">@Messages("export.format.eac")</a>
         }
     }
 }
