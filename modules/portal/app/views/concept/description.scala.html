@@ -1,11 +1,11 @@
-@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation], visible: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldPrefix: String)
+@(item: Concept, desc: ConceptDescriptionF, annotations: Seq[Annotation], visible: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldPrefix: String)
 
 @import ConceptF._
 @import views.html.common.descriptionSection
 @import views.html.common.textField
 @import views.html.common.listField
 
-@views.html.common.descriptionOutline(item, desc, annotations, visible) {
+@views.html.common.descriptionOutline(item, desc, annotations, visible, showAnnotations = false) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
@@ -16,10 +16,6 @@
             @listField(item, descId, DEFINITION, desc.definition)
             @listField(item, descId, SCOPENOTE, desc.scopeNote)
             @listField(item, descId, SEEALSO, item.data.seeAlso)
-
-            @descriptionSection(ACCESS_POINTS) {
-                @views.html.common.accessPointLinks(item, desc, links)
-            }
         }
     }
 }

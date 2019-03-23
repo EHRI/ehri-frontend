@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, desc: models.base.Description, annotations: Seq[Annotation], visible: Boolean = true)(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.DescribedModel, desc: models.base.Description, annotations: Seq[Annotation], visible: Boolean = true, showAnnotations: Boolean = true)(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.base.Description.CreationProcess
 
@@ -12,7 +12,9 @@
                 @Messages("documentaryUnit.creationProcess.IMPORT.disclaimer")
                 </div>
             }
-            @views.html.common.descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
+            @if(showAnnotations) {
+                @views.html.common.descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
+            }
         </div>
     </div>
 </div>

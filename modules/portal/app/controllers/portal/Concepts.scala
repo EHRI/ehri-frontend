@@ -1,10 +1,12 @@
 package controllers.portal
 
+import akka.stream.Materializer
 import javax.inject.{Inject, Singleton}
 import controllers.AppComponents
 import controllers.generic.Search
-import controllers.portal.base.{Generic, PortalController}
+import controllers.portal.base.{Generic, PortalController, Related}
 import models.Concept
+import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.CypherService
 import services.search._
@@ -17,8 +19,10 @@ case class Concepts @Inject()(
   appComponents: AppComponents,
   cypher: CypherService,
   fc: FacetConfig
-) extends PortalController
+)(implicit val mat: Materializer)
+  extends PortalController
   with Generic[Concept]
+  with Related[Concept]
   with Search {
 
   private def filterKey(implicit request: RequestHeader): String =
@@ -33,10 +37,12 @@ case class Concepts @Inject()(
     }
   }
 
-  def browse(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
-    findType[Concept](params, paging, filters = Map(filterKey -> id), sort = SearchSort.Name).map { result =>
-      Ok(views.html.concept.show(request.item, result,
-        portalConceptRoutes.browse(id), request.annotations, request.links, request.watched, dlid))
+  def browse(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemRelatedAction(id).async { implicit request =>
+    find[Model](params, paging, idFilters = Some(request.links), sort = SearchSort.Name).map { result =>
+      if (isAjax) Ok(views.html.common.search.searchItemList(result, request.watched))
+        .withHeaders("more" -> result.page.hasMore.toString)
+      else Ok(views.html.concept.show(request.item, request.annotations, result,
+        portalConceptRoutes.browse(id), request.watched, dlid, request.links.nonEmpty))
     }
   }
 

@@ -6,6 +6,13 @@
   overflow: hidden;
 }
 
+#description-switcher-toggle > label {
+  float: left;
+  padding-right: 10px;
+  cursor: pointer;
+  max-width: 95%;
+}
+
 
 .vertical-navbar {
   width: 200px;

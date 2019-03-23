@@ -1,14 +1,11 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: HistoricalAgent, annotations: Seq[Annotation], result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @defining("historicalAgent") { implicit fieldPrefix =>
     @defining(item.data.descriptionsWithSelected()) { descriptions =>
         @views.html.common.descriptionContainer(descriptions) {
             @descriptions.map { case (desc, _) =>
-                @views.html.historicalAgent.description(item, desc, links, annotations)
+                @views.html.historicalAgent.description(item, desc, annotations)
             }
-
-            @views.html.common.externalLinks(item, links)
-            @views.html.common.annotationLinks(item, links)
         } {
             @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {

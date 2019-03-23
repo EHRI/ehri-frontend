@@ -33,10 +33,9 @@
             <a href="@controllers.portal.routes.Repositories.export(item.id)">@Messages("export.format.eag")
             </a>
         }
-        @if(item.childCount.getOrElse(0) > 0) {
+        @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">@Messages("export.format.ead")
-                </a>
+                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">@Messages("export.format.ead")</a>
             }
         }
     }

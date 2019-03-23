@@ -108,7 +108,7 @@ trait Search extends CoreActionBuilders {
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     sort: SearchSort.Value = SearchSort.DateNewest,
-    idFilters: Seq[String] = Seq.empty,
+    idFilters: Option[Seq[String]] = None,
     entities: Seq[EntityType.Value] = Nil,
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
@@ -149,7 +149,6 @@ trait Search extends CoreActionBuilders {
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     sort: SearchSort.Value = SearchSort.DateNewest,
-    idFilters: Seq[String] = Seq.empty,
     entities: Seq[EntityType.Value] = Nil,
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll)(
@@ -157,7 +156,7 @@ trait Search extends CoreActionBuilders {
 
     val query = queryFromRequest(params.copy(entities = entities), paging, sort, facetBuilder).copy(
       filters = filters,
-      withinIds = items.map(_.id),
+      withinIds = Some(items.map(_.id)),
       extraParams =  extra,
       mode = mode
     )
@@ -177,7 +176,7 @@ trait Search extends CoreActionBuilders {
     filters: Map[String, Any] = Map.empty,
     extra: Map[String, Any] = Map.empty,
     sort: SearchSort.Value = SearchSort.DateNewest,
-    idFilters: Seq[String] = Seq.empty,
+    idFilters: Option[Seq[String]] = None,
     facetBuilder: FacetBuilder = emptyFacets,
     mode: SearchMode.Value = SearchMode.DefaultAll,
     resolverOpt: Option[SearchItemResolver] = None)(

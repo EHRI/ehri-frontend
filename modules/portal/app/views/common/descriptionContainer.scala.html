@@ -1,22 +1,54 @@
-@(descriptions: Seq[(models.base.Description,Boolean)])(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(descriptions: Seq[(models.base.Description,Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple.text")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 <article class="double descriptions">
     <aside class="right-sidebar description-sidebar">
         @sidebarBefore
         @if(descriptions.size > 1) {
-        <div class="sidebar-section">
-            <header class="sidebar-section-heading">@Messages("description.multiple.text")</header>
-            <div class="list-group description-switcher">
-                @descriptions.map { case (desc, selected) =>
-                    <a class="list-group-item description-switch @{if(selected) "active"}"
-                        title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
-                        href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
-                        data-id="@desc.localId">
-                        @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
-                    </a>
-                }
-            </div>
-        </div>
+            @if(dropdown) {
+                <div class="panel-details">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">@Messages(labelKey)</h3>
+                    </div>
+                    <div class="panel-body dropdown">
+                        <div class="dropdown-toggle" type="button" id="description-switcher-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <label>
+                                @descriptions.find(_._2).map { case (desc, _) =>
+                                    @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                                }.getOrElse {
+                                    @Messages(labelKey)
+                                }
+                            </label>
+                            <span class="caret"></span>
+                        </div>
+                        <ul class="dropdown-menu" aria-labelledby="description-switcher-toggle">
+                        @descriptions.map { case (desc, selected) =>
+                        <li>
+                            <a class="description-switch @{if(selected) "active"}"
+                            title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                            href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
+                            data-id="@desc.localId">
+                                @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                        </a>
+                        </li>
+                        }
+                        </ul>
+                    </div>
+                </div>
+            } else {
+                <div class="sidebar-section">
+                    <header class="sidebar-section-heading">@Messages(labelKey)</header>
+                    <nav class="list-group description-switcher">
+                        @descriptions.map { case (desc, selected) =>
+                            <a class="list-group-item description-switch @{if(selected) "active"}"
+                                title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                                href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
+                                data-id="@desc.localId">
+                                @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                            </a>
+                        }
+                    </nav>
+                </div>
+            }
         }
 
         @sidebarAfter

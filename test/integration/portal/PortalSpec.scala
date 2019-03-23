@@ -130,6 +130,13 @@ class PortalSpec extends IntegrationTestRunner {
       status(doc) must equalTo(OK)
     }
 
+    "view historical agent related items" in new ITestApp {
+      // NB: we need to be a privileges user here since connected items are restricted
+      val doc = FakeRequest(controllers.portal.routes.HistoricalAgents.browse("a1")).withUser(privilegedUser).call()
+      contentAsString(doc) must contain(controllers.portal.routes.DocumentaryUnits.browse("c1").url)
+      contentAsString(doc) must contain(controllers.portal.routes.DocumentaryUnits.browse("c3").url)
+    }
+
     "export historical agents as EAC" in new ITestApp {
       val eac = FakeRequest(controllers.portal.routes.HistoricalAgents.export("a1")).call()
       status(eac) must equalTo(OK)

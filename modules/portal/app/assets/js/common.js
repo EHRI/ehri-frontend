@@ -61,8 +61,14 @@ jQuery(function($) {
       }
 
       // Set the active class on the current description
-      $(".description-switch[data-id='" + descId + "']").addClass("active");
-      $(".description-switch[data-id!='" + descId + "']").removeClass("active");
+      var $active = $(".description-switch[data-id='" + descId + "']"),
+          $inactive = $(".description-switch[data-id!='" + descId + "']");
+
+      $active.addClass("active");
+      $inactive.removeClass("active");
+
+      // Set the label if we're using a dropdown..
+      $("#description-switcher-toggle > label").text($active.text());
     });
 
   }
@@ -96,9 +102,9 @@ jQuery(function($) {
   });
 
   // Inline tree navigation
-  // Add inline load class to all child-count items
+  // Add inline load class to all item-children items
   function addInlineLoadLinks(scope) {
-    $(".child-count > a.child-items-inline-load.collapsed", scope)
+    $(".item-children > a.child-items-inline-load.collapsed", scope)
         .map(function () {
           $(this)
               .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));
@@ -137,7 +143,7 @@ jQuery(function($) {
   $(document).on("click", "a.child-items-inline-list-more", function(e) {
     e.preventDefault();
     var $self = $(this),
-        url = this.href;
+      url = this.href;
     $self.addClass("loading").removeAttr("href");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
@@ -145,6 +151,29 @@ jQuery(function($) {
       addInlineLoadLinks($items);
       $self.removeClass("loading").attr("href", url);
       $self.parent().find("> .child-items-inline-list").append($items);
+      $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val) {
+        return param + (parseInt(val) +  1);
+      }));
+      if (!more) {
+        $self.hide();
+      }
+    })
+  });
+
+  // load more content in a long list 2 FIXME DUP
+  $(document).on("click", "a.search-item-list-more", function(e) {
+    e.preventDefault();
+    var $self = $(this),
+        url = this.href;
+    $self.addClass("loading").removeAttr("href");
+    $.get(url, function(data, _, res) {
+      var more = res.getResponseHeader("more") === true.toString();
+      var $items = $("> li", $.parseHTML(data, false));
+      addInlineLoadLinks($items);
+      $self.removeClass("loading").attr("href", url);
+      $self.parent().find("> .search-result-list").append($items);
+      // TODO: does changing history make sense here?
+      //history.replaceState({}, "Next page", url);
       $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val) {
         return param + (parseInt(val) +  1);
       }));

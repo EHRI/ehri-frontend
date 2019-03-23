@@ -97,7 +97,7 @@ case class MockSearchEngine @Inject()(
     paramLog.log(ParamLog(query.params, query.appliedFacets, query.facetClasses, query.filters))
     lookupItems(query.params.entities, query.user).map { items =>
       val hits = items.map(modelToSearchHit)
-      val withIds = hits.filter(h => query.withinIds.isEmpty || query.withinIds.contains(h.itemId))
+      val withIds = hits.filter(h => query.withinIds.isEmpty || query.withinIds.toSeq.flatten.contains(h.itemId))
       SearchResult(Page(
         offset = query.paging.offset,
         limit = query.paging.limit,

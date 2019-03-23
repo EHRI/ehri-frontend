@@ -158,6 +158,11 @@ trait Holder[+T] extends Model {
    */
   def childCount: Option[Int] =
     meta.value.get(Entity.CHILD_COUNT).flatMap(_.asOpt[Int])
+
+  /**
+    * Whether this item has children.
+    */
+  def hasChildren: Boolean = childCount.exists(_ > 0)
 }
 
 trait Hierarchical[+C <: Hierarchical[C]] extends Model {

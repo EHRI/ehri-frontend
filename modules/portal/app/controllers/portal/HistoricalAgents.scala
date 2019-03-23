@@ -1,16 +1,17 @@
 package controllers.portal
 
-import javax.inject.{Inject, Singleton}
-
-import services.cypher.CypherService
+import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.generic.Search
-import controllers.portal.base.{Generic, PortalController}
+import controllers.portal.base.{Generic, PortalController, Related}
 import defines.EntityType
+import javax.inject.{Inject, Singleton}
 import models.HistoricalAgent
+import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import services.cypher.CypherService
+import services.search.{SearchParams, SearchSort}
 import utils.PageParams
-import services.search.SearchParams
 
 
 @Singleton
@@ -19,8 +20,10 @@ case class HistoricalAgents @Inject()(
   appComponents: AppComponents,
   cypher: CypherService,
   fc: FacetConfig
-) extends PortalController
+)(implicit val mat: Materializer)
+  extends PortalController
   with Generic[HistoricalAgent]
+  with Related[HistoricalAgent]
   with Search {
 
   private val portalAgentRoutes = controllers.portal.routes.HistoricalAgents
@@ -32,8 +35,12 @@ case class HistoricalAgents @Inject()(
     }
   }
 
-  def browse(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
-    Ok(views.html.historicalAgent.show(request.item, request.annotations, request.links, request.watched))
+  def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemRelatedAction(id).async { implicit request =>
+    find[Model](params, paging, idFilters = Some(request.links),
+        facetBuilder = fc.globalSearchFacets, sort = SearchSort.Name).map { result =>
+      Ok(views.html.historicalAgent.show(request.item, request.annotations, result,
+        portalAgentRoutes.browse(id), request.watched, request.links.nonEmpty))
+    }
   }
 
   def export(id: String, asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>

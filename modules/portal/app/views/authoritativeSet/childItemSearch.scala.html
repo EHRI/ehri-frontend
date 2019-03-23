@@ -1,11 +1,12 @@
 @(item: AuthoritativeSet, result: services.search.SearchResult[(HistoricalAgent,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-@if(item.childCount.getOrElse(0) > 0) {
-    <div id="@item.id-child-item-search" class="child-item-search">
-    @views.html.common.search.searchForm(result, action, key = "", autofocus = false) {
-        @views.html.common.search.searchItemList(result, watched)
-    } {
-        @views.html.common.search.facetList(result.facetClasses, action)
-    }
-    </div>
+@if(item.hasChildren) {
+    <section id="@item.id-child-item-search" class="child-item-search">
+        <h3>@Messages("authoritativeSet.childItems", result.page.total)</h3>
+        @views.html.common.search.searchForm(result, action, key = Messages("authoritativeSet.searchItems", item.toStringLang), autofocus = false) {
+            @views.html.common.search.searchItemList(result, watched)
+        } {
+            @views.html.common.search.facetList(result.facetClasses, action)
+        }
+    </section>
 }

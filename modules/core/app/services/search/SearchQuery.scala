@@ -11,7 +11,7 @@ case class SearchQuery(
   params: SearchParams = SearchParams.empty,
   paging: PageParams = PageParams.empty,
   filters: Map[String, Any] = Map.empty,
-  withinIds: Seq[String] = Seq.empty,
+  withinIds: Option[Seq[String]] = None,
   appliedFacets: Seq[AppliedFacet] =  Seq.empty,
   facetClasses: Seq[FacetClass[Facet]] = Seq.empty,
   extraParams: Map[String, Any] = Map.empty,

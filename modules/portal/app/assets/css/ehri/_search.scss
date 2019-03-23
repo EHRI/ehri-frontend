@@ -26,7 +26,7 @@
 }
 
 /** child items */
-.search-item-body .child-count > a {
+.item-children > a {
   font-size: $font-size-small;
   padding-right: $large-padding; //$medium-padding + $small-padding;
   font-weight: lighter;
@@ -233,4 +233,12 @@ em.highlight {
   }
 }
 
-
+.search-item-list-more {
+  @extend .btn, .btn-default;
+  width: 100%;
+  &:hover {
+    text-decoration: none;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+  }
+}
