@@ -9,8 +9,10 @@
                 @formHelpers.csrfToken()
 
                 @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-                @helper.repeat(f("descriptions"), min = 0) { desc =>
-                    @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                @helper.repeatWithIndex(f("descriptions"), min = 0) { (desc, i) =>
+                    @if(i < item.descriptions.length) {
+                        @views.html.admin.documentaryUnit.hiddenDescriptionForm(desc)
+                    }
                 }
                 @views.html.admin.documentaryUnit.descriptionForm(f("descriptions[" + item.descriptions.length + "]"))
 
