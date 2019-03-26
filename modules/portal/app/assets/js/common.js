@@ -1,7 +1,18 @@
 
 jQuery(function($) {
 
-  var FB_REDIRECT_HASH = "#_=_";
+  // https://stackoverflow.com/a/20420424/285374
+  function replaceUrlParam(url, paramName, paramValue) {
+    if (paramValue == null) {
+      paramValue = '';
+    }
+    var pattern = new RegExp('\\b(' + paramName + '=).*?(&|#|$)');
+    if (url.search(pattern) >= 0) {
+      return url.replace(pattern, '$1' + paramValue + '$2');
+    }
+    url = url.replace(/[?#]$/, '');
+    return url + (url.indexOf('?') > 0 ? '&' : '?') + paramName + '=' + paramValue;
+  }
 
   /**
    * Description viewport code. This fixes a viewport to a list
@@ -9,72 +20,52 @@ jQuery(function($) {
    * at any time.
    */
 
-    // HACK! If there's a description viewport, disable jumping
-    // to the element on page load... this is soooo horrible.
-
   /**
    * Determine if the fragment refers to a description element.
    */
   function isDescriptionRef(descId) {
     // NB: The _=_ is what Facebook adds to Oauth login redirects
-    return descId
-        && descId !== FB_REDIRECT_HASH
+    return descId.length > 6
+        && descId.substr(0, 6) === "#desc-"
         && $(descId).hasClass("description-holder");
   }
 
-  setTimeout(function() {
-    if (isDescriptionRef(location.hash)) {
-      window.scrollTo(0, 0);
-    }
-  }, 0);
+  // Backwards compatibility with old hash-based description
+  // targeting
+  if (isDescriptionRef(location.hash)) {
+    var descId = location.hash;
+    location.hash = "";
+    switchDescription(descId.substr(6));
+  }
 
+  // Switch description when user clicks on side panel
   $(document).on("click", ".description-switch", function(e) {
     e.preventDefault();
-    var descId = "#desc-" + $(this).data("id");
-    location.hash = descId;
-    switchDescription(descId);
+    switchDescription($(this).data("id"));
   });
 
   function switchDescription(descId) {
+    if (!descId) return;
+
     $(".description-viewport").each(function(i, elem) {
 
       var $vp = $(elem);
       var $descs = $vp.find(".description-holder");
+      var newUrl = replaceUrlParam(location.href, "dlid", descId);
+      history.replaceState({}, "Description", newUrl);
 
-      // If the hash isn't set, default to the first element
-      if (!descId) {
-        descId = "#" + $descs.first().attr("id");
+      var $theitem = $('#desc-' + descId, $vp);
+      if ($theitem.length > 0) {
+        $theitem.show();
+        $descs.not($theitem).hide();
       }
 
-      var $theitem = $(descId, $vp);
-
-      $theitem.show();
-
-      $descs.not($theitem).hide();
-
       // Set the active class on the current description
-      $(".description-switch[href='" + descId + "']").addClass("active")
-      $(".description-switch[href!='" + descId + "']").removeClass("active")
+      $(".description-switch[data-id='" + descId + "']").addClass("active");
+      $(".description-switch[data-id!='" + descId + "']").removeClass("active");
     });
 
   }
-
-  function collapseDescriptions() {
-    if (isDescriptionRef(location.hash)) {
-      switchDescription(location.hash);
-    } else {
-      switchDescription();
-    }
-  }
-
-  if (window.History && window.History.Adapter) {
-    window.History.Adapter.bind(window, 'hashchange', collapseDescriptions);
-  }
-
-  // Trigger a change on initial load...
-  collapseDescriptions();
-
-  $(document).on("description.change", collapseDescriptions);
 
   /**
    * Select2 handling

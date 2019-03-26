@@ -32,11 +32,11 @@ case class VirtualUnits @Inject()(
 
   private val vuRoutes = controllers.portal.routes.VirtualUnits
 
-  def browseVirtualCollection(id: String): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
+  def browseVirtualCollection(id: String, dlid: Option[String]): Action[AnyContent] = GetItemAction(id).apply { implicit request =>
     if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(
-      request.item, request.annotations, request.links, request.watched))
+      request.item, request.annotations, request.links, request.watched, dlid))
     else Ok(views.html.virtualUnit.show(
-      request.item, request.annotations, request.links, request.watched))
+      request.item, request.annotations, request.links, request.watched, dlid))
   }
 
   def searchVirtualCollection(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
@@ -79,7 +79,7 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def browseVirtualUnit(pathStr: String, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def browseVirtualUnit(pathStr: String, id: String, dlid: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
     val pathF: Future[Seq[Model]] = userDataApi.fetch[Model](pathIds).map(_.collect{ case Some(m) => m})
     val itemF: Future[Model] = userDataApi.getAny[Model](id)
@@ -93,8 +93,8 @@ case class VirtualUnits @Inject()(
       annotations <- annsF
       path <- pathF
     } yield {
-      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(item, annotations, links, watched, path :+ item))
-      else Ok(views.html.virtualUnit.show(item, annotations, links, watched, path))
+      if (isAjax) Ok(views.html.virtualUnit.itemDetailsVc(item, annotations, links, watched, dlid, path :+ item))
+      else Ok(views.html.virtualUnit.show(item, annotations, links, watched, dlid, path))
     }
   }
 

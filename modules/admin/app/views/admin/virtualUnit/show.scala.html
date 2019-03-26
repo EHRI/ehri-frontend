@@ -1,4 +1,4 @@
-@(item: VirtualUnit, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], path: Seq[models.base.Model] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: VirtualUnit, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], dlid: Option[String], path: Seq[models.base.Model] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @views.html.admin.virtualUnit.vcHeader(item, path)
@@ -6,26 +6,28 @@
     @common.mainContent {
         @common.itemDetails {
             @defining("documentaryUnit") { implicit fieldPrefix =>
-                @common.descriptionContainer(item.data.descriptions) {
-                    @if(item.data.descriptions.isEmpty) {
-                        <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
-                        <a href="@controllers.virtual.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
+                @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
+                    @common.descriptionContainer(descriptions) {
+                        @if(descriptions.isEmpty) {
+                            <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
+                            <a href="@controllers.virtual.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
-                        </a>
-                    } else {
-                        @item.data.descriptions.map { desc =>
-                            @views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                            </a>
+                        } else {
+                            @descriptions.map { case (desc, selected) =>
+                                st@views.html.admin.documentaryUnit.description(item, desc, links, annotations, actions = descriptionActions(item, desc), visible = selected)
+                            }
                         }
+
+                        @views.html.admin.link.annotationLinks(item, links)
+                        @views.html.admin.link.externalLinks(item, links)
+                    } {
+
+                    } {
+                        @views.html.admin.common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
+                        @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), defines.ContentTypes.VirtualUnit)
+                        @views.html.admin.virtualUnit.adminActions(item)
                     }
-
-                    @views.html.admin.link.annotationLinks(item, links)
-                    @views.html.admin.link.externalLinks(item, links)
-                } {
-
-                } {
-                    @views.html.admin.common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
-                    @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), defines.ContentTypes.VirtualUnit)
-                    @views.html.admin.virtualUnit.adminActions(item)
                 }
 
                 @views.html.common.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {

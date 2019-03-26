@@ -1,9 +1,9 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], selected: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.IsadG._
 @import views.html.common.{descriptionSection, textField, listField}
 
-@views.html.common.descriptionOutline(item, desc, annotations) {
+@views.html.common.descriptionOutline(item, desc, annotations, selected) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
             @views.html.common.itemHeader(desc.name) {

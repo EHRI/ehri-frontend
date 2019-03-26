@@ -190,6 +190,8 @@ trait Description extends ModelData {
 
   def languageCode: String
 
+  def languageCode2: String = utils.i18n.lang3to2lookup.getOrElse(languageCode, languageCode)
+
   def accessPoints: Seq[AccessPointF]
 
   def maintenanceEvents: Seq[MaintenanceEventF]
@@ -300,10 +302,38 @@ trait Described extends ModelData {
     descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
   }
 
-  def orderedDescriptions(implicit messages: Messages): Seq[D] = {
+  /**
+    * List descriptions with the current language first, if possible.
+    *
+    * @param messages the current i18n messages
+    * @return a list of descriptions
+    */
+  def currentLangFirstDescriptions(implicit messages: Messages): Seq[D] = {
     val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     val (matchLang, others) = descriptions.partition(_.languageCode == code3)
     matchLang ++ others
+  }
+
+  /**
+    * List descriptions ordered by their local identifier.
+    *
+    * @return a list of descriptions
+    */
+  def orderedDescriptions: Seq[D] = descriptions.sortBy(_.localId)
+
+  /**
+    * List ordered descriptions with a boolean indicated that
+    * one matches the given local ID. The selected description
+    * is the first if none match the ID.
+    *
+    * @param localId the selected local ID
+    * @return a
+    */
+  def descriptionsWithSelected(localId: Option[String] = None): Seq[(D, Boolean)] = {
+    val idx = orderedDescriptions.indexWhere(_.localId == localId)
+    orderedDescriptions.zipWithIndex.map { case (desc, i) =>
+      desc -> ((i == 0 && idx == -1) || i == idx)
+    }
   }
 
   /**

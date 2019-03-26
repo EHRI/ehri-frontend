@@ -45,8 +45,8 @@
     <article class="description-viewport">
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(annotations) { implicit annotations =>
-            @item.data.descriptions.map { desc =>
-                @views.html.documentaryUnit.description(item, desc, links, annotations)
+            @item.data.descriptions.zipWithIndex.map { case (desc, i) =>
+                @views.html.documentaryUnit.description(item, desc, links, annotations, i == 0)
             }
         }
     }

@@ -1,8 +1,8 @@
-@(item: models.base.DescribedModel, desc: models.base.Description, annotations: Seq[Annotation])(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.DescribedModel, desc: models.base.Description, annotations: Seq[Annotation], visible: Boolean = true)(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.base.Description.CreationProcess
 
-<div class="description-holder" id="desc-@desc.localId">
+<div class="description-holder @{if(!visible) "inactive"}" id="desc-@desc.localId" lang="@desc.languageCode2">
     <div class="description @desc.isA" id="@desc.id">
         @html
 

@@ -73,7 +73,7 @@ object JsonApiV1 {
       new DocumentaryUnitAttrs(
         localId = d.data.identifier,
         alternateIds = d.data.otherIdentifiers.getOrElse(Seq.empty),
-        descriptions = d.data.orderedDescriptions.map(DocumentaryUnitDescriptionAttrs.apply)
+        descriptions = d.data.currentLangFirstDescriptions.map(DocumentaryUnitDescriptionAttrs.apply)
       )
   }
 

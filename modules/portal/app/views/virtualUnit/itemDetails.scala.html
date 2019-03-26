@@ -1,27 +1,29 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @views.html.common.descriptionContainer(item.data.descriptions) {
-            @item.data.descriptions.map { desc =>
-                @views.html.documentaryUnit.description(item, desc, links, annotations)
-            }
-
-            @views.html.common.externalLinks(item, links)
-            @views.html.common.annotationLinks(item, links)
-        } {
-            @views.html.common.typeLabel(item.isA) {
-                @if(userOpt.isDefined) {
-                    <ul class="item-sidebar-actions list-group">
-                        <li class="list-group-item btn-group-justified watch-controls" role="group">
-                        @views.html.common.watchButtons(item, watched.contains(item.id))
-                        </li>
-                    </ul>
+        @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
+            @views.html.common.descriptionContainer(descriptions) {
+                @descriptions.map { case (desc, selected) =>
+                    @views.html.documentaryUnit.description(item, desc, links, annotations, selected)
                 }
+
+                @views.html.common.externalLinks(item, links)
+                @views.html.common.annotationLinks(item, links)
+            } {
+                @views.html.common.typeLabel(item.isA) {
+                    @if(userOpt.isDefined) {
+                        <ul class="item-sidebar-actions list-group">
+                            <li class="list-group-item btn-group-justified watch-controls" role="group">
+                            @views.html.common.watchButtons(item, watched.contains(item.id))
+                            </li>
+                        </ul>
+                    }
+                }
+            } {
+                @collectionContext(item, path)
+                @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
-        } {
-            @collectionContext(item, path)
-            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
 }

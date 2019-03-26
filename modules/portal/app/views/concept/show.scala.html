@@ -1,4 +1,4 @@
-@(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: Concept, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @extraCss = {
     @for(_ <- item.data.longitude ; _ <- item.data.latitude) {
@@ -16,6 +16,6 @@
     @infobar(item)
 
     @views.html.common.mainContent {
-        @itemDetails(item, result, action, annotations, links, watched)
+        @itemDetails(item, result, action, annotations, links, watched, dlid)
     }
 }

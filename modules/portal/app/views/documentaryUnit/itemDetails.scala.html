@@ -1,23 +1,25 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @views.html.common.descriptionContainer(item.data.descriptions) {
-            @item.data.descriptions.map { desc =>
-                @description(item, desc, links, annotations)
-            }
+        @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
+            @views.html.common.descriptionContainer(descriptions) {
+                @descriptions.map { case (desc, selected) =>
+                    @description(item, desc, links, annotations, selected)
+                }
 
-            @views.html.common.externalLinks(item, links)
-            @views.html.common.annotationLinks(item, links)
-        } {
-            @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
-        } {
-            @views.html.common.sidepanelToc {
-                @archivalContext(item)
-                @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
-                @views.html.common.exportItem(
-                    Map("ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true)))
-                @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                @views.html.common.externalLinks(item, links)
+                @views.html.common.annotationLinks(item, links)
+            } {
+                @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+            } {
+                @views.html.common.sidepanelToc {
+                    @archivalContext(item)
+                    @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
+                    @views.html.common.exportItem(
+                        Map("ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true)))
+                    @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+                }
             }
         }
     }

@@ -1,10 +1,12 @@
 @(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item) {
-    @defining(item.data.primaryDescription(descriptionId).flatMap(_.localId).map("#desc-" + _).getOrElse("")) { anchor =>
-        <a href="@{controllers.units.routes.DocumentaryUnits.get(item.id) + anchor}">
-            <span class="primary-identifier">@item.data.identifier</span> | @item.toStringLang
-        </a>
+    @item.data.primaryDescription(descriptionId).map { desc =>
+        @defining(if (item.descriptions.size > 1) desc.localId else None) { dlid =>
+            <a href="@controllers.units.routes.DocumentaryUnits.get(item.id, dlid)">
+                <span class="primary-identifier">@item.data.identifier</span> | @item.toStringLang
+            </a>
+        }
     }
 } {
     @item.data.primaryDescription(descriptionId).map { desc =>

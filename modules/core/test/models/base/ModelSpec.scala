@@ -102,7 +102,7 @@ class ModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
         data = testModel.data.copy(
           descriptions = testModel.data.descriptions.reverse))
       test.data.descriptions.headOption.map(_.languageCode) must beSome("fra")
-      test.data.orderedDescriptions(messagesApi.preferred(Seq(Lang("en"))))
+      test.data.currentLangFirstDescriptions(messagesApi.preferred(Seq(Lang("en"))))
                 .headOption.map(_.languageCode) must beSome("eng")
     }
 

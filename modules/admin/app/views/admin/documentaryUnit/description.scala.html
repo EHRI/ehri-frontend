@@ -1,10 +1,10 @@
-@(item: models.base.DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.IsadG._
 @import models.base.Description._
 @import views.html.admin.common.{descriptionSection,listValue,textValue,dateSet}
 
-@views.html.admin.common.descriptionOutline(item, desc, actions = actions) {
+@views.html.admin.common.descriptionOutline(item, desc, actions = actions, visible) {
     @views.html.admin.common.descriptionHeader(desc.name)
     @textValue(SOURCE_FILE_ID, desc.sourceFileId)
     @descriptionSection(IDENTITY_AREA) {

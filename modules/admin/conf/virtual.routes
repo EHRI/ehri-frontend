@@ -4,7 +4,7 @@ GET         /                                         @controllers.virtual.Virtu
 GET         /contents/:id                             @controllers.virtual.VirtualUnits.contentsOf(id: String)
 GET         /create                                   @controllers.virtual.VirtualUnits.create
 POST        /create                                   @controllers.virtual.VirtualUnits.createPost
-GET         /:id                                      @controllers.virtual.VirtualUnits.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:id                                      @controllers.virtual.VirtualUnits.get(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.virtual.VirtualUnits.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.virtual.VirtualUnits.delete(id: String)
 POST        /:id/delete                               @controllers.virtual.VirtualUnits.deletePost(id: String)
@@ -41,5 +41,5 @@ POST        /:id/linkjs/:accessPoint                  @controllers.virtual.Virtu
 GET         /:id/linkjs/:accessPoint                  @controllers.virtual.VirtualUnits.getLink(id: String, accessPoint: String)
 POST        /:id/linkjs                               @controllers.virtual.VirtualUnits.createMultipleLinks(id: String)
 POST        /:id/deleteLink/:link                     @controllers.virtual.VirtualUnits.deleteLink(id: String, link: String)
-GET         /:via/:id                                 @controllers.virtual.VirtualUnits.getInVc(via: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /:via/:id                                 @controllers.virtual.VirtualUnits.getInVc(via: String, id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
