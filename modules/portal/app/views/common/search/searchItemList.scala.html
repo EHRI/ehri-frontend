@@ -2,7 +2,7 @@
 
 <ol class="search-result-list">
     @result.page.map { case(item, hit) =>
-        @defining(result.params.query.map(_ => hit.id)) { implicit descriptionId =>
+        @defining(Some(hit.id)) { implicit descriptionId =>
             @defining(watched.contains(item.id)) { watched =>
             <li class="@itemClass">
                 @item match {

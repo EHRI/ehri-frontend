@@ -40,7 +40,7 @@ GET         /institutions/:id                     @controllers.portal.Repositori
 GET         /institutions/:id/search              @controllers.portal.Repositories.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /institutions/:id/export              @controllers.portal.Repositories.export(id: String, asFile: Boolean ?= false)
 GET         /units                                @controllers.portal.DocumentaryUnits.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /units/:id                            @controllers.portal.DocumentaryUnits.browse(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /units/:id                            @controllers.portal.DocumentaryUnits.browse(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /units/:id/search                     @controllers.portal.DocumentaryUnits.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /units/:id/export                     @controllers.portal.DocumentaryUnits.export(id: String, asFile: Boolean ?= false)
 
@@ -48,7 +48,7 @@ GET         /authorities                          @controllers.portal.Historical
 GET         /authorities/:id                      @controllers.portal.HistoricalAgents.browse(id: String)
 GET         /authorities/:id/export               @controllers.portal.HistoricalAgents.export(id: String, asFile: Boolean ?= false)
 GET         /keywords                             @controllers.portal.Concepts.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
+GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /keywords/:id/search                  @controllers.portal.Concepts.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /links/:id                            @controllers.portal.Links.browse(id: String)
 GET         /groups/:id                           @controllers.portal.Groups.browse(id: String)
@@ -67,10 +67,10 @@ GET         /item/:entityType/:id                 @controllers.portal.Portal.bro
 
 # Virtual Units
 GET         /virtual                              @controllers.portal.VirtualUnits.browseVirtualCollections(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /virtual/:id                          @controllers.portal.VirtualUnits.browseVirtualCollection(id: String)
+GET         /virtual/:id                          @controllers.portal.VirtualUnits.browseVirtualCollection(id: String, dlid: Option[String] ?= None)
 GET         /virtual/:id/search                   @controllers.portal.VirtualUnits.searchVirtualCollection(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
 GET         /virtual/:via/:id/search              @controllers.portal.VirtualUnits.searchVirtualUnit(via: String, id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
-GET         /virtual/:via/:id                     @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String)
+GET         /virtual/:via/:id                     @controllers.portal.VirtualUnits.browseVirtualUnit(via: String, id: String, dlid: Option[String] ?= None)
 
 # Bookmark Sets (user-friendly virtual units)
 GET         /bookmark/:id                         @controllers.portal.Bookmarks.bookmark(id: String, bsId: Option[String] ?= None)

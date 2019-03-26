@@ -43,13 +43,13 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
-    if (isAjax) immediate(Ok(views.html.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched)))
+  def browse(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+    if (isAjax) immediate(Ok(views.html.documentaryUnit.itemDetails(request.item, request.annotations, request.links, request.watched, dlid)))
     else findType[DocumentaryUnit](params, paging,
       filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
       Ok(views.html.documentaryUnit.show(request.item, result, request.annotations,
-        request.links, portalDocRoutes.search(id), request.watched))
+        request.links, portalDocRoutes.search(id), request.watched, dlid))
     }
   }
 

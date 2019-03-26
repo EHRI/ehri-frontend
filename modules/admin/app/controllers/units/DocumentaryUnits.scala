@@ -116,11 +116,11 @@ case class DocumentaryUnits @Inject()(
       }
     }
 
-  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+  def get(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging, filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
       Ok(views.html.admin.documentaryUnit.show(request.item, result,
-        docRoutes.get(id), request.annotations, request.links))
+        docRoutes.get(id), request.annotations, request.links, dlid))
           .withPreferences(preferences.withRecentItem(id))
     }
   }

@@ -116,18 +116,18 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+  def get(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
       result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       Ok(views.html.admin.virtualUnit.show(request.item, result,
-        vuRoutes.get(id), request.annotations, request.links, Seq.empty))
+        vuRoutes.get(id), request.annotations, request.links, dlid, Seq.empty))
     }
   }
 
-  def getInVc(pathStr: String, id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def getInVc(pathStr: String, id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val pathIds = pathStr.split(",").toSeq
 
     val pathF: Future[Seq[Model]] = Future.sequence(pathIds.map(pid => userDataApi.getAny[Model](pid)))
@@ -144,7 +144,7 @@ case class VirtualUnits @Inject()(
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield Ok(views.html.admin.virtualUnit.showVc(
       item, children,
-      vuRoutes.getInVc(id, pathStr), annotations, links, path))
+      vuRoutes.getInVc(id, pathStr), annotations, links, dlid, path))
   }
 
   def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>

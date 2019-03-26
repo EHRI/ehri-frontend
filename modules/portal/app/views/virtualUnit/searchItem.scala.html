@@ -26,22 +26,20 @@
     }
 }
 
-
-
 <div class="search-item" id="@item.id">
-        <div class="search-item-actions">
-            @views.html.common.watchButtonsSmall(item, watched)
-        </div>
-        <h3 class="search-item-heading type-highlight @item.isA.toString">
-            <a class="@item.isA" href="@views.Helpers.virtualUnitUrl(path, item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
-        </h3>
-        <div class="search-item-body">
-            @views.html.virtualUnit.ifVirtual(item) { v =>
-                <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
-                @views.html.virtualUnit.listItemBody(v, path, highlighter = highlighter)
-            } { d =>
-                <ol class="breadcrumb">@wrapParent(d, path)</ol>
-                @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
-            }
-        </div>
+    <div class="search-item-actions">
+        @views.html.common.watchButtonsSmall(item, watched)
+    </div>
+    <h3 class="search-item-heading type-highlight @item.isA.toString">
+        <a class="@item.isA" href="@views.Helpers.virtualUnitUrl(path, item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
+    </h3>
+    <div class="search-item-body">
+        @views.html.virtualUnit.ifVirtual(item) { v =>
+            <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
+            @views.html.virtualUnit.listItemBody(v, path, highlighter = highlighter)
+        } { d =>
+            <ol class="breadcrumb">@wrapParent(d, path)</ol>
+            @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
+        }
+    </div>
 </div>

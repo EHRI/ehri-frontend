@@ -20,19 +20,21 @@
                     }
                     </span>
                 }
-                @common.descriptionContainer(item.data.descriptions) {
-                    @item.data.descriptions.map { desc =>
-                        @description(item, desc, links, annotations)
+                @defining(item.data.descriptionsWithSelected()) { descriptions =>
+                    @common.descriptionContainer(descriptions) {
+                        @descriptions.map { case (desc, _) =>
+                            @description(item, desc, links, annotations)
+                        }
+
+                        @views.html.admin.link.annotationLinks(item, links)
+                        @views.html.admin.link.externalLinks(item, links)
+                    } {
+
+                    } {
+                        @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
+                        @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
+                        @adminActions(item)
                     }
-
-                    @views.html.admin.link.annotationLinks(item, links)
-                    @views.html.admin.link.externalLinks(item, links)
-                } {
-
-                } {
-                    @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
-                    @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
-                    @adminActions(item)
                 }
 
                 @views.html.common.search.searchSection(item, Messages("repository.searchInside", item.toStringAbbr(messages)), result) {

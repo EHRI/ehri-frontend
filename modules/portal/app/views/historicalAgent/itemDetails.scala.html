@@ -1,18 +1,20 @@
 @(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @defining("historicalAgent") { implicit fieldPrefix =>
-    @views.html.common.descriptionContainer(item.data.descriptions) {
-        @item.data.descriptions.map { desc =>
-            @views.html.historicalAgent.description(item, desc, links, annotations)
-        }
+    @defining(item.data.descriptionsWithSelected()) { descriptions =>
+        @views.html.common.descriptionContainer(descriptions) {
+            @descriptions.map { case (desc, _) =>
+                @views.html.historicalAgent.description(item, desc, links, annotations)
+            }
 
-        @views.html.common.externalLinks(item, links)
-        @views.html.common.annotationLinks(item, links)
-    } {
-        @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
-    } {
-        @views.html.common.exportItem(
-            Map("eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)))
-        @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+            @views.html.common.externalLinks(item, links)
+            @views.html.common.annotationLinks(item, links)
+        } {
+            @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
+        } {
+            @views.html.common.exportItem(
+                Map("eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)))
+            @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
+        }
     }
 }

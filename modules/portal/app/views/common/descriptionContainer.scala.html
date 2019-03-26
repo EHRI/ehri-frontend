@@ -1,4 +1,4 @@
-@(descriptions: Seq[models.base.Description])(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(descriptions: Seq[(models.base.Description,Boolean)])(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 <article class="double descriptions">
     <aside class="right-sidebar description-sidebar">
@@ -7,9 +7,11 @@
         <div class="sidebar-section">
             <header class="sidebar-section-heading">@Messages("description.multiple.text")</header>
             <div class="list-group description-switcher">
-                @descriptions.map { desc =>
-                    <a class="list-group-item description-switch"
-                        title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name" href="#desc-@desc.localId" data-id="@desc.localId">
+                @descriptions.map { case (desc, selected) =>
+                    <a class="list-group-item description-switch @{if(selected) "active"}"
+                        title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                        href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
+                        data-id="@desc.localId">
                         @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
                     </a>
                 }

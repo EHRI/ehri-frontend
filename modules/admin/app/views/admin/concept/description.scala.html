@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Concept, desc: ConceptDescriptionF, links: Seq[Link], annotations: Seq[Annotation], visible: Boolean)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import ConceptF._
 
@@ -15,7 +15,7 @@
     </dd>
 }
 
-@views.html.admin.common.descriptionOutline(item, desc) {
+@views.html.admin.common.descriptionOutline(item, desc, visible = visible) {
     @views.html.admin.common.descriptionHeader(desc.name)
     <dl class="dl-horizontal">
         <dt>@Messages(prefix + "." + PREFLABEL)</dt>

@@ -12,22 +12,23 @@
 }
 
 @item.data.primaryDescription(descriptionId).map { desc =>
-    @defining(desc.localId.map("#desc-" + _).getOrElse("")) { anchor =>
-        @defining(views.Helpers.textDirection(desc)) { dir =>
-            <div class="search-item" id="@item.id" dir="@dir">
-                <div class="search-item-actions">
+    @defining(views.Helpers.textDirection(desc)) { dir =>
+        <div class="search-item" id="@item.id" dir="@dir">
+            <div class="search-item-actions">
                 @views.html.common.watchButtonsSmall(item, watched)
-                </div>
-                <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
-                @views.html.helpers.linkToWithFragment(item, fragment = anchor, content = Html(highlighter.highlight(desc.name)))
-                </h3>
-                <div class="search-item-body" dir="@dir">
-                    @if(item.parent.isDefined) {
-                        <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
-                    }
-                    @views.html.documentaryUnit.listItemBody(item, showRepository, highlighter = highlighter)
-                </div>
             </div>
-        }
+            <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
+                @defining(if (item.descriptions.size > 1) desc.localId else None) { localDescId =>
+                    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(desc.name)),
+                        call = Some(controllers.portal.routes.DocumentaryUnits.browse(item.id, localDescId)))
+                }
+            </h3>
+            <div class="search-item-body" dir="@dir">
+                @if(item.parent.isDefined) {
+                    <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
+                }
+                @views.html.documentaryUnit.listItemBody(item, showRepository, highlighter = highlighter)
+            </div>
+        </div>
     }
 }
