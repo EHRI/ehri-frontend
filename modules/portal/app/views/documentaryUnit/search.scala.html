@@ -1,9 +1,9 @@
-@(item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.itemSearchLayout(item.toStringLang, EntityType.DocumentaryUnit.toString, result) {
     @infobar(item)
 } {
-    @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.DocumentaryUnits.browse(item.id)) {
+    @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.DocumentaryUnits.browse(item.id, dlid)) {
         @views.html.common.itemHeader(item.toStringLang) {
         }
     }

@@ -53,7 +53,7 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, dlid: Option[String], params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging,
       filters = Map(filterKey -> request.item.id), facetBuilder = fc.localDocFacets,
       sort = SearchSort.Id).map { result =>
@@ -61,10 +61,10 @@ case class DocumentaryUnits @Inject()(
         if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
           .withHeaders("more" -> result.page.hasMore.toString)
         else Ok(views.html.documentaryUnit.childItemSearch(request.item, result,
-          portalDocRoutes.search(id), request.watched))
+          portalDocRoutes.search(id, dlid), request.watched))
       }
       else Ok(views.html.documentaryUnit.search(request.item, result,
-        portalDocRoutes.search(id), request.watched))
+        portalDocRoutes.search(id), request.watched, dlid))
     }
   }
 
