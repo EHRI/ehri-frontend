@@ -51,8 +51,8 @@ jQuery(function($) {
 
       var $vp = $(elem);
       var $descs = $vp.find(".description-holder");
-      var newUrl = replaceUrlParam(location.href, "dlid", descId);
-      history.replaceState({}, "Description", newUrl);
+      var oldUrl = location.pathname + location.search + location.hash;
+      var newUrl = replaceUrlParam(oldUrl, "dlid", descId);
 
       var $theitem = $('#desc-' + descId, $vp);
       if ($theitem.length > 0) {
@@ -69,6 +69,12 @@ jQuery(function($) {
 
       // Set the label if we're using a dropdown..
       $("#description-switcher-toggle > label").text($active.text());
+
+      // Swap URL and attributes referring to the old URL...
+      history.replaceState({}, "Description", newUrl);
+      $("form[action='" + oldUrl + "']").attr("action", newUrl);
+      $("a[href='" + oldUrl + "']").attr("href", newUrl);
+      $("input[name='dlid']").val(descId);
     });
 
   }

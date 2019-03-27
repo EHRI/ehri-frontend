@@ -10,6 +10,10 @@
             @common.search.searchSort(result.params)
         </div>
 
+        @req.getQueryString("dlid").map { did =>
+            <input type="hidden" name="dlid" value="@did"/>
+        }
+
         @common.search.selectedFacets(result.facetClasses, result.facets)
 
         @html

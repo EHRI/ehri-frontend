@@ -42,11 +42,11 @@ case class Concepts @Inject()(
       if (isAjax) Ok(views.html.common.search.searchItemList(result, request.watched))
         .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.concept.show(request.item, request.annotations, result,
-        portalConceptRoutes.browse(id), request.watched, dlid, request.links.nonEmpty))
+        portalConceptRoutes.browse(id, dlid), request.watched, dlid, request.links.nonEmpty))
     }
   }
 
-  def search(id: String, params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
+  def search(id: String, dlid: Option[String], params: SearchParams, paging: PageParams, inline: Boolean): Action[AnyContent] = GetItemAction(id).async { implicit request =>
     findType[Concept](params, paging, filters = Map(filterKey -> id), facetBuilder = fc.conceptFacets, sort = SearchSort.Name).map { result =>
       if (isAjax) {
         if (inline) Ok(views.html.common.search.inlineItemList(result, request.watched))
@@ -55,7 +55,7 @@ case class Concepts @Inject()(
           portalConceptRoutes.search(id), request.watched))
       }
       else Ok(views.html.concept.search(request.item, result,
-        portalConceptRoutes.search(id), request.watched))
+        portalConceptRoutes.search(id, dlid), request.watched, dlid))
     }
   }
 }

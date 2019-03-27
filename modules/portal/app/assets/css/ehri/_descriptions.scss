@@ -152,6 +152,15 @@
   }
 }
 
+.resolved-access-point a {
+  border-bottom: 1px dotted;
+
+  &:hover {
+    text-decoration: none;
+    border-bottom-style: solid;
+  }
+}
+
 .item-links {
   @include list-unstyled;
 }

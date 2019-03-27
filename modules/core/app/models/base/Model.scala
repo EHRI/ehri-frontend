@@ -334,11 +334,18 @@ trait Described extends ModelData {
     * @param localId the selected local ID
     * @return a
     */
-  def descriptionsWithSelected(localId: Option[String] = None): Seq[(D, Boolean)] = {
-    val idx = orderedDescriptions.indexWhere(_.localId == localId)
-    orderedDescriptions.zipWithIndex.map { case (desc, i) =>
-      desc -> ((i == 0 && idx == -1) || i == idx)
+  def descriptionsWithSelected(localId: Option[String] = None)(implicit messages: Messages): Seq[(D, Boolean)] = {
+    val descs = orderedDescriptions
+    // try and find a matching local ID, if we're given one
+    val didx = descs.indexWhere(d => d.localId == localId)
+    val idx = if (localId.isDefined && didx > -1) didx else {
+      // Try and find the first description with the current language
+      val cidx = descs.indexWhere(d => d.languageCode2 == messages.lang.code)
+      // Or fall back to the first description
+      if (cidx > -1) cidx else 0
     }
+
+    descs.zipWithIndex.map { case (desc, i) => desc -> (i == idx) }
   }
 
   /**
