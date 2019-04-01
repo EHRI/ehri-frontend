@@ -81,8 +81,8 @@ case class DatePeriodF(
   }
 
   private def formatDate(s: String): String = precision match {
-    case Some(DatePeriodF.DatePeriodPrecision.Year) => formatDateRaw(s.substring(0, 4))
-    case Some(DatePeriodF.DatePeriodPrecision.Month) => formatDateRaw(s.substring(0, 7))
+    case Some(DatePeriodF.DatePeriodPrecision.Year) if s.length >= 4 => formatDateRaw(s.substring(0, 4))
+    case Some(DatePeriodF.DatePeriodPrecision.Month) if s.length >= 7 => formatDateRaw(s.substring(0, 7))
     case _ => formatDateRaw(s)
   }
 
