@@ -36,8 +36,7 @@ case class HistoricalAgents @Inject()(
   }
 
   def browse(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemRelatedAction(id).async { implicit request =>
-    find[Model](params, paging, idFilters = Some(request.links),
-        facetBuilder = fc.globalSearchFacets, sort = SearchSort.Name).map { result =>
+    find[Model](params, paging, idFilters = Some(request.links), sort = SearchSort.Name, facetBuilder = fc.relatedSearchFacets).map { result =>
       Ok(views.html.historicalAgent.show(request.item, request.annotations, result,
         portalAgentRoutes.browse(id), request.watched, request.links.nonEmpty))
     }

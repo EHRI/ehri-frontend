@@ -38,7 +38,7 @@ case class Concepts @Inject()(
   }
 
   def browse(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = GetItemRelatedAction(id).async { implicit request =>
-    find[Model](params, paging, idFilters = Some(request.links), sort = SearchSort.Name).map { result =>
+    find[Model](params, paging, idFilters = Some(request.links), sort = SearchSort.Name, facetBuilder = fc.relatedSearchFacets).map { result =>
       if (isAjax) Ok(views.html.common.search.searchItemList(result, request.watched))
         .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.concept.show(request.item, request.annotations, result,

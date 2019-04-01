@@ -212,6 +212,27 @@ case class FacetConfig @Inject()(dateFacetUtils: DateFacetUtils)(implicit val me
     )
   }
 
+  val relatedSearchFacets: FacetBuilder = { implicit request =>
+    List(
+      FieldFacetClass(
+        key = LANGUAGE_CODE,
+        name = Messages("documentaryUnit." + LANGUAGE_CODE),
+        param = "lang",
+        render = (s: String) => Helpers.languageCodeToName(s),
+        display = FacetDisplay.List,
+        sort = FacetSort.Name,
+        limit = Some(50)
+      ),
+      FieldFacetClass(
+        key = HOLDER_NAME,
+        name = Messages("facet.holder"),
+        param = "holder",
+        displayLimit = 10,
+        limit = Some(500)
+      )
+    )
+  }
+
   // The facets for documents within a repository or another document shouldn't
   // contain the holder or country (since they'll be implied)
   def localDocFacets: RequestHeader => Seq[FacetClass[Facet]] = docSearchFacets.andThen(_.filterNot { fc =>
