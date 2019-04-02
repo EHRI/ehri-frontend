@@ -516,14 +516,21 @@ Vue.component("concept-data-editor", {
              </div>
           </div>
           <div id="concept-editor-descriptions">
-              <button v-if="!newDesc" class="btn btn-default pull-right" v-on:click="newDesc = true">
-                  <i class="fa fa-plus-circle"></i>
-              </button>
-              <button v-if="newDesc" class="btn btn-default pull-right" v-on:click="cancelDesc">
-                  <i class="fa fa-minus-circle"></i>
-              </button>
+              <div class="concept-editor-description-controls pull-right">
+                <button v-if="!newDesc" class="btn btn-default" v-on:click="newDesc = true">
+                    <i class="fa fa-plus-circle"></i>
+                </button>
+                <button v-if="newDesc" class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
+                    <i class="fa fa-check"></i>
+                </button><button v-if="newDesc" class="btn btn-default" v-on:click="cancelDesc">
+                    <i class="fa fa-remove"></i>
+                </button>
+              </div>
               <h4>Descriptions</h4>
               <div class="concept-editor-new-description-form" v-if="newDesc">
+                  <div v-show="!pendingHasUniqueId" class="alert alert-warning">
+                      New descriptions must have a unique lang/script combination.
+                  </div> 
                   <concept-description-editor
                     v-bind:idx="-1"
                     v-bind:data="pendingDesc"
@@ -531,15 +538,18 @@ Vue.component("concept-data-editor", {
                     v-bind:newForm="true" />
                   <div class="form-group">
                       <div class="col-md-12">
-                          <button class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">Add</button>
-                          <button class="btn btn-default" v-on:click="cancelDesc">Cancel</button>
-                          <span v-show="!pendingHasUniqueId" class="errors text-danger">
-                              New descriptions must have a unique lang/script combination.
-                          </span> 
+                          <button class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
+                            Add Description
+                            <i class="fa fa-check"></i>
+                          </button>
+                          <button class="btn btn-default" v-on:click="cancelDesc">
+                            Cancel
+                            <i class="fa fa-remove"></i>
+                          </button>
                       </div>
                   </div>  
               </div>
-              <ul class="list-group concept-editor-description-tabs" v-if="state.descriptions.length">
+              <ul class="list-group concept-editor-description-tabs" v-if="!newDesc && state.descriptions.length">
                   <li class="list-group-item" v-for="(description, i) in sortedDescriptions"
                           v-bind:class="{disabled: currentDescIdx !== i}">
                     <div class="concept-editor-description-tab clearfix" v-on:click="currentDescIdx = i"

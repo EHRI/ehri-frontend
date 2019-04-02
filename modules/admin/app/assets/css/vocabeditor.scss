@@ -149,6 +149,7 @@ body {
 
 .concept-editor-tab-form-footer {
   padding: $large-padding;
+  border-top: 1px solid $list-group-border;
 }
 
 .concept-editor-description-tabs li {
@@ -177,7 +178,9 @@ body {
 
 .concept-editor-new-description-form {
   background-color: #fff;
-  padding: $medium-padding;
+  padding: $large-padding;
+  border: 1px solid $list-group-border;
+  margin-top: 13px;
 }
 
 
