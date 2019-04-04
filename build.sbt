@@ -298,7 +298,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
         Seq(
           "js/lib/jquery.cookie.js",
           "js/lib/jquery.placeholder.js",
-          "js/lib/bootstrap.js",
+          "js/lib/bootstrap.bundle.js",
           "js/portal.js"
         )
       ),
@@ -306,7 +306,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
         Seq(
           "js/lib/jquery.cookie.js",
           "js/lib/jquery.placeholder.js",
-          "js/lib/bootstrap.js",
+          "js/lib/bootstrap.bundle.js",
           "js/portal.js",
           "js/portal-signedin.js"
         )
