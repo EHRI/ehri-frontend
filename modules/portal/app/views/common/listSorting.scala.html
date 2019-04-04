@@ -11,7 +11,7 @@
                 @name
                 </a>
             } else {
-                <a rel="nofollow" class="btn btn-xs btn-default" title="@title" href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                <a rel="nofollow" class="btn btn-xs" title="@title" href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
                 @name
                 </a>
             }

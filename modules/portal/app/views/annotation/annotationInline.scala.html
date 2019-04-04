@@ -1,9 +1,9 @@
-@(annotation: Annotation, editable: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(annotation: Annotation, editable: Boolean, cls: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-<div class="annotation @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
+<li class="annotation @{cls} @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
     @Html(md.renderUntrustedMarkdown(annotation.data.body))
     @for(user <- annotation.user ; event <- annotation.latestEvent) {
-        - <div class="annotation-meta">
+        <div class="annotation-meta">
             @views.html.helpers.linkTo(user, attributes = Seq('rel -> "nofollow"))
             <a class="time-permalink" href="#@annotation.id">@views.Helpers.relativeDate(event.data.timestamp)</a>
 
@@ -30,4 +30,4 @@
             }
         </div>
     }
-</div>
+</li>

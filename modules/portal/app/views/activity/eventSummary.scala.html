@@ -4,11 +4,11 @@
     @summary.user.collect {
         case user: UserProfile => {
             <img src="@views.Helpers.gravitar(user.data.imageUrl)" alt="@user.data.name" class="timeline-event-title-image" />
-            <h4 class="timeline-event-title">@views.html.helpers.linkTo(user)</h4>
         }
     }
-
+} {
     @for(timestamp <- summary.timestamp; user <- summary.user) {
+        <h4 class="timeline-event-title">@views.html.helpers.linkTo(user)</h4>
         <a href="@controllers.portal.social.routes.Social.userActivity(
             userId = user.id,
             params = utils.SystemEventParams(from = summary.from.map(_.toLocalDateTime), to = summary.to.map(_.toLocalDateTime)))"

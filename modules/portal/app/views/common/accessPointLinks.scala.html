@@ -5,7 +5,9 @@
         @defining(desc.accessPoints.filter(_.accessPointType == accessPointType)) { apLinks =>
             @if(apLinks.nonEmpty) {
                 <div class="item-text-field">
-                    <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
+                    <header class="item-text-field-header">
+                        <h4>@Messages("accessPoint.type." + accessPointType)</h4>
+                    </header>
                     <ul class="item-text-field-value item-text-field-list item-access-point-links" dir="auto">
                         @apLinks.map { accessPoint =>
                             @views.html.common.accessPointLink(item, accessPoint, links)

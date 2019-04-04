@@ -8,6 +8,7 @@
     display: block;
     width: 100%;
   }
+
   &.nav-ehri-input {
     border: 0;
     height: 40px;
@@ -24,10 +25,12 @@
     &.nav-ehri-light-grey {
       background-color: lighten($ehri-darkest-grey, 20%);
     }
+
     &.nav-ehri-grey {
       color: white;
       background-color: lighten($ehri-darkest-grey, 10%);
     }
+
     &.nav-ehri-black {
       color: white;
       background-color: $ehri-darkest-grey;
@@ -36,23 +39,29 @@
     &.nav-ehri-light-grey:hover {
       background-color: lighten($ehri-darkest-grey, 30%);
     }
+
     &.nav-ehri-grey:hover {
       background-color: lighten($ehri-darkest-grey, 20%);
     }
+
     &.nav-ehri-black:hover {
       background-color: lighten($ehri-darkest-grey, 10%);
     }
   }
+
   &.nav-ehri-border-top {
     border-top: 1px solid darken($content-color, 10%);
   }
+
   & > li {
     margin: 0;
     padding: 0;
     min-height: 40px;
+
     &:last-child {
       border-right: 0 !important;
     }
+
     & > .dropdown {
       margin: 0;
       padding: 0;
@@ -66,22 +75,26 @@
         margin: 0;
         top: 100%;
         border-radius: 0;
+
         li a {
           padding: 10px;
         }
       }
     }
+
     & > a, & > .dropdown > a {
       display: block;
       width: 100%;
       margin: 0 0;
       padding: 10px 10px;
       border-radius: 0;
+
       .badge.pull-right {
         margin-top: 2px;
         margin-left: 8px;
       }
     }
+
     &.facet {
       display: block;
       margin: 0 0;
@@ -89,9 +102,11 @@
       min-height: 10px;
       border-left: none;
       border-right: none;
+
       li {
         list-style: none;
       }
+
       & > a, a {
         display: inline;
         margin: 0 0;
@@ -107,8 +122,10 @@
   &.nav-ehri-black {
     background-color: $ehri-darkest-grey;
     color: $content-color;
+
     & > li {
       border-right: 1px solid white;
+
       & > a, & > .dropdown > a {
         color: white;
 
@@ -126,26 +143,33 @@
           }
         }
       }
+
       &:hover, &:focus {
         background-color: lighten($ehri-darkest-grey, 10%);
       }
     }
+
     .dropdown-menu {
       background-color: $ehri-darkest-grey;
       border-color: $ehri-darkest-grey;
+
       a {
         color: $content-color;
+
         &:hover {
           color: $ehri-darkest-grey;
         }
       }
     }
   }
+
   &.nav-ehri-grey {
     background-color: lighten($ehri-darkest-grey, 10%);
     color: $content-color;
+
     & > li {
       border-right: 1px solid white;
+
       & > a, & > .dropdown > a {
         color: $content-color;
 
@@ -163,27 +187,34 @@
           }
         }
       }
+
       &:hover, &:focus {
         background-color: lighten($ehri-darkest-grey, 10%);
       }
     }
+
     .dropdown-menu {
       background-color: lighten($ehri-darkest-grey, 10%);
       border-color: lighten($ehri-darkest-grey, 10%);
+
       a {
         color: $content-color;
+
         &:hover {
           color: $ehri-darkest-grey;
         }
       }
     }
   }
+
   &.nav-ehri-light-grey {
     background-color: lighten($ehri-darkest-grey, 20%);
     color: $content-color;
+
     & > li {
       background-color: lighten($ehri-darkest-grey, 20%);
       border-right: 1px solid white;
+
       & > a, & > .dropdown > a {
         color: white;
 
@@ -201,21 +232,26 @@
           }
         }
       }
+
       &:hover, &:focus {
         background-color: lighten($ehri-darkest-grey, 30%);
       }
     }
+
     .dropdown-menu {
       background-color: lighten($ehri-darkest-grey, 20%);
       border-color: lighten($ehri-darkest-grey, 20%);
+
       a {
         color: $content-color;
+
         &:hover {
           color: $ehri-darkest-grey;
         }
       }
     }
   }
+
   /*
       Caret
   */
@@ -223,17 +259,19 @@
     border-bottom-color: $content-color !important;
     border-top-color: $content-color !important;
   }
+
   a:hover, a:focus, a {
     text-decoration: none !important;
   }
 }
 
-@media (min-width: $screen-xs-min) and (max-width: $screen-md-min) {
+@include media-breakpoint-between(xs, md) {
   .nav-ehri {
 
     & > li {
       border-right: 0 !important;
     }
+
     .dropdown-menu {
       border: 0;
       padding: 0;
@@ -242,16 +280,17 @@
       float: none;
       border: none;
       @include box-shadow(none);
+
       > li {
         display: block;
         width: 100%;
+
         > a {
           display: block;
           width: 100%;
           cursor: pointer;
         }
       }
-
     }
   }
 }
