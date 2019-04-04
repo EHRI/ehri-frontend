@@ -1,0 +1,288 @@
+/**
+  Bootstrap 4-based layout and responsiveness.
+ */
+
+// Main page right sidebar layouts
+article.double, .search-results {
+  // Place sidebar on the right...
+  > aside {
+    @extend .order-last;
+  }
+
+  @include media-breakpoint-up(lg) {
+
+    @include make-row();
+
+    > aside {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+
+    > section {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}
+
+// Description text fields
+@include media-breakpoint-up(lg) {
+  .item-text-field {
+    @include make-row();
+
+    > .item-text-field-header {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+
+    > .item-text-field-value {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}
+
+// Breadcrumbs
+.info-bar {
+  > ul {
+    @extend .container, .breadcrumb;
+    > li {
+      @extend .breadcrumb-item;
+    }
+  }
+}
+
+// Homepage
+#welcome-container {
+  @extend .container;
+}
+
+#portal-sections, #portal-section-contents, #portal-info {
+  @extend .row;
+}
+
+.welcome-section {
+  @include make-col-ready();
+  @include make-col(4);
+
+  @include media-breakpoint-down(sm) {
+    @include make-col(12);
+  }
+}
+
+.info-container {
+  @include make-col-ready();
+  @include make-col(6);
+
+  @include media-breakpoint-down(sm) {
+    @include make-col(12);
+  }
+}
+
+// Navbar
+#navbar-primary-container, #navbar-top-container {
+  @extend .navbar, .navbar-expand-md;
+}
+
+#navbar-top-container {
+  @extend .container;
+  @extend .navbar-dark;
+}
+
+#navbar-primary-container {
+  @extend .container;
+  @extend .navbar-light;
+}
+
+#navbar-primary, #navbar-secondary, #navbar-account, #navbar-actions {
+  > ul {
+    @extend .nav;
+
+    > li {
+      @extend .nav-item;
+
+      > a {
+        @extend .nav-link;
+      }
+    }
+  }
+}
+
+#navbar-account {
+  @extend .navbar, .navbar-collapse, .pull-right;
+}
+
+// Sidebar
+.item-sidebar-actions {
+  @include list-unstyled();
+}
+
+
+// Footer
+#portal-footer {
+  @extend .container;
+
+  #footer-navs,
+  #footer-blurb {
+    @include make-row();
+  }
+
+  #navbar-tertiary,
+  #lang-switcher {
+    @extend .nav;
+
+    > li {
+      @extend .nav-item;
+
+      > a {
+        @extend .nav-link;
+      }
+    }
+
+    @include make-col-ready();
+    @include make-col(12);
+
+    @include media-breakpoint-up(sm) {
+      @include make-col(6);
+    }
+  }
+
+  #lang-switcher {
+    @extend .pull-right;
+  }
+}
+
+// Activity stream / Timeline
+#activity-stream {
+  @include list-unstyled();
+}
+
+.timeline-event {
+  @extend .media;
+
+  .timeline-body {
+    @extend .media-body;
+  }
+}
+
+// Search form and results
+#search-helper {
+  @extend .collapse;
+}
+
+.search-result-list {
+  @include list-unstyled();
+}
+
+.search-item-details {
+  > ul {
+    @extend .list-inline;
+
+    > li {
+      @extend .list-inline-item;
+    }
+  }
+}
+
+.other-name-list, .other-name-list-small {
+  @extend .list-inline;
+
+  > li {
+    @extend .list-inline-item;
+  }
+}
+
+ul.pagination {
+  li {
+    @extend .page-item;
+
+    a {
+      @extend .page-link;
+    }
+  }
+}
+
+.facet-classes {
+
+  @include list-unstyled();
+
+  // Show facets in wide views
+  &.collapse {
+    @include media-breakpoint-up(lg) {
+      display: block;
+    }
+  }
+}
+
+.search-bar {
+  @include make-row();
+
+  > .search-box {
+    @include make-col-ready();
+    @include make-col(10);
+  }
+
+  > .search-helper-container {
+    @include make-col-ready();
+    @include make-col(2);
+  }
+}
+
+.search-result-errata {
+  @include clearfix();
+
+  .search-sort {
+    @include float-right();
+  }
+
+  .search-summary {
+    @include float-left();
+  }
+}
+
+// Users pages and profile
+.user-list {
+  @include list-unstyled();
+}
+
+.user-thumbnail {
+  width: 3rem;
+  height: 3rem;
+}
+
+.user-grid {
+  @include clearfix();
+  @include list-unstyled();
+  @extend .list-inline;
+
+  .user-info {
+    @include float-left();
+    width: 30rem;
+
+    img {
+      width: 10rem;
+    }
+  }
+}
+
+.user-info {
+  @extend .media;
+
+  .user-info-details {
+    @extend .media-body;
+
+    > ul {
+      @include list-unstyled();
+    }
+  }
+
+  .follow-controls {
+    @include float-right();
+  }
+}
+
+// Description pages
+.description-holder.inactive {
+  display: none;
+}
+

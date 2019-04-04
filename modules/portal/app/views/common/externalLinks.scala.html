@@ -7,7 +7,9 @@
             @defining(AccessPoint.linksOfType(links, accessPointType).distinct) { apLinks =>
                 @if(apLinks.nonEmpty) {
                     <div class="item-text-field">
-                        <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType + ".reverse")</h4>
+                        <header class="item-text-field-header">
+                            <h4>@Messages("accessPoint.type." + accessPointType + ".reverse")</h4>
+                        </header>
                         <ul class="item-text-field-value item-text-field-list item-external-links" dir="auto">
                             @apLinks.map { link =>
                                 @itemLink(link, item)

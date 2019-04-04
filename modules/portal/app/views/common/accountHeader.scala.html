@@ -2,7 +2,7 @@
 
 @views.html.common.topNavBar {
     @if(userOpt.isDefined) {
-        <ul class="nav navbar-nav navbar-left">
+        <ul>
             <li class="@views.Helpers.maybeActive(controllers.portal.routes.Portal.personalisedActivity().url)">
                 <a href="@controllers.portal.routes.Portal.personalisedActivity()">@Messages("activity")</a>
             </li>

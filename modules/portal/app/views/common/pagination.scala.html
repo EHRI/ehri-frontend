@@ -3,7 +3,8 @@
 @import services.data.Constants.PAGE_PARAM
 
 @if(page.hasMultiplePages) {
-    <ul id="pagination" class="pagination">
+    <nav aria-label="Pagination">
+        <ul class="pagination">
         @views.Helpers.paginationRanges(page.page + 1, page.numPages).map { range =>
             @range.map { cp =>
                 @if(cp == page.page) {
@@ -22,5 +23,6 @@
                 <li class="disabled"><a>...</a></li>
             }
         }
-    </ul>
+        </ul>
+    </nav>
 }

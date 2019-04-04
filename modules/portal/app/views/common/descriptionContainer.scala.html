@@ -37,9 +37,9 @@
             } else {
                 <div class="sidebar-section">
                     <header class="sidebar-section-heading">@Messages(labelKey)</header>
-                    <nav class="list-group description-switcher">
+                    <nav class="description-switcher">
                         @descriptions.map { case (desc, selected) =>
-                            <a class="list-group-item description-switch @{if(selected) "active"}"
+                            <a class="description-switch @{if(selected) "active"}"
                                 title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
                                 href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
                                 data-id="@desc.localId">

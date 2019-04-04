@@ -1,21 +1,18 @@
 @(leftMenu: Html)(rightMenu: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, messages: Messages)
 
-<nav class="navbar navbar-inverse navbar-static-top">
-    <div class="container">
-        <div class="navbar-header pull-right" id="navbar-account-toggle">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#navbar-account" aria-expanded="false" aria-controls="navbar-account">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
+<nav id="navbar-top-container">
+    <div class="navbar-header" id="navbar-account-toggle">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse"
+                data-target="#navbar-account" aria-expanded="false" aria-controls="navbar-account">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
 
-        <div id="navbar-actions" class="pull-left">
-            @leftMenu
-        </div>
-        <div id="navbar-account" class="navbar-collapse collapse">
-            @rightMenu
-        </div>
+    <div id="navbar-actions">
+        @leftMenu
+    </div>
+    <div id="navbar-account">
+        @rightMenu
     </div>
 </nav>

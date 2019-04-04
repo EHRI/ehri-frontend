@@ -74,20 +74,21 @@ jQuery(function ($) {
         $targetHeight = $target.offset().top + $target.outerHeight(true);
 
     if ($parentHeight > $targetHeight + $minPad && !isSafari()) {
-      $target.affix({
-        offset: {
-          top: function () {
-            return (this.top = $prev.offset().top + $prev.outerHeight(true));
-          },
-          bottom: function () {
-            // the distance of the bottom of the target from the bottom
-            // of the document. In this case we want
-            var bodyHeight = $(document).outerHeight(true);
-            var parentPos = $parent.position().top + $parent.outerHeight(true);
-            return (this.bottom = bodyHeight - parentPos);
-          }
-        }
-      });
+      // FIXME: BS4
+      // $target.affix({
+      //   offset: {
+      //     top: function () {
+      //       return (this.top = $prev.offset().top + $prev.outerHeight(true));
+      //     },
+      //     bottom: function () {
+      //       // the distance of the bottom of the target from the bottom
+      //       // of the document. In this case we want
+      //       var bodyHeight = $(document).outerHeight(true);
+      //       var parentPos = $parent.position().top + $parent.outerHeight(true);
+      //       return (this.bottom = bodyHeight - parentPos);
+      //     }
+      //   }
+      // });
     }
   });
 
