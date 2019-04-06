@@ -66,6 +66,10 @@ let DAO = {
       .then(data => data.data);
   },
 
+  getNextIdentifier: function() {
+    return fetch(window.SERVICE.nextIdentifier(CONFIG.vocabId).url).then(r => r.json());
+  },
+
   createItem: function (data) {
     let self = this;
     return SERVICE.createItem(CONFIG.vocabId).ajax({
@@ -658,9 +662,18 @@ Vue.component("concept-editor", {
       this.$emit("item-deleted", data);
     }
   },
+  filters: {
+    formatTimestamp: function(s) {
+      let m = moment(s);
+      return m.isValid() ? m.fromNow() : "";
+    }
+  },
   template: `
     <div id="concept-editor" class="form-horizontal">
         <h3 id="concept-editor-item-title">{{data|conceptTitle(lang, id)}} ({{data.identifier}})</h3>
+        <small class="concept-editor-concept-meta" v-if="data.event.user">
+          Last updated by {{ data.event.user.name }} {{ data.event.timestamp|formatTimestamp }}.  
+        </small>
         <div id="concept-editor-item-deleted" v-if="deleted">
             <p class="alert alert-danger">Item deleted</p>
         </div>
@@ -716,7 +729,7 @@ Vue.component("concept-editor", {
 
 Vue.component("concept-creator", {
   props: {
-    lang: String, langData: Object,
+    lang: String, langData: Object, ident: String,
   },
   data: function () {
     return {
@@ -731,7 +744,7 @@ Vue.component("concept-creator", {
     conceptTemplate: function () {
       return {
         isA: "CvocConcept",
-        identifier: "",
+        identifier: this.ident,
         seeAlso: [],
         descriptions: [],
         accessibleTo: [],
@@ -757,7 +770,7 @@ Vue.component("concept-creator", {
   },
   template: `
     <div id="concept-creator" class="form-horizontal">
-        <h3>New Concept</h3>
+        <h3 id="concept-creator-title">New Concept</h3>
         <concept-data-editor
             v-bind:lang="lang"
             v-bind:id="null"
@@ -901,17 +914,7 @@ Vue.component("concept-list-item", {
   `
 });
 
-Vue.filter("conceptTitle", function (data, lang, fallback) {
-  for (let i in data.descriptions) {
-    if (data.descriptions.hasOwnProperty(i)) {
-      let desc = data.descriptions[i];
-      if (desc.languageCode === lang) {
-        return desc.name;
-      }
-    }
-  }
-  return data.descriptions[0] ? data.descriptions[0].name : fallback;
-});
+Vue.filter("conceptTitle", DAO.title);
 
 var app = new Vue({
   el: '#vocab-editor',
@@ -922,6 +925,7 @@ var app = new Vue({
       langs: [],
       langData: __languageData || {},
       q: "",
+      nextIdentifier: null,
       concepts: [],
       creating: false,
       editing: null,
@@ -961,9 +965,14 @@ var app = new Vue({
       this.reload();
     },
     createItem: function () {
-      this.creating = true;
-      this.editing = null;
-      this.editBuffer = null;
+      this.loading = false;
+      DAO.getNextIdentifier().then(ident => {
+        this.nextIdentifier = ident;
+        this.loading = false;
+        this.creating = true;
+        this.editing = null;
+        this.editBuffer = null;
+      });
     },
     loadItem: function (id) {
       this.loading = true;
@@ -1061,6 +1070,7 @@ var app = new Vue({
           <concept-creator v-else-if="creating"
               v-bind:lang="lang"
               v-bind:langData="langData"
+              v-bind:ident="nextIdentifier"
               v-on:item-data-saved="refreshUpdatedItem"/>
            <div v-else id="vocab-editor-load-note">
               <h2>Click on an item left to edit...</h2>

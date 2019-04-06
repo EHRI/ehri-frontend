@@ -32,6 +32,7 @@ GET         /:id/editor                               @controllers.vocabularies.
 GET         /:id/editor/list                          @controllers.vocabularies.VocabularyEditor.list(id: String, q: Option[String] ?= None, lang: String ?= "eng")
 GET         /:id/editor/langs                         @controllers.vocabularies.VocabularyEditor.langs(id: String)
 POST        /:id/editor/create                        @controllers.vocabularies.VocabularyEditor.createItem(id: String)
+GET         /:id/editor/next-id                       @controllers.vocabularies.VocabularyEditor.nextIdentifier(id: String)
 GET         /:id/editor/get/:cid                      @controllers.vocabularies.VocabularyEditor.get(id: String, cid: String)
 POST        /:id/editor/update/:cid                   @controllers.vocabularies.VocabularyEditor.updateItem(id: String, cid: String)
 POST        /:id/editor/delete/:cid                   @controllers.vocabularies.VocabularyEditor.deleteItem(id: String, cid: String)

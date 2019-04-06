@@ -134,6 +134,17 @@ body {
   flex: 1;
 }
 
+#concept-editor-item-title,
+#concept-creator-title {
+  margin: 0 0 $small-margin 0;
+}
+
+.concept-editor-concept-meta {
+  @include small-muted();
+  margin-bottom: $small-margin;
+  font-size: $font-size-small;
+}
+
 .concept-editor-tab {
   display: flex;
   flex-direction: column;
