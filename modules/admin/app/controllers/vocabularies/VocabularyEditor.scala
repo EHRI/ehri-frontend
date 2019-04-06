@@ -3,14 +3,14 @@ package controllers.vocabularies
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.PermissionType
+import defines.{EntityType, PermissionType}
 import javax.inject._
 import models._
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.{ApiUser, AuthenticatedUser, ValidationError}
+import services.data.{ApiUser, AuthenticatedUser, IdGenerator, ValidationError}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,6 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class VocabularyEditor @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
+  idGenerator: IdGenerator,
   ws: WSClient,
   cypher: CypherService
 ) extends AdminController with Read[Vocabulary] with Search {
@@ -62,6 +63,12 @@ case class VocabularyEditor @Inject()(
         RETURN DISTINCT(d.languageCode) as lang
         ORDER BY lang
       """.stripMargin, params = Map("vocab" -> JsString(id))))
+  }
+
+  def nextIdentifier(id: String): Action[AnyContent] = UserAction(parse.anyContent).async { implicit request =>
+    idGenerator.getNextChildNumericIdentifier(id, EntityType.Concept, "%d").map { newId =>
+      Ok(Json.toJson(newId))
+    }
   }
 
   def list(id: String, query: Option[String], lang: String): Action[AnyContent] = UserAction(parse.anyContent).apply { implicit request =>

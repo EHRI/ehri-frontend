@@ -31,7 +31,8 @@
             controllers.vocabularies.routes.javascript.VocabularyEditor.narrower,
             controllers.vocabularies.routes.javascript.VocabularyEditor.createItem,
             controllers.vocabularies.routes.javascript.VocabularyEditor.updateItem,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem
+            controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem,
+            controllers.vocabularies.routes.javascript.VocabularyEditor.nextIdentifier,
         )
 
         <script>
@@ -44,7 +45,8 @@
                     narrower: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.narrower,
                     createItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.createItem,
                     updateItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.updateItem,
-                    deleteItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.deleteItem
+                    deleteItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.deleteItem,
+                    nextIdentifier: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.nextIdentifier,
                 };
                 window.CONFIG = {
                     vocabId: "@item.id"
@@ -53,6 +55,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>
 
         <div id="flex-wrapper">

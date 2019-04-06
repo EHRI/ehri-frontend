@@ -1,7 +1,7 @@
 package integration.admin
 
 import helpers.IntegrationTestRunner
-import play.api.libs.json.Json
+import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
 
 
@@ -38,6 +38,11 @@ class VocabularyEditorSpec extends IntegrationTestRunner {
     "list narrower items" in new ITestApp {
       val children = FakeRequest(veRoutes.narrower("cvoc1", "cvocc1")).withUser(privilegedUser).call()
       (contentAsJson(children) \ "data" \ 0 \ 0).asOpt[String] must beSome("cvocc2")
+    }
+
+    "get next numeric identifier" in new ITestApp {
+      val ident = FakeRequest(veRoutes.nextIdentifier("cvoc1")).withUser(privilegedUser).call()
+      contentAsJson(ident) must_== JsString("1")
     }
 
     "create new items" in new ITestApp {
