@@ -158,7 +158,7 @@ case class VocabularyEditor @Inject()(
         userDataApi.createInContext[Vocabulary, ConceptF, Concept](id, data).map { item =>
           Created(Json.toJson(item)(clientFormat))
         }.recover {
-          case e: ValidationError => BadRequest(e.errorSet.errors)
+          case e: ValidationError => BadRequest(Json.toJson(e.errorSet.errors))
         }
       }
     )

@@ -441,6 +441,7 @@ Vue.component("concept-data-editor", {
     saving: Boolean,
     saved: Boolean,
     error: Boolean,
+    errors: Object,
     langData: Object,
   },
   data: function () {
@@ -531,22 +532,25 @@ Vue.component("concept-data-editor", {
     <div id="concept-editor-data-tab" class="concept-editor-tab" v-bind:class="{error: error}">
       <div class="concept-editor-tab-form">
         <div class="concept-editor-data-form">
-          <div class="form-group">
+          <div class="form-group" v-bind:class="{'has-error': errors.identifier}">
              <label class="col-md-2">Identifier</label> 
              <div class="col-md-10">
                <input type="url" class="form-control" v-model.trim="state.identifier"/>
+               <span v-if="errors.identifier" v-for="e in errors.identifier" class="help-block">{{ e }}</span>
              </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" v-bind:class="{'has-error': errors.uri}">
              <label class="col-md-2">URI</label> 
              <div class="col-md-10">
                <input type="url" class="form-control" v-model.trim="state.uri"/>
+               <span v-if="errors.uri" v-for="e in errors.uri" class="help-block">{{ e }}</span>
              </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" v-bind:class="{'has-error': errors.url}">
              <label class="col-md-2">URL</label> 
              <div class="col-md-10">
                <input type="url" class="form-control" v-model.trim="state.url"/>
+               <span v-if="errors.url" v-for="e in errors.url" class="help-block">{{ e }}</span>
              </div>
           </div>
           <div id="concept-editor-descriptions">
@@ -644,6 +648,7 @@ Vue.component("concept-editor", {
       saving: false,
       saved: false,
       error: false,
+      errors: {},
       deleting: false,
       deleted: false,
     };
@@ -671,6 +676,9 @@ Vue.component("concept-editor", {
         this.error = true;
         this.saving = false;
         this.loading = false;
+        if (err.status === 400 && err.responseJSON) {
+          this.errors = err.responseJSON;
+        }
       });
     },
     updateRels: function (broader) {
@@ -715,8 +723,11 @@ Vue.component("concept-editor", {
               <li v-bind:class="{active: tab === 'rels'}">
                 <a href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
               </li>
-              <li v-bind:class="{active: tab === 'data'}">
-                <a href="#" v-on:click.prevent="tab = 'data'">Data</a>
+              <li v-bind:class="{active: tab === 'data', 'error': error}">
+                <a href="#" v-on:click.prevent="tab = 'data'">
+                  Data
+                  <i v-if="error" class="fa fa-exclamation-circle"></i>
+                </a>
               </li>
               <li class="pull-right" v-bind:class="{active: tab == 'delete'}">
                 <a href="#" v-on:click.prevent="tab = 'delete'">Delete</a>
@@ -744,6 +755,7 @@ Vue.component("concept-editor", {
               v-bind:saving="saving"
               v-bind:saved="saved"
               v-bind:error="error"
+              v-bind:errors="errors"
               v-on:item-data-saved="updateItem"
               v-on:item-data-reset="$emit('item-data-reset')" 
                   />
@@ -770,6 +782,7 @@ Vue.component("concept-creator", {
       saving: false,
       saved: false,
       error: false,
+      errors: {},
       state: this.data,
     }
   },
@@ -788,6 +801,9 @@ Vue.component("concept-creator", {
         this.error = true;
         this.saving = false;
         this.loading = false;
+        if (err.status === 400 && err.responseJSON) {
+          this.errors = err.responseJSON;
+        }
       });
     },
   },
@@ -805,6 +821,7 @@ Vue.component("concept-creator", {
             v-bind:saving="saving"
             v-bind:saved="saved"
             v-bind:error="error"
+            v-bind:errors="errors"
             v-on:item-data-saved="createItem"
             v-on:cancel-create="$emit('cancel-create')"
                 />
@@ -949,6 +966,7 @@ var app = new Vue({
   data: function () {
     return {
       loading: true,
+      loadingForm: false,
       lang: "eng",
       langs: [],
       langData: __languageData || {},
@@ -1008,18 +1026,20 @@ var app = new Vue({
       this.edit(item);
       this.reload();
     },
-    createItem: function () {
-      this.editing = null;
-      this.editBuffer = null;
+    showNewConceptForm: function () {
       if (this.createBuffer === null) {
-        this.loading = true;
+        this.loadingForm = true;
         this.conceptTemplate().then(temp => {
-          this.loading = false;
+          this.loadingForm = false;
           this.createBuffer = temp;
           this.creating = true;
+          this.editing = null;
+          this.editBuffer = null;
         });
       } else {
         this.creating = true;
+        this.editing = null;
+        this.editBuffer = null;
       }
     },
     cancelCreate: function() {
@@ -1106,9 +1126,10 @@ var app = new Vue({
           <div class="vocab-editor-listnav-footer">
             <button class="btn btn-success" 
                 v-bind:disabled="creating" 
-                v-on:click="createItem">
+                v-on:click="showNewConceptForm">
                     New Concept
-                <i v-show="createBuffer !== null" class="fa fa-asterisk"></i>
+                <i v-if="loadingForm" class="fa fa-circle-o-notch fa-fw fa-spin"></i>
+                <i v-else-if="createBuffer !== null" class="fa fa-asterisk"></i>
             </button>
           </div>
         </div>
