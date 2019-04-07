@@ -187,9 +187,17 @@ body {
   @include small-muted();
 }
 
+#concept-editor-nav-tabs li.error a {
+  color: $alert-danger-text;
+}
+
 .concept-editor-tab-form-footer {
   padding: $large-padding;
   border-top: 1px solid $list-group-border;
+}
+
+.concept-editor-tab.error .concept-editor-tab-form-footer {
+  background-color: $state-danger-bg;
 }
 
 .concept-editor-description-tabs li {
@@ -210,10 +218,6 @@ body {
 
 #concept-creator .concept-editor-tab {
   border-top: 1px solid #ddd;
-}
-
-.concept-editor-tab.error {
-  border: 1px solid red;
 }
 
 .concept-editor-new-description-form {
