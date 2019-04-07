@@ -614,13 +614,13 @@ Vue.component("concept-data-editor", {
         </div>
       </div>
       <div class="concept-editor-tab-form-footer" v-bind:class="{disabled:saving || loading}">
-          <button v-bind:disabled="!dirty || saving || invalid" class="btn btn-danger" v-on:click="save">
+          <button v-bind:disabled="!dirty || saving || invalid || newDesc" class="btn btn-danger" v-on:click="save">
               Save Concept
               <span v-if="saving"><i class="fa fa-fw fa-circle-o-notch fa-spin"></i></span>
               <span v-else-if="!dirty && saved"><i class="fa fa-fw fa-check"></i></span>
               <span v-else><i class="fa fa-fw fa-save"></i></span>
           </button>
-          <button v-if="!create" v-bind:disabled="!dirty || saving" class="pull-right btn btn-default" v-on:click="$emit('item-data-reset')">
+          <button v-if="!create" v-bind:disabled="!dirty || saving" class="pull-right btn btn-default" v-on:click="$emit('item-data-reset'); newDesc = false">
               Reset
               <span><i class="fa fa-fw fa-undo"></i></span>
           </button>
