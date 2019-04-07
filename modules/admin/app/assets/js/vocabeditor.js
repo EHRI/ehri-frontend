@@ -620,6 +620,9 @@ Vue.component("concept-data-editor", {
               Reset
               <span><i class="fa fa-fw fa-undo"></i></span>
           </button>
+          <button v-if="create" class="pull-right btn btn-default" v-on:click="$emit('cancel-create')" title="Delete draft">
+            <i class="fa fa-trash"></i>
+          </button>
       </div>
     </div>
   `
@@ -759,7 +762,7 @@ Vue.component("concept-editor", {
 
 Vue.component("concept-creator", {
   props: {
-    lang: String, langData: Object, ident: String,
+    lang: String, langData: Object, data: Object,
   },
   data: function () {
     return {
@@ -767,20 +770,10 @@ Vue.component("concept-creator", {
       saving: false,
       saved: false,
       error: false,
-      state: this.conceptTemplate(),
+      state: this.data,
     }
   },
   methods: {
-    conceptTemplate: function () {
-      return {
-        isA: "CvocConcept",
-        identifier: this.ident,
-        seeAlso: [],
-        descriptions: [],
-        accessibleTo: [],
-        meta: {}
-      }
-    },
     createItem: function (toSave) {
       this.loading = true;
       this.saving = true;
@@ -813,6 +806,7 @@ Vue.component("concept-creator", {
             v-bind:saved="saved"
             v-bind:error="error"
             v-on:item-data-saved="createItem"
+            v-on:cancel-create="$emit('cancel-create')"
                 />
     </div>
   `
@@ -959,9 +953,9 @@ var app = new Vue({
       langs: [],
       langData: __languageData || {},
       q: "",
-      nextIdentifier: null,
       concepts: [],
       creating: false,
+      createBuffer: null,
       editing: null,
       editBuffer: null,
       eventBus: new Vue(),
@@ -974,6 +968,18 @@ var app = new Vue({
     },
   },
   methods: {
+    conceptTemplate: function () {
+      return DAO.getNextIdentifier().then(ident => {
+        return {
+          isA: "CvocConcept",
+          identifier: ident,
+          seeAlso: [],
+          descriptions: [],
+          accessibleTo: [],
+          meta: {}
+        }
+      });
+    },
     reload: function (item) {
       this.loading = true;
       DAO.getConcepts(this.q, this.lang).then(concepts => {
@@ -990,6 +996,10 @@ var app = new Vue({
       this.edit(item);
       this.refreshItem(item);
     },
+    refreshSavedItem: function (item) {
+      this.createBuffer = null;
+      this.refreshUpdatedItem(item);
+    },
     refreshReparentedItem: function (item) {
       // refresh broader terms that are
       let inBoth = _.intersection(item.broaderTerms.map(c => c.id), this.editing.broaderTerms.map(c => c.id));
@@ -999,14 +1009,22 @@ var app = new Vue({
       this.reload();
     },
     createItem: function () {
-      this.loading = false;
-      DAO.getNextIdentifier().then(ident => {
-        this.nextIdentifier = ident;
-        this.loading = false;
+      this.editing = null;
+      this.editBuffer = null;
+      if (this.createBuffer === null) {
+        this.loading = true;
+        this.conceptTemplate().then(temp => {
+          this.loading = false;
+          this.createBuffer = temp;
+          this.creating = true;
+        });
+      } else {
         this.creating = true;
-        this.editing = null;
-        this.editBuffer = null;
-      });
+      }
+    },
+    cancelCreate: function() {
+      this.creating = false;
+      this.createBuffer = null;
     },
     loadItem: function (id) {
       this.loading = true;
@@ -1086,7 +1104,12 @@ var app = new Vue({
             <p class="text-muted" v-else>No items found</p>
           </div>
           <div class="vocab-editor-listnav-footer">
-            <button class="btn btn-success" v-on:click="createItem">New Concept</button>
+            <button class="btn btn-success" 
+                v-bind:disabled="creating" 
+                v-on:click="createItem">
+                    New Concept
+                <i v-show="createBuffer !== null" class="fa fa-asterisk"></i>
+            </button>
           </div>
         </div>
         <div id="vocab-editor-editpanel">
@@ -1105,8 +1128,9 @@ var app = new Vue({
           <concept-creator v-else-if="creating"
               v-bind:lang="lang"
               v-bind:langData="langData"
-              v-bind:ident="nextIdentifier"
-              v-on:item-data-saved="refreshUpdatedItem"/>
+              v-bind:data="createBuffer"
+              v-on:item-data-saved="refreshSavedItem"
+              v-on:cancel-create="cancelCreate" />
            <div v-else id="vocab-editor-load-note">
               <h2>Click on an item left to edit...</h2>
            </div>
