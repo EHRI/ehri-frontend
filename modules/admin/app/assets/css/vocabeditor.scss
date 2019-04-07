@@ -101,6 +101,10 @@ body {
   margin-bottom: $large-margin;
 }
 
+.vocab-editor-concept.active > .vocab-editor-concept-heading > .vocab-editor-concept-title {
+  color: #000;
+}
+
 .vocab-editor-concept-title {
   cursor: pointer;
 }
@@ -139,6 +143,11 @@ body {
   margin: 0 0 $small-margin 0;
 }
 
+.concept-hierarchy {
+  color: $text-muted;
+  font-size: $font-size-small;
+}
+
 .concept-editor-concept-meta {
   @include small-muted();
   margin-bottom: $small-margin;
@@ -156,6 +165,26 @@ body {
   overflow: auto;
   flex: 1;
   flex-basis: 0;
+}
+
+.concept-editor-broader-terms {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.concept-editor-broader-terms > ul {
+  flex-grow: 1;
+  flex-basis: 0;
+  overflow: auto;
+}
+
+.concept-editor-broader-terms .remove {
+  cursor: pointer;
+}
+
+.concept-editor-broader-terms-empty {
+  @include small-muted();
 }
 
 .concept-editor-tab-form-footer {

@@ -199,9 +199,9 @@ Vue.component("vocab-editor-autocomplete-input", {
   },
   template: `
     <div class="vocab-editor-autocomplete-widget form-group">
-        <label class="col-md-2">Add Broader:</label>
-        <div class="col-md-10">
+        <div class="col-md-12">
             <input class="form-control input-sm" type="text" 
+                placeholder="Add Broader Term..."
               v-bind:disabled="disabled"
               v-model.trim="text" 
               v-on:input="search"
@@ -223,6 +223,20 @@ Vue.component("vocab-editor-autocomplete-input", {
             </div>
         </div>
     </div>
+  `
+});
+
+Vue.component("concept-hierarchy", {
+  props: { id: String, data: Array, lang: String },
+  template: `
+    <ul class="concept-hierarchy" v-if="data">
+      <li v-for="parent in data">{{parent|conceptTitle(lang, id)}}
+          <concept-hierarchy 
+              v-bind:data="parent.broaderTerms || []"
+              v-bind:lang="lang"
+              v-bind:id="parent.id"/>
+      </li>
+    </ul>  
   `
 });
 
@@ -337,6 +351,7 @@ Vue.component("concept-rel-editor", {
   },
   data: function () {
     return {
+      expand: true,
       state: this.data,
       loading: false,
       saving: false,
@@ -366,23 +381,38 @@ Vue.component("concept-rel-editor", {
   computed: {
     sorted: function () {
       return this.state.concat().sort(DAO.sortByTitle(this.lang));
+    },
+    expandable: function() {
+      return this.state.filter(i => i.broaderTerms.length > 0).length > 0;
     }
   },
   template: `
     <div id="concept-editor-rels-tab" class="concept-editor-tab">
       <div class="concept-editor-broader-terms concept-editor-tab-form">
-        <h4>Broader Terms</h4>
-        <ul>
-          <li v-for="broader in sorted">
-            {{broader|conceptTitle(lang, id)}}
-            <span class="remove" v-on:click="removeBroader(broader)">
-              <i class="fa fa-remove"></i>
-            </span>
-          </li>  
-        </ul>
+        <h4>Broader Terms
+            <button v-bind:disabled="!expandable" class="btn btn-xs btn-default">
+                <span v-if="!expand" v-on:click="expand = true">expand terms</span>
+                <span v-if="expand" v-on:click="expand = false">collapse terms</span>
+            </button> 
+        </h4>
         <vocab-editor-autocomplete-input
           v-on:item-accepted="addBroader"
           v-bind:disabled="false" />
+        <ul v-if="state.length > 0">
+          <li v-for="broader in sorted">
+            {{broader|conceptTitle(lang, id)}}
+            <span title="Remove Broader Term" class="remove" v-on:click="removeBroader(broader)">
+              <i class="fa fa-remove"></i>
+            </span>
+            <concept-hierarchy
+                v-show="expand"
+                v-bind:id="id"
+                v-bind:data="broader.broaderTerms"
+                v-bind:lang="lang"
+                />
+          </li>  
+        </ul>
+        <div class="concept-editor-broader-terms-empty" v-else>No broader terms</div>
       </div>
       <div class="concept-editor-tab-form-footer" v-bind:class="{disabled:saving || loading}">
           <button v-bind:disabled="!dirty || saving" class="btn btn-danger" v-on:click="save">
@@ -836,7 +866,7 @@ Vue.component("concept-deleter", {
 });
 
 Vue.component("concept-list-item", {
-  props: {id: String, lang: String, name: String, childCount: Number, eventBus: Vue, isSearch: Boolean},
+  props: {id: String, lang: String, name: String, childCount: Number, selectedId: String, eventBus: Vue, isSearch: Boolean},
   data: function () {
     return {
       loading: false,
@@ -884,7 +914,7 @@ Vue.component("concept-list-item", {
     })
   },
   template: `
-    <li class="vocab-editor-concept" v-bind:class="{'is-search': isSearch}">
+    <li class="vocab-editor-concept" v-bind:class="{'is-search': isSearch, 'active': selectedId === id}">
         <div class="vocab-editor-concept-heading">
           <span class="vocab-editor-open-narrower" 
               v-if="childCount > 0 && !open && !loading" 
@@ -896,7 +926,10 @@ Vue.component("concept-list-item", {
               v-if="loading"><i class="fa fa-circle-o-notch fa-pulse fa-fw"></i></span>
             <span v-if="childCount == 0" class="fa fa-fw"></span>
             <span class="vocab-editor-concept-title"
-                v-on:click="showList(); $emit('edit-item', id)">{{name}}</span>
+                v-on:click="showList(); $emit('edit-item', id)">
+                {{name}}
+                <i v-if="selectedId === id" class="fa fa-asterisk"></i>
+            </span>
         </div>
         <ul class="vocab-editor-concept-list" v-if="children.length > 0 && open">
             <concept-list-item v-for="child in children"
@@ -905,6 +938,7 @@ Vue.component("concept-list-item", {
                 v-bind:lang="lang"
                 v-bind:name="child[1]"
                 v-bind:childCount="child[2]"
+                v-bind:selectedId="selectedId"
                 v-bind:eventBus="eventBus"
                 v-bind:isSearch="false"
                 v-on:refresh="refresh"
@@ -1043,6 +1077,7 @@ var app = new Vue({
                   v-bind:id="concept[0]"
                   v-bind:name="concept[1]"
                   v-bind:childCount="concept[2]"
+                  v-bind:selectedId="editing ? editing.id : null"
                   v-bind:eventBus="eventBus"
                   v-bind:isSearch="isSearch"
                   v-on:edit-item="loadItem" />
