@@ -30,11 +30,8 @@ GET     /:id/link                                  @controllers.units.Documentar
 GET     /:id/link/:toType                          @controllers.units.DocumentaryUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String, copy: Boolean ?= false)
 POST    /:id/link/:toType/:to                      @controllers.units.DocumentaryUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean ?= false)
-GET     /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotate(id: String)
-POST    /:id/linkm                                 @controllers.units.DocumentaryUnits.linkMultiAnnotatePost(id)
 POST    /:id/linkjs/:accessPoint                   @controllers.units.DocumentaryUnits.createLink(id: String, accessPoint: String)
 GET     /:id/linkjs/:accessPoint                   @controllers.units.DocumentaryUnits.getLink(id: String, accessPoint: String)
-POST    /:id/linkjs                                @controllers.units.DocumentaryUnits.createMultipleLinks(id: String)
 # Refetch access point HTML@
 POST    /:id/accessPoints/create/:desc             @controllers.units.DocumentaryUnits.createAccessPoint(id: String, desc: String)
 GET     /:id/accessPoints/:desc                    @controllers.units.DocumentaryUnits.manageAccessPoints(id: String, desc: String)

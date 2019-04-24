@@ -443,32 +443,8 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       contentAsString(getR) must contain(linkSrc)
       contentAsString(getR) must contain(body)
     }
-
-    "allow linking to multiple items via a single form submission" in new ITestApp {
-      val testItem = "c1"
-      val body1 = "This is a link 1"
-      val body2 = "This is a link 2"
-      val testData: Map[String, Seq[String]] = Map(
-        "link[0].id" -> Seq("c2"),
-        "link[0].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
-        "link[0].data." + LinkF.DESCRIPTION -> Seq(body1),
-        "link[1].id" -> Seq("c3"),
-        "link[1].data." + LinkF.LINK_TYPE -> Seq(LinkF.LinkType.Associative.toString),
-        "link[1].data." + LinkF.DESCRIPTION -> Seq(body2)
-      )
-      val cr = FakeRequest(docRoutes.linkMultiAnnotatePost(testItem))
-        .withUser(privilegedUser).withCsrf.callWith(testData)
-      status(cr) must equalTo(SEE_OTHER)
-      val getR = FakeRequest(GET, redirectLocation(cr).get)
-        .withUser(privilegedUser).call()
-      status(getR) must equalTo(OK)
-      contentAsString(getR) must contain("c2")
-      contentAsString(getR) must contain(body1)
-      contentAsString(getR) must contain("c3")
-      contentAsString(getR) must contain(body2)
-    }
   }
-  
+
   "Documentary unit permissions functionality" should {
 
     "should redirect to login page when permission denied when not logged in" in new ITestApp {
