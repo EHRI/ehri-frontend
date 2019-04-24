@@ -298,7 +298,7 @@ case class DocumentaryUnits @Inject()(
     }
 
   def linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean): Action[AnyContent] =
-    CreateLinkAction(id, toType, to).apply { implicit request =>
+    CreateLinkAction(id, toType, to, directional = copy).apply { implicit request =>
       request.formOrLink match {
         case Left((target, errorForm)) =>
           BadRequest(views.html.admin.link.create(request.from, target,

@@ -250,7 +250,7 @@ trait DataApiHandle {
     *
     * @param id     the item's id
     * @param item   the item's data
-    * @param params    additional web service parameters
+    * @param params additional web service parameters
     * @param logMsg the log message
     * @tparam MT the generic type of the item
     * @tparam T  the generic type of the item's data
@@ -263,7 +263,7 @@ trait DataApiHandle {
     * @param id     the item's id
     * @param data   a JSON object contain the properties to be
     *               updated
-    * @param params    additional web service parameters
+    * @param params additional web service parameters
     * @param logMsg the log message
     * @tparam MT the generic type of the item
     */
@@ -308,7 +308,7 @@ trait DataApiHandle {
     *
     * @param id     the parent item id
     * @param params the list parameters
-    * @param all fetch full tree (children of children)
+    * @param all    fetch full tree (children of children)
     * @tparam MT  the parent generic type
     * @tparam CMT the child generic resource type
     */
@@ -317,9 +317,9 @@ trait DataApiHandle {
   /**
     * Fetch child items as a stream.
     *
-    * @param id the parent item id
+    * @param id     the parent item id
     * @param params the list parameters
-    * @param all fetch full tree (children of children)
+    * @param all    fetch full tree (children of children)
     * @tparam MT  the parent generic type
     * @tparam CMT the child generic resource type
     * @return a Source of child items
@@ -492,13 +492,13 @@ trait DataApiHandle {
   /**
     * Create a link on an item.
     *
-    * @param id          the item id
-    * @param src         the source item id
+    * @param id          the source item id
+    * @param to          the target item id
     * @param link        the link data
     * @param accessPoint an optional access point id
     * @return the updated item
     */
-  def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, src: String, link: AF, accessPoint: Option[String] = None): Future[A]
+  def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, to: String, link: AF, accessPoint: Option[String] = None, directional: Boolean = false): Future[A]
 
   /**
     * Create multiple links on an item.
@@ -619,9 +619,9 @@ trait DataApiHandle {
   /**
     * Set item parent(s). This behaviour is dependent on the item type.
     *
-    * @param id the item id
+    * @param id        the item id
     * @param parentIds a sequence of parent ids
-    * @tparam MT the item's meta model type
+    * @tparam MT  the item's meta model type
     * @tparam PMT the parent item(s) meta model type
     * @return the item
     */

@@ -96,7 +96,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
   ) extends WrappedRequest[A](request)
     with WithOptionalUser
 
-  protected def CreateLinkAction(id: String, toType: EntityType.Value, to: String)(
+  protected def CreateLinkAction(id: String, toType: EntityType.Value, to: String, directional: Boolean = false)(
     implicit ct: ContentType[MT]): ActionBuilder[CreateLinkRequest, AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
@@ -108,7 +108,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
               CreateLinkRequest(request.item, Left((toItem, errorForm)), request.userOpt, request)
             }
           },
-          ann => userDataApi.linkItems[MT, Link, LinkF](id, to, ann).map { link =>
+          link => userDataApi.linkItems[MT, Link, LinkF](id, to, link, directional = directional).map { link =>
             CreateLinkRequest(request.item, Right(link), request.userOpt, request)
           }
         )

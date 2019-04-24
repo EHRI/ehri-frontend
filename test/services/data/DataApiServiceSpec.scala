@@ -218,6 +218,13 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       }
     }
 
+    "allow linking two items" in new ITestApp {
+      val data = LinkF(id = None, linkType = LinkF.LinkType.Copy, description = Some("test"))
+      val link = await(testBackend.linkItems[DocumentaryUnit, Link, LinkF](
+        "c1", "r1", link = data, directional = true))
+      link.source must beSome.which(s => s.id must_== "c1")
+    }
+
     "delete an item by id" in new ITestApp {
       val user = UserProfileF(id = Some("foobar"), identifier = "foo", name = "bar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))

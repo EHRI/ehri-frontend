@@ -11,14 +11,26 @@
                 <span class="label label-warning">@Messages("link." + field.toString)</span>
             }
 
-            <h4>@Messages("link.items")</h4>
-            <ul>
-            @item.targets.map { item =>
-                <li>
-                    <a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
-                </li>
+            @item.source.map { src =>
+                <h4>@Messages("link.source")</h4>
+                @views.html.admin.helpers.linkTo(src)
             }
-            </ul>
+
+            @item.destination.map { dst =>
+                <h4>@Messages("link.destination")</h4>
+                @views.html.admin.helpers.linkTo(dst)
+            }
+
+            @if(!item.isDirectional) {
+                <h4>@Messages("link.items")</h4>
+                <ul>
+                @item.targets.map { item =>
+                    <li>
+                        <a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
+                    </li>
+                }
+                </ul>
+            }
 
             @item.linker.map { u =>
                 <h4>@Messages("link.creator")</h4>
