@@ -35,11 +35,8 @@ GET         /:id/link                                 @controllers.virtual.Virtu
 GET         /:id/link/:toType                         @controllers.virtual.VirtualUnits.linkAnnotateSelect(id: String, toType: EntityType.Value, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/link/:toType/:to                     @controllers.virtual.VirtualUnits.linkAnnotate(id: String, toType: EntityType.Value, to: String)
 POST        /:id/link/:toType/:to                     @controllers.virtual.VirtualUnits.linkAnnotatePost(id: String, toType: EntityType.Value, to: String)
-GET         /:id/linkm                                @controllers.virtual.VirtualUnits.linkMultiAnnotate(id: String)
-POST        /:id/linkm                                @controllers.virtual.VirtualUnits.linkMultiAnnotatePost(id)
 POST        /:id/linkjs/:accessPoint                  @controllers.virtual.VirtualUnits.createLink(id: String, accessPoint: String)
 GET         /:id/linkjs/:accessPoint                  @controllers.virtual.VirtualUnits.getLink(id: String, accessPoint: String)
-POST        /:id/linkjs                               @controllers.virtual.VirtualUnits.createMultipleLinks(id: String)
 POST        /:id/deleteLink/:link                     @controllers.virtual.VirtualUnits.deleteLink(id: String, link: String)
 GET         /:via/:id                                 @controllers.virtual.VirtualUnits.getInVc(via: String, id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 

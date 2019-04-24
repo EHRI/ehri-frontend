@@ -309,24 +309,6 @@ case class DocumentaryUnits @Inject()(
       }
     }
 
-  def linkMultiAnnotate(id: String): Action[AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Annotate).apply { implicit request =>
-      Ok(views.html.admin.link.linkMulti(request.item,
-        Link.multiForm, docRoutes.linkMultiAnnotatePost(id)))
-    }
-
-  def linkMultiAnnotatePost(id: String): Action[AnyContent] =
-    CreateMultipleLinksAction(id).apply { implicit request =>
-      request.formOrLinks match {
-        case Left(errorForms) =>
-          BadRequest(views.html.admin.link.linkMulti(request.item,
-            errorForms, docRoutes.linkMultiAnnotatePost(id)))
-        case Right(_) =>
-          Redirect(docRoutes.get(id))
-            .flashing("success" -> "item.update.confirmation")
-      }
-    }
-
   def manageAccessPoints(id: String, descriptionId: String): Action[AnyContent] =
     WithDescriptionAction(id, descriptionId).apply { implicit request =>
       // Holder IDs for vocabularies and authoritative sets to which

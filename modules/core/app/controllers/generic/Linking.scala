@@ -115,29 +115,6 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
       }
     }
 
-  case class MultiLinksRequest[A](
-    item: MT,
-    formOrLinks: Either[Form[List[(String, LinkF, Option[String])]], Seq[Link]],
-    userOpt: Option[UserProfile],
-    request: Request[A]
-  ) extends WrappedRequest[A](request)
-    with WithOptionalUser
-
-  protected def CreateMultipleLinksAction(id: String)(implicit ct: ContentType[MT]): ActionBuilder[MultiLinksRequest, AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, MultiLinksRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[MultiLinksRequest[A]] = {
-        implicit val req: ItemPermissionRequest[A] = request
-        val multiForm: Form[List[(String, LinkF, Option[String])]] = Link.multiForm
-        multiForm.bindFromRequest.fold(
-          errorForm => immediate(MultiLinksRequest(request.item, Left(errorForm), request.userOpt, request)),
-          links => userDataApi.linkMultiple[MT, Link, LinkF](id, links).map { outLinks =>
-            MultiLinksRequest(request.item, Right(outLinks), request.userOpt, request)
-          }
-        )
-      }
-    }
-
-
   /**
     * Create a link, via Json, for any arbitrary two objects, via an access point.
     */
@@ -149,25 +126,6 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
           val link = new LinkF(id = None, linkType = LinkF.LinkType.Associative, description = ann.description)
           userDataApi.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
             Created(Json.toJson(ann.data))
-          }
-        }
-      )
-    }
-
-  /**
-    * Create a link, via Json, for the object with the given id and a set of
-    * other objects.
-    */
-  def createMultipleLinks(id: String)(implicit ct: ContentType[MT]): Action[JsValue] =
-    WithItemPermissionAction(id, PermissionType.Annotate).async(parsers.json) { implicit request =>
-      request.body.validate[List[AccessPointLink]].fold(
-        errors => immediate(BadRequest(JsError.toJson(errors))),
-        anns => {
-          val links = anns.map(ann =>
-            (ann.target, new LinkF(id = None, linkType = ann.`type`.getOrElse(LinkF.LinkType.Associative), description = ann.description), None)
-          )
-          userDataApi.linkMultiple[MT, Link, LinkF](id, links).map { newLinks =>
-            Created(Json.toJson(newLinks.map(_.data)))
           }
         }
       )
