@@ -311,9 +311,14 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     createAnnotation(id, ann, accessors, Some(did))
   }
 
-  override def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, src: String, link: AF, accessPoint: Option[String] = None): Future[A] = {
+  override def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, to: String, link: AF, accessPoint: Option[String] = None, directional: Boolean = false): Future[A] = {
     val url: String = enc(typeBaseUrl, EntityType.Link)
-    userCall(url).withQueryString(TARGET_PARAM -> id, SOURCE_PARAM -> src)
+    userCall(url)
+      .withQueryString(
+        SOURCE_PARAM -> id,
+        TARGET_PARAM -> to,
+        "directional" -> directional.toString
+      )
       .withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
       .post(Json.toJson(link)(Writable[AF].restFormat)).map { response =>
       cache.remove(canonicalUrl[MT](id))

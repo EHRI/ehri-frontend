@@ -17,7 +17,7 @@ val projectScalaVersion = "2.12.7"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
-val backendVersion = "0.13.10"
+val backendVersion = "0.13.11"
 val dataConverterVersion = "1.1.10"
 
 val backendDependencies = Seq(

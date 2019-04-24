@@ -94,6 +94,7 @@ object Link {
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and
     (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_SOURCE).lazyReadHeadNullable(Model.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable(Accessor.Converter.restReads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).readSeqOrEmpty[AccessPoint] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
@@ -157,6 +158,7 @@ object Link {
 case class Link(
   data: LinkF,
   targets: Seq[Model] = Nil,
+  source: Option[Model] = None,
   linker: Option[Accessor] = None,
   bodies: Seq[AccessPoint] = Nil,
   accessors: Seq[Accessor] = Nil,
@@ -170,6 +172,12 @@ case class Link(
 
   type T = LinkF
 
+  def isDirectional = source.isDefined
+
+  def destination: Option[Model] = source match {
+    case None => None
+    case Some(m) => targets.find(_.id != m.id)
+  }
   def isPromotable: Boolean = data.isPromotable
   def opposingTarget(item: Model): Option[Model] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[Model] = targets.find(_.id != itemId)

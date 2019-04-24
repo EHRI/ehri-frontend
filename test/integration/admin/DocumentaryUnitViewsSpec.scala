@@ -422,8 +422,8 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         .linkAnnotateSelect("c1", EntityType.DocumentaryUnit)).withUser(privilegedUser).call()
       contentAsString(select) must contain(docRoutes
         .linkAnnotate("c1", EntityType.DocumentaryUnit, "c4").url)
-      contentAsString(select) must not contain(docRoutes
-        .linkAnnotate("c1", EntityType.DocumentaryUnit, "a1").url)
+      contentAsString(select) must not contain docRoutes
+        .linkAnnotate("c1", EntityType.DocumentaryUnit, "a1").url
     }
 
     "allow linking to items via annotation" in new ITestApp {
