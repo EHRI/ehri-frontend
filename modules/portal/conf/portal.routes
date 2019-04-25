@@ -50,6 +50,7 @@ GET         /authorities/:id/export               @controllers.portal.Historical
 GET         /keywords                             @controllers.portal.Concepts.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /keywords/:id                         @controllers.portal.Concepts.browse(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /keywords/:id/search                  @controllers.portal.Concepts.search(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty, inline: Boolean ?= false)
+GET         /links/copies                         @controllers.portal.Links.copies()
 GET         /links/:id                            @controllers.portal.Links.browse(id: String)
 GET         /groups/:id                           @controllers.portal.Groups.browse(id: String)
 GET         /vocabularies                         @controllers.portal.Vocabularies.searchAll(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
