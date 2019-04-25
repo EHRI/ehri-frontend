@@ -1,0 +1,73 @@
+@(call: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+
+@js = {
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet.curve.js")"></script>
+
+    <script>
+        function renderMap(rows) {
+          console.log("Rows: ", rows.length);
+            rows.forEach(row => {
+                // Curve code borrowed from this helpful post:
+                // https://medium.com/@@ryancatalani/creating-consistently-curved-lines-on-leaflet-b59bc03fa9dc
+                let [id1, n1, lat1, lon1, id2, n2, lat2, lon2] = row,
+                        latlng1 = [lat1, lon1],
+                        latlng2 = [lat2, lon2];
+
+                let offsetX = latlng2[1] - latlng1[1],
+                        offsetY = latlng2[0] - latlng1[0];
+
+                let r = Math.sqrt( Math.pow(offsetX, 2) + Math.pow(offsetY, 2) ),
+                        theta = Math.atan2(offsetY, offsetX);
+
+                let thetaOffset = (3.14/10);
+
+                let r2 = (r/2)/(Math.cos(thetaOffset)),
+                        theta2 = theta + thetaOffset;
+
+                let midpointX = (r2 * Math.cos(theta2)) + latlng1[1],
+                        midpointY = (r2 * Math.sin(theta2)) + latlng1[0];
+
+                let midpointLatLng = [midpointY, midpointX];
+
+                let pathOptions = {
+                    color: '#6c003b',
+                    weight: 2
+                };
+
+                L.marker([lat1, lon1])
+                        .addTo(map)
+                        .bindPopup(n1);
+                L.marker([lat2, lon2])
+                        .addTo(map)
+                        .bindPopup(n2);
+
+                L.curve(['M', latlng1, 'Q', midpointLatLng, latlng2], pathOptions).addTo(map);
+
+            })
+        }
+
+        let map = L.map("copy-map").setView([40, -20], 3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        fetch("@call.url", {headers: {'X-Requested-With': 'XmlHttpRequest'}})
+                .then(r => r.json())
+                .then(json => renderMap(json.data));
+    </script>
+}
+
+@css = {
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.css")"/>
+    <style>
+            #copy-map {
+                height: 600px;
+            }
+    </style>
+}
+
+@views.html.layout.portalLayout(Messages("link.copies"), scripts = js, styles = css) {
+    <div id="copy-map"></div>
+}
