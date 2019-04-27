@@ -1,0 +1,42 @@
+@(query: CypherQuery)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, md: views.MarkdownRenderer, flash: Flash)
+
+@breadcrumbs = {
+    <nav class="info-bar">
+        <ol class="breadcrumb">
+            <li>
+                <a href="@controllers.api.routes.ApiHome.index()">
+                    API
+                </a>
+            </li>
+            <li>
+                <a href="@controllers.api.datasets.routes.Datasets.list()">
+                    @Messages("api.datasets.header")
+                </a>
+            </li>
+        </ol>
+    </nav>
+}
+
+@views.html.layout.rightSidebarLayout(query.name, breadcrumbs = breadcrumbs) {
+    <h1>@query.name</h1>
+    <section id="dataset-@query.objectId">
+        @query.description.map(Markdown.apply)
+
+        @query.objectId.map { oid =>
+                <h3>@Messages("api.datasets.download")</h3>
+            <div class="dataset-download">
+                @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                    <a class="btn btn-success" title="@Messages(s"download.format.$fmt")"
+                    href="@controllers.api.datasets.routes.Datasets.get(oid, fmt)">
+                        <i class="glyphicon glyphicon-download"></i>
+                        @fmt
+                    </a>
+                }
+            </div>
+        }
+    </section>
+} {
+    <section id="overview">
+        <p class="alert alert-info">@Messages("api.datasets.description")</p>
+    </section>
+}

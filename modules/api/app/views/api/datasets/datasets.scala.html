@@ -24,11 +24,11 @@
             <ul class="search-result-list dataset-list">
             @for(query <- queries; oid <- query.objectId) {
                 @views.html.common.searchItemOutlineWithActions(oid, "CypherQuery") {
-                    @query.name
+                    <a href="@controllers.api.datasets.routes.Datasets.get(oid, DataFormat.Html)">@query.name</a>
                 } {
                     @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                        <a class="btn btn-xs btn-default" title="@Messages(s"download.format.$fmt")"
-                            href="@controllers.api.datasets.routes.Datasets.run(oid, fmt)">
+                        <a class="btn btn-xs btn-success" title="@Messages(s"download.format.$fmt")"
+                            href="@controllers.api.datasets.routes.Datasets.get(oid, fmt)">
                             <i class="glyphicon glyphicon-download"></i>
                             @fmt
                         </a>
