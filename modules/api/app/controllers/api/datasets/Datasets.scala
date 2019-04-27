@@ -55,7 +55,7 @@ case class Datasets @Inject()(
       }
     }
 
-  def run(id: String, format: DataFormat.Value): Action[AnyContent] = Action.async { implicit request =>
+  def get(id: String, format: DataFormat.Value): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     cypherQueries.get(id).map { query =>
       if (!query.public) throw new ItemNotFound(id) else {
         val name = query.name.replaceAll("[\\W-]", "-").toLowerCase
@@ -82,7 +82,7 @@ case class Datasets @Inject()(
               Ok.chunked(cypher.legacy(query.query))
                 .as(ContentTypes.JSON)
                 .withHeaders(ctHeader)
-          case _ => NotAcceptable(s"Unsupported type: $format")
+          case _ => Ok(views.html.api.datasets.show(query))
         }
       }
     }
