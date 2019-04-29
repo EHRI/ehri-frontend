@@ -34,7 +34,7 @@
   @if ($headerSelector: panel-heading) {
     .#{$headerSelector} {
       h3 {
-        @extend .panel-title;
+        @extend .card-title;
       }
 
       .expander {
@@ -49,7 +49,7 @@
     }
   } @else {
     .#{$headerSelector} {
-      @extend .panel-title;
+      @extend .card-title;
     }
   }
 }
@@ -57,12 +57,13 @@
 
 .sidebar-section {
 
-  border: 1px solid $panel-default-border;
+  // FIXME: BS4
+  border: 1px solid #ccc; //$panel-default-border;
   margin-bottom: 20px;
 
   .sidebar-section-heading {
-    background-color: $panel-default-heading-bg;
-    padding: $panel-heading-padding;
+    background-color: #fdfdfd; //$panel-default-heading-bg;
+    padding: 0.5rem 1rem; //$panel-heading-padding;
 
     h1, h2, h3, h4 {
       margin-top: 0;
@@ -85,8 +86,8 @@
 
 
   .sidebar-section-footer {
-    background-color: $panel-footer-bg;
-    padding: $panel-footer-padding
+    background-color: #fdfdfd; //$panel-footer-bg;
+    padding: 0.5rem 1rem; //$panel-footer-padding
   }
 }
 
@@ -96,7 +97,7 @@
   @include hidden-one-col;
 
   .glyphicon {
-    font-size: $font-size-small;
+    font-size: $font-size-sm;
     cursor: pointer;
   }
 

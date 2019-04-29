@@ -4,10 +4,13 @@
   @include make-row();
 
   .user-grid-item {
-    @include make-md-column(3);
-    @include make-lg-column(3);
-    @include make-sm-column(4);
-    @include make-xs-column(8);
+    @include make-col-ready();
+    @include media-breakpoint-up(sm) {
+      @include make-col(4);
+    }
+    @include media-breakpoint-up(md) {
+      @include make-col(3);
+    }
 
     margin-bottom: $large-margin;
   }
@@ -21,7 +24,7 @@
     .user-info {
       @include list-unstyled;
       color: $text-muted;
-      font-size: $font-size-small;
+      font-size: $font-size-sm;
     }
   }
   .img-container {
@@ -65,42 +68,47 @@
 .profile-form-section {
   @include clearfix;
   .control-label {
-    @include make-md-column(4);
+    @include make-col-ready();
+    @include make-col(4);
   }
 
   .control-elements {
-    @include make-md-column(8);
+    @include make-col-ready();
+    @include make-col(8);
   }
 
   // Labels which are also elements (e.g. checkboxes)
   // should be pushed right...
   label.control-elements {
-    @include make-md-column-push(4);
+    @include make-col-ready();
+    @include make-col-offset(4);
   }
 
   .form-submit, .form-global-errors {
-    @include make-md-column-push(4);
-    @include make-md-column(8);
+    @include make-col-ready();
+    @include make-col-offset(4);
+    @include make-col(8);
   }
 }
 
 .user-list-info {
   .user-locations {
     @include list-unstyled;
-    font-size: $font-size-small;
+    font-size: $font-size-sm;
   }
 }
 
 .user-profile-info {
   dt {
     float: left;
-    width: ($component-offset-horizontal - 20);
+    // FIXME: BS4
+    //width: ($component-offset-horizontal - 20);
     clear: left;
     text-align: right;
     @include text-overflow();
   }
   dd {
-    margin-left: $component-offset-horizontal;
+    //margin-left: $component-offset-horizontal;
     @include clearfix; // Clear the floated `dt` if an empty `dd` is present
   }
 }
@@ -112,7 +120,7 @@
 .user-profile-social {
   a {
     color: $muted-gray;
-    font-size: $font-size-small;
+    font-size: $font-size-sm;
   }
 }
 

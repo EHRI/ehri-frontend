@@ -145,13 +145,13 @@ body {
 
 .concept-hierarchy {
   color: $text-muted;
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
 }
 
 .concept-editor-concept-meta {
   @include small-muted();
   margin-bottom: $small-margin;
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
 }
 
 .concept-editor-tab {

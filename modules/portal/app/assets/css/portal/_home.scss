@@ -1,6 +1,7 @@
 .landing-header, .landing-blurb, .landing-news {
-	@include make-md-column(8);
-	@include make-md-column-offset(2);
+	@include make-col-ready();
+	@include make-col(8);
+	@include make-col-offset(2);
 }
 .landing-header, .landing-news {
 	@extend .tertiary-content;

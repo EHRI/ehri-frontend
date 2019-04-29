@@ -38,7 +38,8 @@
 
   .search-box {
     @extend .form-group;
-    @include make-md-column(10);
+    @include make-col-ready();
+    @include make-col(10);
   }
 
   .search-heading {
@@ -52,7 +53,8 @@
   }
 
   .search-helper-container {
-    @include make-md-column(2);
+    @include make-col-ready();
+    @include make-col(2);
 
     .search-helper-toggle {
       padding: 0;

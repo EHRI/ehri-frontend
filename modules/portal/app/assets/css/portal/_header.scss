@@ -31,7 +31,7 @@ header#header {
     }
   }
 
-  @media screen and (max-width: $screen-sm-min) {
+  @media screen and (max-width: map_get($grid-breakpoints, md)) {
     background-size: auto;
   }
 

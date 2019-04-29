@@ -37,8 +37,9 @@
 
 .form-actions {
   @include make-row();
-  background-color: $well-bg;
-  border-top: 1px solid $well-border;
+  // FIXME: BS4
+  background-color: #f5f5f5; //$well-bg
+  border-top: 1px solid darken(#f5f5f5, 7%); //$well-border;
   padding: 3 * $small-padding $small-padding;
   margin: 0;
 
@@ -48,8 +49,9 @@
   }
 
   .form-group {
-    @include make-md-column(9);
-    @include make-md-column-offset(3);
+    @include make-col-ready();
+    @include make-col(9);
+    @include make-col-offset(3);
   }
 }
 
@@ -58,7 +60,7 @@
 }
 
 .btn-cancel {
-  @extend .btn-default;
+  //@extend .btn-default;
 }
 
 .btn-facebook, .btn-google, .btn-yahoo, .btn-openid {

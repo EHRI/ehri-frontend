@@ -2,8 +2,12 @@
   @include make-row();
 
   .login-or-signup {
-	@include make-md-column-push(2);
-	@include make-md-column(8);
+    // FIXME: BS4
+	//@include make-md-column-push(2);
+	//@include make-md-column(8);
+    @include make-col-ready();
+    @include make-col-offset(2);
+    @include make-col(8);
   }
 }
 

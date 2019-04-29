@@ -14,9 +14,10 @@ $badge-size: 50px;
     right: $badge-size / 2;
     display: block;
     content: "";
-    border-right: 3px solid $gray-lighter;
+    // FIXME: BS4
+    border-right: 3px solid $gray-100; //$gray-lighter;
   }
-  @media (max-width: $screen-xs-min) {
+  @media (max-width: map_get($grid-breakpoints, sm)) {
     margin-right: 0;
     &:after {
       display: none;
@@ -47,7 +48,7 @@ $badge-size: 50px;
 .timeline-badge-container {
   display: table-cell;
   width: $badge-size;
-  @media (max-width: $screen-xs-min) {
+  @media (max-width: map-get($grid-breakpoints, sm)) {
     display: none;
   }
 }
@@ -74,7 +75,7 @@ $badge-size: 50px;
 .timeline-separator {
   display: table-cell;
   width: $badge-size / 2;
-  @media (max-width: $screen-xs-min) {
+  @media (max-width: map-get($grid-breakpoints, sm)) {
     display: none;
   }
 }
@@ -148,7 +149,7 @@ $badge-size: 50px;
     border-right: 0 solid #fff;
     border-bottom: 14px solid transparent;
   }
-  @media (max-width: $screen-xs-min) {
+  @media (max-width: map_get($grid-breakpoints, sm)) {
     &:before, &:after {
       display: none;
     }
@@ -175,11 +176,12 @@ $badge-size: 50px;
 .timeline-event-title-image {
   @include gravitar-image(5px);
   @extend .pull-left;
-  @extend .img-circle;
+  // FIXME: BS4
+  //@extend .img-circle;
   height: 40px;
   width: 40px;
   margin-right: $small-margin;
-  @media (max-width: $screen-xs-min) {
+  @media (max-width: map-get($grid-breakpoints, sm)) {
     height: 30px;
     width: 30px;
   }
@@ -191,12 +193,12 @@ $badge-size: 50px;
 
 .timeline-fetch-more {
   @extend .btn;
-  @extend .btn-default;
+  //@extend .btn-default;
   @extend .btn-block;
 }
 
 .timeline-summary {
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
   dt {
     font-weight: normal;
     font-style: italic;

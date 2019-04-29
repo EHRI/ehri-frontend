@@ -39,7 +39,8 @@
   > a.remove-filter {
     color:white!important;
     .remove {
-      @extend .glyphicon, .glyphicon-remove;
+      // FIXME: BS4
+      //@extend .glyphicon, .glyphicon-remove;
       &:hover {
         background-color: darken($search-glow, 10%);
       }

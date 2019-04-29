@@ -105,7 +105,8 @@ select.custom-accessors {
   }
 
   .annotation-form-controls {
-    @include make-md-column(12);
+    @include make-col-ready();
+    @include make-col(12);
 
     .visibility-controls {
       @extend .pull-left;
@@ -127,8 +128,9 @@ select.custom-accessors {
 }
 
 .item-text-field-annotation-container {
-  @include make-md-column-offset(3);
-  @include make-md-column(9);
+  @include make-col-ready();
+  @include make-col-offset(3);
+  @include make-col(9);
 
   .item-text-field-annotations {
     @include make-row();
@@ -208,8 +210,9 @@ select.custom-accessors {
 }
 
 .annotation-form {
-  background-color: $well-bg;
-  font-size: $font-size-small;
+  // FIXME: BS4
+  background-color: #f5f5f5;
+  font-size: $font-size-sm;
   line-height: 1.2;
   padding: $small-padding;
 

@@ -46,11 +46,14 @@ article.double {
   @include make-row();
 
   > aside.right-sidebar {
-    @include make-sm-column(3);
-    @include make-sm-column-push(9);
+    // FIXME: BS4
+    @include make-col-ready();
+    @include make-col(3);
+    @include make-col-offset(9);
   }
   > section.main {
-    @include make-sm-column(9);
-    @include make-sm-column-pull(3);
+    @include make-col-ready();
+    @include make-col(9);
+    //@include make-(3);
   }
 }

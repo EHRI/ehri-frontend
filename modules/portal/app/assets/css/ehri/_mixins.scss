@@ -15,6 +15,12 @@
 }
 
 @mixin small-muted {
-  font-size: floor((100% * $font-size-small / $font-size-base));
+  font-size: floor((100% * $font-size-sm / $font-size-base));
   color: $text-muted;
+}
+
+@mixin text-overflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

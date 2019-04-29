@@ -1,4 +1,4 @@
-@media (max-width: $screen-xs-max) {
+@media (max-width: map_get($grid-breakpoints, sm)) {
 	h1 {
 		font-size:ceil(($font-size-base * 1.4));
 	}

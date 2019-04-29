@@ -27,7 +27,7 @@
 
 /** child items */
 .item-children > a {
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
   padding-right: $large-padding; //$medium-padding + $small-padding;
   font-weight: lighter;
   color: $almost-black;
@@ -44,7 +44,7 @@
 }
 
 .search-sort {
-  @extend .list-unstyled, .list-inline, .hidden-xs;
+  @extend .list-unstyled, .list-inline;
   float: right;
   span.fa {
     padding: $small-padding;
@@ -91,7 +91,7 @@ em.highlight {
 }
 
 .search-item-details {
-  font-size: $font-size-small;
+  font-size: $font-size-sm;
 
   ul, ol {
     @include list-unstyled;
@@ -146,21 +146,25 @@ em.highlight {
 .search-results {
   @include make-row();
   .search-sidebar {
-    @include make-sm-column(3);
-    @include make-sm-column-push(9);
+    @include make-col-ready();
+    @include make-col-offset(9);
+    @include make-col(3);
     margin-bottom: $medium-margin;
   }
 
   .search-results-body {
-    @include make-sm-column(9);
-    @include make-sm-column-pull(3);
+    @include make-col-ready();
+    //@include make-col-offset(2);
+    @include make-col(9);
+
   }
 }
 
 .search-results-no-facets {
   @include make-row();
   .search-results-body {
-    @include make-md-column(12);
+    @include make-col-ready();
+    @include make-col-offset(12);
   }
 }
 
@@ -223,7 +227,7 @@ em.highlight {
 }
 
 .child-items-inline-list-more {
-  @extend .btn, .btn-sm, .btn-default;
+  @extend .btn, .btn-sm;
   width: 100%;
   padding: 3px;
   &:hover {
@@ -234,7 +238,7 @@ em.highlight {
 }
 
 .search-item-list-more {
-  @extend .btn, .btn-default;
+  @extend .btn;
   width: 100%;
   &:hover {
     text-decoration: none;

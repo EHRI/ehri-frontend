@@ -23,7 +23,7 @@ body {
   background-size: 100% auto;
   background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects.jpg);
 
-  @media screen and (max-width: $screen-sm-min) {
+  @media screen and (max-width: map_get($grid-breakpoints, sm)) {
     background-size: auto;
   }
 }
@@ -44,7 +44,7 @@ body {
   background-repeat: no-repeat;
   background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/logo-trans-small.png);
 
-  @media screen and (max-width: $screen-sm-min) {
+  @media screen and (max-width: map_get($grid-breakpoints, sm)) {
     min-height: 10 * $small-padding;
     padding-top: 10 * $small-padding;
     padding-bottom: 10 * $small-padding;
@@ -53,8 +53,9 @@ body {
 }
 
 #welcome-banner .search-box {
-  @include make-md-column-offset(2);
-  @include make-md-column(8);
+  @include make-col-ready();
+  @include make-col-offset(2);
+  @include make-col(8);
 }
 
 #welcome-banner .search-bar input[name='q'] {
@@ -72,14 +73,16 @@ body {
 
 .welcome-lead {
   margin-top: 3 * $medium-margin;
-  @include make-md-column(12);
+  @include make-col-ready();
+  @include make-col(12);
   > p {
     @extend .lead;
   }
 }
 
 .welcome-section {
-  @include make-md-column(4);
+  @include make-col-ready();
+  @include make-col(4);
   h2 {
     padding-bottom: $small-padding;
     border-bottom: 5px solid transparent;
@@ -125,7 +128,8 @@ body {
 }
 
 .info-container {
-  @include make-md-column(6);
+  @include make-col-ready();
+  @include make-col(6);
   margin-top: $large-margin * 2;
 }
 
@@ -357,8 +361,9 @@ main.block-text {
   @include make-row();
 
   article {
-    @include make-md-column-push(2);
-    @include make-md-column(8);
+    @include make-col-ready();
+    @include make-col-offset(2);
+    @include make-col(8);
   }
 }
 
