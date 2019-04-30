@@ -2,24 +2,29 @@
 
 // Inline form controls
 .inline-control {
-  @include make-sm-column(11);
+  @include make-col-ready();
+  @include make-col(11);
 }
 
 .inline-remove {
-  @include make-sm-column(1);
+  @include make-col-ready();
+  @include make-col(1);
 }
 
 .inline-label {
-  @include make-sm-column(3);
+  @include make-col-ready();
+  @include make-col(3);
 }
 
 .inline-element-list {
-  @include make-sm-column(9);
+  @include make-col-ready();
+  @include make-col(9);
 }
 
 .inline-element {
   &-data {
-    @include make-sm-column(11);
+    @include make-col-ready();
+    @include make-col(11);
 
     // Tables within data elements (e.g. date selectors)
     // require some tweaks to look consistent, namely,
@@ -38,23 +43,27 @@
     }
   }
   &-remove {
-    @include make-sm-column(1);
+    @include make-col-ready();
+    @include make-col(1);
   }
 }
 
 // standard form controls
 .form-group {
   >.control-label {
-    @include make-md-column(3);
+    @include make-col-ready();
+    @include make-col(3);
   }
 
   >.control-elements {
-    @include make-md-column(9);
+    @include make-col-ready();
+    @include make-col(9);
   }
 }
 
 .inline-element-block {
-  @include make-md-column(12);
+  @include make-col-ready();
+  @include make-col(12);
 
   .inline-element-block-controls {
     margin-bottom: $medium-margin;
@@ -64,7 +73,8 @@
     }
   }
   .control-element {
-    @include make-md-column(9);
+    @include make-col-ready();
+    @include make-col(9);
   }
 }
 
@@ -73,6 +83,6 @@
   border:1px solid #ccc;
   margin-bottom: 10px;
   &.danger {
-    border-color: $state-danger-text;
+    border-color: $danger;
   }
 }

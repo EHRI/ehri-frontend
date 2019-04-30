@@ -59,7 +59,8 @@ body {
 }
 
 #welcome-banner .search-bar input[name='q'] {
-  @extend .input-lg;
+  // FIXME: BS4
+  //@extend .input-lg;
 }
 
 #welcome-banner .search-bar button {
@@ -152,7 +153,9 @@ blockquote {
 }
 
 .repository-logo {
-  @extend .hidden-xs, .hidden-sm;
+  @include media-breakpoint-down(sm) {
+    display: none;
+  }
   img {
     max-width: 100%;
     margin: $medium-margin 0;
@@ -349,7 +352,7 @@ ol.cookie-usage {
   padding: $medium-padding;
 
   img {
-    @extend .img-responsive;
+    @extend .img-fluid;
   }
 
   .caption {

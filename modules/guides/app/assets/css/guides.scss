@@ -167,7 +167,8 @@ h1.guide-title {
       .person-item {
         h2 {
           background-image: url(../images/test-data/default.jpg);
-          @include box-sizing(border-box);
+          // FIXME: BS4
+          //@include box-sizing(border-box);
           @include border-top-radius(5px);
           background-position: center center;
           height: 80px;
@@ -544,7 +545,7 @@ header#top {
 //
 //	Responsive utilities on dropdown / Little screens
 //-----
-@media (min-width: $screen-xs-min) and (max-width: $screen-md-min) {
+@include media-breakpoint-between(xs, md) {
   //
   //	MENU
   //---------------------

@@ -61,8 +61,9 @@
 
 .ap-editor-new-access-point-controls, .ap-editor-pending-items li {
   margin-top: $medium-margin;
-  @include make-md-column-offset(3);
-  @include make-md-column(9);
+  @include make-col-ready();
+  @include make-col-offset(3);
+  @include make-col(9);
 }
 
 .ap-editor-access-points {

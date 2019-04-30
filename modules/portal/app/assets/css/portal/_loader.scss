@@ -3,7 +3,8 @@
   -moz-animation: spin 1s infinite linear;
   -o-animation: spin 1s infinite linear;
   animation: spin 1s infinite linear;
-  @extend .glyphicon, .glyphicon-refresh;
+  // FIXME: BS4
+  //@extend .glyphicon, .glyphicon-refresh;
 }
 
 @-moz-keyframes spin {

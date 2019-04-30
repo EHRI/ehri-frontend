@@ -15,7 +15,9 @@ header#header {
   .global-search {
     // Currently, don't show the global search in the
     // collapsed header because it looks terrible, so
-    @extend .hidden-xs;
+    @include media-breakpoint-down(xs) {
+      display: none;
+    }
 
     margin-top: $small-margin;
     margin-right: $small-margin;
@@ -52,7 +54,7 @@ header#header {
 }
 
 .user-img-icon {
-  @extend .img-responsive;
+  @extend .img-fluid;
   display: inline;
   vertical-align: top;
 }

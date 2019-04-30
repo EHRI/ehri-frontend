@@ -188,7 +188,9 @@
 .sidepanel-toc {
   background-color: #ffffff;
 
-  @extend .hidden-xs, .hidden-sm;
+  @include media-breakpoint-down(sm) {
+    display: none;
+  }
 }
 
 .affix-bottom {
@@ -201,7 +203,7 @@
 }
 
 .empty-description {
-  @extend .well, .well-sm;
+  @include well(sm);
 }
 
 .description-form-tabs {

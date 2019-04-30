@@ -252,7 +252,7 @@ select.custom-accessors {
   }
   button[type="submit"] {
     margin: 0 auto;
-    @extend .btn-xs;
+    @extend .btn-sm;
     &:first-letter {
       text-transform: uppercase;
     }

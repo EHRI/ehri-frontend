@@ -5,7 +5,7 @@ $highlight-color: #6c003b;
 $background-highlight: #ffffbb;
 
 // gray border
-$admin-border: $input-border; //#ebebeb;
+$admin-border: #ebebeb;
 
 // Spacings
 $search-item-spacing: 1.5em;
@@ -285,7 +285,8 @@ a.alt {
   @include make-row();
 
   .overview-box {
-    @include make-md-column(6);
+    @include make-col-ready();
+    @include make-col(6);
   }
 }
 
@@ -334,7 +335,8 @@ a.inline-action:hover {
 // only used on the global search bar
 .twitter-typeahead {
   display: block !important;
-  height: $input-height-base;
+  // FIXME:BS4
+  //height: $input-height-base;
 }
 
 .copy-links {
@@ -344,13 +346,13 @@ a.inline-action:hover {
 }
 
 .select-link-target a {
-  @extend .btn, .btn-xs, .btn-warning;
+  @extend .btn, .btn-sm, .btn-warning;
   width: 100%;
   margin-bottom: $medium-margin;
 }
 
 .select-copy-link-target a {
-  @extend .btn, .btn-xs, .btn-info;
+  @extend .btn, .btn-sm, .btn-info;
   width: 100%;
   margin-bottom: $medium-margin;
 }

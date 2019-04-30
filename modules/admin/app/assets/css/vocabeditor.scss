@@ -188,16 +188,18 @@ body {
 }
 
 #concept-editor-nav-tabs li.error a {
-  color: $alert-danger-text;
+  color: $danger;
 }
 
 .concept-editor-tab-form-footer {
   padding: $large-padding;
-  border-top: 1px solid $list-group-border;
+  // FIXME: BS4
+  //border-top: 1px solid $list-group-border;
 }
 
 .concept-editor-tab.error .concept-editor-tab-form-footer {
-  background-color: $state-danger-bg;
+  // FIXME: BS4
+  //background-color: $state-danger-bg;
 }
 
 .concept-editor-description-tabs li {
@@ -223,7 +225,8 @@ body {
 .concept-editor-new-description-form {
   background-color: #fff;
   padding: $large-padding;
-  border: 1px solid $list-group-border;
+  // FIXME: BS4
+  //border: 1px solid $list-group-border;
   margin-top: 13px;
 }
 

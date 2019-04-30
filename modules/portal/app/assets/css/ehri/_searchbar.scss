@@ -2,7 +2,7 @@
 
 #search-helper {
 
-  @extend .well, .well-sm;
+  @include well(sm);
 
   text-align: left;
 
