@@ -2,3 +2,35 @@
 #search-helper {
   @extend .collapse;
 }
+
+.search-result-list {
+  @include list-unstyled();
+}
+
+.search-item-details {
+  > ul {
+    @extend .list-inline;
+
+    > li {
+      @extend .list-inline-item;
+    }
+  }
+}
+
+.other-name-list, .other-name-list-small {
+  @extend .list-inline;
+
+  > li {
+    @extend .list-inline-item;
+  }
+}
+
+ul.pagination {
+  li {
+    @extend .page-item;
+
+    a {
+      @extend .page-link;
+    }
+  }
+}
