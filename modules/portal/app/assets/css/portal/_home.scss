@@ -1,26 +1,26 @@
-.landing-header, .landing-blurb, .landing-news {
-	@include make-col-ready();
-	@include make-col(8);
-	@include make-col-offset(2);
-}
-.landing-header, .landing-news {
-	@extend .tertiary-content;
-}
-.landing-news {
-	padding:0;
-}
-.landing-header, .block-header {
-	font-size:16px;
-	padding: 10px 15px;
-	background-color:$medium-gray;
-	color:black;
-	> a, 
-	> a:hover,
-	> a:visited {
-		color:black;
-	}
+
+#welcome-container {
+  @extend .container;
 }
 
-.block-header.small {
-	padding: 5px 10px;
+#portal-sections, #portal-section-contents, #portal-info {
+  @extend .row;
+}
+
+.welcome-section {
+  @include make-col-ready();
+  @include make-col(4);
+
+  @include media-breakpoint-down(sm) {
+    @include make-col(12);
+  }
+}
+
+.info-container {
+  @include make-col-ready();
+  @include make-col(6);
+
+  @include media-breakpoint-down(sm) {
+    @include make-col(12);
+  }
 }

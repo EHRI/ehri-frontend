@@ -1,0 +1,33 @@
+
+#navbar-primary-container, #navbar-top-container {
+  @extend .navbar, .navbar-expand-md;
+}
+
+#navbar-top-container {
+  @extend .container;
+  @extend .navbar-dark;
+}
+
+#navbar-primary-container {
+  @extend .container;
+  @extend .navbar-light;
+}
+
+#navbar-primary, #navbar-secondary, #navbar-account, #navbar-actions {
+  > ul {
+    @extend .nav;
+
+    > li {
+      @extend .nav-item;
+
+      > a {
+        @extend .nav-link;
+      }
+    }
+  }
+}
+
+#navbar-account {
+  @include float-right();
+  @extend .navbar, .navbar-collapse;
+}

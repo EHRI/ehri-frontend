@@ -1,6 +1,5 @@
 // <-- Bootstrap
-
-@import "./ehri/variables";
+@import "portal/variables";
 
 // Bootstrap 4
 @import "bootstrap/functions";
@@ -41,49 +40,17 @@
 @import "bootstrap/utilities";
 @import "bootstrap/print";
 
-
-// --> Bootstrap
-
 // Font-awesome
 @import "./font-awesome.scss";
 
-//IMPORT EHRI STUFF
-@import "ehri/mixins";
-@import "ehri/forms";
-@import "ehri/visibility";
-@import "ehri/markdown";
-@import "ehri/login";
-@import "ehri/signup";
-@import "ehri/lists";
-@import "ehri/search";
-@import "ehri/panels";
-@import "ehri/timeline"; // CSS size: 260k
-@import "ehri/buttons";
-@import "ehri/sidebar";
-@import "ehri/facets";
-@import "ehri/breadcrumb";
-@import "ehri/layouts";
-@import "ehri/responsive";
-@import "ehri/descriptions";  // 348k
-@import "ehri/searchbar";
-@import "ehri/footer";  // 364k
-
-@import "ehri/entityType";
-@import "ehri/preferences";
-//@import "browser/browser";
-
-//Portal
-@import "portal/loader";
-@import "portal/index";
-//
-@import "portal/header";
-@import "portal/annotations";
-//@import "portal/cookies";
-@import "portal/feedback";
-@import "portal/typeahead";
+// Portal
 @import "portal/home";
-@import "portal/profile";
-@import "portal/print";
-@import "portal/dataPolicy";
-@import "portal/bookmarks";
-@import "portal/promotion";
+@import "portal/search";
+@import "portal/navbar";
+@import "portal/footer";
+
+.main-content {
+  @extend .container;
+}
+
+

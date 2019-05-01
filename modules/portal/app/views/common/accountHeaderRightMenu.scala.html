@@ -1,6 +1,6 @@
 @(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
 
-<ul class="account-admin nav navbar-nav navbar-right">
+<ul>
     @if(showSearch) {
         <li>
             @helper.form(action = controllers.portal.routes.Portal.search(), 'class ->
