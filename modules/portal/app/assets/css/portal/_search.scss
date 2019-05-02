@@ -34,3 +34,24 @@ ul.pagination {
     }
   }
 }
+
+// Show facets in wide views
+.facet-classes.collapse {
+  @include media-breakpoint-up(lg) {
+    display: block;
+  }
+}
+
+.search-bar {
+  @include make-row();
+
+  > .search-box {
+    @include make-col-ready();
+    @include make-col(10);
+  }
+
+  > .search-helper-container {
+    @include make-col-ready();
+    @include make-col(2);
+  }
+}

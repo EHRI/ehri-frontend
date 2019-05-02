@@ -3,10 +3,10 @@
 @if(list.nonEmpty) {
     @defining(fieldAnnotations.filter(_.data.field.contains(key))) { anns =>
         <div class="item-text-field @{if(views.Helpers.isAnnotatable(item, userOpt)) "annotable"}" id="@nodeId-@key">
-            <h4 class="item-text-field-header">
-                @Messages(if(fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")
+            <header class="item-text-field-header">
+                <h4>@Messages(if(fieldPrefix.isEmpty) key else s"$fieldPrefix.$key")</h4>
                 @fieldAnnotationButton(item, nodeId, key, anns)
-            </h4>
+            </header>
             <ul class="item-text-field-value item-text-field-list">
             @list.map { item =>
                 <li dir="@views.Helpers.textDirectionAttr(item)">@Markdown(transformFunc(item))</li>

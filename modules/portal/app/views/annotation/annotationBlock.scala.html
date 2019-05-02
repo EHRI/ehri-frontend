@@ -3,7 +3,7 @@
 @import defines.{ContentTypes, PermissionType}
 
 <div class="annotation item-text-field @(if(annotation.isPromoted) "promoted")" id="@annotation.id">
-    <div class="item-text-field-header">
+    <header class="item-text-field-header">
     @for(them <- annotation.user; event <- annotation.latestEvent) {
         @views.html.helpers.linkTo(them, attributes = Seq('rel -> "nofollow"))
         <div class="annotation-meta">
@@ -32,7 +32,7 @@
             }
         </div>
     }
-    </div>
+    </header>
     <div class="item-text-field-value">
     @Html(md.renderUntrustedMarkdown(annotation.data.body))
     </div>

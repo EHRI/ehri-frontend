@@ -28,6 +28,5 @@
 }
 
 #navbar-account {
-  @include float-right();
-  @extend .navbar, .navbar-collapse;
+  @extend .navbar, .navbar-collapse, .pull-right;
 }

@@ -3,8 +3,8 @@
 @views.html.common.typeLabel(item.isA)  {
     @priorContent
     @userOpt.map { _ =>
-        <ul class="item-sidebar-actions list-group">
-          <li class="list-group-item btn-group-justified watch-controls" role="listitem">
+        <ul class="item-sidebar-actions">
+          <li class="watch-controls" role="listitem">
             @views.html.common.watchButtons(item, watched)
           </li>
         </ul>
