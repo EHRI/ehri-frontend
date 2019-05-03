@@ -1,0 +1,12 @@
+
+#activity-stream {
+  @include list-unstyled();
+}
+
+.timeline-event {
+  @extend .media;
+
+  .timeline-body {
+    @extend .media-body;
+  }
+}

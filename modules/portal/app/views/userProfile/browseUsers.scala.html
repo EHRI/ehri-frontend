@@ -4,7 +4,7 @@
 
 @userInfo(html: Html) = {
     @if(html.body.trim.nonEmpty) {
-        <ul class="user-info">@html</ul>
+        <ul>@html</ul>
     }
 }
 
@@ -30,7 +30,7 @@
                     </div>
                 </div>
 
-                <ul class="user-grid clearfix">
+                <ul class="user-grid">
                     @result.page.map { case (user, hit) =>
                         <li class="user-grid-item user-info">
                             <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">

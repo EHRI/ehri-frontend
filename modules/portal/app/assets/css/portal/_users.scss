@@ -1,0 +1,24 @@
+
+.user-grid {
+  @include clearfix();
+  @include list-unstyled();
+  @extend .list-inline;
+
+  .user-info {
+    @include float-left();
+    width: 30rem;
+    @extend .media;
+
+    img {
+      width: 10rem;
+    }
+
+    .user-info-details {
+      @extend .media-body;
+
+      > ul {
+        @include list-unstyled();
+      }
+    }
+  }
+}

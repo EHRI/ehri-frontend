@@ -35,10 +35,15 @@ ul.pagination {
   }
 }
 
-// Show facets in wide views
-.facet-classes.collapse {
-  @include media-breakpoint-up(lg) {
-    display: block;
+.facet-classes {
+
+  @include list-unstyled();
+
+  // Show facets in wide views
+  &.collapse {
+    @include media-breakpoint-up(lg) {
+      display: block;
+    }
   }
 }
 
@@ -53,5 +58,17 @@ ul.pagination {
   > .search-helper-container {
     @include make-col-ready();
     @include make-col(2);
+  }
+}
+
+.search-result-errata {
+  @include clearfix();
+
+  .search-sort {
+    @include float-right();
+  }
+
+  .search-summary {
+    @include float-left();
   }
 }
