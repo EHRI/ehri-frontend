@@ -1,3 +1,11 @@
+.user-list {
+  @include list-unstyled();
+}
+
+.user-thumbnail {
+  width: 3rem;
+  height: 3rem;
+}
 
 .user-grid {
   @include clearfix();
@@ -7,18 +15,27 @@
   .user-info {
     @include float-left();
     width: 30rem;
-    @extend .media;
 
     img {
       width: 10rem;
     }
-
-    .user-info-details {
-      @extend .media-body;
-
-      > ul {
-        @include list-unstyled();
-      }
-    }
   }
 }
+
+.user-info {
+  @extend .media;
+
+  .user-info-details {
+    @extend .media-body;
+
+    > ul {
+      @include list-unstyled();
+    }
+  }
+
+  .follow-controls {
+    //@include float-right();
+    @extend .ml-auto;
+  }
+}
+

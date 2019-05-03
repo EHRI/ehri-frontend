@@ -19,30 +19,37 @@
     }
 }
 
-@users.map { other =>
-    <li class="user-list-item search-item @{if(isCurrentUser(other)) "current"}">
-        @if(!isCurrentUser(other)) {
-            @defining(following.exists(_.id == other.id)) { follows =>
-                <div class="follow-controls">
-                @views.html.common.followingButtons(other, follows)
+@if(users.nonEmpty) {
+    <ul class="user-list">
+    @users.map { other =>
+        <li class="user-info @{if(isCurrentUser(other)) "current"}">
+            <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
+                <img class="user-thumbnail" alt="@other.data.name"
+                    height="48"
+                    width="48" src="@views.Helpers.gravitar(other.data.imageUrl)" />
+            </a>
+            <div class="user-info-details">
+                <h3 class="search-item-heading type-highlight UserProfile">
+                    <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
+                </h3>
+                <div class="search-item-body">
+                    <div class="search-item-details">
+                    @userListInfo {
+                        @textSection(other.data.role)
+                        @textSection(other.data.institution)
+                        @textSection(other.data.location)
+                    }
+                    </div>
                 </div>
-            }
-        }
-        <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
-            <img height="48" width="48" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(other.data.imageUrl)" />
-        </a>
-
-        <h3 class="search-item-heading type-highlight UserProfile">
-            <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
-        </h3>
-        <div class="search-item-body">
-            <div class="search-item-details">
-            @userListInfo {
-                @textSection(other.data.role)
-                @textSection(other.data.institution)
-                @textSection(other.data.location)
-            }
             </div>
-        </div>
-    </li>
+            @if(!isCurrentUser(other)) {
+                @defining(following.exists(_.id == other.id)) { follows =>
+                    <div class="follow-controls">
+                        @views.html.common.followingButtons(other, follows)
+                    </div>
+                }
+            }
+        </li>
+    }
+    </ul>
 }
