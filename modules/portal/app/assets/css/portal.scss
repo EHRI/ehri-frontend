@@ -43,16 +43,8 @@
 // Font-awesome
 @import "./font-awesome.scss";
 
-// Portal
-@import "portal/home";
-@import "portal/layouts";
-@import "portal/activity";
-@import "portal/users";
-@import "portal/sidebar";
-@import "portal/descriptions";
-@import "portal/search";
-@import "portal/navbar";
-@import "portal/footer";
+// Portal layout CSS
+@import "portal/layout";
 
 .main-content {
   @extend .container;
