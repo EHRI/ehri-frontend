@@ -53,3 +53,10 @@ ul.action-group {
   }
 }
 
+// Form sidebar navigation
+ul.form-navigation {
+  @extend .list-group;
+  > li {
+    @extend .list-group-item;
+  }
+}
