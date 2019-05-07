@@ -108,6 +108,12 @@ article.double, .search-results {
   }
 }
 
+ul.dropdown-menu {
+  > li {
+    @extend .dropdown-item;
+  }
+}
+
 #navbar-account {
   @extend .navbar, .navbar-collapse, .pull-right;
 }

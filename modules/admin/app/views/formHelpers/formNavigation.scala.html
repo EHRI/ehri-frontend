@@ -1,11 +1,15 @@
 @(fieldPrefix: String, targets: String*)(implicit messages: Messages)
 
-<div id="form-nav-sidebar" class="vertical-navbar" data-spy="affix" data-offset-top="50">
-    <ul class="nav nav-pills nav-stacked">
+<div id="form-nav-sidebar" data-spy="affix" data-offset-top="50">
+    <ul class="nav form-navigation">
         @targets.map { s =>
             <li role="presentation"><a href="#@{s}">@Messages(fieldPrefix + "." + s)</a></li>
         }
-        <li><a class="markdown-helper" title="@Messages("markdown.cheatsheet.title")">@Messages("markdown.cheatsheet.title")</a></li>
+        <li>
+            <a class="markdown-helper" title="@Messages("markdown.cheatsheet.title")">
+            @Messages("markdown.cheatsheet.title")
+                @common.markdownCheatsheet()
+            </a>
+        </li>
     </ul>
-    @common.markdownCheatsheet()
 </div>
