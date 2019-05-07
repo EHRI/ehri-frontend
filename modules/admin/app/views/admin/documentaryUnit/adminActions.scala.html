@@ -28,7 +28,7 @@
 }
 
 @views.html.admin.common.sidebarSection(Some(Messages("export"))) {
-    @views.html.admin.common.listGroup {
+    @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
         }
@@ -39,7 +39,7 @@
 }
 
 @views.html.admin.common.sidebarSection(Some(Messages("ingest"))) {
-    @views.html.admin.common.listGroup {
+    @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
             <a href="@controllers.units.routes.DocumentaryUnits.ingest(item.id)">@Messages("ingest.format.ead-sync")</a>
         }

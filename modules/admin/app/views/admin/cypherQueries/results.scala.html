@@ -35,7 +35,7 @@
         }
 
         @views.html.admin.common.sidebarSection(Some(Messages("download"))) {
-            @views.html.admin.common.listGroup {
+            @views.html.admin.common.sidebarActionGroup {
                 @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
                     @views.html.admin.common.sidebarAction() {
                         <a

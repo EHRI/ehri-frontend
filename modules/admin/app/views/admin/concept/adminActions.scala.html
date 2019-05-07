@@ -19,7 +19,7 @@
 }
 
 @views.html.admin.common.sidebarSection(Some(Messages("export"))) {
-    @views.html.admin.common.listGroup {
+    @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
         }
