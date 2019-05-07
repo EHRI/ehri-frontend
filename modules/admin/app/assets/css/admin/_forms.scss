@@ -1,0 +1,55 @@
+ul.action-group {
+  @extend .list-group;
+
+  > li {
+    @extend .list-group-item;
+
+    &.warning {
+      @extend .list-group-item-warning;
+    }
+    &.danger {
+      @extend .list-group-item-danger;
+    }
+  }
+}
+
+// Form templates are hidden elements used to generate
+// a new inline item...
+.form-template {
+  display: none;
+}
+
+// standard form controls
+@include media-breakpoint-up(lg) {
+  .form-group {
+    @include make-row();
+
+    > .control-label {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+
+    > .control-elements,
+      .inline-element-list {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}
+
+.inline-element {
+  > .form-group {
+    @include make-row();
+
+    > .inline-control {
+      @include make-col-ready();
+      @include make-col(11);
+    }
+
+    > .inline-remove {
+      @include make-col-ready();
+      @include make-col(1);
+    }
+  }
+}
+

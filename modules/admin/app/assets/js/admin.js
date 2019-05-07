@@ -42,7 +42,8 @@ jQuery(function ($) {
 //    }
 //  });
 
-  $('body').scrollspy({target: "#form-nav-sidebar"});
+  // FIXME: BS4
+  //$('body').scrollspy({target: "#form-nav-sidebar"});
 
   $(".form-group").on("click", ".quiet-toggle", function (e) {
     $(this).trigger("quiet-toggle")
@@ -94,13 +95,14 @@ jQuery(function ($) {
    * Markdown helper
    */
 
-  $(".markdown-helper").popover({
-    html: true,
-    placement: "left",
-    content: function () {
-      return $(".markdown-cheatsheet").html();
-    }
-  });
+  // FIXME: BS4
+  //$(".markdown-helper").popover({
+  //  html: true,
+  //  placement: "left",
+  //  content: function () {
+  //    return $(".markdown-cheatsheet").html();
+  //  }
+  //});
 
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
@@ -149,17 +151,18 @@ jQuery(function ($) {
 
   $("nav.responsive").stickyFormFooter();
 
+  // FIXME: BS4
   function addPopover($elem, trigger) {
-    trigger = trigger || "blur";
-    $elem.popover({
-      html: true,
-      delay: {
-        show: 500,
-        hide: 100
-      },
-      trigger: trigger,
-      placement: "bottom"
-    });
+  //  trigger = trigger || "blur";
+  //  $elem.popover({
+  //    html: true,
+  //    delay: {
+  //      show: 500,
+  //      hide: 100
+  //    },
+  //    trigger: trigger,
+  //    placement: "bottom"
+  //  });
   }
 
   // Add Bootstrap tooltip on input boxes with a title.

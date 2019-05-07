@@ -4,7 +4,7 @@
     @defining(f(user)) { html =>
         @if(html.body.trim.nonEmpty) {
             @views.html.admin.common.sidebarSection(Some(Messages("actions"))) {
-                @views.html.admin.common.listGroup {
+                @views.html.admin.common.sidebarActionGroup {
                     @html
                 }
             }

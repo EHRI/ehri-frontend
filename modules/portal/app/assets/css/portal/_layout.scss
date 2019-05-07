@@ -245,6 +245,22 @@ ul.pagination {
   @include list-unstyled();
 }
 
+.user-controls {
+  @extend .list-group;
+
+  > li {
+    @extend .list-group-item;
+  }
+}
+
+.user-actions {
+  @extend .list-group;
+
+  > li {
+    @extend .list-group-item;
+  }
+}
+
 .user-thumbnail {
   width: 3rem;
   height: 3rem;

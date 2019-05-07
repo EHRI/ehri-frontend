@@ -1,5 +1,5 @@
 @(show: Boolean = true, warning: Boolean = false, danger: Boolean = false)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(show) {
-    <li class="list-group-item @{if(warning) "list-group-item-warning"} @{if(danger) "list-group-item-danger"}">@html</li>
+    <li class="@{if(warning) "warning"} @{if(danger) "danger"}">@html</li>
 }
