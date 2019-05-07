@@ -5,7 +5,7 @@
 @activitySidebar(activity: Call, watched: Call, notes: Call) = {
     <div class="panel panel-default">
         <div class="panel-body">
-            <ul class="nav list-group">
+            <ul class="nav user-actions">
                 <li class="@views.Helpers.maybeActive(activity.url)">
                     <a href="@activity">
                         <i class="glyphicon glyphicon-list"></i> @Messages("activity")
@@ -40,25 +40,25 @@
     } {
 
         @views.html.common.typeLabel(defines.EntityType.UserProfile) {
-            <ul class="list-group">
-                <li class="list-group-item user-img">
+            <ul class="nav user-controls">
+                <li class="user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
                     </a>
                 </li>
                 @if(isCurrentUser) {
-                    <li class="list-group-item">
+                    <li>
                         <a class="btn btn-primary" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">
                             @Messages("profile.edit")
                         </a>
                     </li>
                 } else {
-                    <li class="list-group-item btn-group-vertical" role="group">
+                    <li role="group">
                         @views.html.common.messageButtons(item, canMessage)
                         @views.html.common.followingButtons(item, followed)
                     </li>
                 }
-                <li class="list-group-item user-profile-social">
+                <li class="user-profile-social">
                     <a class="followers" href="@controllers.portal.social.routes.Social.followersForUser(item.id)">
                         @Messages("social.followers"): <span class="user-follower-count">@item.followerCount</span>
                     </a>
