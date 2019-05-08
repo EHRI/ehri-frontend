@@ -1,15 +1,6 @@
 @(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
 
 <ul>
-    @if(showSearch) {
-        <li>
-            @helper.form(action = controllers.portal.routes.Portal.search(), 'class ->
-                    "global-search inactive inline-search-filter") {
-                <label for="quicksearch" class="sr-only">@Messages("search.global")</label>
-                <input name="q" id="quicksearch" />
-            }
-        </li>
-    }
     @if(showFeedback) {
         <li class="feedback-container dropdown">
             <a href="#" id="feedback-toggle" class="dropbox-toggle" data-toggle="dropdown" aria-expanded="false">
