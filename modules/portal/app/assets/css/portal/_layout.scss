@@ -1,6 +1,11 @@
 /**
   Bootstrap 4-based layout and responsiveness.
  */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
 // Main page right sidebar layouts
 article.double, .search-results {
@@ -126,6 +131,8 @@ ul.dropdown-menu {
 
 // Footer
 #portal-footer {
+  margin-top: auto;
+
   @extend .container;
 
   #footer-navs,
