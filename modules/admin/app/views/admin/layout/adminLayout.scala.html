@@ -27,22 +27,15 @@
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @scripts
-
-        <div id="wrap">
-            @views.html.common.readOnly()
-            @views.html.common.message()
-            @views.html.common.ipFilter()
-            <header id="header" class="navigation">
-                @views.html.admin.common.adminNavBar()
-            </header>
-            @views.html.admin.common.testWarning()
-            @views.html.common.flash(flash)
-            <div class="page-content">
-                @content
-                <div id="push"></div>
-            </div>
-        </div>
+        @views.html.common.readOnly()
+        @views.html.common.message()
+        @views.html.common.ipFilter()
+        <header id="header" class="navigation">
+            @views.html.admin.common.adminNavBar()
+        </header>
+        @views.html.admin.common.testWarning()
+        @views.html.common.flash(flash)
+        @content
         @views.html.common.footer()
-
     </body>
 </html>

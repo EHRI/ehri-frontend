@@ -14,22 +14,17 @@
         @views.html.common.head(title, styles = fsstyles, meta = meta)
         <body class="@itemClass @(if(fullscreen) "fullscreen")">
             @views.html.common.preambleScripts()
-            <div id="wrap">
-                @if(!fullscreen) {
-                    @views.html.common.readOnly()
-                    @views.html.common.message()
-                    @views.html.common.ipFilter()
-                    <header id="header" class="navigation">
-                        @views.html.common.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
-                        @views.html.common.primaryHeader()
-                    </header>
-                    @views.html.common.flash(flash)
-                }
-                <div class="page-content">
-                    @content
-                    <div id="push"></div>
-                </div>
-            </div>
+            @if(!fullscreen) {
+                @views.html.common.readOnly()
+                @views.html.common.message()
+                @views.html.common.ipFilter()
+                <header id="header" class="navigation">
+                    @views.html.common.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
+                    @views.html.common.primaryHeader()
+                </header>
+                @views.html.common.flash(flash)
+            }
+            @content
             @if(!fullscreen) {
                 @views.html.common.footer()
                 @views.html.dataPolicyModal()
