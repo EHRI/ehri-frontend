@@ -40,7 +40,7 @@ h2, h4 {
 #navbar-top {
   padding-top: 0;
   padding-bottom: 0;
-  @extend .navbar-expand-md;
+  @extend .navbar-expand-lg;
 }
 
 #navbar-primary {
@@ -73,13 +73,19 @@ h2, h4 {
   flex-direction: row !important;
   @extend .mr-auto;
 
-  li {
+  > li {
     margin-right: $margin-sm;
+  }
+  > li:first-child a {
+    padding-left: 0;
   }
 }
 
 #navbar-account > ul {
   @extend .ml-auto;
+  > li:last-child a {
+    padding-right: 0;
+  }
 }
 
 body.home #navbar-primary-container {
@@ -150,6 +156,30 @@ body.home #navbar-primary-container {
 
   #navbar-primary-container > ul > li.active {
     border-bottom: .4rem solid $white;
+  }
+
+  #navbar-primary-dropdown > ul {
+    flex-grow: 1;
+    > li:last-child {
+      a {
+        padding: 0;
+      }
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+  }
+}
+
+// Quicksearch controls
+#quicksearch-controls {
+  color: $white;
+  @extend .input-group;
+  input[type='text'] {
+    @extend .form-control;
+  }
+  button {
+    //@extend .input-group-addon;
   }
 }
 
