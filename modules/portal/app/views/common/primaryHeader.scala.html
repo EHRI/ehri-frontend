@@ -1,16 +1,17 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, messages: Messages)
 
-<nav id="navbar-primary-container">
-    <a id="navbar-logo" href="@controllers.portal.routes.Portal.index()" title="@Messages("home")">
-        <img alt="European Holocaust Research Infrastructure" height="45" width="90" src="//s3-eu-west-1.amazonaws.com/ehri-assets/logo-color-med.png" rel="logo" />
-    </a>
-    <button type="button" class="navbar-toggler collapsed" data-toggle="collapse"
-            data-target="#navbar-both" aria-expanded="false" aria-controls="navbar-both">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="navbar-both" class="navbar-collapse collapse">
-        <div id="navbar-primary">
+<div id="navbar-primary-container">
+    <nav id="navbar-primary">
+        <a id="navbar-logo" href="@controllers.portal.routes.Portal.index()" title="@Messages("home")">
+            <img alt="European Holocaust Research Infrastructure" height="45" width="90"
+                src="//s3-eu-west-1.amazonaws.com/ehri-assets/ehri-logo@@2x.png" rel="logo" />
+        </a>
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse"
+                data-target="#navbar-primary-dropdown" aria-expanded="false" aria-controls="navbar-dropdown">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar-primary-dropdown" class="navbar-collapse collapse">
             <ul>
                 <li class="country @views.Helpers.maybeActivePath(controllers.portal.routes.Countries.searchAll().url)">
                     <a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
@@ -21,10 +22,6 @@
                 <li class="documentaryUnit @views.Helpers.maybeActivePath(controllers.portal.routes.DocumentaryUnits.searchAll().url)">
                     <a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
                 </li>
-            </ul>
-        </div>
-        <div id="navbar-secondary">
-            <ul>
                 <li class="vocabulary @views.Helpers.maybeActivePath(controllers.portal.routes.Vocabularies.searchAll().url)">
                     <a href="@controllers.portal.routes.Vocabularies.searchAll()">@Messages("type.CvocVocabulary")</a>
                 </li>
@@ -33,5 +30,5 @@
                 </li>
             </ul>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>

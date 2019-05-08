@@ -1,0 +1,163 @@
+// Certain headings are uppercased
+h2, h4 {
+  text-transform: uppercase;
+}
+
+// Mixin for applying heading-like text to
+// certain items
+%heading-text {
+  font-size: $h4-font-size;
+  font-family: $headings-font-family;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+%small-muted {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+%nav-link {
+  display: block;
+  padding: 0.5rem 0;
+
+  @include media-breakpoint-up(lg) {
+    padding: .5rem 1rem;
+  }
+}
+
+// Top navbar
+#navbar-top-container {
+  font-size: $font-size-xs;
+  @extend .bg-dark;
+}
+
+// Both navbars are dark expanding  containers
+#navbar-top, #navbar-primary {
+  @extend .container, .navbar, .navbar-dark;
+}
+
+#navbar-top {
+  padding-top: 0;
+  padding-bottom: 0;
+  @extend .navbar-expand-md;
+}
+
+#navbar-primary {
+  @extend .navbar-expand-lg;
+}
+
+// Primary navbar
+#navbar-primary-container {
+  font-size: $font-size-sm;
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  @extend .bg-secondary;
+}
+
+#navbar-primary-container-overlay {
+  position: relative;
+  height: 100%;
+  background-color: rgba(54, 15, 79, 0.68);
+}
+
+#navbar-primary > #navbar-primary-dropdown > ul,
+#navbar-top > #navbar-actions > ul,
+#navbar-top > #navbar-account > ul {
+  @extend .navbar-nav;
+}
+
+// Actions menu is always flat...
+#navbar-actions > ul {
+  flex-direction: row !important;
+  @extend .mr-auto;
+
+  li {
+    margin-right: $margin-sm;
+  }
+}
+
+#navbar-account > ul {
+  @extend .ml-auto;
+}
+
+body.home #navbar-primary-container {
+  background-color: transparent !important;
+}
+
+#navbar-primary ul > li > a,
+#navbar-primary .navbar-brand {
+  @extend %heading-text;
+}
+
+#navbar-primary ul > li > a,
+#navbar-primary .navbar-brand,
+#navbar-actions > ul > li > a,
+#navbar-account > ul > li > a {
+  @extend %nav-link;
+  color: $white;
+}
+
+#header-logo {
+  width: 6.625rem;
+}
+
+// At narrow display, add borders and extra vertical padding
+// to navbar items
+#navbar-nav-dropdown > li {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+
+#navbar-nav-dropdown #navbar-nav-search {
+  padding: 1.5rem 0;
+
+  #search-controls {
+    width: 100%;
+  }
+}
+
+#navbar-nav-dropdown > li {
+  border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+}
+
+#navbar-nav-dropdown > li:first-child {
+  border-top: 1px solid rgba(224, 224, 224, 0.3);
+}
+
+// At wide display, pad navbar items
+@include media-breakpoint-up(lg) {
+  #navbar-primary-container {
+    padding: 0;
+  }
+
+  #navbar-primary-dropdown {
+    .nav-item {
+      margin-right: $margin-lg;
+    }
+  }
+
+  #navbar-primary-container > ul > li > a {
+    padding: 0.5rem 0;
+  }
+
+  #navbar-primary-container > ul > li {
+    padding: 1rem 0;
+    border-bottom: 0.4rem solid transparent;
+    border-top: 0.4rem solid transparent;
+  }
+
+  #navbar-primary-container > ul > li.active {
+    border-bottom: .4rem solid $white;
+  }
+}
+
+// Footer
+#portal-footer {
+  #footer-navs {
+    padding: $margin-lg 0;
+  }
+  padding-bottom: $margin-lg;
+}
+
