@@ -1,2 +1,53 @@
 
-$link-color: #6c003b;
+$primary: #83014c;
+$secondary: #360f4f;
+
+
+$headings-font-family: 'Barlow Semi Condensed', sans-serif;
+$font-family-base: 'Roboto', sans-serif;
+$headings-color: $secondary;
+
+$text-darkened: #4a4a4a;
+
+// Footer and category badges etc
+$ehri-gray: #ecedee;
+$ehri-border-gray: #cecfcf;
+$divider-color: rgba(131, 1, 76, 0.13);
+
+$pagination-active-bg: $secondary;
+
+$btn-font-size: 0.6875rem;
+$btn-font-weight: bold;
+
+$btn-padding-x: 2rem;
+$btn-padding-y: 0.2rem;
+
+// Entry metadata etc...
+$text-muted: #858c8c;
+
+$font-size-xs: .75rem; 		// 12px
+$font-size-sm: 0.875rem; 	// 14px
+$font-size-base: 1.0625rem; // 17px
+$font-size-lg: 1.25rem;		// 20px
+
+$h1-font-size: 2.625rem;
+$h2-font-size: 1.375rem;
+$h3-font-size: 1.375rem;
+$h4-font-size: $font-size-sm;
+
+$border-radius:               .05rem !default;
+$border-radius-lg:            .1.5rem !default;
+$border-radius-sm:            .05rem !default;
+
+$container-max-widths: (
+        sm: 540px,
+        md: 720px,
+        lg: 960px,
+        xl: 1140px
+) !default;
+
+// golden ratio margins...
+$margin-xs: 0.5rem;
+$margin-sm: 0.809rem;	// 0.75rem
+$margin-md: 1.309rem;	// 1.5rem
+$margin-lg: 2.118rem;	// 3rem
