@@ -3,12 +3,80 @@
 @import Isdiah._
 @import views.html.common.{descriptionSection, textField, listField}
 
+@contactField(name: String, icon: String)(html: Html) = {
+    @if(html.body.trim.nonEmpty) {
+        <div class="item-text-field">
+            <header class="item-text-field-header" dir="auto">
+                <h4>
+                    <i class="fa fa-@icon"></i>
+                    @Messages(fieldPrefix + "." + name)
+                </h4>
+            </header>
+            <div class="item-text-field-value" dir="auto">
+                @html
+            </div>
+        </div>
+    }
+}
+
 @views.html.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
             @views.html.common.itemHeader(desc.name) {
                 @views.html.common.otherNameList(desc.parallelFormsOfName)
                 @views.html.common.otherNameList(desc.otherFormsOfName)
+            }
+
+            @descriptionSection(ADDRESS_AREA) {
+                @desc.addresses.map { address =>
+                    @contactField("address", "address-book") {
+                        <address>
+                            @address.name.map { s =>
+                                @s<br>
+                            }
+                            @address.streetAddress.map { s =>
+                                @s<br>
+                            }
+                            @address.city.map { s =>
+                                @s<br>
+                            }
+                            @address.region.map { s =>
+                                @s<br>
+                            }
+                            @address.postalCode.map { s =>
+                                @s<br>
+                            }
+                            @item.country.map { c =>
+                                @views.html.helpers.linkTo(c)
+                            }
+                        </address>
+                    }
+
+                    @contactField("phone", "phone") {
+                        @address.telephone.map { t =>
+                            @t<br>
+                        }
+                    }
+                    @contactField("fax", "fax") {
+                        @address.fax.map { t =>
+                            @t<br>
+                        }
+                    }
+                    @contactField("email", "envelope") {
+                        @address.email.map { t =>
+                            <a class="email" href="mailto:@t">
+                                @t
+                            </a><br>
+                        }
+                    }
+                    @contactField("url", "globe") {
+                        @address.url.map { t =>
+                            <a class="url" target="_blank" href="@views.Helpers.normalizeUrl(t)" title="Website">
+                                @t
+                            </a><br>
+                        }
+                    }
+                }
             }
 
             @descriptionSection(DESCRIPTION_AREA) {
