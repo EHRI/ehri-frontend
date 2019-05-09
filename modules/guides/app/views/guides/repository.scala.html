@@ -9,14 +9,6 @@
         }
     }
 
-    @* FIXME: This will list addresses for multiple descriptions
-    regardless of which one is being displayed *@
-    @views.html.common.panel(Messages("repository.contact")) {
-        @item.data.descriptions.map { desc =>
-            @views.html.repository.address(item, desc)
-        }
-    }
-
     @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 @views.html.layout.guideLayout(guide, page, pages, optionalContent = Some(optionalContent(page))) {
