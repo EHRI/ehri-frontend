@@ -14,21 +14,7 @@
         }
         @if(result.params.isFiltered || result.nonEmpty) {
             @helper.form(action = searchAction, 'role -> "form") {
-                <div class="search-bar">
-                    <div class="form-group search-box">
-                        <div class="input-group">
-                            <input type="search" class="form-control"
-                                    placeholder="@Messages("search.UserProfile")"
-                                    name="@SearchParams.QUERY" value="@result.params.query" autofocus />
-                            <span class="input-group-btn">
-                                <button class="btn">
-                                    <span class="glyphicon glyphicon-search"></span>
-                                    @Messages("search.submit")
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                @views.html.common.search.searchBar(result.params, tips = false)
 
                 <ul class="user-grid">
                     @result.page.map { case (user, hit) =>

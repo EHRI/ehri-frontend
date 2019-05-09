@@ -110,7 +110,7 @@ case class Portal @Inject()(
     getStats.map(s => Ok(views.html.portal(s)))
   }
 
-  def browseItem(entityType: EntityType.Value, id: String) = Action { implicit request =>
+  def browseItem(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction { implicit request =>
     val call = views.Helpers.linkTo(entityType, id)
     if (call.url.equals("#"))
       NotFound(controllers.renderError("errors.pageNotFound", pageNotFound()))

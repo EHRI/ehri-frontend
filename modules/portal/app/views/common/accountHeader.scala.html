@@ -1,4 +1,4 @@
-@(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
+@(showFeedback: Boolean = true, showAdminLink: Boolean = false, showLogin: Boolean = true, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @views.html.common.topNavBar {
     @if(userOpt.isDefined) {
@@ -12,5 +12,5 @@
         </ul>
     }
 } {
-    @views.html.common.accountHeaderRightMenu(showSearch, showFeedback, showAdminLink)
+    @views.html.common.accountHeaderRightMenu(showFeedback, showAdminLink, showLogin, prefsOpt)
 }

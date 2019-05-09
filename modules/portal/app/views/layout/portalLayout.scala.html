@@ -19,7 +19,7 @@
                 @views.html.common.message()
                 @views.html.common.ipFilter()
                 <header id="header" class="navigation">
-                    @views.html.common.accountHeader(showSearch = true, showFeedback = true, showAdminLink = true)
+                    @views.html.common.accountHeader(showFeedback = true, showAdminLink = true, prefsOpt = Some(prefs))
                     @views.html.common.primaryHeader()
                 </header>
                 @views.html.common.flash(flash)
