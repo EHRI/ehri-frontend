@@ -8,19 +8,14 @@
         @views.html.common.readOnly()
         @views.html.common.message()
         @views.html.common.preambleScripts()
-        <div id="wrap">
-            @defining(utils.SessionPrefs()) { implicit prefs =>
-                <header id="header" class="navigation">
-                    @views.html.common.accountHeader(showSearch = false)
-                    @views.html.common.primaryHeader()
-                </header>
-            }
-            @views.html.common.flash(flash)
-            <div class="page-content">
-                @content
-                <div id="push"></div>
-            </div>
-        </div>
+        @defining(utils.SessionPrefs()) { implicit prefs =>
+            <header id="header" class="navigation">
+                @views.html.common.accountHeader(showSearch = false)
+                @views.html.common.primaryHeader()
+            </header>
+        }
+        @views.html.common.flash(flash)
+        @content
         @views.html.common.footer()
 
         <script>

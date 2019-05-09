@@ -24,8 +24,10 @@
                 }
             </h3>
             <div class="search-item-body" dir="@dir">
-                @if(item.parent.isDefined) {
-                    <ol class="breadcrumb">@wrapParent(item, item.parent)</ol>
+                @item.parent.map { parent =>
+                    @if(!context.map(_.id).contains(parent.id)) {
+                        <ol class="holders">@wrapParent(item, Some(parent))</ol>
+                    }
                 }
                 @views.html.documentaryUnit.listItemBody(item, showRepository, highlighter = highlighter)
             </div>

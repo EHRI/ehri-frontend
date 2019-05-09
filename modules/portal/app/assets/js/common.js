@@ -203,7 +203,7 @@ jQuery(function($) {
   /*
    Search helpers
    */
-  $(".page-content").on("click", ".search-helper-toggle", function () {
+  $(".search-bar").on("click", ".search-helper-toggle", function () {
     $("#search-helper").toggle();
   }).on("click", "#search-helper .close", function(e) {
     e.preventDefault();

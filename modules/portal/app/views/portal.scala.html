@@ -10,89 +10,84 @@
     @views.html.common.head(Messages("welcome.title"))
     <body class="home">
         @views.html.common.preambleScripts()
-        <div id="wrap">
-            @views.html.common.readOnly()
-            @views.html.common.message()
-            @views.html.common.ipFilter()
-            <header id="header" class="navigation">
-                @views.html.common.accountHeader(showSearch = false, showAdminLink = true)
-            </header>
-            <div class="page-content">
-                <section class="jumbotron" id="welcome-banner">
-                    <div id="welcome-container">
-                        <h1>@Messages("welcome")</h1>
-                        @helper.form(action = controllers.portal.routes.Portal.search(services.search.SearchParams.empty, utils.PageParams.empty)) {
-                            @views.html.common.search.searchBar(services.search.SearchParams.empty, placeholder = Messages("search.global"))
-                        }
-                    </div>
-                </section>
+        @views.html.common.readOnly()
+        @views.html.common.message()
+        @views.html.common.ipFilter()
+        <header id="header" class="navigation">
+            @views.html.common.accountHeader(showSearch = false, showAdminLink = true)
+        </header>
+        <section class="jumbotron" id="welcome-banner">
+            <div id="welcome-container">
+                <h1>@Messages("welcome")</h1>
+                @helper.form(action = controllers.portal.routes.Portal.search(services.search.SearchParams.empty, utils.PageParams.empty)) {
+                    @views.html.common.search.searchBar(services.search.SearchParams.empty, placeholder = Messages("search.global"))
+                }
+            </div>
+        </section>
 
-                @views.html.common.flash(flash)
-                @views.html.common.mainContent {
-                    <section id="portal-hero">
-                        <div class="welcome-lead">
-                            @Markdown(Messages("welcome.blurb"))
-                        </div>
-                    </section>
-                    <section id="portal-sections">
-                        <div class="welcome-section Country">
-                            <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
-                            </h2>
-                            <p>@Messages("type.Country.description")</p>
-                        </div>
-                        <div class="welcome-section Repository">
-                            <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
-                            </h2>
-                            <p>@Messages("type.Repository.description")</p>
-                        </div>
-                        <div class="welcome-section DocumentaryUnit">
-                            <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
-                            </h2>
-                            <p>@Messages("type.DocumentaryUnit.description")</p>
-                        </div>
-                    </section>
-                    <section id="portal-section-contents">
-                        <div class="welcome-section Country">
-                        @(Html(Messages(
-                            "landingBlurb.Country",
-                            countLink(controllers.portal.routes.Countries.searchAll().url,
-                                "landingBlurb.Country.link", stats.countryCount).body.trim
-                        )))
-                        </div>
-                        <div class="welcome-section Repository">
-                        @(Html(Messages(
-                            "landingBlurb.Repository",
-                            countLink(controllers.portal.routes.Repositories.searchAll().url,
-                                "landingBlurb.Repository.link", stats.repositoryCount).body.trim,
-                            countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
-                                "landingBlurb.Repository.Country.link", stats.inCountryCount).body.trim
-                        )))
-                        </div>
-                        <div class="welcome-section DocumentaryUnit">
-                        @(Html(Messages(
-                            "landingBlurb.DocumentaryUnit",
-                            countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
-                                "landingBlurb.DocumentaryUnit.link", stats.documentaryUnitCount).body.trim,
-                            countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
-                                "landingBlurb.DocumentaryUnit.Repository.link", stats.inRepositoryCount).body.trim
-                        )))
-                        </div>
-                    </section>
-
-                    <hr>
-                    <section id="portal-info">
-                        <div class="info-container">
-                            <h3>@Messages("welcome.video.heading")</h3>
-                            <div class="embed-responsive embed-responsive-16by9">
-                                <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IUFqR7l5qW8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-                            </div>
-                        </div>
-                        <div class="info-container feed" id="blog-feed" data-name="blog"></div>
-                    </section>
+        @views.html.common.flash(flash)
+        @views.html.common.mainContent {
+            <section id="portal-hero">
+                <div class="welcome-lead">
+                    @Markdown(Messages("welcome.blurb"))
                 </div>
-                <div id="push"></div>
-            }
-        </div>
+            </section>
+            <section id="portal-sections">
+                <div class="welcome-section Country">
+                    <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
+                    </h2>
+                    <p>@Messages("type.Country.description")</p>
+                </div>
+                <div class="welcome-section Repository">
+                    <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
+                    </h2>
+                    <p>@Messages("type.Repository.description")</p>
+                </div>
+                <div class="welcome-section DocumentaryUnit">
+                    <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
+                    </h2>
+                    <p>@Messages("type.DocumentaryUnit.description")</p>
+                </div>
+            </section>
+            <section id="portal-section-contents">
+                <div class="welcome-section Country">
+                @(Html(Messages(
+                    "landingBlurb.Country",
+                    countLink(controllers.portal.routes.Countries.searchAll().url,
+                        "landingBlurb.Country.link", stats.countryCount).body.trim
+                )))
+                </div>
+                <div class="welcome-section Repository">
+                @(Html(Messages(
+                    "landingBlurb.Repository",
+                    countLink(controllers.portal.routes.Repositories.searchAll().url,
+                        "landingBlurb.Repository.link", stats.repositoryCount).body.trim,
+                    countLink(controllers.portal.routes.Countries.searchAll().url + "?data=yes",
+                        "landingBlurb.Repository.Country.link", stats.inCountryCount).body.trim
+                )))
+                </div>
+                <div class="welcome-section DocumentaryUnit">
+                @(Html(Messages(
+                    "landingBlurb.DocumentaryUnit",
+                    countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
+                        "landingBlurb.DocumentaryUnit.link", stats.documentaryUnitCount).body.trim,
+                    countLink(controllers.portal.routes.Repositories.searchAll().url + "?data=yes",
+                        "landingBlurb.DocumentaryUnit.Repository.link", stats.inRepositoryCount).body.trim
+                )))
+                </div>
+            </section>
+
+            <hr>
+            <section id="portal-info">
+                <div class="info-container">
+                    <h3>@Messages("welcome.video.heading")</h3>
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/IUFqR7l5qW8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="info-container feed" id="blog-feed" data-name="blog"></div>
+            </section>
+        }
         @views.html.common.footer()
         @views.html.dataPolicyModal()
         @views.html.common.postambleScripts()
