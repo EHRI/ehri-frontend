@@ -19,7 +19,7 @@ h2, h4 {
 
 %nav-link {
   display: block;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
 
   @include media-breakpoint-up(lg) {
     padding: .5rem 1rem;
@@ -124,12 +124,17 @@ body.home #navbar-primary-container {
   }
 }
 
-#navbar-nav-dropdown > li {
-  border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+#navbar-primary-dropdown {
+  margin-top: $margin-sm;
 }
 
-#navbar-nav-dropdown > li:first-child {
+#navbar-primary-dropdown > ul > li {
   border-top: 1px solid rgba(224, 224, 224, 0.3);
+}
+
+#navbar-primary-dropdown > ul > li:last-child > a {
+  display: flex;
+  align-items: center;
 }
 
 // At wide display, pad navbar items
@@ -145,9 +150,18 @@ body.home #navbar-primary-container {
   }
 
   #navbar-primary-dropdown {
+    margin-top: 0;
     .nav-item {
       margin-right: $margin-lg;
     }
+  }
+
+  #navbar-logo {
+    padding-right: 1rem;
+  }
+
+  #navbar-primary-dropdown > ul > li {
+    border-top: 0;
   }
 
   #navbar-primary-dropdown > ul > li {
@@ -218,15 +232,29 @@ body.home #navbar-primary-container {
     text-transform: none;
   }
 
-  .search-item-details {
-    font-size: $font-size-xs;
-  }
-
-  .search-item-body {
+  .search-item-details,
+  .item-children {
     font-size: $font-size-sm;
   }
 
+  .search-item-body {
+    font-size: $font-size-base;
+  }
+
   margin-bottom: $margin-sm;
+}
+
+// Child item lists...
+.child-items-inline {
+  > ol,
+  > ul {
+    @include list-unstyled();
+    margin-left: $margin-lg;
+    h5 {
+      font-size: $font-size-base;
+      margin-bottom: 0;
+    }
+  }
 }
 
 // Sidebar facets
@@ -247,3 +275,9 @@ dl dt {
   color: $secondary;
   font-weight: 500;
 }
+
+// Item pages
+.item-header {
+  margin-bottom: $margin-md;
+}
+

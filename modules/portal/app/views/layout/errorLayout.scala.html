@@ -9,19 +9,14 @@
         <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
         <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
     </head>
-    <body>
-        <div id="wrap" class="error-page page-container">
-            <div class="error-page-header">
-                <div class="container">
-                    <img src="@controllers.portal.routes.PortalAssets.versioned("img/logo_small.png")" />
-                    <h1 id="error-title">@title</h1>
-                </div>
+    <body class="error">
+        <header class="error-page-header">
+            <div class="container">
+                <img alt="EHRI" src="@controllers.portal.routes.PortalAssets.versioned("img/logo_small.png")" />
+                <h1 id="error-title">@title</h1>
             </div>
-            <div class="page-content container">
-                @content
-            </div>
-            <div id="push"></div>
-        </div>
+        </header>
+        @content
         @views.html.common.footer()
     </body>
 </html>
