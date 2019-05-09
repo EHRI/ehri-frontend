@@ -13,13 +13,6 @@
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
                 @views.html.repository.logo(item)
-                @* FIXME: This will list addresses for multiple descriptions
-                regardless of which one is being displayed *@
-                @views.html.common.panel(Messages("contact")) {
-                    @item.data.descriptions.map { desc =>
-                        @address(item, desc)
-                    }
-                }
                 @views.html.common.sidepanelToc {
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(

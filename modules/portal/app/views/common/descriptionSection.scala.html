@@ -1,7 +1,7 @@
 @(name:String, title: String = "")(html: Html)(implicit fieldPrefix: String, messages: Messages)
 
 @if(html.body.trim.nonEmpty) {
-    <div class="description-section" id="@{name}-section">
+    <div class="description-section @name" id="@{name}-section">
         @if(title.nonEmpty) {
             <h3>@title</h3>
         }
