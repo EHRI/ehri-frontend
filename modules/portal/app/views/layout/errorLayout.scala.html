@@ -1,22 +1,19 @@
-@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(title: Any)(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <!DOCTYPE html>
 
 <html lang="@messages.lang.code">
-    <head>
-        <title>@title</title>
-
-        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
-        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
-    </head>
+    @views.html.common.head(title)
     <body class="error">
-        <header class="error-page-header">
-            <div class="container">
-                <img alt="EHRI" src="@controllers.portal.routes.PortalAssets.versioned("img/logo_small.png")" />
-                <h1 id="error-title">@title</h1>
-            </div>
+        @views.html.common.preambleScripts()
+        <header id="header" class="navigation">
+            @views.html.common.accountHeader(showLogin = false)
+            @views.html.common.primaryHeader()
         </header>
-        @content
+        @views.html.common.mainContent {
+            @content
+        }
         @views.html.common.footer()
+        @views.html.common.postambleScripts()
     </body>
 </html>
