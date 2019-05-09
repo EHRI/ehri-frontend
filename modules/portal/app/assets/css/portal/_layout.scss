@@ -92,10 +92,9 @@ ul.dropdown-menu {
 }
 
 // Sidebar
-.item-sidebar-actions {
+.item-sidebar-actions, .export-formats {
   @include list-unstyled();
 }
-
 
 // Footer
 #portal-footer {
@@ -283,3 +282,19 @@ ul.pagination {
   display: none;
 }
 
+// Description lists (dl) elements... make
+// responsive for wide sizes
+@include media-breakpoint-up(md) {
+  dl {
+    @include make-row();
+
+    dt {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+    dd {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}

@@ -2,16 +2,16 @@
 
 @import services.search.SearchParams
 
-<div class="search-sort btn-group btn-group-xs">
+<div class="search-sort">
     <span class="fa fa-sort" title="@Messages("search.sort.title")"></span>
     @options.map { case (sortKey, i18nKey) =>
         @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
             @if(current.contains(sortKey)) {
-                <a rel="nofollow" class="current-search-sort btn btn-xs btn-default btn-active" title="@title" href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                <a rel="nofollow" class="active" title="@title" href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                 @name
                 </a>
             } else {
-                <a rel="nofollow" class="btn btn-xs" title="@title" href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
+                <a rel="nofollow" title="@title" href="@utils.http.joinPath(req.path, req.queryString.updated(SearchParams.SORT, Seq(sortKey.toString)))">
                 @name
                 </a>
             }

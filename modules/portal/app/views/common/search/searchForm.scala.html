@@ -4,18 +4,19 @@
 
 @body = {
     <section class="search-results-body">
-        @common.search.searchBar(result.params, autofocus = autofocus, placeholder = key)
-        <div class="search-result-errata">
-            @common.search.searchSummary(result)
-            @common.search.searchSort(result.params)
+        <div class="search-controls">
+            @common.search.searchBar(result.params, autofocus = autofocus, placeholder = key)
+            <div class="search-result-errata">
+                @common.search.searchSummary(result)
+                @common.search.searchSort(result.params)
+            </div>
+
+            @req.getQueryString("dlid").map { did =>
+                <input type="hidden" name="dlid" value="@did"/>
+            }
+
+            @common.search.selectedFacets(result.facetClasses, result.facets)
         </div>
-
-        @req.getQueryString("dlid").map { did =>
-            <input type="hidden" name="dlid" value="@did"/>
-        }
-
-        @common.search.selectedFacets(result.facetClasses, result.facets)
-
         @html
 
         @if(inline && result.page.page == 1) {
