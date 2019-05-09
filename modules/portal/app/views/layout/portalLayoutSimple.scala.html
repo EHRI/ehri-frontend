@@ -8,12 +8,10 @@
         @views.html.common.readOnly()
         @views.html.common.message()
         @views.html.common.preambleScripts()
-        @defining(utils.SessionPrefs()) { implicit prefs =>
-            <header id="header" class="navigation">
-                @views.html.common.accountHeader(showSearch = false)
-                @views.html.common.primaryHeader()
-            </header>
-        }
+        <header id="header" class="navigation">
+            @views.html.common.accountHeader()
+            @views.html.common.primaryHeader()
+        </header>
         @views.html.common.flash(flash)
         @content
         @views.html.common.footer()
@@ -23,6 +21,6 @@
             $(".validate-form").validate();
         </script>
 
-        @scripts
+        @views.html.common.postambleScripts(extra = scripts)
     </body>
 </html>

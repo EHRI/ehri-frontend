@@ -1,4 +1,4 @@
-@(showSearch: Boolean = true, showFeedback: Boolean = true, showAdminLink: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages)
+@(showFeedback: Boolean = true, showAdminLink: Boolean = false, showLogin: Boolean = true, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <ul>
     @if(showFeedback) {
@@ -62,13 +62,15 @@
                     </a>
                 </li>
                 <li role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</li>
-                <li>
-                    <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
-                       data-preference-name="showUserContent"
-                       data-preference-value="@prefs.showUserContent">
+                @prefsOpt.map { prefs =>
+                    <li>
+                        <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
+                        data-preference-name="showUserContent"
+                        data-preference-value="@prefs.showUserContent">
                         @Messages("profile.preferences.view.showUserContent")
-                    </a>
-                </li>
+                        </a>
+                    </li>
+                }
 
                 <li role="presentation" class="dropdown-header">@Messages("account")</li>
                 <li>
@@ -79,10 +81,12 @@
             </ul>
         </li>
     }.getOrElse {
-    <li>
-        <a href="@controllers.portal.account.routes.Accounts.loginOrSignup()">
-            @Messages("login") / @Messages("login.signup")
-        </a>
-    </li>
+        @if(showLogin) {
+            <li>
+                <a href="@controllers.portal.account.routes.Accounts.loginOrSignup()">
+                    @Messages("login") / @Messages("login.signup")
+                </a>
+            </li>
+        }
     }
 </ul>
