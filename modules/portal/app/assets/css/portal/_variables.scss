@@ -10,7 +10,9 @@ $headings-color: $secondary;
 $text-darkened: #4a4a4a;
 
 // Footer and category badges etc
-$ehri-gray: #ecedee;
+$gray-200: #ecedee;
+
+$ehri-gray: $gray-200;
 $ehri-border-gray: #cecfcf;
 $divider-color: rgba(131, 1, 76, 0.13);
 

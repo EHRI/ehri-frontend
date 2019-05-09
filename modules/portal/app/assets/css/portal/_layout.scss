@@ -49,7 +49,8 @@ article.double, .search-results {
 
 // Breadcrumbs
 .info-bar {
-  > ul {
+  > ul,
+  > ol {
     @extend .container, .breadcrumb;
     > li {
       @extend .breadcrumb-item;
@@ -100,35 +101,33 @@ ul.dropdown-menu {
 #portal-footer {
   margin-top: auto;
 
-  @extend .container;
+  #footer-content {
+    @extend .container;
 
-  #footer-navs,
-  #footer-blurb {
-    @include make-row();
-  }
+    #footer-navs {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
 
-  #navbar-tertiary,
-  #lang-switcher {
-    @extend .nav;
+    #navbar-tertiary,
+    #lang-switcher {
+      @extend .nav;
 
-    > li {
-      @extend .nav-item;
+      > li {
+        @extend .nav-item;
 
-      > a {
-        @extend .nav-link;
+        > a {
+          @extend .nav-link;
+        }
       }
     }
 
-    @include make-col-ready();
-    @include make-col(12);
-
-    @include media-breakpoint-up(sm) {
-      @include make-col(6);
+    #lang-switcher {
+      display: flex;
+      justify-content: flex-end;
+      margin-left: auto;
     }
-  }
-
-  #lang-switcher {
-    @extend .pull-right;
   }
 }
 
@@ -211,13 +210,10 @@ ul.pagination {
 .search-result-errata {
   @include clearfix();
 
-  .search-sort {
-    @include float-right();
-  }
-
-  .search-summary {
-    @include float-left();
-  }
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 // Users pages and profile

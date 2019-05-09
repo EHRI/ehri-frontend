@@ -7,35 +7,35 @@
 }
 
 <footer id="portal-footer" class="footer sticky">
-    <div id="footer-navs">
-        <ul id="navbar-tertiary">
-            @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
-            @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
+    <div id="footer-content">
+        <div id="footer-navs">
+            <ul id="navbar-tertiary">
+                @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
+                @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
             <li class="@views.Helpers.maybeActive("/api")">
                 <a href="/api">API</a>
             </li>
-        </ul>
+            </ul>
 
-        <ul id="lang-switcher">
-        @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
+            <ul id="lang-switcher">
+            @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
             <li>
                 <a class="@{if(messages.lang.toString.toLowerCase.contains(changeLang)) "disabled"}"
-                        href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
-                    @locale.getDisplayName(locale).toLowerCase
-                </a>
+                href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
+                @locale.getDisplayName(locale).toLowerCase
+            </a>
             </li>
-        }
-        </ul>
-    </div>
+            }
+            </ul>
+        </div>
 
-    <div id="footer-blurb">
-        <hr />
-        &copy; @Messages("copyright.holder")
-        &nbsp;
-        @Messages("footer.funding")
-        <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3-eu-west-1.amazonaws.com/eulogo.svg" />
-        <a target="_blank" title="Ars Electronica 2018 Honorary Mention" href="http://prix2018.aec.at/prixwinner/28933/">
-            <img alt="Ars Electronica 2018 Honorary Mention" src="//ehri-assets.s3-eu-west-1.amazonaws.com/ars_2018_hm.jpg" />
-        </a>
+        <div id="footer-blurb">
+            <span class="copyright">&copy; @Messages("copyright.holder")</span>
+            <span class="funding">@Messages("footer.funding")</span>
+            <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3-eu-west-1.amazonaws.com/eulogo.svg" />
+            <a target="_blank" title="Ars Electronica 2018 Honorary Mention" href="http://prix2018.aec.at/prixwinner/28933/">
+                <img alt="Ars Electronica 2018 Honorary Mention" src="//ehri-assets.s3-eu-west-1.amazonaws.com/ars_2018_hm.jpg" />
+            </a>
+        </div>
     </div>
 </footer>

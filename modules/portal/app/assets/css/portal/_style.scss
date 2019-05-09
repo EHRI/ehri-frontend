@@ -206,10 +206,37 @@ body.home #navbar-primary-container {
 
 // Footer
 #portal-footer {
+  background-color: $gray-200;
+  font-size: $font-size-sm;
   #footer-navs {
     padding: $margin-lg 0;
   }
   padding-bottom: $margin-lg;
+
+  #footer-blurb {
+    @extend %small-muted;
+    justify-content: center;
+
+    > * {
+      margin-right: $margin-md;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+  }
+}
+
+// Info bar / breadcrumbs
+.info-bar {
+  background-color: $gray-200;
+  .breadcrumb {
+    background-color: inherit;
+  }
+  ol,
+  ul {
+    margin-bottom: 0;
+  }
 }
 
 // Main content
