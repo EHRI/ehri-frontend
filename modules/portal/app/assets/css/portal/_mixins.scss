@@ -1,0 +1,37 @@
+// Mixin for applying heading-like text to
+// certain items
+%heading-text {
+  font-size: $h4-font-size;
+  font-family: $headings-font-family;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+%small-muted {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+%nav-link {
+  display: block;
+  padding: 1rem 0;
+
+  @include media-breakpoint-up(lg) {
+    padding: .5rem 1rem;
+  }
+}
+
+@mixin list-inline($sep: '\00a0') {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  @if($sep != '') {
+    > li:after {
+      content: $sep;
+    }
+    > li:last-child:after {
+      content: '';
+    }
+  }
+}
+

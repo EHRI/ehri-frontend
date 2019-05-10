@@ -9,8 +9,7 @@
         } {
             @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
         } {
-            @views.html.common.exportItem(
-                Map("eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)))
+            @views.html.common.exportItem(Map("eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)))
             @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }

@@ -5,7 +5,7 @@
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.data.timestamp)</strong>
         <div class="event-label">@ev.toStringLang</div>
     } {
-        <a data-toggle="modal" href="@historyUrl" data-target="#history-modal" data-backdrop="false">
+        <a data-toggle="modal" href="@historyUrl" data-toggle="modal" data-target="#history-modal" data-backdrop="false">
             @Messages("item.history")
         </a>
         <div class="modal" id="history-modal" tabindex="-1" role="dialog" aria-hidden="true">
