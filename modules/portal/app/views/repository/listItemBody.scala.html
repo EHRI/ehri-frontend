@@ -1,7 +1,7 @@
 @(item: Repository, showCountry: Boolean, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.data.primaryDescription(descriptionId).map { desc =>
-    @common.otherNameListSmall(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
+    @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
     <div class="search-item-details">
         @views.html.repository.conciseAddress(item, desc, includeCountry = showCountry, highlighter = highlighter)
     </div>

@@ -6,7 +6,7 @@
     <a href="@controllers.institutions.routes.Repositories.get(item.id)">@item.toStringLang</a>
 } {
     @item.data.primaryDescription.map { desc =>
-        @common.otherNameListSmall(desc.parallelFormsOfName ++ desc.otherFormsOfName)
+        @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName)
         <div class="search-item-details">
             <ul>
                 @item.country.map { ct =>

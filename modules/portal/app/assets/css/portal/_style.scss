@@ -26,6 +26,20 @@ h2, h4 {
   }
 }
 
+@mixin list-inline($sep: '\00a0') {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  @if($sep != '') {
+    > li:after {
+      content: $sep;
+    }
+    > li:last-child:after {
+      content: '';
+    }
+  }
+}
+
 // Top navbar
 #navbar-top-container {
   font-size: $font-size-xs;
@@ -260,11 +274,7 @@ body.home #navbar-primary-container {
     ul {
       margin: 0 0 0 $margin-sm;
       @include list-unstyled();
-      @extend .list-inline;
-
-      li {
-        @extend .list-inline-item;
-      }
+      @include list-inline();
     }
 
     @include media-breakpoint-up(lg) {
@@ -288,6 +298,7 @@ body.home #navbar-primary-container {
 .search-item {
   h2.search-item-heading {
     text-transform: none;
+    margin-bottom: 0;
   }
 
   .search-item-details,
@@ -316,11 +327,12 @@ body.home #navbar-primary-container {
 }
 
 // Other name lists
-.other-name-list,
-.other-name-list-small {
-  li+li:before {
-    content: '/ ';
-  }
+.other-name-list {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+
+  @include list-unstyled();
+  @include list-inline(" /\00a0");
 }
 
 // Sidebar facets
