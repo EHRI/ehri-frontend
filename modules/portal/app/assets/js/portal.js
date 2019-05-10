@@ -175,16 +175,10 @@ jQuery(function ($) {
   /*
   *   History
   */
-  $(".panel-history").each(function () {
-    //$(this).addClass("inactive");
-    $(this).find(".panel-heading h3").append(
-        $("<span />", {
-          "class": "expander glyphicon glyphicon-plus"
-        }).on("click", function (e) {
-          $(this).parents(".panel-history").toggleClass("inactive");
-          $(this).toggleClass("glyphicon-plus").toggleClass("glyphicon-minus");
-        })
-    );
+  // Show history content in modal popup
+  $("#history-modal").on('show.bs.modal', function(e) {
+    $(this).find(".modal-content").load(e.relatedTarget.href);
+
   });
 
   /*

@@ -1,14 +1,12 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
-<div class="item-meta panel panel-default">
-    <dl class="dl-horizontal">
-        <dt>@Messages("historicalAgent.identifier")</dt>
-        <dd>@item.data.identifier</dd>
-        @if(desc.dates.nonEmpty) {
-            <dt>@Messages("historicalAgent.dates")</dt>
-            <dd>@desc.dates.map(_.years).mkString(", ")</dd>
-        }
-        <dt>@Messages("historicalAgent.entityType")</dt>
-        <dd>@Messages("historicalAgent.entityType." + desc.entityType)</dd>
-    </dl>
-</div>
+<dl class="item-meta">
+    <dt>@Messages("historicalAgent.identifier")</dt>
+    <dd>@item.data.identifier</dd>
+    @if(desc.dates.nonEmpty) {
+        <dt>@Messages("historicalAgent.dates")</dt>
+        <dd>@desc.dates.map(_.years).mkString(", ")</dd>
+    }
+    <dt>@Messages("historicalAgent.entityType")</dt>
+    <dd>@Messages("historicalAgent.entityType." + desc.entityType)</dd>
+</dl>
