@@ -20,11 +20,11 @@
 
 @optionalContent(page: GuidePage) = {
     @params.query.map { text =>
-        <section class="archival-context panel-details repository">
-            <div class="panel-heading">
+        <section class="archival-context sidebar-section repository">
+            <div class="sidebar-section-heading">
                 <h3>Search results</h3>
             </div>
-            <div class="panel-body map-result-list">
+            <div class="sidebar-section-body map-result-list">
                 <ul class="list-unstyled">
                     @concepts.items.map { case(item, hit) =>
                         <li>

@@ -351,12 +351,25 @@ dl dt {
   margin-bottom: $margin-md;
 }
 
+.item-meta ul {
+  @include list-unstyled();
+  margin-bottom: 0;
+}
+
+.item-text-field-list {
+  @include list-unstyled();
+}
+
 // Descriptions
 .description-holder {
   margin-bottom: $margin-lg;
 }
 .description-section {
   margin-bottom: $margin-md;
+}
+
+.archival-context .ancestor {
+  margin-left: $margin-sm;
 }
 
 // Annotations etc
