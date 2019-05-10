@@ -1,3 +1,5 @@
+@import "mixins";
+
 /**
   Bootstrap 4-based layout and responsiveness.
  */
@@ -110,23 +112,34 @@ ul.dropdown-menu {
       justify-content: space-between;
     }
 
-    #navbar-tertiary,
-    #lang-switcher {
-      @extend .nav;
+    #lang-switcher,
+    #navbar-tertiary {
+      @include list-unstyled();
+      display: flex;
+      flex-direction: row;
 
-      > li {
-        @extend .nav-item;
-
-        > a {
-          @extend .nav-link;
+      li {
+        a {
+          padding: .5rem 1rem;
         }
+      }
+      li.active a {
+        color: $text-muted;
+        pointer-events: none;
       }
     }
 
     #lang-switcher {
-      display: flex;
-      justify-content: flex-end;
       margin-left: auto;
+      li:last-child {
+        margin-right: -1rem;
+      }
+    }
+
+    #navbar-tertiary {
+      li:first-child {
+        margin-left: -1rem;
+      }
     }
   }
 }
@@ -155,10 +168,13 @@ ul.dropdown-menu {
 
 .search-item-details {
   > ul {
-    @extend .list-inline;
-
-    > li {
-      @extend .list-inline-item;
+    @include list-unstyled();
+    @include list-inline();
+    li {
+      padding-right: $margin-xxs;
+    }
+    li:last-child {
+      padding-right: 0;
     }
   }
 }
@@ -236,7 +252,6 @@ ul.pagination {
 
 .user-grid {
   @include list-unstyled();
-  @extend .list-inline;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -265,7 +280,7 @@ ul.pagination {
   }
 
   .follow-controls {
-    @include float-right();
+    float: right;
   }
 }
 

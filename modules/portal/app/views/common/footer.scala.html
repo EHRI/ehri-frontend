@@ -19,12 +19,11 @@
 
             <ul id="lang-switcher">
             @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
-            <li>
-                <a class="@{if(messages.lang.toString.toLowerCase.contains(changeLang)) "disabled"}"
-                href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
-                @locale.getDisplayName(locale).toLowerCase
-            </a>
-            </li>
+                <li class="@{if(messages.lang.toString.toLowerCase.contains(changeLang)) "active"}">
+                    <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
+                        @locale.getDisplayName(locale).toLowerCase
+                    </a>
+                </li>
             }
             </ul>
         </div>
