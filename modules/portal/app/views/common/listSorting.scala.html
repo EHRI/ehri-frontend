@@ -3,11 +3,13 @@
 @import services.search.SearchParams
 
 <div class="search-sort">
-    <span class="fa fa-sort" title="@Messages("search.sort.title")"></span>
+    <i class="fa fa-sort" title="@Messages("search.sort.title")"></i>
+    <ul>
     @options.map { case (sortKey, i18nKey) =>
+        <li @{if(current.contains(sortKey)) "active"}>
         @defining((Messages(i18nKey), Messages(i18nKey + ".title"))) { case (name, title) =>
             @if(current.contains(sortKey)) {
-                <a rel="nofollow" class="active" title="@title" href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
+                <a rel="nofollow" title="@title" href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != SearchParams.SORT))">
                 @name
                 </a>
             } else {
@@ -16,7 +18,9 @@
                 </a>
             }
         }
+        </li>
     }
+    </ul>
     @current.map { currentSort =>
         @if(req.getQueryString(SearchParams.SORT).isDefined) {
             <input type="hidden" name="@SearchParams.SORT" value="@currentSort">

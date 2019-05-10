@@ -252,6 +252,36 @@ body.home #navbar-primary-container {
   .search-helper-container {
     font-size: $font-size-xs;
   }
+
+  .search-sort {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    ul {
+      margin: 0 0 0 $margin-sm;
+      @include list-unstyled();
+      @extend .list-inline;
+
+      li {
+        @extend .list-inline-item;
+      }
+    }
+
+    @include media-breakpoint-up(lg) {
+      margin-left: auto;
+    }
+  }
+}
+
+// User grid
+.user-grid {
+  .user-grid-item {
+    margin-bottom: $margin-md;
+
+    .user-info-details {
+      margin-left: $margin-md;
+    }
+  }
 }
 
 // Search results

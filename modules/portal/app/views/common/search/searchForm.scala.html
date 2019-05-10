@@ -14,9 +14,8 @@
             @req.getQueryString("dlid").map { did =>
                 <input type="hidden" name="dlid" value="@did"/>
             }
-
-            @common.search.selectedFacets(result.facetClasses, result.facets)
         </div>
+        @common.search.selectedFacets(result.facetClasses, result.facets)
         @html
 
         @if(inline && result.page.page == 1) {
