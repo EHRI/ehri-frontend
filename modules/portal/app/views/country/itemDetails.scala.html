@@ -24,37 +24,42 @@
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), introNotice())
 
         @views.html.common.sidepanelToc {
-            <div class="child-items panel-details">
-                <div class="panel-heading">
-                    <h3 class="panel-title">@Messages("country.report.toc")</h3>
-                </div>
-                <div class="panel-body">
-                    <ul class="nav">
-                        @if(item.data.history.isDefined) {
-                            <li role="presentation" class="active"><a href="#@{item.id}-@HISTORY">@Messages("country." + HISTORY)</a></li>
-                        }
-                        @if(item.data.situation.isDefined) {
-                            <li role="presentation" class="active"><a href="#@{item.id}-@SITUATION">@Messages("country." + SITUATION)</a></li>
-                        }
-                        @if(item.data.summary.isDefined) {
-                            <li role="presentation" class="active"><a href="#@{item.id}-@DATA_SUMMARY">@Messages("country." + DATA_SUMMARY)</a></li>
-                        }
-                        @if(item.data.extensive.isDefined) {
-                            <li role="presentation" class="active">
-                                <a href="#@{item.id}-@DATA_EXTENSIVE">@Messages("country." + DATA_EXTENSIVE)</a>
-                            </li>
-                        }
-                        @item.childCount.filter(_ > 0).map { count =>
-                            <li role="presentation" class="active">
-                                <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@item.id-child-item-search">
-                                @Messages(s"country.childItems.search", count)
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-
+            @views.html.common.sidebarSection(Messages("country.report.toc"), cls = "country-toc") {
+                <ul>
+                    @if(item.data.history.isDefined) {
+                        <li role="presentation">
+                            <a href="#@item.id-@HISTORY">@Messages("country." + HISTORY)</a>
+                        </li>
+                    }
+                    @if(item.data.situation.isDefined) {
+                        <li role="presentation">
+                            <a href="#@item.id-@SITUATION">@Messages("country." + SITUATION)</a>
+                        </li>
+                    }
+                    @if(item.data.summary.isDefined) {
+                        <li role="presentation">
+                            <a href="#@item.id-@DATA_SUMMARY">@Messages("country." + DATA_SUMMARY)</a>
+                        </li>
+                    }
+                    @if(item.data.extensive.isDefined) {
+                        <li role="presentation">
+                            <a href="#@item.id-@DATA_EXTENSIVE">@Messages("country." + DATA_EXTENSIVE)</a>
+                        </li>
+                    }
+                    <li role="presentation" class="active">
+                        <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@item.id-child-item-search">
+                            @Messages(s"country.childItems.search", item.childCount.getOrElse(0))
+                        </a>
+                    </li>
+                    @item.childCount.filter(_ > 0).map { count =>
+                        <li role="presentation" class="active">
+                            <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@item.id-child-item-search">
+                            @Messages(s"country.childItems.search", count)
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
             @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }

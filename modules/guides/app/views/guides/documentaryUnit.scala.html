@@ -20,12 +20,12 @@
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
     </p>
     @defining("documentaryUnit") { implicit prefix =>
-        <section class="archival-context panel-details repository">
+        <section class="archival-context sidebar-section repository">
             @item.holder.map { holder =>
-                <div class="panel-heading">
+                <div class="sidebar-section-heading">
                     <h3>@views.html.guides.doc.linkTo(guide, holder)</h3>
                 </div>
-                <div class="panel-body">
+                <div class="sidebar-section-body">
                     @item.parent.map { parent =>
                         @wrapParent(parent) {
                             <div class="ancestor">
