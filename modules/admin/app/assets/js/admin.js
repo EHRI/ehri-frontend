@@ -151,18 +151,17 @@ jQuery(function ($) {
 
   $("nav.responsive").stickyFormFooter();
 
-  // FIXME: BS4
   function addPopover($elem, trigger) {
-  //  trigger = trigger || "blur";
-  //  $elem.popover({
-  //    html: true,
-  //    delay: {
-  //      show: 500,
-  //      hide: 100
-  //    },
-  //    trigger: trigger,
-  //    placement: "bottom"
-  //  });
+    trigger = trigger || "blur";
+    $elem.popover({
+      html: true,
+      delay: {
+        show: 500,
+        hide: 100
+      },
+      trigger: trigger,
+      placement: "bottom"
+    });
   }
 
   // Add Bootstrap tooltip on input boxes with a title.

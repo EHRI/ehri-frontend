@@ -6,7 +6,7 @@
     <div class="description @desc.isA" id="@desc.id">
         @html
 
-        <div class="description-footer">
+        <footer class="description-footer">
             @if(desc.creationProcess == CreationProcess.Import) {
                 <div class="import-disclaimer">
                 @Messages("documentaryUnit.creationProcess.IMPORT.disclaimer")
@@ -15,6 +15,6 @@
             @if(showAnnotations) {
                 @views.html.common.descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
             }
-        </div>
+        </footer>
     </div>
 </div>

@@ -1,6 +1,6 @@
 @(user: UserProfile, links: utils.Page[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
-@views.html.common.footerPanel(Messages("profile.links")) {
+@views.html.common.sidebarSectionWithFooter(Messages("profile.links")) {
     @if(links.nonEmpty) {
         <ul class="user-links">
 

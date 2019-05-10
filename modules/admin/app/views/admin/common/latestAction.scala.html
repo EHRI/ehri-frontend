@@ -1,14 +1,10 @@
 @(item: models.base.Accessible, historyUrl: Call)(implicit messages: Messages)
 
 @item.latestEvent.map { ev =>
-    <div class="well well-small latest-event">
+    @views.html.common.sidebarSectionWithFooter(Messages("item.history"), cls = "history") {
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.data.timestamp)</strong>
-        <p class="text-muted">
-            <em>@ev.toStringLang</em>
-        </p>
-        <p>
-            <small><a href="@historyUrl">@Messages("item.history")</a></small>
-        </p>
-
-    </div>
+        <div class="event-label">@ev.toStringLang</div>
+    } {
+        <a href="@historyUrl">@Messages("item.history")</a>
+    }
 }
