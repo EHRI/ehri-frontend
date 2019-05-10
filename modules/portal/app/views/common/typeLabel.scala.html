@@ -1,8 +1,4 @@
-@(itemType: defines.EntityType.Value)(content: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
+@(itemType: defines.EntityType.Value)(content: Html = Html(""))(implicit messages: Messages)
 
-<div class="panel-type">
-    <div class="panel-heading">
-        <h3 class="panel-title">@Messages("type." + itemType)</h3>
-    </div>
-    @content
-</div>
+@views.html.common.sidebarSection(Messages("type." + itemType), cls = "type-heading")(content)
+

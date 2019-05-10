@@ -39,7 +39,7 @@ jQuery(function($) {
   }
 
   // Switch description when user clicks on side panel
-  $(document).on("click", ".description-switch", function(e) {
+  $(document).on("click", ".description-switcher a", function(e) {
     e.preventDefault();
     switchDescription($(this).data("id"));
   });
@@ -61,8 +61,8 @@ jQuery(function($) {
       }
 
       // Set the active class on the current description
-      var $active = $(".description-switch[data-id='" + descId + "']"),
-          $inactive = $(".description-switch[data-id!='" + descId + "']");
+      var $active = $(".description-switcher a[data-id='" + descId + "']"),
+          $inactive = $(".description-switcher a[data-id!='" + descId + "']");
 
       $active.addClass("active");
       $inactive.removeClass("active");

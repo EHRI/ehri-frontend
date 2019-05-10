@@ -1,25 +1,26 @@
 @(item: Accessible, url: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-<div class="well well-small">
+@views.html.common.sidebarSectionWithFooter(Messages("visibility")) {
     @if(item.accessors.nonEmpty) {
         <h4>
-            <i class="glyphicon glyphicon-lock"></i>
+            <i class="fa fa-eye-slash"></i>
             @Messages("visibility.visibilityRestrictedTo")
         </h4>
         <ul>
-            @item.accessors.map { acc =>
-                <li><a href="@views.admin.Helpers.linkTo(acc)">@acc.toStringLang</a></li>
-            }
+        @item.accessors.map { acc =>
+            <li><a href="@views.admin.Helpers.linkTo(acc)">@acc.toStringLang</a></li>
+        }
         </ul>
     } else {
         <h4>
-            <i class="glyphicon glyphicon-eye-open"></i>
+            <i class="fa fa-eye"></i>
             @Messages("visibility.visibleToEveryone")
         </h4>
     }
+} {
     @userOpt.map { user =>
         @if(user.hasPermission(contentType, PermissionType.Update)) {
-            <p><small><a href="@url">@Messages("visibility.update")</a></small></p>
+            <a href="@url">@Messages("visibility.update")</a>
         }
     }
-</div>
+}

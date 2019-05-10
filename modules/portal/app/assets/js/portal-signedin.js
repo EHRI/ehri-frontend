@@ -10,7 +10,8 @@ jQuery(function ($) {
       show: 600,
       hide: 100
     },
-    container: 'body'
+    container: 'body',
+    html: true
   });
 
   /**

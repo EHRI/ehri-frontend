@@ -1,6 +1,6 @@
 @(user: UserProfile, annotations: utils.Page[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
-@views.html.common.footerPanel(Messages("profile.annotations")) {
+@views.html.common.sidebarSectionWithFooter(Messages("profile.annotations")) {
     @if(annotations.nonEmpty) {
         <ul class="user-annotations">
 

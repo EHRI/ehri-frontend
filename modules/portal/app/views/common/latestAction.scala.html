@@ -1,19 +1,17 @@
 @(item: models.base.Accessible, historyUrl: Call)(implicit request: RequestHeader, messages: Messages)
 
 @item.latestEvent.map { ev =>
-    @views.html.common.footerPanel(Messages("item.history"), cls = "history inactive") {
+    @views.html.common.sidebarSectionWithFooter(Messages("item.history"), cls = "history") {
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.data.timestamp)</strong>
-        <p class="text-muted">
-            <em>@ev.toStringLang</em>
-        </p>
+        <div class="event-label">@ev.toStringLang</div>
     } {
         <a data-toggle="modal" href="@historyUrl" data-target="#history-modal" data-backdrop="false">
             @Messages("item.history")
         </a>
         <div class="modal" id="history-modal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">  
-                <div class="modal-content"></div>  
+            <div class="modal-dialog">
+                <div class="modal-content"></div>
             </div>
-        </div><!-- /.modal -->   
+        </div>
     }
 }
