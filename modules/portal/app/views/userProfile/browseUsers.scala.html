@@ -21,7 +21,7 @@
                         <li class="user-grid-item user-info">
                             <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
                                 <span class="helper"></span>
-                                <img src="@views.Helpers.gravitar(user.data.imageUrl)" />
+                                <img alt="@them.data.name" width="160" height="auto" src="@views.Helpers.gravitar(user.data.imageUrl)" />
                             </a>
                             <div class="user-info-details">
                                 <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
