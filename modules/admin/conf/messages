@@ -423,6 +423,7 @@ group.parentGroups=Parent Groups
 #
 # Item visibility
 #
+visibility=Visibility
 visibility.update=Set Visibility
 visibility.update.submit=Submit
 visibility.visibleToEveryone=Unrestricted visibility

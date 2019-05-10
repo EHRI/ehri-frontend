@@ -315,6 +315,14 @@ body.home #navbar-primary-container {
   }
 }
 
+// Other name lists
+.other-name-list,
+.other-name-list-small {
+  li+li:before {
+    content: '/ ';
+  }
+}
+
 // Sidebar facets
 .search-facets {
   .facet-options {
@@ -325,6 +333,10 @@ body.home #navbar-primary-container {
   .facet-class {
     margin-bottom: $margin-md;
   }
+}
+
+.sidebar-section {
+  margin-bottom: $margin-lg;
 }
 
 // Description list terms
@@ -340,7 +352,19 @@ dl dt {
 }
 
 // Descriptions
+.description-holder {
+  margin-bottom: $margin-lg;
+}
 .description-section {
   margin-bottom: $margin-md;
+}
+
+// Annotations etc
+.annotate-item,
+.annotate-field {
+  font-size: $font-size-xs;
+  &:hover {
+
+  }
 }
 
