@@ -243,16 +243,20 @@ ul.pagination {
 }
 
 .user-grid {
-  @include clearfix();
   @include list-unstyled();
   @extend .list-inline;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
 
   .user-info {
-    @include float-left();
     width: 30rem;
+    float: left;
 
-    img {
+    .img-container {
       width: 10rem;
+      height: 10rem;
+      overflow: hidden;
     }
   }
 }
