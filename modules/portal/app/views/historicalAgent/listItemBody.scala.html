@@ -1,7 +1,7 @@
 @(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig, md: views.MarkdownRenderer)
 
 @item.data.descriptions.headOption.map { desc =>
-    @common.otherNameListSmall(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
+    @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
     <div class="search-item-details">
         <ul class="agent-search-details">
             @item.set.map { set =>

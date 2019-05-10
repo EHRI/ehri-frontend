@@ -4,7 +4,7 @@
     <a href="@controllers.authorities.routes.HistoricalAgents.get(item.id)">@item.toStringLang</a>
 } {
     @item.data.descriptions.headOption.map { desc =>
-        @common.otherNameListSmall(desc.parallelFormsOfName ++ desc.otherFormsOfName)
+        @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName)
         <div class="search-item-details">
             <ul>
                 <li>@Messages("historicalAgent." + desc.entityType.toString)</li>

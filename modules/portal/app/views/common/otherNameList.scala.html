@@ -1,10 +1,14 @@
-@(names: Seq[String])(implicit messages: Messages)
+@(list: Seq[String], highlighter: views.Highlighter = views.NoopHighlighter, max: Int = 5)(implicit messages: Messages)
 
-@if(names.nonEmpty) {
-    <ul class="slash-sep other-name-list">
-        @names.map { p =>
-            <li>@p</li>
-        }
-    </ul>
+@defining(list.splitAt(max)) { case (ofn, rest) =>
+    @if(ofn.nonEmpty) {
+        <ul class="other-name-list">
+            @ofn.map { on =>
+                <li>@Html(highlighter.highlight(on))</li>
+            }
+            @if(rest.nonEmpty) {
+                <li title="@rest.mkString(", ")">@Messages("truncated")</li>
+            }
+        </ul>
+    }
 }
-
