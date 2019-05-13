@@ -1,3 +1,14 @@
+/* barlow-semi-condensed-600 - latin-ext_latin */
+@font-face {
+  font-family: 'Barlow Semi Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: optional;
+  src: local('Barlow Semi Condensed SemiBold'), local('BarlowSemiCondensed-SemiBold'),
+  url('../fonts/barlow-semi-condensed-v4-latin-ext_latin-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+  url('../fonts/barlow-semi-condensed-v4-latin-ext_latin-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
 // <-- Bootstrap
 @import "portal/variables";
 

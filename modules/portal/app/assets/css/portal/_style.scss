@@ -5,9 +5,8 @@ h2, h4 {
   text-transform: uppercase;
 }
 
-// Add a default button style
+// TODO: Add a default button style
 .btn {
-  border: 1px solid $secondary;
 }
 
 // Top navbar
@@ -214,7 +213,7 @@ body.home #navbar-primary-container {
   }
 
   #navbar-logo {
-    padding-right: 1rem;
+    padding-right: 1.5rem;
   }
 
   #navbar-primary-dropdown > ul > li {
@@ -222,7 +221,7 @@ body.home #navbar-primary-container {
   }
 
   #navbar-primary-dropdown > ul > li {
-    padding: 0 1rem;
+    padding: 0;
   }
 
   #navbar-primary-dropdown > ul > li > a {
@@ -236,17 +235,17 @@ body.home #navbar-primary-container {
   }
 
   #navbar-primary-dropdown > ul {
+    justify-content: space-between;
     flex-grow: 1;
     > li:last-child {
       display: flex;
       align-items: center;
-      margin-left: auto;
       padding-right: 0;
     }
   }
 
   #navbar-primary-dropdown #search-controls {
-    margin: initial;
+    margin: 0;
   }
 }
 

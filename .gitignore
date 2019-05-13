@@ -21,7 +21,6 @@ OLD
 *.iml
 ^fonts
 .fonts
-fonts
 .idea
 .idea_modules
 
