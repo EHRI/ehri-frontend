@@ -10,8 +10,29 @@ body {
 }
 
 // Main page right sidebar layouts
-article.double, .search-results {
+section.double {
   // Place sidebar on the right...
+  > aside {
+    @extend .order-last;
+  }
+
+  @include media-breakpoint-up(lg) {
+
+    @include make-row();
+
+    > aside {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+
+    > article {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}
+
+.search-results {
   > aside {
     @extend .order-last;
   }

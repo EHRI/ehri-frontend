@@ -5,6 +5,11 @@ h2, h4 {
   text-transform: uppercase;
 }
 
+// Add a default button style
+.btn {
+  border: 1px solid $secondary;
+}
+
 // Top navbar
 #navbar-top-container {
   font-size: $font-size-xs;
@@ -240,27 +245,56 @@ body.home #navbar-primary-container {
   .search-helper-container {
     font-size: $font-size-xs;
   }
+}
 
-  .search-sort {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    ul {
-      margin: 0 0 0 $margin-sm;
-      @include list-unstyled();
-      @include list-inline();
+.search-bar {
+  margin-bottom: $margin-sm;
+}
+
+.selected-facets {
+  .selected-facet {
+    @extend .badge, .badge-info;
+
+    border: 1px solid darken($info, 7%);
+
+    padding: $margin-xs 0;
+    > .facet,
+    > .remove-filter {
+      padding: $margin-xs;
     }
 
-    @include media-breakpoint-up(lg) {
-      margin-left: auto;
+    .remove-filter {
+      color: $black;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, .1);
+      }
     }
+  }
+
+  margin-bottom: $margin-sm;
+}
+
+.search-sort {
+  font-size: $font-size-sm;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  ul {
+    margin: 0 0 0 $margin-sm;
+    @include list-unstyled();
+    @include list-inline();
+  }
+
+  @include media-breakpoint-up(lg) {
+    margin-left: auto;
   }
 }
 
 // User grid
 .user-grid {
   .user-grid-item {
-    margin-bottom: $margin-md;
+    margin-bottom: $list-margin-bottom;
 
     .user-info-details {
       margin-left: $margin-md;

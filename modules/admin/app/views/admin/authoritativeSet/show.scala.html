@@ -6,7 +6,7 @@
         @views.html.admin.common.textValue(models.AuthoritativeSetF.DESCRIPTION, item.data.description)
     }
 
-    @views.html.common.search.searchSection(item, Messages("authoritativeSet.items"), result) {
+    @views.html.admin.search.searchSection(item, Messages("authoritativeSet.items"), result) {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
             @views.html.admin.search.searchItemList(result)
         } {

@@ -30,7 +30,7 @@
                     }
                 }
 
-                @views.html.common.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {
+                @views.html.admin.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {
                     @views.html.common.search.searchForm(result, action, autofocus = false) {
                         @views.html.admin.virtualUnit.searchItemList(result, path :+ item)
                     } {

@@ -4,7 +4,7 @@
     @if(user.hasPermission(defines.ContentTypes.DocumentaryUnit, defines.PermissionType.Update)) {
         @desc.id.map { did =>
             <div class="btn-group pull-right">
-                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     @Messages("item.actions")
                     <span class="caret"></span>
                 </a>
