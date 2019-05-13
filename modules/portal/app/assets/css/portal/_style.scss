@@ -60,9 +60,12 @@ h2, h4 {
   > li {
     margin-right: $margin-sm;
   }
-  > li:first-child a {
-    // neg margin to correct inset
-    margin-left: -1rem;
+
+  @include media-breakpoint-up(lg) {
+    > li:first-child a {
+      // neg margin to correct inset
+      margin-left: -1rem;
+    }
   }
 }
 
@@ -117,6 +120,62 @@ body.home #navbar-primary-container {
   }
 }
 
+#navbar-primary-dropdown #search-controls {
+  flex-wrap: nowrap;
+  margin: 1.5rem 0 1rem 0;
+
+  .input-group-append {
+    margin-left: 0;
+  }
+
+  background-color: rgba(255, 255, 255, 0.1);
+
+  input {
+    border-right: 0;
+  }
+
+  button {
+    border-left: 0;
+  }
+
+  input, button {
+    // NB: this is px so the placeholder
+    // doesn't overflow w/ large base font
+    // sizes.
+    font-size: 14px;
+    border-radius: 0;
+    color: $white !important;
+    background-color: transparent;
+    border-color: rgba(224, 224, 224, 0.3);
+    padding: .3rem $margin-xs;
+  }
+
+  input:focus {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  input::placeholder, *::-webkit-search-cancel-button {
+    color: $white
+  }
+
+  // Hack for Twitter typeahead size
+  .twitter-typeahead {
+    display: block;
+    width: 100% !important;
+  }
+
+  .tt-menu {
+    background-color: $white;
+    box-shadow: 2px 2px 5px 0 rgba(153,153,153,1);
+    padding: $margin-sm;
+
+    .tt-suggestion {
+      margin-bottom: $margin-xs;
+    }
+  }
+}
+
 #navbar-primary-dropdown {
   margin-top: $margin-sm;
 }
@@ -132,6 +191,11 @@ body.home #navbar-primary-container {
 
 // At wide display, pad navbar items
 @include media-breakpoint-up(lg) {
+
+  #navbar-actions > ul,
+  #navbar-account > ul {
+    align-items: center;
+  }
 
   #navbar-primary {
     padding-top: 0;
@@ -174,14 +238,15 @@ body.home #navbar-primary-container {
   #navbar-primary-dropdown > ul {
     flex-grow: 1;
     > li:last-child {
-      a {
-        padding: 0;
-      }
       display: flex;
       align-items: center;
       margin-left: auto;
       padding-right: 0;
     }
+  }
+
+  #navbar-primary-dropdown #search-controls {
+    margin: initial;
   }
 }
 
@@ -248,6 +313,7 @@ body.home #navbar-primary-container {
 }
 
 .search-bar {
+  align-items: center;
   margin-bottom: $margin-sm;
 }
 

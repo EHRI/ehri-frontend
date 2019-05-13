@@ -29,19 +29,17 @@
                     <a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">@Messages("type.AuthoritativeSet")</a>
                 </li>
                 <li>
-                    <a class="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        <i class="material-icons">search</i>
-                    </a>
-                    <ul class="dropdown-menu" id="search-dropdown" role="menu">
-                        <li>
-                            @helper.form(action = controllers.portal.routes.Portal.search()) {
-                                <div id="quicksearch-controls" class="form-group">
-                                    <label for="quicksearch" class="sr-only">@Messages("search.global")</label>
-                                    <input name="q" id="quicksearch" placeholder="@Messages("search")" />
-                                </div>
-                            }
-                        </li>
-                    </ul>
+                    @helper.form(action = controllers.portal.routes.Portal.search()) {
+                        <div class="input-group" id="search-controls">
+                            <input class="form-control" type="search" name="q" placeholder="@Messages("search.site")" id="quicksearch" value="">
+                            <span class="input-group-append">
+                                <button class="btn" type="submit">
+									@*<i class="material-icons">search</i>*@
+                                    <i class="fa fa-search fa-inverse fa-lg"></i>
+                                </button>
+                            </span>
+                        </div>
+                    }
                 </li>
             </ul>
         </div>

@@ -420,6 +420,7 @@ error.userEmailAlreadyRegistered=A user with that email is already registered: {
 # Search
 #
 search.submit=Search
+search.site=Site search...
 search.clear=Clear Search
 search.sort=Order
 search.sort.id=ID/Code
