@@ -6,14 +6,14 @@
            class=" btn btn-sm btn-danger unwatch"
            role="button"
            style="@(if(!watching) "display: none;")" title="@Messages("profile.unwatch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)">
-            <span class="glyphicon glyphicon-star"></span>
+            <span class="fa fa-fw fa-star"></span>
             <span class="legend">@Messages("profile.unwatch")</span>
         </a>
         <a data-item="@item.id"
            class=" btn btn-sm btn-danger watch"
            role="button"
            style="@(if(watching) "display: none")" title="@Messages("profile.watch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)">
-            <span class="glyphicon glyphicon-star-empty"></span>
+            <span class="fa fa-fw fa-star-o"></span>
             <span class="legend">@Messages("profile.watch")</span>
         </a>
     </div>
