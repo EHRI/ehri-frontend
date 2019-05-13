@@ -17,7 +17,7 @@
 @if(more) {
     <li class="list-group-item">
         <a href="@controllers.portal.routes.Bookmarks.contents(parent.get.id, params, paging.next)" data-count="@paging.limit" data-page="@(paging.next.page)"
-                class="bookmarks-fetchmore btn btn-default btn-block">
+                class="bookmarks-fetchmore btn btn-block">
             @Messages("activity.fetchMore")
         </a>
     </li>
