@@ -15,7 +15,7 @@
                 Messages("timeline.target." + subject.isA.toString)))
         </h4>
         <a href="@controllers.portal.routes.Portal.eventDetails(event.id)" class="timeline-event-time" title="@event.data.timestamp">
-            <i class="glyphicon glyphicon-time"></i>
+            <i class="fa fa-clock-o"></i>
             @views.Helpers.relativeDate(event.data.timestamp)
         </a>
     } {

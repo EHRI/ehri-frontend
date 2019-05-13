@@ -12,9 +12,9 @@
         <a href="@controllers.portal.social.routes.Social.userActivity(
             userId = user.id,
             params = utils.SystemEventParams(from = summary.from.map(_.toLocalDateTime), to = summary.to.map(_.toLocalDateTime)))"
-            class="timeline-event-time" title="@timestamp">
-            <i class="glyphicon glyphicon-time"></i>
-            @views.Helpers.relativeDate(timestamp)
+                class="timeline-event-time" title="@timestamp">
+                    <i class="fa fa-clock-o"></i>
+                    @views.Helpers.relativeDate(timestamp)
         </a>
     }
 } {
@@ -23,7 +23,7 @@
             @views.html.activity.eventBody(ev, s, accessor, et, subjectCount = 1)
         }
     } else {
-        <dl class="timeline-summary dl-horizontal">
+        <dl class="timeline-summary">
         @for((et, subjects) <- summary.byTypeAndFirstSubject.toSeq.sortBy(_._1)) {
             <dt>@Messages("systemEvent." + et)</dt>
             <dd>
@@ -40,6 +40,6 @@
     @if(summary.eventTypes.size == 1) {
         @views.html.activity.eventBadge(summary.eventTypes.head)
     } else {
-        <div class="timeline-badge success"><i class="glyphicon glyphicon-tasks"></i></div>
+        <div class="timeline-badge success"><i class="fa fa-fw fa-inverse fa-lg fa-tasks"></i></div>
     }
 }
