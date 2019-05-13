@@ -290,7 +290,7 @@ body.home #navbar-primary-container {
     }
   }
 
-  margin-bottom: $margin-sm;
+  margin-bottom: $list-margin-bottom;
 }
 
 // Child item lists...
@@ -389,3 +389,69 @@ dl dt {
   }
 }
 
+// Activity stream
+#activity-stream {
+  > .timeline-event {
+    margin-bottom: $list-margin-bottom;
+  }
+}
+
+.timeline-event {
+  > .timeline-body {
+    margin-left: $margin-sm;
+  }
+
+  .timeline-event-title {
+    margin-bottom: 0;
+  }
+
+  .timeline-event-time {
+    @extend %small-muted;
+  }
+
+  .timeline-summary-subjects {
+    @include list-unstyled();
+    font-size: $font-size-sm;
+  }
+
+  .timeline-badge {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1.5rem;
+    background-color: $blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.success {
+      background-color: $success;
+    }
+
+    &.info {
+      background-color: $info;
+    }
+
+    &.warning {
+      background-color: $warning;
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    dl.timeline-summary {
+      @include make-row();
+
+      dt {
+        @include make-col-ready();
+        @include make-col(2);
+      }
+      dd {
+        @include make-col-ready();
+        @include make-col(10);
+      }
+    }
+  }
+}
+
+#activity-stream-fetchmore {
+  @extend .btn;
+}
