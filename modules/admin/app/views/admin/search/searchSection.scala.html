@@ -1,8 +1,8 @@
 @(item: models.base.Holder[_], title: String, result: services.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(result.nonEmpty) {
-    <div class="search-section" id="search-items">
-        <h4>@title</h4>
+    <section class="search-section" id="search-items">
+        <h3>@title</h3>
         @html
-    </div>
+    </section>
 }

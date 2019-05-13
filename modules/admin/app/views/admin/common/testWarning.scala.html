@@ -1,14 +1,14 @@
 @()(implicit globalConfig: global.GlobalConfig)
 
 @if(globalConfig.isStageMode) {
-    <div class="testing-banner alert-info">
+    <div class="testing-banner alert alert-info">
         <div class="container">
             STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span>
         </div>
     </div>
 } else {
     @if(globalConfig.isTestMode) {
-        <div class="testing-banner alert-danger">
+        <div class="testing-banner alert alert-danger">
             <div class="container">
                 TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span>
             </div>
