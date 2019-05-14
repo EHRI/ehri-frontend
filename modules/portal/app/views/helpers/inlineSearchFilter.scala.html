@@ -2,10 +2,10 @@
 
 @import services.search.SearchParams.QUERY
 
-<div class="inline-search-filter">
+<div class="inline-search-filter search-box">
     <label for="@id" class="sr-only" aria-hidden="true">@label</label>
     <input class="form-control form-control-sm @{if(params.query.nonEmpty) "active"}"
         id="@id" type="search" name="@QUERY" value="@params.query" title="@label"
         placeholder="@label" />
-    <i class="fa fa-search form-control-feedback"></i>
+    <i class="material-icons form-control-feedback">search</i>
 </div>
