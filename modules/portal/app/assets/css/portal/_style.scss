@@ -9,6 +9,17 @@ h2, h4 {
 .btn {
 }
 
+.block-header {
+  background-color: $secondary;
+  color: $white;
+  padding: $margin-xs;
+  margin-bottom: $margin-sm;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
 // Top navbar
 #navbar-top-container {
   font-size: $font-size-xs;
@@ -17,7 +28,7 @@ h2, h4 {
 
 // Both navbars are dark expanding  containers
 #navbar-top, #navbar-primary {
-  @extend .container, .navbar, .navbar-dark;
+  @extend .container,   .navbar, .navbar-dark;
 }
 
 #navbar-top {
@@ -381,6 +392,7 @@ body.home #navbar-primary-container {
 
   .search-item-body {
     font-size: $font-size-base;
+    margin-right: $margin-sm;
 
     .holders {
       @include list-unstyled();
@@ -389,7 +401,60 @@ body.home #navbar-primary-container {
     }
   }
 
+  .search-item-actions {
+    margin-left: $margin-sm;
+    a:hover {
+      text-decoration: none;
+    }
+  }
+
+  .search-item-footer {
+    @include clearfix();
+
+    .list-item-meta,
+    .list-item-actions {
+      float: right;
+      @include list-unstyled();
+      @include list-inline();
+      @extend %small-muted;
+    }
+  }
+
   margin-bottom: $list-margin-bottom;
+}
+
+// Annotation lists
+.user-annotation-list {
+  @include list-unstyled;
+
+  .annotation-meta {
+    @extend %small-muted;
+    float: right;
+  }
+
+  > li {
+    padding-bottom: $margin-xs;
+    border-bottom: 1px dashed $gray-400;
+  }
+}
+
+// List export options
+ul.list-export-options {
+  float: right;
+  @include list-unstyled();
+  @include list-inline();
+
+  align-items: center;
+  font-weight: $font-weight-bold;
+
+  a {
+    font-size: $font-size-sm;
+    color: $black;
+  }
+
+  i:first-child {
+    margin-right: $margin-xs;
+  }
 }
 
 // Child item lists...
@@ -412,6 +477,29 @@ body.home #navbar-primary-container {
 
   @include list-unstyled();
   @include list-inline(" /\00a0");
+}
+
+// Inline search/filter
+.inline-search-filter {
+  margin-left: auto;
+
+  input {
+    padding-right: 2.375rem;
+    float: left;
+  }
+
+  .form-control-feedback {
+    font-size: $font-size-base;
+    position: absolute;
+    float: right;
+    right: 2rem;
+    z-index: 2;
+    display: block;
+    line-height: 2rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+  }
 }
 
 // Sidebar facets

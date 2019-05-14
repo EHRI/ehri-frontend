@@ -30,7 +30,9 @@
                         <li>
                             <div class="search-item" id="@item.id">
                                 @if(item.data.longitude.nonEmpty) {
-                                    <a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@item.data.longitude" data-latitude="@item.data.latitude"><span class=" glyphicon glyphicon-map-marker"></span></a>
+                                    <a class="zoom-to" href="#map" data-id="@item.id" data-longitude="@item.data.longitude" data-latitude="@item.data.latitude">
+                                        <i class="fa fa-map-marker"></i>
+                                    </a>
                                 }
                                 @guideItem(item, hit, controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path), Some(guide.path), page.layout)
                             </div>

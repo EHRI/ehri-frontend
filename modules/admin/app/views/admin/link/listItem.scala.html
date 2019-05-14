@@ -4,7 +4,7 @@
 <div class="search-item" id="@item.id" dir="auto">
     <h2 class="search-item-heading">
         <a href="@controllers.links.routes.Links.get(item.id)">
-            <span class="glyphicon glyphicon-link"></span>
+            <span class="fa fa-link"></span>
         </a>
         @defining(item.sortedTargets) { targets =>
             @targets.dropRight(1).map { t =>
