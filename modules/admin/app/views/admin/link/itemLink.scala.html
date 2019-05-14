@@ -5,11 +5,11 @@
     <span class="label label-default">@Messages("link." + link.data.linkType.toString)</span>
 </small>
 <a class="inline-action" title="@Messages("link.update")" href="@controllers.links.routes.Links.getAndRedirect(link.id, src.map(_.id))">
-    <i class="glyphicon glyphicon-link"></i>
+    <i class="fa fa-link"></i>
 </a>
 <a class="ajax-action inline-action" title="@Messages("link.delete")?"
         href="@controllers.links.routes.Links.delete(link.id, src.map(_.id))">
-    <i class="glyphicon glyphicon-remove"></i>
+    <i class="fa fa-remove"></i>
 </a>
 
 @if(link.data.dates.nonEmpty) {

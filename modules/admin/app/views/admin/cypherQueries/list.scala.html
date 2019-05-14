@@ -30,7 +30,7 @@
                             <ul class="list-item-meta">
                                 <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updated))</li>
                                 <li title="@Messages("cypherQuery.public.description")">
-                                    <span class="glyphicon glyphicon-eye-@(if(query.public) "open" else "close")"></span>
+                                    <i class="fa fa-eye@(if(query.public) "-slash")"></i>
                                 </li>
                             </ul>
                             <ul class="list-item-actions">

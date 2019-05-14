@@ -187,6 +187,12 @@ ul.dropdown-menu {
   @include list-unstyled();
 }
 
+.search-item-actions {
+  float: right;
+  display: flex;
+  flex-direction: column;
+}
+
 .search-item-details {
   > ul {
     @include list-unstyled();

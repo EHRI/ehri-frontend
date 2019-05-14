@@ -4,17 +4,18 @@
 
     @if(result.nonEmpty) {
         @views.html.common.search.searchItemList(result, currentWatchedIds)
-
         @common.pagination(result.page)
-        <div class="list-export-options">
-            <span class="glyphicon glyphicon-download"></span>
-            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
-                <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">
-                @fmt
-                </a>
-            }
 
-        </div>
+        <ul class="list-export-options">
+            <i class="fa fa-download"></i>
+            @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
+                <li>
+                    <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">
+                        @fmt
+                    </a>
+                </li>
+            }
+        </ul>
     } else {
         <p class="no-content">
             @if(isCurrentUser) {

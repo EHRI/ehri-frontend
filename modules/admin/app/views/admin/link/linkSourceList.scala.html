@@ -9,14 +9,14 @@
                 <div class="copy-links">
                     <div class="select-link-target">
                         <a href="@linkAction(otherItem.id, false)">
-                            <i class="glyphicon glyphicon-link"></i>
+                            <i class="fa fa-link"></i>
                             @Messages("link.linkTo.item")
                         </a>
                     </div>
                     @Link.copyLinkType(item, otherItem).map { _ =>
                         <div class="select-copy-link-target">
                             <a href="@linkAction(otherItem.id, true)">
-                                <i class="glyphicon glyphicon-copy"></i>
+                                <i class="fa fa-copy"></i>
                                 @Messages("link.linkTo.copy")
                             </a>
                         </div>

@@ -18,7 +18,7 @@
         @common.itemDetails {
             @defining("cvocConcept") { implicit fieldPrefix =>
                 @defining(item.data.descriptionsWithSelected()) { descriptions =>
-                    @common.descriptionContainer(descriptions) {
+                    @common.descriptionContainer(descriptions, dropdown = true) {
                         <div class="row">
                             <div class="col-md-8">
                             @descriptions.map { case (desc, selected) =>

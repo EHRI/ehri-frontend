@@ -4,8 +4,8 @@
 
 <div class="inline-search-filter">
     <label for="@id" class="sr-only" aria-hidden="true">@label</label>
-    <input class="@{if(params.query.nonEmpty) "active"}" id="@id" type="text" name="@QUERY" value="@params.query" title="@label" />
-    @params.query.map { q =>
-        <a title="@Messages("search.clear")" class="alt" href="@utils.http.joinPath(req.path, req.queryString - QUERY)"><span class="fa fa-times"></span></a>
-    }
+    <input class="form-control form-control-sm @{if(params.query.nonEmpty) "active"}"
+        id="@id" type="search" name="@QUERY" value="@params.query" title="@label"
+        placeholder="@label" />
+    <i class="fa fa-search form-control-feedback"></i>
 </div>

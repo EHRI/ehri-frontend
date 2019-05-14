@@ -1,10 +1,10 @@
 @(html: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
-<article class="double">
+<section class="double">
     <aside class="right-sidebar">
         @sidebar
     </aside>
-    <section class="main">
+    <article class="main">
         @html
-    </section>
-</article>
+    </article>
+</section>
