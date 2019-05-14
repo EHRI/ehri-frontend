@@ -30,14 +30,10 @@
                 </li>
                 <li>
                     @helper.form(action = controllers.portal.routes.Portal.search()) {
-                        <div class="input-group" id="search-controls">
+                        <div id="site-search-controls" class="search-box">
+                            <label class="sr-only" for="quicksearch">@Messages("search.site")</label>
                             <input class="form-control" type="search" name="q" placeholder="@Messages("search.site")" id="quicksearch" value="">
-                            <span class="input-group-append">
-                                <button class="btn" type="submit">
-									@*<i class="material-icons">search</i>*@
-                                    <i class="fa fa-search fa-inverse fa-lg"></i>
-                                </button>
-                            </span>
+                            <i class="material-icons form-control-feedback">search</i>
                         </div>
                     }
                 </li>
