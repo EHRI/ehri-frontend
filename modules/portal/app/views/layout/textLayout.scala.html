@@ -2,10 +2,8 @@
 
 @views.html.layout.portalLayout(title, itemClass = itemClass, scripts = scripts, styles = styles, meta = meta) {
     @views.html.common.mainContent {
-        <main class="block-text">
-            <article>
-                @content
-            </article>
-        </main>
+        <article class="text-block">
+            @content
+        </article>
     }
 }

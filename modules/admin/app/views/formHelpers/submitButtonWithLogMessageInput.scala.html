@@ -1,13 +1,15 @@
 @(buttonText: String, defaultLogMessage: String = "", cancel: Option[Call] = None)(implicit extra: Html = Html(""), globalConfig: global.GlobalConfig, messages: Messages)
 
 <div class="form-actions">
-    <div class="form-group">
-        <input maxlength="@globalConfig.logMessageMaxLength" class="form-control" type="text" name="logMessage" placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
-    </div>
-    <div class="form-group">
-        <button type="submit" class=" btn  btn-post ">@buttonText</button>
+    <label class="sr-only" for="log-message">@Messages("forms.logMessage")</label>
+    <input maxlength="@globalConfig.logMessageMaxLength"
+            class="form-control" type="text" name="logMessage"
+            placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
+
+    <div class="buttons">
+        <button type="submit" class="btn btn-post">@buttonText</button>
         @cancel.map { call =>
-        <a href="@call" class=" btn  btn-cancel ">@Messages("cancel")</a>
+            <a href="@call" class="btn btn-cancel">@Messages("cancel")</a>
         }
         @extra
     </div>

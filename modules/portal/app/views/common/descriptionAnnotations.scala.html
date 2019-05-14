@@ -3,7 +3,7 @@
 <div class="description-annotations annotation-set">
     @defining(Annotation.itemAnnotations(desc.id, annotations).filter(_.data.field.isEmpty)) { annotations =>
         @if(userOpt.isDefined || annotations.nonEmpty) {
-            <h3 class="description-annotations-header block-header">@Messages("annotation.description")</h3>
+            <h3 class="description-annotations-header">@Messages("annotation.description")</h3>
         }
         @views.html.annotation.annotationBlockList(annotations)
         @userOpt.map { user =>
