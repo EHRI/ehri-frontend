@@ -3,18 +3,16 @@
 @userOpt.map { user =>
     @if(user.hasPermission(defines.ContentTypes.HistoricalAgent, defines.PermissionType.Update)) {
         @desc.id.map { did =>
-            <div class="btn-group pull-right">
+            <div class="description-actions">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     @Messages("item.actions")
                     <span class="caret"></span>
                 </a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="@controllers.authorities.routes.HistoricalAgents.manageAccessPoints(item.id, did)">
-                            @Messages("describedEntity.manageAccessPoints")
-                        </a>
-                    </li>
-                </ul>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="@controllers.authorities.routes.HistoricalAgents.manageAccessPoints(item.id, did)">
+                        @Messages("describedEntity.manageAccessPoints")
+                    </a>
+                </div>
             </div>
         }
     }

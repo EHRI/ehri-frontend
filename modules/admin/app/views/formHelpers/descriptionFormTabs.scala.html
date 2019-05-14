@@ -9,18 +9,20 @@
     });
 </script>
 
-<section class="descriptions">
-    <ul id="description-tabs" class="nav nav-tabs" role="tablist">
+<section class="form-descriptions card">
+    <div class="card-header">
+    <ul id="description-tabs" class="nav nav-tabs card-header-tabs" role="tablist">
         @helper.repeatWithIndex(f("descriptions")) { (desc, i) =>
-            <li role="presentation" class="@(if(i == 0) "active")">
-                <a href="#description_@(i)_tab" role="tab" data-toggle="tab">
+            <li class="nav-item" role="presentation">
+                <a href="#description_@(i)_tab" class="nav-link @(if(i == 0) "active")" role="tab" data-toggle="tab">
                     @Messages("describedEntity.description", i + 1) -
                     @desc(Description.LANG_CODE).value.map(utils.i18n.languageCodeToName)
                 </a>
             </li>
         }
     </ul>
-    <div class="description-form-tabs tab-content">
+    </div>
+    <div class="description-form-tabs tab-content card-body">
     @helper.repeatWithIndex(f("descriptions")) { (desc, i) =>
         <div class="description-form-tab tab-pane @(if(i == 0) "active")" role="tabpanel" id="description_@(i)_tab">
             @fieldRenderer(desc)

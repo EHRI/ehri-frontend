@@ -1,18 +1,3 @@
-ul.action-group {
-  @extend .list-group;
-
-  > li {
-    @extend .list-group-item;
-
-    &.warning {
-      @extend .list-group-item-warning;
-    }
-    &.danger {
-      @extend .list-group-item-danger;
-    }
-  }
-}
-
 // Form templates are hidden elements used to generate
 // a new inline item...
 .form-template {
@@ -59,4 +44,29 @@ ul.form-navigation {
   > li {
     @extend .list-group-item;
   }
+}
+
+.description-actions {
+  float: right;
+
+  .btn {
+    @extend .btn-outline-secondary;
+  }
+}
+
+.form-actions .buttons {
+  margin-top: $margin-sm;
+
+  .btn {
+    font-size: $font-size-base;
+  }
+}
+
+// Buttons
+.btn-post {
+  @extend .btn-primary;
+}
+
+.btn-cancel {
+  @extend .btn-outline-secondary;
 }
