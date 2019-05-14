@@ -125,63 +125,33 @@ body.home #navbar-primary-container {
 #navbar-nav-dropdown #navbar-nav-search {
   padding: 1.5rem 0;
 
-  #search-controls {
+  #site-search-controls {
     width: 100%;
   }
 }
 
-#navbar-primary-dropdown #search-controls {
-  flex-wrap: nowrap;
+#navbar-primary-dropdown #site-search-controls {
   margin: 1.5rem 0 1rem 0;
 
-  .input-group-append {
-    margin-left: 0;
-  }
-
-  background-color: rgba(255, 255, 255, 0.1);
-
-  input {
-    border-right: 0;
-  }
-
-  button {
-    border-left: 0;
-  }
-
-  input, button {
-    // NB: this is px so the placeholder
-    // doesn't overflow w/ large base font
-    // sizes.
-    font-size: 14px;
-    border-radius: 0;
-    color: $white !important;
-    background-color: transparent;
-    border-color: rgba(224, 224, 224, 0.3);
-    padding: .3rem $margin-xs;
-  }
-
-  input:focus {
-    -webkit-box-shadow: none;
-    box-shadow: none;
-  }
-
-  input::placeholder, *::-webkit-search-cancel-button {
-    color: $white
-  }
+  @include search-box();
 
   // Hack for Twitter typeahead size
   .twitter-typeahead {
     display: block;
+    float: left;
     width: 100% !important;
   }
 
   .tt-menu {
     background-color: $white;
     box-shadow: 2px 2px 5px 0 rgba(153,153,153,1);
-    padding: $margin-sm;
 
     .tt-suggestion {
-      margin-bottom: $margin-xs;
+      padding: $margin-xs;
+    }
+
+    .tt-cursor {
+      background-color: $gray-200;
     }
   }
 }
@@ -255,7 +225,7 @@ body.home #navbar-primary-container {
     }
   }
 
-  #navbar-primary-dropdown #search-controls {
+  #navbar-primary-dropdown #site-search-controls {
     margin: 0;
   }
 }
@@ -480,26 +450,10 @@ ul.list-export-options {
 }
 
 // Inline search/filter
-.inline-search-filter {
+.block-header .inline-search-filter {
+
+  @include search-box();
   margin-left: auto;
-
-  input {
-    padding-right: 2.375rem;
-    float: left;
-  }
-
-  .form-control-feedback {
-    font-size: $font-size-base;
-    position: absolute;
-    float: right;
-    right: 2rem;
-    z-index: 2;
-    display: block;
-    line-height: 2rem;
-    text-align: center;
-    pointer-events: none;
-    color: #aaa;
-  }
 }
 
 // Sidebar facets
