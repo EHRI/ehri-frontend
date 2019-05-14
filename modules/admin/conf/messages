@@ -181,6 +181,7 @@ cypherQuery.sort.updated.title=Display results most recently updated first
 download.format.html=View as HTML
 
 # Provenance
+forms.logMessage=Log Message
 forms.logMessagePlaceholder=Tell people what you''re doing (optional, 400 characters max)...
 
 # What we say when a logical item has no descriptions

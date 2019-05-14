@@ -6,9 +6,9 @@
 
 @dropdownMenu(key: String, url: String) = {
     @if(url == "-") {
-        <li role="presentation" class="divider"></li>
+        <div role="presentation" class="dropdown-divider"></div>
     } else {
-        @activeIfCurrent(url, Messages(key))
+        <a class="dropdown-item @{if(request.path.startsWith(url)) "active" else ""}" href="@url">@Messages(key)</a>
     }
 }
 

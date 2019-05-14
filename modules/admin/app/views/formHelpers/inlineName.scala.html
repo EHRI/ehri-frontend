@@ -2,13 +2,13 @@
 
 <div class="inline-element">
     <div class="form-group @{if(field.hasErrors) "has-error"}">
-        <div class="inline-element-data">
+        <div class="inline-control">
             <input type="text" class="form-control"
                 name="@field.name" id="@field.id" value="@field.value"
                 title="@(md.renderMarkdown(Messages((if (fieldPrefix != "") fieldPrefix + "." else "") + name + ".description")))" />
             <span class="help-block errors">@field.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
-       <div class="inline-element-remove">
+       <div class="inline-remove">
             <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
         </div>
     </div>

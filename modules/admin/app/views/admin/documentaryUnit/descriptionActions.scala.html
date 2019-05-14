@@ -3,30 +3,24 @@
 @userOpt.map { user =>
     @if(user.hasPermission(defines.ContentTypes.DocumentaryUnit, defines.PermissionType.Update)) {
         @desc.id.map { did =>
-            <div class="btn-group pull-right">
+            <div class="description-actions">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
                     @Messages("item.actions")
                     <span class="caret"></span>
                 </a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="@controllers.units.routes.DocumentaryUnits.manageAccessPoints(item.id, did)">
-                            @Messages("describedEntity.manageAccessPoints")
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@controllers.units.routes.DocumentaryUnits.updateDescription(item.id, did)">
-                            @Messages("describedEntity.editDescription")
-                        </a>
-                    </li>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="@controllers.units.routes.DocumentaryUnits.manageAccessPoints(item.id, did)">
+                        @Messages("describedEntity.manageAccessPoints")
+                    </a>
+                    <a class="dropdown-item" href="@controllers.units.routes.DocumentaryUnits.updateDescription(item.id, did)">
+                        @Messages("describedEntity.editDescription")
+                    </a>
                     @if(item.descriptions.size > 1) {
-                        <li>
-                            <a class="alert alert-danger" href="@controllers.units.routes.DocumentaryUnits.deleteDescription(item.id, did)">
+                        <a class="dropdown-item" href="@controllers.units.routes.DocumentaryUnits.deleteDescription(item.id, did)">
                             @Messages("describedEntity.deleteDescription")
-                            </a>
-                        </li>
+                        </a>
                     }
-                </ul>
+                </div>
             </div>
         }
     }
