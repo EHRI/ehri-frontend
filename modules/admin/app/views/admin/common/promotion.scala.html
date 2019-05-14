@@ -4,7 +4,7 @@
     <div class="well well-small">
         @if(item.promoters.nonEmpty) {
             <h4>
-                <i class="glyphicon glyphicon-star"></i>
+                <i class="fa fa-star"></i>
                 @Messages("visibility.promotedBy")
             </h4>
             <ul>
@@ -20,7 +20,7 @@
             } else {
                 @if(user.hasPermission(contentType, defines.PermissionType.Promote)) {
                     <h4>
-                        <i class="glyphicon glyphicon-star"></i>
+                        <i class="fa fa-star"></i>
                         @Messages("visibility.notPromoted")
                     </h4>
                     <p><small><a href="@promoteUrl">@Messages("item.promote")</a></small></p>

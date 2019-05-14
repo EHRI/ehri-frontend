@@ -9,15 +9,17 @@
     }
     </ul>
     @common.pagination(annotations.page)
-    <div class="list-export-options">
-        <span class="glyphicon glyphicon-download"></span>
+    <ul class="list-export-options">
+        <i class="fa fa-download"></i>
         @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
-            <a class="download-link" target="_blank" title="@Messages("download.format." + fmt)"
+            <li>
+                <a class="download-link" target="_blank" title="@Messages("download.format." + fmt)"
                     href="@controllers.portal.users.routes.UserProfiles.annotations(format = fmt)&limit=1000">
-                @fmt
-            </a>
+                    @fmt
+                </a>
+            </li>
         }
-    </div>
+    </ul>
 } else {
      <p class="no-content">
          @annotations.params.query.map { q =>

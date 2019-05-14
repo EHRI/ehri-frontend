@@ -4,21 +4,21 @@
     @if(breadcrumbs.body.trim.isEmpty) {
         @views.html.admin.common.breadcrumbs()
     }
-    <div class="success-pullup pull-right">
+    <div class="success-pullup">
         @common.successFlash(flash)
     </div>
     @breadcrumbs
     @common.mainContent {
-        <article class="double">
+        <section class="double">
             <aside class="right-sidebar">
                 @sidebar
             </aside>
-            <section class="main">
+            <article class="main">
                 @views.html.admin.common.descriptionHeader(title)
                 @common.errorFlash(flash)
                 @content
-            </section>
-        </article>
+            </article>
+        </section>
 
         @footer
     }

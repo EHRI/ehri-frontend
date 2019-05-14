@@ -29,7 +29,7 @@
                     @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
                         <a class="btn btn-xs btn-success" title="@Messages(s"download.format.$fmt")"
                             href="@controllers.api.datasets.routes.Datasets.get(oid, fmt)">
-                            <i class="glyphicon glyphicon-download"></i>
+                            <i class="fa fa-download"></i>
                             @fmt
                         </a>
                     }

@@ -8,19 +8,19 @@
             <ul class="nav user-actions">
                 <li class="@views.Helpers.maybeActive(activity.url)">
                     <a href="@activity">
-                        <i class="glyphicon glyphicon-list"></i> @Messages("activity")
+                        <i class="fa fa-list"></i> @Messages("activity")
                     </a>
                 </li>
                 <li class="@views.Helpers.maybeActive(watched.url)">
                     <a href="@watched">
-                        <span class="glyphicon glyphicon-star"></span>
+                        <span class="fa fa-star"></span>
                         @Messages("profile.watch.list")
                     </a>
                 </li>
                 @if(isCurrentUser) {
                     <li class="@views.Helpers.maybeActive(notes.url)">
                         <a href="@notes">
-                            <span class="glyphicon glyphicon-edit"></span>
+                            <span class="fa fa-edit"></span>
                             @Messages("annotation.list")
                         </a>
                     </li>

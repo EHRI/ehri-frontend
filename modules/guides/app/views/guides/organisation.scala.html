@@ -62,7 +62,7 @@
             <form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
                 <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
                     <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
-                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="glyphicon glyphicon-search"></span><span class="text-hide">
+                    <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="fa fa-search"></span><span class="text-hide">
                         Search</span></button></li>
                 </ul>
             </form>
@@ -81,7 +81,7 @@
                                         Some(guide.path),
                                         page.layout
                                     )
-                                    <a class="popover-accesspoints" data-count="@links.getOrElse(item.id, 0)" data-target="@item.id"><span class="glyphicon glyphicon-search"></span></a>
+                                    <a class="popover-accesspoints" data-count="@links.getOrElse(item.id, 0)" data-target="@item.id"><span class="fa fa-search"></span></a>
                                 </h3>
                                 <div class="search-item-body">
                                 @item match {

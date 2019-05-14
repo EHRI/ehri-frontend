@@ -7,7 +7,7 @@
     @for(them <- annotation.user; event <- annotation.latestEvent) {
         @views.html.helpers.linkTo(them, attributes = Seq('rel -> "nofollow"))
         <div class="annotation-meta">
-            <a class="time-permalink" href="#@annotation.id"><span class="glyphicon glyphicon-time"></span> @views.Helpers.relativeDate(event.data.timestamp)</a>
+            <a class="time-permalink" href="#@annotation.id"><span class="fa fa-clock-o"></span> @views.Helpers.relativeDate(event.data.timestamp)</a>
             @if(editable && !annotation.isPromoted) {
                 <a data-item="@annotation.id" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id, context = models.view.AnnotationContext.Block)">
                 @Messages("annotation.update")

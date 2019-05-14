@@ -4,11 +4,11 @@
     <div class="watch-controls">
         <a data-item="@item.id"
            role="button"
-           class="unwatch glyphicon glyphicon-star" title="@Messages("profile.unwatch.tooltip")"
+           class="unwatch fa fa-star" title="@Messages("profile.unwatch.tooltip")"
            style="@(if(!watching) "display: none")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)"></a>
         <a data-item="@item.id"
            role="button"
-           class="watch glyphicon glyphicon-star-empty"  title="@Messages("profile.watch.tooltip")"
+           class="watch fa fa-star-o"  title="@Messages("profile.watch.tooltip")"
            style="@(if(watching) "display: none")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)"></a>
     </div>
 }

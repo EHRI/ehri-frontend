@@ -4,7 +4,7 @@
     <div class="annotation-header">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {
             <div class="annotation-meta" title="@event.data.timestamp">
-            <span class="glyphicon glyphicon-time"></span>
+            <span class="fa fa-clock-o"></span>
                 @views.Helpers.relativeDate(event.data.timestamp)
             </div>
         }
