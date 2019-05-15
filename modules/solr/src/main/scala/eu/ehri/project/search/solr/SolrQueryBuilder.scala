@@ -9,6 +9,8 @@ import services.search.SearchConstants._
 import services.search._
 import utils.PageParams
 
+import scala.util.Try
+
 
 private[solr] object SolrQueryBuilder {
 
@@ -177,7 +179,8 @@ private[solr] object SolrQueryBuilder {
     "start" -> paging.offset.toString,
     "rows" -> paging.limit.toString,
     "debugQuery" -> debug.toString,
-    "defType" -> "edismax"
+    "defType" -> "edismax",
+    "mm.autoRelax" -> true.toString
   )
 
   def highlightParams(hasQuery: Boolean): Seq[(String, String)] = {
@@ -228,6 +231,14 @@ private[solr] object SolrQueryBuilder {
 
   def filterParams(filters: Seq[String]): Seq[(String, String)] =
     filters.filter(_.contains(":")).map(f => "fq" -> f)
+
+  def extraSearchConfig(config: Configuration): Seq[(String, String)] = {
+    for {
+      cf <- config.getOptional[Configuration]("search.extra").toSeq
+      key <- (cf.keys ++ cf.subKeys).toSeq
+      strVal <- Try(cf.getOptional[String](key)).getOrElse(Option.empty).toSeq
+    } yield key -> strVal
+  }
 }
 
 
@@ -313,7 +324,8 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       extraFilterParams(query.filters.toSeq),
       query.extraParams.map(kp => kp._1 -> kp._2.toString).toSeq,
       highlightParams(query.params.query.isDefined),
-      spellcheckParams(spellcheckConfig)
+      spellcheckParams(spellcheckConfig),
+      extraSearchConfig(config),
     ).flatten
   }
 }
