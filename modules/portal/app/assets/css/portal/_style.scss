@@ -337,6 +337,17 @@ body.home #navbar-primary-container {
   }
 }
 
+.control-elements .help-inline {
+  @extend %small-muted;
+}
+
+// General form styling
+.control-label .required-input,
+.control-elements .help-block.errors,
+.control-elements .help-inline.errors {
+  color: $red;
+}
+
 // User grid
 .user-grid {
   .user-grid-item {
