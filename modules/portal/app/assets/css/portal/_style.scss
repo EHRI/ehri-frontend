@@ -501,6 +501,11 @@ ul.list-export-options {
   }
 }
 
+.sidepanel-toc {
+  position: sticky;
+  top: 2rem;
+}
+
 .sidebar-section {
   margin-bottom: $margin-lg;
 }
