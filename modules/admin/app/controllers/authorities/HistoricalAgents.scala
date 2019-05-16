@@ -7,7 +7,7 @@ import controllers.generic._
 import defines.{EntityType, PermissionType}
 import forms.VisibilityForm
 import models._
-import models.forms.FormConfigBuilder
+import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers

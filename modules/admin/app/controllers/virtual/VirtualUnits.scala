@@ -8,7 +8,7 @@ import forms.VisibilityForm
 import javax.inject._
 import models._
 import models.base.{Description, Model}
-import models.forms.FormConfigBuilder
+import forms.FormConfigBuilder
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages

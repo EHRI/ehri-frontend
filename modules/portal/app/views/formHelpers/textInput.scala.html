@@ -3,7 +3,7 @@
 @views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.textarea(
         field = field,
-        args = views.admin.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+        args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
             args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
             '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
             'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),

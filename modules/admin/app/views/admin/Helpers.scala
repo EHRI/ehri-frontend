@@ -1,7 +1,6 @@
 package views.admin
 
 import models.base.Model
-import play.api.i18n.Messages
 import play.api.mvc.Call
 
 /**
@@ -71,10 +70,4 @@ object Helpers {
 
   def linkToOpt(item: Model): Option[Call] =
     catching(classOf[IllegalArgumentException]).opt(linkTo(item))
-
-  def argsWithConfig(fieldName: String, args: Seq[(Symbol,Any)])(implicit config: Option[models.forms.FormConfig], messages: Messages): Seq[(Symbol,Any)] = {
-    (args
-      ++ config.flatMap(_.hint(fieldName)).map('_hint -> _).toSeq
-      ++ config.flatMap(_.required(fieldName)).map(_ => '_help -> Messages("constraint.required")))
-  }
 }

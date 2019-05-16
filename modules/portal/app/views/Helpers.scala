@@ -59,6 +59,11 @@ object Helpers {
   def argsWithDefaults(args: Seq[(Symbol,Any)], defaults: (Symbol, Any)*): Seq[(Symbol, Any)] =
     args ++ defaults.filterNot(v => args.exists(a => a._1 == v._1))
 
+  def argsWithConfig(fieldName: String, args: Seq[(Symbol,Any)])(implicit config: Option[forms.FormConfig], messages: Messages): Seq[(Symbol,Any)] = {
+    (args
+      ++ config.flatMap(_.hint(fieldName)).map('_hint -> _).toSeq
+      ++ config.flatMap(_.required(fieldName)).map(_ => '_help -> Messages("constraint.required")))
+  }
 
   /*
    * Helper to provide Digg-style pagination, like:
