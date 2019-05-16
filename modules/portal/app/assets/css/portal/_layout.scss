@@ -332,3 +332,40 @@ ul.pagination {
     }
   }
 }
+
+// Form controls using `control-label` and
+// standard form controls
+@include media-breakpoint-up(lg) {
+  .form-group {
+    @include make-row();
+
+    > .control-label {
+      @include make-col-ready();
+      @include make-col(3);
+    }
+
+    > .control-elements,
+    .inline-element-list {
+      @include make-col-ready();
+      @include make-col(9);
+    }
+  }
+}
+
+.inline-element {
+  > .form-group {
+    @include make-row();
+
+    > .inline-control {
+      @include make-col-ready();
+      @include make-col(11);
+    }
+
+    > .inline-remove {
+      @include make-col-ready();
+      @include make-col(1);
+    }
+  }
+}
+
+// `control-elements`
