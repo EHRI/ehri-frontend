@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebar(Messages("cypherQuery.delete"),
         breadcrumbs = views.html.admin.cypherQueries.breadcrumbs(Some(item))) {
     <p>@Messages("cypherQuery.delete.description")</p>
-    @helper.form(action = action, 'class -> "form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.submitButtonWithLogMessageInput(Messages("cypherQuery.delete.submit"), cancel = Some(cancel))
     }

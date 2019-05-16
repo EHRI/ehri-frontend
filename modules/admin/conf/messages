@@ -322,7 +322,7 @@ admin.utils.redirect.done=Redirect successfully created
 
 # Admin search index
 search.index.update=Refresh Search Index
-search.index.update.for=Refresh searching index for {0}
+search.index.update.for=Refresh search index for {0}
 search.index.clear.all=Clear Entire Index First
 search.index.clear.types=Clear Each Type First
 search.index.types=Types to Update

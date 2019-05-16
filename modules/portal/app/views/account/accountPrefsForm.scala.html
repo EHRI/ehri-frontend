@@ -1,6 +1,6 @@
 @(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
-@helper.form(action = action, 'class -> "form-horizontal", 'role -> "form") {
+@helper.form(action = action, 'role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 

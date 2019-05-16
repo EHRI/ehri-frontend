@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.redirect")) {
     <p>@Messages("admin.utils.redirect.description")</p>
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @defining("admin.utils.redirect") { implicit fieldPrefix =>
             @formHelpers.lineInput(form(""), "from")

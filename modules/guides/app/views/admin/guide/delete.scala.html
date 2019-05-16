@@ -6,7 +6,7 @@
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guide.delete.item", g.name), guides, breadcrumbs = breadcrumbs) {
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
 
         @views.html.common.errorFlash(flash)

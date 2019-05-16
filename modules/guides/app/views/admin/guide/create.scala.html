@@ -5,7 +5,7 @@
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guide.create"), guides, breadcrumbs = breadcrumbs) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
     	@renderForm(None, f, pages = Nil)
 

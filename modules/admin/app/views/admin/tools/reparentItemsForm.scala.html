@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.reparentItems")) {
     <p>@Messages("admin.utils.reparentItems.description")</p>
-    @helper.form(action = action, 'class -> "entity-form form-horizontal", 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, 'enctype -> "multipart/form-data") {
         @views.html.admin.common.pathRemapForm(Messages("admin.utils.reparentItems.submit"), form) {
             <div class="form-group">
                 <label class="control-label" for="id_csv">

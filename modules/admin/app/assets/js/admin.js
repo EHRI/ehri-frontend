@@ -43,7 +43,7 @@ jQuery(function ($) {
 //  });
 
   // FIXME: BS4
-  //$('body').scrollspy({target: "#form-nav-sidebar"});
+  $('body').scrollspy({target: "#form-nav-sidebar"});
 
   $(".form-group").on("click", ".quiet-toggle", function (e) {
     $(this).trigger("quiet-toggle")

@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guidePage.delete.item", page.name), guides, Some(g -> pages), breadcrumbs) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
 
         @views.html.common.errorFlash(flash)

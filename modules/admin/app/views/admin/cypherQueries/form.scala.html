@@ -9,7 +9,7 @@
 @defining(if(query.isEmpty) "create" else "update") { actionMsg =>
     @views.html.admin.layout.rightSidebar(Messages(s"cypherQuery.$actionMsg"), breadcrumbs = views.html.admin.cypherQueries.breadcrumbs(query)) {
 
-        @helper.form(action = call, 'class -> "entity-form form-horizontal") {
+        @helper.form(action = call) {
             @formHelpers.csrfToken()
             @defining("cypherQuery") { implicit prefix =>
                 @formHelpers.lineInput(form(""), CypherQuery.NAME)

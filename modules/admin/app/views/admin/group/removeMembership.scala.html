@@ -3,7 +3,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("accessor.groups.remove.item", item.toStringLang, group.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
 		<div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">

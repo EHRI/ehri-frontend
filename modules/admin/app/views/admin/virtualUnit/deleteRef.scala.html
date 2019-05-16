@@ -6,7 +6,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.deleteRef"), breadcrumbs = breadcrumbs(item)) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @defining("virtualUnit") { implicit fieldPrefix =>
             @formHelpers.choiceInput(rf(""), INCLUDE_REF, refs.toList, '_blank -> true)
