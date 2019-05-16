@@ -1,4 +1,4 @@
-package models.forms
+package forms
 
 import play.api.{ConfigLoader, Configuration}
 

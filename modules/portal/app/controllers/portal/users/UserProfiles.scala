@@ -40,7 +40,7 @@ case class UserProfiles @Inject()(
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
-  def watchItem(id: String) = WithUserAction { implicit request =>
+  def watchItem(id: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("profile.watch",
       profileRoutes.watchItemPost(id)))
   }
@@ -53,7 +53,7 @@ case class UserProfiles @Inject()(
     }
   }
 
-  def unwatchItem(id: String) = WithUserAction { implicit request =>
+  def unwatchItem(id: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("profile.unwatch",
       profileRoutes.unwatchItemPost(id)))
   }

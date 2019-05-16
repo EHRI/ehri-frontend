@@ -1,11 +1,5 @@
 @(elements: helper.FieldElements)
 
-@* Temporary fix for Bootstrap3 field constructor
- *
- * This is terrible.
- * https://groups.google.com/d/msg/play-framework/fVQbxZIC8vE/iEDTyN3mU1sJ
- *@
-
 @inputType = @{ elements.args.get('type).map(_.toString).getOrElse("text") }
 
 <div class="form-group @if(elements.hasErrors) {has-error}">
@@ -25,11 +19,7 @@
                 }
             </label>
             <div class="control-elements">
-                @if(elements.input.body.contains("textarea")) {
-                    @elements.input
-                } else {
-                    <input class="form-control" type="@inputType" id="@elements.id" name="@elements.field.name" value="@elements.field.value" @toHtmlArgs(elements.args.filter(arg => !arg._1.name.startsWith("_") && arg._1 != 'id).toMap)>
-                }
+                @elements.input
                 @if(elements.hasErrors) {
                     <span class="help-inline errors">@elements.errors</span>
                 } else {
