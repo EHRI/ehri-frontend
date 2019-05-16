@@ -29,3 +29,11 @@
   }
 }
 
+#form-nav-sidebar {
+  position: sticky;
+  top: 2rem;
+}
+
+.form-navigation {
+  @extend .flex-column;
+}
