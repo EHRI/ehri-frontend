@@ -15,3 +15,17 @@
   background-color: $gray-200;
 }
 
+#update-progress {
+  border: $border-width solid $border-color;
+  margin-top: $margin-lg;
+  padding: $margin-sm;
+  max-height: 15rem;
+  overflow: auto;
+  font-size: $font-size-sm;
+
+  // don't show if no content
+  &:empty {
+    display: none;
+  }
+}
+
