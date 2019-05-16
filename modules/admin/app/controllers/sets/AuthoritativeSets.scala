@@ -6,7 +6,7 @@ import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms.VisibilityForm
 import javax.inject._
-import models.forms.FormConfigBuilder
+import forms.FormConfigBuilder
 import models.{Entity, _}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

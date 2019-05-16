@@ -1,4 +1,4 @@
-@(f: Form[ProfileData], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, fieldConstructor: helper.FieldConstructor)
+@(f: Form[ProfileData], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: helper.FieldConstructor)
 
 @import UserProfileF._
 
@@ -6,40 +6,26 @@
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(f)
 
-    @defining(FIELD_PREFIX) { implicit fieldPrefix =>
-        @helper.inputText(f(NAME), '_label -> Messages(fieldPrefix + "." + NAME))
-        @helper.inputText(f(TITLE), '_label -> Messages(fieldPrefix + "." + TITLE))
-        @helper.inputText(f(LOCATION), '_label -> Messages(fieldPrefix + "." + LOCATION))
-        @helper.inputText(f(INSTITUTION), '_label -> Messages(fieldPrefix + "." + INSTITUTION))
-        @helper.inputText(f(ROLE), '_label -> Messages(fieldPrefix + "." + ROLE))
-        @helper.input(f(URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + URL)) { (id, name, value, args) =>
-            <input name="@name" id="@id" @toHtmlArgs(args)>
+    @defining(f("")) { field =>
+        @defining(FIELD_PREFIX) { implicit fieldPrefix =>
+            @formHelpers.lineInput(field, NAME)
+            @formHelpers.lineInput(field, TITLE)
+            @formHelpers.lineInput(field, LOCATION)
+            @formHelpers.lineInput(field, INSTITUTION)
+            @formHelpers.lineInput(field, ROLE)
+            @formHelpers.lineInput(field, URL, 'type -> "url")
+            @formHelpers.lineInput(field, WORK_URL, 'type -> "url")
+            @formHelpers.choiceInput(field, LANGUAGES, views.Helpers.languagePairList, 'multiple -> true)
+            @formHelpers.textInput(field, ABOUT)
+            @formHelpers.textInput(field, INTERESTS)
+            @* Currently for compatibility only *@
+            @formHelpers.hiddenInput(f(FIRST_NAMES))
+            @formHelpers.hiddenInput(f(LAST_NAME))
         }
-        @helper.input(f(WORK_URL), 'type -> "url", '_label -> Messages(fieldPrefix + "." + WORK_URL)) { (id, name, value, args) =>
-            <input name="@name" id="@id" @toHtmlArgs(args)>
-        }
-        <div class="form-group">
-           <label class="control-label" for="@LANGUAGES">@Messages(FIELD_PREFIX + "." + LANGUAGES)</label>
-           <div class="control-elements">
-               @defining(views.Helpers.fieldValues(f(LANGUAGES))) { values =>
-                    <select class="select2 form-control" multiple name="@{f(LANGUAGES).name}[]" id="@f(LANGUAGES).id">
-                        @views.Helpers.languagePairList.map { case (oid, oval) =>
-                        <option value="@oid" @{if(values.contains(oid)) "selected"}>@oval</option>
-                        }
-                    </select>
-                }
-            </div>
-        </div>
-        @helper.textarea(f(ABOUT), '_label -> Messages(fieldPrefix + "." + ABOUT), 'class -> "form-control", 'rows -> 4)
-        @helper.textarea(f(INTERESTS), '_label -> Messages(fieldPrefix + "." + INTERESTS), 'class -> "form-control", 'rows -> 4)
-
-        @* Currently for compatibility only *@
-        @formHelpers.hiddenInput(f(FIRST_NAMES))
-        @formHelpers.hiddenInput(f(LAST_NAME))
     }
     <div class="form-group">
         <div class="form-submit">
-            <button type="submit" class="btn  btn-post">@Messages("profile.update.submit")</button>
+            <button type="submit" class="btn btn-post">@Messages("profile.update.submit")</button>
         </div>
     </div>
 }

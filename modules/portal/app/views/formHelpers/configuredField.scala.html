@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, config: Option[models.forms.FormConfig])(html: play.api.data.Field => Html)
+@(desc: play.api.data.Field, fieldName: String, config: Option[forms.FormConfig])(html: play.api.data.Field => Html)
 
 @defining(desc(fieldName)) { field =>
     @defining(field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName))))) { fieldWithDefault =>
