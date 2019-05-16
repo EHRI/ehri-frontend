@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("cvocConcept.update"), breadcrumbs = breadcrumbs(item)) {
 		
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
 		@form(f)
 

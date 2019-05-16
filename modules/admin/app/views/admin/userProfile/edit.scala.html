@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("userProfile.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @views.html.admin.userProfile.form(item, f)
 

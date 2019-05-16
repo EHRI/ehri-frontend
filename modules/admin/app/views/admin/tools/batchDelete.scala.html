@@ -9,7 +9,7 @@
     <p class="alert alert-danger">@Messages("admin.utils.batchDelete.warning")</p>
 
 
-    @helper.form(action = action, 'class -> "form-horizontal", 'id -> "batch-delete-form") {
+    @helper.form(action = action, 'id -> "batch-delete-form") {
         @formHelpers.csrfToken()
         @views.html.formHelpers.globalErrors(f)
         @defining("admin.utils.batchDelete") { implicit fieldPrefix =>

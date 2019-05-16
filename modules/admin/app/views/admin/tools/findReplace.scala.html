@@ -12,7 +12,7 @@
     }
 
     @defining("admin.utils.findReplace") { implicit fieldPrefix =>
-        @helper.form(action = findAction, 'class -> "entity-form form-horizontal") {
+        @helper.form(action = findAction) {
             @formHelpers.csrfToken()
 
             @defining("") { implicit fieldPrefix =>
@@ -36,7 +36,7 @@
                 <hr/>
 
                 <h3>@Messages("admin.utils.findReplace.found", found.size)</h3>
-                @helper.form(action = replaceAction, 'class -> "entity-form form-horizontal") {
+                @helper.form(action = replaceAction) {
                     @formHelpers.csrfToken()
                     @formHelpers.hiddenInput(f(PARENT_TYPE))
                     @formHelpers.hiddenInput(f(SUB_TYPE))

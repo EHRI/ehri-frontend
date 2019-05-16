@@ -1,7 +1,7 @@
 @(item: models.base.Accessible, accessor: models.base.Accessor, perms: acl.ItemPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         <fieldset id="permissionItem-area">
             <table class="table table-bordered permissions-matrix">

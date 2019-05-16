@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     <p>@Messages("describedEntity.deleteDescription.info", description.name)</p>
-    @helper.form(action = action, 'class -> "form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }

@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.
 }
 
 @userOpt.map { user =>
-    @helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form", 'id -> "update-profile-form") {
+    @helper.form(action = action, 'role -> "form", 'class -> "validate-form", 'id -> "update-profile-form") {
         @formHelpers.csrfToken()
 
         <div class="alert alert-warning">

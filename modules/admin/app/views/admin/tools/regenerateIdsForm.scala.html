@@ -11,7 +11,7 @@
             <p class="alert alert-info">@Messages("admin.utils.regenerateIds.noIdsFound")</p>
         }
     } else {
-        @helper.form(action = action, 'class -> "entity-form form-horizontal", 'id -> "regenerate-ids") {
+        @helper.form(action = action, 'id -> "regenerate-ids") {
             @views.html.admin.common.pathRemapForm(Messages("admin.utils.regenerateIds.submit"), form) {
                 <p>@Messages("admin.utils.regenerateIds.description")</p>
                 <table class="table table-bordered table-striped table-condensed">

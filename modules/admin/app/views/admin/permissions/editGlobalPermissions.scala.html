@@ -13,7 +13,7 @@
         </ul>
     }
 
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         <fieldset id="permissions-area">
             <table class="table table-bordered permissions-matrix">

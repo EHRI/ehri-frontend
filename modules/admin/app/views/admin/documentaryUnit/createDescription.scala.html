@@ -5,7 +5,7 @@
 @views.html.admin.layout.rightSidebar(Messages("describedEntity.createDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(Some(config)) { implicit implicitConfig =>
-            @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @helper.form(action = action) {
                 @formHelpers.csrfToken()
                 @views.html.admin.documentaryUnit.hiddenFormWrapper(f) {
                     @helper.repeatWithIndex(f("descriptions"), min = 0) { (desc, i) =>

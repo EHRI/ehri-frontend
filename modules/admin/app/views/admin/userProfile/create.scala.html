@@ -5,7 +5,7 @@
 @views.html.admin.layout.rightSidebar(Messages("userProfile.create")) {
     @formHelpers.globalErrors(f)
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @helper.inputText(f("email"), 'autofocus -> "autofocus", 'class -> "form-control", '_label -> Messages("userProfile.email"))
         @helper.inputText(f("identifier"), 'class -> "form-control", '_label -> Messages("userProfile.username"))

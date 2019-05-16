@@ -6,7 +6,7 @@
     <p class="alert alert-danger">
         @Messages("userProfile.delete.confirm")
     </p>
-    @helper.form(action = action, 'class -> "form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
 
         @helper.inputText(

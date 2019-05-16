@@ -12,7 +12,7 @@
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guide.update.item", g.name), guides, breadcrumbs = breadcrumbs, sideBar= sidebar) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
     	@renderForm(None, f, pages)
 

@@ -20,7 +20,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("documentaryUnit.create"), breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
 		@views.html.admin.documentaryUnit.form(f, config)
 

@@ -3,7 +3,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("item.demote"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.submitButtonWithLogMessageInput(Messages("item.demote.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

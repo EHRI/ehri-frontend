@@ -1,7 +1,7 @@
 @(item: Annotation, form: play.api.data.Form[AnnotationF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("annotation.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @annotationForm(form)
         @formHelpers.submitButtonWithLogMessageInput(Messages("annotation.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

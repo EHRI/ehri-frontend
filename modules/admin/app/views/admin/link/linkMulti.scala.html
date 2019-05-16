@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("link.create.item", item)) {
 	
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @helper.repeat(form("annotation"), min = 2) { annf =>
             <fieldset id="annotate-area">

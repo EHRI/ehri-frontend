@@ -6,7 +6,7 @@
 
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(Some(config)) { implicit implicitConfig =>
-            @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+            @helper.form(action = action) {
                 @formHelpers.csrfToken()
 
                 @formHelpers.hiddenInput(f(Entity.IDENTIFIER))

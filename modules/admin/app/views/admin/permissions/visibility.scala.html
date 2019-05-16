@@ -19,7 +19,7 @@
         </p>
     }
 
-    @helper.form(action = action, 'class -> "entity-form form-horizontal") {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @views.html.admin.permissions.visibilityForm(f, usersAndGroups)
         @formHelpers.submitButtonWithLogMessageInput(Messages("visibility.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))

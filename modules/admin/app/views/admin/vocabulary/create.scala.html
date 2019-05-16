@@ -3,7 +3,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("cvocVocabulary.create")) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(None, f)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

@@ -12,7 +12,7 @@
 }
 
 @views.html.admin.layout.guidesAdminLayout(Messages("guidePage.update.item", page.name), guides, Some(g -> pages), breadcrumbs, sidebar) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
 	
     	@views.html.common.errorFlash(flash)
 
