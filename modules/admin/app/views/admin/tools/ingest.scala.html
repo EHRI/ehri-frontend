@@ -96,7 +96,7 @@
 
         @common.itemDetails {
             @defining("ingest") { implicit prefix =>
-                @helper.form(action = action, 'enctype -> "multipart/form-data", 'class -> "form-horizontal", 'id -> "ingest-form") {
+                @helper.form(action = action, 'enctype -> "multipart/form-data", 'id -> "ingest-form") {
                     @formHelpers.csrfToken()
                     @formHelpers.hiddenInput(form(SCOPE_TYPE).copy(value = Some(scope.isA.toString)))
                     @formHelpers.hiddenInput(form(SCOPE).copy(value = Some(scope.id)))

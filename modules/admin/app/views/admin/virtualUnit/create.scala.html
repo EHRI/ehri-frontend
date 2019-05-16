@@ -12,7 +12,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
 		@form(f, config)
 

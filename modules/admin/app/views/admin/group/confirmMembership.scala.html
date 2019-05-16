@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("accessor.groups.add.item", item.toStringLang, group.toStringLang)) {
 	
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">

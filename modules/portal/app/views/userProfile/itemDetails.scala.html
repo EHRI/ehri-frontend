@@ -3,9 +3,9 @@
 @isCurrentUser = @{userOpt.exists(_.id == item.id)}
 
 @activitySidebar(activity: Call, watched: Call, notes: Call) = {
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <ul class="nav user-actions">
+    <div class="sidebar-section">
+        <nav class="sidebar-section-body">
+            <ul class="user-actions">
                 <li class="@views.Helpers.maybeActive(activity.url)">
                     <a href="@activity">
                         <i class="fa fa-list"></i> @Messages("activity")
@@ -26,7 +26,7 @@
                     </li>
                 }
             </ul>
-        </div>
+        </nav>
     </div>
 }
 

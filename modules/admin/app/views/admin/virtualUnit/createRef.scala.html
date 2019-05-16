@@ -14,7 +14,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("virtualUnit.createRef"), breadcrumbs = breadcrumbs) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @defining("virtualUnit") { implicit fieldPrefix =>
             @formHelpers.lineInput(rf(""), INCLUDE_REF)

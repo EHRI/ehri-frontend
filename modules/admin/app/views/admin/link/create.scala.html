@@ -2,7 +2,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("link.create.item", item.toStringLang, src.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @if(copy) {
             <div class="alert alert-warning">@Messages("link.copy.create")</div>
         }

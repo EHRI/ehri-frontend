@@ -1,7 +1,7 @@
 @(f: Form[models.CountryF], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("country.create")) {
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(None, f)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

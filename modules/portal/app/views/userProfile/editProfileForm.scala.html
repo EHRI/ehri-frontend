@@ -2,7 +2,7 @@
 
 @import UserProfileF._
 
-@helper.form(action = action, 'role -> "form", 'class -> "form-horizontal validate-form") {
+@helper.form(action = action) {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(f)
 

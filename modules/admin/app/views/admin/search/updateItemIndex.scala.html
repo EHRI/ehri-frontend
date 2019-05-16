@@ -22,7 +22,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript,
         breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @helper.form(action = action, 'id -> "update-form", 'class -> "form-horizontal") {
+    @helper.form(action = action, 'id -> "update-form") {
         @formHelpers.csrfToken()
 
         <div class="form-actions">

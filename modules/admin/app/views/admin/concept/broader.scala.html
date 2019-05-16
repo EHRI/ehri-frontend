@@ -38,7 +38,7 @@
         });
 	</script>
 
-	@helper.form(action = action, 'class -> "entity-form form-horizontal") {
+	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @defining("cvocConcept") { implicit fieldPrefix =>
             @formHelpers.choiceInput(f(""), "broaderTerms", item.broaderTerms.map(t => t.id -> t.toStringLang).toList, 'multiple -> true, '_select2 -> false)
