@@ -2,15 +2,11 @@
 
 <ol class="search-result-list">
     @result.page.map { case(item, hit) =>
+        <li>
         @defining(result.params.query.map(_ => hit.id)) { implicit descriptionId =>
-            <li class="row">
-                <div class="col-md-10">
-                    @views.html.admin.search.searchItem(item)
-                </div>
-                <div class="col-md-2">
-                    @priorContent(item)
-                </div>
-            </li>
+            @views.html.admin.search.searchItem(item)
+            @priorContent(item)
         }
+        </li>
     }
 </ol>

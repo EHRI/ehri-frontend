@@ -5,7 +5,7 @@
 @activitySidebar(activity: Call, watched: Call, notes: Call) = {
     <div class="sidebar-section">
         <nav class="sidebar-section-body">
-            <ul class="user-actions">
+            <ul class="user-actions action-group">
                 <li class="@views.Helpers.maybeActive(activity.url)">
                     <a href="@activity">
                         <i class="fa fa-list"></i> @Messages("activity")
@@ -40,7 +40,7 @@
     } {
 
         @views.html.common.typeLabel(defines.EntityType.UserProfile) {
-            <ul class="nav user-controls">
+            <ul class="user-controls">
                 <li class="user-img">
                     <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">
                         <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
@@ -53,7 +53,7 @@
                         </a>
                     </li>
                 } else {
-                    <li role="group">
+                    <li>
                         @views.html.common.messageButtons(item, canMessage)
                         @views.html.common.followingButtons(item, followed)
                     </li>

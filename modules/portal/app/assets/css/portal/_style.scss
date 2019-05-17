@@ -369,9 +369,25 @@ body.home #navbar-primary-container {
   }
 }
 
+// User profile pages
+
+
 // Search results
 .search-result-list {
   margin-bottom: $margin-lg;
+
+  > li {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    > .search-item {
+      flex-grow: 4;
+    }
+    > .copy-links {
+      flex-basis: 30%;
+    }
+  }
 }
 
 .search-item {
@@ -508,6 +524,10 @@ ul.list-export-options {
 
 .sidebar-section {
   margin-bottom: $margin-lg;
+
+  .sidebar-section-body .action-group {
+    @include list-unstyled();
+  }
 }
 
 // Hide certain sidebar sections except
@@ -565,6 +585,21 @@ dl dt {
   font-size: $font-size-xs;
   &:hover {
 
+  }
+}
+
+.markdown-cheatsheet {
+  display: none;
+}
+
+.annotation-submit-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+
+  .checkbox-inline {
+    margin: 0 $margin-xs;
   }
 }
 
