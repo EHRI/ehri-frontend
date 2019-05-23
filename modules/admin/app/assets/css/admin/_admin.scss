@@ -37,3 +37,27 @@
 .form-navigation {
   @extend .flex-column;
 }
+
+.admin-help-notice {
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
+  padding: $margin-xs;
+  background-color: $gray-100;
+}
+
+.admin-section {
+  margin-bottom: $margin-md;
+}
+
+.admin-section+.admin-section {
+  border-top: $border-width solid $border-color;
+  padding-top: $margin-md;
+}
+
+.description-section .no-info {
+  @extend %small-muted;
+}
+
+.help-block.info {
+  @extend %small-muted;
+}

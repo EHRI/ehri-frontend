@@ -3,8 +3,8 @@
 @import Isdiah._
 @import views.html.formHelpers._
 
-<div class="address-form inline-element well well-small">
-    <a class="close remove-inline-element pull-right" tabindex="-1" href="#">&times;</a>
+<div class="address-form inline-element">
+    <a class="close remove-inline-element" tabindex="-1" href="#">&times;</a>
     @formHelpers.hiddenInput(field(Entity.ID))
     @formHelpers.lineInput(field, ADDRESS_NAME)
     @formHelpers.lineInput(field, CONTACT_PERSON)

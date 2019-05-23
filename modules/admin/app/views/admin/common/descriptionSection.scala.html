@@ -1,9 +1,11 @@
 @(name:String)(html: Html)(implicit fieldPrefix: String, messages: Messages)
 
-<h4>@Messages(fieldPrefix + "." + name)</h4>
 <div class="description-section @{name}-section">
+    <header class="description-section-header">
+        <h3>@Messages(fieldPrefix + "." + name)</h3>
+    </header>
     @if(html.toString.trim.isEmpty) {
-        <i><small><p class="text-muted">@Messages("describedEntity.noData")</p></small></i>
+        <i class="no-info">@Messages("describedEntity.noData")</i>
     } else {
         @html
     }

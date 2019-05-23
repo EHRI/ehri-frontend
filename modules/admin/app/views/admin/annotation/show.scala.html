@@ -3,9 +3,9 @@
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @views.html.admin.common.annotated(item, annotations) {
 
-        <div class="well well-small">
+        <blockquote>
             @item.data.body
-        </div>
+        </blockquote>
 
         @item.user.map { u =>
             <h4>@Messages("annotation.creator")</h4>

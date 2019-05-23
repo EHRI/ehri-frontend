@@ -5,7 +5,7 @@
         <div class="inline-control">
             <textarea class="form-control" rows="@rows" name="@desc.name" id="@desc.id"
                 title="@(md.renderMarkdown(Messages((if (fieldPrefix != "") fieldPrefix + "." else "") + name + ".description")))">@desc.value</textarea>
-            <span class="help-block col-sm-10 errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
+            <span class="help-block errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
         <div class="inline-remove">
             <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>

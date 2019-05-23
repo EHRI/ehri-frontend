@@ -474,12 +474,14 @@ permissions.global.update.submit=Update Global Permissions
 permissions.global.manage=Manage Global Permissions
 permissions.global.manage.submit=Update Permissions
 permissions.scopeLevel.manage=Scoped Permissions
+permissions.scopeLevel.manage.add=Add Scoped Permissions
 permissions.scopeLevel.manage.info=Scoped permissions allow you to grant permissions for users or groups to perform\
   actions on all items ''within'' another item (the scope), i.e. all documentary units within a given repository.
 permissions.scopeLevel.manage.item=Scoped Permissions for {0}
 permissions.accessor.scopeLevel.item=Scoped Permissions for {0}
 permissions.itemLevel.show=Show Item-level Permissions
 permissions.itemLevel.manage=Item-level Permissions
+permissions.itemLevel.manage.add=Add Item-level Permissions
 permissions.itemLevel.manage.item=Item-level Permissions for {0}
 permissions.itemLevel.manage.info=Item-level permissions allow you to grant permissions for users or groups to perform\
   actions on a single item, i.e. updating an institution''s descriptive information.

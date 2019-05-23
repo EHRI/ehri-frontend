@@ -30,7 +30,7 @@
                                 <div class="well well-small">
                                     @item.vocabulary.map { v =>
                                         <h5>@Messages("cvocConcept.inVocabulary")</h5>
-                                        <p class="text-muted"><a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a></p>
+                                        <a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a>
                                     }
                                     @if(item.broaderTerms.nonEmpty) {
                                         <hr />
