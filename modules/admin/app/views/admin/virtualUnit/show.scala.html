@@ -9,7 +9,7 @@
                 @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
                     @common.descriptionContainer(descriptions) {
                         @if(descriptions.isEmpty) {
-                            <p class="text-muted">@Messages("documentaryUnit.noDescriptions")</p>
+                            <p class="minor-notice">@Messages("documentaryUnit.noDescriptions")</p>
                             <a href="@controllers.virtual.routes.VirtualUnits.createDescription(item.id)" class="btn btn-primary">
                             @Messages("describedEntity.createDescription")
                             </a>

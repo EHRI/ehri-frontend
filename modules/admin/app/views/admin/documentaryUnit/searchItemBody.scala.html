@@ -20,7 +20,7 @@
         @item.holder.map { holder =>
             <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
         }
-        <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+        <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
         @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>
             <li>@dp.years</li>

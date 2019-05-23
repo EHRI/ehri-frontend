@@ -16,8 +16,7 @@
                             <li class="access-point">
                                 @ap.name
                                 @ap.description.map { desc =>
-                                    <br/>
-                                    <small class="text-muted">@desc</small>
+                                    <p class="link-description">@desc</p>
                                 }
                             </li>
                         }

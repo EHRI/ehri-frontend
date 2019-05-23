@@ -3,10 +3,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.accessor.scopeLevel.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    <div class="well well-small text-muted">
-        <i class="fa fa-info-circle-sign"></i>
+    <p class="admin-help-notice">
+        <i class="fa fa-info-circle"></i>
         @Messages("permissions.scopeLevel.manage.info")
-    </div>
+    </p>
 
     @if(usersAndGroups.groups.nonEmpty) {
         <strong>@Messages("contentTypes.Group"): </strong>&nbsp;

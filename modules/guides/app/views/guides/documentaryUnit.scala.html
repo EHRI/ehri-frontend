@@ -16,7 +16,7 @@
 @sidebar(page: GuidePage) = {
     @layout.guideDescriptionChoice(item.data.descriptions)
     <p>
-        <small class="text-muted">@Messages("guides.annotation")</small><br />
+        <small class="minor-notice">@Messages("guides.annotation")</small><br />
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
     </p>
     @defining("documentaryUnit") { implicit prefix =>

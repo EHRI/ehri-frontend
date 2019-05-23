@@ -370,6 +370,12 @@ body.home #navbar-primary-container {
 }
 
 // User profile pages
+.user-controls {
+  @include list-unstyled();
+  > li {
+    margin-bottom: $margin-xs;
+  }
+}
 
 
 // Search results
@@ -577,6 +583,27 @@ dl dt {
 
 .import-disclaimer {
   @extend %small-muted;
+}
+
+.link-description {
+  @extend %small-muted;
+}
+
+.minor-notice {
+  color: $text-muted;
+}
+
+.secondary-attribute {
+  columns: $text-muted;
+}
+
+.unknown-data-section {
+  @extend %small-muted;
+}
+
+.description-attributes dt ul,
+.description-attributes dt ol {
+  @include list-unstyled();
 }
 
 // Annotations etc
