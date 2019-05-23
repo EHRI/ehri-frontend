@@ -5,14 +5,14 @@
       <li class="resolved-access-point" id="@accessPoint.id">
           <a href="@controllers.portal.guides.routes.Guides.guideFacets(template._2._1.path)?kw=@other.id" data-target="@other.id" class="popover-keyword type-highlight @other.isA.toString">@other.toStringLang</a>
           @link.data.description.map { desc =>
-          <small><p class="text-muted">@desc</p></small>
+              <p class="link-description">@desc</p>
           }
       </li>
   }.getOrElse {
       <li class="unresolved-access-point" id=" @accessPoint.id">
           @Markdown(accessPoint.name)
           @accessPoint.description.filter(_.trim.isEmpty).map { desc =>
-          <small><p class="text-muted">@Markdown(desc)</p></small>
+              <p class="link-description">@Markdown(desc)</p>
           }
       </li>
   }

@@ -4,7 +4,7 @@
     @userProfile.browseUsersList(them, users, following)
     @common.pagination(users)
 } else {
-    <p class="text-muted">
+    <p class="minor-notice">
         @Messages("social.noFollowingYet", them.toStringLang)
     </p>
 }

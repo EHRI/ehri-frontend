@@ -19,12 +19,18 @@ case class DataHelpers @Inject()(cypher: CypherService)(implicit executionContex
   }
 
   private def getTypeIdAndName(s: EntityType.Value): Future[Seq[(String, String)]] =
-    cypher.get(s"MATCH (n:$s) RETURN n.__id, n.name", Map.empty).map(parseIds)
+    cypher.get(s"MATCH (n:$s) RETURN n.__id, n.name ORDER BY n.name", Map.empty).map(parseIds)
 
   def getGroupList: Future[Seq[(String,String)]] = getTypeIdAndName(EntityType.Group)
   
   def getUserList: Future[Seq[(String,String)]] = cypher
-    .get(s"MATCH (n:${EntityType.UserProfile}) WHERE n.active AND n.staff RETURN n.__id, n.name", Map.empty)
+    .get(
+      s"""
+         |MATCH (n:${EntityType.UserProfile})
+         |WHERE n.active AND n.staff
+         |RETURN n.__id, n.name
+         |ORDER BY n.name
+         |""".stripMargin, Map.empty)
     .map(parseIds)
 
   def getUserAndGroupList: Future[UsersAndGroups] = {

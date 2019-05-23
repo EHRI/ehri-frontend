@@ -8,7 +8,7 @@
                     @views.html.helpers.linkTo(vocab, attributes = Seq(Symbol("class") -> "alt"))
                 </li>
             }
-            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+            <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
             @item.latestEvent.map { event =>
                 <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }

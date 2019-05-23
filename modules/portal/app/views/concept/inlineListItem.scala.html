@@ -4,7 +4,7 @@
 @item.data.primaryDescription.map { desc =>
     <div class="search-item-details">
         <ul class="concept-search-details">
-            <li><span class="text-muted">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+            <li class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</li>
             @item.latestEvent.map { event =>
                 <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
             }

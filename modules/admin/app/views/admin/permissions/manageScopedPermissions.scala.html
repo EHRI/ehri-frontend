@@ -3,26 +3,27 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.manage.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    <h3>@Messages("permissions.itemLevel.manage")</h3>
-    <div class="well well-small text-muted">
-        <i class="fa fa-info-circle-sign"></i>
-        @Messages("permissions.itemLevel.manage.info")
+    <div class="admin-section">
+        <h3>@Messages("permissions.itemLevel.manage")</h3>
+        <p class="admin-help-notice">
+            <i class="fa fa-info-circle"></i>
+            @Messages("permissions.itemLevel.manage.info")
+        </p>
+
+        @views.html.admin.permissions.permissionList(None, itemPage)
+        <a class="btn btn-primary" href="@itemPermAction">@Messages("permissions.itemLevel.manage.add")</a>
     </div>
-    <a href="@itemPermAction">@Messages("permissions.itemLevel.manage")</a>
 
-    @views.html.admin.permissions.permissionList(None, itemPage)
+    <div class="admin-section">
+        <h3>@Messages("permissions.scopeLevel.manage")</h3>
+        <p class="admin-help-notice">
+            <i class="fa fa-info-circle"></i>
+            @Messages("permissions.scopeLevel.manage.info")
+        </p>
 
-    <hr />
-
-    <h3>@Messages("permissions.scopeLevel.manage")</h3>
-    <div class="well well-small text-muted">
-        <i class="fa fa-info-circle-sign"></i>
-        @Messages("permissions.scopeLevel.manage.info")
+        @views.html.admin.permissions.permissionList(None, scopePage, namespace = "s")
+        <a class="btn btn-primary" href="@scopePermAction">@Messages("permissions.scopeLevel.manage.add")</a>
     </div>
-    <a href="@scopePermAction">@Messages("permissions.scopeLevel.manage")</a>
-
-    @views.html.admin.permissions.permissionList(None, scopePage, namespace = "s")
-
 } {
 
 }

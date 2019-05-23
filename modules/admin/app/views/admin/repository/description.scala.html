@@ -17,30 +17,34 @@
             <div class="inline-block well well-small" style="display: inline-block">
             @desc.addresses.zipWithIndex.map { case (address, i) =>
                 <address title="@address.name">
-                    @address.name.map { an =>
-                        <strong>@an</strong><br/>
-                    }
-                    @address.contactPerson.map { an =>
-                        <i>@an</i><br/>
-                    }
-                    @address.streetAddress.map { an =>
-                        @an.split("\\n").map { addressLine =>
-                            @addressLine<br />
-                        }
-                    }
-                    @address.city.map { city =>
-                        @city<br/>
-                    }
-                    @address.region.map { region =>
-                        @region<br/>
-                    }
-                    @address.postalCode.map { post =>
-                        @post<br/>
-                    }
-                    @address.countryCode.map { cc =>
-                        @views.Helpers.countryCodeToName(cc)<br />
-                    }
-                    <dl class="dl-horizontal">
+                    <dl>
+                        <dt>@Messages(fieldPrefix + "." + STREET_ADDRESS)</dt>
+                        <dd>
+                            @address.name.map { an =>
+                                <strong>@an</strong><br/>
+                            }
+                            @address.contactPerson.map { an =>
+                                <i>@an</i><br/>
+                            }
+                            @address.streetAddress.map { an =>
+                                @an.split("\\n").map { addressLine =>
+                                    @addressLine<br />
+                                }
+                            }
+                            @address.city.map { city =>
+                                @city<br/>
+                            }
+                            @address.region.map { region =>
+                                @region<br/>
+                            }
+                            @address.postalCode.map { post =>
+                                @post<br/>
+                            }
+                            @address.countryCode.map { cc =>
+                                @views.Helpers.countryCodeToName(cc)<br />
+                            }
+
+                        </dd>
                     @List(EMAIL, TELEPHONE, FAX, URL).zip(List(address.email, address.telephone, address.fax, address.url)).map { case (name, addressPart) =>
                         @addressPart.map { addressPartValue =>
                             <dt>@Messages(fieldPrefix + "." + name)</dt>

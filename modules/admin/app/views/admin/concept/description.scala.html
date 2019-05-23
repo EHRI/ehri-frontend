@@ -6,7 +6,7 @@
     <dt>@Messages(prefix + "." + label)</dt>
     <dd>
     @if(list.isEmpty) {
-        <i class="text-muted">@Messages("describedEntity.notGiven")</i>
+        <i class="minor-notice">@Messages("describedEntity.notGiven")</i>
     } else {
         <ul class="list-unstyled">
             @views.html.admin.common.propertyList(list)
@@ -17,11 +17,11 @@
 
 @views.html.admin.common.descriptionOutline(item, desc, visible = visible) {
     @views.html.admin.common.descriptionHeader(desc.name)
-    <dl class="dl-horizontal">
+    <dl class="description-attributes">
         <dt>@Messages(prefix + "." + PREFLABEL)</dt>
         <dd>
             @desc.name
-            <i class="text-muted">
+            <i class="minor-notice">
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
             </i>
         </dd>
