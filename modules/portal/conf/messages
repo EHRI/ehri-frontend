@@ -516,14 +516,18 @@ facet.top.tooltip=Show top-level (broadest) items only.
 facet.vocab=Vocabulary
 facet.vocab.tooltip=The vocabulary/set to which the keyword belongs.
 facet.promotable=Promotable
-facet.promotable.tooltip=Items that can be promoted or demoted
+facet.promotable.tooltip=Items that can be promoted or demoted.
 facet.promoted=Promoted
-facet.promoted.tooltip=Items that are currently promoted or demoted
+facet.promoted.tooltip=Items that are currently promoted or demoted.
 facet.score=Promotion Score
-facet.score.tooltip=The sum total of all promotions and demotions, if any
+facet.score.tooltip=The sum total of all promotions and demotions, if any.
 facet.data=Data Availability
-facet.data.tooltip=Show only institutions for which EHRI has archival descriptions
+facet.data.tooltip=Show only institutions for which EHRI has archival descriptions.
 facet.data.yes=Archival Descriptions
+facet.restricted=Visibility
+facet.restricted.tooltip=Whether or not an item is accessible only to certain users or groups.
+facet.restricted.true=Restricted
+facet.restricted.false=Unrestricted
 
 
 

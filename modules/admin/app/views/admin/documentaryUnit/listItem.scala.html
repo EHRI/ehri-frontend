@@ -7,6 +7,10 @@
                 <span class="primary-identifier">@item.data.identifier</span> | @item.toStringLang
             </a>
         }
+    }.getOrElse {
+        <a href="@controllers.units.routes.DocumentaryUnits.get(item.id)">
+            <span class="primary-identifier">@item.data.identifier</span>
+        </a>
     }
 } {
     @item.data.primaryDescription(descriptionId).map { desc =>
