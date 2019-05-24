@@ -295,7 +295,7 @@ case class Utils @Inject()(
   }
 
   def batchDelete: Action[AnyContent] = AdminAction.apply { implicit request =>
-    Ok(views.html.admin.tools.batchDelete(BatchDeleteTask.form,
+    Ok(views.html.admin.tools.batchDelete(BatchDeleteTask.form.fill(BatchDeleteTask()),
       controllers.admin.routes.Utils.batchDeletePost()))
   }
 

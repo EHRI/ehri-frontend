@@ -4,11 +4,11 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 case class BatchDeleteTask(
-  scope: Option[String],
-  version: Boolean,
-  commit: Boolean,
-  log: String,
-  ids: Seq[String]
+  scope: Option[String] = None,
+  version: Boolean = true,
+  commit: Boolean = false,
+  log: String = "",
+  ids: Seq[String] = Seq.empty
 )
 
 object BatchDeleteTask {
