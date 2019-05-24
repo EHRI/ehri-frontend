@@ -74,7 +74,15 @@ case class DocumentaryUnits @Inject()(
         name = Messages("documentaryUnit.heldBy"),
         param = "holder",
         display = FacetDisplay.DropDown
-      )
+      ),
+      FieldFacetClass(
+        key = RESTRICTED_FIELD,
+        name = Messages("facet.restricted"),
+        param = "restricted",
+        render = s => Messages("facet.restricted." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
     )
   }
 
