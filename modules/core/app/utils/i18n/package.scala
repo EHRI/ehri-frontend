@@ -89,12 +89,13 @@ package object i18n {
    * on our i18n messages file.
    */
   def countryCodeToName(code: String)(implicit messages: Messages): String = {
-    new Locale("", code).getDisplayCountry(messages.lang.toLocale) match {
-      case d if d.nonEmpty && !d.equalsIgnoreCase(code) => d
-      case c =>
-        val key = "countryCode." + c.toLowerCase
-        val i18n = Messages(key)
-        if (i18n != key) i18n else c
+    val key = "countryCode." + code.toLowerCase
+    val i18n = Messages(key)
+    if (i18n != key) i18n else {
+      new Locale("", code).getDisplayCountry(messages.lang.toLocale) match {
+        case d if d.nonEmpty => d
+        case _ => code
+      }
     }
   }
 
@@ -104,7 +105,7 @@ package object i18n {
   def countryPairList(implicit messages: Messages): List[(String,String)] = {
     val locale = messages.lang.toLocale
     java.util.Locale.getISOCountries.map { code =>
-      code -> WordUtils.capitalize(new java.util.Locale(locale.getLanguage, code).getDisplayCountry(locale))
+      code -> WordUtils.capitalize(countryCodeToName(code))
     }.toList.sortBy(_._2)
   }
 }

@@ -108,6 +108,7 @@ languageCode.sh=Serbo-Croatian
 # Additional/alternate country codes
 #
 countryCode.xk=Kosovo
+countryCode.mk=North Macedonia
 
 #
 # Pagination etc

@@ -1,8 +1,15 @@
 package views
 
+import play.api.http.HttpConfiguration
+import play.api.{Configuration, Environment}
+import play.api.i18n._
 import play.api.test.PlaySpecification
 
-class HelpersSpec extends PlaySpecification {
+class HelpersSpec extends PlaySpecification with I18nSupport {
+  private val conf = Configuration.reference
+  implicit val messagesApi: MessagesApi = new DefaultMessagesApiProvider(Environment.simple(), conf,
+    new DefaultLangs(Seq(Lang("en"), Lang("fr"))), HttpConfiguration()).get
+
   "view helpers" should {
     "shortens correctly a normal string" in {
     	val nohtml = "This is a test and this is nice because it it not so long and funny"
@@ -18,6 +25,10 @@ class HelpersSpec extends PlaySpecification {
       Helpers.isRightToLeft("זה מימין לשמאל") must beTrue
       Helpers.isRightToLeft("אדולף-אברהם ברמן נולד בוורשה בשנת 1906. הוא למד") must beTrue
       Helpers.isRightToLeft("") must beFalse
+    }
+    "get country names with local overrides" in {
+      implicit val messages: Messages = messagesApi.preferred(Seq(Lang.defaultLang))
+      Helpers.countryCodeToName("mk") must_== "North Macedonia"
     }
   }
 }
