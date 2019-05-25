@@ -1,7 +1,7 @@
 @(item: models.base.Promotable, promoteUrl: Call, demoteUrl: Call, contentType: defines.ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages)
 
 @if(item.promoters.nonEmpty || (item.isPromotable && userOpt.exists(_.hasPermission(contentType, defines.PermissionType.Promote)))) {
-    <div class="well well-small">
+    <div class="detail-section">
         @if(item.promoters.nonEmpty) {
             <h4>
                 <i class="fa fa-star"></i>

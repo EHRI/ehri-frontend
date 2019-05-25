@@ -19,32 +19,27 @@
             @defining("cvocConcept") { implicit fieldPrefix =>
                 @defining(item.data.descriptionsWithSelected()) { descriptions =>
                     @common.descriptionContainer(descriptions, dropdown = true) {
-                        <div class="row">
-                            <div class="col-md-8">
-                            @descriptions.map { case (desc, selected) =>
-                                @description(item, desc, links, annotations, selected)
+                        @descriptions.map { case (desc, selected) =>
+                            @description(item, desc, links, annotations, selected)
+                        }
+                        @if(item.broaderTerms.nonEmpty || item.vocabulary.isDefined) {
+                            <dl class="item-meta">
+                            @item.vocabulary.map { v =>
+                                <dt>@Messages("cvocConcept.inVocabulary")</dt>
+                                <dd><a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a></dd>
                             }
-                            </div>
-                            <div class="col-md-4">
-                            @if(item.broaderTerms.nonEmpty || item.vocabulary.isDefined) {
-                                <div class="well well-small">
-                                    @item.vocabulary.map { v =>
-                                        <h5>@Messages("cvocConcept.inVocabulary")</h5>
-                                        <a href="@controllers.vocabularies.routes.Vocabularies.get(v.id)">@v.toStringLang</a>
+                            @if(item.broaderTerms.nonEmpty) {
+                                <dt>@Messages("cvocConcept.broaderTerms")</dt>
+                                <dd>
+                                    <ul>
+                                    @item.broaderTerms.sortBy(_.toString).map { t =>
+                                        <li><a href="@controllers.keywords.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
                                     }
-                                    @if(item.broaderTerms.nonEmpty) {
-                                        <hr />
-                                        <h5>@Messages("cvocConcept.broaderTerms")</h5>
-                                        <ul>
-                                        @item.broaderTerms.sortBy(_.toString).map { t =>
-                                            <li><a href="@controllers.keywords.routes.Concepts.get(t.id)">@t.toStringLang</a></li>
-                                        }
-                                        </ul>
-                                    }
-                                </div>
+                                    </ul>
+                                </dd>
                             }
-                            </div>
-                        </div>
+                            </dl>
+                        }
 
 
                         @item.data.url.map { url =>
