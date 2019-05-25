@@ -554,17 +554,19 @@ Vue.component("concept-data-editor", {
              </div>
           </div>
           <div id="concept-editor-descriptions">
-              <div class="concept-editor-description-controls pull-right">
-                <button v-if="!newDesc" class="btn btn-default" v-on:click="newDesc = true">
-                    <i class="fa fa-plus-circle"></i>
-                </button>
-                <button v-if="newDesc" class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
-                    <i class="fa fa-check"></i>
-                </button><button v-if="newDesc" class="btn btn-default" v-on:click="cancelDesc">
-                    <i class="fa fa-remove"></i>
-                </button>
-              </div>
-              <h4>Descriptions</h4>
+              <header>
+                <div class="concept-editor-description-controls pull-right">
+                  <button v-if="!newDesc" class="btn btn-default" v-on:click="newDesc = true">
+                      <i class="fa fa-plus-circle"></i>
+                  </button>
+                  <button v-if="newDesc" class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
+                      <i class="fa fa-check"></i>
+                  </button><button v-if="newDesc" class="btn btn-default" v-on:click="cancelDesc">
+                      <i class="fa fa-remove"></i>
+                  </button>
+                </div>
+                <h4>Descriptions</h4>
+              </header>
               <div class="concept-editor-new-description-form" v-if="newDesc">
                   <div v-show="!pendingHasUniqueId" class="alert alert-warning">
                       New descriptions must have a unique lang/script combination.
@@ -587,26 +589,27 @@ Vue.component("concept-data-editor", {
                       </div>
                   </div>  
               </div>
-              <ul class="list-group concept-editor-description-tabs" v-if="!newDesc && state.descriptions.length">
-                  <li class="list-group-item" v-for="(description, i) in sortedDescriptions"
-                          v-bind:class="{disabled: currentDescIdx !== i}">
-                    <div class="concept-editor-description-tab clearfix" v-on:click="currentDescIdx = i"
-                          v-bind:class="{active: currentDescIdx === i}">
-                      <h5>{{descName(description)}}</h5>
-                      <concept-description-editor 
-                          v-if="i == currentDescIdx"
-                          v-bind:idx="i"
-                          v-bind:key="description.id"
-                          v-bind:data="description"
-                          v-bind:langData="langData" />
-                       <button v-if="i == currentDescIdx" 
-                            class="btn btn-xs btn-danger pull-right" v-on:click="deleteDesc(description)">
-                        Delete Description
-                        <i class="fa fa-remove"></i>
-                        </button>   
-                    </div>  
-                  </li>
-              </ul>
+              <div class="list-group concept-editor-description-tabs" v-if="!newDesc && state.descriptions.length">
+                <div v-for="(description, i) in sortedDescriptions">
+                  <a href="#" class="list-group-item list-group-item-action" 
+                          v-bind:class="{active: currentDescIdx === i}" 
+                          v-on:click="currentDescIdx = i">
+                      {{descName(description)}}
+                  </a>
+                  <div class="concept-editor-description-tab clearfix" v-if="i == currentDescIdx">
+                    <concept-description-editor 
+                        v-bind:idx="i"
+                        v-bind:key="description.id"
+                        v-bind:data="description"
+                        v-bind:langData="langData" />
+                     <button v-if="i == currentDescIdx" 
+                          class="btn btn-xs btn-danger pull-right" v-on:click="deleteDesc(description)">
+                      Delete Description
+                      <i class="fa fa-remove"></i>
+                      </button>   
+                  </div>  
+                  </div>
+              </div>
               <p class="alert alert-info" v-else-if="!newDesc">
                   No descriptions yet. <a href="#" v-on:click.prevent="newDesc = true">Create one...</a>
               </p>
@@ -720,17 +723,17 @@ Vue.component("concept-editor", {
         </div>
         <div id="concept-editor-body" v-else>
           <ul id="concept-editor-nav-tabs" class="nav nav-tabs">
-              <li v-bind:class="{active: tab === 'rels'}">
-                <a href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
+              <li class="nav-item">
+                <a class="nav-link" v-bind:class="{active: tab === 'rels'}" href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
               </li>
-              <li v-bind:class="{active: tab === 'data', 'error': error}">
-                <a href="#" v-on:click.prevent="tab = 'data'">
+              <li class="nav-item">
+                <a class="nav-link" v-bind:class="{active: tab === 'data', 'error': error}" href="#" v-on:click.prevent="tab = 'data'">
                   Data
                   <i v-if="error" class="fa fa-exclamation-circle"></i>
                 </a>
               </li>
-              <li class="pull-right" v-bind:class="{active: tab == 'delete'}">
-                <a href="#" v-on:click.prevent="tab = 'delete'">Delete</a>
+              <li class="nav-item delete-tab">
+                <a class="nav-link" v-bind:class="{active: tab == 'delete'}" href="#" v-on:click.prevent="tab = 'delete'">Delete</a>
               </li>
           </ul>
           <concept-rel-editor
@@ -1091,15 +1094,15 @@ var app = new Vue({
     <div id="vocab-editor-container">
         <div id="vocab-editor-listnav">
           <div class="vocab-editor-controls form-inline">
-            <div class="form-group input-group">
-              <span class="input-group-btn">
-                <select class="btn" v-model="lang">
+            <div class="input-group">
+              <span class="input-group-prepend">
+                <select class="btn btn-secondary" v-model="lang">
                     <option v-bind:value="l" v-for="l in langs">{{langData[l]}}</option>
                 </select>
               </span>
               <input class="form-control" v-model.trim="q" v-on:change="reload" placeholder="Search..."/>
-              <div class="input-group-btn" style="padding: 0; border: none">
-                <button class="btn" v-on:click="reload"
+              <div class="input-group-append">
+                <button class="btn btn-secondary" v-on:click="reload"
                         v-bind:disabled="q === ''">
                     <i v-if="loading" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
                     <i v-else class="fa fa-fw fa-search"></i>
