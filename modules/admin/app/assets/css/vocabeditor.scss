@@ -1,0 +1,245 @@
+@import "lib/docview-portal/css/portal.scss";
+
+//Admin
+@import "./admin/admin";
+@import "./admin/forms";
+
+body {
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+#flex-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#flex-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.vocab-editor-autocomplete-widget .suggestion-type {
+  @extend .pull-right;
+}
+
+.vocab-editor-autocomplete-widget .dropdown-list {
+  position: fixed;
+  z-index: 1000;
+  @include clearfix;
+}
+
+.vocab-editor-autocomplete-widget-suggestions {
+  cursor: pointer;
+  box-shadow: 0 0 5px 2px rgba(153,153,153,0.54);
+  border: 1px solid $border-color;
+  top: 100%;
+  z-index: 1000;
+  right: auto;
+  width: inherit;
+  background-color: #fff;
+}
+
+.vocab-editor-autocomplete-widget-input {
+  position: relative;
+}
+
+.vocab-editor-autocomplete-widget-suggestion {
+  padding: $margin-sm;
+  width: inherit;
+}
+
+.vocab-editor-autocomplete-widget-suggestion:hover,
+.vocab-editor-autocomplete-widget-suggestion.selected {
+  background-color: darken($gray-100, 10%);
+}
+
+
+#vocab-editor-container {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  padding: $margin-md;
+  background-color: #f8f8f8;
+  border: 1px solid #e7e7e7;
+  margin-bottom: $margin-lg;
+}
+
+#vocab-editor-listnav {
+  flex: 40%;
+  display: flex;
+  flex-direction: column;
+}
+
+#vocab-editor-editpanel {
+  flex: 60%;
+  display: flex;
+  flex-direction: column;
+  margin-left: $margin-md;
+}
+
+#vocab-editor-load-note {
+  flex: 1;
+  color: lighten($text-muted, 20%);
+  padding-top: 100px;
+  text-align: center;
+}
+
+.vocab-editor-controls {
+  margin-bottom: $margin-md;
+}
+
+.vocab-editor-list {
+  font-size: $font-size-sm;
+  background-color: #fff;
+  overflow: auto;
+  padding: $margin-md;
+  border: 1px solid #e3e3e3;
+  flex: 1;
+  flex-basis: 0;
+  margin-bottom: $margin-md;
+}
+
+.vocab-editor-concept.active > .vocab-editor-concept-heading > .vocab-editor-concept-title {
+  color: #000;
+}
+
+.vocab-editor-concept-title {
+  cursor: pointer;
+}
+
+.vocab-editor-concept-title:hover {
+  background-color: #f0f0f0;
+}
+
+.vocab-editor-concept-list {
+  @include list-unstyled;
+  margin-left: $margin-md;
+}
+
+.vocab-editor-top-concepts {
+  margin-left: 0;
+}
+
+.vocab-editor-concept.is-search {
+  font-weight: bold;
+}
+
+#concept-editor, #concept-creator {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#concept-editor-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#concept-editor-item-title,
+#concept-creator-title {
+  margin: 0 0 $margin-sm 0;
+}
+
+.concept-hierarchy {
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.concept-editor-concept-meta {
+  @extend %small-muted;
+  margin-bottom: $margin-sm;
+  font-size: $font-size-sm;
+}
+
+.concept-editor-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.concept-editor-tab .concept-editor-tab-form {
+  padding: $margin-md;
+  overflow: auto;
+  flex: 1;
+  flex-basis: 0;
+}
+
+.concept-editor-broader-terms {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.concept-editor-broader-terms > ul {
+  flex-grow: 1;
+  flex-basis: 0;
+  overflow: auto;
+}
+
+.concept-editor-broader-terms .remove {
+  cursor: pointer;
+}
+
+.concept-editor-broader-terms-empty {
+  @extend %small-muted;
+}
+
+#concept-editor-nav-tabs li.error a {
+  color: map_get($colors, "danger");
+}
+
+#concept-editor-nav-tabs li.delete-tab {
+  margin-left: auto;
+}
+
+.concept-editor-tab-form-footer {
+  padding: $margin-md;
+  border-top: $border-width solid $border-color;
+}
+
+.concept-editor-tab.error .concept-editor-tab-form-footer {
+  //background-color: $state-danger-bg;
+}
+
+.concept-editor-description-tabs li {
+  cursor: pointer !important;
+}
+
+.concept-editor-description-tab {
+  border-left: $border-width solid $border-color;
+  border-right: $border-width solid $border-color;
+  padding: $margin-sm;
+  font-size: $font-size-sm;
+}
+
+#concept-editor-descriptions > header {
+  @include clearfix();
+}
+
+.concept-editor-tab {
+  border-top: none;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+}
+
+#concept-creator .concept-editor-tab {
+  border-top: 1px solid #ddd;
+}
+
+.concept-editor-new-description-form {
+  background-color: #fff;
+  padding: $margin-sm;
+  border: $border-width solid $border-color;
+  margin-top: $margin-sm;
+  font-size: $font-size-sm;
+}
+
+#concept-delete-tab input[type='checkbox'] {
+  margin-right: $margin-sm;
+}
