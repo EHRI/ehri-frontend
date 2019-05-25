@@ -601,6 +601,13 @@ dl dt {
   @extend %small-muted;
 }
 
+.detail-section {
+  border: $border-width solid $border-color;
+  background-color: $gray-100;
+  padding: $margin-sm;
+  border-radius: $border-radius;
+}
+
 .description-attributes dt ul,
 .description-attributes dt ol {
   @include list-unstyled();
