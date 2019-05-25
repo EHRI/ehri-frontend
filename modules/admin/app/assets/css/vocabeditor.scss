@@ -58,12 +58,13 @@ body {
 
 
 #vocab-editor-container {
+  font-size: $font-size-sm;
   display: flex;
   flex-direction: row;
   flex: 1;
   padding: $margin-md;
-  background-color: #f8f8f8;
-  border: 1px solid #e7e7e7;
+  background-color: $gray-100;
+  border: $border-width solid $border-color;
   margin-bottom: $margin-lg;
 }
 
