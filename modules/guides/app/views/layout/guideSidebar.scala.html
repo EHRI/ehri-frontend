@@ -2,7 +2,7 @@
 
 @articleHTML(optionalText: Option[Html]) = {
     @optionalText.map { html =>
-        <div class="well well-sm">
+        <div class="detail-section">
             <article>
                 @html
             </article>
@@ -12,7 +12,7 @@
 
 @articleString(optionalText: Option[String]) = {
     @optionalText.map { html =>
-        <div class="well well-sm">
+        <div class="detail-section">
             <article>
                 @Markdown(html)
             </article>
@@ -22,7 +22,7 @@
 
 @articleHTML(sidebar)
 
-<div class="well well-sm">
+<div class="detail-section">
     <ul class="nav nav-pills nav-stacked">
         @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Side)) {
             <li><a class="@{

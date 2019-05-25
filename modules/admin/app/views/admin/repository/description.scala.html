@@ -14,7 +14,6 @@
 
     @descriptionSection(ADDRESS_AREA) {
         @if(desc.addresses.nonEmpty) {
-            <div class="inline-block well well-small" style="display: inline-block">
             @desc.addresses.zipWithIndex.map { case (address, i) =>
                 <address title="@address.name">
                     <dl>
@@ -45,16 +44,19 @@
                             }
 
                         </dd>
-                    @List(EMAIL, TELEPHONE, FAX, URL).zip(List(address.email, address.telephone, address.fax, address.url)).map { case (name, addressPart) =>
-                        @addressPart.map { addressPartValue =>
-                            <dt>@Messages(fieldPrefix + "." + name)</dt>
-                            <dd>@addressPartValue</dd>
+                        @List(EMAIL, TELEPHONE, FAX).zip(List(address.email, address.telephone, address.fax)).map { case (name, addressPart) =>
+                            @addressPart.map { addressPartValue =>
+                                <dt>@Messages(fieldPrefix + "." + name)</dt>
+                                <dd>@addressPartValue</dd>
+                            }
                         }
-                    }
+                        @address.url.map { url =>
+                            <dt>@Messages(fieldPrefix + "." + URL)</dt>
+                            <dd><a target="_blank" href="@url">@url</a></dd>
+                        }
                     </dl>
                 </address>
             }
-            </div>
         }
     }
 
