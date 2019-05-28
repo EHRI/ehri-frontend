@@ -327,19 +327,25 @@ body.home #navbar-primary-container {
 }
 
 .selected-facets {
+  font-size: $font-size-lg; // increase space between block elements
+
   .selected-facet {
-    @extend .badge, .badge-info;
-
-    border: 1px solid darken($info, 7%);
-
-    padding: $margin-xs 0;
-    > .facet,
-    > .remove-filter {
-      padding: $margin-xs;
-    }
+    display: inline-block;
+    font-size: $font-size-sm;
+    margin-bottom: $margin-xs;
+    border: $border-width solid $border-color;
+    color: $text-darkened;
+    padding-left: $margin-xs;
 
     .remove-filter {
-      color: $black;
+      display: inline-block;
+      padding: $margin-xs;
+
+      i {
+        font-size: $font-size-sm;
+        vertical-align: middle;
+        color: $red;
+      }
 
       &:hover {
         background-color: rgba(0, 0, 0, .1);
@@ -347,7 +353,7 @@ body.home #navbar-primary-container {
     }
   }
 
-  margin-bottom: $margin-sm;
+  margin-bottom: $margin-md;
 }
 
 .search-sort {
@@ -512,6 +518,9 @@ ul.list-export-options {
 }
 
 // Child item lists...
+.child-items-inline-load {
+  //color: $green;
+}
 .child-items-inline {
   > ol,
   > ul {
@@ -542,12 +551,39 @@ ul.list-export-options {
 
 // Sidebar facets
 .search-facets {
+  .search-facets-remove-all {
+    font-size: $font-size-sm;
+    color: $red;
+    margin-bottom: $margin-md;
+    display: inline-block;
+    i {
+      font-size: $font-size-sm;
+      vertical-align: middle;
+    }
+  }
+  .search-facets-heading {
+    margin-bottom: $margin-md;
+  }
   .facet-options {
     @include list-unstyled();
     font-size: $font-size-sm;
   }
 
   .facet-class {
+    .facet-label {
+      margin-bottom: $margin-sm;
+    }
+    > ol li {
+      margin-bottom: $margin-xs;
+    }
+    > ol li > a {
+      color: $text-darkened;
+    }
+    > ol li.remove-filter > a > i {
+      font-size: $font-size-sm;
+      color: $red;
+      vertical-align: middle;
+    }
     margin-bottom: $margin-md;
   }
 }

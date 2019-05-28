@@ -453,6 +453,7 @@ search.field.person=People
 search.field.subject=Subjects
 search.field.place=Places
 search.facets.heading=Filter Results
+search.facets.removeAll=Clear all filters
 
 #
 # Facets - these are ways of filtering search results
