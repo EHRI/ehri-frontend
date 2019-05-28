@@ -15,6 +15,30 @@ package object search {
     implicit val format: Format[FacetQuerySort.Value] = EnumUtils.enumFormat(FacetQuerySort)
   }
 
+  /**
+    * Get the URL without any of the given facet classes.
+    *
+    * @param fcs  the set of facet classes
+    * @param path the current path
+    * @param qs   the current query string
+    * @return a new URL with the facet classes removed
+    */
+  def pathWithoutFacets(fcs: Seq[FacetClass[_]], path: String, qs: Map[String, Seq[String]]): String = {
+    val params = fcs.map(_.param)
+    utils.http.joinPath(path, qs.collect {
+      case (q, vals) if !params.contains(q) => q -> vals
+    })
+  }
+
+  /**
+    * Get the path without a specific facet value.
+    *
+    * @param fc   the facet class
+    * @param f    the specific facet
+    * @param path the current path
+    * @param qs   the current query string
+    * @return a new URL with the facet removed
+    */
   def pathWithoutFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, qs.collect {
       // Specific facets
@@ -24,6 +48,15 @@ package object search {
       case pair => pair
     })
 
+  /**
+    * Get the path with a specific facet added.
+    *
+    * @param fc   the facet class
+    * @param f    the specific facet
+    * @param path the current path
+    * @param qs   the current query string
+    * @return a new URL with the facet added
+    */
   def pathWithFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, if (qs.contains(fc.param)) {
       qs.collect {
@@ -32,6 +65,15 @@ package object search {
       }
     } else qs.updated(fc.param, Seq(f)))
 
+  /**
+    * Get the path with a generic facet added.
+    *
+    * @param fc   the facet class
+    * @param f    the generic facet
+    * @param path the current path
+    * @param qs   the current query string
+    * @return a new URL with the facet added
+    */
   def pathWithGenericFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, if (qs.contains(SearchParams.FACET)) {
       qs.collect {
