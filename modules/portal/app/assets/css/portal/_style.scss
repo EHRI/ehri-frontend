@@ -9,6 +9,14 @@ h2, h4 {
 .btn {
 }
 
+aside.sidebar {
+  @include media-breakpoint-up(lg) {
+    // FIXME: should have important here
+    // really...
+    padding-left: 2rem;
+  }
+}
+
 .block-header {
   background-color: $secondary;
   color: $white;
@@ -614,6 +622,7 @@ ul.list-export-options {
 // on wide widths: FIXME
 .sidebar-section.history,
 .sidebar-section.export,
+.sidebar-section.archival-context,
 .sidebar-section.child-items {
   display: none;
 
@@ -779,7 +788,7 @@ dl dt {
 }
 
 // Annotations
-.annotation-set {
+.item-text-field .annotation-set {
   @include media-breakpoint-up(mg) {
     @include make-col-ready();
     @include make-col-offset(3);

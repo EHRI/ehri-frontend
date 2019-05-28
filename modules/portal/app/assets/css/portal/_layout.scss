@@ -10,7 +10,7 @@ body {
 }
 
 // Main page right sidebar layouts
-section.double {
+.double {
   // Place sidebar on the right...
   > aside {
     @extend .order-last;
