@@ -229,17 +229,22 @@ ul.pagination {
 }
 
 .search-bar {
-  @include make-row();
-
-  > .search-box {
-    @include make-col-ready();
-    @include make-col(10);
-  }
-
-  > .search-helper-container {
-    @include make-col-ready();
-    @include make-col(2);
-  }
+  //@include make-row();
+  //
+  //> .search-box {
+  //  @include make-col-ready();
+  //  @include make-col(9);
+  //}
+  //
+  //> .search-helper-toggle {
+  //  @include make-col-ready();
+  //  @include make-col(3);
+  //}
+  //
+  //> .search-helper-container {
+  //  @include make-col-ready();
+  //  @include make-col(12);
+  //}
 }
 
 .search-result-errata {

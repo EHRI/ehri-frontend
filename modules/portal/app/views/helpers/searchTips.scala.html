@@ -4,7 +4,7 @@
     <a href="#" class="close" aria-hidden="true">&times;</a>
 
     <p>@Messages("search.helper")</p>
-    <dl class="dl-horizontal">
+    <dl>
         <dt>"@Messages("search.helper.example")"</dt>
         <dd>@Messages("search.helper.quotes")</dd>
         <dt>+@Messages("search.helper.example")</dt>
@@ -19,7 +19,7 @@
     </dl>
     <p>
     @Messages("search.helper.field.available")
-    <ul class="available-fields comma-sep">
+    <ul class="available-fields">
     @services.search.SearchField.values.toSeq.map { v =>
         <li>@v</li>
     }
