@@ -1,5 +1,9 @@
 @(title: Any, itemClass: String, result: services.search.SearchResult[_], styles: Html = Html(""), scripts: Html = Html(""), meta: Map[String,String] = Map.empty)(html: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("search.results.list", title, result.page.start, result.page.end, result.page.total, result.params.query.getOrElse("")), itemClass, styles = styles, scripts = scripts, meta = meta) {
-    @views.html.common.mainContent(html)
+    @views.html.common.mainContent {
+        @views.html.common.itemHeader(title.toString) {
+        }
+        @html
+    }
 }

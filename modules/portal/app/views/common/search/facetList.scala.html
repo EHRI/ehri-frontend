@@ -15,6 +15,7 @@
             <a rel="nofollow" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                 <span class="facet-name">@fc.pretty(f)</span>
                 <span class="facet-count">(@f.count)</span>
+                <i class="material-icons">close</i>
             </a>
         </li>
     } else {
@@ -61,6 +62,7 @@
                     <a rel="nofollow" class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                         <span class="facet-name">@fc.pretty(f)</span>
                         <span class="facet-count">(@f.count)</span>
+                        <i class="material-icons">close</i>
                     </a>
                 } else {
                     <a rel="nofollow" class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
@@ -149,32 +151,36 @@
 @defining(facetClasses.filter(_.isActive)) { activeClasses =>
     @if(activeClasses.nonEmpty) {
         <div class="sidebar-section search-facets">
+            @if(activeClasses.filter(_.isApplied).nonEmpty) {
+                <a href="@pathWithoutFacets(facetClasses, call.url, req.queryString)" class="search-facets-remove-all">
+                    @Messages("search.facets.removeAll")
+                    <i class="material-icons">close</i>
+                </a>
+            }
             <div class="search-facets-heading" data-toggle="collapse" data-target="#facet-class-expander">
                 <h3>@Messages("search.facets.heading")</h3>
             </div>
-            <div class="search-item-body">
-                <ul class="facet-classes collapse navbar-collapse" id="facet-class-expander">
-                    @activeClasses.filter(_.display != FacetDisplay.Hidden).map { fc =>
-                        @fc.display match {
-                            case FacetDisplay.DropDown => {
-                                @facetDropDown(fc)
-                            }
-                            case FacetDisplay.Boolean => {
-                                @facetBoolean(fc)
-                            }
-                            case FacetDisplay.Choice => {
-                                @facetChoiceList(fc)
-                            }
-                            case FacetDisplay.Date => {
-                                @facetDate(fc)
-                            }
-                            case _ => {
-                                @facetList(fc)
-                            }
+            <ul class="facet-classes collapse navbar-collapse" id="facet-class-expander">
+                @activeClasses.filter(_.display != FacetDisplay.Hidden).map { fc =>
+                    @fc.display match {
+                        case FacetDisplay.DropDown => {
+                            @facetDropDown(fc)
+                        }
+                        case FacetDisplay.Boolean => {
+                            @facetBoolean(fc)
+                        }
+                        case FacetDisplay.Choice => {
+                            @facetChoiceList(fc)
+                        }
+                        case FacetDisplay.Date => {
+                            @facetDate(fc)
+                        }
+                        case _ => {
+                            @facetList(fc)
                         }
                     }
-                </ul>
-            </div>
+                }
+            </ul>
         </div>
     }
 }
