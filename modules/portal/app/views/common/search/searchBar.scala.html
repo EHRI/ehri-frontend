@@ -21,22 +21,23 @@
                     </select>
                 </span>
             }
-            <span class="input-group-append">
-                <button>
-                    <span class="fa fa-search"></span>
-                    @Messages("search.submit")
+            <span class="input-group-addon">
+                <button class="btn" id="submit-search">
+                    <span class="sr-only">@Messages("search.submit")</span>
+                    <i class="material-icons">search</i>
                 </button>
             </span>
         </div>
         @if(tips) {
-            @views.html.helpers.searchTips()
+            <a href="#" class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">
+                @Messages("search.helper.linkTitle")
+                <i class="material-icons">arrow_drop_down</i>
+            </a>
         }
     </div>
     @if(tips) {
         <div class="search-helper-container">
-            <a class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">
-            @Messages("search.helper.linkTitle")
-            </a>
+            @views.html.helpers.searchTips()
         </div>
     }
 </div>
