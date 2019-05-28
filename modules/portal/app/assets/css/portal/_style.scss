@@ -284,6 +284,35 @@ body.home #navbar-primary-container {
 }
 
 // Search controls
+.search-result-errata {
+  background-color: $ehri-gray;
+  padding: $margin-xs $margin-sm;
+  align-items: center;
+
+  .search-summary {
+    @extend %heading-text;
+    color: $secondary;
+  }
+
+  .search-sort {
+    i {
+      color: $text-muted;
+    }
+    ul > li > a {
+      @extend %small-muted;
+    }
+
+    ul > li.active > a {
+      color: $secondary;
+      font-weight: bold;
+    }
+
+    ul > li+li {
+      margin-left: $margin-xs;
+    }
+  }
+}
+
 .search-controls {
   margin-bottom: $margin-md;
 
