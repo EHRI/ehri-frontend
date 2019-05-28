@@ -324,14 +324,66 @@ body.home #navbar-primary-container {
 .search-controls {
   margin-bottom: $margin-md;
 
-  .search-helper-container {
-    font-size: $font-size-xs;
-  }
 }
 
 .search-bar {
   align-items: center;
-  margin-bottom: $margin-sm;
+  margin-bottom: $margin-md;
+
+  input[type='search'] {
+    border-right: 0;
+  }
+  .input-group-addon {
+    border: $border-width solid $border-color;
+    background-color: $input-bg;
+    height: $input-height;
+    z-index: 2;
+  }
+
+  #submit-search i {
+    float: left;
+    color: $primary;
+  }
+
+  .search-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-helper-toggle {
+    margin: $margin-xs 0 0 0;
+    white-space: nowrap;
+    font-size: $font-size-xs;
+    align-items: center;
+
+    i {
+      vertical-align: middle;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .search-bar .search-box {
+    flex-wrap: nowrap;
+  }
+  .search-bar .search-helper-toggle {
+    margin: 0 0 0 $margin-sm;
+  }
+}
+
+
+#search-helper {
+  font-size: $font-size-xs;
+  margin-top: $margin-md;
+  border: $border-width solid $border-color;
+  padding: $margin-sm;
+  background-color: $gray-100;
 }
 
 .selected-facets {
