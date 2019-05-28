@@ -1,7 +1,7 @@
 @(descriptions: Seq[(models.base.Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple.text")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 <section class="double descriptions">
-    <aside class="right-sidebar description-sidebar">
+    <aside class="sidebar description-sidebar">
         @sidebarBefore
         @if(descriptions.size > 1) {
             @views.html.common.sidebarSection(Messages(labelKey), cls = "description-switcher") {
