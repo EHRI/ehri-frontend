@@ -46,11 +46,6 @@
                             <a href="#@item.id-@DATA_EXTENSIVE">@Messages("country." + DATA_EXTENSIVE)</a>
                         </li>
                     }
-                    <li role="presentation" class="active">
-                        <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@item.id-child-item-search">
-                            @Messages(s"country.childItems.search", item.childCount.getOrElse(0))
-                        </a>
-                    </li>
                     @item.childCount.filter(_ > 0).map { count =>
                         <li role="presentation" class="active">
                             <a class="type-highlight @defines.EntityType.Repository child-item-link" href="#@item.id-child-item-search">

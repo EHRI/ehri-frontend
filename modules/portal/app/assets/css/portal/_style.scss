@@ -573,13 +573,13 @@ ul.list-export-options {
     .facet-label {
       margin-bottom: $margin-sm;
     }
-    > ol li {
+    > .facet-options li {
       margin-bottom: $margin-xs;
     }
-    > ol li > a {
+    > .facet-options li > a {
       color: $text-darkened;
     }
-    > ol li.remove-filter > a > i {
+    > .facet-options li.remove-filter > a > i {
       font-size: $font-size-sm;
       color: $red;
       vertical-align: middle;
@@ -594,10 +594,19 @@ ul.list-export-options {
 }
 
 .sidebar-section {
+  font-size: $font-size-sm;
   margin-bottom: $margin-lg;
 
-  .sidebar-section-body .action-group {
+  .sidebar-section-heading {
+    @extend %heading-text;
+    margin-bottom: $margin-sm;
+  }
+
+  .sidebar-section-body > ul {
     @include list-unstyled();
+    > li {
+      margin-bottom: $margin-xs;
+    }
   }
 }
 
