@@ -443,6 +443,23 @@ body.home #navbar-primary-container {
   color: $red;
 }
 
+// Pagination
+ul.pagination {
+  font-size: $font-size-sm;
+  > li > a {
+    padding: .75rem $margin-sm;
+    border-left: 0;
+    border-right: 0;
+  }
+  > li:first-child > a {
+    border-left: $pagination-border-width solid $pagination-border-color;
+  }
+  > li:last-child > a {
+    border-right: $pagination-border-width solid $pagination-border-color;
+  }
+}
+
+
 // User grid
 .user-grid {
   .user-grid-item {

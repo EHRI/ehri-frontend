@@ -1,28 +1,34 @@
-@(page: utils.AbstractPage[_], call: Option[Call] = None, namespace: String = "")(implicit req: RequestHeader)
+@(page: utils.AbstractPage[_], call: Option[Call] = None, namespace: String = "")(implicit req: RequestHeader, messages: Messages)
 
 @import services.data.Constants.PAGE_PARAM
+
+@pageUrl(page: Int) = @{
+    utils.http.joinPath(call.map(_.url).getOrElse(req.path), req.queryString.updated(namespace + PAGE_PARAM, Seq(page.toString)))
+}
 
 @if(page.hasMultiplePages) {
     <nav aria-label="Pagination">
         <ul class="pagination">
-        @views.Helpers.paginationRanges(page.page + 1, page.numPages).map { range =>
-            @range.map { cp =>
-                @if(cp == page.page) {
-                    <li class="disabled"><a>@cp</a></li>
-                } else {
-                    @defining(namespace + PAGE_PARAM) { pageParam =>
-                        <li><a href="@utils.http.joinPath(
-                            call.map(_.url).getOrElse(req.path),
-                            req.queryString.updated(pageParam, Seq(cp.toString))
-                        )">@cp</a>
-                        </li>
-                    }
+            @if(page.page == 1) {
+                <li class="disabled"><a href="#" tabindex="-1">&lt;</a></li>
+            } else {
+                <li><a title="@Messages("pagination.previousPage")" href="@pageUrl(page.page - 1)">&lt;</a></li>
+            }
+            @views.Helpers.paginationRanges(page.page + 1, page.numPages).map { range =>
+                @range.map { cp =>
+                    <li class="@(if(cp == page.page) "active")" aria-current="page">
+                        <a href="@pageUrl(cp)">@cp@if(cp == page.page) { <span class="sr-only">(current)</span>}</a>
+                    </li>
+                }
+                @if(range.last != page.numPages) {
+                    <li class="disabled"><a>...</a></li>
                 }
             }
-            @if(range.last != page.numPages) {
-                <li class="disabled"><a>...</a></li>
+            @if(!page.hasMore) {
+                <li class="disabled"><a href="#" tabindex="-1">&gt;</a></li>
+            } else {
+                <li><a title="@Messages("pagination.nextPage")" href="@pageUrl(page.page + 1)">&gt;</a></li>
             }
-        }
         </ul>
     </nav>
 }
