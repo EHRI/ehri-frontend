@@ -15,15 +15,16 @@
         @views.html.common.ipFilter()
         <header id="header" class="navigation">
             @views.html.common.accountHeader(showAdminLink = true)
-        </header>
-        <section class="jumbotron" id="welcome-banner">
-            <div id="welcome-container">
-                <h1>@Messages("welcome")</h1>
-                @helper.form(action = controllers.portal.routes.Portal.search(services.search.SearchParams.empty, utils.PageParams.empty)) {
-                    @views.html.common.search.searchBar(services.search.SearchParams.empty, placeholder = Messages("search.global"))
-                }
+            <div id="welcome-banner">
+                @views.html.common.primaryHeader(showSearch = false)
+                <div id="welcome-container">
+                    <h1>@Messages("welcome")</h1>
+                    @helper.form(action = controllers.portal.routes.Portal.search(services.search.SearchParams.empty, utils.PageParams.empty)) {
+                        @views.html.common.search.searchBar(services.search.SearchParams.empty, placeholder = Messages("search.global"))
+                    }
+                </div>
             </div>
-        </section>
+        </header>
 
         @views.html.common.flash(flash)
         @views.html.common.mainContent {
