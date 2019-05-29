@@ -249,6 +249,74 @@ body.home #navbar-primary-container {
     //@extend .input-group-addon;
   }
 }
+ // End navbar
+
+// Home page
+body.home {
+  #header {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    //background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/itsarolsen_effects-bw.jpg);
+    background-image: url(https://s3-eu-west-1.amazonaws.com/ehri-assets/warsaw_teunisse-crop-bw.jpg);
+  }
+
+  @include media-breakpoint-up(md) {
+    #navbar-logo {
+      margin-right: 3rem;
+    }
+  }
+
+  #welcome-banner {
+    background-color: rgba(68, 47, 81, .85);
+    padding-bottom: $margin-lg;
+    color: var(--white);
+    h1 {
+      margin-top: $margin-lg;
+      color: var(--white);
+    }
+
+    .form-control,
+    .input-group-addon {
+      background-color: rgba(224, 224, 224, 0.19);
+      color: var(--white);
+      border-color: rgba(224, 224, 224, 0.59);
+
+      button i {
+        color: var(--white);
+      }
+    }
+    input[type=search]::placeholder {
+      color: rgba(255,255,255, .8);
+      font-size: $font-size-sm;
+    }
+    .form-control:focus,
+    #submit-search:focus {
+      box-shadow: 0 0 0 0.2rem rgba(244,244,244,0.25);
+    }
+
+    .search-helper-toggle {
+      color: var(--white);
+    }
+
+    #search-helper {
+      color: var(--white) !important;
+      background-color: rgba(244,244,244,.1);
+
+      dl dt {
+        color: var(--white);
+        text-transform: none;
+        @include make-col-ready();
+        @include make-col(2);
+      }
+
+      .available-fields {
+        @include list-unstyled();
+        @include list-inline(",\00a0");
+      }
+    }
+  }
+}
 
 // Footer
 #portal-footer {
@@ -371,10 +439,9 @@ body.home #navbar-primary-container {
     border-right: 0;
   }
   .input-group-addon {
-    border: $border-width solid $border-color;
-    background-color: $input-bg;
     height: $input-height;
     z-index: 2;
+    border: $border-width solid $border-color;
   }
 
   #submit-search i {
