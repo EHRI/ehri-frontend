@@ -116,6 +116,8 @@ countryCode.mk=North Macedonia
 # Pagination display. Should say something like "Displaying items 1 to 20 of 25.
 # If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#No items found|1#One item found|1<Displaying items {0,number,integer} to {1,number,integer} of {2,number,integer}}
+pagination.nextPage=Next Page
+pagination.previousPage=Previous Page
 truncated=...
 truncated.items.remaining={0,choice,0#|1#and 1 more...|1<and {0,number,integer} more...}
 
