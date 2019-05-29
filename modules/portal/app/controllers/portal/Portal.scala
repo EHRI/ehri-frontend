@@ -42,11 +42,11 @@ case class Portal @Inject()(
     EntityType.Country
   )
 
-  def prefs = Action { implicit request =>
+  def prefs: Action[AnyContent] = Action { implicit request =>
     Ok(Json.toJson(preferences))
   }
 
-  def updatePrefs() = Action { implicit request =>
+  def updatePrefs(): Action[AnyContent] = Action { implicit request =>
     val current = request.preferences
     SessionPrefs.updateForm(current).bindFromRequest.fold(
       errors => BadRequest(errors.errorsAsJson),
@@ -57,7 +57,7 @@ case class Portal @Inject()(
     )
   }
 
-  def changeLocale(lang: String) = Action { implicit request =>
+  def changeLocale(lang: String): Action[AnyContent] = Action { implicit request =>
     val referrer = request.headers.get(REFERER).getOrElse("/")
     try messagesApi.setLang(Redirect(referrer), Lang(lang)) catch {
       case _: IllformedLocaleException => Redirect(referrer)
@@ -107,7 +107,7 @@ case class Portal @Inject()(
     * types.
     */
   def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    getStats.map(s => Ok(views.html.portal(s)))
+    getStats.map(s => Ok(views.html.index(s)))
   }
 
   def browseItem(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction { implicit request =>

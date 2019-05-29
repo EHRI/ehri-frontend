@@ -1,4 +1,4 @@
-@()(implicit request: RequestHeader, messages: Messages)
+@(showSearch: Boolean = true)(implicit request: RequestHeader, messages: Messages)
 
 <div id="navbar-primary-container">
     <nav id="navbar-primary">
@@ -28,15 +28,17 @@
                 <li class="authoritativeSet @views.Helpers.maybeActivePath(controllers.portal.routes.AuthoritativeSets.searchAll().url)">
                     <a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">@Messages("type.AuthoritativeSet")</a>
                 </li>
-                <li>
-                    @helper.form(action = controllers.portal.routes.Portal.search()) {
-                        <div id="site-search-controls" class="search-box">
-                            <label class="sr-only" for="quicksearch">@Messages("search.site")</label>
-                            <input class="form-control" type="search" name="q" placeholder="@Messages("search.site")" id="quicksearch" value="">
-                            <i class="material-icons form-control-feedback">search</i>
-                        </div>
-                    }
-                </li>
+                @if(showSearch) {
+                    <li>
+                        @helper.form(action = controllers.portal.routes.Portal.search()) {
+                            <div id="site-search-controls" class="search-box">
+                                <label class="sr-only" for="quicksearch">@Messages("search.site")</label>
+                                <input class="form-control" type="search" name="q" placeholder="@Messages("search.site")" id="quicksearch" value="">
+                                <i class="material-icons form-control-feedback">search</i>
+                            </div>
+                        }
+                    </li>
+                }
             </ul>
         </div>
     </nav>
