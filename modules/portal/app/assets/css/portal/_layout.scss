@@ -127,41 +127,6 @@ ul.dropdown-menu {
   #footer-content {
     @extend .container;
 
-    #footer-navs {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-
-    #lang-switcher,
-    #navbar-tertiary {
-      @include list-unstyled();
-      display: flex;
-      flex-direction: row;
-
-      li {
-        a {
-          padding: .5rem 1rem;
-        }
-      }
-      li.active a {
-        color: $text-muted;
-        pointer-events: none;
-      }
-    }
-
-    #lang-switcher {
-      margin-left: auto;
-      li:last-child {
-        margin-right: -1rem;
-      }
-    }
-
-    #navbar-tertiary {
-      li:first-child {
-        margin-left: -1rem;
-      }
-    }
   }
 }
 

@@ -1,5 +1,7 @@
 @()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
+@import org.apache.commons.lang3.StringUtils
+
 @footerLink(call: Call, code: String) = {
     <li class="@views.Helpers.maybeActive(call.url)">
         <a href="@call">@Messages(code)</a>
@@ -21,7 +23,7 @@
             @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
                 <li class="@{if(messages.lang.toString.toLowerCase.contains(changeLang)) "active"}">
                     <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
-                        @locale.getDisplayName(locale).toLowerCase
+                        @StringUtils.capitalize(locale.getDisplayName(locale))
                     </a>
                 </li>
             }
