@@ -18,7 +18,7 @@ aside.sidebar {
 }
 
 .block-header {
-  background-color: $secondary;
+  background-color: var(--secondary);
   color: $white;
   padding: $margin-xs;
   margin-bottom: $margin-sm;
@@ -55,7 +55,7 @@ aside.sidebar {
   background-size: cover;
   background-position: center right;
   background-repeat: no-repeat;
-  @extend .bg-secondary;
+  background-color: var(--secondary);
 }
 
 #navbar-primary-container-overlay {
@@ -259,6 +259,43 @@ body.home #navbar-primary-container {
   }
   padding-bottom: $margin-lg;
 
+  #footer-navs {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  #lang-switcher,
+  #navbar-tertiary {
+    @include list-unstyled();
+    display: flex;
+    flex-direction: row;
+
+    li {
+      a {
+        padding: .5rem 1rem;
+      }
+    }
+    li.active a {
+      pointer-events: none;
+      color: var(--secondary);
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  #lang-switcher {
+    margin-left: auto;
+    li:last-child {
+      margin-right: -1rem;
+    }
+  }
+
+  #navbar-tertiary {
+    li:first-child {
+      margin-left: -1rem;
+    }
+  }
+
   #footer-blurb {
     @extend %small-muted;
     justify-content: center;
@@ -299,7 +336,7 @@ body.home #navbar-primary-container {
 
   .search-summary {
     @extend %heading-text;
-    color: $secondary;
+    color: var(--secondary);
   }
 
   .search-sort {
@@ -311,7 +348,7 @@ body.home #navbar-primary-container {
     }
 
     ul > li.active > a {
-      color: $secondary;
+      color: var(--secondary);
       font-weight: bold;
     }
 
@@ -342,7 +379,7 @@ body.home #navbar-primary-container {
 
   #submit-search i {
     float: left;
-    color: $primary;
+    color: var(--primary);
   }
 
   .search-box {
@@ -404,7 +441,7 @@ body.home #navbar-primary-container {
       i {
         font-size: $font-size-sm;
         vertical-align: middle;
-        color: $red;
+        color: var(--red);
       }
 
       &:hover {
@@ -440,7 +477,7 @@ body.home #navbar-primary-container {
 .control-label .required-input,
 .control-elements .help-block.errors,
 .control-elements .help-inline.errors {
-  color: $red;
+  color: var(--red);
 }
 
 // Pagination
@@ -596,7 +633,7 @@ ul.list-export-options {
 
 // Child item lists...
 .child-items-inline-load {
-  //color: $green;
+  //color: var(--green);
 }
 .child-items-inline {
   > ol,
@@ -630,7 +667,7 @@ ul.list-export-options {
 .search-facets {
   .search-facets-remove-all {
     font-size: $font-size-sm;
-    color: $red;
+    color: var(--red);
     margin-bottom: $margin-md;
     display: inline-block;
     i {
@@ -658,7 +695,7 @@ ul.list-export-options {
     }
     > .facet-options li.remove-filter > a > i {
       font-size: $font-size-sm;
-      color: $red;
+      color: var(--red);
       vertical-align: middle;
     }
     margin-bottom: $margin-md;
@@ -703,7 +740,7 @@ ul.list-export-options {
 // Description list terms
 dl dt {
   @extend %heading-text;
-  color: $secondary;
+  color: var(--secondary);
   font-weight: 500;
 }
 
@@ -818,7 +855,7 @@ dl dt {
     width: 3rem;
     height: 3rem;
     border-radius: 1.5rem;
-    background-color: $blue;
+    background-color: var(--blue);
     display: flex;
     align-items: center;
     justify-content: center;
