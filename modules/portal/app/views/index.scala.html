@@ -40,7 +40,7 @@
                     <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
                     </h2>
                     <p>@Messages("type.Country.description")</p>
-                    <p class="content-summary">
+                    <p class="welcome-section-footer">
                         @(Html(Messages(
                             "landingBlurb.Country",
                             countLink(controllers.portal.routes.Countries.searchAll().url,
@@ -52,7 +52,7 @@
                     <h2><a href="@controllers.portal.routes.Repositories.searchAll()">@Messages("type.Repository")</a>
                     </h2>
                     <p>@Messages("type.Repository.description")</p>
-                    <p class="content-summary">
+                    <p class="welcome-section-footer">
                         @(Html(Messages(
                             "landingBlurb.Repository",
                             countLink(controllers.portal.routes.Repositories.searchAll().url,
@@ -66,7 +66,7 @@
                     <h2><a href="@controllers.portal.routes.DocumentaryUnits.searchAll()">@Messages("type.DocumentaryUnit")</a>
                     </h2>
                     <p>@Messages("type.DocumentaryUnit.description")</p>
-                    <p class="content-summary">
+                    <p class="welcome-section-footer">
                         @(Html(Messages(
                             "landingBlurb.DocumentaryUnit",
                             countLink(controllers.portal.routes.DocumentaryUnits.searchAll().url,
@@ -80,7 +80,7 @@
                     <h2><a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">@Messages("type.AuthoritativeSet")</a>
                     </h2>
                     <p>@Messages("type.AuthoritativeSet.description")</p>
-                    <p class="content-summary">
+                    <p class="welcome-section-footer">
                         @(Html(Messages(
                             "landingBlurb.AuthoritativeSet",
                             countLink(controllers.portal.routes.AuthoritativeSets.searchAll().url,
@@ -91,7 +91,7 @@
                 <div class="welcome-section">
                     <h2><a href="@controllers.portal.routes.Vocabularies.searchAll()">@Messages("type.CvocVocabulary")</a></h2>
                     <p>@Messages("type.CvocVocabulary.description")</p>
-                    <p class="content-summary">
+                    <p class="welcome-section-footer">
                         @(Html(Messages(
                             "landingBlurb.CvocVocabulary",
                             countLink(controllers.portal.routes.Vocabularies.searchAll().url,
@@ -101,7 +101,30 @@
                 </div>
                 <div class="welcome-section account">
                     @userOpt.map { user =>
-                        <h2><a href="@controllers.portal.users.routes.UserProfiles.profile()">@Messages("profile.menu.link")</a></h2>
+                        <a class="edit-profile" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">
+                            @Messages("profile.edit")
+                        </a>
+                        <h2><a href="@controllers.portal.users.routes.UserProfiles.profile()">@Messages("profile")</a></h2>
+
+                        <ul class="user-actions">
+                            <li>
+                                <a href="@controllers.portal.users.routes.UserProfiles.activity()">
+                                    <i class="fa fa-list"></i> @Messages("activity")
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@controllers.portal.users.routes.UserProfiles.watching()">
+                                    <span class="fa fa-star"></span>
+                                    @Messages("profile.watch.list")
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@controllers.portal.users.routes.UserProfiles.annotations()">
+                                    <span class="fa fa-edit"></span>
+                                    @Messages("annotation.list")
+                                </a>
+                            </li>
+                        </ul>
                     }.getOrElse {
                         <a class="signup" href="@controllers.portal.account.routes.Accounts.signup()">@Messages("login.signup")</a>
                         <h2>@Messages("login")</h2>
@@ -120,10 +143,12 @@
                             @helper.inputText(accountForms.passwordLoginForm("email"), 'id -> "signup_email", 'class -> "form-control", 'autocomplete -> "email", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> true)
                             @helper.inputPassword(accountForms.passwordLoginForm("password"), 'id -> "login_password", 'class -> "form-control", 'autocomplete -> "current-password", 'placeholder -> Messages("login.password"), 'required -> true)
 
-                            <a class="signup" href="@controllers.portal.account.routes.Accounts.forgotPassword()">
+                            <div class="welcome-section-footer">
+                                <a class="forgot" href="@controllers.portal.account.routes.Accounts.forgotPassword()">
                                 @Messages("login.password.forgot")
-                            </a>
-                            <button type="submit" class="btn btn-sm btn-primary">@Messages("login")</button>
+                                </a>
+                                <button type="submit" class="btn btn-sm btn-primary">@Messages("login")</button>
+                            </div>
                         }
                     }
                 </div>

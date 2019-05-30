@@ -2,7 +2,7 @@
 
 <h3>@feed.title</h3>
 @feed.description.map { d =>
-    <p>@d</p>
+    <p class="rss-feed-description">@d</p>
 }
 <ul class="rss-feed">
     @feed.items.map { item =>

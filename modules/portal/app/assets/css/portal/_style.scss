@@ -293,12 +293,16 @@ body.home {
 
     h2 a {
       color: var(--secondary);
+      font-family: $headings-font-family;
+      font-weight: $headings-font-weight;
     }
 
-    .content-summary {
+    .content-summary,
+    .welcome-section-footer {
       margin-top: auto;
-      margin-bottom: 0;
     }
+
+    border-bottom: $margin-xs solid var(--primary);
   }
 
   #portal-sections {
@@ -307,9 +311,24 @@ body.home {
 
   .welcome-section.account {
     display: block;
+    background-color: lighten($gray-200, 3%);
+    border-bottom: $margin-xs solid lighten($gray-200, 3%);
 
-    a.signup {
+    ul.user-actions {
+      margin-top: $margin-sm;
+      @include list-unstyled();
+      li {
+        margin-bottom: $margin-xs;
+      }
+    }
+
+    a.edit-profile,
+    a.signup,
+    a.forgot {
       float: right;
+    }
+    a.forgot {
+      font-size: $font-size-xs;
     }
 
     input {
@@ -325,8 +344,24 @@ body.home {
       display: grid;
       grid-template-areas: ". . ." ". . .";
       grid-template-columns: 33% 33% 33%;
-      grid-template-rows: auto auto;
+      // FIXME: this makes the cells look a bit big. Better
+      // to somehow size them *all* by the height of the largest
+      // cell (not largest cell per row).
+      grid-template-rows: repeat(2, minmax(250px, auto));
       grid-column-gap: $margin-md;
+    }
+  }
+
+  .rss-feed-description {
+    font-size: $font-size-sm;
+    color: $text-darkened;
+  }
+
+  ul.rss-feed {
+    @include list-unstyled();
+
+    .rss-item p.date {
+      @extend %small-muted;
     }
   }
 }
@@ -609,6 +644,10 @@ body.home {
 .control-elements .help-block.errors,
 .control-elements .help-inline.errors {
   color: var(--red);
+}
+
+.signup-check {
+  display: none;
 }
 
 // Pagination
