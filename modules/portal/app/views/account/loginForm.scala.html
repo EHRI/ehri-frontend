@@ -11,7 +11,7 @@
         <a class="forgot-password-link" href="@controllers.portal.account.routes.Accounts.forgotPassword()">@Messages("login.recover.link")</a>
     </p>
 
-    <div class="form-group">
+    <div class="form-field">
         <p class="login-disclaimer">@Html(Messages(
             "login.dataPolicyNag",
             Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy").toLowerCase(messages.lang.toLocale)}</a>"),

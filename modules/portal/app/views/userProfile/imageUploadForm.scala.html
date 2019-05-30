@@ -5,16 +5,16 @@
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
-        <div class="form-group">
+        <div class="form-field">
             <label class="control-label">
-                <img height="100" width="100" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(user.data.imageUrl)" />
+                <img alt="Current Image" height="100" width="100" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(user.data.imageUrl)" />
             </label>
             <div class="control-elements">
-                <input class="form-control" type="file" name="image" />
+                <input type="file" name="image" />
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-field">
             <div class="form-submit">
                 <button type="submit" class=" btn  btn-post ">@Messages("profile.image.edit")</button>
             </div>

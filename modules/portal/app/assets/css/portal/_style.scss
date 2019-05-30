@@ -331,9 +331,6 @@ body.home {
       font-size: $font-size-xs;
     }
 
-    input {
-      margin-bottom: $margin-sm;
-    }
     input::placeholder {
       font-size: $font-size-sm;
     }
@@ -643,11 +640,72 @@ body.home {
 .control-label .required-input,
 .control-elements .help-block.errors,
 .control-elements .help-inline.errors {
-  color: var(--red);
+  color: var(--danger);
+}
+
+.form-field.has-error {
+  .form-control {
+    border-color: var(--danger);
+  }
+  .help-block {
+    color: var(--danger);
+    font-size: $font-size-xs;
+  }
+}
+
+.profile-form-section {
+  padding-bottom: $margin-md;
+  border-bottom: $border-width solid $border-color;
+  margin-bottom: $margin-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+
+.form-field {
+  margin-bottom: $margin-sm;
 }
 
 .signup-check {
   display: none;
+}
+
+// General buttons
+.btn-post {
+  @include button-variant($primary, $primary);
+}
+
+// Login / Register social buttons
+.btn-facebook {
+  @include button-variant(#354E84, #354E84);
+}
+
+.btn-google {
+  @include button-variant(#DD4B39, #DD4B39);
+}
+
+.btn-yahoo {
+  @include button-variant(#7B0099, #7B0099);
+}
+
+.btn-openid {
+  @include button-variant(#949494, #949494);
+}
+
+.more-login-options {
+  display:none;
+
+  &.errors {
+    display: block;
+  }
+}
+
+.login-disclaimer {
+  font-size: $font-size-sm;
+  color: $text-darkened;
 }
 
 // Pagination

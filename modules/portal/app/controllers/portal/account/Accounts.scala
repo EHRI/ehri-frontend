@@ -108,14 +108,13 @@ case class Accounts @Inject()(
 
     def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
       status(
-        views.html.account.login(
-          passwordLoginForm,
+        views.html.account.register(
           form,
           accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
-          oauth2Providers,
-          isLogin = false)
+          oauth2Providers
+        )
       )
     }
 
@@ -223,8 +222,6 @@ case class Accounts @Inject()(
       case t: Throwable => BadRequest(
         views.html.account.login(
           passwordLoginForm,
-          signupForm,
-          accountRoutes.signupPost(),
           recaptchaKey,
           openidForm.withGlobalError("error.openId", t.getMessage),
           oauth2Providers
@@ -233,25 +230,36 @@ case class Accounts @Inject()(
     }
   }
 
-  def signup: Action[AnyContent] = loginOrSignup(isLogin = false)
-
-  def loginOrSignup(isLogin: Boolean): Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
-    logger.debug(s"Login or signup, session is ${request.session.data}")
+  def signup: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+    logger.debug(s"Signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
       case Some(user) => Redirect(portalRoutes.index())
         .removingFromSession(ACCESS_URI)
         .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
-        Ok(views.html.account.login(
-          passwordLoginForm,
-          signupForm,
-          accountRoutes.signupPost(),
-          recaptchaKey,
-          openidForm,
-          oauth2Providers,
-          isLogin = isLogin)
+        Ok(
+          views.html.account.register(
+            signupForm,
+            accountRoutes.signupPost(),
+            recaptchaKey,
+            openidForm,
+            oauth2Providers
+          )
         )
+    }
+  }
+
+
+  def login: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+    logger.debug(s"Login, session is ${request.session.data}")
+    implicit val userOpt: Option[UserProfile] = None
+    request.accountOpt match {
+      case Some(user) => Redirect(portalRoutes.index())
+        .removingFromSession(ACCESS_URI)
+        .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
+      case None =>
+        Ok(views.html.account.login(passwordLoginForm, recaptchaKey, openidForm, oauth2Providers))
     }
   }
 
@@ -259,14 +267,17 @@ case class Accounts @Inject()(
     def badForm(f: Form[String], status: Status = BadRequest): Result = {
       implicit val userOpt: Option[UserProfile] = None
       status(
-        views.html.account.login(
+        if (isLogin) views.html.account.login(
           passwordLoginForm,
+          recaptchaKey,
+          f,
+          oauth2Providers
+        ) else views.html.account.register(
           signupForm,
           accountRoutes.signupPost(),
           recaptchaKey,
           f,
-          oauth2Providers,
-          isLogin
+          oauth2Providers
         )
       )
     }
@@ -298,8 +309,6 @@ case class Accounts @Inject()(
       status(
         views.html.account.login(
           f,
-          signupForm,
-          accountRoutes.signupPost(),
           recaptchaKey,
           openidForm,
           oauth2Providers
@@ -339,14 +348,14 @@ case class Accounts @Inject()(
     gotoLogoutSucceeded(authRequest)
   }
 
-  def oauth2(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] =
+  def oauth2(providerId: String, code: Option[String], state: Option[String], isLogin: Boolean): Action[AnyContent] =
     NotReadOnlyAction.async { implicit request =>
       oauth2Providers.providers.find(_.name == providerId).map { provider =>
 
         // Create a random nonce to stamp this OAuth2 session
         val sessionKey = "sid"
         val sessionId = request.session.get(sessionKey).getOrElse(UUID.randomUUID().toString)
-        val handlerUrl: String = accountRoutes.oauth2(providerId).absoluteURL(globalConfig.https)
+        val handlerUrl: String = accountRoutes.oauth2(providerId, isLogin = isLogin).absoluteURL(globalConfig.https)
 
         code match {
 
@@ -373,7 +382,8 @@ case class Accounts @Inject()(
             } yield result) recover {
               case AuthenticationError(msg) =>
                 logger.error(msg)
-                Redirect(accountRoutes.loginOrSignup())
+                val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
+                Redirect(url)
                   .removingFromSession(sessionKey)
                   .flashing("danger" -> "login.error.oauth2.info")
             }

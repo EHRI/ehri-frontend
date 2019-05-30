@@ -121,6 +121,19 @@ ul.dropdown-menu {
   }
 }
 
+// Login / Register pages
+@include media-breakpoint-up(md) {
+  .login-page {
+    @include make-row();
+
+    .login-or-signup {
+      @include make-col-ready();
+      @include make-col(8);
+      @include make-col-offset(2);
+    }
+  }
+}
+
 // Activity stream / Timeline
 #activity-stream {
   @include list-unstyled();

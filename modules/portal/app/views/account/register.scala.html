@@ -1,0 +1,32 @@
+@(registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,prefs: utils.SessionPrefs)
+
+@implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
+
+@extraScripts = {
+    <script>
+        jQuery(function($) {
+            // Openid
+            $(".show-more").on("click", function(e) {
+                e.preventDefault();
+                $(".more-login-options").slideToggle();
+            })
+        });
+    </script>
+}
+
+@views.html.layout.loginLayout(Messages("login.signup"), scripts = extraScripts) {
+    @views.html.common.itemHeader(Messages("login.signup")) {
+        <p>@Messages("login.benefits")</p>
+        <ol>
+            <li>@Messages("login.benefits.1")</li>
+            <li>@Messages("login.benefits.2")</li>
+            <li>@Messages("login.benefits.3")</li>
+        </ol>
+    }
+
+    <div id="register">
+        @views.html.account.oauth2Form(openIdForm, oauthConfig, isLogin = false, forSignup = true)
+        @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)
+    </div>
+}
+

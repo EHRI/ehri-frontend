@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)], registerForm: Form[SignupData], registerAction: Call, recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config, isLogin: Boolean = true)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,prefs: utils.SessionPrefs)
+@(pwForm: Form[(String,String)], recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,prefs: utils.SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
@@ -16,34 +16,13 @@
 
 @views.html.layout.loginLayout(Messages("login.title"), scripts = extraScripts) {
     @views.html.common.itemHeader(Messages("login")) {
-        <p>@Messages("login.benefits")</p>
-        <ol>
-            <li>@Messages("login.benefits.1")</li>
-            <li>@Messages("login.benefits.2")</li>
-            <li>@Messages("login.benefits.3")</li>
-        </ol>
+        <p>@Html(Messages("login.signup.prompt",
+        Html(s"<a href='${controllers.portal.account.routes.Accounts.signup()}'>${Messages("login.signup.prompt.text")}</a>")))</p>
     }
 
-    <div role="tabpanel">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="@{if(isLogin) "active"}">
-                <a href="#login" aria-controls="login" role="tab" data-toggle="tab">@Messages("login")</a>
-            </li>
-            <li role="presentation" class="@{if(!isLogin) "active"}">
-                <a href="#register" aria-controls="signup" role="tab" data-toggle="tab">@Messages("login.signup")</a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane @{if(isLogin) "active"}" id="login">
-                @oauth2Form(openIdForm, oauthConfig, isLogin, forSignup = false)
-                @loginForm(pwForm)
-            </div>
-            <div role="tabpanel" class="tab-pane @{if(!isLogin) "active"}" id="register">
-                @oauth2Form(openIdForm, oauthConfig, isLogin, forSignup = true)
-                @signupForm(registerForm, registerAction, recaptchaKey)
-            </div>
-        </div>
+    <div id="login">
+        @views.html.account.oauth2Form(openIdForm, oauthConfig, isLogin = true, forSignup = false)
+        @views.html.account.loginForm(pwForm)
     </div>
 }
 

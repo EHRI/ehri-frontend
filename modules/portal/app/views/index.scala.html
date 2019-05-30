@@ -1,6 +1,6 @@
 @(stats: utils.Stats, accountForms: forms.AccountForms)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateEmpty.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
 @countLink(url: String, key: String, params: Any*) = {
 <a href="@url">@Messages(key, params: _*)</a>
@@ -129,7 +129,7 @@
                         <a class="signup" href="@controllers.portal.account.routes.Accounts.signup()">@Messages("login.signup")</a>
                         <h2>@Messages("login")</h2>
 
-                        <div class="oauth-providers">
+                        <div class="oauth-providers form-field">
                             @accountForms.oAuth2Config.providers.map { provider =>
                                 <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
                                 title="@Html(Messages("login.loginWith", provider.name.capitalize))">
