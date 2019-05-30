@@ -275,46 +275,6 @@ body.home {
       margin-top: $margin-lg;
       color: var(--white);
     }
-
-    .form-control,
-    .input-group-addon {
-      background-color: rgba(224, 224, 224, 0.19);
-      color: var(--white);
-      border-color: rgba(224, 224, 224, 0.59);
-
-      button i {
-        color: var(--white);
-      }
-    }
-    input[type=search]::placeholder {
-      color: rgba(255,255,255, .8);
-      font-size: $font-size-sm;
-    }
-    .form-control:focus,
-    #submit-search:focus {
-      box-shadow: 0 0 0 0.2rem rgba(244,244,244,0.25);
-    }
-
-    .search-helper-toggle {
-      color: var(--white);
-    }
-
-    #search-helper {
-      color: var(--white) !important;
-      background-color: rgba(244,244,244,.1);
-
-      dl dt {
-        color: var(--white);
-        text-transform: none;
-        @include make-col-ready();
-        @include make-col(2);
-      }
-
-      .available-fields {
-        @include list-unstyled();
-        @include list-inline(",\00a0");
-      }
-    }
   }
 }
 
@@ -428,20 +388,26 @@ body.home {
 
 .search-controls {
   margin-bottom: $margin-md;
-
 }
 
 .search-bar {
   align-items: center;
   margin-bottom: $margin-md;
 
+  .input-group {
+    border: $border-width solid $border-color;
+  };
+
   input[type='search'] {
-    border-right: 0;
+    background-color: transparent;
+    border: 0;
+  }
+  input[type=search]::placeholder {
+    font-size: $font-size-sm;
   }
   .input-group-addon {
     height: $input-height;
     z-index: 2;
-    border: $border-width solid $border-color;
   }
 
   #submit-search i {
@@ -467,6 +433,51 @@ body.home {
 
       &:hover {
         text-decoration: none;
+      }
+    }
+  }
+}
+
+// Home page search bar style overrides
+// Make search bar semi-transparent with
+// light text and border
+body.home {
+  .search-bar {
+    .input-group {
+      background-color: rgba(224, 224, 224, 0.19);
+      color: var(--white);
+      border-color: rgba(224, 224, 224, 0.59);
+
+      #submit-search i {
+        color: var(--white);
+      }
+    }
+    input[type=search]::placeholder {
+      color: rgba(255,255,255, .8);
+    }
+    .form-control:focus,
+    #submit-search:focus {
+      box-shadow: 0 0 0 0.2rem rgba(244,244,244,0.25);
+    }
+
+    .search-helper-toggle {
+      color: var(--white);
+    }
+
+    #search-helper {
+      color: var(--white) !important;
+      background-color: rgba(244,244,244,.1);
+
+      dl dt {
+        color: var(--white);
+        text-transform: none;
+        @include make-col-ready();
+        @include make-col(2);
+      }
+
+      .available-fields {
+        @include list-unstyled();
+        @include list-inline(",\00a0");
       }
     }
   }
