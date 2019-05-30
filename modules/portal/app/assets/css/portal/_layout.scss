@@ -86,17 +86,8 @@ body {
   @extend .container;
 }
 
-#portal-sections, #portal-section-contents, #portal-info {
+#portal-info {
   @extend .row;
-}
-
-.welcome-section {
-  @include make-col-ready();
-  @include make-col(4);
-
-  @include media-breakpoint-down(sm) {
-    @include make-col(12);
-  }
 }
 
 .info-container {

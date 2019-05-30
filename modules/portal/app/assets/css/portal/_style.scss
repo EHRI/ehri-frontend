@@ -276,6 +276,59 @@ body.home {
       color: var(--white);
     }
   }
+
+  #welcome-lead {
+    font-size: $font-size-lg;
+    color: var(--secondary);
+    margin-bottom: $margin-xl;
+  }
+
+  .welcome-section {
+    display: flex;
+    flex-direction: column;
+    background-color: $ehri-gray;
+    padding: $margin-md;
+    font-size: $font-size-sm;
+    margin-bottom: $margin-md;
+
+    h2 a {
+      color: var(--secondary);
+    }
+
+    .content-summary {
+      margin-top: auto;
+      margin-bottom: 0;
+    }
+  }
+
+  #portal-sections {
+    margin-bottom: $margin-xl;
+  }
+
+  .welcome-section.account {
+    display: block;
+
+    a.signup {
+      float: right;
+    }
+
+    input {
+      margin-bottom: $margin-sm;
+    }
+    input::placeholder {
+      font-size: $font-size-sm;
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    #portal-sections {
+      display: grid;
+      grid-template-areas: ". . ." ". . .";
+      grid-template-columns: 33% 33% 33%;
+      grid-template-rows: auto auto;
+      grid-column-gap: $margin-md;
+    }
+  }
 }
 
 // Footer
