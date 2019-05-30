@@ -7,8 +7,8 @@ import models.SignupData
 import play.api.i18n.MessagesApi
 import play.api.cache.SyncCacheApi
 import play.api.test.{FakeRequest, Injecting, WithApplication}
-import utils.forms.HoneyPotForm._
-import utils.forms.TimeCheckForm._
+import forms.HoneyPotForm._
+import forms.TimeCheckForm._
 
 
 class AccountsSpec extends IntegrationTestRunner {

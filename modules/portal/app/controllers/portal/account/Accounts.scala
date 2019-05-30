@@ -3,7 +3,6 @@ package controllers.portal.account
 import java.net.ConnectException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-import javax.inject.{Inject, Singleton}
 
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Config, OAuth2Flow, UserData}
@@ -12,10 +11,11 @@ import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
+import forms.AccountForms
+import javax.inject.{Inject, Singleton}
 import models._
 import play.api.Logger
-import play.api.data.Forms._
-import play.api.data.{Form, Forms}
+import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
 import play.api.libs.json.{JsString, Json}
@@ -24,7 +24,7 @@ import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import services.data.{AnonymousUser, AuthenticatedUser}
-import utils.forms.{HoneyPotForm, TimeCheckForm}
+import forms.{HoneyPotForm, TimeCheckForm}
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -39,12 +39,11 @@ case class Accounts @Inject()(
   oAuth2Flow: OAuth2Flow,
   ws: WSClient,
   openId: OpenIdClient,
-  oauth2Providers: OAuth2Config
+  oauth2Providers: OAuth2Config,
+  accountForms: AccountForms,
 ) extends PortalController with RecaptchaHelper {
 
-  import SignupData._
-  import utils.forms.HoneyPotForm._
-  import utils.forms.TimeCheckForm._
+  import accountForms._
 
   private val logger = Logger(getClass)
 
@@ -54,6 +53,7 @@ case class Accounts @Inject()(
   private val rateLimitHitsPerSec: Int = config.get[Int]("ehri.ratelimit.limit")
   private val rateLimitTimeoutSecs: Int = config.get[Int]("ehri.ratelimit.timeout")
   private val rateLimitDuration: FiniteDuration = Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
+
   private def rateLimitError(implicit r: RequestHeader) = Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
 
   private val recaptchaKey = config.getOptional[String]("recaptcha.key.public").getOrElse("fakekey")
@@ -69,61 +69,10 @@ case class Accounts @Inject()(
     "friendly" -> "http://openid.net/schema/namePerson/friendly"
   )
 
-  private val openidForm = Form(single(
-    "openid_identifier" -> nonEmptyText
-  ) verifying("error.badUrl", url => utils.forms.isValidUrl(url)))
-
-  private val passwordLoginForm = Form(
-    tuple(
-      EMAIL -> email,
-      PASSWORD -> nonEmptyText
-    )
-  )
-
-  private val changePasswordForm = Form(
-    tuple(
-      "current" -> nonEmptyText,
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
-    ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
-  )
-
-  private val resetPasswordForm = Form(
-    tuple(
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
-    ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
-  )
-
-  private val forgotPasswordForm = Form(Forms.single("email" -> email))
-
-  //
-  // Signup data validation. This does several checks:
-  //  - passwords must be over 6 characters
-  //  - form must be submitted over 5 seconds after it was rendered
-  //  - the blank check field must be present, but left blank (this
-  //    is a honeypot check)
-  //
-  private val signupForm = Form(
-    mapping(
-      NAME -> nonEmptyText,
-      EMAIL -> email,
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      ALLOW_MESSAGING -> ignored(true),
-      TIMESTAMP -> text, // submission time check
-      BLANK_CHECK -> text, // honeypot
-      AGREE_TERMS -> checked("signup.agreeTerms")
-    )(SignupData.apply)(SignupData.unapply)
-      verifying formSubmissionTime(config)
-      verifying blankFieldIsBlank
-      verifying("signup.badPasswords", s => s.password == s.confirm)
-  )
-
 
   /**
-   * Prevent people signin up, logging in etc when in read-only mode.
-   */
+    * Prevent people signin up, logging in etc when in read-only mode.
+    */
   case class NotReadOnly[A](action: Action[A]) extends Action[A] {
     def apply(request: Request[A]): Future[Result] = {
       if (globalConfig.readOnly) {
@@ -156,6 +105,7 @@ case class Accounts @Inject()(
 
   def signupPost: Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
     implicit val userOpt: Option[UserProfile] = None
+
     def badForm(form: Form[SignupData], status: Status = BadRequest): Future[Result] = immediate {
       status(
         views.html.account.login(
@@ -285,13 +235,13 @@ case class Accounts @Inject()(
 
   def signup: Action[AnyContent] = loginOrSignup(isLogin = false)
 
-  def loginOrSignup(isLogin: Boolean) = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
+  def loginOrSignup(isLogin: Boolean): Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
     logger.debug(s"Login or signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
       case Some(user) => Redirect(portalRoutes.index())
-          .removingFromSession(ACCESS_URI)
-          .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
+        .removingFromSession(ACCESS_URI)
+        .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
       case None =>
         Ok(views.html.account.login(
           passwordLoginForm,
@@ -453,7 +403,7 @@ case class Accounts @Inject()(
             recaptchaKey, accountRoutes.forgotPasswordPost())))
         }, { email =>
           val resp = Redirect(portalRoutes.index())
-                  .flashing("warning" -> "login.password.reset.sentLink")
+            .flashing("warning" -> "login.password.reset.sentLink")
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
@@ -480,8 +430,8 @@ case class Accounts @Inject()(
   }
 
   /**
-   * Store a changed password.
-   */
+    * Store a changed password.
+    */
   def changePasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen WithUserAction).async { implicit request =>
     val account = request.user.account.get
     val boundForm = changePasswordForm.bindFromRequest
@@ -548,8 +498,8 @@ case class Accounts @Inject()(
                 .map(_.flashing("success" -> "login.password.reset.confirmation"))
             } yield request
           case None => immediate(BadRequest(views.html.account.resetPassword(
-              boundForm.withGlobalError("login.error.badResetToken"),
-              accountRoutes.resetPasswordPost(token))))
+            boundForm.withGlobalError("login.error.badResetToken"),
+            accountRoutes.resetPasswordPost(token))))
         }
       }
     )
@@ -562,7 +512,7 @@ case class Accounts @Inject()(
   private def extractOpenIDEmail(attrs: Map[String, String]): Option[String] =
     attrs.get("email").orElse(attrs.get("axemail"))
 
-  private def extractOpenIDName(attrs: Map[String,String]): Option[String] = {
+  private def extractOpenIDName(attrs: Map[String, String]): Option[String] = {
     val fullName = for {
       fn <- attrs.get("firstname")
       ln <- attrs.get("lastname")

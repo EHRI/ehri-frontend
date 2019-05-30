@@ -1,6 +1,7 @@
 package models
 
-import utils.forms.{HoneyPotForm, TimeCheckForm}
+import forms.{HoneyPotForm, TimeCheckForm}
+import forms.TimeCheckForm
 
 /**
  * Manage signup data.

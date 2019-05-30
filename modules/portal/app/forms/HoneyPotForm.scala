@@ -1,4 +1,4 @@
-package utils.forms
+package forms
 
 import play.api.data.validation.{Constraint, Invalid, Valid}
 

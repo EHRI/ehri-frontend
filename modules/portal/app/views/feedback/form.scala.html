@@ -1,8 +1,8 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @import models.Feedback.{NAME,EMAIL}
-    @import utils.forms.HoneyPotForm.BLANK_CHECK
-    @import utils.forms.TimeCheckForm.TIMESTAMP
+    @import forms.HoneyPotForm.BLANK_CHECK
+    @import forms.TimeCheckForm.TIMESTAMP
 
 <div class="feedback-thanks">
     <h4>@Messages("feedback.thanks")</h4>

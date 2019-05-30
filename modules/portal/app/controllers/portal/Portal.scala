@@ -7,6 +7,7 @@ import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import defines.EntityType
+import forms.AccountForms
 import javax.inject._
 import models._
 import models.base.Model
@@ -30,7 +31,8 @@ case class Portal @Inject()(
   appComponents: AppComponents,
   htmlPages: HtmlPages,
   ws: WSClient,
-  fc: FacetConfig
+  fc: FacetConfig,
+  accountForms: AccountForms
 ) extends PortalController
   with Search {
 
@@ -107,7 +109,7 @@ case class Portal @Inject()(
     * types.
     */
   def index: Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    getStats.map(s => Ok(views.html.index(s)))
+    getStats.map(s => Ok(views.html.index(s, accountForms)))
   }
 
   def browseItem(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction { implicit request =>

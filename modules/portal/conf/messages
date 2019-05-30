@@ -216,7 +216,9 @@ type.VirtualUnit=Virtual Collections
 type.Annotation=Notes
 type.Link=Connections
 type.CvocVocabulary=Vocabularies
+type.CvocVocabulary.description=Subject heading and places related to archival descriptions.
 type.AuthoritativeSet=Authority Sets
+type.AuthoritativeSet.description=Persons and corporate bodies related to archival descriptions.
 
 #
 # Dates
@@ -257,6 +259,7 @@ login.password.change.link=Click here to change your password
 login.password.change.submit=Submit
 login.password.change.confirmation=Password Changed
 login.password.reset=Reset Password
+login.password.forgot=Forgot password?
 login.password.reset.text=Forgotten your password? Enter the email you used to sign up below\
   and we''ll send you a link you can use to reset it.
 login.password.reset.noPasswordMatching=No account matches {0}
