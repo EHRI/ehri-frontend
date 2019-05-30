@@ -48,6 +48,9 @@ val coreDependencies = backendDependencies ++ Seq(
   filters,
   openId,
 
+  // Force Akka HTTP version
+  "com.typesafe.akka" %% "akka-http"   % "10.1.8",
+
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.6.2",
 
