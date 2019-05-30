@@ -1,9 +1,9 @@
 
-GET         /login                          @controllers.portal.account.Accounts.loginOrSignup(isLogin: Boolean ?= true)
+GET         /login                          @controllers.portal.account.Accounts.login()
 POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
 GET         /openid                         @controllers.portal.account.Accounts.openIDCallback
 POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
-GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
+GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None, isLogin: Boolean ?= true)
 GET         /logout                         @controllers.portal.account.Accounts.logout
 
 GET         /signup                         @controllers.portal.account.Accounts.signup
