@@ -13,8 +13,8 @@ class FeedbackSpec extends IntegrationTestRunner {
 
   "Feedback views" should {
 
-    import utils.forms.HoneyPotForm._
-    import utils.forms.TimeCheckForm._
+    import forms.HoneyPotForm._
+    import forms.TimeCheckForm._
     import models.Feedback._
 
     val fb = Map(

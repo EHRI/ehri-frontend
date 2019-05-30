@@ -3,14 +3,13 @@ package integration.portal
 import java.time.ZonedDateTime
 
 import helpers.IntegrationTestRunner
+import forms.{HoneyPotForm, TimeCheckForm}
 import models._
 import play.api.test.FakeRequest
 
 
 class SignupSpec extends IntegrationTestRunner {
 
-  import utils.forms.HoneyPotForm._
-  import utils.forms.TimeCheckForm._
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
   val COOKIE_NAME: String = "PLAY2AUTH_SESS_ID"
@@ -28,8 +27,8 @@ class SignupSpec extends IntegrationTestRunner {
       SignupData.EMAIL -> Seq(testEmail),
       SignupData.PASSWORD -> Seq(testPassword),
       SignupData.CONFIRM -> Seq(testPassword),
-      TIMESTAMP -> Seq(ZonedDateTime.now.toString),
-      BLANK_CHECK -> Seq(""),
+      TimeCheckForm.TIMESTAMP -> Seq(ZonedDateTime.now.toString),
+      HoneyPotForm.BLANK_CHECK -> Seq(""),
       SignupData.AGREE_TERMS -> Seq(true.toString),
       CSRF_TOKEN_NAME -> Seq(fakeCsrfString)
     )
@@ -68,21 +67,21 @@ class SignupSpec extends IntegrationTestRunner {
 
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
       val badData = data
-        .updated(TIMESTAMP, Seq(java.time.ZonedDateTime.now.toString))
+        .updated(TimeCheckForm.TIMESTAMP, Seq(java.time.ZonedDateTime.now.toString))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       println(redirectLocation(signup))
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(message("constraints.timeCheckSeconds.failed"))
 
       val badData2 = data
-        .updated(TIMESTAMP, Seq("bad-date"))
+        .updated(TimeCheckForm.TIMESTAMP, Seq("bad-date"))
       val signup2 = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData2)
       status(signup2) must equalTo(BAD_REQUEST)
       contentAsString(signup2) must contain(message("constraints.timeCheckSeconds.failed"))
     }
 
     "prevent signup with filled blank field" in new ITestApp {
-      val badData = data.updated(BLANK_CHECK, Seq("iAmARobot"))
+      val badData = data.updated(HoneyPotForm.BLANK_CHECK, Seq("iAmARobot"))
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(badData)
       status(signup) must equalTo(BAD_REQUEST)
       contentAsString(signup) must contain(message("constraints.honeypot.failed"))

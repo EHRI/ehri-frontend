@@ -1,10 +1,10 @@
 package controllers.portal
 
 import javax.inject._
-
 import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.portal.base.PortalController
+import forms.{HoneyPotForm, TimeCheckForm}
 import play.api.Application
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
@@ -26,9 +26,8 @@ case class Feedback @Inject()(
 
   import play.api.data.Form
   import play.api.data.Forms._
-  import utils.forms.HoneyPotForm._
-  import utils.forms.TimeCheckForm._
-  import utils.forms._
+  import forms.HoneyPotForm._
+  import forms.TimeCheckForm._
 
   case class CheckFeedbackData(
     timestamp: String,
@@ -74,7 +73,7 @@ case class Feedback @Inject()(
     }
   }
 
-  def feedback = OptionalUserAction { implicit request =>
+  def feedback: Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.feedback.create(models.Feedback.form))
   }
 

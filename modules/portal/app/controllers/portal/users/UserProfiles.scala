@@ -232,7 +232,7 @@ case class UserProfiles @Inject()(
     )
   }
 
-  def updateProfile() = WithUserAction { implicit request =>
+  def updateProfile(): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.userProfile.editProfile(profileDataForm, imageForm, accountPrefsForm))
   }
 
@@ -249,7 +249,7 @@ case class UserProfiles @Inject()(
     )
   }
 
-  def deleteProfile() = WithUserAction { implicit request =>
+  def deleteProfile(): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.userProfile.deleteProfile(deleteForm(request.user),
       profileRoutes.deleteProfilePost()))
   }

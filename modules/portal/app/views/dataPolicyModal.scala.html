@@ -1,22 +1,25 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @if(userOpt.isEmpty) {
-    <div id="data-policy" class="modal fade" style="display: none" aria-hidden="true" aria-labelledBy="data-policy-label" role="dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 id="data-policy-label">@Messages("dataPolicy.header")</h4>
+    <div id="data-policy" class="modal fade" tabindex="-1" style="display: none" aria-hidden="true" aria-labelledBy="data-policy-label" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="data-policy-label">@Messages("dataPolicy.header")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>@Messages("dataPolicy.modal.notice.1")</p>
+                    <p>@Messages("dataPolicy.modal.notice.2")</p>
+                </div>
+                <form class="modal-footer">
+                    <label>
+                        <input type="checkbox" name="agree-data-policy-terms" required checked />
+                        @Messages("dataPolicy.modal.terms")
+                    </label>
+                    <input id="agree-data-policy" type="submit" value="@Messages("dataPolicy.modal.agree")" />
+                </form>
             </div>
-            <div class="modal-body">
-            <p>@Messages("dataPolicy.modal.notice.1")</p>
-            <p>@Messages("dataPolicy.modal.notice.2")</p>
-            </div>
-            <form class="modal-footer">
-                <label>
-                    <input type="checkbox" name="agree-data-policy-terms" required checked />
-                    @Messages("dataPolicy.modal.terms")
-                </label>
-                <input id="agree-data-policy" type="submit" value="@Messages("dataPolicy.modal.agree")" />
-            </form>
         </div>
     </div>
 }
