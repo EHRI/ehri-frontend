@@ -107,7 +107,8 @@ trait PortalController
   override def loginSucceeded(request: RequestHeader): Future[Result] = {
     logger.debug(s"Access URI: ${request.session.get(ACCESS_URI)}")
     val uri = request.session.get(ACCESS_URI)
-      .filterNot(Uri(_).path.toString() == controllers.portal.account.routes.Accounts.loginOrSignup().url)
+      .filterNot(Uri(_).path.toString() == controllers.portal.account.routes.Accounts.login().url)
+      .filterNot(Uri(_).path.toString() == controllers.portal.account.routes.Accounts.signup().url)
       .getOrElse(controllers.portal.users.routes.UserProfiles.profile().url)
     logger.debug(s"Redirecting logged-in user to: $uri")
     immediate(Redirect(uri).removingFromSession(ACCESS_URI)(request))
@@ -162,7 +163,7 @@ trait PortalController
     if (isAjax(request)) {
       immediate(Unauthorized("authentication failed"))
     } else {
-      immediate(Redirect(controllers.portal.account.routes.Accounts.loginOrSignup())
+      immediate(Redirect(controllers.portal.account.routes.Accounts.login())
         .addingToSession(ACCESS_URI -> request.uri))
     }
   }

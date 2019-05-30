@@ -113,7 +113,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     "disallow the right stuff in robots.txt" in new ITestApp {
       val robots = contentAsString(FakeRequest(GET, "/robots.txt").call())
       robots must contain("Disallow: " + portalRoutes.personalisedActivity().url)
-      robots must contain("Disallow: " + accountRoutes.loginOrSignup().url)
+      robots must contain("Disallow: " + accountRoutes.login().url)
       robots must contain("Disallow: " + controllers.portal.routes.Feedback.feedback().url)
       robots must contain("Disallow: " + controllers.portal.social.routes.Social.browseUsers().url)
       robots must contain("Disallow: " + controllers.portal.annotate.routes.Annotations.searchAll().url.replaceFirst("/$", ""))
@@ -145,7 +145,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
     }
 
     "redirect to default URL when accessing login page when logged in" in new ITestApp {
-      val login = FakeRequest(accountRoutes.loginOrSignup())
+      val login = FakeRequest(accountRoutes.login())
         .withUser(mockdata.publicUser)
         .call()
       println(contentAsString(login))

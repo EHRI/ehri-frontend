@@ -1,23 +1,19 @@
 @(elements: helper.FieldElements)
 
 @if(!elements.input.toString.contains("checkbox")) {
-    <div class="form-group @if(elements.hasErrors) {has-error}">
-
+    <div class="form-field @if(elements.hasErrors) {has-error}">
         @if(elements.input.toString.contains("class=")) {
             @Html(elements.input.toString.replaceFirst("(class=[\"'])", "$1form-control "))
         } else {
             @Html(elements.input.toString.replaceFirst("(<\\w+ )", "$1class=\"form-control\" "))
         }
 
-        @* MB: Zapping this because it's not styled
-        <span class="help-block text-muted">@elements.infos.mkString(", ")</span>
-        *@
         @if(elements.hasErrors) {
             <span class="help-block">@elements.errors.mkString(", ")</span>
         }
     </div>
 } else {
-    <div class="checkbox @{if(elements.hasErrors) "has-error"}">
+    <div class="form-field checkbox @{if(elements.hasErrors) "has-error"}">
         <label>
             @elements.input
             @elements.label

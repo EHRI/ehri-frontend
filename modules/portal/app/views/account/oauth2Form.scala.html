@@ -5,22 +5,20 @@
     @formHelpers.globalErrors(openIdForm)
 
     @defining(if (forSignup) "login.signupWith" else "login.loginWith") { messagePrefix =>
-        <div class="oauth-providers">
+        <div class="oauth-providers form-field">
             @oauth2Config.providers.map { provider =>
-                <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
+                <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name, isLogin = isLogin)" class="btn btn-@provider.name"
                 title="@Html(Messages(messagePrefix, provider.name.capitalize))">
                 @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name}'></i>")))
                 </a>
             }
-        <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
-        @Html(Messages(messagePrefix, Html("<i class='fa fa-fw fa-openid'></i>")))
-        </a>
+            <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
+                @Html(Messages(messagePrefix, Html("<i class='fa fa-fw fa-openid'></i>")))
+            </a>
         </div>
 
-        <div class="more-login-options @{
-            if(openIdForm.hasErrors) "errors"
-        }">
-            <div class="form-block">
+        <div class="more-login-options @(if(openIdForm.hasErrors) "errors")">
+            <div class="form-field">
             @helper.inputText(
                 openIdForm("openid_identifier"),
                 'id -> s"${if(forSignup) "signup" else "login"}_openid_identifier",
@@ -29,7 +27,7 @@
             )
             </div>
 
-            <div class="form-group">
+            <div class="form-field">
                 <input type="submit" class="btn btn-post login-button openid" value="@Messages(messagePrefix, "OpenID")" />
             </div>
         </div>

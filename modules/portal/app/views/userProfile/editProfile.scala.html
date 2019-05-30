@@ -26,7 +26,7 @@
             @if(userOpt.exists(_.account.exists(_.hasPassword))) {
                 <div class="profile-form-section">
                     <h3>@Messages("profile.section.security")</h3>
-                    <div class="form-group">
+                    <div class="form-field">
                         <div class="form-submit">
                             <a href="@controllers.portal.account.routes.Accounts.changePassword()">@Messages("login.password.change.link")</a>
                         </div>
@@ -54,7 +54,7 @@
 
         <div class="profile-form-section">
             <h3>@Messages("profile.section.delete")</h3>
-            <div class="form-group">
+            <div class="form-field">
                 <div class="form-submit">
                     <a href="@controllers.portal.users.routes.UserProfiles.deleteProfile()" class="btn  btn-danger ">@Messages("profile.delete.link")</a>
                 </div>

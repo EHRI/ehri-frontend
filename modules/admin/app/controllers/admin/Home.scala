@@ -103,12 +103,12 @@ case class Home @Inject()(
     }
   }
 
-  def metrics = OptionalUserAction { implicit request =>
+  def metrics: Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.admin.metrics())
   }
 
-  def loginRedirect() = Action {
-    MovedPermanently(controllers.portal.account.routes.Accounts.loginOrSignup().url)
+  def loginRedirect(): Action[AnyContent] = Action {
+    MovedPermanently(controllers.portal.account.routes.Accounts.login().url)
   }
 
   // NB: This page now just handles metrics and only provides facet
@@ -122,7 +122,7 @@ case class Home @Inject()(
     }
   }
 
-  def metricsJsRoutes = Action { implicit request =>
+  def metricsJsRoutes: Action[AnyContent] = Action { implicit request =>
     Ok(
       play.api.routing.JavaScriptReverseRouter("metricsJsRoutes")(
         controllers.admin.routes.javascript.Metrics.languageOfMaterial,
