@@ -17,6 +17,12 @@ jQuery(function ($) {
    * Markdown helper
    */
 
+    // Allow dl, dt, and dd elements in tooltips
+  var tooltipWhitelist = $.fn.tooltip.Constructor.DEFAULTS.whiteList;
+  tooltipWhitelist.dl = [];
+  tooltipWhitelist.dt = [];
+  tooltipWhitelist.dd = [];
+
   $(document).on("click", ".markdown textarea", function () {
     var $item = $(this);
     $item.parent().addClass("active").delay(2000).queue(function (next) {
