@@ -1,6 +1,6 @@
-@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
+@(annotation: Annotation, highlighter: views.Highlighter = views.NoopHighlighter, cls: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
-<div class="annotation" id="@annotation.id">
+<li class="annotation @cls" id="@annotation.id">
     <div class="annotation-header">
         @for(user <- annotation.user ; event <- annotation.latestEvent) {
             <div class="annotation-meta" title="@event.data.timestamp">
@@ -18,4 +18,4 @@
 
     @views.html.annotation.annotationText(annotation, highlighter)
     @views.html.annotation.listItemFooter(annotation, highlighter)
-</div>
+</li>

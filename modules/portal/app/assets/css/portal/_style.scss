@@ -878,6 +878,11 @@ ul.pagination {
       @include list-unstyled();
       @include list-inline();
       @extend %small-muted;
+
+      .material-icons {
+        font-size: $font-size-base;
+        vertical-align: middle;
+      }
     }
   }
 
@@ -1243,16 +1248,23 @@ dl dt {
 }
 
 // Annotations
+
+
 .item-text-field .annotation-set {
   @include media-breakpoint-up(mg) {
     @include make-col-ready();
     @include make-col-offset(3);
     @include make-col(9);
   }
+}
 
+.annotation-set {
   font-size: $font-size-xs;
 
   .annotation-list {
+    &:empty {
+      display: none;
+    }
     @include list-unstyled();
     margin-bottom: 0;
 
@@ -1263,6 +1275,7 @@ dl dt {
     > li {
       padding: $margin-xs;
       background-color: $gray-100;
+      @include clearfix();
 
       p {
         margin-bottom: .5rem;
@@ -1274,6 +1287,7 @@ dl dt {
     }
 
     .annotation-meta {
+      float: right;
       a {
         font-size: $font-size-xs;
         @extend %small-muted;
@@ -1281,6 +1295,11 @@ dl dt {
 
       &:before {
         content: '- ';
+      }
+
+      .material-icons {
+        font-size: $font-size-sm;
+        vertical-align: middle;
       }
     }
   }
