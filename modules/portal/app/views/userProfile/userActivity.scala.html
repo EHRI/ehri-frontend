@@ -3,11 +3,11 @@
 @import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 
 <div class="user-profile-content">
-    <h2 class="block-header UserProfile">
-        @Messages("activity")
+    <header class="block-header">
+        <h2>@Messages("activity")
         @for(from <- eventParams.from; to <- eventParams.to) {
             @ISO_LOCAL_DATE.format(to) - @ISO_LOCAL_DATE.format(from)
-        }
-    </h2>
+        }</h2>
+    </header>
     @views.html.activity.userActivityStream(item, events)
 </div>
