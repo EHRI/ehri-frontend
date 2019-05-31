@@ -55,23 +55,25 @@
     @defining(fc.facets.filter(_.count > 0)) { active =>
         <li class="facet-class facet-boolean @{if(fc.isActive) "active"}">
             @facetLabel(fc)
-            <div class="facet-options choice">
+            <ol class="facet-options choice">
             @fc.facets.map { f =>
-                @if(f.applied) {
-                    <input type="hidden" name="@fc.param" value="@f.value" />
-                    <a rel="nofollow" class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                        <span class="facet-name">@fc.pretty(f)</span>
-                        <span class="facet-count">(@f.count)</span>
-                        <i class="material-icons">close</i>
-                    </a>
-                } else {
-                    <a rel="nofollow" class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
-                        <span class="facet-name">@fc.pretty(f)</span>
-                        <span class="facet-count">(@f.count)</span>
-                    </a>
-                }
+                <li class="@(if(f.applied) "remove-filter")">
+                    @if(f.applied) {
+                        <input type="hidden" name="@fc.param" value="@f.value" />
+                        <a rel="nofollow" class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
+                            <span class="facet-name">@fc.pretty(f)</span>
+                            <span class="facet-count">(@f.count)</span>
+                            <i class="material-icons">close</i>
+                        </a>
+                    } else {
+                        <a rel="nofollow" class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
+                            <span class="facet-name">@fc.pretty(f)</span>
+                            <span class="facet-count">(@f.count)</span>
+                        </a>
+                    }
+                </li>
             }
-            </div>
+            </ol>
         </li>
     }
 }
