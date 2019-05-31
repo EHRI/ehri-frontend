@@ -4,7 +4,9 @@
     @views.html.common.mainContent {
         @itemDetails(item, followed = followed, canMessage = canMessage) {
             <div class="user-profile-content">
-                <h2 class="block-header UserProfile">@Messages("profile.watch.list") </h2>
+                <header class="block-header">
+                    <h2>@Messages("profile.watch.list")</h2>
+                </header>
                 <div id="user-watched">
                     @views.html.userProfile.itemWatchList(item, watchList, currentWatchedIds)
                 </div>

@@ -5,10 +5,10 @@
         @helper.form(action = searchAction) {
             @views.html.userProfile.itemDetails(item, followed = followed, canMessage = canMessage) {
                 <div class="user-profile-content">
-                    <h2 class="block-header user">
-                        @Messages("annotation.list")
+                    <header class="block-header">
+                        <h2>@Messages("annotation.list")</h2>
                         @views.html.helpers.inlineSearchFilter(annotations.params, id = "search-notes-q", label = Messages("annotation.search"))
-                    </h2>
+                    </header>
                     <div id="user-annotations">
                         @views.html.userProfile.annotationList(annotations)
                     </div>

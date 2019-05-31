@@ -7,6 +7,15 @@
   text-transform: uppercase;
 }
 
+// Labels for fields and e.g. definition list terms (dt)
+%field-label {
+  font-size: $font-size-sm;
+  font-family: $headings-font-family;
+  text-transform: uppercase;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
 %small-muted {
   font-size: $font-size-xs;
   color: $text-muted;
@@ -38,9 +47,9 @@
 // A search box with an embedded search
 // icon. The input should have the `form-control`
 // class and the icon `form-control-feedback`
-@mixin search-box($color: $gray-100) {
+@mixin search-box($color: $gray-100, $opacity: 0.1, $border-opacity: 0.3) {
   @include clearfix();
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255,255,255, $opacity);
 
   input.form-control {
     font-size: 14px;
@@ -49,7 +58,7 @@
     padding-right: 2.375rem;
     background-color: transparent;
     border-radius: 0;
-    border-color: rgba(224, 224, 224, 0.3);
+    border-color: rgba($color, $border-opacity);
     color: $color;
 
     &::placeholder {
