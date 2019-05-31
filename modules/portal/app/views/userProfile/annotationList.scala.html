@@ -3,9 +3,7 @@
 @if(annotations.nonEmpty) {
     <ul class="user-annotation-list">
     @annotations.page.map { case (ann, hit) =>
-        <li class="user-annotation search-item">
-            @views.html.userProfile.annotation(ann, highlighter = hit)
-        </li>
+        @views.html.userProfile.annotation(ann, highlighter = hit, cls = "user-annotation search-item")
     }
     </ul>
     @common.pagination(annotations.page)

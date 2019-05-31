@@ -66,7 +66,7 @@ case class Annotations @Inject()(
       ann => {
         val accessors: Seq[String] = getAccessors(ann, request.user)
         userDataApi.createAnnotation[Annotation,AnnotationF](id, ann, accessors, Some(did)).map { ann =>
-          Created(views.html.annotation.annotationBlock(ann, editable = true))
+          Created(views.html.annotation.annotationInline(ann, editable = true))
             .withHeaders(
                 HttpHeaders.LOCATION -> annotationRoutes.browse(ann.id).url)
         }
@@ -146,7 +146,7 @@ case class Annotations @Inject()(
       if (isAjax) context match {
         case AnnotationContext.List => views.html.annotation.searchItem(item)
         case AnnotationContext.Field => views.html.annotation.annotationInline(item, editable = item.isOwnedBy(userOpt))
-        case AnnotationContext.Block => views.html.annotation.annotationBlock(item, editable = item.isOwnedBy(userOpt))
+        case AnnotationContext.Block => views.html.annotation.annotationInline(item, editable = item.isOwnedBy(userOpt))
       } else views.html.annotation.show(item)
     }
   }
