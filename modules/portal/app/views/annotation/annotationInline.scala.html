@@ -9,21 +9,25 @@
 
             @if(editable && !annotation.isPromoted) {
                 <a data-item="@annotation.id" title="@Messages("annotation.update.title")" class="edit-annotation" href="@controllers.portal.annotate.routes.Annotations.editAnnotation(annotation.id, context = models.view.AnnotationContext.Field)">
-                    @Messages("annotation.update")
+                    <span class="sr-only">@Messages("annotation.update")</span>
+                    <i class="material-icons">edit</i>
                 </a>
                 <a data-item="@annotation.id" title="@Messages("annotation.delete.title")" class="delete-annotation" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(annotation.id)">
-                    @Messages("annotation.delete")
+                    <span class="sr-only">@Messages("annotation.delete")</span>
+                    <i class="material-icons">delete</i>
                 </a>
             }
             @userOpt.map { user =>
                 @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.data.isPromotable) {
                     <a data-item="@annotation.id" title="@Messages("promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, context = models.view.AnnotationContext.Field)">
-                        @Messages("promotion.promote")
+                        <i class="sr-only">@Messages("promotion.promote")</i>
+                        <i class="material-icons">thumb_up</i>
                     </a>
                 } else {
                     @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
                         <a data-item="@annotation.id" title="@Messages("promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, context = models.view.AnnotationContext.Field)">
-                            @Messages("promotion.demote")
+                            <span class="sr-only">@Messages("promotion.demote")</span>
+                            <i class="material-icons">thumb_down</i>
                         </a>
                     }
                 }

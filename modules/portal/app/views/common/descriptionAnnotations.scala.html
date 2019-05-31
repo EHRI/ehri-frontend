@@ -5,7 +5,7 @@
         @if(userOpt.isDefined || annotations.nonEmpty) {
             <h3 class="description-annotations-header">@Messages("annotation.description")</h3>
         }
-        @views.html.annotation.annotationBlockList(annotations)
+        @views.html.annotation.annotationInlineList(annotations)
         @userOpt.map { user =>
             @item.contentType.map { ct =>
                 @if(user.hasPermission(ct, defines.PermissionType.Annotate)) {

@@ -32,8 +32,13 @@
             }
             @list("list-item-actions") {
                 @if(item.isOwnedBy(userOpt) || userOpt.exists(_.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Delete))) {
-                    <li><a class="delete-annotation"
-                    title="@Messages("annotation.delete.title")" href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">@Messages("annotation.delete")</a>
+                    <li>
+                        <a class="delete-annotation"
+                            title="@Messages("annotation.delete.title")"
+                            href="@controllers.portal.annotate.routes.Annotations.deleteAnnotation(item.id)">
+                            <span class="sr-only">@Messages("annotation.delete")</span>
+                            <i class="material-icons">delete</i>
+                        </a>
                     </li>
                 }
             }
