@@ -1,4 +1,10 @@
 @(itemType: defines.EntityType.Value)(content: Html = Html(""))(implicit messages: Messages)
 
-@views.html.common.sidebarSection(Messages("type." + itemType), cls = "type-heading")(content)
-
+<div class="sidebar-section type-heading">
+    <header class="sidebar-section-heading">
+        <h2>@Messages("type." + itemType)</h2>
+    </header>
+    <div class="sidebar-section-body">
+        @content
+    </div>
+</div>

@@ -4,9 +4,7 @@
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.Country") {
         @views.html.common.search.searchItemList(result, watched)
     } {
-        @views.html.common.typeLabel(defines.EntityType.Country) {
-            @introNotice()
-        }
+        @views.html.country.introNotice()
         @views.html.common.search.facetList(result.facetClasses, action)
     }
 }

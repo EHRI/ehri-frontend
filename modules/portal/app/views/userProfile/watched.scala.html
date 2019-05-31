@@ -5,10 +5,10 @@
         @itemDetails(item, followed = followed, canMessage = canMessage) {
             @helper.form(action = searchAction) {
                 <div class="user-profile-content">
-                    <h2 class="block-header UserProfile">
-                        @Messages("profile.watch.list")
+                    <header class="block-header">
+                        <h2>@Messages("profile.watch.list")</h2>
                         @views.html.helpers.inlineSearchFilter(watchList.params, id = "watched-q", label = Messages("profile.watch.search"))
-                    </h2>
+                    </header>
                     <div id="user-watched">
                     @views.html.userProfile.itemWatchList(item, watchList, currentWatchedIds)
                     </div>

@@ -1,12 +1,36 @@
 @import "mixins";
 
 // Certain headings are uppercased
-h2, h4 {
-  text-transform: uppercase;
-}
+//h2, h4 {
+//text-transform: uppercase;
+//}
 
 // TODO: Add a default button style
 .btn {
+}
+
+// Secondary-coloured headings
+.item-header h1,
+.block-header h2,
+.welcome-section h2,
+.facet-class h4,
+.sidebar-section-heading h4,
+.item-text-field-header h4 {
+  color: var(--secondary);
+}
+
+// Uppercased headings
+.sidebar-section-heading h4,
+.item-text-field-header h4,
+.facet-class h4,
+.block-header h2,
+.welcome-section h2 {
+  text-transform: uppercase;
+}
+
+// 0-margin headings
+.block-header h2 {
+  margin-bottom: 0;
 }
 
 aside.sidebar {
@@ -18,14 +42,18 @@ aside.sidebar {
 }
 
 .block-header {
-  background-color: var(--secondary);
-  color: $white;
+  background-color: $ehri-gray;
+  color: var(--white);
   padding: $margin-xs;
   margin-bottom: $margin-sm;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+
+  h1, h2, h3, h4, h5, h6 {
+    //color: var(--white);
+  }
 }
 
 // Top navbar
@@ -36,7 +64,7 @@ aside.sidebar {
 
 // Both navbars are dark expanding  containers
 #navbar-top, #navbar-primary {
-  @extend .container,   .navbar, .navbar-dark;
+  @extend .container, .navbar, .navbar-dark;
 }
 
 #navbar-top {
@@ -89,6 +117,7 @@ aside.sidebar {
 
 #navbar-account > ul {
   @extend .ml-auto;
+
   > li:last-child a {
     margin-right: -1rem;
   }
@@ -109,6 +138,7 @@ body.home #navbar-primary-container {
 #navbar-primary ul > li > a,
 #navbar-primary .navbar-brand {
   @extend %heading-text;
+  font-size: $font-size-sm;
 }
 
 #navbar-primary ul > li > a,
@@ -152,7 +182,7 @@ body.home #navbar-primary-container {
 
   .tt-menu {
     background-color: $white;
-    box-shadow: 2px 2px 5px 0 rgba(153,153,153,1);
+    box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
 
     .tt-suggestion {
       padding: $margin-xs;
@@ -196,6 +226,7 @@ body.home #navbar-primary-container {
 
   #navbar-primary-dropdown {
     margin-top: 0;
+
     .nav-item {
       margin-right: $margin-lg;
     }
@@ -226,6 +257,7 @@ body.home #navbar-primary-container {
   #navbar-primary-dropdown > ul {
     justify-content: space-between;
     flex-grow: 1;
+
     > li:last-child {
       display: flex;
       align-items: center;
@@ -242,14 +274,17 @@ body.home #navbar-primary-container {
 #quicksearch-controls {
   color: $white;
   @extend .input-group;
+
   input[type='text'] {
     @extend .form-control;
   }
+
   button {
     //@extend .input-group-addon;
   }
 }
- // End navbar
+
+// End navbar
 
 // Home page
 body.home {
@@ -271,6 +306,7 @@ body.home {
     background-color: rgba(68, 47, 81, .85);
     padding-bottom: $margin-lg;
     color: var(--white);
+
     h1 {
       margin-top: $margin-lg;
       color: var(--white);
@@ -317,6 +353,7 @@ body.home {
     ul.user-actions {
       margin-top: $margin-sm;
       @include list-unstyled();
+
       li {
         margin-bottom: $margin-xs;
       }
@@ -327,6 +364,7 @@ body.home {
     a.forgot {
       float: right;
     }
+
     a.forgot {
       font-size: $font-size-xs;
     }
@@ -367,9 +405,11 @@ body.home {
 #portal-footer {
   background-color: $gray-200;
   font-size: $font-size-sm;
+
   #footer-navs {
     padding: $margin-lg 0;
   }
+
   padding-bottom: $margin-lg;
 
   #footer-navs {
@@ -389,6 +429,7 @@ body.home {
         padding: .5rem 1rem;
       }
     }
+
     li.active a {
       pointer-events: none;
       color: var(--secondary);
@@ -398,6 +439,7 @@ body.home {
 
   #lang-switcher {
     margin-left: auto;
+
     li:last-child {
       margin-right: -1rem;
     }
@@ -415,6 +457,7 @@ body.home {
 
     > * {
       margin-right: $margin-md;
+
       &:last-child {
         margin-right: 0;
       }
@@ -426,9 +469,11 @@ body.home {
 // Info bar / breadcrumbs
 .info-bar {
   background-color: $gray-200;
+
   .breadcrumb {
     background-color: inherit;
   }
+
   ol,
   ul {
     margin-bottom: 0;
@@ -456,6 +501,7 @@ body.home {
     i {
       color: $text-muted;
     }
+
     ul > li > a {
       @extend %small-muted;
     }
@@ -465,7 +511,7 @@ body.home {
       font-weight: bold;
     }
 
-    ul > li+li {
+    ul > li + li {
       margin-left: $margin-xs;
     }
   }
@@ -481,15 +527,18 @@ body.home {
 
   .input-group {
     border: $border-width solid $border-color;
-  };
+  }
+;
 
   input[type='search'] {
     background-color: transparent;
     border: 0;
   }
+
   input[type=search]::placeholder {
     font-size: $font-size-sm;
   }
+
   .input-group-addon {
     height: $input-height;
     z-index: 2;
@@ -537,12 +586,14 @@ body.home {
         color: var(--white);
       }
     }
+
     input[type=search]::placeholder {
-      color: rgba(255,255,255, .8);
+      color: rgba(255, 255, 255, .8);
     }
+
     .form-control:focus,
     #submit-search:focus {
-      box-shadow: 0 0 0 0.2rem rgba(244,244,244,0.25);
+      box-shadow: 0 0 0 0.2rem rgba(244, 244, 244, 0.25);
     }
 
     .search-helper-toggle {
@@ -551,7 +602,7 @@ body.home {
 
     #search-helper {
       color: var(--white) !important;
-      background-color: rgba(244,244,244,.1);
+      background-color: rgba(244, 244, 244, .1);
 
       dl dt {
         color: var(--white);
@@ -621,6 +672,7 @@ body.home {
   display: flex;
   flex-direction: row;
   align-items: center;
+
   ul {
     margin: 0 0 0 $margin-sm;
     @include list-unstyled();
@@ -647,6 +699,7 @@ body.home {
   .form-control {
     border-color: var(--danger);
   }
+
   .help-block {
     color: var(--danger);
     font-size: $font-size-xs;
@@ -696,7 +749,7 @@ body.home {
 }
 
 .more-login-options {
-  display:none;
+  display: none;
 
   &.errors {
     display: block;
@@ -711,14 +764,17 @@ body.home {
 // Pagination
 ul.pagination {
   font-size: $font-size-sm;
+
   > li > a {
     padding: .75rem $margin-sm;
     border-left: 0;
     border-right: 0;
   }
+
   > li:first-child > a {
     border-left: $pagination-border-width solid $pagination-border-color;
   }
+
   > li:last-child > a {
     border-right: $pagination-border-width solid $pagination-border-color;
   }
@@ -749,6 +805,7 @@ ul.pagination {
 // User profile pages
 .user-controls {
   @include list-unstyled();
+
   > li {
     margin-bottom: $margin-xs;
   }
@@ -767,6 +824,7 @@ ul.pagination {
     > .search-item {
       flex-grow: 4;
     }
+
     > .copy-links {
       flex-basis: 30%;
     }
@@ -798,13 +856,14 @@ ul.pagination {
       margin-bottom: .5rem;
     }
 
-    p+p {
+    p + p {
       margin-top: .5rem;
     }
   }
 
   .search-item-actions {
     margin-left: $margin-sm;
+
     a:hover {
       text-decoration: none;
     }
@@ -863,11 +922,13 @@ ul.list-export-options {
 .child-items-inline-load {
   //color: var(--green);
 }
+
 .child-items-inline {
   > ol,
   > ul {
     @include list-unstyled();
     margin-left: $margin-lg;
+
     h5 {
       font-size: $font-size-base;
       margin-bottom: 0;
@@ -887,7 +948,7 @@ ul.list-export-options {
 // Inline search/filter
 .block-header .inline-search-filter {
 
-  @include search-box();
+  @include search-box($secondary);
   margin-left: auto;
 }
 
@@ -898,14 +959,17 @@ ul.list-export-options {
     color: var(--red);
     margin-bottom: $margin-md;
     display: inline-block;
+
     i {
       font-size: $font-size-sm;
       vertical-align: middle;
     }
   }
+
   .search-facets-heading {
     margin-bottom: $margin-md;
   }
+
   .facet-options {
     @include list-unstyled();
     font-size: $font-size-sm;
@@ -913,19 +977,24 @@ ul.list-export-options {
 
   .facet-class {
     .facet-label {
+      font-size: $font-size-sm;
       margin-bottom: $margin-sm;
     }
+
     > .facet-options li {
       margin-bottom: $margin-xs;
     }
+
     > .facet-options li > a {
       color: $text-darkened;
     }
+
     > .facet-options li.remove-filter > a > i {
       font-size: $font-size-sm;
       color: var(--red);
       vertical-align: middle;
     }
+
     margin-bottom: $margin-md;
   }
 }
@@ -940,12 +1009,16 @@ ul.list-export-options {
   margin-bottom: $margin-lg;
 
   .sidebar-section-heading {
-    @extend %heading-text;
+    color: var(--secondary);
+    h4 {
+      font-size: $font-size-sm;
+    }
     margin-bottom: $margin-sm;
   }
 
   .sidebar-section-body > ul {
     @include list-unstyled();
+
     > li {
       margin-bottom: $margin-xs;
     }
@@ -965,11 +1038,11 @@ ul.list-export-options {
   }
 }
 
-// Description list terms
+// Description list terms and
+// field headings
+.item-text-field-header h4,
 dl dt {
-  @extend %heading-text;
-  color: var(--secondary);
-  font-weight: 500;
+  @extend %field-label;
 }
 
 // Item pages
@@ -990,6 +1063,7 @@ dl dt {
 .description-holder {
   margin-bottom: $margin-lg;
 }
+
 .description-section {
   margin-bottom: $margin-md;
 }
@@ -1025,6 +1099,11 @@ dl dt {
   border-radius: $border-radius;
 }
 
+.description-notice-text {
+  @extend .detail-section;
+  margin-bottom: $margin-sm;
+}
+
 .description-attributes dt ul,
 .description-attributes dt ol {
   @include list-unstyled();
@@ -1034,6 +1113,7 @@ dl dt {
 .annotate-item,
 .annotate-field {
   font-size: $font-size-xs;
+
   &:hover {
 
   }
@@ -1109,6 +1189,7 @@ dl dt {
         @include make-col-ready();
         @include make-col(2);
       }
+
       dd {
         @include make-col-ready();
         @include make-col(10);
@@ -1130,20 +1211,23 @@ dl dt {
   }
 
   font-size: $font-size-xs;
+
   .annotation-list {
     @include list-unstyled();
     margin-bottom: 0;
 
-    > li+li {
+    > li + li {
       margin-top: $margin-sm;
     }
 
     > li {
       padding: $margin-xs;
       background-color: $gray-100;
+
       p {
         margin-bottom: .5rem;
       }
+
       p + p {
         margin-top: .5rem;
       }

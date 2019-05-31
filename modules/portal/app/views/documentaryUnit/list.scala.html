@@ -4,8 +4,6 @@
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.DocumentaryUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {
-        @views.html.common.typeLabel(EntityType.DocumentaryUnit) {
-        }
         @views.html.common.search.facetList(result.facetClasses, action)
     }
 }

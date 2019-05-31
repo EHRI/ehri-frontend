@@ -120,7 +120,7 @@
                     <i class="fa fa-check-circle-o"></i>
                 </a>
             }
-        </h4>   
+        </h4>
         @if(fc.facets.nonEmpty) {
             <ol class="facet-options">
                 @defining(fc.facets.filter(_.count > 0)) { sortedActive =>
@@ -151,13 +151,13 @@
 @defining(facetClasses.filter(_.isActive)) { activeClasses =>
     @if(activeClasses.nonEmpty) {
         <div class="sidebar-section search-facets">
-            @if(activeClasses.filter(_.isApplied).nonEmpty) {
+            @if(activeClasses.exists(_.isApplied)) {
                 <a href="@pathWithoutFacets(facetClasses, call.url, req.queryString)" class="search-facets-remove-all">
                     @Messages("search.facets.removeAll")
                     <i class="material-icons">close</i>
                 </a>
             }
-            <div class="search-facets-heading" data-toggle="collapse" data-target="#facet-class-expander">
+            <div class="search-facets-heading sidebar-section-heading" data-toggle="collapse" data-target="#facet-class-expander">
                 <h3>@Messages("search.facets.heading")</h3>
             </div>
             <ul class="facet-classes collapse navbar-collapse" id="facet-class-expander">

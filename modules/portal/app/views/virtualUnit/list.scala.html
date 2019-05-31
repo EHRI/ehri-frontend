@@ -4,8 +4,6 @@
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.VirtualUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {
-        @views.html.common.typeLabel(EntityType.VirtualUnit) {
-        }
         @views.html.common.search.facetList(result.facetClasses, action)
     }
 }

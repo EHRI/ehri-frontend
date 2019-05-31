@@ -5,9 +5,6 @@
         @views.html.common.search.searchForm(result, action, autofocus = false) {
             @views.html.common.search.searchItemList(result, Seq.empty, itemClass=EntityType.Annotation.toString)
         } {
-            @views.html.common.typeLabel(EntityType.Annotation) {
-            }
-
             @views.html.common.search.facetList(result.facetClasses, action)
         }
     }

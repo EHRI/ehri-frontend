@@ -5,7 +5,9 @@
     @views.html.common.mainContent {
         @itemDetails(item, followed = myFollowing.exists(_.id == item.id), canMessage = canMessage) {
             <div class="user-profile-activity">
-                <h2 class="block-header UserProfile">@Messages("social.usersFollowedBy", item.toStringLang)</h2>
+                <div class="block-header">
+                    <h2>@Messages("social.usersFollowedBy", item.toStringLang)</h2>
+                </div>
                 <div class="browse-users-following">
                     @followingList(item, users, params, myFollowing)
                 </div>
