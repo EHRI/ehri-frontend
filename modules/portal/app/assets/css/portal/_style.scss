@@ -1101,6 +1101,7 @@ dl dt {
 
 .description-notice-text {
   @extend .detail-section;
+  font-size: $font-size-sm;
   margin-bottom: $margin-sm;
 }
 
@@ -1110,6 +1111,11 @@ dl dt {
 }
 
 // Annotations etc
+
+.annotate-field.inactive {
+  opacity: 0;
+}
+
 .annotate-item,
 .annotate-field {
   font-size: $font-size-xs;
@@ -1119,11 +1125,45 @@ dl dt {
   }
 }
 
+.annotation-form {
+  font-size: $font-size-xs;
+  border: $border-width solid $border-color;
+  background-color: $gray-100;
+  padding: 0 $margin-xs $margin-xs $margin-xs;
+  margin-bottom: $margin-sm;
+
+  input,
+  textarea {
+    background-color: rgba($white, .3);
+    margin-bottom: $margin-xs;
+  }
+}
+
+.annotation-form-controls {
+  // Prevents covering close control...
+  clear: both;
+
+  .markdown {
+    position: relative;
+    .markdown-helper {
+      position: absolute;
+      bottom: 0;
+      right: -$margin-xs;
+      padding-right: $margin-xs * 2;
+      cursor: help;
+      font-style: italic;
+      color: $text-darkened;
+    }
+
+  }
+}
+
 .markdown-cheatsheet {
   display: none;
 }
 
 .annotation-submit-controls {
+
   display: flex;
   flex-direction: row;
   justify-content: flex-end;

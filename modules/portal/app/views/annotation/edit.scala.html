@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateCheckbox.f) }
 
-@helper.form(action = action, 'role -> "form", 'class -> "form validate-form", 'class -> "annotation-form edit-annotation-form validate-form") {
+@helper.form(action = action, 'role -> "form", 'class -> "annotation-form edit-annotation-form validate-form") {
     <a class="close" href="#">&times;</a>
     <div class="annotation-form-controls">
         @formHelpers.hiddenInput(f(FIELD))

@@ -18,11 +18,11 @@ jQuery(function ($) {
    * Markdown helper
    */
 
-    // Allow dl, dt, and dd elements in tooltips
-  var tooltipWhitelist = $.fn.tooltip.Constructor.DEFAULTS.whiteList;
-  tooltipWhitelist.dl = [];
-  tooltipWhitelist.dt = [];
-  tooltipWhitelist.dd = [];
+  // Add dl, dt, and dd elements to Bootstraps popover sanitiser
+  var popoverWhitelist = $.fn.tooltip.Constructor.Default.whiteList;
+  popoverWhitelist.dl = [];
+  popoverWhitelist.dt = [];
+  popoverWhitelist.dd = [];
 
   $(document).on("click", ".markdown textarea", function () {
     var $item = $(this);
@@ -47,7 +47,8 @@ jQuery(function ($) {
     if (typeof $item.attr("data-popovered") === "undefined" || $item.attr("data-popovered") !== "true") {
       $item.popover({
         html: true,
-        placement: "bottom",
+        placement: "right",
+        container: "body",
         content: function () {
           return $(".markdown-cheatsheet").html();
         }
@@ -80,7 +81,7 @@ jQuery(function ($) {
         if (done) {
           $elem.hide();
         } else {
-          console.log("Replace: ", (offset + limit), limit )
+          console.log("Replace: ", (offset + limit), limit );
           $elem
             .attr("data-offset", (offset + limit))
             .attr("data-limit", limit)
