@@ -77,26 +77,22 @@
                     </p>
                 </div>
                 <div class="welcome-section">
+                    <h2><a href="@controllers.portal.routes.Vocabularies.searchAll()">@Messages("type.CvocVocabulary")</a></h2>
+                    <p>@Messages("type.CvocVocabulary.description")</p>
+                    <p class="welcome-section-footer">
+                        <a href="@controllers.portal.routes.Vocabularies.searchAll()">
+                            @Messages("landingBlurb.CvocVocabulary")
+                        </a>
+                    </p>
+                </div>
+                <div class="welcome-section">
                     <h2><a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">@Messages("type.AuthoritativeSet")</a>
                     </h2>
                     <p>@Messages("type.AuthoritativeSet.description")</p>
                     <p class="welcome-section-footer">
-                        @(Html(Messages(
-                            "landingBlurb.AuthoritativeSet",
-                            countLink(controllers.portal.routes.AuthoritativeSets.searchAll().url,
-                                "landingBlurb.AuthoritativeSet.link", stats.countryCount).body.trim
-                        )))
-                    </p>
-                </div>
-                <div class="welcome-section">
-                    <h2><a href="@controllers.portal.routes.Vocabularies.searchAll()">@Messages("type.CvocVocabulary")</a></h2>
-                    <p>@Messages("type.CvocVocabulary.description")</p>
-                    <p class="welcome-section-footer">
-                        @(Html(Messages(
-                            "landingBlurb.CvocVocabulary",
-                            countLink(controllers.portal.routes.Vocabularies.searchAll().url,
-                                "landingBlurb.CvocVocabulary.link", stats.repositoryCount).body.trim
-                        )))
+                        <a href="@controllers.portal.routes.AuthoritativeSets.searchAll()">
+                        @Messages("landingBlurb.AuthoritativeSet")
+                        </a>
                     </p>
                 </div>
                 <div class="welcome-section account">

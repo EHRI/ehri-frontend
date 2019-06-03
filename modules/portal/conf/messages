@@ -32,19 +32,16 @@ help.contact=Contact EHRI
 #
 # Landing page: https://portal.ehri-project.eu
 #
+landingBlurb.Country=Browse {0}.
+landingBlurb.Country.link={0} country reports
 landingBlurb.Repository=Browse {0} in {1}.
 landingBlurb.Repository.link={0} archival institutions
 landingBlurb.Repository.Country.link={0} countries
-landingBlurb.Country=Browse {0}.
-landingBlurb.Country.link={0} country reports
 landingBlurb.DocumentaryUnit=Browse {0} in {1}.
 landingBlurb.DocumentaryUnit.link={0} archival descriptions
 landingBlurb.DocumentaryUnit.Repository.link={0} institutions
-landingBlurb.HistoricalAgent=Browse {0}, comprised of {1}, {2} and {3}.
-landingBlurb.HistoricalAgent.link={0} authorities
-landingBlurb.corporateBody.link={0,choice,0#{0} corporate bodies|1#1 corporate body|1<{0,number,integer} corporate bodies}
-landingBlurb.person.link={0} Persons
-landingBlurb.family.link={0,choice,0#{0} families|1#1 family|1<{0,number,integer} families}
+landingBlurb.AuthoritativeSet=Browse authorities.
+landingBlurb.CvocVocabulary=Browse terms and places.
 
 
 #
@@ -982,6 +979,7 @@ markdown.cheatsheet.more=Source
 #
 item.details=Item Details
 item.history=Online History
+item.history.more=Show full history
 item.related=Related Items
 item.related.search=Search Related Items...
 item.linked=Other Connected Items

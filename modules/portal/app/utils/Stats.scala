@@ -6,15 +6,15 @@ import play.api.libs.json._
 case class Stats(
   countryCount: Int,
   repositoryCount: Int,
-  inCountryCount: Int,
   documentaryUnitCount: Int,
+  inCountryCount: Int,
   inRepositoryCount: Int
 )
 
 object Stats {
   val analyticsQuery: String = Json.stringify(
     Json.obj(
-      "inRepositories" -> "unique(holderId)",
+      "inRepositories" -> "unique(repositoryId)",
       "inCountries" -> "unique(countryCode)",
       "totals" -> Json.obj(
         "terms" -> Json.obj(
