@@ -1,4 +1,4 @@
-@(descriptions: Seq[(models.base.Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple.text")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(descriptions: Seq[(models.base.Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 <section class="double descriptions">
     <aside class="sidebar description-sidebar">
@@ -19,24 +19,29 @@
                         </div>
                         <ul class="dropdown-menu" aria-labelledby="description-switcher-toggle">
                             @descriptions.map { case (desc, selected) =>
-                                <li @(if(selected) "active")>
-                                    <a title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                                <li>
+                                    <a class="@(if(selected) "active")"
+                                            title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
                                             href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
                                             data-id="@desc.localId">
                                         @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
-                                </a>
+                                    </a>
                                 </li>
                             }
                         </ul>
                     </div>
                 } else {
+                    <p class="multiple-description-help">
+                        @Messages("description.multiple.text")
+                    </p>
                     <ul>
                         @descriptions.map { case (desc, selected) =>
-                            <li class="@(if(selected) "active")">
-                                <a title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                            <li>
+                                <a class="@(if(selected) "active")"
+                                        title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
                                         href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
                                         data-id="@desc.localId">
-                                    @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                                    <strong>@views.Helpers.languageCodeToName(desc.languageCode)</strong> - @desc.name
                                 </a>
                             </li>
                         }

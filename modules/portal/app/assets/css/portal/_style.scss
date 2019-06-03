@@ -1075,6 +1075,12 @@ dl dt {
 
 .archival-context .ancestor {
   margin-left: $margin-sm;
+
+  .material-icons {
+    vertical-align: text-bottom;
+    color: $text-darkened;
+    font-size: $font-size-lg;
+  }
 }
 
 .import-disclaimer {
@@ -1095,6 +1101,42 @@ dl dt {
 
 .unknown-data-section {
   @extend %small-muted;
+}
+
+.description-switcher {
+  .sidebar-section-body {
+
+    .multiple-description-help {
+      color: $text-darkened;
+    }
+
+    > ul > li {
+      margin-bottom: 0;
+    }
+
+    > ul > li > a {
+      font-size: $font-size-xs;
+      color: var(--secondary);
+      padding: $margin-sm;
+      display: block;
+      border: $border-width solid $border-color;
+      border-top: 0;
+
+      &:hover {
+        text-decoration: none;
+        background-color: $gray-200;
+      }
+    }
+
+    > ul > li:first-child > a {
+      border-top: $border-width solid $border-color;
+    }
+
+    > ul > li > a.active {
+      background-color: var(--info);
+      color: var(--white);
+    }
+  }
 }
 
 .detail-section {

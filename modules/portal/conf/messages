@@ -347,6 +347,7 @@ description.additionalData=Additional Harvested Data (Click to display)
 description.additionalData.key=Key
 description.additionalData.value=Value
 description.noDescriptions=This item has not been provided with a description
+description.multiple=Descriptions
 description.multiple.text=This item has multiple descriptions. Alternate descriptions may source from different repositories or represent a (partial) translation.
 
 
