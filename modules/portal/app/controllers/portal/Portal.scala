@@ -41,7 +41,9 @@ case class Portal @Inject()(
   private val defaultSearchTypes = List(
     EntityType.Repository,
     EntityType.DocumentaryUnit,
-    EntityType.Country
+    EntityType.Country,
+    EntityType.HistoricalAgent,
+    EntityType.Concept
   )
 
   def prefs: Action[AnyContent] = Action { implicit request =>

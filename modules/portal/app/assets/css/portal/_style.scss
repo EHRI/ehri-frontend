@@ -587,6 +587,10 @@ body.home {
       }
     }
 
+    input[type=search] {
+      color: var(--white);
+    }
+
     input[type=search]::placeholder {
       color: rgba(255, 255, 255, .8);
     }
@@ -833,6 +837,7 @@ ul.pagination {
 
 .search-item {
   h2.search-item-heading {
+    font-family: $font-family-base;
     text-transform: none;
     margin-bottom: 0;
   }
@@ -1043,6 +1048,13 @@ ul.list-export-options {
   }
 }
 
+// Make modal dialogs wider with wide screens...
+@include media-breakpoint-up(lg) {
+  .modal-dialog {
+    max-width: map_get($container-max-widths, md);
+  }
+}
+
 // Description list terms and
 // field headings
 .item-text-field-header h4,
@@ -1067,6 +1079,16 @@ dl dt {
 // Descriptions
 .description-holder {
   margin-bottom: $margin-lg;
+}
+
+.description-viewport {
+  .item-children {
+    > a {
+      font-size: $font-size-sm;
+    }
+
+    margin-bottom: $margin-lg;
+  }
 }
 
 .description-section {
