@@ -4,6 +4,7 @@
     @doc.parent.map { parent =>
         @wrapParent(parent) {
             <div class="ancestor">
+                <i class="material-icons">subdirectory_arrow_right</i>
                 @views.html.helpers.linkTo(parent)
                 @html
             </div>
@@ -17,6 +18,7 @@
     @countryOpt.map { country =>
         @views.html.helpers.linkTo(country)
         <div class="ancestor">
+            <i class="material-icons">subdirectory_arrow_right</i>
             @html
         </div>
     }.getOrElse {
