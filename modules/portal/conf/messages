@@ -74,10 +74,10 @@ errors.genericProblem.explanation=We''re very sorry, but there''s a problem load
 errors.maintenance=Site temporarily offline
 errors.maintenance.explanation=The EHRI Portal is currently offline while we undertake maintenance. Please check back soon.
 errors.databaseError=Database Error
-errors.databaseError.explanation=I''m afraid it looks like our database server has gone down.     \
+errors.databaseError.explanation=I''m afraid it looks like our database server has gone down. \
   There''s not much we can do without it, so please try again later.
 errors.searchEngineError=Search Error
-errors.searchEngineError.explanation=I''m afraid it looks like our search engine has gone down.     \
+errors.searchEngineError.explanation=I''m afraid it looks like our search engine has gone down. \
   There''s not much we can do without it, so please try again later.
 errors.databaseMaintenance=Database Temporarily Offline
 errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
@@ -283,7 +283,7 @@ login.password.current=Current Password
 login.password.new=New Password
 login.password.new.confirm=Confirm New Password
 login.password.reset.sentLink=If your email address exists on our system you will receive\
-  a message containing a link that can be used to reset your password.\
+  a message containing a link that can be used to reset your password. \
   This link can only be used once.
 login.password.reset.confirmation=Your password has been reset.
 login.dataPolicyNag=By signing in I acknowledge the {0} and agree to abide by the {1}.
@@ -1201,7 +1201,6 @@ country.report.intro=A general introduction to the EHRI country reports can be f
 country.report.toc=Contents
 country.childItems=Archival Institutions
 country.childItems.search={0,choice,0#{0} institutions |1#1 institution|1<{0,number,integer} institutions}
-country.repositoriesPageHeader={2,choice,0#No repositories found|1#One repository found|1<Repositories {0,number,integer} to {1,number,integer} of {2,number,integer}}
 country.search=Search Countries
 country.searchItems=Search institutions...
 country.childCount={0,choice,0#No institutions listed|1#1 institution listed|1<{0,number,integer} institutions listed}
@@ -1222,8 +1221,8 @@ country.description.empty=There is currently no EHRI country report available fo
 cvocVocabulary.intro=Vocabularies are collections of subject headings or places (see also: {0}).
 cvocVocabulary.childItems=Keywords
 cvocVocabulary.searchItems=Search keywords in {0}...
-cvocVocabulary.childCount={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
-cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,integer} keywords}
+cvocVocabulary.childCount={0,choice,0#No keywords|1#1 keyword|1<{0,number,integer} keywords}
+cvocVocabulary.childItems.search={0,choice,0#No keywords|1#1 keyword|1<{0,number,integer} keywords}
 
 #
 # Authoritative Sets
@@ -1231,5 +1230,5 @@ cvocVocabulary.childItems.search={0,choice,0#{0} |1#1 keyword|1<{0,number,intege
 authoritativeSet.intro=Authority sets are collections of people, families, or corporate bodies (see also: {0}).
 authoritativeSet.childItems=Authorities
 authoritativeSet.searchItems=Search authorities in {0}...
-authoritativeSet.childCount={0,choice,0#{0} |1#1 authorities|1<{0,number,integer} authorities}
-authoritativeSet.childItems.search={0,choice,0#{0} |1#1 authorities|1<{0,number,integer} authorities}
+authoritativeSet.childCount={0,choice,0#No authorities|1#1 authority|1<{0,number,integer} authorities}
+authoritativeSet.childItems.search={0,choice,0#No authorities|1#1 authority|1<{0,number,integer} authorities}
