@@ -16,7 +16,7 @@
         @views.html.common.message()
         @views.html.common.ipFilter()
         <header id="header" class="navigation">
-            @views.html.common.accountHeader(showAdminLink = true)
+            @views.html.common.accountHeader(showAdminLink = true, prefsOpt = Some(prefs))
             <div id="welcome-banner">
                 @views.html.common.primaryHeader(showSearch = false)
                 <div id="welcome-container">
