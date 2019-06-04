@@ -460,13 +460,23 @@ body.home {
 #portal-footer {
   background-color: $gray-200;
   font-size: $font-size-sm;
-  padding: $margin-lg 0;
+  padding: $margin-xl 0 $margin-lg 0;
 
-  #footer-navs {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-top: $margin-md;
+  @include media-breakpoint-up(md) {
+    #footer-navs {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .social-links,
+  #footer-blurb {
+    margin-bottom: $margin-md;
+
+    @include media-breakpoint-up(md) {
+      margin-bottom: 0;
+    }
   }
 
   .newsletter h3 {
@@ -494,11 +504,13 @@ body.home {
   #lang-switcher,
   #navbar-tertiary {
     @include list-unstyled();
-    @include list-inline();
 
-    li {
-      a {
-        padding: .5rem 1rem;
+    @include media-breakpoint-up(md) {
+      @include list-inline();
+      li {
+        a {
+          padding: .5rem 1rem;
+        }
       }
     }
 
@@ -523,28 +535,32 @@ body.home {
       color: $text-darkened;
       text-decoration: underline;
     }
-    li:first-child {
-      margin-left: -1rem;
+
+    @include media-breakpoint-up(md) {
+      li:first-child {
+        margin-left: -1rem;
+      }
     }
   }
 
   #footer-logos {
     margin-left: auto;
 
-    * {
+    > *:first-child {
       margin-right: $margin-md;
-
-      &:last-child {
-        $margin-right: 0;
-      }
     }
   }
 
   #footer-blurb {
+    margin-bottom: $margin-md;
     @extend %small-muted;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+
+    @include media-breakpoint-up(md) {
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     > * {
       margin-right: $margin-md;
