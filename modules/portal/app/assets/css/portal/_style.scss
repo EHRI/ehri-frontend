@@ -118,8 +118,40 @@ aside.sidebar {
 #navbar-account > ul {
   @extend .ml-auto;
 
-  > li:last-child a {
+  > li:last-child > a {
     margin-right: -1rem;
+  }
+
+  .dropdown-menu > li {
+    padding: 0;
+    &:active {
+      background-color: $gray-100;
+    }
+  }
+
+  .dropdown-menu > li.dropdown-header {
+    font-size: $font-size-xs;
+    color: $text-darkened;
+    padding: $margin-xs $margin-sm;
+  }
+
+  .dropdown-menu > li > a {
+    font-size: $font-size-sm;
+    display: block;
+    padding: $margin-xs $margin-sm;
+    clear: both;
+    color: $black;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: none;
+      background-color: $gray-200;
+    }
+
+    &:focus {
+      text-decoration: none;
+      background-color: $gray-100;
+    }
   }
 }
 
@@ -273,15 +305,18 @@ body.home #navbar-primary-container {
 // Quicksearch controls
 #quicksearch-controls {
   color: $white;
-  @extend .input-group;
 
   input[type='text'] {
     @extend .form-control;
   }
+}
 
-  button {
-    //@extend .input-group-addon;
-  }
+// Boolean toggles in view preferences...
+.toggle-boolean-preference.boolean-true:before {
+  content: '\2611';
+}
+.toggle-boolean-preference.boolean-false:before {
+  content: '\2610';
 }
 
 // End navbar
@@ -1372,20 +1407,19 @@ dl dt {
 // Feedback
 .feedback {
   width: 300px;
-  padding: $margin-md;
+  padding: $margin-sm;
   @include clearfix();
 
   .feedback-form-footer {
     float: right;
-    margin-top: $margin-md;
   }
 }
 
 .feedback-thanks {
   @extend .alert, .alert-success;
   position: absolute;
-  left: $margin-md;
-  right: $margin-md;
+  left: $margin-sm;
+  right: $margin-sm;
   z-index: 10;
   display: none;
   box-shadow: $box-shadow;
