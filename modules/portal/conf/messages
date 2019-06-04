@@ -20,6 +20,8 @@ details.show=Show Item Details
 details.hide=Hide Item Details
 project.site=EHRI project website
 fullscreen.viewOnPortal=View this item on the EHRI Portal
+mailingList.prompt=Keep up with EHRI news
+mailingList.subscribe=Subscribe to our mailing list
 
 #
 # Help https://portal.ehri-project.eu (Help menu)
