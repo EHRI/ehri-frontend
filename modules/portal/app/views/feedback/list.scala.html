@@ -2,8 +2,9 @@
 
 @views.html.layout.portalLayout(Messages("feedback.list")) {
     @views.html.common.mainContent {
-        <h2>@Messages("feedback.list")</h2>
-        <table class="table-bordered table-hover table-condensed table-striped" width="100%">
+        @views.html.common.itemHeader(Messages("feedback.list")) {
+        }
+        <table class="feedback-list">
             <tr>
                 <th>User ID</th>
                 <th>Submitted</th>

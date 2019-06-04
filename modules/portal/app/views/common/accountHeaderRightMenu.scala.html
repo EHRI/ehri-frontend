@@ -3,15 +3,15 @@
 <ul>
     @if(showFeedback) {
         <li class="feedback-container dropdown">
-            <a href="#" id="feedback-toggle" class="dropbox-toggle" data-toggle="dropdown" aria-expanded="false">
+            <a href="#" id="feedback-toggle" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                 @Messages("feedback")
                 <span class="caret"></span>
             </a>
-            <ul id="feedback-dropdown" class="dropdown-menu" role="menu">
-                <li class="feedback">
+            <div id="feedback-dropdown" class="dropdown-menu" role="menu">
+                <div class="feedback">
                     @views.html.feedback.form(models.Feedback.form)
-                </li>
-            </ul>
+                </div>
+            </div>
         </li>
     }
     <li class="dropdown">
