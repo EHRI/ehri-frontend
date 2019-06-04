@@ -800,9 +800,7 @@ virtualUnit.viewInArchivalContext.explanation=Cet élément est affiché en tant
     qui ne reflète pas la disposition du matériel au sein des archives physiques.
 country.childItems=Institutions d''archives
 country.childItems.search={0,choice,0#{0} niveau inférieur |1#1 institution|1<{0,number,integer} institutions}
-country.repositoriesPageHeader={2,choice,0#Aucun référentiel trouvé|1#Un référentiel trouvé|1<Référentiels de {0,number,integer} à {1,number,integer} sur {2,number,integer}}
 country.search=Recherche de pays
-country.searchInside=Recherche de référentiels
 country.childCount={0,choice,0#Aucune institution énumérée|1#1 institution énumérée|1<{0,number,integer} institutions énumérées}
 country.items=Référentiels
 country.identifier=Code pays

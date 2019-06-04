@@ -799,9 +799,7 @@ virtualUnit.viewInArchivalContext.explanation=Ta pozycja jest wyświetlana jako 
     która nie odzwierciedla uporządkowania materiału w archiwum fizycznym.
 country.childItems=Instytucje archiwalne
 country.childItems.search={0,choice,0#Brak instytucji|1#1 instytucja|1<{0,number,integer} instytucji}
-country.repositoriesPageHeader={2,choice,0#Nie znaleziono żadnego repozytorium|1#Znaleziono jedno repozytorium|1<Repozytoria od {0,number,integer} do {1,number,integer} z {2,number,integer}}
 country.search=Przeszukaj kraje
-country.searchInside=Przeszukaj repozytoria
 country.childCount={0,choice,0#Brak instytucji w wykazie|1#1 instytucja w wykazie|1<{0,number,integer} instytucji w wykazie}
 country.items=Repozytoria
 country.identifier=Kod kraju

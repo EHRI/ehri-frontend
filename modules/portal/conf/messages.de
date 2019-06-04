@@ -789,9 +789,7 @@ virtualUnit.viewInArchivalContext.explanation=Dieses Element wird als Teil einer
     die nicht der Erschließung von Material im physischen Archiv entspricht.
 country.childItems=Archive
 country.childItems.search={0,choice,0#{0} Institutionen |1#1 Institution|1<{0,number,integer} Institutionen}
-country.repositoriesPageHeader={2,choice,0#Keine Archive gefunden|1#Ein Archiv gefunden|1<Archiv {0,number,integer} bis {1,number,integer} von {2,number,integer}}
 country.search=Länder durchsuchen
-country.searchInside=Archive durchsuchen
 country.childCount={0,choice,0#Keine Institutionen gelistet|1#1 Institution gelistet|1<{0,number,integer} Institutionen gelistet}
 country.items=Archive
 country.identifier=Ländercode
