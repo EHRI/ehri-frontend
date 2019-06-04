@@ -1,6 +1,6 @@
 @(feed: RssFeed)(implicit messages: Messages)
 
-<h3>@feed.title</h3>
+<h2>@feed.title</h2>
 @feed.description.map { d =>
     <p class="rss-feed-description">@d</p>
 }

@@ -86,19 +86,6 @@ body {
   @extend .container;
 }
 
-#portal-info {
-  @extend .row;
-}
-
-.info-container {
-  @include make-col-ready($grid-gutter-width * 2);
-  @include make-col(6);
-
-  @include media-breakpoint-down(sm) {
-    @include make-col(12);
-  }
-}
-
 // Navbar
 ul.dropdown-menu {
   > li {
@@ -117,7 +104,6 @@ ul.dropdown-menu {
 
   #footer-content {
     @extend .container;
-
   }
 }
 
