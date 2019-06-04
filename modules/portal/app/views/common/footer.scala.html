@@ -41,8 +41,8 @@
         </div>
 
         <div id="footer-blurb">
-            <span class="copyright">&copy; @Messages("copyright.holder")</span>
-            <span class="funding">@Messages("footer.funding")</span>
+            <div class="copyright">&copy; @Messages("copyright.holder")</div>
+            <div class="funding">@Messages("footer.funding")</div>
             <div id="footer-logos">
                 <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3-eu-west-1.amazonaws.com/eulogo.svg" />
                 <a target="_blank" title="Ars Electronica 2018 Honorary Mention" href="http://prix2018.aec.at/prixwinner/28933/">
@@ -50,6 +50,7 @@
                 </a>
             </div>
         </div>
+
         <ul id="navbar-tertiary">
             @footerLink(controllers.portal.routes.Portal.terms(), "termsAndConditions")
             @footerLink(controllers.portal.routes.Portal.dataPolicy(), "dataPolicy")
@@ -57,6 +58,5 @@
                 <a href="/api">API</a>
             </li>
         </ul>
-
     </div>
 </footer>
