@@ -13,15 +13,20 @@
     <fieldset>
         @formHelpers.csrfToken()
         @if(userOpt.isEmpty) {
-            <div class="form-group">
-                <input type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
+            <div class="form-field">
+                <label for="feedback_name" class="sr-only">@Messages(NAME)</label>
+                <input id="feedback_name" type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
             </div>
-            <div class="form-group">
-                <input type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
+            <div class="form-field">
+                <label for="feedback_email" class="sr-only">@Messages(EMAIL)</label>
+                <input id="feedback_email" type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
             </div>
         }
 
-        <textarea rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
+        <div class="form-field">
+            <label for="feedback_text" class="sr-only">@Messages("feedback.message")</label>
+            <textarea id="feedback_text" rows="4" class="form-control" name="text" placeholder="@Messages("feedback.message") " required=""></textarea>
+        </div>
 
         <div class="blank-check" style="display: none">
             <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString" />
@@ -29,7 +34,7 @@
         </div>
     </fieldset>
     <div class="feedback-form-footer">
-        <a tabindex="-1" class="feedback-cancel dropdown-toggle" data-toggle="dropdown" href="@controllers.portal.routes.Portal.index()">@Messages("cancel")</a>
-        <button type="submit" class="feedback-submit">@Messages("feedback.submit")</button>
+        <a tabindex="-1" class="btn feedback-cancel" data-toggle="dropdown" href="@controllers.portal.routes.Portal.index()">@Messages("cancel")</a>
+        <button type="submit" class="btn btn-success feedback-submit">@Messages("feedback.submit")</button>
     </div>
 }
