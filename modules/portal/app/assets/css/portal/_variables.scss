@@ -36,13 +36,6 @@ $font-size-sm: 0.875rem; 	// 14px
 $font-size-base: 1.0625rem; // 17px
 $font-size-lg: 1.25rem;		// 20px
 
-// Buttons...
-$btn-font-size: $font-size-sm;
-//$btn-font-weight: bold;
-
-//$btn-padding-x: 2rem;
-//$btn-padding-y: 0.2rem;
-
 // Headings
 $h1-font-size: 2.625rem;
 $h2-font-size: 1.375rem;
@@ -73,3 +66,12 @@ $margin-xl: 3.4270510rem; // 6rem
 
 
 $list-margin-bottom: $margin-md;
+
+// Buttons...
+$btn-font-size: $font-size-sm;
+//$btn-font-weight: bold;
+
+$btn-padding-x: $margin-sm;
+$btn-padding-y: $margin-xxs;
+
+

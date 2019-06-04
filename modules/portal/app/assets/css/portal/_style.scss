@@ -13,6 +13,7 @@
 .item-header h1,
 .block-header h2,
 .welcome-section h2,
+.info-container h2,
 .facet-class h4,
 .sidebar-section-heading h4,
 .item-text-field-header h4 {
@@ -24,7 +25,8 @@
 .item-text-field-header h4,
 .facet-class h4,
 .block-header h2,
-.welcome-section h2 {
+.welcome-section h2,
+.info-container h2 {
   text-transform: uppercase;
 }
 
@@ -323,6 +325,11 @@ body.home #navbar-primary-container {
 
 // Home page
 body.home {
+
+  .info-container h2 {
+    margin-bottom: $margin-md;
+  }
+
   #header {
     background-position: center center;
     background-repeat: no-repeat;
@@ -360,7 +367,6 @@ body.home {
     background-color: $ehri-gray;
     padding: $margin-md;
     font-size: $font-size-sm;
-    margin-bottom: $margin-md;
 
     h2 a {
       color: var(--secondary);
@@ -413,12 +419,26 @@ body.home {
     #portal-sections {
       display: grid;
       grid-template-areas: ". . ." ". . .";
-      grid-template-columns: 33% 33% 33%;
+      grid-template-columns: 1fr 1fr 1fr;
       // FIXME: this makes the cells look a bit big. Better
       // to somehow size them *all* by the height of the largest
       // cell (not largest cell per row).
       grid-template-rows: repeat(2, minmax(250px, auto));
-      grid-column-gap: $margin-md;
+      grid-column-gap: $margin-lg;
+      grid-row-gap: $margin-lg;
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    #portal-info {
+      display: grid;
+      grid-template-areas: "video video .";
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-column-gap: $margin-lg;
+
+      #intro-video {
+        grid-area: video;
+      }
     }
   }
 
@@ -440,24 +460,41 @@ body.home {
 #portal-footer {
   background-color: $gray-200;
   font-size: $font-size-sm;
-
-  #footer-navs {
-    padding: $margin-lg 0;
-  }
-
-  padding-bottom: $margin-lg;
+  padding: $margin-lg 0;
 
   #footer-navs {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding-top: $margin-md;
+  }
+
+  .newsletter h3 {
+    color: var(--secondary);
+    margin-bottom: $margin-sm;
+  }
+
+  #subscribe-to-newsletter {
+    margin-bottom: $margin-md;
+    padding: $margin-xs $margin-md;
+    font-weight: $font-weight-bold;
+  }
+
+  .social-links {
+    a {
+      @extend %field-label;
+      margin-right: $margin-sm;
+
+      i {
+        font-size: $font-size-lg;
+      }
+    }
   }
 
   #lang-switcher,
   #navbar-tertiary {
     @include list-unstyled();
-    display: flex;
-    flex-direction: row;
+    @include list-inline();
 
     li {
       a {
@@ -481,14 +518,33 @@ body.home {
   }
 
   #navbar-tertiary {
+    a {
+      font-size: $font-size-xs;
+      color: $text-darkened;
+      text-decoration: underline;
+    }
     li:first-child {
       margin-left: -1rem;
     }
   }
 
+  #footer-logos {
+    margin-left: auto;
+
+    * {
+      margin-right: $margin-md;
+
+      &:last-child {
+        $margin-right: 0;
+      }
+    }
+  }
+
   #footer-blurb {
     @extend %small-muted;
-    justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
     > * {
       margin-right: $margin-md;
@@ -497,7 +553,6 @@ body.home {
         margin-right: 0;
       }
     }
-
   }
 }
 
@@ -518,7 +573,7 @@ body.home {
 // Main content
 .main-content {
   padding-top: $margin-lg;
-  padding-bottom: $margin-lg;
+  padding-bottom: $margin-xl;
 }
 
 // Search controls
@@ -562,6 +617,7 @@ body.home {
 
   .input-group {
     border: $border-width solid $border-color;
+    align-items: baseline;
   }
 ;
 
