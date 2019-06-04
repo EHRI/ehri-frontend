@@ -1368,3 +1368,33 @@ dl dt {
     }
   }
 }
+
+// Feedback
+.feedback {
+  width: 300px;
+  padding: $margin-md;
+  @include clearfix();
+
+  .feedback-form-footer {
+    float: right;
+    margin-top: $margin-md;
+  }
+}
+
+.feedback-thanks {
+  @extend .alert, .alert-success;
+  position: absolute;
+  left: $margin-md;
+  right: $margin-md;
+  z-index: 10;
+  display: none;
+  box-shadow: $box-shadow;
+}
+
+.feedback-list {
+  width: 100%;
+  @extend .table, .table-bordered, .table-striped;
+}
+
+
+
