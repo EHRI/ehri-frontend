@@ -44,6 +44,23 @@
   }
 }
 
+/**
+ * Outputs both a standard color derived
+ * from one of the color map variables
+ * and a CSS variable of the same name.
+ * This provides compatibility with browsers
+ * that don't support CSS variables.
+ *
+ * Note: the 'varName' arg should always be a
+ * quoted string to avoid collision with built-in
+ * HTML/CSS color names.
+ */
+@mixin color-var($property, $varName) {
+  $all-colors: map-merge($colors, $theme-colors);
+  #{$property}: #{map-get($all-colors, #{$varName})};
+  #{$property}: var(--#{$varName});
+}
+
 // A search box with an embedded search
 // icon. The input should have the `form-control`
 // class and the icon `form-control-feedback`

@@ -17,8 +17,7 @@
 .facet-class h4,
 .sidebar-section-heading h4,
 .item-text-field-header h4 {
-  color: $secondary;
-  color: var(--secondary);
+  @include color-var(color, 'secondary');
 }
 
 // Uppercased headings
@@ -46,8 +45,7 @@ aside.sidebar {
 
 .block-header {
   background-color: $ehri-gray;
-  color: $white;
-  color: var(--white);
+  @include color-var(color, 'white');
   padding: $margin-xs;
   margin-bottom: $margin-sm;
   display: flex;
@@ -95,8 +93,7 @@ figure {
   background-size: cover;
   background-position: center right;
   background-repeat: no-repeat;
-  background-color: $secondary;
-  background-color: var(--secondary);
+  @include color-var(background-color, 'secondary');
 }
 
 #navbar-primary-container-overlay {
@@ -361,15 +358,13 @@ body.home {
 
     h1 {
       margin-top: $margin-lg;
-      color: $white;
-      color: var(--white);
+      @include color-var(color, 'white');
     }
   }
 
   #welcome-lead {
     font-size: $font-size-lg;
-    color: $secondary;
-    color: var(--secondary);
+    @include color-var(color, 'secondary');
     margin-bottom: $margin-xl;
   }
 
@@ -381,8 +376,7 @@ body.home {
     font-size: $font-size-sm;
 
     h2 a {
-      color: $secondary;
-      color: var(--secondary);
+      @include color-var(color, 'secondary');
       font-family: $headings-font-family;
       font-weight: $headings-font-weight;
     }
@@ -493,8 +487,7 @@ body.home {
   }
 
   .newsletter h3 {
-    color: $secondary;
-    color: var(--secondary);
+    @include color-var(color, 'secondary');
     margin-bottom: $margin-sm;
   }
 
@@ -530,8 +523,7 @@ body.home {
 
     li.active a {
       pointer-events: none;
-      color: $secondary;
-      color: var(--secondary);
+      @include color-var(color, 'secondary');
       font-weight: $font-weight-bold;
     }
   }
@@ -601,6 +593,10 @@ body.home {
   }
 }
 
+.breadcrumb:empty {
+  display: none;
+}
+
 // Main content
 .main-content {
   padding-top: $margin-lg;
@@ -615,8 +611,7 @@ body.home {
 
   .search-summary {
     @extend %heading-text;
-    color: $secondary;
-    color: var(--secondary);
+    @include color-var(color, 'secondary');
   }
 
   .search-sort {
@@ -629,8 +624,7 @@ body.home {
     }
 
     ul > li.active > a {
-      color: $secondary;
-      color: var(--secondary);
+      @include color-var(color, 'secondary');
       font-weight: bold;
     }
 
@@ -670,8 +664,7 @@ body.home {
 
   #submit-search i {
     float: left;
-    color: $primary;
-    color: var(--primary);
+    @include color-var(color, 'primary');
   }
 
   .search-box {
@@ -704,19 +697,16 @@ body.home {
   .search-bar {
     .input-group {
       background-color: rgba(224, 224, 224, 0.19);
-      color: $white;
-      color: var(--white);
+      @include color-var(color, 'white');
       border-color: rgba(224, 224, 224, 0.59);
 
       #submit-search i {
-        color: $white;
-        color: var(--white);
+        @include color-var(color, 'white');
       }
     }
 
     input[type=search] {
-      color: $white;
-      color: var(--white);
+      @include color-var(color, 'white');
     }
 
     input[type=search]::placeholder {
@@ -729,8 +719,7 @@ body.home {
     }
 
     .search-helper-toggle {
-      color: $white;
-      color: var(--white);
+      @include color-var(color, 'white');
     }
 
     #search-helper {
@@ -739,8 +728,7 @@ body.home {
       background-color: rgba(244, 244, 244, .1);
 
       dl dt {
-        color: $white;
-        color: var(--white);
+        @include color-var(color, 'white');
         text-transform: none;
         @include make-col-ready();
         @include make-col(2);
@@ -790,8 +778,7 @@ body.home {
       i {
         font-size: $font-size-sm;
         vertical-align: middle;
-        color: $red;
-        color: var(--red);
+        @include color-var(color, 'red');
       }
 
       &:hover {
@@ -828,19 +815,16 @@ body.home {
 .control-label .required-input,
 .control-elements .help-block.errors,
 .control-elements .help-inline.errors {
-  color: $danger;
-  color: var(--danger);
+  @include color-var(color, 'danger');
 }
 
 .form-field.has-error {
   .form-control {
-    border-color: $danger;
-    border-color: var(--danger);
+    @include color-var(border-color, 'danger');
   }
 
   .help-block {
-    color: $danger;
-    color: var(--danger);
+    @include color-var(color, 'danger');
     font-size: $font-size-xs;
   }
 }
@@ -1101,8 +1085,7 @@ ul.list-export-options {
 .search-facets {
   .search-facets-remove-all {
     font-size: $font-size-sm;
-    color: $red;
-    color: var(--red);
+    @include color-var(color, 'red');
     margin-bottom: $margin-md;
     display: inline-block;
 
@@ -1137,8 +1120,7 @@ ul.list-export-options {
 
     > .facet-options li.remove-filter > a > i {
       font-size: $font-size-sm;
-      color: $red;
-      color: var(--red);
+      @include color-var(color, 'red');
       vertical-align: middle;
     }
 
@@ -1156,8 +1138,7 @@ ul.list-export-options {
   margin-bottom: $margin-lg;
 
   .sidebar-section-heading {
-    color: $secondary;
-    color: var(--secondary);
+    @include color-var(color, 'secondary');
     h4 {
       font-size: $font-size-sm;
     }
@@ -1276,8 +1257,7 @@ dl dt {
 
     > ul > li > a {
       font-size: $font-size-xs;
-      color: $secondary;
-      color: var(--secondary);
+      @include color-var(color, 'secondary');
       padding: $margin-sm;
       display: block;
       border: $border-width solid $border-color;
@@ -1294,10 +1274,8 @@ dl dt {
     }
 
     > ul > li > a.active {
-      background-color: $info;
-      background-color: var(--info);
-      color: $white;
-      color: var(--white);
+      @include color-var(background-color, 'info');
+      @include color-var(color, 'white');
     }
   }
 }
@@ -1413,8 +1391,7 @@ dl dt {
     width: 3rem;
     height: 3rem;
     border-radius: 1.5rem;
-    background-color: $blue;
-    background-color: var(--blue);
+    @include color-var(background-color, 'blue');
     display: flex;
     align-items: center;
     justify-content: center;
