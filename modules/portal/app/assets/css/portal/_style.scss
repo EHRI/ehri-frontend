@@ -356,7 +356,7 @@ body.home {
   }
 
   #welcome-banner {
-    background-color: rgba(68, 47, 81, .85);
+    background-color: rgba($secondary, .85);
     padding-bottom: $margin-lg;
 
     h1 {
