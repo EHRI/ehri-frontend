@@ -1,6 +1,6 @@
-@(title: Any, itemClass: String, result: services.search.SearchResult[_], styles: Html = Html(""), scripts: Html = Html(""))(breadcrumbs: Html)(html: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(item: Model, result: services.search.SearchResult[_], styles: Html = Html(""), scripts: Html = Html(""))(breadcrumbs: Html)(html: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
-@views.html.layout.portalLayout(Messages("search.item.results.list", title, result.page.start, result.page.end, result.page.total, result.params.query.getOrElse("")), itemClass, styles = styles, scripts = scripts) {
+@views.html.layout.portalLayout(Messages("search.item.results.list", item.toStringLang, result.page.start, result.page.end, result.page.total, result.params.query.getOrElse("")), cls = item.isA.toString, styles = styles, scripts = scripts) {
     @breadcrumbs
     @views.html.common.mainContent {
         @html

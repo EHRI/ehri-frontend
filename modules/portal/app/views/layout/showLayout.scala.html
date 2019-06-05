@@ -1,6 +1,6 @@
 @(item: models.base.Accessible)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, itemClass = item.isA.toString) {
+@views.html.layout.portalLayout(item.toStringLang, cls = item.isA.toString) {
     @views.html.common.mainContent {
         @views.html.common.itemDetails {
             @views.html.common.rightSidebar {

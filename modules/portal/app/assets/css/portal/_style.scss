@@ -58,6 +58,14 @@ aside.sidebar {
   }
 }
 
+// Figures
+figure {
+  width: 20rem;
+  > figcaption {
+    font-size: $font-size-sm;
+  }
+}
+
 // Top navbar
 #navbar-top-container {
   font-size: $font-size-xs;
@@ -118,7 +126,7 @@ aside.sidebar {
 }
 
 #navbar-account > ul {
-  @extend .ml-auto;
+  margin-left: auto;
 
   > li:last-child > a {
     margin-right: -1rem;
@@ -1502,5 +1510,12 @@ dl dt {
   @extend .table, .table-bordered, .table-striped;
 }
 
-
+// About page
+body.about  figure {
+  float: right;
+  padding: 0 0 $margin-md $margin-md;
+  > img {
+    width: 100%;
+  }
+}
 

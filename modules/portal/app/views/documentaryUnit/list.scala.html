@@ -1,6 +1,6 @@
 @(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.DocumentaryUnit"), EntityType.DocumentaryUnit.toString, result) {
+@views.html.layout.searchLayout(Messages("type.DocumentaryUnit"), result, cls = EntityType.DocumentaryUnit.toString) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.DocumentaryUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {

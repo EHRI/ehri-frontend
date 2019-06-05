@@ -1,6 +1,6 @@
-@(title: Any, itemClass: String = "", breadcrumbs: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, prefs: utils.SessionPrefs)
+@(title: Any, cls: String = "", breadcrumbs: Html = Html(""), scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, prefs: utils.SessionPrefs)
 
-@views.html.layout.portalLayout(title, itemClass = itemClass, scripts = scripts, styles = styles, meta = meta) {
+@views.html.layout.portalLayout(title, cls = cls, scripts = scripts, styles = styles, meta = meta) {
     @breadcrumbs
     @views.html.common.mainContent {
         @views.html.common.rightSidebar {

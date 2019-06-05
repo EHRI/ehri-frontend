@@ -1,6 +1,6 @@
 @(item: Country, result: services.search.SearchResult[(Repository,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.itemSearchLayout(item.toStringLang, EntityType.Country.toString, result) {
+@views.html.layout.itemSearchLayout(item, result) {
     @infobar(item)
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Countries.browse(item.id)) {
