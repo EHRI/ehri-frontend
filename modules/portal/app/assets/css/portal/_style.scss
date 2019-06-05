@@ -1157,6 +1157,9 @@ ul.list-export-options {
     > li {
       margin-bottom: $margin-xs;
     }
+    > li a.active {
+      font-weight: bold;
+    }
   }
 }
 
@@ -1529,3 +1532,94 @@ body.about  figure {
   }
 }
 
+// API docs. This should really be in the API
+// module rather than here.
+
+body.api {
+  // Needed for BS scrollspy to work
+  position: relative;
+}
+
+.CodeMirror {
+  border: $border-width solid $border-color;
+  box-shadow: $box-shadow-sm;
+}
+
+.example {
+  margin-bottom: 50px;
+}
+
+.api-example-curl {
+  box-shadow: $box-shadow-sm;
+  border: $border-width solid $border-color;
+  position: relative;
+  padding: $margin-sm;
+}
+
+.api-example-curl pre {
+  margin-bottom: 0;
+}
+
+.api-example-curl .copy-button {
+  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+section {
+  margin-bottom: $margin-xl;
+}
+
+.api-example-form input[type=number] {
+  width: 4rem;
+}
+
+.api-example-form-controls {
+  font-size: $font-size-sm;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.api-example-form-controls > .form-field {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.api-example-form-controls label {
+  font-size: $font-size-sm;
+  margin: 0 $margin-xs;
+}
+
+.api-example {
+  width: 100%;
+  float: left;
+  margin-bottom: $margin-lg;
+  height: 1rem;
+  font-size: $font-size-sm;
+  font-weight: 400;
+  font-family: monospace;
+  padding: $margin-xs;
+  box-shadow: $box-shadow-sm;
+}
+
+#doc-sidebar {
+  position: sticky;
+  top: 2em;
+}
+
+#doc-navbar {
+  ul,
+  ol {
+    display: flex;
+    flex-direction: column;
+
+    ul, ol {
+      margin-left: $margin-md;
+    }
+  }
+}
