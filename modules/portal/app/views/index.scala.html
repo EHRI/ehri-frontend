@@ -30,10 +30,8 @@
 
         @views.html.common.flash(flash)
         @views.html.common.mainContent {
-            <section id="portal-hero">
-                <div id="welcome-lead">
-                    @Markdown(Messages("welcome.blurb"))
-                </div>
+            <section id="welcome-lead">
+                @Markdown(Messages("welcome.blurb"))
             </section>
             <section id="portal-sections">
                 <div class="welcome-section">
