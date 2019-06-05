@@ -1,6 +1,6 @@
 @(result: services.search.SearchResult[(VirtualUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.VirtualUnit"), EntityType.VirtualUnit.toString, result) {
+@views.html.layout.searchLayout(Messages("type.VirtualUnit"), result, cls = EntityType.VirtualUnit.toString) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.VirtualUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {

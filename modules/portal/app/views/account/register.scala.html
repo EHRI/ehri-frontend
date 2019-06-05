@@ -14,7 +14,7 @@
     </script>
 }
 
-@views.html.layout.loginLayout(Messages("login.signup"), scripts = extraScripts) {
+@views.html.layout.loginLayout(Messages("login.signup"), cls = "register", scripts = extraScripts) {
     @views.html.common.itemHeader(Messages("login.signup")) {
         <p>@Messages("login.benefits")</p>
         <ol>

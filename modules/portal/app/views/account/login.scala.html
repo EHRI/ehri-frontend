@@ -14,7 +14,7 @@
     </script>
 }
 
-@views.html.layout.loginLayout(Messages("login.title"), scripts = extraScripts) {
+@views.html.layout.loginLayout(Messages("login.title"), cls = "login", scripts = extraScripts) {
     @views.html.common.itemHeader(Messages("login")) {
         <p>@Html(Messages("login.signup.prompt",
         Html(s"<a href='${controllers.portal.account.routes.Accounts.signup()}'>${Messages("login.signup.prompt.text")}</a>")))</p>

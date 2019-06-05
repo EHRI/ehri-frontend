@@ -1,6 +1,6 @@
 @(item: models.base.Model, result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], action: Call, watched: Seq[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.itemSearchLayout(item.toStringLang, defines.EntityType.VirtualUnit.toString, result) {
+@views.html.layout.itemSearchLayout(item, result) {
     @views.html.virtualUnit.infobar(item, path, watched.contains(item.id))
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), views.Helpers.virtualUnitUrl(path, item.id)) {
