@@ -35,10 +35,14 @@
     </h3>
     <div class="search-item-body">
         @views.html.virtualUnit.ifVirtual(item) { v =>
-            <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
+            @if(v.parent.isDefined) {
+                <ol class="breadcrumb">@wrapParent2(v, v.parent)</ol>
+            }
             @views.html.virtualUnit.listItemBody(v, path, highlighter = highlighter)
         } { d =>
-            <ol class="breadcrumb">@wrapParent(d, path)</ol>
+            @if(path.nonEmpty) {
+                <ol class="breadcrumb">@wrapParent(d, path)</ol>
+            }
             @views.html.documentaryUnit.listItemBody(d, showRepository, highlighter = highlighter)
         }
     </div>
