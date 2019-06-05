@@ -1,1 +1,98 @@
+.ap-editor-types {
+  @include list-unstyled();
+}
 
+.ap-editor-remove-access-point {
+  cursor: pointer;
+}
+
+.ap-editor-new-access-point {
+  @include clearfix;
+  border: $border-width solid $border-color;
+  padding: $margin-md;
+}
+
+.ap-editor-autocomplete-widget,
+.vocab-editor-autocomplete-widget {
+  @include clearfix;
+}
+
+.ap-editor-autocomplete-widget .suggestion-type {
+  @extend .pull-right;
+}
+
+.ap-editor-autocomplete-widget .dropdown-list {
+  position: relative;
+}
+
+.ap-editor-autocomplete-widget-suggestions {
+  cursor: pointer;
+  box-shadow: $box-shadow-sm;
+  border: $border-width solid $border-color;
+  position: absolute;
+  top: 100%;
+  z-index: 100;
+  right: auto;
+  width: 100%;
+  background-color: $white;
+}
+
+.ap-editor-autocomplete-widget-input {
+  position: relative;
+}
+
+.ap-editor-autocomplete-widget-suggestion,
+.vocab-editor-autocomplete-widget-suggestion {
+  padding: $margin-xs;
+}
+
+.ap-editor-autocomplete-widget-suggestion:hover, .ap-editor-autocomplete-widget-suggestion.selected {
+  background-color: $gray-100;
+}
+
+.ap-editor-pending-items {
+  @include list-unstyled;
+}
+
+.ap-editor-pending-item-link-note {
+  background-color: $info;
+  color: $white;
+  padding: $btn-padding-y $btn-padding-x;
+  align-items: center;
+}
+
+.ap-editor-new-access-point-controls,
+.ap-editor-pending-items li {
+  margin-top: $margin-md;
+  @include media-breakpoint-up(md) {
+    @include make-col-ready();
+    @include make-col-offset(3);
+    @include make-col(9);
+  }
+}
+
+.ap-editor-access-points {
+  @include list-unstyled;
+  margin-bottom: $margin-md;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.ap-editor-add-toggle {
+  cursor: pointer;
+  @extend small;
+}
+
+.ap-editor-access-point-description {
+  @extend .small, .text-muted;
+}
+
+.ap-editor-access-point .loading-spinner {
+  background-image: url('../img/ajax-loader-small.gif');
+  background-position: left top;
+  background-repeat: no-repeat;
+  padding-left: $margin-sm;
+  @extend .text-muted;
+}

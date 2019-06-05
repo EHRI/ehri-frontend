@@ -229,12 +229,12 @@ Vue.component("access-point-autocomplete-input", {
               v-on:keydown.down="selectNext"
               v-on:keydown.enter="accept"
               v-on:keydown.esc="cancelComplete"/>
-              <span class="input-group-btn">
+              <span class="input-group-append">
                 <button title="Create a new text-only access point" 
                       class="btn btn-success" 
                       v-bind:disabled="text.trim().length==0"
                       v-on:click="accept">
-                  <i class="glyphicon glyphicon-plus-sign"></i>
+                  <i class="fa fa-plus-circle"></i>
                 </button>
               </span>
              </div>
@@ -298,18 +298,21 @@ Vue.component("access-point-add-form", {
             v-bind:key="i">
               <div class="control-elements input-group ap-editor-pending-item">
                   <span v-if="item.targetId" title="Item is linked"
-                    class="input-group-addon ap-editor-pending-item-link-note">
-                      <i class="glyphicon glyphicon-link"></i>
+                    class="input-group-prepend ap-editor-pending-item-link-note">
+                    <i class="fa fa-link"></i>
                   </span>
-                  <span class="input-group-addon">{{item.text}}</span>
+                  <span class="input-group-prepend input-group-text">
+                    {{item.text}}
+                  </span>
                   <input class="form-control" 
                     v-bind:disabled="saving" 
                     v-model="item.description" 
                     placeholder="Optional description..."/>
-                  <a title="Remove item" 
-                    class="btn btn-danger input-group-addon glyphicon glyphicon-remove" 
-                    v-bind:disabled="saving"
-                    v-on:click.prevent="adding.splice(i, 1)"></a>
+                  <button title="Remove item" class="btn btn-danger input-group-append" 
+                        v-bind:disabled="saving"
+                        v-on:click.prevent="adding.splice(i, 1)">
+                    <i class="fa fa-remove"></i>  
+                  </button>
               </div>
         </li>
       </ul>
@@ -357,14 +360,14 @@ Vue.component("access-point", {
             <span v-else>{{accessPoint.name}}</span>
             <span class="controls">
               <span v-if="!confirm" title="Remove Access Point" 
-                class="ap-editor-remove-access-point glyphicon glyphicon-remove" 
+                class="ap-editor-remove-access-point fa fa-remove" 
                 v-on:click="confirm = true">
               </span>
               <span v-else class="remove-confirm" v-on:blur="confirm = false">
                   <button data-apply="confirmation" class="btn btn-xs btn-danger" 
                     v-on:click.prevent="deleteAccessPoint" 
                     v-bind:disabled="loading">
-                      <i class="glyphicon glyphicon-ok"></i>
+                      <i class="fa fa-check"></i>
                       Delete
                   </button>
                   <button data-dismiss="confirmation" class="btn btn-xs btn-default" 
