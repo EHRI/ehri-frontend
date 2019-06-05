@@ -334,8 +334,11 @@ body.home #navbar-primary-container {
 // Home page
 body.home {
 
-  .info-container h2 {
-    margin-bottom: $margin-md;
+  .info-container {
+    margin-bottom: $margin-lg;
+    h2 {
+      margin-bottom: $margin-md;
+    }
   }
 
   #header {
@@ -387,10 +390,11 @@ body.home {
     }
 
     border-bottom: $margin-xs solid var(--primary);
+    margin-bottom: $margin-lg;
   }
 
   #portal-sections {
-    margin-bottom: $margin-xl;
+    margin-bottom: $margin-lg;
   }
 
   .welcome-section.account {
@@ -433,6 +437,12 @@ body.home {
       grid-template-rows: repeat(2, minmax(250px, auto));
       grid-column-gap: $margin-lg;
       grid-row-gap: $margin-lg;
+
+      .welcome-section {
+        // Vertical spacing is handled
+        // by grid-row-gap
+        margin-bottom: 0;
+      }
     }
   }
 
@@ -591,10 +601,6 @@ body.home {
   ul {
     margin-bottom: 0;
   }
-}
-
-.breadcrumb:empty {
-  display: none;
 }
 
 // Main content
