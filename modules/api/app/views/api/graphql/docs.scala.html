@@ -35,14 +35,14 @@
         at the right hand side for information on what type and data is available.</p>
 
         <div id="api-usage-example">
-            @helper.form(controllers.api.graphql.routes.GraphQL.query(), 'class -> "api-example-form form-inline", 'id -> "api-usage-form") {
-                <label for="api-usage-input" class="">Example Query</label>
-                <textarea class="api-example" rows="8" id="api-usage-input">@query</textarea>
-                <br/>
-                <div class="form-group">
+            @helper.form(controllers.api.graphql.routes.GraphQL.query(), 'class -> "api-example-form", 'id -> "api-usage-form") {
+                <div class="form-field">
+                    <label for="api-usage-input" class="">Example Query</label>
+                    <textarea class="api-example" rows="8" id="api-usage-input">@query</textarea>
+                </div>
+                <div class="form-field">
                     <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
                 </div>
-                <br/>
                 <hr/>
 
                 <label for="api-usage-output" class="">Example Results</label>
@@ -65,7 +65,7 @@
                 The GraphQL <code>POST</code> endpoint at <code>@controllers.api.graphql.routes.GraphQL.query()</code>
                 accepts data in two formats, specified by the <code>Content-type</code> header:
             </p>
-            <dl class="dl-horizontal">
+            <dl>
                 <dt><code>application/json</code></dt>
                 <dd>A JSON object with, at minumum, a <code>query</code> field
                     containing the text of the query. You can also provide a
@@ -183,15 +183,15 @@
             });
     </script>
 } {
-    <li role="presentation"><a href="#overview">Overview</a></li>
-    <li role="presentation"><a href="#api-usage">Usage</a>
+    <li class="nav-item" role="presentation"><a class="nav-link" href="#overview">Overview</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" href="#api-usage">Usage</a>
         <ul class="nav">
-            <li role="presentation"><a href="#api-usage-example">Example</a></li>
-            <li role="presentation"><a href="#api-usage-formats">Data Formats</a></li>
-            <li role="presentation"><a href="#api-usage-pagination">Pagination and Cursors</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#api-usage-example">Example</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#api-usage-formats">Data Formats</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#api-usage-pagination">Pagination and Cursors</a></li>
         </ul>
     </li>
-    <li role="presentation">
-        <a href="#api-usage-python">Example usage with Python</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-usage-python">Example usage with Python</a>
     </li>
 }

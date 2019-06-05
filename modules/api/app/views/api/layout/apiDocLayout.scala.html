@@ -11,48 +11,6 @@
 @includeStyles = {
     @styles
     <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/codemirror.css")">
-    <style>
-    .CodeMirror {
-        border: 1px solid #999;
-        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
-    }
-
-    .example {
-        margin-bottom: 50px;
-    }
-
-    .api-example-curl {
-        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
-        position: relative;
-    }
-
-    .api-example-curl .copy-button {
-        float: right;
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
-
-    section {
-        margin-bottom: 60px;
-    }
-
-    .api-example-form input[type=number] {
-        width: 6em;
-    }
-
-    .api-example {
-        width: 100%;
-        float: left;
-        margin-bottom: 20px;
-        height: 300px;
-        font-size: 14px;
-        font-weight: 400;
-        font-family: monospace;
-        padding: 4px;
-        box-shadow: 2px 2px 5px 0 rgba(153, 153, 153, 1);
-    }
-    </style>
 }
 
 @breadcrumbs = {
@@ -65,7 +23,7 @@
 }
 
 
-@views.html.layout.rightSidebarLayout(title, breadcrumbs = breadcrumbs, scripts = includeScripts, styles = includeStyles) {
+@views.html.layout.rightSidebarLayout(title, cls = "api", breadcrumbs = breadcrumbs, scripts = includeScripts, styles = includeStyles) {
     <h1>@title</h1>
     @content
 
@@ -81,10 +39,12 @@
     </script>
 } {
     @if(navItems.body.trim.nonEmpty) {
-        <div id="doc-navbar" class="vertical-navbar" data-spy="scroll" data-offset-top="100">
-            <ul class="nav nav-stacked nav-pills">
-                @navItems
-            </ul>
+        <div class="sidebar-section" id="doc-sidebar">
+            <nav class="sidebar-section-body" id="doc-navbar">
+                <ul class="nav action-group">
+                    @navItems
+                </ul>
+            </nav>
         </div>
     }
 }

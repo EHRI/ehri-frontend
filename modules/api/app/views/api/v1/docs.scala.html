@@ -2,7 +2,7 @@
 
 
 @searchParams = {
-    <dl class="dl-horizontal">
+    <dl>
         <dt><code>q</code></dt>
         <dd>A text query, following the same rules as <a href="https://portal.ehri-project.eu/help/faq#kix.621e28q6i9y3">
             searching on the portal site.</a></dd>
@@ -13,18 +13,18 @@
 }
 
 @submitButton = {
-    <div class="form-group" style="margin-left: 10px">
+    <div class="form-field" style="margin-left: 10px">
         <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
     </div>
 }
 
 @searchForm(prefix: String) = {
-    <div class="form-group">
-        <label class="form-label hidden" for="@prefix-q">Query</label>
+    <div class="form-field">
+        <label class="form-label sr-only" for="@prefix-q">Query</label>
         <input class="input-sm form-control" placeholder="Query" type="text" name="q"
         id="@prefix-q" />
     </div>
-    <div class="form-group">
+    <div class="form-field">
         <label class="form-label" for="@prefix-type">Type</label>
         <select class="input-sm form-control" id="@prefix-type" name="type">
             <option value="">All</option>
@@ -33,13 +33,13 @@
             }
         </select>
     </div>
-    <div class="form-group">
+    <div class="form-field">
         <label class="form-label" for="@prefix-page">Page</label>
         <input class="input-sm form-control" type="number" min="1" max="1000" name="page"
         id="@prefix-page"
         value="1" />
     </div>
-    <div class="form-group">
+    <div class="form-field">
         <label class="form-label" for="@prefix-limit">Per page</label>
         <input class="input-sm form-control" type="number" min="1" max="100" name="limit"
         id="@prefix-limit" value="20" />
@@ -47,7 +47,7 @@
 }
 
 @itemIdField(prefix: String) = {
-    <div class="form-group">
+    <div class="form-field">
         <label class="form-label" for="@prefix-id">Type an item's ID:</label>
         <input class="input-sm form-control" placeholder="Query" type="text" name="id"
         id="@prefix-id" value="us-005578" />
@@ -122,14 +122,14 @@
 
             @searchParams
 
-            @helper.form(controllers.api.v1.routes.ApiV1.search(), 'class -> "api-example-form form-inline") {
-                <h4>Test it!</h4>
+            <h4>Test it!</h4>
+            @helper.form(controllers.api.v1.routes.ApiV1.search(), 'class -> "api-example-form") {
 
-                @searchForm("api-example-search")
-                @submitButton
+                <div class="api-example-form-controls">
+                    @searchForm("api-example-search")
+                    @submitButton
+                </div>
 
-                <br/>
-                <br/>
                 <label for="api-example-search" class="">Global Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-search"></textarea>
             }
@@ -150,14 +150,14 @@
                 <code>{ID}</code> being the <i>global EHRI identifier</i> of the item you want.
             </p>
 
-            @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), 'class -> "api-example-form form-inline") {
-                <h4>Test it!</h4>
+            <h4>Test it!</h4>
+            @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), 'class -> "api-example-form") {
 
-                @itemIdField("api-example-fetch")
-                @submitButton
+                <div class="api-example-form-controls">
+                    @itemIdField("api-example-fetch")
+                    @submitButton
+                </div>
 
-                <br/>
-                <br/>
                 <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
             }
@@ -181,18 +181,14 @@
 
             @searchParams
 
-            @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), 'class -> "api-example-form form-inline") {
-                <h4>Test it!</h4>
+            <h4>Test it!</h4>
+            @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), 'class -> "api-example-form") {
                 @itemIdField("api-example-item-search")
+                <div class="api-example-form-controls">
+                    @searchForm("api-example-item-search")
+                    @submitButton
+                </div>
 
-                <br/>
-                <br/>
-
-                @searchForm("api-example-item-search")
-                @submitButton
-
-                <br/>
-                <br/>
                 <label for="api-example-item-search" class="">Item Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
             }
@@ -213,7 +209,7 @@
             specification, so read the documentation there for an overview of what to expect.</p>
 
         <p>The response is a JSON object with up to four fields:</p>
-        <dl class="dl-horizontal">
+        <dl>
             <dt><code>data</code></dt><dd>this contains the main body of the response, and is either a list of
                 items or a single item.</dd>
             <dt><code>links</code></dt><dd>the top level "links" field contains links to API actions related to
@@ -340,24 +336,24 @@
             });
     </script>
 } {
-    <li role="presentation">
-        <a href="#overview">Overview</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#overview">Overview</a>
     </li>
-    <li role="presentation">
-        <a href="#api-actions">Actions</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-actions">Actions</a>
         <ul class="nav">
-            <li role="presentation"><a href="#global-search">Global Search</a></li>
-            <li role="presentation"><a href="#retrieve-item">Retrieve Items</a></li>
-            <li role="presentation"><a href="#item-search">Item Search</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#global-search">Global Search</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#retrieve-item">Retrieve Items</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#item-search">Item Search</a></li>
         </ul>
     </li>
-    <li role="presentation">
-        <a href="#api-responses">Structure of responses</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-responses">Structure of responses</a>
     </li>
-    <li role="presentation">
-        <a href="#api-parameters">Additional Parameters</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-parameters">Additional Parameters</a>
     </li>
-    <li role="presentation">
-        <a href="#api-usage-python">Example usage with Python</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-usage-python">Example usage with Python</a>
     </li>
 }
