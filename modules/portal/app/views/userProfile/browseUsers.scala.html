@@ -8,7 +8,7 @@
     }
 }
 
-@views.html.layout.portalLayout(Messages("social.browseUsers"), itemClass = "userProfile") {
+@views.html.layout.portalLayout(Messages("social.browseUsers"), cls = them.data.isA.toString) {
     @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("social.browseUsers")) {
         }

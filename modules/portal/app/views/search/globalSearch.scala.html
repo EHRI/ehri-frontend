@@ -1,6 +1,6 @@
 @(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("search.submit"), itemClass = "", result = result) {
+@views.html.layout.searchLayout(Messages("search.submit"), result) {
     @views.html.common.search.searchForm(result, action) {
         @views.html.common.search.searchItemList(result, watched)
     } {

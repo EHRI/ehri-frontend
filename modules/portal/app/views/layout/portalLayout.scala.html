@@ -1,4 +1,4 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
 
 <!DOCTYPE html>
 
@@ -12,14 +12,14 @@
 <html lang="@messages.lang.code">
     @defining(globalConfig.isEmbedMode) { fullscreen =>
         @views.html.common.head(title, styles = fsstyles, meta = meta)
-        <body class="@itemClass @(if(fullscreen) "fullscreen")">
+        <body class="@cls @(if(fullscreen) "fullscreen")">
             @views.html.common.preambleScripts()
             @if(!fullscreen) {
                 @views.html.common.readOnly()
                 @views.html.common.message()
                 @views.html.common.ipFilter()
                 <header id="header" class="navigation">
-                    @views.html.common.accountHeader(showFeedback = true, showAdminLink = true, prefsOpt = Some(prefs))
+                    @views.html.common.accountHeader(showAdminLink = true, prefsOpt = Some(prefs))
                     @views.html.common.primaryHeader()
                 </header>
                 @views.html.common.flash(flash)

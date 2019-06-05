@@ -1,4 +1,4 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, prefs: utils.SessionPrefs)
+@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, prefs: utils.SessionPrefs)
 
 @loginStyles = {
     @styles
@@ -14,7 +14,7 @@
 }
 
 
-@views.html.layout.portalLayout(title, itemClass = itemClass, scripts = scripts, styles = loginStyles) {
+@views.html.layout.portalLayout(title, cls = cls, scripts = scripts, styles = loginStyles) {
     @views.html.common.mainContent {
         <div class="login-page">
             <div class="login-or-signup">

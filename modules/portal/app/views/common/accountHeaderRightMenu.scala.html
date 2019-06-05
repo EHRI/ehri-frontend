@@ -23,13 +23,13 @@
             @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
                 <li>
                     <a href="@url" target="_blank">
-                        <i class="fa fa-info-circle"></i> @Messages("help.manual")
+                        @Messages("help.manual")
                     </a>
                 </li>
             }
             <li>
                 <a href="@controllers.portal.routes.Portal.externalPage("faq")">
-                    <i class="fa fa-question-circle"></i> @Messages("help.faq")
+                    @Messages("help.faq")
                 </a>
             </li>
             <li class="divider"></li>

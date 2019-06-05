@@ -1,9 +1,9 @@
 @(result: services.search.SearchResult[(Annotation,services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(Messages("type.Annotation"), EntityType.Annotation.toString) {
+@views.html.layout.portalLayout(Messages("type.Annotation"), cls = EntityType.Annotation.toString) {
     @views.html.common.mainContent {
         @views.html.common.search.searchForm(result, action, autofocus = false) {
-            @views.html.common.search.searchItemList(result, Seq.empty, itemClass=EntityType.Annotation.toString)
+            @views.html.common.search.searchItemList(result, Seq.empty, itemClass = EntityType.Annotation.toString)
         } {
             @views.html.common.search.facetList(result.facetClasses, action)
         }

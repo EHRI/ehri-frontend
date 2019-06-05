@@ -1,6 +1,6 @@
 @(result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.searchLayout(Messages("type.CvocConcept"), EntityType.Concept.toString, result) {
+@views.html.layout.searchLayout(Messages("type.CvocConcept"), result, cls = EntityType.Concept.toString) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.CvocConcept") {
         @views.html.common.search.searchItemList(result, watched)
     } {

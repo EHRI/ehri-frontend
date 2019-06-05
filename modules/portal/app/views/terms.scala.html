@@ -1,6 +1,6 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
 
-@views.html.layout.textLayout(Messages("termsAndConditions")) {
+@views.html.layout.textLayout(Messages("termsAndConditions"), cls = "terms") {
     <h2>@Messages("termsAndConditions")</h2>
 
     <h3 id="terms-user-generated">@Messages("termsAndConditions.userGenerated.heading")</h3>
