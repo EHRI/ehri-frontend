@@ -58,6 +58,12 @@ aside.sidebar {
   }
 }
 
+// Alt. links
+a.alt {
+  color: $black;
+  font-weight: bold;
+}
+
 // Figures
 figure {
   width: 20rem;
@@ -1004,10 +1010,11 @@ ul.pagination {
 
     .list-item-meta,
     .list-item-actions {
-      float: right;
       @include list-unstyled();
       @include list-inline();
       @extend %small-muted;
+      margin-left: $margin-sm;
+      float: right;
 
       .material-icons {
         font-size: $font-size-base;

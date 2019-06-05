@@ -61,3 +61,26 @@
 .help-block.info {
   @extend %small-muted;
 }
+
+// Events
+.event-item {
+  margin-bottom: $list-margin-bottom;
+
+  .event-item-meta {
+    @include list-unstyled;
+    @include list-inline();
+    @extend %small-muted;
+  }
+}
+
+pre.code-format {
+  border: $border-width solid $border-color;
+  background-color: $gray-100;
+  padding: $margin-xs;
+  font-size: $font-size-xs;
+}
+
+// Links etc
+.annotation-links {
+  @include list-unstyled();
+}

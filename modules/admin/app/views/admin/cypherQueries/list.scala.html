@@ -5,52 +5,56 @@
     @helper.form(action = action) {
         <div class="search-results-no-facets">
             <section class="search-results-body">
-                @common.search.searchBar(services.search.SearchParams(query = q), tips = false)
-                <div class="search-result-errata">
-                    <div class="search-summary">
-                    @Messages("pagination.displayingItems", queries.start, queries.end, queries.total)
-                    </div>
-                    @common.listSorting(Seq(
+                <div class="search-controls">
+                    @common.search.searchBar(services.search.SearchParams(query = q), tips = false)
+                    <div class="search-result-errata">
+                        <div class="search-summary">
+                        @Messages("pagination.displayingItems", queries.start, queries.end, queries.total)
+                        </div>
+                        @common.listSorting(Seq(
                             CypherQuery.NAME -> "cypherQuery.sort.name",
                             CypherQuery.CREATED -> "cypherQuery.sort.created",
                             CypherQuery.UPDATED -> "cypherQuery.sort.updated"
-                    ), sort)
+                        ), sort)
+                    </div>
                 </div>
 
                 <ol class="search-result-list">
                 @for(query <- queries; oid <- query.objectId) {
-                    @views.html.common.searchItemOutlineWithActions(oid, "cypherQuery") {
-                        @query.name
-                    } {
-                    } {
-                        @query.description.map(Markdown.apply)
-                        <pre><code>@query.query.stripMargin</code></pre>
+                    <li>
+                        @views.html.common.searchItemOutlineWithActions(oid, "cypherQuery") {
+                            @query.name
+                        } {
+                        } {
+                            @query.description.map(Markdown.apply)
+                            <pre class="code-format"><code>@query.query.stripMargin</code></pre>
 
-                        <div class="search-item-footer">
-                            <ul class="list-item-meta">
-                                <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updated))</li>
-                                <li title="@Messages("cypherQuery.public.description")">
-                                    <i class="fa fa-eye@(if(query.public) "-slash")"></i>
-                                </li>
-                            </ul>
-                            <ul class="list-item-actions">
-                                @for(fmt <- Seq(DataFormat.Html, DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                                    <li><a
-                                    title="@Messages(s"download.format.$fmt")"
-                                    href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a>
+                            <div class="search-item-footer">
+                                <ul class="list-item-meta">
+                                    <li>@Messages("item.update.when", views.Helpers.relativeDate(query.updated))</li>
+                                    <li title="@Messages("cypherQuery.public.description")">
+                                        <i class="fa fa-eye@(if(query.public) "-slash")"></i>
                                     </li>
-                                }
-                                @if(userOpt.exists(_.isAdmin)) {
-                                    <li><a
-                                    title="@Messages("cypherQuery.update.description")"
-                                    href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a></li>
-                                    <li><a class="ajax-action"
-                                    title="@Messages("cypherQuery.delete.description")"
-                                    href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a></li>
-                                }
-                            </ul>
-                        </div>
-                    }
+                                </ul>
+                                <ul class="list-item-actions">
+                                    @for(fmt <- Seq(DataFormat.Html, DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                                        <li><a
+                                        title="@Messages(s"download.format.$fmt")"
+                                        href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a>
+                                        </li>
+                                    }
+                                    @if(userOpt.exists(_.isAdmin)) {
+                                        <li><a
+                                        title="@Messages("cypherQuery.update.description")"
+                                        href="@controllers.cypher.routes.CypherQueries.updateQuery(oid)">@Messages("cypherQuery.update")</a></li>
+                                        <li><a class="ajax-action"
+                                        title="@Messages("cypherQuery.delete.description")"
+                                        href="@controllers.cypher.routes.CypherQueries.deleteQuery(oid)">@Messages("cypherQuery.delete")</a></li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </li>
                 }
                 </ol>
                 @views.html.common.pagination(queries, call = Some(action))
