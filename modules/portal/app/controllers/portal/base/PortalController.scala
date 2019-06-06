@@ -215,9 +215,9 @@ trait PortalController
 
       val encodedId = java.net.URLEncoder.encode(id, StandardCharsets.UTF_8.name())
       val disp = if (ct.contains("zip"))
-        Seq("Content-Disposition" -> s"attachment; filename='$encodedId-$format.zip'")
+        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$format.zip" + "\""))
       else if (asFile)
-        Seq("Content-Disposition" -> s"attachment; filename='$encodedId-$format.xml'")
+        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$format.xml" + "\""))
       else Seq.empty
 
       // If we're streaming a zip file, send it as an attachment
