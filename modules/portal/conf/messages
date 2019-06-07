@@ -67,8 +67,10 @@ errors.readonly=The EHRI portal is currently in read-only mode while we conduct 
          Normal service should be resumed in due course. Thanks for your patience.
 errors.itemNotFound=Item Not Found
 errors.itemNotFound.explanation=That item couldn''t be found in the database.
-errors.pageNotFound=Page Not Found
+errors.pageNotFound=404 Page Not Found
 errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.pageNotFound.search=Try a search for a specific item:
+errors.pageNotFound.links=...or these links for help:
 errors.clientError=There was a problem
 errors.genericProblem=An Error Occurred
 errors.genericProblem.explanation=We''re very sorry, but there''s a problem loading that page. We''ve been informed of \
@@ -76,11 +78,11 @@ errors.genericProblem.explanation=We''re very sorry, but there''s a problem load
 errors.maintenance=Site temporarily offline
 errors.maintenance.explanation=The EHRI Portal is currently offline while we undertake maintenance. Please check back soon.
 errors.databaseError=Database Error
-errors.databaseError.explanation=I''m afraid it looks like our database server has gone down. \
-  There''s not much we can do without it, so please try again later.
+errors.databaseError.explanation=It looks like our database server has gone down. \
+  This is usually a temporary occurrence so please try again shortly.
 errors.searchEngineError=Search Error
-errors.searchEngineError.explanation=I''m afraid it looks like our search engine has gone down. \
-  There''s not much we can do without it, so please try again later.
+errors.searchEngineError.explanation=It looks like our search engine has gone down. \
+  This is usually a temporary occurrence so please try again shortly.
 errors.databaseMaintenance=Database Temporarily Offline
 errors.databaseMaintenance.explanation=The EHRI database is currently offline for routine maintenance. \
   It should be back soon so please try again shortly.

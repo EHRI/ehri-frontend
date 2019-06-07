@@ -15,6 +15,7 @@
 .welcome-section h2,
 .info-container h2,
 .facet-class h4,
+.error h1.error-title,
 .sidebar-section-heading h4,
 .item-text-field-header h4 {
   @include color-var(color, 'secondary');
@@ -735,8 +736,7 @@ body.home {
     }
 
     #search-helper {
-      color: $white;
-      color: var(--white) !important;
+      @include color-var(color, 'white');
       background-color: rgba(244, 244, 244, .1);
 
       dl dt {
@@ -1250,6 +1250,10 @@ dl dt {
 
 .minor-notice {
   color: $text-muted;
+}
+
+.error-notice {
+  color: $text-darkened;
 }
 
 .secondary-attribute {

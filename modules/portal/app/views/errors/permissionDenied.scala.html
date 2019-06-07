@@ -1,19 +1,17 @@
-@import services.data.PermissionDenied
-@(perm: Option[PermissionDenied] = None)(implicit req: RequestHeader, messages: Messages)
+@(perm: Option[services.data.PermissionDenied] = None)(implicit req: RequestHeader, messages: Messages)
 
-<p class="text-error">@Messages("errors.permissionDenied.explanation")</p>
+<p class="error-notice">@Messages("errors.permissionDenied.explanation")</p>
 
 @perm.map { error =>
-    <hr>
-    <p>
+    <p class="error-notice">
         <strong>@Messages("errors.errorDetails"):</strong>
-        <dl>
-            <dt>user</dt><dd>@error.user</dd>
-            <dt>item</dt><dd>@error.item</dd>
-            <dt>permission</dt><dd>@error.permission</dd>
-            <dt>scope</dt><dd>@error.scope</dd>
-        </dl>
     </p>
+    <dl>
+        <dt>user</dt><dd>@error.user</dd>
+        <dt>item</dt><dd>@error.item</dd>
+        <dt>permission</dt><dd>@error.permission</dd>
+        <dt>scope</dt><dd>@error.scope</dd>
+    </dl>
 }.getOrElse {
-    <p>@Messages("errors.noFurtherInfo")</p>
+    <p class="minor-notice">@Messages("errors.noFurtherInfo")</p>
 }

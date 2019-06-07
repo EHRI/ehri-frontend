@@ -49,7 +49,7 @@ errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im
            Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
 errors.itemNotFound=Element nicht gefunden
 errors.itemNotFound.explanation=Das Element konnte nicht in der Datenbank gefunden werden.
-errors.pageNotFound=Seite nicht gefunden
+errors.pageNotFound=404 Seite nicht gefunden
 errors.pageNotFound.explanation=Die Seite existiert an diesem Standort nicht oder wurde verschoben.
 errors.clientError=Es gab ein Problem
 errors.genericProblem=Ein Fehler ist aufgetreten
@@ -58,11 +58,7 @@ errors.genericProblem.explanation=Leider ist beim Laden dieser Seite ein Fehler 
 errors.maintenance=Seite vorübergehend offline
 errors.maintenance.explanation=Das EHRI-Portal ist momentan wegen Wartungsarbeiten offline. Bitte versuchen Sie es in Kürze erneut.
 errors.databaseError=Datenbankfehler
-errors.databaseError.explanation=Leider scheint unser Datenbankserver abgestürzt zu sein     \
-    Bitte versuchen Sie es in Kürze erneut.
 errors.databaseMaintenance=Datenbank vorübergehend offline
-errors.databaseMaintenance.explanation=Die EHRI-Datenbank ist wegen Wartungsarbeiten momentan offline. \
-    Bitte versuchen Sie es in Kürze erneut.
 errors.permissionDenied=Zugriff verweigert
 errors.permissionDenied.explanation=Anscheinend ist die von Ihnen gewünschte Aktion nicht möglich. \
     Womöglich ist ein Fehler auf der Seite aufgetreten. Wir werden dieses Problem schnellstmöglich beheben.

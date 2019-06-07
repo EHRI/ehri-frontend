@@ -1,9 +1,32 @@
-@(str: Option[String] = None)(implicit req: RequestHeader, messages: Messages)
+@(str: Option[String] = None)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-<p>
+@import services.search.SearchParams
+
+<p class="minor-notice">
     @Messages("errors.itemNotFound.explanation")
 </p>
 
-@str.map { s =>
-    <i>@s</i>
-}
+<h2>@Messages("errors.pageNotFound.search")</h2>
+    @helper.form(action = controllers.portal.routes.Portal.search()) {
+        @views.html.common.search.searchBar(SearchParams.empty.copy(query=str), tips = false)
+    }
+
+<h2>@Messages("errors.pageNotFound.links")</h2>
+<ul class="page-links">
+    @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
+        <li>
+            <a href="@url" target="_blank">@Messages("help.manual")</a>
+        </li>
+    }
+<li>
+    <a href="@controllers.portal.routes.Portal.externalPage("faq")">@Messages("help.faq")</a>
+</li>
+<li>
+    <a href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
+</li>
+<li>
+    <a href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
+</li>
+
+</ul>
+

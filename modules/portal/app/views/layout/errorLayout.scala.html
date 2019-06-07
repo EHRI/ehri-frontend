@@ -11,8 +11,10 @@
             @views.html.common.primaryHeader()
         </header>
         @views.html.common.mainContent {
-            <h1 id="error-title">@title</h1>
-            @content
+            <article class="error-block">
+                <h1 class="error-title" id="error-title">@title</h1>
+                @content
+            </article>
         }
         @views.html.common.footer()
         @views.html.common.postambleScripts()
