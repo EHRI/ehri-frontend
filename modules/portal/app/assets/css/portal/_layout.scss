@@ -120,6 +120,15 @@ ul.dropdown-menu {
   }
 }
 
+// Error page layouts
+body.error .main-content .error-block {
+  @include media-breakpoint-up(md) {
+    max-width: map-get($container-max-widths, md);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 // Activity stream / Timeline
 #activity-stream {
   @include list-unstyled();
@@ -181,25 +190,6 @@ ul.pagination {
       display: block;
     }
   }
-}
-
-.search-bar {
-  //@include make-row();
-  //
-  //> .search-box {
-  //  @include make-col-ready();
-  //  @include make-col(9);
-  //}
-  //
-  //> .search-helper-toggle {
-  //  @include make-col-ready();
-  //  @include make-col(3);
-  //}
-  //
-  //> .search-helper-container {
-  //  @include make-col-ready();
-  //  @include make-col(12);
-  //}
 }
 
 .search-result-errata {

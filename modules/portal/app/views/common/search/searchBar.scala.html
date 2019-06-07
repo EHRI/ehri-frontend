@@ -1,4 +1,4 @@
-@(params: services.search.SearchParams, fields: Seq[services.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(params: services.search.SearchParams, fields: Seq[services.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit request: RequestHeader, messages: Messages)
 
 @import services.search.{SearchParams,SearchField}
 

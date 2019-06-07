@@ -1,7 +1,7 @@
 @(maintenance: Boolean = false)(implicit req: RequestHeader, messages: Messages)
 
 @if(maintenance) {
-    <p class="alert alert-info">@Messages("errors.databaseMaintenance.explanation")</p>
+    <p class="minor-notice">@Messages("errors.databaseMaintenance.explanation")</p>
 } else {
-    <p class="alert alert-error">@Messages("errors.databaseError.explanation")</p>
+    <p class="error-notice">@Messages("errors.databaseError.explanation")</p>
 }
