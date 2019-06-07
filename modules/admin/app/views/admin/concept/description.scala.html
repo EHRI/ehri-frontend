@@ -16,7 +16,8 @@
 }
 
 @views.html.admin.common.descriptionOutline(item, desc, visible = visible) {
-    @views.html.admin.common.descriptionHeader(desc.name)
+    @views.html.common.itemHeader(desc.name) {
+    }
     <dl class="description-attributes">
         <dt>@Messages(prefix + "." + PREFLABEL)</dt>
         <dd>

@@ -4,7 +4,8 @@
 @import views.html.admin.common.descriptionSection
 
 @views.html.admin.common.descriptionOutline(item, desc) {
-    @views.html.admin.common.descriptionHeader(desc.name)
+    @views.html.common.itemHeader(desc.name) {
+    }
 
     @descriptionSection(IDENTITY_AREA) {
         @views.html.admin.common.textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))

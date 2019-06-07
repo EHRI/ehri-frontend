@@ -1,3 +1,8 @@
+legend {
+  font-size: $font-size-lg;
+  width: unset;
+}
+
 .testing-banner {
   margin-bottom: 0;
 }
@@ -70,6 +75,15 @@ body > .flash {
 }
 
 // Events
+.event-filter {
+  padding: $margin-md;
+  border: $border-width solid $border-color;
+  margin-bottom: $margin-md;
+}
+
+.event-list {
+  @include list-unstyled();
+}
 .event-item {
   margin-bottom: $list-margin-bottom;
 

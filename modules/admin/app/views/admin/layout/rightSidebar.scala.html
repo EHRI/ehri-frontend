@@ -14,7 +14,8 @@
                 @sidebar
             </aside>
             <article class="main">
-                @views.html.admin.common.descriptionHeader(title)
+                @views.html.common.itemHeader(title.toString) {
+                }
                 @common.errorFlash(flash)
                 @content
             </article>
