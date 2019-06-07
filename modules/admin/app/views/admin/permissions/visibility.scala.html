@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebar(Messages("visibility.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @if(item.accessors.isEmpty) {
         <h3>@Messages("visibility.visibleToEveryone")</h3>
-        <p>@Messages("visibility.visibleToEveryoneMessage")</p>
+        <p class="minor-notice">@Messages("visibility.visibleToEveryoneMessage")</p>
     } else {
         <h3>
             <i class="fa fa-lock"></i>

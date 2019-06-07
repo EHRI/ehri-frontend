@@ -2,27 +2,28 @@
 
 @import services.data.Constants._
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.cleanFieldTemplate.f) }
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-<div class="event-filter">
-@helper.form(action = action, 'class -> "form-inline", 'role -> "form") {
-    <input type="hidden" name="@OFFSET_PARAM" value="@range.offset" />
-    <input type="hidden" name="@LIMIT_PARAM" value="@range.limit" />
-    @defining("systemEvent") { implicit fieldPrefix =>
-        @formHelpers.enumChoiceInput(
-            filterForm(""),
-            EVENT_TYPE,
-            defines.EventType,
-            '_autosubmit -> true,
-            'multiple -> true
-        )
-        @formHelpers.choiceInput(
-            filterForm(""),
-            USERS,
-            users.toList,
-            '_autosubmit -> true,
-            'multiple -> true
-        )
+<fieldset class="event-filter">
+    <legend>@Messages("systemEvent.filter")</legend>
+    @helper.form(action = action, 'class -> "", 'role -> "form") {
+        <input type="hidden" name="@OFFSET_PARAM" value="@range.offset" />
+        <input type="hidden" name="@LIMIT_PARAM" value="@range.limit" />
+        @defining("systemEvent") { implicit fieldPrefix =>
+            @formHelpers.enumChoiceInput(
+                filterForm(""),
+                EVENT_TYPE,
+                defines.EventType,
+                '_autosubmit -> true,
+                'multiple -> true
+            )
+            @formHelpers.choiceInput(
+                filterForm(""),
+                USERS,
+                users.toList,
+                '_autosubmit -> true,
+                'multiple -> true
+            )
+        }
     }
-}
-</div>
+</fieldset>

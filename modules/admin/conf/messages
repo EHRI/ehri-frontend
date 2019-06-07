@@ -1369,9 +1369,11 @@ systemEvent.subjects=Subjects
 systemEvent.subjects.list={1,choice,-1#No subjects|0#{0}|0<{0} and {1,number,integer} more...}
 systemEvent.newerEvents=More recent events
 systemEvent.olderEvents=Older events
-systemEvent.et=Event Type
 systemEvent.filter=Filter Events
+systemEvent.user.description=Filter events not initiated by these users.
 systemEvent.user=Users
+systemEvent.et=Event Type
+systemEvent.et.description=Exclude events not matching these types.
 systemEvent.list=System Events
 
 #
