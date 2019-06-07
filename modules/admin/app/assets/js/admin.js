@@ -201,10 +201,11 @@ jQuery(function ($) {
           .replace(re2, prefix + "_" + idx));
       //container.append(elem);
       set.append($elem);
-      // Add select2 support...
-      $elem.find("div.select2-container").remove();
-      $elem.find("select.select2").removeClass(".select2-offscreen").select2(select2Opts || {});
 
+      // Add select2 support...
+      $elem.find(".select2:visible").select2(select2Opts || {});
+
+      // Trigger custom event...
       $elem.trigger("inlineFormset:added");
 
       // And a help popover
