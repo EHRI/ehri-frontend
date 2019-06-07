@@ -1,4 +1,4 @@
-@(form: Form[(Boolean,Boolean,List[defines.EntityType.Value])], types: Seq[defines.EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(form: Form[(Boolean,Boolean,List[defines.EntityType.Value])], types: Seq[defines.EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @import controllers.admin.IndexTypes._
 
@@ -32,17 +32,17 @@
                 <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.index.types.selectAll")</label>
                 <hr />
                 @types.map { et =>
-                    <label class="checkbox">
-                        <input type="checkbox" name="@(TYPES)[]" value="@et" />
-                        @Messages("contentTypes." + et.toString)
-                    </label>
+                    <div class="content-type">
+                        <label class="checkbox">
+                            <input type="checkbox" name="@(TYPES)[]" value="@et" />
+                            @Messages("contentTypes." + et.toString)
+                        </label>
+                    </div>
                 }
             </div>
         </div>
         <div class="form-actions">
-            <div class="form-group">
-                <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
-            </div>
+            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
         </div>
 
         <div id="update-progress"></div>

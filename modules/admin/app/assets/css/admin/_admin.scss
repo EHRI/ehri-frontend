@@ -2,6 +2,10 @@
   margin-bottom: 0;
 }
 
+body > .flash {
+  margin-bottom: 0;
+}
+
 .success-pullup {
   float: right;
 }
@@ -58,8 +62,11 @@
   @extend %small-muted;
 }
 
-.help-block.info {
-  @extend %small-muted;
+.help-block {
+  font-size: $font-size-xs;
+  &.info {
+    color: $text-muted;
+  }
 }
 
 // Events
@@ -81,7 +88,8 @@ pre.code-format {
 }
 
 // Links etc
-.annotation-links {
+.annotation-links,
+.external-links {
   @include list-unstyled();
 }
 
@@ -99,5 +107,25 @@ pre.code-format {
   }
   .no-account {
     @extend .badge, .badge-dark;
+  }
+}
+
+// Concept forms
+.concept-description-form {
+  margin-bottom: $margin-md;
+}
+
+.add-description {
+  margin-bottom: $margin-md;
+  @include clearfix();
+  a {
+    float: right;
+  }
+}
+
+.inline-element-block-controls {
+  @include clearfix();
+  .remove-inline-element {
+    float: right;
   }
 }

@@ -17,10 +17,7 @@
 
         <fieldset id="descriptions-area">
             <div class="inline-formset" data-prefix="descriptions">
-                <label>
-                    <strong>@Messages(prefix + ".descriptions")</strong>
-                </label>
-                <hr />
+                <h3>@Messages(prefix + ".descriptions")</h3>
                 <div class="inline-element-template form-template">
                     @descriptionForm(f("descriptions[IDX]"))
                 </div>
@@ -29,14 +26,11 @@
                         @descriptionForm(desc)
                     }
                 </div>
-
-                <div class="form-group">
-                    <div class="col-sm-9 col-sm-offset-3 text-right">
-                        <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
-                            <i class="fa fa-plus"></i>
+                <div class="add-description">
+                    <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
+                        <i class="fa fa-plus"></i>
                         @Messages("cvocConcept.createDescription")
-                        </a>
-                    </div>
+                    </a>
                 </div>
             </div>
         </fieldset>

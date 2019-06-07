@@ -92,11 +92,11 @@ jQuery(function($) {
 
   // Re-check select2s whenever there's an Ajax event that could
   // load a widget (e.g. the profile form)
-  var $select = $("select.select2");
+  var $select = $("select.select2:visible");
   if ($select.select2 !== undefined) {
     $select.select2(select2Opts);
     $(document).ajaxComplete(function () {
-      $("select.select2").select2(select2Opts);
+      $("select.select2:visible").select2(select2Opts);
     });
   }
 
