@@ -2,16 +2,13 @@
 
 @defining(item.externalLinks(links)) { externalLinks =>
     @if(externalLinks.nonEmpty) {
-        <div class="external-links">
-            <hr />
-            <h3>@Messages("accessPoint.externalReferences")</h3>
-            <ul>
-                @for(link <- externalLinks ; other <- link.opposingTarget(item)) {
-                    <li class="external-item-link">
-                        @views.html.admin.link.itemLink(link, other, Some(item))
-                    </li>
-                }
-            </ul>
-        </div>
+        <h3>@Messages("accessPoint.externalReferences")</h3>
+        <ul class="external-links">
+            @for(link <- externalLinks ; other <- link.opposingTarget(item)) {
+                <li class="external-item-link">
+                    @views.html.admin.link.itemLink(link, other, Some(item))
+                </li>
+            }
+        </ul>
     }
 }

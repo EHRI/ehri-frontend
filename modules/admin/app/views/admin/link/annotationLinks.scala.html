@@ -2,7 +2,6 @@
 
 @defining(links.filter(_.bodies.isEmpty)) { annotationLinks =>
     @if(annotationLinks.nonEmpty) {
-        <hr />
         <h3>@Messages("link.linkTo")</h3>
         <ul class="annotation-links">
             @for(link <- annotationLinks ; other <- link.opposingTarget(item)) {
