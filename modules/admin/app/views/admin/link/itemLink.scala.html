@@ -2,7 +2,7 @@
 
 @views.html.admin.helpers.linkTo(item, content = Html(text.getOrElse(item.toStringLang)))
 <small>
-    <span class="label label-default">@Messages("link." + link.data.linkType.toString)</span>
+    <span class="badge badge-dark">@Messages("link." + link.data.linkType.toString)</span>
 </small>
 <a class="inline-action" title="@Messages("link.update")" href="@controllers.links.routes.Links.getAndRedirect(link.id, src.map(_.id))">
     <i class="fa fa-link"></i>

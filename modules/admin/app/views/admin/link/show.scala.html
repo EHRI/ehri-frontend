@@ -6,9 +6,9 @@
         @defining("link") { implicit fieldPrefix =>
             @views.html.admin.common.textValue(LinkF.DESCRIPTION, item.data.description)
             @views.html.admin.common.dateSet(item.data, LinkF.DATES)
-            <span class="label label-default">@Messages("link." + item.data.linkType.toString)</span>
+            <span class="badge badge-dark">@Messages("link." + item.data.linkType.toString)</span>
             @item.data.linkField.map { field =>
-                <span class="label label-warning">@Messages("link." + field.toString)</span>
+                <span class="badge badge-warning">@Messages("link." + field.toString)</span>
             }
 
             @item.source.map { src =>

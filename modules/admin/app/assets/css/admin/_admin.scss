@@ -84,3 +84,20 @@ pre.code-format {
 .annotation-links {
   @include list-unstyled();
 }
+
+.user-status {
+  font-size: $font-size-sm;
+
+  .active {
+    @extend .badge, .badge-info;
+  }
+  .inactive {
+    @extend .badge, .badge-warning;
+  }
+  .unverified {
+    @extend .badge, .badge-warning;
+  }
+  .no-account {
+    @extend .badge, .badge-dark;
+  }
+}
