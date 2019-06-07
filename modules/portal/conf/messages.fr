@@ -49,7 +49,7 @@ errors.readonly=Le portail de l''EHRI est pour l''instant uniquement en mode lec
               Un service normal reprendra en temps voulu. Merci pour votre patience.
 errors.itemNotFound=Objet non trouvé
 errors.itemNotFound.explanation=Cet objet n''a pas été trouvé dans la base de données.
-errors.pageNotFound=La page n''a pas été trouvée
+errors.pageNotFound=404 La page n''a pas été trouvée
 errors.pageNotFound.explanation=La page n''existe pas sur cet emplacement, ou elle a été déplacée.
 errors.clientError=Il y avait un problème
 errors.genericProblem=Une erreur est survenue
@@ -58,8 +58,6 @@ errors.genericProblem.explanation=Nous sommes désolés, mais cette page ne peut
 errors.maintenance=Site provisoirement hors ligne
 errors.maintenance.explanation=Le portail de l''EHRI est actuellement hors ligne pendant que nous effectuons une opération d''entretien. Veuillez revenir sous peu.
 errors.databaseError=Erreur de base de données
-errors.databaseError.explanation=J"ai bien peur que notre serveur de base de données ne soit en panne.    \
-     Veuillez réessayer plus tard.
 errors.databaseMaintenance=Base de données provisoirement hors ligne
 errors.databaseMaintenance.explanation=La base de données d l"EHRI est actuellement hors ligne pour cause d"entretien de routine.  \
   Elle devrait être à nouveau disponible sous peu alors réessayez bientôt.

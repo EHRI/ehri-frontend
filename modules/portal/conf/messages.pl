@@ -49,7 +49,7 @@ errors.readonly=Portal EHRI jest obecnie dostępny w trybie tylko do odczytu ze 
            Wkrótce powinno zostać wznowione normalne działanie. Dziękujemy za cierpliwość.
 errors.itemNotFound=Nie znaleziono pozycji
 errors.itemNotFound.explanation=Nie udało się odnaleźć tej pozycji w bazie danych.
-errors.pageNotFound=Nie znaleziono strony
+errors.pageNotFound=404 Nie znaleziono strony
 errors.pageNotFound.explanation=Strona o tym adresie nie istnieje lub została przeniesiona.
 errors.clientError=Był problem
 errors.genericProblem=Wystąpił błąd.
@@ -58,8 +58,6 @@ errors.genericProblem.explanation=Przepraszamy, ale wystąpił problem podczas w
 errors.maintenance=Witryna tymczasowo niedostępna
 errors.maintenance.explanation=Portal EHRI jest aktualnie niedostępny ze względu na prowadzone prace konserwacyjne. Zapraszamy ponownie wkrótce.
 errors.databaseError=Błąd bazy danych
-errors.databaseError.explanation=Wygląda na to, że nasz serwer bazy danych przestał działać.     \
-    Niewiele możemy zrobić bez serwera, więc spróbuj ponownie później.
 errors.databaseMaintenance=Baza danych tymczasowo niedostępna
 errors.databaseMaintenance.explanation=Baza danych EHRI jest aktualnie niedostępna ze względu na rutynowe prace konserwacyjne. \
   
