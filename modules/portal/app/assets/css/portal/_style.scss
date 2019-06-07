@@ -967,6 +967,10 @@ ul.pagination {
 }
 
 .search-item {
+  border-bottom: $border-width dashed $gray-500;
+  padding-bottom: $margin-sm;
+  margin-bottom: $list-margin-bottom;
+
   h2.search-item-heading {
     font-family: $font-family-base;
     text-transform: none;
@@ -1023,7 +1027,6 @@ ul.pagination {
     }
   }
 
-  margin-bottom: $list-margin-bottom;
 }
 
 // Annotation lists
