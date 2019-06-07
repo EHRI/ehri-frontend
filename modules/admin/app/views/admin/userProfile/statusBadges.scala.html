@@ -1,16 +1,18 @@
 @(user: UserProfile)(implicit messages: Messages)
 
-@if(user.data.active) {
-    <span class="label label-info">@Messages("userProfile.active.true")</span>
-} else {
-    <span class="label label-warning">@Messages("userProfile.active.false")</span>
-}
-
-@user.account.map { account =>
-    @if(!account.verified) {
-        <span class="label label-warning" title="@Messages("userProfile.unverified.description")">@Messages("userProfile.unverified")</span>
+<span class="user-status">
+    @if(user.data.active) {
+        <span class="active">@Messages("userProfile.active.true")</span>
+    } else {
+        <span class="inactive">@Messages("userProfile.active.false")</span>
     }
-}.getOrElse {
-    <span class="label label-default">@Messages("userProfile.missingAccount")</span>
-}
+
+    @user.account.map { account =>
+        @if(!account.verified) {
+            <span class="unverified" title="@Messages("userProfile.unverified.description")">@Messages("userProfile.unverified")</span>
+        }
+    }.getOrElse {
+        <span class="no-account">@Messages("userProfile.missingAccount")</span>
+    }
+</span>
 
