@@ -1568,6 +1568,7 @@ body.api {
   border: $border-width solid $border-color;
   position: relative;
   padding: $margin-sm;
+  margin-bottom: $margin-lg;
 }
 
 .api-example-curl pre {
@@ -1593,8 +1594,11 @@ section {
   font-size: $font-size-sm;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+
+  button[type=submit] {
+    margin-left: $margin-sm;
+  }
 }
 
 .api-example-form-controls > .form-field {
