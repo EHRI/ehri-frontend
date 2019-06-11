@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(AuthoritativeSet,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
+@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
 @views.html.layout.searchLayout(Messages("type.AuthoritativeSet"), EntityType.AuthoritativeSet.toString, result) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.AuthoritativeSet") {

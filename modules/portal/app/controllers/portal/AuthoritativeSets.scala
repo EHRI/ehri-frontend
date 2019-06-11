@@ -23,11 +23,26 @@ case class AuthoritativeSets @Inject()(
   with Generic[AuthoritativeSet]
   with Search {
 
+  import SearchConstants._
+
   private val portalAuthSetRoutes = controllers.portal.routes.AuthoritativeSets
+  private val promotedFilter = Map("fq" -> "promotionScore:[1 TO *]")
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[AuthoritativeSet](params = params, paging = paging, extra = Map("fq" -> "promotionScore:[1 TO *]"), sort = SearchSort.Name).map { result =>
-      Ok(views.html.authoritativeSet.list(result, portalAuthSetRoutes.searchAll(), request.watched))
+    // This is a bit confusing: if there's not query we just list the promoted vocabularies.
+    // If there is a query we have to fetch the promoted sets and then run the search
+    // of items *held by* those sets.
+    params.query.map { q =>
+      for {
+        // FIXME: more efficient ways of fetching promoted sets here?
+        parents <- findType[AuthoritativeSet](SearchParams.empty, PageParams.empty.withoutLimit, extra = promotedFilter)
+        filter = Map("fq" -> s"$HOLDER_ID:(${parents.mapItems(_._1.id).page.mkString(" ")})")
+        result <- findType[HistoricalAgent](params = params, paging = paging, extra = filter)
+      } yield Ok(views.html.authoritativeSet.list(result, portalAuthSetRoutes.searchAll(), request.watched))
+    }.getOrElse {
+      findType[AuthoritativeSet](params = params, paging = paging, extra = promotedFilter, sort = SearchSort.Name).map { result =>
+        Ok(views.html.authoritativeSet.list(result, portalAuthSetRoutes.searchAll(), request.watched))
+      }
     }
   }
 

@@ -23,16 +23,31 @@ case class Vocabularies @Inject()(
   with Generic[Vocabulary]
   with Search {
 
+  import SearchConstants._
+
   private def filterKey(implicit request: RequestHeader): String = SearchConstants.HOLDER_ID
 
   private def filters(implicit request: RequestHeader): Map[String, Any] =
     if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String, Any]
 
   private val portalVocabRoutes = controllers.portal.routes.Vocabularies
+  private val promotedFilter = Map("fq" -> "promotionScore:[1 TO *]")
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = UserBrowseAction.async { implicit request =>
-    findType[Vocabulary](params = params, paging = paging, extra = Map("fq" -> "promotionScore:[1 TO *]"), sort = SearchSort.Name).map { result =>
-      Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
+    // This is a bit confusing: if there's not query we just list the promoted vocabularies.
+    // If there is a query we have to fetch the promoted vocabularies and then run the search
+    // of items *held by* those vocabs.
+    params.query.map { q =>
+      for {
+        // FIXME: more efficient ways of fetching promoted vocabularies?
+        parents <- findType[Vocabulary](SearchParams.empty, PageParams.empty.withoutLimit, extra = promotedFilter)
+        filter = Map("fq" -> s"$HOLDER_ID:(${parents.mapItems(_._2.id).page.mkString(" ")})")
+        result <- findType[Concept](params = params, paging = paging, extra = filter)
+      } yield Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
+    }.getOrElse {
+      findType[Vocabulary](params = params, paging = paging, extra = promotedFilter, sort = SearchSort.Name).map { result =>
+        Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
+      }
     }
   }
 
