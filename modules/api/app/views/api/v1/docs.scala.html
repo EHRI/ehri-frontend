@@ -13,7 +13,7 @@
 }
 
 @submitButton = {
-    <div class="form-field" style="margin-left: 10px">
+    <div class="form-field">
         <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
     </div>
 }
@@ -139,7 +139,6 @@
             @views.html.api.helpers.curlField("global-search-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"
             }
-            <hr/>
         </div>
 
 
