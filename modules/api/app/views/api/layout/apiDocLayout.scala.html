@@ -2,12 +2,15 @@
 
 @includeScripts = {
     @scripts
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/codemirror-all.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/codemirror.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/javascript.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/xml.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/clipboard.js")"></script>
 }
 
 @includeStyles = {
     @styles
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/lib/codemirror.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/codemirror.css")">
     <style>
     .CodeMirror {
         border: 1px solid #999;

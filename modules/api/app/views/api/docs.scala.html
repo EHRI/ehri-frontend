@@ -15,13 +15,8 @@
         <h2>Overview</h2>
         <p>
             The EHRI portal's APIs (application programming interfaces) allow users (researchers, developers, etc) to
-            retrieve EHRI's information in a programmatic fashion. Currently two APIs are offered, each suitable for
+            retrieve EHRI's information in a programmatic fashion. Several APIs are offered, suitable for
             different purposes:
-        </p>
-        <p class="alert alert-info">
-            <i class="glyphicon glyphicon-asterisk"></i>
-            <strong>Note:</strong> both APIs are currently in testing. Feedback and reports of usage
-            issues will be gratefully recieved.
         </p>
     </section>
 
@@ -30,8 +25,8 @@
             <h2>Search API</h2>
 
             <p>The search API (version 1) allows searching the EHRI portal's data and
-            retrieving items as JSON objects. It is based on the <a class="external"
-            href="http://jsonapi.org">http://jsonapi.org</a> specification.</p>
+                retrieving items as JSON objects. It is based on the <a class="external" href="http://jsonapi.org">http://jsonapi.org/</a> specification.
+            </p>
 
             <p>
                 <strong><a href="@controllers.api.v1.routes.ApiV1Home.index()">
@@ -43,11 +38,10 @@
         <section id="api-graphql">
             <h2>GraphQL API</h2>
 
-            <p>The GraphQL API implements <a class="external" href="http://graphql.org/">Facebook's data query
-                language</a>
-            and provides the means to make highly specific queries of the portal's data with a wider
-                scope than that provided by the search API.</p>
-
+            <p>The GraphQL API implements <a class="external" href="http://graphql.org/">Facebook's data query language</a>
+                and provides the means to make highly specific queries of the portal's
+                data with a wider scope than that provided by the search API.
+            </p>
             <p>
                 <strong><a href="@controllers.api.graphql.routes.GraphQL.index()">
                     Try the EHRI GraphQL API.
@@ -55,14 +49,27 @@
             </p>
         </section>
 
+        <section id="api-oaipmh">
+            <h2>@Messages("api.oaipmh.header")</h2>
+
+            <p>EHRI provides an <a href="https://www.openarchives.org/pmh/">Open Archives Initiative Protocol for Metadata Harvesting</a>
+                endpoint at: <code><a href="@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)">
+                @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)
+                </a></code>.</p>
+
+            <strong><a href="@controllers.api.oaipmh.routes.OaiPmhHome.index()">
+                Try the OAI-PMH interface.
+            </a></strong>
+        </section>
+
         <section id="api-datasets">
             <h2>@Messages("api.datasets.header")</h2>
 
             <p>@Messages("api.datasets.description")</p>
 
-                <strong><a href="@controllers.api.datasets.routes.Datasets.list()">
-                    Browse EHRI Datasets.
-                </a></strong>
+            <strong><a href="@controllers.api.datasets.routes.Datasets.list()">
+                Browse EHRI Datasets.
+            </a></strong>
         </section>
     </div>
 } {
@@ -74,10 +81,9 @@
             <li role="presentation">
                 <a href="#apis">APIs</a>
                 <ul class="nav">
-                    <li role="presentation">
-                        <a href="#api-search">Search API</a>
-                        <a href="#api-graphql">GraphQL API</a>
-                    </li>
+                    <li role="presentation"><a href="#api-search">Search API</a></li>
+                    <li role="presentation"><a href="#api-graphql">GraphQL API</a></li>
+                    <li role="presentation"><a href="#api-oaipmh">OAI-PMH</a></li>
                 </ul>
             </li>
             <li role="presentation">

@@ -1,0 +1,188 @@
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+
+@import play.api.libs.json.Json
+
+@views.html.api.layout.apiDocLayout(Messages("api.oaipmh.header")) {
+
+    <section id="overview">
+        <h2>Overview</h2>
+
+        <p>The Open Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is an XML-based web-service protocol that
+        allows clients to fetch metadata about the contents of digital repositories.</p>
+
+        <p>For a complete description of the protocol please see the <a href="https://www.openarchives.org/pmh/">official pages</a> and the
+        <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">specification document.</a></p>
+    </section>
+
+    <section id="api-usage">
+        <h2>Usage</h2>
+
+        <p>EHRI's OAI-PMH endpoint is located at <code>@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)</code>.</p>
+
+        <h3>Verbs</h3>
+
+        <p>The protocol consists of six &quot;verbs&quot;:</p>
+        <dl class="dl-horizontal">
+            <dt>Identify</dt>
+            <dd>show information about the current repository (the default verb)</dd>
+            <dt>ListSets</dt>
+            <dd>list supported record sets (record groupings that can be independently harvested)</dd>
+            <dt>ListIdentifiers</dt>
+            <dd>list unique identifiers for records within this repository</dd>
+            <dt>ListRecords</dt>
+            <dd> Return a set of records and an optional resumption token to fetch
+                subsequent sets if greater than a given maximum allowable page size (see <a href="#oaipmh-paging">paging</a>)</dd>
+            <dt>ListMetadataFormats</dt>
+            <dd>list the metadata formats supported by this repository</dd>
+            <dt>GetRecord</dt>
+            <dd>fetch metadata for a specific record given its unique identifier</dd>
+        </dl>
+
+        <p>Some of these verbs require additional parameters. For example, the <code>ListIdentifiers</code>, <code>GetRecord</code> and <code>ListRecords</code>
+        verbs all require a <code>metadataPrefix</code> parameter.</p>
+
+        <hr/>
+        <div id="api-usage-pagination">
+            <h3>Pagination &amp; Resumption Tokens</h3>
+
+            <p>The various list-based verbs return only partial data sets if the total size of the set
+                exceeds a fixed value. If this is the case the response will include a <code>resumptionToken</code> value
+                which can be supplied as the value to the <code>resumptionToken</code> parameter to retrieve the next set
+                of data. <strong>Note:</strong> the resumption token value implicitly includes in its state the value
+                of <i>all parameters other than the verb</i>, so these must not be supplied in addition to the token itself.</p>
+        </div>
+
+        <div id="api-usage-formats">
+            <h3>Metadata Formats</h3>
+
+            <p>EHRI's OAI-PMH endpoint supports both Dublin Core (DC) and Encoded Archival Description (EAD) 2002 format archival descriptions. While
+                the DC descriptions only return the top-level of the archival hierarchy (e.g. the description of the fonds), EAD descriptions include
+                levels below the fonds, if present. This means that in addition to the typically more extensive and specific information found in EAD
+                relative to DC, a description of a fonds &mdash; whilst technically a single document &mdash; can in practice contain a very large amount of information
+                and this should be borne in mind when using, for example, harvesting tools which may not expect large XML payloads.
+        </div>
+
+        <div id="api-usage-sets">
+            <h3>Sets</h3>
+
+            <p>Sets allow you to selectively harvest a portion of a repository's records. Since EHRI is an metadata aggregator, we support two
+            types of set: country and repository. Country set identifiers consist of lower-case ISO 3166 alpha-2 (2-letter) codes. Repository
+            set identifiers are compound, consisting of the country code, a colon, and the repository's EHRI ID (which also contains the country
+            code), for example <code>at:at-001890</code>.</p>
+        </div>
+
+        <div id="api-usage-example">
+            <h3>Example</h3>
+
+            @helper.form(controllers.api.oaipmh.routes.OaiPmhHome.query(), 'class -> "api-example-form form-inline", 'id -> "api-usage-form") {
+
+                <label for="api-example-verb" class="sr-only">Verb:</label>
+                <select class="form-control" id="api-example-verb" name="verb">
+                    <option value="">Select Verb</option>
+                    <option value="Identify">Identify</option>
+                    <option value="ListSets">ListSets</option>
+                    <option value="ListIdentifiers">ListIdentifiers</option>
+                    <option value="ListRecords">ListRecords</option>
+                    <option value="ListMetadataFormats">ListMetadataFormats</option>
+                    <option value="GetRecord">GetRecord</option>
+                </select>
+                <label for="api-example-mdp" class="sr-only">Metadata Prefix</label>
+                <select class="form-control" id="api-example-mdp" name="metadataPrefix">
+                    <option value="">Select Metadata Prefix</option>
+                    <option value="oai_dc">oai_dc</option>
+                    <option value="ead">ead</option>
+                </select>
+                <label for="api-example-identifier" class="sr-only">Identifier</label>
+                <input placeholder="Identifier" class="form-control" type="text" id="api-example-identifier" name="identifier" value=""/>
+                <label for="api-example-set" class="sr-only">Set</label>
+                <input placeholder="Optional Set ID" class="form-control" type="text" id="api-example-set" name="set" value=""/>
+                &nbsp;
+                <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+                <br>
+                <br>
+
+                <label for="api-usage-output" class="">Example Results</label>
+                <textarea class="api-example" rows="8" id="api-usage-output"></textarea>
+            }
+            <br/>
+            <p>Run it as a curl command:</p>
+            @views.html.api.helpers.curlField("api-usage-curl") {
+                curl @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)?verb=Identify
+            }
+        </div>
+
+        <div id="api-usage-params">
+            <h3>Additional Parameters</h3>
+
+            <p>In addition to the standard parameters, the <code>ListIdentifiers</code> and <code>ListRecords</code> verbs
+            support <code>from</code> and <code>until</code> parameters to specify UTC dates for selective harvesting in
+            either <code>YYYY-MM-DD</code> or <code>YYYY-MM-DDThh:mm:ssZ</code> formats.</p>
+        </div>
+    </section>
+
+    <script>
+        jQuery(function ($) {
+            // Hide certain fields that are not relevant to a given verb.
+            $("#api-example-identifier, #api-example-set, #api-example-mdp").hide();
+            $("#api-example-verb").change(function(e) {
+                var verb = $(this).val();
+                $("#api-example-set").toggle(["ListRecords", "ListIdentifiers"].includes(verb)).val(null);
+                $("#api-example-identifier").toggle(verb === "GetRecord").val(null);
+                $("#api-example-mdp").toggle(["ListRecords", "GetRecord", "ListIdentifiers"].includes(verb)).val(null);
+            });
+
+            var results = CodeMirror.fromTextArea(document.getElementById("api-usage-output"), {
+                readOnly: true,
+                mode: 'xml'
+            });
+
+            var $form = $("#api-usage-form");
+            var $data = $("#api-usage-form :input");
+            var url = $form.attr("action");
+
+            $form.submit(function(e) {
+                e.preventDefault();
+
+                var $button = $(this).find(".progress-button");
+                $button.addClass("running");
+
+                $.ajax({
+                    url: url + "?" + $data.filter(function(i, elem) {return $(elem).val() !== ''}).serialize(),
+                    dataType: "text"
+                }).success(function (data) {
+                    results.getDoc().setValue(data);
+                }).error(function(e) {
+                    results.getDoc().setValue(e.responseText);
+                }).complete(function() {
+                    $button.removeClass("running")
+                });
+            });
+
+            $data.on("change", function(e) {
+                function curl(action) {
+                    var query = $data.filter(function(i, elem) {return $(elem).val() !== ''}).serialize();
+                    var addr = action + (query ? "?" + query : "");
+                    var http = location.protocol;
+                    var slashes = http.concat("//");
+                    var host = slashes.concat(window.location.hostname)
+                            .concat((window.location.port !== ""
+                                    ? (":" + window.location.port) : ""));
+                    return "curl " + host + addr;
+                }
+
+                $form.parent().find(".api-example-curl > pre").text(curl(url));
+            });
+
+        });
+    </script>
+} {
+    <li role="presentation"><a href="#overview">Overview</a></li>
+    <li role="presentation"><a href="#api-usage">Usage</a>
+        <ul class="nav">
+            <li role="presentation"><a href="#api-usage-formats">Data Formats</a></li>
+            <li role="presentation"><a href="#api-usage-pagination">Pagination and Cursors</a></li>
+            <li role="presentation"><a href="#api-usage-example">Example</a></li>
+            <li role="presentation"><a href="#api-usage-params">Addition Parameters</a></li>
+        </ul>
+    </li>
+}

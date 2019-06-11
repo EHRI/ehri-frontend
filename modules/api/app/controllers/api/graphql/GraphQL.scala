@@ -1,13 +1,12 @@
 package controllers.api.graphql
 
 import javax.inject.{Inject, Singleton}
-
 import akka.util.ByteString
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, ControllerComponents, RawBuffer}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, RawBuffer}
 import services.data.Constants
 
 
@@ -28,11 +27,11 @@ case class GraphQL @Inject()(
       |}
     """.stripMargin
 
-  def index() = OptionalUserAction { implicit request =>
+  def index(): Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.api.graphql.docs(defaultQuery))
   }
 
-  def graphiql = OptionalUserAction { implicit request =>
+  def graphiql: Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.api.graphql.graphiql(
       controllers.api.graphql.routes.GraphQL.query()))
   }

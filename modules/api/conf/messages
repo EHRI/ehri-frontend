@@ -16,6 +16,10 @@ api.v1.header=API V1 Documentation
 api.graphql=GraphQL API
 api.graphql.header=GraphQL Documentation
 
+api.oaipmh.header=OAI-PMH
+api.oaipmh.description=EHRI provides an Open Archives Initiative Protocol for \
+  Metadata Harvesting endpoint at: {0}
+
 api.datasets.header=EHRI Datasets
 api.datasets.description=EHRI datasets are dynamically-generated structured data \
   about EHRI''s collections and related information, available in JSON, CSV, and TSV formats.

@@ -8,5 +8,7 @@ GET        /v1/:id/search     @controllers.api.v1.ApiV1.searchIn(id: String, `ty
 GET        /graphql           @controllers.api.graphql.GraphQL.index()
 POST       /graphql           @controllers.api.graphql.GraphQL.query()
 GET        /graphql/ui        @controllers.api.graphql.GraphQL.graphiql()
+GET        /oaipmh-doc        @controllers.api.oaipmh.OaiPmhHome.index()
+GET        /oaipmh            @controllers.api.oaipmh.OaiPmhHome.query()
 GET        /datasets          @controllers.api.datasets.Datasets.list(q: Option[String] ?= None, sort: Option[String] ?= None, paging: utils.PageParams ?= utils.PageParams.empty, format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
 GET        /datasets/:id      @controllers.api.datasets.Datasets.get(id: String, format: controllers.DataFormat.Value ?= controllers.DataFormat.Html)
