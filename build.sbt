@@ -310,13 +310,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
           "js/portal.js",
           "js/portal-signedin.js"
         )
-      ),
-      "js/codemirror-all.js" -> group(
-        Seq(
-          "js/lib/codemirror.js",
-          "js/lib/javascript.js",
-          "js/lib/clipboard.js"
-        )
       )
     )
   ).dependsOn(core % "test->test;compile->compile")

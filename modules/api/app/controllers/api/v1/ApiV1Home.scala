@@ -34,7 +34,7 @@ case class ApiV1Home @Inject()(
     )
   }
 
-  def index() = OptionalUserAction { implicit request =>
+  def index(): Action[AnyContent] = OptionalUserAction { implicit request =>
     render {
       case Accepts.Json() | AcceptsJsonApi() => Ok(
         Json.obj(
