@@ -73,6 +73,7 @@ jQuery(function ($) {
     var offset = parseInt($(event.target).attr("data-offset")) || 0;
     var limit = parseInt($(event.target).attr("data-limit")) || 20;
     var href = event.target.href;
+    $elem.addClass("loading");
     $.ajax({
       url: href,
       success: function (data, _, response) {
@@ -89,7 +90,10 @@ jQuery(function ($) {
               href.replace(/offset=\d+/, "offset=" + (offset + limit))
                   .replace(/limit=\d+/, "limit=" + limit));
         }
-		  }
+		  },
+      complete: function() {
+        $elem.removeClass("loading");
+      }
 		});
 	});
 

@@ -11,6 +11,7 @@
     <a id="activity-stream-fetchmore" class="timeline-fetch-more"
     data-limit="@page.limit" data-offset="@(page.offset + page.limit)"
     href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal").updated(OFFSET_PARAM, Seq((page.offset + page.limit).toString)))">
-    @Messages("activity.fetchMore")
+        <span class="load-prompt">@Messages("activity.fetchMore")</span>
+        <span class="loading-indicator spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     </a>
 }
