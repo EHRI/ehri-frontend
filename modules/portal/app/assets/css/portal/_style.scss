@@ -971,19 +971,21 @@ ul.pagination {
   padding-bottom: $margin-sm;
   margin-bottom: $list-margin-bottom;
 
-  h2.search-item-heading {
+  .search-item-heading {
     font-family: $font-family-base;
+    font-size: $font-size-base;
     text-transform: none;
     margin-bottom: 0;
   }
 
   .search-item-details,
   .item-children {
-    font-size: $font-size-sm;
+    font-size: $font-size-xs;
+    color: $text-darkened;
   }
 
   .search-item-body {
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     margin-right: $margin-sm;
 
     .holders {
