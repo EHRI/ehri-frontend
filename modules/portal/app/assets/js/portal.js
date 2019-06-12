@@ -197,10 +197,10 @@ jQuery(function ($) {
     $this.removeClass("expanded").addClass("closed");
   });
 
-  $(".content-load a.toggle").click(function (e) {
+  $(".content-load-toggle").click(function (e) {
     e.preventDefault();
     var $link = $(this),
-        $text = $(".text", $link),
+        $text = $(".load-prompt", $link),
         $inverse = $link.data("inverse-text");
     var $container = $link.parent(),
         $data = $(".content-load-data", $container),
