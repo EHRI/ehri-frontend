@@ -1449,8 +1449,30 @@ dl dt {
   }
 }
 
-#activity-stream-fetchmore {
+// Full-width buttons which load Ajax content... these
+// are on the timeline and the item search page with
+// details collapsed.
+.timeline-fetch-more,
+.content-load-toggle {
   @extend .btn;
+  border: $border-width solid $border-color;
+  background-color: $gray-200;
+  width: 100%;
+  margin-bottom: $margin-lg;
+
+  > .loading-indicator {
+    visibility: hidden;
+  }
+
+  &.loading {
+    > .loading-indicator {
+      visibility: visible;
+    }
+
+    > .load-prompt {
+      display: none;
+    }
+  }
 }
 
 // Annotations

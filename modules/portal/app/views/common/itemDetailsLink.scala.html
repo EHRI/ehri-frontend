@@ -3,8 +3,8 @@
 <div class="content-load">
     <div class="content-load-placeholder">@html</div>
     <div class="content-load-data" style="display: none"></div>
-    <a class="toggle" data-inverse-text="@Messages("details.hide")" href="@link">
-    <span class="text">@text</span>
-    <i class="fa fa-justify pull-right"></i>
+    <a class="content-load-toggle" data-inverse-text="@Messages("details.hide")" href="@link">
+        <span class="load-prompt">@text</span>
+        <span class="loading-indicator spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
     </a>
 </div>
