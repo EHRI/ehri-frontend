@@ -5,29 +5,28 @@ import java.util.concurrent.TimeUnit
 
 import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
-import play.api.{Configuration, Logger}
-import defines.{EntityType, EventType}
-import play.api.http.{ContentTypes, HeaderNames}
-import utils._
-import controllers.{AppComponents, renderError}
-import models.UserProfile
-import play.api.mvc._
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
-import utils.caching.FutureCache
-
-import scala.concurrent.duration.Duration
-import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
+import controllers.{AppComponents, renderError}
+import defines.{EntityType, EventType}
+import global.{GlobalConfig, ItemLifecycle}
+import models.UserProfile
 import models.base.Model
 import models.view.UserDetails
-import global.{GlobalConfig, ItemLifecycle}
 import play.api.cache.SyncCacheApi
-import play.api.mvc.Result
+import play.api.http.{ContentTypes, HeaderNames}
+import play.api.mvc.{Result, _}
+import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
 import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
+import utils._
+import utils.caching.FutureCache
 import views.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance}
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.Duration
 
 
 trait PortalController
@@ -135,19 +134,23 @@ trait PortalController
   override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
     val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
     implicit val r: RequestHeader = request
-    val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
-    if (!doMoveCheck) immediate(notFoundResponse)
-    else for {
-      maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
-    } yield maybeMoved match {
-      case Some(path) => MovedPermanently(utils.http.iriToUri(path))
-      case None => notFoundResponse
+    fetchProfile(request).flatMap { implicit userOpt =>
+      val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
+      if (!doMoveCheck) immediate(notFoundResponse)
+      else for {
+        maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
+      } yield maybeMoved match {
+        case Some(path) => MovedPermanently(utils.http.iriToUri(path))
+        case None => notFoundResponse
+      }
     }
   }
 
   override def downForMaintenance(request: RequestHeader): Future[Result] = {
     implicit val r: RequestHeader = request
-    immediate(ServiceUnavailable(renderError("errors.maintenance", maintenance())))
+    fetchProfile(request).map { userOpt =>
+      ServiceUnavailable(renderError("errors.maintenance", maintenance()))
+    }
   }
 
   /**
@@ -166,7 +169,9 @@ trait PortalController
 
   override def authorizationFailed(request: RequestHeader, user: UserProfile): Future[Result] = {
     implicit val r: RequestHeader = request
-    immediate(Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied())))
+    fetchProfile(request).map { implicit userOpt =>
+      Forbidden(renderError("errors.permissionDenied", views.html.errors.permissionDenied()))
+    }
   }
 
   /**
