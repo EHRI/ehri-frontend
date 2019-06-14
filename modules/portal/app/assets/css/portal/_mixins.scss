@@ -65,34 +65,57 @@
 // icon. The input should have the `form-control`
 // class and the icon `form-control-feedback`
 @mixin search-box($color: $gray-100, $opacity: 0.1, $border-opacity: 0.3) {
-  @include clearfix();
-  background-color: rgba(255,255,255, $opacity);
 
-  input.form-control {
-    font-size: 14px;
-    box-shadow: none;
+  @include media-breakpoint-up(lg) {
+    // FIXME:
+    // Would like to remove this explicit sizing but without
+    // it the menu does an ugly reflow.
+    max-width: 16rem;
+  }
+
+  @include clearfix();
+  position: relative;
+  display: flex;
+
+  background-color: rgba(255,255,255, $opacity);
+  border: $border-width solid rgba($color, $border-opacity);
+
+  input[type=search] {
+    font-size: $font-size-sm;
+    width: 100%;
+    left: 0;
+
     float: left;
-    padding-right: 2.375rem;
+    box-shadow: none;
     background-color: transparent;
     border-radius: 0;
-    border-color: rgba($color, $border-opacity);
+    border-color: transparent;
     color: $color;
+    padding-right: 3rem;
 
     &::placeholder {
+      font-size: $font-size-sm;
       color: $color;
     }
   }
 
-  .form-control-feedback {
-    font-size: $font-size-base;
-    position: absolute;
-    display: block;
+  .input-group-append {
     float: right;
-    right: 2rem;
+  }
+
+  .submit-search {
+    height: 100%;
+    border-color: transparent;
+    position: absolute;
+    right: 0;
+  }
+
+  .form-control-feedback {
+    font-size: $font-size-lg;
+    display: block;
+    float: left;
     z-index: 20;
-    line-height: 2rem;
     text-align: center;
-    pointer-events: none;
     color: $color;
   }
 }
