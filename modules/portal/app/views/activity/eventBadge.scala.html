@@ -24,6 +24,12 @@
     case EventType.watch => {
         <div class="timeline-badge success"><i class="fa fa-fw fa-inverse fa-lg fa-tag"></i></div>
     }
+    case EventType.promotion => {
+        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-up"></i></div>
+    }
+    case EventType.demotion => {
+        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-down"></i></div>
+    }
     case _ => {
         <div class="timeline-badge"><i class="fa fa-fw fa-inverse fa-lg"></i></div>
     }
