@@ -244,6 +244,19 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     Some(r.user)
 
   /**
+    * A request, fetch a user's profile with global permissions.
+    *
+    * @param request a request header
+    * @return an optional profile
+    */
+  protected def fetchProfile(request: RequestHeader): Future[Option[UserProfile]] = {
+    authHandler.restoreAccount(request).flatMap {
+      case (Some(account), _) => fetchProfile(account)
+      case _ => immediate(Option.empty)
+    }
+  }
+
+  /**
     * Given the user's account, fetch their profile with global permissions.
     *
     * @param account the account object
@@ -253,11 +266,13 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     implicit val apiUser: ApiUser = AuthenticatedUser(account.id)
     val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
     val globalPermsF = userDataApi.globalPermissions(account.id)
-    for {
+    (for {
       user <- userF
       globalPerms <- globalPermsF
       profile = user.copy(account = Some(account), globalPermissions = Some(globalPerms))
-    } yield Some(profile)
+    } yield Some(profile)).recover {
+      case _:Exception => Option.empty
+    }
   }
 
   /**

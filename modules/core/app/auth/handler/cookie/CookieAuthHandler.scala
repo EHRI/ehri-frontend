@@ -1,11 +1,10 @@
 package auth.handler.cookie
 
 import javax.inject.Inject
-
 import auth.handler.{AuthHandler, AuthIdContainer, TokenAccessor}
 import models.Account
 import play.api.mvc.RequestHeader
-import play.api.{Application, Configuration, Mode}
+import play.api.{Application, Configuration, Environment, Mode}
 import services.accounts.AccountManager
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -20,7 +19,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * Modified for Play 2.5+.
   */
 case class CookieAuthHandler @Inject()(
-  app: Application,
+  env: Environment,
   idContainer: AuthIdContainer,
   tokenAccessor: TokenAccessor,
   accountManager: AccountManager,
@@ -49,7 +48,7 @@ case class CookieAuthHandler @Inject()(
   }
 
   private[auth] def extractToken(request: RequestHeader): Option[String] = {
-    if (app.mode == Mode.Test) {
+    if (env.mode == Mode.Test) {
       request.headers.get("PLAY2_AUTH_TEST_TOKEN") orElse tokenAccessor.extract(request)
     } else {
       tokenAccessor.extract(request)
