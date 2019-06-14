@@ -1,4 +1,4 @@
-@(showFeedback: Boolean = true, showAdminLink: Boolean = false, showLogin: Boolean = true, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(showFeedback: Boolean = true, showAdminLink: Boolean = true, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <ul>
     @if(showFeedback) {
@@ -81,17 +81,15 @@
             </ul>
         </li>
     }.getOrElse {
-        @if(showLogin) {
-            <li>
-                <a href="@controllers.portal.account.routes.Accounts.login()">
-                    @Messages("login")
-                </a>
-            </li>
-            <li>
-                <a href="@controllers.portal.account.routes.Accounts.signup()">
-                    @Messages("login.signup")
-                </a>
-            </li>
-        }
+        <li>
+            <a href="@controllers.portal.account.routes.Accounts.login()">
+                @Messages("login")
+            </a>
+        </li>
+        <li>
+            <a href="@controllers.portal.account.routes.Accounts.signup()">
+                @Messages("login.signup")
+            </a>
+        </li>
     }
 </ul>
