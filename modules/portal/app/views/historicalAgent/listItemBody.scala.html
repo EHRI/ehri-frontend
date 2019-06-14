@@ -4,6 +4,7 @@
     @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
     <div class="search-item-details">
         <ul class="agent-search-details">
+            <li><span class="badge badge-historical-agent">@Messages("type.HistoricalAgent")</span></li>
             @item.set.map { set =>
                 <li>
                     @views.html.helpers.linkTo(set, attributes = Seq(Symbol("class") -> "alt"))

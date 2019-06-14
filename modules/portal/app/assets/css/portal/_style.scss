@@ -319,15 +319,6 @@ body.home #navbar-primary-container {
   }
 }
 
-// Quicksearch controls
-#quicksearch-controls {
-  color: $white;
-
-  input[type='text'] {
-    @extend .form-control;
-  }
-}
-
 // Boolean toggles in view preferences...
 .toggle-boolean-preference.boolean-true:before {
   content: '\2611';
@@ -659,7 +650,6 @@ body.home {
     border: $border-width solid $border-color;
     align-items: baseline;
   }
-;
 
   input[type='search'] {
     background-color: transparent;
@@ -675,7 +665,7 @@ body.home {
     z-index: 2;
   }
 
-  #submit-search i {
+  .submit-search .form-control-feedback {
     float: left;
     @include color-var(color, 'primary');
   }
@@ -713,7 +703,7 @@ body.home {
       @include color-var(color, 'white');
       border-color: rgba(224, 224, 224, 0.59);
 
-      #submit-search i {
+      .submit-search .form-control-feedback {
         @include color-var(color, 'white');
       }
     }
@@ -727,7 +717,7 @@ body.home {
     }
 
     .form-control:focus,
-    #submit-search:focus {
+    .submit-search:focus {
       box-shadow: 0 0 0 0.2rem rgba(244, 244, 244, 0.25);
     }
 
@@ -894,6 +884,19 @@ body.home {
 .login-disclaimer {
   font-size: $font-size-sm;
   color: $text-darkened;
+}
+
+
+.badge-repository {
+  @include badge-variant($repository-color);
+}
+
+.badge-country {
+  @include badge-variant($country-color);
+}
+
+.badge-historical-agent {
+  @include badge-variant($historical-agent-color);
 }
 
 // Pagination
