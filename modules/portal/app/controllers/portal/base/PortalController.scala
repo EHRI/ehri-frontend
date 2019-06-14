@@ -124,12 +124,16 @@ trait PortalController
 
   override def verifiedOnlyError(request: RequestHeader): Future[Result] = {
     implicit val r: RequestHeader = request
-    immediate(Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly())))
+    fetchProfile(request).map { implicit userOpt =>
+      Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly()))
+    }
   }
 
   override def staffOnlyError(request: RequestHeader): Future[Result] = {
     implicit val r: RequestHeader = request
-    immediate(Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly())))
+    fetchProfile(request).map { implicit userOpt =>
+      Unauthorized(renderError("errors.staffOnly", views.html.errors.staffOnly()))
+    }
   }
 
   override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
