@@ -1,7 +1,6 @@
 @(item: Country, highlighter: views.Highlighter)(implicit messages: Messages)
 
 
-<li><span class="badge badge-country">@Messages("type.Country")</span></li>
 <li title="@Messages("country.identifier.description"): @item.data.identifier.toUpperCase(messages.lang.toLocale)">@Html(highlighter.highlight(item.data
         .identifier.toUpperCase(messages.lang.toLocale)))</li>
 @item.latestEvent.map { event =>

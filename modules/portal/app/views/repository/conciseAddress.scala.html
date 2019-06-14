@@ -1,7 +1,6 @@
 @(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
 <ul class="concise-address">
-    <li><span class="badge badge-repository">@Messages("type.Repository")</span></li>
     @if(includeCountry) {
         @item.country.map { ct =>
             <li>
