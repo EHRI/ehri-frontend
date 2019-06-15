@@ -133,7 +133,10 @@ jQuery(function($) {
     e.preventDefault();
     var $self = $(this),
         url = this.href;
-    $self.addClass("disabled loading").removeAttr("href");
+    $self.addClass("disabled loading").removeAttr("href")
+      .find(".fa")
+      .removeClass("fa-plus-square-o")
+      .addClass("fa-circle-o-notch fa-spin");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
       var $data = $.parseHTML(data, false);
@@ -141,7 +144,8 @@ jQuery(function($) {
       $self.parent().append($data);
       $self.attr("href", url);
       $self.toggleClass("expanded collapsed disabled loading")
-          .find(".fa").toggleClass("fa-plus-square-o fa-minus-square-o");
+        .find(".fa")
+        .toggleClass("fa-circle-o-notch fa-spin fa-minus-square-o");
     })
   });
 
