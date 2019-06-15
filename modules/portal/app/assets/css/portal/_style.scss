@@ -9,6 +9,16 @@
 .btn {
 }
 
+// For some reason rtl text is left-aligned???
+// This fix may be too broad.
+*[dir=rtl] {
+  text-align: right;
+
+  ul {
+    padding-inline-start: 0;
+  }
+}
+
 // Secondary-coloured headings
 .item-header h1,
 .block-header h2,
@@ -982,7 +992,6 @@ ul.pagination {
   }
 
   .search-item-details {
-    direction: ltr;
     font-size: $font-size-xs;
     color: $text-darkened;
     margin: $margin-xs 0;
@@ -1088,11 +1097,8 @@ ul.list-export-options {
 }
 
 // Child item lists...
-.child-items-inline-load {
-  //color: var(--green);
-}
-
 .child-items-inline {
+  text-align: left;
   > ol,
   > ul {
     @include list-unstyled();
@@ -1111,6 +1117,10 @@ ul.list-export-options {
       font-size: $font-size-base;
       margin-bottom: 0;
     }
+  }
+
+  .child-items-inline-list-more {
+    margin-left: $margin-lg;
   }
 }
 
@@ -1177,11 +1187,13 @@ ul.list-export-options {
   }
 }
 
+// Affix the table of contents when scrolling
 .sidepanel-toc {
   position: sticky;
   top: 2rem;
 }
 
+// Sidebar headings
 .sidebar-section {
   font-size: $font-size-sm;
   margin-bottom: $margin-lg;
@@ -1355,7 +1367,6 @@ dl dt {
 }
 
 // Annotations etc
-
 .annotate-field.inactive {
   opacity: 0;
 }
@@ -1407,7 +1418,6 @@ dl dt {
 }
 
 .annotation-submit-controls {
-
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -1510,8 +1520,6 @@ dl dt {
 }
 
 // Annotations
-
-
 .item-text-field .annotation-set {
   @include media-breakpoint-up(mg) {
     @include make-col-ready();
