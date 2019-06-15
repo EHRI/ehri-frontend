@@ -14,7 +14,7 @@
 
                 @views.html.common.childCount(item) { count =>
                     @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "child-items-inline-load collapsed") {
-                        <i class="fa fa-plus-square-o"></i>
+                        <i class="fa fa-fw fa-plus-square-o"></i>
                         @Messages("cvocConcept.childCount", count)
                     }
                 }
