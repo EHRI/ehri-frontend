@@ -364,7 +364,8 @@ body.home {
   }
 
   #welcome-banner {
-    background-color: rgba($secondary, .85);
+    background-color: var(--secondary);
+    opacity: .85;
     padding-bottom: $margin-lg;
 
     h1 {
