@@ -1,22 +1,10 @@
 @import "mixins";
 
-// Certain headings are uppercased
-//h2, h4 {
-//text-transform: uppercase;
-//}
-
-// TODO: Add a default button style
-.btn {
-}
-
-// For some reason rtl text is left-aligned???
-// This fix may be too broad.
-*[dir=rtl] {
-  text-align: right;
-
-  ul {
-    padding-inline-start: 0;
-  }
+// Unset bootstrap setting the text-align
+// on the body to left, which breaks individual
+// RTL elements.
+body {
+  text-align: unset;
 }
 
 // Secondary-coloured headings
@@ -969,6 +957,10 @@ ul.pagination {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+
+    // Default match-parent text-align seems to
+    // break dir=rtl correct alignment.
+    text-align: unset;
 
     > .search-item {
       flex-grow: 4;
