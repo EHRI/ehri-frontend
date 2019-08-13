@@ -285,12 +285,19 @@ case class ApiV1 @Inject()(
 
   /**
     * Type-specific search constraint for hierarchical items.
+    *
+    * This will determine if there's an active query and either return
+    * the immediate children or search the full scope.
     */
-  private def hierarchySearchFilters(item: Model): Future[Map[String, Any]] = item match {
-    case repo: Repository => immediate(Map(SearchConstants.HOLDER_ID -> item.id))
-    case country: Country => immediate(Map(SearchConstants.COUNTRY_CODE -> item.id))
+  private def hierarchySearchFilters(item: Model)(implicit request: RequestHeader): Future[Map[String, Any]] = item match {
+    case _: Repository => immediate(
+      (if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true)
+      else Map.empty[String, Any]) ++ Map(SearchConstants.HOLDER_ID -> item.id))
+    case _: Country => immediate(Map(SearchConstants.COUNTRY_CODE -> item.id))
     case vc: VirtualUnit => buildChildSearchFilter(vc)
-    case _ => immediate(Map(SearchConstants.PARENT_ID -> item.id))
+    case _ => immediate(
+      if (!hasActiveQuery(request)) Map(SearchConstants.PARENT_ID -> item.id)
+      else Map(SearchConstants.ANCESTOR_IDS -> item.id))
   }
 
   /**
