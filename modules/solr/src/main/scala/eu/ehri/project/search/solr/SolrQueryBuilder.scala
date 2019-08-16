@@ -195,9 +195,7 @@ private[solr] object SolrQueryBuilder {
   }
 
   def fieldParams(fields: Seq[SearchField.Value], boost: Seq[(String, Option[Double])], config: Configuration): Seq[(String, String)] = {
-    // Apply search to specific fields. Can't find a way to do this using
-    // Scalikesolr's built-in classes so we have to use it's extension-param
-    // facility
+    // Apply search to specific fields.
     val basic = if (fields.nonEmpty) {
       Seq("qf" -> fields.mkString(" "))
     } else {
@@ -257,7 +255,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     * Look up boost values from configuration for default query fields.
     */
   private lazy val queryFieldsWithBoost: Seq[(String, Option[Double])] = Seq(
-    ITEM_ID, IDENTIFIER, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
+    ITEM_ID, IDENTIFIER, OTHER_IDENTIFIERS, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
   ).map(f => f -> config.getOptional[Double](s"search.boost.$f"))
 
   private lazy val spellcheckConfig: Seq[(String, Option[String])] = Seq(
@@ -285,7 +283,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       excludeFilterParams(query.params.excludes),
       filterParams(query.params.filters),
       groupParams(query.lang),
-      Seq("qf" -> s"$ITEM_ID^0.5 $NAME_MATCH^2.0 $NAME_NGRAM"),
+      Seq("qf" -> s"$ITEM_ID^0.5 $OTHER_IDENTIFIERS^0.3 $NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
       if (alphabetical) Seq("sort" -> s"$NAME_SORT asc") else Seq.empty,
       query.extraParams.map(kp => kp._1 -> kp._2.toString).toSeq

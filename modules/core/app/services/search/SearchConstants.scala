@@ -44,6 +44,11 @@ object SearchConstants {
   final val IDENTIFIER = "identifier"
 
   /**
+    * Alternative identifiers.
+    */
+  final val OTHER_IDENTIFIERS = "otherIdentifiers"
+
+  /**
    * The canonical "item name"
    */
   final val NAME_EXACT = "name"
