@@ -24,7 +24,7 @@
             @if(!item.isDirectional) {
                 <h4>@Messages("link.items")</h4>
                 <ul>
-                @item.targets.map { item =>
+                @item.sortedTargets.map { item =>
                     <li>
                         <a href="@views.admin.Helpers.linkTo(item)">@item.toStringLang</a>
                     </li>

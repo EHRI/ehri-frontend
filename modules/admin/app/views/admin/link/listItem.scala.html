@@ -6,11 +6,13 @@
         <a href="@controllers.links.routes.Links.get(item.id)">
             <span class="glyphicon glyphicon-link"></span>
         </a>
-        @item.targets.dropRight(1).map { t =>
-            @views.html.admin.helpers.linkTo(t) ⇆
-        }
-        @item.targets.lastOption.map { t =>
-            @views.html.admin.helpers.linkTo(t)
+        @defining(item.sortedTargets) { targets =>
+            @targets.dropRight(1).map { t =>
+                @views.html.admin.helpers.linkTo(t) ⇆
+            }
+            @targets.lastOption.map { t =>
+                @views.html.admin.helpers.linkTo(t)
+            }
         }
     </h2>
     <div class="search-item-body">

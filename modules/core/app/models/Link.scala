@@ -172,7 +172,7 @@ case class Link(
 
   type T = LinkF
 
-  def isDirectional = source.isDefined
+  def isDirectional: Boolean = source.isDefined
 
   def destination: Option[Model] = source match {
     case None => None
@@ -181,4 +181,9 @@ case class Link(
   def isPromotable: Boolean = data.isPromotable
   def opposingTarget(item: Model): Option[Model] = opposingTarget(item.id)
   def opposingTarget(itemId: String): Option[Model] = targets.find(_.id != itemId)
+
+  /**
+    * Targets sorted first by item type and then by id
+    */
+  def sortedTargets: Seq[Model] = targets.sortBy(t => (t.isA, t.id))
 }

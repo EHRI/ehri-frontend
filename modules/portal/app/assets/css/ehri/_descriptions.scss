@@ -207,3 +207,21 @@
   border-bottom: 1px solid $medium-gray;
   padding: $large-padding;
 }
+
+.link-section ul {
+  // This makes scrolled content in height-restricted boxes more
+  // obvious by putting an inset shadow at the top and/or bottom
+  // when scrolling is activated. Adapted from:
+  // https://codepen.io/tinystride/pen/bcEJv
+  max-height: 30rem;
+  overflow: auto;
+  background-position: 0 0, 0 100%, 0 0, 0 100%;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 100% 5em, 100% 5em, 100% 1em, 100% 1em;
+  background-attachment: local, local, scroll, scroll;
+  background-image: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0)),
+    linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0)),
+    linear-gradient(to bottom, #eee, rgba(255, 255, 255, 0)),
+    linear-gradient(to top, #eee, rgba(255, 255, 255, 0));
+}
