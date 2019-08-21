@@ -3,7 +3,7 @@
 @views.html.layout.showLayout(item) {
 
     <ul class="link-target-list">
-    @item.targets.map { target =>
+    @item.sortedTargets.map { target =>
         <li>@views.html.helpers.linkTo(target)</li>
     }
     </ul>

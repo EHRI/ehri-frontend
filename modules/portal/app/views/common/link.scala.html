@@ -2,7 +2,7 @@
 
 <div class="item-link" id="@link.id">
     <ul class="link-target-list">
-        @link.targets.map { target =>
+        @link.sortedTargets.map { target =>
             <li>@views.html.helpers.linkTo(target)</li>
         }
     </ul>

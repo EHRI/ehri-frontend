@@ -1,12 +1,27 @@
 @(item: models.base.DescribedModel, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
 
-@defining(item.annotationLinks(links).distinct) { links =>
-    @if(links.nonEmpty) {
-        <h3>@Messages("item.linked")</h3>
-        <ul class="item-links external-links">
-            @links.map { link =>
+@defining(item.annotationLinks(links)
+        .sortBy(_.opposingTarget(item).map(_.toStringLang))
+        .distinct
+        .partition(_.data.linkType == LinkF.LinkType.Copy)) { case (copies, other) =>
+    @if(copies.nonEmpty) {
+        <section class="link-section">
+            <h3>@Messages("item.copies")</h3>
+            <ul class="item-links external-links copy-links">
+            @copies.map { link =>
                 @itemLink(link, item)
             }
-        </ul>
+            </ul>
+        </section>
+    }
+    @if(other.nonEmpty) {
+        <section class="link-section">
+            <h3>@Messages("item.linked")</h3>
+            <ul class="item-links external-links">
+            @other.map { link =>
+                @itemLink(link, item)
+            }
+            </ul>
+        </section>
     }
 }
