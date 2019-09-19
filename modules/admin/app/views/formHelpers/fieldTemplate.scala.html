@@ -19,7 +19,7 @@
                 </span>
             }
             <span class="help-block">
-                @elements.infos.filter(_ != required).map(i => Messages(i)(elements.p)).mkString(", ")
+                @elements.infos.filter(_ != required).map(i => Messages(i.toString)(elements.p)).mkString(", ")
             </span>
         }
     </div>
