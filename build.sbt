@@ -13,7 +13,7 @@ import play.twirl.sbt.Import.TwirlKeys.templateImports
 parallelExecution in ThisBuild := false
 logBuffered := false
 
-val projectScalaVersion = "2.12.7"
+val projectScalaVersion = "2.12.10"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 

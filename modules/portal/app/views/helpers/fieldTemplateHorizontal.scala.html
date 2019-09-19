@@ -33,7 +33,7 @@
                 @if(elements.hasErrors) {
                     <span class="help-inline errors">@elements.errors</span>
                 } else {
-                    <span class="help-inline">@elements.infos.filter(_ != required).map(i => Messages(i)(elements.p)).mkString(", ")</span>
+                    <span class="help-inline">@elements.infos.filter(_ != required).map(i => Messages(i.toString)(elements.p)).mkString(", ")</span>
                 }
             </div>
         }
