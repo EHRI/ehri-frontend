@@ -1,10 +1,17 @@
 @import "mixins";
 
-// Unset bootstrap setting the text-align
-// on the body to left, which breaks individual
-// RTL elements.
 body {
+  // Unset bootstrap setting the text-align
+  // on the body to left, which breaks individual
+  // RTL elements.
   text-align: unset;
+
+  // Prevent text overflow for URLs and extra-long
+  // words...
+  overflow-wrap: break-word;
+  word-wrap: break-word; // legacy Webkit
+  hyphens: auto;
+  -ms-hyphens: auto;
 }
 
 // Secondary-coloured headings
