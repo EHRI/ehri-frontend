@@ -984,23 +984,35 @@ ul.pagination {
   padding-bottom: $margin-sm;
   margin-bottom: $list-margin-bottom;
 
+  display: grid;
+  grid-template-columns: max-content auto max-content;
+  grid-template-rows: min-content auto;
+  grid-template-areas: "image heading actions" "image body actions";
+
+  .search-item-image {
+    grid-area: image;
+    margin-right: $margin-sm;
+    a {
+      float: left;
+      overflow: hidden;
+      border: 1px solid $gray-300;
+      height: 2rem;
+    }
+    img {
+      margin-top: -.6rem;
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+
   .search-item-heading {
+    grid-area: heading;
     font-family: $font-family-base;
     font-size: $font-size-base;
     text-transform: none;
     margin-bottom: 0;
-
-
-    .image {
-      max-height: 2rem;
-      overflow: hidden;
-      border: 1px solid $gray-200;
-      float: left;
-      margin-right: 1rem;
-      > img {
-        margin-top: -.6rem;
-      }
-    }
   }
 
   .search-item-details {
@@ -1027,10 +1039,9 @@ ul.pagination {
   }
 
   .search-item-body {
+    grid-area: body;
     font-size: $font-size-sm;
     margin-right: $margin-sm;
-
-    margin-left: 4rem;
 
     .holders {
       @include list-unstyled();
@@ -1048,6 +1059,7 @@ ul.pagination {
   }
 
   .search-item-actions {
+    grid-area: actions;
     margin-left: $margin-sm;
 
     a:hover {
