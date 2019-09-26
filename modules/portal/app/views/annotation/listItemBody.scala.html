@@ -1,17 +1,15 @@
 @(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
-<div class="search-item-details">
-    <ul class="annotation-search-details">
-        @for(field <- item.data.field; target <- item.target) {
-            <li><strong>@Messages(views.Helpers.prefixFor(target.isA) + "." + field)</strong></li>
-        }
-        @for(user <- item.user ; event <- item.latestEvent) {
-            <li title="@event.data.timestamp">@Html(
-                Messages("annotation.createdBy", views.html.helpers.linkTo(user).body.trim,
-                    views.Helpers.relativeDate(event.data.timestamp)))</li>
-        }
-    </ul>
-</div>
+<ul class="annotation-search-details">
+    @for(field <- item.data.field; target <- item.target) {
+        <li><strong>@Messages(views.Helpers.prefixFor(target.isA) + "." + field)</strong></li>
+    }
+    @for(user <- item.user ; event <- item.latestEvent) {
+        <li title="@event.data.timestamp">@Html(
+            Messages("annotation.createdBy", views.html.helpers.linkTo(user).body.trim,
+                views.Helpers.relativeDate(event.data.timestamp)))</li>
+    }
+</ul>
 
 @views.html.annotation.annotationText(item, highlighter)
 @views.html.annotation.listItemFooter(item, highlighter)
