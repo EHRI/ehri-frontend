@@ -1066,25 +1066,21 @@ ul.pagination {
       text-decoration: none;
     }
   }
+}
 
-  .search-item-footer {
-    @include clearfix();
+.list-item-meta,
+.list-item-actions {
+  @include clearfix();
+  @include list-unstyled();
+  @include list-inline();
+  @extend %small-muted;
+  margin-left: $margin-sm;
+  float: right;
 
-    .list-item-meta,
-    .list-item-actions {
-      @include list-unstyled();
-      @include list-inline();
-      @extend %small-muted;
-      margin-left: $margin-sm;
-      float: right;
-
-      .material-icons {
-        font-size: $font-size-base;
-        vertical-align: middle;
-      }
-    }
+  .material-icons {
+    font-size: $font-size-base;
+    vertical-align: middle;
   }
-
 }
 
 // Annotation lists
@@ -1097,6 +1093,8 @@ ul.pagination {
   }
 
   > li {
+    @include clearfix();
+    margin-bottom: $list-margin-bottom;
     padding-bottom: $margin-xs;
     border-bottom: 1px dashed $gray-400;
   }
