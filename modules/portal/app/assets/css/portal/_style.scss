@@ -989,6 +989,18 @@ ul.pagination {
     font-size: $font-size-base;
     text-transform: none;
     margin-bottom: 0;
+
+
+    .image {
+      max-height: 2rem;
+      overflow: hidden;
+      border: 1px solid $gray-200;
+      float: left;
+      margin-right: 1rem;
+      > img {
+        margin-top: -.6rem;
+      }
+    }
   }
 
   .search-item-details {
@@ -1018,6 +1030,7 @@ ul.pagination {
     font-size: $font-size-sm;
     margin-right: $margin-sm;
 
+    margin-left: 4rem;
 
     .holders {
       @include list-unstyled();
