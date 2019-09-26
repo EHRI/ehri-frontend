@@ -1,6 +1,9 @@
 @(item: Country, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @views.html.common.searchItemOutline(item, watched) {
+    <div class="image">
+        <img width="48" height="48" src="https://www.countryflags.io/@item.id.toLowerCase/flat/48.png"/>
+    </div>
     @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
 } {
     @listItemBody(item)
