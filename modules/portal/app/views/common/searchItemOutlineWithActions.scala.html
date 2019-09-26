@@ -1,6 +1,7 @@
-@(id: String, itemType: String)(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
+@(id: String, itemType: String, image: Html = Html(""))(heading: Html)(actions: Html)(body: Html = Html(""))(implicit userOpt: Option[UserProfile], messages: Messages)
 
 <div class="search-item @itemType" id="@id">
+    <div class="search-item-image">@image</div>
     <div class="search-item-actions">
         @actions
     </div>
