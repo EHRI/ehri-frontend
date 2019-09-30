@@ -4,7 +4,7 @@
     <div class="form-group">
         <button type="submit" class="btn btn-post ">@buttonText</button>
         @cancel.map { call =>
-            <a href="@call" class="btn cancel">@Messages("cancel")</a>
+            <a href="@call" class="btn btn-cancel">@Messages("cancel")</a>
         }
         @extra
     </div>

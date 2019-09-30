@@ -1,7 +1,0 @@
-@(item: Repository, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
-
-@views.html.common.searchItemOutline(item, watched) {
-    @views.html.helpers.linkTo(item)
-} {
-    @listItemBody(item, showCountry)
-}

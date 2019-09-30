@@ -1,20 +1,32 @@
 package controllers.institutions
 
+import java.io.File
+
+import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
+import forms.FormConfigBuilder
 import forms.VisibilityForm
 import javax.inject._
 import models._
-import forms.FormConfigBuilder
+import net.coobird.thumbnailator.Thumbnails
+import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.libs.Files.TemporaryFile
+import play.api.libs.json.Json
+import play.api.mvc.MultipartFormData.FilePart
+import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.{IngestApi, IngestParams}
 import services.search._
+import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
 import views.Helpers
+
+import scala.concurrent.Future
+import scala.concurrent.Future.{successful => immediate}
 
 
 @Singleton
@@ -22,7 +34,10 @@ case class Repositories @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
-  searchIndexer: SearchIndexMediator
+  searchIndexer: SearchIndexMediator,
+  fileStorage: FileStorage
+)(
+  implicit mat: Materializer
 ) extends AdminController
   with Read[Repository]
   with Update[Repository]
@@ -252,4 +267,69 @@ case class Repositories @Inject()(
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.Repository, id, dataType), sync = sync))
   }
+
+  import play.api.data.Form
+  import play.api.data.Forms._
+
+  private val imageForm = Form(
+    single("image" -> text)
+  )
+
+  def updateLogoImage(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.repository.editLogo(request.item, imageForm,
+      controllers.institutions.routes.Repositories.updateLogoImagePost(id)))
+  }
+
+  // Body parser that'll refuse anything larger than 5MB
+  private def uploadParser = parsers.maxLength(
+    config.get[Int]("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
+
+  def updateLogoImagePost(id: String): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = EditAction(id).async(uploadParser) { implicit request =>
+
+    def onError(err: String, status: Status = BadRequest): Future[Result] = immediate(
+      status(views.html.admin.repository.editLogo(request.item, imageForm.withGlobalError(err),
+        repositoryRoutes.updateLogoImagePost(id))))
+
+    request.body match {
+      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge", EntityTooLarge)
+      case Right(multipartForm) => multipartForm.file("image").map { file =>
+        if (isValidContentType(file)) {
+          try {
+            for {
+              url <- convertAndUploadFile(file, request.item, request)
+              _ <- userDataApi.patch[Repository](
+                request.item.id,
+                Json.obj(RepositoryF.LOGO_URL -> url),
+                logMsg = getLogMessage
+              )
+            } yield Redirect(repositoryRoutes.get(id))
+              .flashing("success" -> "item.update.confirmation")
+          } catch {
+            case e: UnsupportedFormatException => onError("errors.badFileType")
+          }
+        } else {
+          onError("errors.badFileType")
+        }
+      }.getOrElse {
+        onError("errors.noFileGiven")
+      }
+    }
+  }
+
+  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean =
+    file.contentType.exists(_.toLowerCase.startsWith("image/"))
+
+  private def convertAndUploadFile(file: FilePart[TemporaryFile], repo: Repository, request: RequestHeader): Future[String] = {
+    val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
+    val classifier = config.get[String]("storage.institutions.classifier")
+    val extension = file.filename.substring(file.filename.lastIndexOf("."))
+    val storeName = s"images/$instance/${repo.id}$extension"
+    val temp = File.createTempFile(repo.id, extension)
+    Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
+
+    val url: Future[String] = fileStorage.putFile(classifier, storeName, temp, public = true).map(_.toString)
+    url.onComplete { _ => temp.delete() }
+    url
+  }
+
 }

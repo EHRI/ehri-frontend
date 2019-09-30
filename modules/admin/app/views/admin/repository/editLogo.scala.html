@@ -1,0 +1,20 @@
+@(item: Repository, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("repository.logo.edit"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+        @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
+
+        <div class="form-field">
+            <img alt="Current Image" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))" />
+            <hr/>
+
+            @helper.inputFile(f("image"), '_label -> Messages("repository.logo"))
+        </div>
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"),
+            cancel = views.admin.Helpers.linkToOpt(item),
+            defaultLogMessage = Messages("repository.logo.update.logMessage"))
+    }
+} {
+}

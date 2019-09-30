@@ -1,0 +1,8 @@
+@(item: Repository)(implicit req: RequestHeader, messages: Messages)
+
+@views.html.common.sidebarSection() {
+    <a class="repository-logo" href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
+        <img src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))"
+            alt="@Messages("repository.logo.edit")" title="@Messages("repository.logo.edit")" />
+    </a>
+}

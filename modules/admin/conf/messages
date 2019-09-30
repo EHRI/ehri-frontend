@@ -839,6 +839,9 @@ repository.addresses.create=Add Address
 repository.access=Access Area
 repository.services=Services Area
 repository.administrationArea=Administration
+repository.logo=Institution Logo
+repository.logo.edit=Edit Institution Logo
+repository.logo.update.logMessage=Update logo image
 
 #
 # ISDIAH

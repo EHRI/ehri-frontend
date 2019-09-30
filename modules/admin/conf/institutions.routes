@@ -25,3 +25,5 @@ GET         /:id/link/:toType/:to                     @controllers.institutions.
 POST        /:id/link/:toType/:to                     @controllers.institutions.Repositories.linkAnnotatePost(id: String, toType: EntityType.Value, to: String, copy: Boolean ?= false)
 GET         /:id/reindex                              @controllers.institutions.Repositories.updateIndex(id: String)
 GET         /:id/ingest                               @controllers.institutions.Repositories.ingest(id: String, sync: Boolean ?= false)
+GET         /:id/logo                                 @controllers.institutions.Repositories.updateLogoImage(id: String)
+POST        /:id/logo                                 @controllers.institutions.Repositories.updateLogoImagePost(id: String)
