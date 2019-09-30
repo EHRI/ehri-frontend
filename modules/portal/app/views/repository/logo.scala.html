@@ -1,8 +1,10 @@
 @(item: Repository)(implicit req: RequestHeader, messages: Messages)
 
 @item.data.logoUrl.map { logo =>
-    <a class="repository-logo" href="@controllers.portal.routes.Repositories.browse(item.id)">
-        <img src="@logo" alt="@item.toStringLang" />
-    </a>
+    @views.html.common.sidebarSection() {
+        <a class="repository-logo" href="@controllers.portal.routes.Repositories.browse(item.id)">
+            <img src="@logo" alt="@item.toStringLang" />
+        </a>
+    }
 }
 

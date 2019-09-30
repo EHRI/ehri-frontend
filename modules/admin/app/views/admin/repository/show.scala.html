@@ -31,6 +31,7 @@
                     } {
 
                     } {
+                        @views.html.admin.repository.logo(item)
                         @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
                         @adminActions(item)
