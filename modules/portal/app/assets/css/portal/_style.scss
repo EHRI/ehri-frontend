@@ -994,12 +994,21 @@ ul.pagination {
     margin-right: $margin-sm;
     a {
       float: left;
-      overflow: hidden;
-      border: 1px solid $gray-300;
-      height: 2rem;
-    }
-    img {
-      margin-top: -.6rem;
+
+      img {
+        max-width: 6rem;
+      }
+
+      // Country flags need negative top margin
+      // on the image to display property.
+      &.Country {
+        border: 1px solid $gray-300;
+        overflow: hidden;
+        height: 2rem;
+        img {
+          margin-top: -.6rem;
+        }
+      }
     }
 
     &:empty {
@@ -1220,6 +1229,7 @@ ul.list-export-options {
 .sidebar-section {
   font-size: $font-size-sm;
   margin-bottom: $margin-lg;
+  overflow: auto; // contain floats
 
   .sidebar-section-heading {
     @include color-var(color, 'secondary');
@@ -1308,6 +1318,13 @@ dl dt {
     vertical-align: text-bottom;
     color: $text-darkened;
     font-size: $font-size-lg;
+  }
+}
+
+.repository-logo {
+  float: left;
+  img {
+    width: 100%;
   }
 }
 
