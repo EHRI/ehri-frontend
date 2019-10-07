@@ -5,14 +5,17 @@ jQuery(function ($) {
   /*
    Tooltip
    */
-  $('.watch , .unwatch').tooltip({
-    delay: {
-      show: 600,
-      hide: 100
-    },
-    container: 'body',
-    html: true
-  });
+  // FIXME: Offset is incorrect for some reason so
+  // removed for now
+  // $('.watch , .unwatch').tooltip({
+    // delay: {
+    //   show: 600,
+    //   hide: 100
+    // },
+    // placement: 'bottom',
+    // container: '.main-content',
+    // html: true
+  // });
 
   /**
    * Markdown helper

@@ -49,6 +49,11 @@ aside.sidebar {
   }
 }
 
+// Hack for Bootstrap tooltips flickering
+.tooltip {
+  pointer-events: none;
+}
+
 .block-header {
   background-color: $ehri-gray;
   @include color-var(color, 'white');
@@ -1224,6 +1229,7 @@ ul.list-export-options {
 
   .facet-class {
     .facet-label {
+      display: inline-block;
       font-size: $font-size-sm;
       margin-bottom: $margin-sm;
     }
@@ -1734,6 +1740,11 @@ body.api {
 section {
   margin-bottom: $margin-xl;
 }
+
+section:last-child {
+  margin-bottom: 0;
+}
+
 
 .api-example-form input[type=number] {
   width: 4rem;
