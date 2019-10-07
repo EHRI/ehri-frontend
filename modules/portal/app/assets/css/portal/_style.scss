@@ -108,6 +108,10 @@ figure {
   @include color-var(background-color, 'secondary');
 }
 
+#navbar-primary-dropdown > ul > li > a:hover {
+  opacity: .9;
+}
+
 #navbar-primary-container-overlay {
   position: relative;
   height: 100%;
@@ -143,21 +147,26 @@ figure {
   > li:last-child > a {
     margin-right: -1rem;
   }
+}
 
-  .dropdown-menu > li {
+ul.dropdown-menu {
+  font-size: $font-size-sm;
+  margin-top: 0;
+
+  > li {
     padding: 0;
     &:active {
       background-color: $gray-100;
     }
   }
 
-  .dropdown-menu > li.dropdown-header {
+  > li.dropdown-header {
     font-size: $font-size-xs;
     color: $text-darkened;
     padding: $margin-xs $margin-sm;
   }
 
-  .dropdown-menu > li > a {
+  > li > a {
     font-size: $font-size-sm;
     display: block;
     padding: $margin-xs $margin-sm;
@@ -1041,6 +1050,13 @@ ul.pagination {
       font-weight: bold;
       color: $secondary;
 
+      > i.fa {
+        // the icon on list dropdowns is fixed-width because
+        // it switches to a spinner when clicked. This slight
+        // negative margin keeps it aligned neatly to the left.
+        margin-left: -.15rem;
+      }
+
       &:hover {
         text-decoration: none;
       }
@@ -1051,6 +1067,17 @@ ul.pagination {
     grid-area: body;
     font-size: $font-size-sm;
     margin-right: $margin-sm;
+
+    .breadcrumb {
+      // Override general breadcrumb styles for breadcrumbs
+      // that indicate an item's parent's in
+      // search list
+      padding: 0;
+      margin: 0;
+      background-color: inherit;
+      font-size: $font-size-sm;
+      @include list-inline(" /\00a0");
+    }
 
     .holders {
       @include list-unstyled();

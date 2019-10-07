@@ -12,15 +12,7 @@
                     @views.html.common.externalLinks(vc, links)
                     @views.html.common.annotationLinks(vc, links)
                 } {
-                    @views.html.common.typeLabel(vc.isA) {
-                        @if(userOpt.isDefined) {
-                            <ul class="item-sidebar-actions list-group">
-                                <li class="list-group-item btn-group-justified watch-controls" role="group">
-                                @views.html.common.watchButtons(item, watched.contains(item.id))
-                                </li>
-                            </ul>
-                        }
-                    }
+                    @views.html.common.typeLabelWithWatchButton(vc, watched.contains(item.id))
                 } {
                     @views.html.common.latestAction(vc, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
                 }
