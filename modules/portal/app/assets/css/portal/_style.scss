@@ -966,6 +966,10 @@ ul.pagination {
 }
 
 .user-list {
+  a.gravitar {
+    background-color: $ehri-gray;
+  }
+
   .user-info {
     margin-bottom: $list-margin-bottom;
 
@@ -978,6 +982,8 @@ ul.pagination {
 .user-thumbnail {
   width: 3rem;
   height: 3rem;
+
+  object-fit: contain;
 }
 
 // User profile pages
