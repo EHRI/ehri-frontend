@@ -106,7 +106,7 @@
                         <input placeholder="Optional Set ID" class="form-control" type="text" id="api-example-set" name="set" value=""/>
                     </div>
                     <div class="form-field">
-                        <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+                        <button class="btn btn-sm btn-primary btn-progress" type="submit">Click to test</button>
                     </div>
                 </div>
 
@@ -152,7 +152,7 @@
             $form.submit(function(e) {
                 e.preventDefault();
 
-                var $button = $(this).find(".progress-button");
+                var $button = $(this).find(".btn-progress");
                 $button.addClass("running");
 
                 $.ajax({

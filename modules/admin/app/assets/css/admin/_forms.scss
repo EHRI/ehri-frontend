@@ -28,11 +28,7 @@ ul.form-navigation {
   }
 }
 
-// Buttons
-.btn-post {
-  @extend .btn-primary;
-}
-
-.btn-cancel {
-  @extend .btn-outline-secondary;
+// Remove outline from file input
+input[type=file] {
+  border: none;
 }

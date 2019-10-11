@@ -20,7 +20,7 @@
 
         @if(inline && result.page.page == 1) {
             @if(result.page.hasMore) {
-                <a class="search-item-list-more progress-button"
+                <a class="search-item-list-more btn-progress"
                     data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
                     href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
                         .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">

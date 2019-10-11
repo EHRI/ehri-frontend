@@ -55,7 +55,7 @@ aside.sidebar {
 }
 
 .block-header {
-  background-color: $ehri-gray;
+  @include color-var(background-color, 'light');
   @include color-var(color, 'white');
   padding: $margin-xs;
   margin-bottom: $margin-sm;
@@ -85,12 +85,14 @@ figure {
 
 // Top navbar
 #navbar-top-container {
-  font-size: $font-size-xs;
+  font-size: $font-size-sm;
+  //font-family: $headings-font-family;
   @extend .bg-dark;
 }
 
 // Both navbars are dark expanding  containers
-#navbar-top, #navbar-primary {
+#navbar-top,
+#navbar-primary {
   @extend .container, .navbar, .navbar-dark;
 }
 
@@ -176,7 +178,7 @@ ul.dropdown-menu {
     display: block;
     padding: $margin-xs $margin-sm;
     clear: both;
-    color: $black;
+    color: $gray-800;
     white-space: nowrap;
 
     &:hover {
@@ -215,6 +217,7 @@ body.home #navbar-primary-container {
 #navbar-account > ul > li > a {
   @extend %nav-link;
   color: $white;
+  padding: .25rem 1rem .3rem;
 }
 
 #header-logo {
@@ -493,7 +496,7 @@ body.home {
 
 // Footer
 #portal-footer {
-  background-color: $gray-200;
+  @include color-var('background-color', 'light');
   font-size: $font-size-sm;
   padding: $margin-xl 0 $margin-lg 0;
 
@@ -609,7 +612,7 @@ body.home {
 
 // Info bar / breadcrumbs
 .info-bar {
-  background-color: $gray-200;
+  @include color-var('background-color', 'light');
 
   .breadcrumb {
     background-color: inherit;
@@ -629,7 +632,7 @@ body.home {
 
 // Search controls
 .search-result-errata {
-  background-color: $ehri-gray;
+  @include color-var(background-color, 'light');
   padding: $margin-xs $margin-sm;
   align-items: center;
 
@@ -876,6 +879,14 @@ body.home {
   @include button-variant($primary, $primary);
 }
 
+.btn-default {
+  @include button-variant($ehri-gray, darken($ehri-gray, 7%));
+}
+
+.btn-cancel {
+  @include button-variant($ehri-gray, darken($ehri-gray, 7%));
+}
+
 // Login / Register social buttons
 .btn-facebook {
   @include button-variant(#354E84, #354E84);
@@ -949,11 +960,6 @@ ul.pagination {
   .user-grid-item {
     margin-bottom: $list-margin-bottom;
 
-    .user-info-details {
-      margin-left: $margin-md;
-      font-size: $font-size-sm;
-      color: $text-muted;
-    }
   }
 
   .user-info {
@@ -963,6 +969,12 @@ ul.pagination {
       overflow: hidden;
     }
   }
+}
+
+.user-info-details {
+  margin-left: $margin-md;
+  font-size: $font-size-sm;
+  color: $text-muted;
 }
 
 .user-list {
@@ -1450,7 +1462,7 @@ dl dt {
 
       &:hover {
         text-decoration: none;
-        background-color: $gray-200;
+        @include color-var('background-color', 'light');
       }
     }
 
