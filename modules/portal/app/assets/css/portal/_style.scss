@@ -171,6 +171,10 @@ ul.dropdown-menu {
     font-size: $font-size-xs;
     color: $text-darkened;
     padding: $margin-xs $margin-sm;
+
+    &:hover {
+      background-color: inherit;
+    }
   }
 
   > li > a {
