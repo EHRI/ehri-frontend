@@ -206,29 +206,6 @@ ul.pagination {
   @include list-unstyled();
 }
 
-.user-thumbnail {
-  width: 3rem;
-  height: 3rem;
-}
-
-.user-grid {
-  @include list-unstyled();
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-
-  .user-info {
-    width: 30rem;
-    float: left;
-
-    .img-container {
-      width: 10rem;
-      height: 10rem;
-      overflow: hidden;
-    }
-  }
-}
-
 .user-info {
   @extend .media;
 
