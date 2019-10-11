@@ -14,7 +14,7 @@
 
 @submitButton = {
     <div class="form-field">
-        <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+        <button class="btn btn-sm btn-primary btn-progress" type="submit">Click to test</button>
     </div>
 }
 
@@ -318,13 +318,13 @@
 
                     console.log("API call", url);
 
-                    $form.find(".progress-button").addClass("running");
+                    $form.find(".btn-progress").addClass("running");
                     $.get(url, function (data) {
                         $text.data("editor").getDoc().setValue(JSON.stringify(data, null, 2));
                     }).error(function (e) {
                         $text.data("editor").getDoc().setValue(JSON.stringify(e.responseJSON, null, 2));
                     }).complete(function () {
-                        $form.find(".progress-button").removeClass("running");
+                        $form.find(".btn-progress").removeClass("running");
                     });
 
                 }).change(function(e) {

@@ -120,4 +120,82 @@
   }
 }
 
+@mixin flash-bg($from, $to) {
+  -webkit-animation: flash-bg 1s linear;
+  -o-animation: flash-bg 1s linear;
+  animation: flash-bg 1s linear;
+  -webkit-animation-iteration-count: 3;
+  -o-animation-iteration-count: 3;
+  animation-iteration-count: 3;
 
+  @-o-keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+
+  @-webkit-keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+
+  @keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+  @-o-keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+
+  @-webkit-keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+
+  @keyframes flash-bg {
+    0% {
+      background: $from
+    }
+    50% {
+      background: $to
+    }
+    to {
+      background: $from
+    }
+  }
+}

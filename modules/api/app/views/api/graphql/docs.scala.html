@@ -41,7 +41,7 @@
                     <textarea class="api-example" rows="8" id="api-usage-input">@query</textarea>
                 </div>
                 <div class="form-field">
-                    <button class="btn btn-sm btn-primary progress-button" type="submit">Click to test</button>
+                    <button class="btn btn-sm btn-primary btn-progress" type="submit">Click to test</button>
                 </div>
                 <hr/>
 
@@ -145,7 +145,7 @@
                 $form.submit(function(e) {
                    e.preventDefault();
 
-                    var $button = $(this).find(".progress-button");
+                    var $button = $(this).find(".btn-progress");
 
                     var q = $("#api-usage-input").val();
                     $button.addClass("running");
