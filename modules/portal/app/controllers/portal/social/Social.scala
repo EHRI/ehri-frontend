@@ -177,7 +177,7 @@ case class Social @Inject()(
     for {
       them <- userDataApi.get[UserProfile](userId)
       theirFollowers <- userDataApi.followers[UserProfile](userId, paging)
-      whoImFollowing <- userDataApi.following[UserProfile](request.user.id)
+      whoImFollowing <- userDataApi.following[UserProfile](request.user.id, PageParams.empty.withoutLimit)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
@@ -192,7 +192,7 @@ case class Social @Inject()(
     for {
       them <- userDataApi.get[UserProfile](userId)
       theirFollowing <- userDataApi.following[UserProfile](userId, paging)
-      whoImFollowing <- userDataApi.following[UserProfile](request.user.id)
+      whoImFollowing <- userDataApi.following[UserProfile](request.user.id, PageParams.empty.withoutLimit)
       canMessage <- allowMessage
     } yield {
       if (isAjax)
