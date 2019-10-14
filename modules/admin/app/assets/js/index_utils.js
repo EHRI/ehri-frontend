@@ -27,7 +27,7 @@ jQuery(function($) {
 
   $submit.click(function(event) {
     event.preventDefault();
-    $submit.attr("disabled", true);
+    $submit.attr("disabled", true).addClass("running");
     var $out = $("#update-progress");
     var websocket = new WebSocket(SOCKET_URI);
     websocket.onopen = function() {
@@ -37,7 +37,7 @@ jQuery(function($) {
     };
     websocket.onerror = function(e) {
       appendProgressMessage("ERROR. Try refreshing the page.");
-      $submit.attr("disabled", false);
+      $submit.attr("disabled", false).removeClass("running");
       console.log("Socket error!");
     }
     websocket.onmessage = function(e) {
@@ -45,7 +45,7 @@ jQuery(function($) {
       appendProgressMessage(msg);
       if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
         websocket.close();
-        $submit.attr("disabled", false);
+        $submit.attr("disabled", false).removeClass("running");
         console.log("Closed socket")
       }
     };

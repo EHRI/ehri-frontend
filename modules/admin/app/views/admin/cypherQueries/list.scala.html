@@ -26,7 +26,7 @@
                             @query.name
                         } {
                         } {
-                            @query.description.map(Markdown.apply)
+                            <div class="query"@query.description.map(Markdown.apply)
                             <pre class="code-format"><code>@query.query.stripMargin</code></pre>
 
                             <div class="search-item-footer">
