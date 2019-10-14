@@ -675,7 +675,6 @@ body.home {
 
   .input-group {
     border: $border-width solid $border-color;
-    align-items: baseline;
   }
 
   input[type='search'] {
@@ -690,6 +689,10 @@ body.home {
   .input-group-addon {
     height: $input-height;
     z-index: 2;
+
+    button {
+      height: 100%;
+    }
   }
 
   .submit-search .form-control-feedback {
