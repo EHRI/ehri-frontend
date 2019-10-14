@@ -1414,7 +1414,9 @@ dl dt {
   @extend %small-muted;
 }
 
-.link-section ul {
+.link-section > ul {
+  @include list-unstyled();
+
   // This makes scrolled content in height-restricted boxes more
   // obvious by putting an inset shadow at the top and/or bottom
   // when scrolling is activated. Adapted from:
