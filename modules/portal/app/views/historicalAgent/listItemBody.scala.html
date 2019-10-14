@@ -6,7 +6,9 @@
         <ul class="agent-search-details">
             @item.set.map { set =>
                 <li>
-                    @views.html.helpers.linkTo(set, attributes = Seq(Symbol("class") -> "alt"))
+                    @views.html.helpers.link(views.Helpers.linkTo(set), Symbol("class") -> "alt") {
+                        @Html(highlighter.highlight(set.toStringLang))
+                    }
                 </li>
             }
             <li>@Messages("historicalAgent." + desc.entityType.toString)</li>

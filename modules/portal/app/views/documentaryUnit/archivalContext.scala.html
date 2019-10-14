@@ -33,7 +33,8 @@
             @item.parent.map { parent =>
                 @wrapParent(parent) {
                     <div class="ancestor">
-                    @views.html.helpers.linkTo(parent)
+                        <i class="material-icons">subdirectory_arrow_right</i>
+                        @views.html.helpers.linkTo(parent)
                     </div>
                 }
             }
