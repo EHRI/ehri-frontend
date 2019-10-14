@@ -5,7 +5,9 @@
         <ul class="concept-search-details">
             @item.vocabulary.map { vocab =>
                 <li>
-                    @views.html.helpers.linkTo(vocab, attributes = Seq(Symbol("class") -> "alt"))
+                    @views.html.helpers.link(views.Helpers.linkTo(vocab), Symbol("class") -> "alt") {
+                        @Html(highlighter.highlight(vocab.toStringLang))
+                    }
                 </li>
             }
             <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
