@@ -390,7 +390,7 @@ Vue.component("concept-rel-editor", {
     <div id="concept-editor-rels-tab" class="concept-editor-tab">
       <div class="concept-editor-broader-terms concept-editor-tab-form">
         <h4>Broader Terms
-            <button v-bind:disabled="!expandable" class="btn btn-xs btn-default">
+            <button v-bind:disabled="!expandable" class="btn btn-xs">
                 <span v-if="!expand" v-on:click="expand = true">expand terms</span>
                 <span v-if="expand" v-on:click="expand = false">collapse terms</span>
             </button> 
