@@ -34,6 +34,7 @@ body {
 .welcome-section h2,
 .info-container h2 {
   text-transform: uppercase;
+  font-stretch: semi-condensed;
 }
 
 // 0-margin headings
@@ -85,8 +86,6 @@ figure {
 
 // Top navbar
 #navbar-top-container {
-  font-size: $font-size-sm;
-  //font-family: $headings-font-family;
   @extend .bg-dark;
 }
 
@@ -100,6 +99,10 @@ figure {
   padding-top: 0;
   padding-bottom: 0;
   @extend .navbar-expand-lg;
+
+  a {
+    font-size: .8125rem; // 13px
+  }
 }
 
 #navbar-primary {
@@ -129,11 +132,16 @@ figure {
 #navbar-top > #navbar-actions > ul,
 #navbar-top > #navbar-account > ul {
   @extend .navbar-nav;
+
+  @include media-breakpoint-up(lg) {
+    align-items: center;
+  }
 }
 
 // Actions menu is always flat...
 #navbar-actions > ul {
   flex-direction: row !important;
+  align-items: center;
   @extend .mr-auto;
 
   > li {
@@ -221,7 +229,10 @@ body.home #navbar-primary-container {
 #navbar-account > ul > li > a {
   @extend %nav-link;
   color: $white;
-  padding: .25rem 1rem .3rem;
+
+  @include media-breakpoint-up(lg) {
+    padding: .25rem 1rem .3rem;
+  }
 }
 
 #header-logo {
@@ -277,11 +288,6 @@ body.home #navbar-primary-container {
   border-top: 1px solid rgba(224, 224, 224, 0.3);
 }
 
-#navbar-primary-dropdown > ul > li:last-child > a {
-  display: flex;
-  align-items: center;
-}
-
 // At wide display, pad navbar items
 @include media-breakpoint-up(lg) {
 
@@ -308,36 +314,45 @@ body.home #navbar-primary-container {
   }
 
   #navbar-logo {
-    padding-right: 1.5rem;
-  }
-
-  #navbar-primary-dropdown > ul > li {
-    border-top: 0;
-  }
-
-  #navbar-primary-dropdown > ul > li {
-    padding: 0;
-  }
-
-  #navbar-primary-dropdown > ul > li > a {
-    padding: 1.5rem 0;
-    border-bottom: 0.5rem solid transparent;
-    border-top: 0.5rem solid transparent;
-  }
-
-  #navbar-primary-dropdown > ul > li.active > a {
-    border-bottom: .5rem solid $white;
+    padding-right: 1rem;
   }
 
   #navbar-primary-dropdown > ul {
     justify-content: space-between;
-    flex-grow: 1;
+    flex-grow: 2;
 
     > li:last-child {
-      display: flex;
-      align-items: center;
       padding-right: 0;
     }
+  }
+
+  #navbar-primary-dropdown > ul > li {
+    padding: 0;
+    margin: 0 $margin-xs / 2;
+    border-top: 0;
+
+    flex-grow: 1.5;
+
+    &:last-child {
+      margin-right: 0;
+      flex-grow: 0.5;
+      flex-shrink: 2;
+    }
+  }
+
+  #navbar-primary-dropdown > ul > li > a {
+    letter-spacing: .0625rem;
+    line-height: normal;
+    white-space: nowrap;
+    font-stretch: semi-condensed;
+    padding: 1.5rem 0;
+    border-bottom: 0.5rem solid transparent;
+    border-top: 0.5rem solid transparent;
+    text-align: center;
+  }
+
+  #navbar-primary-dropdown > ul > li.active > a {
+    border-bottom: .5rem solid $white;
   }
 
   #navbar-primary-dropdown #site-search-controls {
@@ -642,6 +657,8 @@ body.home {
 
   .search-summary {
     @extend %heading-text;
+    font-size: $font-size-sm;
+    letter-spacing: .0625rem * .875;
     @include color-var(color, 'secondary');
   }
 
