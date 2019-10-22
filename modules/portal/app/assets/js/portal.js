@@ -171,10 +171,8 @@ jQuery(function ($) {
             suggestion: Handlebars.compile('<div><a href="{{href}}">{{name}}</a></div>')
           }
         }
-    ).keypress(function (e) {
-      if (e.which === 13) {
-        $(this).parents("form").submit();
-      }
+    ).bind('typeahead:select', function(ev, suggestion) {
+      window.location.href = suggestion.href;
     });
   }
 
