@@ -1508,7 +1508,7 @@ dl dt {
 
 .detail-section {
   border: $border-width solid $border-color;
-  background-color: $gray-100;
+  @include color-var(background-color, 'light');
   padding: $margin-sm;
   border-radius: $border-radius;
 }
