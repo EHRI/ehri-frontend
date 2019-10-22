@@ -32,7 +32,7 @@
                     <li>
                         @helper.form(action = controllers.portal.routes.Portal.search()) {
                             <div id="site-search-controls" class="search-box">
-                                @*<label class="sr-only" for="quicksearch">@Messages("search.site")</label>*@
+                                <label class="sr-only" for="quicksearch">@Messages("search.site")</label>
                                 <input class="form-control" type="search" name="q" placeholder="@Messages("search.site")" id="quicksearch" value="">
                                 <span class="input-group-append">
                                     <button class="btn submit-search" type="submit">
