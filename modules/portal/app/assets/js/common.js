@@ -241,7 +241,7 @@ jQuery(function($) {
       var prefs = prefsObj || {};
       jsRoutes.controllers.portal.Portal.updatePrefs().ajax({
         data: prefsObj
-      }).error(function(err) {
+      }).fail(function(err) {
         console.error("Unable to update preferences: ", err);
       });
     },

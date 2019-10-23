@@ -284,8 +284,8 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     Concat.groups := Seq(
       "js/script-pre.js" -> group(
         Seq(
-          "js/lib/jquery-1.12.4.js",
-          "js/lib/jquery.validate-1.17.0.js",
+          "js/lib/jquery-3.4.1.js",
+          "js/lib/jquery.validate-1.19.1.js",
           "js/lib/typeahead-1.2.1.js",
           "js/lib/handlebars-v4.4.3.js",
           "js/lib/jquery.cookie.js",
@@ -296,7 +296,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
       ),
       "js/script-post.js" -> group(
         Seq(
-          "js/lib/jquery.cookie.js",
           "js/lib/jquery.placeholder.js",
           "js/lib/bootstrap.bundle.js",
           "js/portal.js"
@@ -304,7 +303,6 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
       ),
       "js/script-post-signedin.js" -> group(
         Seq(
-          "js/lib/jquery.cookie.js",
           "js/lib/jquery.placeholder.js",
           "js/lib/bootstrap.bundle.js",
           "js/portal.js",

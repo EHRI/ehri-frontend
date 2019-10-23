@@ -152,13 +152,13 @@ jQuery(function ($) {
 
       // Munge follower counts and lists
       // FIXME: Disabled since it's broken, see #494
-      //if ($elem.parents(".user-list-item").size() === 0) {
+      //if ($elem.parents(".user-list-item").length === 0) {
       //  $(".browse-users-followers").load(followerListFunc(id).url);
       //  $(".browse-users-following").load(followingListFunc(id).url)
       //}
       //// If a follower count is shown, munge it...
       //var fc = $(".user-follower-count");
-      //if (fc.size()) {
+      //if (fc.length) {
       //  var cnt = parseInt(fc.html(), 10);
       //  fc.html(follow ? (cnt + 1) : (cnt - 1));
       //}
@@ -201,7 +201,7 @@ jQuery(function ($) {
 
       // If a watch count is shown, munge it...
       var fc = $(".item-watch-count");
-      if (fc.size()) {
+      if (fc.length) {
         var cnt = parseInt(fc.html(), 10);
         fc.html(watch ? (cnt + 1) : (cnt - 1));
       }
