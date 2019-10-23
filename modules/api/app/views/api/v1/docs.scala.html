@@ -60,11 +60,6 @@
 @views.html.api.layout.apiDocLayout(Messages("api.v1.header")) {
     <section id="overview">
         <h2>Overview</h2>
-        <p class="alert alert-warning">
-            <i class="fa fa-asterisk"></i>
-            The EHRI JSON API is currently in testing and not recommended for use in important
-            applications.
-        </p>
 
         <p>The EHRI portal has an experimental web <a class="external" href="https://en.wikipedia.org/wiki/Application_programming_interface#Web_APIs">
             API</a>, intended for searching and retrieving a
@@ -324,9 +319,9 @@
                     $form.find(".btn-progress").addClass("running");
                     $.get(url, function (data) {
                         $text.data("editor").getDoc().setValue(JSON.stringify(data, null, 2));
-                    }).error(function (e) {
+                    }).fail(function (e) {
                         $text.data("editor").getDoc().setValue(JSON.stringify(e.responseJSON, null, 2));
-                    }).complete(function () {
+                    }).always(function () {
                         $form.find(".btn-progress").removeClass("running");
                     });
 

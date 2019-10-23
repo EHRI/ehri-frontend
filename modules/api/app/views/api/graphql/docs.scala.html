@@ -158,11 +158,11 @@
                         type: $form.attr("method"),
                         data: JSON.stringify({ query: q }),
                         contentType: "application/json"
-                    }).success(function (data) {
+                    }).done(function (data) {
                         results.getDoc().setValue(JSON.stringify(data, null, 2));
-                    }).error(function(e) {
+                    }).fail(function(e) {
                         results.getDoc().setValue(JSON.stringify(e.responseJSON, null, 2));
-                    }).complete(function() {
+                    }).always(function() {
                         $button.removeClass("running")
                     });
                 });
