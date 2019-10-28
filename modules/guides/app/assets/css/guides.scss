@@ -1,0 +1,35 @@
+//
+// Load Dependencies
+// --------------------------------------------------
+@import "lib/docview-portal/css/portal.scss";
+
+header#top {
+  @include color-var(background-color, 'secondary');
+  color: $white;
+
+  #guide-navbar > ul {
+    justify-content: space-between;
+
+    > li > a {
+      color: $white;
+      font-size: $font-size-sm;
+    }
+  }
+
+  .guides-logo {
+    float: right;
+    padding-left: $margin-md;
+
+    img {
+      width: 16rem;
+      height: auto;
+    }
+  }
+
+  .guide-title {
+    margin-bottom: 0;
+    a {
+      color: $white;
+    }
+  }
+}
