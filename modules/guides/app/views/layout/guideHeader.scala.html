@@ -1,15 +1,12 @@
 @(guide: Guide, page: GuidePage, pages: Seq[GuidePage])(implicit request: RequestHeader, messages: Messages)
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-3  col-md-push-9 text-center">
-            <a href="@controllers.portal.guides.routes.Guides.listGuides()">
-                <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo.png")" class="img-responsive" alt="EHRI" />
-            </a>
-        </div>
+        <a class="guides-logo" href="@controllers.portal.guides.routes.Guides.listGuides()">
+            <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo.png")" alt="EHRI" />
+        </a>
 
-        <div class="col-md-9 col-md-pull-3">
-            <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
+        <nav id="guide-navbar">
+            <ul class="nav">
                 @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Top)) {
                     <li><a class="@{if(page.path == otherPage.path) "active"}" href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, otherPage.path)">
                         @otherPage.name
@@ -21,16 +18,11 @@
                     </a>
                 </li>
             </ul>
-        </div>
-    </div>
+        </nav>
 </div>
 <div id="page-title">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="guide-title"><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h1>
-            </div>
-        </div>
+        <h1 class="guide-title"><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h1>
     </div>
 </div>
 

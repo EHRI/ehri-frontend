@@ -25,22 +25,15 @@
         meta = page.description.map(s => "description" -> s).toMap,
         styles = extraStyles
     )
-    <body>
+    <body class="guides">
         @views.html.common.preambleScripts()
-        <div id="wrap">
-            <header id="top">
-                @views.html.layout.guideHeader(guide, page, pages)
-            </header>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-8" id="main">
-                        @content
-                    </div>
-                    <div class="col-md-4" id="right-bar">
-                        @views.html.layout.guideSidebar(guide, page, pages, optionalContent)
-                    </div>
-                </div>
-            </div>
+        <header id="top" class="navigation">
+            @views.html.layout.guideHeader(guide, page, pages)
+        </header>
+        <div class="container">
+            @views.html.common.rightSidebar(content) {
+                @views.html.layout.guideSidebar(guide, page, pages, optionalContent)
+            }
         </div>
         @views.html.common.footer()
         @views.html.common.postambleScripts(extra = extraScripts)
