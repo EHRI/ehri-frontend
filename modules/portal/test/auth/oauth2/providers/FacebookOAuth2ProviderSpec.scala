@@ -17,8 +17,8 @@ class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
      "parse access data" in {
        FacebookOAuth2Provider(config).parseAccessInfo(testAccessData) must beSome.which { d =>
          d.accessToken must equalTo("some-access-token")
-         d.refreshToken must equalTo(None)
-         d.expiresIn must equalTo(Some(100))
+         d.refreshToken must beNone
+         d.expiresIn must beSome(100)
        }
      }
 

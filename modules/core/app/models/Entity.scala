@@ -32,7 +32,7 @@ object Entity {
    */
   implicit val entityWrites: Writes[Entity] = (
     (__ \ ID).write[String] and
-    (__ \ TYPE).write[EntityType.Type](utils.EnumUtils.enumWrites) and
+    (__ \ TYPE).write[EntityType.Type] and
     (__ \ DATA).lazyWrite(Writes.map[JsValue]) and
     (__ \ RELATIONSHIPS).lazyWrite(Writes.map[Seq[Entity]])
   )(unlift(Entity.unapply))
