@@ -660,25 +660,6 @@ body.home {
     font-size: $font-size-sm;
     @include color-var(color, 'secondary');
   }
-
-  .search-sort {
-    i {
-      color: $text-muted;
-    }
-
-    ul > li > a {
-      @extend %small-muted;
-    }
-
-    ul > li.active > a {
-      @include color-var(color, 'secondary');
-      font-weight: bold;
-    }
-
-    ul > li + li {
-      margin-left: $margin-xs;
-    }
-  }
 }
 
 .search-controls {
@@ -844,6 +825,22 @@ body.home {
   flex-direction: row;
   align-items: center;
 
+  i {
+    color: $text-muted;
+  }
+
+  ul > li > a {
+    @extend %small-muted;
+  }
+
+  ul > li.active > a {
+    @include color-var(color, 'secondary');
+    font-weight: bold;
+  }
+
+  ul > li + li {
+    margin-left: $margin-xs;
+  }
   ul {
     margin: 0 0 0 $margin-sm;
     @include list-unstyled();
@@ -1866,6 +1863,27 @@ section:last-child {
     flex-direction: column;
 
     ul, ol {
+      margin-left: $margin-md;
+    }
+  }
+}
+
+// Guides Landing Page: delete when guides finally retires
+.guides {
+  .landing-header {
+    margin-bottom: $margin-md;
+  }
+
+  .guide-list {
+    @include list-unstyled();
+
+    .guide-item {
+      @extend .media;
+      margin-bottom: $margin-md;
+    }
+
+    .guide-description {
+      @extend .media-body;
       margin-left: $margin-md;
     }
   }

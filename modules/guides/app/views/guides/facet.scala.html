@@ -112,13 +112,14 @@
 @sidebar(page: GuidePage) = {
     <div id="facets">
     @helper.form(action = action) {
-        <div class="form-group search-box">
+        <div class="search-box">
             <div class="input-group">
                 <label for="id_q" class="sr-only">@Messages("search")</label>
-                <input type="text" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
-                <span class="input-group-btn">
-                    <button type="submit" class="form-control"><span class="fa fa-search">
-                    </span>@Messages("search")
+                <input type="search" id="id_q" name="q" value="@result.params.query" class="form-control" placeholder="@Messages("search")" />
+                <span class="input-group-addon">
+                    <button type="submit" class="btn submit-search">
+                        <i class="fa fa-search form-control-feedback"></i>
+                        <span class="sr-only">@Messages("search")</span>
                     </button>
                 </span>
             </div>

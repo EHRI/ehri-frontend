@@ -1,10 +1,6 @@
 @(guide: Guide, page: GuidePage, pages: Seq[GuidePage])(implicit request: RequestHeader, messages: Messages)
 
 <div class="container">
-        <a class="guides-logo" href="@controllers.portal.guides.routes.Guides.listGuides()">
-            <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo.png")" alt="EHRI" />
-        </a>
-
         <nav id="guide-navbar">
             <ul class="nav">
                 @for(otherPage <- pages.filter(_.position == GuidePage.MenuPosition.Top)) {
@@ -15,6 +11,11 @@
                 <li>
                     <a class="@{if(page.path == "browse") "active"}" href="@controllers.portal.guides.routes.Guides.guideFacets(guide.path)">
                         @Messages("guides.faceted")
+                    </a>
+                </li>
+                <li>
+                    <a class="guides-logo" href="@controllers.portal.guides.routes.Guides.listGuides()">
+                        <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo.png")" alt="EHRI" />
                     </a>
                 </li>
             </ul>
