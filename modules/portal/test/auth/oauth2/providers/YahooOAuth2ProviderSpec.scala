@@ -16,10 +16,10 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
     "parse access data" in {
       YahooOAuth2Provider(config).parseAccessInfo(testAccessData) must beSome.which { d =>
         d.accessToken must equalTo("some-access-token")
-        d.userGuid must equalTo(Some("123456789"))
-        d.refreshToken must equalTo(Some("blah"))
-        d.expiresIn must equalTo(Some(100))
-        d.tokenType must equalTo(Some("bearer"))
+        d.userGuid must beSome("123456789")
+        d.refreshToken must beSome("blah")
+        d.expiresIn must beSome(100)
+        d.tokenType must beSome("bearer")
       }
     }
 

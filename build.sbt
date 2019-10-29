@@ -145,7 +145,7 @@ val commonSettings = Seq(
   javaOptions in Test ++= Seq(
     "-Xmx1G",
     "-XX:+CMSClassUnloadingEnabled",
-    "-Dconfig.file=conf/test.conf",
+    s"-Dconfig.file=${(baseDirectory in LocalRootProject).value / "conf" / "test.conf"}",
     s"-Dlogger.file=${(baseDirectory in LocalRootProject).value / "conf" / "logback-play-dev.xml"}"
   ),
 
