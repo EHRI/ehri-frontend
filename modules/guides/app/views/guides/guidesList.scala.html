@@ -2,26 +2,24 @@
 
 @import models.Guide
 
-@views.html.layout.portalLayoutSimple(Messages("guides.heading")) {
-    <div>
-        <h3 class="landing-header user">
+@views.html.layout.portalLayoutSimple(Messages("guides.heading"), itemClass = "guides") {
+    @views.html.common.mainContent {
+        <h2 class="landing-header">
             <a class="" href="./">@Messages("guides.heading")</a>
-        </h3>
+        </h2>
 
-        <div class="landing-blurb">
-            <ul class="media-list">
+        <ul class="guide-list">
             @for(guide <- guides.collect { case g: Guide => g}) {
-                <li class="media">
-                    <a class="pull-left" href="@controllers.portal.guides.routes.Guides.home(guide.path)">
+                <li class="guide-item">
+                    <a class="" href="@controllers.portal.guides.routes.Guides.home(guide.path)">
                         <img class="media-object" width="128px" src="@guide.picture" alt="@guide.name" style="width : 128px ; height : auto ;">
                     </a>
-                    <div class="media-body">
-                        <h4 class="media-heading"><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h4>
+                    <div class="guide-description">
+                        <h4><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h4>
                         @guide.description.map(d => Html(md.renderTrustedMarkdown(d)))
                     </div>
                 </li>
             }
-            </ul>
-        </div>
-    </div>
+        </ul>
+    }
 }

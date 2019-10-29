@@ -1,43 +1,12 @@
 @(guide: Guide, page: GuidePage, pages: List[GuidePage], item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash, md: views.MarkdownRenderer)
 
-@wrapParent(doc: DocumentaryUnit)(html: Html) = {
-    @doc.parent.map { parent =>
-        @wrapParent(parent) {
-            <div class="ancestor">
-                <h4>@views.html.guides.doc.linkTo(guide, parent)</h4>
-                @html
-            </div>
-        }
-    }.getOrElse {
-        @html
-    }
-}
-
 @sidebar(page: GuidePage) = {
-    @layout.guideDescriptionChoice(item.data.descriptions)
-    <p>
+    <div class="guides-notice">
         <small class="minor-notice">@Messages("guides.annotation")</small><br />
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
-    </p>
-    @defining("documentaryUnit") { implicit prefix =>
-        <section class="archival-context sidebar-section repository">
-            @item.holder.map { holder =>
-                <div class="sidebar-section-heading">
-                    <h3>@views.html.guides.doc.linkTo(guide, holder)</h3>
-                </div>
-                <div class="sidebar-section-body">
-                    @item.parent.map { parent =>
-                        @wrapParent(parent) {
-                            <div class="ancestor">
-                                <h4>@views.html.guides.doc.linkTo(guide, parent)</h4>
-                            </div>
-                        }
-                    }
-                </div>
-            }
-        </section>
-    }
-
+    </div>
+    @views.html.common.descriptionSwitcher(descriptions = item.data.descriptions.zipWithIndex.map { case (d,i) => d -> (i == 0)})
+    @views.html.documentaryUnit.archivalContext(item)
     @page.description.map(d => Html(md.renderTrustedMarkdown(d)))
 }
 
@@ -52,5 +21,4 @@
     }
     </article>
     @views.html.guides.doc.childItemSearch(guide, item, result, action, watched)
-    <footer></footer>
 }

@@ -3,33 +3,112 @@
 // --------------------------------------------------
 @import "lib/docview-portal/css/portal.scss";
 
-header#top {
-  @include color-var(background-color, 'secondary');
-  color: $white;
+body.guides {
+  header#top {
+    background-color: $black;
+    color: $white;
 
-  #guide-navbar > ul {
-    justify-content: space-between;
+    #guide-navbar > ul {
+      > li {
+        margin-right: $margin-lg;
 
-    > li > a {
-      color: $white;
+        > a {
+
+          color: $white;
+          font-size: $font-size-sm;
+        }
+      }
+
+      > li:last-child {
+        margin-left: auto;
+        margin-right: 0;
+      }
+    }
+
+    .guides-logo {
+      padding-left: $margin-md;
+
+      img {
+        width: 16rem;
+        height: auto;
+      }
+    }
+
+    #page-title {
+      @include color-var(background-color, 'secondary');
+
+    }
+
+    .guide-title {
+      margin-bottom: 0;
+      padding: $margin-sm 0;
+
+      font-size: $font-size-lg;
+
+      text-align: right;
+      a {
+        color: $white;
+      }
+    }
+  }
+
+  #facets {
+    .search-sort {
+      margin: $margin-xs 0;
+      background-color: $ehri-gray;
+    }
+
+    .search-box {
+      @include search-box($secondary);
+    }
+  }
+
+  .guides-sidebar {
+    padding-top: $margin-lg;
+
+    .guides-sidebar-section {
+      margin-bottom: $margin-lg;
+
+      padding: $margin-sm;
+      //border: 1px solid $border-color;
+    }
+
+    ul.guides-sidebar-section {
+      @include list-unstyled();
+      padding-left: $margin-sm;
+      font-family: 'ff-tisa-web-pro', serif;
       font-size: $font-size-sm;
+
+      a {
+        display: block;
+        color: $black;
+        padding: $margin-xs;
+
+        &:hover,
+        &.active {
+          background-color: $gray-200;
+          text-decoration: none;
+        }
+      }
     }
   }
 
-  .guides-logo {
-    float: right;
-    padding-left: $margin-md;
-
-    img {
-      width: 16rem;
-      height: auto;
-    }
+  article > header > h1 {
+    margin: $margin-lg 0;
   }
 
-  .guide-title {
-    margin-bottom: 0;
-    a {
-      color: $white;
-    }
+  section.double {
+    margin-bottom: $margin-lg;
+  }
+
+  .guides_contextual_box {
+    padding: $margin-sm;
+    background-color: $gray-100;
+  }
+
+  .guides-notice {
+    padding: $margin-xs;
+    border: 1px solid $border-color;
+    background-color: $gray-100;
   }
 }
