@@ -1,4 +1,3 @@
-import javax.inject.{Inject, Provider}
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
@@ -8,9 +7,10 @@ import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
 import global._
+import javax.inject.{Inject, Provider}
 import models.{GuideService, SqlGuideService}
 import services.accounts.{AccountManager, SqlAccountManager}
-import services.cypher.{CypherService, CypherQueryService, Neo4jCypherService, SqlCypherQueryService}
+import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
@@ -27,7 +27,7 @@ private class SolrIndexProvider @Inject()(config: play.api.Configuration) extend
 
 private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) extends Provider[OAuth2Config] {
   override def get(): OAuth2Config = new OAuth2Config {
-    override def providers: Seq[OAuth2Provider] =  Seq(
+    override def providers: Seq[OAuth2Provider] = Seq(
       GoogleOAuth2Provider(config),
       FacebookOAuth2Provider(config),
       YahooOAuth2Provider(config)
@@ -35,7 +35,7 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
   }
 }
 
-class AppModule extends AbstractModule {
+class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
     bind(classOf[AccountManager]).to(classOf[SqlAccountManager])

@@ -4,7 +4,7 @@ import javax.inject.Inject
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
 import defines.EntityType
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import services.data.Constants
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,13 +26,15 @@ case class CmdlineIndexMediatorHandle(
 )(implicit config: Configuration, executionContext: ExecutionContext)
   extends SearchIndexMediatorHandle {
 
+  private val logger: Logger = play.api.Logger(classOf[CmdlineIndexMediatorHandle])
+
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): CmdlineIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)
 
   /**
     * Process logger which buffers output to `bufferCount` lines
     */
-  object logger extends ProcessLogger {
+  object procLog extends ProcessLogger {
     // number of lines to buffer...
     var count = 0
     val errBuffer: EvictingQueue[String] = EvictingQueue.create[String](10)
@@ -84,12 +86,12 @@ case class CmdlineIndexMediatorHandle(
   )
 
   private def runProcess(cmd: Seq[String]) = Future {
-    play.api.Logger.logger.debug("Index: {}", cmd.mkString(" "))
-    val process: Process = cmd.run(logger)
+    logger.debug(s"Index: ${cmd.mkString(" ")}")
+    val process: Process = cmd.run(procLog)
     if (process.exitValue() != 0) {
       throw IndexingError("Exit code was " + process.exitValue() + "\nLast output: \n"
-        + (if (logger.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
-        + logger.lastMessages.mkString("\n"))
+        + (if (procLog.errBuffer.remainingCapacity > 0) "" else "... (truncated)\n")
+        + procLog.lastMessages.mkString("\n"))
     }
   }
 

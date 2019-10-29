@@ -15,9 +15,9 @@ class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
     "parse access data" in {
       GoogleOAuth2Provider(config).parseAccessInfo(testAccessData) must beSome.which { d =>
         d.accessToken must equalTo("some-access-token")
-        d.refreshToken must equalTo(None)
-        d.expiresIn must equalTo(Some(100))
-        d.tokenType must equalTo(Some("Bearer"))
+        d.refreshToken must beNone
+        d.expiresIn must beSome(100)
+        d.tokenType must beSome("Bearer")
       }
     }
 
