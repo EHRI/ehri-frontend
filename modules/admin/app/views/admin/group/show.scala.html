@@ -12,7 +12,7 @@
     }
 }
 
-@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA,  breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining("group") { implicit prefix =>
         @views.html.admin.common.textValue(models.GroupF.DESCRIPTION, item.data.description)

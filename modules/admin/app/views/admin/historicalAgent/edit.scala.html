@@ -2,9 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@import Isaar._
-
-@views.html.admin.layout.rightSidebar(Messages("historicalAgent.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("historicalAgent.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(f, config)

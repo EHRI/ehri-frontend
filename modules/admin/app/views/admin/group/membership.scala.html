@@ -1,4 +1,4 @@
-@(item: Accessor, groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.Accessor, groups: Seq[(String,String)])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -18,7 +18,7 @@
 	}
 }
 
-@views.html.admin.layout.rightSidebar(Messages("accessor.groups.manage"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("accessor.groups.manage"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	
 	@if(item.groups.nonEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;

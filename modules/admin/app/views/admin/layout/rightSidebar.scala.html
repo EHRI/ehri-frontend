@@ -3,11 +3,9 @@
 @views.html.admin.layout.adminLayout(title, scripts, styles) {
     @if(breadcrumbs.body.trim.isEmpty) {
         @views.html.admin.common.breadcrumbs()
+    } else {
+        @breadcrumbs
     }
-    <div class="success-pullup">
-        @common.successFlash(flash)
-    </div>
-    @breadcrumbs
     @common.mainContent {
         <section class="double">
             <aside class="sidebar">
@@ -16,7 +14,6 @@
             <article class="main">
                 @views.html.common.itemHeader(title.toString) {
                 }
-                @common.errorFlash(flash)
                 @content
             </article>
         </section>

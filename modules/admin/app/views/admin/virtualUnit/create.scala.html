@@ -10,7 +10,7 @@
     }
 }
 
-@views.html.admin.layout.rightSidebar(Messages("virtualUnit.create"), breadcrumbs = breadcrumbs) {
+@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.create"), defines.EntityType.VirtualUnit, breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

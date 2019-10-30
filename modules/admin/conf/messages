@@ -434,8 +434,11 @@ visibility.restrictedVisibilityMessage=This item is currently visible to the fol
 visibility.visibilityRestrictedTo=Visibility restricted to:
 visibility.chooseUsers=Choose Users
 visibility.chooseGroups=Choose Groups
-visibility.notPromoted=Not Promoted
-visibility.promotedBy=Promoted By
+
+# Item promotion
+promotion=Promotion
+promotion.promotedBy=Promoted By
+promotion.notPromoted=Not Promoted
 
 #
 # Admin-specific item fields

@@ -3,6 +3,8 @@
 @views.html.admin.layout.rightSidebar(Html(item.toStringLang + views.html.admin.userProfile.statusBadges(item)), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @html
 } {
+    @common.typeLabel(item.isA) {
+    }
     @views.html.admin.common.latestAction(item, controllers.users.routes.UserProfiles.history(item.id))
 
     @views.html.admin.common.sidebarActions { user =>

@@ -65,7 +65,8 @@
                         }
 
                     } {
-
+                        @common.typeLabel(item.isA) {
+                        }
                     } {
                         @views.html.admin.common.latestAction(item, controllers.keywords.routes.Concepts.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.keywords.routes.Concepts.visibility(item.id), ContentTypes.Concept)

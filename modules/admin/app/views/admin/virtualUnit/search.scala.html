@@ -3,5 +3,7 @@
 @views.html.admin.layout.adminSearchLayout(Messages("virtualUnit.search"), result, action) {
     @searchItemList(result, Seq.empty)
 } {
+    @common.typeLabel(defines.EntityType.VirtualUnit) {
+    }
     @common.search.facetList(result.facetClasses, action)
 }

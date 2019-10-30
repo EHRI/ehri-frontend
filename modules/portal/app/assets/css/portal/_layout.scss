@@ -230,7 +230,7 @@ ul.pagination {
 // Description lists (dl) elements... make
 // responsive for wide sizes
 @include media-breakpoint-up(md) {
-  dl {
+  .description dl {
     @include make-row();
 
     dt {

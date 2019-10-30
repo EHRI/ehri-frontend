@@ -16,7 +16,7 @@ jQuery(document).ready(function ($) {
           return obj.geonameId
         },
         remote: {
-          url: 'http://api.geonames.org/searchJSON?name_startsWith=%QUERY&maxRows=10&username=' + geoNamesUsername + '&lang=en&featureClass=P&style=long',
+          url: 'https://secure.geonames.org/searchJSON?name_startsWith=%QUERY&maxRows=10&username=' + geoNamesUsername + '&lang=en&featureClass=P&style=long',
           wildcard: "%QUERY",
           transform: function (response) {
             return response.geonames.map(function (item) {

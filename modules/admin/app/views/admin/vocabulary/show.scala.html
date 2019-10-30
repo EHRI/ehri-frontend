@@ -1,8 +1,6 @@
 @(item: Vocabulary, result: services.search.SearchResult[(models.Concept, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@import views.html.admin.common.sidebarAction
-
-@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("cvocVocabulary") { implicit  prefix =>

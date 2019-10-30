@@ -29,9 +29,15 @@
                         @views.html.admin.link.annotationLinks(item, links)
                         @views.html.admin.link.externalLinks(item, links)
                     } {
+                        @common.typeLabel(item.isA) {
+                            @views.html.admin.repository.logo(item)
+                            <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
+                                <i class="fa fa-institution"></i>
+                                @Messages("repository.logo.edit")
+                            </a>
 
+                        }
                     } {
-                        @views.html.admin.repository.logo(item)
                         @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
                         @adminActions(item)
