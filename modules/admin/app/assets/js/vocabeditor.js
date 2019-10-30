@@ -1096,7 +1096,7 @@ var app = new Vue({
           <div class="vocab-editor-controls form-inline">
             <div class="input-group">
               <span class="input-group-prepend">
-                <select class="btn btn-secondary" v-model="lang">
+                <select class="btn btn-default" v-model="lang">
                     <option v-bind:value="l" v-for="l in langs">{{langData[l]}}</option>
                 </select>
               </span>
