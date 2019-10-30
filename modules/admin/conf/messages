@@ -1314,6 +1314,13 @@ cvocConcept.topLevel.create=Create Top-level Term
 cvocConcept.topLevel.list={2,choice,0#No top-level terms found|1#One top-level term found|1<Top-level terms {0,number,integer} to {1,number,integer} of {2,number,integer}}
 cvocConcept.narrower.create=Create Narrower Term
 cvocConcept.broaderTerms.set=Set Broader Terms
+cvocConcept.name.description=The preferred lexical label for a resource, in a given language.
+cvocConcept.altLabel.description=Acronyms, abbreviations, spelling variants, and irregular plural/singular forms may be included among the alternative labels for a concept.\
+  Mis-spelled terms are normally included as hidden labels (see skos:hiddenLabel).
+cvocConcept.hiddenLabel.description=A lexical label for a resource that should be hidden when generating visual displays of the resource,\
+  but should still be accessible to free text search operations.
+cvocConcept.scopeNote.description=A note that helps to clarify the meaning and/or the use of a concept.
+cvocConcept.definition.description=A statement or formal explanation of the meaning of a concept.
 
 #
 # Access points
