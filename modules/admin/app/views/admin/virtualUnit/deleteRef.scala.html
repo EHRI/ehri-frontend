@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("virtualUnit.deleteRef"), breadcrumbs = breadcrumbs(item)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.deleteRef"), item.isA, breadcrumbs = breadcrumbs(item)) {
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

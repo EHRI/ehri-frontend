@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
+@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
 
     @html
 

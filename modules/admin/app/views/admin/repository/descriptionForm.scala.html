@@ -18,12 +18,6 @@
 
     @descriptionFormSection(ADDRESS_AREA) {
         <div class="inline-formset" data-prefix="@ADDRESS_AREA">
-            <label>
-                <a href="#" class="add-inline-element">
-                    @Messages(fieldPrefix + ".addresses.create")
-                    <i class="fa fa-plus-circle"></i>
-                </a>
-            </label>
             <script type="application/x-js-template" class="inline-element-template">
             @addressForm(desc(ADDRESS_AREA + "[IDX]"))
             </script>
@@ -32,6 +26,10 @@
                 @addressForm(desc)
             }
             </div>
+            <a href="#" class="add-inline-element add-address btn btn-success">
+                @Messages(fieldPrefix + ".addresses.create")
+                <i class="fa fa-plus-circle"></i>
+            </a>
         </div>
     }
 

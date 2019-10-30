@@ -3,6 +3,8 @@
 @views.html.admin.layout.adminSearchLayout(Messages("country.search"), result, action) {
     @views.html.admin.search.searchItemList(result)
 } {
+    @common.typeLabel(defines.EntityType.Country) {
+    }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
             <a href="@controllers.countries.routes.Countries.create">@Messages("country.create")</a>

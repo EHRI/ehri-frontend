@@ -111,4 +111,8 @@ body.guides {
     border: 1px solid $border-color;
     background-color: $gray-100;
   }
+
+  .select2-results {
+    font-size: $font-size-sm;
+  }
 }

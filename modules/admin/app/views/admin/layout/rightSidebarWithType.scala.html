@@ -1,0 +1,8 @@
+@(title: Any, entityType: defines.EntityType.Value, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""), footer: Html = Html(""))(content: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(title, scripts, styles, breadcrumbs, footer)(content) {
+    @common.typeLabel(entityType) {
+    }
+    @sidebar
+}
+

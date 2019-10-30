@@ -1,15 +1,17 @@
 @(name: String = "", cls: String = "")(html: Html)(footer: Html)(implicit messages: Messages)
 
-@if(html.body.trim.nonEmpty) {
+@if(name.trim.nonEmpty || html.body.trim.nonEmpty || footer.body.trim.nonEmpty) {
     <div class="sidebar-section@(if(cls.nonEmpty) s" $cls")">
         @if(name.trim.nonEmpty) {
             <header class="sidebar-section-heading">
                 <h4>@name</h4>
             </header>
         }
-        <div class="sidebar-section-body">
+        @if(html.body.trim.nonEmpty) {
+            <div class="sidebar-section-body">
             @html
-        </div>
+            </div>
+        }
         @if(footer.body.trim.nonEmpty) {
             <div class="sidebar-section-footer">
                 @footer

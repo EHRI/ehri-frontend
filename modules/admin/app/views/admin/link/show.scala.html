@@ -1,6 +1,6 @@
 @(item: Link, annotations: Seq[Annotation], src: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(Messages("link.itemLink"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("link.itemLink"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("link") { implicit fieldPrefix =>

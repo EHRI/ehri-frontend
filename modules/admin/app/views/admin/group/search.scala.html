@@ -3,6 +3,8 @@
 @views.html.admin.layout.adminSearchLayout(Messages("group.search"), result, action) {
     @views.html.admin.search.searchItemList(result)
 } {
+    @common.typeLabel(defines.EntityType.Group) {
+    }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
             <a href="@controllers.groups.routes.Groups.create">@Messages("group.create")</a>

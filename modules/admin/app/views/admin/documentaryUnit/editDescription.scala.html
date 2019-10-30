@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("describedEntity.updateDescription"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.updateDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 
     @defining("documentaryUnit") { implicit fieldPrefix =>
         @defining(Some(config)) { implicit implicitConfig =>

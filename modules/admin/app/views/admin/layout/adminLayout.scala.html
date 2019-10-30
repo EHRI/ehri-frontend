@@ -36,8 +36,10 @@
             @views.html.admin.common.adminNavBar()
         </header>
         @views.html.admin.common.testWarning()
-        @views.html.common.flash(flash)
-        @content
+        <div class="admin-content">
+            @views.html.common.flash(flash)
+            @content
+        </div>
         @views.html.common.footer()
     </body>
 </html>
