@@ -26,43 +26,23 @@ jQuery(function ($) {
   popoverWhitelist.dl = [];
   popoverWhitelist.dt = [];
   popoverWhitelist.dd = [];
-
-  $(document).on("click", ".markdown textarea", function () {
-    var $item = $(this);
-    $item.parent().addClass("active").delay(2000).queue(function (next) {
-      if ($(".popover .description-markdown-cheatsheet").length === 0) {
-        $item.removeClass("active");
-      }
-      next();
-    });
-  });
-
-  $(document).on("change", ".markdown textarea", function () {
-    $(this).parent().removeClass("active");
-  });
-  $(document).on("keyup", ".markdown textarea", function () {
-    $(this).parent().removeClass("active");
-  });
-
   $(document).on("click", ".markdown .markdown-helper", function () {
-    var $item = $(this);
-
-    if (typeof $item.attr("data-popovered") === "undefined" || $item.attr("data-popovered") !== "true") {
-      $item.popover({
+    var $item = $(this),
+        $pop = $item.popover({
         html: true,
         placement: "right",
         container: "body",
-        content: function () {
-          return $(".markdown-cheatsheet").html();
-        }
+        trigger: 'manual',
+         content: function () {
+           return $item.find(".markdown-cheatsheet").html();
+         }
       });
-      $item.attr("data-popovered", "true");
-      $item.popover("show");
 
-      $item.on('hidden.bs.popover', function () {
-        $item.parents(".markdown").removeClass("active");
-      });
-    }
+    $pop.popover('toggle');
+
+    $item.parents("form").on("annotation-form:close", function() {
+      $pop.popover('dispose');
+    });
   });
 
   /**
@@ -85,7 +65,6 @@ jQuery(function ($) {
         if (done) {
           $elem.hide();
         } else {
-          console.log("Replace: ", (offset + limit), limit );
           $elem
             .attr("data-offset", (offset + limit))
             .attr("data-limit", limit)
@@ -358,6 +337,7 @@ jQuery(function ($) {
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard changes?")) {
       $form.prev(".annotation").show();
+      $form.trigger('annotation-form:close');
       $form.remove();
     }
   });
@@ -368,6 +348,7 @@ jQuery(function ($) {
     var hasData = $("textarea[name='body']", $form).val().trim() !== "";
     if (!hasData || confirm("Discard comment?")) {
       showAnnotationControl($form);
+      $form.trigger('annotation-form:close')
       $form.remove();
     }
   });
@@ -441,7 +422,6 @@ jQuery(function ($) {
     jsRoutes.controllers.portal.annotate.Annotations.setAnnotationVisibilityPost(id).ajax({
       data: data,
       success: function (data) {
-        console.log("Set visibility to ", data);
       }
     });
   });
