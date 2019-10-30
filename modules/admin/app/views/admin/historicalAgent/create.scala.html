@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("historicalAgent.create")) {
+@views.html.admin.layout.rightSidebarWithType(Messages("historicalAgent.create"), defines.EntityType.HistoricalAgent) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(f, config)

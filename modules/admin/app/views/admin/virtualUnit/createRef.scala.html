@@ -12,7 +12,7 @@
     }
 }
 
-@views.html.admin.layout.rightSidebar(Messages("virtualUnit.createRef"), breadcrumbs = breadcrumbs) {
+@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.createRef"), item.isA, breadcrumbs = breadcrumbs) {
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

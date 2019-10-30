@@ -1,29 +1,27 @@
 @(item: models.base.Model, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], entityType: defines.EntityType.Value, action: Call, linkAction: (String, Boolean) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("link.create"), result, action, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    <div class="search-section" id="search-items">
+    <div class="search-section link-source-list" id="search-items">
         <h4>@Messages("contentTypes." + entityType.toString)</h4>
         @if(result.nonEmpty) {
             @views.html.admin.search.searchItemListWithAdditionalContent(result) { otherItem =>
-                <div class="copy-links">
-                    <div class="select-link-target">
-                        <a href="@linkAction(otherItem.id, false)">
-                            <i class="fa fa-link"></i>
-                            @Messages("link.linkTo.item")
-                        </a>
-                    </div>
+                <div class="link-select-controls">
+                    <a class="select-link-target btn btn-block btn-warning" href="@linkAction(otherItem.id, false)">
+                        <i class="fa fa-link"></i>
+                        @Messages("link.linkTo.item")
+                    </a>
                     @Link.copyLinkType(item, otherItem).map { _ =>
-                        <div class="select-copy-link-target">
-                            <a href="@linkAction(otherItem.id, true)">
-                                <i class="fa fa-copy"></i>
-                                @Messages("link.linkTo.copy")
-                            </a>
-                        </div>
+                        <a class="select-link-target btn btn-block btn-info" href="@linkAction(otherItem.id, true)">
+                            <i class="fa fa-copy"></i>
+                            @Messages("link.linkTo.copy")
+                        </a>
                     }
                 </div>
             }
         }
     </div>
 } {
+    @common.typeLabel(item.isA) {
+    }
     @common.search.facetList(result.facetClasses, action)
 }

@@ -7,12 +7,17 @@ legend {
   margin-bottom: 0;
 }
 
-body > .flash {
+body > .admin-content > .flash {
   margin-bottom: 0;
 }
 
-.success-pullup {
+.flash.alert-success {
   float: right;
+  position: fixed;
+  right: 0;
+  .close {
+    margin-right: -$margin-sm;
+  }
 }
 
 .form-descriptions {
@@ -45,6 +50,61 @@ body > .flash {
 
 .form-navigation {
   @extend .flex-column;
+
+  li.nav-item {
+    padding: 0;
+  }
+
+  li.nav-item > .nav-link {
+    padding: $margin-xs $margin-sm;
+
+    &:hover {
+      background-color: $gray-100;
+    }
+  }
+
+  .markdown-helper {
+    font-style: italic;
+    cursor: help;
+  }
+}
+
+.address-form {
+  background-color: $gray-100;
+  padding: $margin-md;
+  padding-left: $margin-lg;
+  font-size: $font-size-sm;
+  margin-bottom: $margin-md;
+  border: 1px solid $border-color;
+
+  .form-group {
+    margin-bottom: $margin-sm;
+  }
+
+  .remove-inline-element {
+    margin-bottom: $margin-md;
+  }
+
+  .remove-inline-element+* {
+    clear: both;
+  }
+
+  .tt-dataset {
+    width: 100%;
+    background-color: $white;
+
+    .tt-suggestion {
+      padding: $margin-sm;
+    }
+  }
+}
+
+.address-form+.address-form {
+  padding-top: $margin-md;
+}
+
+.add-address {
+  float: right;
 }
 
 .admin-help-notice {
@@ -71,6 +131,42 @@ body > .flash {
   font-size: $font-size-xs;
   &.info {
     color: $text-muted;
+  }
+}
+
+// Type headings
+.type-heading {
+  > header.sidebar-section-heading {
+    background-color: $secondary;
+    color: $white;
+
+    padding: $margin-xs;
+    text-align: center;
+    //margin-bottom: 0;
+    > * {
+      color: inherit;
+      margin: 0;
+    }
+  }
+
+  &.documentaryunit > .sidebar-section-heading {
+    background-color: $documentary-unit-color;
+  }
+
+  &.repository > .sidebar-section-heading {
+    background-color: $repository-color;
+  }
+
+  &.historicalagent > .sidebar-section-heading {
+    background-color: $historical-agent-color;
+  }
+
+  &.cvocconcept > .sidebar-section-heading {
+    background-color: $concept-color;
+  }
+
+  &.country > .sidebar-section-heading {
+    background-color: $country-color;
   }
 }
 
@@ -141,5 +237,47 @@ pre.code-format {
   @include clearfix();
   .remove-inline-element {
     float: right;
+  }
+}
+
+// Filterable lists
+.item-list > ul {
+  @include list-unstyled();
+}
+
+// List of potential link target items
+.link-source-list {
+  .search-result-list > li {
+    padding: $margin-sm 0;
+    border-bottom: 1px dashed $border-color;
+
+    display: grid;
+    grid-template-areas: "link-item link-controls";
+    grid-template-columns: auto max-content;
+    grid-column-gap: $margin-md;
+
+    .search-item {
+      margin-bottom: 0;
+      border-bottom: none;
+      grid-area: link-item;
+    }
+    .select-link-controls {
+      grid-area: link-controls;
+    }
+
+    .link-select-controls .btn {
+      opacity: .6;
+    }
+
+    &:hover {
+      background-color: $gray-100;
+      .link-select-controls .btn {
+        opacity: unset;
+      }
+    }
+  }
+
+  .link-select-target a {
+    @extend .btn, .btn-primary;
   }
 }

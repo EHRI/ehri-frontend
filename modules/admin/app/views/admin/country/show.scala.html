@@ -2,7 +2,7 @@
 
 @import CountryF._
 
-@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("country") { implicit fieldPrefix =>
@@ -22,7 +22,6 @@
         }
     }
 } {
-    @common.search.facetList(result.facetClasses, action)
     @views.html.admin.common.visibility(item, controllers.countries.routes.Countries.visibility(item.id), ContentTypes.Country)
     @views.html.admin.common.latestAction(item, controllers.countries.routes.Countries.history(item.id))
 

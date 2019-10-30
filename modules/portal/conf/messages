@@ -964,7 +964,7 @@ pages.external.notFound=We apologise but there was a problem fetching the data f
 
 # Markdown Cheatsheet
 #
-markdown.cheatsheet.title=Formating tips
+markdown.cheatsheet.title=Formatting tips
 markdown.cheatsheet.asterisks=asterisks
 markdown.cheatsheet.underscores=underscores
 markdown.cheatsheet.bold=Bold

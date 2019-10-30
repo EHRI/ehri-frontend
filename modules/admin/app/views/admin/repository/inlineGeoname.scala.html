@@ -6,5 +6,9 @@
  *
 *@
 @defining(desc(fieldName)) { field =>
-    @helper.inputText(field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))), 'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")), 'class -> "form-control typeahead", Symbol("data-remote") -> geonameRemote, '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+    @helper.inputText(
+        field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
+        'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
+        'class -> "form-control typeahead", Symbol("data-remote") -> geonameRemote,
+        '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
 }

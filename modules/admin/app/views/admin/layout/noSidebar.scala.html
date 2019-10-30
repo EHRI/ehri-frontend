@@ -5,15 +5,11 @@
         @views.html.admin.common.breadcrumbs()
     }
 
-    <div class="success-pullup pull-right">
-        @common.successFlash(flash)
-    </div>
     @breadcrumbs
     @common.mainContent {
         <article class="single">
             <section class="main">
                 <h2>@title</h2>
-                @common.errorFlash(flash)
                 @content
             </section>
         </article>

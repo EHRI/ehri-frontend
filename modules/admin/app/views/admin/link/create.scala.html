@@ -1,6 +1,6 @@
 @(item: models.base.Model, src: models.base.Model, form: play.api.data.Form[LinkF], action: Call, copy: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(Messages("link.create.item", item.toStringLang, src.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("link.create.item", item.toStringLang, src.toStringLang), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
 	@helper.form(action = action) {
         @if(copy) {

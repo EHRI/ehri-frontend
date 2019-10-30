@@ -1,8 +1,10 @@
 @(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("userProfile.search"), result, action) {
-@views.html.admin.search.searchItemList(result)
+    @views.html.admin.search.searchItemList(result)
 } {
+    @common.typeLabel(defines.EntityType.UserProfile) {
+    }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
             <a href="@controllers.users.routes.UserProfiles.createUser()">@Messages("userProfile.create")</a>

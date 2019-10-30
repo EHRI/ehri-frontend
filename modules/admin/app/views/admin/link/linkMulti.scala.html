@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("link.create.item", item)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("link.create.item", item), item.isA) {
 	
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

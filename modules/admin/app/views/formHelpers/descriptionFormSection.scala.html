@@ -1,6 +1,8 @@
 @(fieldName: String)(html: Html)(implicit fieldPrefix: String = "", messages: Messages)
 
 <fieldset id="@fieldName">
-    <legend>@Messages(if(fieldPrefix.isEmpty) fieldName else fieldPrefix + "." + fieldName)</legend>
+    <legend>
+        @Messages(if(fieldPrefix.isEmpty) fieldName else fieldPrefix + "." + fieldName)
+    </legend>
     @html
 </fieldset>

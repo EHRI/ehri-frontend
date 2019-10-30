@@ -94,15 +94,17 @@ jQuery(function ($) {
   /**
    * Markdown helper
    */
-
-  // FIXME: BS4
-  //$(".markdown-helper").popover({
-  //  html: true,
-  //  placement: "left",
-  //  content: function () {
-  //    return $(".markdown-cheatsheet").html();
-  //  }
-  //});
+  var myDefaultWhiteList = $.fn.tooltip.Constructor.Default.whiteList;
+  myDefaultWhiteList.dd = [];
+  myDefaultWhiteList.dl = [];
+  myDefaultWhiteList.dt = [];
+  $(".markdown-helper").popover({
+   html: true,
+   placement: "left",
+   content: function () {
+     return $(".markdown-cheatsheet").html();
+   }
+  });
 
   /**
    * jQuery plugin that makes an element 'stick' to the bottom
@@ -160,7 +162,7 @@ jQuery(function ($) {
         hide: 100
       },
       trigger: trigger,
-      placement: "bottom"
+      placement: "right"
     });
   }
 
@@ -177,7 +179,7 @@ jQuery(function ($) {
   });
 
   // Fade success flash message after 3 seconds
-  $(".success-pullup").fadeOut(3000);
+  $(".flash.alert-success").fadeOut(3000);
 
 
   $.fn.inlineFormset = function (action) {

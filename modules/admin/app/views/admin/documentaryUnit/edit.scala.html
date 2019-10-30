@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("documentaryUnit.update"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.update"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 		
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

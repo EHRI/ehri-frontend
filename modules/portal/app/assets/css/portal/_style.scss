@@ -762,11 +762,6 @@ body.home {
         @include make-col-ready();
         @include make-col(2);
       }
-
-      .available-fields {
-        @include list-unstyled();
-        @include list-inline(",\00a0");
-      }
     }
   }
 }
@@ -787,6 +782,11 @@ body.home {
   border: $border-width solid $border-color;
   padding: $margin-sm;
   background-color: $gray-100;
+
+  .available-fields {
+    @include list-unstyled();
+    @include list-inline(",\00a0");
+  }
 }
 
 .selected-facets {
@@ -1031,30 +1031,6 @@ ul.pagination {
   }
 }
 
-
-// Search results
-.search-result-list {
-  margin-bottom: $margin-lg;
-
-  > li {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    // Default match-parent text-align seems to
-    // break dir=rtl correct alignment.
-    text-align: unset;
-
-    > .search-item {
-      flex-grow: 4;
-    }
-
-    > .copy-links {
-      flex-basis: 30%;
-    }
-  }
-}
-
 .search-item {
   border-bottom: $border-width dashed $gray-500;
   padding-bottom: $margin-sm;
@@ -1114,19 +1090,6 @@ ul.pagination {
     direction: ltr;
     > a {
       font-size: $font-size-xs;
-      font-weight: bold;
-      color: $secondary;
-
-      > i.fa {
-        // the icon on list dropdowns is fixed-width because
-        // it switches to a spinner when clicked. This slight
-        // negative margin keeps it aligned neatly to the left.
-        margin-left: -.15rem;
-      }
-
-      &:hover {
-        text-decoration: none;
-      }
     }
   }
 
@@ -1324,7 +1287,7 @@ ul.list-export-options {
 .sidebar-section {
   font-size: $font-size-sm;
   margin-bottom: $margin-lg;
-  overflow: auto; // contain floats
+  //overflow: auto; // contain floats
 
   .sidebar-section-heading {
     @include color-var(color, 'secondary');
@@ -1369,7 +1332,7 @@ ul.list-export-options {
 // Description list terms and
 // field headings
 .item-text-field-header h4,
-dl dt {
+.description dl dt {
   @extend %field-label;
 }
 
@@ -1383,6 +1346,24 @@ dl dt {
   margin-bottom: 0;
 }
 
+.item-children {
+  > a {
+    font-weight: bold;
+    color: $secondary;
+
+    > i.fa {
+      // the icon on list dropdowns is fixed-width because
+      // it switches to a spinner when clicked. This slight
+      // negative margin keeps it aligned neatly to the left.
+      margin-left: -.15rem;
+    }
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
 .item-text-field-list {
   @include list-unstyled();
 }
@@ -1391,6 +1372,7 @@ dl dt {
 .description-holder {
   margin-bottom: $margin-lg;
 }
+
 
 .description-viewport {
   .item-children {
@@ -1417,7 +1399,7 @@ dl dt {
 }
 
 .repository-logo {
-  float: left;
+  padding: $margin-xs 0;
   img {
     width: 100%;
   }
