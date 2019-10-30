@@ -9,6 +9,11 @@ body {
   margin: 0;
   width: 100%;
 }
+
+.info-bar {
+  margin-bottom: $margin-md;
+}
+
 #flex-wrapper {
   height: 100vh;
   display: flex;
@@ -159,7 +164,7 @@ body {
 .concept-editor-tab {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 95%;
 }
 
 .concept-editor-tab .concept-editor-tab-form {
