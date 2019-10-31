@@ -282,3 +282,24 @@ pre.code-format {
     @extend .btn, .btn-primary;
   }
 }
+
+// Metrics
+.overview-items {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, minmax(400px, auto));
+  grid-auto-flow: row;
+
+  grid-gap: $margin-lg;
+
+  .overview-box {
+    float: left;
+
+    .overview-item {
+      float: left;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

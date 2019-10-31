@@ -23,9 +23,11 @@
             @formHelpers.hiddenInput(f(LAST_NAME))
         }
     }
+
     <div class="form-field">
         <div class="form-submit">
             <button type="submit" class="btn btn-post">@Messages("profile.update.submit")</button>
+            <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="btn btn-cancel">@Messages("cancel")</a>
         </div>
     </div>
 }

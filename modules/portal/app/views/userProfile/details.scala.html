@@ -1,7 +1,7 @@
 @(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @textSection(key: String, data: Option[String]) = {
-    @data.map { text =>
+    @data.filterNot(_.trim.isEmpty).map { text =>
         <dt>@Messages(key)</dt><dd>@Html(md.renderUntrustedMarkdown(text))</dd>
     }
 }
