@@ -1,13 +1,11 @@
 @(item: models.base.Promotable, promoteUrl: Call, demoteUrl: Call, contentType: defines.ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages)
 
-@println(item.promoters.map(_.id))
-
 @if(item.promoters.nonEmpty || (item.isPromotable && userOpt.exists(_.hasPermission(contentType, defines.PermissionType.Promote)))) {
     @common.sidebarSection(Messages("promotion")) {
         @if(item.promoters.nonEmpty) {
             <h4>
                 <i class="fa fa-star"></i>
-                @Messages("promotion.promotedBy")
+                @Messages("promotion.isPromoted")
             </h4>
             <ul>
             @item.promoters.map { acc =>
