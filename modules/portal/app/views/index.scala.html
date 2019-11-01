@@ -6,10 +6,20 @@
 <a href="@url">@Messages(key, params: _*)</a>
 }
 
+@extraStyles = {
+    @globalConfig.bannerImageUrl.map { url =>
+        <style>
+            body.home #header {
+              background-image: url(@url);
+            }
+        </style>
+    }
+}
+
 <!DOCTYPE html>
 
 <html lang="@messages.lang.code">
-    @views.html.common.head(Messages("welcome.title"))
+    @views.html.common.head(Messages("welcome.title"), styles = extraStyles)
     <body class="home">
         @views.html.common.preambleScripts()
         @views.html.common.readOnly()

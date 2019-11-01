@@ -59,6 +59,9 @@ trait GlobalConfig {
   lazy val extraHeadContent: Option[String] =
     configuration.getOptional[String]("ehri.portal.extraHeadContent")
 
+  lazy val bannerImageUrl: Option[String] =
+    configuration.getOptional[String]("ehri.portal.bannerImageUrl").filterNot(_.trim.isEmpty)
+
   def protocol(implicit req: RequestHeader): String =
     "http" + (if (req.secure) "s" else "") + "://"
 
