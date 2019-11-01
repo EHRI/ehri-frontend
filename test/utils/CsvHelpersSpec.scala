@@ -1,7 +1,7 @@
 package utils
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import play.api.test.PlaySpecification
 
@@ -10,7 +10,7 @@ import scala.concurrent.Future
 class CsvHelpersSpec extends PlaySpecification {
 
   private implicit val sys: ActorSystem = ActorSystem("MyTest")
-  private implicit val mat: ActorMaterializer = ActorMaterializer()
+  private implicit val mat: Materializer = Materializer(sys)
 
   def toString(src: Source[String, _]): Future[String] = src.runFold("")(_ + _)
 

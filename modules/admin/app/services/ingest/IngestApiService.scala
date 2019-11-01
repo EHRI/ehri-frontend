@@ -99,7 +99,7 @@ case class IngestApiService @Inject()(
 
     def init: Receive = {
       case (actorRef: ActorRef, msg: String) =>
-        val cancellable = context.system.scheduler.schedule(500.millis, 1000.millis, self, Ticker.Run)
+        val cancellable = context.system.scheduler.scheduleAtFixedRate(500.millis, 1000.millis, self, Ticker.Run)
         context.become(tick(actorRef, msg, 0, cancellable))
     }
 
@@ -192,7 +192,7 @@ case class IngestApiService @Inject()(
     val props: Option[java.nio.file.Path] = job.data.params.properties.map { propTmp =>
       import scala.collection.JavaConverters._
       val readTmp = Files.createTempFile(s"ingest", ".properties")
-      propTmp.moveFileTo(readTmp, replace = true)
+      propTmp.moveTo(readTmp, replace = true)
       val perms = Set(
         PosixFilePermission.OTHERS_READ,
         PosixFilePermission.GROUP_READ,

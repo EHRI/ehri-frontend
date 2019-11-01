@@ -1,7 +1,7 @@
 package utils.streams
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.{Source, StreamConverters}
 import akka.util.ByteString
 import play.api.test.PlaySpecification
@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 class ByteStringResizerSpec extends PlaySpecification {
 
   private implicit val as = ActorSystem.create("testing")
-  private implicit val mat = ActorMaterializer.create(as)
+  private implicit val mat = Materializer(as)
 
   def count(size: Int, bytes: ByteString*): Int = Await.result(
     Source.apply(bytes.toList)
