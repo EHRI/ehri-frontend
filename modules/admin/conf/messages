@@ -437,7 +437,7 @@ visibility.chooseGroups=Choose Groups
 
 # Item promotion
 promotion=Promotion
-promotion.promotedBy=Promoted By
+promotion.isPromoted=Promoted By
 promotion.notPromoted=Not Promoted
 
 #
