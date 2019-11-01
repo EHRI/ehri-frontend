@@ -198,30 +198,28 @@ Vue.component("vocab-editor-autocomplete-input", {
     }
   },
   template: `
-    <div class="vocab-editor-autocomplete-widget form-group">
-        <div class="col-md-12">
-            <input class="form-control input-sm" type="text" 
-                placeholder="Add Broader Term..."
-              v-bind:disabled="disabled"
-              v-model.trim="text" 
-              v-on:input="search"
-              v-on:keydown.up="selectPrev"
-              v-on:keydown.down="selectNext"
-              v-on:keydown.enter="accept"
-              v-on:keydown.esc="cancelComplete"/>
-            <div class="dropdown-list" v-if="suggestions.length">
-              <div class="vocab-editor-autocomplete-widget-suggestions">
-                  <vocab-editor-autocomplete-suggestion
-                      v-for="(suggestion, i) in suggestions"
-                      v-bind:class="{selected: i == selectedIdx}"
-                      v-bind:key="suggestion.id"
-                      v-bind:item="suggestion"
-                      v-bind:selected="i == selectedIdx"
-                      v-on:selected="setAndChooseItem">
-                  </vocab-editor-autocomplete-suggestion>
-              </div>
-            </div>
+    <div class="vocab-editor-autocomplete-widget">
+      <input class="form-control input-sm" type="text" 
+          placeholder="Add Broader Term..."
+        v-bind:disabled="disabled"
+        v-model.trim="text" 
+        v-on:input="search"
+        v-on:keydown.up="selectPrev"
+        v-on:keydown.down="selectNext"
+        v-on:keydown.enter="accept"
+        v-on:keydown.esc="cancelComplete"/>
+      <div class="dropdown-list" v-if="suggestions.length">
+        <div class="vocab-editor-autocomplete-widget-suggestions">
+            <vocab-editor-autocomplete-suggestion
+                v-for="(suggestion, i) in suggestions"
+                v-bind:class="{selected: i == selectedIdx}"
+                v-bind:key="suggestion.id"
+                v-bind:item="suggestion"
+                v-bind:selected="i == selectedIdx"
+                v-on:selected="setAndChooseItem">
+            </vocab-editor-autocomplete-suggestion>
         </div>
+      </div>
     </div>
   `
 });
@@ -264,9 +262,9 @@ Vue.component("concept-description-multi-item", {
     },
   },
   template: `
-    <div class="form-group">
-       <label class="col-md-2">{{label}}</label> 
-       <div class="col-md-10">
+    <div class="concept-description-item">
+       <label class="label">{{label}}</label> 
+       <div class="controls">
          <div class="input-group" v-for="(item, i) in state">
            <textarea rows="1" v-if="text" class="form-control" v-model.trim="state[i]"></textarea>
            <input v-else class="form-control" v-model.trim="state[i]"/>
@@ -308,24 +306,24 @@ Vue.component("concept-description-editor", {
   },
   template: `
     <div class="vocab-editor-description-body">
-        <div class="form-group" v-if="newForm">
-            <label class="col-md-2">Language</label>
-            <div class="col-md-10">
+        <div class="concept-description-item" v-if="newForm">
+            <label class="label">Language</label>
+            <div class="controls">
               <select class="form-control" v-model="state.languageCode">
                   <option value=""></option>
                   <option v-bind:value="key" v-for="(item, key) in langData">{{item}}</option>
               </select>
             </div>
         </div>
-        <div class="form-group" v-if="newForm">
-            <label class="col-md-2">Script Code</label>
-            <div class="col-md-10">
+        <div class="concept-description-item" v-if="newForm">
+            <label class="label">Script Code</label>
+            <div class="controls">
                <input type="text" class="form-control" v-model.trim="state.identifier"/>
             </div>
         </div>
-        <div class="form-group">
-           <label class="col-md-2">Pref. Label</label> 
-           <div class="col-md-10">
+        <div class="concept-description-item">
+           <label class="label">Pref. Label</label> 
+           <div class="controls">
              <input class="form-control" v-model.trim="state.name"/>
            </div>
         </div>
@@ -532,23 +530,23 @@ Vue.component("concept-data-editor", {
     <div id="concept-editor-data-tab" class="concept-editor-tab" v-bind:class="{error: error}">
       <div class="concept-editor-tab-form">
         <div class="concept-editor-data-form">
-          <div class="form-group" v-bind:class="{'has-error': errors.identifier}">
-             <label class="col-md-2">Identifier</label> 
-             <div class="col-md-10">
+          <div class="concept-description-item" v-bind:class="{'has-error': errors.identifier}">
+             <label class="label">Identifier</label> 
+             <div class="controls">
                <input type="url" class="form-control" v-model.trim="state.identifier"/>
                <span v-if="errors.identifier" v-for="e in errors.identifier" class="help-block">{{ e }}</span>
              </div>
           </div>
-          <div class="form-group" v-bind:class="{'has-error': errors.uri}">
-             <label class="col-md-2">URI</label> 
-             <div class="col-md-10">
+          <div class="concept-description-item" v-bind:class="{'has-error': errors.uri}">
+             <label class="label">URI</label> 
+             <div class="controls">
                <input type="url" class="form-control" v-model.trim="state.uri"/>
                <span v-if="errors.uri" v-for="e in errors.uri" class="help-block">{{ e }}</span>
              </div>
           </div>
-          <div class="form-group" v-bind:class="{'has-error': errors.url}">
-             <label class="col-md-2">URL</label> 
-             <div class="col-md-10">
+          <div class="concept-description-item" v-bind:class="{'has-error': errors.url}">
+             <label class="label">URL</label> 
+             <div class="controls">
                <input type="url" class="form-control" v-model.trim="state.url"/>
                <span v-if="errors.url" v-for="e in errors.url" class="help-block">{{ e }}</span>
              </div>
@@ -576,17 +574,15 @@ Vue.component("concept-data-editor", {
                     v-bind:data="pendingDesc"
                     v-bind:langData="langData"
                     v-bind:newForm="true" />
-                  <div class="form-group">
-                      <div class="col-md-12">
-                          <button class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
-                            Add Description
-                            <i class="fa fa-check"></i>
-                          </button>
-                          <button class="btn btn-default" v-on:click="cancelDesc">
-                            Cancel
-                            <i class="fa fa-remove"></i>
-                          </button>
-                      </div>
+                  <div class="footer-buttons">
+                      <button class="btn btn-success" v-bind:disabled="!pendingValid" v-on:click="addDesc">
+                        Add Description
+                        <i class="fa fa-check"></i>
+                      </button>
+                      <button class="btn btn-default" v-on:click="cancelDesc">
+                        Cancel
+                        <i class="fa fa-remove"></i>
+                      </button>
                   </div>  
               </div>
               <div class="list-group concept-editor-description-tabs" v-if="!newDesc && state.descriptions.length">

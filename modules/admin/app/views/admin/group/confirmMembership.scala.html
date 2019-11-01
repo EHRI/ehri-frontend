@@ -6,13 +6,8 @@
 	
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-            	<button type="submit" class="btn btn-primary">@Messages("accessor.groups.add.submit")</button>
-            </div>
-        </div>
-
-	}		
+        @views.html.formHelpers.submitButton(Messages("accessor.groups.add.submit"))
+	}
 } {
 
 }

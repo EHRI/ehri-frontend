@@ -283,6 +283,18 @@ pre.code-format {
   }
 }
 
+#admin-info {
+  @include media-breakpoint-up(md) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    .admin-info-item {
+      flex: 0 1 45%;
+    }
+  }
+}
+
 // Metrics
 .overview-items {
   display: grid;

@@ -11,21 +11,19 @@ body {
 
 // Main page right sidebar layouts
 .double {
-  // Place sidebar on the right...
-  > aside {
-    @extend .order-last;
-  }
-
   @include media-breakpoint-up(lg) {
 
     @include make-row();
 
     > aside {
+      // Place sidebar on the right...
+      order: 1;
       @include make-col-ready();
       @include make-col(3);
     }
 
     > article {
+      order: 0;
       @include make-col-ready();
       @include make-col(9);
     }
@@ -33,20 +31,19 @@ body {
 }
 
 .search-results {
-  > aside {
-    @extend .order-last;
-  }
-
   @include media-breakpoint-up(lg) {
 
     @include make-row();
 
     > aside {
+      // Place sidebar on the right...
+      order: 1;
       @include make-col-ready();
       @include make-col(3);
     }
 
     > section {
+      order: 0;
       @include make-col-ready();
       @include make-col(9);
     }
