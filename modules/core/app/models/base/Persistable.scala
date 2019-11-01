@@ -33,7 +33,7 @@ object Persistable {
       f.get(p) match {
         case i: AttributeSet => aa ++ getRelationToAttributeMap(i)
         case p: Persistable => aa ++ getRelationToAttributeMap(p)
-        case lst: List[_] => (aa /: lst) { (a, item) =>
+        case lst: List[_] => lst.foldLeft(aa) { (a, item) =>
           item match {
             // TODO: Check for collisions
             case i: Persistable => aa ++ getRelationToAttributeMap(i)

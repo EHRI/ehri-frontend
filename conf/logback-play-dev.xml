@@ -49,6 +49,7 @@
   <!-- Turn down the default level of some classes that log with each
        application restart -->
   <logger name="com.zaxxer.hikari" level="ERROR" />
+  <logger name="play.api.db.HikariCPConnectionPool" level="WARN" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
 
   <!-- Change to DEBUG to see backend request HTTP calls -->

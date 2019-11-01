@@ -1,10 +1,10 @@
 package auth.handler.cookie
 
-import javax.inject.Inject
 import auth.handler.{AuthHandler, AuthIdContainer, TokenAccessor}
+import javax.inject.Inject
 import models.Account
 import play.api.mvc.RequestHeader
-import play.api.{Application, Configuration, Environment, Mode}
+import play.api.{Configuration, Environment, Mode}
 import services.accounts.AccountManager
 
 import scala.concurrent.{ExecutionContext, Future}
