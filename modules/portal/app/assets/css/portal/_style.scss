@@ -84,6 +84,24 @@ figure {
   }
 }
 
+.portal-message {
+  @extend .alert;
+
+  &.info-message,
+  &.filter-message
+  {
+    @extend .alert-info;
+  }
+
+  &.readonly-message {
+    @extend .alert-warning;
+  }
+
+  font-size: $font-size-sm;
+  margin-bottom: 0;
+  padding: $margin-xs $margin-md;
+}
+
 // Top navbar
 #navbar-top-container {
   @extend .bg-dark;
