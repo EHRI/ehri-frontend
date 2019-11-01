@@ -2,9 +2,9 @@
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
-    <div class="row">
+    <div id="admin-info">
         @if(recentItems.nonEmpty) {
-            <div class="col-md-6">
+            <div id="admin-recently-viewed" class="admin-info-item">
                 <h3>@Messages("admin.recentlyViewed")</h3>
                 <ol class="search-result-list">
                     @recentItems.map { item =>
@@ -14,7 +14,7 @@
             </div>
         }
         @if(events.nonEmpty) {
-            <div class="col-md-6">
+            <div id="admin-recent-activity" class="admin-info-item">
                 <h3>@Messages("admin.recentActivity")</h3>
                 <ol id="activity-stream">
                     @views.html.admin.systemEvent.aggregateList(events)

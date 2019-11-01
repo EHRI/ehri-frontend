@@ -26,12 +26,23 @@ body {
   flex-direction: column;
 }
 
+.footer-buttons {
+  margin-top: $margin-sm;
+}
+
+.vocab-editor-autocomplete-widget {
+  position: relative;
+  margin-bottom: $margin-sm;
+}
+
 .vocab-editor-autocomplete-widget .suggestion-type {
   @extend .pull-right;
 }
 
 .vocab-editor-autocomplete-widget .dropdown-list {
-  position: fixed;
+  position: absolute;
+  width: 100%;
+  top: 100%;
   z-index: 1000;
   @include clearfix;
 }
@@ -47,10 +58,6 @@ body {
   background-color: #fff;
 }
 
-.vocab-editor-autocomplete-widget-input {
-  position: relative;
-}
-
 .vocab-editor-autocomplete-widget-suggestion {
   padding: $margin-sm;
   width: inherit;
@@ -60,7 +67,6 @@ body {
 .vocab-editor-autocomplete-widget-suggestion.selected {
   background-color: darken($gray-100, 10%);
 }
-
 
 #vocab-editor-container {
   font-size: $font-size-sm;
@@ -249,3 +255,20 @@ body {
 #concept-delete-tab input[type='checkbox'] {
   margin-right: $margin-sm;
 }
+
+.concept-description-item {
+  margin-bottom: $margin-xs;
+  @include make-row();
+  > .label {
+    font-size: $font-size-xs;
+    @include make-col-ready();
+    @include make-col(2);
+  }
+  > .controls {
+    @include make-col-ready();
+    @include make-col(10);
+  }
+}
+
+
+
