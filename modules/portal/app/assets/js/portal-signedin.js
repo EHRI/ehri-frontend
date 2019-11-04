@@ -307,6 +307,7 @@ jQuery(function ($) {
     $.post($form.attr("action"), $form.serialize(), function (data) {
       showAnnotationControl($form);
       $form.parents(".annotation-set").find(".annotation-list").append(data);
+      $form.trigger('annotation-form:close')
       $form.remove();
     });
   });
@@ -361,6 +362,7 @@ jQuery(function ($) {
         action = $form.attr("action");
     $.post(action, $form.serialize(), function (data) {
       $form.next(".annotate-field").show();
+      $form.trigger('annotation-form:close')
       $form.replaceWith(data);
     });
   });
