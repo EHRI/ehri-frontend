@@ -106,7 +106,10 @@
                         <input placeholder="Optional Set ID" class="form-control" type="text" id="api-example-set" name="set" value=""/>
                     </div>
                     <div class="form-field">
-                        <button class="btn btn-sm btn-primary btn-progress" type="submit">Click to test</button>
+                        <button class="btn btn-sm btn-primary btn-progress" type="submit">
+                            <i class="fa fa-circle-o-notch"></i>
+                            Click to test
+                        </button>
                     </div>
                 </div>
 
@@ -158,11 +161,11 @@
                 $.ajax({
                     url: url + "?" + $data.filter(function(i, elem) {return $(elem).val() !== ''}).serialize(),
                     dataType: "text"
-                }).success(function (data) {
+                }).done(function (data) {
                     results.getDoc().setValue(data);
-                }).error(function(e) {
+                }).fail(function(e) {
                     results.getDoc().setValue(e.responseText);
-                }).complete(function() {
+                }).always(function() {
                     $button.removeClass("running")
                 });
             });
