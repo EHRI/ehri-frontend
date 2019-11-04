@@ -1866,6 +1866,38 @@ section:last-child {
   }
 }
 
+// Dataset list
+#dataset-list {
+  .dataset-title {
+    @extend %heading-text;
+    text-transform: none;
+    font-size: $font-size-base;
+  }
+
+  .dataset-item {
+    border-bottom: 1px solid $border-color;
+    padding-bottom: $margin-sm;
+    margin-bottom: $margin-md;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .dataset-download {
+    font-size: $font-size-sm;
+    @include list-unstyled();
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    a {
+      padding-left: $margin-xs;
+      color: $black;
+    }
+  }
+}
+
 // Guides Landing Page: delete when guides finally retires
 .guides {
   .landing-header {

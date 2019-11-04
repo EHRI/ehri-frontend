@@ -1,41 +1,38 @@
 @(queries: utils.Page[CypherQuery], q: Option[String], sort: Option[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.api.layout.apiDocLayout(Messages("api.datasets.header")) {
-    <style>
-        .dataset-list .search-item-actions {
-            width: 150px;
-            text-align: right;
-        }
-    </style>
     @helper.form(action = action) {
-
         <section id="dataset-list">
-            @common.search.searchBar(services.search.SearchParams(query = q), tips = false)
-            <div class="search-result-errata">
-                @common.listSorting(Seq(
-                    CypherQuery.NAME -> "cypherQuery.sort.name",
-                    CypherQuery.CREATED -> "cypherQuery.sort.created",
-                    CypherQuery.UPDATED -> "cypherQuery.sort.updated"
-                ), sort)
-                <div class="search-summary">
+            <div class="search-controls">
+                @common.search.searchBar(services.search.SearchParams(query = q), tips = false)
+                <div class="search-result-errata">
+                    <div class="search-summary">
                     @Messages("pagination.displayingItems", queries.start, queries.end, queries.total)
+                    </div>
+                    @common.listSorting(Seq(
+                        CypherQuery.NAME -> "cypherQuery.sort.name",
+                        CypherQuery.CREATED -> "cypherQuery.sort.created",
+                        CypherQuery.UPDATED -> "cypherQuery.sort.updated"
+                    ), sort)
                 </div>
             </div>
             <ul class="search-result-list dataset-list">
             @for(query <- queries; oid <- query.objectId) {
-                @views.html.common.searchItemOutlineWithActions(oid, "CypherQuery") {
-                    <a href="@controllers.api.datasets.routes.Datasets.get(oid, DataFormat.Html)">@query.name</a>
-                } {
-                    @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                        <a class="btn btn-xs btn-success" title="@Messages(s"download.format.$fmt")"
-                            href="@controllers.api.datasets.routes.Datasets.get(oid, fmt)">
-                            <i class="fa fa-download"></i>
-                            @fmt
-                        </a>
-                    }
-                } {
+                <li class="dataset-item">
+                    <h3 class="dataset-title"><a href="@controllers.api.datasets.routes.Datasets.get(oid, DataFormat.Html)">@query.name</a></h3>
                     @query.description.map(Markdown.apply)
-                }
+                    <ul class="dataset-download">
+                    @for(fmt <- Seq(DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
+                        <li>
+                            <a title="@Messages(s"download.format.$fmt")"
+                            href="@controllers.api.datasets.routes.Datasets.get(oid, fmt)">
+                                <i class="fa fa-download"></i>
+                                @fmt
+                            </a>
+                        </li>
+                    }
+                    </ul>
+                </li>
             }
             </ul>
             @views.html.common.pagination(queries, call = Some(action))

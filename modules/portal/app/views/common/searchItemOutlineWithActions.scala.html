@@ -2,9 +2,11 @@
 
 <div class="search-item @itemType" id="@id">
     <div class="search-item-image">@image</div>
-    <div class="search-item-actions">
-        @actions
-    </div>
+    @if(actions.body.trim.nonEmpty) {
+        <div class="search-item-actions">
+            @actions
+        </div>
+    }
     <h3 class="search-item-heading type-highlight @itemType">
         @heading
     </h3>

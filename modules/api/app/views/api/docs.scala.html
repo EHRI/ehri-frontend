@@ -8,9 +8,7 @@
     </style>
 }
 
-@views.html.layout.rightSidebarLayout(Messages("api.header"), styles = includeCss) {
-    <h1>@Messages("api.header")</h1>
-
+@views.html.api.layout.apiDocLayout(Messages("api.header"), styles = includeCss) {
     <section id="overview">
         <h2>Overview</h2>
         <p>
@@ -73,22 +71,24 @@
         </section>
     </div>
 } {
-    <div id="doc-navbar" class="vertical-navbar" data-spy="scroll" data-offset-top="100">
-        <ul class="nav nav-stacked nav-pills">
-            <li role="presentation">
-                <a href="#api-v1">Overview</a>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#overview">Overview</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#apis">APIs</a>
+        <ul class="nav">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" href="#api-search">Search API</a>
             </li>
-            <li role="presentation">
-                <a href="#apis">APIs</a>
-                <ul class="nav">
-                    <li role="presentation"><a href="#api-search">Search API</a></li>
-                    <li role="presentation"><a href="#api-graphql">GraphQL API</a></li>
-                    <li role="presentation"><a href="#api-oaipmh">OAI-PMH</a></li>
-                </ul>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" href="#api-graphql">GraphQL API</a>
             </li>
-            <li role="presentation">
-                <a href="#api-datasets">Datasets</a>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" href="#api-oaipmh">OAI-PMH</a>
             </li>
         </ul>
-    </div>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" href="#api-datasets">Datasets</a>
+    </li>
 }
