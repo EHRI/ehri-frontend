@@ -17,7 +17,9 @@
     <nav class="info-bar">
         <ol class="breadcrumb">
             <li><a href="@controllers.api.routes.ApiHome.index()">API</a></li>
-            <li><a href="@req.path"> @title</a></li>
+            @if(req.path != controllers.api.routes.ApiHome.index().url) {
+                <li><a href="@req.path"> @title</a></li>
+            }
         </ol>
     </nav>
 }
