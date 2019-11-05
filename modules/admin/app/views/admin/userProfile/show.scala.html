@@ -2,25 +2,28 @@
 
 @views.html.admin.userProfile.itemPage(item) {
 
-    @item.data.location.map { loc =>
-        <strong>@Messages("userProfile.location"): </strong>
-        @loc
-    }
+    <dl class="description">
+        @item.data.location.map { loc =>
+            <dt>@Messages("userProfile.location")</dt>
+            <dd>@loc</dd>
+        }
+        @if(item.data.languages.nonEmpty) {
+            <dt>@Messages("userProfile.languages")</dt>
+            <dd>@item.data.languages.map(lang => views.Helpers.languageCodeToName(lang)).mkString(", ")</dd>
+        }
+        @if(userOpt.exists(_.isAdmin)) {
+            @item.account.flatMap(_.lastLogin).map { ll =>
+                <dt>@Messages("userProfile.lastLogin")</dt>
+                <dd>@views.Helpers.relativeDate(ll)</dd>
+            }
+        }
+    </dl>
 
-    @if(item.data.languages.nonEmpty) {
-        <div>
-            <strong>@Messages("userProfile.languages"):</strong>
-            <ul class="inline inline-separator">
-                @item.data.languages.map { lang =>
-                    <li>@views.Helpers.languageCodeToName(lang)</li>
-                }
-            </ul>
+    @item.data.about.map { about =>
+        <div class="about">
+            @about
         </div>
     }
-
-    <div class="about">
-        @item.data.about
-    </div>
 
     <hr />
     @if(item.groups.nonEmpty) {

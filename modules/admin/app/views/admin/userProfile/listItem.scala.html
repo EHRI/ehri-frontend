@@ -15,7 +15,12 @@
         </ul>
         <ul>
             @item.latestEvent.map { event =>
-            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+                <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+            }
+            @if(userOpt.exists(_.isAdmin)) {
+                @item.account.flatMap(_.lastLogin).map { ll =>
+                    <li>@Messages("userProfile.lastLogin") @views.Helpers.relativeDate(ll)</li>
+                }
             }
         </ul>
     </div>

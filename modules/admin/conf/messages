@@ -367,6 +367,7 @@ userProfile.languages.description=
 userProfile.about=About
 userProfile.location=Location
 userProfile.location.description=
+userProfile.lastLogin=Last login
 userProfile.identifier=Identifier
 userProfile.manageUser=Manage User
 userProfile.deleteCheck.description=Confirm you want to delete this user.
