@@ -22,7 +22,7 @@
         <hr />
         <strong>@Messages("group.parentGroups"):</strong>&nbsp;
         @item.groups.map { group =>
-            <a href="@controllers.groups.routes.Groups.get(group.id)">@group</a>
+            <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>
         }
     }
 
