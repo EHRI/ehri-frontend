@@ -802,6 +802,11 @@ body.home {
   .available-fields {
     @include list-unstyled();
     @include list-inline(",\00a0");
+    font-weight: $font-weight-bold;
+  }
+  dl dt {
+    white-space: nowrap;
+    margin-bottom: $margin-xs;
   }
 }
 
