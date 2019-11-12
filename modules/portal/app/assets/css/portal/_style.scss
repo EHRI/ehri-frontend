@@ -130,9 +130,6 @@ figure {
 // Primary navbar
 #navbar-primary-container {
   font-size: $font-size-sm;
-  background-size: cover;
-  background-position: center right;
-  background-repeat: no-repeat;
   @include color-var(background-color, 'secondary');
 }
 
@@ -401,7 +398,7 @@ body.home {
   #header {
     background-position: center center;
     background-repeat: no-repeat;
-    background-size: 100% auto;
+    background-size: cover;
   }
 
   @include media-breakpoint-up(md) {
