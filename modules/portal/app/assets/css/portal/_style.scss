@@ -1054,6 +1054,18 @@ ul.pagination {
   padding-bottom: $margin-sm;
   margin-bottom: $list-margin-bottom;
 
+  // HACK: we currently truncate long text in search results,
+  // which can occasionally muck up formatting, especially if
+  // markdown is truncated. While it'd be better to avoid
+  // truncation at all, a good way to do this without loading
+  // masses of data has not yet been found. So for the moment,
+  // to ensure URLs and stuff don't break the search layout,
+  // ensure long URLs etc wrap at word boundaries.
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  -ms-word-wrap: break-word;
+
   display: grid;
   grid-template-columns: max-content auto max-content;
   grid-template-rows: min-content auto;
