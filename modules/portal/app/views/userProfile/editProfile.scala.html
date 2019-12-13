@@ -13,8 +13,7 @@
 
 @views.html.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString, styles = extraCss, scripts = extraJs) {
     @views.html.common.mainContent {
-        @views.html.common.itemHeader(Messages("profile.edit")) {
-        }
+        @views.html.common.itemHeader(Messages("profile.edit"))
         @userOpt.flatMap(_.account).map { account =>
             @if(!account.verified) {
                 <fieldset>

@@ -6,10 +6,9 @@
 @views.html.common.descriptionOutline(item, desc, annotations) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @desc.id.map { descId =>
-            @views.html.common.itemHeader(desc.name) {
-                @views.html.common.otherNameList(desc.parallelFormsOfName)
-                @views.html.common.otherNameList(desc.otherFormsOfName)
-            }
+            @views.html.common.itemHeader(desc.name)
+            @views.html.common.otherNameList(desc.parallelFormsOfName)
+            @views.html.common.otherNameList(desc.otherFormsOfName)
 
             @views.html.historicalAgent.details(item, desc)
 

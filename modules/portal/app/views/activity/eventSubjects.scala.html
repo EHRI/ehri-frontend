@@ -2,8 +2,7 @@
 
 @views.html.layout.portalLayout(Messages("activity"), defines.EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
-        @views.html.common.itemHeader(Messages("activity")) {
-        }
+        @views.html.common.itemHeader(Messages("activity"))
         <div class="timeline-heading">
             @for(eventType <- event.data.eventType; user <- event.actioner; item <- event.effectiveSubject) {
                 <h4 class="event-title">

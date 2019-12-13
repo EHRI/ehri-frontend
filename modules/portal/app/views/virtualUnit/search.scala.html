@@ -4,8 +4,7 @@
     @views.html.virtualUnit.infobar(item, path, watched.contains(item.id))
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), views.Helpers.virtualUnitUrl(path, item.id)) {
-        @views.html.common.itemHeader(item.toStringLang) {
-        }
+        @views.html.common.itemHeader(item.toStringLang)
     }
 
     @views.html.virtualUnit.childItemSearch(item, result, action, watched, path)

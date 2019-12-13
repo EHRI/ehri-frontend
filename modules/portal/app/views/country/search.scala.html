@@ -4,8 +4,7 @@
     @infobar(item)
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Countries.browse(item.id)) {
-        @views.html.common.itemHeader(item.toStringLang) {
-        }
+        @views.html.common.itemHeader(item.toStringLang)
     }
 
     @childItemSearch(item, result, action, watched)

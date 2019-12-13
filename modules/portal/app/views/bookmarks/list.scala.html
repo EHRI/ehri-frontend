@@ -12,8 +12,7 @@
 @* user should always be defined here *@
 @userOpt.map { user =>
     @views.html.layout.searchLayout(Messages("bookmarkSet.list"), result, cls = defines.EntityType.UserProfile.toString, scripts = js, styles = css) {
-        @views.html.common.itemHeader(Messages("bookmarkSet.list")) {
-        }
+        @views.html.common.itemHeader(Messages("bookmarkSet.list"))
         @views.html.bookmarks.itemList(None, user, paging, result, more = false, watched)
         <a class="btn post" href="@controllers.portal.routes.Bookmarks.createBookmarkSet()">@Messages("bookmarkSet.create")</a>
     }

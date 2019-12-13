@@ -15,10 +15,9 @@
 }
 
 @views.html.layout.loginLayout(Messages("login.title"), cls = "login", scripts = extraScripts) {
-    @views.html.common.itemHeader(Messages("login")) {
-        <p>@Html(Messages("login.signup.prompt",
+    @views.html.common.itemHeader(Messages("login"))
+    <p>@Html(Messages("login.signup.prompt",
         Html(s"<a href='${controllers.portal.account.routes.Accounts.signup()}'>${Messages("login.signup.prompt.text")}</a>")))</p>
-    }
 
     <div id="login">
         @views.html.account.oauth2Form(openIdForm, oauthConfig, isLogin = true, forSignup = false)
