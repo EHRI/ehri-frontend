@@ -3,7 +3,7 @@
 @item.data.logoUrl.map { logo =>
     @views.html.common.sidebarSection() {
         <a class="repository-logo" href="@controllers.portal.routes.Repositories.browse(item.id)">
-            <img src="@logo" alt="@item.toStringLang" />
+            <img src="@logo" alt="Institution Logo" />
         </a>
     }
 }

@@ -5,8 +5,7 @@
 @import views.html.admin.common.{descriptionSection,listValue,textValue,dateSet}
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions, visible) {
-    @views.html.common.itemHeader(desc.name) {
-    }
+    @views.html.common.itemHeader(desc.name)
     @textValue(SOURCE_FILE_ID, desc.sourceFileId)
     @descriptionSection(IDENTITY_AREA) {
         @listValue(PARALLEL_FORMS_OF_NAME, desc.identity.parallelFormsOfName)

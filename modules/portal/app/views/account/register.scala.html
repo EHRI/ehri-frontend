@@ -15,15 +15,14 @@
 }
 
 @views.html.layout.loginLayout(Messages("login.signup"), cls = "register", scripts = extraScripts) {
-    @views.html.common.itemHeader(Messages("login.signup")) {
-        <p>@Messages("login.benefits")</p>
-        <ol>
-            <li>@Messages("login.benefits.1")</li>
-            <li>@Messages("login.benefits.2")</li>
-            <li>@Messages("login.benefits.3")</li>
-        </ol>
-    }
+    @views.html.common.itemHeader(Messages("login.signup"))
 
+    <p>@Messages("login.benefits")</p>
+    <ol>
+        <li>@Messages("login.benefits.1")</li>
+        <li>@Messages("login.benefits.2")</li>
+        <li>@Messages("login.benefits.3")</li>
+    </ol>
     <div id="register">
         @views.html.account.oauth2Form(openIdForm, oauthConfig, isLogin = false, forSignup = true)
         @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)

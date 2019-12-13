@@ -10,8 +10,7 @@
 
 @views.html.layout.portalLayout(Messages("social.browseUsers"), cls = them.data.isA.toString) {
     @views.html.common.mainContent {
-        @views.html.common.itemHeader(Messages("social.browseUsers")) {
-        }
+        @views.html.common.itemHeader(Messages("social.browseUsers"))
         @if(result.params.isFiltered || result.nonEmpty) {
             @helper.form(action = searchAction, 'role -> "form") {
                 @views.html.common.search.searchBar(result.params, tips = false)

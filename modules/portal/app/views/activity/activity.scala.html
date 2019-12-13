@@ -2,8 +2,7 @@
 
 @views.html.layout.portalLayout(Messages("activity"), "userProfile") {
     @views.html.common.mainContent {
-        @views.html.common.itemHeader(Messages("activity.latestActivity")) {
-        }
+        @views.html.common.itemHeader(Messages("activity.latestActivity"))
         @views.html.activity.activityStream(events)
     }
 }

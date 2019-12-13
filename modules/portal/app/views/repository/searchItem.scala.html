@@ -1,7 +1,7 @@
 @(item: Repository, highlighter: views.Highlighter, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @image = {
-    <img alt="@item.toStringLang" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))"/>
+    <img alt="Institution Logo" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))"/>
 }
 
 @views.html.common.searchItemOutline(item, watched, image = views.html.helpers.linkTo(item, content = image)) {

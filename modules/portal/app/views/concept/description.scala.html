@@ -9,9 +9,8 @@
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
         @* Description *must* have an ID here or something bad has gone wrong! *@
         @desc.id.map { descId =>
-            @views.html.common.itemHeader(desc.name) {
-                @views.html.common.otherNameList(desc.altLabels)
-            }
+            @views.html.common.itemHeader(desc.name)
+            @views.html.common.otherNameList(desc.altLabels)
 
             @listField(item, descId, DEFINITION, desc.definition)
             @listField(item, descId, SCOPENOTE, desc.scopeNote)

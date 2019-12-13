@@ -5,8 +5,7 @@
 
 @views.html.common.itemDetails {
     @views.html.common.rightSidebar {
-        @views.html.common.itemHeader(item.toStringLang) {
-        }
+        @views.html.common.itemHeader(item.toStringLang)
         @views.html.helpers.contentOrEmpty {
             @defining(Annotation.itemAnnotations(annotations)) { implicit fieldAnnotations =>
                 @defining("country") { implicit fieldPrefix =>

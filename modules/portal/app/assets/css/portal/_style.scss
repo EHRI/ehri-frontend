@@ -15,12 +15,12 @@ body {
 }
 
 // Secondary-coloured headings
-.item-header h1,
 .block-header h2,
 .welcome-section h2,
 .info-container h2,
 .facet-class h4,
-.error h1.error-title,
+h1.error-title,
+h1.item-header,
 .sidebar-section-heading h4,
 .item-text-field-header h4 {
   @include color-var(color, 'secondary');
@@ -1368,7 +1368,7 @@ ul.list-export-options {
 
 // Item pages
 .item-header {
-  margin-bottom: $margin-md;
+  //margin-bottom: $margin-md;
 }
 
 .item-meta ul {

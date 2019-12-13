@@ -12,7 +12,7 @@
             @for(guide <- guides.collect { case g: Guide => g}) {
                 <li class="guide-item">
                     <a class="" href="@controllers.portal.guides.routes.Guides.home(guide.path)">
-                        <img class="media-object" width="128px" src="@guide.picture" alt="@guide.name" style="width : 128px ; height : auto ;">
+                        <img class="media-object" width="128px" src="@guide.picture" alt="Guide Header Image" style="width : 128px ; height : auto ;">
                     </a>
                     <div class="guide-description">
                         <h4><a href="@controllers.portal.guides.routes.Guides.home(guide.path)">@guide.name</a></h4>

@@ -3,8 +3,7 @@
 @views.html.layout.itemSearchLayout(item, result) {
 } {
     @views.html.common.itemDetailsLink(Messages("details.show"), controllers.portal.routes.Concepts.browse(item.id, dlid)) {
-        @views.html.common.itemHeader(item.toStringLang) {
-        }
+        @views.html.common.itemHeader(item.toStringLang)
     }
 
     @childItemSearch(item, result, action, watched)
