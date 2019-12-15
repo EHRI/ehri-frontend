@@ -1367,10 +1367,6 @@ ul.list-export-options {
 }
 
 // Item pages
-.item-header {
-  //margin-bottom: $margin-md;
-}
-
 .item-meta ul {
   @include list-unstyled();
   margin-bottom: 0;
@@ -1740,6 +1736,14 @@ ul.list-export-options {
       }
     }
   }
+}
+
+// Maps
+.point-map {
+  // map indicating the position of a single
+  // geographical item
+  height: 400px;
+  margin-bottom: $margin-lg;
 }
 
 // Feedback

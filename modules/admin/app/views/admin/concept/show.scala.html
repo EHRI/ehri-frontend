@@ -55,7 +55,7 @@
                             </ul>
                         }
                         @for(longitude <- item.data.longitude; latitude <- item.data.latitude) {
-                            <div class="point-map" style="height: 400px" data-lat="@latitude" data-lon="@longitude" data-point="@item.toStringLang"></div>
+                            <div class="point-map" data-lat="@latitude" data-lon="@longitude" data-point="@item.toStringLang"></div>
                             <script src="@controllers.portal.routes.PortalAssets.versioned("js/point-map.js")"></script>
                         }
                         @views.html.admin.common.filterableList("cvocConcept.narrowerTermsPageHeader", page, params) {
