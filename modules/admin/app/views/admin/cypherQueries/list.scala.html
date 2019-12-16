@@ -22,11 +22,13 @@
                 <ol class="search-result-list">
                 @for(query <- queries; oid <- query.objectId) {
                     <li>
-                        @views.html.common.searchItemOutlineWithActions(oid, "cypherQuery") {
+                        @views.html.common.searchItemOutlineWithActions(oid, "cypher-query") {
                             @query.name
                         } {
                         } {
-                            <div class="query"@query.description.map(Markdown.apply)
+                            @query.description.map { desc =>
+                                <div class="query-description">@Markdown(desc)</div>
+                            }
                             <pre class="code-format"><code>@query.query.stripMargin</code></pre>
 
                             <div class="search-item-footer">
@@ -38,9 +40,10 @@
                                 </ul>
                                 <ul class="list-item-actions">
                                     @for(fmt <- Seq(DataFormat.Html, DataFormat.Json, DataFormat.Csv, DataFormat.Tsv)) {
-                                        <li><a
-                                        title="@Messages(s"download.format.$fmt")"
-                                        href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a>
+                                        <li>
+                                            <a
+                                                title="@Messages(s"download.format.$fmt")"
+                                                href="@controllers.cypher.routes.CypherQueries.executeQuery(oid, fmt)">@fmt</a>
                                         </li>
                                     }
                                     @if(userOpt.exists(_.isAdmin)) {
