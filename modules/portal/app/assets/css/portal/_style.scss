@@ -1019,6 +1019,10 @@ ul.pagination {
   color: $text-muted;
 }
 
+.user-img-full {
+  width: 100%;
+}
+
 .user-list {
   a.gravitar {
     background-color: $ehri-gray;
@@ -1067,7 +1071,7 @@ ul.pagination {
   -ms-word-wrap: break-word;
 
   display: grid;
-  grid-template-columns: max-content auto max-content;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
   grid-template-rows: min-content auto;
   grid-template-areas: "image heading actions" "image body actions";
 
@@ -1126,7 +1130,6 @@ ul.pagination {
   .search-item-body {
     grid-area: body;
     font-size: $font-size-sm;
-    margin-right: $margin-sm;
 
     .breadcrumb {
       // Override general breadcrumb styles for breadcrumbs

@@ -315,3 +315,13 @@ pre.code-format {
     }
   }
 }
+
+// Cypher queries
+.cypher-query {
+  .search-item-heading {
+    margin-bottom: $margin-sm;
+  }
+  .query-description {
+    margin-bottom: $margin-sm;
+  }
+}
