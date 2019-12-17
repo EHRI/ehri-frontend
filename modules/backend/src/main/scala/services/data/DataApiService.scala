@@ -727,7 +727,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   private def streamWithUrl[A: Readable](url: String, extra: Seq[(String, String)] = Seq.empty): Source[A, _] = {
     val reader = implicitly[Readable[A]]
-    Source.fromFuture(userCall(url)
+    Source.future(userCall(url)
       .withQueryString(PageParams.empty.withoutLimit.queryParams ++ extra: _*)
       .stream().map (_.bodyAsSource
       .via(JsonFraming.objectScanner(Integer.MAX_VALUE))

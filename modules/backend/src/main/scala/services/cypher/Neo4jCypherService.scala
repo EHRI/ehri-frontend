@@ -54,7 +54,7 @@ case class Neo4jCypherService @Inject ()(
       .map(r => (r.json \ "results" \ 0).as[Neo4jCypherResult].asLegacy)
 
   override def rows(scriptBody: String, params: Map[String,JsValue] = Map.empty): Source[List[JsValue], _] = {
-    scaladsl.Source.fromFuture(raw(scriptBody, params).stream().map { sr =>
+    scaladsl.Source.future(raw(scriptBody, params).stream().map { sr =>
       sr.bodyAsSource
         .via(JsonReader.select("$.results[0].data[*].row"))
         .map { rowBytes =>
@@ -69,7 +69,7 @@ case class Neo4jCypherService @Inject ()(
       "params" -> params
     )
     logger.debug(s"Legacy Cypher: ${Json.toJson(data)}")
-    Source.fromFuture(
+    Source.future(
       ws.url(utils.serviceBaseUrl("legacyCypher", config))
         .withMethod(HttpVerbs.POST)
         .withHttpHeaders("X-Stream" -> "true")
