@@ -14,9 +14,9 @@
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 400;
-  src: url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.eot'); /* IE9 Compat Modes */
   src: local('Roboto'), local('Roboto-Regular'),
   url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.eot'), /* IE9 Compat Modes */
   url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.woff2') format('woff2'), /* Super Modern Browsers */
   url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.woff') format('woff'), /* Modern Browsers */
   url('/v/fonts/roboto-v19-cyrillic-ext_greek-ext_cyrillic_latin_greek_latin-ext-regular.ttf') format('truetype'), /* Safari, Android, iOS */
