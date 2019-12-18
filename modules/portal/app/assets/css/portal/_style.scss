@@ -974,6 +974,12 @@ body.home {
 
 // Pagination
 ul.pagination {
+  // On the rare occasions pagination is
+  // too wide for a mobile screen let it
+  // overflow
+  max-width: 100%;
+  overflow-x: auto;
+
   font-size: $font-size-sm;
 
   > li > a {
