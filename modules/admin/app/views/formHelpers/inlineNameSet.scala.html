@@ -3,10 +3,8 @@
 <div class="inline-formset form-group clearfix @{if(field.hasErrors) "has-error"}" data-prefix="@name">
     <label class="control-label">
         @Messages(fieldPrefix + "." + name)
-        <a href="#"
-            title="@md.renderMarkdown(Messages(fieldPrefix + "." + name + ".description"))"
-            class="add-inline-element">
-            <i class="fa fa-plus-circle"></i>
+        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
         </a>
     </label>
 

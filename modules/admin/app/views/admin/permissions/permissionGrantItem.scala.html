@@ -6,13 +6,13 @@
             @if(showRevoke) {
                 @accessorOpt.collect {
                     case u: UserProfile => {
-                        <a href="@controllers.users.routes.UserProfiles.revokePermission(u.id, perm.id)">
-                            <i title="@Messages("permissions.revoke")" class="fa fa-remove"></i>
+                        <a href="@controllers.users.routes.UserProfiles.revokePermission(u.id, perm.id)" aria-label="@Messages("permissions.revoke")">
+                            <i class="fa fa-remove" aria-hidden="true"></i>
                         </a>
                     }
                     case u: Group => {
-                        <a href="@controllers.groups.routes.Groups.revokePermission(u.id, perm.id)">
-                            <i title="@Messages("permissions.revoke")" class="fa fa-remove"></i>
+                        <a href="@controllers.groups.routes.Groups.revokePermission(u.id, perm.id)" aria-label="@Messages("permissions.revoke")">
+                            <i class="fa fa-remove" aria-hidden="true"></i>
                         </a>
                     }
                 }

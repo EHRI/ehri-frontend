@@ -7,12 +7,12 @@
             @views.html.admin.search.searchItemListWithAdditionalContent(result) { otherItem =>
                 <div class="link-select-controls">
                     <a class="select-link-target btn btn-block btn-warning" href="@linkAction(otherItem.id, false)">
-                        <i class="fa fa-link"></i>
+                        <i class="fa fa-link" aria-hidden="true"></i>
                         @Messages("link.linkTo.item")
                     </a>
                     @Link.copyLinkType(item, otherItem).map { _ =>
                         <a class="select-link-target btn btn-block btn-info" href="@linkAction(otherItem.id, true)">
-                            <i class="fa fa-copy"></i>
+                            <i class="fa fa-copy" aria-hidden="true"></i>
                             @Messages("link.linkTo.copy")
                         </a>
                     }

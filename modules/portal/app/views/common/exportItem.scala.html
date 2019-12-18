@@ -6,7 +6,7 @@
         @for((fmt, url) <- fmts) {
             <li class="export-format-item">
                 <a rel="nofollow" href="@url">
-                    <i class="fa fa-download"></i>
+                    <i class="fa fa-download" aria-hidden="true"></i>
                     @Messages(s"export.format.$fmt")
                 </a>
             </li>

@@ -8,8 +8,8 @@
                 <div class="selected-facet">
                     <input type="hidden" name="@fclass.param" value="@value" />
                     @fclass.name: @fclass.render(value)
-                    <a class="remove-filter" href="@services.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_ != "page"))">
-                        <i class="material-icons">close</i>
+                    <a class="remove-filter" aria-label="@Messages("search.facets.remove")" href="@services.search.pathWithoutFacet(fclass, value, req.path, req.queryString.filterKeys(_ != "page"))">
+                        <i class="material-icons" aria-hidden="true">close</i>
                     </a>
                 </div>
             }

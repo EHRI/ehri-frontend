@@ -5,7 +5,7 @@
         <div class="controls controls-row">
             <input type="text" name="@field.name" id="@field.id" value="@field.value" />
             <span class="help-inline errors">@field.errors.map(_.message).mkString(", ")</span>
-            <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
+            <a class="remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
         </div>
     </div>
 </div>

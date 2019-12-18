@@ -113,18 +113,19 @@
                         <ul class="user-actions">
                             <li>
                                 <a href="@controllers.portal.users.routes.UserProfiles.activity()">
-                                    <i class="fa fa-list"></i> @Messages("activity")
+                                    <i class="fa fa-list" aria-hidden="true"></i>
+                                    @Messages("activity")
                                 </a>
                             </li>
                             <li>
                                 <a href="@controllers.portal.users.routes.UserProfiles.watching()">
-                                    <span class="fa fa-star"></span>
+                                    <i class="fa fa-star" aria-hidden="true"></i>
                                     @Messages("profile.watch.list")
                                 </a>
                             </li>
                             <li>
                                 <a href="@controllers.portal.users.routes.UserProfiles.annotations()">
-                                    <span class="fa fa-edit"></span>
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
                                     @Messages("annotation.list")
                                 </a>
                             </li>
@@ -136,8 +137,9 @@
                         <div class="oauth-providers form-field">
                             @accountForms.oAuth2Config.providers.map { provider =>
                                 <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
-                                title="@Html(Messages("login.loginWith", provider.name.capitalize))">
-                                    <i class="fa fa-fw fa-@provider.name"></i>
+                                title="@Html(Messages("login.loginWith", provider.name.capitalize))"
+                                aria-label="@Html(Messages("login.loginWith", provider.name.capitalize))">
+                                    <i class="fa fa-fw fa-@provider.name" aria-hidden="true"></i>
                                 </a>
                             }
                         </div>

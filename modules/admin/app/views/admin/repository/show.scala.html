@@ -32,7 +32,7 @@
                         @common.typeLabel(item.isA) {
                             @views.html.admin.repository.logo(item)
                             <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
-                                <i class="fa fa-institution"></i>
+                                <i class="fa fa-institution" aria-hidden="true"></i>
                                 @Messages("repository.logo.edit")
                             </a>
 

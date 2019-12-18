@@ -8,7 +8,8 @@
             <ul class="user-actions action-group">
                 <li class="@views.Helpers.maybeActive(activity.url)">
                     <a href="@activity">
-                        <i class="fa fa-list"></i> @Messages("activity")
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                        @Messages("activity")
                     </a>
                 </li>
                 <li class="@views.Helpers.maybeActive(watched.url)">

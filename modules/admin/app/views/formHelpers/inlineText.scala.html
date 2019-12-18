@@ -8,7 +8,7 @@
             <span class="help-block errors">@desc.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
         <div class="inline-remove">
-            <a class="remove-inline-element" tabindex="-1" href="#">&times;</a>
+            <a class="remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
         </div>
     </div>
 </div>

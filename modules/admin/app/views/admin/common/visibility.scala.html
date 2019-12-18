@@ -3,7 +3,7 @@
 @views.html.common.sidebarSectionWithFooter(Messages("visibility")) {
     @if(item.accessors.nonEmpty) {
         <h4>
-            <i class="fa fa-eye-slash"></i>
+            <i class="fa fa-eye-slash" aria-hidden="true"></i>
             @Messages("visibility.visibilityRestrictedTo")
         </h4>
         <ul>
@@ -13,7 +13,7 @@
         </ul>
     } else {
         <h4>
-            <i class="fa fa-eye"></i>
+            <i class="fa fa-eye" aria-hidden="true"></i>
             @Messages("visibility.visibleToEveryone")
         </h4>
     }

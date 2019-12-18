@@ -5,7 +5,7 @@
 
 <div class="address-form inline-element">
     @formHelpers.hiddenInput(field(Entity.ID))
-    <a class="close remove-inline-element" tabindex="-1" href="#">&times;</a>
+    <a class="close remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
     @formHelpers.lineInput(field, ADDRESS_NAME)
     @formHelpers.lineInput(field, CONTACT_PERSON)
     @inlineGeoname(field, CITY, "city")

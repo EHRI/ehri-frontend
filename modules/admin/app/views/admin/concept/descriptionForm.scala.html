@@ -8,7 +8,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc, cls = "concept-description-form inline-element") {
-    <a class="close remove-inline-element" tabindex="-1" href="#">&times;</a>
+    <a class="close remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
     @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
     @choiceInput(desc, IDENTIFIER, views.Helpers.scriptPairList, '_blank -> true)
     @formHelpers.lineInput(desc, PREFLABEL)

@@ -22,16 +22,16 @@
                 </span>
             }
             <span class="input-group-addon">
-                <button class="btn submit-search" type="submit">
+                <button class="btn submit-search" type="submit" aria-label="@Messages("search.submit")" >
                     <span class="sr-only">@Messages("search.submit")</span>
-                    <i class="material-icons form-control-feedback">search</i>
+                    <i class="material-icons form-control-feedback"aria-hidden="true">search</i>
                 </button>
             </span>
         </div>
         @if(tips) {
             <a href="#" class="search-helper-toggle" data-toggle="helper" data-target="#search-helper">
                 @Messages("search.helper.linkTitle")
-                <i class="material-icons">arrow_drop_down</i>
+                <i class="material-icons" aria-hidden="true">arrow_drop_down</i>
             </a>
         }
     </div>
