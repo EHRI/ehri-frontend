@@ -12,7 +12,7 @@
             <a class="event-time"
                     href="@controllers.portal.routes.Portal.eventDetails(event.id)"
                     title="@event.data.timestamp">
-                <i class="fa fa-clock-o"></i>
+                <i class="fa fa-clock-o" aria-hidden="true"></i>
                 @views.Helpers.relativeDate(event.data.timestamp)
             </a>
         </div>

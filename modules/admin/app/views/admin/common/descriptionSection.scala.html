@@ -5,7 +5,7 @@
         <h3>@Messages(fieldPrefix + "." + name)</h3>
     </header>
     @if(html.toString.trim.isEmpty) {
-        <i class="no-info">@Messages("describedEntity.noData")</i>
+        <em class="no-info">@Messages("describedEntity.noData")</em>
     } else {
         @html
     }

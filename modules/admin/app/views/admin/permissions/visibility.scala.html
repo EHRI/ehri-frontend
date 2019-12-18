@@ -3,20 +3,20 @@
 @views.html.admin.layout.rightSidebar(Messages("visibility.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @if(item.accessors.isEmpty) {
         <h3>@Messages("visibility.visibleToEveryone")</h3>
-        <p class="minor-notice">@Messages("visibility.visibleToEveryoneMessage")</p>
+        <em class="minor-notice">@Messages("visibility.visibleToEveryoneMessage")</em>
     } else {
         <h3>
-            <i class="fa fa-lock"></i>
+            <i class="fa fa-lock" aria-hidden="true"></i>
             @Messages("visibility.restrictedVisibility")
         </h3>
         <p>
-        @Messages("visibility.restrictedVisibilityMessage")
+            @Messages("visibility.restrictedVisibilityMessage")
+        </p>
         <ul>
         @item.accessors.sortBy(_.isA).map { a =>
             <li><a href="@views.admin.Helpers.linkTo(a)">@a.toStringLang</a></li>
         }
         </ul>
-        </p>
     }
 
     @helper.form(action = action) {

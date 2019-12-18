@@ -7,7 +7,7 @@
         @common.pagination(result.page)
 
         <ul class="list-export-options">
-            <i class="fa fa-download"></i>
+            <i class="fa fa-download" aria-hidden="true"></i>
             @for(fmt <- Seq(DataFormat.Text, DataFormat.Csv, DataFormat.Tsv, DataFormat.Json)) {
                 <li>
                     <a class="alt" target="_blank" title="@Messages("download.format." + fmt.toString)" href="@controllers.portal.users.routes.UserProfiles.watching(format = fmt)&limit=-1">

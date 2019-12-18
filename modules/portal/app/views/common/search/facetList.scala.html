@@ -5,7 +5,7 @@
 @facetLabel(fc: FacetClass[_]) = {
     <h4 data-toggle="tooltip"
         title="@Messages("facet." + fc.param + ".tooltip")" class="facet-label@{if(fc.isApplied) " active"}">@fc.name
-        <i class="fa fa-question-circle"></i>
+        <i class="fa fa-question-circle" aria-hidden="true"></i>
     </h4>
 }
 
@@ -15,7 +15,8 @@
             <a rel="nofollow" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                 <span class="facet-name">@fc.pretty(f)</span>
                 <span class="facet-count">(@f.count)</span>
-                <i class="material-icons">close</i>
+                <span class="sr-only">@Messages("search.facets.remove")</span>
+                <i class="material-icons" aria-hidden="true" title="@Messages("search.facets.remove")">close</i>
             </a>
         </li>
     } else {
@@ -63,7 +64,8 @@
                         <a rel="nofollow" class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
                             <span class="facet-name">@fc.pretty(f)</span>
                             <span class="facet-count">(@f.count)</span>
-                            <i class="material-icons">close</i>
+                            <span class="sr-only">@Messages("search.facets.remove")</span>
+                            <i class="material-icons" aria-hidden="true" title="@Messages("search.facets.remove")">close</i>
                         </a>
                     } else {
                         <a rel="nofollow" class="apply-filter" href="@pathWithFacet(fc, f.value, call.url, req.queryString.filterKeys(_!="page"))">
@@ -118,8 +120,9 @@
         <h4 class="facet-label">
             @Messages(fc.name)
             @if(fc.facets.isEmpty) {
-                <a rel="nofollow" href="#" class="date-submit pull-right">
-                    <i class="fa fa-check-circle-o"></i>
+                <a rel="nofollow" href="#" class="date-submit">
+                    <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                    <span class="sr-only">@Messages("facet.date")</span>
                 </a>
             }
         </h4>
@@ -144,7 +147,7 @@
                         <input type="text" id="facet-options-@(fc.param)-end" data-target="end" class="form-control date input-sm" />
                     </div>
                 </div>
-                <br clear="both" />
+                <br style="clear: both" />
             </div>
         }
     </li>
@@ -156,7 +159,7 @@
             @if(activeClasses.exists(_.isApplied)) {
                 <a href="@pathWithoutFacets(facetClasses, call.url, req.queryString)" class="search-facets-remove-all">
                     @Messages("search.facets.removeAll")
-                    <i class="material-icons">close</i>
+                    <i class="material-icons" title="@Messages("search.facets.removeAll")" aria-hidden="true">close</i>
                 </a>
             }
             <div class="search-facets-heading sidebar-section-heading" data-toggle="collapse" data-target="#facet-class-expander">

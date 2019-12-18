@@ -7,7 +7,7 @@
     </div>
     @views.html.common.childCount(item) { count =>
         @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id), 'class -> "child-items-inline-load collapsed") {
-            <i class="fa fa-fw fa-plus-square-o"></i>
+            <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
             @Messages("repository.childCount", count)
         }
     }

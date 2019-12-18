@@ -13,7 +13,7 @@
             userId = user.id,
             params = utils.SystemEventParams(from = summary.from.map(_.toLocalDateTime), to = summary.to.map(_.toLocalDateTime)))"
                 class="timeline-event-time" title="@timestamp">
-                    <i class="fa fa-clock-o"></i>
+                    <i class="fa fa-clock-o" aria-hidden="true"></i>
                     @views.Helpers.relativeDate(timestamp)
         </a>
     }

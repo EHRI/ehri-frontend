@@ -6,7 +6,7 @@
     <dt>@Messages(prefix + "." + label)</dt>
     <dd>
     @if(list.isEmpty) {
-        <i class="minor-notice">@Messages("describedEntity.notGiven")</i>
+        <em class="minor-notice">@Messages("describedEntity.notGiven")</em>
     } else {
         <ul class="list-unstyled">
             @views.html.admin.common.propertyList(list)
@@ -21,9 +21,9 @@
         <dt>@Messages(prefix + "." + PREFLABEL)</dt>
         <dd>
             @desc.name
-            <i class="minor-notice">
+            <em class="minor-notice">
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
-            </i>
+            </em>
         </dd>
         @Map(ALTLABEL -> desc.altLabels, HIDDENLABEL -> desc.hiddenLabels,
                 SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, list) =>

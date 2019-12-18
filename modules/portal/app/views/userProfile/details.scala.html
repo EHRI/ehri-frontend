@@ -10,7 +10,7 @@
     @user.data.location.map { loc =>
         <dt>
             @Messages("profile.location")
-            <i class="fa fa-map-marker"></i>
+            <i class="fa fa-map-marker" aria-hidden="true"></i>
         </dt>
         <dd>
             @loc
@@ -19,14 +19,14 @@
     @user.data.url.map { url =>
         <dt>
             @Messages("profile.url")
-            <i class="fa fa-link"></i>
+            <i class="fa fa-link" aria-hidden="true"></i>
         </dt>
         <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
     }
     @user.data.workUrl.map { url =>
         <dt>
             @Messages("profile.workUrl")
-            <i class="fa fa-link"></i>
+            <i class="fa fa-link" aria-hidden="true"></i>
         </dt>
         <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
     }

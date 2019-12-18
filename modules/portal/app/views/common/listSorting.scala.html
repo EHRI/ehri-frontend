@@ -3,7 +3,8 @@
 @import services.search.SearchParams
 
 <div class="search-sort">
-    <i class="material-icons" title="@Messages("search.sort.title")">sort</i>
+    <i class="material-icons" title="@Messages("search.sort.title")" aria-hidden="true">sort</i>
+    <span class="sr-only">@Messages("search.sort.title")</span>
     <ul>
     @options.map { case (sortKey, i18nKey) =>
         <li class="sort-option @{if(current.contains(sortKey)) "active"}">

@@ -4,34 +4,34 @@
 
 @et match {
     case EventType.creation => {
-        <div class="timeline-badge success"><i class="fa fa-fw fa-inverse fa-lg fa-save"></i></div>
+        <div class="timeline-badge success" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-save"></i></div>
     }
     case EventType.deletion => {
-        <div class="timeline-badge warning"><i class="fa fa-fw fa-inverse fa-lg fa-floppy-o"></i></div>
+        <div class="timeline-badge warning" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-floppy-o"></i></div>
     }
     case EventType.modification | EventType.createDependent | EventType.modifyDependent | EventType.deleteDependent => {
-        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-edit"></i></div>
+        <div class="timeline-badge info" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-edit"></i></div>
     }
     case EventType.ingest => {
-        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-hdd-o"></i></div>
+        <div class="timeline-badge info" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-hdd-o"></i></div>
     }
     case EventType.link => {
-        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-link"></i></div>
+        <div class="timeline-badge info" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-link"></i></div>
     }
     case EventType.annotation => {
-        <div class="timeline-badge success"><i class="fa fa-fw fa-inverse fa-lg fa-comment"></i></div>
+        <div class="timeline-badge success" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-comment"></i></div>
     }
     case EventType.watch => {
-        <div class="timeline-badge success"><i class="fa fa-fw fa-inverse fa-lg fa-tag"></i></div>
+        <div class="timeline-badge success" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-tag"></i></div>
     }
     case EventType.promotion => {
-        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-up"></i></div>
+        <div class="timeline-badge info" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-up"></i></div>
     }
     case EventType.demotion => {
-        <div class="timeline-badge info"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-down"></i></div>
+        <div class="timeline-badge info" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg fa-thumbs-down"></i></div>
     }
     case _ => {
-        <div class="timeline-badge"><i class="fa fa-fw fa-inverse fa-lg"></i></div>
+        <div class="timeline-badge" aria-hidden="true"><i class="fa fa-fw fa-inverse fa-lg"></i></div>
     }
 }
 

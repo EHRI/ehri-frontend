@@ -24,7 +24,9 @@
                 <!-- Template for adding inline date forms via JS -->
             <label class="control-label">
                 @Messages(fieldPrefix + "." + DATES)
-                <a href="#" class="add-inline-element"><i class="fa fa-plus-circle"></i></a>
+                <a href="#" class="add-inline-element" aria-label="@Messages("")">
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                </a>
             </label>
             <div class="inline-element-template form-template">
             @inlineDateSet(desc(DATES + "[IDX]"))

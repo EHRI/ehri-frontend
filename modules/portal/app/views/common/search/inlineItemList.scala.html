@@ -37,7 +37,7 @@
             href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
                     .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
             @Messages("activity.fetchMore")
-            <i class="fa fa-caret-down"></i>
+            <i class="fa fa-caret-down" aria-hidden="true"></i>
         </a>
     }
 </div>

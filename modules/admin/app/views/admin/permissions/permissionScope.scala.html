@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.accessor.scopeLevel.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <p class="admin-help-notice">
-        <i class="fa fa-info-circle"></i>
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
         @Messages("permissions.scopeLevel.manage.info")
     </p>
 

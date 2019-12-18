@@ -8,14 +8,13 @@
             }
         }
     } {
-
         <h4 class="timeline-event-title">
             @Html(Messages("timeline.eventType." + et.toString,
                 views.html.helpers.linkTo(user),
                 Messages("timeline.target." + subject.isA.toString)))
         </h4>
         <a href="@controllers.portal.routes.Portal.eventDetails(event.id)" class="timeline-event-time" title="@event.data.timestamp">
-            <i class="fa fa-clock-o"></i>
+            <i class="fa fa-clock-o" aria-hidden="true"></i>
             @views.Helpers.relativeDate(event.data.timestamp)
         </a>
     } {

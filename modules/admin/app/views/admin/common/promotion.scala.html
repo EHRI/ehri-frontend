@@ -4,7 +4,7 @@
     @common.sidebarSection(Messages("promotion")) {
         @if(item.promoters.nonEmpty) {
             <h4>
-                <i class="fa fa-star"></i>
+                <i class="fa fa-star" aria-hidden="true"></i>
                 @Messages("promotion.isPromoted")
             </h4>
             <ul>
@@ -20,7 +20,7 @@
             } else {
                 @if(user.hasPermission(contentType, defines.PermissionType.Promote)) {
                     <h4>
-                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star" aria-hidden="true"></i>
                         @Messages("promotion.notPromoted")
                     </h4>
                     <p><small><a href="@promoteUrl">@Messages("item.promote")</a></small></p>
