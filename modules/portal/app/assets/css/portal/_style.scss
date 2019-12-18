@@ -521,7 +521,8 @@ body.home {
     @include list-unstyled();
 
     .rss-item p.date {
-      @extend %small-muted;
+      font-size: $font-size-sm;
+      color: $text-darkened;
     }
   }
 }
