@@ -2,7 +2,7 @@
 
 @maybeLink(s: String) = {
     @if(s.startsWith("http://") || s.startsWith("https://")) {
-        <a class="external" target="_blank" href="@s">@s</a>
+        <a class="external" target="_blank" rel="noopener" href="@s">@s</a>
     } else {
         @s
     }

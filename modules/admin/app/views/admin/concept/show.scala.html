@@ -43,14 +43,14 @@
 
 
                         @item.data.url.map { url =>
-                            <a href="@url" target="_blank">@url</a>
+                            <a href="@url" target="_blank" rel="noopener">@url</a>
                         }
 
                         @if(item.data.seeAlso.nonEmpty) {
                             <h4>@Messages("cvocConcept.seeAlso"):</h4>
                             <ul class="list-unstyled">
                             @item.data.seeAlso.map { item =>
-                                <li><a href="@item" target="_blank">@item</a></li>
+                                <li><a href="@item" target="_blank" rel="noopener">@item</a></li>
                             }
                             </ul>
                         }

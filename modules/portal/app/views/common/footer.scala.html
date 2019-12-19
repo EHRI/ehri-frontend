@@ -14,7 +14,7 @@
             <div class="newsletter">
                 <h3>@Messages("mailingList.prompt")</h3>
                 @globalConfig.configuration.getOptional[String]("ehri.portal.mailingListUrl").map { url =>
-                    <a href="@url" class="btn btn-primary" target="_blank" id="subscribe-to-newsletter">
+                    <a href="@url" class="btn btn-primary" target="_blank" rel="noopener" id="subscribe-to-newsletter">
                         @Messages("mailingList.subscribe")
                     </a>
                 }
@@ -45,7 +45,7 @@
             <div class="funding">@Messages("footer.funding")</div>
             <div id="footer-logos">
                 <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3-eu-west-1.amazonaws.com/eulogo.svg" />
-                <a target="_blank" title="Ars Electronica 2018 Honorary Mention" href="http://prix2018.aec.at/prixwinner/28933/">
+                <a target="_blank" rel="noopener" title="Ars Electronica 2018 Honorary Mention" href="http://prix2018.aec.at/prixwinner/28933/">
                     <img alt="Ars Electronica 2018 Honorary Mention" src="//ehri-assets.s3-eu-west-1.amazonaws.com/ars_2018_hm.jpg" />
                 </a>
             </div>

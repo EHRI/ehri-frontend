@@ -16,7 +16,7 @@ case class CommonmarkMarkdownRenderer() extends RawMarkdownRenderer {
         case a: Link =>
           attributes.put("class", "external")
           attributes.put("target", "_blank")
-          attributes.put("rel", "nofollow")
+          attributes.put("rel", "nofollow noopener")
         case _ =>
       }
     }

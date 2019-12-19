@@ -15,7 +15,7 @@
 <ul class="page-links">
     @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
         <li>
-            <a href="@url" target="_blank">@Messages("help.manual")</a>
+            <a href="@url" rel="noopener" target="_blank">@Messages("help.manual")</a>
         </li>
     }
     <li>

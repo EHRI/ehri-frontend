@@ -12,13 +12,13 @@ case class SanitisingMarkdownRenderer @Inject() (rawMarkdownRenderer: RawMarkdow
   private val whiteListStandard: Whitelist = Whitelist.basic()
     .addAttributes("a", "target", "_blank")
     .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
+    .addAttributes("a", "rel", "nofollow noopener")
 
   private val whiteListStrict: Whitelist = Whitelist.simpleText()
     .addTags("p", "a")
     .addAttributes("a", "target", "_blank")
     .addAttributes("a", "class", "external")
-    .addAttributes("a", "rel", "nofollow")
+    .addAttributes("a", "rel", "nofollow noopener")
 
   private def render(markdown: String): String = rawMarkdownRenderer.render(markdown)
 
