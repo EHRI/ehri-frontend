@@ -181,6 +181,7 @@ profile.profile.delete.confirmation=Your profile has been deleted.
 profile.update=Update Profile
 profile.update.submit=Update Profile
 profile.update.confirmation=Profile successfully updated
+profile.menu=Profile Menu
 
 profile.watch.list=Watched Items
 profile.watch.by={0} - Watched Items
