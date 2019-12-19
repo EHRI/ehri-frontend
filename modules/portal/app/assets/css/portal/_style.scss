@@ -1030,6 +1030,15 @@ ul.pagination {
   width: 100%;
 }
 
+.user-img-icon {
+  float: left;
+  height: $margin-md;
+  width: $margin-md;
+  background-size: cover;
+  background-position: left;
+  margin-right: $margin-xs;
+}
+
 .user-list {
   a.gravitar {
     background-color: $ehri-gray;
