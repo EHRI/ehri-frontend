@@ -22,7 +22,7 @@
         <ul id="help-dropdown" class="dropdown-menu" role="menu">
             @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
                 <li>
-                    <a href="@url" target="_blank">
+                    <a href="@url" target="_blank" rel="noopener">
                         @Messages("help.manual")
                     </a>
                 </li>
@@ -49,14 +49,14 @@
         }
 
         <li class="view-options">
-            <a href="#" class="@views.Helpers.maybeActive(controllers.portal.users.routes.UserProfiles.profile().url) gravitar dropdown-toggle" data-toggle="dropdown">
+            <a href="#" aria-label="@Messages("profile.menu")" class="@views.Helpers.maybeActive(controllers.portal.users.routes.UserProfiles.profile().url) gravitar dropdown-toggle" data-toggle="dropdown">
                 <div class="user-img-icon" style="background-image: url('@views.Helpers.gravitar(user.data.imageUrl)')"></div>
                 <span class="caret"></span>
             </a>
             <ul class="boolean-preferences dropdown-menu" role="menu">
                 <li>
                     <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="gravitar">
-                        <span class="fa fa-user-o"></span>
+                        <i class="fa fa-user-o" aria-hidden="true"></i>
                         @Messages("profile.menu.link")
                     </a>
                 </li>
@@ -64,8 +64,8 @@
                     <li role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</li>
                     <li>
                         <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
-                        data-preference-name="showUserContent"
-                        data-preference-value="@prefs.showUserContent">
+                            data-preference-name="showUserContent"
+                            data-preference-value="@prefs.showUserContent">
                         @Messages("profile.preferences.view.showUserContent")
                         </a>
                     </li>
