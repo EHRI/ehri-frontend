@@ -17,7 +17,7 @@ class FlexmarkMarkdownRendererSpec extends PlaySpecification {
       mdprocessor.render(" an http://www.autolink.com link") must contain("_blank")
     }
     "render auto links with rel=nofollow" in {
-      mdprocessor.render(" an http://www.autolink.com link") must contain("rel=\"nofollow\"")
+      mdprocessor.render(" an http://www.autolink.com link") must contain("rel=\"nofollow noopener\"")
     }
     "render explicit links with _blank target" in {
       val s: String = mdprocessor.render(" an [blah](http://www.autolink.com) link")

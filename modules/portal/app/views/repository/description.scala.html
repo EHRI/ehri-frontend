@@ -70,7 +70,7 @@
                     }
                     @contactField("url", "globe") {
                         @address.url.map { t =>
-                            <a class="url" target="_blank" href="@views.Helpers.normalizeUrl(t)" title="Website">
+                            <a class="url" target="_blank" rel="noopener" href="@views.Helpers.normalizeUrl(t)" title="Website">
                                 @t
                             </a><br>
                         }

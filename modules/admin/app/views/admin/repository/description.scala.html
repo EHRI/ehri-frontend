@@ -52,7 +52,7 @@
                         }
                         @address.url.map { url =>
                             <dt>@Messages(fieldPrefix + "." + URL)</dt>
-                            <dd><a target="_blank" href="@url">@url</a></dd>
+                            <dd><a target="_blank" rel="noopener" href="@url">@url</a></dd>
                         }
                     </dl>
                 </address>

@@ -18,7 +18,7 @@ case class FlexmarkMarkdownRenderer() extends RawMarkdownRenderer {
         case a: LinkNode if part == AttributablePart.LINK =>
           attributes.addValue("class", "external")
           attributes.addValue("target", "_blank")
-          attributes.addValue("rel", "nofollow")
+          attributes.addValue("rel", "nofollow noopener")
         case _ =>
       }
     }

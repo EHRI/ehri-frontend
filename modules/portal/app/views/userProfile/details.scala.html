@@ -21,14 +21,14 @@
             @Messages("profile.url")
             <i class="fa fa-link" aria-hidden="true"></i>
         </dt>
-        <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
+        <dd><a href="@url" target="_blank" rel="noopener">@views.Helpers.ellipsize(url, 50)</a></dd>
     }
     @user.data.workUrl.map { url =>
         <dt>
             @Messages("profile.workUrl")
             <i class="fa fa-link" aria-hidden="true"></i>
         </dt>
-        <dd><a href="@url" target="_blank">@views.Helpers.ellipsize(url, 50)</a></dd>
+        <dd><a href="@url" target="_blank" rel="noopener">@views.Helpers.ellipsize(url, 50)</a></dd>
     }
     @textSection("profile.institution", user.data.institution)
     @textSection("profile.role", user.data.role)
