@@ -77,8 +77,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.11.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "6.0.1",
-  "com.typesafe.play" %% "play-mailer-guice" % "6.0.1",
+  "com.typesafe.play" %% "play-mailer" % "7.0.1",
+  "com.typesafe.play" %% "play-mailer-guice" % "7.0.1",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",

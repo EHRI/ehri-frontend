@@ -5,7 +5,7 @@ import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import forms.{HoneyPotForm, TimeCheckForm}
-import play.api.Application
+import play.api.{Application, Logger}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
 import services.feedback.FeedbackService
@@ -23,6 +23,8 @@ case class Feedback @Inject()(
   mailer: MailerClient,
   cypher: CypherService
 ) extends PortalController {
+
+  val logger = Logger(classOf[Feedback])
 
   import play.api.data.Form
   import play.api.data.Forms._
@@ -51,26 +53,24 @@ case class Feedback @Inject()(
   }
 
   private def sendMessageEmail(feedback: models.Feedback)(implicit request: RequestHeader): Unit = {
-    for {
-      accTo <- getCopyMail(feedback.`type`)
-    } yield {
-      val text = feedback.text.map { msg =>
-        s"""
-          |From: ${feedback.name.getOrElse("Anonymous")} (${feedback.email.getOrElse("no email given")})
-          |
-          |$msg
-        """.stripMargin
-      }.getOrElse("No message provided")
-      val email = Email(
-        subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
-        to = Seq(accTo),
-        from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
-        replyTo = feedback.email.toSeq,
-        bodyText = Some(text),
-        bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
-      )
-      mailer.send(email)
-    }
+    val text = feedback.text.map { msg =>
+      s"""
+        |From: ${feedback.name.getOrElse("Anonymous")} (${feedback.email.getOrElse("no email given")})
+        |
+        |$msg
+      """.stripMargin
+    }.getOrElse("No message provided")
+    val recipients = getCopyMail(feedback.`type`)
+    logger.debug(s"Sending feedback email to ${recipients.size} recipient(s)")
+    val email = Email(
+      subject = "EHRI Portal Feedback" + feedback.name.map(n => s" from $n").getOrElse(""),
+      to = recipients,
+      from = s"EHRI User <${config.get[String]("ehri.portal.emails.messages")}>",
+      replyTo = feedback.email.toSeq,
+      bodyText = Some(text),
+      bodyHtml = Some(markdown.renderUntrustedMarkdown(text))
+    )
+    mailer.send(email)
   }
 
   def feedback: Action[AnyContent] = OptionalUserAction { implicit request =>
