@@ -41,7 +41,7 @@
         </div>
 
         <div id="footer-blurb">
-            <div class="copyright">&copy; @Messages("copyright.holder")</div>
+            <div class="copyright">&copy; @Messages("copyright.holder", java.time.Year.now(java.time.ZoneId.systemDefault()).getValue)</div>
             <div class="funding">@Messages("footer.funding")</div>
             <div id="footer-logos">
                 <img class="eu-logo" alt="EU Logo" src="//ehri-assets.s3-eu-west-1.amazonaws.com/eulogo.svg" />

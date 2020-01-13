@@ -606,7 +606,7 @@ dataPolicy.header=Politique EHRI en matière de données
 #    l''auteur doit être effectuée lorsqu''elles sont publiées ailleurs. À cette fin, l''auteur \
 #    du contenu généré par les utilisateurs sera clairement indiqué.
 copyright.heading=Déclaration de copyright
-copyright.holder=Copyright EHRI Consortium 2015
+copyright.holder=Copyright EHRI Consortium {0,number,#}
 copyright.statement=L''utilisation, la réutilisation et/ou la reproduction des informations publiées sur ce site sont libres mais \
     à condition que le détenteur du copyright et le consortium EHRI soient clairement reconnus et qu''une référence à la source \
     soit fournie : EHRI {0}. Cela ne s''applique pas aux matériels pour lesquels le copyright n''est pas détenu par \

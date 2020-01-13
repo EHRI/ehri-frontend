@@ -920,7 +920,7 @@ termsAndConditions.userGenerated.terms.4=The information is made available to us
   of the user-generated content will be clearly stated.
 
 copyright.heading=Copyright statement
-copyright.holder=Copyright EHRI Consortium 2015
+copyright.holder=Copyright EHRI Consortium {0,number,#}
 copyright.statement=The use, re-use and/or reproduction of the information published on this website is free, though \
   conditional on the copyright holder and the EHRI consortium being clearly acknowledged and reference being made to \
   the source: EHRI {0}. This does not apply to material for which the copyright is not held by \
