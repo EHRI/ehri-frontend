@@ -605,7 +605,7 @@ dataPolicy.header=Zasady zarządzania danymi w EHRI
 #    opublikowania informacji w innym miejscu jest podanie autora. W tym celu, autor \
 #    treści generowanych przez użytkowników zostanie w sposób jednoznaczny określony.
 copyright.heading=Oświadczenie na temat praw autorskich
-copyright.holder=Copyright by EHRI Consortium 2015
+copyright.holder=Copyright by EHRI Consortium {0,number,#}
 copyright.statement=Użycie, ponowne wykorzystanie i/lub powielanie informacji zamieszczonych w niniejszej witrynie jest bezpłatne, jednak \
     warunkiem publikacji jest wymienienie posiadacza praw autorskich i konsorcjum EHRI, a także wyraźne wskazanie i odniesienie do \
     źródła: EHRI {0}. Nie dotyczy to materiałów, do których prawa autorskie są w posiadaniu \

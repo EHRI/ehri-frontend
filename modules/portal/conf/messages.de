@@ -593,7 +593,7 @@ privacy.users.header=1. Daten von Benutzern dieser Webseite und ihrer Dienstleis
 #    sein Einverständnis geben, wenn die Informationen an einem anderen Ort veröffentlicht werden soll. Für diesen Zweck wird der \
 #    Autor des nutzergenerierten Inhalts deutlich genannt.
 copyright.heading=Erklärung zum Urheberrecht
-copyright.holder=Copyright EHRI Consortium 2015
+copyright.holder=Copyright EHRI Consortium {0,number,#}
 copyright.statement=Die Verwendung, Wiederverwendung und/oder Reproduktion der auf dieser Webseite veröffentlichten Informationen ist kostenlos, jedoch \
     muss der Inhaber des Urheberrechts und das EHRI Consortium deutlich genannt und ein Verweis auf \
     die Quelle EHRI {0} enthalten sein. Dies gilt nicht für Material, dessen Urheberrecht nicht beim \
