@@ -1,8 +1,8 @@
 package controllers.portal.users
 
 import java.io.File
-import javax.inject._
 
+import javax.inject._
 import akka.stream.Materializer
 import controllers.generic.Search
 import controllers.portal.base.PortalController
@@ -11,6 +11,7 @@ import models._
 import models.base.Model
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
+import play.api.Logger
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
@@ -37,6 +38,7 @@ case class UserProfiles @Inject()(
   with CsvHelpers {
 
   private implicit val mat: Materializer = appComponents.materializer
+  private val logger = Logger(classOf[UserProfiles])
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 
@@ -281,17 +283,20 @@ case class UserProfiles @Inject()(
   // Defer to the standard profile update page...
   def updateProfileImage(): Action[AnyContent] = updateProfile()
 
-  // Body parser that'll refuse anything larger than 5MB
+  // Body parser that'll refuse anything larger than maxImageSize
   private def uploadParser = parsers.maxLength(
-    config.get[Int]("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
+    config.underlying.getBytes("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
 
   def updateProfileImagePost(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = WithUserAction.async(uploadParser) { implicit request =>
 
     def onError(err: String, status: Status = BadRequest): Future[Result] = immediate(
         status(views.html.userProfile.editProfile(profileDataForm,
           imageForm.withGlobalError(err), accountPrefsForm)))
+
     request.body match {
-      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge", EntityTooLarge)
+      case Left(MaxSizeExceeded(size)) =>
+        logger.debug(s"Profile image upload size too large: $size")
+        onError("errors.imageTooLarge", EntityTooLarge)
       case Right(multipartForm) => multipartForm.file("image").map { file =>
         if (isValidContentType(file)) {
           try {
@@ -301,7 +306,7 @@ case class UserProfiles @Inject()(
             } yield Redirect(profileRoutes.profile())
                   .flashing("success" -> "profile.update.confirmation")
           } catch {
-            case e: UnsupportedFormatException => onError("errors.badFileType")
+            case _: UnsupportedFormatException => onError("errors.badFileType")
           }
         } else {
           onError("errors.badFileType")

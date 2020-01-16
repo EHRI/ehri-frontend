@@ -91,7 +91,7 @@ errors.permissionDenied.explanation=It looks like you can''t do whatever it is y
   to do. This is probably an error on our part. We''ll try and fix that ASAP.
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
-errors.imageTooLarge=This image was too large. Please select one smaller than 5 metabytes in size.
+errors.imageTooLarge=This image was too large. Please select one smaller than 5 megabytes in size.
 errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 
