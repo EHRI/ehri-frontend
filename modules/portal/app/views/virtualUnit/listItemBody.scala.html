@@ -1,16 +1,14 @@
 @(item: VirtualUnit, path: Seq[models.base.Model], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.data.primaryDescription(descriptionId).map { desc =>
-    <div class="search-item-details">
-        <ul class="doc-search-details">
-            @if(showAuthor) {
-                @item.author.map { author =>
-                    <li>@views.html.helpers.linkTo(author)</li>
-                }
+    <ul class="search-item-details">
+        @if(showAuthor) {
+            @item.author.map { author =>
+                <li>@views.html.helpers.linkTo(author)</li>
             }
-            @views.html.documentaryUnit.listItemMeta(item.asDocumentaryUnit, desc, highlighter)
-        </ul>
-    </div>
+        }
+        @views.html.documentaryUnit.listItemMeta(item.asDocumentaryUnit, desc, highlighter)
+    </ul>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(sc))

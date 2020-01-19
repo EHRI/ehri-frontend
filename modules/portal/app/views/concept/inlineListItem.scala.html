@@ -2,22 +2,12 @@
 
 <h5>@views.html.helpers.linkTo(item)</h5>
 @item.data.primaryDescription.map { desc =>
-    <div class="search-item-details">
-        <ul class="concept-search-details">
-            <li class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</li>
-            @item.latestEvent.map { event =>
-                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
-            }
-        </ul>
-        @if(item.broaderTerms.nonEmpty) {
-            <ul class="concept-broader-terms">
-                <li>@Messages("cvocConcept.broaderTerms")</li>
-                @item.broaderTerms.map { bt =>
-                    <li>@views.html.helpers.linkTo(bt)</li>
-                }
-            </ul>
+    <ul class="search-item-details">
+        <li class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</li>
+        @item.latestEvent.map { event =>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
         }
-    </div>
+    </ul>
 }
 @views.html.common.childCount(item) { count =>
     @views.html.helpers.link(controllers.portal.routes.Concepts.search(item.id), 'class -> "child-items-inline-load collapsed") {

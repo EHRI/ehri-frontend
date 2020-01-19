@@ -1,22 +1,20 @@
 @(item: Repository, desc: RepositoryDescriptionF, includeCountry: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
 
-<ul class="concise-address">
-    @if(includeCountry) {
-        @item.country.map { ct =>
-            <li>
-                @views.html.helpers.link(views.Helpers.linkTo(ct), Symbol("class") -> "alt") {
-                    @Html(highlighter.highlight(ct.toStringLang))
-                }
-            </li>
-
-        }
-    }
-    @desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
-        <li>@Html(highlighter.highlight(conciseAddress))</li>
-    }
-    @item.latestEvent.map { event =>
-        <li title="@common.eventTitle(event)">
-            <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+@if(includeCountry) {
+    @item.country.map { ct =>
+        <li>
+            @views.html.helpers.link(views.Helpers.linkTo(ct), Symbol("class") -> "alt") {
+                @Html(highlighter.highlight(ct.toStringLang))
+            }
         </li>
+
     }
-</ul>
+}
+@desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
+    <li>@Html(highlighter.highlight(conciseAddress))</li>
+}
+@item.latestEvent.map { event =>
+    <li title="@common.eventTitle(event)">
+        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+    </li>
+}

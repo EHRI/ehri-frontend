@@ -1,28 +1,26 @@
 @(item: Concept, desc: ConceptDescriptionF)(implicit messages: Messages, md: views.MarkdownRenderer)
 
-<div class="search-item-details">
-    <ul>
-        @item.vocabulary.map { vocab =>
-            <li><a class="alt" href="@controllers.vocabularies.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
-        }
-        <li class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</li>
-        @item.latestEvent.map { event =>
-            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
-        }
-    </ul>
-@if(item.broaderTerms.nonEmpty) {
-    <ul>
+<ul class="search-item-details">
+    @item.vocabulary.map { vocab =>
+        <li><a class="alt" href="@controllers.vocabularies.routes.Vocabularies.get(vocab.id)">@vocab.toStringLang</a></li>
+    }
+    <li class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</li>
+    @item.latestEvent.map { event =>
+        <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+    }
+</ul>
+<ul class="search-item-details">
+    @if(item.broaderTerms.nonEmpty) {
         <li>@Messages("cvocConcept.broaderTerms")</li>
         @item.broaderTerms.map { bt =>
             <li>
                 <a href="@controllers.keywords.routes.Concepts.get(bt.id)">
-                    @bt.toStringLang
+                @bt.toStringLang
                 </a>
             </li>
         }
-    </ul>
-}
-</div>
+    }
+</ul>
 
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Markdown(sc)

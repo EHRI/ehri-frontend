@@ -36,8 +36,8 @@
     }
     @if(desc.conditions.scriptOfMaterials.nonEmpty) {
         <dt>@Messages("documentaryUnit.scriptOfMaterials")</dt>
-        <dd>
-            <ul class="list-unstyled list-inline comma-sep">
+        <dd class="item-meta-languages">
+            <ul>
                 @desc.conditions.scriptOfMaterials.map { s =>
                     <li>@views.Helpers.scriptCodeToName(s)</li>
                 }

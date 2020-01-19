@@ -2,9 +2,10 @@
 
 <h5>@views.html.helpers.linkTo(item)</h5>
 @item.data.primaryDescription.map { desc =>
-    <div class="search-item-details">
+    @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
+    <ul class="search-item-details">
         @views.html.repository.conciseAddress(item, desc, includeCountry = false, highlighter = highlighter)
-    </div>
+    </ul>
 }
 @views.html.common.childCount(item) { count =>
     @views.html.helpers.link(controllers.portal.routes.Repositories.search(item.id), 'class -> "child-items-inline-load collapsed") {

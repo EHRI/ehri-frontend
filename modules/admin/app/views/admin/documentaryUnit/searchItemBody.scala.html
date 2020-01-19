@@ -5,36 +5,32 @@
 @common.otherNameList(desc.identity.parallelFormsOfName)
 
 @if(item.ancestors.nonEmpty) {
-    <div class="search-item-details">
-        <ul>
-            @item.ancestors.reverse.map { parent =>
-                <li>
-                    <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
-                </li>
-            }
-        </ul>
-    </div>
-}
-<div class="search-item-details">
-    <ul>
-        @item.holder.map { holder =>
-            <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
-        }
-        <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
-
-        @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>
-            <li>@dp.years</li>
-        }
-        @desc.identity.extentAndMedium.map { s =>
-            <li>@StringUtils.normalizeSpace(Html(StringUtils.abbreviate(s, 25)).body)</li>
-        }
-        @item.latestEvent.map { event =>
-            <li title="@common.eventTitle(event)">
-                <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+    <ul class="search-item-details">
+        @item.ancestors.reverse.map { parent =>
+            <li>
+                <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
             </li>
         }
     </ul>
-</div>
+}
+<ul class="search-item-details">
+    @item.holder.map { holder =>
+        <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
+    }
+    <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+
+    @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>
+        <li>@dp.years</li>
+    }
+    @desc.identity.extentAndMedium.map { s =>
+        <li>@StringUtils.normalizeSpace(Html(StringUtils.abbreviate(s, 25)).body)</li>
+    }
+    @item.latestEvent.map { event =>
+        <li title="@common.eventTitle(event)">
+            <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+        </li>
+    }
+</ul>
 
 @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
     @Markdown(sc)

@@ -3,11 +3,11 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
-    <div class="search-item-details">
-        @views.html.common.childCount(item) { count =>
-            <a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a>
-        }
-    </div>
+    @views.html.common.childCount(item) { count =>
+        <ul class="search-item-details">
+            <li><a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a></li>
+        </ul>
+    }
     @item.data.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         <div class="national-report">
             @Markdown(sc)

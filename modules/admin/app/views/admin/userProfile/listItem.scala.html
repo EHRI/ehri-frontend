@@ -4,26 +4,22 @@
     <a href="@controllers.users.routes.UserProfiles.get(item.id)">@item.toStringLang</a>
     @views.html.admin.userProfile.statusBadges(item)
 } {
-    <div class="search-item-details">
-        <ul>
-            @item.groups.distinct.map { acc =>
-                <li><a class="alt" href="@controllers.groups.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
+    <ul class="search-item-details">
+        @item.groups.distinct.map { acc =>
+            <li><a class="alt" href="@controllers.groups.routes.Groups.get(acc.id)">@acc.toStringLang</a></li>
+        }
+        @item.data.location.filterNot(_.trim.isEmpty).map { loc =>
+            <li>@loc</li>
+        }
+        @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+        }
+        @if(userOpt.exists(_.isAdmin)) {
+            @item.account.flatMap(_.lastLogin).map { ll =>
+                <li>@Messages("userProfile.lastLogin") @views.Helpers.relativeDate(ll)</li>
             }
-            @item.data.location.filterNot(_.trim.isEmpty).map { loc =>
-                <li>@loc</li>
-            }
-        </ul>
-        <ul>
-            @item.latestEvent.map { event =>
-                <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
-            }
-            @if(userOpt.exists(_.isAdmin)) {
-                @item.account.flatMap(_.lastLogin).map { ll =>
-                    <li>@Messages("userProfile.lastLogin") @views.Helpers.relativeDate(ll)</li>
-                }
-            }
-        </ul>
-    </div>
+        }
+    </ul>
     @item.data.about.filterNot(_.trim.isEmpty).map { about =>
         <p>@about</p>
     }

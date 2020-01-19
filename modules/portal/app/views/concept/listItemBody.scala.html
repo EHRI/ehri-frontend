@@ -1,30 +1,28 @@
 @(item: Concept, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.data.primaryDescription(descriptionId).map { desc =>
-    <div class="search-item-details">
-        <ul class="concept-search-details">
-            @item.vocabulary.map { vocab =>
-                <li>
-                    @views.html.helpers.link(views.Helpers.linkTo(vocab), Symbol("class") -> "alt") {
-                        @Html(highlighter.highlight(vocab.toStringLang))
-                    }
-                </li>
-            }
-            <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
-            @item.latestEvent.map { event =>
-                <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+    <ul class="search-item-details">
+        @item.vocabulary.map { vocab =>
+            <li>
+                @views.html.helpers.link(views.Helpers.linkTo(vocab), Symbol("class") -> "alt") {
+                    @Html(highlighter.highlight(vocab.toStringLang))
+                }
+            </li>
+        }
+        <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+        @item.latestEvent.map { event =>
+            <li title="@event.time">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
+        }
+    </ul>
+
+    @if(item.broaderTerms.nonEmpty) {
+        <ul class="search-item-details">
+            <li>@Messages("cvocConcept.broaderTerms")</li>
+            @item.broaderTerms.map { bt =>
+                <li>@views.html.helpers.linkTo(bt)</li>
             }
         </ul>
-        @if(item.broaderTerms.nonEmpty) {
-            <ul class="concept-broader-terms">
-                <li>@Messages("cvocConcept.broaderTerms")</li>
-                @item.broaderTerms.map { bt =>
-                    <li>@views.html.helpers.linkTo(bt)</li>
-                }
-            </ul>
-        }
-    </div>
-
+    }
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(sc))
     }
