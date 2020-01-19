@@ -3,12 +3,10 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.groups.routes.Groups.get(item.id)">@item.toStringLang</a>
 } {
-    <div class="search-item-details">
-        <ul>
-            @item.latestEvent.map { event =>
-                <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
-            }
+    @item.latestEvent.map { event =>
+        <ul class="search-item-details">
+            <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
         </ul>
-    </div>
+    }
     @item.data.description
 }

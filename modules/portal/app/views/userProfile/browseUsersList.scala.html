@@ -7,9 +7,7 @@
 
 @userListInfo(data: Html) = {
     @if(data.body.trim.nonEmpty) {
-        <ul class="user-list-info comma-sep">
         @data
-        </ul>
     }
 }
 
@@ -33,13 +31,13 @@
                     <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
                 </h3>
                 <div class="search-item-body">
-                    <div class="search-item-details">
                     @userListInfo {
-                        @textSection(other.data.role)
-                        @textSection(other.data.institution)
-                        @textSection(other.data.location)
+                        <ul class="search-item-details user-list-info">
+                            @textSection(other.data.role)
+                            @textSection(other.data.institution)
+                            @textSection(other.data.location)
+                        </ul>
                     }
-                    </div>
                 </div>
             </div>
             @if(!isCurrentUser(other)) {

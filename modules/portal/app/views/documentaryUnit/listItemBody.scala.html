@@ -2,20 +2,18 @@
 
 @item.data.primaryDescription(descriptionId).map { desc =>
     @common.otherNameList(desc.identity.parallelFormsOfName)
-    <div class="search-item-details">
-        <ul class="doc-search-details">
-            @if(showRepository) {
-                @item.holder.map { holder =>
-                  <li>
-                      @views.html.helpers.link(views.Helpers.linkTo(holder), Symbol("class") -> "alt") {
-                          @Html(highlighter.highlight(holder.toStringLang))
-                      }
-                  </li>
-                }
+    <ul class="search-item-details">
+        @if(showRepository) {
+            @item.holder.map { holder =>
+              <li>
+                  @views.html.helpers.link(views.Helpers.linkTo(holder), Symbol("class") -> "alt") {
+                      @Html(highlighter.highlight(holder.toStringLang))
+                  }
+              </li>
             }
-            @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
-        </ul>
-    </div>
+        }
+        @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
+    </ul>
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(highlighter.highlight(md.renderMarkdown(sc)))

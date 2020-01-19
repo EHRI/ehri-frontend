@@ -1,6 +1,6 @@
 @(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
 
-<ul class="annotation-search-details">
+<ul class="search-item-details">
     @for(field <- item.data.field; target <- item.target) {
         <li><strong>@Messages(views.Helpers.prefixFor(target.isA) + "." + field)</strong></li>
     }
@@ -12,4 +12,3 @@
 </ul>
 
 @views.html.annotation.annotationText(item, highlighter)
-@views.html.annotation.listItemFooter(item, highlighter)

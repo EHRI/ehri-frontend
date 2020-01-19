@@ -2,11 +2,9 @@
 
 @details(d: DocumentaryUnit) = {
     @d.data.primaryDescription.map { desc =>
-        <div class="search-item-details">
-            <ul class="doc-search-details">
-                @views.html.documentaryUnit.listItemMeta(d, desc, highlighter)
-            </ul>
-        </div>
+        <ul class="search-item-details">
+            @views.html.documentaryUnit.listItemMeta(d, desc, highlighter)
+        </ul>
     }
 
     @views.html.common.childCount(d) { count =>

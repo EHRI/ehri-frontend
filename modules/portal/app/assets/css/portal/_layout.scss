@@ -155,15 +155,13 @@ body.error .main-content .error-block {
 }
 
 .search-item-details {
-  > ul {
-    @include list-unstyled();
-    @include list-inline();
-    li {
-      padding-right: $margin-xxs;
-    }
-    li:last-child {
-      padding-right: 0;
-    }
+  @include list-unstyled();
+  @include list-inline();
+  li {
+    padding-right: $margin-xxs;
+  }
+  li:last-child {
+    padding-right: 0;
   }
 }
 

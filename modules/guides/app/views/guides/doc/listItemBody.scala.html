@@ -3,33 +3,31 @@
 @import org.apache.commons.lang3.StringUtils
 
 @item.data.primaryDescription(descriptionId).map { desc =>
-    <div class="search-item-details">
-        <ul>
-            @item.holder.map { holder =>
-                <li><a class="alt" href="@controllers.portal.guides.routes.Repositories.browse(guide.path, holder.id)">@holder.toStringAbbr</a></li>
-            }
-            <li><span class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
-
-            @desc.dates.headOption.map { dp =>
-                <li>@dp.years</li>
-            }
-            @desc.identity.extentAndMedium.map { s =>
-                <li>@StringUtils.abbreviate(s, 25)</li>
-            }
-            @item.latestEvent.map { event =>
-                <li title="@common.eventTitle(event)">
-                    <time datetime="@event.data.timestamp">
-                        @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
-                    </time>
-                </li>
-            }
-        </ul>
-        @views.html.common.childCount(item) { count =>
-            @if(count > 0) {
-                <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
-            }
+    <ul class="search-item-details">
+        @item.holder.map { holder =>
+            <li><a class="alt" href="@controllers.portal.guides.routes.Repositories.browse(guide.path, holder.id)">@holder.toStringAbbr</a></li>
         }
-    </div>
+        <li><span class="secondary-attribute">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
+
+        @desc.dates.headOption.map { dp =>
+            <li>@dp.years</li>
+        }
+        @desc.identity.extentAndMedium.map { s =>
+            <li>@StringUtils.abbreviate(s, 25)</li>
+        }
+        @item.latestEvent.map { event =>
+            <li title="@common.eventTitle(event)">
+                <time datetime="@event.data.timestamp">
+                    @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
+                </time>
+            </li>
+        }
+    </ul>
+    @views.html.common.childCount(item) { count =>
+        @if(count > 0) {
+            <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+        }
+    }
 
     @desc.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         @Markdown(sc)

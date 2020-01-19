@@ -7,21 +7,19 @@
 } {
     @item.data.primaryDescription.map { desc =>
         @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName)
-        <div class="search-item-details">
-            <ul>
-                @item.country.map { ct =>
-                    <li><strong><a class="alt" href="@controllers.countries.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
-                }
-                @desc.addresses.headOption.map { address =>
-                    @views.html.admin.common.propertyList(Seq(address.streetAddress, address.city, address.region))
-                }
-                @item.latestEvent.map { event =>
-                    <li title="@common.eventTitle(event)">
-                        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
-                    </li>
-                }
-            </ul>
-        </div>
+        <ul class="search-item-details">
+            @item.country.map { ct =>
+                <li><strong><a class="alt" href="@controllers.countries.routes.Countries.get(ct.id)">@ct.toStringLang</a></strong></li>
+            }
+            @desc.addresses.headOption.map { address =>
+                @views.html.admin.common.propertyList(Seq(address.streetAddress, address.city, address.region))
+            }
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">
+                    <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+                </li>
+            }
+        </ul>
 
         @desc.displayText.map(StringUtils.abbreviate(_, 600)).map { sc =>
             @Markdown(sc)

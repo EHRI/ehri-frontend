@@ -1089,7 +1089,7 @@ ul.pagination {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr) max-content;
   grid-template-rows: min-content auto;
-  grid-template-areas: "image heading actions" "image body actions";
+  grid-template-areas: "image heading actions" "image body actions" "image footer footer";
 
   .search-item-image {
     grid-area: image;
@@ -1130,10 +1130,10 @@ ul.pagination {
     font-size: $font-size-xs;
     color: $text-darkened;
     margin: $margin-xs 0;
+  }
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+  .search-item-footer {
+    grid-area: footer;
   }
 
   .item-children {

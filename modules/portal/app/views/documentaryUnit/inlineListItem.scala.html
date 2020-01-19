@@ -2,11 +2,9 @@
 
 <h5>@views.html.helpers.linkTo(item)</h5>
 @item.data.primaryDescription.map { desc =>
-    <div class="search-item-details">
-        <ul class="doc-search-details">
-            @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
-        </ul>
-    </div>
+    <ul class="search-item-details">
+        @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
+    </ul>
 }
 @views.html.common.childCount(item) { count =>
     @views.html.helpers.link(controllers.portal.routes.DocumentaryUnits.search(item.id), 'class -> "child-items-inline-load collapsed") {

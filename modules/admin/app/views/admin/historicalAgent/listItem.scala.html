@@ -5,19 +5,17 @@
 } {
     @item.data.descriptions.headOption.map { desc =>
         @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName)
-        <div class="search-item-details">
-            <ul>
-                <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
-                @desc.dates.map { dp =>
-                    <li>@dp.years</li>
-                }
-                @item.latestEvent.map { event =>
-                    <li title="@common.eventTitle(event)">
-                        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
-                    </li>
-                }
-            </ul>
-        </div>
+        <ul class="search-item-details">
+            <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
+            @desc.dates.map { dp =>
+                <li>@dp.years</li>
+            }
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">
+                    <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+                </li>
+            }
+        </ul>
         @desc.details.datesOfExistence.map { d =>
             <p>@d</p>
         }

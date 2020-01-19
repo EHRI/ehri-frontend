@@ -2,28 +2,26 @@
 
 @item.data.descriptions.headOption.map { desc =>
     @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
-    <div class="search-item-details">
-        <ul class="agent-search-details">
-            @item.set.map { set =>
-                <li>
-                    @views.html.helpers.link(views.Helpers.linkTo(set), Symbol("class") -> "alt") {
-                        @Html(highlighter.highlight(set.toStringLang))
-                    }
-                </li>
-            }
-            <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
-                @desc.dates.map { dp =>
-            <li>@dp.years</li>
-            }
-            @item.latestEvent.map { event =>
+    <ul class="search-item-details">
+        @item.set.map { set =>
+            <li>
+                @views.html.helpers.link(views.Helpers.linkTo(set), Symbol("class") -> "alt") {
+                    @Html(highlighter.highlight(set.toStringLang))
+                }
+            </li>
+        }
+        <li>@Messages("historicalAgent." + desc.entityType.toString)</li>
+            @desc.dates.map { dp =>
+        <li>@dp.years</li>
+        }
+        @item.latestEvent.map { event =>
             <li title="@common.eventTitle(event)">
                 <time datetime="@event.data.timestamp">
                     @Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))
                 </time>
             </li>
-            }
-        </ul>
-    </div>
+        }
+    </ul>
     @desc.details.datesOfExistence.map { d =>
         @Markdown(highlighter.highlight(d))
     }

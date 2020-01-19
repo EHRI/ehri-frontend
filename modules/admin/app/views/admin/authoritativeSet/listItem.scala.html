@@ -3,13 +3,11 @@
 @common.search.searchItemOutline(item) {
     <a href="@controllers.sets.routes.AuthoritativeSets.get(item.id)">@item.toStringLang</a>
 } {
-    <div class="search-item-details">
-        <ul>
-            @item.latestEvent.map { event =>
+    @item.latestEvent.map { event =>
+        <ul class="search-item-details">
             <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
-            }
         </ul>
-    </div>
+    }
     @item.data.description.filterNot(_.isEmpty).map { desc =>
         <p>@desc</p>
     }

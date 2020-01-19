@@ -1,10 +1,8 @@
 @(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
-<div class="search-item-details">
-    <ul class="country-search-details">
-        @views.html.country.listItemMeta(item, highlighter)
-    </ul>
-</div>
+<ul class="search-item-details">
+    @views.html.country.listItemMeta(item, highlighter)
+</ul>
 
 @views.html.common.childCount(item) { count =>
     @views.html.helpers.link(controllers.portal.routes.Countries.search(item.id), 'class -> "child-items-inline-load collapsed") {

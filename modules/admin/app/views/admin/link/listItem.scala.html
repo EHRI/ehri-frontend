@@ -16,18 +16,16 @@
         }
     </h2>
     <div class="search-item-body">
-        <div class="search-item-details">
-            <ul>
-                @item.data.dates.map { dp =>
-                    <li>@dp.years</li>
-                }
-                @item.latestEvent.map { event =>
-                    <li title="@common.eventTitle(event)">
-                        <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
-                    </li>
-                }
-            </ul>
-        </div>
+        <ul class="search-item-details">
+            @item.data.dates.map { dp =>
+                <li>@dp.years</li>
+            }
+            @item.latestEvent.map { event =>
+                <li title="@common.eventTitle(event)">
+                    <time datetime="@event.data.timestamp">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</time>
+                </li>
+            }
+        </ul>
 
         @item.data.description.map(d => Markdown(d))
     </div>
