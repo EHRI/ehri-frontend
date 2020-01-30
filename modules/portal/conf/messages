@@ -744,6 +744,7 @@ feedback.type.site=the site (functionality, design, etc)
 feedback.type.data=the data content
 feedback.delete=Delete
 feedback.delete.submit=Delete item
+feedback.disabled=Feedback submission is currently disabled.
 
 #
 # Data policy at https://portal.ehri-project.eu/data-policy

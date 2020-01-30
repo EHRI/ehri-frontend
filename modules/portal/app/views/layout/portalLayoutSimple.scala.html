@@ -9,7 +9,7 @@
         @views.html.common.message()
         @views.html.common.preambleScripts()
         <header id="header" class="navigation">
-            @views.html.common.accountHeader()
+            @views.html.common.accountHeader(showAdminLink = true, showFeedback = globalConfig.showFeedback)
             @views.html.common.primaryHeader()
         </header>
         @views.html.common.flash(flash)
