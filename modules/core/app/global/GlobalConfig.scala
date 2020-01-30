@@ -62,6 +62,9 @@ trait GlobalConfig {
   lazy val bannerImageUrl: Option[String] =
     configuration.getOptional[String]("ehri.portal.bannerImageUrl").filterNot(_.trim.isEmpty)
 
+  lazy val showFeedback: Boolean =
+    configuration.getOptional[Boolean]("ehri.portal.feedback.enabled").getOrElse(false)
+
   def protocol(implicit req: RequestHeader): String =
     "http" + (if (req.secure) "s" else "") + "://"
 
