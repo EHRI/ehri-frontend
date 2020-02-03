@@ -107,7 +107,7 @@ val testDependencies = Seq(
   "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.1" % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test
 )
 
 val additionalResolvers = Seq(

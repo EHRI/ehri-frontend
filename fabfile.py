@@ -189,7 +189,7 @@ def current_version_log():
 def check_java_version():
     "Ensure we're building with the right java version"
     version_string = local("java -version 2>&1", capture=True)
-    if version_string.find("java version \"1.%d" % env.java_version) == -1:
+    if version_string.find("version \"1.%d" % env.java_version) == -1:
         abort("Incorrect java version: should be 1.%d" % env.java_version)
 
     "Ensure we're building with the right javac version"
