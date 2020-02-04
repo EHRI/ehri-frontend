@@ -1,8 +1,10 @@
 package controllers.institutions
 
 import java.io.File
+import java.net.URI
 
 import akka.stream.Materializer
+import akka.stream.scaladsl.Sink
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -21,7 +23,7 @@ import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.{IngestApi, IngestParams}
 import services.search._
-import services.storage.FileStorage
+import services.storage.{DOFileStorage, FileStorage}
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
@@ -332,4 +334,33 @@ case class Repositories @Inject()(
     url
   }
 
+  private val fileForm = Form(single("files" -> text))
+  private val storage = DOFileStorage(config)(mat.system, mat)
+  private val bucket = "ehri-assets"
+
+
+  def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    val prefix = s"ingest/$id/"
+    storage.listFiles(bucket, prefix = Some(prefix)).runWith(Sink.seq).map  { files =>
+      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix, "") ))
+      Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
+        controllers.institutions.routes.Repositories.uploadDataPost(id)))
+    }
+  }
+
+  def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    request.body.asMultipartFormData.map { data =>
+
+      val uris: Seq[Future[URI]] = data.files.map { file =>
+        val path = s"ingest/$id/${file.filename}"
+        storage.putFile(bucket, path, file.ref.path.toFile)
+      }
+      Future.sequence(uris).map { _ =>
+        Redirect(repositoryRoutes.uploadData(id))
+          .flashing("success" -> "That worked!")
+      }
+    }.getOrElse {
+      immediate(Redirect(repositoryRoutes.uploadData(id)))
+    }
+  }
 }
