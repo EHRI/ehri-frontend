@@ -31,3 +31,4 @@ conf/oauth2.conf
 conf/parse.conf
 conf/aws.conf
 conf/external_pages.conf
+conf/dos.conf

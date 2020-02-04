@@ -35,6 +35,7 @@ object Helpers {
    * As a general rule, do not use this because it is fragile.
    * FIXME: Better solution here.
    */
+  @scala.annotation.tailrec
   def prefixFor(et: EntityType.Value): String = et match {
     case EntityType.VirtualUnit => prefixFor(EntityType.DocumentaryUnit)
     case _ => et.toString.substring(0, 1).toLowerCase + et.toString.substring(1)

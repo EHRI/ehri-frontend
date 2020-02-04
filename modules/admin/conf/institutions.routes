@@ -27,3 +27,5 @@ GET         /:id/reindex                              @controllers.institutions.
 GET         /:id/ingest                               @controllers.institutions.Repositories.ingest(id: String, sync: Boolean ?= false)
 GET         /:id/logo                                 @controllers.institutions.Repositories.updateLogoImage(id: String)
 POST        /:id/logo                                 @controllers.institutions.Repositories.updateLogoImagePost(id: String)
+GET         /:id/data                                 @controllers.institutions.Repositories.uploadData(id: String)
+POST        /:id/data                                 @controllers.institutions.Repositories.uploadDataPost(id: String)
