@@ -1,6 +1,5 @@
 package helpers
 
-import java.net.URI
 import java.nio.file.Paths
 
 import akka.stream.Materializer
@@ -53,7 +52,7 @@ trait TestConfiguration {
   protected val feedbackBuffer: mutable.HashMap[Int, Feedback] = collection.mutable.HashMap.empty[Int,Feedback]
   protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
   protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
-  protected val storedFileBuffer: ListBuffer[URI] = collection.mutable.ListBuffer.empty[java.net.URI]
+  protected val storedFileBuffer: ListBuffer[FileStorage#File] = collection.mutable.ListBuffer.empty[FileStorage#File]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]

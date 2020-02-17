@@ -45,5 +45,5 @@ trait FileStorage {
     * @param prefix     an option path prefix
     * @return a stream of file paths
     */
-  def listFiles(classifier: String, prefix: Option[String] = None): Source[File, _]
+  def listFiles(classifier: String, prefix: Option[String] = None): Source[FileStorage#File, _]
 }
