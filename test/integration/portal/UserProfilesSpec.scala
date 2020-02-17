@@ -155,7 +155,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .call()
       status(result) must equalTo(SEE_OTHER)
       storedFileBuffer.lastOption must beSome.which { f =>
-        f.toString must endingWith(s"${privilegedUser.id}.png")
+        f.key must endingWith(s"${privilegedUser.id}.png")
       }
     }
 

@@ -1,0 +1,58 @@
+@(results: Map[String, Seq[services.ingest.EadValidator#Error]], item: Repository, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@extraCss = {
+}
+
+@views.html.admin.layout.noSidebar(Messages("repository.data.validate"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), styles = extraCss) {
+    @if(results.nonEmpty) {
+        <table id="validation-results" class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <td>@Messages("repository.data.validate.file.name")</td>
+                    <td>@Messages("repository.data.validate.file.errors")</td>
+                </tr>
+            </thead>
+            <tbody>
+                @results.map { case (name, errs) =>
+                    <tr>
+                        <td class="file-name">@name</td>
+                        <td>
+                            @if(errs.isEmpty) {
+                                @Messages("repository.data.validate.okay")
+                            } else {
+                                @Messages("repository.data.validate.file.errors.number", errs.size)
+                                <div class="validation-errors">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <th>@Messages("repository.data.validate.file.line")</th>
+                                            <th>@Messages("repository.data.validate.file.pos")</th>
+                                            <th>@Messages("repository.data.validate.file.details")</th>
+                                        </tr>
+                                        @errs.map { err =>
+                                            <tr class="table-danger">
+                                                <td class="lineno">@err.line</td>
+                                                <td class="linepos">@err.pos</td>
+                                                <td class="ead-error">@err.error</td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+               }
+            </tbody>
+        </table>
+        <hr>
+    }
+    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+        @formHelpers.csrfToken()
+        @formHelpers.globalErrors(f)
+
+        @helper.inputFile(f("files"), '_label -> Messages("repository.data.validate.files"), 'multiple -> true)
+
+        @formHelpers.submitButton(Messages("repository.data.validate.submit"))
+    }
+}
