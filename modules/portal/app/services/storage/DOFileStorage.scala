@@ -1,15 +1,14 @@
 package services.storage
 
-import java.io.File
 import java.net.URI
 
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
-import akka.stream.alpakka.s3.{S3Attributes, S3Ext}
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
+import akka.stream.alpakka.s3.{S3Attributes, S3Ext}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
@@ -57,7 +56,7 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
 
-  override def listFiles(classifier: String, prefix: Option[String]): Source[File, NotUsed] =
+  override def listFiles(classifier: String, prefix: Option[String]): Source[FileStorage#File, NotUsed] =
     S3.listBucket(classifier, prefix).map(f => File(f.key, f.lastModified, f.size))
       .withAttributes(S3Attributes.settings(doEndpoint))
 }

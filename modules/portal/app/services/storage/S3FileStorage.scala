@@ -34,6 +34,6 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
 
-  override def listFiles(classifier: String, prefix: Option[String]): Source[File, NotUsed] =
+  override def listFiles(classifier: String, prefix: Option[String]): Source[FileStorage#File, NotUsed] =
     S3.listBucket(classifier, prefix).map(f => File(f.key, f.lastModified, f.size))
 }
