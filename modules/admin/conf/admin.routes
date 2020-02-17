@@ -33,35 +33,39 @@ GET         /metrics/restricted                 @controllers.admin.Metrics.restr
 GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
 # Upload a CSV of moved items
-GET         /movedItems                         @controllers.admin.Utils.addMovedItems
-POST        /movedItems                         @controllers.admin.Utils.addMovedItemsPost
-GET         /renameItems                        @controllers.admin.Utils.renameItems
-POST        /renameItems                        @controllers.admin.Utils.renameItemsPost
-GET         /reparentItems                      @controllers.admin.Utils.reparentItems
-POST        /reparentItems                      @controllers.admin.Utils.reparentItemsPost
+GET         /movedItems                         @controllers.admin.Tools.addMovedItems
+POST        /movedItems                         @controllers.admin.Tools.addMovedItemsPost
+GET         /renameItems                        @controllers.admin.Tools.renameItems
+POST        /renameItems                        @controllers.admin.Tools.renameItemsPost
+GET         /reparentItems                      @controllers.admin.Tools.reparentItems
+POST        /reparentItems                      @controllers.admin.Tools.reparentItemsPost
 
 # ID regeneration
-GET         /regenerate                         @controllers.admin.Utils.regenerateIds
-POST        /regenerate                         @controllers.admin.Utils.regenerateIdsPost(tolerant: Boolean ?= false)
-GET         /regenerateType/:ct                 @controllers.admin.Utils.regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean ?= false)
-GET         /regenerateScope/:id                @controllers.admin.Utils.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
+GET         /regenerate                         @controllers.admin.Tools.regenerateIds
+POST        /regenerate                         @controllers.admin.Tools.regenerateIdsPost(tolerant: Boolean ?= false)
+GET         /regenerateType/:ct                 @controllers.admin.Tools.regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean ?= false)
+GET         /regenerateScope/:id                @controllers.admin.Tools.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
 
 # Find and replace
-GET         /findReplace                        @controllers.admin.Utils.findReplace
-POST        /findReplace                        @controllers.admin.Utils.findReplacePost(commit: Boolean ?= false)
+GET         /findReplace                        @controllers.admin.Tools.findReplace
+POST        /findReplace                        @controllers.admin.Tools.findReplacePost(commit: Boolean ?= false)
 
 # Batch delete
-GET         /delete                             @controllers.admin.Utils.batchDelete
-POST        /delete                             @controllers.admin.Utils.batchDeletePost
+GET         /delete                             @controllers.admin.Tools.batchDelete
+POST        /delete                             @controllers.admin.Tools.batchDeletePost
 
 # Redirects
-GET         /redirect                           @controllers.admin.Utils.redirect
-POST        /redirect                           @controllers.admin.Utils.redirectPost
+GET         /redirect                           @controllers.admin.Tools.redirect
+POST        /redirect                           @controllers.admin.Tools.redirectPost
 
 
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
+
+# Test EAD validation
+POST        /validate-ead                       @controllers.admin.Utils.validateEadStream
+POST        /validate-ead-s3obj                 @controllers.admin.Utils.validateEadS3Object
 
 # API
 # Forward to any dataApi GET method

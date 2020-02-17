@@ -325,3 +325,25 @@ pre.code-format {
     margin-bottom: $margin-sm;
   }
 }
+
+// EAD validation
+
+ #validation-results {
+   font-size: $font-size-sm;
+
+   thead {
+     background-color: $gray-200;
+   }
+   .file-name {
+     white-space: nowrap;
+   }
+   .ead-error {
+     font-size: $font-size-xs;
+   }
+   .validation-errors {
+     margin-top: $margin-xs;
+     overflow: auto;
+     max-height: 16rem;
+   }
+}
+

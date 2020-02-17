@@ -856,6 +856,16 @@ repository.data.upload.files.empty=Repository has no data.
 repository.data.upload.file.name=File Name
 repository.data.upload.file.lastModified=Last Modified
 repository.data.upload.file.size=Size
+repository.data.validate=EAD Validation
+repository.data.validate.file.name=File
+repository.data.validate.file.line=Line
+repository.data.validate.file.pos=Column
+repository.data.validate.file.details=Details
+repository.data.validate.file.errors=Errors
+repository.data.validate.file.errors.number={0,choice,0#No errors|1#1 error|1<{0,number,integer} errors}
+repository.data.validate.okay=No Errors
+repository.data.validate.files=Select EAD Files
+repository.data.validate.submit=Validate
 
 #
 # ISDIAH
