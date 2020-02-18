@@ -2,37 +2,45 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("repository.data.validate"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@extraCss = {
+}
+
+@views.html.admin.layout.noSidebar(Messages("repository.data.validate"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), styles = extraCss) {
     @if(results.nonEmpty) {
-        <table id="validation-results" class="table table-bordered table-striped table-sm">
+        <table id="validation-results" class="table table-bordered table-sm">
             <thead>
                 <tr>
                     <td>@Messages("repository.data.validate.file.name")</td>
-                    <td>@Messages("repository.data.validate.file.errors")</td>
+                    <td>@Messages("repository.data.validate.file.line")</td>
+                    <td>@Messages("repository.data.validate.file.pos")</td>
+                    <td>@Messages("repository.data.validate.file.error")</td>
                 </tr>
             </thead>
             <tbody>
-                @results.map { case (file, errs) =>
-                    <tr>
-                        <td>@file</td>
-                        <td>
-                            @if(errs.isEmpty) {
-                                @Messages("repository.data.validate.okay")
-                            } else {
-                                <ul class="alert alert-danger">
-                                    @errs.map { err =>
-                                        <li>@(s"${err.line}/${err.pos} - ${err.error}")</li>
-                                    }
-                                </ul>
-                            }
-                        </td>
-                    </tr>
+                @results.map { case (name, errs) =>
+                    @if(errs.isEmpty) {
+                        <tr class="success">
+                            <td class="file-name">@name</td>
+                            <td colspan="3">@Messages("repository.data.validate.okay")</td>
+                        </tr>
+                    } else {
+                        @errs.zipWithIndex.map { case (err, i) =>
+                            <tr class="warning">
+                                @if(i == 0) {
+                                    <td class="file-name" rowspan="@errs.size">@name</td>
+                                }
+
+                                <td class="lineno">@err.line</td>
+                                <td class="linepos">@err.pos</td>
+                                <td class="ead-error">@err.error</td>
+                            </tr>
+                        }
+                    }
                 }
             </tbody>
         </table>
         <hr>
     }
-    <h3>@Messages("repository.data.validate.files")</h3>
     @helper.form(action = action, 'enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
@@ -41,5 +49,4 @@
 
         @formHelpers.submitButton(Messages("repository.data.validate.submit"))
     }
-} {
 }

@@ -15,6 +15,7 @@ import play.api.Logger
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
+import scala.xml.SAXParseException
 
 @Singleton
 case class EadValidatorService @Inject() ()(implicit exec: ExecutionContext) extends EadValidator {
@@ -35,12 +36,18 @@ case class EadValidatorService @Inject() ()(implicit exec: ExecutionContext) ext
   private val re: Regex = ".+:(\\d+):(\\d+): error: (.+)".r
 
   override def validateEad(path: Path): Future[Seq[Error]] = Future {
-    val is: InputSource = ValidationDriver.fileInputSource(path.toFile)
-    driver.validate(is)
-    val errs = bs.toString.split('\n').toSeq.collect {
-      case re(line, pos, err) => Error(line.toInt, pos.toInt, err)
+    try {
+      val is: InputSource = ValidationDriver.fileInputSource(path.toFile)
+      driver.validate(is)
+      val errs = bs.toString.split('\n').toSeq.collect {
+        case re(line, pos, err) => Error(line.toInt, pos.toInt, err)
+      }
+      errs
+    } catch {
+      case e: SAXParseException =>
+        Seq(Error(e.getLineNumber, e.getColumnNumber, e.getLocalizedMessage))
+    } finally {
+      bs.reset()
     }
-    bs.reset()
-    errs
   }(exec)
 }
