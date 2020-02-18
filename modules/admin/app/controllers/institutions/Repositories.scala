@@ -351,7 +351,7 @@ case class Repositories @Inject()(
       }
 
       Future.sequence(results).map { out =>
-        Ok(views.html.admin.repository.validateEad(out.toMap, request.item, fileForm,
+        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
           controllers.institutions.routes.Repositories.validateEadPost(id)))
       }
     }.getOrElse {

@@ -325,3 +325,32 @@ pre.code-format {
     margin-bottom: $margin-sm;
   }
 }
+
+// EAD validation
+
+ #validation-results {
+   font-size: $font-size-sm;
+
+   thead {
+     background-color: $gray-200;
+     font-weight: $font-weight-bold;
+   }
+   .file-name {
+     font-weight: $font-weight-bold;
+     white-space: nowrap;
+   }
+   .success .file-name {
+     color: $success;
+   }
+   .warning .file-name {
+     color: $danger;
+   }
+   .lineno,
+   .linepos {
+
+   }
+   .ead-error {
+     font-size: $font-size-xs;
+   }
+}
+
