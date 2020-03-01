@@ -333,24 +333,17 @@ pre.code-format {
 
    thead {
      background-color: $gray-200;
-     font-weight: $font-weight-bold;
    }
    .file-name {
-     font-weight: $font-weight-bold;
      white-space: nowrap;
-   }
-   .success .file-name {
-     color: $success;
-   }
-   .warning .file-name {
-     color: $danger;
-   }
-   .lineno,
-   .linepos {
-
    }
    .ead-error {
      font-size: $font-size-xs;
+   }
+   .validation-errors {
+     margin-top: $margin-xs;
+     overflow: auto;
+     max-height: 16rem;
    }
 }
 

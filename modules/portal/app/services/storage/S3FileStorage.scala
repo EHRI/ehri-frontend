@@ -1,6 +1,7 @@
 package services.storage
 
 import java.net.URI
+import java.util.{Calendar, Date}
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -10,9 +11,11 @@ import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import javax.inject.Inject
 import play.api.Logger
 
+import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -20,6 +23,18 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
+  private val client = AmazonS3ClientBuilder.standard().build()
+
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes): URI = {
+    val expTime = new java.util.Date()
+    var expTimeMillis = expTime.getTime
+    expTimeMillis = expTimeMillis + 1000 * 60 * 60
+    expTime.setTime(expTimeMillis)
+
+    client
+      .generatePresignedUrl(classifier, path, expTime, com.amazonaws.HttpMethod.GET)
+      .toURI
+  }
 
   override def putBytes(bucket: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
     val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))

@@ -7,6 +7,8 @@ import akka.stream.scaladsl.Source
 import akka.util.ByteString
 
 import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.duration.FiniteDuration
 
 trait FileStorage {
 
@@ -15,6 +17,16 @@ trait FileStorage {
     lastModifed: Instant,
     size: Long
   )
+
+  /**
+    * Get the URI for a stored file with the given classifier and key.
+    *
+    * @param classifier the "bucket", or set, to which this file will belong
+    * @param path       additional file path, including the file name with extension
+    * @param duration   the duration for which the URI is valid
+    * @return the file URI of the stored file
+    */
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes): URI
 
   /**
     * Put a file object in storage.

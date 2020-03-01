@@ -34,13 +34,13 @@ object Helpers {
   val adminMenu = Seq(
     ("s3", "-"),
     ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
-    ("admin.utils.findReplace",     controllers.admin.routes.Utils.findReplace().url),
-    ("admin.utils.regenerateIds",   controllers.admin.routes.Utils.regenerateIds().url),
-    ("admin.utils.renameItems",     controllers.admin.routes.Utils.renameItems().url),
-    ("admin.utils.reparentItems",   controllers.admin.routes.Utils.reparentItems().url),
-    ("admin.utils.movedItems",   controllers.admin.routes.Utils.addMovedItems().url),
-    ("admin.utils.redirect",   controllers.admin.routes.Utils.redirect().url),
-    ("admin.utils.batchDelete",   controllers.admin.routes.Utils.batchDelete().url)
+    ("admin.utils.findReplace",     controllers.admin.routes.Tools.findReplace().url),
+    ("admin.utils.regenerateIds",   controllers.admin.routes.Tools.regenerateIds().url),
+    ("admin.utils.renameItems",     controllers.admin.routes.Tools.renameItems().url),
+    ("admin.utils.reparentItems",   controllers.admin.routes.Tools.reparentItems().url),
+    ("admin.utils.movedItems",   controllers.admin.routes.Tools.addMovedItems().url),
+    ("admin.utils.redirect",   controllers.admin.routes.Tools.redirect().url),
+    ("admin.utils.batchDelete",   controllers.admin.routes.Tools.batchDelete().url)
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {
