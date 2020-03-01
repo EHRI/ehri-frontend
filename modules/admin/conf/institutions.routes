@@ -31,3 +31,4 @@ GET         /:id/data                                 @controllers.institutions.
 POST        /:id/data                                 @controllers.institutions.Repositories.uploadDataPost(id: String)
 GET         /:id/validate-ead                         @controllers.institutions.Repositories.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.Repositories.validateEadPost(id: String)
+GET         /:id/validate-ead2                         @controllers.institutions.Repositories.validateEadFromStorage(id: String)

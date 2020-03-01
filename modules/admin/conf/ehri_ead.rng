@@ -1676,6 +1676,10 @@
 				<optional>
 					<attribute name="relatedencoding"/>
 				</optional>
+                <!-- FIXME: Check this is okay... -->
+				<optional>
+					<attribute ns="xsi" name="schemaLocation"/>
+				</optional>
 				<optional>
 					<attribute name="findaidstatus">
 						<data type="NMTOKEN"/>

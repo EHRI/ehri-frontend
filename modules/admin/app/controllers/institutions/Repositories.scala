@@ -3,6 +3,7 @@ package controllers.institutions
 import java.io.File
 import java.net.URI
 
+import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import controllers.AppComponents
@@ -359,6 +360,20 @@ case class Repositories @Inject()(
     }
   }
 
+  def validateEadFromStorage(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).flatMap  { files =>
+      val results: Seq[Future[(String, Seq[EadValidator#Error])]] = files.map { file =>
+        eadValidator.validateEad(Uri(storage.uri(bucket, file.key).toString))
+          .map(errs => file.key.replace(prefix(id), "") -> errs)
+      }
+
+      Future.sequence(results).map { out =>
+        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
+          controllers.institutions.routes.Repositories.validateEadPost(id)))
+      }
+    }
+  }
+
   def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
       val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
@@ -367,7 +382,7 @@ case class Repositories @Inject()(
     }
   }
 
-  def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async(parse.anyContent(Some(parse.UNLIMITED))) { implicit request =>
     request.body.asMultipartFormData.map { data =>
 
       val uris: Seq[Future[URI]] = data.files.map { file =>

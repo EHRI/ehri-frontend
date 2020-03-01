@@ -11,32 +11,38 @@
             <thead>
                 <tr>
                     <td>@Messages("repository.data.validate.file.name")</td>
-                    <td>@Messages("repository.data.validate.file.line")</td>
-                    <td>@Messages("repository.data.validate.file.pos")</td>
-                    <td>@Messages("repository.data.validate.file.error")</td>
+                    <td>@Messages("repository.data.validate.file.errors")</td>
                 </tr>
             </thead>
             <tbody>
                 @results.map { case (name, errs) =>
-                    @if(errs.isEmpty) {
-                        <tr class="success">
-                            <td class="file-name">@name</td>
-                            <td colspan="3">@Messages("repository.data.validate.okay")</td>
-                        </tr>
-                    } else {
-                        @errs.zipWithIndex.map { case (err, i) =>
-                            <tr class="warning">
-                                @if(i == 0) {
-                                    <td class="file-name" rowspan="@errs.size">@name</td>
-                                }
-
-                                <td class="lineno">@err.line</td>
-                                <td class="linepos">@err.pos</td>
-                                <td class="ead-error">@err.error</td>
-                            </tr>
-                        }
-                    }
-                }
+                    <tr>
+                        <td class="file-name">@name</td>
+                        <td>
+                            @if(errs.isEmpty) {
+                                @Messages("repository.data.validate.okay")
+                            } else {
+                                @Messages("repository.data.validate.file.errors.number", errs.size)
+                                <div class="validation-errors">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <th>@Messages("repository.data.validate.file.line")</th>
+                                            <th>@Messages("repository.data.validate.file.pos")</th>
+                                            <th>@Messages("repository.data.validate.file.details")</th>
+                                        </tr>
+                                        @errs.map { err =>
+                                            <tr class="table-danger">
+                                                <td class="lineno">@err.line</td>
+                                                <td class="linepos">@err.pos</td>
+                                                <td class="ead-error">@err.error</td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+               }
             </tbody>
         </table>
         <hr>
