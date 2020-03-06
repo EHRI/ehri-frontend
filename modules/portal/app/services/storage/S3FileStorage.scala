@@ -1,7 +1,6 @@
 package services.storage
 
 import java.net.URI
-import java.util.{Calendar, Date}
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -25,14 +24,14 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   private implicit val ec: ExecutionContext = mat.executionContext
   private val client = AmazonS3ClientBuilder.standard().build()
 
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes): URI = {
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
-    expTimeMillis = expTimeMillis + 1000 * 60 * 60
+    expTimeMillis = expTimeMillis + duration.toMillis
     expTime.setTime(expTimeMillis)
-
+    val method = if (forUpload) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
     client
-      .generatePresignedUrl(classifier, path, expTime, com.amazonaws.HttpMethod.GET)
+      .generatePresignedUrl(classifier, path, expTime, method)
       .toURI
   }
 

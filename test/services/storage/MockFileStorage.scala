@@ -36,6 +36,6 @@ case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileStorage#
     Source(fakeFiles
       .filter(p => prefix.forall(p.key.startsWith)).toList)
 
-  override def uri(classifier: String, key: String, duration: FiniteDuration = 10.minutes): URI =
+  override def uri(classifier: String, key: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI =
     new URI(urlPrefix(classifier) + key)
 }
