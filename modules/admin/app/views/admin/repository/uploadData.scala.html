@@ -39,13 +39,33 @@
         </div>
     }
     <h3>@Messages("repository.data.upload")</h3>
-    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, 'enctype -> "multipart/form-data", 'id -> "upload-form") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
-        @helper.inputFile(f("files"), '_label -> Messages("repository.data.upload.files"), 'multiple -> true)
+        @helper.inputFile(f("file"), '_label -> Messages("repository.data.upload.files"), 'multiple -> false)
 
         @formHelpers.submitButton(Messages("repository.data.upload.submit"))
     }
+
+    <script>
+        jQuery(function($) {
+          $("#upload-form").submit(function(e) {
+            e.preventDefault();
+
+            let file = document.getElementById("file").files[0];
+            let fr = new FileReader(file);
+            let url = e.target.action;
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("PUT", url);
+            xhr.overrideMimeType("application/octet-stream; charset=x-user-defined-binary");
+
+
+
+
+          })
+        }())
+    </script>
 } {
 }

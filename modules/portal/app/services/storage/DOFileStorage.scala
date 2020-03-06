@@ -1,7 +1,6 @@
 package services.storage
 
 import java.net.URI
-import java.time.Instant
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -16,6 +15,7 @@ import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import javax.inject.Inject
 import play.api.Logger
 
@@ -43,11 +43,17 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     .withCredentialsProvider(creds)
     .withS3RegionProvider(region)
 
-  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes): URI = {
+  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
-    expTimeMillis = expTimeMillis + 1000 * 60 * 60
+    expTimeMillis = expTimeMillis + duration.toMillis
     expTime.setTime(expTimeMillis)
+
+    val method = if (forUpload) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
+    val psur = new GeneratePresignedUrlRequest(classifier, path)
+    .withExpiration(expTime)
+      .withContentType("text/xml")
+      .withMethod(method);
 
     val client = AmazonS3ClientBuilder.standard()
       .withCredentials(creds)
@@ -57,7 +63,7 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
       ))
       .build()
     client
-      .generatePresignedUrl(classifier, path, expTime, com.amazonaws.HttpMethod.GET)
+      .generatePresignedUrl(psur)
       .toURI
   }
 
