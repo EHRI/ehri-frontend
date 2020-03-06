@@ -29,6 +29,7 @@ GET         /:id/logo                                 @controllers.institutions.
 POST        /:id/logo                                 @controllers.institutions.Repositories.updateLogoImagePost(id: String)
 GET         /:id/data                                 @controllers.institutions.Repositories.uploadData(id: String)
 POST        /:id/data                                 @controllers.institutions.Repositories.uploadDataPost(id: String)
+GET         /:id/data2                                @controllers.institutions.Repositories.uploadDataDirect(id: String)
 GET         /:id/validate-ead                         @controllers.institutions.Repositories.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.Repositories.validateEadPost(id: String)
-GET         /:id/validate-ead2                         @controllers.institutions.Repositories.validateEadFromStorage(id: String)
+GET         /:id/validate-ead2                        @controllers.institutions.Repositories.validateEadFromStorage(id: String)

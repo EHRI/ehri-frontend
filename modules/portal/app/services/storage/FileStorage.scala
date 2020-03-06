@@ -26,7 +26,7 @@ trait FileStorage {
     * @param duration   the duration for which the URI is valid
     * @return the file URI of the stored file
     */
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes): URI
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI
 
   /**
     * Put a file object in storage.

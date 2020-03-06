@@ -15,6 +15,7 @@ import javax.inject._
 import models._
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
+import play.api.http.HttpVerbs
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
@@ -29,6 +30,7 @@ import views.Helpers
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration._
 
 
 @Singleton
@@ -335,7 +337,7 @@ case class Repositories @Inject()(
     url
   }
 
-  private val fileForm = Form(single("files" -> text))
+  private val fileForm = Form(single("file" -> text))
   private val storage = DOFileStorage(config)(mat.system, mat)
   private val bucket = "ehri-assets"
   private val prefix: String => String = id => s"ingest/$id/"
@@ -379,6 +381,15 @@ case class Repositories @Inject()(
       val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
       Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
         controllers.institutions.routes.Repositories.uploadDataPost(id)))
+    }
+  }
+
+  def uploadDataDirect(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
+      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
+      val url = storage.uri(bucket, s"${prefix(id)}testing.bin", 10.hours, forUpload = true)
+      Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
+        Call(HttpVerbs.PUT, url.toString)))
     }
   }
 
