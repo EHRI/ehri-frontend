@@ -43,17 +43,19 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     .withCredentialsProvider(creds)
     .withS3RegionProvider(region)
 
-  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI = {
+  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
     expTimeMillis = expTimeMillis + duration.toMillis
     expTime.setTime(expTimeMillis)
 
-    val method = if (forUpload) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
+    val method = if (contentType.isDefined) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
     val psur = new GeneratePresignedUrlRequest(classifier, path)
-    .withExpiration(expTime)
-      .withContentType("text/xml")
+      .withExpiration(expTime)
       .withMethod(method);
+    contentType.foreach { ct =>
+      psur.setContentType(ct);
+    }
 
     val client = AmazonS3ClientBuilder.standard()
       .withCredentials(creds)
