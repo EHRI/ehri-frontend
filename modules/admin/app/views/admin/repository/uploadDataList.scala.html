@@ -1,0 +1,28 @@
+@(files: Seq[services.storage.FileStorage#File])(implicit messages: Messages)
+
+@if(files.nonEmpty) {
+    <table id="repository-files" class="table table-bordered table-striped table-sm">
+        <thead>
+            <tr>
+                <td>@Messages("repository.data.upload.file.name")</td>
+                <td>@Messages("repository.data.upload.file.lastModified")</td>
+                <td>@Messages("repository.data.upload.file.size")</td>
+            </tr>
+        </thead>
+        <tbody>
+        @files.map { file =>
+            <tr>
+                <td>@file.key</td>
+                <td>@views.Helpers.relativeDate(java.util.Date.from(file.lastModifed))</td>
+                <td>@file.size</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <hr>
+} else {
+    <div class="admin-help-notice">
+    @Messages("repository.data.upload.files.empty")
+    </div>
+}
+
