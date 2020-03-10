@@ -15,7 +15,6 @@ import javax.inject._
 import models._
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
-import play.api.http.HttpVerbs
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
@@ -30,7 +29,6 @@ import views.Helpers
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration._
 
 
 @Singleton
@@ -387,10 +385,16 @@ case class Repositories @Inject()(
   def uploadDataDirect(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
       val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
-      val url = storage.uri(bucket, s"${prefix(id)}testing.bin", 10.hours, forUpload = true)
-      Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
-        Call(HttpVerbs.PUT, url.toString)))
+      if (isAjax) Ok(views.html.admin.repository.uploadDataList(stripPrefix))
+      else Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
+        controllers.institutions.routes.Repositories.uploadDataDirect(id)))
     }
+  }
+
+  def uploadDataDirectPost(id: String, fileName: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    val path = s"${prefix(id)}$fileName"
+    val uri = storage.uri(bucket, path, contentType = request.contentType)
+    Ok(Json.obj("uri" -> uri))
   }
 
   def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async(parse.anyContent(Some(parse.UNLIMITED))) { implicit request =>

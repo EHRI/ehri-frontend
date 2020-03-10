@@ -30,6 +30,7 @@ POST        /:id/logo                                 @controllers.institutions.
 GET         /:id/data                                 @controllers.institutions.Repositories.uploadData(id: String)
 POST        /:id/data                                 @controllers.institutions.Repositories.uploadDataPost(id: String)
 GET         /:id/data2                                @controllers.institutions.Repositories.uploadDataDirect(id: String)
+POST        /:id/data2                                @controllers.institutions.Repositories.uploadDataDirectPost(id: String, fileName: String ?= "")
 GET         /:id/validate-ead                         @controllers.institutions.Repositories.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.Repositories.validateEadPost(id: String)
 GET         /:id/validate-ead2                        @controllers.institutions.Repositories.validateEadFromStorage(id: String)

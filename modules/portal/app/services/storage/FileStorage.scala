@@ -21,12 +21,14 @@ trait FileStorage {
   /**
     * Get the URI for a stored file with the given classifier and key.
     *
-    * @param classifier the "bucket", or set, to which this file will belong
-    * @param path       additional file path, including the file name with extension
-    * @param duration   the duration for which the URI is valid
+    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param path        additional file path, including the file name with extension
+    * @param duration    the duration for which the URI is valid
+    * @param contentType the content type of the file, if the URI is
+    *                    for file upload
     * @return the file URI of the stored file
     */
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI
 
   /**
     * Put a file object in storage.

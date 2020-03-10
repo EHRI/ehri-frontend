@@ -13,31 +13,10 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("repository.data"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @if(files.nonEmpty) {
-        <table id="repository-files" class="table table-bordered table-striped table-sm">
-            <thead>
-                <tr>
-                    <td>@Messages("repository.data.upload.file.name")</td>
-                    <td>@Messages("repository.data.upload.file.lastModified")</td>
-                    <td>@Messages("repository.data.upload.file.size")</td>
-                </tr>
-            </thead>
-            <tbody>
-                @files.map { file =>
-                    <tr>
-                        <td>@file.key</td>
-                        <td>@views.Helpers.relativeDate(java.util.Date.from(file.lastModifed))</td>
-                        <td>@file.size</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <hr>
-    } else {
-        <div class="admin-help-notice">
-            @Messages("repository.data.upload.files.empty")
-        </div>
-    }
+    <div id="upload-files">
+        @views.html.admin.repository.uploadDataList(files)
+    </div>
+
     <h3>@Messages("repository.data.upload")</h3>
     @helper.form(action = action, 'enctype -> "multipart/form-data", 'id -> "upload-form") {
         @formHelpers.csrfToken()
@@ -45,27 +24,66 @@
 
         @helper.inputFile(f("file"), '_label -> Messages("repository.data.upload.files"), 'multiple -> false)
 
+        <div class="progress">
+            <div id="upload-progress"
+                style="width: 0%" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
         @formHelpers.submitButton(Messages("repository.data.upload.submit"))
     }
 
     <script>
-        jQuery(function($) {
+        jQuery(document).ready(function($) {
+
+          function setProgress(percentComplete) {
+              $('#upload-progress').css({
+                  width: (percentComplete + "%")
+              }).attr("aria-valuenow", percentComplete);
+          }
+
           $("#upload-form").submit(function(e) {
             e.preventDefault();
 
+            let thisUrl = "@action";
             let file = document.getElementById("file").files[0];
-            let fr = new FileReader(file);
-            let url = e.target.action;
+            let url = e.target.action + "?@play.filters.csrf.CSRF.getToken.map(t => s"${t.name}=${t.value}").getOrElse("")";
 
-            let xhr = new XMLHttpRequest();
-            xhr.open("PUT", url);
-            xhr.overrideMimeType("application/octet-stream; charset=x-user-defined-binary");
+            console.log("XHR", url);
 
+            fetch(url + "&fileName=" + file.name, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': file.type
+                }
+            }).then(r => r.json()).then( data => {
+              console.log("URL: ", data.uri);
+              setProgress(0);
 
+              fetch(data.uri, {
+                  method: "PUT",
+                  mode: "cors",
+                  body: file,
+                  headers: {
+                    'Content-Type': file.type
+                  }
+              }).then(r => {
+                  setProgress(100);
 
+                  fetch(thisUrl, {
+                    headers: {
+                      'X-Requested-With': 'XMLHTTPREQUEST'
+                    }
+                  }).then(r => r.text()).then(html => {
+                      $("#upload-files").html(html);
+                      setProgress(0);
+                  });
 
-          })
-        }())
+              }).catch(err => {
+                console.log(err);
+              });
+            });
+          });
+        });
     </script>
 } {
 }
