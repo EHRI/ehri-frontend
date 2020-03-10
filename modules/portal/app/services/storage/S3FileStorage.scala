@@ -11,6 +11,7 @@ import akka.stream.alpakka.s3.scaladsl.S3
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
 import javax.inject.Inject
 import play.api.Logger
 
@@ -24,14 +25,21 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   private implicit val ec: ExecutionContext = mat.executionContext
   private val client = AmazonS3ClientBuilder.standard().build()
 
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, forUpload: Boolean = false): URI = {
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
     expTimeMillis = expTimeMillis + duration.toMillis
     expTime.setTime(expTimeMillis)
-    val method = if (forUpload) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
+    val method = if (contentType.isDefined) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
+    val psur = new GeneratePresignedUrlRequest(classifier, path)
+      .withExpiration(expTime)
+      .withMethod(method);
+    contentType.foreach { ct =>
+      psur.setContentType(ct);
+    }
+
     client
-      .generatePresignedUrl(classifier, path, expTime, method)
+      .generatePresignedUrl(psur)
       .toURI
   }
 
