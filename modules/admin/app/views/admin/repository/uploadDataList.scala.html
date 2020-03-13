@@ -1,4 +1,4 @@
-@(files: Seq[services.storage.FileStorage#File])(implicit messages: Messages)
+@(item: Repository, files: Seq[services.storage.FileStorage#File])(implicit messages: Messages)
 
 @if(files.nonEmpty) {
     <table id="repository-files" class="table table-bordered table-striped table-sm">
@@ -7,6 +7,7 @@
                 <td>@Messages("repository.data.upload.file.name")</td>
                 <td>@Messages("repository.data.upload.file.lastModified")</td>
                 <td>@Messages("repository.data.upload.file.size")</td>
+                <td></td>
             </tr>
         </thead>
         <tbody>
@@ -15,6 +16,9 @@
                 <td>@file.key</td>
                 <td>@views.Helpers.relativeDate(java.util.Date.from(file.lastModifed))</td>
                 <td>@file.size</td>
+                <td><a class="delete-item" href="@controllers.institutions.routes.RepositoryData.deleteDataPost(item.id, file.key)">
+                    @Messages("repository.data.upload.file.delete")
+                </a></td>
             </tr>
         }
         </tbody>
