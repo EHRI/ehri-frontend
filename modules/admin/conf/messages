@@ -856,6 +856,7 @@ repository.data.upload.files.empty=Repository has no data.
 repository.data.upload.file.name=File Name
 repository.data.upload.file.lastModified=Last Modified
 repository.data.upload.file.size=Size
+repository.data.upload.file.delete=Delete
 repository.data.validate=EAD Validation
 repository.data.validate.file.name=File
 repository.data.validate.file.line=Line
