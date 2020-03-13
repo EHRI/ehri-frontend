@@ -9,7 +9,7 @@ import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
 import akka.stream.alpakka.s3.{S3Attributes, S3Ext}
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
@@ -43,6 +43,14 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     .withCredentialsProvider(creds)
     .withS3RegionProvider(region)
 
+  private val client = AmazonS3ClientBuilder.standard()
+    .withCredentials(creds)
+    .withEndpointConfiguration(new EndpointConfiguration(
+      doEndpoint.endpointUrl.get,
+      region.getRegion
+    ))
+    .build()
+
   override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
@@ -57,13 +65,6 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
       psur.setContentType(ct);
     }
 
-    val client = AmazonS3ClientBuilder.standard()
-      .withCredentials(creds)
-      .withEndpointConfiguration(new EndpointConfiguration(
-        doEndpoint.endpointUrl.get,
-        region.getRegion
-      ))
-      .build()
     client
       .generatePresignedUrl(psur)
       .toURI
@@ -88,4 +89,8 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def listFiles(classifier: String, prefix: Option[String]): Source[FileStorage#File, NotUsed] =
     S3.listBucket(classifier, prefix).map(f => File(f.key, f.lastModified, f.size))
       .withAttributes(S3Attributes.settings(doEndpoint))
+
+  override def deleteFile(classifier: String, path: String): Future[Unit] = Future {
+    client.deleteObject(classifier, path)
+  }(ec)
 }

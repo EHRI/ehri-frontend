@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest
@@ -58,4 +58,9 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   override def listFiles(classifier: String, prefix: Option[String]): Source[FileStorage#File, NotUsed] =
     S3.listBucket(classifier, prefix).map(f => File(f.key, f.lastModified, f.size))
+
+  override def deleteFile(classifier: String, path: String): Future[Unit] = Future {
+//    S3.deleteObject(classifier, path).runWith(Sink.head).map(_ => ())
+    client.deleteObject(classifier, path)
+  }(ec)
 }

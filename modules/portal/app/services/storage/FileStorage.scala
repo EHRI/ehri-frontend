@@ -60,4 +60,6 @@ trait FileStorage {
     * @return a stream of file paths
     */
   def listFiles(classifier: String, prefix: Option[String] = None): Source[FileStorage#File, _]
+
+  def deleteFile(classifier: String, path: String): Future[Unit]
 }

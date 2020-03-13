@@ -1,11 +1,8 @@
 package controllers.institutions
 
 import java.io.File
-import java.net.URI
 
-import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
@@ -23,7 +20,7 @@ import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.{EadValidator, IngestApi, IngestParams}
 import services.search._
-import services.storage.{DOFileStorage, FileStorage}
+import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
@@ -333,83 +330,5 @@ case class Repositories @Inject()(
     val url: Future[String] = fileStorage.putFile(classifier, storeName, temp, public = true).map(_.toString)
     url.onComplete { _ => temp.delete() }
     url
-  }
-
-  private val fileForm = Form(single("file" -> text))
-  private val storage = DOFileStorage(config)(mat.system, mat)
-  private val bucket = "ehri-assets"
-  private val prefix: String => String = id => s"ingest/$id/"
-
-  def validateEad(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[EadValidator#Error]], request.item, fileForm,
-      controllers.institutions.routes.Repositories.validateEadPost(id)))
-  }
-
-  def validateEadPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    request.body.asMultipartFormData.map { data =>
-      val results: Seq[Future[(String, Seq[EadValidator#Error])]] = data.files.map { file =>
-        eadValidator.validateEad(file.ref.toPath).map(errs => file.filename -> errs)
-      }
-
-      Future.sequence(results).map { out =>
-        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
-          controllers.institutions.routes.Repositories.validateEadPost(id)))
-      }
-    }.getOrElse {
-      immediate(Redirect(repositoryRoutes.validateEad(id)))
-    }
-  }
-
-  def validateEadFromStorage(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).flatMap  { files =>
-      val results: Seq[Future[(String, Seq[EadValidator#Error])]] = files.map { file =>
-        eadValidator.validateEad(Uri(storage.uri(bucket, file.key).toString))
-          .map(errs => file.key.replace(prefix(id), "") -> errs)
-      }
-
-      Future.sequence(results).map { out =>
-        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
-          controllers.institutions.routes.Repositories.validateEadPost(id)))
-      }
-    }
-  }
-
-  def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
-      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
-      Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
-        controllers.institutions.routes.Repositories.uploadDataPost(id)))
-    }
-  }
-
-  def uploadDataDirect(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
-      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
-      if (isAjax) Ok(views.html.admin.repository.uploadDataList(stripPrefix))
-      else Ok(views.html.admin.repository.uploadData(stripPrefix, request.item, fileForm,
-        controllers.institutions.routes.Repositories.uploadDataDirect(id)))
-    }
-  }
-
-  def uploadDataDirectPost(id: String, fileName: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    val path = s"${prefix(id)}$fileName"
-    val uri = storage.uri(bucket, path, contentType = request.contentType)
-    Ok(Json.obj("uri" -> uri))
-  }
-
-  def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async(parse.anyContent(Some(parse.UNLIMITED))) { implicit request =>
-    request.body.asMultipartFormData.map { data =>
-
-      val uris: Seq[Future[URI]] = data.files.map { file =>
-        val path = s"${prefix(id)}${file.filename}"
-        storage.putFile(bucket, path, file.ref.path.toFile)
-      }
-      Future.sequence(uris).map { _ =>
-        Redirect(repositoryRoutes.uploadData(id))
-          .flashing("success" -> "That worked!")
-      }
-    }.getOrElse {
-      immediate(Redirect(repositoryRoutes.uploadData(id)))
-    }
   }
 }

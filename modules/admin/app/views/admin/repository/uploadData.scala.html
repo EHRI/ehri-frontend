@@ -1,4 +1,4 @@
-@(files: Seq[services.storage.FileStorage#File], item: Repository, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Repository, files: Seq[services.storage.FileStorage#File], f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @script = {
     <script>
@@ -14,7 +14,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("repository.data"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <div id="upload-files">
-        @views.html.admin.repository.uploadDataList(files)
+        @views.html.admin.repository.uploadDataList(item, files)
     </div>
 
     <h3>@Messages("repository.data.upload")</h3>
@@ -35,54 +35,69 @@
     <script>
         jQuery(document).ready(function($) {
 
-          function setProgress(percentComplete) {
-              $('#upload-progress').css({
-                  width: (percentComplete + "%")
-              }).attr("aria-valuenow", percentComplete);
-          }
-
-          $("#upload-form").submit(function(e) {
-            e.preventDefault();
-
             let thisUrl = "@action";
-            let file = document.getElementById("file").files[0];
-            let url = e.target.action + "?@play.filters.csrf.CSRF.getToken.map(t => s"${t.name}=${t.value}").getOrElse("")";
 
-            console.log("XHR", url);
-
-            fetch(url + "&fileName=" + file.name, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': file.type
-                }
-            }).then(r => r.json()).then( data => {
-              console.log("URL: ", data.uri);
-              setProgress(0);
-
-              fetch(data.uri, {
-                  method: "PUT",
-                  mode: "cors",
-                  body: file,
-                  headers: {
-                    'Content-Type': file.type
-                  }
-              }).then(r => {
-                  setProgress(100);
-
-                  fetch(thisUrl, {
+            function refreshList() {
+                return fetch(thisUrl, {
                     headers: {
-                      'X-Requested-With': 'XMLHTTPREQUEST'
+                        'X-Requested-With': 'XMLHTTPREQUEST'
                     }
-                  }).then(r => r.text()).then(html => {
-                      $("#upload-files").html(html);
-                      setProgress(0);
-                  });
+                }).then(r => r.text()).then(html => {
+                    $("#upload-files").html(html);
+                    return html;
+                });
+            }
 
-              }).catch(err => {
-                console.log(err);
-              });
+            $("#upload-files").on("click", ".delete-item", e => {
+                e.preventDefault();
+
+                let action = e.target.href;
+                $.post(action, data => {
+                    console.log(data);
+                    if (data.ok) {
+                        refreshList();
+                    }
+                });
             });
-          });
+
+            function setProgress(percentComplete) {
+                $('#upload-progress').css({
+                    width: (percentComplete + "%")
+                }).attr("aria-valuenow", percentComplete);
+            }
+
+            $("#upload-form").submit(function (e) {
+                e.preventDefault();
+
+                let file = document.getElementById("file").files[0];
+                let url = e.target.action + "?@play.filters.csrf.CSRF.getToken.map(t => s"${t.name}=${t.value}").getOrElse("")";
+
+                console.log("XHR", url);
+
+                fetch(url + "&fileName=" + file.name, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                }).then(r => r.json()).then(data => {
+                    console.log("URL: ", data.uri);
+                    setProgress(0);
+
+                    fetch(data.uri, {
+                        method: "PUT",
+                        mode: "cors",
+                        body: file,
+                        headers: {
+                            'Content-Type': file.type
+                        }
+                    }).then(r => {
+                        setProgress(100);
+                        refreshList().then(html => setProgress(0));
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                });
+            });
         });
     </script>
 } {
