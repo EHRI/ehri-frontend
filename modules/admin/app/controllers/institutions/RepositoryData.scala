@@ -78,6 +78,12 @@ case class RepositoryData @Inject()(
     }
   }
 
+  def listFiles(id: String, path: String = ""): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.listFiles(bucket, prefix = Some(prefix(id + path))).runWith(Sink.seq).map { files =>
+      Ok(Json.toJson(files))
+    }
+  }
+
   def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
       val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
@@ -102,7 +108,7 @@ case class RepositoryData @Inject()(
   }
 
   def deleteDataPost(id: String, fileName: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.deleteFile(bucket, s"${prefix(id)}$fileName").map { r =>
+    storage.deleteFiles(bucket, s"${prefix(id)}$fileName").map { r =>
       Ok(Json.obj("ok" -> true))
     }
   }

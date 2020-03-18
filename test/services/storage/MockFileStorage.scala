@@ -13,7 +13,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileStorage#File]) extends FileStorage {
+case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileMeta]) extends FileStorage {
 
   private implicit val as: ActorSystem = ActorSystem("test")
   private implicit val mat: Materializer = Materializer(as)
@@ -27,21 +27,23 @@ case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileStorage#
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
     src.runFold(0)((b, s) => b + s.size).map { size =>
       val result: URI = new URI(urlPrefix(classifier) + path)
-      fakeFiles += File(path, Instant.now(), size)
+      fakeFiles += FileMeta(path, Instant.now(), size)
       result
     }(ec)
   }
 
-  override def listFiles(classifier: String, prefix: Option[String]): Source[FileStorage#File, NotUsed] =
+  override def listFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
     Source(fakeFiles
       .filter(p => prefix.forall(p.key.startsWith)).toList)
 
   override def uri(classifier: String, key: String, duration: FiniteDuration = 10.minutes, contentType: Option[String]): URI =
     new URI(urlPrefix(classifier) + key)
 
-  override def deleteFile(classifier: String, path: String): Future[Unit] = Future {
-    fakeFiles.find(_.key == path).foreach { f =>
-      fakeFiles -= f
+  override def deleteFiles(classifier: String, paths: String*): Future[Seq[Boolean]] = Future {
+    paths.map { path =>
+      fakeFiles.find(_.key == path).map { f =>
+        fakeFiles -= f
+      }.isDefined
     }
   }(ec)
 }

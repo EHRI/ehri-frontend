@@ -33,6 +33,7 @@ GET         /:id/data                                 @controllers.institutions.
 POST        /:id/data                                 @controllers.institutions.RepositoryData.uploadDataPost(id: String)
 GET         /:id/data2                                @controllers.institutions.RepositoryData.uploadDataDirect(id: String)
 POST        /:id/data2                                @controllers.institutions.RepositoryData.uploadDataDirectPost(id: String, fileName: String ?= "")
+POST        /:id/data2/list                           @controllers.institutions.RepositoryData.listFiles(id: String, path: String ?= "")
 POST        /:id/data2/delete                         @controllers.institutions.RepositoryData.deleteDataPost(id: String, fileName: String ?= "")
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)

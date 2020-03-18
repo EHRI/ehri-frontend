@@ -1,4 +1,4 @@
-@(item: Repository, files: Seq[services.storage.FileStorage#File])(implicit messages: Messages)
+@(item: Repository, files: Seq[services.storage.FileMeta])(implicit messages: Messages)
 
 @if(files.nonEmpty) {
     <table id="repository-files" class="table table-bordered table-striped table-sm">
