@@ -1,22 +1,14 @@
 package services.storage
 
 import java.net.URI
-import java.time.Instant
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{FiniteDuration, _}
 
 trait FileStorage {
-
-  case class File(
-    key: String,
-    lastModifed: Instant,
-    size: Long
-  )
 
   /**
     * Get the URI for a stored file with the given classifier and key.
@@ -59,7 +51,14 @@ trait FileStorage {
     * @param prefix     an option path prefix
     * @return a stream of file paths
     */
-  def listFiles(classifier: String, prefix: Option[String] = None): Source[FileStorage#File, _]
+  def listFiles(classifier: String, prefix: Option[String] = None): Source[FileMeta, _]
 
-  def deleteFile(classifier: String, path: String): Future[Unit]
+  /**
+    * Delete a file from storage.
+    *
+    * @param classifier the "bucket", or set, to which this file belongs
+    * @param paths      additional file paths, including the file name with extension
+    * @return whether or not all paths were successfully deleted.
+    */
+  def deleteFiles(classifier: String, paths: String*): Future[Seq[Boolean]]
 }

@@ -5,8 +5,7 @@ import java.nio.file.Paths
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
-import akka.stream.scaladsl.{FileIO, Sink, Source}
-import akka.util.ByteString
+import akka.stream.scaladsl.FileIO
 import com.google.common.io.Resources
 import play.api.test.PlaySpecification
 
