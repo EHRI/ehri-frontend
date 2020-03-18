@@ -30,7 +30,7 @@ import services.htmlpages.{HtmlPages, MockHtmlPages}
 import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 import services.search.{MockSearchIndexMediator, _}
-import services.storage.{FileStorage, MockFileStorage}
+import services.storage.{FileMeta, FileStorage, MockFileStorage}
 import utils.MockBufferedMailer
 
 import scala.collection.mutable
@@ -53,7 +53,7 @@ trait TestConfiguration {
   protected val feedbackBuffer: mutable.HashMap[Int, Feedback] = collection.mutable.HashMap.empty[Int,Feedback]
   protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
   protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
-  protected val storedFileBuffer: ListBuffer[FileStorage#File] = collection.mutable.ListBuffer.empty[FileStorage#File]
+  protected val storedFileBuffer: ListBuffer[FileMeta] = collection.mutable.ListBuffer.empty[FileMeta]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]
