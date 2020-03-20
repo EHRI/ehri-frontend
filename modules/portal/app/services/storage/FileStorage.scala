@@ -58,7 +58,7 @@ trait FileStorage {
     *
     * @param classifier the "bucket", or set, to which this file belongs
     * @param paths      additional file paths, including the file name with extension
-    * @return whether or not all paths were successfully deleted.
+    * @return paths which were successfully deleted
     */
-  def deleteFiles(classifier: String, paths: String*): Future[Seq[Boolean]]
+  def deleteFiles(classifier: String, paths: String*): Future[Seq[String]]
 }

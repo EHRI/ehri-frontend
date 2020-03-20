@@ -1,0 +1,61 @@
+@(item: Repository)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+<!DOCTYPE html>
+
+<html lang="@messages.lang.code">
+    <head>
+        <title>@Messages("repository.data", item.toStringLang)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("bootstrap/css/datepicker.css")" rel="stylesheet">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2.css")" rel="stylesheet">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2-bootstrap.css")" rel="stylesheet">
+        <link href="@controllers.admin.routes.AdminAssets.versioned("css/datamanager.css")" rel="stylesheet">
+
+        @globalConfig.extraHeadContent.map(c => Html(c))
+    </head>
+    <body>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-3.4.1.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.history.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.min.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/bootstrap.bundle.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
+        <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
+        @helper.javascriptRouter("dataManagerRoutes")(
+            controllers.institutions.routes.javascript.RepositoryData.listFiles,
+            controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
+            controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
+        )
+
+        <script>
+                window.SERVICE = {
+                    listFiles: dataManagerRoutes.controllers.institutions.RepositoryData.listFiles,
+                    deleteFiles: dataManagerRoutes.controllers.institutions.RepositoryData.deleteFiles,
+                    uploadHandle: dataManagerRoutes.controllers.institutions.RepositoryData.uploadHandle,
+                };
+                window.CONFIG = {
+                    repositoryId: "@item.id"
+                }
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
+        <script src="@controllers.portal.routes.PortalData.localeData()"></script>
+
+        <div id="flex-wrapper">
+            <header id="header" class="navigation">
+                @views.html.admin.common.adminNavBar()
+            </header>
+            @views.html.admin.common.testWarning()
+            @views.html.admin.common.breadcrumbs(List(item))
+            <div id="flex-content" class="container" >
+                <h2>@Messages("repository.data", item.toStringLang)</h2>
+                <div id="data-manager"></div>
+            </div>
+        </div>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/datamanager.js")"></script>
+    </body>
+</html>

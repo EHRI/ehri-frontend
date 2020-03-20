@@ -80,10 +80,10 @@
                         'Content-Type': file.type
                     }
                 }).then(r => r.json()).then(data => {
-                    console.log("URL: ", data.uri);
+                    console.log("URL: ", data.presignedUrl);
                     setProgress(0);
 
-                    fetch(data.uri, {
+                    fetch(data.presignedUrl, {
                         method: "PUT",
                         mode: "cors",
                         body: file,
