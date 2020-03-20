@@ -14,7 +14,7 @@
         @files.map { file =>
             <tr>
                 <td>@file.key</td>
-                <td>@views.Helpers.relativeDate(java.util.Date.from(file.lastModifed))</td>
+                <td>@views.Helpers.relativeDate(java.util.Date.from(file.lastModified))</td>
                 <td>@file.size</td>
                 <td><a class="delete-item" href="@controllers.institutions.routes.RepositoryData.deleteDataPost(item.id, file.key)">
                     @Messages("repository.data.upload.file.delete")

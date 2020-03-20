@@ -95,9 +95,9 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       .withAttributes(S3Attributes.settings(endpoint))
   )
 
-  def deleteFiles(classifier: String, paths: String*): Future[Seq[Boolean]] = Future {
+  def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
     import collection.JavaConverters._
     val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
-    client.deleteObjects(dor).getDeletedObjects.asScala.map(_.isDeleteMarker)
+    client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
   }(ec)
 }
