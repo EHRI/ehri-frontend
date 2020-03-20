@@ -1,0 +1,80 @@
+@import "lib/docview-portal/css/portal.scss";
+
+//Admin
+@import "./admin/admin";
+@import "./admin/forms";
+
+body {
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+
+.info-bar {
+  margin-bottom: $margin-md;
+}
+
+#flex-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#flex-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#data-manager-container {
+  font-size: $font-size-sm;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: $margin-sm;
+  background-color: $gray-100;
+  border: $border-width solid $border-color;
+  margin-bottom: $margin-lg;
+}
+
+#drop-target {
+  min-height: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: lightyellow;
+  border: 1px solid $border-color;
+  margin-top: auto;
+  font-size: $font-size-lg;
+  color: $text-muted;
+
+  &.dropping {
+    border-color: $black;
+  }
+}
+
+#upload-progress {
+  position: absolute;
+  bottom: $margin-sm;
+  left: $margin-sm;
+  border: 1px solid $border-color;
+  background-color: $ehri-gray;
+  padding: $margin-sm;
+
+  .progress-container {
+    display: flex;
+    flex-direction: row;
+    padding-bottom: $margin-xs;
+    button {
+      margin-left: auto;
+    }
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  .progress-bar {
+    padding: $margin-sm;
+    color: $black;
+  }
+}

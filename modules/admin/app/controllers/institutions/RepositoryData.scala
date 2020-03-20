@@ -12,7 +12,7 @@ import javax.inject._
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, JsArray, Json}
 import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.EadValidator
@@ -22,6 +22,10 @@ import services.storage.{DOFileStorage, FileStorage}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
+case class FileToUpload(name: String, `type`: String, size: Long)
+object FileToUpload {
+  implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
+}
 
 @Singleton
 case class RepositoryData @Inject()(
@@ -43,6 +47,10 @@ case class RepositoryData @Inject()(
   private val storage = DOFileStorage(config)(mat.system, mat)
   private val bucket = "ehri-assets"
   private val prefix: String => String = id => s"ingest/$id/"
+
+  def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.repository.data.manager(request.item))
+  }
 
   def validateEad(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[EadValidator#Error]], request.item, fileForm,
@@ -78,10 +86,23 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def listFiles(id: String, path: String = ""): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def listFiles(id: String, path: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket, prefix = Some(prefix(id + path))).runWith(Sink.seq).map { files =>
-      Ok(Json.toJson(files))
+      Ok(Json.toJson(files.map(f => f.copy(key = f.key.replace(prefix(id), "")))))
     }
+  }
+
+  def deleteFiles(id: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id)}$path")
+    storage.deleteFiles(bucket, keys: _*).map { deleted =>
+      Ok(Json.toJson(deleted.map(_.replace(prefix(id), ""))))
+    }
+  }
+
+  def uploadHandle(id: String): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
+    val path = s"${prefix(id)}${request.body.name}"
+    val url = storage.uri(bucket, path, contentType = Some(request.body.`type`))
+    Ok(Json.obj("presignedUrl" -> url))
   }
 
   def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
