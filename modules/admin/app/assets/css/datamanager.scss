@@ -59,22 +59,33 @@ body {
   left: $margin-sm;
   border: 1px solid $border-color;
   background-color: $ehri-gray;
-  padding: $margin-sm;
+  padding: $margin-xs;
+  min-width: 20rem;
 
   .progress-container {
+    background-color: lighten($ehri-gray, 1%);
     display: flex;
     flex-direction: row;
-    padding-bottom: $margin-xs;
-    button {
+    align-items: center;
+    //padding: $margin-xs;
+    //border: 1px solid $border-color;
+    .cancel-button {
       margin-left: auto;
     }
-    &:last-child {
-      padding-bottom: 0;
-    }
-  }
 
-  .progress-bar {
-    padding: $margin-sm;
-    color: $black;
+    margin-bottom: $margin-xs;
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .progress {
+      flex-grow: 1;
+      height: 1.6rem;
+      background-color: darken($ehri-gray, 20%);
+    }
+    .progress-bar {
+      padding: $margin-sm;
+      //color: $black;
+    }
   }
 }
