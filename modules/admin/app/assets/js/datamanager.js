@@ -1,5 +1,6 @@
 "use strict";
 
+
 /**
  * A data access object containing functions to vocabulary concepts.
  */
@@ -65,7 +66,30 @@ var app = new Vue({
   watch: {
   },
   methods: {
-    refresh: function() {
+    // EJohn's pretty date:
+    // Takes an ISO time and returns a string representing how
+    // long ago the date represents.
+    // https://johnresig.com/blog/javascript-pretty-date/
+    prettyDate: function (time) {
+      var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
+        diff = (((new Date()).getTime() - date.getTime()) / 1000),
+        day_diff = Math.floor(diff / 86400);
+
+      if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
+        return;
+
+      return day_diff === 0 && (
+        diff < 60 && "just now" ||
+        diff < 120 && "1 minute ago" ||
+        diff < 3600 && Math.floor(diff / 60) + " minutes ago" ||
+        diff < 7200 && "1 hour ago" ||
+        diff < 86400 && Math.floor(diff / 3600) + " hours ago") ||
+        day_diff === 1 && "Yesterday" ||
+        day_diff < 7 && day_diff + " days ago" ||
+        day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
+    },
+
+    refresh: function () {
       DAO.listFiles("").then(files => {
         this.files = files;
         this.loaded = true;
@@ -78,8 +102,13 @@ var app = new Vue({
         this.refresh();
       })
     },
-    cancelUpload: function(name) {
-      this.cancelled[name] = true;
+    cancelUpload: function(fileSpec) {
+      if (!this.isCancelled(fileSpec)) {
+        this.cancelled.push(fileSpec.name);
+      }
+    },
+    isCancelled: function(fileSpec) {
+      return this.cancelled.includes(fileSpec.name);
     },
     setUploadProgress: function(fileSpec, done, total) {
       let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
@@ -102,72 +131,51 @@ var app = new Vue({
     dragLeave: function(event) {
       this.dropping = false;
     },
+    uploadFile: function(file) {
+      this.uploading.push({
+        spec: file,
+        done: 0,
+        total: file.size,
+      });
+
+      DAO.uploadHandle({
+        name: file.name,
+        type: file.type,
+        size: file.size
+      }).then(data => {
+        this.setUploadProgress(file, 0, file.size);
+        let xhr = new XMLHttpRequest();
+        xhr.overrideMimeType(file.type);
+
+        xhr.upload.addEventListener("progress", evt => {
+          if (evt.lengthComputable) {
+            this.setUploadProgress(file, evt.loaded, evt.total);
+          }
+          if (this.isCancelled(file)) {
+            xhr.abort();
+            this.uploading.splice(_.findIndex(this.uploading, f => f.spec.name === file.name), 1);
+            this.cancelled.splice(this.cancelled.indexOf(file.name), 1);
+          }
+        });
+        xhr.addEventListener("load", evt => {
+          this.setUploadProgress(file, evt.loaded, evt.total);
+          this.refresh();
+        });
+        xhr.addEventListener("error", evt => {
+
+        });
+
+        xhr.open("PUT", data.presignedUrl);
+        xhr.setRequestHeader("Content-Type", file.type);
+        xhr.send(file);
+      });
+    },
     uploadFiles: function(event) {
       this.dragLeave(event);
-      for(let i = 0; i < event.dataTransfer.files.length; i++) {
-        let file = event.dataTransfer.files[i];
-        this.uploading.push({
-          spec: file,
-          done: 0,
-          total: file.size,
-        });
-
-        DAO.uploadHandle({
-          name: file.name,
-          type: file.type,
-          size: file.size
-        }).then(data => {
-          this.setUploadProgress(file, 0, file.size);
-          let xhr = new XMLHttpRequest();
-          xhr.overrideMimeType(file.type);
-
-          xhr.upload.addEventListener("progress", evt => {
-            if (evt.lengthComputable) {
-              this.setUploadProgress(file, evt.loaded, evt.total);
-            }
-            if (this.cancelled[file.name]) {
-              xhr.abort();
-              this.uploading.splice(_.findIndex(this.uploading, f => f.name === file.name));
-              delete this.cancelled[file.name];
-            }
-          });
-          xhr.addEventListener("loadend", evt => {
-            this.setUploadProgress(file, evt.loaded, evt.total);
-            this.refresh();
-          });
-          xhr.addEventListener("error", evt => {
-
-          });
-
-          xhr.open("PUT", data.presignedUrl);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
-        });
+      for (let i = 0; i < event.dataTransfer.files.length; i++) {
+        this.uploadFile(event.dataTransfer.files[i]);
       }
     },
-
-    // EJohn's pretty date:
-    // Takes an ISO time and returns a string representing how
-    // long ago the date represents.
-    // https://johnresig.com/blog/javascript-pretty-date/
-    prettyDate: function (time) {
-      var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
-        diff = (((new Date()).getTime() - date.getTime()) / 1000),
-        day_diff = Math.floor(diff / 86400);
-
-      if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-        return;
-
-      return day_diff === 0 && (
-        diff < 60 && "just now" ||
-        diff < 120 && "1 minute ago" ||
-        diff < 3600 && Math.floor(diff / 60) + " minutes ago" ||
-        diff < 7200 && "1 hour ago" ||
-        diff < 86400 && Math.floor(diff / 3600) + " hours ago") ||
-        day_diff === 1 && "Yesterday" ||
-        day_diff < 7 && day_diff + " days ago" ||
-        day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
-    }
   },
   computed: {
   },
@@ -213,7 +221,8 @@ var app = new Vue({
       <div id="upload-progress" v-if="uploading.length > 0">
         <div v-for="job in uploading" class="progress-container">
           <div class="progress">
-            <div class="progress-bar" 
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar"
                  v-bind:aria-valuemax="job.total" 
                  v-bind:aria-valuemin="0" 
                  v-bind:aria-valuenow="job.done"
@@ -221,9 +230,9 @@ var app = new Vue({
               {{job.spec.name}}
             </div>
           </div>
-          <button v-bind:disabled="cancelled[job.spec.name]" v-on:click.prevent="cancelUpload(job)">
-              <i class="fa fa-remove"/>
-              Cancel
+          <button class="cancel-button" v-bind:disabled="isCancelled(job.spec)" v-on:click.prevent="cancelUpload(job.spec)">
+              <i class="fa fa-fw" 
+                 v-bind:class="{'fa-circle-o-notch fa-spin': isCancelled(job.spec), 'fa-times-circle': !isCancelled(job.spec)}"/>
           </button>
         </div>
       </div>
