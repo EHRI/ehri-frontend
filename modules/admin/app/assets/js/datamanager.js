@@ -90,7 +90,7 @@ var app = new Vue({
     },
 
     refresh: function () {
-      DAO.listFiles("").then(files => {
+      return DAO.listFiles("").then(files => {
         this.files = files;
         this.loaded = true;
       });
@@ -102,28 +102,20 @@ var app = new Vue({
         this.refresh();
       })
     },
-    cancelUpload: function(fileSpec) {
-      if (!this.isCancelled(fileSpec)) {
-        this.cancelled.push(fileSpec.name);
-      }
+    finishUpload: function(fileSpec) {
+      let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
+      this.uploading.splice(i, 1);
     },
-    isCancelled: function(fileSpec) {
-      return this.cancelled.includes(fileSpec.name);
-    },
-    setUploadProgress: function(fileSpec, done, total) {
+    setUploadProgress: function(fileSpec, percent) {
       let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
       if (i > -1) {
-        if (total === done) {
-          this.uploading.splice(i, 1);
-        } else {
-          this.uploading[i].done = done;
-          this.uploading[i].total = total;
-        }
+        this.uploading[i].progress = Math.min(100, percent);
+        return true;
       }
+      return false;
     },
-
     isDeleting: function(key) {
-      return _.includes(this.deleting, key);
+      return this.deleting.includes(key);
     },
     dragOver: function(event) {
       this.dropping = true;
@@ -132,49 +124,81 @@ var app = new Vue({
       this.dropping = false;
     },
     uploadFile: function(file) {
-      this.uploading.push({
-        spec: file,
-        done: 0,
-        total: file.size,
-      });
 
-      DAO.uploadHandle({
+      // Check we're still in the queue and have not been cancelled...
+      if (_.findIndex(this.uploading, f => f.spec.name === file.name) === -1) {
+        return Promise.resolve();
+      }
+
+      let self = this;
+
+      return DAO.uploadHandle({
         name: file.name,
         type: file.type,
         size: file.size
       }).then(data => {
-        this.setUploadProgress(file, 0, file.size);
-        let xhr = new XMLHttpRequest();
-        xhr.overrideMimeType(file.type);
+        return new Promise((resolve, reject) => {
+          let url = data.presignedUrl;
+          self.setUploadProgress(file, 0);
+          let xhr = new XMLHttpRequest();
+          xhr.overrideMimeType(file.type);
 
-        xhr.upload.addEventListener("progress", evt => {
-          if (evt.lengthComputable) {
-            this.setUploadProgress(file, evt.loaded, evt.total);
-          }
-          if (this.isCancelled(file)) {
-            xhr.abort();
-            this.uploading.splice(_.findIndex(this.uploading, f => f.spec.name === file.name), 1);
-            this.cancelled.splice(this.cancelled.indexOf(file.name), 1);
-          }
-        });
-        xhr.addEventListener("load", evt => {
-          this.setUploadProgress(file, evt.loaded, evt.total);
-          this.refresh();
-        });
-        xhr.addEventListener("error", evt => {
+          xhr.upload.addEventListener("progress", evt => {
+            if (evt.lengthComputable) {
+              if (!self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))) {
+                // the upload has been cancelled...
+                xhr.abort();
+              }
+            }
+          });
+          xhr.addEventListener("load", evt => {
+            if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+              self.finishUpload(file);
+              self.refresh().then(_ => {
+                resolve(xhr.responseXML);
+              });
+              console.log(xhr.responseXML);
+            } else {
+              reject(xhr.responseText);
+            }
+          });
+          xhr.addEventListener("error", evt => {
+            reject(xhr.responseText);
+          });
+          xhr.addEventListener("abort", evt => {
+            resolve(xhr.responseText);
+          });
 
+          xhr.open("PUT", url);
+          xhr.setRequestHeader("Content-Type", file.type);
+          xhr.send(file);
         });
-
-        xhr.open("PUT", data.presignedUrl);
-        xhr.setRequestHeader("Content-Type", file.type);
-        xhr.send(file);
       });
     },
     uploadFiles: function(event) {
       this.dragLeave(event);
-      for (let i = 0; i < event.dataTransfer.files.length; i++) {
-        this.uploadFile(event.dataTransfer.files[i]);
+
+      let self = this;
+      function sequential(arr, index) {
+        if (index >= arr.length) return Promise.resolve();
+        return self.uploadFile(arr[index])
+          .then(r => {
+            return sequential(arr, index + 1)
+          });
       }
+
+      let files = [];
+      for (let i = 0; i < event.dataTransfer.files.length; i++) {
+        let file = event.dataTransfer.files[i];
+        this.uploading.push({
+          spec: file,
+          progress: 0,
+        });
+        files.push(file);
+      }
+
+      return sequential(files, 0)
+        .then(_ => console.log("Files uploaded..."));
     },
   },
   computed: {
@@ -223,16 +247,15 @@ var app = new Vue({
           <div class="progress">
             <div class="progress-bar progress-bar-striped progress-bar-animated" 
                  role="progressbar"
-                 v-bind:aria-valuemax="job.total" 
+                 v-bind:aria-valuemax="100" 
                  v-bind:aria-valuemin="0" 
-                 v-bind:aria-valuenow="job.done"
-                  v-bind:style="'width: ' + (job.done/job.total * 100) + '%'">
-              {{job.spec.name}}
+                 v-bind:aria-valuenow="job.progress"
+                  v-bind:style="'width: ' + job.progress + '%'">
+              {{ job.spec.name}}
             </div>
           </div>
-          <button class="cancel-button" v-bind:disabled="isCancelled(job.spec)" v-on:click.prevent="cancelUpload(job.spec)">
-              <i class="fa fa-fw" 
-                 v-bind:class="{'fa-circle-o-notch fa-spin': isCancelled(job.spec), 'fa-times-circle': !isCancelled(job.spec)}"/>
+          <button class="cancel-button" v-on:click.prevent="finishUpload(job.spec)">
+              <i class="fa fa-fw fa-times-circle"/>
           </button>
         </div>
       </div>
