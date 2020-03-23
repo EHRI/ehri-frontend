@@ -84,8 +84,7 @@ body {
       background-color: darken($ehri-gray, 20%);
     }
     .progress-bar {
-      padding: $margin-sm;
-      //color: $black;
+      padding: $margin-sm 0;
     }
   }
 }
