@@ -38,6 +38,7 @@ body {
 }
 
 #drop-target {
+  position: relative;
   min-height: 10rem;
   display: flex;
   align-items: center;
@@ -51,6 +52,14 @@ body {
   &.dropping {
     border-color: $black;
   }
+}
+
+#file-selector {
+  opacity: 0%;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  float: left;
 }
 
 #upload-progress {
