@@ -1,5 +1,14 @@
 "use strict";
 
+// Prevent default drag/drop action...
+window.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+window.addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
 
 /**
  * A data access object containing functions to vocabulary concepts.
@@ -177,8 +186,12 @@ var app = new Vue({
     },
     uploadFiles: function(event) {
       this.dragLeave(event);
-
       let self = this;
+
+      let fileList = event.dataTransfer
+        ? event.dataTransfer.files
+        : event.target.files;
+
       function sequential(arr, index) {
         if (index >= arr.length) return Promise.resolve();
         return self.uploadFile(arr[index])
@@ -188,17 +201,37 @@ var app = new Vue({
       }
 
       let files = [];
-      for (let i = 0; i < event.dataTransfer.files.length; i++) {
-        let file = event.dataTransfer.files[i];
-        this.uploading.push({
-          spec: file,
-          progress: 0,
-        });
-        files.push(file);
+      for (let i = 0; i < fileList.length; i++) {
+        let file = fileList[i];
+        if (file.type === "text/xml") {
+          this.uploading.push({
+            spec: file,
+            progress: 0,
+          });
+          files.push(file);
+        }
       }
 
+      // Files were dropped but there were no file ones
+      if (files.length === 0 && fileList.length > 0) {
+        return Promise.reject("No valid files found")
+      }
+
+      // Nothing is selected: no-op
+      if (files.length === 0) {
+        return Promise.resolve();
+      }
+
+      // Proceed with upload
       return sequential(files, 0)
-        .then(_ => console.log("Files uploaded..."));
+        .then(_ => {
+          if (event.target.files) {
+            // Delete the value of the control, if loaded
+            event.target.value = null;
+          }
+
+          console.log("Files uploaded...")
+        });
     },
   },
   computed: {
@@ -223,9 +256,11 @@ var app = new Vue({
           <td>{{prettyDate(file.lastModified)}}</td>
           <td>{{file.size}}</td>
           <td>
-            <a href="#" v-on:click="deleteFile(file.key)">
-              Delete
-              <i v-if="isDeleting(file.key)" class="fa fa-circle-o-notch fa-fw fa-spin"></i>
+            <a href="#" v-on:click.prevent="deleteFile(file.key)">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': isDeleting(file.key), 
+                'fa-trash-o': !isDeleting(file.key) 
+              }"></i>
             </a>
           </td>
         </tr>
@@ -236,11 +271,15 @@ var app = new Vue({
       </div>
       <div id="drop-target"
            v-bind:class="{dropping: dropping}"
-           v-on:dragover.prevent="dragOver"
-           v-on:dragleave.prevent="dragLeave"
-           v-on:drop.prevent="uploadFiles"
       >
-        Drop files here...
+        <input id="file-selector" 
+               v-on:change="uploadFiles"
+               v-on:dragover.prevent="dragOver"
+               v-on:dragleave.prevent="dragLeave"
+               v-on:drop.prevent="uploadFiles"
+               type="file" 
+               accept="text/xml" multiple/>
+        Click to select or drop files here...
       </div>
       <div id="upload-progress" v-if="uploading.length > 0">
         <div v-for="job in uploading" class="progress-container">
