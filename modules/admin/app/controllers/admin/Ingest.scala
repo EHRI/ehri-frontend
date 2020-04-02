@@ -2,7 +2,8 @@ package controllers.admin
 
 import java.util.UUID
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import actors.IngestActor
+import akka.actor.{ActorSystem, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
@@ -35,23 +36,6 @@ case class Ingest @Inject()(
 
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
-
-  // Actor that runs the actual index tasks
-  case class IngestActor() extends Actor {
-
-    override def receive: Receive = waiting
-
-    def waiting: Receive = {
-      case job: IngestJob => context.become(run(job))
-    }
-
-    def run(job: IngestJob): Receive = {
-      case chan: ActorRef => ingestApi.run(job, chan).onComplete { _ =>
-        // Terminate the actor...
-        context.stop(self)
-      }
-    }
-  }
 
   def ingestPost(scopeType: ContentTypes.Value, scopeId: String, dataType: IngestApi.IngestDataType.Value, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] =
     AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
@@ -90,7 +74,7 @@ case class Ingest @Inject()(
             val task = ingestTask.copy(properties = props, file = Some(data.ref))
             val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id))
 
-            val runner = system.actorOf(Props(IngestActor()), jobId)
+            val runner = system.actorOf(Props(IngestActor(ingestApi)), jobId)
             runner ! IngestJob(jobId, ingest)
             logger.info(s"Submitted ingest job: $jobId")
 

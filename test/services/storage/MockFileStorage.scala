@@ -27,23 +27,29 @@ case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileMeta]) e
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
     src.runFold(0)((b, s) => b + s.size).map { size =>
       val result: URI = new URI(urlPrefix(classifier) + path)
-      fakeFiles += FileMeta(path, Instant.now(), size)
+      fakeFiles += FileMeta(classifier, path, Instant.now(), size, (classifier + path).hashCode.toString)
       result
     }(ec)
   }
 
-  override def listFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
-    Source(fakeFiles
-      .filter(p => prefix.forall(p.key.startsWith)).toList)
+  override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
+    Source(fakeFiles.filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith)).toList)
+
+  override def listFiles(classifier: String, prefix: Option[String], after: Option[String] = None, max: Int = -1): Future[FileList] = Future {
+    val all = fakeFiles.filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith))
+    val idx = after.map(a => fakeFiles.indexWhere(_.key == a)).getOrElse(-1)
+    FileList(all.slice(idx + 1, idx + 1 + max).toList, (idx + 1 + max) <= all.size)
+  }(ec)
 
   override def uri(classifier: String, key: String, duration: FiniteDuration = 10.minutes, contentType: Option[String]): URI =
     new URI(urlPrefix(classifier) + key)
 
-  override def deleteFiles(classifier: String, paths: String*): Future[Seq[Boolean]] = Future {
-    paths.map { path =>
+  override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
+    paths.flatMap { path =>
       fakeFiles.find(_.key == path).map { f =>
         fakeFiles -= f
-      }.isDefined
+        f.key
+      }.toSeq
     }
   }(ec)
 }

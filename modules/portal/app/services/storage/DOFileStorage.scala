@@ -46,8 +46,11 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] =
     ops.putFile(classifier, path, file, public)
 
-  override def listFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
-    ops.listFiles(classifier, prefix)
+  override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
+    ops.streamFiles(classifier, prefix)
+
+  override def listFiles(classifier: String, prefix: Option[String], after: Option[String] = None, max: Int = -1): Future[FileList] =
+    ops.listFiles(classifier, prefix, after, max)
 
   override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] =
     ops.deleteFiles(classifier, paths: _*)

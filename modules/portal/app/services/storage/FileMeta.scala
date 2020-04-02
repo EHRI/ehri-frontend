@@ -12,9 +12,11 @@ import play.api.libs.json.{Json, Writes}
   * @param size         the size, in bytes
   */
 case class FileMeta(
+  classifier: String,
   key: String,
   lastModified: Instant,
-  size: Long
+  size: Long,
+  eTag: String
 )
 
 object FileMeta {

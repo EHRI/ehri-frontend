@@ -70,6 +70,8 @@ body {
   background-color: $ehri-gray;
   padding: $margin-xs;
   min-width: 20rem;
+  overflow-y: auto;
+  max-height: 20rem;
 
   .progress-container {
     background-color: lighten($ehri-gray, 1%);
@@ -94,6 +96,18 @@ body {
     }
     .progress-bar {
       padding: $margin-sm 0;
+    }
+  }
+}
+
+#data-manager-container {
+  #update-progress {
+    margin-top: auto;
+    height: unset;
+    min-height: 10rem;
+    max-height: 10rem;
+    pre {
+      white-space: normal;
     }
   }
 }

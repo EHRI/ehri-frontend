@@ -45,13 +45,26 @@ trait FileStorage {
   def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI]
 
   /**
+    * Stream all files which share this classifier.
+    *
+    * @param classifier the "bucket", or set, to which this file belongs
+    * @param prefix     an optional path prefix
+    * @return a stream of file metadata objects.
+    */
+  def streamFiles(classifier: String, prefix: Option[String] = None): Source[FileMeta, _]
+
+  /**
     * List files which share this classifier.
     *
     * @param classifier the "bucket", or set, to which this file belongs
-    * @param prefix     an option path prefix
-    * @return a stream of file paths
+    * @param prefix     an optional path prefix
+    * @param after      list files after this key
+    * @param max        the maximum number of keys to list
+    * @return a FileList object consisting of a sequence of file metadata objects
+    *         and a boolean indicating if the stream is paged, in which case
+    *         subsequent objects will need to be retrieved using the `after` parameter.
     */
-  def listFiles(classifier: String, prefix: Option[String] = None): Source[FileMeta, _]
+  def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList]
 
   /**
     * Delete a file from storage.
