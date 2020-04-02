@@ -10,11 +10,9 @@ import scala.concurrent.Future
 
 trait EadValidator {
 
-  case class Error(line: Int, pos: Int, error: String)
+  def validateEad(path: Path): Future[Seq[XmlValidationError]]
 
-  def validateEad(path: Path): Future[Seq[Error]]
+  def validateEad(url: Uri): Future[Seq[XmlValidationError]]
 
-  def validateEad(url: Uri): Future[Seq[Error]]
-
-  def validateEad(src: Source[ByteString, _]): Future[Seq[Error]]
+  def validateEad(src: Source[ByteString, _]): Future[Seq[XmlValidationError]]
 }

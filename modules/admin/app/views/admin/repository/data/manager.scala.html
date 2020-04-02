@@ -25,19 +25,31 @@
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @helper.javascriptRouter("dataManagerRoutes")(
             controllers.institutions.routes.javascript.RepositoryData.listFiles,
+            controllers.institutions.routes.javascript.RepositoryData.validateFiles,
             controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
+            controllers.institutions.routes.javascript.RepositoryData.deleteAll,
+            controllers.institutions.routes.javascript.RepositoryData.ingestFiles,
+            controllers.institutions.routes.javascript.RepositoryData.ingestAll,
             controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
+            controllers.institutions.routes.javascript.RepositoryData.fileUrls,
         )
 
         <script>
                 window.SERVICE = {
                     listFiles: dataManagerRoutes.controllers.institutions.RepositoryData.listFiles,
+                    validateFiles: dataManagerRoutes.controllers.institutions.RepositoryData.validateFiles,
                     deleteFiles: dataManagerRoutes.controllers.institutions.RepositoryData.deleteFiles,
+                    deleteAll: dataManagerRoutes.controllers.institutions.RepositoryData.deleteAll,
+                    ingestFiles: dataManagerRoutes.controllers.institutions.RepositoryData.ingestFiles,
+                    ingestAll: dataManagerRoutes.controllers.institutions.RepositoryData.ingestAll,
                     uploadHandle: dataManagerRoutes.controllers.institutions.RepositoryData.uploadHandle,
+                    fileUrls: dataManagerRoutes.controllers.institutions.RepositoryData.fileUrls,
                 };
                 window.CONFIG = {
                     repositoryId: "@item.id"
-                }
+                };
+                let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+                let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
@@ -52,7 +64,6 @@
             @views.html.admin.common.testWarning()
             @views.html.admin.common.breadcrumbs(List(item))
             <div id="flex-content" class="container" >
-                <h2>@Messages("repository.data", item.toStringLang)</h2>
                 <div id="data-manager"></div>
             </div>
         </div>

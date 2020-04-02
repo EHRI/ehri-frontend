@@ -17,45 +17,44 @@ import org.xml.sax.{ErrorHandler, InputSource, SAXParseException}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
 case class EadValidatorService @Inject() ()(implicit mat: Materializer, exec: ExecutionContext) extends EadValidator {
 
   private val rngUrl = Resources.getResource("ehri_ead.rng")
   private val rng: InputSource = ValidationDriver.uriOrFileInputSource(rngUrl.toString)
-  private val bs = ArrayBuffer[Error]()
-  private val erh: ErrorHandler = new ErrorHandler {
-    override def warning(e: SAXParseException): Unit = addError(e)
-    override def error(e: SAXParseException): Unit = addError(e)
-    override def fatalError(e: SAXParseException): Unit = addError(e)
 
-    private def addError(e: SAXParseException): Unit =
-      bs.append(Error(e.getLineNumber, e.getColumnNumber, e.getMessage))
-  }
-  private val props = new PropertyMapBuilder()
-  props.put(ValidateProperty.ERROR_HANDLER, erh)
-  props.put(RngProperty.CHECK_ID_IDREF, null)
-  private val driver = new ValidationDriver(props.toPropertyMap)
-  driver.loadSchema(rng)
-
-  override def validateEad(src: Source[ByteString, _]): Future[Seq[Error]] = {
+  override def validateEad(src: Source[ByteString, _]): Future[Seq[XmlValidationError]] = {
     val stream = new InputStreamReader(src.runWith(StreamConverters.asInputStream()))
     val is = new InputSource(stream)
     validateInputSource(is)
   }
 
-  override def validateEad(path: Path): Future[Seq[Error]] =
+  override def validateEad(path: Path): Future[Seq[XmlValidationError]] =
     validateInputSource(ValidationDriver.fileInputSource(path.toFile))
 
-  override def validateEad(url: Uri): Future[Seq[Error]] =
+  override def validateEad(url: Uri): Future[Seq[XmlValidationError]] =
     validateInputSource(ValidationDriver.uriOrFileInputSource(url.toString))
 
-  private def validateInputSource(is: InputSource): Future[Seq[Error]] = Future {
+  private def validateInputSource(is: InputSource): Future[Seq[XmlValidationError]] = Future {
+    val props = new PropertyMapBuilder()
+    props.put(RngProperty.CHECK_ID_IDREF, null)
+    val bs = ArrayBuffer[XmlValidationError]()
+    val erh: ErrorHandler = new ErrorHandler {
+      override def warning(e: SAXParseException): Unit = addError(e)
+      override def error(e: SAXParseException): Unit = addError(e)
+      override def fatalError(e: SAXParseException): Unit = addError(e)
+
+      private def addError(e: SAXParseException): Unit =
+        bs.append(XmlValidationError(e.getLineNumber, e.getColumnNumber, e.getMessage))
+    }
+    props.put(ValidateProperty.ERROR_HANDLER, erh)
     try {
+      val driver = new ValidationDriver(props.toPropertyMap)
+      driver.loadSchema(rng)
       driver.validate(is)
       Seq(bs: _*)
     } catch {
       case e: SAXParseException =>
-        Seq(Error(e.getLineNumber, e.getColumnNumber, e.getLocalizedMessage))
+        Seq(XmlValidationError(e.getLineNumber, e.getColumnNumber, e.getLocalizedMessage))
     } finally {
       bs.clear()
     }
