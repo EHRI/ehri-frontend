@@ -30,9 +30,10 @@ POST        /:id/logo                                 @controllers.institutions.
 
 # Data management
 GET         /:id/data                                 @controllers.institutions.RepositoryData.manager(id: String)
-GET         /:id/data/list                            @controllers.institutions.RepositoryData.listFiles(id: String, path: String ?= "")
+GET         /:id/data/list                            @controllers.institutions.RepositoryData.listFiles(id: String, path: Option[String] ?= None, after: Option[String] ?= None)
 POST        /:id/data/delete                          @controllers.institutions.RepositoryData.deleteFiles(id: String)
 POST        /:id/data/upload                          @controllers.institutions.RepositoryData.uploadHandle(id: String)
+POST        /:id/data/ingest                          @controllers.institutions.RepositoryData.ingestFiles(id: String)
 
 GET         /:id/data-old                             @controllers.institutions.RepositoryData.uploadData(id: String)
 POST        /:id/data-old                             @controllers.institutions.RepositoryData.uploadDataPost(id: String)

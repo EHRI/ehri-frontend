@@ -26,18 +26,22 @@
         @helper.javascriptRouter("dataManagerRoutes")(
             controllers.institutions.routes.javascript.RepositoryData.listFiles,
             controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
-            controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
+            controllers.institutions.routes.javascript.RepositoryData.ingestFiles,
+            controllers.institutions.routes.javascript.RepositoryData.uploadHandle
         )
 
         <script>
                 window.SERVICE = {
                     listFiles: dataManagerRoutes.controllers.institutions.RepositoryData.listFiles,
                     deleteFiles: dataManagerRoutes.controllers.institutions.RepositoryData.deleteFiles,
+                    ingestFiles: dataManagerRoutes.controllers.institutions.RepositoryData.ingestFiles,
                     uploadHandle: dataManagerRoutes.controllers.institutions.RepositoryData.uploadHandle,
                 };
                 window.CONFIG = {
                     repositoryId: "@item.id"
-                }
+                };
+                let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+                let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>

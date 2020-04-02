@@ -45,6 +45,13 @@ let DAO = {
       .then(r => r.json());
   },
 
+  ingestFiles: function (paths) {
+    return SERVICE.ingestFiles(CONFIG.repositoryId).ajax({
+      data: JSON.stringify(paths),
+      headers: this.ajaxHeaders
+    });
+  },
+
   deleteFiles: function (paths) {
     return SERVICE.deleteFiles(CONFIG.repositoryId).ajax({
       data: JSON.stringify(paths),
@@ -65,11 +72,14 @@ var app = new Vue({
   data: function () {
     return {
       loaded: false,
+      truncated: false,
       files: [],
       deleting: [],
       dropping: false,
       uploading: [],
       cancelled: [],
+      log: [],
+      ingesting: false
     }
   },
   watch: {
@@ -99,8 +109,9 @@ var app = new Vue({
     },
 
     refresh: function () {
-      return DAO.listFiles("").then(files => {
-        this.files = files;
+      return DAO.listFiles("").then(data => {
+        this.files = data.files;
+        this.truncated = data.truncated;
         this.loaded = true;
       });
     },
@@ -113,7 +124,8 @@ var app = new Vue({
     },
     finishUpload: function(fileSpec) {
       let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
-      this.uploading.splice(i, 1);
+      this.uploading[i].progress = 100;
+      setTimeout(_ => this.uploading.splice(i, 1), 1000);
     },
     setUploadProgress: function(fileSpec, percent) {
       let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
@@ -233,6 +245,41 @@ var app = new Vue({
           console.log("Files uploaded...")
         });
     },
+    ingestFiles: function(event) {
+      let self = this;
+      self.ingesting = true;
+      DAO.ingestFiles(this.files.map(f => f.key))
+        .then(data => {
+          if (data.url && data.jobId) {
+            var websocket = new WebSocket(data.url);
+            websocket.onopen = function() {
+              console.debug("Opened monitoring socket...")
+            };
+            websocket.onerror = function(e) {
+              self.log.push("ERROR. Try refreshing the page. ");
+              console.error("Socket error!", e);
+            };
+            websocket.onclose = function() {
+              console.debug("Closed!");
+            };
+            websocket.onmessage = function(e) {
+              var msg = JSON.parse(e.data);
+              self.log.push(msg.trim());
+              if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+                websocket.close();
+                console.debug("Closed socket")
+              }
+              // FIXME
+              let logElem = document.getElementById("update-progress");
+              logElem.scrollTop = logElem.clientHeight;
+            };
+
+          } else {
+            console.error("Unexpected job data", data);
+          }
+        });
+
+    },
   },
   computed: {
   },
@@ -269,7 +316,7 @@ var app = new Vue({
       <div class="admin-help-notice" v-else-if="loaded">
         There are no files yet.
       </div>
-      <div id="drop-target"
+      <div id="drop-target" v-if="!ingesting"
            v-bind:class="{dropping: dropping}"
       >
         <input id="file-selector" 
@@ -281,6 +328,10 @@ var app = new Vue({
                accept="text/xml" multiple/>
         Click to select or drop files here...
       </div>
+      <div id="update-progress" v-else>
+            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+      </div>
+      <button v-on:click="ingestFiles">Ingest Files</button>
       <div id="upload-progress" v-if="uploading.length > 0">
         <div v-for="job in uploading" class="progress-container">
           <div class="progress">
