@@ -15,15 +15,15 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{DeleteObjectsRequest, GeneratePresignedUrlRequest}
+import com.amazonaws.services.s3.model.{DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsV2Request}
 import play.api.Logger
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
 
 
 private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AWSCredentialsProvider, region: AwsRegionProvider)(implicit actorSystem: ActorSystem, mat: Materializer) {
-
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
 
@@ -88,16 +88,27 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
   def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
 
-  def listFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
-    ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(f.key, f.lastModified, f.size))
+  def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
+    ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, f.eTag))
   )(
-    _ => S3.listBucket(classifier, prefix).map(f => FileMeta(f.key, f.lastModified, f.size))
+    _ => S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, f.eTag))
       .withAttributes(S3Attributes.settings(endpoint))
   )
 
   def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
-    import collection.JavaConverters._
     val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
     client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
+  }(ec)
+
+  def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
+    val req = new ListObjectsV2Request()
+        .withBucketName(classifier)
+        .withMaxKeys(max)
+    after.foreach(req.setStartAfter)
+    prefix.foreach(req.setPrefix)
+    val r = client.listObjectsV2(req)
+    FileList(r.getObjectSummaries.asScala.map { f =>
+      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, f.getETag)
+    }.toList, r.isTruncated)
   }(ec)
 }
