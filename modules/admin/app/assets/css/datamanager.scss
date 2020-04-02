@@ -18,6 +18,8 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+
+  background-color: $gray-100;
 }
 
 #flex-content {
@@ -31,20 +33,62 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: $margin-sm;
-  background-color: $gray-100;
-  border: $border-width solid $border-color;
-  margin-bottom: $margin-lg;
+  margin-bottom: $margin-sm;
 }
 
-#drop-target {
+#file-list-container {
+  overflow-y: auto;
+  flex: 1;
+  flex-basis: 0;
+  margin-bottom: $margin-sm;
+
+  background-color: $white;
+}
+
+#status {
+  margin-top: auto;
+
+  #status-panel-tabs {
+    .nav-link {
+      padding: $margin-xxs $margin-xs;
+    }
+  }
+
+  #status-panels {
+    border: 1px solid $border-color;
+    border-top: 0;
+    height: 10rem;
+  }
+
+  .status-panel {
+    height: 100%;
+    background-color: $white;
+  }
+}
+
+#tab-ingest-log {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  overflow: auto;
+
+  pre {
+    white-space: normal;
+    overflow: visible;
+    margin: 0;
+  }
+}
+
+#actions-menu {
+  margin-bottom: $margin-sm;
+}
+
+.status-panel#tab-file-upload {
   position: relative;
-  min-height: 10rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: lightyellow;
-  border: 1px solid $border-color;
   margin-top: auto;
   font-size: $font-size-lg;
   color: $text-muted;
@@ -55,7 +99,7 @@ body {
 }
 
 #file-selector {
-  opacity: 0%;
+  opacity: 0;
   width: 100%;
   height: 100%;
   position: absolute;
@@ -70,6 +114,8 @@ body {
   background-color: $ehri-gray;
   padding: $margin-xs;
   min-width: 20rem;
+  overflow-y: auto;
+  max-height: 20rem;
 
   .progress-container {
     background-color: lighten($ehri-gray, 1%);
@@ -96,4 +142,9 @@ body {
       padding: $margin-sm 0;
     }
   }
+}
+
+#preview-data > pre {
+  height: 20rem;
+  overflow: auto;
 }

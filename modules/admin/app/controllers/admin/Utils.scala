@@ -14,7 +14,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, BodyParser, ControllerComponents}
 import services.cypher.CypherService
 import services.data.AuthenticatedUser
-import services.ingest.{EadValidator, S3ObjectSpec}
+import services.ingest.{EadValidator, S3ObjectSpec, XmlValidationError}
 import services.search.SearchIndexMediator
 import services.storage.DOFileStorage
 import utils.PageParams
@@ -77,9 +77,8 @@ case class Utils @Inject()(
     }
   }
 
-  private val eadErrorWrites: Writes[EadValidator#Error] = Writes(e => Json.arr(e.line, e.pos, e.error))
-  private val errorsToBytes: Flow[EadValidator#Error, ByteString, akka.NotUsed] = Flow[EadValidator#Error]
-    .map(e => Json.toJson(e)(eadErrorWrites))
+  private val errorsToBytes: Flow[XmlValidationError, ByteString, akka.NotUsed] = Flow[XmlValidationError]
+    .map(e => Json.toJson(e))
     .map(Json.prettyPrint)
     .map(ByteString.apply)
     .intersperse(ByteString("["), ByteString(","), ByteString("]"))
