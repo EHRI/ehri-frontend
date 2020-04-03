@@ -21,7 +21,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.mvc._
 import services.data.{AuthenticatedUser, DataHelpers}
 import services.ingest.IngestApi.{IngestData, IngestJob}
-import services.ingest.{EadValidator, IngestApi, IngestParams}
+import services.ingest.{EadValidator, IngestApi, IngestParams, XmlValidationError}
 import services.search._
 import services.storage.{DOFileStorage, FileStorage}
 
@@ -63,13 +63,13 @@ case class RepositoryData @Inject()(
   }
 
   def validateEad(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[EadValidator#Error]], request.item, fileForm,
+    Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[XmlValidationError]], request.item, fileForm,
       repositoryDataRoutes.validateEadPost(id)))
   }
 
   def validateEadPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     request.body.asMultipartFormData.map { data =>
-      val results: Seq[Future[(String, Seq[EadValidator#Error])]] = data.files.map { file =>
+      val results: Seq[Future[(String, Seq[XmlValidationError])]] = data.files.map { file =>
         eadValidator.validateEad(file.ref.toPath).map(errs => file.filename -> errs)
       }
 
@@ -84,7 +84,7 @@ case class RepositoryData @Inject()(
 
   def validateEadFromStorage(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.streamFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).flatMap  { files =>
-      val results: Seq[Future[(String, Seq[EadValidator#Error])]] = files.map { file =>
+      val results: Seq[Future[(String, Seq[XmlValidationError])]] = files.map { file =>
         eadValidator.validateEad(Uri(storage.uri(bucket, file.key).toString))
           .map(errs => file.key.replace(prefix(id), "") -> errs)
       }
@@ -93,6 +93,17 @@ case class RepositoryData @Inject()(
         Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
           repositoryDataRoutes.validateEadPost(id)))
       }
+    }
+  }
+
+  def validateFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id)}$path")
+    val results: Seq[Future[(String, Seq[XmlValidationError])]] = keys.map { key =>
+      eadValidator.validateEad(Uri(storage.uri(bucket, key).toString))
+        .map(errs => key.replace(prefix(id), "") -> errs)
+    }
+    Future.sequence(results).map { out =>
+      Ok(Json.toJson(out.toMap))
     }
   }
 
@@ -107,6 +118,12 @@ case class RepositoryData @Inject()(
     storage.deleteFiles(bucket, keys: _*).map { deleted =>
       Ok(Json.toJson(deleted.map(_.replace(prefix(id), ""))))
     }
+  }
+
+  def fileUrls(id: String): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id)}$path")
+    val result = keys.map(key => key.replace(prefix(id), "") -> storage.uri(bucket, key)).toMap
+    Ok(Json.toJson(result))
   }
 
   def ingestFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
