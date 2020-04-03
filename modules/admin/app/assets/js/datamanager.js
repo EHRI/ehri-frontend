@@ -45,6 +45,13 @@ let DAO = {
       .then(r => r.json());
   },
 
+  validateFiles: function (paths) {
+    return SERVICE.validateFiles(CONFIG.repositoryId).ajax({
+      data: JSON.stringify(paths),
+      headers: this.ajaxHeaders
+    });
+  },
+
   ingestFiles: function (paths) {
     return SERVICE.ingestFiles(CONFIG.repositoryId).ajax({
       data: JSON.stringify(paths),
@@ -54,6 +61,13 @@ let DAO = {
 
   deleteFiles: function (paths) {
     return SERVICE.deleteFiles(CONFIG.repositoryId).ajax({
+      data: JSON.stringify(paths),
+      headers: this.ajaxHeaders
+    });
+  },
+
+  fileUrls: function (paths) {
+    return SERVICE.fileUrls(CONFIG.repositoryId).ajax({
       data: JSON.stringify(paths),
       headers: this.ajaxHeaders
     });
@@ -79,7 +93,14 @@ var app = new Vue({
       uploading: [],
       cancelled: [],
       log: [],
-      ingesting: false
+      ingesting: {},
+      validating: {},
+      validationErrors: {},
+      lastValidated: null,
+      tab: 'upload',
+      previewing: null,
+      previewData: null,
+      previewTruncated: false,
     }
   },
   watch: {
@@ -137,6 +158,51 @@ var app = new Vue({
     },
     isDeleting: function(key) {
       return this.deleting.includes(key);
+    },
+    showPreview: function(key) {
+      this.previewing = key;
+      DAO.fileUrls([key]).then(data => {
+        fetch(data[key]).then(r => {
+          let reader = r.body.getReader();
+          let self = this;
+          let decoder = new TextDecoder("utf-8");
+          reader.read().then(function appendBody({done, value}) {
+            if (!done) {
+              if (self.previewData !== null && self.previewData.length > 10) {
+                self.previewTruncated = true;
+                reader.cancel();
+              } else {
+                let text = decoder.decode(value);
+                if (self.previewData === null) {
+                  self.previewData = text;
+                } else {
+                  self.previewData += text;
+                }
+                reader.read().then(appendBody);
+              }
+            }
+          });
+        });
+      });
+    },
+    closePreview: function() {
+      this.previewing = null;
+      this.previewData = null;
+    },
+    validateFile: function(key) {
+      this.$set(this.validating, key, true);
+      DAO.validateFiles([key]).then(e => {
+        this.$set(this.validationErrors, key, e[key]);
+        this.$delete(this.validating, key);
+        this.lastValidated = key;
+      });
+    },
+    isValid: function(key) {
+      let err = this.validationErrors[key];
+      if (_.isArray(err)) {
+        return err.length === 0;
+      }
+      return null;
     },
     dragOver: function(event) {
       this.dropping = true;
@@ -245,10 +311,13 @@ var app = new Vue({
           console.log("Files uploaded...")
         });
     },
-    ingestFiles: function(event) {
+    ingestFiles: function(keys) {
       let self = this;
-      self.ingesting = true;
-      DAO.ingestFiles(this.files.map(f => f.key))
+      this.tab = "ingest";
+      keys.forEach(key => {
+        this.$set(this.ingesting, key, true);
+      });
+      DAO.ingestFiles(keys)
         .then(data => {
           if (data.url && data.jobId) {
             var websocket = new WebSocket(data.url);
@@ -258,6 +327,9 @@ var app = new Vue({
             websocket.onerror = function(e) {
               self.log.push("ERROR. Try refreshing the page. ");
               console.error("Socket error!", e);
+              keys.forEach(key => {
+                self.$delete(self.ingesting, key);
+              });
             };
             websocket.onclose = function() {
               console.debug("Closed!");
@@ -267,6 +339,9 @@ var app = new Vue({
               self.log.push(msg.trim());
               if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
                 websocket.close();
+                keys.forEach(key => {
+                  self.$delete(self.ingesting, key);
+                });
                 console.debug("Closed socket")
               }
               // FIXME
@@ -278,7 +353,6 @@ var app = new Vue({
             console.error("Unexpected job data", data);
           }
         });
-
     },
   },
   computed: {
@@ -292,9 +366,9 @@ var app = new Vue({
         <thead>
         <tr>
           <td>Name</td>
-          <td>Last Modified</td>
+          <td>Last Modified</td>//client
           <td>Size</td>
-          <td></td>
+          <td colspan="4"></td>
         </tr>
         </thead>
         <tbody>
@@ -310,42 +384,102 @@ var app = new Vue({
               }"></i>
             </a>
           </td>
+          <td>
+            <a href="#" v-bind:disabled="validating[file.key]" v-on:click.prevent="validateFile(file.key)">
+              <i class="fa fa-fw fa-spin fa-circle-o-notch" v-if="validating[file.key]"/>
+              <i class="fa fa-fw fa-check-circle-o" v-else-if="isValid(file.key)"/>
+              <i class="fa fa-fw fa-exclamation-triangle" v-else-if="isValid(file.key) === false"/>
+              <i class="fa fa-fw fa-question-circle-o" v-else/>
+            </a>
+          </td>
+          <td><a href="#" v-on:click.prevent="showPreview(file.key)"><i class="fa fa-eye"></i></a></td>
+          <td><a href="#" v-on:click.prevent="ingestFiles([file.key])">
+            <i class="fa fa-fw" v-bind:class="{
+              'fa-database': !ingesting[file.key], 
+              'fa-circle-o-notch fa-spin': ingesting[file.key]
+            }"></i></a>
+          </td>
         </tr>
         </tbody>
       </table>
       <div class="admin-help-notice" v-else-if="loaded">
         There are no files yet.
       </div>
-      <div id="drop-target" v-if="!ingesting"
-           v-bind:class="{dropping: dropping}"
-      >
-        <input id="file-selector" 
-               v-on:change="uploadFiles"
-               v-on:dragover.prevent="dragOver"
-               v-on:dragleave.prevent="dragLeave"
-               v-on:drop.prevent="uploadFiles"
-               type="file" 
-               accept="text/xml" multiple/>
-        Click to select or drop files here...
+
+      <ul id="panel-tabs" class="nav nav-tabs">
+        <li class="nav-item">
+          <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
+             v-on:click.prevent="tab = 'upload'">
+            Upload Files
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab-validation-errors" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+             v-on:click.prevent="tab = 'validation'">
+            Validation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+             v-on:click.prevent="tab = 'ingest'">
+            Ingest
+          </a>
+        </li>
+      </ul>
+
+      <div id="tab-validation-errors" v-show="tab === 'validation'">
+        <pre v-if="lastValidated"><template v-for="msg in validationErrors[lastValidated]">{{msg}}</template></pre>
       </div>
-      <div id="update-progress" v-else>
-            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+      <div id="tab-ingest-log" v-show="tab === 'ingest'">
+        <div id="update-progress">
+          <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+        </div>
+        <button class="btn btn-warning" v-on:click="ingestFiles">Ingest Files</button>
       </div>
-      <button v-on:click="ingestFiles">Ingest Files</button>
+      <div id="tab-file-upload" v-show="tab === 'upload'">
+        <div id="drop-target" v-bind:class="{dropping: dropping}">
+          <input id="file-selector"
+                 v-on:change="uploadFiles"
+                 v-on:dragover.prevent="dragOver"
+                 v-on:dragleave.prevent="dragLeave"
+                 v-on:drop.prevent="uploadFiles"
+                 type="file"
+                 accept="text/xml" multiple/>
+          Click to select or drop files here...
+        </div>
+      </div>
+
+      <div class="modal show" v-if="previewing" role="dialog" style="display: block">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title">{{previewing}}</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                      v-on:click="closePreview()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" id="preview-data" v-bind:class="{'loading':previewData === null}">
+              <pre>{{previewData}}<template v-if="previewTruncated"><br/>... [truncated] ...</template></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="upload-progress" v-if="uploading.length > 0">
         <div v-for="job in uploading" class="progress-container">
           <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
                  role="progressbar"
-                 v-bind:aria-valuemax="100" 
-                 v-bind:aria-valuemin="0" 
+                 v-bind:aria-valuemax="100"
+                 v-bind:aria-valuemin="0"
                  v-bind:aria-valuenow="job.progress"
-                  v-bind:style="'width: ' + job.progress + '%'">
+                 v-bind:style="'width: ' + job.progress + '%'">
               {{ job.spec.name}}
             </div>
           </div>
           <button class="cancel-button" v-on:click.prevent="finishUpload(job.spec)">
-              <i class="fa fa-fw fa-times-circle"/>
+            <i class="fa fa-fw fa-times-circle"/>
           </button>
         </div>
       </div>

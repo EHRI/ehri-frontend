@@ -33,7 +33,9 @@ GET         /:id/data                                 @controllers.institutions.
 GET         /:id/data/list                            @controllers.institutions.RepositoryData.listFiles(id: String, path: Option[String] ?= None, after: Option[String] ?= None)
 POST        /:id/data/delete                          @controllers.institutions.RepositoryData.deleteFiles(id: String)
 POST        /:id/data/upload                          @controllers.institutions.RepositoryData.uploadHandle(id: String)
+POST        /:id/data/validate                        @controllers.institutions.RepositoryData.validateFiles(id: String)
 POST        /:id/data/ingest                          @controllers.institutions.RepositoryData.ingestFiles(id: String)
+POST        /:id/data/urls                            @controllers.institutions.RepositoryData.fileUrls(id: String)
 
 GET         /:id/data-old                             @controllers.institutions.RepositoryData.uploadData(id: String)
 POST        /:id/data-old                             @controllers.institutions.RepositoryData.uploadDataPost(id: String)
