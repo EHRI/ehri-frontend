@@ -87,6 +87,98 @@ let DAO = {
   }
 };
 
+Vue.component("preview", {
+  props: {
+    previewing: String,
+  },
+  data: function() {
+    return {
+      previewData: null,
+      previewTruncated: false,
+    }
+  },
+  methods: {
+   load: function() {
+     let self = this;
+     DAO.fileUrls([self.previewing]).then(data => {
+       fetch(data[self.previewing]).then(r => {
+         let reader = r.body.getReader();
+         let self = this;
+         let decoder = new TextDecoder("UTF-8");
+         reader.read().then(function appendBody({done, value}) {
+           if (!done) {
+             if (self.previewData !== null && self.previewData.length > 10) {
+               self.previewTruncated = true;
+               reader.cancel();
+             } else {
+               let text = decoder.decode(value);
+               if (self.previewData === null) {
+                 self.previewData = text;
+               } else {
+                 self.previewData += text;
+               }
+               reader.read().then(appendBody);
+             }
+           }
+         });
+       });
+     });
+   },
+   closePreview: function() {
+     this.previewData = null;
+     this.previewTruncated = false;
+     this.$emit("close-preview");
+   }
+  },
+  created: function() {
+    this.load();
+  },
+  template: `
+    <div class="modal show" role="dialog" style="display: block">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">{{previewing}}</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="closePreview">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="preview-data" v-bind:class="{'loading':previewData === null}">
+                  <pre>{{previewData}}
+                    <template v-if="previewTruncated"><br/>... [truncated] ...</template></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+Vue.component("upload-progress", {
+  props: {
+    uploading: Array,
+  },
+  template: `
+    <div id="upload-progress" v-if="uploading.length > 0">
+      <div v-for="job in uploading" class="progress-container">
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated"
+               role="progressbar"
+               v-bind:aria-valuemax="100"
+               v-bind:aria-valuemin="0"
+               v-bind:aria-valuenow="job.progress"
+               v-bind:style="'width: ' + job.progress + '%'">
+            {{ job.spec.name}}
+          </div>
+        </div>
+        <button class="cancel-button" v-on:click.prevent="$emit('finish-item', job.spec)">
+          <i class="fa fa-fw fa-times-circle"/>
+        </button>
+      </div>
+    </div>
+  `
+});
+
 Vue.component("files-table", {
   props: {
     loaded: Boolean,
@@ -201,8 +293,6 @@ var app = new Vue({
       lastValidated: null,
       tab: 'upload',
       previewing: null,
-      previewData: null,
-      previewTruncated: false,
     }
   },
   watch: {
@@ -250,33 +340,11 @@ var app = new Vue({
     },
     showPreview: function(key) {
       this.previewing = key;
-      DAO.fileUrls([key]).then(data => {
-        fetch(data[key]).then(r => {
-          let reader = r.body.getReader();
-          let self = this;
-          let decoder = new TextDecoder("utf-8");
-          reader.read().then(function appendBody({done, value}) {
-            if (!done) {
-              if (self.previewData !== null && self.previewData.length > 10) {
-                self.previewTruncated = true;
-                reader.cancel();
-              } else {
-                let text = decoder.decode(value);
-                if (self.previewData === null) {
-                  self.previewData = text;
-                } else {
-                  self.previewData += text;
-                }
-                reader.read().then(appendBody);
-              }
-            }
-          });
-        });
-      });
     },
     closePreview: function() {
       this.previewing = null;
       this.previewData = null;
+      this.previewTruncated = false;
     },
     validateFile: function(key) {
       this.$set(this.validating, key, true);
@@ -510,43 +578,17 @@ var app = new Vue({
             Click to select or drop files here...
           </div>
 
-          <div class="modal show" v-if="previewing" role="dialog" style="display: block">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3 class="modal-title">{{previewing}}</h3>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                          v-on:click="closePreview()">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body" id="preview-data" v-bind:class="{'loading':previewData === null}">
-                  <pre>{{previewData}}
-                    <template v-if="previewTruncated"><br/>... [truncated] ...</template></pre>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div id="upload-progress" v-if="uploading.length > 0">
-        <div v-for="job in uploading" class="progress-container">
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                 role="progressbar"
-                 v-bind:aria-valuemax="100"
-                 v-bind:aria-valuemin="0"
-                 v-bind:aria-valuenow="job.progress"
-                 v-bind:style="'width: ' + job.progress + '%'">
-              {{ job.spec.name}}
-            </div>
-          </div>
-          <button class="cancel-button" v-on:click.prevent="finishUpload(job.spec)">
-            <i class="fa fa-fw fa-times-circle"/>
-          </button>
-        </div>
-      </div>
+      <preview 
+        v-if="previewing" 
+        v-bind:previewing="previewing" 
+        v-on:close-preview="previewing = null" />
+      
+      <upload-progress 
+        v-bind:uploading="uploading" 
+        v-on:finish-item="finishUpload" />
     </div>
   `
 });
