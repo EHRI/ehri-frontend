@@ -32,6 +32,7 @@ POST        /:id/logo                                 @controllers.institutions.
 GET         /:id/data                                 @controllers.institutions.RepositoryData.manager(id: String)
 GET         /:id/data/list                            @controllers.institutions.RepositoryData.listFiles(id: String, path: Option[String] ?= None, after: Option[String] ?= None)
 POST        /:id/data/delete                          @controllers.institutions.RepositoryData.deleteFiles(id: String)
+POST        /:id/data/delete-all                      @controllers.institutions.RepositoryData.deleteAll(id: String)
 POST        /:id/data/upload                          @controllers.institutions.RepositoryData.uploadHandle(id: String)
 POST        /:id/data/validate                        @controllers.institutions.RepositoryData.validateFiles(id: String)
 POST        /:id/data/ingest                          @controllers.institutions.RepositoryData.ingestFiles(id: String)

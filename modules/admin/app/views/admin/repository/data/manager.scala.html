@@ -27,6 +27,7 @@
             controllers.institutions.routes.javascript.RepositoryData.listFiles,
             controllers.institutions.routes.javascript.RepositoryData.validateFiles,
             controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
+            controllers.institutions.routes.javascript.RepositoryData.deleteAll,
             controllers.institutions.routes.javascript.RepositoryData.ingestFiles,
             controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
             controllers.institutions.routes.javascript.RepositoryData.fileUrls,
@@ -37,6 +38,7 @@
                     listFiles: dataManagerRoutes.controllers.institutions.RepositoryData.listFiles,
                     validateFiles: dataManagerRoutes.controllers.institutions.RepositoryData.validateFiles,
                     deleteFiles: dataManagerRoutes.controllers.institutions.RepositoryData.deleteFiles,
+                    deleteAll: dataManagerRoutes.controllers.institutions.RepositoryData.deleteAll,
                     ingestFiles: dataManagerRoutes.controllers.institutions.RepositoryData.ingestFiles,
                     uploadHandle: dataManagerRoutes.controllers.institutions.RepositoryData.uploadHandle,
                     fileUrls: dataManagerRoutes.controllers.institutions.RepositoryData.fileUrls,
@@ -60,7 +62,6 @@
             @views.html.admin.common.testWarning()
             @views.html.admin.common.breadcrumbs(List(item))
             <div id="flex-content" class="container" >
-                <h2>@Messages("repository.data", item.toStringLang)</h2>
                 <div id="data-manager"></div>
             </div>
         </div>
