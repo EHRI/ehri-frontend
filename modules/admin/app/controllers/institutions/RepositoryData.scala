@@ -1,7 +1,7 @@
 package controllers.institutions
 
 import java.io.PrintWriter
-import java.net.URI
+import java.net.{URI, URLEncoder}
 import java.util.UUID
 
 import actors.IngestActor
@@ -23,7 +23,7 @@ import services.data.{AuthenticatedUser, DataHelpers}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest.{EadValidator, IngestApi, IngestParams, XmlValidationError}
 import services.search._
-import services.storage.{DOFileStorage, FileStorage}
+import services.storage.{DOFileStorage, FileMeta, FileStorage}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -56,7 +56,11 @@ case class RepositoryData @Inject()(
   private val fileForm = Form(single("file" -> text))
   private val storage = DOFileStorage(config)(mat.system, mat)
   private val bucket = "ehri-assets"
-  private val prefix: String => String = id => s"ingest/$id/"
+  private def instance(implicit request: RequestHeader): String =
+    URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
+  private def prefix(id: String)(implicit request: RequestHeader): String = s"$instance/ingest/$id/"
+
+
 
   def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.data.manager(request.item))
@@ -117,6 +121,25 @@ case class RepositoryData @Inject()(
     val keys = request.body.map(path => s"${prefix(id)}$path")
     storage.deleteFiles(bucket, keys: _*).map { deleted =>
       Ok(Json.toJson(deleted.map(_.replace(prefix(id), ""))))
+    }
+  }
+
+  def deleteAll(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+
+    def deleteBatch(batch: Seq[FileMeta]): Future[Boolean] = {
+      storage
+        .deleteFiles(bucket, batch.map(_.key): _*)
+        .map(_.size == batch.size)
+    }
+
+    val r: Future[Boolean] = storage
+      .streamFiles(bucket, Some(prefix(id)))
+      .grouped(200)
+      .mapAsync(2)(deleteBatch)
+      .runWith(Sink.seq)
+      .map((s: Seq[Boolean]) => s.forall(g => g))
+    r.map { (ok: Boolean) =>
+      Ok(Json.obj("ok" -> ok))
     }
   }
 

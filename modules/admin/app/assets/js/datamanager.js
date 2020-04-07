@@ -66,6 +66,12 @@ let DAO = {
     });
   },
 
+  deleteAll: function() {
+    return SERVICE.deleteAll(CONFIG.repositoryId).ajax({
+      headers: this.ajaxHeaders
+    }).then(data => data.ok || false);
+  },
+
   fileUrls: function (paths) {
     return SERVICE.fileUrls(CONFIG.repositoryId).ajax({
       data: JSON.stringify(paths),
@@ -81,29 +87,19 @@ let DAO = {
   }
 };
 
-var app = new Vue({
-  el: '#data-manager',
-  data: function () {
-    return {
-      loaded: false,
-      truncated: false,
-      files: [],
-      deleting: [],
-      dropping: false,
-      uploading: [],
-      cancelled: [],
-      log: [],
-      ingesting: {},
-      validating: {},
-      validationErrors: {},
-      lastValidated: null,
-      tab: 'upload',
-      previewing: null,
-      previewData: null,
-      previewTruncated: false,
-    }
+Vue.component("files-table", {
+  props: {
+    loaded: Boolean,
+    files: Array,
+    deleting: Object,
+    ingesting: Object,
+    validating: Object,
+    validationLog: Object,
   },
-  watch: {
+  data: function() {
+    return {
+
+    }
   },
   methods: {
     // EJohn's pretty date:
@@ -129,6 +125,89 @@ var app = new Vue({
         day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
     },
 
+    isValid: function(key) {
+      let err = this.validationLog[key];
+      if (_.isArray(err)) {
+        return err.length === 0;
+      }
+      return null;
+    },
+  },
+  template: `
+    <div id="file-list-container">
+      <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
+        <thead>
+        <tr>
+          <td>Name</td>
+          <td>Last Modified</td>
+          <td>Size</td>
+          <td colspan="4"></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="file in files">
+          <td>{{file.key}}</td>
+          <td>{{prettyDate(file.lastModified)}}</td>
+          <td>{{file.size}}</td>
+          <td>
+            <a href="#" v-on:click.prevent="$emit('delete-file', file.key)">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': deleting[file.key], 
+                'fa-trash-o': !deleting[file.key] 
+              }"></i>
+            </a>
+          </td>
+          <td>
+            <a href="#" v-bind:disabled="validating[file.key]" v-on:click.prevent="$emit('validate-file', file.key)">
+              <i class="fa fa-fw fa-spin fa-circle-o-notch" v-if="validating[file.key]"/>
+              <i class="fa fa-fw fa-check-circle-o" v-else-if="isValid(file.key)"/>
+              <i class="fa fa-fw fa-exclamation-triangle" v-else-if="isValid(file.key) === false"/>
+              <i class="fa fa-fw fa-question-circle-o" v-else/>
+            </a>
+          </td>
+          <td><a href="#" v-on:click.prevent="$emit('show-preview', file.key)"><i class="fa fa-eye"></i></a></td>
+          <td><a href="#" v-on:click.prevent="$emit('ingest-files', [file.key])">
+            <i class="fa fa-fw" v-bind:class="{
+              'fa-database': !ingesting[file.key], 
+              'fa-circle-o-notch fa-spin': ingesting[file.key]
+            }"></i></a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="admin-help-notice" v-else-if="loaded && files.length === 0">
+        There are no files yet.
+      </div>
+    </div>
+  `
+});
+
+var app = new Vue({
+  el: '#data-manager',
+  data: function () {
+    return {
+      loaded: false,
+      truncated: false,
+      files: [],
+      deleting: {},
+      selected: [],
+      dropping: false,
+      uploading: [],
+      cancelled: [],
+      log: [],
+      ingesting: {},
+      validating: {},
+      validationLog: {},
+      lastValidated: null,
+      tab: 'upload',
+      previewing: null,
+      previewData: null,
+      previewTruncated: false,
+    }
+  },
+  watch: {
+  },
+  methods: {
     refresh: function () {
       return DAO.listFiles("").then(data => {
         this.files = data.files;
@@ -137,16 +216,29 @@ var app = new Vue({
       });
     },
     deleteFile: function(key) {
-      this.deleting.push(key);
+      this.$set(this.deleting, key, true);
       DAO.deleteFiles([key]).then(deleted => {
-        this.deleting = _.difference(this.deleting, deleted);
+        deleted.forEach(key => this.$delete(this.deleting, key));
         this.refresh();
       })
     },
+    deleteAll: function() {
+      this.files.forEach(f => this.$set(this.deleting, f.key, true));
+      return DAO.deleteAll().then(r => {
+        this.refresh();
+        this.deleting = {};
+        r;
+      });
+    },
+    ingestAll: function() {
+
+    },
     finishUpload: function(fileSpec) {
-      let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
-      this.uploading[i].progress = 100;
-      setTimeout(_ => this.uploading.splice(i, 1), 1000);
+      this.setUploadProgress(fileSpec, 100);
+      setTimeout(() => {
+        let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
+        this.uploading.splice(i, 1)
+      }, 1000);
     },
     setUploadProgress: function(fileSpec, percent) {
       let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
@@ -155,9 +247,6 @@ var app = new Vue({
         return true;
       }
       return false;
-    },
-    isDeleting: function(key) {
-      return this.deleting.includes(key);
     },
     showPreview: function(key) {
       this.previewing = key;
@@ -192,17 +281,11 @@ var app = new Vue({
     validateFile: function(key) {
       this.$set(this.validating, key, true);
       DAO.validateFiles([key]).then(e => {
-        this.$set(this.validationErrors, key, e[key]);
+        let errors = e[key];
+        this.$set(this.validationLog, key, errors);
         this.$delete(this.validating, key);
         this.lastValidated = key;
       });
-    },
-    isValid: function(key) {
-      let err = this.validationErrors[key];
-      if (_.isArray(err)) {
-        return err.length === 0;
-      }
-      return null;
     },
     dragOver: function(event) {
       this.dropping = true;
@@ -211,7 +294,6 @@ var app = new Vue({
       this.dropping = false;
     },
     uploadFile: function(file) {
-
       // Check we're still in the queue and have not been cancelled...
       if (_.findIndex(this.uploading, f => f.spec.name === file.name) === -1) {
         return Promise.resolve();
@@ -362,105 +444,87 @@ var app = new Vue({
   },
   template: `
     <div id="data-manager-container">
-      <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
-        <thead>
-        <tr>
-          <td>Name</td>
-          <td>Last Modified</td>//client
-          <td>Size</td>
-          <td colspan="4"></td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="file in files">
-          <td>{{file.key}}</td>
-          <td>{{prettyDate(file.lastModified)}}</td>
-          <td>{{file.size}}</td>
-          <td>
-            <a href="#" v-on:click.prevent="deleteFile(file.key)">
-              <i class="fa fa-fw" v-bind:class="{
-                'fa-circle-o-notch fa-spin': isDeleting(file.key), 
-                'fa-trash-o': !isDeleting(file.key) 
-              }"></i>
-            </a>
-          </td>
-          <td>
-            <a href="#" v-bind:disabled="validating[file.key]" v-on:click.prevent="validateFile(file.key)">
-              <i class="fa fa-fw fa-spin fa-circle-o-notch" v-if="validating[file.key]"/>
-              <i class="fa fa-fw fa-check-circle-o" v-else-if="isValid(file.key)"/>
-              <i class="fa fa-fw fa-exclamation-triangle" v-else-if="isValid(file.key) === false"/>
-              <i class="fa fa-fw fa-question-circle-o" v-else/>
-            </a>
-          </td>
-          <td><a href="#" v-on:click.prevent="showPreview(file.key)"><i class="fa fa-eye"></i></a></td>
-          <td><a href="#" v-on:click.prevent="ingestFiles([file.key])">
-            <i class="fa fa-fw" v-bind:class="{
-              'fa-database': !ingesting[file.key], 
-              'fa-circle-o-notch fa-spin': ingesting[file.key]
-            }"></i></a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <div class="admin-help-notice" v-else-if="loaded">
-        There are no files yet.
-      </div>
-
-      <ul id="panel-tabs" class="nav nav-tabs">
-        <li class="nav-item">
-          <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
-             v-on:click.prevent="tab = 'upload'">
-            Upload Files
+      <div id="actions-menu" class="downdown">
+        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle pull-right" role="button" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Actions
+        </a>
+        <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
+          <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()">
+            Delete All
           </a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab-validation-errors" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
-             v-on:click.prevent="tab = 'validation'">
-            Validation
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-             v-on:click.prevent="tab = 'ingest'">
-            Ingest
-          </a>
-        </li>
-      </ul>
-
-      <div id="tab-validation-errors" v-show="tab === 'validation'">
-        <pre v-if="lastValidated"><template v-for="msg in validationErrors[lastValidated]">{{msg}}</template></pre>
-      </div>
-      <div id="tab-ingest-log" v-show="tab === 'ingest'">
-        <div id="update-progress">
-          <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
-        </div>
-        <button class="btn btn-warning" v-on:click="ingestFiles">Ingest Files</button>
-      </div>
-      <div id="tab-file-upload" v-show="tab === 'upload'">
-        <div id="drop-target" v-bind:class="{dropping: dropping}">
-          <input id="file-selector"
-                 v-on:change="uploadFiles"
-                 v-on:dragover.prevent="dragOver"
-                 v-on:dragleave.prevent="dragLeave"
-                 v-on:drop.prevent="uploadFiles"
-                 type="file"
-                 accept="text/xml" multiple/>
-          Click to select or drop files here...
         </div>
       </div>
+      
+      <files-table
+        v-bind:loaded="loaded"
+        v-bind:files="files"
+        v-bind:validating="validating"
+        v-bind:validationLog="validationLog"
+        v-bind:deleting="deleting"
+        v-bind:ingesting="ingesting"
+        
+        v-on:delete-file="deleteFile"
+        v-on:ingest-files="ingestFiles"
+        v-on:validate-file="validateFile"
+        v-on:show-preview="showPreview"
+       /> 
+      
+      <div id="status">
+        <ul id="status-panel-tabs" class="nav nav-tabs">
+          <li class="nav-item">
+            <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
+               v-on:click.prevent="tab = 'upload'">
+              Upload Files
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tab-validation-errors" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+               v-on:click.prevent="tab = 'validation'">
+              Validation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+               v-on:click.prevent="tab = 'ingest'">
+              Ingest
+            </a>
+          </li>
+        </ul>
 
-      <div class="modal show" v-if="previewing" role="dialog" style="display: block">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3 class="modal-title">{{previewing}}</h3>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                      v-on:click="closePreview()">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body" id="preview-data" v-bind:class="{'loading':previewData === null}">
-              <pre>{{previewData}}<template v-if="previewTruncated"><br/>... [truncated] ...</template></pre>
+        <div id="status-panels">
+          <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
+            <pre v-if="lastValidated"><template v-for="msg in validationLog[lastValidated]">{{msg}}</template></pre>
+          </div>
+          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
+            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+          </div>
+          <div class="status-panel" id="tab-file-upload" v-show="tab === 'upload'" v-bind:class="{dropping: dropping}">
+            <input id="file-selector"
+                   v-on:change="uploadFiles"
+                   v-on:dragover.prevent="dragOver"
+                   v-on:dragleave.prevent="dragLeave"
+                   v-on:drop.prevent="uploadFiles"
+                   type="file"
+                   accept="text/xml" multiple/>
+            Click to select or drop files here...
+          </div>
+
+          <div class="modal show" v-if="previewing" role="dialog" style="display: block">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3 class="modal-title">{{previewing}}</h3>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                          v-on:click="closePreview()">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="preview-data" v-bind:class="{'loading':previewData === null}">
+                  <pre>{{previewData}}
+                    <template v-if="previewTruncated"><br/>... [truncated] ...</template></pre>
+                </div>
+              </div>
             </div>
           </div>
         </div>
