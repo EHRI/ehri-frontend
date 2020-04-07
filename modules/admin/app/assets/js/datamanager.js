@@ -59,6 +59,12 @@ let DAO = {
     });
   },
 
+  ingestAll: function (paths) {
+    return SERVICE.ingestAll(CONFIG.repositoryId).ajax({
+      headers: this.ajaxHeaders
+    });
+  },
+
   deleteFiles: function (paths) {
     return SERVICE.deleteFiles(CONFIG.repositoryId).ajax({
       data: JSON.stringify(paths),
@@ -320,9 +326,6 @@ var app = new Vue({
         r;
       });
     },
-    ingestAll: function() {
-
-    },
     finishUpload: function(fileSpec) {
       this.setUploadProgress(fileSpec, 100);
       setTimeout(() => {
@@ -461,51 +464,69 @@ var app = new Vue({
           console.log("Files uploaded...")
         });
     },
+    monitorIngest: function(url, keys) {
+      let self = this;
+      let websocket = new WebSocket(url);
+      websocket.onerror = function(e) {
+        self.log.push("ERROR. Try refreshing the page. ");
+        console.error("Socket error!", e);
+        keys.forEach(key => self.$delete(self.ingesting, key));
+      };
+      websocket.onmessage = function(e) {
+        var msg = JSON.parse(e.data);
+        self.log.push(msg.trim());
+        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+          keys.forEach(key => self.$delete(self.ingesting, key));
+          websocket.close();
+        }
+        // FIXME
+        let logElem = document.getElementById("update-progress");
+        logElem.scrollTop = logElem.clientHeight;
+      };
+    },
     ingestFiles: function(keys) {
       let self = this;
+
+      // Switch to ingest tab...
       this.tab = "ingest";
-      keys.forEach(key => {
-        this.$set(this.ingesting, key, true);
-      });
+
+      // Clear existing log...
+      self.log.length = 0;
+
+      // Set key status to ingesting.
+      keys.forEach(key => this.$set(this.ingesting, key, true));
+
       DAO.ingestFiles(keys)
         .then(data => {
           if (data.url && data.jobId) {
-            var websocket = new WebSocket(data.url);
-            websocket.onopen = function() {
-              console.debug("Opened monitoring socket...")
-            };
-            websocket.onerror = function(e) {
-              self.log.push("ERROR. Try refreshing the page. ");
-              console.error("Socket error!", e);
-              keys.forEach(key => {
-                self.$delete(self.ingesting, key);
-              });
-            };
-            websocket.onclose = function() {
-              console.debug("Closed!");
-            };
-            websocket.onmessage = function(e) {
-              var msg = JSON.parse(e.data);
-              self.log.push(msg.trim());
-              if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-                websocket.close();
-                keys.forEach(key => {
-                  self.$delete(self.ingesting, key);
-                });
-                console.debug("Closed socket")
-              }
-              // FIXME
-              let logElem = document.getElementById("update-progress");
-              logElem.scrollTop = logElem.clientHeight;
-            };
-
+            self.monitorIngest(data.url, keys);
           } else {
-            console.error("Unexpected job data", data);
+            console.error("unexpected job data", data);
           }
         });
     },
-  },
-  computed: {
+    ingestAll: function() {
+      let self = this;
+
+      // Switch to ingest tab...
+      this.tab = "ingest";
+
+      // Clear existing log...
+      self.log.length = 0;
+
+      let keys = self.files.map(f => f.key);
+
+      // Set key status to ingesting.
+      keys.forEach(key => this.$set(this.ingesting, key, true));
+
+      DAO.ingestAll().then(data => {
+        if (data.url && data.jobId) {
+          self.monitorIngest(data.url, keys);
+        } else {
+          console.error("unexpected job data", data);
+        }
+      });
+    },
   },
   created: function () {
     this.refresh();
@@ -520,6 +541,9 @@ var app = new Vue({
         <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
           <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()">
             Delete All
+          </a>
+          <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()">
+            Ingest All
           </a>
         </div>
       </div>

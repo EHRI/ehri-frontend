@@ -125,7 +125,6 @@ case class RepositoryData @Inject()(
   }
 
   def deleteAll(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-
     def deleteBatch(batch: Seq[FileMeta]): Future[Boolean] = {
       storage
         .deleteFiles(bucket, batch.map(_.key): _*)
@@ -147,6 +146,13 @@ case class RepositoryData @Inject()(
     val keys = request.body.map(path => s"${prefix(id)}$path")
     val result = keys.map(key => key.replace(prefix(id), "") -> storage.uri(bucket, key)).toMap
     Ok(Json.toJson(result))
+  }
+
+  def ingestAll(id: String): Action[AnyContent] = Action.async { implicit request =>
+    storage.streamFiles(bucket, Some(prefix(id))).map(_.key.replace(prefix(id), ""))
+        .runWith(Sink.seq).flatMap { seq =>
+      ingestFiles(id).apply(request.withBody(seq))
+    }
   }
 
   def ingestFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
