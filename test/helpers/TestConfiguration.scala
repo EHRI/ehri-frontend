@@ -53,6 +53,7 @@ trait TestConfiguration {
   protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
   protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
   protected val storedFileBuffer: ListBuffer[FileMeta] = collection.mutable.ListBuffer.empty[FileMeta]
+  protected val damFileBuffer: ListBuffer[FileMeta] = collection.mutable.ListBuffer.empty[FileMeta]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]
@@ -68,6 +69,7 @@ trait TestConfiguration {
   private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
+  private def mockDamFileStorage: FileStorage = MockFileStorage(damFileBuffer)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
   // More or less the same as run config but synchronous (so
@@ -95,6 +97,7 @@ trait TestConfiguration {
       bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Flow].toInstance(mockOAuth2Flow),
       bind[FileStorage].toInstance(mockFileStorage),
+      bind[FileStorage].qualifiedWith("dam").toInstance(mockDamFileStorage),
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
