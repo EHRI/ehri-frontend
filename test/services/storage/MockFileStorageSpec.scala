@@ -18,10 +18,12 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
   private val bucket = "bucket1"
 
   def putTestItems: (MockFileStorage, Seq[String]) = {
-    val storage = MockFileStorage(collection.mutable.ListBuffer.empty[FileMeta])
-    storage -> paths.map { path =>
+    val files = collection.mutable.ListBuffer.empty[FileMeta]
+    val storage = MockFileStorage(files)
+    val urls = paths.map { path =>
       await(storage.putBytes(bucket, path, bytes, public = true)).toString
     }
+    storage -> urls
   }
 
   "storage service" should {
@@ -31,23 +33,23 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
 
     "list items correctly" in {
       val storage = putTestItems._1
-      val items = await(storage.listFiles("bucket1"))
+      val items = await(storage.listFiles(bucket))
       items.files.map(_.key) must_== paths
     }
 
     "list items correctly with prefix" in {
       val storage = putTestItems._1
-      val items = await(storage.listFiles("bucket1", Some("b")))
+      val items = await(storage.listFiles(bucket, Some("b")))
       items.files.map(_.key) must_== paths.filter(_.startsWith("b"))
     }
 
     "list items correctly with paging" in {
       val storage = putTestItems._1
-      val items = await(storage.listFiles("bucket1", max = 2))
+      val items = await(storage.listFiles(bucket, max = 2))
       items.files.map(_.key) must_== paths.take(2)
       items.truncated must_== true
 
-      val items2 = await(storage.listFiles("bucket1", after = Some("baz"), max = 2))
+      val items2 = await(storage.listFiles(bucket, after = Some("baz"), max = 2))
       items2.files.map(_.key) must_== paths.drop(2)
       items2.truncated must_== false
     }
