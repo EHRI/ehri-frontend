@@ -70,10 +70,12 @@ body {
   display: flex;
   flex-direction: column;
   margin-top: auto;
-  //height: 10rem;
+  overflow: auto;
 
   pre {
     white-space: normal;
+    overflow: visible;
+    margin: 0;
   }
 }
 
