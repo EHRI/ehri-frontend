@@ -3,6 +3,7 @@ import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
 import auth.oauth2.OAuth2Config
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
@@ -18,7 +19,7 @@ import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver, SearchToolsIndexMediator}
-import services.storage.{FileStorage, S3FileStorage}
+import services.storage.{DOFileStorage, FileStorage, S3FileStorage}
 import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
 
@@ -57,6 +58,7 @@ class Module extends AbstractModule {
     bind(classOf[OAuth2Config]).toProvider(classOf[OAuth2ConfigProvider])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
+    bind(classOf[FileStorage]).annotatedWith(Names.named("dam")).to(classOf[DOFileStorage])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
