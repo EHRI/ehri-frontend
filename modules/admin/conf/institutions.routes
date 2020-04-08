@@ -30,6 +30,7 @@ POST        /:id/logo                                 @controllers.institutions.
 
 # Data management
 GET         /:id/data                                 @controllers.institutions.RepositoryData.manager(id: String)
+GET         /:id/data/file                            @controllers.institutions.RepositoryData.download(id: String, fileName: String)
 GET         /:id/data/list                            @controllers.institutions.RepositoryData.listFiles(id: String, path: Option[String] ?= None, after: Option[String] ?= None)
 POST        /:id/data/delete                          @controllers.institutions.RepositoryData.deleteFiles(id: String)
 POST        /:id/data/delete-all                      @controllers.institutions.RepositoryData.deleteAll(id: String)
@@ -42,7 +43,6 @@ POST        /:id/data/urls                            @controllers.institutions.
 GET         /:id/data-old                             @controllers.institutions.RepositoryData.uploadData(id: String)
 POST        /:id/data-old                             @controllers.institutions.RepositoryData.uploadDataPost(id: String)
 GET         /:id/data2                                @controllers.institutions.RepositoryData.uploadDataDirect(id: String)
-POST        /:id/data2                                @controllers.institutions.RepositoryData.uploadDataDirectPost(id: String, fileName: String ?= "")
 POST        /:id/data2/delete                         @controllers.institutions.RepositoryData.deleteDataPost(id: String, fileName: String ?= "")
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)
