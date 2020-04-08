@@ -10,6 +10,14 @@ window.addEventListener("drop",function(e){
   e.preventDefault();
 },false);
 
+function sequential(func, arr, index) {
+  if (index >= arr.length) return Promise.resolve();
+  return func(arr[index])
+    .then(r => {
+      return sequential(func, arr, index + 1)
+    });
+}
+
 /**
  * A data access object containing functions to vocabulary concepts.
  */
@@ -18,26 +26,6 @@ let DAO = {
     "ajax-ignore-csrf": true,
     "Content-Type": "application/json",
     "Accept": "application/json; charset=utf-8"
-  },
-
-  /**
-   *
-   * @param obj an object of URL parameters
-   * @returns {string}
-   */
-  objToQueryString: function (obj) {
-    let str = [];
-    for (var p in obj)
-      if (obj.hasOwnProperty(p)) {
-        if (Array.isArray(obj[p])) {
-          obj[p].forEach(v => {
-            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(v));
-          });
-        } else {
-          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-        }
-      }
-    return str.join("&");
   },
 
   listFiles: function (prefix) {
@@ -166,7 +154,7 @@ Vue.component("upload-progress", {
   },
   template: `
     <div id="upload-progress" v-if="uploading.length > 0">
-      <div v-for="job in uploading" class="progress-container">
+      <div v-for="job in uploading" v-bind:key="job.spec.name" class="progress-container">
         <div class="progress">
           <div class="progress-bar progress-bar-striped progress-bar-animated"
                role="progressbar"
@@ -200,6 +188,25 @@ Vue.component("files-table", {
     }
   },
   methods: {
+
+    // Bytes-to-human readable string from:
+    // https://stackoverflow.com/a/14919494/285374
+    humanFileSize: function(bytes, si) {
+      var thresh = si ? 1000 : 1024;
+      if (Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+      }
+      var units = si
+        ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+      var u = -1;
+      do {
+        bytes /= thresh;
+        ++u;
+      } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+      return bytes.toFixed(1) + ' ' + units[u];
+    },
+
     // EJohn's pretty date:
     // Takes an ISO time and returns a string representing how
     // long ago the date represents.
@@ -243,10 +250,10 @@ Vue.component("files-table", {
         </tr>
         </thead>
         <tbody>
-        <tr v-for="file in files">
+        <tr v-for="file in files" v-bind:key="file.key">
           <td>{{file.key}}</td>
           <td>{{prettyDate(file.lastModified)}}</td>
-          <td>{{file.size}}</td>
+          <td>{{humanFileSize(file.size, true)}}</td>
           <td>
             <a href="#" v-on:click.prevent="$emit('delete-file', file.key)">
               <i class="fa fa-fw" v-bind:class="{
@@ -423,14 +430,6 @@ var app = new Vue({
         ? event.dataTransfer.files
         : event.target.files;
 
-      function sequential(arr, index) {
-        if (index >= arr.length) return Promise.resolve();
-        return self.uploadFile(arr[index])
-          .then(r => {
-            return sequential(arr, index + 1)
-          });
-      }
-
       let files = [];
       for (let i = 0; i < fileList.length; i++) {
         let file = fileList[i];
@@ -454,7 +453,7 @@ var app = new Vue({
       }
 
       // Proceed with upload
-      return sequential(files, 0)
+      return sequential(self.uploadFile, files, 0)
         .then(_ => {
           if (event.target.files) {
             // Delete the value of the control, if loaded
@@ -480,8 +479,10 @@ var app = new Vue({
           websocket.close();
         }
         // FIXME
-        let logElem = document.getElementById("update-progress");
-        logElem.scrollTop = logElem.clientHeight;
+        let logElem = document.getElementById("tab-ingest-log");
+        if (logElem) {
+          logElem.scrollTop = logElem.clientHeight;
+        }
       };
     },
     ingestFiles: function(keys) {
