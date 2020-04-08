@@ -23,7 +23,7 @@ import services.data.{AuthenticatedUser, DataHelpers}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest.{EadValidator, IngestApi, IngestParams, XmlValidationError}
 import services.search._
-import services.storage.{DOFileStorage, FileMeta, FileStorage}
+import services.storage.{FileMeta, FileStorage}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -39,7 +39,7 @@ case class RepositoryData @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
-  fileStorage: FileStorage,
+  @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
   ingestApi: IngestApi
 )(
@@ -54,7 +54,6 @@ case class RepositoryData @Inject()(
   private val repositoryDataRoutes = controllers.institutions.routes.RepositoryData
 
   private val fileForm = Form(single("file" -> text))
-  private val storage = DOFileStorage(config)(mat.system, mat)
   private val bucket = "ehri-assets"
   private def instance(implicit request: RequestHeader): String =
     URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")

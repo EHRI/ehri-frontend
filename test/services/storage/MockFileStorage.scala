@@ -35,10 +35,11 @@ case class MockFileStorage(fakeFiles: collection.mutable.ListBuffer[FileMeta]) e
   override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
     Source(fakeFiles.filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith)).toList)
 
-  override def listFiles(classifier: String, prefix: Option[String], after: Option[String] = None, max: Int = -1): Future[FileList] = Future {
+  override def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList] = Future {
     val all = fakeFiles.filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith))
-    val idx = after.map(a => fakeFiles.indexWhere(_.key == a)).getOrElse(-1)
-    FileList(all.slice(idx + 1, idx + 1 + max).toList, (idx + 1 + max) <= all.size)
+    val idx = after.map(a => fakeFiles.indexWhere(_.key == a)).getOrElse(-1) + 1
+    if (max >= 0) FileList(all.slice(idx, idx + max).toList, (idx + max) < all.size)
+    else FileList(all, truncated = false)
   }(ec)
 
   override def uri(classifier: String, key: String, duration: FiniteDuration = 10.minutes, contentType: Option[String]): URI =
