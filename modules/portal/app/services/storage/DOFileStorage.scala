@@ -31,11 +31,15 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     override def getRegion: String = config.get[String]("digitalocean.spaces.region")
   }
 
-  private val ops = S3CompatibleOperations(
+  private val ops =
+    S3CompatibleOperations(
     Some(config.get[String]("digitalocean.spaces.endpoint")),
     creds,
     region
   )
+
+  override def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
+    ops.get(classifier, path)
 
   override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI =
     ops.uri(classifier, path, duration, contentType)

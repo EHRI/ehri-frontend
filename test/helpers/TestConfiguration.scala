@@ -3,6 +3,7 @@ package helpers
 import java.nio.file.Paths
 
 import akka.stream.Materializer
+import akka.util.ByteString
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
@@ -53,8 +54,8 @@ trait TestConfiguration {
   protected val feedbackBuffer: mutable.HashMap[Int, Feedback] = collection.mutable.HashMap.empty[Int,Feedback]
   protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
   protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
-  protected val storedFileBuffer: ListBuffer[FileMeta] = collection.mutable.ListBuffer.empty[FileMeta]
-  protected val damFileBuffer: ListBuffer[FileMeta] = collection.mutable.ListBuffer.empty[FileMeta]
+  protected val storedFileBuffer = collection.mutable.Map.empty[String, Map[String, (FileMeta, ByteString)]]
+  protected val damFileBuffer = collection.mutable.Map.empty[String, Map[String, (FileMeta, ByteString)]]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]
