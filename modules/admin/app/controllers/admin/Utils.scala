@@ -16,7 +16,7 @@ import services.cypher.CypherService
 import services.data.AuthenticatedUser
 import services.ingest.{EadValidator, S3ObjectSpec, XmlValidationError}
 import services.search.SearchIndexMediator
-import services.storage.DOFileStorage
+import services.storage.FileStorage
 import utils.PageParams
 
 import scala.concurrent.Future
@@ -32,7 +32,8 @@ case class Utils @Inject()(
   searchIndexer: SearchIndexMediator,
   ws: WSClient,
   eadValidator: EadValidator,
-  cypher: CypherService
+  cypher: CypherService,
+  @Named("dam") storage: FileStorage,
 )(implicit mat: Materializer) extends AdminController {
 
   override val staffOnly = false
@@ -100,7 +101,6 @@ case class Utils @Inject()(
   }
 
   def validateEadS3Object: Action[S3ObjectSpec] = Action(parse.json[S3ObjectSpec]).async { implicit request =>
-    val storage = DOFileStorage(config)(mat.system, mat)
     val uri = storage.uri(request.body.classifier, request.body.path)
     eadValidator.validateEad(Uri(uri.toString)).map { errs =>
       val src = Source.apply(errs.toList).via(errorsToBytes)
