@@ -11,6 +11,15 @@ import scala.concurrent.duration.{FiniteDuration, _}
 trait FileStorage {
 
   /**
+    * Get a bytestream for the given file.
+    *
+    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param path        additional file path, including the file name with extension
+    * @return a source of file-meta/byte stream pairs
+    */
+  def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]]
+
+  /**
     * Get the URI for a stored file with the given classifier and key.
     *
     * @param classifier  the "bucket", or set, to which this file will belong

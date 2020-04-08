@@ -2,7 +2,7 @@ package services.storage
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import helpers.TestConfiguration
 import play.api.test.PlaySpecification
@@ -12,14 +12,14 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
   private val injector = appBuilder.injector
   private implicit val actorSystem: ActorSystem = injector.instanceOf[ActorSystem]
   private implicit val mat: Materializer = injector.instanceOf[Materializer]
+  private implicit val ec = mat.executionContext
 
-  private val bytes = Source(List(ByteString("Hello, world")))
+  private val bytes = Source.single(ByteString("Hello, world"))
   private val paths = Seq("bar", "baz", "spam", "eggs")
   private val bucket = "bucket1"
 
   def putTestItems: (MockFileStorage, Seq[String]) = {
-    val files = collection.mutable.ListBuffer.empty[FileMeta]
-    val storage = MockFileStorage(files)
+    val storage = MockFileStorage(collection.mutable.Map.empty)
     val urls = paths.map { path =>
       await(storage.putBytes(bucket, path, bytes, public = true)).toString
     }
@@ -29,6 +29,16 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
   "storage service" should {
     "put items correctly" in {
       putTestItems._2 must_== paths.map(p => s"https://$bucket.mystorage.com/$p")
+    }
+
+    "get item bytes" in {
+      val storage = putTestItems._1
+      val bytes = await(storage.get(bucket, "baz")
+        .collect { case Some((_, src)) => src }
+        .map(_.runFold(ByteString.empty)(_ ++ _))
+        .flatten
+        .map(_.utf8String))
+      bytes must_== "Hello, world"
     }
 
     "list items correctly" in {

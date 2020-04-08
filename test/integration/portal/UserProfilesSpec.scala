@@ -30,7 +30,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     "allow watching and unwatching items" in new ITestApp {
       val watch = FakeRequest(profileRoutes.watchItemPost("c1"))
         .withUser(privilegedUser).withCsrf.callWith("")
-      status(watch) must equalTo(SEE_OTHER)
+      status(watch) must_== SEE_OTHER
 
       // Watched items show up on the profile - maybe change this?
       val watching = FakeRequest(profileRoutes.watching()).withUser(privilegedUser).call()
@@ -41,7 +41,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       // Unwatch
       val unwatch = FakeRequest(profileRoutes.unwatchItemPost("c1"))
         .withUser(privilegedUser).withCsrf.callWith("")
-      status(unwatch) must equalTo(SEE_OTHER)
+      status(unwatch) must_== SEE_OTHER
 
       val watching2 = FakeRequest(profileRoutes.watching())
         .withUser(privilegedUser).call()
@@ -53,18 +53,18 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     "allow fetching watched items as text, JSON, or CSV" in new ITestApp {
       import controllers.DataFormat
       val watch = FakeRequest(profileRoutes.watchItemPost("c1")).withUser(privilegedUser).withCsrf.callWith("")
-      status(watch) must equalTo(SEE_OTHER)
+      status(watch) must_== SEE_OTHER
 
       val watchingText = FakeRequest(profileRoutes.watching(format = DataFormat.Text))
         .withUser(privilegedUser).call()
       contentType(watchingText)  must beSome.which { ct =>
-        ct must be equalTo MimeTypes.TEXT.toString
+        ct must_== MimeTypes.TEXT
       }
       
       val watchingJson = FakeRequest(profileRoutes.watching(format = DataFormat.Json))
         .withUser(privilegedUser).call()
       contentType(watchingJson)  must beSome.which { ct =>
-        ct must be equalTo MimeTypes.JSON.toString
+        ct must_== MimeTypes.JSON.toString
       }
       contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
       
@@ -72,7 +72,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .withUser(privilegedUser).call()
       println(contentAsString(watchingCsv))
       contentType(watchingCsv)  must beSome.which { ct =>
-        ct must be equalTo "text/csv"
+        ct must_== "text/csv"
       }
     }
 
@@ -147,16 +147,19 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       contentAsString(result) must contain(message("errors.badFileType"))
     }
 
-    "allow uploading image files as profile image" in new ITestApp {
+    "allow uploading image files as profile image" in new ITestApp(
+      specificConfig = Map("storage.profiles.classifier" -> "profileImage")
+    ) {
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
         .withFileUpload("image", getProfileImage, "image/png")
         .withUser(privilegedUser)
         .withCsrf
         .call()
       status(result) must equalTo(SEE_OTHER)
-      storedFileBuffer.lastOption must beSome.which { f =>
-        f.key must endingWith(s"${privilegedUser.id}.png")
-      }
+      storedFileBuffer
+        .get("profileImage")
+        .flatMap(_.values
+        .find(_._1.key.endsWith(s"${privilegedUser.id}.png"))) must beSome
     }
 
     "prevent uploading files that are too large" in new ITestApp(

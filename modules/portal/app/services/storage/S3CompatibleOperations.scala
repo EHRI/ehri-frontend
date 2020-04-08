@@ -9,7 +9,7 @@ import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
 import akka.stream.alpakka.s3.{S3Attributes, S3Ext}
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
@@ -71,6 +71,20 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     client.generatePresignedUrl(psur).toURI
   }
 
+  def get(bucket: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
+    .download(bucket, path).runWith(Sink.headOption).map(_.flatten)
+    .map {
+      case Some((src, meta)) => Some(FileMeta(
+        bucket,
+        path,
+        java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
+        meta.getContentLength,
+        meta.eTag,
+        meta.contentType,
+      ) -> src)
+      case _ => None
+    }
+
   def putBytes(bucket: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
     val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))
     // FIXME: If the file is binary this is okay, but otherwise it'll only upload with UTF-8 encoding...
@@ -88,9 +102,9 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
 
   def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
-    ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, f.eTag))
+    ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
   )(
-    _ => S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, f.eTag))
+    _ => S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
       .withAttributes(S3Attributes.settings(endpoint))
   )
 
@@ -107,7 +121,7 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     prefix.foreach(req.setPrefix)
     val r = client.listObjectsV2(req)
     FileList(r.getObjectSummaries.asScala.map { f =>
-      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, f.getETag)
+      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag))
     }.toList, r.isTruncated)
   }(ec)
 }

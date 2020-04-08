@@ -16,7 +16,8 @@ case class FileMeta(
   key: String,
   lastModified: Instant,
   size: Long,
-  eTag: String
+  eTag: Option[String] = None,
+  contentType: Option[String] = None
 )
 
 object FileMeta {
