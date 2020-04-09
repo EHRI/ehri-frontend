@@ -11,14 +11,16 @@ import com.google.common.io.Resources
 import com.thaiopensource.util.PropertyMapBuilder
 import com.thaiopensource.validate.prop.rng.RngProperty
 import com.thaiopensource.validate.{ValidateProperty, ValidationDriver}
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import org.xml.sax.{ErrorHandler, InputSource, SAXParseException}
+import play.api.Logger
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 case class EadValidatorService @Inject() ()(implicit mat: Materializer, exec: ExecutionContext) extends EadValidator {
 
+  private val logger = Logger(classOf[EadValidatorService])
   private val rngUrl = Resources.getResource("ehri_ead.rng")
   private val rng: InputSource = ValidationDriver.uriOrFileInputSource(rngUrl.toString)
 
@@ -31,8 +33,10 @@ case class EadValidatorService @Inject() ()(implicit mat: Materializer, exec: Ex
   override def validateEad(path: Path): Future[Seq[XmlValidationError]] =
     validateInputSource(ValidationDriver.fileInputSource(path.toFile))
 
-  override def validateEad(url: Uri): Future[Seq[XmlValidationError]] =
+  override def validateEad(url: Uri): Future[Seq[XmlValidationError]] = {
+    logger.debug(s"Validating URI: $url")
     validateInputSource(ValidationDriver.uriOrFileInputSource(url.toString))
+  }
 
   private def validateInputSource(is: InputSource): Future[Seq[XmlValidationError]] = Future {
     val props = new PropertyMapBuilder()

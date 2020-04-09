@@ -2,7 +2,7 @@ package services.storage
 
 import java.time.Instant
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, Format}
 
 /**
   * A representation of a stored file.
@@ -10,6 +10,8 @@ import play.api.libs.json.{Json, Writes}
   * @param key          the unique key of this file
   * @param lastModified the last modified time
   * @param size         the size, in bytes
+  * @param eTag         the identifier for the specific version of this file
+  * @param contentType  the mime-type string
   */
 case class FileMeta(
   classifier: String,
@@ -21,5 +23,5 @@ case class FileMeta(
 )
 
 object FileMeta {
-  implicit val _toJson: Writes[FileMeta] = Json.writes[FileMeta]
+  implicit val _format: Format[FileMeta] = Json.format[FileMeta]
 }
