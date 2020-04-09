@@ -36,6 +36,11 @@ object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
 }
 
+case class IngestPayload(logMessage: String, files: Seq[String] = Seq.empty)
+object IngestPayload {
+  implicit val _json: Format[IngestPayload] = Json.format[IngestPayload]
+}
+
 @Singleton
 case class RepositoryData @Inject()(
   controllerComponents: ControllerComponents,
@@ -52,7 +57,7 @@ case class RepositoryData @Inject()(
   with Update[Repository] {
 
   // TEMP TEMP TEMP TESTING FIXME FIXME FIXME FIXME
-  override val staffOnly = false
+//  override val staffOnly = false
 
   private val repositoryDataRoutes = controllers.institutions.routes.RepositoryData
 
@@ -67,18 +72,21 @@ case class RepositoryData @Inject()(
   }
 
   def validateFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id)}$path")
-    val results: Seq[Future[(String, Seq[XmlValidationError])]] = keys.map { key =>
-      eadValidator.validateEad(Uri(storage.uri(bucket, key).toString))
-        .map(errs => key.replace(prefix(id), "") -> errs)
+    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id)}$key").toString)
+    val results: Seq[Future[(String, Seq[XmlValidationError])]] = urls.map { case (key, url) =>
+      eadValidator.validateEad(Uri(url)).map(errs => key -> errs)
     }
     Future.sequence(results).map { out =>
       Ok(Json.toJson(out.toMap))
+    }.recover {
+      case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
   }
 
-  def listFiles(id: String, path: Option[String], after: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket, prefix = Some(prefix(id + path.getOrElse(""))), after, max = 50).map { list =>
+  def listFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.listFiles(bucket,
+      prefix = Some(prefix(id + path.getOrElse(""))),
+      from.map(key => s"${prefix(id)}$key"), max = 20).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id), ""))))))
     }
   }
@@ -89,16 +97,16 @@ case class RepositoryData @Inject()(
     Ok(Json.toJson(result))
   }
 
-  def ingestAll(id: String): Action[AnyContent] = Action.async { implicit request =>
+  def ingestAll(id: String, commit: Boolean): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
     storage.streamFiles(bucket, Some(prefix(id))).map(_.key.replace(prefix(id), ""))
         .runWith(Sink.seq).flatMap { seq =>
-      ingestFiles(id).apply(request.withBody(seq))
+      ingestFiles(id, commit).apply(request.withBody(request.body.copy(files = seq)))
     }
   }
 
   private def streamToStorage(id: String, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
     Accumulator.source[ByteString]
-      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id)}$fileName", src))
+      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id)}$fileName", src, r.contentType))
       .map(f => Source.single(ByteString(Json.prettyPrint(Json.obj("url" -> f.toString)))))
       .map(Right.apply)
   }
@@ -117,8 +125,8 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id)}$path")
+  def ingestFiles(id: String, commit: Boolean): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+    val keys = request.body.files.map(path => s"${prefix(id)}$path")
     val urls = keys.map(key => storage.uri(bucket, key)).mkString("\n")
 
     // Tag this task with a unique ID...
@@ -135,7 +143,7 @@ case class RepositoryData @Inject()(
     val task = IngestParams(
       scopeType = defines.ContentTypes.Repository,
       scope = id,
-      log = "Ingest TEST TEST TEST",
+      log = request.body.logMessage,
       file = Some(temp)
     )
 
@@ -177,7 +185,7 @@ case class RepositoryData @Inject()(
       .mapAsync(2)(deleteBatch)
       .runWith(Sink.seq)
       .map((s: Seq[Boolean]) => s.forall(g => g))
-    r.map { (ok: Boolean) =>
+    r.map { ok: Boolean =>
       Ok(Json.obj("ok" -> ok))
     }
   }

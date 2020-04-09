@@ -15,7 +15,7 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsV2Request}
+import com.amazonaws.services.s3.model.{DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest}
 import play.api.Logger
 
 import scala.collection.JavaConverters._
@@ -85,21 +85,24 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       case _ => None
     }
 
-  def putBytes(bucket: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
-    val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))
-    // FIXME: If the file is binary this is okay, but otherwise it'll only upload with UTF-8 encoding...
-    val contentType = ContentType(mediaType, () => HttpCharsets.`UTF-8`)
+  def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
+    val cType = contentType.map(ContentType.parse) match {
+      case Some(Right(ct)) => ct
+      case _ =>
+        val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))
+        ContentType(mediaType, () => HttpCharsets.`UTF-8`)
+    }
     logger.debug(s"Uploading file: $path to $bucket with content-type: $contentType")
     val acl = if (public) CannedAcl.PublicRead else CannedAcl.AuthenticatedRead
 
-    val uploader = S3.multipartUpload(bucket, path, contentType = contentType, cannedAcl = acl)
+    val uploader = S3.multipartUpload(bucket, path, contentType = cType, cannedAcl = acl)
     val sink = endpointUrl.fold(uploader)(_ => uploader.withAttributes(S3Attributes.settings(endpoint)))
 
     src.runWith(sink).map(r => new URI(r.location.toString))
   }
 
-  def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] =
-    putBytes(classifier, path, FileIO.fromPath(file.toPath), public)
+  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI] =
+    putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public)
 
   def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
     ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
@@ -114,12 +117,16 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
   }(ec)
 
   def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
-    val req = new ListObjectsV2Request()
+    // FIXME: Update this to ListObjectsV2 when Digital Ocean
+    // implement support for the StartAfter parameter.
+    // For now the marker param in ListObject (v1) seems
+    // to do the same thing.
+    val req = new ListObjectsRequest()
         .withBucketName(classifier)
         .withMaxKeys(max)
-    after.foreach(req.setStartAfter)
+    after.foreach(req.setMarker)
     prefix.foreach(req.setPrefix)
-    val r = client.listObjectsV2(req)
+    val r = client.listObjects(req)
     FileList(r.getObjectSummaries.asScala.map { f =>
       FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag))
     }.toList, r.isTruncated)

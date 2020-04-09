@@ -13,8 +13,8 @@ trait FileStorage {
   /**
     * Get a bytestream for the given file.
     *
-    * @param classifier  the "bucket", or set, to which this file will belong
-    * @param path        additional file path, including the file name with extension
+    * @param classifier the "bucket", or set, to which this file will belong
+    * @param path       additional file path, including the file name with extension
     * @return a source of file-meta/byte stream pairs
     */
   def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]]
@@ -34,24 +34,30 @@ trait FileStorage {
   /**
     * Put a file object in storage.
     *
-    * @param classifier the "bucket", or set, to which this file will belong
-    * @param path       additional file path, including the file name with extension
-    * @param file       the file object to store
-    * @param public     whether the URI is publicly accessible
+    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param path        additional file path, including the file name with extension
+    * @param file        the file object to store
+    * @param contentType the content/type value. If None is given this will
+    *                    be inferred from the path extension, or - if that
+    *                    fails - default to binary.
+    * @param public      whether the URI is publicly accessible
     * @return the file URI of the stored file
     */
-  def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI]
+  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI]
 
   /**
     * Put arbitrary bytes to file storage
     *
-    * @param classifier the "bucket", or set, to which this file will belong
-    * @param path       additional file path, including the file name with extension
-    * @param src        the byte source
-    * @param public     whether the URI is publicly accessible
+    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param path        additional file path, including the file name with extension
+    * @param src         the byte source
+    * @param contentType the content/type value. If None is given this will
+    *                    be inferred from the path extension, or - if that
+    *                    fails - default to binary.
+    * @param public      whether the URI is publicly accessible
     * @return the file URI of the stored file
     */
-  def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI]
+  def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI]
 
   /**
     * Stream all files which share this classifier.
@@ -67,7 +73,7 @@ trait FileStorage {
     *
     * @param classifier the "bucket", or set, to which this file belongs
     * @param prefix     an optional path prefix
-    * @param after      list files after this key
+    * @param after      list files starting after this key
     * @param max        the maximum number of keys to list
     * @return a FileList object consisting of a sequence of file metadata objects
     *         and a boolean indicating if the stream is paged, in which case
