@@ -1,5 +1,8 @@
 "use strict";
 
+// FIXME: make this dynamic?
+const LOG_MESSAGE = "TEST TEST TEST";
+
 // Prevent default drag/drop action...
 window.addEventListener("dragover",function(e){
   e = e || event;
@@ -28,8 +31,8 @@ let DAO = {
     "Accept": "application/json; charset=utf-8"
   },
 
-  listFiles: function (prefix) {
-    return fetch(SERVICE.listFiles(CONFIG.repositoryId, prefix).url)
+  listFiles: function (prefix, after) {
+    return fetch(SERVICE.listFiles(CONFIG.repositoryId, prefix, after).url)
       .then(r => r.json());
   },
 
@@ -40,15 +43,16 @@ let DAO = {
     });
   },
 
-  ingestFiles: function (paths) {
+  ingestFiles: function (paths, logMessage) {
     return SERVICE.ingestFiles(CONFIG.repositoryId).ajax({
-      data: JSON.stringify(paths),
+      data: JSON.stringify({logMessage: logMessage, files: paths}),
       headers: this.ajaxHeaders
     });
   },
 
-  ingestAll: function (paths) {
+  ingestAll: function (logMessage) {
     return SERVICE.ingestAll(CONFIG.repositoryId).ajax({
+      data: JSON.stringify({logMessage: logMessage, files: []}),
       headers: this.ajaxHeaders
     });
   },
@@ -177,6 +181,7 @@ Vue.component("files-table", {
   props: {
     loaded: Boolean,
     files: Array,
+    truncated: Boolean,
     deleting: Object,
     ingesting: Object,
     validating: Object,
@@ -184,10 +189,20 @@ Vue.component("files-table", {
   },
   data: function() {
     return {
-
+      loadingMore: false,
     }
   },
   methods: {
+    fetchMore: function() {
+      this.loadingMore = true;
+      let from = this.files.length > 0
+        ? this.files[this.files.length - 1].key : null;
+      return DAO.listFiles("", from).then(data => {
+        this.files.push.apply(this.files, data.files);
+        this.$emit("files-loaded", data.truncated);
+        this.loadingMore = false;
+      });
+    },
 
     // Bytes-to-human readable string from:
     // https://stackoverflow.com/a/14919494/285374
@@ -280,7 +295,12 @@ Vue.component("files-table", {
         </tr>
         </tbody>
       </table>
-      <div class="admin-help-notice" v-else-if="loaded && files.length === 0">
+      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent="fetchMore">
+        Load more 
+        <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin" />
+        <i v-else class="fa fa-fw fa-caret-down" />
+      </button>
+      <div id="list-placeholder" v-else-if="loaded && files.length === 0">
         There are no files yet.
       </div>
     </div>
@@ -317,6 +337,9 @@ var app = new Vue({
         this.truncated = data.truncated;
         this.loaded = true;
       });
+    },
+    filesLoaded: function(truncated) {
+      this.truncated = truncated;
     },
     deleteFile: function(key) {
       this.$set(this.deleting, key, true);
@@ -497,7 +520,7 @@ var app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(keys)
+      DAO.ingestFiles(keys, LOG_MESSAGE)
         .then(data => {
           if (data.url && data.jobId) {
             self.monitorIngest(data.url, keys);
@@ -520,7 +543,7 @@ var app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll().then(data => {
+      DAO.ingestAll(LOG_MESSAGE).then(data => {
         if (data.url && data.jobId) {
           self.monitorIngest(data.url, keys);
         } else {
@@ -552,6 +575,7 @@ var app = new Vue({
       <files-table
         v-bind:loaded="loaded"
         v-bind:files="files"
+        v-bind:truncated="truncated"
         v-bind:validating="validating"
         v-bind:validationLog="validationLog"
         v-bind:deleting="deleting"
@@ -560,6 +584,7 @@ var app = new Vue({
         v-on:delete-file="deleteFile"
         v-on:ingest-files="ingestFiles"
         v-on:validate-file="validateFile"
+        v-on:files-loaded="filesLoaded"
         v-on:show-preview="showPreview"
        /> 
       

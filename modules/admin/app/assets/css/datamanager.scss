@@ -79,6 +79,15 @@ body {
   }
 }
 
+#list-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  color: $text-muted;
+  height: 100%;
+}
+
 #actions-menu {
   margin-bottom: $margin-sm;
 }

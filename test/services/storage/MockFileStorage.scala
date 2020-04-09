@@ -28,8 +28,8 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   private def getF(classifier: String, path: String): Option[(FileMeta, ByteString)] =
     bucket(classifier).get(path)
 
-  private def put(classifier: String, path: String, bytes: ByteString): Unit = {
-    val payload = (FileMeta(classifier, path, Instant.now, bytes.size, Some(bytes.hashCode.toString)), bytes)
+  private def put(classifier: String, path: String, bytes: ByteString, contentType: Option[String]): Unit = {
+    val payload = (FileMeta(classifier, path, Instant.now, bytes.size, Some(bytes.hashCode.toString), contentType), bytes)
     fakeFiles += (classifier -> (bucket(classifier) + (path -> payload)))
   }
 
@@ -43,14 +43,14 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     }
   }(ec)
 
-  override def putFile(classifier: String, path: String, file: java.io.File, public: Boolean = false): Future[URI] = {
-    putBytes(classifier, path, FileIO.fromPath(file.toPath))
+  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
+    putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public)
   }
 
-  override def putBytes(classifier: String, path: String, src: Source[ByteString, _], public: Boolean = false): Future[URI] = {
+  override def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
     src.runFold(ByteString.empty)(_ ++ _).map { bytes =>
       val result: URI = new URI(urlPrefix(classifier) + path)
-      put(classifier, path, bytes)
+      put(classifier, path, bytes, contentType)
       result
     }(ec)
   }
