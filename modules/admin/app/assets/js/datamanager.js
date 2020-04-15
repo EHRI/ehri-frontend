@@ -25,62 +25,73 @@ function sequential(func, arr, index) {
  * A data access object containing functions to vocabulary concepts.
  */
 let DAO = {
-  ajaxHeaders: {
-    "ajax-ignore-csrf": true,
-    "Content-Type": "application/json",
-    "Accept": "application/json; charset=utf-8"
+  call: function(endpoint, data) {
+    return axios.request({
+      url: endpoint.url,
+      method: endpoint.method,
+      data: data,
+      headers: {
+        "ajax-ignore-csrf": true,
+        "Content-Type": "application/json",
+        "Accept": "application/json; charset=utf-8",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      withCredentials: true,
+    }).then(r => r.data);
   },
 
   listFiles: function (prefix, after) {
-    return fetch(SERVICE.listFiles(CONFIG.repositoryId, prefix, after).url)
-      .then(r => r.json());
+    return this.call(SERVICE.listFiles(CONFIG.repositoryId, prefix, after));
   },
 
   validateFiles: function (paths) {
-    return SERVICE.validateFiles(CONFIG.repositoryId).ajax({
-      data: JSON.stringify(paths),
-      headers: this.ajaxHeaders
-    });
+    return this.call(SERVICE.validateFiles(CONFIG.repositoryId), paths);
   },
 
   ingestFiles: function (paths, logMessage) {
-    return SERVICE.ingestFiles(CONFIG.repositoryId).ajax({
-      data: JSON.stringify({logMessage: logMessage, files: paths}),
-      headers: this.ajaxHeaders
-    });
+    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), {logMessage: logMessage, files: paths});
   },
 
   ingestAll: function (logMessage) {
-    return SERVICE.ingestAll(CONFIG.repositoryId).ajax({
-      data: JSON.stringify({logMessage: logMessage, files: []}),
-      headers: this.ajaxHeaders
-    });
+    return this.call(SERVICE.ingestAll(CONFIG.repositoryId), {logMessage: logMessage, files: []});
   },
 
   deleteFiles: function (paths) {
-    return SERVICE.deleteFiles(CONFIG.repositoryId).ajax({
-      data: JSON.stringify(paths),
-      headers: this.ajaxHeaders
-    });
+    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId), paths);
   },
 
   deleteAll: function() {
-    return SERVICE.deleteAll(CONFIG.repositoryId).ajax({
-      headers: this.ajaxHeaders
-    }).then(data => data.ok || false);
+    return this.call(SERVICE.deleteAll(CONFIG.repositoryId)).then(data => data.ok || false);
   },
 
   fileUrls: function (paths) {
-    return SERVICE.fileUrls(CONFIG.repositoryId).ajax({
-      data: JSON.stringify(paths),
-      headers: this.ajaxHeaders
-    });
+    return this.call(SERVICE.fileUrls(CONFIG.repositoryId), paths);
   },
 
   uploadHandle: function(fileSpec) {
-    return SERVICE.uploadHandle(CONFIG.repositoryId).ajax({
-      data: JSON.stringify(fileSpec),
-      headers: this.ajaxHeaders
+    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId), fileSpec);
+  },
+
+  uploadFile: function(url, file, progressHandler) {
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+
+    return axios.put(url, file, {
+      onUploadProgress: function(evt) {
+        if (!progressHandler(evt)) {
+          source.cancel();
+        }
+      },
+      headers: {'Content-type': file.type,},
+      cancelToken: source.token,
+    }).then(r => r.status === 200)
+      .catch(function(e) {
+      if (axios.isCancel(e)) {
+        console.log('Request canceled', file.name);
+        return false;
+      } else {
+        throw e;
+      }
     });
   }
 };
@@ -254,7 +265,7 @@ Vue.component("files-table", {
     },
   },
   template: `
-    <div id="file-list-container">
+    <div id="file-list-container" v-bind:class="{loading:'loading'}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -303,11 +314,21 @@ Vue.component("files-table", {
       <div id="list-placeholder" v-else-if="loaded && files.length === 0">
         There are no files yet.
       </div>
+      <div id="file-list-loading-indicator" v-show="!loaded">
+        <i class="fa fa-3x fa-spinner fa-spin"></i>
+      </div>
     </div>
   `
 });
 
-var app = new Vue({
+Vue.component("validation-error-messages", {
+  props: {
+    messages: Array,
+  },
+  template: `<pre><template v-for="msg in messages">Line {{msg.line}}<template v-if="msg.pos">, {{msg.pos}}</template>: {{msg.error}}</template></pre>`
+});
+
+let app = new Vue({
   el: '#data-manager',
   data: function () {
     return {
@@ -386,6 +407,7 @@ var app = new Vue({
         this.$set(this.validationLog, key, errors);
         this.$delete(this.validating, key);
         this.lastValidated = key;
+        this.tab = 'validation';
       });
     },
     dragOver: function(event) {
@@ -407,41 +429,14 @@ var app = new Vue({
         type: file.type,
         size: file.size
       }).then(data => {
-        return new Promise((resolve, reject) => {
-          let url = data.presignedUrl;
-          self.setUploadProgress(file, 0);
-          let xhr = new XMLHttpRequest();
-          xhr.overrideMimeType(file.type);
-
-          xhr.upload.addEventListener("progress", evt => {
-            if (evt.lengthComputable) {
-              if (!self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))) {
-                // the upload has been cancelled...
-                xhr.abort();
-              }
-            }
-          });
-          xhr.addEventListener("load", evt => {
-            if (xhr.readyState === xhr.DONE && xhr.status === 200) {
-              self.finishUpload(file);
-              self.refresh().then(_ => {
-                resolve(xhr.responseXML);
-              });
-              console.log(xhr.responseXML);
-            } else {
-              reject(xhr.responseText);
-            }
-          });
-          xhr.addEventListener("error", evt => {
-            reject(xhr.responseText);
-          });
-          xhr.addEventListener("abort", evt => {
-            resolve(xhr.responseText);
-          });
-
-          xhr.open("PUT", url);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
+        self.setUploadProgress(file, 0);
+        return DAO.uploadFile(data.presignedUrl, file, function(evt) {
+          return evt.lengthComputable
+            ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
+            : true;
+        }).then(r => {
+          self.finishUpload(file);
+          return self.refresh();
         });
       });
     },
@@ -558,7 +553,7 @@ var app = new Vue({
   template: `
     <div id="data-manager-container">
       <div id="actions-menu" class="downdown">
-        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle pull-right" role="button" 
+        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle" role="button" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
@@ -612,7 +607,8 @@ var app = new Vue({
 
         <div id="status-panels">
           <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
-            <pre v-if="lastValidated"><template v-for="msg in validationLog[lastValidated]">{{msg}}</template></pre>
+            <validation-error-messages v-if="lastValidated && validationLog[lastValidated]"
+                v-bind:messages="validationLog[lastValidated]" />
           </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
             <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>

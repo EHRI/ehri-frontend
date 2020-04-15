@@ -35,16 +35,7 @@
         )
 
         <script>
-                window.SERVICE = {
-                    listFiles: dataManagerRoutes.controllers.institutions.RepositoryData.listFiles,
-                    validateFiles: dataManagerRoutes.controllers.institutions.RepositoryData.validateFiles,
-                    deleteFiles: dataManagerRoutes.controllers.institutions.RepositoryData.deleteFiles,
-                    deleteAll: dataManagerRoutes.controllers.institutions.RepositoryData.deleteAll,
-                    ingestFiles: dataManagerRoutes.controllers.institutions.RepositoryData.ingestFiles,
-                    ingestAll: dataManagerRoutes.controllers.institutions.RepositoryData.ingestAll,
-                    uploadHandle: dataManagerRoutes.controllers.institutions.RepositoryData.uploadHandle,
-                    fileUrls: dataManagerRoutes.controllers.institutions.RepositoryData.fileUrls,
-                };
+                window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
                     repositoryId: "@item.id"
                 };
@@ -52,6 +43,7 @@
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
