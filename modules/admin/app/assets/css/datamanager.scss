@@ -37,12 +37,25 @@ body {
 }
 
 #file-list-container {
+  position: relative;
   overflow-y: auto;
   flex: 1;
   flex-basis: 0;
   margin-bottom: $margin-sm;
-
   background-color: $white;
+}
+
+#file-list-loading-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .5;
 }
 
 #status {
@@ -66,16 +79,20 @@ body {
   }
 }
 
-#tab-ingest-log {
+#tab-ingest-log,
+#tab-validation-errors
+{
   display: flex;
   flex-direction: column;
   margin-top: auto;
   overflow: auto;
+  padding: $margin-xs;
 
   pre {
     white-space: normal;
     overflow: visible;
     margin: 0;
+    line-height: 1.2rem;
   }
 }
 
@@ -90,6 +107,10 @@ body {
 
 #actions-menu {
   margin-bottom: $margin-sm;
+}
+
+#actions-menu-toggle {
+  float: right;
 }
 
 .status-panel#tab-file-upload {
