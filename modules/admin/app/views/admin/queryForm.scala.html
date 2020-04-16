@@ -2,8 +2,8 @@
 
 
 @extrascripts = {
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/codemirror.js")"></script>
-    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/" + name.toLowerCase + ".js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.js")"></script>
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/" + name.toLowerCase + ".js")"></script>
     <script type="application/javascript">
         jQuery(function($) {
             var editor = CodeMirror.fromTextArea(document.getElementById("id_q"), {
@@ -37,7 +37,7 @@
 }
 
 @extrastyles = {
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.47.0/codemirror.css")">
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.css")">
 }
 
 @views.html.admin.layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
