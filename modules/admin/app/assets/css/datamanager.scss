@@ -58,6 +58,28 @@ body {
   opacity: .5;
 }
 
+#preview-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#preview-loading-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .5;
+  background-color: #eeeeee;
+  z-index: 1000;
+}
+
 #status {
   margin-top: auto;
 
@@ -94,6 +116,15 @@ body {
     margin: 0;
     line-height: 1.2rem;
   }
+}
+
+#tab-preview
+{
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  overflow: auto;
+  //padding: $margin-xs;
 }
 
 #list-placeholder {
@@ -174,7 +205,19 @@ body {
   }
 }
 
-#preview-data > pre {
-  height: 20rem;
-  overflow: auto;
+#preview-container .CodeMirror {
+  border: 0;
+}
+
+#preview-container .CodeMirror .validation-errors {
+  width: 10px;
+}
+
+#preview-container .CodeMirror .validation-error:hover {
+  cursor: pointer;
+}
+
+#preview-container .CodeMirror .line-error {
+  background: rgba(255, 197, 199, 0.32) !important;
+  color: #8a1f11 !important;
 }
