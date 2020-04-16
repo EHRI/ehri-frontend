@@ -265,7 +265,7 @@ Vue.component("files-table", {
     },
   },
   template: `
-    <div id="file-list-container">
+    <div id="file-list-container" v-bind:class="{loading:'loading'}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -314,11 +314,21 @@ Vue.component("files-table", {
       <div id="list-placeholder" v-else-if="loaded && files.length === 0">
         There are no files yet.
       </div>
+      <div id="file-list-loading-indicator" v-show="!loaded">
+        <i class="fa fa-3x fa-spinner fa-spin"></i>
+      </div>
     </div>
   `
 });
 
-var app = new Vue({
+Vue.component("validation-error-messages", {
+  props: {
+    messages: Array,
+  },
+  template: `<pre><template v-for="msg in messages">Line {{msg.line}}<template v-if="msg.pos">, {{msg.pos}}</template>: {{msg.error}}</template></pre>`
+});
+
+let app = new Vue({
   el: '#data-manager',
   data: function () {
     return {
@@ -397,6 +407,7 @@ var app = new Vue({
         this.$set(this.validationLog, key, errors);
         this.$delete(this.validating, key);
         this.lastValidated = key;
+        this.tab = 'validation';
       });
     },
     dragOver: function(event) {
@@ -542,7 +553,7 @@ var app = new Vue({
   template: `
     <div id="data-manager-container">
       <div id="actions-menu" class="downdown">
-        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle pull-right" role="button" 
+        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle" role="button" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Actions
         </a>
@@ -596,7 +607,8 @@ var app = new Vue({
 
         <div id="status-panels">
           <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
-            <pre v-if="lastValidated"><template v-for="msg in validationLog[lastValidated]">{{msg}}</template></pre>
+            <validation-error-messages v-if="lastValidated && validationLog[lastValidated]"
+                v-bind:messages="validationLog[lastValidated]" />
           </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
             <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
