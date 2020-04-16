@@ -16,6 +16,7 @@
         @globalConfig.extraHeadContent.map(c => Html(c))
     </head>
     <body>
+
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-3.4.1.js")"></script>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.history.js")"></script>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.min.js")"></script>
@@ -45,6 +46,7 @@
 
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
+@*        <script src="https://unpkg.com/vue-codemirror-lite/dist/vuecodemirror.min.js"></script>*@
         <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>
@@ -60,5 +62,9 @@
             </div>
         </div>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/datamanager.js")"></script>
+
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/xml.js")"></script>
+        <link rel="stylesheet" property="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.css")">
     </body>
 </html>
