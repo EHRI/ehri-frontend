@@ -42,6 +42,13 @@ body {
   flex: 1;
   flex-basis: 0;
   background-color: $white;
+
+  tbody tr {
+    cursor: pointer;
+  }
+  tbody tr.active {
+    background-color: #e7f1ff;
+  }
 }
 
 #file-list-loading-indicator {
@@ -62,6 +69,31 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+#validation-loading-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  color: $link-color;
+
+  z-index: 1000;
+  opacity: .7;
+  animation: fadeIn .5s infinite;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: .5;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 #preview-loading-indicator {
