@@ -41,7 +41,6 @@ body {
   overflow-y: auto;
   flex: 1;
   flex-basis: 0;
-  margin-bottom: $margin-sm;
   background-color: $white;
 }
 
@@ -80,10 +79,32 @@ body {
   z-index: 1000;
 }
 
-#status {
+#drag-handle {
+  padding: $margin-xs 0;
+  cursor: ns-resize;
+  display: flex;
+}
+
+#drag-handle-marker {
+  background-color: lighten($border-color, 10%);
+  height: 1px;
+}
+
+#panel-1 {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 60%;
+}
+
+#panel-2 {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  flex-basis: 0;
 
   #status-panel-tabs {
+    user-select: none;
     .nav-link {
       padding: $margin-xxs $margin-xs;
     }
@@ -92,7 +113,9 @@ body {
   #status-panels {
     border: 1px solid $border-color;
     border-top: 0;
-    height: 10rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 
   .status-panel {
@@ -104,15 +127,16 @@ body {
 #tab-ingest-log,
 #tab-validation-errors
 {
+  padding: $margin-xs;
   display: flex;
   flex-direction: column;
-  margin-top: auto;
+  flex: 1;
+  flex-basis: 0;
   overflow: auto;
-  padding: $margin-xs;
 
   pre {
     white-space: normal;
-    overflow: visible;
+    //overflow: visible;
     margin: 0;
     line-height: 1.2rem;
   }
@@ -137,7 +161,7 @@ body {
 }
 
 #actions-menu {
-  margin-bottom: $margin-sm;
+  margin-bottom: $margin-xs;
 }
 
 #actions-menu-toggle {
@@ -205,8 +229,16 @@ body {
   }
 }
 
+#preview-container {
+  display: flex;
+  flex: 1;
+}
+
 #preview-container .CodeMirror {
   border: 0;
+  flex: 1;
+  flex-basis: 0;
+  //height: 0;
 }
 
 #preview-container .CodeMirror .validation-errors {
