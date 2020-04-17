@@ -44,10 +44,6 @@ let DAO = {
     return this.call(SERVICE.listFiles(CONFIG.repositoryId, prefix, after));
   },
 
-  validateFiles: function (paths) {
-    return this.call(SERVICE.validateFiles(CONFIG.repositoryId), paths);
-  },
-
   ingestFiles: function (paths, logMessage) {
     return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), {logMessage: logMessage, files: paths});
   },
@@ -62,6 +58,10 @@ let DAO = {
 
   deleteAll: function () {
     return this.call(SERVICE.deleteAll(CONFIG.repositoryId)).then(data => data.ok || false);
+  },
+
+  validateFiles: function (paths) {
+    return this.call(SERVICE.validateFiles(CONFIG.repositoryId), paths);
   },
 
   fileUrls: function (paths) {
@@ -104,6 +104,7 @@ Vue.component("preview", {
   data: function () {
     return {
       loading: false,
+      validating: false,
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
@@ -117,9 +118,11 @@ Vue.component("preview", {
         return;
       }
 
+      self.validating = true;
       DAO.validateFiles([self.previewing]).then(errs => {
         this.errors = errs[self.previewing];
         this.updateErrors();
+        this.validating = false;
       });
     } ,
     updateErrors: function() {
@@ -235,17 +238,11 @@ Vue.component("preview", {
   template: `
     <div id="preview-container">
       <textarea>{{previewData}}</textarea>
+      <div id="validation-loading-indicator" v-if="validating">
+        <i class="fa fa-circle"></i>
+      </div>
       <div id="preview-loading-indicator" v-if="loading">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated"
-               role="progressbar"
-               v-bind:aria-valuemax="100"
-               v-bind:aria-valuemin="0"
-               v-bind:aria-valuenow="percentDone"
-               v-bind:style="'width: ' + percentDone + '%'">
-          </div>
-        </div>
       </div>
     </div>
   `
@@ -279,12 +276,12 @@ Vue.component("upload-progress", {
 Vue.component("files-table", {
   props: {
     loaded: Boolean,
+    previewing: String,
     files: Array,
+    selected: Object,
     truncated: Boolean,
     deleting: Object,
     ingesting: Object,
-    validating: Object,
-    validationLog: Object,
   },
   data: function () {
     return {
@@ -343,58 +340,70 @@ Vue.component("files-table", {
         day_diff < 7 && day_diff + " days ago" ||
         day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
     },
-
-    isValid: function (key) {
-      let err = this.validationLog[key];
-      if (_.isArray(err)) {
-        return err.length === 0;
+    toggleAll: function(evt) {
+      for (let i = 0; i < this.files.length; i++) {
+        this.toggleItem(this.files[i].key, evt);
       }
-      return null;
     },
+    toggleItem: function(key, evt) {
+      if (evt.target.checked) {
+        this.$set(this.selected, key, true);
+      } else {
+        this.$delete(this.selected, key);
+      }
+    }
+  },
+  watch: {
+    selected: function(newValue, oldValue) {
+      let selected = Object.keys(newValue).length;
+      let ind = selected > 0 && selected !== this.files.length;
+      this.$el.querySelector("#checkall").indeterminate = ind;
+    },
+  },
+  computed: {
+    allChecked: function() {
+      return Object.keys(this.selected).length === this.files.length;
+    }
   },
   template: `
     <div id="file-list-container" v-bind:class="{loading:'loading'}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
+          <td><input type="checkbox" id="checkall" v-on:change="toggleAll"/></td>
           <td>Name</td>
           <td>Last Modified</td>
           <td>Size</td>
-          <td colspan="4"></td>
+          <td colspan="3"></td>
         </tr>
         </thead>
         <tbody>
-        <tr v-for="file in files" v-bind:key="file.key">
+        <tr v-for="(file, idx) in files" 
+            v-bind:key="file.key" 
+            v-on:click="$emit('show-preview', file.key)" 
+            v-bind:class="{'active': previewing === file.key}">
+          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)"></td>
           <td>{{file.key}}</td>
           <td>{{prettyDate(file.lastModified)}}</td>
           <td>{{humanFileSize(file.size, true)}}</td>
+          <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
+            <i class="fa fa-fw" v-bind:class="{
+              'fa-database': !ingesting[file.key], 
+              'fa-circle-o-notch fa-spin': ingesting[file.key]
+            }"></i></a>
+          </td>
           <td>
-            <a href="#" v-on:click.prevent="$emit('delete-file', file.key)">
+            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
               <i class="fa fa-fw" v-bind:class="{
                 'fa-circle-o-notch fa-spin': deleting[file.key], 
                 'fa-trash-o': !deleting[file.key] 
               }"></i>
             </a>
           </td>
-          <td>
-            <a href="#" v-bind:disabled="validating[file.key]" v-on:click.prevent="$emit('validate-file', file.key)">
-              <i class="fa fa-fw fa-spin fa-circle-o-notch" v-if="validating[file.key]"/>
-              <i class="fa fa-fw fa-check-circle-o" v-else-if="isValid(file.key)"/>
-              <i class="fa fa-fw fa-exclamation-triangle" v-else-if="isValid(file.key) === false"/>
-              <i class="fa fa-fw fa-question-circle-o" v-else/>
-            </a>
-          </td>
-          <td><a href="#" v-on:click.prevent="$emit('show-preview', file.key)"><i class="fa fa-eye"></i></a></td>
-          <td><a href="#" v-on:click.prevent="$emit('ingest-files', [file.key])">
-            <i class="fa fa-fw" v-bind:class="{
-              'fa-database': !ingesting[file.key], 
-              'fa-circle-o-notch fa-spin': ingesting[file.key]
-            }"></i></a>
-          </td>
         </tr>
         </tbody>
       </table>
-      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent="fetchMore">
+      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent.stop="fetchMore">
         Load more
         <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
         <i v-else class="fa fa-fw fa-caret-down"/>
@@ -458,15 +467,12 @@ let app = new Vue({
       truncated: false,
       files: [],
       deleting: {},
-      selected: [],
+      selected: {},
       dropping: false,
       uploading: [],
       cancelled: [],
       log: [],
       ingesting: {},
-      validating: {},
-      validationLog: {},
-      lastValidated: null,
       tab: 'upload',
       previewing: null,
       panelSize: null,
@@ -484,10 +490,16 @@ let app = new Vue({
     filesLoaded: function (truncated) {
       this.truncated = truncated;
     },
-    deleteFile: function (key) {
-      this.$set(this.deleting, key, true);
-      DAO.deleteFiles([key]).then(deleted => {
-        deleted.forEach(key => this.$delete(this.deleting, key));
+    deleteFiles: function (keys) {
+      if (keys.includes(this.previewing)) {
+        this.previewing = null;
+      }
+      keys.forEach(key => this.$set(this.deleting, key, true));
+      DAO.deleteFiles(keys).then(deleted => {
+        deleted.forEach(key => {
+          this.$delete(this.deleting, key);
+          this.$delete(this.selected, key);
+        });
         this.refresh();
       })
     },
@@ -522,16 +534,6 @@ let app = new Vue({
       this.previewing = null;
       this.previewData = null;
       this.previewTruncated = false;
-    },
-    validateFile: function (key) {
-      this.$set(this.validating, key, true);
-      DAO.validateFiles([key]).then(e => {
-        let errors = e[key];
-        this.$set(this.validationLog, key, errors);
-        this.$delete(this.validating, key);
-        this.lastValidated = key;
-        this.tab = 'validation';
-      });
     },
     dragOver: function (event) {
       this.dropping = true;
@@ -676,6 +678,11 @@ let app = new Vue({
   created: function () {
     this.refresh();
   },
+  computed: {
+    selectedKeys: function() {
+      return Object.keys(this.selected);
+    }
+  },
   template: `
     <div id="data-manager-container">
       <div id="panel-1">
@@ -685,10 +692,17 @@ let app = new Vue({
             Actions
           </a>
           <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
-            <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()">
+            <a href="#" class="dropdown-item" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+              Delete Selected
+            </a>
+            <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()" v-else>
               Delete All
             </a>
-            <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()">
+
+            <a href="#" class="dropdown-item" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
+              Ingest Selected
+            </a>
+            <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()" v-else>
               Ingest All
             </a>
           </div>
@@ -697,15 +711,14 @@ let app = new Vue({
         <files-table
           v-bind:loaded="loaded"
           v-bind:files="files"
+          v-bind:selected="selected"
+          v-bind:previewing="previewing"
           v-bind:truncated="truncated"
-          v-bind:validating="validating"
-          v-bind:validationLog="validationLog"
           v-bind:deleting="deleting"
           v-bind:ingesting="ingesting"
 
-          v-on:delete-file="deleteFile"
+          v-on:delete-files="deleteFiles"
           v-on:ingest-files="ingestFiles"
-          v-on:validate-file="validateFile"
           v-on:files-loaded="filesLoaded"
           v-on:show-preview="showPreview"
         />
@@ -723,12 +736,6 @@ let app = new Vue({
             <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
                v-on:click.prevent="tab = 'upload'">
               Upload Files
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#tab-validation-errors" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
-               v-on:click.prevent="tab = 'validation'">
-              Validation
             </a>
           </li>
           <li class="nav-item">
@@ -755,10 +762,6 @@ let app = new Vue({
                    type="file"
                    accept="text/xml" multiple/>
             Click to select or drop files here...
-          </div>
-          <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
-            <validation-error-messages v-if="lastValidated && validationLog[lastValidated]"
-                                       v-bind:messages="validationLog[lastValidated]"/>
           </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
             <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
