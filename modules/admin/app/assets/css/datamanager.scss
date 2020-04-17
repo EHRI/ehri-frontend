@@ -41,7 +41,21 @@ body {
   overflow-y: auto;
   flex: 1;
   flex-basis: 0;
+  display: flex;
+  flex-direction: column;
   background-color: $white;
+  margin-bottom: $margin-xs;
+  border: 1px solid $gray-300;
+
+  // Experimental sticky header. Unfortunately the
+  // row and its borders scrolls behind, which looks
+  // a bit weird.
+  //thead th {
+  //  position: sticky;
+  //  top: 0;
+  //  background-color: $white;
+  //  border: 1px solid $gray-300;
+  //}
 
   tbody tr {
     cursor: pointer;
@@ -69,6 +83,17 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+#valid-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  color: $success;
+
+  z-index: 1000;
+  opacity: .7;
+  animation: fadeIn .5s ease-in;
 }
 
 #validation-loading-indicator {
@@ -115,11 +140,7 @@ body {
   padding: $margin-xs 0;
   cursor: ns-resize;
   display: flex;
-}
-
-#drag-handle-marker {
-  background-color: lighten($border-color, 10%);
-  height: 1px;
+  height: 100%;
 }
 
 #panel-1 {
@@ -129,7 +150,6 @@ body {
 }
 
 #panel-2 {
-  margin-top: auto;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -140,10 +160,14 @@ body {
     .nav-link {
       padding: $margin-xxs $margin-xs;
     }
+
+    li:last-child {
+      flex: 1;
+    }
   }
 
   #status-panels {
-    border: 1px solid $border-color;
+    border: 1px solid $gray-300;
     border-top: 0;
     display: flex;
     flex-direction: column;
@@ -178,26 +202,26 @@ body {
 {
   display: flex;
   flex-direction: column;
-  margin-top: auto;
   overflow: auto;
-  //padding: $margin-xs;
 }
 
-#list-placeholder {
+.panel-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: $font-size-lg;
   color: $text-muted;
-  height: 100%;
+  flex: 1;
 }
 
-#actions-menu {
+#actions-bar {
   margin-bottom: $margin-xs;
-}
+  display: flex;
+  flex-direction: row-reverse;
 
-#actions-menu-toggle {
-  float: right;
+  button {
+    margin-left: $margin-xs;
+  }
 }
 
 .status-panel#tab-file-upload {
@@ -206,7 +230,6 @@ body {
   align-items: center;
   justify-content: center;
   background-color: lightyellow;
-  margin-top: auto;
   font-size: $font-size-lg;
   color: $text-muted;
 
@@ -227,7 +250,7 @@ body {
   position: absolute;
   bottom: $margin-sm;
   left: $margin-sm;
-  border: 1px solid $border-color;
+  border: 1px solid $gray-300;
   background-color: $ehri-gray;
   padding: $margin-xs;
   min-width: 20rem;
