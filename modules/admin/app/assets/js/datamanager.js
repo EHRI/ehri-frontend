@@ -98,6 +98,7 @@ let DAO = {
 
 Vue.component("preview", {
   props: {
+    panelSize: Number,
     previewing: String,
   },
   data: function () {
@@ -106,57 +107,69 @@ Vue.component("preview", {
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
+      errors: [],
     }
   },
   methods: {
     validate: function() {
       let self = this;
+      if (self.previewing === null) {
+        return;
+      }
+
       DAO.validateFiles([self.previewing]).then(errs => {
-        if (errs[self.previewing] && self.editor) {
-          let doc = self.editor.getDoc();
-
-          function makeMarker(err) {
-            let marker = document.createElement("div");
-            marker.style.color = "#822";
-            marker.style.marginLeft = "3px";
-            marker.className = "validation-error";
-            marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
-            marker.querySelector("i").setAttribute("title", err.error);
-            marker.addEventListener("click", function() {
-              if (marker.widget) {
-                marker.widget.clear();
-                delete marker.widget;
-              } else {
-                marker.widget = doc.addLineWidget(err.line - 1, makeWidget(err));
-              }
-            });
-            return marker;
-          }
-
-          function makeWidget(err) {
-            let widget = document.createElement("div");
-            widget.style.color = "#822";
-            widget.style.backgroundColor = "rgba(255,197,199,0.44)";
-            widget.innerHTML = err.error;
-            return widget;
-          }
-
-          errs[self.previewing].forEach (e => {
-            doc.addLineClass(e.line - 1, 'background', 'line-error');
-            doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
-          });
-        }
+        this.errors = errs[self.previewing];
+        this.updateErrors();
       });
     } ,
+    updateErrors: function() {
+      if (this.errors && this.editor) {
+        let doc = this.editor.getDoc();
+
+        function makeMarker(err) {
+          let marker = document.createElement("div");
+          marker.style.color = "#822";
+          marker.style.marginLeft = "3px";
+          marker.className = "validation-error";
+          marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
+          marker.querySelector("i").setAttribute("title", err.error);
+          marker.addEventListener("click", function() {
+            if (marker.widget) {
+              marker.widget.clear();
+              delete marker.widget;
+            } else {
+              marker.widget = doc.addLineWidget(err.line - 1, makeWidget(err));
+            }
+          });
+          return marker;
+        }
+
+        function makeWidget(err) {
+          let widget = document.createElement("div");
+          widget.style.color = "#822";
+          widget.style.backgroundColor = "rgba(255,197,199,0.44)";
+          widget.innerHTML = err.error;
+          return widget;
+        }
+
+        this.errors.forEach (e => {
+          doc.addLineClass(e.line - 1, 'background', 'line-error');
+          doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
+        });
+      }
+
+    },
     load: function () {
       let self = this;
+      if (self.previewing === null) {
+        return;
+      }
+
       self.loading = true;
       DAO.fileUrls([self.previewing]).then(data => {
         let init = true;
 
-        fetch(data[self.previewing], {
-          // mode: "no-cors"
-        }).then(r => {
+        fetch(data[self.previewing]).then(r => {
           let reader = r.body.getReader();
           let decoder = new TextDecoder("UTF-8");
           reader.read().then(function appendBody({done, value}) {
@@ -190,8 +203,13 @@ Vue.component("preview", {
       }
     },
     previewing: function(newValue, oldValue) {
-      if (newValue !== oldValue) {
+      if (newValue !== null && newValue !== oldValue) {
         this.load();
+      }
+    },
+    panelSize: function(newValue, oldValue) {
+      if (newValue !== null && newValue !== oldValue) {
+        this.editor.refresh();
       }
     }
   },
@@ -202,6 +220,9 @@ Vue.component("preview", {
       lineNumbers: true,
       readOnly: true,
       gutters: [{className: "validation-errors", style: "width: 18px"}]
+    });
+    this.editor.on("refresh", evt => {
+      this.updateErrors();
     });
 
     this.load();
@@ -397,6 +418,38 @@ Vue.component("validation-error-messages", {
       <template v-if="msg.pos">, {{msg.pos}}</template>: {{msg.error}}</template></pre>`
 });
 
+Vue.component("drag-handle", {
+  props: {
+    p1: Element,
+    container: Element,
+  },
+
+  methods: {
+    move: function(evt) {
+      let max = this.container.clientHeight - 100;
+      let basis = Math.min(Math.max(0, evt.clientY - this.p1.offsetTop), max);
+      this.p1.style.flexBasis = basis + "px";
+    },
+    startDrag: function(evt) {
+      console.log("Bind resize", new Date());
+      let us = app.$el.style.userSelect;
+      this.container.addEventListener("mousemove", this.move);
+      this.container.style.userSelect = "none";
+      window.addEventListener("mouseup", e => {
+        console.log("Stop resize");
+        this.$emit("resize", this.p1.clientHeight);
+        this.container.style.userSelect = us;
+        this.container.removeEventListener("mousemove", this.move);
+      }, {once: true});
+    },
+  },
+  template: `
+      <div id="drag-handle" v-on:mousedown="startDrag">
+        <div id="drag-handle-marker"></div>
+      </div>
+  `
+});
+
 let app = new Vue({
   el: '#data-manager',
   data: function () {
@@ -416,6 +469,7 @@ let app = new Vue({
       lastValidated: null,
       tab: 'upload',
       previewing: null,
+      panelSize: null,
     }
   },
   watch: {},
@@ -615,44 +669,55 @@ let app = new Vue({
         }
       });
     },
+    setPanelSize: function(arbitrarySize) {
+      this.panelSize = arbitrarySize;
+    }
   },
   created: function () {
     this.refresh();
   },
   template: `
     <div id="data-manager-container">
-      <div id="actions-menu" class="downdown">
-        <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle" role="button"
-           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Actions
-        </a>
-        <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
-          <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()">
-            Delete All
+      <div id="panel-1">
+        <div id="actions-menu" class="downdown">
+          <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle" role="button"
+             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Actions
           </a>
-          <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()">
-            Ingest All
-          </a>
+          <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
+            <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()">
+              Delete All
+            </a>
+            <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()">
+              Ingest All
+            </a>
+          </div>
         </div>
+
+        <files-table
+          v-bind:loaded="loaded"
+          v-bind:files="files"
+          v-bind:truncated="truncated"
+          v-bind:validating="validating"
+          v-bind:validationLog="validationLog"
+          v-bind:deleting="deleting"
+          v-bind:ingesting="ingesting"
+
+          v-on:delete-file="deleteFile"
+          v-on:ingest-files="ingestFiles"
+          v-on:validate-file="validateFile"
+          v-on:files-loaded="filesLoaded"
+          v-on:show-preview="showPreview"
+        />
       </div>
 
-      <files-table
-        v-bind:loaded="loaded"
-        v-bind:files="files"
-        v-bind:truncated="truncated"
-        v-bind:validating="validating"
-        v-bind:validationLog="validationLog"
-        v-bind:deleting="deleting"
-        v-bind:ingesting="ingesting"
-
-        v-on:delete-file="deleteFile"
-        v-on:ingest-files="ingestFiles"
-        v-on:validate-file="validateFile"
-        v-on:files-loaded="filesLoaded"
-        v-on:show-preview="showPreview"
+      <drag-handle 
+        v-bind:p1="$el.querySelector('#panel-1')" 
+        v-bind:container="$el"
+        v-on:resize="setPanelSize"
       />
-
-      <div id="status">
+      
+      <div id="panel-2">
         <ul id="status-panel-tabs" class="nav nav-tabs">
           <li class="nav-item">
             <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
@@ -681,13 +746,6 @@ let app = new Vue({
         </ul>
 
         <div id="status-panels">
-          <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
-            <validation-error-messages v-if="lastValidated && validationLog[lastValidated]"
-                                       v-bind:messages="validationLog[lastValidated]"/>
-          </div>
-          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
-            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
-          </div>
           <div class="status-panel" id="tab-file-upload" v-show="tab === 'upload'" v-bind:class="{dropping: dropping}">
             <input id="file-selector"
                    v-on:change="uploadFiles"
@@ -698,8 +756,15 @@ let app = new Vue({
                    accept="text/xml" multiple/>
             Click to select or drop files here...
           </div>
-          <div class="status-panel" id="tab-preview" v-if="tab === 'preview'">
-            <preview v-bind:previewing="previewing" v-if="previewing !== null"/>
+          <div class="status-panel" id="tab-validation-errors" v-show="tab === 'validation'">
+            <validation-error-messages v-if="lastValidated && validationLog[lastValidated]"
+                                       v-bind:messages="validationLog[lastValidated]"/>
+          </div>
+          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
+            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+          </div>
+          <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
+            <preview v-bind:previewing="previewing" v-bind:panelSize="panelSize" v-show="previewing !== null"/>
           </div>
         </div>
       </div>
