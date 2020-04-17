@@ -108,7 +108,7 @@ Vue.component("preview", {
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
-      errors: [],
+      errors: null,
     }
   },
   methods: {
@@ -169,6 +169,7 @@ Vue.component("preview", {
       }
 
       self.loading = true;
+      self.errors = null;
       DAO.fileUrls([self.previewing]).then(data => {
         let init = true;
 
@@ -240,6 +241,10 @@ Vue.component("preview", {
       <textarea>{{previewData}}</textarea>
       <div id="validation-loading-indicator" v-if="validating">
         <i class="fa fa-circle"></i>
+      </div>
+      <div id="valid-indicator" title="No errors detected" 
+           v-if="!validating && errors !== null && errors.length === 0">
+        <i class="fa fa-check"></i>
       </div>
       <div id="preview-loading-indicator" v-if="loading">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
@@ -453,9 +458,7 @@ Vue.component("drag-handle", {
     },
   },
   template: `
-      <div id="drag-handle" v-on:mousedown="startDrag">
-        <div id="drag-handle-marker"></div>
-      </div>
+    <div id="drag-handle" v-on:mousedown="startDrag"></div>
   `
 });
 
@@ -724,12 +727,6 @@ let app = new Vue({
         />
       </div>
 
-      <drag-handle 
-        v-bind:p1="$el.querySelector('#panel-1')" 
-        v-bind:container="$el"
-        v-on:resize="setPanelSize"
-      />
-      
       <div id="panel-2">
         <ul id="status-panel-tabs" class="nav nav-tabs">
           <li class="nav-item">
@@ -749,6 +746,13 @@ let app = new Vue({
                v-on:click.prevent="tab = 'preview'">
               File Preview <template v-if="previewing"> - {{previewing}}</template>
             </a>
+          </li>
+          <li>
+            <drag-handle
+              v-bind:p1="$el.querySelector('#panel-1')"
+              v-bind:container="$el"
+              v-on:resize="setPanelSize"
+            />
           </li>
         </ul>
 

@@ -71,6 +71,17 @@ body {
   overflow: hidden;
 }
 
+#valid-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  color: $success;
+
+  z-index: 1000;
+  opacity: .7;
+  animation: fadeIn .5s ease-in;
+}
+
 #validation-loading-indicator {
   position: absolute;
   top: 3px;
@@ -115,11 +126,7 @@ body {
   padding: $margin-xs 0;
   cursor: ns-resize;
   display: flex;
-}
-
-#drag-handle-marker {
-  background-color: lighten($border-color, 10%);
-  height: 1px;
+  height: 100%;
 }
 
 #panel-1 {
@@ -139,6 +146,10 @@ body {
     user-select: none;
     .nav-link {
       padding: $margin-xxs $margin-xs;
+    }
+
+    li:last-child {
+      flex: 1;
     }
   }
 
