@@ -375,11 +375,11 @@ Vue.component("files-table", {
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
-          <td><input type="checkbox" id="checkall" v-on:change="toggleAll"/></td>
-          <td>Name</td>
-          <td>Last Modified</td>
-          <td>Size</td>
-          <td colspan="3"></td>
+          <th><input type="checkbox" id="checkall" v-on:change="toggleAll"/></th>
+          <th>Name</th>
+          <th>Last Modified</th>
+          <th>Size</th>
+          <th colspan="3"></th>
         </tr>
         </thead>
         <tbody>
@@ -413,8 +413,8 @@ Vue.component("files-table", {
         <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
         <i v-else class="fa fa-fw fa-caret-down"/>
       </button>
-      <div id="list-placeholder" v-else-if="loaded && files.length === 0">
-        There are no files yet.
+      <div id="list-placeholder" class="panel-placeholder" v-else-if="loaded && files.length === 0">
+        There are no files here yet.
       </div>
       <div id="file-list-loading-indicator" v-show="!loaded">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
@@ -507,6 +507,7 @@ let app = new Vue({
       })
     },
     deleteAll: function () {
+      this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
       return DAO.deleteAll().then(r => {
         this.refresh();
@@ -689,26 +690,24 @@ let app = new Vue({
   template: `
     <div id="data-manager-container">
       <div id="panel-1">
-        <div id="actions-menu" class="downdown">
-          <a href="#" id="actions-menu-toggle" class="btn btn-default dropdown-toggle" role="button"
-             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Actions
-          </a>
-          <div class="dropdown-menu" aria-labelledby="actions-menu-toggle">
-            <a href="#" class="dropdown-item" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-              Delete Selected
-            </a>
-            <a href="#" class="dropdown-item" v-on:click.prevent="deleteAll()" v-else>
-              Delete All
-            </a>
+        <div id="actions-bar">
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-danger" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+            <i class="fa fa-trash-o"></i>
+            Delete Selected ({{selectedKeys.length}})
+          </button>
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-danger" v-on:click.prevent="deleteAll()" v-else>
+            <i class="fa fa-trash-o"></i>
+            Delete All
+          </button>
 
-            <a href="#" class="dropdown-item" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-              Ingest Selected
-            </a>
-            <a href="#" class="dropdown-item" v-on:click.prevent="ingestAll()" v-else>
-              Ingest All
-            </a>
-          </div>
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
+            <i class="fa fa-database"></i>
+            Ingest Selected ({{selectedKeys.length}})
+          </button>
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()" v-else>
+            <i class="fa fa-database"></i>
+            Ingest All
+          </button>
         </div>
 
         <files-table
@@ -772,6 +771,9 @@ let app = new Vue({
           </div>
           <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
             <preview v-bind:previewing="previewing" v-bind:panelSize="panelSize" v-show="previewing !== null"/>
+            <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
+              No file selected.
+            </div>
           </div>
         </div>
       </div>
