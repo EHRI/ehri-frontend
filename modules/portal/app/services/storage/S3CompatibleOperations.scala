@@ -43,6 +43,7 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
   private val client = endpointUrl.fold(
     ifEmpty = AmazonS3ClientBuilder.standard()
       .withCredentials(creds)
+      .withRegion(region.getRegion)
       .build()
   )(
     url => AmazonS3ClientBuilder.standard()
