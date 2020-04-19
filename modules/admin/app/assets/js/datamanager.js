@@ -21,6 +21,35 @@ function sequential(func, arr, index) {
     });
 }
 
+// Bytes-to-human readable string from:
+// https://stackoverflow.com/a/14919494/285374
+Vue.filter("humanFileSize", function(bytes, si) {
+  let f = (bytes, si) => {
+    let thresh = si ? 1000 : 1024;
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' B';
+    }
+    var units = si
+      ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+      : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    var u = -1;
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1) + ' ' + units[u];
+  };
+  return _.memoize(f)(bytes, si);
+});
+
+Vue.filter("prettyDate", function(time) {
+  let f = time => {
+    let m = moment(time);
+    return m.isValid() ? m.fromNow() : "";
+  };
+  return _.memoize(f)(time);
+});
+
 /**
  * A data access object containing functions to vocabulary concepts.
  */
@@ -280,6 +309,7 @@ Vue.component("upload-progress", {
 
 Vue.component("files-table", {
   props: {
+    dropping: Boolean,
     loaded: Boolean,
     previewing: String,
     files: Array,
@@ -287,6 +317,7 @@ Vue.component("files-table", {
     truncated: Boolean,
     deleting: Object,
     ingesting: Object,
+    filter: String,
   },
   data: function () {
     return {
@@ -305,46 +336,6 @@ Vue.component("files-table", {
       });
     },
 
-    // Bytes-to-human readable string from:
-    // https://stackoverflow.com/a/14919494/285374
-    humanFileSize: function (bytes, si) {
-      var thresh = si ? 1000 : 1024;
-      if (Math.abs(bytes) < thresh) {
-        return bytes + ' B';
-      }
-      var units = si
-        ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-      var u = -1;
-      do {
-        bytes /= thresh;
-        ++u;
-      } while (Math.abs(bytes) >= thresh && u < units.length - 1);
-      return bytes.toFixed(1) + ' ' + units[u];
-    },
-
-    // EJohn's pretty date:
-    // Takes an ISO time and returns a string representing how
-    // long ago the date represents.
-    // https://johnresig.com/blog/javascript-pretty-date/
-    prettyDate: function (time) {
-      var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
-        diff = (((new Date()).getTime() - date.getTime()) / 1000),
-        day_diff = Math.floor(diff / 86400);
-
-      if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-        return;
-
-      return day_diff === 0 && (
-        diff < 60 && "just now" ||
-        diff < 120 && "1 minute ago" ||
-        diff < 3600 && Math.floor(diff / 60) + " minutes ago" ||
-        diff < 7200 && "1 hour ago" ||
-        diff < 86400 && Math.floor(diff / 3600) + " hours ago") ||
-        day_diff === 1 && "Yesterday" ||
-        day_diff < 7 && day_diff + " days ago" ||
-        day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
-    },
     toggleAll: function(evt) {
       for (let i = 0; i < this.files.length; i++) {
         this.toggleItem(this.files[i].key, evt);
@@ -361,8 +352,8 @@ Vue.component("files-table", {
   watch: {
     selected: function(newValue, oldValue) {
       let selected = Object.keys(newValue).length;
-      let ind = selected > 0 && selected !== this.files.length;
-      this.$el.querySelector("#checkall").indeterminate = ind;
+      this.$el.querySelector("#checkall").indeterminate =
+        selected > 0 && selected !== this.files.length;
     },
   },
   computed: {
@@ -371,7 +362,7 @@ Vue.component("files-table", {
     }
   },
   template: `
-    <div id="file-list-container" v-bind:class="{loading:'loading'}">
+    <div id="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -389,8 +380,8 @@ Vue.component("files-table", {
             v-bind:class="{'active': previewing === file.key}">
           <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)"></td>
           <td>{{file.key}}</td>
-          <td>{{prettyDate(file.lastModified)}}</td>
-          <td>{{humanFileSize(file.size, true)}}</td>
+          <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
+          <td>{{file.size | humanFileSize(true)}}</td>
           <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
             <i class="fa fa-fw" v-bind:class="{
               'fa-database': !ingesting[file.key], 
@@ -413,6 +404,9 @@ Vue.component("files-table", {
         <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
         <i v-else class="fa fa-fw fa-caret-down"/>
       </button>
+      <div id="filter-placeholder" class="panel-placeholder" v-else-if="loaded && filter && files.length === 0">
+        No files found starting with &quot;<code>{{filter}}</code>&quot;...
+      </div>
       <div id="list-placeholder" class="panel-placeholder" v-else-if="loaded && files.length === 0">
         There are no files here yet.
       </div>
@@ -421,15 +415,6 @@ Vue.component("files-table", {
       </div>
     </div>
   `
-});
-
-Vue.component("validation-error-messages", {
-  props: {
-    messages: Array,
-  },
-  template: `
-    <pre><template v-for="msg in messages">Line {{msg.line}}
-      <template v-if="msg.pos">, {{msg.pos}}</template>: {{msg.error}}</template></pre>`
 });
 
 Vue.component("drag-handle", {
@@ -468,6 +453,8 @@ let app = new Vue({
     return {
       loaded: false,
       truncated: false,
+      filter: "",
+      filtering: false,
       files: [],
       deleting: {},
       selected: {},
@@ -476,15 +463,28 @@ let app = new Vue({
       cancelled: [],
       log: [],
       ingesting: {},
-      tab: 'upload',
+      tab: 'preview',
       previewing: null,
       panelSize: null,
     }
   },
-  watch: {},
   methods: {
+    clearFilter: function() {
+      this.filter = "";
+      return this.refresh();
+    },
+    filterFiles: function() {
+      let func = () => {
+        this.filtering = true;
+        return this.refresh().then(r => {
+          this.filtering = false;
+          return r;
+        });
+      };
+      _.debounce(func, 300)();
+    },
     refresh: function () {
-      return DAO.listFiles("").then(data => {
+      return DAO.listFiles(this.filter).then(data => {
         this.files = data.files;
         this.truncated = data.truncated;
         this.loaded = true;
@@ -688,29 +688,52 @@ let app = new Vue({
     }
   },
   template: `
-    <div id="data-manager-container">
+    <div id="data-manager-container"
+         v-on:dragover.prevent.stop="dragOver"
+         v-on:dragleave.prevent.stop="dragLeave"
+         v-on:drop.prevent.stop="uploadFiles">
       <div id="panel-1">
         <div id="actions-bar">
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-danger" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-            <i class="fa fa-trash-o"></i>
-            Delete Selected ({{selectedKeys.length}})
-          </button>
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-danger" v-on:click.prevent="deleteAll()" v-else>
-            <i class="fa fa-trash-o"></i>
-            Delete All
-          </button>
+          <div id="filter-control">
+            <label for="filter-input" class="sr-only">Filter files</label>
+            <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter" placeholder="Filter files..." v-on:keyup="filterFiles"/>
+            <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+            <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw" v-else-if="filter"/>
+          </div>
 
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-            <i class="fa fa-database"></i>
+            <i class="fa fa-database"/>
             Ingest Selected ({{selectedKeys.length}})
           </button>
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()" v-else>
-            <i class="fa fa-database"></i>
+            <i class="fa fa-database"/>
             Ingest All
+          </button>
+
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+            <i class="fa fa-trash-o"/>
+            Delete Selected ({{selectedKeys.length}})
+          </button>
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()" v-else>
+            <i class="fa fa-trash-o"/>
+            Delete All
+          </button>
+
+          <button id="file-upload" class="btn btn-sm btn-default">
+            <input id="file-selector"
+                   v-on:change="uploadFiles"
+                   v-on:dragover.prevent="dragOver"
+                   v-on:dragleave.prevent="dragLeave"
+                   v-on:drop.prevent="uploadFiles"
+                   type="file"
+                   accept="text/xml" multiple/>
+            <i class="fa fa-cloud-upload"/>
+            Upload Files
           </button>
         </div>
 
         <files-table
+          v-bind:dropping="dropping" 
           v-bind:loaded="loaded"
           v-bind:files="files"
           v-bind:selected="selected"
@@ -718,6 +741,7 @@ let app = new Vue({
           v-bind:truncated="truncated"
           v-bind:deleting="deleting"
           v-bind:ingesting="ingesting"
+          v-bind:filter="filter"
 
           v-on:delete-files="deleteFiles"
           v-on:ingest-files="ingestFiles"
@@ -729,21 +753,15 @@ let app = new Vue({
       <div id="panel-2">
         <ul id="status-panel-tabs" class="nav nav-tabs">
           <li class="nav-item">
-            <a href="#tab-file-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
-               v-on:click.prevent="tab = 'upload'">
-              Upload Files
+            <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+               v-on:click.prevent="tab = 'preview'">
+              File Preview <template v-if="previewing"> - {{previewing}}</template>
             </a>
           </li>
           <li class="nav-item">
             <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
                v-on:click.prevent="tab = 'ingest'">
               Ingest
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
-               v-on:click.prevent="tab = 'preview'">
-              File Preview <template v-if="previewing"> - {{previewing}}</template>
             </a>
           </li>
           <li>
@@ -756,24 +774,14 @@ let app = new Vue({
         </ul>
 
         <div id="status-panels">
-          <div class="status-panel" id="tab-file-upload" v-show="tab === 'upload'" v-bind:class="{dropping: dropping}">
-            <input id="file-selector"
-                   v-on:change="uploadFiles"
-                   v-on:dragover.prevent="dragOver"
-                   v-on:dragleave.prevent="dragLeave"
-                   v-on:drop.prevent="uploadFiles"
-                   type="file"
-                   accept="text/xml" multiple/>
-            Click to select or drop files here...
-          </div>
-          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
-            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
-          </div>
           <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
             <preview v-bind:previewing="previewing" v-bind:panelSize="panelSize" v-show="previewing !== null"/>
             <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
               No file selected.
             </div>
+          </div>
+          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
+            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
           </div>
         </div>
       </div>

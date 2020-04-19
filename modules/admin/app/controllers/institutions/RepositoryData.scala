@@ -1,7 +1,7 @@
 package controllers.institutions
 
 import java.io.PrintWriter
-import java.net.{URI, URLEncoder}
+import java.net.URLEncoder
 import java.util.UUID
 
 import actors.IngestActor
@@ -56,9 +56,6 @@ case class RepositoryData @Inject()(
   with Read[Repository]
   with Update[Repository] {
 
-  // TEMP TEMP TEMP TESTING FIXME FIXME FIXME FIXME
-//  override val staffOnly = false
-
   private val repositoryDataRoutes = controllers.institutions.routes.RepositoryData
 
   private val fileForm = Form(single("file" -> text))
@@ -68,7 +65,7 @@ case class RepositoryData @Inject()(
   private def prefix(id: String)(implicit request: RequestHeader): String = s"$instance/ingest/$id/"
 
   def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.data.manager(request.item))
+    Ok(views.html.admin.repository.datamanager(request.item))
   }
 
   def validateFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
@@ -85,7 +82,7 @@ case class RepositoryData @Inject()(
 
   def listFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
-      prefix = Some(prefix(id + path.getOrElse(""))),
+      prefix = Some(prefix(id) + path.getOrElse("")),
       from.map(key => s"${prefix(id)}$key"), max = 20).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id), ""))))))
     }
@@ -190,45 +187,6 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def uploadData(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.streamFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
-      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
-      Ok(views.html.admin.repository.uploadData(request.item, stripPrefix, fileForm,
-        repositoryDataRoutes.uploadDataPost(id)))
-    }
-  }
-
-  def uploadDataDirect(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.streamFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).map  { files =>
-      val stripPrefix = files.map(f => f.copy(key = f.key.replaceFirst(prefix(id), "") ))
-      if (isAjax) Ok(views.html.admin.repository.uploadDataList(request.item, stripPrefix))
-      else Ok(views.html.admin.repository.uploadData(request.item, stripPrefix, fileForm,
-        repositoryDataRoutes.uploadDataDirect(id)))
-    }
-  }
-
-  def deleteDataPost(id: String, fileName: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.deleteFiles(bucket, s"${prefix(id)}$fileName").map { r =>
-      Ok(Json.obj("ok" -> true))
-    }
-  }
-
-  def uploadDataPost(id: String): Action[AnyContent] = EditAction(id).async(parse.anyContent(Some(parse.UNLIMITED))) { implicit request =>
-    request.body.asMultipartFormData.map { data =>
-
-      val uris: Seq[Future[URI]] = data.files.map { file =>
-        val path = s"${prefix(id)}${file.filename}"
-        storage.putFile(bucket, path, file.ref.path.toFile)
-      }
-      Future.sequence(uris).map { _ =>
-        Redirect(repositoryDataRoutes.uploadData(id))
-          .flashing("success" -> "That worked!")
-      }
-    }.getOrElse {
-      immediate(Redirect(repositoryDataRoutes.uploadData(id)))
-    }
-  }
-
   def validateEad(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[XmlValidationError]], request.item, fileForm,
       repositoryDataRoutes.validateEadPost(id)))
@@ -246,20 +204,6 @@ case class RepositoryData @Inject()(
       }
     }.getOrElse {
       immediate(Redirect(repositoryDataRoutes.validateEad(id)))
-    }
-  }
-
-  def validateEadFromStorage(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.streamFiles(bucket, prefix = Some(prefix(id))).runWith(Sink.seq).flatMap  { files =>
-      val results: Seq[Future[(String, Seq[XmlValidationError])]] = files.map { file =>
-        eadValidator.validateEad(Uri(storage.uri(bucket, file.key).toString))
-          .map(errs => file.key.replace(prefix(id), "") -> errs)
-      }
-
-      Future.sequence(results).map { out =>
-        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
-          repositoryDataRoutes.validateEadPost(id)))
-      }
     }
   }
 }

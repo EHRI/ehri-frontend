@@ -41,10 +41,5 @@ POST        /:id/data/ingest                          @controllers.institutions.
 POST        /:id/data/ingest-all                      @controllers.institutions.RepositoryData.ingestAll(id: String, commit: Boolean ?= false)
 POST        /:id/data/urls                            @controllers.institutions.RepositoryData.fileUrls(id: String)
 
-GET         /:id/data-old                             @controllers.institutions.RepositoryData.uploadData(id: String)
-POST        /:id/data-old                             @controllers.institutions.RepositoryData.uploadDataPost(id: String)
-GET         /:id/data2                                @controllers.institutions.RepositoryData.uploadDataDirect(id: String)
-POST        /:id/data2/delete                         @controllers.institutions.RepositoryData.deleteDataPost(id: String, fileName: String ?= "")
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)
-GET         /:id/validate-ead2                        @controllers.institutions.RepositoryData.validateEadFromStorage(id: String)
