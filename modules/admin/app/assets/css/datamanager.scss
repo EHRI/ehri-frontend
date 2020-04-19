@@ -67,6 +67,11 @@ body {
     border-color: $warning;
   }
 
+  table {
+    border-collapse: collapse;
+    position: relative;
+  }
+
   // Experimental sticky header. Unfortunately the
   // row and its borders scrolls behind, which looks
   // a bit weird.
