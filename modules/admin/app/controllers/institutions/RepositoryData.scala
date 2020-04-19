@@ -144,7 +144,7 @@ case class RepositoryData @Inject()(
       file = Some(temp)
     )
 
-    val ingestTask = IngestData(task, IngestApi.IngestDataType.EadSync, contentType, AuthenticatedUser("mike"))
+    val ingestTask = IngestData(task, IngestApi.IngestDataType.Ead, contentType, AuthenticatedUser("mike"))
     val runner = mat.system.actorOf(Props(IngestActor(ingestApi)), jobId)
     runner ! IngestJob(jobId, ingestTask)
 
