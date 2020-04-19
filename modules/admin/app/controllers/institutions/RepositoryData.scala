@@ -85,7 +85,7 @@ case class RepositoryData @Inject()(
 
   def listFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
-      prefix = Some(prefix(id + path.getOrElse(""))),
+      prefix = Some(prefix(id) + path.getOrElse("")),
       from.map(key => s"${prefix(id)}$key"), max = 20).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id), ""))))))
     }
