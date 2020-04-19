@@ -21,6 +21,35 @@ function sequential(func, arr, index) {
     });
 }
 
+// Bytes-to-human readable string from:
+// https://stackoverflow.com/a/14919494/285374
+Vue.filter("humanFileSize", function(bytes, si) {
+  let f = (bytes, si) => {
+    let thresh = si ? 1000 : 1024;
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' B';
+    }
+    var units = si
+      ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+      : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    var u = -1;
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1) + ' ' + units[u];
+  };
+  return _.memoize(f)(bytes, si);
+});
+
+Vue.filter("prettyDate", function(time) {
+  let f = time => {
+    let m = moment(time);
+    return m.isValid() ? m.fromNow() : "";
+  };
+  return _.memoize(f)(time);
+});
+
 /**
  * A data access object containing functions to vocabulary concepts.
  */
@@ -307,46 +336,6 @@ Vue.component("files-table", {
       });
     },
 
-    // Bytes-to-human readable string from:
-    // https://stackoverflow.com/a/14919494/285374
-    humanFileSize: function (bytes, si) {
-      var thresh = si ? 1000 : 1024;
-      if (Math.abs(bytes) < thresh) {
-        return bytes + ' B';
-      }
-      var units = si
-        ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-      var u = -1;
-      do {
-        bytes /= thresh;
-        ++u;
-      } while (Math.abs(bytes) >= thresh && u < units.length - 1);
-      return bytes.toFixed(1) + ' ' + units[u];
-    },
-
-    // EJohn's pretty date:
-    // Takes an ISO time and returns a string representing how
-    // long ago the date represents.
-    // https://johnresig.com/blog/javascript-pretty-date/
-    prettyDate: function (time) {
-      var date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")),
-        diff = (((new Date()).getTime() - date.getTime()) / 1000),
-        day_diff = Math.floor(diff / 86400);
-
-      if (isNaN(day_diff) || day_diff < 0 || day_diff >= 31)
-        return;
-
-      return day_diff === 0 && (
-        diff < 60 && "just now" ||
-        diff < 120 && "1 minute ago" ||
-        diff < 3600 && Math.floor(diff / 60) + " minutes ago" ||
-        diff < 7200 && "1 hour ago" ||
-        diff < 86400 && Math.floor(diff / 3600) + " hours ago") ||
-        day_diff === 1 && "Yesterday" ||
-        day_diff < 7 && day_diff + " days ago" ||
-        day_diff < 31 && Math.ceil(day_diff / 7) + " weeks ago";
-    },
     toggleAll: function(evt) {
       for (let i = 0; i < this.files.length; i++) {
         this.toggleItem(this.files[i].key, evt);
@@ -363,8 +352,8 @@ Vue.component("files-table", {
   watch: {
     selected: function(newValue, oldValue) {
       let selected = Object.keys(newValue).length;
-      let ind = selected > 0 && selected !== this.files.length;
-      this.$el.querySelector("#checkall").indeterminate = ind;
+      this.$el.querySelector("#checkall").indeterminate =
+        selected > 0 && selected !== this.files.length;
     },
   },
   computed: {
@@ -391,8 +380,8 @@ Vue.component("files-table", {
             v-bind:class="{'active': previewing === file.key}">
           <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)"></td>
           <td>{{file.key}}</td>
-          <td v-bind:title="file.lastModified">{{prettyDate(file.lastModified)}}</td>
-          <td>{{humanFileSize(file.size, true)}}</td>
+          <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
+          <td>{{file.size | humanFileSize(true)}}</td>
           <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
             <i class="fa fa-fw" v-bind:class="{
               'fa-database': !ingesting[file.key], 
@@ -426,15 +415,6 @@ Vue.component("files-table", {
       </div>
     </div>
   `
-});
-
-Vue.component("validation-error-messages", {
-  props: {
-    messages: Array,
-  },
-  template: `
-    <pre><template v-for="msg in messages">Line {{msg.line}}
-      <template v-if="msg.pos">, {{msg.pos}}</template>: {{msg.error}}</template></pre>`
 });
 
 Vue.component("drag-handle", {
@@ -488,7 +468,6 @@ let app = new Vue({
       panelSize: null,
     }
   },
-  watch: {},
   methods: {
     clearFilter: function() {
       this.filter = "";
