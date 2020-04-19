@@ -702,20 +702,20 @@ let app = new Vue({
           </div>
 
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-            <i class="fa fa-database"></i>
+            <i class="fa fa-database"/>
             Ingest Selected ({{selectedKeys.length}})
           </button>
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()" v-else>
-            <i class="fa fa-database"></i>
+            <i class="fa fa-database"/>
             Ingest All
           </button>
 
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-            <i class="fa fa-trash-o"></i>
+            <i class="fa fa-trash-o"/>
             Delete Selected ({{selectedKeys.length}})
           </button>
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()" v-else>
-            <i class="fa fa-trash-o"></i>
+            <i class="fa fa-trash-o"/>
             Delete All
           </button>
 
@@ -727,6 +727,7 @@ let app = new Vue({
                    v-on:drop.prevent="uploadFiles"
                    type="file"
                    accept="text/xml" multiple/>
+            <i class="fa fa-cloud-upload"/>
             Upload Files
           </button>
         </div>
