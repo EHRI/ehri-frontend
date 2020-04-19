@@ -140,8 +140,10 @@ case class RepositoryData @Inject()(
     val task = IngestParams(
       scopeType = defines.ContentTypes.Repository,
       scope = id,
+      allowUpdate = true,
       log = request.body.logMessage,
-      file = Some(temp)
+      file = Some(temp),
+      commit = commit
     )
 
     val ingestTask = IngestData(task, IngestApi.IngestDataType.Ead, contentType, AuthenticatedUser("mike"))
