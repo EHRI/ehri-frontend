@@ -848,6 +848,7 @@ repository.administrationArea=Administration
 repository.logo=Institution Logo
 repository.logo.edit=Edit Institution Logo
 repository.logo.update.logMessage=Update logo image
+repository.data.manage=Manage File Data
 repository.data=Institution File Data
 repository.data.upload=Upload Files
 repository.data.upload.submit=Submit

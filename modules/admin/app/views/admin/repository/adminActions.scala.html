@@ -41,13 +41,18 @@
     }
 }
 
-@views.html.common.sidebarSection(Messages("ingest")) {
-    @views.html.admin.common.sidebarActionGroup {
-        @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
-            <a href="@controllers.institutions.routes.Repositories.ingest(item.id)">@Messages("ingest.format.ead")</a>
-        }
-        @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
-            <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">@Messages("ingest.format.ead-sync")</a>
+@userOpt.map { user =>
+    @views.html.common.sidebarSection(Messages("ingest")) {
+        @views.html.admin.common.sidebarActionGroup {
+            @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
+                <a href="@controllers.institutions.routes.RepositoryData.manager(item.id)">@Messages("repository.data.manage")</a>
+            }
+            @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
+                <a href="@controllers.institutions.routes.Repositories.ingest(item.id)">@Messages("ingest.format.ead")</a>
+            }
+            @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
+                <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">@Messages("ingest.format.ead-sync")</a>
+            }
         }
     }
 }
