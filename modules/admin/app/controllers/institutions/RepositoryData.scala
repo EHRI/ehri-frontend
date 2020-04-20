@@ -124,17 +124,17 @@ case class RepositoryData @Inject()(
 
   def ingestFiles(id: String, commit: Boolean): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
     val keys = request.body.files.map(path => s"${prefix(id)}$path")
-    val urls = keys.map(key => storage.uri(bucket, key)).mkString("\n")
+    val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
 
     // Tag this task with a unique ID...
     val jobId = UUID.randomUUID().toString
 
-    // Type is text, since it's just a list of URLs
-    val contentType = play.api.http.ContentTypes.TEXT
+    // Type is json, since it's a mapping of key -> URL
+    val contentType = play.api.http.ContentTypes.JSON
 
-    val temp = SingletonTemporaryFileCreator.create("ingest", ".txt")
+    val temp = SingletonTemporaryFileCreator.create("ingest", ".json")
     val writer = new PrintWriter(temp.path.toString, "UTF-8")
-    writer.write(urls)
+    writer.write(Json.stringify(Json.toJson(urls)))
     writer.close()
 
     val task = IngestParams(
