@@ -37,8 +37,8 @@ DELETE      /:id/data/delete                          @controllers.institutions.
 DELETE      /:id/data/delete-all                      @controllers.institutions.RepositoryData.deleteAll(id: String)
 POST        /:id/data/upload                          @controllers.institutions.RepositoryData.uploadHandle(id: String)
 POST        /:id/data/validate                        @controllers.institutions.RepositoryData.validateFiles(id: String)
-POST        /:id/data/ingest                          @controllers.institutions.RepositoryData.ingestFiles(id: String, commit: Boolean ?= false)
-POST        /:id/data/ingest-all                      @controllers.institutions.RepositoryData.ingestAll(id: String, commit: Boolean ?= false)
+POST        /:id/data/ingest                          @controllers.institutions.RepositoryData.ingestFiles(id: String)
+POST        /:id/data/ingest-all                      @controllers.institutions.RepositoryData.ingestAll(id: String)
 POST        /:id/data/urls                            @controllers.institutions.RepositoryData.fileUrls(id: String)
 
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
