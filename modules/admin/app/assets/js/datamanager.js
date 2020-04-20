@@ -1,7 +1,7 @@
 "use strict";
 
 // FIXME: make this dynamic?
-const LOG_MESSAGE = "TEST TEST TEST";
+const LOG_MESSAGE = "Testing Ingest";
 
 // Prevent default drag/drop action...
 window.addEventListener("dragover", function (e) {
@@ -73,12 +73,23 @@ let DAO = {
     return this.call(SERVICE.listFiles(CONFIG.repositoryId, prefix, after));
   },
 
-  ingestFiles: function (paths, logMessage) {
-    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), {logMessage: logMessage, files: paths});
+  ingestFiles: function (paths, tolerant, commit, logMessage) {
+    let data = {
+      logMessage: logMessage,
+      tolerant: tolerant,
+      commit: commit,
+      files: paths
+    };
+    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), data);
   },
 
-  ingestAll: function (logMessage) {
-    return this.call(SERVICE.ingestAll(CONFIG.repositoryId), {logMessage: logMessage, files: []});
+  ingestAll: function (tolerant, commit, logMessage) {
+    return this.call(SERVICE.ingestAll(CONFIG.repositoryId), {
+      logMessage: logMessage,
+      tolerant: tolerant,
+      commit: commit,
+      files: []
+    });
   },
 
   deleteFiles: function (paths) {
@@ -417,6 +428,18 @@ Vue.component("files-table", {
   `
 });
 
+Vue.component("log-window", {
+  props: {
+    log: Array,
+  },
+  updated: function() {
+      this.$el.scrollTop = this.$el.clientHeight + 1000;
+  },
+  template: `
+    <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+  `
+});
+
 Vue.component("drag-handle", {
   props: {
     p1: Element,
@@ -466,6 +489,10 @@ let app = new Vue({
       tab: 'preview',
       previewing: null,
       panelSize: null,
+      showOptions: false,
+      optCommit: false,
+      optTolerant: false,
+      optLogMsg: LOG_MESSAGE
     }
   },
   methods: {
@@ -625,11 +652,6 @@ let app = new Vue({
           keys.forEach(key => self.$delete(self.ingesting, key));
           websocket.close();
         }
-        // FIXME
-        let logElem = document.getElementById("tab-ingest-log");
-        if (logElem) {
-          logElem.scrollTop = logElem.clientHeight;
-        }
       };
     },
     ingestFiles: function (keys) {
@@ -644,7 +666,7 @@ let app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(keys, LOG_MESSAGE)
+      DAO.ingestFiles(keys, self.optTolerant, self.optCommit, self.optLogMsg)
         .then(data => {
           if (data.url && data.jobId) {
             self.monitorIngest(data.url, keys);
@@ -667,7 +689,7 @@ let app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll(LOG_MESSAGE).then(data => {
+      DAO.ingestAll(self.optTolerant, self.optCommit, self.optLogMsg).then(data => {
         if (data.url && data.jobId) {
           self.monitorIngest(data.url, keys);
         } else {
@@ -730,6 +752,46 @@ let app = new Vue({
             <i class="fa fa-cloud-upload"/>
             Upload Files
           </button>
+
+          <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+            <i class="fa fa-gear"/>
+          </button>
+
+          <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="showOptions" style="display: block">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Testing Parameters</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showOptions = false">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div id="options-form">
+                    <div class="form-group form-check">
+                      <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="optTolerant"/>
+                      <label class="form-check-label" for="opt-tolerant-check">
+                        Tolerant Mode: do not abort on individual file errors
+                      </label>
+                    </div>
+                    <div class="form-group form-check">
+                      <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="optCommit"/>
+                      <label class="form-check-label" for="opt-commit-check">
+                        Commit Ingest: make changes to database
+                      </label>
+                    </div>
+                    <div class="form-group">
+                      <label for="opt-log-message">Log Message</label>
+                      <input class="form-control form-control-sm" id="opt-log-message" v-model="optLogMsg"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="showOptions = false">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <files-table
@@ -781,7 +843,7 @@ let app = new Vue({
             </div>
           </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
-            <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+            <log-window v-bind:log="log" v-if="log.length > 0"/>
           </div>
         </div>
       </div>

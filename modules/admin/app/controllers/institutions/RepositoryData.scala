@@ -36,7 +36,12 @@ object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
 }
 
-case class IngestPayload(logMessage: String, files: Seq[String] = Seq.empty)
+case class IngestPayload(
+  logMessage: String,
+  tolerant: Boolean = false,
+  commit: Boolean = false,
+  files: Seq[String] = Seq.empty
+)
 object IngestPayload {
   implicit val _json: Format[IngestPayload] = Json.format[IngestPayload]
 }
@@ -94,10 +99,10 @@ case class RepositoryData @Inject()(
     Ok(Json.toJson(result))
   }
 
-  def ingestAll(id: String, commit: Boolean): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+  def ingestAll(id: String): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
     storage.streamFiles(bucket, Some(prefix(id))).map(_.key.replace(prefix(id), ""))
         .runWith(Sink.seq).flatMap { seq =>
-      ingestFiles(id, commit).apply(request.withBody(request.body.copy(files = seq)))
+      ingestFiles(id).apply(request.withBody(request.body.copy(files = seq)))
     }
   }
 
@@ -122,7 +127,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String, commit: Boolean): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+  def ingestFiles(id: String): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
     val keys = request.body.files.map(path => s"${prefix(id)}$path")
     val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
 
@@ -141,9 +146,10 @@ case class RepositoryData @Inject()(
       scopeType = defines.ContentTypes.Repository,
       scope = id,
       allowUpdate = true,
-      log = request.body.logMessage,
       file = Some(temp),
-      commit = commit
+      log = request.body.logMessage,
+      tolerant = request.body.tolerant,
+      commit = request.body.commit
     )
 
     val ingestTask = IngestData(task, IngestApi.IngestDataType.Ead, contentType, AuthenticatedUser("mike"))
