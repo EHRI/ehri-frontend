@@ -641,7 +641,7 @@ let app = new Vue({
       let self = this;
       let websocket = new WebSocket(url);
       websocket.onerror = function (e) {
-        self.log.push("ERROR. Try refreshing the page. ");
+        self.log.push("ERROR: " + e);
         console.error("Socket error!", e);
         keys.forEach(key => self.$delete(self.ingesting, key));
       };
@@ -823,7 +823,7 @@ let app = new Vue({
           <li class="nav-item">
             <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
                v-on:click.prevent="tab = 'ingest'">
-              Ingest
+              Ingest Log
             </a>
           </li>
           <li>
@@ -844,6 +844,9 @@ let app = new Vue({
           </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
             <log-window v-bind:log="log" v-if="log.length > 0"/>
+            <div id="preview-placeholder" class="panel-placeholder" v-else>
+              Ingest log output will show here.
+            </div>
           </div>
         </div>
       </div>
