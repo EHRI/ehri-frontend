@@ -454,10 +454,10 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     WebSocket.acceptOrResult[I, O] { implicit request =>
       authHandler.restoreAccount(request).flatMap {
         case (Some(account), _) => fetchProfile(account).flatMap {
-          case Some(prof) if prof.isAdmin => immediate(Right {
+          case Some(prof) if f(prof) => immediate(Right {
             a(request)
           })
-          // user doesn't have a profile, or it's not admin
+          // user doesn't have a profile, or fails the test
           case _ => authenticationFailed(request).map(r => Left(r))
         }
         case _ => authenticationFailed(request).map(r => Left(r))
