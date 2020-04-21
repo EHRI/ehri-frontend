@@ -205,7 +205,9 @@ body {
   }
 }
 
-#tab-ingest-log {
+#tab-ingest-log,
+#tab-validation-log
+{
   display: flex;
   flex-direction: column;
   flex: 1;
