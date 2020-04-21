@@ -122,7 +122,7 @@ let DAO = {
           source.cancel();
         }
       },
-      headers: {'Content-type': file.type,},
+      headers: {'Content-type': file.type, 'Cache-Control': 120},
       cancelToken: source.token,
     }).then(r => r.status === 200)
       .catch(function (e) {
@@ -140,6 +140,7 @@ Vue.component("preview", {
   props: {
     panelSize: Number,
     previewing: String,
+    errors: null,
   },
   data: function () {
     return {
@@ -148,7 +149,6 @@ Vue.component("preview", {
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
-      errors: null,
     }
   },
   methods: {
@@ -160,13 +160,13 @@ Vue.component("preview", {
 
       self.validating = true;
       DAO.validateFiles([self.previewing]).then(errs => {
-        this.errors = errs[self.previewing];
+        this.$set(this.errors, self.previewing, errs[self.previewing]);
         this.updateErrors();
         this.validating = false;
       });
     } ,
     updateErrors: function() {
-      if (this.errors && this.editor) {
+      if (this.errors[this.previewing] && this.editor) {
         let doc = this.editor.getDoc();
 
         function makeMarker(err) {
@@ -195,7 +195,7 @@ Vue.component("preview", {
           return widget;
         }
 
-        this.errors.forEach (e => {
+        this.errors[this.previewing].forEach (e => {
           doc.addLineClass(e.line - 1, 'background', 'line-error');
           doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
         });
@@ -209,7 +209,6 @@ Vue.component("preview", {
       }
 
       self.loading = true;
-      self.errors = null;
       DAO.fileUrls([self.previewing]).then(data => {
         let init = true;
 
@@ -283,7 +282,7 @@ Vue.component("preview", {
         <i class="fa fa-circle"></i>
       </div>
       <div id="valid-indicator" title="No errors detected" 
-           v-if="!validating && errors !== null && errors.length === 0">
+           v-if="!validating && errors[previewing] && errors[previewing].length === 0">
         <i class="fa fa-check"></i>
       </div>
       <div id="preview-loading-indicator" v-if="loading">
@@ -323,6 +322,8 @@ Vue.component("files-table", {
     dropping: Boolean,
     loaded: Boolean,
     previewing: String,
+    validating: Object,
+    validationResults: Object,
     files: Array,
     selected: Object,
     truncated: Boolean,
@@ -381,7 +382,7 @@ Vue.component("files-table", {
           <th>Name</th>
           <th>Last Modified</th>
           <th>Size</th>
-          <th colspan="3"></th>
+          <th colspan="4"></th>
         </tr>
         </thead>
         <tbody>
@@ -393,6 +394,15 @@ Vue.component("files-table", {
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
+          <td><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
+            <i v-if="validating[file.key]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+            <i v-else-if="validationResults[file.key]" class="fa fa-fw" v-bind:class="{
+              'fa-check text-success': validationResults[file.key].length === 0,
+              'fa-exclamation-circle text-danger': validationResults[file.key].length > 0
+             }"></i>
+            <i v-else class="fa fa-fw fa-flag-o"></i>
+          </a>
+          </td>
           <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
             <i class="fa fa-fw" v-bind:class="{
               'fa-database': !ingesting[file.key], 
@@ -436,7 +446,7 @@ Vue.component("log-window", {
       this.$el.scrollTop = this.$el.clientHeight + 1000;
   },
   template: `
-    <pre v-if="log.length > 0"><template v-for="msg in log">{{msg}}<br/></template></pre>
+    <pre v-if="log.length > 0"><template v-for="msg in log"><span v-html="msg"></span><br/></template></pre>
   `
 });
 
@@ -486,6 +496,8 @@ let app = new Vue({
       cancelled: [],
       log: [],
       ingesting: {},
+      validating: {},
+      validationResults: {},
       tab: 'preview',
       previewing: null,
       panelSize: null,
@@ -637,11 +649,22 @@ let app = new Vue({
           console.log("Files uploaded...")
         });
     },
+    validateFiles: function(keys) {
+      keys.forEach(key => this.$set(this.validating, key, true));
+      keys.forEach(key => this.$delete(this.validationResults, key));
+      DAO.validateFiles(keys).then(errs => {
+        this.tab = 'validation';
+        keys.forEach(key => {
+          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
+          this.$delete(this.validating, key);
+        });
+      });
+    },
     monitorIngest: function (url, keys) {
       let self = this;
       let websocket = new WebSocket(url);
       websocket.onerror = function (e) {
-        self.log.push("ERROR: " + e);
+        self.log.push("ERROR: a websocket communication error occurred");
         console.error("Socket error!", e);
         keys.forEach(key => self.$delete(self.ingesting, key));
       };
@@ -707,6 +730,21 @@ let app = new Vue({
   computed: {
     selectedKeys: function() {
       return Object.keys(this.selected);
+    },
+    validationLog: function() {
+      let log = [];
+      this.files.forEach(file => {
+        let key = file.key;
+        let errs = this.validationResults[key];
+        if (errs) {
+          let cls = errs.length === 0 ? "text-success" : "text-danger";
+          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
+          errs.forEach(err => {
+            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
+          });
+        }
+      });
+      return log;
     }
   },
   template: `
@@ -722,6 +760,15 @@ let app = new Vue({
             <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
             <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw" v-else-if="filter"/>
           </div>
+
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
+            <i class="fa fa-flag-o"/>
+            Validate Selected ({{selectedKeys.length}})
+          </button>
+          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
+            <i class="fa fa-flag-o"/>
+            Validate All
+          </button>
 
           <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
             <i class="fa fa-database"/>
@@ -800,6 +847,8 @@ let app = new Vue({
           v-bind:files="files"
           v-bind:selected="selected"
           v-bind:previewing="previewing"
+          v-bind:validating="validating"
+          v-bind:validationResults="validationResults"
           v-bind:truncated="truncated"
           v-bind:deleting="deleting"
           v-bind:ingesting="ingesting"
@@ -807,6 +856,7 @@ let app = new Vue({
 
           v-on:delete-files="deleteFiles"
           v-on:ingest-files="ingestFiles"
+          v-on:validate-files="validateFiles"
           v-on:files-loaded="filesLoaded"
           v-on:show-preview="showPreview"
         />
@@ -818,6 +868,12 @@ let app = new Vue({
             <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                v-on:click.prevent="tab = 'preview'">
               File Preview <template v-if="previewing"> - {{previewing}}</template>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+               v-on:click.prevent="tab = 'validation'">
+              Validation Log
             </a>
           </li>
           <li class="nav-item">
@@ -837,14 +893,23 @@ let app = new Vue({
 
         <div id="status-panels">
           <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
-            <preview v-bind:previewing="previewing" v-bind:panelSize="panelSize" v-show="previewing !== null"/>
+            <preview v-bind:previewing="previewing" 
+                     v-bind:errors="validationResults" 
+                     v-bind:panelSize="panelSize" 
+                     v-show="previewing !== null" />
             <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
               No file selected.
             </div>
           </div>
+          <div class="status-panel" id="tab-validation-log" v-show="tab === 'validation'">
+            <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
+            <div id="validation-placeholder" class="panel-placeholder" v-else>
+              Validation log output will show here.
+            </div>
+          </div>
           <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
             <log-window v-bind:log="log" v-if="log.length > 0"/>
-            <div id="preview-placeholder" class="panel-placeholder" v-else>
+            <div id="ingest-placeholder" class="panel-placeholder" v-else>
               Ingest log output will show here.
             </div>
           </div>
