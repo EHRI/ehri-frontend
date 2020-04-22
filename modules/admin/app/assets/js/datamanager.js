@@ -23,7 +23,7 @@ function sequential(func, arr, index) {
 
 // Bytes-to-human readable string from:
 // https://stackoverflow.com/a/14919494/285374
-Vue.filter("humanFileSize", function(bytes, si) {
+Vue.filter("humanFileSize", function (bytes, si) {
   let f = (bytes, si) => {
     let thresh = si ? 1000 : 1024;
     if (Math.abs(bytes) < thresh) {
@@ -42,7 +42,7 @@ Vue.filter("humanFileSize", function(bytes, si) {
   return _.memoize(f)(bytes, si);
 });
 
-Vue.filter("prettyDate", function(time) {
+Vue.filter("prettyDate", function (time) {
   let f = time => {
     let m = moment(time);
     return m.isValid() ? m.fromNow() : "";
@@ -152,7 +152,7 @@ Vue.component("preview", {
     }
   },
   methods: {
-    validate: function() {
+    validate: function () {
       let self = this;
       if (self.previewing === null) {
         return;
@@ -164,8 +164,8 @@ Vue.component("preview", {
         this.updateErrors();
         this.validating = false;
       });
-    } ,
-    updateErrors: function() {
+    },
+    updateErrors: function () {
       if (this.errors[this.previewing] && this.editor) {
         let doc = this.editor.getDoc();
 
@@ -176,7 +176,7 @@ Vue.component("preview", {
           marker.className = "validation-error";
           marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
           marker.querySelector("i").setAttribute("title", err.error);
-          marker.addEventListener("click", function() {
+          marker.addEventListener("click", function () {
             if (marker.widget) {
               marker.widget.clear();
               delete marker.widget;
@@ -195,7 +195,7 @@ Vue.component("preview", {
           return widget;
         }
 
-        this.errors[this.previewing].forEach (e => {
+        this.errors[this.previewing].forEach(e => {
           doc.addLineClass(e.line - 1, 'background', 'line-error');
           doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
         });
@@ -245,12 +245,12 @@ Vue.component("preview", {
         this.editor.scrollTo(scrollInfo.left, scrollInfo.top);
       }
     },
-    previewing: function(newValue, oldValue) {
+    previewing: function (newValue, oldValue) {
       if (newValue !== null && newValue !== oldValue) {
         this.load();
       }
     },
-    panelSize: function(newValue, oldValue) {
+    panelSize: function (newValue, oldValue) {
       if (newValue !== null && newValue !== oldValue) {
         this.editor.refresh();
       }
@@ -281,7 +281,7 @@ Vue.component("preview", {
       <div id="validation-loading-indicator" v-if="validating">
         <i class="fa fa-circle"></i>
       </div>
-      <div id="valid-indicator" title="No errors detected" 
+      <div id="valid-indicator" title="No errors detected"
            v-if="!validating && errors[previewing] && errors[previewing].length === 0">
         <i class="fa fa-check"></i>
       </div>
@@ -348,12 +348,12 @@ Vue.component("files-table", {
       });
     },
 
-    toggleAll: function(evt) {
+    toggleAll: function (evt) {
       for (let i = 0; i < this.files.length; i++) {
         this.toggleItem(this.files[i].key, evt);
       }
     },
-    toggleItem: function(key, evt) {
+    toggleItem: function (key, evt) {
       if (evt.target.checked) {
         this.$set(this.selected, key, true);
       } else {
@@ -362,14 +362,14 @@ Vue.component("files-table", {
     }
   },
   watch: {
-    selected: function(newValue, oldValue) {
+    selected: function (newValue, oldValue) {
       let selected = Object.keys(newValue).length;
       this.$el.querySelector("#checkall").indeterminate =
         selected > 0 && selected !== this.files.length;
     },
   },
   computed: {
-    allChecked: function() {
+    allChecked: function () {
       return Object.keys(this.selected).length === this.files.length;
     }
   },
@@ -386,11 +386,12 @@ Vue.component("files-table", {
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(file, idx) in files" 
-            v-bind:key="file.key" 
-            v-on:click="$emit('show-preview', file.key)" 
+        <tr v-for="(file, idx) in files"
+            v-bind:key="file.key"
+            v-on:click="$emit('show-preview', file.key)"
             v-bind:class="{'active': previewing === file.key}">
-          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)"></td>
+          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)">
+          </td>
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
@@ -442,8 +443,8 @@ Vue.component("log-window", {
   props: {
     log: Array,
   },
-  updated: function() {
-      this.$el.scrollTop = this.$el.clientHeight + 1000;
+  updated: function () {
+    this.$el.scrollTop = this.$el.clientHeight + 1000;
   },
   template: `
     <pre v-if="log.length > 0"><template v-for="msg in log"><span v-html="msg"></span><br/></template></pre>
@@ -452,25 +453,43 @@ Vue.component("log-window", {
 
 Vue.component("drag-handle", {
   props: {
-    p1: Element,
+    p2: Element,
     container: Element,
+  },
+  data: function () {
+    return {
+      offset: 0,
+    }
   },
 
   methods: {
-    move: function(evt) {
-      let max = this.container.clientHeight - 100;
-      let basis = Math.min(Math.max(0, evt.clientY - this.p1.offsetTop), max);
-      this.p1.style.flexBasis = basis + "px";
+    move: function (evt) {
+      // Calculate the height of the topmost panel in percent.
+      let maxY = this.container.offsetTop + this.container.offsetHeight;
+      let topY = this.container.offsetTop;
+      let posY = evt.clientY - this.offset;
+
+      let pxHeight = Math.min(maxY, Math.max(0, posY - topY));
+      let percentHeight = pxHeight / this.container.offsetHeight * 100;
+
+      // Now convert to the height of the lower panel.
+      let perc = 100 - percentHeight;
+      this.p2.style.flexBasis = perc + "%";
     },
-    startDrag: function(evt) {
+    startDrag: function (evt) {
       console.log("Bind resize", new Date());
-      let us = app.$el.style.userSelect;
+      let us = this.container.style.userSelect;
+      let cursor = this.container.style.cursor;
+      this.offset = evt.clientY - this.$el.offsetTop;
       this.container.addEventListener("mousemove", this.move);
       this.container.style.userSelect = "none";
+      this.container.style.cursor = "ns-resize";
       window.addEventListener("mouseup", e => {
         console.log("Stop resize");
-        this.$emit("resize", this.p1.clientHeight);
+        this.offset = 0;
+        this.$emit("resize", this.p2.clientHeight);
         this.container.style.userSelect = us;
+        this.container.style.cursor = cursor;
         this.container.removeEventListener("mousemove", this.move);
       }, {once: true});
     },
@@ -508,11 +527,11 @@ let app = new Vue({
     }
   },
   methods: {
-    clearFilter: function() {
+    clearFilter: function () {
       this.filter = "";
       return this.refresh();
     },
-    filterFiles: function() {
+    filterFiles: function () {
       let func = () => {
         this.filtering = true;
         return this.refresh().then(r => {
@@ -649,7 +668,7 @@ let app = new Vue({
           console.log("Files uploaded...")
         });
     },
-    validateFiles: function(keys) {
+    validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
       keys.forEach(key => this.$delete(this.validationResults, key));
       DAO.validateFiles(keys).then(errs => {
@@ -720,7 +739,7 @@ let app = new Vue({
         }
       });
     },
-    setPanelSize: function(arbitrarySize) {
+    setPanelSize: function (arbitrarySize) {
       this.panelSize = arbitrarySize;
     }
   },
@@ -728,10 +747,10 @@ let app = new Vue({
     this.refresh();
   },
   computed: {
-    selectedKeys: function() {
+    selectedKeys: function () {
       return Object.keys(this.selected);
     },
-    validationLog: function() {
+    validationLog: function () {
       let log = [];
       this.files.forEach(file => {
         let key = file.key;
@@ -752,173 +771,191 @@ let app = new Vue({
          v-on:dragover.prevent.stop="dragOver"
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
-      <div id="panel-1">
-        <div id="actions-bar">
-          <div id="filter-control">
-            <label for="filter-input" class="sr-only">Filter files</label>
-            <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter" placeholder="Filter files..." v-on:keyup="filterFiles"/>
-            <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-            <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw" v-else-if="filter"/>
-          </div>
 
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
-            <i class="fa fa-flag-o"/>
-            Validate Selected ({{selectedKeys.length}})
-          </button>
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
-            <i class="fa fa-flag-o"/>
-            Validate All
-          </button>
+      <div id="actions-bar">
+        <div id="filter-control">
+          <label for="filter-input" class="sr-only">Filter files</label>
+          <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter"
+                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
+          <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+          <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw"
+             v-else-if="filter"/>
+        </div>
 
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-            <i class="fa fa-database"/>
-            Ingest Selected ({{selectedKeys.length}})
-          </button>
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()" v-else>
-            <i class="fa fa-database"/>
-            Ingest All
-          </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
+          <i class="fa fa-flag-o"/>
+          Validate Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
+          <i class="fa fa-flag-o"/>
+          Validate All
+        </button>
 
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-            <i class="fa fa-trash-o"/>
-            Delete Selected ({{selectedKeys.length}})
-          </button>
-          <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()" v-else>
-            <i class="fa fa-trash-o"/>
-            Delete All
-          </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
+          <i class="fa fa-database"/>
+          Ingest Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()"
+                v-else>
+          <i class="fa fa-database"/>
+          Ingest All
+        </button>
 
-          <button id="file-upload" class="btn btn-sm btn-default">
-            <input id="file-selector"
-                   v-on:change="uploadFiles"
-                   v-on:dragover.prevent="dragOver"
-                   v-on:dragleave.prevent="dragLeave"
-                   v-on:drop.prevent="uploadFiles"
-                   type="file"
-                   accept="text/xml" multiple/>
-            <i class="fa fa-cloud-upload"/>
-            Upload Files
-          </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+          <i class="fa fa-trash-o"/>
+          Delete Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+                v-else>
+          <i class="fa fa-trash-o"/>
+          Delete All
+        </button>
 
-          <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
-            <i class="fa fa-gear"/>
-          </button>
+        <button id="file-upload" class="btn btn-sm btn-default">
+          <input id="file-selector"
+                 v-on:change="uploadFiles"
+                 v-on:dragover.prevent="dragOver"
+                 v-on:dragleave.prevent="dragLeave"
+                 v-on:drop.prevent="uploadFiles"
+                 type="file"
+                 accept="text/xml" multiple/>
+          <i class="fa fa-cloud-upload"/>
+          Upload Files
+        </button>
 
-          <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="showOptions" style="display: block">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Testing Parameters</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="showOptions = false">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div id="options-form">
-                    <div class="form-group form-check">
-                      <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="optTolerant"/>
-                      <label class="form-check-label" for="opt-tolerant-check">
-                        Tolerant Mode: do not abort on individual file errors
-                      </label>
-                    </div>
-                    <div class="form-group form-check">
-                      <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="optCommit"/>
-                      <label class="form-check-label" for="opt-commit-check">
-                        Commit Ingest: make changes to database
-                      </label>
-                    </div>
-                    <div class="form-group">
-                      <label for="opt-log-message">Log Message</label>
-                      <input class="form-control form-control-sm" id="opt-log-message" v-model="optLogMsg"/>
-                    </div>
+        <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+          <i class="fa fa-gear"/>
+        </button>
+
+        <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="showOptions"
+             style="display: block">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Testing Parameters</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        v-on:click="showOptions = false">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div id="options-form">
+                  <div class="form-group form-check">
+                    <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="optTolerant"/>
+                    <label class="form-check-label" for="opt-tolerant-check">
+                      Tolerant Mode: do not abort on individual file errors
+                    </label>
+                  </div>
+                  <div class="form-group form-check">
+                    <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="optCommit"/>
+                    <label class="form-check-label" for="opt-commit-check">
+                      Commit Ingest: make changes to database
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label for="opt-log-message">Log Message</label>
+                    <input class="form-control form-control-sm" id="opt-log-message" v-model="optLogMsg"/>
                   </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="showOptions = false">Close</button>
-                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="showOptions = false">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-container">
+        <div id="panel-1">
+          <files-table
+            v-bind:dropping="dropping"
+            v-bind:loaded="loaded"
+            v-bind:files="files"
+            v-bind:selected="selected"
+            v-bind:previewing="previewing"
+            v-bind:validating="validating"
+            v-bind:validationResults="validationResults"
+            v-bind:truncated="truncated"
+            v-bind:deleting="deleting"
+            v-bind:ingesting="ingesting"
+            v-bind:filter="filter"
+
+            v-on:delete-files="deleteFiles"
+            v-on:ingest-files="ingestFiles"
+            v-on:validate-files="validateFiles"
+            v-on:files-loaded="filesLoaded"
+            v-on:show-preview="showPreview"
+          />
+        </div>
+
+        <div id="panel-2">
+          <ul id="status-panel-tabs" class="nav nav-tabs">
+            <li class="nav-item">
+              <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+                 v-on:click.prevent="tab = 'preview'">
+                File Preview
+                <template v-if="previewing"> - {{previewing}}</template>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+                 v-on:click.prevent="tab = 'validation'">
+                Validation Log
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+                 v-on:click.prevent="tab = 'ingest'">
+                Ingest Log
+              </a>
+            </li>
+            <li>
+              <drag-handle
+                v-bind:p2="$el.querySelector('#panel-2')"
+                v-bind:container="$el.querySelector('#panel-container')"
+                v-on:resize="setPanelSize"
+              />
+            </li>
+          </ul>
+
+          <div id="status-panels">
+            <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
+              <preview v-bind:previewing="previewing"
+                       v-bind:errors="validationResults"
+                       v-bind:panelSize="panelSize"
+                       v-show="previewing !== null"/>
+              <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
+                No file selected.
+              </div>
+            </div>
+            <div class="status-panel log-container" id="tab-validation-log" v-show="tab === 'validation'">
+              <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
+              <div id="validation-placeholder" class="panel-placeholder" v-else>
+                Validation log output will show here.
+              </div>
+            </div>
+            <div class="status-panel log-container" id="tab-ingest-log" v-show="tab === 'ingest'">
+              <log-window v-bind:log="log" v-if="log.length > 0"/>
+              <div id="ingest-placeholder" class="panel-placeholder" v-else>
+                Ingest log output will show here.
               </div>
             </div>
           </div>
         </div>
 
-        <files-table
-          v-bind:dropping="dropping" 
-          v-bind:loaded="loaded"
-          v-bind:files="files"
-          v-bind:selected="selected"
-          v-bind:previewing="previewing"
-          v-bind:validating="validating"
-          v-bind:validationResults="validationResults"
-          v-bind:truncated="truncated"
-          v-bind:deleting="deleting"
-          v-bind:ingesting="ingesting"
-          v-bind:filter="filter"
-
-          v-on:delete-files="deleteFiles"
-          v-on:ingest-files="ingestFiles"
-          v-on:validate-files="validateFiles"
-          v-on:files-loaded="filesLoaded"
-          v-on:show-preview="showPreview"
-        />
-      </div>
-
-      <div id="panel-2">
-        <ul id="status-panel-tabs" class="nav nav-tabs">
-          <li class="nav-item">
-            <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
-               v-on:click.prevent="tab = 'preview'">
-              File Preview <template v-if="previewing"> - {{previewing}}</template>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
-               v-on:click.prevent="tab = 'validation'">
-              Validation Log
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-               v-on:click.prevent="tab = 'ingest'">
-              Ingest Log
-            </a>
-          </li>
-          <li>
-            <drag-handle
-              v-bind:p1="$el.querySelector('#panel-1')"
-              v-bind:container="$el"
-              v-on:resize="setPanelSize"
-            />
-          </li>
-        </ul>
-
-        <div id="status-panels">
-          <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
-            <preview v-bind:previewing="previewing" 
-                     v-bind:errors="validationResults" 
-                     v-bind:panelSize="panelSize" 
-                     v-show="previewing !== null" />
-            <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
-              No file selected.
-            </div>
-          </div>
-          <div class="status-panel" id="tab-validation-log" v-show="tab === 'validation'">
-            <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
-            <div id="validation-placeholder" class="panel-placeholder" v-else>
-              Validation log output will show here.
-            </div>
-          </div>
-          <div class="status-panel" id="tab-ingest-log" v-show="tab === 'ingest'">
-            <log-window v-bind:log="log" v-if="log.length > 0"/>
-            <div id="ingest-placeholder" class="panel-placeholder" v-else>
-              Ingest log output will show here.
-            </div>
-          </div>
-        </div>
       </div>
 
       <upload-progress
         v-bind:uploading="uploading"
         v-on:finish-item="finishUpload"/>
+
     </div>
   `
 });
