@@ -162,23 +162,27 @@ body {
 }
 
 #drag-handle {
-  padding: $margin-xs 0;
   cursor: ns-resize;
   display: flex;
   height: 100%;
 }
 
+#panel-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 #panel-1 {
   display: flex;
   flex-direction: column;
-  flex-basis: 60%;
+  flex: 1;
 }
 
 #panel-2 {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  flex-basis: 0;
+  flex-basis: 40%;
 
   #status-panel-tabs {
     user-select: none;
@@ -202,31 +206,19 @@ body {
   .status-panel {
     height: 100%;
     background-color: $white;
-  }
-}
-
-#tab-ingest-log,
-#tab-validation-log
-{
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  flex-basis: 0;
-  overflow: auto;
-
-  pre {
-    padding: $margin-xs;
-    margin: 0;
-    line-height: 1.2rem;
+    display: flex;
+    flex-direction: column;
     flex: 1;
+    flex-basis: 0;
+    overflow: auto;
   }
 }
 
-#tab-preview
-{
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
+.log-container pre {
+  padding: $margin-xs;
+  margin: 0;
+  line-height: 1.2rem;
+  flex: 1;
 }
 
 .panel-placeholder {
@@ -280,8 +272,6 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    //padding: $margin-xs;
-    //border: 1px solid $border-color;
     .cancel-button {
       margin-left: auto;
     }
@@ -311,7 +301,6 @@ body {
   border: 0;
   flex: 1;
   flex-basis: 0;
-  //height: 0;
 }
 
 #preview-container .CodeMirror .validation-errors {
