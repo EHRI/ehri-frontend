@@ -1,24 +1,16 @@
 "use strict";
 
-// FIXME: make this dynamic?
+// Default log message testing. Overrideable in settings
 const LOG_MESSAGE = "Testing Ingest";
 
 // Prevent default drag/drop action...
-window.addEventListener("dragover", function (e) {
-  e = e || event;
-  e.preventDefault();
-}, false);
-window.addEventListener("drop", function (e) {
-  e = e || event;
-  e.preventDefault();
-}, false);
+window.addEventListener("dragover", e => e.preventDefault(), false);
+window.addEventListener("drop", e => e.preventDefault(), false);
 
 function sequential(func, arr, index) {
   if (index >= arr.length) return Promise.resolve();
   return func(arr[index])
-    .then(r => {
-      return sequential(func, arr, index + 1)
-    });
+    .then(() => sequential(func, arr, index + 1));
 }
 
 // Bytes-to-human readable string from:
@@ -29,10 +21,10 @@ Vue.filter("humanFileSize", function (bytes, si) {
     if (Math.abs(bytes) < thresh) {
       return bytes + ' B';
     }
-    var units = si
+    let units = si
       ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
       : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-    var u = -1;
+    let u = -1;
     do {
       bytes /= thresh;
       ++u;
@@ -237,10 +229,10 @@ Vue.component("preview", {
     },
   },
   watch: {
-    previewData: function (newValue, oldValue) {
+    previewData: function (newValue) {
       let editorValue = this.editor.getValue();
       if (newValue !== editorValue) {
-        var scrollInfo = this.editor.getScrollInfo();
+        let scrollInfo = this.editor.getScrollInfo();
         this.editor.setValue(newValue);
         this.editor.scrollTo(scrollInfo.left, scrollInfo.top);
       }
@@ -257,16 +249,13 @@ Vue.component("preview", {
     }
   },
   mounted: function () {
-    var self = this;
     this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
       mode: 'xml',
       lineNumbers: true,
       readOnly: true,
       gutters: [{className: "validation-errors", style: "width: 18px"}]
     });
-    this.editor.on("refresh", evt => {
-      this.updateErrors();
-    });
+    this.editor.on("refresh", () => this.updateErrors());
 
     this.load();
   },
@@ -347,7 +336,6 @@ Vue.component("files-table", {
         this.loadingMore = false;
       });
     },
-
     toggleAll: function (evt) {
       for (let i = 0; i < this.files.length; i++) {
         this.toggleItem(this.files[i].key, evt);
@@ -362,7 +350,7 @@ Vue.component("files-table", {
     }
   },
   watch: {
-    selected: function (newValue, oldValue) {
+    selected: function (newValue) {
       let selected = Object.keys(newValue).length;
       this.$el.querySelector("#checkall").indeterminate =
         selected > 0 && selected !== this.files.length;
@@ -386,7 +374,7 @@ Vue.component("files-table", {
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(file, idx) in files"
+        <tr v-for="file in files"
             v-bind:key="file.key"
             v-on:click="$emit('show-preview', file.key)"
             v-bind:class="{'active': previewing === file.key}">
@@ -484,7 +472,7 @@ Vue.component("drag-handle", {
       this.container.addEventListener("mousemove", this.move);
       this.container.style.userSelect = "none";
       this.container.style.cursor = "ns-resize";
-      window.addEventListener("mouseup", e => {
+      window.addEventListener("mouseup", () => {
         console.log("Stop resize");
         this.offset = 0;
         this.$emit("resize", this.p2.clientHeight);
@@ -539,7 +527,7 @@ let app = new Vue({
           return r;
         });
       };
-      _.debounce(func, 300)();
+      return _.debounce(func, 300)();
     },
     refresh: function () {
       return DAO.listFiles(this.filter).then(data => {
@@ -592,15 +580,10 @@ let app = new Vue({
       this.previewing = key;
       this.tab = 'preview';
     },
-    closePreview: function () {
-      this.previewing = null;
-      this.previewData = null;
-      this.previewTruncated = false;
-    },
-    dragOver: function (event) {
+    dragOver: function () {
       this.dropping = true;
     },
-    dragLeave: function (event) {
+    dragLeave: function () {
       this.dropping = false;
     },
     uploadFile: function (file) {
@@ -621,7 +604,7 @@ let app = new Vue({
           return evt.lengthComputable
             ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
             : true;
-        }).then(r => {
+        }).then(() => {
           self.finishUpload(file);
           return self.refresh();
         });
@@ -659,7 +642,7 @@ let app = new Vue({
 
       // Proceed with upload
       return sequential(self.uploadFile, files, 0)
-        .then(_ => {
+        .then(() => {
           if (event.target.files) {
             // Delete the value of the control, if loaded
             event.target.value = null;
@@ -688,7 +671,7 @@ let app = new Vue({
         keys.forEach(key => self.$delete(self.ingesting, key));
       };
       websocket.onmessage = function (e) {
-        var msg = JSON.parse(e.data);
+        let msg = JSON.parse(e.data);
         self.log.push(msg.trim());
         if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
           keys.forEach(key => self.$delete(self.ingesting, key));
