@@ -22,7 +22,7 @@ import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import utils.caching.FutureCache
 import views.MarkdownRenderer
-import views.html.errors.{itemNotFound, maintenance}
+import views.html.errors.{itemNotFound, maintenance, pageNotFound}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -184,6 +184,13 @@ trait PortalController
    */
   def itemOr404(f: => Option[Result])(implicit request: RequestHeader): Result = {
     f.getOrElse(NotFound(renderError("errors.itemNotFound", itemNotFound())))
+  }
+
+  /**
+    * Wrap some code generating an optional result, falling back to a 404.
+    */
+  def futurePageOr404(f: => Option[Future[Result]])(implicit request: RequestHeader): Future[Result] = {
+    f.getOrElse(immediate(NotFound(renderError("errors.pageNotFound", pageNotFound()))))
   }
 
   /**
