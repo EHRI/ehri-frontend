@@ -42,6 +42,17 @@ h1.item-header,
   margin-bottom: 0;
 }
 
+// h5 and h6 are lighter and italic
+h5 {
+  font-style: italic;
+  color: $gray-700;
+}
+
+h6 {
+  font-style: italic;
+  color: $gray-500;
+}
+
 aside.sidebar {
   @include media-breakpoint-up(lg) {
     // FIXME: should have important here

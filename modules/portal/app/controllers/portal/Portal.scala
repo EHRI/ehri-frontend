@@ -160,7 +160,7 @@ case class Portal @Inject()(
 
   def externalFeed(key: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
-      futureItemOr404 {
+      futurePageOr404 {
         config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>
           val numItems = config.getOptional[Int](s"ehri.portal.externalFeed.$key.numItems").getOrElse(2)
           ws.url(url).get().map { r =>
@@ -172,7 +172,7 @@ case class Portal @Inject()(
   }
 
   def externalPage(key: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    futureItemOr404 {
+    futurePageOr404 {
       htmlPages.get(key, noCache = request.getQueryString("noCache").isDefined).map { futureData =>
         futureData.map { case (css, html) =>
           val title = Messages(s"pages.external.$key.title")
