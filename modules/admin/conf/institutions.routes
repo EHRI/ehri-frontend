@@ -43,3 +43,14 @@ POST        /:id/data/urls                            @controllers.institutions.
 
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)
+
+GET         /:id/oaipmh                               @controllers.institutions.RepositoryData.oaipmhManager(id: String)
+GET         /:id/oaipmh/list                          @controllers.institutions.RepositoryData.oaipmhListFiles(id: String, path: Option[String] ?= None, from: Option[String] ?= None)
+POST        /:id/oaipmh/urls                          @controllers.institutions.RepositoryData.oaipmhFileUrls(id: String)
+POST        /:id/oaipmh/harvest                       @controllers.institutions.RepositoryData.oaipmhHarvest(id: String)
+DELETE      /:id/oaipmh/harvest/:jobId                @controllers.institutions.RepositoryData.oaipmhCancelHarvest(id: String, jobId: String)
+GET         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhGetConfig(id: String)
+PUT         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhSaveConfig(id: String)
+POST        /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhTestConfig(id: String)
+DELETE      /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhDeleteConfig(id: String)
+

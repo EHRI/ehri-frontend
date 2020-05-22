@@ -15,6 +15,7 @@ import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
+import services.harvesting.{OaiPmhClient, OaiPmhClientService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
@@ -67,5 +68,6 @@ class Module extends AbstractModule {
     bind(classOf[CypherService]).to(classOf[Neo4jCypherService])
     bind(classOf[IngestApi]).to(classOf[IngestApiService])
     bind(classOf[EadValidator]).to(classOf[EadValidatorService])
+    bind(classOf[OaiPmhClient]).to(classOf[OaiPmhClientService])
   }
 }
