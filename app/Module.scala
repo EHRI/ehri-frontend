@@ -16,7 +16,7 @@ import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, S
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
-import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService}
+import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService, OaiPmhClient, OaiPmhClientService}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{SearchEngine, SearchIndexMediator, SearchItemResolver, SearchToolsIndexMediator}
 import services.storage.{DOFileStorage, FileStorage, S3FileStorage}
@@ -66,5 +66,6 @@ class Module extends AbstractModule {
     bind(classOf[CypherService]).to(classOf[Neo4jCypherService])
     bind(classOf[IngestApi]).to(classOf[IngestApiService])
     bind(classOf[EadValidator]).to(classOf[EadValidatorService])
+    bind(classOf[OaiPmhClient]).to(classOf[OaiPmhClientService])
   }
 }
