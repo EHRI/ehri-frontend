@@ -36,6 +36,9 @@ val backendDependencies = Seq(
   // CSV parser/writer...
   "com.lightbend.akka" %% "akka-stream-alpakka-csv" % alpakkaVersion,
 
+  // XML parsing:  TODO: move to admin module
+  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % "1.1.2",
+
   // IRI helper...
   "org.apache.jena" % "jena-iri" % "3.9.0",
 

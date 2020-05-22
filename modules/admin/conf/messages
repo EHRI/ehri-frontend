@@ -1098,6 +1098,13 @@ repository.priority.zero=Zero
 repository.priority.reject=Reject
 repository.priority.unknown=-
 
+repository.harvest.oaipmh.submit=Harvest
+repository.harvest.oaipmh=OAI-PMH Harvesting
+repository.harvest.oaipmh.url=Endpoint URL
+repository.harvest.oaipmh.url.description=The base URL of the OAI-PMH endpoint
+repository.harvest.oaipmh.format=Metadata Format
+repository.harvest.oaipmh.format.description=The OAI-PMH metadata prefix parameter
+repository.harvest.oaipmh.successCount=Items successfully harvested: {0}
 
 # Authority i18n messages
 
