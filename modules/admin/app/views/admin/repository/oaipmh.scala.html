@@ -1,0 +1,69 @@
+@(item: Repository)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+<!DOCTYPE html>
+
+<html lang="@messages.lang.code">
+    <head>
+        <title>@Messages("repository.harvest.oaipmh")</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("bootstrap/css/datepicker.css")" rel="stylesheet">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2.css")" rel="stylesheet">
+        <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2-bootstrap.css")" rel="stylesheet">
+        <link href="@controllers.admin.routes.AdminAssets.versioned("css/datamanager.css")" rel="stylesheet">
+
+        @globalConfig.extraHeadContent.map(c => Html(c))
+    </head>
+    <body>
+
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-3.4.1.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.history.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.min.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/bootstrap.bundle.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
+        <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
+        @helper.javascriptRouter("oaipmhRoutes")(
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhListFiles,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhHarvest,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhCancelHarvest,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhFileUrls,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhGetConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhSaveConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhDeleteConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhTestConfig,
+        )
+
+        <script>
+                window.SERVICE = oaipmhRoutes.controllers.institutions.RepositoryData;
+                window.CONFIG = {
+                    repositoryId: "@item.id"
+                };
+                let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
+                let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
+        </script>
+
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
+        <script src="@controllers.portal.routes.PortalData.localeData()"></script>
+
+        <div id="flex-wrapper">
+            <header id="header" class="navigation">
+                @views.html.admin.common.adminNavBar()
+            </header>
+            @views.html.admin.common.testWarning()
+            @views.html.admin.common.breadcrumbs(List(item))
+            <div id="flex-content" class="container" >
+                <div id="oaipmh-manager"></div>
+            </div>
+        </div>
+      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.js")"></script>
+      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/xml.js")"></script>
+      <link rel="stylesheet" property="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.css")">
+
+      <script src="@controllers.admin.routes.AdminAssets.versioned("js/oaipmh.js")"></script>
+    </body>
+</html>

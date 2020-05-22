@@ -104,6 +104,15 @@ CREATE TABLE cypher_queries (
     updated TIMESTAMP NULL
 );
 
+CREATE TABLE oaipmh_config (
+    repo_id VARCHAR(50) NOT NULL PRIMARY KEY ,
+    endpoint_url VARCHAR (512) NOT NULL ,
+    metadata_prefix VARCHAR(10) NOT NULL,
+    set_spec VARCHAR (50),
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    comments TEXT
+);
+
  # --- !Downs
 
 DROP TABLE IF EXISTS research_guide_page CASCADE;
@@ -116,3 +125,4 @@ DROP TABLE IF EXISTS moved_pages CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS feedback CASCADE;
 DROP TABLE IF EXISTS cypher_queries CASCADE;
+DROP TABLE IF EXISTS oaipmh_config CASCADE;
