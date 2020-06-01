@@ -2,11 +2,12 @@ package services.ingest
 
 import akka.NotUsed
 import akka.stream.Materializer
-import akka.stream.alpakka.xml.{ParseEvent, StartElement}
+import akka.stream.alpakka.xml.ParseEvent
 import akka.stream.alpakka.xml.scaladsl.{XmlParsing, XmlWriting}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import akka.stream.scaladsl.{Flow, Keep, Source}
 import akka.util.ByteString
 import javax.inject.Inject
+import models.admin.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.libs.ws.WSClient
 
@@ -25,13 +26,13 @@ case object Final extends TokenState
 
 case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
-  private def stream[T](endpoint: OaiPmhConfig, verb: String, transform: Flow[ParseEvent, T, NotUsed]): Source[T, _] = {
+  private def stream[T](endpoint: OaiPmhConfig, params: Seq[(String, String)], transform: Flow[ParseEvent, T, NotUsed]): Source[T, _] = {
 
     def stage(tokenF: Future[TokenState]): Future[(Future[TokenState], Source[T, NotUsed])] = {
       tokenF.flatMap { token =>
-        val params = Seq("verb" -> verb, "metadataPrefix" -> endpoint.format) ++ token.asOption.map(t => "resumptionToken" -> t)
+        val allParams = params ++ Seq("metadataPrefix" -> endpoint.format) ++ token.asOption.map(t => "resumptionToken" -> t)
         ws.url(endpoint.url)
-          .withQueryStringParameters(params: _*)
+          .withQueryStringParameters(allParams: _*)
           .stream().map { response =>
 
           response.bodyAsSource
@@ -51,6 +52,19 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
     }.flatMapConcat(f => f)
   }
 
+  override def identify(endpoint: OaiPmhConfig): Future[OaiPmhIdentity] = {
+    ws.url(endpoint.url)
+      .withQueryStringParameters("verb" -> "Identify")
+      .get()
+      .map { _.xml \ "Identify" }
+      .map { nodes =>
+        OaiPmhIdentity(
+          (nodes \ "repositoryName").text,
+          (nodes \ "baseURL").text,
+          (nodes \ "protocolVersion").text
+        )
+      }
+  }
 
   override def listSets(endpoint: OaiPmhConfig): Source[(String, String), _] = {
     val t: Flow[ParseEvent, (String, String), NotUsed] = XmlParsing
@@ -63,7 +77,7 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
       case (Some(specElem), Some(nameElem)) =>
         specElem.getTextContent -> nameElem.getTextContent
     }
-    stream(endpoint, "ListSets", t)
+    stream(endpoint, Seq("verb" -> "ListSets"), t)
   }
 
   override def listIdentifiers(endpoint: OaiPmhConfig): Source[String, _] = {
@@ -72,12 +86,23 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
       .map { elem =>
         elem.getElementsByTagName("identifier").item(0).getTextContent
       }
-    stream(endpoint, "ListIdentifiers", t)
+    stream(endpoint, Seq("verb" -> "ListIdentifiers"), t)
   }
 
   override def listRecords(endpoint: OaiPmhConfig): Source[Element, _] = {
     val t: Flow[ParseEvent, Element, NotUsed] = XmlParsing
       .subtree(collection.immutable.Seq("OAI-PMH", "ListRecords", "record"))
-    stream(endpoint, "ListRecords", t)
+    stream(endpoint, Seq("verb" -> "ListRecords"), t)
+  }
+
+  override def getRecord(endpoint: OaiPmhConfig, id: String): Source[ByteString, _] = {
+    val t: Flow[ParseEvent, ByteString, NotUsed] = XmlParsing
+      .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata"))
+        .via(XmlWriting.writer)
+    stream(endpoint, Seq("verb" -> "GetRecord", "identifier" -> id), t)
+  }
+
+  override def streamRecords(endpoint: OaiPmhConfig): Source[ParseEvent, _] = {
+    stream(endpoint, Seq("verb" -> "ListRecords"), Flow[ParseEvent].map(f => f))
   }
 }

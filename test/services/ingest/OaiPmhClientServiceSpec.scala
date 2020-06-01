@@ -3,12 +3,14 @@ package services.ingest
 import java.io.StringWriter
 
 import akka.stream.scaladsl.Sink
+import akka.util.ByteString
 import helpers.TestConfiguration
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import play.api.{Application, Configuration}
+import models.admin.{OaiPmhConfig, OaiPmhIdentity}
 import play.api.test.PlaySpecification
+import play.api.{Application, Configuration}
 
 class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
 
@@ -18,6 +20,16 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
   }
 
   "OAI PMH client service" should {
+    "identify" in new ITestApp {
+      val client = inject[OaiPmhClient]
+      val ident = await(client.identify(endpoint))
+      ident must_== OaiPmhIdentity(
+        name = "EHRI",
+        url = "http://example.com",
+        version = "2.0"
+      )
+    }
+
     "list sets" in new ITestApp {
       val client = inject[OaiPmhClient]
       val sets = await(client.listSets(endpoint).runWith(Sink.seq))
@@ -28,6 +40,13 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
       val client = inject[OaiPmhClient]
       val idents = await(client.listIdentifiers(endpoint).runWith(Sink.seq))
       idents.sorted must_== Seq("c4", "nl-r1-m19")
+    }
+
+    "get records" in new ITestApp {
+      val client = inject[OaiPmhClient]
+      val item = await(client.getRecord(endpoint, "c4").runFold(ByteString.empty)(_ ++ _)).utf8String
+      print(item)
+      success
     }
 
     "list records" in new ITestApp {
@@ -43,7 +62,16 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
         w.toString
       })
       success
+    }
 
+    "stream records" in new ITestApp {
+//      val client = inject[OaiPmhClient]
+//      client.streamRecords(endpoint)
+//        .via(XmlParsing.subslice(Seq("OAI-PMH", "ListRecords", "record")))
+//        .splitWhen(e => e match {
+//          case StartElement(localName, _, _, _, _) if localName == "record" => true
+//          case _ => false
+//        }).via(OaiPmhRecordParser.parser)
     }
   }
 }

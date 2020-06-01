@@ -15,16 +15,18 @@ import controllers.base.AdminController
 import controllers.generic._
 import javax.inject._
 import models._
+import models.admin.OaiPmhConfig
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
+import play.api.i18n.Messages
 import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
-import services.data.{AuthenticatedUser, DataHelpers}
+import services.data.{ApiUser, DataHelpers}
 import services.ingest.IngestApi.{IngestData, IngestJob}
-import services.ingest.{EadValidator, IngestApi, IngestParams, XmlValidationError}
+import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
 
@@ -54,12 +56,14 @@ case class RepositoryData @Inject()(
   searchIndexer: SearchIndexMediator,
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
-  ingestApi: IngestApi
+  ingestApi: IngestApi,
+  oaiPmhClient: OaiPmhClient
 )(
   implicit mat: Materializer
 ) extends AdminController
   with Read[Repository]
   with Update[Repository] {
+  private val logger = play.api.Logger(classOf[RepositoryData])
 
   private val repositoryDataRoutes = controllers.institutions.routes.RepositoryData
 
@@ -127,7 +131,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+  def ingestFiles(id: String): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
     val keys = request.body.files.map(path => s"${prefix(id)}$path")
     val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
 
@@ -152,7 +156,8 @@ case class RepositoryData @Inject()(
       commit = request.body.commit
     )
 
-    val ingestTask = IngestData(task, IngestApi.IngestDataType.Ead, contentType, AuthenticatedUser("mike"))
+    val ingestTask = IngestData(task,
+      IngestApi.IngestDataType.Ead, contentType, implicitly[ApiUser])
     val runner = mat.system.actorOf(Props(IngestActor(ingestApi)), jobId)
     runner ! IngestJob(jobId, ingestTask)
 
@@ -213,5 +218,44 @@ case class RepositoryData @Inject()(
     }.getOrElse {
       immediate(Redirect(repositoryDataRoutes.validateEad(id)))
     }
+  }
+
+  private def oaiPrefix(id: String)(implicit request: RequestHeader): String = s"$instance/oaipmh/$id/"
+
+  def harvestOaiPmh(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.repository.harvest(request.item,
+      OaiPmhConfig.form, repositoryDataRoutes.harvestOaiPmhPost(id)))
+  }
+
+  def harvestOaiPmhPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    OaiPmhConfig.form.bindFromRequest.fold(
+      errs => immediate {
+        if (isAjax) BadRequest(errs.errorsAsJson)
+        else BadRequest(views.html.admin.repository.harvest(request.item, errs,
+          repositoryDataRoutes.harvestOaiPmhPost(id)))
+      },
+      endpoint => oaiPmhClient
+        .listIdentifiers(endpoint)
+        .mapAsync(1)(id => {
+          storage.putBytes(
+            bucket,
+            oaiPrefix(id),
+            oaiPmhClient.getRecord(endpoint, id),
+            Some(ContentTypes.XML)
+          ).map (uri => id -> uri)
+        })
+        .map { case (id, uri) =>
+          logger.debug(s"Harvested $id to $uri")
+          uri
+        }
+        .runFold(0) { case (i, _) => i + 1 }
+        .map { count =>
+          if (isAjax) Ok(Json.toJson(count))
+          else Redirect(repositoryDataRoutes.harvestOaiPmh(id))
+            .flashing("success" ->
+              Messages("repository.harvest.oaipmh.successCount", count))
+
+        }
+    )
   }
 }

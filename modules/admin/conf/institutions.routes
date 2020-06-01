@@ -43,3 +43,6 @@ POST        /:id/data/urls                            @controllers.institutions.
 
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)
+
+GET         /:id/oaipmh-harvest                       @controllers.institutions.RepositoryData.harvestOaiPmh(id: String)
+POST        /:id/oaipmh-harvest                       @controllers.institutions.RepositoryData.harvestOaiPmhPost(id: String)
