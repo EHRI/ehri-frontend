@@ -49,8 +49,8 @@ val coreDependencies = backendDependencies ++ Seq(
   openId,
 
   // Force Akka HTTP version
-  "com.typesafe.akka" %% "akka-http"   % "10.1.11",
-  "com.typesafe.akka" %% "akka-http-xml"   % "10.1.11",
+  "com.typesafe.akka" %% "akka-http"   % "10.1.12",
+  "com.typesafe.akka" %% "akka-http-xml"   % "10.1.12",
 
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.6.2",
@@ -104,10 +104,7 @@ val portalDependencies = Seq(
 
 val testDependencies = Seq(
   specs2 % Test,
-  "com.h2database" % "h2" % "1.4.193" % Test,
-
-  // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test
+  "com.h2database" % "h2" % "1.4.193" % Test
 )
 
 val additionalResolvers = Seq(
