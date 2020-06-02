@@ -66,10 +66,11 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
     "list records" in new ITestApp {
       val client = inject[OaiPmhClient]
       val records = await(client.listRecords(endpoint).runWith(Sink.seq))
-      val xml1 = XML.loadString(stringify(records.head))
-      (xml1 \ "eadheader" \ "eadid").text must_== "c4"
-      val xml2 = XML.loadString(stringify(records(1)))
-      (xml2 \ "eadheader" \ "eadid").text must_== "nl-r1-m19"
+        .map(e => XML.loadString(stringify(e)))
+        .sortBy(e => (e \ "eadheader" \ "eadid").text)
+      records.size must_== 2
+      (records.head \ "eadheader" \ "eadid").text must_== "c4"
+      (records(1) \ "eadheader" \ "eadid").text must_== "nl-r1-m19"
     }
   }
 }
