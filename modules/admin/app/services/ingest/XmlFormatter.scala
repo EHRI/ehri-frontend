@@ -32,7 +32,8 @@ case class XmlFormatter(indent: Int) extends GraphStage[FlowShape[ParseEvent, Pa
     var init = false
 
     new GraphStageLogic(shape) {
-      @inline private def doIndent(): Characters = Characters(" " * indent * depth)
+      @inline private def doIndent(pre: String = "", post: String = ""): Characters =
+        Characters(pre + (" " * indent * depth) + post)
 
       setHandler(in, new InHandler {
         override def onPush(): Unit = {
@@ -50,7 +51,7 @@ case class XmlFormatter(indent: Int) extends GraphStage[FlowShape[ParseEvent, Pa
             case e: StartElement =>
               stateStack.push(SeenElem)
               state = SeenNone
-              if (depth > 0) emitMultiple(out, List(Characters("\n"), doIndent(), e))
+              if (depth > 0) emitMultiple(out, List(doIndent("\n"), e))
               else push(out, e)
               depth += 1
 
@@ -64,7 +65,7 @@ case class XmlFormatter(indent: Int) extends GraphStage[FlowShape[ParseEvent, Pa
             case e: EndElement =>
               depth -= 1
               if (state == SeenElem) {
-                if (depth > 0) emitMultiple(out, List(Characters("\n"), doIndent(), e))
+                if (depth > 0) emitMultiple(out, List(doIndent("\n"), e))
                 else emitMultiple(out, List(Characters("\n"), e))
               } else push(out, e)
               state = stateStack.pop()

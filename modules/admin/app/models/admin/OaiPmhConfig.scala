@@ -1,6 +1,5 @@
 package models.admin
 
-import models.Repository.validateUrlPattern
 import play.api.data.Form
 import play.api.data.Forms._
 

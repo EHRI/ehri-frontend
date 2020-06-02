@@ -5,14 +5,27 @@ import java.io.StringWriter
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import helpers.TestConfiguration
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.stream.StreamResult
 import models.admin.{OaiPmhConfig, OaiPmhIdentity}
+import org.w3c.dom.Element
 import play.api.test.PlaySpecification
 import play.api.{Application, Configuration}
 
+import scala.xml.XML
+
 class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
+
+  private def stringify(elem: Element): String = {
+    import javax.xml.transform.TransformerFactory
+    import javax.xml.transform.dom.DOMSource
+    import javax.xml.transform.stream.StreamResult
+    val s = new DOMSource(elem)
+    val w = new StringWriter()
+    val r = new StreamResult(w)
+    val tf = TransformerFactory.newInstance()
+    val t = tf.newTransformer()
+    t.transform(s, r)
+    w.toString
+  }
 
   private def endpoint(implicit app: Application) = {
     val config = app.injector.instanceOf[Configuration]
@@ -44,34 +57,19 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
 
     "get records" in new ITestApp {
       val client = inject[OaiPmhClient]
-      val item = await(client.getRecord(endpoint, "c4").runFold(ByteString.empty)(_ ++ _)).utf8String
-      print(item)
-      success
+      val item = await(client.getRecord(endpoint, "c4")
+        .runFold(ByteString.empty)(_ ++ _)).utf8String
+      val xml = XML.loadString(item)
+      (xml \ "eadheader" \ "eadid").text must_== "c4"
     }
 
     "list records" in new ITestApp {
       val client = inject[OaiPmhClient]
       val records = await(client.listRecords(endpoint).runWith(Sink.seq))
-      println(records.map { elem =>
-        val s = new DOMSource(elem)
-        val w = new StringWriter()
-        val r = new StreamResult(w)
-        val tf = TransformerFactory.newInstance()
-        val t = tf.newTransformer()
-        t.transform(s, r)
-        w.toString
-      })
-      success
-    }
-
-    "stream records" in new ITestApp {
-//      val client = inject[OaiPmhClient]
-//      client.streamRecords(endpoint)
-//        .via(XmlParsing.subslice(Seq("OAI-PMH", "ListRecords", "record")))
-//        .splitWhen(e => e match {
-//          case StartElement(localName, _, _, _, _) if localName == "record" => true
-//          case _ => false
-//        }).via(OaiPmhRecordParser.parser)
+      val xml1 = XML.loadString(stringify(records.head))
+      (xml1 \ "eadheader" \ "eadid").text must_== "c4"
+      val xml2 = XML.loadString(stringify(records(1)))
+      (xml2 \ "eadheader" \ "eadid").text must_== "nl-r1-m19"
     }
   }
 }

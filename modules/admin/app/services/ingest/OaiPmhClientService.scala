@@ -90,19 +90,24 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
   }
 
   override def listRecords(endpoint: OaiPmhConfig): Source[Element, _] = {
+    // FIXME: this is really not nice.
     val t: Flow[ParseEvent, Element, NotUsed] = XmlParsing
-      .subtree(collection.immutable.Seq("OAI-PMH", "ListRecords", "record"))
+      .subtree(collection.immutable.Seq("OAI-PMH", "ListRecords", "record", "metadata"))
+        .map { elem =>
+          val nodes = elem.getChildNodes
+          0.to(nodes.getLength)
+            .map(i => nodes.item(i))
+            .find(_.getNodeType == org.w3c.dom.Node.ELEMENT_NODE)
+        }
+        .collect { case Some(elem: Element) => elem }
     stream(endpoint, Seq("verb" -> "ListRecords"), t)
   }
 
   override def getRecord(endpoint: OaiPmhConfig, id: String): Source[ByteString, _] = {
     val t: Flow[ParseEvent, ByteString, NotUsed] = XmlParsing
       .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata"))
+        .via(XmlFormatter.format)
         .via(XmlWriting.writer)
     stream(endpoint, Seq("verb" -> "GetRecord", "identifier" -> id), t)
-  }
-
-  override def streamRecords(endpoint: OaiPmhConfig): Source[ParseEvent, _] = {
-    stream(endpoint, Seq("verb" -> "ListRecords"), Flow[ParseEvent].map(f => f))
   }
 }
