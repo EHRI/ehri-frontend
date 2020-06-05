@@ -25,6 +25,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
+import services.harvesting.OaiPmhHarvestApi
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
@@ -57,7 +58,8 @@ case class RepositoryData @Inject()(
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
   ingestApi: IngestApi,
-  oaiPmhClient: OaiPmhClient
+  oaiPmhClient: OaiPmhClient,
+  harvestApi: OaiPmhHarvestApi
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -234,28 +236,15 @@ case class RepositoryData @Inject()(
         else BadRequest(views.html.admin.repository.harvest(request.item, errs,
           repositoryDataRoutes.harvestOaiPmhPost(id)))
       },
-      endpoint => oaiPmhClient
-        .listIdentifiers(endpoint)
-        .mapAsync(1)(id => {
-          storage.putBytes(
-            bucket,
-            oaiPrefix(id),
-            oaiPmhClient.getRecord(endpoint, id),
-            Some(ContentTypes.XML)
-          ).map (uri => id -> uri)
-        })
-        .map { case (id, uri) =>
-          logger.debug(s"Harvested $id to $uri")
-          uri
-        }
-        .runFold(0) { case (i, _) => i + 1 }
-        .map { count =>
+      endpoint => {
+        val job = OaiPmhHarvestApi.OaiPmhHarvestJob(endpoint, bucket, oaiPrefix(id))
+        harvestApi.run(job, storage).map { count =>
           if (isAjax) Ok(Json.toJson(count))
           else Redirect(repositoryDataRoutes.harvestOaiPmh(id))
             .flashing("success" ->
               Messages("repository.harvest.oaipmh.successCount", count))
-
         }
+      }
     )
   }
 }
