@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
@@ -28,9 +28,12 @@ trait OaiPmhClient {
     * Retrieve object identifiers.
     *
     * @param endpoint the endpoint config object
-    * @return a stream of object identifier strings
+    * @param resume   an optional resumption token
+    * @return a tuple containing a set of identifier,
+    *         deletion status pairs and an optional
+    *         token to fetch the next set.
     */
-  def listIdentifiers(endpoint: OaiPmhConfig): Source[String, _]
+  def listIdentifiers(endpoint: OaiPmhConfig, resume: Option[String] = None): Future[(Seq[(String, Boolean)], Option[String])]
 
   /**
     * Retrieve set information.

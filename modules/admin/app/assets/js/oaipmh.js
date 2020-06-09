@@ -1,18 +1,5 @@
 "use strict";
 
-// Default log message testing. Overrideable in settings
-const LOG_MESSAGE = "Testing Ingest";
-
-// Prevent default drag/drop action...
-window.addEventListener("dragover", e => e.preventDefault(), false);
-window.addEventListener("drop", e => e.preventDefault(), false);
-
-function sequential(func, arr, index) {
-  if (index >= arr.length) return Promise.resolve();
-  return func(arr[index])
-    .then(() => sequential(func, arr, index + 1));
-}
-
 // Bytes-to-human readable string from:
 // https://stackoverflow.com/a/14919494/285374
 Vue.filter("humanFileSize", function (bytes, si) {
@@ -43,7 +30,7 @@ Vue.filter("prettyDate", function (time) {
 });
 
 /**
- * A data access object encapsulating the management API endpoints.
+ * A data access object containing OAI-PMH API functions.
  */
 let DAO = {
   call: function (endpoint, data) {
@@ -62,34 +49,20 @@ let DAO = {
   },
 
   listFiles: function (prefix, after) {
-    return this.call(SERVICE.listFiles(CONFIG.repositoryId, prefix, after));
+    return this.call(SERVICE.oaipmhListFiles(CONFIG.repositoryId, prefix, after));
   },
 
-  ingestFiles: function (paths, tolerant, commit, logMessage) {
+  harvest: function (url, format, set) {
     let data = {
-      logMessage: logMessage,
-      tolerant: tolerant,
-      commit: commit,
-      files: paths
+      url: url,
+      format: format,
+      set: set,
     };
-    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), data);
+    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), data);
   },
 
-  ingestAll: function (tolerant, commit, logMessage) {
-    return this.call(SERVICE.ingestAll(CONFIG.repositoryId), {
-      logMessage: logMessage,
-      tolerant: tolerant,
-      commit: commit,
-      files: []
-    });
-  },
-
-  deleteFiles: function (paths) {
-    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId), paths);
-  },
-
-  deleteAll: function () {
-    return this.call(SERVICE.deleteAll(CONFIG.repositoryId)).then(data => data.ok || false);
+  cancelHarvest: function(jobId) {
+    return this.call(SERVICE.oaipmhCancelHarvest(CONFIG.repositoryId, jobId));
   },
 
   validateFiles: function (paths) {
@@ -97,35 +70,8 @@ let DAO = {
   },
 
   fileUrls: function (paths) {
-    return this.call(SERVICE.fileUrls(CONFIG.repositoryId), paths);
+    return this.call(SERVICE.oaipmhFileUrls(CONFIG.repositoryId), paths);
   },
-
-  uploadHandle: function (fileSpec) {
-    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId), fileSpec);
-  },
-
-  uploadFile: function (url, file, progressHandler) {
-    const CancelToken = axios.CancelToken;
-    const source = CancelToken.source();
-
-    return axios.put(url, file, {
-      onUploadProgress: function (evt) {
-        if (!progressHandler(evt)) {
-          source.cancel();
-        }
-      },
-      headers: {'Content-type': file.type, 'Cache-Control': 120},
-      cancelToken: source.token,
-    }).then(r => r.status === 200)
-      .catch(function (e) {
-        if (axios.isCancel(e)) {
-          console.log('Request canceled', file.name);
-          return false;
-        } else {
-          throw e;
-        }
-      });
-  }
 };
 
 Vue.component("preview", {
@@ -146,7 +92,7 @@ Vue.component("preview", {
   methods: {
     validate: function () {
       let self = this;
-      if (self.previewing === null) {
+      if (true || self.previewing === null) {
         return;
       }
 
@@ -281,34 +227,8 @@ Vue.component("preview", {
   `
 });
 
-Vue.component("upload-progress", {
-  props: {
-    uploading: Array,
-  },
-  template: `
-    <div id="upload-progress" v-if="uploading.length > 0">
-      <div v-for="job in uploading" v-bind:key="job.spec.name" class="progress-container">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated"
-               role="progressbar"
-               v-bind:aria-valuemax="100"
-               v-bind:aria-valuemin="0"
-               v-bind:aria-valuenow="job.progress"
-               v-bind:style="'width: ' + job.progress + '%'">
-            {{ job.spec.name}}
-          </div>
-        </div>
-        <button class="cancel-button" v-on:click.prevent="$emit('finish-item', job.spec)">
-          <i class="fa fa-fw fa-times-circle"/>
-        </button>
-      </div>
-    </div>
-  `
-});
-
 Vue.component("files-table", {
   props: {
-    dropping: Boolean,
     loaded: Boolean,
     previewing: String,
     validating: Object,
@@ -316,8 +236,6 @@ Vue.component("files-table", {
     files: Array,
     selected: Object,
     truncated: Boolean,
-    deleting: Object,
-    ingesting: Object,
     filter: String,
   },
   data: function () {
@@ -362,7 +280,7 @@ Vue.component("files-table", {
     }
   },
   template: `
-    <div id="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}">
+    <div id="file-list-container" v-bind:class="{'loading': !loaded}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -370,7 +288,7 @@ Vue.component("files-table", {
           <th>Name</th>
           <th>Last Modified</th>
           <th>Size</th>
-          <th colspan="4"></th>
+          <th colspan="2"></th>
         </tr>
         </thead>
         <tbody>
@@ -391,20 +309,6 @@ Vue.component("files-table", {
              }"></i>
             <i v-else class="fa fa-fw fa-flag-o"></i>
           </a>
-          </td>
-          <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
-            <i class="fa fa-fw" v-bind:class="{
-              'fa-database': !ingesting[file.key], 
-              'fa-circle-o-notch fa-spin': ingesting[file.key]
-            }"></i></a>
-          </td>
-          <td>
-            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
-              <i class="fa fa-fw" v-bind:class="{
-                'fa-circle-o-notch fa-spin': deleting[file.key], 
-                'fa-trash-o': !deleting[file.key] 
-              }"></i>
-            </a>
           </td>
         </tr>
         </tbody>
@@ -488,30 +392,27 @@ Vue.component("drag-handle", {
 });
 
 let app = new Vue({
-  el: '#data-manager',
+  el: '#oaipmh-manager',
   data: function () {
     return {
       loaded: false,
+      harvesting: false,
+      harvestJobId: null,
       truncated: false,
       filter: "",
       filtering: false,
       files: [],
-      deleting: {},
       selected: {},
-      dropping: false,
-      uploading: [],
-      cancelled: [],
       log: [],
-      ingesting: {},
       validating: {},
       validationResults: {},
       tab: 'preview',
       previewing: null,
       panelSize: null,
       showOptions: false,
-      optCommit: false,
-      optTolerant: false,
-      optLogMsg: LOG_MESSAGE
+      optEndpointUrl: "https://oai.archiveshub.jisc.ac.uk/ArchivesHub",
+      optFormat: "ead",
+      optSet: "Institution:GB-1556",
     }
   },
   methods: {
@@ -529,127 +430,19 @@ let app = new Vue({
       };
       return _.debounce(func, 300)();
     },
-    refresh: function () {
+    refresh: _.debounce(function () {
       return DAO.listFiles(this.filter).then(data => {
         this.files = data.files;
         this.truncated = data.truncated;
         this.loaded = true;
       });
-    },
+    }, 500),
     filesLoaded: function (truncated) {
       this.truncated = truncated;
-    },
-    deleteFiles: function (keys) {
-      if (keys.includes(this.previewing)) {
-        this.previewing = null;
-      }
-      keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(keys).then(deleted => {
-        deleted.forEach(key => {
-          this.$delete(this.deleting, key);
-          this.$delete(this.selected, key);
-        });
-        this.refresh();
-      })
-    },
-    deleteAll: function () {
-      this.previewing = null;
-      this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll().then(r => {
-        this.refresh();
-        this.deleting = {};
-        r;
-      });
-    },
-    finishUpload: function (fileSpec) {
-      this.setUploadProgress(fileSpec, 100);
-      setTimeout(() => {
-        let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
-        this.uploading.splice(i, 1)
-      }, 1000);
-    },
-    setUploadProgress: function (fileSpec, percent) {
-      let i = _.findIndex(this.uploading, s => s.spec.name === fileSpec.name);
-      if (i > -1) {
-        this.uploading[i].progress = Math.min(100, percent);
-        return true;
-      }
-      return false;
     },
     showPreview: function (key) {
       this.previewing = key;
       this.tab = 'preview';
-    },
-    dragOver: function () {
-      this.dropping = true;
-    },
-    dragLeave: function () {
-      this.dropping = false;
-    },
-    uploadFile: function (file) {
-      // Check we're still in the queue and have not been cancelled...
-      if (_.findIndex(this.uploading, f => f.spec.name === file.name) === -1) {
-        return Promise.resolve();
-      }
-
-      let self = this;
-
-      return DAO.uploadHandle({
-        name: file.name,
-        type: file.type,
-        size: file.size
-      }).then(data => {
-        self.setUploadProgress(file, 0);
-        return DAO.uploadFile(data.presignedUrl, file, function (evt) {
-          return evt.lengthComputable
-            ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
-            : true;
-        }).then(() => {
-          self.finishUpload(file);
-          return self.refresh();
-        });
-      });
-    },
-    uploadFiles: function (event) {
-      this.dragLeave(event);
-      let self = this;
-
-      let fileList = event.dataTransfer
-        ? event.dataTransfer.files
-        : event.target.files;
-
-      let files = [];
-      for (let i = 0; i < fileList.length; i++) {
-        let file = fileList[i];
-        if (file.type === "text/xml") {
-          this.uploading.push({
-            spec: file,
-            progress: 0,
-          });
-          files.push(file);
-        }
-      }
-
-      // Files were dropped but there were no file ones
-      if (files.length === 0 && fileList.length > 0) {
-        return Promise.reject("No valid files found")
-      }
-
-      // Nothing is selected: no-op
-      if (files.length === 0) {
-        return Promise.resolve();
-      }
-
-      // Proceed with upload
-      return sequential(self.uploadFile, files, 0)
-        .then(() => {
-          if (event.target.files) {
-            // Delete the value of the control, if loaded
-            event.target.value = null;
-          }
-
-          console.log("Files uploaded...")
-        });
     },
     validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
@@ -662,65 +455,40 @@ let app = new Vue({
         });
       });
     },
-    monitorIngest: function (url, keys) {
+    harvest: function() {
+      this.harvesting = true;
+      DAO.harvest(this.optEndpointUrl, this.optFormat, this.optSet)
+        .then(data => {
+          this.monitorHarvest(data.url);
+          this.harvestJobId = data.jobId;
+          this.tab = 'harvest';
+        });
+    },
+    cancelHarvest: function() {
+      DAO.cancelHarvest(this.harvestJobId).then(r => {
+        if (r.ok) {
+          this.harvestJobId = null;
+        }
+      })
+    },
+    monitorHarvest: function (url) {
       let self = this;
       let websocket = new WebSocket(url);
       websocket.onerror = function (e) {
         self.log.push("ERROR: a websocket communication error occurred");
         console.error("Socket error!", e);
-        keys.forEach(key => self.$delete(self.ingesting, key));
       };
       websocket.onmessage = function (e) {
         let msg = JSON.parse(e.data);
         self.log.push(msg.trim());
+        self.refresh()
         if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-          keys.forEach(key => self.$delete(self.ingesting, key));
           websocket.close();
         }
       };
-    },
-    ingestFiles: function (keys) {
-      let self = this;
-
-      // Switch to ingest tab...
-      this.tab = "ingest";
-
-      // Clear existing log...
-      self.log.length = 0;
-
-      // Set key status to ingesting.
-      keys.forEach(key => this.$set(this.ingesting, key, true));
-
-      DAO.ingestFiles(keys, self.optTolerant, self.optCommit, self.optLogMsg)
-        .then(data => {
-          if (data.url && data.jobId) {
-            self.monitorIngest(data.url, keys);
-          } else {
-            console.error("unexpected job data", data);
-          }
-        });
-    },
-    ingestAll: function () {
-      let self = this;
-
-      // Switch to ingest tab...
-      this.tab = "ingest";
-
-      // Clear existing log...
-      self.log.length = 0;
-
-      let keys = self.files.map(f => f.key);
-
-      // Set key status to ingesting.
-      keys.forEach(key => this.$set(this.ingesting, key, true));
-
-      DAO.ingestAll(self.optTolerant, self.optCommit, self.optLogMsg).then(data => {
-        if (data.url && data.jobId) {
-          self.monitorIngest(data.url, keys);
-        } else {
-          console.error("unexpected job data", data);
-        }
-      });
+      websocket.onclose = function() {
+        self.harvesting = false;
+      }
     },
     setPanelSize: function (arbitrarySize) {
       this.panelSize = arbitrarySize;
@@ -765,49 +533,25 @@ let app = new Vue({
              v-else-if="filter"/>
         </div>
 
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
+        <button v-if="!harvesting" v-bind:disabled="!optFormat || !optEndpointUrl" class="btn btn-sm btn-default"
+                v-on:click.prevent="harvest">
+          <i class="fa fa-fw fa-cloud-download"/>
+          Harvest Files
+        </button>
+        <button v-else class="btn btn-sm btn-default" v-on:click.prevent="cancelHarvest">
+          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          Cancel Harvest
+        </button>
+
+        <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)">
           <i class="fa fa-flag-o"/>
           Validate Selected ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
+        <button v-else v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))">
           <i class="fa fa-flag-o"/>
           Validate All
-        </button>
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-          <i class="fa fa-database"/>
-          Ingest Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()"
-                v-else>
-          <i class="fa fa-database"/>
-          Ingest All
-        </button>
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-          <i class="fa fa-trash-o"/>
-          Delete Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
-                v-else>
-          <i class="fa fa-trash-o"/>
-          Delete All
-        </button>
-
-        <button id="file-upload" class="btn btn-sm btn-default">
-          <input id="file-selector"
-                 v-on:change="uploadFiles"
-                 v-on:dragover.prevent="dragOver"
-                 v-on:dragleave.prevent="dragLeave"
-                 v-on:drop.prevent="uploadFiles"
-                 type="file"
-                 accept="text/xml" multiple/>
-          <i class="fa fa-cloud-upload"/>
-          Upload Files
         </button>
 
         <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
@@ -827,21 +571,23 @@ let app = new Vue({
               </div>
               <div class="modal-body">
                 <div id="options-form">
-                  <div class="form-group form-check">
-                    <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="optTolerant"/>
-                    <label class="form-check-label" for="opt-tolerant-check">
-                      Tolerant Mode: do not abort on individual file errors
+                  <div class="form-group">
+                    <label class="form-label" for="opt-endpoint-url">
+                      OAI-PMH endpoint URL
                     </label>
-                  </div>
-                  <div class="form-group form-check">
-                    <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="optCommit"/>
-                    <label class="form-check-label" for="opt-commit-check">
-                      Commit Ingest: make changes to database
-                    </label>
+                    <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="optEndpointUrl"/>
                   </div>
                   <div class="form-group">
-                    <label for="opt-log-message">Log Message</label>
-                    <input class="form-control form-control-sm" id="opt-log-message" v-model="optLogMsg"/>
+                    <label class="form-label" for="opt-format">
+                      OAI-PMH metadata format
+                    </label>
+                    <input class="form-control" id="opt-format" type="text" v-model.trim="optFormat"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="opt-set">
+                      OAI-PMH set
+                    </label>
+                    <input class="form-control" id="opt-set" type="text" v-model.trim="optSet"/>
                   </div>
                 </div>
               </div>
@@ -858,7 +604,6 @@ let app = new Vue({
       <div id="panel-container">
         <div id="panel-1">
           <files-table
-            v-bind:dropping="dropping"
             v-bind:loaded="loaded"
             v-bind:files="files"
             v-bind:selected="selected"
@@ -866,12 +611,8 @@ let app = new Vue({
             v-bind:validating="validating"
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
-            v-bind:deleting="deleting"
-            v-bind:ingesting="ingesting"
             v-bind:filter="filter"
 
-            v-on:delete-files="deleteFiles"
-            v-on:ingest-files="ingestFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
@@ -894,9 +635,9 @@ let app = new Vue({
               </a>
             </li>
             <li class="nav-item">
-              <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-                 v-on:click.prevent="tab = 'ingest'">
-                Ingest Log
+              <a href="#tab-harvest-log" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
+                 v-on:click.prevent="tab = 'harvest'">
+                Harvest Log
               </a>
             </li>
             <li>
@@ -924,21 +665,15 @@ let app = new Vue({
                 Validation log output will show here.
               </div>
             </div>
-            <div class="status-panel log-container" id="tab-ingest-log" v-show="tab === 'ingest'">
+            <div class="status-panel log-container" id="tab-harvest-log" v-show="tab === 'harvest'">
               <log-window v-bind:log="log" v-if="log.length > 0"/>
-              <div id="ingest-placeholder" class="panel-placeholder" v-else>
-                Ingest log output will show here.
+              <div id="harvest-placeholder" class="panel-placeholder" v-else>
+                Harvest log output will show here.
               </div>
             </div>
           </div>
         </div>
-
       </div>
-
-      <upload-progress
-        v-bind:uploading="uploading"
-        v-on:finish-item="finishUpload"/>
-
     </div>
   `
 });

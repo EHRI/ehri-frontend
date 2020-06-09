@@ -4,7 +4,8 @@ import java.io.PrintWriter
 import java.net.URLEncoder
 import java.util.UUID
 
-import actors.IngestActor
+import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.{IngestActor, OaiPmhHarvester}
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -19,13 +20,12 @@ import models.admin.OaiPmhConfig
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
-import play.api.i18n.Messages
 import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
-import services.harvesting.OaiPmhHarvestApi
+import services.harvesting.OaiPmhClient
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
@@ -35,6 +35,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
 case class FileToUpload(name: String, `type`: String, size: Long)
+
 object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
 }
@@ -45,6 +46,7 @@ case class IngestPayload(
   commit: Boolean = false,
   files: Seq[String] = Seq.empty
 )
+
 object IngestPayload {
   implicit val _json: Format[IngestPayload] = Json.format[IngestPayload]
 }
@@ -58,8 +60,7 @@ case class RepositoryData @Inject()(
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
   ingestApi: IngestApi,
-  oaiPmhClient: OaiPmhClient,
-  harvestApi: OaiPmhHarvestApi
+  oaipmhClient: OaiPmhClient
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -71,8 +72,10 @@ case class RepositoryData @Inject()(
 
   private val fileForm = Form(single("file" -> text))
   private val bucket = "ehri-assets"
+
   private def instance(implicit request: RequestHeader): String =
     URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
+
   private def prefix(id: String)(implicit request: RequestHeader): String = s"$instance/ingest/$id/"
 
   def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
@@ -107,7 +110,7 @@ case class RepositoryData @Inject()(
 
   def ingestAll(id: String): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
     storage.streamFiles(bucket, Some(prefix(id))).map(_.key.replace(prefix(id), ""))
-        .runWith(Sink.seq).flatMap { seq =>
+      .runWith(Sink.seq).flatMap { seq =>
       ingestFiles(id).apply(request.withBody(request.body.copy(files = seq)))
     }
   }
@@ -133,7 +136,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
+  def ingestFiles(id: String): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
     val keys = request.body.files.map(path => s"${prefix(id)}$path")
     val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
 
@@ -163,12 +166,10 @@ case class RepositoryData @Inject()(
     val runner = mat.system.actorOf(Props(IngestActor(ingestApi)), jobId)
     runner ! IngestJob(jobId, ingestTask)
 
-    immediate {
-      Ok(Json.obj(
-        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
-        "jobId" -> jobId
-      ))
-    }
+    Ok(Json.obj(
+      "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+      "jobId" -> jobId
+    ))
   }
 
   def uploadHandle(id: String): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
@@ -224,27 +225,46 @@ case class RepositoryData @Inject()(
 
   private def oaiPrefix(id: String)(implicit request: RequestHeader): String = s"$instance/oaipmh/$id/"
 
-  def harvestOaiPmh(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.harvest(request.item,
-      OaiPmhConfig.form, repositoryDataRoutes.harvestOaiPmhPost(id)))
+  def oaipmhManager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.repository.oaipmh(request.item))
   }
 
-  def harvestOaiPmhPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    OaiPmhConfig.form.bindFromRequest.fold(
-      errs => immediate {
-        if (isAjax) BadRequest(errs.errorsAsJson)
-        else BadRequest(views.html.admin.repository.harvest(request.item, errs,
-          repositoryDataRoutes.harvestOaiPmhPost(id)))
-      },
-      endpoint => {
-        val job = OaiPmhHarvestApi.OaiPmhHarvestJob(endpoint, bucket, oaiPrefix(id))
-        harvestApi.run(job, storage).map { count =>
-          if (isAjax) Ok(Json.toJson(count))
-          else Redirect(repositoryDataRoutes.harvestOaiPmh(id))
-            .flashing("success" ->
-              Messages("repository.harvest.oaipmh.successCount", count))
-        }
-      }
-    )
+  def oaipmhListFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.listFiles(bucket,
+      prefix = Some(oaiPrefix(id) + path.getOrElse("")),
+      from.map(key => s"${oaiPrefix(id)}$key"), max = 20).map { list =>
+      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(oaiPrefix(id), ""))))))
+    }
+  }
+
+  def oaipmhFileUrls(id: String): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${oaiPrefix(id)}$path")
+    val result = keys.map(key => key.replace(oaiPrefix(id), "") -> storage.uri(bucket, key)).toMap
+    Ok(Json.toJson(result))
+  }
+
+  def oaipmhHarvest(id: String): Action[OaiPmhConfig] = EditAction(id).apply(parse.json[OaiPmhConfig]) { implicit request =>
+    val endpoint = request.body
+    val jobId = UUID.randomUUID().toString
+    val data = OaiPmhHarvestData(endpoint, bucket, oaiPrefix(id))
+    val runner = mat.system.actorOf(Props(OaiPmhHarvester(oaipmhClient, storage)), jobId)
+    runner ! OaiPmhHarvestJob(jobId, data)
+
+    Ok(Json.obj(
+      "url" -> controllers.admin.routes.Tasks
+        .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+      "jobId" -> jobId
+    ))
+  }
+
+  def oaipmhCancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    import scala.concurrent.duration._
+    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
+      logger.info(s"Monitoring job: $jobId")
+      ref ! OaiPmhHarvester.Cancel
+      Ok(Json.obj("ok" -> true))
+    }.recover {
+      case e => InternalServerError(Json.obj("error" -> e.getMessage))
+    }
   }
 }

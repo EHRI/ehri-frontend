@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import java.io.StringWriter
 
@@ -51,8 +51,9 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
 
     "list identifiers" in new ITestApp {
       val client = inject[OaiPmhClient]
-      val idents = await(client.listIdentifiers(endpoint).runWith(Sink.seq))
-      idents.sorted must_== Seq("c4", "nl-r1-m19")
+      val (idents, next) = await(client.listIdentifiers(endpoint))
+      idents.sortBy(_._1) must_== Seq("c4" -> false, "nl-r1-m19" -> false)
+      next must beNone
     }
 
     "get records" in new ITestApp {

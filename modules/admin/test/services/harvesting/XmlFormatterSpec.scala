@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
@@ -7,6 +7,7 @@ import akka.stream.alpakka.xml.scaladsl.XmlParsing
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
 import play.api.test.PlaySpecification
+import services.ingest.XmlFormatter
 
 class XmlFormatterSpec extends PlaySpecification {
   private implicit val as: ActorSystem = ActorSystem("test")

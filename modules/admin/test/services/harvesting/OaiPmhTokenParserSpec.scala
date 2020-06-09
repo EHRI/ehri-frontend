@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer

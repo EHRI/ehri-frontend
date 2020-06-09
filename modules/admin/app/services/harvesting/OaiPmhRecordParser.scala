@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import akka.stream.alpakka.xml.{Characters, EndElement, ParseEvent, StartElement}
 import akka.stream.scaladsl.Flow

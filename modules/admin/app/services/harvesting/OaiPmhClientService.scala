@@ -1,4 +1,4 @@
-package services.ingest
+package services.harvesting
 
 import akka.NotUsed
 import akka.stream.Materializer
@@ -10,8 +10,10 @@ import javax.inject.Inject
 import models.admin.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.libs.ws.WSClient
+import services.ingest.XmlFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.xml.Node
 
 sealed trait TokenState {
   def asOption: Option[String] = this match {
@@ -23,14 +25,29 @@ case object Initial extends TokenState
 case class Resume(token: String) extends TokenState
 case object Final extends TokenState
 
+case class OaiPmhError(status: String) extends RuntimeException(status)
+
 
 case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
+
+  @throws[OaiPmhError]
+  private def checkError(node: Node): Unit = {
+    val err = (node \ "error").headOption.map(_.text)
+    err.foreach(code => throw OaiPmhError(code))
+  }
 
   private def stream[T](endpoint: OaiPmhConfig, params: Seq[(String, String)], transform: Flow[ParseEvent, T, NotUsed]): Source[T, _] = {
 
     def stage(tokenF: Future[TokenState]): Future[(Future[TokenState], Source[T, NotUsed])] = {
       tokenF.flatMap { token =>
-        val allParams = params ++ Seq("metadataPrefix" -> endpoint.format) ++ token.asOption.map(t => "resumptionToken" -> t)
+      // NB: resumptionToken is exclusive, so if we have it we shouldn't
+      // use the other control params except for the verb
+      val otherParams: Seq[(String, String)] =
+        if(token.asOption.isDefined) token.asOption.map(t => "resumptionToken" -> t).toSeq
+        else Seq("metadataPrefix" -> endpoint.format) ++ endpoint.set.map(s => "set" -> s)
+
+      val allParams = params ++ otherParams
+
         ws.url(endpoint.url)
           .withQueryStringParameters(allParams: _*)
           .stream().map { response =>
@@ -46,17 +63,21 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
 
     Source.unfoldAsync[Future[TokenState], Source[T, _]](Future.successful(Initial)) { ft =>
       ft.flatMap {
-        case Final =>  Future.successful(None)
+        case Final => Future.successful(None)
         case _ => stage(ft).map(next => Some(next))
       }
     }.flatMapConcat(f => f)
   }
 
   override def identify(endpoint: OaiPmhConfig): Future[OaiPmhIdentity] = {
+    val verb = "Identify"
     ws.url(endpoint.url)
-      .withQueryStringParameters("verb" -> "Identify")
+      .withQueryStringParameters("verb" -> verb)
       .get()
-      .map { _.xml \ "Identify" }
+      .map { r =>
+        checkError(r.xml)
+        r.xml \ verb
+      }
       .map { nodes =>
         OaiPmhIdentity(
           (nodes \ "repositoryName").text,
@@ -80,34 +101,61 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
     stream(endpoint, Seq("verb" -> "ListSets"), t)
   }
 
-  override def listIdentifiers(endpoint: OaiPmhConfig): Source[String, _] = {
-    val t: Flow[ParseEvent, String, NotUsed] = XmlParsing
-      .subtree(collection.immutable.Seq("OAI-PMH", "ListIdentifiers", "header"))
-      .map { elem =>
-        elem.getElementsByTagName("identifier").item(0).getTextContent
+  override def listIdentifiers(endpoint: OaiPmhConfig, resume: Option[String] = None): Future[(Seq[(String, Boolean)], Option[String])] = {
+    val verb = "ListIdentifiers"
+    val params: Seq[(String, String)] = resume.fold(
+      ifEmpty = Seq("metadataPrefix" -> endpoint.format) ++ endpoint.set.map(s => "set" -> s))(
+      rt => Seq("resumptionToken" -> rt))
+
+    val allParams = Seq("verb" -> verb) ++ params
+
+    ws.url(endpoint.url)
+      .withQueryStringParameters(allParams: _*)
+      .get()
+      .map { r =>
+        val xml = r.xml
+        checkError(xml)
+        val idents = (xml \ verb \ "header").seq.map { node =>
+          val del = (node \@ "status") == "deleted"
+          val name = (node \ "identifier").text
+          name -> del
+        }
+        val next = (xml \ verb \ "resumptionToken").headOption.map(_.text)
+
+        idents -> next
       }
-    stream(endpoint, Seq("verb" -> "ListIdentifiers"), t)
   }
 
   override def listRecords(endpoint: OaiPmhConfig): Source[Element, _] = {
     // FIXME: this is really not nice.
     val t: Flow[ParseEvent, Element, NotUsed] = XmlParsing
       .subtree(collection.immutable.Seq("OAI-PMH", "ListRecords", "record", "metadata"))
-        .map { elem =>
-          val nodes = elem.getChildNodes
-          0.to(nodes.getLength)
-            .map(i => nodes.item(i))
-            .find(_.getNodeType == org.w3c.dom.Node.ELEMENT_NODE)
-        }
-        .collect { case Some(elem: Element) => elem }
+      .map { elem =>
+        val nodes = elem.getChildNodes
+        0.to(nodes.getLength)
+          .map(i => nodes.item(i))
+          .find(_.getNodeType == org.w3c.dom.Node.ELEMENT_NODE)
+      }
+      .collect { case Some(elem: Element) => elem }
     stream(endpoint, Seq("verb" -> "ListRecords"), t)
   }
 
   override def getRecord(endpoint: OaiPmhConfig, id: String): Source[ByteString, _] = {
-    val t: Flow[ParseEvent, ByteString, NotUsed] = XmlParsing
-      .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata"))
+    val params = Seq(
+      "verb" -> "GetRecord",
+      "identifier" -> id,
+      "metadataPrefix" -> endpoint.format
+    )
+    val f = ws.url(endpoint.url)
+      .withQueryStringParameters(params: _*)
+      .stream().map { response =>
+      response.bodyAsSource
+        .via(XmlParsing.parser)
+        .via(XmlParsing
+          .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata")))
         .via(XmlFormatter.format)
         .via(XmlWriting.writer)
-    stream(endpoint, Seq("verb" -> "GetRecord", "identifier" -> id), t)
+    }
+    Source.future(f).flatMapConcat(r => r)
   }
 }
