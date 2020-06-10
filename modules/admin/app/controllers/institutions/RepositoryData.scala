@@ -21,11 +21,11 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
 import play.api.libs.Files.SingletonTemporaryFileCreator
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, JsValue, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
-import services.harvesting.OaiPmhClient
+import services.harvesting.{OaiPmhClient, OaiPmhConfigService}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
@@ -60,7 +60,8 @@ case class RepositoryData @Inject()(
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
   ingestApi: IngestApi,
-  oaipmhClient: OaiPmhClient
+  oaipmhClient: OaiPmhClient,
+  oaipmhConfigs: OaiPmhConfigService
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -265,6 +266,24 @@ case class RepositoryData @Inject()(
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
+    }
+  }
+
+  def oaipmhGetConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    oaipmhConfigs.get(id).map { opt =>
+      Ok(Json.toJson(opt))
+    }
+  }
+
+  def oaipmhSaveConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+    oaipmhConfigs.save(id, request.body).map { r =>
+      Ok(Json.toJson(r))
+    }
+  }
+
+  def oaipmhDeleteConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    oaipmhConfigs.delete(id).map { r =>
+      Ok(Json.toJson(r))
     }
   }
 }

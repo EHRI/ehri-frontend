@@ -53,12 +53,11 @@ let DAO = {
   },
 
   harvest: function (url, format, set) {
-    let data = {
+    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), {
       url: url,
       format: format,
       set: set,
-    };
-    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), data);
+    });
   },
 
   cancelHarvest: function(jobId) {
@@ -71,6 +70,22 @@ let DAO = {
 
   fileUrls: function (paths) {
     return this.call(SERVICE.oaipmhFileUrls(CONFIG.repositoryId), paths);
+  },
+
+  getConfig: function () {
+    return this.call(SERVICE.oaipmhGetConfig(CONFIG.repositoryId));
+  },
+
+  saveConfig: function (url, format, set) {
+    return this.call(SERVICE.oaipmhSaveConfig(CONFIG.repositoryId), {
+      url: url,
+      format: format,
+      set: set
+    });
+  },
+
+  deleteConfig: function () {
+    return this.call(SERVICE.oaipmhDeleteConfig(CONFIG.repositoryId));
   },
 };
 
@@ -410,9 +425,10 @@ let app = new Vue({
       previewing: null,
       panelSize: null,
       showOptions: false,
-      optEndpointUrl: "https://oai.archiveshub.jisc.ac.uk/ArchivesHub",
-      optFormat: "ead",
-      optSet: "Institution:GB-1556",
+      harvestConfig: null,
+      optEndpointUrl: null,
+      optFormat: null,
+      optSet: null,
     }
   },
   methods: {
@@ -492,12 +508,40 @@ let app = new Vue({
     },
     setPanelSize: function (arbitrarySize) {
       this.panelSize = arbitrarySize;
+    },
+    saveConfig: function() {
+      DAO.saveConfig(this.optEndpointUrl, this.optFormat, this.optSet)
+        .then(data => this.harvestConfig = data);
+    },
+    loadConfig: function() {
+      DAO.getConfig()
+        .then(data => {
+          this.harvestConfig = data;
+          if (data) {
+            this.optEndpointUrl = data.url;
+            this.optFormat = data.format;
+            this.optSet = data.set;
+          }
+        });
     }
   },
   created: function () {
     this.refresh();
+    this.loadConfig();
   },
   computed: {
+    isConfigValid: function() {
+      return this.optEndpointUrl
+        && this.optEndpointUrl.trim() !== ""
+        && this.optFormat
+        && this.optFormat.trim() !== "";
+    },
+    hasConfigChanged: function() {
+      return !this.harvestConfig || !(
+          this.harvestConfig.url === this.optEndpointUrl
+        && this.harvestConfig.format === this.optFormat
+        && this.harvestConfig.set === this.optSet);
+    },
     selectedKeys: function () {
       return Object.keys(this.selected);
     },
@@ -533,12 +577,12 @@ let app = new Vue({
              v-else-if="filter"/>
         </div>
 
-        <button v-if="!harvesting" v-bind:disabled="!optFormat || !optEndpointUrl" class="btn btn-sm btn-default"
+        <button v-if="!harvesting" v-bind:disabled="!isConfigValid" class="btn btn-sm btn-default"
                 v-on:click.prevent="harvest">
           <i class="fa fa-fw fa-cloud-download"/>
           Harvest Files
         </button>
-        <button v-else class="btn btn-sm btn-default" v-on:click.prevent="cancelHarvest">
+        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
           <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
           Cancel Harvest
         </button>
@@ -592,8 +636,9 @@ let app = new Vue({
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="showOptions = false">
-                  Close
+                <button v-bind:disabled="!isConfigValid || !hasConfigChanged"
+                        v-on:click="saveConfig" type="button" class="btn btn-secondary">
+                  Save
                 </button>
               </div>
             </div>
