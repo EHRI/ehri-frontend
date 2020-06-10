@@ -50,6 +50,7 @@ POST        /:id/oaipmh/urls                          @controllers.institutions.
 POST        /:id/oaipmh/harvest                       @controllers.institutions.RepositoryData.oaipmhHarvest(id: String)
 DELETE      /:id/oaipmh/harvest/:jobId                @controllers.institutions.RepositoryData.oaipmhCancelHarvest(id: String, jobId: String)
 GET         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhGetConfig(id: String)
-POST        /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhSaveConfig(id: String)
+PUT         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhSaveConfig(id: String)
+POST        /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhTestConfig(id: String)
 DELETE      /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhDeleteConfig(id: String)
 

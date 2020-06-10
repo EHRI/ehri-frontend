@@ -9,11 +9,11 @@ import akka.util.ByteString
 import javax.inject.Inject
 import models.admin.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSResponse}
 import services.ingest.XmlFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.Node
+import scala.xml.{Node, SAXParseException}
 
 sealed trait TokenState {
   def asOption: Option[String] = this match {
@@ -25,15 +25,24 @@ case object Initial extends TokenState
 case class Resume(token: String) extends TokenState
 case object Final extends TokenState
 
-case class OaiPmhError(status: String) extends RuntimeException(status)
+case class OaiPmhError(code: String, value: String) extends RuntimeException(code)
 
 
 case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
   @throws[OaiPmhError]
-  private def checkError(node: Node): Unit = {
-    val err = (node \ "error").headOption.map(_.text)
-    err.foreach(code => throw OaiPmhError(code))
+  private def checkError(r: WSResponse): Unit = {
+    if (r.status != 200) {
+      throw OaiPmhError(OaiPmhConfig.URL, s"Endpoint returned invalid status code: ${r.status}")
+    }
+    try {
+      val node = r.xml
+      val err = (node \ "error").headOption.map { n =>
+        throw OaiPmhError(n \@ "code", n.text)
+      }
+    } catch {
+      case _: SAXParseException => throw new OaiPmhError(OaiPmhConfig.URL, "Endpoint returned invalid XML")
+    }
   }
 
   private def stream[T](endpoint: OaiPmhConfig, params: Seq[(String, String)], transform: Flow[ParseEvent, T, NotUsed]): Source[T, _] = {
@@ -75,7 +84,7 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
       .withQueryStringParameters("verb" -> verb)
       .get()
       .map { r =>
-        checkError(r.xml)
+        checkError(r)
         r.xml \ verb
       }
       .map { nodes =>
@@ -113,8 +122,8 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
       .withQueryStringParameters(allParams: _*)
       .get()
       .map { r =>
+        checkError(r)
         val xml = r.xml
-        checkError(xml)
         val idents = (xml \ verb \ "header").seq.map { node =>
           val del = (node \@ "status") == "deleted"
           val name = (node \ "identifier").text

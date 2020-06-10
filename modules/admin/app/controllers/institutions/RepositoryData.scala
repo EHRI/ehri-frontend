@@ -15,13 +15,13 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import javax.inject._
-import models._
 import models.admin.OaiPmhConfig
+import models.{admin, _}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
 import play.api.libs.Files.SingletonTemporaryFileCreator
-import play.api.libs.json.{Format, JsValue, Json}
+import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
@@ -284,6 +284,15 @@ case class RepositoryData @Inject()(
   def oaipmhDeleteConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.delete(id).map { r =>
       Ok(Json.toJson(r))
+    }
+  }
+
+  def oaipmhTestConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[admin.OaiPmhConfig]) { implicit request =>
+    val getIdentF = oaipmhClient.identify(request.body)
+    val listIdentF = oaipmhClient.listIdentifiers(request.body)
+    (for (ident <- getIdentF; _ <- listIdentF)
+      yield Ok(Json.toJson(ident))).recover {
+      case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
   }
 }

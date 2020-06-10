@@ -52,12 +52,8 @@ let DAO = {
     return this.call(SERVICE.oaipmhListFiles(CONFIG.repositoryId, prefix, after));
   },
 
-  harvest: function (url, format, set) {
-    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), {
-      url: url,
-      format: format,
-      set: set,
-    });
+  harvest: function (config) {
+    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), config);
   },
 
   cancelHarvest: function(jobId) {
@@ -76,16 +72,16 @@ let DAO = {
     return this.call(SERVICE.oaipmhGetConfig(CONFIG.repositoryId));
   },
 
-  saveConfig: function (url, format, set) {
-    return this.call(SERVICE.oaipmhSaveConfig(CONFIG.repositoryId), {
-      url: url,
-      format: format,
-      set: set
-    });
+  saveConfig: function (config) {
+    return this.call(SERVICE.oaipmhSaveConfig(CONFIG.repositoryId), config);
   },
 
   deleteConfig: function () {
     return this.call(SERVICE.oaipmhDeleteConfig(CONFIG.repositoryId));
+  },
+
+  testConfig: function (config) {
+    return this.call(SERVICE.oaipmhTestConfig(CONFIG.repositoryId), config);
   },
 };
 
@@ -406,6 +402,114 @@ Vue.component("drag-handle", {
   `
 });
 
+Vue.component("oaipmh-config-modal", {
+  props: {
+    show: Boolean,
+    config: Object
+  },
+  data: function() {
+    return {
+      url: this.config ? this.config.url : null,
+      format: this.config ? this.config.format : null,
+      set: this.config ? this.config.set : null,
+      tested: null,
+      error: null
+    }
+  },
+  methods: {
+    save: function() {
+      DAO.saveConfig({url: this.url, format: this.format, set: this.set})
+        .then(data => this.$emit("saved-config", data));
+    },
+    test: function() {
+      DAO.testConfig({url: this.url, format: this.format, set: this.set})
+        .then( r => {
+          this.tested = !!r.name;
+          this.error = null;
+        })
+        .catch(e => {
+          this.tested = false;
+          let err = e.response.data;
+          if (err.error) {
+            this.error = err.error;
+          }
+        });
+    }
+  },
+  computed: {
+    isValidConfig: function() {
+      return this.url
+        && this.url.trim() !== ""
+        && this.format
+        && this.format.trim() !== "";
+    },
+    hasConfigChanged: function() {
+      return !this.config || !(
+        this.config.url === this.url
+        && this.config.format === this.format
+        && this.config.set === this.set);
+    },
+  },
+  watch: {
+    config: function(newValue) {
+      this.url = newValue ? newValue.url : null;
+      this.format = newValue ? newValue.format : null;
+      this.set = newValue ? newValue.set : null;
+    }
+  },
+  template: `
+    <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="show"
+         style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Testing Parameters</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="options-form">
+              <div class="form-group">
+                <label class="form-label" for="opt-endpoint-url">
+                  OAI-PMH endpoint URL
+                </label>
+                <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-format">
+                  OAI-PMH metadata format
+                </label>
+                <input class="form-control" id="opt-format" type="text" v-model.trim="format"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-set">
+                  OAI-PMH set
+                </label>
+                <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <span v-if="error" class="text-danger">{{error}}</span>
+            <button v-on:click="test" type="button" class="btn btn-default">
+              <i v-if="tested === null" class="fa fa-fw fa-question"/>
+              <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
+              <i v-else class="fa fa-fw fa-close text-danger"/>
+              Test
+            </button>
+            <button v-bind:disabled="!isValidConfig || !hasConfigChanged"
+                    v-on:click="save" type="button" class="btn btn-secondary">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+
 let app = new Vue({
   el: '#oaipmh-manager',
   data: function () {
@@ -426,9 +530,6 @@ let app = new Vue({
       panelSize: null,
       showOptions: false,
       harvestConfig: null,
-      optEndpointUrl: null,
-      optFormat: null,
-      optSet: null,
     }
   },
   methods: {
@@ -473,7 +574,7 @@ let app = new Vue({
     },
     harvest: function() {
       this.harvesting = true;
-      DAO.harvest(this.optEndpointUrl, this.optFormat, this.optSet)
+      DAO.harvest(this.harvestConfig)
         .then(data => {
           this.monitorHarvest(data.url);
           this.harvestJobId = data.jobId;
@@ -509,39 +610,19 @@ let app = new Vue({
     setPanelSize: function (arbitrarySize) {
       this.panelSize = arbitrarySize;
     },
-    saveConfig: function() {
-      DAO.saveConfig(this.optEndpointUrl, this.optFormat, this.optSet)
-        .then(data => this.harvestConfig = data);
+    savedConfig: function(config) {
+      this.harvestConfig = config;
     },
     loadConfig: function() {
       DAO.getConfig()
-        .then(data => {
-          this.harvestConfig = data;
-          if (data) {
-            this.optEndpointUrl = data.url;
-            this.optFormat = data.format;
-            this.optSet = data.set;
-          }
-        });
-    }
+        .then(data => this.harvestConfig = data);
+    },
   },
   created: function () {
     this.refresh();
     this.loadConfig();
   },
   computed: {
-    isConfigValid: function() {
-      return this.optEndpointUrl
-        && this.optEndpointUrl.trim() !== ""
-        && this.optFormat
-        && this.optFormat.trim() !== "";
-    },
-    hasConfigChanged: function() {
-      return !this.harvestConfig || !(
-          this.harvestConfig.url === this.optEndpointUrl
-        && this.harvestConfig.format === this.optFormat
-        && this.harvestConfig.set === this.optSet);
-    },
     selectedKeys: function () {
       return Object.keys(this.selected);
     },
@@ -577,7 +658,7 @@ let app = new Vue({
              v-else-if="filter"/>
         </div>
 
-        <button v-if="!harvesting" v-bind:disabled="!isConfigValid" class="btn btn-sm btn-default"
+        <button v-if="!harvesting" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
                 v-on:click.prevent="harvest">
           <i class="fa fa-fw fa-cloud-download"/>
           Harvest Files
@@ -600,50 +681,14 @@ let app = new Vue({
 
         <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
           <i class="fa fa-gear"/>
+          Configuration
         </button>
-
-        <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="showOptions"
-             style="display: block">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Testing Parameters</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                        v-on:click="showOptions = false">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div id="options-form">
-                  <div class="form-group">
-                    <label class="form-label" for="opt-endpoint-url">
-                      OAI-PMH endpoint URL
-                    </label>
-                    <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="optEndpointUrl"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="opt-format">
-                      OAI-PMH metadata format
-                    </label>
-                    <input class="form-control" id="opt-format" type="text" v-model.trim="optFormat"/>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" for="opt-set">
-                      OAI-PMH set
-                    </label>
-                    <input class="form-control" id="opt-set" type="text" v-model.trim="optSet"/>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button v-bind:disabled="!isConfigValid || !hasConfigChanged"
-                        v-on:click="saveConfig" type="button" class="btn btn-secondary">
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        
+        <oaipmh-config-modal 
+          v-bind:config="harvestConfig"
+          v-bind:show="showOptions"
+          v-on:saved-config="savedConfig"
+          v-on:close="showOptions = false"/>
       </div>
 
       <div id="panel-container">
