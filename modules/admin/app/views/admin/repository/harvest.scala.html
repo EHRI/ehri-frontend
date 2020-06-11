@@ -4,19 +4,19 @@
 
 @import models.admin.OaiPmhConfig._
 
-@views.html.admin.layout.rightSidebar(Messages("repository.harvest.oaipmh"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("oaipmh"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action, 'enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
-        @defining("repository.harvest.oaipmh") { implicit fieldPrefix =>
+        @defining("oaipmh") { implicit fieldPrefix =>
             <div class="form-field">
                 @formHelpers.lineInput(f(""), URL)
                 @formHelpers.choiceInput(f(""), METADATA_FORMAT, List("ead" -> "EAD", "oai_dc" -> "DC"))
             </div>
         }
 
-        @formHelpers.submitButton(Messages("repository.harvest.oaipmh.submit"))
+        @formHelpers.submitButton(Messages("oaipmh.submit"))
     }
 } {
 }

@@ -9,6 +9,7 @@ import akka.util.ByteString
 import javax.inject.Inject
 import models.admin.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
+import play.api.i18n.Messages
 import play.api.libs.ws.{WSClient, WSResponse}
 import services.ingest.XmlFormatter
 
@@ -25,7 +26,9 @@ case object Initial extends TokenState
 case class Resume(token: String) extends TokenState
 case object Final extends TokenState
 
-case class OaiPmhError(code: String, value: String) extends RuntimeException(code)
+case class OaiPmhError(code: String, value: String = "") extends RuntimeException(code) {
+  def errorMessage(implicit messages: Messages): String = Messages(s"oaipmh.error.$code", value)
+}
 
 
 case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
@@ -33,15 +36,14 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
   @throws[OaiPmhError]
   private def checkError(r: WSResponse): Unit = {
     if (r.status != 200) {
-      throw OaiPmhError(OaiPmhConfig.URL, s"Endpoint returned invalid status code: ${r.status}")
+      throw OaiPmhError(OaiPmhConfig.URL, r.status.toString)
     }
     try {
-      val node = r.xml
-      val err = (node \ "error").headOption.map { n =>
+      (r.xml \ "error").headOption.map { n =>
         throw OaiPmhError(n \@ "code", n.text)
       }
     } catch {
-      case _: SAXParseException => throw new OaiPmhError(OaiPmhConfig.URL, "Endpoint returned invalid XML")
+      case _: SAXParseException => throw new OaiPmhError("invalidXml")
     }
   }
 

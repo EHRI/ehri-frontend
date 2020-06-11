@@ -10,6 +10,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
+import utils.WebsocketConstants
 
 import scala.util.{Failure, Success}
 
@@ -46,7 +47,7 @@ case class Tasks @Inject()(
           ref ! out
         case Failure(_) =>
           logger.warn(s"Unable to find task with ID: $jobId")
-          out ! s"No running task found with ID: $jobId."
+          out ! s"${WebsocketConstants.ERR_MESSAGE}: No running task found with ID: $jobId."
       }
 
       MessageHandler.props
