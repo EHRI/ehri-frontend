@@ -2,7 +2,7 @@ package actors
 
 import java.time.{Duration, LocalDateTime}
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
 import models.admin.OaiPmhConfig
 import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
@@ -12,18 +12,23 @@ import scala.concurrent.ExecutionContext
 
 
 object OaiPmhHarvester {
-  sealed trait TokenState
-  case object Initial extends TokenState
-  case class Next(token: String) extends TokenState
-  case class Fetch(ids: List[String], next: TokenState) extends TokenState
-  case object Empty extends TokenState
-  case object Cancel extends TokenState
-  object TokenState {
-    def apply(opt: Option[String]): TokenState = opt match {
+
+  // Possible states for resumption tokens:
+  sealed trait ResumptionState
+  case object Initial extends ResumptionState
+  case class Next(token: String) extends ResumptionState
+  case object Empty extends ResumptionState
+  object ResumptionState {
+    def apply(opt: Option[String]): ResumptionState = opt match {
       case Some(t) => Next(t)
       case _ => Empty
     }
   }
+
+  // Other messages we can handle
+  sealed trait Action
+  case class Fetch(ids: List[String], next: ResumptionState, count: Int) extends Action
+  case object Cancel extends Action
 
   /**
     * A description of an OAI-PMH harvest task.
@@ -49,9 +54,9 @@ object OaiPmhHarvester {
   case class OaiPmhHarvestJob(id: String, data: OaiPmhHarvestData)
 }
 
-case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit exec: ExecutionContext) extends Actor {
-
+case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit ec: ExecutionContext) extends Actor with ActorLogging {
   import OaiPmhHarvester._
+  import akka.pattern.pipe
 
   override def receive: Receive = waiting
 
@@ -64,64 +69,82 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit
   // until there is a channel to talk through
   def ready(job: OaiPmhHarvestJob): Receive = {
     case chan: ActorRef =>
-      context.become(running(job, 0, LocalDateTime.now(), Seq(chan)))
+      context.become(running(job, 0, LocalDateTime.now(), Set(chan)))
       self ! Initial
   }
 
   // The harvest is running
-  def running(job: OaiPmhHarvestJob, done: Int, start: LocalDateTime, chan: Seq[ActorRef]): Receive = {
+  def running(job: OaiPmhHarvestJob, done: Int, start: LocalDateTime, subs: Set[ActorRef]): Receive = {
 
-    // Add a new subscriber to messages
-    case channel: ActorRef => context.become(running(job, done, start, chan :+ channel))
+    // Add a new message subscriber
+    case chan: ActorRef =>
+      log.debug(s"Added new message subscriber, ${subs.size}")
+      context.watch(chan)
+      context.become(running(job, done, start, subs + chan))
+
+    // Remove terminated subscribers
+    case Terminated(chan) =>
+      log.debug(s"Removing subscriber: $chan")
+      context.unwatch(chan)
+      context.become(running(job, done, start, subs - chan))
 
     // Start the initial harvest
     case Initial =>
-      msg(s"Starting harvest with job id: ${job.id}", chan)
-      client.listIdentifiers(job.data.config, None).map { case (idents, next) =>
-        self ! Fetch(nonDeleted(idents), TokenState(next))
-      }
+      msg(s"Starting harvest with job id: ${job.id}", subs)
+      client.listIdentifiers(job.data.config, None)
+        .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), done)}
+        .pipeTo(self)
 
-    // Resume harvesting
+    // Harvest a new batch via a resumptionToken
     case Next(token) =>
-      msg(s"Resuming with $token", chan)
-      client.listIdentifiers(job.data.config, Some(token)).map { case (idents, next) =>
-        val ids = idents.filterNot(_._2).map(_._1).toList
-        self ! Fetch(nonDeleted(idents), TokenState(next))
-      }
+      msg(s"Resuming with $token", subs)
+      client.listIdentifiers(job.data.config, Some(token))
+        .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), done)}
+        .pipeTo(self)
 
-    case Fetch(id :: rest, next) =>
+    // Harvest an individual item
+    case Fetch(id :: rest, next, count) =>
+      log.debug(s"Calling become with new total: $count")
+      context.become(running(job, count, start, subs))
       storage.putBytes(
         job.data.classifier,
         fileName(job.data.prefix, id),
         client.getRecord(job.data.config, id),
         Some("text/xml")
-      ).map { uri =>
-        msg(s"$id", chan)
-        context.become(running(job, done + 1, start, chan))
-        self ! Fetch(rest, next)
-      }
+      ).map { _ =>
+        msg(s"$id", subs)
+        Fetch(rest, next, count + 1)
+      }.pipeTo(self)
 
-    case Fetch(Nil, next) => self ! next
+    // Finished a batch, start a new one
+    case Fetch(Nil, next, count) =>
+      log.debug(s"Calling become with new total: $count")
+      context.become(running(job, count, start, subs))
+      self ! next
 
     // Finish harvesting
     case Empty =>
       msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"Harvested $done file(s) in ${time(start)} seconds", chan)
+        s"Harvested $done file(s) in ${time(start)} seconds", subs)
       context.stop(self)
 
     // Cancel harvest
     case Cancel =>
-      msg(s"Harvested files: $done", chan)
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after ${time(start)} seconds", chan)
+      msg(s"Harvested files: $done", subs)
+      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after ${time(start)} seconds", subs)
       context.stop(self)
+
+    case m =>
+      log.error(s"Unexpected message: $m")
+  }
+
+  private def msg(s: String, subs: Set[ActorRef]): Unit = {
+    log.info(s + s" (subscribers: ${subs.size})")
+    subs.foreach(_ ! s)
   }
 
   private def time(from: LocalDateTime): Long =
     Duration.between(from, LocalDateTime.now()).toMillis / 1000
-
-  private def msg(s: String, chan: Seq[ActorRef]): Unit = {
-    chan.foreach(_ ! s)
-  }
 
   private def fileName(prefix: String, id: String): String = prefix + id + ".xml"
 
