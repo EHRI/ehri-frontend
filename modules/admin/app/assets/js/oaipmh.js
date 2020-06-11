@@ -515,7 +515,6 @@ let app = new Vue({
   data: function () {
     return {
       loaded: false,
-      harvesting: false,
       harvestJobId: null,
       truncated: false,
       filter: "",
@@ -573,24 +572,29 @@ let app = new Vue({
       });
     },
     harvest: function() {
-      this.harvesting = true;
       DAO.harvest(this.harvestConfig)
         .then(data => {
-          this.monitorHarvest(data.url);
           this.harvestJobId = data.jobId;
-          this.tab = 'harvest';
+          this.monitorHarvest(data.url, data.jobId);
         });
     },
     cancelHarvest: function() {
-      DAO.cancelHarvest(this.harvestJobId).then(r => {
-        if (r.ok) {
-          this.harvestJobId = null;
-        }
-      })
+      if (this.harvestJobId) {
+        DAO.cancelHarvest(this.harvestJobId).then(r => {
+          if (r.ok) {
+            this.harvestJobId = null;
+          }
+        });
+      }
     },
-    monitorHarvest: function (url) {
+    monitorHarvest: function (url, jobId) {
       let self = this;
+      this.tab = 'harvest';
       let websocket = new WebSocket(url);
+      websocket.onopen = function(e) {
+        window.location.hash = "#jobId:" + jobId;
+        console.debug("Connected to", url);
+      };
       websocket.onerror = function (e) {
         self.log.push("ERROR: a websocket communication error occurred");
         console.error("Socket error!", e);
@@ -604,7 +608,20 @@ let app = new Vue({
         }
       };
       websocket.onclose = function() {
-        self.harvesting = false;
+        self.harvestJobId = null;
+        history.pushState("", document.title, window.location.pathname
+          + window.location.search);
+        console.debug("Socket closed")
+      }
+    },
+    resumeMonitor: function() {
+      let hash = window.location.hash;
+      if (hash) {
+        let parts = hash.split(":");
+        if (parts.length === 2 && parts[0] === "#jobId") {
+          this.harvestJobId = parts[1];
+          this.monitorHarvest("ws://localhost:9000/admin/tasks/monitor?jobId=" + parts[1], parts[1]);
+        }
       }
     },
     setPanelSize: function (arbitrarySize) {
@@ -621,6 +638,7 @@ let app = new Vue({
   created: function () {
     this.refresh();
     this.loadConfig();
+    this.resumeMonitor();
   },
   computed: {
     selectedKeys: function () {
@@ -658,7 +676,7 @@ let app = new Vue({
              v-else-if="filter"/>
         </div>
 
-        <button v-if="!harvesting" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
+        <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
                 v-on:click.prevent="harvest">
           <i class="fa fa-fw fa-cloud-download"/>
           Harvest Files

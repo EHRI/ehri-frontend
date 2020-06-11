@@ -25,7 +25,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
-import services.harvesting.{OaiPmhClient, OaiPmhConfigService}
+import services.harvesting.{OaiPmhClient, OaiPmhConfigService, OaiPmhError}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
@@ -292,7 +292,8 @@ case class RepositoryData @Inject()(
     val listIdentF = oaipmhClient.listIdentifiers(request.body)
     (for (ident <- getIdentF; _ <- listIdentF)
       yield Ok(Json.toJson(ident))).recover {
-      case e => BadRequest(Json.obj("error" -> e.getMessage))
+      case e: OaiPmhError => BadRequest(Json.obj("error" -> e.errorMessage))
+      case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
   }
 }
