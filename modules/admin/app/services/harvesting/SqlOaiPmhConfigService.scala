@@ -2,11 +2,9 @@ package services.harvesting
 
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
-import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
 import models.admin.OaiPmhConfig
 import play.api.db.Database
-import services.data.ItemNotFound
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,7 +27,7 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
 
   override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
-      SQL"DELETE FROM oaipmh_config WHERE id = $id".executeUpdate() == 1
+      SQL"DELETE FROM oaipmh_config WHERE repo_id = $id".executeUpdate() == 1
     }
   }
 
