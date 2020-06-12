@@ -421,7 +421,7 @@ Vue.component("oaipmh-config-modal", {
       DAO.saveConfig({url: this.url, format: this.format, set: this.set})
         .then(data => this.$emit("saved-config", data));
     },
-    test: function() {
+    testEndpoint: function() {
       DAO.testConfig({url: this.url, format: this.format, set: this.set})
         .then( r => {
           this.tested = !!r.name;
@@ -463,7 +463,7 @@ Vue.component("oaipmh-config-modal", {
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Testing Parameters</h5>
+            <h5 class="modal-title">OAI-PMH Endpoint Configuration</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                     v-on:click="$emit('close')">
               <span aria-hidden="true">&times;</span>
@@ -489,11 +489,15 @@ Vue.component("oaipmh-config-modal", {
                 </label>
                 <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
               </div>
+              <div id="endpoint-errors">
+                <span v-if="tested === null">&nbsp;</span>
+                <span v-else-if="error" class="text-danger">{{error}}</span>
+                <span v-else class="text-success">No errors detected</span>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
-            <span v-if="error" class="text-danger">{{error}}</span>
-            <button v-on:click="test" type="button" class="btn btn-default">
+            <button v-on:click="testEndpoint" type="button" class="btn btn-default">
               <i v-if="tested === null" class="fa fa-fw fa-question"/>
               <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
               <i v-else class="fa fa-fw fa-close text-danger"/>
