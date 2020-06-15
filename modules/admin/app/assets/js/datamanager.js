@@ -114,7 +114,11 @@ let DAO = {
           source.cancel();
         }
       },
-      headers: {'Content-type': file.type, 'Cache-Control': 120},
+      headers: {
+        'Content-type': file.type,
+        'Cache-Control': 120,
+        'x-amz-meta-source': 'user',
+      },
       cancelToken: source.token,
     }).then(r => r.status === 200)
       .catch(function (e) {

@@ -160,7 +160,6 @@ Vue.component("preview", {
       self.loading = true;
       DAO.fileUrls([self.previewing]).then(data => {
         let init = true;
-
         fetch(data[self.previewing]).then(r => {
           let reader = r.body.getReader();
           let decoder = new TextDecoder("UTF-8");
