@@ -39,11 +39,11 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI =
     ops.uri(classifier, path, duration, contentType)
 
-  override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI] =
-    ops.putBytes(bucket, path, src, contentType, public)
+  override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
+    ops.putBytes(bucket, path, src, contentType, public, meta)
 
-  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI] =
-    ops.putFile(classifier, path, file, contentType, public)
+  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
+    ops.putFile(classifier, path, file, contentType, public, meta)
 
   override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
     ops.streamFiles(classifier, prefix)
