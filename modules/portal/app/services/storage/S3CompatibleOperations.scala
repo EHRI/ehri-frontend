@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.alpakka.s3.{S3Attributes, S3Ext}
+import akka.stream.alpakka.s3.{MetaHeaders, S3Attributes, S3Ext}
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -86,7 +86,8 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       case _ => None
     }
 
-  def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
+  def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None,
+      public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     val cType = contentType.map(ContentType.parse) match {
       case Some(Right(ct)) => ct
       case _ =>
@@ -96,14 +97,15 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     logger.debug(s"Uploading file: $path to $bucket with content-type: $contentType")
     val acl = if (public) CannedAcl.PublicRead else CannedAcl.AuthenticatedRead
 
-    val uploader = S3.multipartUpload(bucket, path, contentType = cType, cannedAcl = acl)
+    val uploader = S3.multipartUpload(bucket, path, contentType = cType, cannedAcl = acl, metaHeaders = MetaHeaders(meta))
     val sink = endpointUrl.fold(uploader)(_ => uploader.withAttributes(S3Attributes.settings(endpoint)))
 
     src.runWith(sink).map(r => new URI(r.location.toString))
   }
 
-  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI] =
-    putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public)
+  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None,
+      public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
+    putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
   def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
     ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))

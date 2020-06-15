@@ -41,9 +41,11 @@ trait FileStorage {
     *                    be inferred from the path extension, or - if that
     *                    fails - default to binary.
     * @param public      whether the URI is publicly accessible
+    * @param meta        a set of arbitrary metadata key-value pairs. Keys
+    *                    must be variable-safe names.
     * @return the file URI of the stored file
     */
-  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI]
+  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
 
   /**
     * Put arbitrary bytes to file storage
@@ -55,9 +57,11 @@ trait FileStorage {
     *                    be inferred from the path extension, or - if that
     *                    fails - default to binary.
     * @param public      whether the URI is publicly accessible
+    * @param meta        a set of arbitrary metadata key-value pairs. Keys
+    *                    must be variable-safe names.
     * @return the file URI of the stored file
     */
-  def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI]
+  def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
 
   /**
     * Stream all files which share this classifier.
