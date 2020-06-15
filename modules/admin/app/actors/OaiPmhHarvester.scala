@@ -110,7 +110,12 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit
         job.data.classifier,
         fileName(job.data.prefix, id),
         client.getRecord(job.data.config, id),
-        Some("text/xml")
+        Some("text/xml"),
+        meta = Map(
+          "source" -> "oaipmh",
+          "oaipmh-endpoint" -> job.data.config.url,
+          "oaipmh-set" -> job.data.config.set.getOrElse("")
+        )
       ).map { _ =>
         msg(s"$id", subs)
         Fetch(rest, next, count + 1)

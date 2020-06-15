@@ -43,11 +43,11 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     }
   }(ec)
 
-  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
+  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public)
   }
 
-  override def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false): Future[URI] = {
+  override def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     src.runFold(ByteString.empty)(_ ++ _).map { bytes =>
       val result: URI = new URI(urlPrefix(classifier) + path)
       put(classifier, path, bytes, contentType)
