@@ -4,17 +4,17 @@ import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
-import controllers.AppComponents
 import controllers.base.AdminController
+import controllers.{AppComponents, Execution}
 import javax.inject._
 import play.api.http.ContentTypes
 import play.api.libs.json._
 import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, BodyParser, ControllerComponents}
+import play.api.mvc._
 import services.cypher.CypherService
 import services.data.AuthenticatedUser
-import services.ingest.{EadValidator, S3ObjectSpec, XmlValidationError}
+import services.ingest.{EadValidator, FileObject, XmlValidationError}
 import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
@@ -96,15 +96,32 @@ case class Utils @Inject()(
       .map(Right.apply)
   }
 
-  def validateEadStream: Action[Source[ByteString, _]] = Action(eadValidatingBodyParser) { implicit request =>
-    Ok.chunked(request.body).as(ContentTypes.JSON)
+  private val fileObjectValidatingBodyParser: BodyParser[Source[ByteString, _]] = BodyParser { req =>
+    parse.json[FileObject].apply(req)
+      .mapFuture {
+        case Right(fileObject) =>
+          val uri = storage.uri(fileObject.classifier, fileObject.path)
+          eadValidator.validateEad(Uri(uri.toString)).map { errs =>
+            Right(Source.apply(errs.toList).via(errorsToBytes))
+          }
+        case Left(r) => Future.successful(Left(r))
+      }
   }
 
-  def validateEadS3Object: Action[S3ObjectSpec] = Action(parse.json[S3ObjectSpec]).async { implicit request =>
-    val uri = storage.uri(request.body.classifier, request.body.path)
-    eadValidator.validateEad(Uri(uri.toString)).map { errs =>
-      val src = Source.apply(errs.toList).via(errorsToBytes)
-      Ok.chunked(src).as(ContentTypes.JSON)
+  private val eadStreamOrObject: BodyParser[Source[ByteString, _]] = BodyParser { req =>
+    if (req.contentType.exists(_.equalsIgnoreCase("text/xml"))) {
+      eadValidatingBodyParser(req)
+    } else if (req.contentType.exists(_.equalsIgnoreCase("application/json"))) {
+      fileObjectValidatingBodyParser(req)
+    } else {
+      Accumulator.done(
+        Future.successful(UnsupportedMediaType("Expecting text/xml or application/json body"))
+          .map(Left.apply)(Execution.trampoline)
+      )
     }
+  }
+
+  def validateEad: Action[Source[ByteString, _]] = Action(eadStreamOrObject) { implicit request =>
+    Ok.chunked(request.body).as(ContentTypes.JSON)
   }
 }
