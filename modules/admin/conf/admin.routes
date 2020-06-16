@@ -64,8 +64,7 @@ GET         /monitor/_check                     @controllers.admin.Utils.checkSe
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
 
 # Test EAD validation
-POST        /validate-ead                       @controllers.admin.Utils.validateEadStream
-POST        /validate-ead-s3obj                 @controllers.admin.Utils.validateEadS3Object
+POST        /validate-ead                       @controllers.admin.Utils.validateEad
 
 # API
 # Forward to any dataApi GET method
