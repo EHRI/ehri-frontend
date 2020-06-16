@@ -10,7 +10,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import defines.ContentTypes
 import javax.inject._
-import models.admin.BatchDeleteTask
+import models.BatchDeleteTask
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -37,6 +37,8 @@ case class Tools @Inject()(
   ws: WSClient,
   cypher: CypherService
 )(implicit mat: Materializer) extends AdminController {
+
+  import models.FindReplaceTask
 
   private def logger = play.api.Logger(classOf[Tools])
 
@@ -218,8 +220,6 @@ case class Tools @Inject()(
       }
     )
   }
-
-  import models.admin.FindReplaceTask
 
   def findReplace: Action[AnyContent] = AdminAction.apply { implicit request =>
     Ok(views.html.admin.tools.findReplace(FindReplaceTask.form, None,

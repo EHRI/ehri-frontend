@@ -2,7 +2,7 @@ package services.harvesting
 
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import models.admin.{OaiPmhConfig, OaiPmhIdentity}
+import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 
 import scala.concurrent.Future
