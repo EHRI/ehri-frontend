@@ -1,4 +1,4 @@
-package models.admin
+package models
 
 import play.api.libs.json.{Format, Json}
 

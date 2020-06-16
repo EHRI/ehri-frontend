@@ -2,7 +2,7 @@ package services.harvesting
 
 import akka.actor.ActorSystem
 import helpers._
-import models.admin.OaiPmhConfig
+import models.OaiPmhConfig
 import org.h2.jdbc.JdbcSQLException
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
