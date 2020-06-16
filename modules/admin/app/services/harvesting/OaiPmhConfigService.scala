@@ -1,7 +1,7 @@
 package services.harvesting
 
 import com.google.inject.ImplementedBy
-import models.admin.OaiPmhConfig
+import models.OaiPmhConfig
 
 import scala.concurrent.Future
 

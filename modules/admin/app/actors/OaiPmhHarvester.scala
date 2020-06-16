@@ -3,7 +3,7 @@ package actors
 import java.time.{Duration, LocalDateTime}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
-import models.admin.OaiPmhConfig
+import models.OaiPmhConfig
 import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
 import utils.WebsocketConstants

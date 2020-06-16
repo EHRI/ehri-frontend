@@ -15,8 +15,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import javax.inject._
-import models.admin.OaiPmhConfig
-import models.{admin, _}
+import models.{OaiPmhConfig, Repository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
@@ -287,7 +286,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhTestConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[admin.OaiPmhConfig]) { implicit request =>
+  def oaipmhTestConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val getIdentF = oaipmhClient.identify(request.body)
     val listIdentF = oaipmhClient.listIdentifiers(request.body)
     (for (ident <- getIdentF; _ <- listIdentF)
