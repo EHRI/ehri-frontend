@@ -7,14 +7,14 @@ import akka.stream.alpakka.xml.scaladsl.{XmlParsing, XmlWriting}
 import akka.stream.scaladsl.{Flow, Keep, Source}
 import akka.util.ByteString
 import javax.inject.Inject
-import models.admin.{OaiPmhConfig, OaiPmhIdentity}
+import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.i18n.Messages
 import play.api.libs.ws.{WSClient, WSResponse}
 import services.ingest.XmlFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.xml.{Node, SAXParseException}
+import scala.xml.SAXParseException
 
 sealed trait TokenState {
   def asOption: Option[String] = this match {
@@ -43,7 +43,7 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
         throw OaiPmhError(n \@ "code", n.text)
       }
     } catch {
-      case _: SAXParseException => throw new OaiPmhError("invalidXml")
+      case _: SAXParseException => throw OaiPmhError("invalidXml")
     }
   }
 

@@ -1,6 +1,6 @@
-@(f: Form[models.admin.BatchDeleteTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(f: Form[BatchDeleteTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
-@import models.admin.BatchDeleteTask.{VERSION, SCOPE, COMMIT, LOG_MSG, IDS}
+@import BatchDeleteTask.{VERSION, SCOPE, COMMIT, LOG_MSG, IDS}
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.noSidebar(Messages("admin.utils.batchDelete")) {

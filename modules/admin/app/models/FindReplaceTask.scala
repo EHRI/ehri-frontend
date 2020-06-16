@@ -1,4 +1,4 @@
-package models.admin
+package models
 
 import defines.{ContentTypes, EntityType}
 import play.api.data.Form

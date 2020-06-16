@@ -5,7 +5,7 @@ import java.io.StringWriter
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import helpers.TestConfiguration
-import models.admin.{OaiPmhConfig, OaiPmhIdentity}
+import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.test.PlaySpecification
 import play.api.{Application, Configuration}

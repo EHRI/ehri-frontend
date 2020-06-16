@@ -120,7 +120,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "handle find/replace correctly" in new ITestApp {
-      import models.admin.FindReplaceTask._
+      import models.FindReplaceTask._
 
       val data: Map[String,Seq[String]] = Map(
         PARENT_TYPE -> Seq(Entities.REPOSITORY),
@@ -153,7 +153,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
 
     "handle batch delete correctly" in new ITestApp {
-      import models.admin.BatchDeleteTask._
+      import models.BatchDeleteTask._
 
       val data: Map[String,Seq[String]] = Map(
         IDS -> Seq("a1\na2"),

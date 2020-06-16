@@ -3,7 +3,7 @@ package services.harvesting
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
 import javax.inject.{Inject, Singleton}
-import models.admin.OaiPmhConfig
+import models.OaiPmhConfig
 import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}

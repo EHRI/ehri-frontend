@@ -1,8 +1,8 @@
-@(f: Form[models.admin.FindReplaceTask], foundOpt: Option[Seq[(String, String, String)]], findAction: Call, replaceAction: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(f: Form[FindReplaceTask], foundOpt: Option[Seq[(String, String, String)]], findAction: Call, replaceAction: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@import models.admin.FindReplaceTask._
+@import FindReplaceTask._
 
 @views.html.admin.layout.noSidebar(Messages("admin.utils.findReplace")) {
 
