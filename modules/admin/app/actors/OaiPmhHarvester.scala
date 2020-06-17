@@ -1,8 +1,9 @@
 package actors
 
+import java.io.{PrintWriter, StringWriter}
 import java.time.{Duration, LocalDateTime}
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, SupervisorStrategy, Terminated}
 import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, UserProfile}
 import services.harvesting.{HarvestEventService, OaiPmhClient}
@@ -60,6 +61,8 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestE
   import OaiPmhHarvester._
   import akka.pattern.pipe
 
+  override def supervisorStrategy: SupervisorStrategy = super.supervisorStrategy
+
   override def receive: Receive = waiting
 
   // Waiting to receive a job
@@ -73,7 +76,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestE
     case chan: ActorRef =>
       context.become(running(job, 0, LocalDateTime.now(), Set(chan)))
       harvestEvents
-        .save(job.repoId, job.jobId, HarvestEventType.Start)
+        .save(job.repoId, job.jobId, HarvestEventType.Started)
         .map(_ => Initial)
         .pipeTo(self)
   }
@@ -111,10 +114,11 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestE
     case Fetch(id :: rest, next, count) =>
       log.debug(s"Calling become with new total: $count")
       context.become(running(job, count, start, subs))
+      val byteSrc = client.getRecord(job.data.config, id)
       storage.putBytes(
         job.data.classifier,
         fileName(job.data.prefix, id),
-        client.getRecord(job.data.config, id),
+        byteSrc,
         Some("text/xml"),
         meta = Map(
           "source" -> "oaipmh",
@@ -125,6 +129,13 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestE
         msg(s"$id", subs)
         Fetch(rest, next, count + 1)
       }.pipeTo(self)
+        .recoverWith {
+          case e =>
+            msg(s"${WebsocketConstants.ERR_MESSAGE}: ${e.getLocalizedMessage}", subs)
+            val sw = new StringWriter()
+            e.printStackTrace(new PrintWriter(sw))
+            harvestEvents.save(job.repoId, job.jobId, HarvestEventType.Errored, Some(sw.toString))
+        }
 
     // Finished a batch, start a new one
     case Fetch(Nil, next, count) =>
@@ -137,7 +148,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestE
       msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
         s"Harvested $done file(s) in ${time(start)} seconds", subs)
       context.stop(self)
-      harvestEvents.save(job.repoId, job.jobId, HarvestEventType.Complete)
+      harvestEvents.save(job.repoId, job.jobId, HarvestEventType.Completed)
 
     // Cancel harvest
     case Cancel =>
