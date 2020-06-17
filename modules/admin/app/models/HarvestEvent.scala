@@ -6,9 +6,10 @@ import utils.db.StorableEnum
 
 object HarvestEvent {
   object HarvestEventType extends Enumeration with StorableEnum {
-    val Start = Value("start")
+    val Started = Value("started")
     val Cancelled = Value("cancelled")
-    val Complete = Value("complete")
+    val Errored = Value("errored")
+    val Completed = Value("completed")
   }
 }
 
