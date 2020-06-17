@@ -5,7 +5,7 @@ import java.net.URLEncoder
 import java.util.UUID
 
 import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.{IngestActor, OaiPmhHarvester}
+import actors.{IngestActor, OaiPmhHarvestRunner, OaiPmhHarvester}
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -248,8 +248,8 @@ case class RepositoryData @Inject()(
     val endpoint = request.body
     val jobId = UUID.randomUUID().toString
     val data = OaiPmhHarvestData(endpoint, bucket, oaiPrefix(id))
-    val runner = mat.system.actorOf(Props(OaiPmhHarvester(oaipmhClient, storage, harvestEvents)), jobId)
-    runner ! OaiPmhHarvestJob(jobId, repoId = id, data = data)
+    val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
+    val runner = mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
 
     Ok(Json.obj(
       "url" -> controllers.admin.routes.Tasks
@@ -262,7 +262,7 @@ case class RepositoryData @Inject()(
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
-      ref ! OaiPmhHarvester.Cancel
+      ref ! OaiPmhHarvestRunner.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
