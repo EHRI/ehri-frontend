@@ -24,7 +24,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
-import services.harvesting.{OaiPmhClient, OaiPmhConfigService, OaiPmhError}
+import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
@@ -60,7 +60,8 @@ case class RepositoryData @Inject()(
   eadValidator: EadValidator,
   ingestApi: IngestApi,
   oaipmhClient: OaiPmhClient,
-  oaipmhConfigs: OaiPmhConfigService
+  oaipmhConfigs: OaiPmhConfigService,
+  harvestEvents: HarvestEventService
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -247,8 +248,8 @@ case class RepositoryData @Inject()(
     val endpoint = request.body
     val jobId = UUID.randomUUID().toString
     val data = OaiPmhHarvestData(endpoint, bucket, oaiPrefix(id))
-    val runner = mat.system.actorOf(Props(OaiPmhHarvester(oaipmhClient, storage)), jobId)
-    runner ! OaiPmhHarvestJob(jobId, data)
+    val runner = mat.system.actorOf(Props(OaiPmhHarvester(oaipmhClient, storage, harvestEvents)), jobId)
+    runner ! OaiPmhHarvestJob(jobId, repoId = id, data = data)
 
     Ok(Json.obj(
       "url" -> controllers.admin.routes.Tasks
