@@ -113,6 +113,19 @@ CREATE TABLE oaipmh_config (
     comments TEXT
 );
 
+CREATE TABLE harvest_event (
+    id SERIAL PRIMARY KEY,
+    repo_id VARCHAR(50) NOT NULL,
+    job_id VARCHAR (50) NOT NULL,
+    user_id VARCHAR (50) NULL ,
+    event_type VARCHAR (50) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    info TEXT
+);
+
+CREATE INDEX harvest_event_repo_job ON harvest_event(repo_id, job_id);
+ALTER TABLE harvest_event ADD CONSTRAINT harvest_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL;
+
  # --- !Downs
 
 DROP TABLE IF EXISTS research_guide_page CASCADE;
@@ -126,3 +139,4 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS feedback CASCADE;
 DROP TABLE IF EXISTS cypher_queries CASCADE;
 DROP TABLE IF EXISTS oaipmh_config CASCADE;
+DROP TABLE IF EXISTS harvest_event CASCADE;
