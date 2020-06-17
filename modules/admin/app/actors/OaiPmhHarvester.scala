@@ -3,8 +3,9 @@ package actors
 import java.time.{Duration, LocalDateTime}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
-import models.OaiPmhConfig
-import services.harvesting.OaiPmhClient
+import models.HarvestEvent.HarvestEventType
+import models.{OaiPmhConfig, UserProfile}
+import services.harvesting.{HarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
@@ -51,10 +52,11 @@ object OaiPmhHarvester {
   /**
     * A single harvest job with a unique ID.
     */
-  case class OaiPmhHarvestJob(id: String, data: OaiPmhHarvestData)
+  case class OaiPmhHarvestJob(jobId: String, repoId: String, data: OaiPmhHarvestData)
 }
 
-case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit ec: ExecutionContext) extends Actor with ActorLogging {
+case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage, harvestEvents: HarvestEventService)(
+    implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
   import OaiPmhHarvester._
   import akka.pattern.pipe
 
@@ -70,7 +72,10 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit
   def ready(job: OaiPmhHarvestJob): Receive = {
     case chan: ActorRef =>
       context.become(running(job, 0, LocalDateTime.now(), Set(chan)))
-      self ! Initial
+      harvestEvents
+        .save(job.repoId, job.jobId, HarvestEventType.Start)
+        .map(_ => Initial)
+        .pipeTo(self)
   }
 
   // The harvest is running
@@ -90,7 +95,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit
 
     // Start the initial harvest
     case Initial =>
-      msg(s"Starting harvest with job id: ${job.id}", subs)
+      msg(s"Starting harvest with job id: ${job.jobId}", subs)
       client.listIdentifiers(job.data.config, None)
         .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), done)}
         .pipeTo(self)
@@ -132,12 +137,14 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(implicit
       msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
         s"Harvested $done file(s) in ${time(start)} seconds", subs)
       context.stop(self)
+      harvestEvents.save(job.repoId, job.jobId, HarvestEventType.Complete)
 
     // Cancel harvest
     case Cancel =>
       msg(s"Harvested files: $done", subs)
       msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after ${time(start)} seconds", subs)
       context.stop(self)
+      harvestEvents.save(job.repoId, job.jobId, HarvestEventType.Cancelled)
 
     case m =>
       log.error(s"Unexpected message: $m")
