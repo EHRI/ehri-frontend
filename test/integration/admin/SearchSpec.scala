@@ -9,7 +9,6 @@ import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import controllers.admin.IndexTypes
 import defines.EntityType
 import helpers._
-import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
@@ -24,12 +23,6 @@ import scala.concurrent.{Future, Promise}
 class SearchSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
-
-  val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name = "test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
-  )
-
 
   "Search views" should {
 

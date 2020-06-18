@@ -3,7 +3,6 @@ package actors
 import java.io.{PrintWriter, StringWriter}
 import java.time.LocalDateTime
 
-import actors.OaiPmhHarvestRunner.{Cancel, Completed, Error, Initial, Message}
 import actors.OaiPmhHarvester.OaiPmhHarvestJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
@@ -47,6 +46,7 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
   import akka.pattern.pipe
+  import actors.OaiPmhHarvestRunner._
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
@@ -58,6 +58,7 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
   // until there is a channel to talk through
   override def receive: Receive = {
     case chan: ActorRef =>
+      log.debug("Received initial subscriber, starting...")
       val runner = context.actorOf(Props(OaiPmhHarvestRunner(job, client, storage)))
       context.become(running(runner, Set(chan)))
       eventLog
@@ -84,20 +85,30 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
       context.unwatch(chan)
       context.become(running(runner, subs - chan))
 
-    // The harvest runner has a message to send to
-    // the subscribers
-    case Message(s) => msg(s, subs)
+    // Confirmation the runner has started
+    case Starting => msg(s"Starting harvest with job id: ${job.jobId}", subs)
 
     // Cancel harvest.. here we tell the runner to exit
     // and shut down on its termination signal...
-    case Cancel =>
+    case Cancel => runner ! Cancel
+
+    // The runner is continuing to harvest via a resumption token
+    case Resuming(token) => msg(s"Resuming with $token", subs)
+
+    // A file has been harvested
+    case DoneFile(id) => msg(id, subs)
+
+    // Received confirmation that the runner has shut down
+    case Cancelled(count, secs) =>
+      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
       eventLog.save(job.repoId, job.jobId, HarvestEventType.Cancelled)
-        .map(_ => Cancel)
-        .pipeTo(runner)
+      context.stop(self)
 
     // The runner has completed, so we log the
     // event and shut down too
-    case Completed =>
+    case Completed(count, secs) =>
+      msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
+        s"harvested $count file(s) in $secs seconds", subs)
       eventLog.save(job.repoId, job.jobId, HarvestEventType.Completed)
       context.stop(self)
 

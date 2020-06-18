@@ -9,11 +9,6 @@ import services.data.{ApiUser, AuthenticatedUser}
 class VirtualUnitViewsSpec extends IntegrationTestRunner {
   import mockdata.privilegedUser
 
-  val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
-  
   val vuRoutes = controllers.virtual.routes.VirtualUnits
 
   // Common headers/strings
@@ -62,7 +57,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
       val cr = FakeRequest(vuRoutes.createChildPost("vc1"))
         .withUser(privilegedUser).withCsrf.callWith(testData)
       status(cr) must equalTo(SEE_OTHER)
-      redirectLocation(cr) must equalTo(Some(vuRoutes.getInVc("vc1", "hellokitty").url))
+      redirectLocation(cr) must beSome(vuRoutes.getInVc("vc1", "hellokitty").url)
 
       val show = FakeRequest(vuRoutes.getInVc("vc1", "hellokitty"))
         .withUser(privilegedUser).call()

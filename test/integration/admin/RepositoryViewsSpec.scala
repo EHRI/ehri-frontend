@@ -12,12 +12,6 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
   private val repoRoutes = controllers.institutions.routes.Repositories
   private val countryRoutes = controllers.countries.routes.Countries
 
-  // Mock user who belongs to admin
-  val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
-
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
   val oneItemHeader = "One item found"

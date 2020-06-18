@@ -1,4 +1,4 @@
-import models.{OpenIDAssociation, OAuth2Association, Account}
+import models.{Account, Group, GroupF, OAuth2Association, OpenIDAssociation, UserProfile, UserProfileF}
 import play.twirl.api.Html
 
 package object mockdata {
@@ -27,9 +27,13 @@ package object mockdata {
   )
 
   val oAuth2Associations = List(googleOAuthAssoc, facebookOAuthAssoc)
-
   val openIDAssociations = List(yahooOpenId)
 
+  // Mock user who belongs to admin
+  val adminUserProfile = UserProfile(
+    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
+    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
+  )
 
   // Mutable vars that server as mock database tables
   var accountFixtures: Map[String, Account] = users
