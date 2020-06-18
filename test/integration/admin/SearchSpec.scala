@@ -1,6 +1,7 @@
 package integration.admin
 
 import akka.NotUsed
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.RawHeader
@@ -9,7 +10,6 @@ import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import controllers.admin.IndexTypes
 import defines.EntityType
 import helpers._
-import models.{Group, GroupF, UserProfile, UserProfileF}
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
@@ -24,12 +24,6 @@ import scala.concurrent.{Future, Promise}
 class SearchSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
-
-  val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name = "test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
-  )
-
 
   "Search views" should {
 
@@ -55,7 +49,7 @@ class SearchSpec extends IntegrationTestRunner {
   "Search index mediator" should {
     val port = 9902
     "perform indexing correctly via Websocket endpoint" in new ITestServer(app = appBuilder.build(), port = port) {
-      implicit val as = app.actorSystem
+      implicit val as: ActorSystem = app.actorSystem
       import as.dispatcher
 
       val cmd = List(EntityType.DocumentaryUnit)
