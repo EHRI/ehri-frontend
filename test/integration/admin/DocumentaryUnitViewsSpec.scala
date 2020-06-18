@@ -3,7 +3,7 @@ package integration.admin
 import controllers.base.SessionPreferences
 import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
-import models.{Group, UserProfile, _}
+import models._
 import play.api.test.FakeRequest
 import services.data.{ApiUser, AuthenticatedUser}
 
@@ -13,11 +13,6 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
   private val repoRoutes = controllers.institutions.routes.Repositories
-
-  val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name="test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name="Administrators")))
-  )
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
