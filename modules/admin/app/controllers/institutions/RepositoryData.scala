@@ -2,6 +2,7 @@ package controllers.institutions
 
 import java.io.PrintWriter
 import java.net.URLEncoder
+import java.time.Instant
 import java.util.UUID
 
 import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
@@ -15,6 +16,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import javax.inject._
+import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, Repository}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -244,18 +246,28 @@ case class RepositoryData @Inject()(
     Ok(Json.toJson(result))
   }
 
-  def oaipmhHarvest(id: String): Action[OaiPmhConfig] = EditAction(id).apply(parse.json[OaiPmhConfig]) { implicit request =>
-    val endpoint = request.body
-    val jobId = UUID.randomUUID().toString
-    val data = OaiPmhHarvestData(endpoint, bucket, oaiPrefix(id))
-    val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
-    val runner = mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
+  def oaipmhHarvest(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+    val lastHarvest: Future[Option[Instant]] =
+      if (fromLast) harvestEvents.get(id).map( events =>
+        events
+          .filter(_.eventType == HarvestEventType.Completed)
+          .map(_.created)
+          .lastOption
+      ) else immediate(Option.empty[Instant])
 
-    Ok(Json.obj(
-      "url" -> controllers.admin.routes.Tasks
-        .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
-      "jobId" -> jobId
-    ))
+    lastHarvest.map { last =>
+      val endpoint = request.body
+      val jobId = UUID.randomUUID().toString
+      val data = OaiPmhHarvestData(endpoint, bucket, prefix = oaiPrefix(id), from = last)
+      val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
+      mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
+
+      Ok(Json.obj(
+        "url" -> controllers.admin.routes.Tasks
+          .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+        "jobId" -> jobId
+      ))
+    }
   }
 
   def oaipmhCancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>

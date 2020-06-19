@@ -1,14 +1,15 @@
 package actors
 
 import java.io.{PrintWriter, StringWriter}
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 import actors.OaiPmhHarvester.OaiPmhHarvestJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, UserProfile}
-import services.harvesting.{HarvestEventService, OaiPmhClient}
+import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
@@ -22,7 +23,6 @@ object OaiPmhHarvester {
     *
     * @param config     the endpoint configuration
     * @param from       the starting date and time
-    * @param to         the ending date and time
     * @param classifier the storage classifier on which to save files
     * @param prefix     the path prefix on which to save files, after
     *                   which the item identifier will be appended
@@ -31,8 +31,7 @@ object OaiPmhHarvester {
     config: OaiPmhConfig,
     classifier: String,
     prefix: String,
-    from: Option[LocalDateTime] = None,
-    to: Option[LocalDateTime] = None,
+    from: Option[Instant] = None,
   )
 
   /**
@@ -45,8 +44,8 @@ object OaiPmhHarvester {
 case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
-  import akka.pattern.pipe
   import actors.OaiPmhHarvestRunner._
+  import akka.pattern.pipe
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
@@ -86,7 +85,11 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
       context.become(running(runner, subs - chan))
 
     // Confirmation the runner has started
-    case Starting => msg(s"Starting harvest with job id: ${job.jobId}", subs)
+    case Starting =>
+      msg(s"Starting harvest with job id: ${job.jobId}", subs)
+      job.data.from.fold(msg("Harvesting from earliest date", subs)) { from =>
+        msg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(from)}", subs)
+      }
 
     // Cancel harvest.. here we tell the runner to exit
     // and shut down on its termination signal...
@@ -112,12 +115,23 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
       eventLog.save(job.repoId, job.jobId, HarvestEventType.Completed)
       context.stop(self)
 
+    // Error case where the `set` or `from` parameters mean that
+    // no records are returned
+    case OaiPmhError("noRecordsMatch", _) =>
+      msg(s"${WebsocketConstants.DONE_MESSAGE}: nothing to harvest", subs)
+      eventLog.save(job.repoId, job.jobId, HarvestEventType.NoOp)
+      context.stop(self)
+
+    // Error case where we get some other problem...
+    case e: OaiPmhError =>
+      msg(s"${WebsocketConstants.ERR_MESSAGE}: ${e.code}", subs)
+      eventLog.save(job.repoId, job.jobId, HarvestEventType.Errored, Some(stackTrace(e)))
+      context.stop(self)
+
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      val sw = new StringWriter()
-      e.printStackTrace(new PrintWriter(sw))
-      eventLog.save(job.repoId, job.jobId, HarvestEventType.Errored, Some(sw.toString))
+      eventLog.save(job.repoId, job.jobId, HarvestEventType.Errored, Some(stackTrace(e)))
       msg(s"${WebsocketConstants.ERR_MESSAGE}: harvesting error: ${e.getMessage}", subs)
       context.stop(self)
 
@@ -128,5 +142,11 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
   private def msg(s: String, subs: Set[ActorRef]): Unit = {
     log.info(s + s" (subscribers: ${subs.size})")
     subs.foreach(_ ! s)
+  }
+
+  private def stackTrace(e: Throwable): String = {
+    val sw = new StringWriter()
+    e.printStackTrace(new PrintWriter(sw))
+    sw.toString
   }
 }
