@@ -23,6 +23,5 @@ object OaiPmhConfig {
     ),
     METADATA_FORMAT -> nonEmptyText,
     SET -> optional(text).transform[Option[String]](_.filterNot(_.trim.isEmpty), identity)
-
   )(OaiPmhConfig.apply)(OaiPmhConfig.unapply))
 }

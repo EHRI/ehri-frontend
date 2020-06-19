@@ -21,8 +21,8 @@ facet.linkType=Link Type
 facet.linkField=Link Field
 
 #
-# Friendly names for content types
 #
+# Friendly names for content types
 contentTypes=Content types
 contentTypes.Group=Groups
 contentTypes.UserProfile=Users
