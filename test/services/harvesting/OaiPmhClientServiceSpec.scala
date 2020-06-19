@@ -5,6 +5,7 @@ import java.io.StringWriter
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import helpers.TestConfiguration
+import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.test.PlaySpecification
@@ -39,7 +40,8 @@ class OaiPmhClientServiceSpec extends PlaySpecification with TestConfiguration {
       ident must_== OaiPmhIdentity(
         name = "EHRI",
         url = "http://example.com",
-        version = "2.0"
+        version = "2.0",
+        granularity = Granularity.Second
       )
     }
 

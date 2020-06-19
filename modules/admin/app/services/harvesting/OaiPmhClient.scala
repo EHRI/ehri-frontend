@@ -1,5 +1,7 @@
 package services.harvesting
 
+import java.time.Instant
+
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import models.{OaiPmhConfig, OaiPmhIdentity}
@@ -29,11 +31,12 @@ trait OaiPmhClient {
     *
     * @param endpoint the endpoint config object
     * @param resume   an optional resumption token
+    * @param from     an initial point from which to harvest
     * @return a tuple containing a set of identifier,
     *         deletion status pairs and an optional
     *         token to fetch the next set.
     */
-  def listIdentifiers(endpoint: OaiPmhConfig, resume: Option[String] = None): Future[(Seq[(String, Boolean)], Option[String])]
+  def listIdentifiers(endpoint: OaiPmhConfig, from: Option[Instant] = None, resume: Option[String] = None): Future[(Seq[(String, Boolean)], Option[String])]
 
   /**
     * Retrieve set information.

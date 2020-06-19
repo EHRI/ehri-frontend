@@ -3,12 +3,15 @@ package actors
 import java.time.{Duration, LocalDateTime}
 
 import actors.OaiPmhHarvester.OaiPmhHarvestJob
+import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import models.UserProfile
-import services.harvesting.OaiPmhClient
+import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 
 import scala.concurrent.ExecutionContext
+
+
 object OaiPmhHarvestRunner {
 
   // Possible states for resumption tokens:
@@ -48,7 +51,7 @@ case class OaiPmhHarvestRunner (job: OaiPmhHarvestJob, client: OaiPmhClient, sto
       val msgTo = sender()
       context.become(running(msgTo, 0, LocalDateTime.now()))
       msgTo ! Starting
-      client.listIdentifiers(job.data.config, None)
+      client.listIdentifiers(job.data.config, from = job.data.from)
         .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), 0)}
         .pipeTo(self)
   }
@@ -60,7 +63,7 @@ case class OaiPmhHarvestRunner (job: OaiPmhHarvestJob, client: OaiPmhClient, sto
     // Harvest a new batch via a resumptionToken
     case Next(token) =>
       msgTo ! Resuming(token)
-      client.listIdentifiers(job.data.config, Some(token))
+      client.listIdentifiers(job.data.config, resume = Some(token))
         .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), done)}
         .pipeTo(self)
 
@@ -100,8 +103,12 @@ case class OaiPmhHarvestRunner (job: OaiPmhHarvestJob, client: OaiPmhClient, sto
       msgTo ! Cancelled(done, time(start))
       context.stop(self)
 
+    case Failure(e) =>
+      msgTo ! e
+      context.stop(self)
+
     case m =>
-      log.error(s"Unexpected message: $m")
+      log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
   private def time(from: LocalDateTime): Long =
