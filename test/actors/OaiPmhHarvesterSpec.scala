@@ -1,5 +1,8 @@
 package actors
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+
 import actors.OaiPmhHarvestRunner.Cancel
 import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
@@ -45,18 +48,32 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
       val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
 
       harvester ! self // initial subscriber should start harvesting
-      expectMsg(20.seconds, s"Starting harvest with job id: $jobId")
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Harvesting from earliest date")
       expectMsgAnyOf("c4", "nl-r1-m19")
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
     }
 
+    "harvest selectively with `from` date" in new ITestApp {
+      val now: Instant = Instant.now()
+      val job2 = job(app)
+      val dateJob = job2.copy(data = job2.data.copy(from = Some(now)))
+      val harvester = system.actorOf(Props(OaiPmhHarvester(dateJob, client, storage, events)))
+
+      harvester ! self // initial subscriber should start harvesting
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(now)}")
+      expectMsg("Done: nothing to harvest")
+    }
+
     "cancel jobs" in new ITestApp {
       val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
 
       harvester ! self // initial subscriber should start harvesting
-      expectMsg(20.seconds, s"Starting harvest with job id: $jobId")
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Harvesting from earliest date")
       expectMsgAnyOf("c4", "nl-r1-m19")
       harvester ! Cancel
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
