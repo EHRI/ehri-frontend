@@ -49,33 +49,34 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .call()
 
       status(result) must_== SEE_OTHER
-      redirectLocation(result) must beSome.which { relativeUrl =>
+      val loc = redirectLocation(result)
+      loc must beSome
+      val relativeUrl = loc.get
 
-        val jobId = relativeUrl.split("=")(1)
-        val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
+      val jobId = relativeUrl.split("=")(1)
+      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
 
-        val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
-        val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
-          Flow.fromSinkAndSourceMat(Sink.seq[Message], Source.maybe[Message])(Keep.both)
+      val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
+      val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
+        Flow.fromSinkAndSourceMat(Sink.seq[Message], Source.maybe[Message])(Keep.both)
 
-        val (resp, (out, promise)) =
-          Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
+      val (_, (out, promise)) =
+        Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
-        // bodge: if this test fails it's probably because we need more time here
-        Thread.sleep(750)
-        // close the connection...
-        promise.success(None)
+      // bodge: if this test fails it's probably because we need more time here
+      Thread.sleep(750)
+      // close the connection...
+      promise.success(None)
 
-        val messages = await(out)
-        messages.head.asTextMessage.getStrictText must contain(jobId)
-        messages must contain(TextMessage.Strict(JsString("Data: created: 5, updated: 0, unchanged: 0, errors: 0").toString))
-        messages must contain(TextMessage.Strict(JsString("Sync: moved: 0, new: 5, deleted: 0").toString))
-        messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
+      val messages = await(out)
+      messages.head.asTextMessage.getStrictText must contain(jobId)
+      messages must contain(TextMessage.Strict(JsString("Data: created: 5, updated: 0, unchanged: 0, errors: 0").toString))
+      messages must contain(TextMessage.Strict(JsString("Sync: moved: 0, new: 5, deleted: 0").toString))
+      messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
-        // check the log has been stored
-        storedFileBuffer.lastOption must beSome.which { f =>
-          f.toString must contain(jobId)
-        }
+      // check the log has been stored
+      storedFileBuffer.lastOption must beSome.which { f =>
+        f.toString must contain(jobId)
       }
     }
   }
