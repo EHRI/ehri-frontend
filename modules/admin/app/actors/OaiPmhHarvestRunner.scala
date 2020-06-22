@@ -6,7 +6,7 @@ import actors.OaiPmhHarvester.OaiPmhHarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import models.UserProfile
-import services.harvesting.{OaiPmhClient, OaiPmhError}
+import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
 
 import scala.concurrent.ExecutionContext

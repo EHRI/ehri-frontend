@@ -1,5 +1,7 @@
 package services.harvesting
 
+import java.io.{PrintWriter, StringWriter}
+
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
 import javax.inject.Inject
@@ -37,8 +39,35 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
     }
   }(ec)
 
-  override def save(repoId: String, jobId: String, eventType: HarvestEventType.Value, info: Option[String] = None)(
-      implicit userOpt: Option[UserProfile]): Future[Unit] = Future {
+  override def save(repoId: String, jobId: String, info: Option[String] = None)(
+      implicit userOpt: Option[UserProfile]): Future[HarvestEventHandle] = Future {
+    saveEvent(repoId, jobId, HarvestEventType.Started, info, userOpt)
+    new HarvestEventHandle {
+      override def close(): Future[Unit] = Future {
+        saveEvent(repoId, jobId, HarvestEventType.Completed, Option.empty, userOpt)
+      }(ec)
+
+      override def cancel(): Future[Unit] = Future {
+        saveEvent(repoId, jobId, HarvestEventType.Cancelled, Option.empty, userOpt)
+      }(ec)
+
+      override def error(t: Throwable): Future[Unit] = Future {
+        saveEvent(repoId, jobId, HarvestEventType.Errored, Some(stackTrace(t)), userOpt)
+      }(ec)
+
+      private def stackTrace(e: Throwable): String = {
+        val sw = new StringWriter()
+        e.printStackTrace(new PrintWriter(sw))
+        sw.toString
+      }
+    }
+  }(ec)
+
+  private def saveEvent(repoId: String,
+                        jobId: String,
+                        eventType: HarvestEventType.Value,
+                        info: Option[String],
+                        userOpt: Option[UserProfile]): Unit = {
     db.withConnection { implicit conn =>
       SQL"""
          INSERT INTO harvest_event
@@ -52,6 +81,5 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
          )""".executeInsert()
       ()
     }
-  }(ec)
-
+  }
 }

@@ -100,16 +100,15 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
     }
   }
 
-  // In cases where we have `from` or `to` parameters the only way tp properly
+  // In cases where we have `from` or `to` parameters the only way to properly
   // format the date - with either day or second granularity - depends on the
   // endpoint itself and the result of the `identify` verb. So if we have a
   // `from` parameter and we're not resuming we have to run `identify` prior
   // to the List* commands
-  private def getListParams(
-      verb: String,
-      endpoint: OaiPmhConfig,
-      from: Option[Instant],
-      resume: Option[String]): Future[Seq[(String, String)]] = {
+  private def getListParams(verb: String,
+                            endpoint: OaiPmhConfig,
+                            from: Option[Instant],
+                            resume: Option[String]): Future[Seq[(String, String)]] = {
     resume.fold(
       ifEmpty = getFormattedTime(endpoint, from).map { timeOpt =>
         logger.debug(s"Harvesting with `from` time: ${timeOpt}")
@@ -135,7 +134,7 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
           (nodes \ "repositoryName").text,
           (nodes \ "baseURL").text,
           (nodes \ "protocolVersion").text,
-          if ((nodes \ "granularity").text == Granularity.Second.toString)
+          if ((nodes \ "granularity").text.trim == Granularity.Second.toString)
             Granularity.Second
           else Granularity.Day
         )
