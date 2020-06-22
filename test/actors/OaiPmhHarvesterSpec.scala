@@ -8,9 +8,9 @@ import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
-import models.{HarvestEvent, OaiPmhConfig, UserProfile}
+import models.{OaiPmhConfig, UserProfile}
 import play.api.{Application, Configuration}
-import services.harvesting.{HarvestEventService, OaiPmhClient}
+import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
@@ -26,8 +26,14 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
   private val events: HarvestEventService = new HarvestEventService {
     override def get(repoId: String) = Future.successful(Seq.empty)
     override def get(repoId: String, jobId: String) = Future.successful(Seq.empty)
-    override def save(repoId: String, jobId: String, eventType: HarvestEvent.HarvestEventType.Value, info: Option[String])(
-        implicit userOpt: Option[UserProfile]) = Future.successful(())
+    override def save(repoId: String, jobId: String, info: Option[String])(
+        implicit userOpt: Option[UserProfile]) = Future.successful(
+      new HarvestEventHandle {
+        override def close() = Future.successful(())
+        override def cancel() = Future.successful(())
+        override def error(t: Throwable) = Future.successful(())
+      }
+    )
   }
 
   private val jobId = "test-job-id"

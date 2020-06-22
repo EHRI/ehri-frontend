@@ -9,7 +9,6 @@ object HarvestEvent {
     val Started = Value("started")
     val Cancelled = Value("cancelled")
     val Errored = Value("errored")
-    val NoOp = Value("noop")
     val Completed = Value("completed")
   }
 }
