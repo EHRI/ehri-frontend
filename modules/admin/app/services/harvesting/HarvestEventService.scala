@@ -1,9 +1,16 @@
 package services.harvesting
 
-import models.HarvestEvent.HarvestEventType
 import models.{HarvestEvent, UserProfile}
 
 import scala.concurrent.Future
+
+trait HarvestEventHandle {
+  def close(): Future[Unit]
+
+  def cancel(): Future[Unit]
+
+  def error(t: Throwable): Future[Unit]
+}
 
 /**
   * Interface for events which record information
@@ -32,11 +39,11 @@ trait HarvestEventService {
   /**
     * Store a new harvest event for the given repository and job.
     *
-    * @param repoId    the repository ID
-    * @param jobId     the job ID
-    * @param eventType the event type
-    * @param info      optional unstructured text information
-    * @param userOpt   the user context of this event
+    * @param repoId  the repository ID
+    * @param jobId   the job ID
+    * @param info    optional unstructured text information
+    * @param userOpt the user context of this event
+    * @return a handle with which to conclude the harvest job
     */
-  def save(repoId: String, jobId: String, eventType: HarvestEventType.Value, info: Option[String] = None)(implicit userOpt: Option[UserProfile]): Future[Unit]
+  def save(repoId: String, jobId: String, info: Option[String] = None)(implicit userOpt: Option[UserProfile]): Future[HarvestEventHandle]
 }
