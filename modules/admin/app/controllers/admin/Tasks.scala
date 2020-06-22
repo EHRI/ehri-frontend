@@ -39,7 +39,7 @@ case class Tasks @Inject()(
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
 
-  def taskMonitorWS(jobId: String): WebSocket = AuthenticatedWebsocket(_.data.staff) { implicit request =>
+  def taskMonitorWS(jobId: String): WebSocket = AuthenticatedWebsocket(_.account.exists(_.staff)) { implicit request =>
     ActorFlow.actorRef { out =>
       system.actorSelection("user/" + jobId).resolveOne(5.seconds).onComplete {
         case Success(ref) =>

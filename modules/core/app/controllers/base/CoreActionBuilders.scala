@@ -450,13 +450,12 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
   /**
     * Validate an incoming websocket request.
     */
-  def AuthenticatedWebsocket[I, O](f: UserProfile => Boolean)(a: RequestHeader => Flow[I, O, _])(implicit transformer: MessageFlowTransformer[I, O]): WebSocket =
+  def AuthenticatedWebsocket[I, O](f: UserProfile => Boolean)(a: RequestHeader => Flow[I, O, _])
+                                  (implicit transformer: MessageFlowTransformer[I, O]): WebSocket =
     WebSocket.acceptOrResult[I, O] { implicit request =>
       authHandler.restoreAccount(request).flatMap {
         case (Some(account), _) => fetchProfile(account).flatMap {
-          case Some(prof) if f(prof) => immediate(Right {
-            a(request)
-          })
+          case Some(prof) if f(prof) => immediate(Right(a(request)))
           // user doesn't have a profile, or fails the test
           case _ => authenticationFailed(request).map(r => Left(r))
         }
