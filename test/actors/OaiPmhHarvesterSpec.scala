@@ -8,33 +8,19 @@ import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
+import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, UserProfile}
 import play.api.{Application, Configuration}
-import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClient}
+import services.harvesting.{MockHarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
-import scala.concurrent.Future
 
 class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
 
   private def client(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
-
-  // Black hole event service
-  private val events: HarvestEventService = new HarvestEventService {
-    override def get(repoId: String) = Future.successful(Seq.empty)
-    override def get(repoId: String, jobId: String) = Future.successful(Seq.empty)
-    override def save(repoId: String, jobId: String, info: Option[String])(
-        implicit userOpt: Option[UserProfile]) = Future.successful(
-      new HarvestEventHandle {
-        override def close() = Future.successful(())
-        override def cancel() = Future.successful(())
-        override def error(t: Throwable) = Future.successful(())
-      }
-    )
-  }
 
   private val jobId = "test-job-id"
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
@@ -51,6 +37,7 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
     import scala.concurrent.duration._
 
     "send correct messages when harvesting an endpoint" in new ITestApp {
+      val events = MockHarvestEventService()
       val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
 
       harvester ! self // initial subscriber should start harvesting
@@ -60,9 +47,11 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
+      events.events(1).eventType must_== HarvestEventType.Completed
     }
 
     "harvest selectively with `from` date" in new ITestApp {
+      val events = MockHarvestEventService()
       val now: Instant = Instant.now()
       val job2 = job(app)
       val dateJob = job2.copy(data = job2.data.copy(from = Some(now)))
@@ -72,9 +61,11 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
       expectMsg(s"Starting harvest with job id: $jobId")
       expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(now)}")
       expectMsg("Done: nothing to harvest")
+      events.events.size must_== 0
     }
 
     "cancel jobs" in new ITestApp {
+      val events = MockHarvestEventService()
       val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
 
       harvester ! self // initial subscriber should start harvesting
@@ -84,6 +75,8 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
       harvester ! Cancel
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after 1 file(s)")
+      events.events.head.eventType must_== HarvestEventType.Started
+      events.events(1).eventType must_== HarvestEventType.Cancelled
     }
   }
 }
