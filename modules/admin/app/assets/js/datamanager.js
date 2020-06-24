@@ -491,8 +491,54 @@ Vue.component("drag-handle", {
   `
 });
 
-let app = new Vue({
-  el: '#data-manager',
+Vue.component("options-panel", {
+  props: {
+    opts: Object
+  },
+  template: `
+    <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog"
+         style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Testing Parameters</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('hide')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="options-form">
+              <div class="form-group form-check">
+                <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="opts.tolerant"/>
+                <label class="form-check-label" for="opt-tolerant-check">
+                  Tolerant Mode: do not abort on individual file errors
+                </label>
+              </div>
+              <div class="form-group form-check">
+                <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="opts.commit"/>
+                <label class="form-check-label" for="opt-commit-check">
+                  Commit Ingest: make changes to database
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="opt-log-message">Log Message</label>
+                <input class="form-control form-control-sm" id="opt-log-message" v-model="opts.logMsg"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('hide')">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+Vue.component("upload-manager", {
   data: function () {
     return {
       loaded: false,
@@ -513,9 +559,11 @@ let app = new Vue({
       previewing: null,
       panelSize: null,
       showOptions: false,
-      optCommit: false,
-      optTolerant: false,
-      optLogMsg: LOG_MESSAGE
+      opts: {
+        commit: false,
+        tolerant: false,
+        logMsg: LOG_MESSAGE
+      }
     }
   },
   methods: {
@@ -695,7 +743,7 @@ let app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(keys, self.optTolerant, self.optCommit, self.optLogMsg)
+      DAO.ingestFiles(keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
         .then(data => {
           if (data.url && data.jobId) {
             self.monitorIngest(data.url, keys);
@@ -718,7 +766,7 @@ let app = new Vue({
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll(self.optTolerant, self.optCommit, self.optLogMsg).then(data => {
+      DAO.ingestAll(self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
         if (data.url && data.jobId) {
           self.monitorIngest(data.url, keys);
         } else {
@@ -754,7 +802,7 @@ let app = new Vue({
     }
   },
   template: `
-    <div id="data-manager-container"
+    <div id="upload-manager-container"
          v-on:dragover.prevent.stop="dragOver"
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
@@ -818,45 +866,10 @@ let app = new Vue({
           <i class="fa fa-gear"/>
         </button>
 
-        <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="showOptions"
-             style="display: block">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Testing Parameters</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                        v-on:click="showOptions = false">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div id="options-form">
-                  <div class="form-group form-check">
-                    <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="optTolerant"/>
-                    <label class="form-check-label" for="opt-tolerant-check">
-                      Tolerant Mode: do not abort on individual file errors
-                    </label>
-                  </div>
-                  <div class="form-group form-check">
-                    <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="optCommit"/>
-                    <label class="form-check-label" for="opt-commit-check">
-                      Commit Ingest: make changes to database
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label for="opt-log-message">Log Message</label>
-                    <input class="form-control form-control-sm" id="opt-log-message" v-model="optLogMsg"/>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="showOptions = false">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <options-panel 
+          v-if="showOptions"
+          v-bind:opts="opts"
+          v-on:hide="showOptions = false" />
       </div>
 
       <div id="panel-container">
@@ -905,8 +918,8 @@ let app = new Vue({
             </li>
             <li>
               <drag-handle
-                v-bind:p2="$el.querySelector('#panel-2')"
-                v-bind:container="$el.querySelector('#panel-container')"
+                v-bind:p2="$root.$el.querySelector('#panel-2')"
+                v-bind:container="$root.$el.querySelector('#panel-container')"
                 v-on:resize="setPanelSize"
               />
             </li>
@@ -942,7 +955,21 @@ let app = new Vue({
       <upload-progress
         v-bind:uploading="uploading"
         v-on:finish-item="finishUpload"/>
-
     </div>
   `
 });
+
+let app = new Vue({
+  el: '#data-manager',
+  data: function() {
+    return {
+
+    }
+  },
+  template: `
+    <div id="data-manager-container">
+        <upload-manager/>
+    </div>
+  `
+});
+
