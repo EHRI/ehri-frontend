@@ -33,6 +33,12 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+
+#upload-manager-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   margin-bottom: $margin-sm;
 }
 
