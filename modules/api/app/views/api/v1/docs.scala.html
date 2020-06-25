@@ -250,6 +250,33 @@
         just within <i>London</i>, one would use:</p>
 
         <p><code>bbox=51.28,-0.489,51.686,0.236</code></p>
+
+        <h3>Sorting</h3>
+
+        <p>By default, responses to the <code>/search</code> actions are sorted by relevance, that is,
+        the degree to which a given result matches the input query. However, responses can be ordered
+        differently using the <code>sort</code> parameter with one of the following values:</p>
+        <dl>
+            <dt><code>id</code></dt>
+            <dd>Orders items by their alphanumeric identifier string.</dd>
+            <dt><code>name</code></dt>
+            <dd>Orders items alphabetically by name.</dd>
+            <dt><code>updated</code></dt>
+            <dd>Orders most recently updated/modified items first.</dd>
+            <dt><code>location</code></dt>
+            <dd>In combination with the <code>latlon</code> parameter (see below_), orders items
+            with location information by proximity to a given point.</dd>
+        </dl>
+
+        <h3>Distance sort</h3>
+        <p>To specify a latitude and longitude as a point from which location-aware items
+        should be sorted by distance, provide the <code>latlng</code> parameter with
+        a value of the form <code>latlon=LAT,LON</code>. Note: the <code>sort</code>
+        parameter with a value of <code>location</code> must also be given for
+        this to have any effect. For example, to sort items by proximity to King's College
+            London's Strand Campus use:</p>
+
+        <p><code>sort=location&latlng=51.51,-0.116</code></p>
     </section>
 
     <section id="api-usage-python">
