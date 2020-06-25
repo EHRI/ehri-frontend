@@ -6,8 +6,8 @@ import java.time.{LocalDate, LocalDateTime}
 import defines.EntityType
 import play.api.test.PlaySpecification
 import services.data.Constants.{FROM => TFROM, _}
-import services.search.{BoundingBox, SearchParams}
-import services.search.SearchParams.{BBOX, ENTITY, QUERY}
+import services.search.{BoundingBox, LatLng, SearchParams, SearchSort}
+import services.search.SearchParams.{BBOX, ENTITY, LATLNG, QUERY, SORT}
 import utils.{PageParams, RangeParams, SystemEventParams}
 
 class BindersSpec extends PlaySpecification {
@@ -94,6 +94,19 @@ class BindersSpec extends PlaySpecification {
       // out-of-range bounding box
       searchParamsQueryBinder
         .bind("params", Map(BBOX -> Seq("-91,-181,0,0"))) must_== Some(Right(SearchParams.empty))
+      // valid point
+      searchParamsQueryBinder
+        .bind("params", Map(LATLNG -> Seq("50,0"))) must_== Some(
+        Right(SearchParams(latLng = Some(LatLng(50,0)))))
+      // invalid point
+      searchParamsQueryBinder
+        .bind("params", Map(LATLNG -> Seq("-91,0"))) must_== Some(Right(SearchParams.empty))
+      // ensure sort by location will only bind with a valid point
+      searchParamsQueryBinder
+        .bind("params", Map(SORT -> Seq("location"))) must_== Some(Right(SearchParams.empty))
+      searchParamsQueryBinder
+        .bind("params", Map(SORT -> Seq("location"), LATLNG -> Seq("50,0"))) must_== Some(
+        Right(SearchParams(sort = Some(SearchSort.Location), latLng = Some(LatLng(50,0)))))
     }
   }
 }
