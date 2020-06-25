@@ -7,7 +7,7 @@ import defines.{ContentTypes, EntityType, EventType}
 import play.api.mvc.QueryStringBindable.bindableOption
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import services.data.Constants
-import services.search.{BoundingBox, SearchField, SearchParams, SearchSort}
+import services.search._
 import utils.SystemEventParams.{Aggregation, ShowType}
 
 import scala.annotation.tailrec
@@ -216,6 +216,15 @@ package object binders {
       override def unbind(key: String, value: BoundingBox): String = stringBinder.unbind(key, value.toString)
     }
 
+  implicit def latLngQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[LatLng] =
+    new QueryStringBindable[LatLng] {
+
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, LatLng]] =
+        params.get(key).flatMap(_.headOption).map(LatLng.fromString)
+
+      override def unbind(key: String, value: LatLng): String = stringBinder.unbind(key, value.toString)
+    }
+
   implicit def searchParamsQueryBinder(
     implicit seqStrBinder: QueryStringBindable[Seq[String]]): QueryStringBindable[SearchParams] with NamespaceExtractor = new QueryStringBindable[SearchParams] with NamespaceExtractor {
     import services.search.SearchParams._
@@ -246,7 +255,7 @@ package object binders {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SearchParams]] = {
       val namespace: String = ns(key)
-      Some(Right(SearchParams(
+      val rawParams = SearchParams(
         bindOr(namespace + QUERY, params, Option.empty[String]).filter(_.trim.nonEmpty),
         bindOr(namespace + SORT, params, bindOldSort(namespace + SORT, params)),
         bindOr(namespace + ENTITY, params, Seq.empty[EntityType.Value])(tolerantSeqBinder(queryStringBinder(EntityType))),
@@ -254,8 +263,15 @@ package object binders {
         bindOr(namespace + FACET, params, Seq.empty[String]),
         bindOr(namespace + EXCLUDE, params, Seq.empty[String]),
         bindOr(namespace + FILTERS, params, Seq.empty[String]),
-        bindOr(namespace + BBOX, params, Option.empty[BoundingBox])
-      )))
+        bindOr(namespace + BBOX, params, Option.empty[BoundingBox]),
+        bindOr(namespace + LATLNG, params, Option.empty[LatLng])
+      )
+      // NB: Sorting by location is invalid without a valid `latlng` parameter
+      val checked = if(rawParams.sort.contains(SearchSort.Location) && rawParams.latLng.isEmpty)
+        rawParams.copy(sort = None)
+      else rawParams
+
+      Some(Right(checked))
     }
 
     override def unbind(key: String, params: SearchParams): String =
@@ -266,10 +282,11 @@ package object binders {
         p.sort.map(s => ns + SORT -> s.toString).toSeq ++
         p.entities.map(e => ns + ENTITY -> e.toString) ++
         p.fields.map(f => ns + FIELD -> f.toString) ++
-        p.facets.map(f => ns + FACET -> f.toString) ++
+        p.facets.map(f => ns + FACET -> f) ++
         p.excludes.map(e => ns + EXCLUDE -> e) ++
         p.filters.map(f => ns + FILTERS -> f) ++
-        p.bbox.map { box => ns + BBOX -> box.toString}.toSeq
+        p.bbox.map { box => ns + BBOX -> box.toString}.toSeq ++
+        p.latLng.map { latLng => ns + LATLNG -> latLng.toString}.toSeq
     }
   }
 }

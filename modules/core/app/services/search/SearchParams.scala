@@ -76,11 +76,38 @@ object BoundingBox {
         case _ => Left(err)
       }
     } catch {
-      case e: Throwable => Left(err)
+      case _: Throwable => Left(err)
     }
   }
 
   implicit val writes: Writes[BoundingBox] = Json.writes[BoundingBox]
+}
+
+case class LatLng(
+  lat: BigDecimal,
+  lon: BigDecimal
+) {
+  def isValid: Boolean = lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+
+  override def toString: String = s"$lat,$lon"
+}
+
+object LatLng {
+  def fromString(s: String): Either[String, LatLng] = {
+    val err = s"Invalid point format '$s', should be lat,lon"
+    try {
+      s.split(",").toList.map(BigDecimal.exact) match {
+        case l1 :: l2 :: Nil =>
+          val point = LatLng(l1, l2)
+          if (point.isValid) Right(point) else Left(err)
+        case _ => Left(err)
+      }
+    } catch {
+      case _: Throwable => Left(err)
+    }
+  }
+
+  implicit val writes: Writes[LatLng] = Json.writes[LatLng]
 }
 
 /**
@@ -94,7 +121,8 @@ case class SearchParams(
   facets: Seq[String] = Nil,
   excludes: Seq[String] = Nil,
   filters: Seq[String] = Nil,
-  bbox: Option[BoundingBox] = None
+  bbox: Option[BoundingBox] = None,
+  latLng: Option[LatLng] = None
 ) {
   /**
     * Is there an active constraint on these params?
@@ -111,6 +139,7 @@ object SearchParams {
   val EXCLUDE = "ex"
   val FILTERS = "f"
   val BBOX = "bbox"
+  val LATLNG = "latlng"
 
   def empty: SearchParams = SearchParams()
 
