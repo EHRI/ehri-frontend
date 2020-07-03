@@ -25,10 +25,11 @@
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @helper.javascriptRouter("oaipmhRoutes")(
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhListFiles,
+            controllers.institutions.routes.javascript.RepositoryData.listFiles,
+            controllers.institutions.routes.javascript.RepositoryData.fileUrls,
+            controllers.institutions.routes.javascript.RepositoryData.validateFiles,
             controllers.institutions.routes.javascript.RepositoryData.oaipmhHarvest,
             controllers.institutions.routes.javascript.RepositoryData.oaipmhCancelHarvest,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhFileUrls,
             controllers.institutions.routes.javascript.RepositoryData.oaipmhGetConfig,
             controllers.institutions.routes.javascript.RepositoryData.oaipmhSaveConfig,
             controllers.institutions.routes.javascript.RepositoryData.oaipmhDeleteConfig,
@@ -38,7 +39,8 @@
         <script>
                 window.SERVICE = oaipmhRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
-                    repositoryId: "@item.id"
+                    repositoryId: "@item.id",
+                    stage: "@defines.FileStage.OaiPmh",
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";

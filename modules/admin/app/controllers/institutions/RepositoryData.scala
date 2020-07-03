@@ -15,6 +15,7 @@ import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
+import defines.FileStage
 import javax.inject._
 import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, Repository}
@@ -79,14 +80,14 @@ case class RepositoryData @Inject()(
   private def instance(implicit request: RequestHeader): String =
     URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
 
-  private def prefix(id: String)(implicit request: RequestHeader): String = s"$instance/ingest/$id/"
+  private def prefix(id: String, stage: FileStage.Value)(implicit request: RequestHeader): String = s"$instance/$stage/$id/"
 
   def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.datamanager(request.item))
   }
 
-  def validateFiles(id: String): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
-    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id)}$key").toString)
+  def validateFiles(id: String, stage: FileStage.Value): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
+    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id, stage)}$key").toString)
     val results: Seq[Future[(String, Seq[XmlValidationError])]] = urls.map { case (key, url) =>
       eadValidator.validateEad(Uri(url)).map(errs => key -> errs)
     }
@@ -97,50 +98,50 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def listFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def listFiles(id: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
-      prefix = Some(prefix(id) + path.getOrElse("")),
-      from.map(key => s"${prefix(id)}$key"), max = 20).map { list =>
-      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id), ""))))))
+      prefix = Some(prefix(id, stage) + path.getOrElse("")),
+      from.map(key => s"${prefix(id, stage)}$key"), max = 20).map { list =>
+      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, stage), ""))))))
     }
   }
 
-  def fileUrls(id: String): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id)}$path")
-    val result = keys.map(key => key.replace(prefix(id), "") -> storage.uri(bucket, key)).toMap
+  def fileUrls(id: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id, stage)}$path")
+    val result = keys.map(key => key.replace(prefix(id, stage), "") -> storage.uri(bucket, key)).toMap
     Ok(Json.toJson(result))
   }
 
-  def ingestAll(id: String): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
-    storage.streamFiles(bucket, Some(prefix(id))).map(_.key.replace(prefix(id), ""))
+  def ingestAll(id: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+    storage.streamFiles(bucket, Some(prefix(id, stage))).map(_.key.replace(prefix(id, stage), ""))
       .runWith(Sink.seq).flatMap { seq =>
-      ingestFiles(id).apply(request.withBody(request.body.copy(files = seq)))
+      ingestFiles(id, stage).apply(request.withBody(request.body.copy(files = seq)))
     }
   }
 
-  private def streamToStorage(id: String, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
+  private def streamToStorage(id: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
     Accumulator.source[ByteString]
-      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id)}$fileName", src, r.contentType))
+      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id, stage)}$fileName", src, r.contentType))
       .map(f => Source.single(ByteString(Json.prettyPrint(Json.obj("url" -> f.toString)))))
       .map(Right.apply)
   }
 
-  def uploadStream(id: String, fileName: String): Action[Source[ByteString, _]] =
-    EditAction(id).apply(streamToStorage(id, fileName)) { implicit request =>
+  def uploadStream(id: String, stage: FileStage.Value, fileName: String): Action[Source[ByteString, _]] =
+    EditAction(id).apply(streamToStorage(id, stage, fileName)) { implicit request =>
       // Upload via the server. Normally you'd PUT direct from the client
       // to the storage, but this is useful for testing
       Ok.chunked(request.body).as(ContentTypes.JSON)
     }
 
-  def download(id: String, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
-    storage.get(bucket, s"${prefix(id)}$fileName").map {
+  def download(id: String, stage: FileStage.Value, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
+    storage.get(bucket, s"${prefix(id, stage)}$fileName").map {
       case Some((meta, bytes)) => Ok.chunked(bytes).as(meta.contentType.getOrElse(ContentTypes.BINARY))
       case _ => NotFound
     }
   }
 
-  def ingestFiles(id: String): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
-    val keys = request.body.files.map(path => s"${prefix(id)}$path")
+  def ingestFiles(id: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
+    val keys = request.body.files.map(path => s"${prefix(id, stage)}$path")
     val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
 
     // Tag this task with a unique ID...
@@ -175,20 +176,20 @@ case class RepositoryData @Inject()(
     ))
   }
 
-  def uploadHandle(id: String): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
-    val path = s"${prefix(id)}${request.body.name}"
+  def uploadHandle(id: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
+    val path = s"${prefix(id, stage)}${request.body.name}"
     val url = storage.uri(bucket, path, contentType = Some(request.body.`type`))
     Ok(Json.obj("presignedUrl" -> url))
   }
 
-  def deleteFiles(id: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id)}$path")
+  def deleteFiles(id: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id, stage)}$path")
     storage.deleteFiles(bucket, keys: _*).map { deleted =>
-      Ok(Json.toJson(deleted.map(_.replace(prefix(id), ""))))
+      Ok(Json.toJson(deleted.map(_.replace(prefix(id, stage), ""))))
     }
   }
 
-  def deleteAll(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def deleteAll(id: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
     def deleteBatch(batch: Seq[FileMeta]): Future[Boolean] = {
       storage
         .deleteFiles(bucket, batch.map(_.key): _*)
@@ -196,7 +197,7 @@ case class RepositoryData @Inject()(
     }
 
     val r: Future[Boolean] = storage
-      .streamFiles(bucket, Some(prefix(id)))
+      .streamFiles(bucket, Some(prefix(id, stage)))
       .grouped(200)
       .mapAsync(2)(deleteBatch)
       .runWith(Sink.seq)
@@ -226,24 +227,9 @@ case class RepositoryData @Inject()(
     }
   }
 
-  private def oaiPrefix(id: String)(implicit request: RequestHeader): String = s"$instance/oaipmh/$id/"
 
   def oaipmhManager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.oaipmh(request.item))
-  }
-
-  def oaipmhListFiles(id: String, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket,
-      prefix = Some(oaiPrefix(id) + path.getOrElse("")),
-      from.map(key => s"${oaiPrefix(id)}$key"), max = 20).map { list =>
-      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(oaiPrefix(id), ""))))))
-    }
-  }
-
-  def oaipmhFileUrls(id: String): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${oaiPrefix(id)}$path")
-    val result = keys.map(key => key.replace(oaiPrefix(id), "") -> storage.uri(bucket, key)).toMap
-    Ok(Json.toJson(result))
   }
 
   def oaipmhHarvest(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
@@ -258,7 +244,7 @@ case class RepositoryData @Inject()(
     lastHarvest.map { last =>
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
-      val data = OaiPmhHarvestData(endpoint, bucket, prefix = oaiPrefix(id), from = last)
+      val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, FileStage.OaiPmh), from = last)
       val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
       mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
 
