@@ -2,6 +2,7 @@ package integration.admin
 
 import akka.util.ByteString
 import controllers.institutions.FileToUpload
+import defines.FileStage
 import helpers._
 import models._
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
@@ -32,7 +33,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
   private def putFile()(implicit app: play.api.Application): Future[Result] = {
-    FakeRequest(repoDataRoutes.uploadStream("r1", testFileName))
+    FakeRequest(repoDataRoutes.uploadStream("r1", FileStage.Ingest, testFileName))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"
@@ -44,7 +45,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
   "Repository Data API" should {
 
     "provide PUT urls" in new ITestApp {
-      val r = FakeRequest(repoDataRoutes.uploadHandle("r1")).withUser(privilegedUser).callWith(
+      val r = FakeRequest(repoDataRoutes.uploadHandle("r1", FileStage.Ingest)).withUser(privilegedUser).callWith(
         Json.toJson(FileToUpload(
           name = testFileName,
           `type` = ContentTypes.XML,
@@ -61,7 +62,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
 
     "fetch data" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.download("r1", testFileName))
+      val r = FakeRequest(repoDataRoutes.download("r1", FileStage.Ingest, testFileName))
         .withUser(privilegedUser)
         .call()
 
@@ -71,7 +72,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
 
     "list files" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.listFiles("r1"))
+      val r = FakeRequest(repoDataRoutes.listFiles("r1", FileStage.Ingest))
         .withUser(privilegedUser)
         .call()
 
@@ -82,7 +83,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
 
     "delete files" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.deleteFiles("r1"))
+      val r = FakeRequest(repoDataRoutes.deleteFiles("r1", FileStage.Ingest))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
         ))
@@ -93,7 +94,7 @@ class RepositoryDataSpec extends IntegrationTestRunner {
     }
 
     "validate files" in new ITestApp {
-      val r = FakeRequest(repoDataRoutes.validateFiles("r1"))
+      val r = FakeRequest(repoDataRoutes.validateFiles("r1", FileStage.Ingest))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
         ))
