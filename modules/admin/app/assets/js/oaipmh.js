@@ -49,7 +49,15 @@ let DAO = {
   },
 
   listFiles: function (prefix, after) {
-    return this.call(SERVICE.oaipmhListFiles(CONFIG.repositoryId, prefix, after));
+    return this.call(SERVICE.listFiles(CONFIG.repositoryId, CONFIG.stage, prefix, after));
+  },
+
+  validateFiles: function (paths) {
+    return this.call(SERVICE.validateFiles(CONFIG.repositoryId, CONFIG.stage), paths);
+  },
+
+  fileUrls: function (paths) {
+    return this.call(SERVICE.fileUrls(CONFIG.repositoryId, CONFIG.stage), paths);
   },
 
   harvest: function (config) {
@@ -58,14 +66,6 @@ let DAO = {
 
   cancelHarvest: function(jobId) {
     return this.call(SERVICE.oaipmhCancelHarvest(CONFIG.repositoryId, jobId));
-  },
-
-  validateFiles: function (paths) {
-    return this.call(SERVICE.validateFiles(CONFIG.repositoryId), paths);
-  },
-
-  fileUrls: function (paths) {
-    return this.call(SERVICE.oaipmhFileUrls(CONFIG.repositoryId), paths);
   },
 
   getConfig: function () {
