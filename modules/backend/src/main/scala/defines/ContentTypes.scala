@@ -4,7 +4,7 @@ import eu.ehri.project.definitions.Entities
 import play.api.libs.json.Format
 import utils.EnumUtils
 
-object ContentTypes extends Enumeration() {
+object ContentTypes extends Enumeration {
   type Type = Value
   val DocumentaryUnit = Value(Entities.DOCUMENTARY_UNIT)
   val Repository = Value(Entities.REPOSITORY)

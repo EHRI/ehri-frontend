@@ -38,7 +38,8 @@
         <script>
                 window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
-                    repositoryId: "@item.id"
+                    repositoryId: "@item.id",
+                    stage: "@defines.FileStage.Ingest",
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";

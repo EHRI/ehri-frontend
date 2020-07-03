@@ -62,7 +62,7 @@ let DAO = {
   },
 
   listFiles: function (prefix, after) {
-    return this.call(SERVICE.listFiles(CONFIG.repositoryId, prefix, after));
+    return this.call(SERVICE.listFiles(CONFIG.repositoryId, CONFIG.stage, prefix, after));
   },
 
   ingestFiles: function (paths, tolerant, commit, logMessage) {
@@ -72,11 +72,11 @@ let DAO = {
       commit: commit,
       files: paths
     };
-    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId), data);
+    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId, CONFIG.stage), data);
   },
 
   ingestAll: function (tolerant, commit, logMessage) {
-    return this.call(SERVICE.ingestAll(CONFIG.repositoryId), {
+    return this.call(SERVICE.ingestAll(CONFIG.repositoryId, CONFIG.stage), {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
@@ -85,23 +85,23 @@ let DAO = {
   },
 
   deleteFiles: function (paths) {
-    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId), paths);
+    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId, CONFIG.stage), paths);
   },
 
   deleteAll: function () {
-    return this.call(SERVICE.deleteAll(CONFIG.repositoryId)).then(data => data.ok || false);
+    return this.call(SERVICE.deleteAll(CONFIG.repositoryId, CONFIG.stage)).then(data => data.ok || false);
   },
 
   validateFiles: function (paths) {
-    return this.call(SERVICE.validateFiles(CONFIG.repositoryId), paths);
+    return this.call(SERVICE.validateFiles(CONFIG.repositoryId, CONFIG.stage), paths);
   },
 
   fileUrls: function (paths) {
-    return this.call(SERVICE.fileUrls(CONFIG.repositoryId), paths);
+    return this.call(SERVICE.fileUrls(CONFIG.repositoryId, CONFIG.stage), paths);
   },
 
   uploadHandle: function (fileSpec) {
-    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId), fileSpec);
+    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId, CONFIG.stage), fileSpec);
   },
 
   uploadFile: function (url, file, progressHandler) {
