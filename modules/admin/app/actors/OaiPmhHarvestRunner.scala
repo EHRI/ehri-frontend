@@ -80,7 +80,8 @@ case class OaiPmhHarvestRunner (job: OaiPmhHarvestJob, client: OaiPmhClient, sto
         meta = Map(
           "source" -> "oaipmh",
           "oaipmh-endpoint" -> job.data.config.url,
-          "oaipmh-set" -> job.data.config.set.getOrElse("")
+          "oaipmh-set" -> job.data.config.set.getOrElse(""),
+          "oaipmh-job-id" -> job.jobId
         )
       ).map { _ =>
         msgTo ! DoneFile(id)
