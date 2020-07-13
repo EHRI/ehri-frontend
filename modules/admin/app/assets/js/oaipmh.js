@@ -103,7 +103,7 @@ Vue.component("preview", {
   methods: {
     validate: function () {
       let self = this;
-      if (true || self.previewing === null) {
+      if (self.previewing === null) {
         return;
       }
 
@@ -513,8 +513,7 @@ Vue.component("oaipmh-config-modal", {
   `
 })
 
-let app = new Vue({
-  el: '#oaipmh-manager',
+Vue.component("oaipmh-manager", {
   data: function () {
     return {
       loaded: false,
@@ -594,7 +593,7 @@ let app = new Vue({
       let self = this;
       this.tab = 'harvest';
       let websocket = new WebSocket(url);
-      websocket.onopen = function(e) {
+      websocket.onopen = function() {
         window.location.hash = "#jobId:" + jobId;
         console.debug("Connected to", url);
       };
@@ -664,7 +663,7 @@ let app = new Vue({
     }
   },
   template: `
-    <div id="data-manager-container"
+    <div id="oaipmh-manager-container"
          v-on:dragover.prevent.stop="dragOver"
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
@@ -753,8 +752,8 @@ let app = new Vue({
             </li>
             <li>
               <drag-handle
-                v-bind:p2="$el.querySelector('#panel-2')"
-                v-bind:container="$el.querySelector('#panel-container')"
+                v-bind:p2="$root.$el.querySelector('#panel-2')"
+                v-bind:container="$root.$el.querySelector('#panel-container')"
                 v-on:resize="setPanelSize"
               />
             </li>
@@ -788,3 +787,19 @@ let app = new Vue({
     </div>
   `
 });
+
+let app = new Vue({
+  el: '#oaipmh-manager',
+  data: function() {
+    return {
+
+    }
+  },
+  template: `
+    <div id="data-manager-container">
+        <oaipmh-manager/>
+    </div>
+  `
+});
+
+

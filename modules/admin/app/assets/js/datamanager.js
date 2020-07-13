@@ -61,22 +61,22 @@ let DAO = {
     }).then(r => r.data);
   },
 
-  listFiles: function (prefix, after) {
-    return this.call(SERVICE.listFiles(CONFIG.repositoryId, CONFIG.stage, prefix, after));
+  listFiles: function (stage, prefix, after) {
+    return this.call(SERVICE.listFiles(CONFIG.repositoryId, stage, prefix, after));
   },
 
-  ingestFiles: function (paths, tolerant, commit, logMessage) {
+  ingestFiles: function (stage, paths, tolerant, commit, logMessage) {
     let data = {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
       files: paths
     };
-    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId, CONFIG.stage), data);
+    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId, stage), data);
   },
 
-  ingestAll: function (tolerant, commit, logMessage) {
-    return this.call(SERVICE.ingestAll(CONFIG.repositoryId, CONFIG.stage), {
+  ingestAll: function (stage, tolerant, commit, logMessage) {
+    return this.call(SERVICE.ingestAll(CONFIG.repositoryId, stage), {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
@@ -84,24 +84,24 @@ let DAO = {
     });
   },
 
-  deleteFiles: function (paths) {
-    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId, CONFIG.stage), paths);
+  deleteFiles: function (stage, paths) {
+    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId, stage), paths);
   },
 
-  deleteAll: function () {
-    return this.call(SERVICE.deleteAll(CONFIG.repositoryId, CONFIG.stage)).then(data => data.ok || false);
+  deleteAll: function (stage) {
+    return this.call(SERVICE.deleteAll(CONFIG.repositoryId, stage)).then(data => data.ok || false);
   },
 
-  validateFiles: function (paths) {
-    return this.call(SERVICE.validateFiles(CONFIG.repositoryId, CONFIG.stage), paths);
+  validateFiles: function (stage, paths) {
+    return this.call(SERVICE.validateFiles(CONFIG.repositoryId, stage), paths);
   },
 
-  fileUrls: function (paths) {
-    return this.call(SERVICE.fileUrls(CONFIG.repositoryId, CONFIG.stage), paths);
+  fileUrls: function (stage, paths) {
+    return this.call(SERVICE.fileUrls(CONFIG.repositoryId, stage), paths);
   },
 
-  uploadHandle: function (fileSpec) {
-    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId, CONFIG.stage), fileSpec);
+  uploadHandle: function (stage, fileSpec) {
+    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId, stage), fileSpec);
   },
 
   uploadFile: function (url, file, progressHandler) {
@@ -129,11 +129,36 @@ let DAO = {
           throw e;
         }
       });
-  }
+  },
+
+  harvest: function (config) {
+    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), config);
+  },
+
+  cancelHarvest: function(jobId) {
+    return this.call(SERVICE.oaipmhCancelHarvest(CONFIG.repositoryId, jobId));
+  },
+
+  getConfig: function () {
+    return this.call(SERVICE.oaipmhGetConfig(CONFIG.repositoryId));
+  },
+
+  saveConfig: function (config) {
+    return this.call(SERVICE.oaipmhSaveConfig(CONFIG.repositoryId), config);
+  },
+
+  deleteConfig: function () {
+    return this.call(SERVICE.oaipmhDeleteConfig(CONFIG.repositoryId));
+  },
+
+  testConfig: function (config) {
+    return this.call(SERVICE.oaipmhTestConfig(CONFIG.repositoryId), config);
+  },
 };
 
 Vue.component("preview", {
   props: {
+    fileStage: String,
     panelSize: Number,
     previewing: String,
     errors: null,
@@ -155,7 +180,7 @@ Vue.component("preview", {
       }
 
       self.validating = true;
-      DAO.validateFiles([self.previewing]).then(errs => {
+      DAO.validateFiles(this.fileStage, [self.previewing]).then(errs => {
         this.$set(this.errors, self.previewing, errs[self.previewing]);
         this.updateErrors();
         this.validating = false;
@@ -205,7 +230,7 @@ Vue.component("preview", {
       }
 
       self.loading = true;
-      DAO.fileUrls([self.previewing]).then(data => {
+      DAO.fileUrls(self.fileStage, [self.previewing]).then(data => {
         let init = true;
 
         fetch(data[self.previewing]).then(r => {
@@ -312,6 +337,7 @@ Vue.component("upload-progress", {
 
 Vue.component("files-table", {
   props: {
+    fileStage: String,
     dropping: Boolean,
     loaded: Boolean,
     previewing: String,
@@ -334,7 +360,7 @@ Vue.component("files-table", {
       this.loadingMore = true;
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key : null;
-      return DAO.listFiles("", from).then(data => {
+      return DAO.listFiles(this.fileStage, from).then(data => {
         this.files.push.apply(this.files, data.files);
         this.$emit("files-loaded", data.truncated);
         this.loadingMore = false;
@@ -539,6 +565,9 @@ Vue.component("options-panel", {
 });
 
 Vue.component("upload-manager", {
+  props: {
+    fileStage: String,
+  },
   data: function () {
     return {
       loaded: false,
@@ -582,7 +611,7 @@ Vue.component("upload-manager", {
       return _.debounce(func, 300)();
     },
     refresh: function () {
-      return DAO.listFiles(this.filter).then(data => {
+      return DAO.listFiles(this.fileStage, this.filter).then(data => {
         this.files = data.files;
         this.truncated = data.truncated;
         this.loaded = true;
@@ -596,7 +625,7 @@ Vue.component("upload-manager", {
         this.previewing = null;
       }
       keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(keys).then(deleted => {
+      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
         deleted.forEach(key => {
           this.$delete(this.deleting, key);
           this.$delete(this.selected, key);
@@ -607,7 +636,7 @@ Vue.component("upload-manager", {
     deleteAll: function () {
       this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll().then(r => {
+      return DAO.deleteAll(this.fileStage).then(r => {
         this.refresh();
         this.deleting = {};
         r;
@@ -646,7 +675,7 @@ Vue.component("upload-manager", {
 
       let self = this;
 
-      return DAO.uploadHandle({
+      return DAO.uploadHandle(this.fileStage, {
         name: file.name,
         type: file.type,
         size: file.size
@@ -706,7 +735,7 @@ Vue.component("upload-manager", {
     validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
       keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(keys).then(errs => {
+      DAO.validateFiles(this.fileStage, keys).then(errs => {
         this.tab = 'validation';
         keys.forEach(key => {
           this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
@@ -743,7 +772,7 @@ Vue.component("upload-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
+      DAO.ingestFiles(this.fileStage, keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
         .then(data => {
           if (data.url && data.jobId) {
             self.monitorIngest(data.url, keys);
@@ -766,7 +795,7 @@ Vue.component("upload-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll(self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
+      DAO.ingestAll(this.fileStage, self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
         if (data.url && data.jobId) {
           self.monitorIngest(data.url, keys);
         } else {
@@ -927,7 +956,8 @@ Vue.component("upload-manager", {
 
           <div id="status-panels">
             <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
-              <preview v-bind:previewing="previewing"
+              <preview v-bind:fileStage="fileStage"
+                       v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panelSize="panelSize"
                        v-show="previewing !== null"/>
@@ -959,17 +989,417 @@ Vue.component("upload-manager", {
   `
 });
 
+Vue.component("oaipmh-config-modal", {
+  props: {
+    show: Boolean,
+    config: Object
+  },
+  data: function() {
+    return {
+      url: this.config ? this.config.url : null,
+      format: this.config ? this.config.format : null,
+      set: this.config ? this.config.set : null,
+      tested: null,
+      error: null
+    }
+  },
+  methods: {
+    save: function() {
+      DAO.saveConfig({url: this.url, format: this.format, set: this.set})
+        .then(data => this.$emit("saved-config", data));
+    },
+    testEndpoint: function() {
+      DAO.testConfig({url: this.url, format: this.format, set: this.set})
+        .then( r => {
+          this.tested = !!r.name;
+          this.error = null;
+        })
+        .catch(e => {
+          this.tested = false;
+          let err = e.response.data;
+          if (err.error) {
+            this.error = err.error;
+          }
+        });
+    }
+  },
+  computed: {
+    isValidConfig: function() {
+      return this.url
+        && this.url.trim() !== ""
+        && this.format
+        && this.format.trim() !== "";
+    },
+    hasConfigChanged: function() {
+      return !this.config || !(
+        this.config.url === this.url
+        && this.config.format === this.format
+        && this.config.set === this.set);
+    },
+  },
+  watch: {
+    config: function(newValue) {
+      this.url = newValue ? newValue.url : null;
+      this.format = newValue ? newValue.format : null;
+      this.set = newValue ? newValue.set : null;
+    }
+  },
+  template: `
+    <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="show"
+         style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">OAI-PMH Endpoint Configuration</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="options-form">
+              <div class="form-group">
+                <label class="form-label" for="opt-endpoint-url">
+                  OAI-PMH endpoint URL
+                </label>
+                <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-format">
+                  OAI-PMH metadata format
+                </label>
+                <input class="form-control" id="opt-format" type="text" v-model.trim="format"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-set">
+                  OAI-PMH set
+                </label>
+                <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
+              </div>
+              <div id="endpoint-errors">
+                <span v-if="tested === null">&nbsp;</span>
+                <span v-else-if="error" class="text-danger">{{error}}</span>
+                <span v-else class="text-success">No errors detected</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-on:click="testEndpoint" type="button" class="btn btn-default">
+              <i v-if="tested === null" class="fa fa-fw fa-question"/>
+              <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
+              <i v-else class="fa fa-fw fa-close text-danger"/>
+              Test
+            </button>
+            <button v-bind:disabled="!isValidConfig || !hasConfigChanged"
+                    v-on:click="save" type="button" class="btn btn-secondary">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+
+Vue.component("oaipmh-manager", {
+  props: {
+    fileStage: String,
+  },
+  data: function () {
+    return {
+      loaded: false,
+      harvestJobId: null,
+      truncated: false,
+      filter: "",
+      filtering: false,
+      files: [],
+      deleting: {},
+      selected: {},
+      log: [],
+      ingesting: {},
+      validating: {},
+      validationResults: {},
+      tab: 'preview',
+      previewing: null,
+      panelSize: null,
+      showOptions: false,
+      harvestConfig: null,
+    }
+  },
+  methods: {
+    clearFilter: function () {
+      this.filter = "";
+      return this.refresh();
+    },
+    filterFiles: function () {
+      let func = () => {
+        this.filtering = true;
+        return this.refresh().then(r => {
+          this.filtering = false;
+          return r;
+        });
+      };
+      return _.debounce(func, 300)();
+    },
+    refresh: _.debounce(function () {
+      return DAO.listFiles(this.fileStage, this.filter).then(data => {
+        this.files = data.files;
+        this.truncated = data.truncated;
+        this.loaded = true;
+      });
+    }, 500),
+    filesLoaded: function (truncated) {
+      this.truncated = truncated;
+    },
+    showPreview: function (key) {
+      this.previewing = key;
+      this.tab = 'preview';
+    },
+    validateFiles: function (keys) {
+      keys.forEach(key => this.$set(this.validating, key, true));
+      keys.forEach(key => this.$delete(this.validationResults, key));
+      DAO.validateFiles(this.fileStage, keys).then(errs => {
+        this.tab = 'validation';
+        keys.forEach(key => {
+          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
+          this.$delete(this.validating, key);
+        });
+      });
+    },
+    harvest: function() {
+      DAO.harvest(this.harvestConfig)
+        .then(data => {
+          this.harvestJobId = data.jobId;
+          this.monitorHarvest(data.url, data.jobId);
+        });
+    },
+    cancelHarvest: function() {
+      if (this.harvestJobId) {
+        DAO.cancelHarvest(this.harvestJobId).then(r => {
+          if (r.ok) {
+            this.harvestJobId = null;
+          }
+        });
+      }
+    },
+    monitorHarvest: function (url, jobId) {
+      let self = this;
+      this.tab = 'harvest';
+      let websocket = new WebSocket(url);
+      websocket.onopen = function() {
+        window.location.hash = "#jobId:" + jobId;
+        console.debug("Connected to", url);
+      };
+      websocket.onerror = function (e) {
+        self.log.push("ERROR: a websocket communication error occurred");
+        console.error("Socket error!", e);
+      };
+      websocket.onmessage = function (e) {
+        let msg = JSON.parse(e.data);
+        self.log.push(msg.trim());
+        self.refresh()
+        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+          websocket.close();
+        }
+      };
+      websocket.onclose = function() {
+        self.harvestJobId = null;
+        history.pushState("", document.title, window.location.pathname
+          + window.location.search);
+        console.debug("Socket closed")
+      }
+    },
+    resumeMonitor: function() {
+      let hash = window.location.hash;
+      if (hash) {
+        let parts = hash.split(":");
+        if (parts.length === 2 && parts[0] === "#jobId") {
+          this.harvestJobId = parts[1];
+          this.monitorHarvest("ws://localhost:9000/admin/tasks/monitor?jobId=" + parts[1], parts[1]);
+        }
+      }
+    },
+    setPanelSize: function (arbitrarySize) {
+      this.panelSize = arbitrarySize;
+    },
+    savedConfig: function(config) {
+      this.harvestConfig = config;
+    },
+    loadConfig: function() {
+      DAO.getConfig()
+        .then(data => this.harvestConfig = data);
+    },
+  },
+  created: function () {
+    this.refresh();
+    this.loadConfig();
+    this.resumeMonitor();
+  },
+  computed: {
+    selectedKeys: function () {
+      return Object.keys(this.selected);
+    },
+    validationLog: function () {
+      let log = [];
+      this.files.forEach(file => {
+        let key = file.key;
+        let errs = this.validationResults[key];
+        if (errs) {
+          let cls = errs.length === 0 ? "text-success" : "text-danger";
+          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
+          errs.forEach(err => {
+            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
+          });
+        }
+      });
+      return log;
+    }
+  },
+  template: `
+    <div id="oaipmh-manager-container"
+         v-on:dragover.prevent.stop="dragOver"
+         v-on:dragleave.prevent.stop="dragLeave"
+         v-on:drop.prevent.stop="uploadFiles">
+
+      <div id="actions-bar">
+        <div id="filter-control">
+          <label for="filter-input" class="sr-only">Filter files</label>
+          <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter"
+                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
+          <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+          <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw"
+             v-else-if="filter"/>
+        </div>
+
+        <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
+                v-on:click.prevent="harvest">
+          <i class="fa fa-fw fa-cloud-download"/>
+          Harvest Files
+        </button>
+        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
+          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          Cancel Harvest
+        </button>
+
+        <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)">
+          <i class="fa fa-flag-o"/>
+          Validate Selected ({{selectedKeys.length}})
+        </button>
+        <button v-else v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))">
+          <i class="fa fa-flag-o"/>
+          Validate All
+        </button>
+
+        <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+          <i class="fa fa-gear"/>
+          Configuration
+        </button>
+        
+        <oaipmh-config-modal 
+          v-bind:config="harvestConfig"
+          v-bind:show="showOptions"
+          v-on:saved-config="savedConfig"
+          v-on:close="showOptions = false"/>
+      </div>
+
+      <div id="panel-container">
+        <div id="panel-1">
+          <files-table
+            v-bind:loaded="loaded"
+            v-bind:files="files"
+            v-bind:selected="selected"
+            v-bind:previewing="previewing"
+            v-bind:validating="validating"
+            v-bind:validationResults="validationResults"
+            v-bind:truncated="truncated"
+            v-bind:deleting="deleting"
+            v-bind:ingesting="ingesting"
+            v-bind:filter="filter"
+
+            v-on:delete-files="alert('TODO')"
+            v-on:ingest-files="alert('TODO')"
+            v-on:validate-files="validateFiles"
+            v-on:files-loaded="filesLoaded"
+            v-on:show-preview="showPreview"
+          />
+        </div>
+
+        <div id="panel-2">
+          <ul id="status-panel-tabs" class="nav nav-tabs">
+            <li class="nav-item">
+              <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+                 v-on:click.prevent="tab = 'preview'">
+                File Preview
+                <template v-if="previewing"> - {{previewing}}</template>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+                 v-on:click.prevent="tab = 'validation'">
+                Validation Log
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-harvest-log" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
+                 v-on:click.prevent="tab = 'harvest'">
+                Harvest Log
+              </a>
+            </li>
+            <li>
+              <drag-handle
+                v-bind:p2="$root.$el.querySelector('#panel-2')"
+                v-bind:container="$root.$el.querySelector('#panel-container')"
+                v-on:resize="setPanelSize"
+              />
+            </li>
+          </ul>
+
+          <div id="status-panels">
+            <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
+              <preview v-bind:fileStage="fileStage" 
+                       v-bind:previewing="previewing"
+                       v-bind:errors="validationResults"
+                       v-bind:panelSize="panelSize"
+                       v-show="previewing !== null"/>
+              <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
+                No file selected.
+              </div>
+            </div>
+            <div class="status-panel log-container" id="tab-validation-log" v-show="tab === 'validation'">
+              <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
+              <div id="validation-placeholder" class="panel-placeholder" v-else>
+                Validation log output will show here.
+              </div>
+            </div>
+            <div class="status-panel log-container" id="tab-harvest-log" v-show="tab === 'harvest'">
+              <log-window v-bind:log="log" v-if="log.length > 0"/>
+              <div id="harvest-placeholder" class="panel-placeholder" v-else>
+                Harvest log output will show here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
 let app = new Vue({
   el: '#data-manager',
   data: function() {
     return {
-
+      tab: 'upload-manager',
+      stage: 'ingest'
     }
   },
   template: `
     <div id="data-manager-container">
-        <upload-manager/>
-    </div>
+      <button v-on:click="tab='upload-manager'; stage='ingest'">Ingest</button>
+      <button v-on:click="tab='oaipmh-manager'; stage='oaipmh'">OAI-PMH</button>
+      <component v-bind:is="tab" v-bind:fileStage="stage"/>
+    </div>  
   `
 });
 
