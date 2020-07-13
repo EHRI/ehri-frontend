@@ -33,13 +33,20 @@
             controllers.institutions.routes.javascript.RepositoryData.ingestAll,
             controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
             controllers.institutions.routes.javascript.RepositoryData.fileUrls,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhHarvest,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhCancelHarvest,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhGetConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhSaveConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhDeleteConfig,
+            controllers.institutions.routes.javascript.RepositoryData.oaipmhTestConfig,
         )
 
         <script>
                 window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
                     repositoryId: "@item.id",
-                    stage: "@defines.FileStage.Ingest",
+                    ingest: "@defines.FileStage.Ingest",
+                    oaipmh: "@defines.FileStage.OaiPmh",
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
@@ -64,7 +71,6 @@
       <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.js")"></script>
       <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/xml.js")"></script>
       <link rel="stylesheet" property="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.52.2/codemirror.css")">
-
       <script src="@controllers.admin.routes.AdminAssets.versioned("js/datamanager.js")"></script>
     </body>
 </html>
