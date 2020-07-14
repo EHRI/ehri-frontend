@@ -360,7 +360,7 @@ Vue.component("files-table", {
       this.loadingMore = true;
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key : null;
-      return DAO.listFiles(this.fileStage, from).then(data => {
+      return DAO.listFiles(this.fileStage, this.filter, from).then(data => {
         this.files.push.apply(this.files, data.files);
         this.$emit("files-loaded", data.truncated);
         this.loadingMore = false;
@@ -904,6 +904,7 @@ Vue.component("upload-manager", {
       <div id="panel-container">
         <div id="panel-1">
           <files-table
+            v-bind:fileStage="fileStage"
             v-bind:dropping="dropping"
             v-bind:loaded="loaded"
             v-bind:files="files"
@@ -1307,6 +1308,7 @@ Vue.component("oaipmh-manager", {
       <div id="panel-container">
         <div id="panel-1">
           <files-table
+            v-bind:fileStage="fileStage"
             v-bind:loaded="loaded"
             v-bind:files="files"
             v-bind:selected="selected"
@@ -1390,15 +1392,31 @@ let app = new Vue({
   el: '#data-manager',
   data: function() {
     return {
-      tab: 'upload-manager',
-      stage: 'ingest'
+      stage: 'upload'
     }
   },
   template: `
     <div id="data-manager-container">
-      <button v-on:click="tab='upload-manager'; stage='ingest'">Ingest</button>
-      <button v-on:click="tab='oaipmh-manager'; stage='oaipmh'">OAI-PMH</button>
-      <component v-bind:is="tab" v-bind:fileStage="stage"/>
+      <ul id="stage-tabs" class="nav nav-tabs">
+        <li class="nav-item">
+          <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': stage === 'oaipmh'}"
+             v-on:click.prevent="stage = 'oaipmh'">
+            OAI-PMH Harvesting
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab-upload" class="nav-link" v-bind:class="{'active': stage === 'upload'}"
+             v-on:click.prevent="stage = 'upload'">
+            Upload Files
+          </a>
+        </li>
+      </ul>
+      <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
+        <upload-manager v-bind:fileStage="'ingest'"/>
+      </div>
+      <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
+        <oaipmh-manager v-bind:fileStage="'oaipmh'"/>
+      </div>
     </div>  
   `
 });

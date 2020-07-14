@@ -35,6 +35,17 @@ body {
   flex: 1;
 }
 
+#stage-tabs {
+  font-size: $font-size-lg;
+  margin-bottom: $margin-sm;
+}
+
+.stage-tab {
+  flex: 1;
+  flex-direction: column;
+  display: flex;
+}
+
 #upload-manager-container,
 #oaipmh-manager-container
 {
