@@ -2,7 +2,10 @@
 logLevel := Level.Warn
 
 // The Typesafe repository 
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+
+// BaseX (for XML transformations)
+resolvers += "BaseX repository" at "https://files.basex.org/maven/"
 
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 

@@ -4,6 +4,7 @@ import akka.util.ByteString
 import controllers.institutions.FileToUpload
 import defines.FileStage
 import helpers._
+import models.DataTransformation.TransformationType
 import models._
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json
@@ -14,7 +15,7 @@ import services.storage.FileList
 import scala.concurrent.Future
 
 
-class RepositoryDataSpec extends IntegrationTestRunner {
+class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
@@ -26,7 +27,13 @@ class RepositoryDataSpec extends IntegrationTestRunner {
     groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
   )
 
-  private val testPayload = ByteString("<xml>Hello, world</xml>")
+  private val testPayload = ByteString(
+    """<ead>
+      |  <eadheader>
+      |    <eadid>test-id</eadid>
+      |  </eadheader>
+      |</ead>
+      |""".stripMargin)
   private val testPrefix = "https://ehri-assets.mystorage.com/localhost/ingest/r1/"
   private val testFileName = "test.xml"
 
@@ -105,6 +112,19 @@ class RepositoryDataSpec extends IntegrationTestRunner {
       // we can't access the mocked files via URI in the test
       // environment
       contentAsJson(r) must_== Json.obj("error" -> "ehri-assets.mystorage.com")
+    }
+
+    "convert files" in new ITestApp {
+      await(putFile())
+      val map = resourceAsString("simple-mapping.tsv")
+      val r = FakeRequest(repoDataRoutes.convertFile("r1", FileStage.Ingest, testFileName))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
+
+      println(contentAsString(r))
+      status(r) must_== OK
+      contentType(r) must beSome("text/xml")
+      contentAsString(r) must contain("test-id-EHRI")
     }
   }
 }
