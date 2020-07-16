@@ -1,9 +1,9 @@
-package actors
+package actors.harvesting
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-import actors.OaiPmhHarvester.OaiPmhHarvestJob
+import actors.harvesting.OaiPmhHarvester.OaiPmhHarvestJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{OaiPmhConfig, UserProfile}
@@ -42,7 +42,7 @@ object OaiPmhHarvester {
 case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
-  import actors.OaiPmhHarvestRunner._
+  import OaiPmhHarvestRunner._
   import akka.pattern.pipe
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {

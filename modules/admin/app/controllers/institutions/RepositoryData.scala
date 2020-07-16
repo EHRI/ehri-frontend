@@ -5,8 +5,11 @@ import java.net.URLEncoder
 import java.time.Instant
 import java.util.UUID
 
-import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.{IngestActor, OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.IngestActor
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.{OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.transformation.XmlConverter.{XmlConvertData, XmlConvertJob}
+import actors.transformation.{XmlConvertRunner, XmlConverter}
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -18,7 +21,7 @@ import controllers.generic._
 import defines.FileStage
 import javax.inject._
 import models.HarvestEvent.HarvestEventType
-import models.{OaiPmhConfig, Repository}
+import models.{ConvertConfig, ConvertSpec, DataTransformation, DataTransformationInfo, OaiPmhConfig, Repository, TransformationList}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
@@ -32,6 +35,7 @@ import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
+import services.transformation.{DataTransformationService, InvalidMappingError, XmlTransformationError, XmlTransformer}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -64,7 +68,9 @@ case class RepositoryData @Inject()(
   ingestApi: IngestApi,
   oaipmhClient: OaiPmhClient,
   oaipmhConfigs: OaiPmhConfigService,
-  harvestEvents: HarvestEventService
+  harvestEvents: HarvestEventService,
+  xmlTransformer: XmlTransformer,
+  dataTransformations: DataTransformationService
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -227,7 +233,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhHarvest(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def harvestOaiPmh(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
       if (fromLast) harvestEvents.get(id).map( events =>
         events
@@ -251,7 +257,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhCancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def cancelOaiPmhHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
@@ -262,30 +268,125 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhGetConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def getOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.get(id).map { opt =>
       Ok(Json.toJson(opt))
     }
   }
 
-  def oaipmhSaveConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def saveOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     oaipmhConfigs.save(id, request.body).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def oaipmhDeleteConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def deleteOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.delete(id).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def oaipmhTestConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def testOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val getIdentF = oaipmhClient.identify(request.body)
     val listIdentF = oaipmhClient.listIdentifiers(request.body)
     (for (ident <- getIdentF; _ <- listIdentF)
       yield Ok(Json.toJson(ident))).recover {
       case e: OaiPmhError => BadRequest(Json.obj("error" -> e.errorMessage))
+      case e => InternalServerError(Json.obj("error" -> e.getMessage))
+    }
+  }
+
+  def getConvertConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    dataTransformations.getConfig(id).map(dts => Ok(Json.toJson(dts)))
+  }
+
+  def saveConvertConfig(id: String): Action[Seq[Long]] = EditAction(id).async(parse.json[Seq[Long]]) { implicit request =>
+    dataTransformations.saveConfig(id, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
+  }
+
+  def listDataTransformations(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    dataTransformations.list()
+      .map(_.filter(dt => dt.repoId.isEmpty || dt.repoId.contains(id)))
+      .map(dts => Ok(Json.toJson(dts)))
+  }
+
+  def getDataTransformation(id: String, dtId: Long): Action[AnyContent] = EditAction(id).async { implicit request =>
+    dataTransformations.get(dtId).map(dt => Ok(Json.toJson(dt)))
+  }
+
+  def createDataTransformation(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
+    dataTransformations.create(request.body, if(generic) None else Some(id)).map { dt =>
+      Ok(Json.toJson(dt))
+    }
+  }
+
+  def updateDataTransformation(id: String, dtId: Long, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
+    dataTransformations.update(dtId, request.body, if(generic) None else Some(id)).map { dt =>
+      Ok(Json.toJson(dt))
+    }
+  }
+
+  def deleteDataTransformation(id: String, dtId: Long): Action[AnyContent] = EditAction(id).async { implicit request =>
+    dataTransformations.delete(dtId).map( ok => Ok(Json.toJson(ok)))
+  }
+
+  private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String)]] = config match {
+    case TransformationList(_, mappings) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
+    case ConvertSpec(_, mappings) => immediate(mappings)
+  }
+
+  def convertFile(id: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(parse.json[ConvertConfig]) { implicit request =>
+    configToMappings(request.body).flatMap { m =>
+      val flow = xmlTransformer.transform(m)
+
+      storage.get(bucket, prefix(id, stage) + fileName).flatMap {
+        case Some((_, src)) =>
+          src
+            .via(flow)
+            .runFold(ByteString(""))(_ ++ _)
+            .map(_.utf8String)
+            .map { s =>
+              Ok(s).as("text/xml")
+            }.recover {
+            case e: InvalidMappingError => BadRequest(Json.toJson(e))
+            case e: XmlTransformationError => InternalServerError(Json.toJson(e))
+          }
+        case _ => immediate(NotFound)
+      }.recoverWith {
+        case e => immediate(InternalServerError(Json.obj("error" -> e.getMessage)))
+      }
+    }
+  }
+
+  def convert(id: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
+    configToMappings(request.body).map { ts =>
+      logger.info(s"Conversion config: $config")
+      val jobId = UUID.randomUUID().toString
+      val data = XmlConvertData(
+        request.body.src,
+        ts,
+        bucket,
+        inPrefix = stage => prefix(id, stage),
+        outPrefix = prefix(id, FileStage.Ingest)
+      )
+      val job = XmlConvertJob(jobId, repoId = id, data = data)
+      mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)
+
+      Ok(Json.obj(
+        "url" -> controllers.admin.routes.Tasks
+          .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+        "jobId" -> jobId
+      ))
+    }
+  }
+
+  def cancelConvert(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    import scala.concurrent.duration._
+    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
+      logger.info(s"Monitoring job: $jobId")
+      ref ! XmlConvertRunner.Cancel
+      Ok(Json.obj("ok" -> true))
+    }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
   }

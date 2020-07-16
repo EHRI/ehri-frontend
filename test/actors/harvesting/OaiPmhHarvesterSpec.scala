@@ -1,10 +1,11 @@
-package actors
+package actors.harvesting
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-import actors.OaiPmhHarvestRunner.Cancel
-import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting
+import actors.harvesting.OaiPmhHarvestRunner.Cancel
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
@@ -66,7 +67,7 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
 
     "cancel jobs" in new ITestApp {
       val events = MockHarvestEventService()
-      val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
+      val harvester = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage, events)))
 
       harvester ! self // initial subscriber should start harvesting
       expectMsg(s"Starting harvest with job id: $jobId")
@@ -74,7 +75,7 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
       expectMsgAnyOf("c4", "nl-r1-m19")
       harvester ! Cancel
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-      msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after 1 file(s)")
+      msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
       events.events.head.eventType must_== HarvestEventType.Started
       events.events(1).eventType must_== HarvestEventType.Cancelled
     }

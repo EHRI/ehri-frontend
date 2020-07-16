@@ -1,6 +1,7 @@
-package actors
+package actors.harvesting
 
-import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
@@ -41,7 +42,7 @@ class OaiPmhHarvestRunnerSpec extends AkkaTestkitSpecs2Support with IntegrationT
     }
 
     "allow cancellation" in new ITestApp {
-      val runner = system.actorOf(Props(OaiPmhHarvestRunner(job, client, storage)))
+      val runner = system.actorOf(Props(harvesting.OaiPmhHarvestRunner(job, client, storage)))
 
       runner ! Initial
       expectMsg(Starting)

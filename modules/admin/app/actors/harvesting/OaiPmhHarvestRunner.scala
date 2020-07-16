@@ -1,8 +1,8 @@
-package actors
+package actors.harvesting
 
 import java.time.{Duration, LocalDateTime}
 
-import actors.OaiPmhHarvester.OaiPmhHarvestJob
+import actors.harvesting.OaiPmhHarvester.OaiPmhHarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import models.UserProfile
