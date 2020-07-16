@@ -18,7 +18,7 @@ import controllers.generic._
 import defines.FileStage
 import javax.inject._
 import models.HarvestEvent.HarvestEventType
-import models.{OaiPmhConfig, Repository}
+import models.{ConvertConfig, OaiPmhConfig, Repository}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
@@ -227,7 +227,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhHarvest(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def harvestOaiPmh(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
       if (fromLast) harvestEvents.get(id).map( events =>
         events
@@ -251,7 +251,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhCancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def cancelOaiPmhHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
@@ -262,25 +262,25 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def oaipmhGetConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def getOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.get(id).map { opt =>
       Ok(Json.toJson(opt))
     }
   }
 
-  def oaipmhSaveConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def saveOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     oaipmhConfigs.save(id, request.body).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def oaipmhDeleteConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def deleteOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.delete(id).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def oaipmhTestConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def testOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val getIdentF = oaipmhClient.identify(request.body)
     val listIdentF = oaipmhClient.listIdentifiers(request.body)
     (for (ident <- getIdentF; _ <- listIdentF)
@@ -288,5 +288,25 @@ case class RepositoryData @Inject()(
       case e: OaiPmhError => BadRequest(Json.obj("error" -> e.errorMessage))
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
+  }
+
+  def getConvertConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    immediate {
+      Ok(Json.toJson(ConvertConfig(src = Seq(FileStage.Upload))))
+    }
+  }
+
+  def saveConvertConfig(id: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
+    immediate {
+      Ok(Json.toJson(ConvertConfig(src = Seq(FileStage.Upload))))
+    }
+  }
+
+  def convert(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+    ???
+  }
+
+  def cancelConvert(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    ???
   }
 }

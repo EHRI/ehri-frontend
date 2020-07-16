@@ -7,11 +7,9 @@ addEventListener('message', ({data}) => {
       reader.read().then(function appendBody({done, value}) {
         if (!done) {
           let text = decoder.decode(value);
+          postMessage({init: init, text: text});
           if (init) {
-            postMessage({init: init, text: text});
             init = false;
-          } else {
-            postMessage({init: init, text: text});
           }
           reader.read().then(appendBody);
         } else {
@@ -20,4 +18,4 @@ addEventListener('message', ({data}) => {
       });
     });
   }
-});
+}, false);

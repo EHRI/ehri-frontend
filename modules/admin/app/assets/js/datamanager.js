@@ -132,29 +132,161 @@ let DAO = {
   },
 
   harvest: function (config) {
-    return this.call(SERVICE.oaipmhHarvest(CONFIG.repositoryId), config);
+    return this.call(SERVICE.harvestOaiPmh(CONFIG.repositoryId), config);
   },
 
   cancelHarvest: function(jobId) {
-    return this.call(SERVICE.oaipmhCancelHarvest(CONFIG.repositoryId, jobId));
+    return this.call(SERVICE.cancelOaiPmhHarvest(CONFIG.repositoryId, jobId));
   },
 
   getConfig: function () {
-    return this.call(SERVICE.oaipmhGetConfig(CONFIG.repositoryId));
+    return this.call(SERVICE.getOaiPmhConfig(CONFIG.repositoryId));
   },
 
   saveConfig: function (config) {
-    return this.call(SERVICE.oaipmhSaveConfig(CONFIG.repositoryId), config);
+    return this.call(SERVICE.saveOaiPmhConfig(CONFIG.repositoryId), config);
   },
 
   deleteConfig: function () {
-    return this.call(SERVICE.oaipmhDeleteConfig(CONFIG.repositoryId));
+    return this.call(SERVICE.deleteOaiPmhConfig(CONFIG.repositoryId));
   },
 
   testConfig: function (config) {
-    return this.call(SERVICE.oaipmhTestConfig(CONFIG.repositoryId), config);
+    return this.call(SERVICE.testOaiPmhConfig(CONFIG.repositoryId), config);
+  },
+
+  convert: function(config) {
+    return this.call(SERVICE.convert(CONFIG.repositoryId), config);
+  },
+
+  cancelConvert: function(jobId) {
+    return this.call(SERVICE.cancelConvert(CONFIG.repositoryId, jobId));
+  },
+
+  getConvertConfig: function () {
+    return this.call(SERVICE.getConvertConfig(CONFIG.repositoryId));
+  },
+
+  saveConvertConfig: function (config) {
+    return this.call(SERVICE.saveConvertConfig(CONFIG.repositoryId), config);
   },
 };
+
+
+let stageMixin = {
+  data: function() {
+    return {
+      loaded: false,
+      truncated: false,
+      validating: {},
+      validationResults: {},
+      tab: 'preview',
+      previewing: null,
+      panelSize: null,
+      deleting: {},
+      selected: {},
+      filtering: false,
+      filter: "",
+      files: [],
+      log: [],
+
+    }
+  },
+  created: function() {
+    console.log("Refreshing with", this.fileStage);
+    this.load();
+  },
+  methods: {
+    clearFilter: function () {
+      this.filter = "";
+      return this.refresh();
+    },
+    filterFiles: function () {
+      let func = () => {
+        this.filtering = true;
+        return this.load().then(r => {
+          this.filtering = false;
+          return r;
+        });
+      };
+      return _.debounce(func, 300)();
+    },
+    refresh: _.debounce(function() {
+      return this.load();
+    }, 500),
+    load: function () {
+      return DAO.listFiles(this.fileStage, this.filter).then(data => {
+        this.files = data.files;
+        this.truncated = data.truncated;
+        this.loaded = true;
+      })
+    },
+    filesLoaded: function (truncated) {
+      this.truncated = truncated;
+    },
+    deleteFiles: function (keys) {
+      if (keys.includes(this.previewing)) {
+        this.previewing = null;
+      }
+      keys.forEach(key => this.$set(this.deleting, key, true));
+      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
+        deleted.forEach(key => {
+          this.$delete(this.deleting, key);
+          this.$delete(this.selected, key);
+        });
+        this.refresh();
+      })
+    },
+    deleteAll: function () {
+      this.previewing = null;
+      this.files.forEach(f => this.$set(this.deleting, f.key, true));
+      return DAO.deleteAll(this.fileStage).then(r => {
+        this.refresh();
+        this.deleting = {};
+        r;
+      });
+    },
+    showPreview: function (key) {
+      this.previewing = key;
+      this.tab = 'preview';
+    },
+    validateFiles: function (keys) {
+      keys.forEach(key => this.$set(this.validating, key, true));
+      keys.forEach(key => this.$delete(this.validationResults, key));
+      DAO.validateFiles(this.fileStage, keys).then(errs => {
+        this.tab = 'validation';
+        keys.forEach(key => {
+          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
+          this.$delete(this.validating, key);
+        });
+      });
+    },
+    setPanelSize: function (arbitrarySize) {
+      this.panelSize = arbitrarySize;
+    }
+  },
+  computed: {
+    selectedKeys: function () {
+      return Object.keys(this.selected);
+    },
+    validationLog: function () {
+      let log = [];
+      this.files.forEach(file => {
+        let key = file.key;
+        let errs = this.validationResults[key];
+        if (errs) {
+          let cls = errs.length === 0 ? "text-success" : "text-danger";
+          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
+          errs.forEach(err => {
+            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
+          });
+        }
+      });
+      return log;
+    }
+  }
+}
+
 
 Vue.component("preview", {
   props: {
@@ -563,28 +695,16 @@ Vue.component("options-panel", {
 });
 
 Vue.component("upload-manager", {
+  mixins: [stageMixin],
   props: {
     fileStage: String,
   },
   data: function () {
     return {
-      loaded: false,
-      truncated: false,
-      filter: "",
-      filtering: false,
-      files: [],
-      deleting: {},
-      selected: {},
       dropping: false,
       uploading: [],
       cancelled: [],
-      log: [],
       ingesting: {},
-      validating: {},
-      validationResults: {},
-      tab: 'preview',
-      previewing: null,
-      panelSize: null,
       showOptions: false,
       opts: {
         commit: false,
@@ -594,52 +714,6 @@ Vue.component("upload-manager", {
     }
   },
   methods: {
-    clearFilter: function () {
-      this.filter = "";
-      return this.refresh();
-    },
-    filterFiles: function () {
-      let func = () => {
-        this.filtering = true;
-        return this.refresh().then(r => {
-          this.filtering = false;
-          return r;
-        });
-      };
-      return _.debounce(func, 300)();
-    },
-    refresh: function () {
-      return DAO.listFiles(this.fileStage, this.filter).then(data => {
-        this.files = data.files;
-        this.truncated = data.truncated;
-        this.loaded = true;
-      });
-    },
-    filesLoaded: function (truncated) {
-      this.truncated = truncated;
-    },
-    deleteFiles: function (keys) {
-      if (keys.includes(this.previewing)) {
-        this.previewing = null;
-      }
-      keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
-        deleted.forEach(key => {
-          this.$delete(this.deleting, key);
-          this.$delete(this.selected, key);
-        });
-        this.refresh();
-      })
-    },
-    deleteAll: function () {
-      this.previewing = null;
-      this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll(this.fileStage).then(r => {
-        this.refresh();
-        this.deleting = {};
-        r;
-      });
-    },
     finishUpload: function (fileSpec) {
       this.setUploadProgress(fileSpec, 100);
       setTimeout(() => {
@@ -654,10 +728,6 @@ Vue.component("upload-manager", {
         return true;
       }
       return false;
-    },
-    showPreview: function (key) {
-      this.previewing = key;
-      this.tab = 'preview';
     },
     dragOver: function () {
       this.dropping = true;
@@ -730,17 +800,6 @@ Vue.component("upload-manager", {
           console.log("Files uploaded...")
         });
     },
-    validateFiles: function (keys) {
-      keys.forEach(key => this.$set(this.validating, key, true));
-      keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(this.fileStage, keys).then(errs => {
-        this.tab = 'validation';
-        keys.forEach(key => {
-          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
-          this.$delete(this.validating, key);
-        });
-      });
-    },
     monitorIngest: function (url, keys) {
       let self = this;
       let websocket = new WebSocket(url);
@@ -801,35 +860,9 @@ Vue.component("upload-manager", {
         }
       });
     },
-    setPanelSize: function (arbitrarySize) {
-      this.panelSize = arbitrarySize;
-    }
-  },
-  created: function () {
-    this.refresh();
-  },
-  computed: {
-    selectedKeys: function () {
-      return Object.keys(this.selected);
-    },
-    validationLog: function () {
-      let log = [];
-      this.files.forEach(file => {
-        let key = file.key;
-        let errs = this.validationResults[key];
-        if (errs) {
-          let cls = errs.length === 0 ? "text-success" : "text-danger";
-          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
-          errs.forEach(err => {
-            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
-          });
-        }
-      });
-      return log;
-    }
   },
   template: `
-    <div id="upload-manager-container"
+    <div id="upload-manager-container" class="stage-manager-container"
          v-on:dragover.prevent.stop="dragOver"
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
@@ -1101,92 +1134,18 @@ Vue.component("oaipmh-config-modal", {
 })
 
 Vue.component("oaipmh-manager", {
+  mixins: [stageMixin],
   props: {
     fileStage: String,
   },
   data: function () {
     return {
-      loaded: false,
       harvestJobId: null,
-      truncated: false,
-      filter: "",
-      filtering: false,
-      files: [],
-      deleting: {},
-      selected: {},
-      log: [],
-      ingesting: {},
-      validating: {},
-      validationResults: {},
-      tab: 'preview',
-      previewing: null,
-      panelSize: null,
       showOptions: false,
       harvestConfig: null,
     }
   },
   methods: {
-    clearFilter: function () {
-      this.filter = "";
-      return this.refresh();
-    },
-    filterFiles: function () {
-      let func = () => {
-        this.filtering = true;
-        return this.refresh().then(r => {
-          this.filtering = false;
-          return r;
-        });
-      };
-      return _.debounce(func, 300)();
-    },
-    refresh: _.debounce(function () {
-      return DAO.listFiles(this.fileStage, this.filter).then(data => {
-        this.files = data.files;
-        this.truncated = data.truncated;
-        this.loaded = true;
-      });
-    }, 500),
-    filesLoaded: function (truncated) {
-      this.truncated = truncated;
-    },
-    deleteFiles: function (keys) {
-      if (keys.includes(this.previewing)) {
-        this.previewing = null;
-      }
-      keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
-        deleted.forEach(key => {
-          this.$delete(this.deleting, key);
-          this.$delete(this.selected, key);
-        });
-        this.refresh();
-      })
-    },
-    deleteAll: function () {
-      this.previewing = null;
-      this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll(this.fileStage).then(r => {
-        this.refresh();
-        this.deleting = {};
-        r;
-      });
-    },
-    showPreview: function (key) {
-      this.previewing = key;
-      this.tab = 'preview';
-    },
-    validateFiles: function (keys) {
-      keys.forEach(key => this.$set(this.validating, key, true));
-      keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(this.fileStage, keys).then(errs => {
-        this.tab = 'validation';
-        keys.forEach(key => {
-          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
-          this.$delete(this.validating, key);
-        });
-      });
-    },
     harvest: function() {
       DAO.harvest(this.harvestConfig)
         .then(data => {
@@ -1236,12 +1195,9 @@ Vue.component("oaipmh-manager", {
         let parts = hash.split(":");
         if (parts.length === 2 && parts[0] === "#jobId") {
           this.harvestJobId = parts[1];
-          this.monitorHarvest("ws://localhost:9000/admin/tasks/monitor?jobId=" + parts[1], parts[1]);
+          this.monitorHarvest(CONFIG.monitorUrl(parts[1]), parts[1]);
         }
       }
-    },
-    setPanelSize: function (arbitrarySize) {
-      this.panelSize = arbitrarySize;
     },
     savedConfig: function(config) {
       this.harvestConfig = config;
@@ -1252,32 +1208,11 @@ Vue.component("oaipmh-manager", {
     },
   },
   created: function () {
-    this.refresh();
     this.loadConfig();
     this.resumeMonitor();
   },
-  computed: {
-    selectedKeys: function () {
-      return Object.keys(this.selected);
-    },
-    validationLog: function () {
-      let log = [];
-      this.files.forEach(file => {
-        let key = file.key;
-        let errs = this.validationResults[key];
-        if (errs) {
-          let cls = errs.length === 0 ? "text-success" : "text-danger";
-          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
-          errs.forEach(err => {
-            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
-          });
-        }
-      });
-      return log;
-    }
-  },
   template: `
-    <div id="oaipmh-manager-container"
+    <div id="oaipmh-manager-container" class="stage-manager-container"
          v-on:dragover.prevent.stop="dragOver"
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
@@ -1418,6 +1353,290 @@ Vue.component("oaipmh-manager", {
   `
 });
 
+Vue.component("convert-config-modal", {
+  props: {
+    show: Boolean,
+    config: Object
+  },
+  data: function() {
+    return {
+      src: null,
+    }
+  },
+  methods: {
+    save: function() {
+      DAO.saveConvertConfig({url: this.url, format: this.format, set: this.set})
+        .then(data => this.$emit("saved-config", data));
+    },
+  },
+  computed: {
+    isValidConfig: function() {
+      return this.src;
+    },
+    hasConfigChanged: function() {
+      return !this.config || !(this.config.src === this.src);
+      },
+  },
+  watch: {
+    config: function(newValue) {
+      this.src = newValue ? newValue.src : null;
+    }
+  },
+  template: `
+    <div class="options-dialog modal show fade" tabindex="-1" role="dialog" v-if="show"
+         style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Transformation/Enhancement Configuration</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="options-form">
+              <div class="form-group">
+                <label class="form-label" for="opt-convert-src">
+                  File Source(s)
+                </label>
+                <select id="opt-convert-src" class="form-control" multiple v-model.trim="src">
+                  <option value="oaipmh">OAI-PMH</option>
+                  <option value="upload">Upload</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-bind:disabled="!isValidConfig || !hasConfigChanged"
+                    v-on:click="save" type="button" class="btn btn-secondary">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+
+Vue.component("convert-manager", {
+  mixins: [stageMixin],
+  props: {
+    fileStage: String,
+  },
+  data: function () {
+    return {
+      convertJobId: null,
+      ingesting: {},
+      showOptions: false,
+      convertConfig: null,
+    }
+  },
+  methods: {
+    convert: function() {
+      DAO.convert(this.convertConfig)
+        .then(data => {
+          this.convertJobId = data.jobId;
+          this.monitorConvert(data.url, data.jobId);
+        });
+    },
+    cancelConvert: function() {
+      if (this.convertJobId) {
+        DAO.cancelConvert(this.convertJobId).then(r => {
+          if (r.ok) {
+            this.convertJobId = null;
+          }
+        });
+      }
+    },
+    monitorConvert: function (url, jobId) {
+      let self = this;
+      this.tab = 'convert';
+      let websocket = new WebSocket(url);
+      websocket.onopen = function() {
+        window.location.hash = "#jobId:" + jobId;
+        console.debug("Connected to", url);
+      };
+      websocket.onerror = function (e) {
+        self.log.push("ERROR: a websocket communication error occurred");
+        console.error("Socket error!", e);
+      };
+      websocket.onmessage = function (e) {
+        let msg = JSON.parse(e.data);
+        self.log.push(msg.trim());
+        self.refresh()
+        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+          websocket.close();
+        }
+      };
+      websocket.onclose = function() {
+        self.convertJobId = null;
+        history.pushState("", document.title, window.location.pathname
+          + window.location.search);
+        console.debug("Socket closed")
+      }
+    },
+    resumeMonitor: function() {
+      let hash = window.location.hash;
+      if (hash) {
+        let parts = hash.split(":");
+        if (parts.length === 2 && parts[0] === "#jobId") {
+          this.convertJobId = parts[1];
+          this.monitorConvert(CONFIG.monitorUrl(parts[1]), parts[1]);
+        }
+      }
+    },
+    savedConfig: function(config) {
+      this.convertConfig = config;
+    },
+    loadConfig: function() {
+      DAO.getConvertConfig()
+        .then(data => this.convertConfig = data);
+    },
+  },
+  created: function () {
+    this.loadConfig();
+    this.resumeMonitor();
+  },
+  template: `
+    <div id="convert-manager-container" class="stage-manager-container">
+
+      <div class="actions-bar">
+        <div class="filter-control">
+          <label for="convert-filter-input" class="sr-only">Filter files</label>
+          <input id="convert-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
+                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
+          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
+        </div>
+
+        <button v-if="!convertJobId" v-bind:disabled="!convertConfig" class="btn btn-sm btn-default"
+                v-on:click.prevent="convert">
+          <i class="fa fa-fw fa-cloud-download"/>
+          Convert Files
+        </button>
+        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelConvert">
+          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          Cancel Convert
+        </button>
+
+        <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)">
+          <i class="fa fa-flag-o"/>
+          Validate Selected ({{selectedKeys.length}})
+        </button>
+        <button v-else v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))">
+          <i class="fa fa-flag-o"/>
+          Validate All
+        </button>
+
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+          <i class="fa fa-trash-o"/>
+          Delete Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+                v-else>
+          <i class="fa fa-trash-o"/>
+          Delete All
+        </button>
+
+        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+          <i class="fa fa-gear"/>
+          Configuration
+        </button>
+
+        <convert-config-modal
+          v-bind:config="convertConfig"
+          v-bind:show="showOptions"
+          v-on:saved-config="savedConfig"
+          v-on:close="showOptions = false"/>
+      </div>
+
+      <div id="convert-panel-container" class="panel-container">
+        <div class="top-panel">
+          <files-table
+            v-bind:fileStage="fileStage"
+            v-bind:loaded="loaded"
+            v-bind:files="files"
+            v-bind:selected="selected"
+            v-bind:previewing="previewing"
+            v-bind:validating="validating"
+            v-bind:validationResults="validationResults"
+            v-bind:truncated="truncated"
+            v-bind:deleting="deleting"
+            v-bind:ingesting="null"
+            v-bind:filter="filter"
+
+            v-on:delete-files="deleteFiles"
+            v-on:validate-files="validateFiles"
+            v-on:files-loaded="filesLoaded"
+            v-on:show-preview="showPreview"
+          />
+        </div>
+
+        <div id="convert-status-panels" class="bottom-panel">
+          <ul class="status-panel-tabs nav nav-tabs">
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+                 v-on:click.prevent="tab = 'preview'">
+                File Preview
+                <template v-if="previewing"> - {{previewing}}</template>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+                 v-on:click.prevent="tab = 'validation'">
+                Validation Log
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
+                 v-on:click.prevent="tab = 'convert'">
+                Convert Log
+              </a>
+            </li>
+            <li>
+              <drag-handle
+                v-bind:ns="fileStage"
+                v-bind:p2="$root.$el.querySelector('#convert-status-panels')"
+                v-bind:container="$root.$el.querySelector('#convert-panel-container')"
+                v-on:resize="setPanelSize"
+              />
+            </li>
+          </ul>
+
+          <div class="status-panels">
+            <div class="status-panel" v-show="tab === 'preview'">
+              <preview v-bind:fileStage="fileStage"
+                       v-bind:previewing="previewing"
+                       v-bind:errors="validationResults"
+                       v-bind:panelSize="panelSize"
+                       v-show="previewing !== null"/>
+              <div class="panel-placeholder" v-if="previewing === null">
+                No file selected.
+              </div>
+            </div>
+            <div class="status-panel log-container" v-show="tab === 'validation'">
+              <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
+              <div  class="panel-placeholder" v-else>
+                Validation log output will show here.
+              </div>
+            </div>
+            <div class="status-panel log-container" v-show="tab === 'convert'">
+              <log-window v-bind:log="log" v-if="log.length > 0"/>
+              <div class="panel-placeholder" v-else>
+                Convert log output will show here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
 let app = new Vue({
   el: '#data-manager',
   data: function() {
@@ -1441,15 +1660,9 @@ let app = new Vue({
           </a>
         </li>
         <li class="nav-item">
-          <a href="#tab-conversion" class="nav-link" v-bind:class="{'active': stage === 'conversion'}"
-             v-on:click.prevent="stage = 'conversion'">
-            Conversion
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab-validation" class="nav-link" v-bind:class="{'active': stage === 'validation'}"
-             v-on:click.prevent="stage = 'validation'">
-            Validation
+          <a href="#tab-convert" class="nav-link" v-bind:class="{'active': stage === 'convert'}"
+             v-on:click.prevent="stage = 'convert'">
+            Transform
           </a>
         </li>
         <li class="nav-item">
@@ -1465,9 +1678,8 @@ let app = new Vue({
       <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
         <oaipmh-manager v-bind:fileStage="'oaipmh'"/>
       </div>
-      <div id="tab-conversion" class="stage-tab" v-show="stage === 'conversion'">
-      </div>
-      <div id="tab-validation" class="stage-tab" v-show="stage === 'validation'">
+      <div id="tab-convert" class="stage-tab" v-show="stage === 'convert'">
+        <convert-manager v-bind:fileStage="'convert'"/>
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
       </div>

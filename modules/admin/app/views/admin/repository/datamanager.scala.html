@@ -25,6 +25,7 @@
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @helper.javascriptRouter("dataManagerRoutes")(
+            controllers.admin.routes.javascript.Tasks.taskMonitorWS,
             controllers.institutions.routes.javascript.RepositoryData.listFiles,
             controllers.institutions.routes.javascript.RepositoryData.validateFiles,
             controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
@@ -33,12 +34,16 @@
             controllers.institutions.routes.javascript.RepositoryData.ingestAll,
             controllers.institutions.routes.javascript.RepositoryData.uploadHandle,
             controllers.institutions.routes.javascript.RepositoryData.fileUrls,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhHarvest,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhCancelHarvest,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhGetConfig,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhSaveConfig,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhDeleteConfig,
-            controllers.institutions.routes.javascript.RepositoryData.oaipmhTestConfig,
+            controllers.institutions.routes.javascript.RepositoryData.harvestOaiPmh,
+            controllers.institutions.routes.javascript.RepositoryData.cancelOaiPmhHarvest,
+            controllers.institutions.routes.javascript.RepositoryData.getOaiPmhConfig,
+            controllers.institutions.routes.javascript.RepositoryData.saveOaiPmhConfig,
+            controllers.institutions.routes.javascript.RepositoryData.deleteOaiPmhConfig,
+            controllers.institutions.routes.javascript.RepositoryData.testOaiPmhConfig,
+            controllers.institutions.routes.javascript.RepositoryData.convert,
+            controllers.institutions.routes.javascript.RepositoryData.cancelConvert,
+            controllers.institutions.routes.javascript.RepositoryData.getConvertConfig,
+            controllers.institutions.routes.javascript.RepositoryData.saveConvertConfig,
         )
 
         <script>
@@ -47,7 +52,11 @@
                     repositoryId: "@item.id",
                     ingest: "@defines.FileStage.Ingest",
                     oaipmh: "@defines.FileStage.OaiPmh",
+                    convert: "@defines.FileStage.Convert",
                     previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datamanager.worker.js")",
+                    monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
+                                .absoluteURL(location.protocol === "https:")
+                                .replace(/^http/, "ws"),
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
