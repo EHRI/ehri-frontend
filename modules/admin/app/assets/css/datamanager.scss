@@ -55,23 +55,23 @@ body {
   margin-bottom: $margin-sm;
 }
 
-#filter-control {
+.filter-control {
   position: relative;
   display: flex;
   flex: 1;
   align-items: center;
 
-  #filter-input {
+  .filter-input {
     flex: 1;
   }
 
-  #filtering-indicator {
+  .filtering-indicator {
     position: absolute;
     right: $margin-xs;
   }
 }
 
-#file-list-container {
+.file-list-container {
   position: relative;
   overflow-y: auto;
   flex: 1;
@@ -109,7 +109,7 @@ body {
   }
 }
 
-#file-list-loading-indicator {
+.file-list-loading-indicator {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -122,14 +122,14 @@ body {
   opacity: .5;
 }
 
-#preview-container {
+.preview-container {
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-#valid-indicator {
+.valid-indicator {
   position: absolute;
   top: 3px;
   left: 3px;
@@ -140,7 +140,7 @@ body {
   animation: fadeIn .5s ease-in;
 }
 
-#validation-loading-indicator {
+.validation-loading-indicator {
   position: absolute;
   top: 3px;
   left: 3px;
@@ -165,7 +165,7 @@ body {
   }
 }
 
-#preview-loading-indicator {
+.preview-loading-indicator {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -180,30 +180,30 @@ body {
   z-index: 50;
 }
 
-#drag-handle {
+.drag-handle {
   cursor: ns-resize;
   display: flex;
   height: 100%;
 }
 
-#panel-container {
+.panel-container {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-#panel-1 {
+.top-panel {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-#panel-2 {
+.bottom-panel {
   display: flex;
   flex-direction: column;
   flex-basis: 40%;
 
-  #status-panel-tabs {
+  .status-panel-tabs {
     user-select: none;
     .nav-link {
       padding: $margin-xxs $margin-xs;
@@ -214,7 +214,7 @@ body {
     }
   }
 
-  #status-panels {
+  .status-panels {
     border: 1px solid $gray-300;
     border-top: 0;
     display: flex;
@@ -249,7 +249,7 @@ body {
   flex: 1;
 }
 
-#actions-bar {
+.actions-bar {
   margin-bottom: $margin-xs;
   display: flex;
 
@@ -258,7 +258,7 @@ body {
   }
 }
 
-#file-upload {
+.file-upload-button {
   position: relative;
 
   &.dropping {
@@ -266,7 +266,7 @@ body {
   }
 }
 
-#file-selector {
+.file-selector-input {
   opacity: 0;
   width: 100%;
   height: 100%;
@@ -274,7 +274,7 @@ body {
   float: left;
 }
 
-#upload-progress {
+.upload-progress {
   position: absolute;
   z-index: 100;
   bottom: $margin-sm;
@@ -311,36 +311,36 @@ body {
   }
 }
 
-#preview-container {
+.preview-container {
   display: flex;
   flex: 1;
 }
 
-#preview-container .CodeMirror {
+.preview-container .CodeMirror {
   border: 0;
   flex: 1;
   flex-basis: 0;
 }
 
-#preview-container .CodeMirror .validation-errors {
+.preview-container .CodeMirror .validation-errors {
   width: 10px;
 }
 
-#preview-container .CodeMirror .validation-error:hover {
+.preview-container .CodeMirror .validation-error:hover {
   cursor: pointer;
 }
 
-#preview-container .CodeMirror .line-error {
+.preview-container .CodeMirror .line-error {
   background: rgba(255, 197, 199, 0.32) !important;
   color: #8a1f11 !important;
 }
 
-#options-dialog {
+.options-dialog {
   .modal-content {
     box-shadow: $box-shadow;
   }
 }
 
-#options-form {
+.options-form {
   padding: $margin-md;
 }

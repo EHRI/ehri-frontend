@@ -294,16 +294,16 @@ Vue.component("preview", {
     }
   },
   template: `
-    <div id="preview-container">
+    <div class="preview-container">
       <textarea>{{previewData}}</textarea>
-      <div id="validation-loading-indicator" v-if="validating">
+      <div class="validation-loading-indicator" v-if="validating">
         <i class="fa fa-circle"></i>
       </div>
-      <div id="valid-indicator" title="No errors detected"
+      <div class="valid-indicator" title="No errors detected"
            v-if="!validating && errors[previewing] && errors[previewing].length === 0">
         <i class="fa fa-check"></i>
       </div>
-      <div id="preview-loading-indicator" v-if="loading">
+      <div class="preview-loading-indicator" v-if="loading">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
       </div>
     </div>
@@ -315,7 +315,7 @@ Vue.component("upload-progress", {
     uploading: Array,
   },
   template: `
-    <div id="upload-progress" v-if="uploading.length > 0">
+    <div class="upload-progress" v-if="uploading.length > 0">
       <div v-for="job in uploading" v-bind:key="job.spec.name" class="progress-container">
         <div class="progress">
           <div class="progress-bar progress-bar-striped progress-bar-animated"
@@ -382,25 +382,30 @@ Vue.component("files-table", {
   watch: {
     selected: function (newValue) {
       let selected = Object.keys(newValue).length;
-      this.$el.querySelector("#checkall").indeterminate =
+      this.$el.querySelector("#" + this.fileStage + "-checkall").indeterminate =
         selected > 0 && selected !== this.files.length;
     },
   },
   computed: {
     allChecked: function () {
       return Object.keys(this.selected).length === this.files.length;
+    },
+    utilRows: function() {
+      return Number(this.deleted !== null) +
+        Number(this.validating !== null) +
+        Number(this.deleting !== null);
     }
   },
   template: `
-    <div id="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}">
+    <div class="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
-          <th><input type="checkbox" id="checkall" v-on:change="toggleAll"/></th>
+          <th><input type="checkbox" v-bind:id="fileStage + '-checkall'" v-on:change="toggleAll"/></th>
           <th>Name</th>
           <th>Last Modified</th>
           <th>Size</th>
-          <th colspan="4"></th>
+          <th v-bind:colspan="utilRows"></th>
         </tr>
         </thead>
         <tbody>
@@ -413,7 +418,8 @@ Vue.component("files-table", {
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
-          <td><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
+          
+          <td v-if="validating !== null"><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
             <i v-if="validating[file.key]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
             <i v-else-if="validationResults[file.key]" class="fa fa-fw" v-bind:class="{
               'fa-check text-success': validationResults[file.key].length === 0,
@@ -422,13 +428,13 @@ Vue.component("files-table", {
             <i v-else class="fa fa-fw fa-flag-o"></i>
           </a>
           </td>
-          <td><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
+          <td v-if="ingesting !== null"><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
             <i class="fa fa-fw" v-bind:class="{
               'fa-database': !ingesting[file.key], 
               'fa-circle-o-notch fa-spin': ingesting[file.key]
             }"></i></a>
           </td>
-          <td>
+          <td v-if="deleting !== null">
             <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
               <i class="fa fa-fw" v-bind:class="{
                 'fa-circle-o-notch fa-spin': deleting[file.key], 
@@ -444,13 +450,13 @@ Vue.component("files-table", {
         <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
         <i v-else class="fa fa-fw fa-caret-down"/>
       </button>
-      <div id="filter-placeholder" class="panel-placeholder" v-else-if="loaded && filter && files.length === 0">
+      <div class="panel-placeholder" v-else-if="loaded && filter && files.length === 0">
         No files found starting with &quot;<code>{{filter}}</code>&quot;...
       </div>
-      <div id="list-placeholder" class="panel-placeholder" v-else-if="loaded && files.length === 0">
+      <div class="panel-placeholder" v-else-if="loaded && files.length === 0">
         There are no files here yet.
       </div>
-      <div id="file-list-loading-indicator" v-show="!loaded">
+      <div class="file-list-loading-indicator" v-show="!loaded">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
       </div>
     </div>
@@ -471,6 +477,7 @@ Vue.component("log-window", {
 
 Vue.component("drag-handle", {
   props: {
+    ns: String,
     p2: Element,
     container: Element,
   },
@@ -513,7 +520,7 @@ Vue.component("drag-handle", {
     },
   },
   template: `
-    <div id="drag-handle" v-on:mousedown="startDrag"></div>
+    <div v-bind:id="ns + '-drag-handle'" class="drag-handle" v-on:mousedown="startDrag"></div>
   `
 });
 
@@ -522,7 +529,7 @@ Vue.component("options-panel", {
     opts: Object
   },
   template: `
-    <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog"
+    <div class="options-dialog modal show fade" tabindex="-1" role="dialog"
          style="display: block">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -534,7 +541,7 @@ Vue.component("options-panel", {
             </button>
           </div>
           <div class="modal-body">
-            <div id="options-form">
+            <div class="options-form">
               <div class="form-group form-check">
                 <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="opts.tolerant"/>
                 <label class="form-check-label" for="opt-tolerant-check">
@@ -836,14 +843,13 @@ Vue.component("upload-manager", {
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
 
-      <div id="actions-bar">
-        <div id="filter-control">
-          <label for="filter-input" class="sr-only">Filter files</label>
-          <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter"
+      <div class="actions-bar">
+        <div class="filter-control">
+          <label for="upload-filter-input" class="sr-only">Filter files</label>
+          <input id="upload-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
                  placeholder="Filter files..." v-on:keyup="filterFiles"/>
-          <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-          <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw"
-             v-else-if="filter"/>
+          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
         </div>
 
         <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
@@ -879,8 +885,8 @@ Vue.component("upload-manager", {
           Delete All
         </button>
 
-        <button id="file-upload" class="btn btn-sm btn-default">
-          <input id="file-selector"
+        <button class="file-upload-button btn btn-sm btn-default">
+          <input class="file-selector-input"
                  v-on:change="uploadFiles"
                  v-on:dragover.prevent="dragOver"
                  v-on:dragleave.prevent="dragLeave"
@@ -891,7 +897,7 @@ Vue.component("upload-manager", {
           Upload Files
         </button>
 
-        <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
           <i class="fa fa-gear"/>
         </button>
 
@@ -901,8 +907,8 @@ Vue.component("upload-manager", {
           v-on:hide="showOptions = false" />
       </div>
 
-      <div id="panel-container">
-        <div id="panel-1">
+      <div id="upload-panel-container" class="panel-container">
+        <div class="top-panel">
           <files-table
             v-bind:fileStage="fileStage"
             v-bind:dropping="dropping"
@@ -925,56 +931,57 @@ Vue.component("upload-manager", {
           />
         </div>
 
-        <div id="panel-2">
-          <ul id="status-panel-tabs" class="nav nav-tabs">
+        <div id="upload-status-panel" class="bottom-panel">
+          <ul class="status-panel-tabs nav nav-tabs">
             <li class="nav-item">
-              <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
                 <template v-if="previewing"> - {{previewing}}</template>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
                  v-on:click.prevent="tab = 'validation'">
                 Validation Log
               </a>
             </li>
             <li class="nav-item">
-              <a href="#tab-ingest-log" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
                  v-on:click.prevent="tab = 'ingest'">
                 Ingest Log
               </a>
             </li>
             <li>
               <drag-handle
-                v-bind:p2="$root.$el.querySelector('#panel-2')"
-                v-bind:container="$root.$el.querySelector('#panel-container')"
+                v-bind:ns="fileStage"
+                v-bind:p2="$root.$el.querySelector('#upload-status-panel')"
+                v-bind:container="$root.$el.querySelector('#upload-panel-container')"
                 v-on:resize="setPanelSize"
               />
             </li>
           </ul>
 
-          <div id="status-panels">
-            <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
+          <div class="status-panels">
+            <div class="status-panel" v-show="tab === 'preview'">
               <preview v-bind:fileStage="fileStage"
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panelSize="panelSize"
                        v-show="previewing !== null"/>
-              <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
+              <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
               </div>
             </div>
-            <div class="status-panel log-container" id="tab-validation-log" v-show="tab === 'validation'">
+            <div class="status-panel log-container" v-show="tab === 'validation'">
               <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
               <div id="validation-placeholder" class="panel-placeholder" v-else>
                 Validation log output will show here.
               </div>
             </div>
-            <div class="status-panel log-container" id="tab-ingest-log" v-show="tab === 'ingest'">
+            <div class="status-panel log-container" v-show="tab === 'ingest'">
               <log-window v-bind:log="log" v-if="log.length > 0"/>
-              <div id="ingest-placeholder" class="panel-placeholder" v-else>
+              <div class="panel-placeholder" v-else>
                 Ingest log output will show here.
               </div>
             </div>
@@ -1046,7 +1053,7 @@ Vue.component("oaipmh-config-modal", {
     }
   },
   template: `
-    <div id="options-dialog" class="modal show fade" tabindex="-1" role="dialog" v-if="show"
+    <div class="options-dialog modal show fade" tabindex="-1" role="dialog" v-if="show"
          style="display: block">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -1058,7 +1065,7 @@ Vue.component("oaipmh-config-modal", {
             </button>
           </div>
           <div class="modal-body">
-            <div id="options-form">
+            <div class="options-form">
               <div class="form-group">
                 <label class="form-label" for="opt-endpoint-url">
                   OAI-PMH endpoint URL
@@ -1151,6 +1158,28 @@ Vue.component("oaipmh-manager", {
     }, 500),
     filesLoaded: function (truncated) {
       this.truncated = truncated;
+    },
+    deleteFiles: function (keys) {
+      if (keys.includes(this.previewing)) {
+        this.previewing = null;
+      }
+      keys.forEach(key => this.$set(this.deleting, key, true));
+      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
+        deleted.forEach(key => {
+          this.$delete(this.deleting, key);
+          this.$delete(this.selected, key);
+        });
+        this.refresh();
+      })
+    },
+    deleteAll: function () {
+      this.previewing = null;
+      this.files.forEach(f => this.$set(this.deleting, f.key, true));
+      return DAO.deleteAll(this.fileStage).then(r => {
+        this.refresh();
+        this.deleting = {};
+        r;
+      });
     },
     showPreview: function (key) {
       this.previewing = key;
@@ -1262,14 +1291,13 @@ Vue.component("oaipmh-manager", {
          v-on:dragleave.prevent.stop="dragLeave"
          v-on:drop.prevent.stop="uploadFiles">
 
-      <div id="actions-bar">
-        <div id="filter-control">
-          <label for="filter-input" class="sr-only">Filter files</label>
-          <input id="filter-input" class="form-control form-control-sm" type="text" v-model.trim="filter"
+      <div class="actions-bar">
+        <div class="filter-control">
+          <label for="oaipmh-filter-input" class="sr-only">Filter files</label>
+          <input id="oaipmh-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
                  placeholder="Filter files..." v-on:keyup="filterFiles"/>
-          <i id="filtering-indicator" class="fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-          <i id="filtering-indicator" style="cursor: pointer" v-on:click="clearFilter" class="fa fa-close fa-fw"
-             v-else-if="filter"/>
+          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
+          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
         </div>
 
         <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
@@ -1293,7 +1321,18 @@ Vue.component("oaipmh-manager", {
           Validate All
         </button>
 
-        <button id="show-options" class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+          <i class="fa fa-trash-o"/>
+          Delete Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+                v-else>
+          <i class="fa fa-trash-o"/>
+          Delete All
+        </button>
+
+        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
           <i class="fa fa-gear"/>
           Configuration
         </button>
@@ -1305,8 +1344,8 @@ Vue.component("oaipmh-manager", {
           v-on:close="showOptions = false"/>
       </div>
 
-      <div id="panel-container">
-        <div id="panel-1">
+      <div id="oaipmh-panel-container" class="panel-container">
+        <div class="top-panel">
           <files-table
             v-bind:fileStage="fileStage"
             v-bind:loaded="loaded"
@@ -1317,67 +1356,67 @@ Vue.component("oaipmh-manager", {
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
-            v-bind:ingesting="ingesting"
+            v-bind:ingesting="null"
             v-bind:filter="filter"
 
-            v-on:delete-files="alert('TODO')"
-            v-on:ingest-files="alert('TODO')"
+            v-on:delete-files="deleteFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
           />
         </div>
 
-        <div id="panel-2">
-          <ul id="status-panel-tabs" class="nav nav-tabs">
+        <div id="oaipmh-status-panels" class="bottom-panel">
+          <ul class="status-panel-tabs nav nav-tabs">
             <li class="nav-item">
-              <a href="#tab-preview" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
                 <template v-if="previewing"> - {{previewing}}</template>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#tab-validation-log" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
                  v-on:click.prevent="tab = 'validation'">
                 Validation Log
               </a>
             </li>
             <li class="nav-item">
-              <a href="#tab-harvest-log" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
                  v-on:click.prevent="tab = 'harvest'">
                 Harvest Log
               </a>
             </li>
             <li>
               <drag-handle
-                v-bind:p2="$root.$el.querySelector('#panel-2')"
-                v-bind:container="$root.$el.querySelector('#panel-container')"
+                v-bind:ns="fileStage"
+                v-bind:p2="$root.$el.querySelector('#oaipmh-status-panels')"
+                v-bind:container="$root.$el.querySelector('#oaipmh-panel-container')"
                 v-on:resize="setPanelSize"
               />
             </li>
           </ul>
 
-          <div id="status-panels">
-            <div class="status-panel" id="tab-preview" v-show="tab === 'preview'">
+          <div class="status-panels">
+            <div class="status-panel" v-show="tab === 'preview'">
               <preview v-bind:fileStage="fileStage" 
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panelSize="panelSize"
                        v-show="previewing !== null"/>
-              <div id="preview-placeholder" class="panel-placeholder" v-if="previewing === null">
+              <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
               </div>
             </div>
-            <div class="status-panel log-container" id="tab-validation-log" v-show="tab === 'validation'">
+            <div class="status-panel log-container" v-show="tab === 'validation'">
               <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
-              <div id="validation-placeholder" class="panel-placeholder" v-else>
+              <div  class="panel-placeholder" v-else>
                 Validation log output will show here.
               </div>
             </div>
-            <div class="status-panel log-container" id="tab-harvest-log" v-show="tab === 'harvest'">
+            <div class="status-panel log-container" v-show="tab === 'harvest'">
               <log-window v-bind:log="log" v-if="log.length > 0"/>
-              <div id="harvest-placeholder" class="panel-placeholder" v-else>
+              <div class="panel-placeholder" v-else>
                 Harvest log output will show here.
               </div>
             </div>
@@ -1410,12 +1449,36 @@ let app = new Vue({
             Upload Files
           </a>
         </li>
+        <li class="nav-item">
+          <a href="#tab-conversion" class="nav-link" v-bind:class="{'active': stage === 'conversion'}"
+             v-on:click.prevent="stage = 'conversion'">
+            Conversion
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab-validation" class="nav-link" v-bind:class="{'active': stage === 'validation'}"
+             v-on:click.prevent="stage = 'validation'">
+            Validation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': stage === 'ingest'}"
+             v-on:click.prevent="stage = 'ingest'">
+            Ingest
+          </a>
+        </li>
       </ul>
       <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
         <upload-manager v-bind:fileStage="'ingest'"/>
       </div>
       <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
         <oaipmh-manager v-bind:fileStage="'oaipmh'"/>
+      </div>
+      <div id="tab-conversion" class="stage-tab" v-show="stage === 'conversion'">
+      </div>
+      <div id="tab-validation" class="stage-tab" v-show="stage === 'validation'">
+      </div>
+      <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
       </div>
     </div>  
   `
