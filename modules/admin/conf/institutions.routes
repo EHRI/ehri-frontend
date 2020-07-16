@@ -44,10 +44,23 @@ POST        /:id/data/urls/:stage                     @controllers.institutions.
 GET         /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEad(id: String)
 POST        /:id/validate-ead                         @controllers.institutions.RepositoryData.validateEadPost(id: String)
 
-POST        /:id/oaipmh/harvest                       @controllers.institutions.RepositoryData.oaipmhHarvest(id: String, fromLast: Boolean ?= true)
-DELETE      /:id/oaipmh/harvest/:jobId                @controllers.institutions.RepositoryData.oaipmhCancelHarvest(id: String, jobId: String)
-GET         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhGetConfig(id: String)
-PUT         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhSaveConfig(id: String)
-POST        /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhTestConfig(id: String)
-DELETE      /:id/oaipmh/config                        @controllers.institutions.RepositoryData.oaipmhDeleteConfig(id: String)
+GET         /:id/transformations                      @controllers.institutions.RepositoryData.listDataTransformations(id: String)
+POST        /:id/transformations                      @controllers.institutions.RepositoryData.createDataTransformation(id: String, generic: Boolean ?= false)
+GET         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.getDataTransformation(id: String, dt: Long)
+PUT         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.updateDataTransformation(id: String, dt: Long, generic: Boolean ?= false)
+DELETE      /:id/transformations/:dt                  @controllers.institutions.RepositoryData.deleteDataTransformation(id: String, dt: Long)
+
+POST        /:id/oaipmh                               @controllers.institutions.RepositoryData.harvestOaiPmh(id: String, fromLast: Boolean ?= true)
+DELETE      /:id/oaipmh                               @controllers.institutions.RepositoryData.cancelOaiPmhHarvest(id: String, jobId: String)
+GET         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.getOaiPmhConfig(id: String)
+PUT         /:id/oaipmh/config                        @controllers.institutions.RepositoryData.saveOaiPmhConfig(id: String)
+POST        /:id/oaipmh/config                        @controllers.institutions.RepositoryData.testOaiPmhConfig(id: String)
+DELETE      /:id/oaipmh/config                        @controllers.institutions.RepositoryData.deleteOaiPmhConfig(id: String)
+
+POST        /:id/convert                              @controllers.institutions.RepositoryData.convert(id: String)
+DELETE      /:id/convert                              @controllers.institutions.RepositoryData.cancelConvert(id: String, jobId: String)
+POST        /:id/convert/file/:stage/:fileName        @controllers.institutions.RepositoryData.convertFile(id: String, stage: defines.FileStage.Value, fileName: String)
+GET         /:id/convert/config                       @controllers.institutions.RepositoryData.getConvertConfig(id: String)
+PUT         /:id/convert/config                       @controllers.institutions.RepositoryData.saveConvertConfig(id: String)
+
 

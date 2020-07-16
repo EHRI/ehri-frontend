@@ -40,7 +40,7 @@ case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: Act
           )
         }
         // Unfortunate hack around SQL syntax variations
-        val dbName = db.dataSource.getConnection.getMetaData.getDatabaseProductName.toLowerCase
+        val dbName = conn.getMetaData.getDatabaseProductName.toLowerCase
 
         val q = dbName match {
           case "postgresql" => """

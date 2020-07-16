@@ -109,6 +109,9 @@ val portalDependencies = Seq(
   // EAD validation testing
   "org.relaxng" % "jing" % "20181222",
 
+  // EAD transformation... unstable!
+  "org.basex" % "basex" % "8.5",
+
   // S3 sdk
   "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"

@@ -1,0 +1,7 @@
+target-path	target-node	source-node	value
+/	ead	.
+/ead/	@xsi:schemaLocation	.	"urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd"
+/ead/	@xmlns:xlink		"http://www.w3.org/1999/xlink"
+/ead/	eadheader	.
+/ead/eadheader/	@foo	.	bar
+/ead/eadheader/	eadid	/ead/eadheader/eadid	fn:concat(text(), "-", xtra:ehri())
