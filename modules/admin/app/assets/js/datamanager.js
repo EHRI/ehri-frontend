@@ -231,29 +231,20 @@ Vue.component("preview", {
 
       self.loading = true;
       DAO.fileUrls(self.fileStage, [self.previewing]).then(data => {
-        let init = true;
-
-        fetch(data[self.previewing]).then(r => {
-          let reader = r.body.getReader();
-          let decoder = new TextDecoder("UTF-8");
-          reader.read().then(function appendBody({done, value}) {
-            if (!done) {
-              let text = decoder.decode(value);
-              if (init) {
-                if (self.editor) {
-                  self.validate();
-                  self.editor.scrollTo(0, 0);
-                }
-                self.previewData = text;
-                init = false;
-                self.loading = false;
-              } else {
-                self.previewData += text;
-              }
-              reader.read().then(appendBody);
+        let worker = new Worker(CONFIG.previewLoader);
+        worker.onmessage = e => {
+          if (e.data.init) {
+            if (self.editor) {
+              self.validate();
+              self.editor.scrollTo(0, 0);
             }
-          });
-        });
+            self.loading = false;
+            self.previewData = e.data.text;
+          } else {
+            self.previewData += e.data.text;
+          }
+        };
+        worker.postMessage({type: 'preview', url: data[self.previewing]});
       });
     },
   },
