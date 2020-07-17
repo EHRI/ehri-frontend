@@ -5,8 +5,11 @@ import java.net.URLEncoder
 import java.time.Instant
 import java.util.UUID
 
-import actors.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.{IngestActor, OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.IngestActor
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.{OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.transformation.{XmlConvertRunner, XmlConverter}
+import actors.transformation.XmlConverter.{XmlConvertData, XmlConvertJob}
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -32,6 +35,7 @@ import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
+import services.transformation.XmlTransformer
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -64,7 +68,8 @@ case class RepositoryData @Inject()(
   ingestApi: IngestApi,
   oaipmhClient: OaiPmhClient,
   oaipmhConfigs: OaiPmhConfigService,
-  harvestEvents: HarvestEventService
+  harvestEvents: HarvestEventService,
+  xmlTransformer: XmlTransformer
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -298,15 +303,33 @@ case class RepositoryData @Inject()(
 
   def saveConvertConfig(id: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
     immediate {
-      Ok(Json.toJson(ConvertConfig(src = Seq(FileStage.Upload))))
+      Ok(Json.toJson(request.body))
     }
   }
 
-  def convert(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
-    ???
+  def convert(id: String): Action[ConvertConfig] = EditAction(id).apply(parse.json[ConvertConfig]) { implicit request =>
+    val config = request.body
+    logger.info(s"Conversion config: $config")
+    val jobId = UUID.randomUUID().toString
+    val data = XmlConvertData(config, bucket, inPrefix = stage => prefix(id, stage), outPrefix = prefix(id, FileStage.Ingest))
+    val job = XmlConvertJob(jobId, repoId = id, data = data)
+    mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)
+
+    Ok(Json.obj(
+      "url" -> controllers.admin.routes.Tasks
+        .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+      "jobId" -> jobId
+    ))
   }
 
   def cancelConvert(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    ???
+    import scala.concurrent.duration._
+    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
+      logger.info(s"Monitoring job: $jobId")
+      ref ! XmlConvertRunner.Cancel
+      Ok(Json.obj("ok" -> true))
+    }.recover {
+      case e => InternalServerError(Json.obj("error" -> e.getMessage))
+    }
   }
 }

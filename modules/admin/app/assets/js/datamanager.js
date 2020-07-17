@@ -185,8 +185,10 @@ let stageMixin = {
       panelSize: null,
       deleting: {},
       selected: {},
-      filtering: false,
-      filter: "",
+      filter : {
+        value: "",
+        active: false
+      },
       files: [],
       log: [],
 
@@ -198,14 +200,14 @@ let stageMixin = {
   },
   methods: {
     clearFilter: function () {
-      this.filter = "";
+      this.filter.value = "";
       return this.refresh();
     },
     filterFiles: function () {
       let func = () => {
-        this.filtering = true;
+        this.filter.active = true;
         return this.load().then(r => {
-          this.filtering = false;
+          this.filter.active = false;
           return r;
         });
       };
@@ -215,7 +217,7 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
-      return DAO.listFiles(this.fileStage, this.filter).then(data => {
+      return DAO.listFiles(this.fileStage, this.filter.value).then(data => {
         this.files = data.files;
         this.truncated = data.truncated;
         this.loaded = true;
@@ -286,6 +288,21 @@ let stageMixin = {
     }
   }
 }
+
+Vue.component("filter-control", {
+  props: {
+    filter: Object
+  },
+  template: `
+    <div class="filter-control">
+      <label class="sr-only">Filter files</label>
+      <input class="filter-input form-control form-control-sm" type="text" v-model.trim="filter.value"
+             placeholder="Filter files..." v-on:keyup="$emit('filter')"/>
+      <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filter.active"/>
+      <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="$emit('clear')" v-else-if="filter.value"/>
+    </div>
+  `
+})
 
 
 Vue.component("preview", {
@@ -647,53 +664,6 @@ Vue.component("drag-handle", {
   `
 });
 
-Vue.component("options-panel", {
-  props: {
-    opts: Object
-  },
-  template: `
-    <div class="options-dialog modal show fade" tabindex="-1" role="dialog"
-         style="display: block">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Testing Parameters</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                    v-on:click="$emit('hide')">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="options-form">
-              <div class="form-group form-check">
-                <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="opts.tolerant"/>
-                <label class="form-check-label" for="opt-tolerant-check">
-                  Tolerant Mode: do not abort on individual file errors
-                </label>
-              </div>
-              <div class="form-group form-check">
-                <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="opts.commit"/>
-                <label class="form-check-label" for="opt-commit-check">
-                  Commit Ingest: make changes to database
-                </label>
-              </div>
-              <div class="form-group">
-                <label for="opt-log-message">Log Message</label>
-                <input class="form-control form-control-sm" id="opt-log-message" v-model="opts.logMsg"/>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('hide')">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-});
-
 Vue.component("upload-manager", {
   mixins: [stageMixin],
   props: {
@@ -704,13 +674,6 @@ Vue.component("upload-manager", {
       dropping: false,
       uploading: [],
       cancelled: [],
-      ingesting: {},
-      showOptions: false,
-      opts: {
-        commit: false,
-        tolerant: false,
-        logMsg: LOG_MESSAGE
-      }
     }
   },
   methods: {
@@ -755,12 +718,14 @@ Vue.component("upload-manager", {
             : true;
         }).then(() => {
           self.finishUpload(file);
-          return self.refresh();
+          self.log.push("Uploaded file: " + file.name);
+          return self.load();
         });
       });
     },
     uploadFiles: function (event) {
       this.dragLeave(event);
+      this.tab = 'upload';
       let self = this;
 
       let fileList = event.dataTransfer
@@ -800,66 +765,6 @@ Vue.component("upload-manager", {
           console.log("Files uploaded...")
         });
     },
-    monitorIngest: function (url, keys) {
-      let self = this;
-      let websocket = new WebSocket(url);
-      websocket.onerror = function (e) {
-        self.log.push("ERROR: a websocket communication error occurred");
-        console.error("Socket error!", e);
-        keys.forEach(key => self.$delete(self.ingesting, key));
-      };
-      websocket.onmessage = function (e) {
-        let msg = JSON.parse(e.data);
-        self.log.push(msg.trim());
-        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-          keys.forEach(key => self.$delete(self.ingesting, key));
-          websocket.close();
-        }
-      };
-    },
-    ingestFiles: function (keys) {
-      let self = this;
-
-      // Switch to ingest tab...
-      this.tab = "ingest";
-
-      // Clear existing log...
-      self.log.length = 0;
-
-      // Set key status to ingesting.
-      keys.forEach(key => this.$set(this.ingesting, key, true));
-
-      DAO.ingestFiles(this.fileStage, keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
-        .then(data => {
-          if (data.url && data.jobId) {
-            self.monitorIngest(data.url, keys);
-          } else {
-            console.error("unexpected job data", data);
-          }
-        });
-    },
-    ingestAll: function () {
-      let self = this;
-
-      // Switch to ingest tab...
-      this.tab = "ingest";
-
-      // Clear existing log...
-      self.log.length = 0;
-
-      let keys = self.files.map(f => f.key);
-
-      // Set key status to ingesting.
-      keys.forEach(key => this.$set(this.ingesting, key, true));
-
-      DAO.ingestAll(this.fileStage, self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
-        if (data.url && data.jobId) {
-          self.monitorIngest(data.url, keys);
-        } else {
-          console.error("unexpected job data", data);
-        }
-      });
-    },
   },
   template: `
     <div id="upload-manager-container" class="stage-manager-container"
@@ -868,46 +773,9 @@ Vue.component("upload-manager", {
          v-on:drop.prevent.stop="uploadFiles">
 
       <div class="actions-bar">
-        <div class="filter-control">
-          <label for="upload-filter-input" class="sr-only">Filter files</label>
-          <input id="upload-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
-                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
-          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
-        </div>
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
-          <i class="fa fa-flag-o"/>
-          Validate Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
-          <i class="fa fa-flag-o"/>
-          Validate All
-        </button>
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-          <i class="fa fa-database"/>
-          Ingest Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()"
-                v-else>
-          <i class="fa fa-database"/>
-          Ingest All
-        </button>
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-          <i class="fa fa-trash-o"/>
-          Delete Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
-                v-else>
-          <i class="fa fa-trash-o"/>
-          Delete All
-        </button>
+        <filter-control v-bind:filter="filter"
+                        v-on:filter="filterFiles"
+                        v-on:clear="clearFilter"/>
 
         <button class="file-upload-button btn btn-sm btn-default">
           <input class="file-selector-input"
@@ -920,15 +788,28 @@ Vue.component("upload-manager", {
           <i class="fa fa-cloud-upload"/>
           Upload Files
         </button>
-
-        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
-          <i class="fa fa-gear"/>
+        
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
+          <i class="fa fa-flag-o"/>
+          Validate Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
+          <i class="fa fa-flag-o"/>
+          Validate All
         </button>
 
-        <options-panel 
-          v-if="showOptions"
-          v-bind:opts="opts"
-          v-on:hide="showOptions = false" />
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+          <i class="fa fa-trash-o"/>
+          Delete Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+                v-else>
+          <i class="fa fa-trash-o"/>
+          Delete All
+        </button>
       </div>
 
       <div id="upload-panel-container" class="panel-container">
@@ -944,11 +825,10 @@ Vue.component("upload-manager", {
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
-            v-bind:ingesting="ingesting"
-            v-bind:filter="filter"
+            v-bind:ingesting="null"
+            v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
-            v-on:ingest-files="ingestFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
@@ -971,9 +851,9 @@ Vue.component("upload-manager", {
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-                 v-on:click.prevent="tab = 'ingest'">
-                Ingest Log
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
+                 v-on:click.prevent="tab = 'upload'">
+                Upload Log
               </a>
             </li>
             <li>
@@ -1003,10 +883,10 @@ Vue.component("upload-manager", {
                 Validation log output will show here.
               </div>
             </div>
-            <div class="status-panel log-container" v-show="tab === 'ingest'">
+            <div class="status-panel log-container" v-show="tab === 'upload'">
               <log-window v-bind:log="log" v-if="log.length > 0"/>
               <div class="panel-placeholder" v-else>
-                Ingest log output will show here.
+                Upload log output will show here.
               </div>
             </div>
           </div>
@@ -1212,19 +1092,11 @@ Vue.component("oaipmh-manager", {
     this.resumeMonitor();
   },
   template: `
-    <div id="oaipmh-manager-container" class="stage-manager-container"
-         v-on:dragover.prevent.stop="dragOver"
-         v-on:dragleave.prevent.stop="dragLeave"
-         v-on:drop.prevent.stop="uploadFiles">
-
+    <div id="oaipmh-manager-container" class="stage-manager-container">
       <div class="actions-bar">
-        <div class="filter-control">
-          <label for="oaipmh-filter-input" class="sr-only">Filter files</label>
-          <input id="oaipmh-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
-                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
-          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
-        </div>
+        <filter-control v-bind:filter="filter"
+                        v-on:filter="filterFiles"
+                        v-on:clear="clearFilter"/>
 
         <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
                 v-on:click.prevent="harvest">
@@ -1283,7 +1155,7 @@ Vue.component("oaipmh-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:ingesting="null"
-            v-bind:filter="filter"
+            v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
             v-on:validate-files="validateFiles"
@@ -1365,7 +1237,7 @@ Vue.component("convert-config-modal", {
   },
   methods: {
     save: function() {
-      DAO.saveConvertConfig({url: this.url, format: this.format, set: this.set})
+      DAO.saveConvertConfig({src: this.src})
         .then(data => this.$emit("saved-config", data));
     },
   },
@@ -1502,17 +1374,13 @@ Vue.component("convert-manager", {
     <div id="convert-manager-container" class="stage-manager-container">
 
       <div class="actions-bar">
-        <div class="filter-control">
-          <label for="convert-filter-input" class="sr-only">Filter files</label>
-          <input id="convert-filter-input" class="filter-input form-control form-control-sm" type="text" v-model.trim="filter"
-                 placeholder="Filter files..." v-on:keyup="filterFiles"/>
-          <i class="filtering-indicator fa fa-circle-o-notch fa-fw fa-spin" v-if="filtering"/>
-          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="clearFilter" v-else-if="filter"/>
-        </div>
+        <filter-control v-bind:filter="filter"
+                        v-on:filter="filterFiles"
+                        v-on:clear="clearFilter"/>
 
         <button v-if="!convertJobId" v-bind:disabled="!convertConfig" class="btn btn-sm btn-default"
                 v-on:click.prevent="convert">
-          <i class="fa fa-fw fa-cloud-download"/>
+          <i class="fa fa-fw fa-file-code-o"/>
           Convert Files
         </button>
         <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelConvert">
@@ -1567,7 +1435,7 @@ Vue.component("convert-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:ingesting="null"
-            v-bind:filter="filter"
+            v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
             v-on:validate-files="validateFiles"
@@ -1637,6 +1505,267 @@ Vue.component("convert-manager", {
   `
 });
 
+Vue.component("ingest-options-panel", {
+  props: {
+    opts: Object
+  },
+  template: `
+    <div class="options-dialog modal show fade" tabindex="-1" role="dialog"
+         style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Testing Parameters</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('hide')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="options-form">
+              <div class="form-group form-check">
+                <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="opts.tolerant"/>
+                <label class="form-check-label" for="opt-tolerant-check">
+                  Tolerant Mode: do not abort on individual file errors
+                </label>
+              </div>
+              <div class="form-group form-check">
+                <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="opts.commit"/>
+                <label class="form-check-label" for="opt-commit-check">
+                  Commit Ingest: make changes to database
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="opt-log-message">Log Message</label>
+                <input class="form-control form-control-sm" id="opt-log-message" v-model="opts.logMsg"/>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('hide')">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+Vue.component("ingest-manager", {
+  mixins: [stageMixin],
+  props: {
+    fileStage: String,
+  },
+  data: function () {
+    return {
+      ingesting: {},
+      showOptions: false,
+      opts: {
+        commit: false,
+        tolerant: false,
+        logMsg: LOG_MESSAGE
+      }
+    }
+  },
+  methods: {
+    monitorIngest: function (url, keys) {
+      let self = this;
+      let websocket = new WebSocket(url);
+      websocket.onerror = function (e) {
+        self.log.push("ERROR: a websocket communication error occurred");
+        console.error("Socket error!", e);
+        keys.forEach(key => self.$delete(self.ingesting, key));
+      };
+      websocket.onmessage = function (e) {
+        let msg = JSON.parse(e.data);
+        self.log.push(msg.trim());
+        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
+          keys.forEach(key => self.$delete(self.ingesting, key));
+          websocket.close();
+        }
+      };
+    },
+    ingestFiles: function (keys) {
+      let self = this;
+
+      // Switch to ingest tab...
+      this.tab = "ingest";
+
+      // Clear existing log...
+      self.log.length = 0;
+
+      // Set key status to ingesting.
+      keys.forEach(key => this.$set(this.ingesting, key, true));
+
+      DAO.ingestFiles(this.fileStage, keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
+        .then(data => {
+          if (data.url && data.jobId) {
+            self.monitorIngest(data.url, keys);
+          } else {
+            console.error("unexpected job data", data);
+          }
+        });
+    },
+    ingestAll: function () {
+      let self = this;
+
+      // Switch to ingest tab...
+      this.tab = "ingest";
+
+      // Clear existing log...
+      self.log.length = 0;
+
+      let keys = self.files.map(f => f.key);
+
+      // Set key status to ingesting.
+      keys.forEach(key => this.$set(this.ingesting, key, true));
+
+      DAO.ingestAll(this.fileStage, self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
+        if (data.url && data.jobId) {
+          self.monitorIngest(data.url, keys);
+        } else {
+          console.error("unexpected job data", data);
+        }
+      });
+    },
+  },
+  template: `
+    <div id="ingest-manager-container" class="stage-manager-container">
+      <div class="actions-bar">
+        <filter-control 
+          v-bind:filter="filter"
+          v-on:filter="filterFiles" 
+          v-on:clear="clearFilter" />
+
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
+          <i class="fa fa-database"/>
+          Ingest Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()"
+                v-else>
+          <i class="fa fa-database"/>
+          Ingest All
+        </button>
+        
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
+          <i class="fa fa-flag-o"/>
+          Validate Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
+          <i class="fa fa-flag-o"/>
+          Validate All
+        </button>
+
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
+          <i class="fa fa-trash-o"/>
+          Delete Selected ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+                v-else>
+          <i class="fa fa-trash-o"/>
+          Delete All
+        </button>
+
+        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
+          <i class="fa fa-gear"/>
+          Configuration
+        </button>
+
+        <ingest-options-panel 
+          v-if="showOptions"
+          v-bind:opts="opts"
+          v-on:hide="showOptions = false" />
+      </div>
+
+      <div id="ingest-panel-container" class="panel-container">
+        <div class="top-panel">
+          <files-table
+            v-bind:fileStage="fileStage"
+            v-bind:loaded="loaded"
+            v-bind:files="files"
+            v-bind:selected="selected"
+            v-bind:previewing="previewing"
+            v-bind:validating="validating"
+            v-bind:validationResults="validationResults"
+            v-bind:truncated="truncated"
+            v-bind:deleting="deleting"
+            v-bind:ingesting="ingesting"
+            v-bind:filter="filter.value"
+
+            v-on:delete-files="deleteFiles"
+            v-on:ingest-files="ingestFiles"
+            v-on:validate-files="validateFiles"
+            v-on:files-loaded="filesLoaded"
+            v-on:show-preview="showPreview"
+          />
+        </div>
+
+        <div id="ingest-status-panel" class="bottom-panel">
+          <ul class="status-panel-tabs nav nav-tabs">
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
+                 v-on:click.prevent="tab = 'preview'">
+                File Preview
+                <template v-if="previewing"> - {{previewing}}</template>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
+                 v-on:click.prevent="tab = 'validation'">
+                Validation Log
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+                 v-on:click.prevent="tab = 'ingest'">
+                Ingest Log
+              </a>
+            </li>
+            <li>
+              <drag-handle
+                v-bind:ns="fileStage"
+                v-bind:p2="$root.$el.querySelector('#ingest-status-panel')"
+                v-bind:container="$root.$el.querySelector('#ingest-panel-container')"
+                v-on:resize="setPanelSize"
+              />
+            </li>
+          </ul>
+
+          <div class="status-panels">
+            <div class="status-panel" v-show="tab === 'preview'">
+              <preview v-bind:fileStage="fileStage"
+                       v-bind:previewing="previewing"
+                       v-bind:errors="validationResults"
+                       v-bind:panelSize="panelSize"
+                       v-show="previewing !== null"/>
+              <div class="panel-placeholder" v-if="previewing === null">
+                No file selected.
+              </div>
+            </div>
+            <div class="status-panel log-container" v-show="tab === 'validation'">
+              <log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
+              <div id="validation-placeholder" class="panel-placeholder" v-else>
+                Validation log output will show here.
+              </div>
+            </div>
+            <div class="status-panel log-container" v-show="tab === 'ingest'">
+              <log-window v-bind:log="log" v-if="log.length > 0"/>
+              <div class="panel-placeholder" v-else>
+                Ingest log output will show here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
 let app = new Vue({
   el: '#data-manager',
   data: function() {
@@ -1673,15 +1802,16 @@ let app = new Vue({
         </li>
       </ul>
       <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
-        <upload-manager v-bind:fileStage="'ingest'"/>
+        <upload-manager v-bind:fileStage="'upload'"/>
       </div>
       <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
         <oaipmh-manager v-bind:fileStage="'oaipmh'"/>
       </div>
       <div id="tab-convert" class="stage-tab" v-show="stage === 'convert'">
-        <convert-manager v-bind:fileStage="'convert'"/>
+        <convert-manager v-bind:fileStage="'ingest'"/>
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
+        <ingest-manager v-bind:fileStage="'ingest'"/>
       </div>
     </div>  
   `

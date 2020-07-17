@@ -73,18 +73,20 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
   }
 
   def get(bucket: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
-    .download(bucket, path).runWith(Sink.headOption).map(_.flatten)
-    .map {
-      case Some((src, meta)) => Some(FileMeta(
-        bucket,
-        path,
-        java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
-        meta.getContentLength,
-        meta.eTag,
-        meta.contentType,
-      ) -> src)
-      case _ => None
-    }
+      .download(bucket, path)
+      .withAttributes(S3Attributes.settings(endpoint))
+      .runWith(Sink.headOption).map(_.flatten)
+      .map {
+        case Some((src, meta)) => Some(FileMeta(
+          bucket,
+          path,
+          java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
+          meta.getContentLength,
+          meta.eTag,
+          meta.contentType,
+        ) -> src)
+        case _ => None
+      }
 
   def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None,
       public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {

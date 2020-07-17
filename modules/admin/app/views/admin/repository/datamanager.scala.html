@@ -50,9 +50,9 @@
                 window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
                     repositoryId: "@item.id",
+                    upload: "@defines.FileStage.Upload",
                     ingest: "@defines.FileStage.Ingest",
                     oaipmh: "@defines.FileStage.OaiPmh",
-                    convert: "@defines.FileStage.Convert",
                     previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datamanager.worker.js")",
                     monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
                                 .absoluteURL(location.protocol === "https:")
@@ -63,7 +63,7 @@
         </script>
 
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>

@@ -1,49 +1,49 @@
-package actors
+package actors.transformation
 
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 
-import actors.OaiPmhHarvester.OaiPmhHarvestJob
+import actors.transformation.XmlConvertRunner._
+import actors.transformation.XmlConverter.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
-import models.{OaiPmhConfig, UserProfile}
-import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClient, OaiPmhError}
+import defines.FileStage
+import models.{ConvertConfig, UserProfile}
+import services.harvesting.HarvestEventHandle
 import services.storage.FileStorage
+import services.transformation.XmlTransformer
 import utils.WebsocketConstants
 
 import scala.concurrent.ExecutionContext
 
 
-object OaiPmhHarvester {
-
+object XmlConverter {
   /**
-    * A description of an OAI-PMH harvest task.
+    * A description of a conversion task.
     *
-    * @param config     the endpoint configuration
+    * @param config     the conversion configuration
     * @param from       the starting date and time
     * @param classifier the storage classifier on which to save files
-    * @param prefix     the path prefix on which to save files, after
+    * @param outPrefix     the path prefix on which to save files, after
     *                   which the item identifier will be appended
     */
-  case class OaiPmhHarvestData(
-    config: OaiPmhConfig,
+  case class XmlConvertData(
+    config: ConvertConfig,
     classifier: String,
-    prefix: String,
+    inPrefix: FileStage.Value => String,
+    outPrefix: String,
     from: Option[Instant] = None,
   )
 
   /**
-    * A single harvest job with a unique ID.
+    * A single convert job with a unique ID.
     */
-  case class OaiPmhHarvestJob(jobId: String, repoId: String, data: OaiPmhHarvestData)
+  case class XmlConvertJob(jobId: String, repoId: String, data: XmlConvertData)
+
 
 }
 
-case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
+case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
-
-  import actors.OaiPmhHarvestRunner._
-  import akka.pattern.pipe
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
@@ -56,7 +56,7 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
   override def receive: Receive = {
     case chan: ActorRef =>
       log.debug("Received initial subscriber, starting...")
-      val runner = context.actorOf(Props(OaiPmhHarvestRunner(job, client, storage)))
+      val runner = context.actorOf(Props(XmlConvertRunner(job, transformer, storage)))
       context.become(running(runner, Set(chan), Option.empty))
       runner ! Initial
   }
@@ -87,61 +87,35 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
 
     // Confirmation the runner has started
     case Starting =>
-      msg(s"Starting harvest with job id: ${job.jobId}", subs)
-      job.data.from.fold(msg("Harvesting from earliest date", subs)) { from =>
-        msg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(from)}", subs)
-      }
+      msg(s"Starting convert with job id: ${job.jobId}", subs)
 
-    // Cancel harvest.. here we tell the runner to exit
+    // Cancel conversion... here we tell the runner to exit
     // and shut down on its termination signal...
     case Cancel => runner ! Cancel
 
-    // The runner is continuing to harvest via a resumption token
-    case Resuming(token) => msg(s"Resuming with $token", subs)
-
-    // A file has been harvested
+    // A file has been converted
     case DoneFile(id) =>
       msg(id, subs)
-      if (handle.isEmpty) {
-        eventLog.save(job.repoId, job.jobId).pipeTo(self)
-      }
 
-      // We've received a log handle which we can use to say how
-      // this job finished: via error, cancellation, or otherwise
-    case handle: HarvestEventHandle =>
-      context.become(running(runner, subs, Some(handle)))
+    case Resuming(from) =>
+      msg(s"Resuming from marker: $from", subs)
 
     // Received confirmation that the runner has shut down
     case Cancelled(count, secs) =>
       msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
-      handle.foreach(_.cancel())
       context.stop(self)
 
     // The runner has completed, so we log the
     // event and shut down too
     case Completed(count, secs) =>
       msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"harvested $count file(s) in $secs seconds", subs)
-      handle.foreach(_.close())
-      context.stop(self)
-
-    // Error case where the `set` or `from` parameters mean that
-    // no records are returned
-    case OaiPmhError("noRecordsMatch", _) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: nothing to harvest", subs)
-      context.stop(self)
-
-    // Error case where we get some other problem...
-    case e: OaiPmhError =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: ${e.code}", subs)
-      handle.map(_.error(e))
+        s"converted $count file(s) in $secs seconds", subs)
       context.stop(self)
 
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: harvesting error: ${e.getMessage}", subs)
-      handle.foreach(_.error(e))
+      msg(s"${WebsocketConstants.ERR_MESSAGE}: conversion error: ${e.getMessage}", subs)
       context.stop(self)
 
     case m =>
