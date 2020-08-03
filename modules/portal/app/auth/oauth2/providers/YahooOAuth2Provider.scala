@@ -4,7 +4,7 @@ import auth.oauth2.{OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
 import play.api.http.ContentTypes
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{JsValue, Json, Reads}
 
 case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
@@ -14,12 +14,6 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
   private object YahooEmail {
     implicit val reader: Reads[YahooEmail] = Json.reads[YahooEmail]
   }
-
-  override def getUserInfoUrl(info: OAuth2Info): String =
-    settings.userInfoUrl + info.userGuid.getOrElse("NO-ID") + "/profile"
-
-  override def getUserInfoParams(info: OAuth2Info): Seq[(String,String)] =
-    Seq("format" -> "json")
 
   override def getUserInfoHeader(info: OAuth2Info): Seq[(String, String)] =
     Seq("Authorization" -> s"Bearer ${info.accessToken}")
@@ -43,23 +37,21 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
 
   override def parseUserInfo(data: String): Option[UserData] = {
     try {
-      val json = Json.parse(data)
-      logger.debug(s"Yahoo user data: $json")
+      val json: JsValue = Json.parse(data)
+      logger.debug(s"Google user info $json")
       for {
-        guid <- (json \ "profile" \ "guid").asOpt[String]
-        givenName <- (json \ "profile" \ "givenName").asOpt[String]
-        familyName <- (json \ "profile" \ "familyName").asOpt[String]
-        imageUrl <- (json \ "profile" \ "image" \ "imageUrl").asOpt[String]
-        emails <- (json \ "profile" \ "emails").asOpt[Seq[YahooEmail]]
-        mainEmail <- emails.sortBy(_.primary.isEmpty).headOption.map(_.handle)
+        guid <- (json \ "sub").asOpt[String]
+        email <- (json \ "email").asOpt[String]
+        name <- (json \ "name").asOpt[String]
+        imageUrl <- (json \ "picture").asOpt[String]
       } yield UserData(
         providerId = guid,
-        email = mainEmail,
-        name = s"$givenName $familyName",
+        email = email,
+        name = name,
         imageUrl = imageUrl
       )
     } catch {
-      case e: JsonParseException => None
+      case _: JsonParseException => None
     }
   }
 
@@ -68,7 +60,7 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
     try {
       info.map(_.copy(userGuid = (Json.parse(data) \ "xoauth_yahoo_guid").asOpt[String]))
     } catch {
-      case e: JsonParseException => None
+      case _: JsonParseException => None
     }
   }
 }
