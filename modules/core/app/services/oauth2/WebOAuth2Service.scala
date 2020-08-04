@@ -1,18 +1,18 @@
-package auth.oauth2
-
-import javax.inject.Inject
+package services.oauth2
 
 import auth.AuthenticationError
 import auth.oauth2.providers.OAuth2Provider
+import auth.oauth2.{OAuth2Info, UserData}
+import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class WebOAuth2Flow @Inject ()(
+case class WebOAuth2Service @Inject ()(
   ws: WSClient,
   config: play.api.Configuration
-)(implicit executionContext: ExecutionContext) extends OAuth2Flow {
+)(implicit executionContext: ExecutionContext) extends OAuth2Service {
 
   private val logger = Logger(getClass)
 

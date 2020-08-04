@@ -1,1 +1,19 @@
-{"profile":{"guid":"123456789","addresses":[{"city":"","country":"UK","current":true,"id":1,"postalCode":"123456","state":"","street":"","type":"HOME"},{"city":"","country":"UK","current":true,"id":2,"postalCode":"","state":"","street":"","type":"WORK"}],"ageCategory":"A","birthYear":1900,"birthdate":"01/01","created":"2015-01-01T00:00:00Z","displayAge":100,"emails":[{"handle":"alternate@example.com","id":10,"type":"HOME"},{"handle":"example1@example.com","id":1,"primary":true,"type":"HOME"}],"familyName":"Name","gender":"F","givenName":"Any","image":{"height":192,"imageUrl":"https://s.yimg.com/dh/ap/social/profile/blah.png","size":"192x192","width":192},"intl":"uk","jurisdiction":"uk","lang":"en-GB","memberSince":"2012-01-01T00:00:00Z","migrationSource":1,"nickname":"Mike","notStored":true,"nux":"0","phones":[{"id":10,"number":"44-0123456789","type":"MOBILE"}],"profileMode":"PUBLIC","profileStatus":"ACTIVE","profileUrl":"http://profile.yahoo.com/blah","timeZone":"Europe/London","isConnected":true,"profileHidden":false,"profilePermission":"PRIVATE","uri":"https://social.yahooapis.com/v1/user/blah/profile","cache":false}}
+{
+  "sub": "JEF4XR2CT55JPVEBVD7ZVT6A3A",
+  "name": "Jasmine Smith",
+  "given_name": "Jasmine",
+  "family_name": "Smith",
+  "locale": "en-US",
+  "email": "yqa_functest_15572415322065371@yahoo.com",
+  "email_verified": true,
+  "birthdate": "1972",
+  "profile_images": {
+   "image32": "https://ct.yimg.com/cy/1768/39361574426_98028a_32sq.jpg",
+   "image64": "https://ct.yimg.com/cy/1768/39361574426_98028a_64sq.jpg",
+   "image128": "https://ct.yimg.com/cy/1768/39361574426_98028a_128sq.jpg",
+   "image192": "https://ct.yimg.com/cy/1768/39361574426_98028a_192sq.jpg"
+  },
+  "preferred_username": "yqa_functest_15572415322065371@yahoo.com",
+  "nickname": "Jasmine",
+  "picture": "https://ct.yimg.com/cy/1768/39361574426_98028a_192sq.jpg"
+}

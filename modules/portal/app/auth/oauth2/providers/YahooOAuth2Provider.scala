@@ -4,16 +4,12 @@ import auth.oauth2.{OAuth2Info, UserData}
 import com.fasterxml.jackson.core.JsonParseException
 import org.apache.commons.codec.binary.Base64
 import play.api.http.ContentTypes
-import play.api.libs.json.{JsValue, Json, Reads}
+import play.api.libs.json.{JsValue, Json}
+
 
 case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Provider {
 
   val name = "yahoo"
-
-  private case class YahooEmail(handle: String, id: Int, primary: Option[Boolean])
-  private object YahooEmail {
-    implicit val reader: Reads[YahooEmail] = Json.reads[YahooEmail]
-  }
 
   override def getUserInfoHeader(info: OAuth2Info): Seq[(String, String)] =
     Seq("Authorization" -> s"Bearer ${info.accessToken}")
@@ -38,7 +34,7 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
   override def parseUserInfo(data: String): Option[UserData] = {
     try {
       val json: JsValue = Json.parse(data)
-      logger.debug(s"Google user info $json")
+      logger.debug(s"Yahoo user info $json")
       for {
         guid <- (json \ "sub").asOpt[String]
         email <- (json \ "email").asOpt[String]
@@ -51,7 +47,9 @@ case class YahooOAuth2Provider (config: play.api.Configuration) extends OAuth2Pr
         imageUrl = imageUrl
       )
     } catch {
-      case _: JsonParseException => None
+      case e: JsonParseException =>
+        logger.error(s"Error parsing Yahoo user data: ${e.getMessage}")
+        None
     }
   }
 

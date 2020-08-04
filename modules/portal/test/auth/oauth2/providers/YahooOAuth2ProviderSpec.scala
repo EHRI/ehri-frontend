@@ -25,9 +25,9 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
      "parse user data" in {
        YahooOAuth2Provider(config).parseUserInfo(testUserData) must beSome.which { d =>
-         d.name must equalTo("Any Name")
-         d.email must equalTo("example1@example.com")
-         d.providerId must equalTo("123456789")
+         d.name must equalTo("Jasmine Smith")
+         d.email must equalTo("yqa_functest_15572415322065371@yahoo.com")
+         d.providerId must equalTo("JEF4XR2CT55JPVEBVD7ZVT6A3A")
        }
      }
    }

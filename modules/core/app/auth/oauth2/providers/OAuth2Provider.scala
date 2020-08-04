@@ -4,11 +4,12 @@ import java.net.URLEncoder
 
 import auth.oauth2._
 import com.fasterxml.jackson.core.JsonParseException
+import play.api.Logger
 import play.api.libs.json.Json
 
 trait OAuth2Provider {
 
-  protected val logger = play.api.Logger(getClass)
+  protected val logger: Logger = play.api.Logger(getClass)
 
   implicit def config: play.api.Configuration
 
