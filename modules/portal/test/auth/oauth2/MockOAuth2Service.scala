@@ -1,12 +1,13 @@
 package auth.oauth2
 
 import auth.oauth2.providers.OAuth2Provider
+import services.oauth2.OAuth2Service
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.io.Source
 
-case class MockOAuth2Flow() extends OAuth2Flow {
+case class MockOAuth2Service() extends OAuth2Service {
 
   private def resourceAsString(name: String): String = Source.fromInputStream(getClass
     .getClassLoader.getResourceAsStream(name))

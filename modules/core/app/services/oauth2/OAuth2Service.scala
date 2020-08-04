@@ -1,10 +1,11 @@
-package auth.oauth2
+package services.oauth2
 
 import auth.oauth2.providers.OAuth2Provider
+import auth.oauth2.{OAuth2Info, UserData}
 
 import scala.concurrent.Future
 
-trait OAuth2Flow {
+trait OAuth2Service {
   /**
    * Second step after OAuth2 initial redirect to provider. Use code from provider
    * to fetch access token info.

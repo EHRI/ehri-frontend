@@ -5,7 +5,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import auth.oauth2.providers.OAuth2Provider
-import auth.oauth2.{OAuth2Config, OAuth2Flow, UserData}
+import auth.oauth2.{OAuth2Config, UserData}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
@@ -25,6 +25,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import services.data.{AnonymousUser, AuthenticatedUser}
 import forms.{HoneyPotForm, TimeCheckForm}
+import services.oauth2.OAuth2Service
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -36,7 +37,7 @@ case class Accounts @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   mailer: MailerClient,
-  oAuth2Flow: OAuth2Flow,
+  oAuth2Flow: OAuth2Service,
   ws: WSClient,
   openId: OpenIdClient,
   oauth2Providers: OAuth2Config,

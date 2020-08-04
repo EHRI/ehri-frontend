@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import akka.stream.Materializer
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
-import auth.oauth2.{MockOAuth2Flow, OAuth2Flow}
+import auth.oauth2.MockOAuth2Service
 import controllers.base.SessionPreferences
 import global.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
@@ -28,6 +28,7 @@ import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data.{IdSearchResolver, _}
 import services.feedback.{FeedbackService, MockFeedbackService}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
+import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 import services.search.{MockSearchIndexMediator, _}
 import services.storage.{FileStorage, MockFileStorage}
@@ -66,7 +67,7 @@ trait TestConfiguration {
   // NB: The mutable state for the user DAO is still stored globally
   // in the mocks package.
   protected def mockAccounts: AccountManager = MockAccountManager(ExecutionContext.Implicits.global)
-  private def mockOAuth2Flow: OAuth2Flow = MockOAuth2Flow()
+  private def mockOAuth2Flow: OAuth2Service = MockOAuth2Service()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
@@ -94,7 +95,7 @@ trait TestConfiguration {
       // login evicts the last.
       bind[AuthIdContainer].to(classOf[CookieIdContainer]),
       bind[MailerClient].toInstance(mockMailer),
-      bind[OAuth2Flow].toInstance(mockOAuth2Flow),
+      bind[OAuth2Service].toInstance(mockOAuth2Flow),
       bind[FileStorage].toInstance(mockFileStorage),
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),

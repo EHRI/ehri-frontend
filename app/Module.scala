@@ -1,7 +1,7 @@
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
-import auth.oauth2.{OAuth2Config, OAuth2Flow, WebOAuth2Flow}
+import auth.oauth2.OAuth2Config
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
@@ -9,6 +9,7 @@ import eu.ehri.project.search.solr._
 import global._
 import javax.inject.{Inject, Provider}
 import models.{GuideService, SqlGuideService}
+import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
@@ -52,7 +53,7 @@ class Module extends AbstractModule {
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
-    bind(classOf[OAuth2Flow]).to(classOf[WebOAuth2Flow])
+    bind(classOf[OAuth2Service]).to(classOf[WebOAuth2Service])
     bind(classOf[OAuth2Config]).toProvider(classOf[OAuth2ConfigProvider])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
     bind(classOf[FileStorage]).to(classOf[S3FileStorage])
