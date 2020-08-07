@@ -15,7 +15,7 @@ case class MockHarvestEventService(
   override def get(repoId: String, datasetId: Option[String], jobId: Option[String]) =
     immediate(events.filter(e => e.repoId == repoId
       && (datasetId.isDefined && datasetId.contains(e.datasetId))
-      && (jobId.isDefined && jobId.contains(e.jobId))).sortBy(_.created))
+      && (jobId.isDefined && jobId.contains(e.jobId))).sortBy(_.created).toSeq)
 
   override def save(repoId: String, datasetId: String, jobId: String, info: Option[String])(implicit userOpt: Option[UserProfile]) = {
     events += HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Started, info, Instant.now())

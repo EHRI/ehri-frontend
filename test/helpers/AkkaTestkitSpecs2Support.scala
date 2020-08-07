@@ -10,5 +10,5 @@ abstract class AkkaTestkitSpecs2Support extends TestKit(ActorSystem())
   with ImplicitSender {
 
   // make sure we shut down the actor system after all tests have run
-  override def afterAll: Unit = shutdown()
+  override def afterAll(): Unit = shutdown()
 }

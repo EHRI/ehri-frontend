@@ -46,8 +46,8 @@ case class TestModel(
 
 class ModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 
-  implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
-  implicit val messagesApi = application.injector.instanceOf[MessagesApi]
+  private implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build()
+  implicit val messagesApi: MessagesApi = application.injector.instanceOf[MessagesApi]
 
   val accessPoint1 = AccessPoint(data = AccessPointF(
     id = Some("ap1"),

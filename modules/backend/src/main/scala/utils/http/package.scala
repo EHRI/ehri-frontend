@@ -45,7 +45,7 @@ package object http {
    * @return a decoded map of key -> value sequences
    */
   def parseQueryString(s: String): Map[String,Seq[String]] =
-    paramsToForm(s.substring(s.indexOf('?')).split("&").map(_.split("=", 2))
+    paramsToForm(s.substring(s.indexOf('?')).split("&").toSeq.map(_.split("=", 2))
       .map(p => URLDecoder.decode(p(0), "UTF-8") -> URLDecoder.decode(p(1), "UTF-8") ))
 
   /**

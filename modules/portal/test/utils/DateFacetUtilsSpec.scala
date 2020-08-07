@@ -7,9 +7,9 @@ import services.search.{End, Start, Val}
 class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSupport with LangImplicits {
   import utils.DateFacetUtils._
 
-  implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
-  implicit val messagesApi = new DefaultMessagesApi()
+  private implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build()
   private implicit val lang: Lang = Lang("en")
+  override implicit val messagesApi = new DefaultMessagesApi()
 
   val dateFacetUtils = application.injector.instanceOf[DateFacetUtils]
 

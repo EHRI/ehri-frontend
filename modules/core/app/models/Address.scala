@@ -63,7 +63,7 @@ object Address {
   import play.api.data.Form
   import play.api.data.Forms._
 
-  val form = Form(
+  val form: Form[AddressF] = Form(
     mapping(
       Entity.ISA -> ignored(EntityType.Address),
       Entity.ID -> optional(nonEmptyText),
