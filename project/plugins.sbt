@@ -3,11 +3,18 @@ logLevel := Level.Warn
 
 // The Typesafe repository 
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+resolvers += Resolver.bintrayRepo("givers", "maven")
+
+// Prevent library dependency errors with scala-xml 1.3.0 to 2.2.0, which in
+// fact should be compatible
+ThisBuild / libraryDependencySchemes ++= Seq(
+  "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
 
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.20")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.2")
 
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.5.1")
 
@@ -26,4 +33,3 @@ addSbtPlugin("io.github.givesocialmovement" % "sbt-vuefy" % "6.0.0")
 
 // For building command line tools...
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
-

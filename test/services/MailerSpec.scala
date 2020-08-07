@@ -16,7 +16,7 @@ class MailerSpec extends PlaySpecification {
 
   "SMTP mailer" should {
     "send mails" in new WithApplication(app) {
-      val mailer = app.injector.instanceOf[MailerClient]
+      val mailer = this.app.injector.instanceOf[MailerClient]
       val email = Email(
         "Test Email",
         "Test FROM <test@example.com>",

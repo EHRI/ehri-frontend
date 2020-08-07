@@ -7,7 +7,7 @@ import akka.stream.alpakka.xml.{Characters, EndElement, ParseEvent, StartElement
 import akka.stream.scaladsl.Flow
 import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
 import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
-import javax.xml.stream.events.EndDocument
+
 
 object XmlFormatter {
   def format(indent: Int = 4): Flow[ParseEvent, ParseEvent, NotUsed] = Flow.fromGraph(XmlFormatter(indent))
@@ -78,9 +78,6 @@ protected[ingest] case class XmlFormatter(indent: Int) extends GraphStage[FlowSh
             case e: Characters =>
               state = SeenData
               push(out, e)
-
-            case e: EndDocument =>
-              emitMultiple(out, List(Characters("\n"), e))
 
             case e =>
               push(out, e)

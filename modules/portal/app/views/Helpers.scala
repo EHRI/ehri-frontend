@@ -2,7 +2,6 @@ package views
 
 import java.net.{MalformedURLException, URL}
 import models.{Annotation, Description, Entity, EntityType, Model, PermissionType, UserProfile}
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
@@ -59,8 +58,8 @@ object Helpers {
 
   def argsWithConfig(fieldName: String, args: Seq[(Symbol,Any)])(implicit config: Option[forms.FormConfig], messages: Messages): Seq[(Symbol,Any)] = {
     (args
-      ++ config.flatMap(_.hint(fieldName)).map('_hint -> _).toSeq
-      ++ config.flatMap(_.required(fieldName)).map(_ => '_help -> Messages("constraint.required")))
+      ++ config.flatMap(_.hint(fieldName)).map(Symbol("_hint") -> _).toSeq
+      ++ config.flatMap(_.required(fieldName)).map(_ => Symbol("_help") -> Messages("constraint.required")))
   }
 
   /*

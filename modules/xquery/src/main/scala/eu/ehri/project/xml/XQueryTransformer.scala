@@ -6,7 +6,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import scopt.OParser
 
 import java.io.{File, FileNotFoundException}
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
 
 /**
   * Command-line interface to the BaseXXQueryTransformer
@@ -56,7 +56,7 @@ object XQueryTransformer {
           .text("Additional namespaces in prefix1=url1,prefix2=url2 format."),
         opt[Unit]("print-script")
           .action((_, opt) => {
-            println(using(Source.fromResource("transform.xqy"))(_.mkString))
+            println(using[BufferedSource, String](Source.fromResource("transform.xqy"))(_.mkString))
             System.exit(1)
             opt
           })
@@ -66,7 +66,7 @@ object XQueryTransformer {
               |use with the -s|script <script-file.xqy> option.""".stripMargin),
         opt[Unit]("print-functions")
           .action((_, opt) => {
-            println(using(Source.fromResource("xtra.xqm"))(_.mkString))
+            println(using[BufferedSource, String](Source.fromResource("xtra.xqm"))(_.mkString))
             System.exit(1)
             opt
           })
