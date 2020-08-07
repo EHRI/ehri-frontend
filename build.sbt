@@ -152,7 +152,7 @@ val commonSettings = Seq(
     "-encoding", "UTF-8",
     "-Ywarn-unused:imports",
     "-unchecked",
-    "-deprecation"
+    "-deprecation",
   ),
 
   resolvers ++= additionalResolvers,
