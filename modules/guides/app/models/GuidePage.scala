@@ -58,7 +58,7 @@ object GuidePage {
     val Nowhere = Value("nowhere")
   }
 
-  implicit val form = Form(
+  implicit val form: Form[models.GuidePage] = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       LAYOUT -> enumMapping(Layout),

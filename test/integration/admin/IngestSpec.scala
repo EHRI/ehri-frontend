@@ -35,8 +35,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
 
   "Ingest views" should {
-    val port = 9902
-    "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.configure(getConfig).build(), port = port) {
+    "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.configure(getConfig).build()) {
       val damStorage = app.injector.instanceOf(BindingKey(classOf[FileStorage], Some(QualifierInstance(Names.named("dam")))))
 
       val result = FakeRequest(controllers.admin.routes.Ingest
@@ -58,7 +57,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val relativeUrl = loc.get
 
       val jobId = relativeUrl.split("=")(1)
-      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
+      val wsUrl = s"ws://127.0.0.1:${this.port}${controllers.admin.routes.Tasks.taskMonitorWS(jobId)}"
 
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
       val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
