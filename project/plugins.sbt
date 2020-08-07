@@ -3,6 +3,7 @@ logLevel := Level.Warn
 
 // The Typesafe repository 
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+resolvers += Resolver.bintrayRepo("givers", "maven")
 
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
@@ -26,4 +27,3 @@ addSbtPlugin("io.github.givesocialmovement" % "sbt-vuefy" % "6.0.0")
 
 // For building command line tools...
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
-
