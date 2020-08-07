@@ -191,7 +191,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
         await(testBackend.create[UserProfile,UserProfileF](user))
         failure("Expected a validation error!")
       } catch {
-        case e: ValidationError =>
+        case e: services.data.ValidationError =>
         case _: Throwable => failure("Expected a validation error!")
       }
     }

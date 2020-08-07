@@ -84,9 +84,9 @@ object Link {
   import play.api.libs.functional.syntax._
   import EnumUtils.enumMapping
 
-  private implicit val userProfileMetaReads = models.UserProfile.UserProfileResource.restReads
-  private implicit val accessPointReads = models.AccessPoint.Converter.restReads
-  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
+  private implicit val userProfileMetaReads: Reads[models.UserProfile] = models.UserProfile.UserProfileResource.restReads
+  private implicit val accessPointReads: Reads[models.AccessPoint] = models.AccessPoint.Converter.restReads
+  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[Link] = (
     __.read[LinkF] and

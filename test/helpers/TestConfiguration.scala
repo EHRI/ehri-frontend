@@ -250,11 +250,11 @@ trait TestConfiguration {
   protected abstract class WithSqlFile(val resource: String)(implicit appLoader: play.api.ApplicationLoader)
     extends WithApplicationLoader(appLoader) {
     override def around[T: AsResult](t: => T): Result =
-      running(app)(withDatabaseFixture(resource)(implicit db => AsResult.effectively(t)))
+      Helpers.running(app)(withDatabaseFixture(resource)(implicit db => AsResult.effectively(t)))
   }
 
   protected def formData(html: String): Map[String, Seq[String]] = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val doc = Jsoup.parse(html)
     val inputData = doc.select("input,textarea").asScala
         .foldLeft(Map.empty[String,Seq[String]]) { case (acc, elem) =>

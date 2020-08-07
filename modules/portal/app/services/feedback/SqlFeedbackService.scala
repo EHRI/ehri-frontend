@@ -36,7 +36,7 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def modeEnumToStatement = new ToStatement[Option[play.api.Mode]] {
+  private implicit def modeEnumToStatement: ToStatement[Option[play.api.Mode]] = new ToStatement[Option[play.api.Mode]] {
     def set(s: java.sql.PreparedStatement, index: Int, value: Option[play.api.Mode]): Unit =
       s.setObject(index, value.map(_.toString).orNull)
   }
@@ -52,7 +52,7 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def typeEnumToStatement = new ToStatement[Option[Feedback.Type.Value]] {
+  private implicit def typeEnumToStatement: ToStatement[Option[models.Feedback.Type.Value]] = new ToStatement[Option[Feedback.Type.Value]] {
     def set(s: java.sql.PreparedStatement, index: Int, value: Option[Feedback.Type.Value]): Unit =
       s.setObject(index, value.map(_.toString).orNull)
   }
@@ -74,7 +74,7 @@ case class SqlFeedbackService @Inject ()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  private implicit def contextToStatement = new ToStatement[Option[FeedbackContext]] {
+  private implicit def contextToStatement: ToStatement[Option[models.FeedbackContext]] = new ToStatement[Option[FeedbackContext]] {
     def set(s: java.sql.PreparedStatement, index: Int, value: Option[FeedbackContext]): Unit =
       s.setObject(index, value.map(v => Json.stringify(Json.toJson(v))).orNull)
   }

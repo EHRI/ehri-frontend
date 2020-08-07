@@ -46,7 +46,7 @@ object CypherQuery {
     }
   }
 
-  implicit val form = Form(
+  implicit val form: Form[models.CypherQuery] = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
       ID -> optional(text),
