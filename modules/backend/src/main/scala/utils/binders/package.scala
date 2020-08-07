@@ -17,7 +17,7 @@ import scala.annotation.tailrec
   */
 package object binders {
 
-  def bindableEnum[E <: Enumeration](enum: E): PathBindable[E#Value] = new PathBindable[E#Value] {
+  def bindableEnum[E <: Enumeration](`enum`: E): PathBindable[E#Value] = new PathBindable[E#Value] {
     def bind(key: String, value: String): Either[String, enum.Value] =
       enum.values.find(_.toString.toLowerCase == value.toLowerCase) match {
         case Some(v) => Right(v)
@@ -27,7 +27,7 @@ package object binders {
     def unbind(key: String, value: E#Value): String = value.toString.toLowerCase
   }
 
-  def queryStringBinder[E <: Enumeration](enum: E)(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[E#Value] =
+  def queryStringBinder[E <: Enumeration](`enum`: E)(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[E#Value] =
     new QueryStringBindable[E#Value] {
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, E#Value]] =
         for (v <- stringBinder.bind(key, params)) yield v match {

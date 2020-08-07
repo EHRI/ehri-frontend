@@ -77,7 +77,7 @@ trait Search extends CoreActionBuilders {
       appliedFacets = appliedFacets,
       facetClasses = facetClasses,
       user = userOpt,
-      lang = request.lang
+      lang = request.transientLang()
     )
   }
 

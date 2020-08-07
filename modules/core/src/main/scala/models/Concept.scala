@@ -89,8 +89,8 @@ object Concept {
   import Entity._
   import ConceptF._
 
-  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
-  private implicit val vocabularyReads = Vocabulary.VocabularyResource.restReads
+  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val vocabularyReads: Reads[models.Vocabulary] = Vocabulary.VocabularyResource.restReads
 
   implicit val metaReads: Reads[Concept] = (
     __.read[ConceptF] and

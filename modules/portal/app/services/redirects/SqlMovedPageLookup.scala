@@ -36,9 +36,9 @@ case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: Act
       db.withConnection { implicit conn =>
         val inserts = moved.map { case (from, to) =>
           Seq[NamedParameter](
-            'hash -> DigestUtils.sha1Hex(from),
-            'original -> from,
-            'path -> to
+            Symbol("hash") -> DigestUtils.sha1Hex(from),
+            Symbol("original") -> from,
+            Symbol("path") -> to
           )
         }
         val q = """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
