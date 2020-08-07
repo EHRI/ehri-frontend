@@ -43,7 +43,7 @@ class SqlFeedbackServiceSpec extends PlaySpecification {
         val f = Feedback(text = Some("Problem..."), mode = Some(play.api.Mode.Prod))
         val id = await(feedbackService.create(f))
         val f2 = await(feedbackService.get(id))
-        f2.mode must beSome(play.api.Mode.Prod)
+        f2.mode must_== Some(play.api.Mode.Prod)
         // If we delete it successfully assume all good...
         await(feedbackService.delete(id)) must_== true
       }
