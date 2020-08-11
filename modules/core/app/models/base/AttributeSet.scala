@@ -6,7 +6,7 @@ package models.base
  * entity in its own right.
  */
 trait AttributeSet {
-  def toData: Map[String,Any] = (Map[String, Any]() /: getClass.getDeclaredFields) {(a, f) =>
+  def toData: Map[String,Any] = getClass.getDeclaredFields.foldLeft(Map[String, Any]()) {(a, f) =>
     f.setAccessible(true)
     a + (f.getName -> toValue(f.get(this)))
   }
