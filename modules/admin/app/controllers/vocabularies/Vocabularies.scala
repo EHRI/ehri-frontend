@@ -192,17 +192,6 @@ case class Vocabularies @Inject()(
           action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
-      baseUri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
-    userDataApi.query(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
-      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
-        .flatMap(_.headOption)
-        .getOrElse(MimeTypes.TEXT)
-      Ok.chunked(sr.bodyAsSource).as(ct)
-    }
-  }
-
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     val dataType = IngestApi.IngestDataType.Skos
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,

@@ -146,6 +146,16 @@ class PortalSpec extends IntegrationTestRunner {
       contentAsString(eac) must contain("<eac-cpf")
     }
 
+    "allow exporting as SKOS" in new ITestApp {
+      val skos = FakeRequest(controllers.portal.routes.Vocabularies.exportSkos("cvoc1"))
+        .withUser(privilegedUser).call()
+      status(skos) must equalTo(OK)
+      contentType(skos) must beSome.which { ct =>
+        ct must equalTo("text/turtle")
+      }
+      contentAsString(skos) must contain("<http://data.ehri-project.eu/vocabularies/cvoc1>")
+    }
+
     "view item history" in new ITestApp {
       val history = FakeRequest(portalRoutes.itemHistory("c4")).call()
       status(history) must equalTo(OK)

@@ -464,16 +464,6 @@ class EntityViewsSpec extends IntegrationTestRunner {
       status(show) must equalTo(OK)
       contentAsString(show) must contain("Another Name")
     }
-
-    "allow exporting as SKOS" in new ITestApp {
-      val skos = FakeRequest(controllers.vocabularies.routes.Vocabularies.exportSkos("cvoc1"))
-        .withUser(privilegedUser).call()
-      status(skos) must equalTo(OK)
-      contentType(skos) must beSome.which { ct =>
-        ct must equalTo("text/turtle")
-      }
-      contentAsString(skos) must contain("<http://data.ehri-project.eu/cvoc1>")
-    }
   }
 
   "Concept views" should {
