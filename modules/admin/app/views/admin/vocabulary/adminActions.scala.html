@@ -27,12 +27,12 @@
             <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.vocabularies.routes.Vocabularies.exportSkos(item.id, format = Some("TTL"))">
+            <a href="@controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("TTL"))">
             @Messages("export.format.ttl")
             </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.vocabularies.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML"))">
+            <a href="@controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML"))">
             @Messages("export.format.rdf_xml")
             </a>
         }

@@ -25,7 +25,6 @@ POST        /:id/promote                              @controllers.vocabularies.
 GET         /:id/demote                               @controllers.vocabularies.Vocabularies.demote(id: String)
 POST        /:id/demote                               @controllers.vocabularies.Vocabularies.demotePost(id: String)
 GET         /:id/reindex                              @controllers.vocabularies.Vocabularies.updateIndex(id: String)
-GET         /:id/export                               @controllers.vocabularies.Vocabularies.exportSkos(id: String, format: Option[String] ?= None, baseUri: Option[String] ?= None)
 GET         /:id/ingest                               @controllers.vocabularies.Vocabularies.ingest(id: String)
 
 GET         /:id/editor                               @controllers.vocabularies.VocabularyEditor.editor(id: String)

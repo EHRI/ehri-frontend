@@ -3,8 +3,10 @@ package controllers.portal
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
+import defines.EntityType
 import javax.inject.{Inject, Singleton}
 import models.{Concept, Vocabulary}
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.CypherService
 import services.search._
@@ -69,6 +71,18 @@ case class Vocabularies @Inject()(
       }
       else Ok(views.html.vocabulary.search(request.item, result,
         portalVocabRoutes.search(id), request.watched))
+    }
+  }
+
+  def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    val uri = baseUri.orElse(config.getOptional[String](s"ehri.lod.${EntityType.Vocabulary}.baseUri"))
+    val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
+      uri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
+    userDataApi.query(s"classes/${EntityType.Vocabulary}/$id/export", params = params).map { sr =>
+      val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
+        .flatMap(_.headOption)
+        .getOrElse(MimeTypes.TEXT)
+      Ok.chunked(sr.bodyAsSource).as(ct)
     }
   }
 }
