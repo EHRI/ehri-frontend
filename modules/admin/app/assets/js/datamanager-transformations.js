@@ -21,31 +21,10 @@ Vue.component("xslt-editor", {
   },
   template: `
     <div class="xslt-editor">
-<!--      <textarea @change="$emit('input', $event.target.value)">{{value}}</textarea>-->
       <textarea>{{value}}</textarea>
     </div>
   `
 });
-
-Vue.component("xquery-mapping", {
-  props: {
-    mapping: Object,
-    selected: Boolean,
-  },
-  methods: {
-    update: function() {
-      this.$emit("input", this.mapping)
-    },
-  },
-  template: `
-    <div class="xquery-mapping" v-bind:class="{'selected':selected}">
-      <input type="text" v-model="mapping.targetPath" @change="update" @click="$emit('select', $event)"/>
-      <input type="text" v-model="mapping.targetNode" @change="update" @click="$emit('select', $event)" />
-      <input type="text" v-model="mapping.sourceNode" @change="update" @click="$emit('select', $event)"/>
-      <input type="text" v-model="mapping.value" @change="update" @click="$emit('select', $event)"/>
-    </div>
-  `
-})
 
 Vue.component("xquery-editor", {
   props: {
@@ -62,13 +41,13 @@ Vue.component("xquery-editor", {
       this.$emit('input', this.serialize(this.mappings));
     },
     add: function() {
-      this.mappings.push({
-        targetPath: "",
-        targetNode: "",
-        sourceNode: "",
-        value: ""
-      });
+      this.mappings.push(["", "", "", ""]);
+      this.selected = this.mappings.length - 1;
       this.update();
+      let elem = this.$refs[this.selected + '-0'];
+      if (elem) {
+        elem.focus();
+      }
     },
     duplicate: function(i) {
       let m = _.clone(this.mappings[i]);
@@ -77,7 +56,7 @@ Vue.component("xquery-editor", {
     },
     remove: function(i) {
       this.mappings.splice(i, 1);
-      this.selected = -1;
+      this.selected = i - 1;
       this.update();
     },
     moveUp: function(i) {
@@ -97,7 +76,6 @@ Vue.component("xquery-editor", {
       }
     },
     deserialize: function(str) {
-      let mappings = [];
       if (str !== "") {
         // Ignore the header row here...
         return str
@@ -105,12 +83,12 @@ Vue.component("xquery-editor", {
           .slice(1)
           .map (m => {
             let parts = m.split("\t");
-            return {
-              targetPath: parts[0] ? parts[0] : "",
-              targetNode: parts[1] ? parts[1] : "",
-              sourceNode: parts[2] ? parts[2] : "",
-              value: parts[3] ? parts[3] : "",
-            };
+            return [
+              parts[0] ? parts[0] : "",
+              parts[1] ? parts[1] : "",
+              parts[2] ? parts[2] : "",
+              parts[3] ? parts[3] : "",
+            ];
           });
       } else {
         return [];
@@ -118,30 +96,33 @@ Vue.component("xquery-editor", {
     },
     serialize: function(mappings) {
       let header = ["target-path\ttarget-node\tsource-node\tvalue"]
-      let rows = mappings.map(m => [m.targetPath,m.targetNode,m.sourceNode,m.value].join("\t"))
+      let rows = mappings.map(m => m.join("\t"))
       let all = _.concat(header, rows)
       return all.join("\n");
-    }
-  },
-  created() {
-    // this.mappings = this.deserialize(this.value);
+    },
   },
   template: `
     <div class="xquery-editor">
       <div class="xquery-editor-data">
-        <div class="xquery-mapping">
-          <input readonly disabled type="text" value="target-path" @click="selected = -1"/>
-          <input readonly disabled type="text" value="target-node" @click="selected = -1"/>
-          <input readonly disabled type="text" value="source-node" @click="selected = -1"/>
-          <input readonly disabled type="text" value="value" @click="selected = -1"/>
+        <div class="xquery-editor-header">
+            <input readonly disabled type="text" value="target-path" @click="selected = -1"/>
+            <input readonly disabled type="text" value="target-node" @click="selected = -1"/>
+            <input readonly disabled type="text" value="source-node" @click="selected = -1"/>
+            <input readonly disabled type="text" value="value" @click="selected = -1"/>
         </div>
-        <xquery-mapping 
-          v-for="(mapping, i) in mappings" 
-          v-bind:key="i" 
-          v-bind:selected="selected === i"
-          v-bind:mapping="mappings[i]"
-          @select="selected = i"
-          @input="update" />
+        <div class="xquery-editor-mappings">
+          <template v-for="(mapping, row) in mappings">
+            <input
+              v-for="col in [0, 1, 2, 3]"
+              type="text"
+              v-bind:ref="row + '-' + col"
+              v-bind:key="row + '-' + col"
+              v-bind:class="{'selected': selected === row}"
+              v-model="mappings[row][col]"
+              @change="update"
+              @focusin="selected = row" />
+          </template>
+        </div>
       </div>
       <div class="xquery-editor-toolbar">
         <button class="btn btn-default btn-sm" v-on:click="add">
@@ -164,6 +145,9 @@ Vue.component("xquery-editor", {
           <i class="fa fa-caret-down"></i>
           Move Down
         </button>
+        <div class="xquery-editor-toolbar-info">
+          Data mappings: {{mappings.length}}
+        </div>
       </div>
     </div>
   `
@@ -178,13 +162,15 @@ Vue.component("edit-form-panes", {
     bodyType: String,
     body: String,
     comments: String,
+    preview: String,
+    previewList: Array,
+    config: Object,
   },
   data: function() {
     return {
       saving: false,
-      previewing: null,
+      previewing: this.preview,
       loading: false,
-      previewOptions: [],
       panelSize: 0,
       data: {
         name: this.name,
@@ -234,11 +220,6 @@ Vue.component("edit-form-panes", {
     valid: function() {
       return this.data.name.trim() !== "" && this.data.comments.trim() !== "";
     }
-  },
-  created: function() {
-    DAO.listFiles(this.fileStage)
-      .then(data => this.previewOptions = data.files);
-
   },
   template: `
     <div class="modal" id="edit-form-modal">
@@ -295,7 +276,7 @@ Vue.component("edit-form-panes", {
                 <label for="edit-form-preview-options">Preview transformation</label>
                 <select id="edit-form-preview-options" v-model="previewing">
                   <option v-bind:value="null">---</option>
-                  <option v-for="file in previewOptions" v-bind:value="file.key">{{file.key}}</option>
+                  <option v-for="file in previewList" v-bind:value="file.key">{{file.key}}</option>
                 </select>
                 <drag-handle v-bind:ns="'edit-form-preview-drag'"
                              v-bind:p2="$root.$el.querySelector('#edit-form-preview-section')"
@@ -309,7 +290,8 @@ Vue.component("edit-form-panes", {
                     v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:errors="inputValidationResults"
-                    v-bind:panel-size="panelSize"/>
+                    v-bind:panel-size="panelSize"
+                    v-bind:config="config" />
                   <div class="panel-placeholder" v-if="previewing === null">
                     Input preview
                   </div>
@@ -325,7 +307,8 @@ Vue.component("edit-form-panes", {
                     v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:errors="outputValidationResults"
-                    v-bind:panel-size="panelSize"/>
+                    v-bind:panel-size="panelSize"
+                    v-bind:config="config" />
                   <div class="panel-placeholder" v-if="previewing === null">
                     Output preview
                   </div>

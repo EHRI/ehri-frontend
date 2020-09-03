@@ -3,6 +3,7 @@ package services.transformation
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import helpers.ResourceUtils
+import play.api.Environment
 import play.api.test.PlaySpecification
 
 import scala.concurrent.ExecutionContext
@@ -22,14 +23,14 @@ class BaseXXQueryXmlTransformerSpec extends PlaySpecification with ResourceUtils
 
   "XML transformer should" should {
     "transform a simple file" in {
-      val transformer = BaseXXQueryXmlTransformer()
+      val transformer = BaseXXQueryXmlTransformer(Environment.simple())
       val map = resourceAsString("simple-mapping.tsv")
       val out = transformer.transform(testPayload, map)
       out must contain("http://www.loc.gov")
     }
 
     "report errors with context" in {
-      val transformer = BaseXXQueryXmlTransformer()
+      val transformer = BaseXXQueryXmlTransformer(Environment.simple())
       val map = resourceAsString("simple-mapping.tsv") +
         "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\tinvalid-func()"
       transformer.transform(testPayload, map) must throwA[XmlTransformationError].like {

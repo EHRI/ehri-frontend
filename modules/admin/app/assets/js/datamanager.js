@@ -249,6 +249,7 @@ Vue.component("upload-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
   props: {
     fileStage: String,
+    config: Object,
   },
   data: function () {
     return {
@@ -357,18 +358,6 @@ Vue.component("upload-manager", {
         <filter-control v-bind:filter="filter"
                         v-on:filter="filterFiles"
                         v-on:clear="clearFilter"/>
-
-        <button class="file-upload-button btn btn-sm btn-default">
-          <input class="file-selector-input"
-                 v-on:change="uploadFiles"
-                 v-on:dragover.prevent="dragOver"
-                 v-on:dragleave.prevent="dragLeave"
-                 v-on:drop.prevent="uploadFiles"
-                 type="file"
-                 accept="text/xml" multiple/>
-          <i class="fa fa-cloud-upload"/>
-          Upload Files
-        </button>
         
         <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
                 v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
@@ -390,6 +379,18 @@ Vue.component("upload-manager", {
                 v-else>
           <i class="fa fa-trash-o"/>
           Delete All
+        </button>
+
+        <button class="file-upload-button btn btn-sm btn-default">
+          <input class="file-selector-input"
+                 v-on:change="uploadFiles"
+                 v-on:dragover.prevent="dragOver"
+                 v-on:dragleave.prevent="dragLeave"
+                 v-on:drop.prevent="uploadFiles"
+                 type="file"
+                 accept="text/xml" multiple/>
+          <i class="fa fa-cloud-upload"/>
+          Upload Files...
         </button>
       </div>
 
@@ -453,7 +454,8 @@ Vue.component("upload-manager", {
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
-                       v-show="previewing !== null"/>
+                       v-bind:config="config"
+                       v-show="previewing !== null" />
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
               </div>
@@ -523,12 +525,6 @@ Vue.component("oaipmh-config-modal", {
         && this.format
         && this.format.trim() !== "";
     },
-    hasConfigChanged: function() {
-      return !this.config || !(
-        this.config.url === this.url
-        && this.config.format === this.format
-        && this.config.set === this.set);
-    },
   },
   watch: {
     config: function(newValue) {
@@ -577,15 +573,18 @@ Vue.component("oaipmh-config-modal", {
             </div>
           </div>
           <div class="modal-footer">
+            <button v-on:click="$emit('close')" type="button" class="btn btn-default">
+              Cancel
+            </button>
             <button v-on:click="testEndpoint" type="button" class="btn btn-default">
               <i v-if="tested === null" class="fa fa-fw fa-question"/>
               <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
               <i v-else class="fa fa-fw fa-close text-danger"/>
-              Test
+              Test Endpoint
             </button>
-            <button v-bind:disabled="!isValidConfig || !hasConfigChanged"
+            <button v-bind:disabled="!isValidConfig"
                     v-on:click="save" type="button" class="btn btn-secondary">
-              Save
+              Harvest Endpoint
             </button>
           </div>
         </div>
@@ -598,6 +597,7 @@ Vue.component("oaipmh-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
   props: {
     fileStage: String,
+    config: Object,
   },
   data: function () {
     return {
@@ -656,12 +656,14 @@ Vue.component("oaipmh-manager", {
         let parts = hash.split(":");
         if (parts.length === 2 && parts[0] === "#jobId") {
           this.harvestJobId = parts[1];
-          this.monitorHarvest(CONFIG.monitorUrl(parts[1]), parts[1]);
+          this.monitorHarvest(this.config.monitorUrl(parts[1]), parts[1]);
         }
       }
     },
-    savedConfig: function(config) {
+    saveConfigAndHarvest: function(config) {
       this.harvestConfig = config;
+      this.showOptions = false;
+      this.harvest();
     },
     loadConfig: function() {
       DAO.getConfig()
@@ -678,16 +680,6 @@ Vue.component("oaipmh-manager", {
         <filter-control v-bind:filter="filter"
                         v-on:filter="filterFiles"
                         v-on:clear="clearFilter"/>
-
-        <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
-                v-on:click.prevent="harvest">
-          <i class="fa fa-fw fa-cloud-download"/>
-          Harvest Files
-        </button>
-        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
-          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-          Cancel Harvest
-        </button>
 
         <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
                 v-on:click.prevent="validateFiles(selectedKeys)">
@@ -711,15 +703,20 @@ Vue.component("oaipmh-manager", {
           Delete All
         </button>
 
-        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
-          <i class="fa fa-gear"/>
-          Configuration
+        <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
+                v-on:click.prevent="showOptions = !showOptions">
+          <i class="fa fa-fw fa-cloud-download"/>
+          Harvest Files...
+        </button>
+        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
+          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          Cancel Harvest
         </button>
         
         <oaipmh-config-modal 
           v-bind:config="harvestConfig"
           v-bind:show="showOptions"
-          v-on:saved-config="savedConfig"
+          v-on:saved-config="saveConfigAndHarvest"
           v-on:close="showOptions = false"/>
       </div>
 
@@ -782,6 +779,7 @@ Vue.component("oaipmh-manager", {
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
+                       v-bind:config="config"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -881,140 +879,62 @@ Vue.component("transformation-item", {
       </span>
     </div>
   `
-})
-
-Vue.component("convert-mappings", {
-  props: {
-    value: Array,
-    newItem: Boolean,
-  },
-  data: function() {
-    return {
-      available: [],
-      enabled: [],
-      loading: false,
-      editing:  null,
-    }
-  },
-  methods: {
-    load: function() {
-      this.loading = true;
-
-      DAO.listDataTransformations().then(available => {
-        let each = _.partition(available, item => !_.includes(this.value, item.id));
-        this.available = each[0];
-        this.enabled = each[1];
-
-        this.loading = false;
-      });
-    },
-    saveConfig: function() {
-      this.$emit("input", this.mappings);
-      DAO.saveConvertConfig(this.mappings)
-        .then(ok => console.log("Saved mapping list..."));
-    },
-    editTransformation: function(item) {
-      this.editing = item;
-    },
-    closeEditForm: function() {
-      this.editing = null;
-      this.load();
-      this.$emit("close");
-    },
-    saved: function(item) {
-      this.editing = item;
-    },
-  },
-  created: function() {
-    this.load();
-  },
-  computed: {
-    mappings: function() {
-      return this.enabled.map(item => item.id);
-    }
-  },
-  watch: {
-    newItem: function(value) {
-      if (value) {
-        this.editing = {
-          id: null,
-          repoId: CONFIG.repositoryId,
-          name: "",
-          bodyType: "xquery",
-          body: "",
-          comments: "",
-        };
-      }
-    }
-  },
-  template: `
-    <div id="convert-mappings">
-      <edit-form-panes 
-        v-if="editing !== null" 
-        v-bind:id="editing.id"
-        v-bind:name="editing.name"
-        v-bind:generic="!editing.repoId"
-        v-bind:body-type="editing.bodyType"
-        v-bind:body="editing.body"
-        v-bind:comments="editing.comments"
-        v-on:saved="saved"
-        v-on:close="closeEditForm"/>
-      
-      <draggable 
-            class="list-group transformation-list" 
-            draggable=".transformation-item" 
-            group="transformations" 
-            v-bind:list="available" 
-            v-on:change="saveConfig">
-        <transformation-item
-          v-for="(dt, i) in available"
-          v-bind:item="dt"
-          v-bind:key="i"
-          v-bind:enabled="_.includes(value, item => item.id)"
-          v-on:edit="editTransformation(dt)"
-        />
-        <h4 class="transformation-list-header" slot="header">Available Transformations</h4>
-      </draggable>
-
-      <draggable 
-            class="list-group transformation-list" 
-            draggable=".transformation-item"
-            group="transformations" 
-            v-bind:list="enabled" 
-            v-on:change="saveConfig">
-        <transformation-item 
-          v-for="(dt, i) in enabled" 
-          v-bind:item="dt" 
-          v-bind:key="i"
-          v-bind:enabled="_.includes(value, item => item.id)"
-          v-on:edit="editTransformation(dt)"
-        />
-        <h4 class="transformation-list-header" slot="header">Active Transformations</h4>
-      </draggable>
-      
-    </div>
-  `
 });
 
 Vue.component("convert-manager", {
   mixins: [twoPanelMixin, previewMixin, validatorMixin],
   props: {
     fileStage: String,
+    config: Object,
   },
   data: function () {
     return {
       convertJobId: null,
       ingesting: {},
-      mappings: [],
       previewing: null,
       previewList: [],
       tab: 'preview',
       log: [],
       showOptions: false,
-      newMapping: false,
+      available: [],
+      enabled: [],
+      mappings: [], // IDs of enabled transformations
+      editing: null,
+      loading: false,
     }
   },
   methods: {
+    loadTransformations: function() {
+      this.loading = true;
+
+      return DAO.listDataTransformations().then(available => {
+        let each = _.partition(available, item => !_.includes(this.mappings, item.id));
+        this.available = each[0];
+        this.enabled = each[1];
+
+        this.loading = false;
+      });
+    },
+    editTransformation: function(item) {
+      this.editing = item;
+    },
+    newTransformation: function() {
+      this.editing = {
+        id: null,
+        repoId: this.config.repositoryId,
+        name: "",
+        bodyType: "xslt",
+        body: "",
+        comments: "",
+      };
+    },
+    closeEditForm: function() {
+      this.editing = null;
+      this.loadTransformations();
+    },
+    saved: function(item) {
+      this.editing = item;
+    },
     convert: function(sources) {
       DAO.convert({mappings: this.mappings, src: sources}).then(data => {
           this.convertJobId = data.jobId;
@@ -1045,7 +965,7 @@ Vue.component("convert-manager", {
       websocket.onmessage = function (e) {
         let msg = JSON.parse(e.data);
         self.log.push(msg.trim());
-        self.$emit('refresh-stage', CONFIG.ingest);
+        self.$emit('refresh-stage', self.config.ingest);
         if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
           websocket.close();
         }
@@ -1063,13 +983,22 @@ Vue.component("convert-manager", {
         let parts = hash.split(":");
         if (parts.length === 2 && parts[0] === "#jobId") {
           this.convertJobId = parts[1];
-          this.monitorConvert(CONFIG.monitorUrl(parts[1]), parts[1]);
+          this.monitorConvert(this.config.monitorUrl(parts[1]), parts[1]);
         }
       }
     },
     loadConfig: function() {
-      DAO.getConvertConfig()
+      return DAO.getConvertConfig()
         .then(data => this.mappings = data.map(item => item.id));
+    },
+    saveConfig: function() {
+      let mappings = this.enabled.map(item => item.id);
+      if (!_.isEqual(mappings, this.mappings)) {
+        console.log("saving enabled:", this.enabled)
+        this.mappings = mappings;
+        DAO.saveConvertConfig(this.mappings)
+          .then(ok => console.log("Saved mapping list..."));
+      }
     },
     loadPreviewList: function() {
       this.loading = true;
@@ -1080,8 +1009,15 @@ Vue.component("convert-manager", {
         });
     },
   },
+  watch: {
+    enabled: function(newValue, oldValue) {
+      this.saveConfig();
+    }
+  },
   created: function () {
-    this.loadConfig();
+    this.loadConfig().then(_ => {
+      this.loadTransformations();
+    });
     this.loadPreviewList();
     this.resumeMonitor();
   },
@@ -1089,11 +1025,16 @@ Vue.component("convert-manager", {
     <div id="convert-manager-container" class="stage-manager-container">
 
       <div class="actions-bar">
-        <select v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
+        <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
           <option v-bind:value="null">Select file to preview...</option>
           <option v-for="file in previewList" v-bind:value="file.key">{{file.key}}</option>
         </select>
         
+        <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
+          <i class="fa fa-file-code-o"></i>
+          New Transformation...
+        </button>
+
         <button v-if="!convertJobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = true">
           <i class="fa fa-fw fa-file-code-o"/>
           Convert Files...
@@ -1103,10 +1044,20 @@ Vue.component("convert-manager", {
           Cancel Convert
         </button>
         
-        <button class="btn btn-sm btn-success" v-on:click.prevent="newMapping = !newMapping">
-          <i class="fa fa-file-code-o"></i>
-          New Transformation...
-        </button>
+        <edit-form-panes
+          v-if="editing !== null"
+          v-bind:id="editing.id"
+          v-bind:name="editing.name"
+          v-bind:generic="!editing.repoId"
+          v-bind:body-type="editing.bodyType"
+          v-bind:body="editing.body"
+          v-bind:comments="editing.comments"
+          v-bind:preview="previewing"
+          v-bind:preview-list="previewList"
+          v-bind:config="config"
+          v-on:saved="saved"
+          v-on:close="closeEditForm"/>
+
       </div>
 
       <div id="convert-panel-container" class="panel-container">
@@ -1118,10 +1069,62 @@ Vue.component("convert-manager", {
             v-on:convert="convert"
             v-show="showOptions" />
           
-          <convert-mappings
-            v-model="mappings"
-            v-bind:new-item="newMapping"
-            v-on:close="newMapping = false" />
+          <div id="convert-mappings">
+            <div class="card">
+              <h4 class="card-header">
+                Available Transformations
+              </h4>
+              
+              <div class="transformation-list-placeholder" v-if="enabled.length === 0 && available.length === 0">
+                <h3>No transformations available.</h3>
+                <p><a href="#" v-on:click.prevent="newTransformation">Create a new one now...</a></p>
+              </div>
+
+            <draggable
+              class="list-group transformation-list"
+              draggable=".transformation-item"
+              group="transformations"
+              v-bind:sort="false"
+              v-model="available">
+              <transformation-item
+                v-for="(dt, i) in available"
+                v-bind:item="dt"
+                v-bind:key="i"
+                v-bind:enabled="_.includes(mappings, item => item.id)"
+                v-on:edit="editTransformation(dt)"
+              />
+            </draggable>
+            </div>
+            
+            
+            <div class="spacer"></div>
+            <div class="card">
+              <h4 class="card-header">
+                Enabled Transformations
+              </h4>
+              
+              <div class="transformation-list-placeholder" v-if="enabled.length === 0">
+                <h3>No transformations are enabled.</h3>
+                <p>Drag available transformations into this area to
+                  activate them.</p>
+              </div>
+
+              <draggable
+                class="list-group transformation-list"
+                draggable=".transformation-item"
+                group="transformations"
+                v-bind:sort="true"
+                v-model="enabled">
+                <transformation-item
+                  v-for="(dt, i) in enabled"
+                  v-bind:item="dt"
+                  v-bind:key="i"
+                  v-bind:enabled="_.includes(mappings, item => item.id)"
+                  v-on:edit="editTransformation(dt)"
+                />
+              </draggable>
+            </div>
+          </div>
         </div>
 
         <div id="convert-status-panels" class="bottom-panel">
@@ -1161,6 +1164,7 @@ Vue.component("convert-manager", {
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
+                       v-bind:config="config"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1183,6 +1187,11 @@ Vue.component("ingest-options-panel", {
   props: {
     opts: Object
   },
+  computed: {
+    isValidConfig: function() {
+      return this.opts.logMsg && this.opts.logMsg.trim() !== "";
+    }
+  },
   template: `
     <div class="options-dialog modal show fade" tabindex="-1" role="dialog"
          style="display: block">
@@ -1191,7 +1200,7 @@ Vue.component("ingest-options-panel", {
           <div class="modal-header">
             <h5 class="modal-title">Testing Parameters</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                    v-on:click="$emit('hide')">
+                    v-on:click="$emit('close')">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -1216,8 +1225,11 @@ Vue.component("ingest-options-panel", {
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('hide')">
-              Close
+            <button type="button" class="btn btn-default" data-dismiss="modal" v-on:click="$emit('close')">
+              Cancel
+            </button>
+            <button v-bind:disabled="!isValidConfig" type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('submit')">
+              Run Ingest
             </button>
           </div>
         </div>
@@ -1230,6 +1242,7 @@ Vue.component("ingest-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
   props: {
     fileStage: String,
+    config: Object,
   },
   data: function () {
     return {
@@ -1303,6 +1316,14 @@ Vue.component("ingest-manager", {
         }
       });
     },
+    doIngest: function() {
+      this.showOptions = false;
+      if (this.selectedKeys.length > 0) {
+        this.ingestFiles(this.selectedKeys);
+      } else {
+        this.ingestAll();
+      }
+    }
   },
   template: `
     <div id="ingest-manager-container" class="stage-manager-container">
@@ -1310,18 +1331,8 @@ Vue.component("ingest-manager", {
         <filter-control 
           v-bind:filter="filter"
           v-on:filter="filterFiles" 
-          v-on:clear="clearFilter" />
-
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="ingestFiles(selectedKeys)" v-if="selectedKeys.length">
-          <i class="fa fa-database"/>
-          Ingest Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="ingestAll()"
-                v-else>
-          <i class="fa fa-database"/>
-          Ingest All
-        </button>
+          v-on:clear="clearFilter"
+          v-on:refresh="load" />
         
         <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
                 v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
@@ -1345,15 +1356,23 @@ Vue.component("ingest-manager", {
           Delete All
         </button>
 
-        <button class="btn btn-sm btn-default" v-on:click="showOptions = !showOptions">
-          <i class="fa fa-gear"/>
-          Configuration
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+                v-on:click.prevent="showOptions = !showOptions" v-if="selectedKeys.length">
+          <i class="fa fa-database"/>
+          Ingest Selected... ({{selectedKeys.length}})
+        </button>
+        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
+                v-else>
+          <i class="fa fa-database"/>
+          Ingest All...
         </button>
 
         <ingest-options-panel 
           v-if="showOptions"
+          v-bind:selected="selectedKeys"
           v-bind:opts="opts"
-          v-on:hide="showOptions = false" />
+          v-on:submit="doIngest"
+          v-on:close="showOptions = false" />
       </div>
 
       <div id="ingest-panel-container" class="panel-container">
@@ -1416,6 +1435,7 @@ Vue.component("ingest-manager", {
                        v-bind:previewing="previewing"
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
+                       v-bind:config="config"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1441,6 +1461,9 @@ Vue.component("ingest-manager", {
 });
 
 Vue.component("data-manager", {
+  props: {
+    config: Object,
+  },
   data: function() {
     return {
       stage: 'upload'
@@ -1452,7 +1475,7 @@ Vue.component("data-manager", {
         <li class="nav-item">
           <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': stage === 'oaipmh'}"
              v-on:click.prevent="stage = 'oaipmh'">
-            OAI-PMH Harvesting
+            Harvesting
           </a>
         </li>
         <li class="nav-item">
@@ -1475,16 +1498,16 @@ Vue.component("data-manager", {
         </li>
       </ul>
       <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
-        <upload-manager v-bind:fileStage="'upload'"/>
+        <upload-manager v-bind:fileStage="'upload'" v-bind:config="config" />
       </div>
       <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
-        <oaipmh-manager v-bind:fileStage="'oaipmh'"/>
+        <oaipmh-manager v-bind:fileStage="'oaipmh'" v-bind:config="config" />
       </div>
       <div id="tab-convert" class="stage-tab" v-show="stage === 'convert'">
-        <convert-manager v-bind:fileStage="'ingest'"/>
+        <convert-manager v-bind:fileStage="'ingest'" v-bind:config="config" />
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
-        <ingest-manager v-bind:fileStage="'ingest'"/>
+        <ingest-manager v-bind:fileStage="'ingest'" v-bind:config="config" />
       </div>
     </div>  
   `
@@ -1492,9 +1515,12 @@ Vue.component("data-manager", {
 
 let app = new Vue({
   el: '#vue-app',
+  data: {
+    config: CONFIG,
+  },
   template: `
     <div id="app-container">
-      <data-manager />
+      <data-manager v-bind:config="config" />
     </div>
   `
 });

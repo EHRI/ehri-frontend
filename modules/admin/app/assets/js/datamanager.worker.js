@@ -7,7 +7,7 @@ addEventListener('message', ({data}) => {
     reader.read().then(function appendBody({done, value}) {
       if (!done) {
         let text = decoder.decode(value);
-        postMessage({init: init, text: text});
+        postMessage({init: init, text: text, done: done});
         if (init) {
           init = false;
         }
@@ -15,9 +15,7 @@ addEventListener('message', ({data}) => {
       } else {
         // Special case if there's an empty file, we post
         // an empty string
-        if (init) {
-          postMessage({init: init, text: ""})
-        }
+        postMessage({init: init, text: "", done: done})
         close();
       }
     });
