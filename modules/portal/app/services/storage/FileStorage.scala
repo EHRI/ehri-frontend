@@ -15,9 +15,18 @@ trait FileStorage {
     *
     * @param classifier the "bucket", or set, to which this file will belong
     * @param path       additional file path, including the file name with extension
-    * @return a source of file-meta/byte stream pairs
+    * @return a file-meta/byte stream pair
     */
   def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]]
+
+  /**
+    * Get info about a given file.
+    *
+    * @param classifier the "bucket", or set, to which this file will belong
+    * @param path       additional file path, including the file name with extension
+    * @return a file-meta object
+    */
+  def info(classifier: String, path: String): Future[Option[FileMeta]]
 
   /**
     * Get the URI for a stored file with the given classifier and key.

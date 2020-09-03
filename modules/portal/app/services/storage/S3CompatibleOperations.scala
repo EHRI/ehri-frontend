@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.alpakka.s3.{MetaHeaders, S3Attributes, S3Ext}
+import akka.stream.alpakka.s3.{MetaHeaders, ObjectMetadata, S3Attributes, S3Ext}
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -55,6 +55,15 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       .build()
   )
 
+  private def infoToMeta(bucket: String, path: String, meta: ObjectMetadata): FileMeta = FileMeta(
+    bucket,
+    path,
+    java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
+    meta.getContentLength,
+    meta.eTag,
+    meta.contentType,
+  )
+
   def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     var expTimeMillis = expTime.getTime
@@ -72,19 +81,22 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     client.generatePresignedUrl(psur).toURI
   }
 
+  def info(bucket: String, path: String): Future[Option[FileMeta]] = {
+    S3.getObjectMetadata(bucket, path)
+      .withAttributes(S3Attributes.settings(endpoint))
+      .runWith(Sink.headOption).map(_.flatten)
+      .map {
+        case Some(meta) => Some(infoToMeta(bucket, path, meta))
+        case _ => None
+      }
+  }
+
   def get(bucket: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
       .download(bucket, path)
       .withAttributes(S3Attributes.settings(endpoint))
       .runWith(Sink.headOption).map(_.flatten)
       .map {
-        case Some((src, meta)) => Some(FileMeta(
-          bucket,
-          path,
-          java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
-          meta.getContentLength,
-          meta.eTag,
-          meta.contentType,
-        ) -> src)
+        case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
         case _ => None
       }
 
