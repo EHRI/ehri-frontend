@@ -37,6 +37,10 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     fakeFiles += (classifier -> (bucket(classifier) - path))
   }
 
+  override def info(classifier: String, path: String): Future[Option[FileMeta]] = Future {
+    fileMeta(classifier).find(_.key == path)
+  }(ec)
+
   override def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] = Future {
     getF(classifier, path).map {
       case (m, bytes) => (m, Source.single(bytes))
