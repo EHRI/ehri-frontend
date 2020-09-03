@@ -68,13 +68,17 @@
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue@@2.5.17/dist/vue.js"></script>
-        <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
-        <script src="//cdn.jsdelivr.net/npm/sortablejs@@1.8.4/Sortable.min.js"></script>
-        <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
-        <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+        @if(globalConfig.isTestMode) {
+            <script src="//cdn.jsdelivr.net/npm/vue@@2.6.12/dist/vue.js"></script>
+            <script src="//cdn.jsdelivr.net/npm/sortablejs@@1.8.4/Sortable.js"></script>
+            <script src="//cdn.jsdelivr.net/npm/vuedraggable@@2.24.1/dist/vuedraggable.umd.js"></script>
+        } else {
+            <script src="//cdn.jsdelivr.net/npm/vue@@2.6.12"></script>
+            <script src="//cdn.jsdelivr.net/npm/sortablejs@@1.8.4"></script>
+            <script src="//cdn.jsdelivr.net/npm/vuedraggable@@2.24.1"></script>
+        }
 
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@@4.17.11/lodash.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/moment@@2.24.0/moment.min.js"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>

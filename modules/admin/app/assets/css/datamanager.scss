@@ -60,6 +60,29 @@ body {
   margin-bottom: $margin-sm;
 }
 
+.file-picker {
+  position: relative;
+
+  .file-picker-suggestions {
+    position: absolute;
+    z-index: 100;
+    box-shadow: $box-shadow;
+    background-color: $white;
+    min-width: 100%;
+    cursor: pointer;
+
+    .file-picker-suggestion {
+      &.selected,
+      &:hover
+      {
+        background-color: $gray-100;
+      }
+      padding: $margin-xs $margin-sm;
+      white-space: nowrap;
+    }
+  }
+}
+
 .filter-control {
   position: relative;
   display: flex;
@@ -74,6 +97,10 @@ body {
     position: absolute;
     right: $margin-xs;
   }
+}
+
+#preview-file-selector {
+  flex-grow: 1;
 }
 
 #convert-options {
@@ -93,13 +120,31 @@ body {
   display: flex;
   flex: 1;
   margin-bottom: $margin-xs;
-  border: 1px solid $gray-300;
   flex-direction: row;
   flex-basis: 0;
   overflow-y: auto;
 
-  .transformation-list {
+  .card {
     flex-basis: 50%;
+  }
+
+  .spacer {
+    flex-basis: $margin-sm;
+  }
+
+  .transformation-list-placeholder {
+    color: $text-muted;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+
+  .transformation-list {
+    flex: 1;
     list-style: none;
     overflow-y: auto;
     padding: 0;
@@ -208,6 +253,8 @@ body {
   flex-direction: column;
   padding: $margin-sm;
   max-width: 100%;
+  margin-bottom: 0;
+  box-shadow: $box-shadow-lg;
 }
 
 #edit-form-panes {
@@ -284,9 +331,10 @@ body {
   overflow-y: auto;
 }
 
-.xquery-editor-toolbar {
+.xquery-editor {
   display: flex;
-  justify-content: right;
+  flex: 1;
+  flex-direction: column;
 }
 
 .xquery-editor-data {
@@ -294,39 +342,40 @@ body {
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  flex-basis: 0;
 }
 
-.xquery-mapping {
+.xquery-editor-toolbar {
   display: flex;
-  flex: 1;
+  justify-content: right;
+}
 
-  &.selected > input {
-    background-color: lighten($blue, 60%);
-  }
+.xquery-editor-toolbar-info {
+  align-self: center;
+  margin-left: auto;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.xquery-editor-header {
+  position: sticky;
+  top: 0;
+  background-color: $white;
 
   input {
-    flex: 1
+    font-weight: bold;
   }
 }
 
-.xquery-mapping-menu {
-  right: $margin-xs;
-  top: $margin-xs;
-  background-color: $white;
-  border: 1px solid $ehri-border-gray;
-  box-shadow: $box-shadow-sm;
-  z-index: 1000;
-  width: 10rem;
-  position: fixed;
+.xquery-editor-header,
+.xquery-editor-mappings {
+  font-size: $font-size-xs;
 
-  a {
-    display: block;
-    padding: $margin-xs;
-    color: $black;
-    &:hover {
-      text-decoration: none;
-      background-color: $gray-100;
-    }
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  .selected {
+    background-color: lighten($blue, 60%);
   }
 }
 
@@ -401,6 +450,17 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  .pretty-xml {
+    position: absolute;
+    right: $margin-xs;
+    font-size: $font-size-xs;
+    z-index: 100;
+    color: $text-muted;
+    &.active {
+      color: $success;
+    }
+  }
 }
 
 .valid-indicator {

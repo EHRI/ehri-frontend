@@ -6,6 +6,7 @@ import actors.transformation.XmlConvertRunner._
 import actors.transformation.XmlConverter.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import akka.stream.Materializer
 import defines.FileStage
 import models.{DataTransformation, UserProfile}
 import services.harvesting.HarvestEventHandle
@@ -46,7 +47,7 @@ object XmlConverter {
 }
 
 case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
-  implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+  implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
@@ -87,6 +88,12 @@ case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage
       log.debug(s"Removing subscriber: $chan")
       context.unwatch(chan)
       context.become(running(runner, subs - chan, handle))
+
+    case Counting(srcs, _) =>
+      msg(s"Counting files in ${srcs.size} source(s)", subs)
+
+    case Counted(total) =>
+      msg(s"Total of $total file(s) in ${job.data.sources.size} source(s)", subs)
 
     // Confirmation the runner has started
     case Starting =>

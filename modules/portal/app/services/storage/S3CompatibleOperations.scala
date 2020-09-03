@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.alpakka.s3.{MetaHeaders, ObjectMetadata, S3Attributes, S3Ext}
+import akka.stream.alpakka.s3.{ApiVersion, MetaHeaders, ObjectMetadata, S3Attributes, S3Ext, S3Settings}
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -121,17 +121,17 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
-  def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = endpointUrl.fold(
-    ifEmpty = S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
-  )(
-    _ => S3.listBucket(classifier, prefix).map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
-      .withAttributes(S3Attributes.settings(endpoint))
-  )
-
   def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
     val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
     client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
   }(ec)
+
+  def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
+    S3.listBucket(classifier, prefix)
+      // FIXME: Switch to ListObjectsV2 when Digital Ocean supports it
+      .withAttributes(S3Attributes.settings(endpoint
+        .withListBucketApiVersion(ApiVersion.ListBucketVersion1)))
+      .map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
 
   def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
     // FIXME: Update this to ListObjectsV2 when Digital Ocean

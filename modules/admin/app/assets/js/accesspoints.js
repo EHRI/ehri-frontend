@@ -232,7 +232,7 @@ Vue.component("access-point-autocomplete-input", {
               <span class="input-group-append">
                 <button title="Create a new text-only access point" 
                       class="btn btn-success" 
-                      v-bind:disabled="text.trim().length==0"
+                      v-bind:disabled="text.trim().length === 0"
                       v-on:click="accept">
                   <i class="fa fa-plus-circle"></i>
                 </button>
@@ -242,10 +242,10 @@ Vue.component("access-point-autocomplete-input", {
               <div class="ap-editor-autocomplete-widget-suggestions">
                   <access-point-autocomplete-suggestion
                       v-for="(suggestion, i) in suggestions"
-                      v-bind:class="{selected: i == selectedIdx}"
+                      v-bind:class="{selected: i === selectedIdx}"
                       v-bind:key="suggestion.id"
                       v-bind:item="suggestion"
-                      v-bind:selected="i == selectedIdx"
+                      v-bind:selected="i === selectedIdx"
                       v-on:selected="setAndChooseItem">
                   </access-point-autocomplete-suggestion>
               </div>
