@@ -38,6 +38,8 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     region
   )
 
+  override def info(classifier: String, path: String): Future[Option[FileMeta]] = ops.info(classifier, path)
+
   override def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
     ops.get(classifier, path)
 

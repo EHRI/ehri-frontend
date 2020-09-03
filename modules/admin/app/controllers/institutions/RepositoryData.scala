@@ -4,6 +4,7 @@ import java.io.PrintWriter
 import java.net.URLEncoder
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.CompletionException
 
 import actors.IngestActor
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
@@ -22,6 +23,7 @@ import defines.FileStage
 import javax.inject._
 import models.HarvestEvent.HarvestEventType
 import models.{ConvertConfig, ConvertSpec, DataTransformation, DataTransformationInfo, OaiPmhConfig, Repository, TransformationList}
+import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.ContentTypes
@@ -70,7 +72,8 @@ case class RepositoryData @Inject()(
   oaipmhConfigs: OaiPmhConfigService,
   harvestEvents: HarvestEventService,
   xmlTransformer: XmlTransformer,
-  dataTransformations: DataTransformationService
+  dataTransformations: DataTransformationService,
+  @NamedCache("transformer-cache") transformCache: AsyncCacheApi
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -335,25 +338,45 @@ case class RepositoryData @Inject()(
     case ConvertSpec(_, mappings) => immediate(mappings)
   }
 
+  private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Future[String] = {
+    storage.get(bucket, path).flatMap {
+      case Some((_, src)) =>
+        val flow = xmlTransformer.transform(mappings)
+        src
+          .via(flow)
+          .runFold(ByteString(""))(_ ++ _)
+          .map(_.utf8String)
+      case None => throw new RuntimeException(s"No data found at $bucket: $path")
+    }
+  }
+
   def convertFile(id: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(parse.json[ConvertConfig]) { implicit request =>
     configToMappings(request.body).flatMap { m =>
-      val flow = xmlTransformer.transform(m)
+      import services.transformation.utils.digest
 
-      storage.get(bucket, prefix(id, stage) + fileName).flatMap {
-        case Some((_, src)) =>
-          src
-            .via(flow)
-            .runFold(ByteString(""))(_ ++ _)
-            .map(_.utf8String)
-            .map { s =>
-              Ok(s).as("text/xml")
-            }.recover {
-            case e: InvalidMappingError => BadRequest(Json.toJson(e))
-            case e: XmlTransformationError => InternalServerError(Json.toJson(e))
+      // We need a recursive error handler here which, in the case of a
+      // CompletionException thrown by the cache, attempts to handle the
+      // underlying cause
+      def errorHandler: PartialFunction[Throwable, Result] = {
+        case e: CompletionException => errorHandler.apply(e.getCause)
+        case e: InvalidMappingError => BadRequest(Json.toJson(e))
+        case e: XmlTransformationError => InternalServerError(Json.toJson(e))
+      }
+
+      val path = prefix(id, stage) + fileName
+      storage.info(bucket, path).flatMap {
+        case Some(meta) =>
+          val outF = meta.eTag match {
+            // If we have an eTag for the file contents, cache the transformation against it
+            case Some(tag) => transformCache.getOrElseUpdate(digest(tag, m))(downloadAndConvertFile(path, m))
+            // Otherwise, no caching at this stage.
+            case None =>
+              logger.error(s"No eTag found when converting file: $path")
+              downloadAndConvertFile(path, m)
           }
-        case _ => immediate(NotFound)
-      }.recoverWith {
-        case e => immediate(InternalServerError(Json.obj("error" -> e.getMessage)))
+
+          outF.map(s => Ok(s).as("text/xml")).recover(errorHandler)
+        case None => immediate(NotFound(path))
       }
     }
   }

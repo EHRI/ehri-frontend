@@ -126,5 +126,18 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
       contentType(r) must beSome("text/xml")
       contentAsString(r) must contain("test-id-EHRI")
     }
+
+    "convert files with correct errors" in new ITestApp {
+      await(putFile())
+      val map = "target-path\ttarget-node\tsource-node\tvalue\n/\tead\t/blah\t%\n/\tead\t.\t\n" // invalid junk
+      val r = FakeRequest(repoDataRoutes.convertFile("r1", FileStage.Ingest, testFileName))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
+
+      status(r) must_== OK
+      contentType(r) must beSome("text/xml")
+      println(s"OUT: '${contentAsString(r)}'")
+      contentAsString(r) must contain("test-id-EHRI")
+    }
   }
 }

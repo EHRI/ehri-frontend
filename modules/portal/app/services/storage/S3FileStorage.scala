@@ -33,6 +33,8 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   private val ops = S3CompatibleOperations(None, creds, region)
 
+  override def info(classifier: String, path: String): Future[Option[FileMeta]] = ops.info(classifier, path)
+
   override def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
     ops.get(classifier, path)
 
