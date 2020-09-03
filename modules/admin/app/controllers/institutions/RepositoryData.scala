@@ -73,6 +73,7 @@ case class RepositoryData @Inject()(
   harvestEvents: HarvestEventService,
   xmlTransformer: XmlTransformer,
   dataTransformations: DataTransformationService,
+  asyncCache: AsyncCacheApi,
   @NamedCache("transformer-cache") transformCache: AsyncCacheApi
 )(
   implicit mat: Materializer
@@ -113,6 +114,17 @@ case class RepositoryData @Inject()(
       from.map(key => s"${prefix(id, stage)}$key"), max = 20).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, stage), ""))))))
     }
+  }
+
+  def countFiles(id: String, stage: FileStage.Value, path: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+    import scala.concurrent.duration._
+
+    val pathPrefix: String = prefix(id, stage) + path.getOrElse("")
+    asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
+      storage.streamFiles(bucket, Some(prefix(id, stage) + path.getOrElse(""))).runFold(0)((acc, _) => acc + 1).map { count =>
+        Json.obj("path" -> pathPrefix, "count" -> count)
+      }
+    }.map(Ok(_))
   }
 
   def fileUrls(id: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
@@ -383,7 +395,6 @@ case class RepositoryData @Inject()(
 
   def convert(id: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
     configToMappings(request.body).map { ts =>
-      logger.info(s"Conversion config: $config")
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
         request.body.src,

@@ -33,6 +33,7 @@ GET         /:id/data                                 @controllers.institutions.
 GET         /:id/data/file/:stage/:fileName           @controllers.institutions.RepositoryData.download(id: String, stage: defines.FileStage.Value, fileName: String)
 PUT         /:id/data/file/:stage/:fileName           @controllers.institutions.RepositoryData.uploadStream(id: String, stage: defines.FileStage.Value, fileName: String)
 GET         /:id/data/list/:stage                     @controllers.institutions.RepositoryData.listFiles(id: String, stage: defines.FileStage.Value, path: Option[String] ?= None, from: Option[String] ?= None)
+GET         /:id/data/count/:stage                    @controllers.institutions.RepositoryData.countFiles(id: String, stage: defines.FileStage.Value, path: Option[String] ?= None)
 DELETE      /:id/data/delete/:stage                   @controllers.institutions.RepositoryData.deleteFiles(id: String, stage: defines.FileStage.Value)
 DELETE      /:id/data/delete-all/:stage               @controllers.institutions.RepositoryData.deleteAll(id: String, stage: defines.FileStage.Value)
 POST        /:id/data/upload/:stage                   @controllers.institutions.RepositoryData.uploadHandle(id: String, stage: defines.FileStage.Value)

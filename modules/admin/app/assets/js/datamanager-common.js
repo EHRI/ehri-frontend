@@ -108,6 +108,7 @@ let previewPanelMixin = {
     panelSize: Number,
     previewing: String,
     errors: null,
+    config: Object,
   },
   data: function () {
     return {
@@ -116,13 +117,44 @@ let previewPanelMixin = {
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
+      wrap: true,
+      prettifying: false,
+      prettified: false,
     }
   },
   methods: {
+    prettifyXml: function(xml) {
+      let parser = new DOMParser();
+      let xmlDoc = parser.parseFromString(xml, 'application/xml');
+      let xsltDoc = parser.parseFromString(`
+        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+          <xsl:template match="node()|@*">
+            <xsl:copy>
+              <xsl:apply-templates select="node()|@*"/>
+            </xsl:copy>
+          </xsl:template>
+          <xsl:output indent="yes"/>
+        </xsl:stylesheet>
+      `, 'application/xml');
+
+      let xsltProcessor = new XSLTProcessor();
+      xsltProcessor.importStylesheet(xsltDoc);
+      let resultDoc = xsltProcessor.transformToDocument(xmlDoc);
+      return new XMLSerializer().serializeToString(resultDoc);
+    },
+    makePretty: function() {
+      this.prettifying = true;
+      try {
+        this.previewData = this.prettifyXml(this.previewData);
+        this.prettified = true;
+      } finally {
+        this.prettifying = false;
+      }
+    },
     spawnLoader: function() {
       let self = this;
       self.loading = true;
-      let worker = new Worker(CONFIG.previewLoader);
+      let worker = new Worker(self.config.previewLoader);
       worker.onmessage = e => {
         if (e.data.init) {
           if (self.editor) {
@@ -214,6 +246,9 @@ let previewPanelMixin = {
       // FIXME: why is this only needed some times, e.g for convert
       // previews but not file previews?
       if (newValue !== oldValue) {
+        if (!this.prettifying) {
+          this.prettified = false;
+        }
         this.refresh();
       }
     },
@@ -231,6 +266,7 @@ let previewPanelMixin = {
   mounted: function () {
     this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
       mode: 'xml',
+      // lineWrapping: true,
       lineNumbers: true,
       readOnly: true,
       gutters: [{className: "validation-errors", style: "width: 18px"}]
@@ -260,9 +296,116 @@ let previewPanelMixin = {
       <div class="preview-loading-indicator" v-if="loading">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
       </div>
+      <button class="pretty-xml btn btn-sm"
+              title="Apply code formatting..."
+              v-else
+              v-bind:class="{'active': !prettified}"
+              v-on:click="makePretty" 
+              v-bind:disabled="previewTruncated || prettified">
+        <i class="fa fa-code"></i>
+      </button>
     </div>
   `
-}
+};
+
+Vue.component("file-picker-suggestion", {
+  props: {selected: Boolean, item: Object,},
+  template: `
+    <div @click="$emit('selected', item)" class="file-picker-suggestion" v-bind:class="{'selected': selected}">
+        {{ item.key }} 
+    </div>
+  `
+});
+
+Vue.component("file-picker", {
+  props: {type: String, disabled: Boolean},
+  data: function () {
+    return {
+      text: "",
+      input: "",
+      selectedIdx: -1,
+      suggestions: [],
+      loading: false,
+      item: null,
+    }
+  },
+  methods: {
+    search: function () {
+      this.loading = true;
+      this.text = this.input;
+      let self = this;
+      function list() {
+        DAO.listFiles(self.type, self.text).then(data => {
+          self.loading = false;
+          self.suggestions = data.files;
+        });
+      }
+      _.debounce(list, 300)();
+    },
+    setItem: function (item) {
+      this.item = item;
+    },
+    selectPrev: function () {
+      this.selectedIdx = Math.max(-1, this.selectedIdx - 1);
+      this.setItemFromSelection();
+    },
+    selectNext: function () {
+      this.selectedIdx = Math.min(this.suggestions.length, this.selectedIdx + 1);
+      this.setItemFromSelection();
+    },
+    setAndChooseItem: function (item) {
+      this.setItem(item);
+      this.accept();
+    },
+    setItemFromSelection: function () {
+      let idx = this.selectedIdx,
+        len = this.suggestions.length;
+      if (idx > -1 && len > 0 && idx < len) {
+        this.setItem(this.suggestions[idx]);
+      } else if (idx === -1) {
+        this.item = null;
+      }
+    },
+    accept: function () {
+      if (this.item) {
+        this.$emit("item-accepted", this.item);
+        this.input = this.item.key;
+        this.cancelComplete();
+        this.text = "";
+      }
+    },
+    cancelComplete: function () {
+      this.suggestions = [];
+      this.selectedIdx = -1;
+      this.item = null;
+    }
+  },
+  template: `
+    <div class="file-picker">
+      <label class="control-label sr-only">File:</label>
+      <input class="form-control" type="text" placeholder="Select file to preview"
+        v-bind:disabled="disabled"
+        v-model.trim="input" 
+        v-on:input="search"
+        v-on:focus="search"
+        v-on:keydown.up="selectPrev"
+        v-on:keydown.down="selectNext"
+        v-on:keydown.enter="accept"
+        v-on:keydown.esc="cancelComplete"/>
+      <div class="dropdown-list" v-if="suggestions.length">
+        <div class="file-picker-suggestions">
+          <file-picker-suggestion
+              v-for="(suggestion, i) in suggestions"
+              v-bind:class="{selected: i === selectedIdx}"
+              v-bind:key="suggestion.key"
+              v-bind:item="suggestion"
+              v-bind:selected="i === selectedIdx"
+              v-on:selected="setAndChooseItem"/>
+        </div>
+      </div>
+    </div>
+  `
+});
 
 Vue.component("convert-preview", {
   mixins: [previewPanelMixin],

@@ -129,7 +129,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "convert files with correct errors" in new ITestApp {
       await(putFile())
-      val map = "target-path\ttarget-node\tsource-node\tvalue\n/\tead\t/blah\t%\n/\tead\t.\t\n" // invalid junk
+      val map = "target-path\ttarget-node\tsource-node\tvalue\n/\tead\t/blah\t&\n/\tead\t.\t\n" // invalid junk
       val r = FakeRequest(repoDataRoutes.convertFile("r1", FileStage.Ingest, testFileName))
         .withUser(privilegedUser)
         .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
