@@ -14,6 +14,8 @@ import play.twirl.sbt.Import.TwirlKeys.templateImports
 parallelExecution in ThisBuild := false
 logBuffered := false
 
+logLevel := Level.Debug
+
 val projectScalaVersion = "2.12.10"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
@@ -150,6 +152,8 @@ val excludedResources = Seq(
 
 val commonSettings = Seq(
 
+  logLevel := Level.Debug,
+
   version := appVersion,
 
   scalaVersion in ThisBuild := projectScalaVersion,
@@ -235,7 +239,7 @@ val webAppSettings = Seq(
     }
     val allMessages = messagesFiles(baseDirectory.value)
     if (allMessages.nonEmpty) {
-      streams.value.log.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
+      sLog.value.debug(s"Validating ${allMessages.size} messages file(s) in ${baseDirectory.value}")
       allMessages.foreach(validate)
     }
   },
