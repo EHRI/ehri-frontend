@@ -130,8 +130,12 @@ val testDependencies = Seq(
 val additionalResolvers = Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots"),
-  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/"
+
+  // EHRI repositories
+  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/",
+
+  // BaseX (for XML transformations)
+  "BaseX repository" at "https://files.basex.org/maven/"
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
