@@ -4,9 +4,6 @@ logLevel := Level.Warn
 // The Typesafe repository 
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 
-// BaseX (for XML transformations)
-resolvers += "BaseX repository" at "https://files.basex.org/maven/"
-
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 // Use the Play sbt plugin for Play projects
