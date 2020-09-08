@@ -703,7 +703,7 @@ Vue.component("oaipmh-manager", {
           Delete All
         </button>
 
-        <button v-if="!harvestJobId" v-bind:disabled="!harvestConfig" class="btn btn-sm btn-default"
+        <button v-if="!harvestJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions">
           <i class="fa fa-fw fa-cloud-download"/>
           Harvest Files...
