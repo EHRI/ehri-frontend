@@ -21,6 +21,7 @@ let stageMixin = {
       tab: 'preview',
       previewing: null,
       deleting: {},
+      downloading: {},
       selected: {},
       filter : {
         value: "",
@@ -61,6 +62,15 @@ let stageMixin = {
     },
     filesLoaded: function (truncated) {
       this.truncated = truncated;
+    },
+    downloadFiles: function(keys) {
+      keys.forEach(key => this.$set(this.downloading, key, true));
+      DAO.fileUrls(this.fileStage, keys).then(urls => {
+        _.forIn(urls, (url, fileName) => {
+           window.open(url, '_blank');
+           this.$delete(this.downloading, fileName);
+        });
+      })
     },
     deleteFiles: function (keys) {
       if (keys.includes(this.previewing)) {
@@ -129,6 +139,7 @@ Vue.component("files-table", {
     selected: Object,
     truncated: Boolean,
     deleting: Object,
+    downloading: Object,
     ingesting: Object,
     filter: String,
   },
@@ -175,7 +186,8 @@ Vue.component("files-table", {
     utilRows: function() {
       return Number(this.deleted !== null) +
         Number(this.validating !== null) +
-        Number(this.deleting !== null);
+        Number(this.deleting !== null) +
+        Number(this.downloading !== null);
     }
   },
   template: `
@@ -221,6 +233,14 @@ Vue.component("files-table", {
               <i class="fa fa-fw" v-bind:class="{
                 'fa-circle-o-notch fa-spin': deleting[file.key], 
                 'fa-trash-o': !deleting[file.key] 
+              }"></i>
+            </a>
+          </td>
+          <td v-if="downloading !== null">
+            <a href="#" title="" v-on:click.prevent.stop="$emit('download-files', [file.key])">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': downloading[file.key],
+                'fa-download': !downloading[file.key]
               }"></i>
             </a>
           </td>
@@ -407,10 +427,12 @@ Vue.component("upload-manager", {
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
+            v-bind:downloading="downloading"
             v-bind:ingesting="null"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
+            v-on:download-files="downloadFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
@@ -732,10 +754,12 @@ Vue.component("oaipmh-manager", {
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
+            v-bind:downloading="downloading"
             v-bind:ingesting="null"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
+            v-on:download-files="downloadFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
@@ -1387,10 +1411,12 @@ Vue.component("ingest-manager", {
             v-bind:validationResults="validationResults"
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
+            v-bind:downloading="downloading"
             v-bind:ingesting="ingesting"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
+            v-on:download-files="downloadFiles"
             v-on:ingest-files="ingestFiles"
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
