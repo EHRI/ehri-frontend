@@ -114,6 +114,9 @@ val portalDependencies = Seq(
   // EAD transformation... unstable!
   "org.basex" % "basex" % "8.5",
 
+  // Saxon for XSLT transformation
+  "net.sf.saxon" % "Saxon-HE" % "10.2",
+
   // S3 sdk
   "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
