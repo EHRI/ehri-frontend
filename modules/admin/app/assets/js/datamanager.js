@@ -945,7 +945,7 @@ Vue.component("convert-manager", {
       return DAO.listDataTransformations().then(available => {
         let each = _.partition(available, item => !_.includes(this.mappings, item.id));
         this.available = each[0];
-        this.enabled = each[1];
+        this.enabled = this.mappings.map(id => _.find(each[1], a => a.id === id));
 
         this.loading = false;
       });
@@ -1045,8 +1045,10 @@ Vue.component("convert-manager", {
     },
   },
   watch: {
-    enabled: function(newValue, oldValue) {
-      this.saveConfig();
+    enabled: function() {
+      if (!this.loading) {
+        this.saveConfig();
+      }
     },
     active: function(value) {
       if (value) {
