@@ -1126,23 +1126,25 @@ Vue.component("convert-manager", {
                 <h3>No transformations available.</h3>
                 <p><a href="#" v-on:click.prevent="newTransformation">Create a new one now...</a></p>
               </div>
-
-            <draggable
-              class="list-group transformation-list"
-              draggable=".transformation-item"
-              group="transformations"
-              v-bind:sort="false"
-              v-model="available">
-              <transformation-item
-                v-for="(dt, i) in available"
-                v-bind:item="dt"
-                v-bind:key="i"
-                v-bind:enabled="_.includes(mappings, item => item.id)"
-                v-on:edit="editTransformation(dt)"
-              />
-            </draggable>
+              <div class="transformation-list-placeholder" v-else-if="available.length === 0">
+                <p>Drag transformations into this area to deactivate them.</p>
+              </div>
+              
+              <draggable
+                class="list-group transformation-list"
+                draggable=".transformation-item"
+                group="transformations"
+                v-bind:sort="false"
+                v-model="available">
+                <transformation-item
+                  v-for="(dt, i) in available"
+                  v-bind:item="dt"
+                  v-bind:key="i"
+                  v-bind:enabled="_.includes(mappings, item => item.id)"
+                  v-on:edit="editTransformation(dt)"
+                />
+              </draggable>
             </div>
-            
             
             <div class="spacer"></div>
             <div class="card">
