@@ -68,6 +68,8 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
           proc.bind("namespaces", ns, "map()")
           proc.bind("libURI", utilLibUrl, "xs:anyURI")
 
+          logger.debug(s"Module URL: $utilLibUrl")
+
           val iter = proc.iter()
 
           val bytes = new ByteArrayOutputStream()
