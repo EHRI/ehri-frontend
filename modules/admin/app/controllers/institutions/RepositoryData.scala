@@ -22,11 +22,11 @@ import controllers.generic._
 import defines.FileStage
 import javax.inject._
 import models.HarvestEvent.HarvestEventType
-import models.{ConvertConfig, ConvertSpec, DataTransformation, DataTransformationInfo, OaiPmhConfig, Repository, TransformationList}
+import models._
 import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.http.ContentTypes
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
@@ -156,7 +156,11 @@ case class RepositoryData @Inject()(
 
   def download(id: String, stage: FileStage.Value, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
     storage.get(bucket, s"${prefix(id, stage)}$fileName").map {
-      case Some((meta, bytes)) => Ok.chunked(bytes).as(meta.contentType.getOrElse(ContentTypes.BINARY))
+      case Some((meta, bytes)) =>
+        Ok.chunked(bytes)
+        .as(meta.contentType.getOrElse(ContentTypes.BINARY))
+        .withHeaders(meta.eTag.toSeq.map(tag => HeaderNames.ETAG -> tag): _*)
+        .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment;filename=$fileName")
       case _ => NotFound
     }
   }
