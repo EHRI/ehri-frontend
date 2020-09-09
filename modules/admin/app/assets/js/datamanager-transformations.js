@@ -162,7 +162,7 @@ Vue.component("edit-form-panes", {
     bodyType: String,
     body: String,
     comments: String,
-    preview: String,
+    preview: Object,
     previewList: Array,
     config: Object,
   },
@@ -276,7 +276,7 @@ Vue.component("edit-form-panes", {
                 <label for="edit-form-preview-options">Preview transformation</label>
                 <select id="edit-form-preview-options" v-model="previewing">
                   <option v-bind:value="null">---</option>
-                  <option v-for="file in previewList" v-bind:value="file.key">{{file.key}}</option>
+                  <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
                 </select>
                 <drag-handle v-bind:ns="'edit-form-preview-drag'"
                              v-bind:p2="$root.$el.querySelector('#edit-form-preview-section')"
