@@ -14,6 +14,9 @@ function sequential(func, arr, index) {
 }
 
 let stageMixin = {
+  props: {
+    active: Boolean,
+  },
   data: function() {
     return {
       loaded: false,
@@ -99,6 +102,13 @@ let stageMixin = {
     selectedKeys: function () {
       return Object.keys(this.selected);
     },
+  },
+  watch: {
+    active: function(newValue) {
+      if (newValue) {
+        this.load();
+      }
+    }
   }
 }
 
@@ -910,6 +920,7 @@ Vue.component("convert-manager", {
   props: {
     fileStage: String,
     config: Object,
+    active: Boolean,
   },
   data: function () {
     return {
@@ -1036,6 +1047,11 @@ Vue.component("convert-manager", {
   watch: {
     enabled: function(newValue, oldValue) {
       this.saveConfig();
+    },
+    active: function(value) {
+      if (value) {
+        this.loadPreviewList();
+      }
     }
   },
   created: function () {
@@ -1524,16 +1540,16 @@ Vue.component("data-manager", {
         </li>
       </ul>
       <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
-        <upload-manager v-bind:fileStage="'upload'" v-bind:config="config" />
+        <upload-manager v-bind:fileStage="'upload'" v-bind:config="config" v-bind:active="stage === 'upload'" />
       </div>
       <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
-        <oaipmh-manager v-bind:fileStage="'oaipmh'" v-bind:config="config" />
+        <oaipmh-manager v-bind:fileStage="'oaipmh'" v-bind:config="config" v-bind:active="stage === 'oaipmh'" />
       </div>
       <div id="tab-convert" class="stage-tab" v-show="stage === 'convert'">
-        <convert-manager v-bind:fileStage="'ingest'" v-bind:config="config" />
+        <convert-manager v-bind:fileStage="'ingest'" v-bind:config="config" v-bind:active="stage === 'convert'" />
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
-        <ingest-manager v-bind:fileStage="'ingest'" v-bind:config="config" />
+        <ingest-manager v-bind:fileStage="'ingest'" v-bind:config="config" v-bind:active="stage === 'ingest'" />
       </div>
     </div>  
   `
