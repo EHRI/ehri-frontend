@@ -142,7 +142,7 @@ Vue.component("files-table", {
     fileStage: String,
     dropping: Boolean,
     loaded: Boolean,
-    previewing: String,
+    previewing: Object,
     validating: Object,
     validationResults: Object,
     files: Array,
@@ -180,6 +180,9 @@ Vue.component("files-table", {
       } else {
         this.$delete(this.selected, key);
       }
+    },
+    isPreviewing: function(file) {
+      return this.previewing !== null && this.previewing.key == file.key;
     }
   },
   watch: {
@@ -201,7 +204,7 @@ Vue.component("files-table", {
     }
   },
   template: `
-    <div class="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}">
+    <div class="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}" v-on:click.stop="$emit('deselect-all')">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -215,8 +218,8 @@ Vue.component("files-table", {
         <tbody>
         <tr v-for="file in files"
             v-bind:key="file.key"
-            v-on:click="$emit('show-preview', file.key)"
-            v-bind:class="{'active': previewing === file.key}">
+            v-on:click.stop="$emit('show-preview', file)"
+            v-bind:class="{'active': isPreviewing(file)}">
           <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)">
           </td>
           <td>{{file.key}}</td>
@@ -446,6 +449,7 @@ Vue.component("upload-manager", {
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
+            v-on:deselect-all="deselect"
           />
         </div>
 
@@ -455,7 +459,7 @@ Vue.component("upload-manager", {
               <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
-                <template v-if="previewing"> - {{previewing}}</template>
+                <template v-if="previewing"> - {{previewing.key}}</template>
               </a>
             </li>
             <li class="nav-item">
@@ -773,6 +777,7 @@ Vue.component("oaipmh-manager", {
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
+            v-on:deselect-all="deselect"
           />
         </div>
 
@@ -782,7 +787,7 @@ Vue.component("oaipmh-manager", {
               <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
-                <template v-if="previewing"> - {{previewing}}</template>
+                <template v-if="previewing"> - {{previewing.key}}</template>
               </a>
             </li>
             <li class="nav-item">
@@ -1069,7 +1074,7 @@ Vue.component("convert-manager", {
       <div class="actions-bar">
         <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
           <option v-bind:value="null">Select file to preview...</option>
-          <option v-for="file in previewList" v-bind:value="file.key">{{file.key}}</option>
+          <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
         </select>
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
@@ -1175,7 +1180,7 @@ Vue.component("convert-manager", {
               <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
-                <template v-if="previewing"> - {{previewing}}</template>
+                <template v-if="previewing"> - {{previewing.key}}</template>
               </a>
             </li>
             <li class="nav-item">
@@ -1439,6 +1444,7 @@ Vue.component("ingest-manager", {
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
+            v-on:deselect-all="deselect"
           />
         </div>
 
@@ -1448,7 +1454,7 @@ Vue.component("ingest-manager", {
               <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                  v-on:click.prevent="tab = 'preview'">
                 File Preview
-                <template v-if="previewing"> - {{previewing}}</template>
+                <template v-if="previewing"> - {{previewing.key}}</template>
               </a>
             </li>
             <li class="nav-item">

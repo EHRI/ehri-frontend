@@ -42,10 +42,13 @@ let previewMixin = {
     }
   },
   methods: {
-    showPreview: function (key) {
-      this.previewing = key;
+    showPreview: function (file) {
+      this.previewing = file;
       this.tab = 'preview';
     },
+    deselect: function() {
+      this.previewing = null;
+    }
   }
 };
 
@@ -106,7 +109,7 @@ let previewPanelMixin = {
   props: {
     fileStage: String,
     panelSize: Number,
-    previewing: String,
+    previewing: Object,
     errors: null,
     config: Object,
   },
@@ -176,14 +179,14 @@ let previewPanelMixin = {
       }
 
       self.validating = true;
-      DAO.validateFiles(this.fileStage, [self.previewing]).then(errs => {
-        this.$set(this.errors, self.previewing, errs[self.previewing]);
+      DAO.validateFiles(this.fileStage, [self.previewing.key]).then(errs => {
+        this.$set(this.errors, self.previewing.key, errs[self.previewing.key]);
         this.updateErrors();
         this.validating = false;
       });
     },
     updateErrors: function () {
-      if (this.errors[this.previewing] && this.editor) {
+      if (this.previewing && this.errors[this.previewing.key] && this.editor) {
         let doc = this.editor.getDoc();
 
         function makeMarker(err) {
@@ -212,12 +215,11 @@ let previewPanelMixin = {
           return widget;
         }
 
-        this.errors[this.previewing].forEach(e => {
+        this.errors[this.previewing.key].forEach(e => {
           doc.addLineClass(e.line - 1, 'background', 'line-error');
           doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
         });
       }
-
     },
     load: function () {
       let self = this;
@@ -226,9 +228,9 @@ let previewPanelMixin = {
       }
 
       self.loading = true;
-      DAO.fileUrls(self.fileStage, [self.previewing]).then(data => {
+      DAO.fileUrls(self.fileStage, [self.previewing.key]).then(data => {
         let worker = self.spawnLoader();
-        worker.postMessage({type: 'preview', url: data[self.previewing]});
+        worker.postMessage({type: 'preview', url: data[self.previewing.key]});
       });
     },
     refresh: function() {
@@ -253,7 +255,7 @@ let previewPanelMixin = {
       }
     },
     previewing: function (newValue, oldValue) {
-      if (newValue !== null && newValue !== oldValue) {
+      if (!_.isEqual(newValue, oldValue)) {
         this.load();
       }
     },
@@ -290,7 +292,7 @@ let previewPanelMixin = {
         <i class="fa fa-circle"></i>
       </div>
       <div class="valid-indicator" title="No errors detected"
-           v-if="!validating && errors[previewing] && errors[previewing].length === 0">
+           v-if="!validating && previewing && errors[previewing.key] && errors[previewing.key].length === 0">
         <i class="fa fa-check"></i>
       </div>
       <div class="preview-loading-indicator" v-if="loading">
@@ -426,7 +428,7 @@ Vue.component("convert-preview", {
       let worker = self.spawnLoader();
       worker.postMessage({
         type: 'convert-preview',
-        url: DAO.convertFileUrl(self.fileStage, self.previewing),
+        url: DAO.convertFileUrl(self.fileStage, self.previewing.key),
         src: [],
         mappings: self.mappings,
       });
