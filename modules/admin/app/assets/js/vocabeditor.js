@@ -248,17 +248,17 @@ Vue.component("concept-description-multi-item", {
       pending: null,
     };
   },
-  watch: {
-    data: function (newData, oldData) {
-      this.state = newData;
-    },
-  },
   methods: {
     addPending: function () {
       if (this.pending) {
         this.state.push(this.pending);
         this.pending = null;
       }
+    },
+  },
+  watch: {
+    data: function (newData, oldData) {
+      this.state = newData;
     },
   },
   template: `
@@ -357,9 +357,12 @@ Vue.component("concept-rel-editor", {
       error: false,
     }
   },
-  watch: {
-    data: function (newData, oldData) {
-      this.state = newData;
+  computed: {
+    sorted: function () {
+      return this.state.concat().sort(DAO.sortByTitle(this.lang));
+    },
+    expandable: function() {
+      return this.state.filter(i => i.broaderTerms.length > 0).length > 0;
     }
   },
   methods: {
@@ -376,12 +379,9 @@ Vue.component("concept-rel-editor", {
       this.state.splice(_.findIndex(this.state, c => c.id === item.id), 1);
     }
   },
-  computed: {
-    sorted: function () {
-      return this.state.concat().sort(DAO.sortByTitle(this.lang));
-    },
-    expandable: function() {
-      return this.state.filter(i => i.broaderTerms.length > 0).length > 0;
+  watch: {
+    data: function (newData, oldData) {
+      this.state = newData;
     }
   },
   template: `
@@ -450,11 +450,25 @@ Vue.component("concept-data-editor", {
       currentDescIdx: -1,
     }
   },
-  watch: {
-    data: function (newData, oldData) {
-      this.state = newData;
-      this.error = false;
-    }
+  computed: {
+    invalid: function () {
+      // TODO: More validation???
+      return !this.data.identifier;
+    },
+    sortedDescriptions: function () {
+      return this.state.descriptions.concat().sort((a, b) => {
+        return a.languageCode.localeCompare(b.languageCode);
+      })
+    },
+    descriptionIds: function () {
+      return this.state.descriptions.map(this.descIdent);
+    },
+    pendingHasUniqueId: function () {
+      return !this.descriptionIds.includes(this.descIdent(this.pendingDesc));
+    },
+    pendingValid: function () {
+      return this.pendingDesc.languageCode && this.pendingDesc.name && this.pendingHasUniqueId;
+    },
   },
   methods: {
     save: function () {
@@ -506,25 +520,11 @@ Vue.component("concept-data-editor", {
       this.state.descriptions.splice(idx, 1);
     },
   },
-  computed: {
-    invalid: function () {
-      // TODO: More validation???
-      return !this.data.identifier;
-    },
-    sortedDescriptions: function () {
-      return this.state.descriptions.concat().sort((a, b) => {
-        return a.languageCode.localeCompare(b.languageCode);
-      })
-    },
-    descriptionIds: function () {
-      return this.state.descriptions.map(this.descIdent);
-    },
-    pendingHasUniqueId: function () {
-      return !this.descriptionIds.includes(this.descIdent(this.pendingDesc));
-    },
-    pendingValid: function () {
-      return this.pendingDesc.languageCode && this.pendingDesc.name && this.pendingHasUniqueId;
-    },
+  watch: {
+    data: function (newData) {
+      this.state = newData;
+      this.error = false;
+    }
   },
   template: `
     <div id="concept-editor-data-tab" class="concept-editor-tab" v-bind:class="{error: error}">
@@ -632,6 +632,12 @@ Vue.component("concept-data-editor", {
 });
 
 Vue.component("concept-editor", {
+  filters: {
+    formatTimestamp: function(s) {
+      let m = moment(s);
+      return m.isValid() ? m.fromNow() : "";
+    }
+  },
   props: {
     lang: String,
     id: String,
@@ -651,14 +657,6 @@ Vue.component("concept-editor", {
       deleting: false,
       deleted: false,
     };
-  },
-  watch: {
-    id: function (newId, oldId) {
-      if (this.deleted && (newId !== oldId)) {
-        this.deleted = false;
-        this.tab = 'rels';
-      }
-    }
   },
   methods: {
     updateItem: function (data) {
@@ -702,10 +700,12 @@ Vue.component("concept-editor", {
       this.$emit("item-deleted", data);
     }
   },
-  filters: {
-    formatTimestamp: function(s) {
-      let m = moment(s);
-      return m.isValid() ? m.fromNow() : "";
+  watch: {
+    id: function (newId, oldId) {
+      if (this.deleted && (newId !== oldId)) {
+        this.deleted = false;
+        this.tab = 'rels';
+      }
     }
   },
   template: `
@@ -884,13 +884,6 @@ Vue.component("concept-list-item", {
       children: []
     };
   },
-  watch: {
-    lang: function (newLang, oldLang) {
-      if (this.open) {
-        this.refresh();
-      }
-    },
-  },
   methods: {
     refresh: function () {
       this.$emit('refresh');
@@ -915,6 +908,13 @@ Vue.component("concept-list-item", {
     forwardEdit: function (id) {
       this.$emit('edit-item', id);
     }
+  },
+  watch: {
+    lang: function (newLang, oldLang) {
+      if (this.open) {
+        this.refresh();
+      }
+    },
   },
   created: function () {
     this.eventBus.$on('refresh-children', ids => {
@@ -979,10 +979,16 @@ var app = new Vue({
       isSearch: false,
     }
   },
-  watch: {
-    lang: function (newLang, oldLang) {
-      this.reload();
+  computed: {
+    dirtyData: function () {
+      return JSON.stringify(_.omit(this.editing, ["broaderTerms"]))
+        !== JSON.stringify(_.omit(this.editBuffer, ["broaderTerms"]));
     },
+    dirtyRels: function () {
+      return JSON.stringify(_.pick(this.editing, ["broaderTerms"]))
+        !== JSON.stringify(_.pick(this.editBuffer, ["broaderTerms"]));
+
+    }
   },
   methods: {
     conceptTemplate: function () {
@@ -1071,16 +1077,10 @@ var app = new Vue({
       }
     },
   },
-  computed: {
-    dirtyData: function () {
-      return JSON.stringify(_.omit(this.editing, ["broaderTerms"]))
-        !== JSON.stringify(_.omit(this.editBuffer, ["broaderTerms"]));
+  watch: {
+    lang: function (newLang, oldLang) {
+      this.reload();
     },
-    dirtyRels: function () {
-      return JSON.stringify(_.pick(this.editing, ["broaderTerms"]))
-        !== JSON.stringify(_.pick(this.editBuffer, ["broaderTerms"]));
-
-    }
   },
   created: function () {
     DAO.getLangData().then(langs => this.langs = langs)

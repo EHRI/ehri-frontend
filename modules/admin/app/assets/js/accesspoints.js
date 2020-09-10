@@ -414,10 +414,10 @@ Vue.component("access-point-type", {
                   v-on:deleted="$emit('deleted')">
               </access-point>
           </ul>
-          <a v-if="!adding" class="ap-editor-add-toggle" v-on:click.prevent="adding = !adding">
+          <a v-if="!adding" class="ap-editor-add-toggle" v-on:click.prevent="adding = !adding" href="#">
             <i class="glyphicon" v-bind:class="adding ? 'glyphicon-minus-sign' : 'glyphicon-plus-sign'"></i>
             Add New
-          </a href="#">
+          </a>
           <access-point-add-form v-if="adding" 
             v-bind:type="type" 
             v-on:added="added"
