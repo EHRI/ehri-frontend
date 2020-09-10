@@ -34,9 +34,10 @@ let stageMixin = {
       log: [],
     }
   },
-  created: function() {
-    console.log("Refreshing with", this.fileStage);
-    this.load();
+  computed: {
+    selectedKeys: function () {
+      return Object.keys(this.selected);
+    },
   },
   methods: {
     clearFilter: function () {
@@ -98,18 +99,17 @@ let stageMixin = {
       });
     },
   },
-  computed: {
-    selectedKeys: function () {
-      return Object.keys(this.selected);
-    },
-  },
   watch: {
     active: function(newValue) {
       if (newValue) {
         this.load();
       }
     }
-  }
+  },
+  created: function() {
+    console.log("Refreshing with", this.fileStage);
+    this.load();
+  },
 }
 
 Vue.component("upload-progress", {
@@ -158,6 +158,17 @@ Vue.component("files-table", {
       loadingMore: false,
     }
   },
+  computed: {
+    allChecked: function () {
+      return Object.keys(this.selected).length === this.files.length;
+    },
+    utilRows: function() {
+      return Number(this.deleted !== null) +
+        Number(this.validating !== null) +
+        Number(this.deleting !== null) +
+        Number(this.downloading !== null);
+    }
+  },
   methods: {
     fetchMore: function () {
       this.loadingMore = true;
@@ -191,17 +202,6 @@ Vue.component("files-table", {
       this.$el.querySelector("#" + this.fileStage + "-checkall").indeterminate =
         selected > 0 && selected !== this.files.length;
     },
-  },
-  computed: {
-    allChecked: function () {
-      return Object.keys(this.selected).length === this.files.length;
-    },
-    utilRows: function() {
-      return Number(this.deleted !== null) +
-        Number(this.validating !== null) +
-        Number(this.deleting !== null) +
-        Number(this.downloading !== null);
-    }
   },
   template: `
     <div class="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}" v-on:click.stop="$emit('deselect-all')">
@@ -534,6 +534,14 @@ Vue.component("oaipmh-config-modal", {
       error: null
     }
   },
+  computed: {
+    isValidConfig: function() {
+      return this.url
+        && this.url.trim() !== ""
+        && this.format
+        && this.format.trim() !== "";
+    },
+  },
   methods: {
     save: function() {
       DAO.saveConfig({url: this.url, format: this.format, set: this.set})
@@ -553,14 +561,6 @@ Vue.component("oaipmh-config-modal", {
           }
         });
     }
-  },
-  computed: {
-    isValidConfig: function() {
-      return this.url
-        && this.url.trim() !== ""
-        && this.format
-        && this.format.trim() !== "";
-    },
   },
   watch: {
     config: function(newValue) {
@@ -852,15 +852,15 @@ Vue.component("convert-config", {
       sources: [],
     }
   },
+  computed: {
+    isValidConfig: function() {
+      return this.sources;
+    },
+  },
   methods: {
     convert: function() {
       this.$emit("convert", this.sources);
       this.$emit("close");
-    },
-  },
-  computed: {
-    isValidConfig: function() {
-      return this.sources;
     },
   },
   template: `
@@ -1437,7 +1437,7 @@ Vue.component("ingest-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:downloading="downloading"
-            v-bind:ingesting="ingesting"
+            v-bind:ingesting="null"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
@@ -1533,7 +1533,7 @@ Vue.component("data-manager", {
         <li class="nav-item">
           <a href="#tab-upload" class="nav-link" v-bind:class="{'active': stage === 'upload'}"
              v-on:click.prevent="stage = 'upload'">
-            Upload Files
+            Uploads
           </a>
         </li>
         <li class="nav-item">

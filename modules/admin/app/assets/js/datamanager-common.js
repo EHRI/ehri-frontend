@@ -72,20 +72,6 @@ let validatorMixin = {
       validationResults: {},
     }
   },
-  methods: {
-    validateFiles: function (keys) {
-      keys.forEach(key => this.$set(this.validating, key, true));
-      keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(this.fileStage, keys).then(errs => {
-        this.tab = 'validation';
-        keys.forEach(key => {
-          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
-          this.$delete(this.validating, key);
-        });
-      });
-    },
-
-  },
   computed: {
     validationLog: function () {
       let log = [];
@@ -102,6 +88,19 @@ let validatorMixin = {
       });
       return log;
     }
+  },
+  methods: {
+    validateFiles: function (keys) {
+      keys.forEach(key => this.$set(this.validating, key, true));
+      keys.forEach(key => this.$delete(this.validationResults, key));
+      DAO.validateFiles(this.fileStage, keys).then(errs => {
+        this.tab = 'validation';
+        keys.forEach(key => {
+          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
+          this.$delete(this.validating, key);
+        });
+      });
+    },
   }
 };
 
