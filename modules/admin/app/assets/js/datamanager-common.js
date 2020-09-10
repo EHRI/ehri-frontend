@@ -157,6 +157,7 @@ let previewPanelMixin = {
     spawnLoader: function() {
       let self = this;
       self.loading = true;
+      self.$emit("loading");
       let worker = new Worker(self.config.previewLoader);
       worker.onmessage = e => {
         if (e.data.init) {
@@ -168,6 +169,9 @@ let previewPanelMixin = {
           self.previewData = e.data.text;
         } else {
           self.previewData += e.data.text;
+        }
+        if (e.data.done) {
+          self.$emit("loaded");
         }
       };
       return worker;
