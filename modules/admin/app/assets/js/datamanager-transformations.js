@@ -179,10 +179,13 @@ Vue.component("edit-form-panes", {
         body: this.body,
         comments: this.comments,
       },
+      timestamp: (new Date()).toString(),
       fileStage: 'upload',
       inputValidationResults: [],
       outputValidationResults: [],
       showOptions: false,
+      loadingIn: false,
+      loadingOut: false,
     }
   },
   methods: {
@@ -236,7 +239,7 @@ Vue.component("edit-form-panes", {
               <div id="edit-form-controls" class="controls">
                 <label for="transformation-name">Name</label>
                 <input v-model.trim="data.name" id="transformation-name" minlength="3" required/>
-                <label for="transformation-type">Mapping Type</label>
+                <label for="transformation-type">Type</label>
                 <select id="transformation-type" v-model="data.bodyType">
                   <option v-bind:value="'xquery'">XQuery</option>
                   <option v-bind:value="'xslt'">XSLT</option>
@@ -248,7 +251,7 @@ Vue.component("edit-form-panes", {
                 </select>
                 <label for="transformation-comments">Description</label>
                 <input v-model.trim="data.comments" id="transformation-comments" minlength="3" required />
-                <div class="buttons btn-group">
+                <div class="buttons">
                   <button class="btn btn-success btn-sm" v-on:click="save" v-bind:disabled="!valid || !modified">
                     Save
                     <i v-if="saving" class="fa fa-spin fa-circle-o-notch fa-fw"></i>
@@ -278,6 +281,10 @@ Vue.component("edit-form-panes", {
                   <option v-bind:value="null">---</option>
                   <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
                 </select>
+                <button id="edit-form-preview-refresh"  title="Refresh preview"
+                        class="btn btn-sm" v-bind:disabled="previewing === null || loadingOut" v-on:click="timestamp = (new Date()).toString()">
+                  <i class="fa fa-refresh"></i>
+                </button>
                 <drag-handle v-bind:ns="'edit-form-preview-drag'"
                              v-bind:p2="$root.$el.querySelector('#edit-form-preview-section')"
                              v-bind:container="$root.$el.querySelector('#edit-form-panes')"
@@ -291,7 +298,9 @@ Vue.component("edit-form-panes", {
                     v-bind:previewing="previewing"
                     v-bind:errors="inputValidationResults"
                     v-bind:panel-size="panelSize"
-                    v-bind:config="config" />
+                    v-bind:config="config"
+                    v-on:loading="loadingIn = true"
+                    v-on:loaded="loadingIn = false" />
                   <div class="panel-placeholder" v-if="previewing === null">
                     Input preview
                   </div>
@@ -300,15 +309,14 @@ Vue.component("edit-form-panes", {
                   <convert-preview 
                     v-if="previewing !== null"
                     v-bind:mappings="mappings"
-                    v-bind:trigger="JSON.stringify({
-                        bodyType: data.bodyType, 
-                        body: data.body
-                    })"
+                    v-bind:trigger="timestamp"
                     v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:errors="outputValidationResults"
                     v-bind:panel-size="panelSize"
-                    v-bind:config="config" />
+                    v-bind:config="config"
+                    v-on:loading="loadingOut = true"
+                    v-on:loaded="loadingOut = false" />
                   <div class="panel-placeholder" v-if="previewing === null">
                     Output preview
                   </div>

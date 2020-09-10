@@ -267,17 +267,28 @@ body {
   background-color: $gray-100;
   padding-bottom: $margin-xs;
   align-items: center;
+  flex-wrap: wrap;
 
   label {
     margin: 0 $margin-xs 0 $margin-sm;
   }
 
-  :first-child {
+  > :first-child {
     margin-left: 0;
   }
 
-  :last-child {
-    margin-left: auto;
+  #transformation-comments {
+    flex-grow: 1;
+  }
+
+  .buttons {
+    display: inline-flex;
+    margin-left: $margin-sm;
+    min-width: max-content;
+    justify-content: flex-end;
+    > .btn {
+      margin-right: 0;
+    }
   }
 }
 
@@ -316,6 +327,11 @@ body {
   :last-child {
     flex: 1;
   }
+}
+
+#edit-form-preview-refresh:focus {
+  outline: 0;
+  box-shadow: none;
 }
 
 #edit-form-previews {
@@ -459,6 +475,10 @@ body {
     color: $text-muted;
     &.active {
       color: $success;
+    }
+    &:focus {
+      outline: 0;
+      box-shadow: none;
     }
   }
 }
