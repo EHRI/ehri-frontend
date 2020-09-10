@@ -9,6 +9,7 @@ import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
 import play.core.PlayVersion.{akkaVersion, akkaHttpVersion}
 import play.twirl.sbt.Import.TwirlKeys.templateImports
+import sbt.Keys.mappings
 
 
 parallelExecution in ThisBuild := false
@@ -143,20 +144,6 @@ val additionalResolvers = Seq(
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
 
-// Exclude certain conf files (e.g. those containing secret keys)
-// that we do not want packaged
-val excludedResources = Seq(
-  "oauth2.conf",
-  "parse.conf",
-  "aws.conf",
-  "dos.conf",
-  "test.conf",
-  "external_pages.conf",
-  "api-keys.conf",
-  "form-config.conf",
-  "logback-play-dev.xml"
-)
-
 val commonSettings = Seq(
 
   logLevel := Level.Debug,
@@ -273,15 +260,37 @@ val webAppSettings = Seq(
   // Always use nodejs to build the assets - Trireme is too slow...
   JsEngineKeys.engineType := JsEngineKeys.EngineType.Node,
 
-  // Filter out excluded resources from packaging
-  mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
-    excludedResources contains f.getName
-  },
-
+  // Check the messages files on compilation
   compile in Compile := {
     validateMessages.value
     (compile in Compile).value
   }
+)
+
+// Exclude certain conf files (e.g. those containing secret keys)
+// that we do not want packaged
+val excludedResources = Seq(
+  "oauth2.conf",
+  "parse.conf",
+  "aws.conf",
+  "dos.conf",
+  "test.conf",
+  "external_pages.conf",
+  "api-keys.conf",
+  "form-config.conf",
+  "logback-play-dev.xml"
+)
+
+val resourceSettings = Seq(
+  // The xtra.xqm XQuery module needs to be accessible outside of a Jar since it
+  // is loaded dynamically by URL. This means we need to copy it at staging time
+  // from the admin module to the main conf directory.
+  (PlayKeys.playExternalizedResources in Compile) += file("modules/admin/conf/xtra.xqm") -> "xtra.xqm",
+
+  // Filter out excluded resources from packaging
+  mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
+    excludedResources contains f.getName
+  },
 )
 
 lazy val backend = Project(appName + "-backend", file("modules/backend"))
@@ -342,18 +351,18 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
 lazy val api = Project(appName + "-api", file("modules/api"))
   .enablePlugins(play.sbt.PlayScala)
   .settings(libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0")
-  .settings(commonSettings ++ webAppSettings: _*)
+  .settings(commonSettings ++ webAppSettings)
   .dependsOn(portal % "test->test;compile->compile")
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala)
   .settings(libraryDependencies += specs2 % Test)
-  .settings(commonSettings ++ webAppSettings: _*)
+  .settings(commonSettings ++ webAppSettings)
   .dependsOn(api % "test->test;compile->compile")
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
   .enablePlugins(play.sbt.PlayScala)
-  .settings(commonSettings ++ webAppSettings: _*)
+  .settings(commonSettings ++ webAppSettings)
   .dependsOn(admin)
 
 // Solr search engine implementation.
@@ -365,6 +374,6 @@ lazy val main = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala)
   .enablePlugins(LauncherJarPlugin)
   .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
-  .settings(commonSettings ++ webAppSettings: _*)
+  .settings(commonSettings ++ webAppSettings ++ resourceSettings)
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
   .aggregate(backend, core, admin, portal, guides, api, solr)

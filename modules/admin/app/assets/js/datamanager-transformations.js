@@ -267,8 +267,8 @@ Vue.component("edit-form-panes", {
                 </div>
               </div>
               <div id="edit-form-map-input">
-                <xquery-editor v-if="data.bodyType === 'xquery'" v-model="data.body"/>
-                <xslt-editor v-else v-model="data.body"></xslt-editor>
+                <xquery-editor v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
+                <xslt-editor v-else v-model.lazy="data.body"></xslt-editor>
               </div>
             </div>
             <div id="edit-form-preview-section" class="bottom-panel">
