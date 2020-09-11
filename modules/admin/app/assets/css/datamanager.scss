@@ -41,6 +41,20 @@ body {
   flex: 1;
 }
 
+#app-error-notice {
+  position: absolute;
+  bottom: $margin-sm;
+  right: $margin-sm;
+  padding: $margin-xs $margin-sm;
+  z-index: 100;
+
+  .close {
+    margin-left: $margin-xs;
+    margin-top: -3px;
+    cursor: pointer;
+  }
+}
+
 #stage-tabs {
   font-size: $font-size-lg;
   margin-bottom: $margin-sm;
