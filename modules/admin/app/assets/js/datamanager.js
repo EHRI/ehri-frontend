@@ -81,19 +81,20 @@ let stageMixin = {
         this.previewing = null;
       }
       keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(this.fileStage, keys).then(deleted => {
-        deleted.forEach(key => {
-          this.$delete(this.deleting, key);
-          this.$delete(this.selected, key);
+      DAO.deleteFiles(this.fileStage, keys)
+        .then(deleted => {
+          deleted.forEach(key => {
+            this.$delete(this.deleting, key);
+            this.$delete(this.selected, key);
+          });
+          this.load();
         });
-        this.refresh();
-      })
     },
     deleteAll: function () {
       this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
       return DAO.deleteAll(this.fileStage).then(r => {
-        this.refresh();
+        this.load();
         this.deleting = {};
         r;
       });
@@ -174,11 +175,13 @@ Vue.component("files-table", {
       this.loadingMore = true;
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key : null;
-      return DAO.listFiles(this.fileStage, this.filter, from).then(data => {
-        this.files.push.apply(this.files, data.files);
-        this.$emit("files-loaded", data.truncated);
-        this.loadingMore = false;
-      });
+      return DAO.listFiles(this.fileStage, this.filter, from)
+        .then(data => {
+          this.files.push.apply(this.files, data.files);
+          this.$emit("files-loaded", data.truncated);
+        })
+        .catch(error => this.showError("Error fetching files", error))
+        .finally(() => this.loadingMore = false);
     },
     toggleAll: function (evt) {
       for (let i = 0; i < this.files.length; i++) {
@@ -193,7 +196,7 @@ Vue.component("files-table", {
       }
     },
     isPreviewing: function(file) {
-      return this.previewing !== null && this.previewing.key == file.key;
+      return this.previewing !== null && this.previewing.key === file.key;
     }
   },
   watch: {
@@ -279,7 +282,7 @@ Vue.component("files-table", {
 });
 
 Vue.component("upload-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -630,7 +633,7 @@ Vue.component("oaipmh-config-modal", {
 })
 
 Vue.component("oaipmh-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -921,7 +924,7 @@ Vue.component("transformation-item", {
 });
 
 Vue.component("convert-manager", {
-  mixins: [twoPanelMixin, previewMixin, validatorMixin],
+  mixins: [twoPanelMixin, previewMixin, validatorMixin, errorMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -947,13 +950,14 @@ Vue.component("convert-manager", {
     loadTransformations: function() {
       this.loading = true;
 
-      return DAO.listDataTransformations().then(available => {
-        let each = _.partition(available, item => !_.includes(this.mappings, item.id));
-        this.available = each[0];
-        this.enabled = this.mappings.map(id => _.find(each[1], a => a.id === id));
-
-        this.loading = false;
-      });
+      return DAO.listDataTransformations()
+        .then(available => {
+          let each = _.partition(available, item => !_.includes(this.mappings, item.id));
+          this.available = each[0];
+          this.enabled = this.mappings.map(id => _.find(each[1], a => a.id === id));
+        })
+        .catch(error => this.showError("Unable to load transformations", error))
+        .finally(() => this.loading = false);
     },
     editTransformation: function(item) {
       this.editing = item;
@@ -976,10 +980,12 @@ Vue.component("convert-manager", {
       this.editing = item;
     },
     convert: function(sources) {
-      DAO.convert({mappings: this.mappings, src: sources}).then(data => {
+      DAO.convert({mappings: this.mappings, src: sources})
+        .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
-        });
+        })
+        .catch(error => this.showError("Error submitting conversion", error));
     },
     cancelConvert: function() {
       if (this.convertJobId) {
@@ -1029,7 +1035,8 @@ Vue.component("convert-manager", {
     },
     loadConfig: function() {
       return DAO.getConvertConfig()
-        .then(data => this.mappings = data.map(item => item.id));
+        .then(data => this.mappings = data.map(item => item.id))
+        .catch(error => this.showError("Error loading convert configuration", error));
     },
     saveConfig: function() {
       let mappings = this.enabled.map(item => item.id);
@@ -1037,16 +1044,16 @@ Vue.component("convert-manager", {
         console.log("saving enabled:", this.enabled)
         this.mappings = mappings;
         DAO.saveConvertConfig(this.mappings)
-          .then(ok => console.log("Saved mapping list..."));
+          .then(ok => console.log("Saved mapping list..."))
+          .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
     loadPreviewList: function() {
       this.loading = true;
       DAO.listFiles("upload", "")
-        .then(data => {
-          this.previewList = data.files;
-          this.loading = false;
-        });
+        .then(data => this.previewList = data.files)
+        .catch(error => this.showError("Unable to list preview files", error))
+        .finally(() => this.loading = false);
     },
   },
   watch: {
@@ -1288,7 +1295,7 @@ Vue.component("ingest-options-panel", {
 });
 
 Vue.component("ingest-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -1341,7 +1348,8 @@ Vue.component("ingest-manager", {
           } else {
             console.error("unexpected job data", data);
           }
-        });
+        })
+        .catch(error => this.showError("Error running ingest", error));
     },
     ingestAll: function () {
       let self = this;
@@ -1363,7 +1371,7 @@ Vue.component("ingest-manager", {
         } else {
           console.error("unexpected job data", data);
         }
-      });
+      }).catch(error => this.showError("Error running ingest", error));
     },
     doIngest: function() {
       this.showOptions = false;
@@ -1518,48 +1526,74 @@ Vue.component("data-manager", {
   },
   data: function() {
     return {
-      stage: 'upload'
+      tab: 'upload',
+      error: null,
+    }
+  },
+  methods: {
+    setError: function(err, exc) {
+      this.error = err + ": " + exc.message;
     }
   },
   template: `
     <div id="data-manager-container" class="container">
+      <div v-if="error" id="app-error-notice" class="alert alert-danger alert-dismissable">
+        <span class="close" v-on:click="error = null">&times;</span>
+        {{error}}
+      </div>
       <ul id="stage-tabs" class="nav nav-tabs">
         <li class="nav-item">
-          <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': stage === 'oaipmh'}"
-             v-on:click.prevent="stage = 'oaipmh'">
+          <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': tab === 'oaipmh'}"
+             v-on:click.prevent="tab = 'oaipmh'">
             Harvesting
           </a>
         </li>
         <li class="nav-item">
-          <a href="#tab-upload" class="nav-link" v-bind:class="{'active': stage === 'upload'}"
-             v-on:click.prevent="stage = 'upload'">
+          <a href="#tab-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
+             v-on:click.prevent="tab = 'upload'">
             Uploads
           </a>
         </li>
         <li class="nav-item">
-          <a href="#tab-convert" class="nav-link" v-bind:class="{'active': stage === 'convert'}"
-             v-on:click.prevent="stage = 'convert'">
+          <a href="#tab-convert" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
+             v-on:click.prevent="tab = 'convert'">
             Transform
           </a>
         </li>
         <li class="nav-item">
-          <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': stage === 'ingest'}"
-                v-on:click.prevent="stage = 'ingest'">
+          <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+                v-on:click.prevent="tab = 'ingest'">
               Ingest
             </a>
         </li>
       </ul>
-      <div id="tab-oaipmh" class="stage-tab" v-show="stage === 'upload'">
-        <upload-manager v-bind:fileStage="'upload'" v-bind:config="config" v-bind:active="stage === 'upload'" />
+      <div id="tab-oaipmh" class="stage-tab" v-show="tab === 'upload'">
+        <upload-manager 
+          v-bind:fileStage="config.upload" 
+          v-bind:config="config" 
+          v-bind:active="tab === config.upload"
+          v-on:error="setError"  />
       </div>
-      <div id="tab-upload" class="stage-tab" v-show="stage === 'oaipmh'">
-        <oaipmh-manager v-bind:fileStage="'oaipmh'" v-bind:config="config" v-bind:active="stage === 'oaipmh'" />
+      <div id="tab-upload" class="stage-tab" v-show="tab === 'oaipmh'">
+        <oaipmh-manager 
+          v-bind:fileStage="config.oaipmh" 
+          v-bind:config="config" 
+          v-bind:active="tab === config.oaipmh" 
+          v-on:error="setError"  />
       </div>
-      <div id="tab-convert" class="stage-tab" v-show="stage === 'convert'">
-        <convert-manager v-bind:fileStage="'ingest'" v-bind:config="config" v-bind:active="stage === 'convert'" />
+      <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
+        <convert-manager 
+          v-bind:fileStage="config.ingest" 
+          v-bind:config="config" 
+          v-bind:active="tab === 'convert'"
+          v-on:error="setError" />
       </div>
-      <div id="tab-ingest" class="stage-tab" v-show="stage === 'ingest'">
-        <ingest-manager v-bind:fileStage="'ingest'" v-bind:config="config" v-bind:active="stage === 'ingest'" />
+      <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
+        <ingest-manager 
+          v-bind:fileStage="config.ingest" 
+          v-bind:config="config" 
+          v-bind:active="tab === config.ingest" 
+          v-on:error="setError"  />
       </div>
     </div>  
   `

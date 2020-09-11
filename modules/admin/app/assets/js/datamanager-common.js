@@ -52,6 +52,20 @@ let previewMixin = {
   }
 };
 
+let errorMixin = {
+  data: function() {
+    return {
+      errored: false,
+    };
+  },
+  methods: {
+    showError: function(desc, exception) {
+      console.log(desc, exception);
+      this.$emit("error", desc, exception);
+    }
+  }
+}
+
 let twoPanelMixin = {
   data: function() {
     return {
@@ -93,13 +107,15 @@ let validatorMixin = {
     validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
       keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(this.fileStage, keys).then(errs => {
-        this.tab = 'validation';
-        keys.forEach(key => {
-          this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
-          this.$delete(this.validating, key);
-        });
-      });
+      DAO.validateFiles(this.fileStage, keys)
+        .then(errs => {
+          this.tab = 'validation';
+          keys.forEach(key => {
+            this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
+            this.$delete(this.validating, key);
+          });
+        })
+        .catch(error => this.showError("Error attempting validation", error));
     },
   }
 };
@@ -111,6 +127,7 @@ let previewPanelMixin = {
     previewing: Object,
     errors: null,
     config: Object,
+    errored: false,
   },
   data: function () {
     return {
@@ -119,7 +136,7 @@ let previewPanelMixin = {
       previewData: null,
       previewTruncated: false,
       percentDone: 0,
-      wrap: true,
+      wrap: false,
       prettifying: false,
       prettified: false,
     }
@@ -164,6 +181,7 @@ let previewPanelMixin = {
             self.validate();
             self.editor.scrollTo(0, 0);
           }
+          // Stop loading indicator when first data arrives
           self.loading = false;
           self.previewData = e.data.text;
         } else {
@@ -182,11 +200,13 @@ let previewPanelMixin = {
       }
 
       self.validating = true;
-      DAO.validateFiles(this.fileStage, [self.previewing.key]).then(errs => {
-        this.$set(this.errors, self.previewing.key, errs[self.previewing.key]);
-        this.updateErrors();
-        this.validating = false;
-      });
+      DAO.validateFiles(this.fileStage, [self.previewing.key])
+        .then(errs => {
+          this.$set(this.errors, self.previewing.key, errs[self.previewing.key]);
+          this.updateErrors();
+          this.validating = false;
+        })
+        .catch(error => this.showError("Error attempting validation", error));
     },
     updateErrors: function () {
       if (this.previewing && this.errors[this.previewing.key] && this.editor) {
@@ -231,10 +251,15 @@ let previewPanelMixin = {
       }
 
       self.loading = true;
-      DAO.fileUrls(self.fileStage, [self.previewing.key]).then(data => {
-        let worker = self.spawnLoader();
-        worker.postMessage({type: 'preview', url: data[self.previewing.key]});
-      });
+      DAO.fileUrls(self.fileStage, [self.previewing.key])
+        .then(data => {
+          let worker = self.spawnLoader();
+          worker.postMessage({type: 'preview', url: data[self.previewing.key]});
+        })
+        .catch(_ => {
+          this.loading = false;
+          this.errored = true;
+        });
     },
     refresh: function() {
       this.editor.refresh();
@@ -271,7 +296,7 @@ let previewPanelMixin = {
   mounted: function () {
     this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
       mode: 'xml',
-      // lineWrapping: true,
+      lineWrapping: this.wrap,
       lineNumbers: true,
       readOnly: true,
       gutters: [{className: "validation-errors", style: "width: 18px"}]
