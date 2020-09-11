@@ -186,6 +186,7 @@ Vue.component("edit-form-panes", {
       showOptions: false,
       loadingIn: false,
       loadingOut: false,
+      showRemoveDialog: false,
     }
   },
   methods: {
@@ -200,8 +201,12 @@ Vue.component("edit-form-panes", {
         this.$emit('saved', item)
       });
     },
+    confirmRemove: function() {
+
+    },
     remove: function () {
       DAO.deleteDataTransformation(this.id).then(_ => {
+        this.showRemoveDialog = false;
         this.$emit('deleted');
         this.$emit('close');
       });
@@ -225,7 +230,7 @@ Vue.component("edit-form-panes", {
     }
   },
   template: `
-    <div class="modal" id="edit-form-modal">
+    <div class="modal" id="edit-form-modal" v-on:keyup.esc="showOptions = false; showRemoveDialog = false">
       <div class="modal-dialog" id="edit-form-container">
         <div id="edit-form" class="modal-content">
           <div id="edit-form-heading" class="modal-header">
@@ -264,8 +269,17 @@ Vue.component("edit-form-panes", {
                     <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
                     </div>
                     <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
-                      <button class="dropdown-item btn btn-sm" v-on:click="remove" v-bind:disabled="!Boolean(id)">Delete Transformation</button>
+                      <button class="dropdown-item btn btn-sm" 
+                              v-on:click="showRemoveDialog = true; showOptions = false;" 
+                              v-bind:disabled="!Boolean(id)">Delete Transformation</button>
                     </div>
+                    <modal-alert v-if="showRemoveDialog"
+                                 v-on:accept="remove"
+                                 v-on:close="showRemoveDialog = false"
+                                 v-bind:title="'Delete Transformation?'"
+                                 v-bind:accept="'Yes, delete it !'">
+                      <p>Are you sure? This action can't be undone.</p>
+                    </modal-alert>
                   </div>
                 </div>
               </div>

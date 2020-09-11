@@ -74,6 +74,12 @@ body {
   margin-bottom: $margin-sm;
 }
 
+.modal-alert {
+  z-index: 1000;
+  display: flex !important;
+  box-shadow: $box-shadow-lg;
+}
+
 .file-picker {
   position: relative;
 
