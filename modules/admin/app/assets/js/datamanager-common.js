@@ -60,8 +60,12 @@ let errorMixin = {
   },
   methods: {
     showError: function(desc, exception) {
+      this.errored = true;
       console.log(desc, exception);
       this.$emit("error", desc, exception);
+    },
+    clearError: function() {
+      this.errored = false;
     }
   }
 }

@@ -58,23 +58,28 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
-      return DAO.listFiles(this.fileStage, this.filter.value).then(data => {
-        this.files = data.files;
-        this.truncated = data.truncated;
-        this.loaded = true;
-      })
+      return DAO.listFiles(this.fileStage, this.filter.value)
+        .then(data => {
+          this.files = data.files;
+          this.truncated = data.truncated;
+        })
+        .catch(error => this.showError("Error listing files", error))
+        .finally(() => this.loaded = true);
     },
     filesLoaded: function (truncated) {
       this.truncated = truncated;
     },
     downloadFiles: function(keys) {
       keys.forEach(key => this.$set(this.downloading, key, true));
-      DAO.fileUrls(this.fileStage, keys).then(urls => {
-        _.forIn(urls, (url, fileName) => {
-           window.open(url, '_blank');
-           this.$delete(this.downloading, fileName);
-        });
-      })
+      DAO.fileUrls(this.fileStage, keys)
+        .then(urls => {
+          _.forIn(urls, (url, fileName) => {
+            window.open(url, '_blank');
+            this.$delete(this.downloading, fileName);
+          });
+        })
+        .catch(error => this.showError("Error fetching download URLs", error))
+        .finally(() => this.downloading = {});
     },
     deleteFiles: function (keys) {
       if (keys.includes(this.previewing)) {
@@ -88,17 +93,22 @@ let stageMixin = {
             this.$delete(this.selected, key);
           });
           this.load();
-        });
+        })
+        .catch(error => this.showError("Error deleting files", error))
+        .finally(() => this.deleting = {});
     },
     deleteAll: function () {
       this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll(this.fileStage).then(r => {
-        this.load();
-        this.deleting = {};
-        r;
-      });
+      return DAO.deleteAll(this.fileStage)
+        .then(r => {
+          this.load();
+          r;
+        })
+        .catch(error => this.showError("Error deleting files", error))
+        .finally(() => this.deleting = {});
     },
+    showError: function() {} // Overridden by users
   },
   watch: {
     active: function(newValue) {
@@ -328,18 +338,21 @@ Vue.component("upload-manager", {
         name: file.name,
         type: file.type,
         size: file.size
-      }).then(data => {
+      })
+      .then(data => {
         self.setUploadProgress(file, 0);
         return DAO.uploadFile(data.presignedUrl, file, function (evt) {
           return evt.lengthComputable
             ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
             : true;
-        }).then(() => {
+        })
+        .then(() => {
           self.finishUpload(file);
           self.log.push("Uploaded file: " + file.name);
           return self.load();
-        });
-      });
+        })
+      })
+      .catch(error => this.showError("Upload error", error));;
     },
     uploadFiles: function (event) {
       this.dragLeave(event);
@@ -548,7 +561,8 @@ Vue.component("oaipmh-config-modal", {
   methods: {
     save: function() {
       DAO.saveConfig({url: this.url, format: this.format, set: this.set})
-        .then(data => this.$emit("saved-config", data));
+        .then(data => this.$emit("saved-config", data))
+        .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
       DAO.testConfig({url: this.url, format: this.format, set: this.set})
@@ -756,6 +770,7 @@ Vue.component("oaipmh-manager", {
           v-bind:config="harvestConfig"
           v-bind:show="showOptions"
           v-on:saved-config="saveConfigAndHarvest"
+          v-on:error="showError"
           v-on:close="showOptions = false"/>
       </div>
 
