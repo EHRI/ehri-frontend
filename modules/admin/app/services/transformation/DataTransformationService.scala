@@ -1,9 +1,22 @@
 package services.transformation
 
+import akka.util.ByteString
 import com.google.inject.ImplementedBy
 import models.{DataTransformation, DataTransformationInfo}
+import play.api.http.{MimeTypes, Writeable}
+import play.api.libs.json.Json
 
 import scala.concurrent.Future
+
+case class DataTransformationExists(name: String, cause: Throwable)
+  extends Exception(s"A transformation with that name already exists: '$name'", cause)
+
+object DataTransformationExists {
+  implicit val writeableOf_json: Writeable[DataTransformationExists] =
+    new Writeable(e =>
+      ByteString.fromString(
+        Json.stringify(Json.obj("error" -> e.getMessage, "field" -> "name"))), Some(MimeTypes.JSON))
+}
 
 /**
   * Data access object trait for managing data transformations.

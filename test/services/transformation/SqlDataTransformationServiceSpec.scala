@@ -33,6 +33,14 @@ class SqlDataTransformationServiceSpec extends PlaySpecification {
       dt.name must_== "test2"
     }
 
+    "create items enforcing unique names" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
+      dt.name must_== "test2"
+
+      await(service.create(DataTransformationInfo("test2",
+        DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2"))) must throwA[DataTransformationExists]
+    }
+
     "update items" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       val dt = await(service.get(1))
       val dt2 = await(service.update(dt.id, DataTransformationInfo("blah", dt.bodyType, dt.body, dt.comments), Some("r2")))
