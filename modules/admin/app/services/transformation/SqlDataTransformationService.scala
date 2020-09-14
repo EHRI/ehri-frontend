@@ -1,15 +1,20 @@
 package services.transformation
 
+import java.sql.SQLException
+
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, SqlParser, _}
 import javax.inject.{Inject, Singleton}
 import models.{DataTransformation, DataTransformationInfo}
+import play.api.Logger
 import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 case class SqlDataTransformationService @Inject()(db: Database, actorSystem: ActorSystem) extends DataTransformationService {
+
+  private val logger: Logger = Logger(classOf[SqlDataTransformationService])
 
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
@@ -46,7 +51,8 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
 
   override def create(info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
     db.withTransaction { implicit conn =>
-      val id = SQL"""INSERT INTO data_transformation
+      try {
+        val id = SQL"""INSERT INTO data_transformation
         (repo_id, name, type, map, comments)
         VALUES (
           $repoId,
@@ -57,14 +63,19 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
       )
       """.executeInsert(SqlParser.scalar[Int].single)
 
-      // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
-      SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
+        // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
+        SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
+      } catch {
+        case e: SQLException if e.getSQLState == "23505" => // unique violation
+          throw DataTransformationExists(info.name, e)
+      }
     }
   }
 
   override def update(id: Long, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
     db.withTransaction { implicit conn =>
-      SQL"""UPDATE data_transformation SET
+      try {
+        SQL"""UPDATE data_transformation SET
               repo_id = $repoId,
               name = ${info.name},
               type = ${info.bodyType},
@@ -74,6 +85,10 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
           """.executeUpdate()
       // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
       SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
+    } catch {
+        case e: SQLException if e.getSQLState == "23505" => // unique violation
+          throw DataTransformationExists(info.name, e)
+      }
     }
   }
 

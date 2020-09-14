@@ -136,6 +136,8 @@ CREATE TABLE data_transformation (
     comments    TEXT
 );
 
+CREATE UNIQUE INDEX data_transformation_name ON data_transformation (name);
+
 CREATE TABLE transformation_config (
     repo_id                 VARCHAR(50) NOT NULL,
     ordering                INTEGER NOT NULL,

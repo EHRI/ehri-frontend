@@ -37,7 +37,7 @@ import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
-import services.transformation.{DataTransformationService, InvalidMappingError, XmlTransformationError, XmlTransformer}
+import services.transformation.{DataTransformationExists, DataTransformationService, InvalidMappingError, XmlTransformationError, XmlTransformer}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -336,12 +336,16 @@ case class RepositoryData @Inject()(
   def createDataTransformation(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
     dataTransformations.create(request.body, if(generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
+    }.recover {
+      case e: DataTransformationExists => BadRequest(e)
     }
   }
 
   def updateDataTransformation(id: String, dtId: Long, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
     dataTransformations.update(dtId, request.body, if(generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
+    }.recover {
+      case e: DataTransformationExists => BadRequest(e)
     }
   }
 

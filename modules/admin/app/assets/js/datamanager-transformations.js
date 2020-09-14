@@ -187,6 +187,7 @@ Vue.component("edit-form-panes", {
       loadingIn: false,
       loadingOut: false,
       showRemoveDialog: false,
+      error: null,
     }
   },
   methods: {
@@ -196,10 +197,17 @@ Vue.component("edit-form-panes", {
         ? DAO.updateDataTransformation(this.id, this.data.generic, this.data)
         : DAO.createDataTransformation(this.data.generic, this.data);
 
-      return p.then(item => {
-        this.saving = false;
-        this.$emit('saved', item)
-      });
+      return p
+        .then(item => {
+          this.saving = false;
+          this.$emit('saved', item)
+        })
+        .catch(error => {
+          if (error.response && error.response.data && error.response.data.error) {
+            this.error = error.response.data.error;
+          }
+        })
+        .finally(() => this.saving = false);
     },
     confirmRemove: function() {
 
@@ -242,8 +250,8 @@ Vue.component("edit-form-panes", {
           <div id="edit-form-panes" class="panel-container modal-body">
             <div id="edit-form-map" class="top-panel">
               <div id="edit-form-controls" class="controls">
-                <label for="transformation-name">Name</label>
-                <input v-model.trim="data.name" id="transformation-name" minlength="3" required/>
+                  <label for="transformation-name">Name</label>
+                  <input v-model.trim="data.name" id="transformation-name" minlength="3" maxlength="255" required placeholder="(required)"/>
                 <label for="transformation-type">Type</label>
                 <select id="transformation-type" v-model="data.bodyType">
                   <option v-bind:value="'xquery'">XQuery</option>
@@ -255,7 +263,7 @@ Vue.component("edit-form-panes", {
                   <option v-bind:value="true">Generic</option>
                 </select>
                 <label for="transformation-comments">Description</label>
-                <input v-model.trim="data.comments" id="transformation-comments" minlength="3" required />
+                <input v-model.trim="data.comments" id="transformation-comments" minlength="3" required placeholder="(required)" />
                 <div class="buttons">
                   <button class="btn btn-success btn-sm" v-on:click="save" v-bind:disabled="!valid || !modified">
                     Save
@@ -279,6 +287,14 @@ Vue.component("edit-form-panes", {
                                  v-bind:title="'Delete Transformation?'"
                                  v-bind:accept="'Yes, delete it !'">
                       <p>Are you sure? This action can't be undone.</p>
+                    </modal-alert>
+                    <modal-alert v-if="error" 
+                        v-on:accept="error = null" 
+                        v-on:close="error = null"
+                        v-bind:cancel="null"
+                        v-bind:title="'Error saving transformation...'"
+                        v-bind:cls="'warning'">
+                        <p>{{error}}</p>    
                     </modal-alert>
                   </div>
                 </div>

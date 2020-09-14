@@ -352,6 +352,10 @@ Vue.component("modal-alert", {
     accept: {
       type: String,
       default: "Okay"
+    },
+    cancel: {
+      type: String,
+      default: "Cancel"
     }
   },
   mounted() {
@@ -371,8 +375,8 @@ Vue.component("modal-alert", {
             <slot></slot>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn" data-dismiss="modal" v-on:click="$emit('close')" autofocus>Cancel</button>
-            <button type="button" class="btn" v-bind:class="'btn-' + cls" v-on:click="$emit('accept')">{{accept}}</button>
+            <button v-if="cancel" type="button" class="btn" data-dismiss="modal" v-on:click="$emit('close')" autofocus>{{cancel}}</button>
+            <button v-if="accept" type="button" class="btn" v-bind:class="'btn-' + cls" v-on:click="$emit('accept')">{{accept}}</button>
           </div>
         </div>
       </div>
@@ -505,8 +509,7 @@ Vue.component("convert-preview", {
     }
   },
   watch: {
-    trigger: function(newObj, oldObj) {
-      console.log("trigger");
+    trigger: function() {
       this.load();
     },
     config: function(newConfig, oldConfig) {
