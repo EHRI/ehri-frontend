@@ -144,6 +144,7 @@ let previewPanelMixin = {
       prettifying: false,
       prettified: false,
       showingError: false,
+      worker: null,
     }
   },
   methods: {
@@ -173,39 +174,6 @@ let previewPanelMixin = {
         this.prettified = true
         this.prettifying = false;
       });
-    },
-    spawnLoader: function() {
-      let self = this;
-      self.loading = true;
-      self.$emit("loading");
-      let worker = new Worker(self.config.previewLoader);
-      worker.onmessage = e => {
-        if (e.data.error) {
-          let errObj = e.data.error;
-          self.previewData = errObj.line
-            ? "Error at line " + errObj.line + ": " + errObj.error
-            : "Error: " + e.data.error.error;
-          self.editor.setOption("mode", null);
-          self.loading = false;
-          self.showingError = true;
-        } else if (e.data.init) {
-          if (self.editor) {
-            self.validate();
-            self.editor.scrollTo(0, 0);
-            self.editor.setOption("mode", "xml");
-          }
-          // Stop loading indicator when first data arrives
-          self.loading = false;
-          self.showingError = false;
-          self.previewData = e.data.text;
-        } else {
-          self.previewData += e.data.text;
-        }
-        if (e.data.done) {
-          self.$emit("loaded");
-        }
-      };
-      return worker;
     },
     validate: function () {
       let self = this;
@@ -258,18 +226,21 @@ let previewPanelMixin = {
         });
       }
     },
+    setLoading:  function() {
+      this.loading = true;
+      this.$emit("loading");
+    },
     load: function () {
-      let self = this;
-      if (self.previewing === null) {
+      if (this.previewing === null) {
         return;
       }
 
-      self.loading = true;
-      DAO.fileUrls(self.fileStage, [self.previewing.key])
-        .then(data => {
-          let worker = self.spawnLoader();
-          worker.postMessage({type: 'preview', url: data[self.previewing.key]});
-        })
+      this.setLoading();
+      DAO.fileUrls(this.fileStage, [this.previewing.key])
+        .then(data => this.worker.postMessage({
+          type: 'preview',
+          url: data[this.previewing.key]
+        }))
         .catch(_ => {
           this.loading = false;
           this.errored = true;
@@ -278,6 +249,33 @@ let previewPanelMixin = {
     refresh: function() {
       this.editor.refresh();
     },
+    receiveMessage: function(msg) {
+      let self = this;
+      if (msg.data.error) {
+        let errObj = msg.data.error;
+        self.previewData = errObj.line
+          ? "Error at line " + errObj.line + ": " + errObj.error
+          : "Error: " + msg.data.error.error;
+        self.editor.setOption("mode", null);
+        self.loading = false;
+        self.showingError = true;
+      } else if (msg.data.init) {
+        if (self.editor) {
+          self.validate();
+          self.editor.scrollTo(0, 0);
+          self.editor.setOption("mode", "xml");
+        }
+        // Stop loading indicator when first data arrives
+        self.loading = false;
+        self.showingError = false;
+        self.previewData = msg.data.text;
+      } else {
+        self.previewData += msg.data.text;
+      }
+      if (msg.data.done) {
+        self.$emit("loaded");
+      }
+    }
   },
   watch: {
     previewData: function (newValue, oldValue) {
@@ -305,7 +303,11 @@ let previewPanelMixin = {
       if (newValue !== null && newValue !== oldValue) {
         this.refresh();
       }
-    }
+    },
+  },
+  created: function() {
+    this.worker = new Worker(this.config.previewLoader);
+    this.worker.onmessage = this.receiveMessage;
   },
   mounted: function () {
     this.editor = CodeMirror.fromTextArea(this.$el.querySelector("textarea"), {
@@ -322,6 +324,9 @@ let previewPanelMixin = {
   beforeDestroy: function () {
     if (this.editor) {
       this.editor.toTextArea();
+    }
+    if (this.worker) {
+      this.worker.terminate();
     }
   },
   template: `
@@ -501,17 +506,16 @@ Vue.component("convert-preview", {
       // FIXME: not yet supported
     },
     load: function() {
-      let self = this;
-      if (self.previewing === null) {
+      if (this.previewing === null) {
         return;
       }
 
-      let worker = self.spawnLoader();
-      worker.postMessage({
+      this.setLoading();
+      this.worker.postMessage({
         type: 'convert-preview',
-        url: DAO.convertFileUrl(self.fileStage, self.previewing.key),
+        url: DAO.convertFileUrl(this.fileStage, this.previewing.key),
         src: [],
-        mappings: self.mappings,
+        mappings: this.mappings,
       });
     }
   },

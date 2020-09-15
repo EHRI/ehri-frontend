@@ -230,6 +230,9 @@ Vue.component("transformation-editor", {
         this.$emit('close');
       });
     },
+    triggerRefresh: function() {
+      this.timestamp = (new Date()).toString();
+    }
   },
   computed: {
     mappings: function() {
@@ -249,7 +252,10 @@ Vue.component("transformation-editor", {
     }
   },
   template: `
-    <div class="modal" id="transformation-editor-modal" v-on:keyup.esc="showOptions = false; showRemoveDialog = false">
+    <div 
+      v-on:keyup.esc="showOptions = false; showRemoveDialog = false" 
+      v-on:keyup.ctrl.enter="triggerRefresh"
+      class="modal" id="transformation-editor-modal">
       <div class="modal-dialog" id="transformation-editor-container">
         <div id="transformation-editor" class="modal-content">
           <div id="transformation-editor-heading" class="modal-header">
@@ -323,7 +329,7 @@ Vue.component("transformation-editor", {
                   <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
                 </select>
                 <button id="transformation-editor-preview-refresh"  title="Refresh preview"
-                        class="btn btn-sm" v-bind:disabled="previewing === null || loadingOut" v-on:click="timestamp = (new Date()).toString()">
+                        class="btn btn-sm" v-bind:disabled="previewing === null || loadingOut" v-on:click="triggerRefresh">
                   <i class="fa fa-refresh"></i>
                 </button>
                 <drag-handle v-bind:ns="'transformation-editor-preview-drag'"

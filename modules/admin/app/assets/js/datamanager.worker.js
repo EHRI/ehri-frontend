@@ -16,7 +16,6 @@ addEventListener('message', ({data}) => {
         // Special case if there's an empty file, we post
         // an empty string
         postMessage({init: init, text: "", done: done})
-        close();
       }
     });
   }
