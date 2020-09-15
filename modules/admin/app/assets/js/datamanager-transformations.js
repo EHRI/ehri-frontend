@@ -39,24 +39,35 @@ Vue.component("xquery-editor", {
   methods: {
     update: function() {
       this.$emit('input', this.serialize(this.mappings));
+      // Return a promise when the DOM is ready...
+      return Vue.nextTick();
+    },
+    focus: function(row, col) {
+      let elem = this.$refs[_.padStart(row, 4, 0) + '-' + col];
+      if (elem && elem[0]) {
+        elem[0].focus();
+      }
     },
     add: function() {
-      this.mappings.push(["", "", "", ""]);
-      this.selected = this.mappings.length - 1;
-      this.update();
-      let elem = this.$refs[this.selected + '-0'];
-      if (elem) {
-        elem.focus();
-      }
+      // Insert a new item below the current selection, or
+      // at the end if nothing is selected.
+      let point = this.selected === -1
+        ? this.mappings.length
+        : this.selected + 1;
+      this.mappings.splice(point, 0, ["", "", "", ""])
+      this.selected = point;
+      this.update()
+        .then(() => this.focus(this.selected, 0));
     },
     duplicate: function(i) {
       let m = _.clone(this.mappings[i]);
-      this.mappings.splice(i + 1, 0, m);
+      this.selected = i + 1;
+      this.mappings.splice(this.selected, 0, m);
       this.update();
     },
     remove: function(i) {
       this.mappings.splice(i, 1);
-      this.selected = i - 1;
+      this.selected = Math.min(i, this.mappings.length - 1);
       this.update();
     },
     moveUp: function(i) {
@@ -103,7 +114,7 @@ Vue.component("xquery-editor", {
   },
   template: `
     <div class="xquery-editor">
-      <div class="xquery-editor-data">
+      <div class="xquery-editor-data" v-on:keyup.esc="selected = -1">
         <div class="xquery-editor-header">
             <input readonly disabled type="text" value="target-path" @click="selected = -1"/>
             <input readonly disabled type="text" value="target-node" @click="selected = -1"/>
@@ -115,8 +126,8 @@ Vue.component("xquery-editor", {
             <input
               v-for="col in [0, 1, 2, 3]"
               type="text"
-              v-bind:ref="row + '-' + col"
-              v-bind:key="row + '-' + col"
+              v-bind:ref="_.padStart(row, 4, 0) + '-' + col"
+              v-bind:key="_.padStart(row, 4, 0) + '-' + col"
               v-bind:class="{'selected': selected === row}"
               v-model="mappings[row][col]"
               @change="update"
