@@ -241,7 +241,7 @@ body {
   bottom: 0;
 }
 
-#edit-form {
+#transformation-editor {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -249,7 +249,7 @@ body {
   background-color: $gray-100;
 }
 
-#edit-form-heading {
+#transformation-editor-heading {
   padding: $margin-xs;
   border-bottom: 1px solid $ehri-border-gray;
   display: flex;
@@ -263,11 +263,11 @@ body {
   }
 }
 
-#edit-form-modal {
+#transformation-editor-modal {
   display: flex !important;
 }
 
-#edit-form-container {
+#transformation-editor-container {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -277,12 +277,12 @@ body {
   box-shadow: $box-shadow-lg;
 }
 
-#edit-form-panes {
+#transformation-editor-panes {
   padding: $margin-xs;
   //position: fixed;
 }
 
-#edit-form-controls {
+#transformation-editor-controls {
   display: flex;
   background-color: $gray-100;
   padding-bottom: $margin-xs;
@@ -312,7 +312,7 @@ body {
   }
 }
 
-#edit-form-map {
+#transformation-editor-map {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -320,7 +320,7 @@ body {
   min-height: 10%;
 }
 
-#edit-form-map-input {
+#transformation-editor-map-input {
   display: flex;
   flex: 1;
   overflow-y: auto;
@@ -333,10 +333,10 @@ body {
   }
 }
 
-#edit-form-preview-section {
+#transformation-editor-preview-section {
 }
 
-#edit-form-preview-select {
+#transformation-editor-preview-select {
   padding: $margin-xxs 0;
   display: flex;
   flex-direction: row;
@@ -349,18 +349,18 @@ body {
   }
 }
 
-#edit-form-preview-refresh:focus {
+#transformation-editor-preview-refresh:focus {
   outline: 0;
   box-shadow: none;
 }
 
-#edit-form-previews {
+#transformation-editor-previews {
   display: flex;
   flex-direction: row;
   flex: 1;
 }
 
-.edit-form-preview-window {
+.transformation-editor-preview-window {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -626,6 +626,10 @@ body {
 .actions-bar {
   margin-bottom: $margin-xs;
   display: flex;
+
+  button {
+    margin-left: $margin-xs;
+  }
 }
 
 .file-upload-button {

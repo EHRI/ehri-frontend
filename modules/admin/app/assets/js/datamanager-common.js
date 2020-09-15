@@ -143,6 +143,7 @@ let previewPanelMixin = {
       wrap: false,
       prettifying: false,
       prettified: false,
+      showingError: false,
     }
   },
   methods: {
@@ -179,13 +180,23 @@ let previewPanelMixin = {
       self.$emit("loading");
       let worker = new Worker(self.config.previewLoader);
       worker.onmessage = e => {
-        if (e.data.init) {
+        if (e.data.error) {
+          let errObj = e.data.error;
+          self.previewData = errObj.line
+            ? "Error at line " + errObj.line + ": " + errObj.error
+            : "Error: " + e.data.error.error;
+          self.editor.setOption("mode", null);
+          self.loading = false;
+          self.showingError = true;
+        } else if (e.data.init) {
           if (self.editor) {
             self.validate();
             self.editor.scrollTo(0, 0);
+            self.editor.setOption("mode", "xml");
           }
           // Stop loading indicator when first data arrives
           self.loading = false;
+          self.showingError = false;
           self.previewData = e.data.text;
         } else {
           self.previewData += e.data.text;
@@ -304,10 +315,7 @@ let previewPanelMixin = {
       readOnly: true,
       gutters: [{className: "validation-errors", style: "width: 18px"}]
     });
-    this.editor.on("refresh", () => {
-      console.log("Editor refresh!");
-      this.updateErrors();
-    });
+    this.editor.on("refresh", () => this.updateErrors());
 
     this.load();
   },
@@ -329,12 +337,12 @@ let previewPanelMixin = {
       <div class="preview-loading-indicator" v-if="loading">
         <i class="fa fa-3x fa-spinner fa-spin"></i>
       </div>
-      <button class="pretty-xml btn btn-sm"
-              title="Apply code formatting..."
-              v-else
+      <button v-else-if="!showingError"
+              v-on:click="makePretty"
               v-bind:class="{'active': !prettified}"
-              v-on:click="makePretty" 
-              v-bind:disabled="previewTruncated || prettified">
+              v-bind:disabled="previewTruncated || prettified"
+              class="pretty-xml btn btn-sm"    
+              title="Apply code formatting...">
         <i class="fa fa-code"></i>
       </button>
     </div>

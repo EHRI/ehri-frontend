@@ -7,7 +7,7 @@ addEventListener('message', ({data}) => {
     reader.read().then(function appendBody({done, value}) {
       if (!done) {
         let text = decoder.decode(value);
-        postMessage({init: init, text: text, done: done});
+        postMessage({init: init, text: text, done: done, type: r.headers.get("content-type")});
         if (init) {
           init = false;
         }
@@ -35,6 +35,12 @@ addEventListener('message', ({data}) => {
         "X-Requested-With": "XMLHttpRequest",
       },
       credentials: 'same-origin',
-    }).then(r => readStream(r));
+    }).then(r => {
+      if (r.status === 200) {
+        readStream(r)
+      } else {
+        r.json().then(data => postMessage({error: data, done: true}));
+      }
+    });
   }
 }, false);

@@ -1092,6 +1092,21 @@ Vue.component("convert-manager", {
   template: `
     <div id="convert-manager-container" class="stage-manager-container">
 
+      <transformation-editor
+        v-if="editing !== null"
+        v-bind:id="editing.id"
+        v-bind:name="editing.name"
+        v-bind:generic="!editing.repoId"
+        v-bind:body-type="editing.bodyType"
+        v-bind:body="editing.body"
+        v-bind:comments="editing.comments"
+        v-bind:preview="previewing"
+        v-bind:preview-list="previewList"
+        v-bind:config="config"
+        v-on:saved="saved"
+        v-on:close="closeEditForm"/>
+
+
       <div class="actions-bar">
         <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
           <option v-bind:value="null">Select file to preview...</option>
@@ -1111,21 +1126,6 @@ Vue.component("convert-manager", {
           <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
           Cancel Convert
         </button>
-        
-        <edit-form-panes
-          v-if="editing !== null"
-          v-bind:id="editing.id"
-          v-bind:name="editing.name"
-          v-bind:generic="!editing.repoId"
-          v-bind:body-type="editing.bodyType"
-          v-bind:body="editing.body"
-          v-bind:comments="editing.comments"
-          v-bind:preview="previewing"
-          v-bind:preview-list="previewList"
-          v-bind:config="config"
-          v-on:saved="saved"
-          v-on:close="closeEditForm"/>
-
       </div>
 
       <div id="convert-panel-container" class="panel-container">

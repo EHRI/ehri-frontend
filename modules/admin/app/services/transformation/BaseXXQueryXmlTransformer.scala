@@ -87,7 +87,9 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
       }
     } catch {
       case e: QueryException =>
-        throw XmlTransformationError(e.line, e.column, e.getLocalizedMessage)
+        // NB: Line numbers here are useless since they refer to the transformation
+        // script and not the CSV, which is the actual user input
+        throw InvalidMappingError(e.getLocalizedMessage)
     }
   }
 }
