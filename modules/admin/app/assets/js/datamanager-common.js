@@ -167,12 +167,11 @@ let previewPanelMixin = {
     },
     makePretty: function() {
       this.prettifying = true;
-      try {
-        this.previewData = this.prettifyXml(this.previewData);
-        this.prettified = true;
-      } finally {
+      this.previewData = this.prettifyXml(this.previewData);
+      Vue.nextTick(() => {
+        this.prettified = true
         this.prettifying = false;
-      }
+      });
     },
     spawnLoader: function() {
       let self = this;
