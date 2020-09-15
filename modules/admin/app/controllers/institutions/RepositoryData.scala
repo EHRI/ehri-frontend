@@ -380,7 +380,7 @@ case class RepositoryData @Inject()(
       def errorHandler: PartialFunction[Throwable, Result] = {
         case e: CompletionException => errorHandler.apply(e.getCause)
         case e: InvalidMappingError => BadRequest(Json.toJson(e))
-        case e: XmlTransformationError => InternalServerError(Json.toJson(e))
+        case e: XmlTransformationError => BadRequest(Json.toJson(e))
       }
 
       val path = prefix(id, stage) + fileName

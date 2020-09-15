@@ -164,7 +164,7 @@ Vue.component("xquery-editor", {
   `
 });
 
-Vue.component("edit-form-panes", {
+Vue.component("transformation-editor", {
   mixins: [twoPanelMixin],
   props: {
     id: Number,
@@ -249,18 +249,18 @@ Vue.component("edit-form-panes", {
     }
   },
   template: `
-    <div class="modal" id="edit-form-modal" v-on:keyup.esc="showOptions = false; showRemoveDialog = false">
-      <div class="modal-dialog" id="edit-form-container">
-        <div id="edit-form" class="modal-content">
-          <div id="edit-form-heading" class="modal-header">
+    <div class="modal" id="transformation-editor-modal" v-on:keyup.esc="showOptions = false; showRemoveDialog = false">
+      <div class="modal-dialog" id="transformation-editor-container">
+        <div id="transformation-editor" class="modal-content">
+          <div id="transformation-editor-heading" class="modal-header">
             <h5 class="modal-title">{{id ? ('Edit transformation: ' + name) : 'New Transformation...'}}</h5>
             <div class="close" data-dismiss="modal" aria-label="Close" v-on:click="$emit('close')">
               <span aria-hidden="true">&times;</span>
             </div>
           </div>
-          <div id="edit-form-panes" class="panel-container modal-body">
-            <div id="edit-form-map" class="top-panel">
-              <div id="edit-form-controls" class="controls">
+          <div id="transformation-editor-panes" class="panel-container modal-body">
+            <div id="transformation-editor-map" class="top-panel">
+              <div id="transformation-editor-controls" class="controls">
                   <label for="transformation-name">Name</label>
                   <input v-model.trim="data.name" id="transformation-name" minlength="3" maxlength="255" required placeholder="(required)"/>
                 <label for="transformation-type">Type</label>
@@ -310,29 +310,29 @@ Vue.component("edit-form-panes", {
                   </div>
                 </div>
               </div>
-              <div id="edit-form-map-input">
+              <div id="transformation-editor-map-input">
                 <xquery-editor v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
                 <xslt-editor v-else v-model.lazy="data.body"></xslt-editor>
               </div>
             </div>
-            <div id="edit-form-preview-section" class="bottom-panel">
-              <div id="edit-form-preview-select">
-                <label for="edit-form-preview-options">Preview transformation</label>
-                <select id="edit-form-preview-options" v-model="previewing">
+            <div id="transformation-editor-preview-section" class="bottom-panel">
+              <div id="transformation-editor-preview-select">
+                <label for="transformation-editor-preview-options">Preview transformation</label>
+                <select id="transformation-editor-preview-options" v-model="previewing">
                   <option v-bind:value="null">---</option>
                   <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
                 </select>
-                <button id="edit-form-preview-refresh"  title="Refresh preview"
+                <button id="transformation-editor-preview-refresh"  title="Refresh preview"
                         class="btn btn-sm" v-bind:disabled="previewing === null || loadingOut" v-on:click="timestamp = (new Date()).toString()">
                   <i class="fa fa-refresh"></i>
                 </button>
-                <drag-handle v-bind:ns="'edit-form-preview-drag'"
-                             v-bind:p2="$root.$el.querySelector('#edit-form-preview-section')"
-                             v-bind:container="$root.$el.querySelector('#edit-form-panes')"
+                <drag-handle v-bind:ns="'transformation-editor-preview-drag'"
+                             v-bind:p2="$root.$el.querySelector('#transformation-editor-preview-section')"
+                             v-bind:container="$root.$el.querySelector('#transformation-editor-panes')"
                               v-on:resize="setPanelSize" />
               </div>
-              <div id="edit-form-previews">
-                <div class="edit-form-preview-window">
+              <div id="transformation-editor-previews">
+                <div class="transformation-editor-preview-window">
                   <preview 
                     v-if="previewing !== null"
                     v-bind:file-stage="fileStage"
@@ -346,7 +346,7 @@ Vue.component("edit-form-panes", {
                     Input preview
                   </div>
                 </div>
-                <div class="edit-form-preview-window">
+                <div class="transformation-editor-preview-window">
                   <convert-preview 
                     v-if="previewing !== null"
                     v-bind:mappings="mappings"
