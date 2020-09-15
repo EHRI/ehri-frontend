@@ -352,7 +352,7 @@ Vue.component("upload-manager", {
           return self.load();
         })
       })
-      .catch(error => this.showError("Upload error", error));;
+      .catch(error => this.showError("Upload error", error));
     },
     uploadFiles: function (event) {
       this.dragLeave(event);
@@ -1059,7 +1059,6 @@ Vue.component("convert-manager", {
         console.log("saving enabled:", this.enabled)
         this.mappings = mappings;
         DAO.saveConvertConfig(this.mappings)
-          .then(ok => console.log("Saved mapping list..."))
           .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
