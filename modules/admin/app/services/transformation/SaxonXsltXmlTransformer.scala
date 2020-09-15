@@ -29,9 +29,9 @@ case class SaxonXsltXmlTransformer() extends XsltXmlTransformer {
       transformer.transform(inputSource, out)
       writer.toString
     } catch {
-      case e: SaxonApiException => throw InvalidMappingError(e.getLocalizedMessage)
-      case e: TransformerConfigurationException => throw InvalidMappingError(e.getLocalizedMessage)
-      case e: SAXParseException => throw InvalidMappingError(e.getLocalizedMessage)
+      case e: SaxonApiException => throw InvalidMappingError(e.getMessage)
+      case e: TransformerConfigurationException => throw InvalidMappingError(e.getMessage)
+      case e: SAXParseException => throw XmlTransformationError(e.getLineNumber, e.getColumnNumber, e.getMessage)
     }
   }
 }
