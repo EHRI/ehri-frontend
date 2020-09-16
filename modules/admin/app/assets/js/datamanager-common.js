@@ -29,8 +29,8 @@ Vue.filter("humanFileSize", function (bytes, si) {
 
 Vue.filter("prettyDate", function (time) {
   let f = time => {
-    let m = moment(time);
-    return m.isValid() ? m.fromNow() : "";
+    let m = luxon.DateTime.fromISO(time);
+    return m.isValid ? m.toRelative() : "";
   };
   return _.memoize(f)(time);
 });
