@@ -634,8 +634,8 @@ Vue.component("concept-data-editor", {
 Vue.component("concept-editor", {
   filters: {
     formatTimestamp: function(s) {
-      let m = moment(s);
-      return m.isValid() ? m.fromNow() : "";
+      let m = luxon.DateTime.fromISO(s);
+      return m.isValid ? m.toRelative() : "";
     }
   },
   props: {
