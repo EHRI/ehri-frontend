@@ -77,7 +77,10 @@ body {
 .modal-alert {
   z-index: 1000;
   display: flex !important;
-  box-shadow: $box-shadow-lg;
+
+  .modal-content {
+    box-shadow: $box-shadow-lg;
+  }
 }
 
 .file-picker {
@@ -250,20 +253,6 @@ body {
   background-color: $gray-100;
 }
 
-#transformation-editor-heading {
-  padding: $margin-xs;
-  border-bottom: 1px solid $ehri-border-gray;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  h5 {
-    margin-bottom: 0;
-  }
-  .close {
-    cursor: pointer;
-  }
-}
-
 #transformation-editor-modal {
   display: flex !important;
 }
@@ -275,7 +264,10 @@ body {
   padding: $margin-sm;
   max-width: 100%;
   margin-bottom: 0;
-  box-shadow: $box-shadow-lg;
+
+  .modal-content {
+    box-shadow: $box-shadow-lg;
+  }
 }
 
 #transformation-editor-panes {
