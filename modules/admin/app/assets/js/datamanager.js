@@ -108,7 +108,7 @@ let stageMixin = {
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});
     },
-    showError: function() {} // Overridden by users
+    showError: function() {}, // Overridden by inheritors
   },
   watch: {
     active: function(newValue) {
@@ -118,7 +118,6 @@ let stageMixin = {
     }
   },
   created: function() {
-    console.log("Refreshing with", this.fileStage);
     this.load();
   },
 }
@@ -292,7 +291,7 @@ Vue.component("files-table", {
 });
 
 Vue.component("upload-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -547,7 +546,8 @@ Vue.component("oaipmh-config-modal", {
       format: this.config ? this.config.format : null,
       set: this.config ? this.config.set : null,
       tested: null,
-      error: null
+      error: null,
+      noResume: false,
     }
   },
   computed: {
@@ -561,7 +561,7 @@ Vue.component("oaipmh-config-modal", {
   methods: {
     save: function() {
       DAO.saveConfig({url: this.url, format: this.format, set: this.set})
-        .then(data => this.$emit("saved-config", data))
+        .then(data => this.$emit("saved-config", data, !this.noResume))
         .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
@@ -618,6 +618,14 @@ Vue.component("oaipmh-config-modal", {
                 </label>
                 <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
               </div>
+              <div class="form-group">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="opt-no-resume" v-model="noResume"/>
+                  <label class="form-check-label" for="opt-no-resume">
+                    <strong>Do not</strong> resume from last harvest timestamp
+                  </label>
+                </div>
+              </div>
               <div id="endpoint-errors">
                 <span v-if="tested === null">&nbsp;</span>
                 <span v-else-if="error" class="text-danger">{{error}}</span>
@@ -647,7 +655,7 @@ Vue.component("oaipmh-config-modal", {
 })
 
 Vue.component("oaipmh-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -657,11 +665,12 @@ Vue.component("oaipmh-manager", {
       harvestJobId: null,
       showOptions: false,
       harvestConfig: null,
+      fromLast: true,
     }
   },
   methods: {
     harvest: function() {
-      DAO.harvest(this.harvestConfig)
+      DAO.harvest(this.harvestConfig, this.fromLast)
         .then(data => {
           this.harvestJobId = data.jobId;
           this.monitorHarvest(data.url, data.jobId);
@@ -677,44 +686,36 @@ Vue.component("oaipmh-manager", {
       }
     },
     monitorHarvest: function (url, jobId) {
-      let self = this;
       this.tab = 'harvest';
-      let websocket = new WebSocket(url);
-      websocket.onopen = function() {
-        window.location.hash = "#jobId:" + jobId;
-        console.debug("Connected to", url);
-      };
-      websocket.onerror = function (e) {
-        self.log.push("ERROR: a websocket communication error occurred");
-        console.error("Socket error!", e);
-      };
-      websocket.onmessage = function (e) {
-        let msg = JSON.parse(e.data);
-        self.log.push(msg.trim());
-        self.refresh()
-        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-          websocket.close();
+
+      let worker = new Worker(this.config.previewLoader);
+      worker.onmessage = msg => {
+        if (msg.data.error) {
+          this.log.push(msg.data.error);
+        } else if (msg.data.msg) {
+          this.log.push(msg.data.msg);
+          this.refresh();
+        }
+        if (msg.data.done || msg.data.error) {
+          worker.terminate();
+
+          this.harvestJobId = null;
+          this.removeUrlState('harvest-job-id');
         }
       };
-      websocket.onclose = function() {
-        self.harvestJobId = null;
-        history.pushState("", document.title, window.location.pathname
-          + window.location.search);
-        console.debug("Socket closed")
-      }
+      worker.postMessage({type: 'websocket', url: url, DONE: DONE_MSG, ERR: ERR_MSG});
+      this.replaceUrlState('harvest-job-id', jobId);
     },
     resumeMonitor: function() {
-      let hash = window.location.hash;
-      if (hash) {
-        let parts = hash.split(":");
-        if (parts.length === 2 && parts[0] === "#jobId") {
-          this.harvestJobId = parts[1];
-          this.monitorHarvest(this.config.monitorUrl(parts[1]), parts[1]);
-        }
+      let jobId = this.getQueryParam(window.location.search, "harvest-job-id");
+      if (jobId) {
+        this.harvestJobId = jobId;
+        this.monitorHarvest(this.config.monitorUrl(jobId), jobId);
       }
     },
-    saveConfigAndHarvest: function(config) {
+    saveConfigAndHarvest: function(config, fromLast) {
       this.harvestConfig = config;
+      this.fromLast = fromLast;
       this.showOptions = false;
       this.harvest();
     },
@@ -939,7 +940,7 @@ Vue.component("transformation-item", {
 });
 
 Vue.component("convert-manager", {
-  mixins: [twoPanelMixin, previewMixin, validatorMixin, errorMixin],
+  mixins: [twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -1012,40 +1013,31 @@ Vue.component("convert-manager", {
       }
     },
     monitorConvert: function (url, jobId) {
-      let self = this;
       this.tab = 'convert';
-      let websocket = new WebSocket(url);
-      websocket.onopen = function() {
-        window.location.hash = "#jobId:" + jobId;
-        console.debug("Connected to", url);
-      };
-      websocket.onerror = function (e) {
-        self.log.push("ERROR: a websocket communication error occurred");
-        console.error("Socket error!", e);
-      };
-      websocket.onmessage = function (e) {
-        let msg = JSON.parse(e.data);
-        self.log.push(msg.trim());
-        self.$emit('refresh-stage', self.config.ingest);
-        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-          websocket.close();
+
+      let worker = new Worker(this.config.previewLoader);
+      worker.onmessage = msg => {
+        if (msg.data.error) {
+          this.log.push(msg.data.error);
+        } else if (msg.data.msg) {
+          this.log.push(msg.data.msg);
+          this.$emit('refresh-stage', this.config.ingest);
+        }
+        if (msg.data.done || msg.data.error) {
+          worker.terminate();
+
+          this.convertJobId = null;
+          this.removeUrlState('convert-job-id');
         }
       };
-      websocket.onclose = function() {
-        self.convertJobId = null;
-        history.pushState("", document.title, window.location.pathname
-          + window.location.search);
-        console.debug("Socket closed")
-      }
+      worker.postMessage({type: 'websocket', url: url, DONE: DONE_MSG, ERR: ERR_MSG});
+      this.replaceUrlState('convert-job-id', jobId);
     },
     resumeMonitor: function() {
-      let hash = window.location.hash;
-      if (hash) {
-        let parts = hash.split(":");
-        if (parts.length === 2 && parts[0] === "#jobId") {
-          this.convertJobId = parts[1];
-          this.monitorConvert(this.config.monitorUrl(parts[1]), parts[1]);
-        }
+      let jobId = this.getQueryParam(window.location.search, "convert-job-id");
+      if (jobId) {
+        this.convertJobId = jobId;
+        this.monitorConvert(this.config.monitorUrl(jobId), jobId);
       }
     },
     loadConfig: function() {
@@ -1298,7 +1290,8 @@ Vue.component("ingest-options-panel", {
             <button type="button" class="btn btn-default" data-dismiss="modal" v-on:click="$emit('close')">
               Cancel
             </button>
-            <button v-bind:disabled="!isValidConfig" type="button" class="btn btn-secondary" data-dismiss="modal" v-on:click="$emit('submit')">
+            <button v-bind:disabled="!isValidConfig" type="button" class="btn btn-secondary" data-dismiss="modal" 
+                    v-on:click="$emit('submit')">
               Run Ingest
             </button>
           </div>
@@ -1309,7 +1302,7 @@ Vue.component("ingest-options-panel", {
 });
 
 Vue.component("ingest-manager", {
-  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin],
+  mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
     fileStage: String,
     config: Object,
@@ -1317,6 +1310,7 @@ Vue.component("ingest-manager", {
   data: function () {
     return {
       ingesting: {},
+      ingestJobId: null,
       showOptions: false,
       opts: {
         commit: false,
@@ -1326,39 +1320,49 @@ Vue.component("ingest-manager", {
     }
   },
   methods: {
-    monitorIngest: function (url, keys) {
-      let self = this;
-      let websocket = new WebSocket(url);
-      websocket.onerror = function (e) {
-        self.log.push("ERROR: a websocket communication error occurred");
-        console.error("Socket error!", e);
-        keys.forEach(key => self.$delete(self.ingesting, key));
-      };
-      websocket.onmessage = function (e) {
-        let msg = JSON.parse(e.data);
-        self.log.push(msg.trim());
-        if (msg.indexOf(DONE_MSG) !== -1 || msg.indexOf(ERR_MSG) !== -1) {
-          keys.forEach(key => self.$delete(self.ingesting, key));
-          websocket.close();
+    monitorIngest: function (url, jobId, keys) {
+      this.tab = 'ingest';
+
+      let worker = new Worker(this.config.previewLoader);
+      worker.onmessage = msg => {
+        if (msg.data.error) {
+          this.log.push(msg.data.error);
+        } else if (msg.data.msg) {
+          this.log.push(msg.data.msg);
+        }
+        if (msg.data.done || msg.data.error) {
+          worker.terminate();
+          keys.forEach(key => this.$delete(this.ingesting, key));
+
+          this.ingestJobId = null;
+          this.removeUrlState('ingest-job-id');
         }
       };
+      worker.postMessage({type: 'websocket', url: url, DONE: DONE_MSG, ERR: ERR_MSG});
+      this.replaceUrlState('ingest-job-id', jobId);
+    },
+    resumeMonitor: function() {
+      let jobId = this.getQueryParam(window.location.search, "ingest-job-id");
+      if (jobId) {
+        this.ingestJobId = jobId;
+        this.monitorIngest(this.config.monitorUrl(jobId), jobId, this.files.map(f => f.key));
+      }
     },
     ingestFiles: function (keys) {
-      let self = this;
-
       // Switch to ingest tab...
       this.tab = "ingest";
 
       // Clear existing log...
-      self.log.length = 0;
+      this.log.length = 0;
 
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(this.fileStage, keys, self.opts.tolerant, self.opts.commit, self.opts.logMsg)
+      DAO.ingestFiles(this.fileStage, keys, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
         .then(data => {
           if (data.url && data.jobId) {
-            self.monitorIngest(data.url, keys);
+            this.ingestJobId = data.jobId;
+            this.monitorIngest(data.url, data.jobId, keys);
           } else {
             console.error("unexpected job data", data);
           }
@@ -1366,22 +1370,21 @@ Vue.component("ingest-manager", {
         .catch(error => this.showError("Error running ingest", error));
     },
     ingestAll: function () {
-      let self = this;
-
       // Switch to ingest tab...
       this.tab = "ingest";
 
       // Clear existing log...
-      self.log.length = 0;
+      this.log.length = 0;
 
-      let keys = self.files.map(f => f.key);
+      let keys = this.files.map(f => f.key);
 
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll(this.fileStage, self.opts.tolerant, self.opts.commit, self.opts.logMsg).then(data => {
+      DAO.ingestAll(this.fileStage, this.opts.tolerant, this.opts.commit, this.opts.logMsg).then(data => {
         if (data.url && data.jobId) {
-          self.monitorIngest(data.url, keys);
+          this.ingestJobId = data.jobId;
+          this.monitorIngest(data.url, data.jobId, keys);
         } else {
           console.error("unexpected job data", data);
         }
@@ -1395,6 +1398,9 @@ Vue.component("ingest-manager", {
         this.ingestAll();
       }
     }
+  },
+  created() {
+    this.resumeMonitor();
   },
   template: `
     <div id="ingest-manager-container" class="stage-manager-container">
@@ -1427,14 +1433,16 @@ Vue.component("ingest-manager", {
           Delete All
         </button>
 
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+        <button v-bind:disabled="files.length===0 || ingestJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions" v-if="selectedKeys.length">
-          <i class="fa fa-database"/>
+          <i v-if="!ingestJobId" class="fa fa-fw fa-database"/>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Ingest Selected... ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
+        <button v-bind:disabled="files.length===0 || ingestJobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
                 v-else>
-          <i class="fa fa-database"/>
+          <i v-if="!ingestJobId" class="fa fa-fw fa-database"/>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Ingest All...
         </button>
 
@@ -1535,18 +1543,39 @@ Vue.component("ingest-manager", {
 });
 
 Vue.component("data-manager", {
+  mixins: [utilMixin],
   props: {
     config: Object,
   },
   data: function() {
     return {
-      tab: 'upload',
+      tab: this.config.defaultTab,
       error: null,
     }
   },
   methods: {
     setError: function(err, exc) {
       this.error = err + ": " + exc.message;
+    },
+    switchTab: function(tab) {
+      this.tab = tab;
+      history.pushState(
+        _.merge(this.queryParams(window.location.search), {'tab': tab}),
+        document.title,
+        this.setQueryParam(window.location.search, 'tab', tab));
+    }
+  },
+  created() {
+    window.onpopstate = event => {
+      if (event.state && event.state.tab) {
+        this.tab = event.state.tab;
+      } else {
+        this.tab = this.config.defaultTab;
+      }
+    }
+    let qsTab = this.getQueryParam(window.location.search, "tab");
+    if (qsTab) {
+      this.tab = qsTab;
     }
   },
   template: `
@@ -1558,25 +1587,25 @@ Vue.component("data-manager", {
       <ul id="stage-tabs" class="nav nav-tabs">
         <li class="nav-item">
           <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': tab === 'oaipmh'}"
-             v-on:click.prevent="tab = 'oaipmh'">
+             v-on:click.prevent="switchTab('oaipmh')">
             Harvesting
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
-             v-on:click.prevent="tab = 'upload'">
+             v-on:click.prevent="switchTab('upload')">
             Uploads
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-convert" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
-             v-on:click.prevent="tab = 'convert'">
+             v-on:click.prevent="switchTab('convert')">
             Transform
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-                v-on:click.prevent="tab = 'ingest'">
+                v-on:click.prevent="switchTab('ingest')">
               Ingest
             </a>
         </li>
