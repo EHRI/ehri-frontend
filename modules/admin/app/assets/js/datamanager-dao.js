@@ -89,8 +89,8 @@ let DAO = {
       });
   },
 
-  harvest: function (config) {
-    return this.call(SERVICE.harvestOaiPmh(CONFIG.repositoryId), config);
+  harvest: function (config, fromLast) {
+    return this.call(SERVICE.harvestOaiPmh(CONFIG.repositoryId, fromLast), config);
   },
 
   cancelHarvest: function(jobId) {

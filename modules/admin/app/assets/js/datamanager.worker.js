@@ -41,5 +41,25 @@ addEventListener('message', ({data}) => {
         r.json().then(data => postMessage({error: data, done: true}));
       }
     });
+  } else if (data.type === 'websocket') {
+    let url = data.url;
+    let websocket = new WebSocket(url);
+    websocket.onopen = function() {
+      console.log("Websocket open")
+    };
+    websocket.onerror = function (e) {
+      postMessage({error: e});
+    };
+    websocket.onmessage = function (e) {
+      let msg = JSON.parse(e.data);
+      let done = msg.indexOf(data.DONE) !== -1 || msg.indexOf(data.ERR) !== -1;
+      postMessage({msg: msg, done: done});
+      if (done) {
+        websocket.close();
+      }
+    };
+    websocket.onclose = function() {
+      console.log("Websocket close")
+    }
   }
 }, false);

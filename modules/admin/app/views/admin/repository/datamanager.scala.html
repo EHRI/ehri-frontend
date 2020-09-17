@@ -63,6 +63,7 @@
                     monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
                                 .absoluteURL(location.protocol === "https:")
                                 .replace(/^http/, "ws"),
+                    defaultTab: "@defines.FileStage.Upload",
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
