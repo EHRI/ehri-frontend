@@ -252,7 +252,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def harvestOaiPmh(id: String, fromLast: Boolean = false): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def harvestOaiPmh(id: String, fromLast: Boolean): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
       if (fromLast) harvestEvents.get(id).map( events =>
         events
