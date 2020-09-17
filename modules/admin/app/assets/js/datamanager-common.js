@@ -68,10 +68,14 @@ let utilMixin = {
     },
     queryParams: function(qs) {
       let qsp = (qs && qs[0] === '?') ? qs.slice(1): qs;
-      return _.fromPairs(qsp.split("&").map(p => p.split("=")))
+      return (qsp && qsp.trim() !== "")
+        ? _.fromPairs(qsp.split("&").map(p => p.split("=")))
+        : {};
     },
     queryString: function(qp) {
-      return "?" + _.toPairs(qp).map(p => p.join("=")).join("&");
+      return !_.isEmpty(qp)
+        ? ("?" + _.toPairs(qp).map(p => p.join("=")).join("&"))
+        : "";
     },
     removeUrlState: function(key) {
       history.replaceState(
