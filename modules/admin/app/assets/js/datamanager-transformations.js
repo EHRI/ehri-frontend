@@ -176,6 +176,7 @@ Vue.component("transformation-editor", {
     preview: Object,
     previewList: Array,
     config: Object,
+    api: Object,
   },
   data: function() {
     return {
@@ -205,8 +206,8 @@ Vue.component("transformation-editor", {
     save: function() {
       this.saving = true;
       let p = this.id
-        ? DAO.updateDataTransformation(this.id, this.data.generic, this.data)
-        : DAO.createDataTransformation(this.data.generic, this.data);
+        ? this.api.updateDataTransformation(this.id, this.data.generic, this.data)
+        : this.api.createDataTransformation(this.data.generic, this.data);
 
       return p
         .then(item => {
@@ -224,7 +225,7 @@ Vue.component("transformation-editor", {
 
     },
     remove: function () {
-      DAO.deleteDataTransformation(this.id).then(_ => {
+      this.api.deleteDataTransformation(this.id).then(_ => {
         this.showRemoveDialog = false;
         this.$emit('deleted');
         this.$emit('close');
@@ -346,6 +347,7 @@ Vue.component("transformation-editor", {
                     v-bind:errors="inputValidationResults"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"
+                    v-bind:api="api"
                     v-on:loading="loadingIn = true"
                     v-on:loaded="loadingIn = false" />
                   <div class="panel-placeholder" v-if="previewing === null">
@@ -362,6 +364,7 @@ Vue.component("transformation-editor", {
                     v-bind:errors="outputValidationResults"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"
+                    v-bind:api="api"
                     v-on:loading="loadingOut = true"
                     v-on:loaded="loadingOut = false" />
                   <div class="panel-placeholder" v-if="previewing === null">
