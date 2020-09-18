@@ -538,7 +538,6 @@ Vue.component("upload-manager", {
 
 Vue.component("oaipmh-config-modal", {
   props: {
-    show: Boolean,
     config: Object,
     api: Object,
   },
@@ -592,7 +591,7 @@ Vue.component("oaipmh-config-modal", {
     }
   },
   template: `
-    <div class="options-dialog modal show fade" tabindex="-1" role="dialog" v-if="show"
+    <div class="options-dialog modal show fade" tabindex="-1" role="dialog"
          style="display: block">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -609,13 +608,13 @@ Vue.component("oaipmh-config-modal", {
                 <label class="form-label" for="opt-endpoint-url">
                   OAI-PMH endpoint URL
                 </label>
-                <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url"/>
+                <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url" placeholder="(required)"/>
               </div>
               <div class="form-group">
                 <label class="form-label" for="opt-format">
                   OAI-PMH metadata format
                 </label>
-                <input class="form-control" id="opt-format" type="text" v-model.trim="format"/>
+                <input class="form-control" id="opt-format" type="text" v-model.trim="format" placeholder="(required)"/>
               </div>
               <div class="form-group">
                 <label class="form-label" for="opt-set">
@@ -633,8 +632,9 @@ Vue.component("oaipmh-config-modal", {
               </div>
               <div id="endpoint-errors">
                 <span v-if="tested === null">&nbsp;</span>
+                <span v-else-if="tested" class="text-success">No errors detected</span>
                 <span v-else-if="error" class="text-danger">{{error}}</span>
-                <span v-else class="text-success">No errors detected</span>
+                <span v-else class="text-danger">Test unsuccessful</span>
               </div>
             </div>
           </div>
@@ -642,7 +642,8 @@ Vue.component("oaipmh-config-modal", {
             <button v-on:click="$emit('close')" type="button" class="btn btn-default">
               Cancel
             </button>
-            <button v-on:click="testEndpoint" type="button" class="btn btn-default">
+            <button v-bind:disabled="!isValidConfig" 
+                    v-on:click="testEndpoint" type="button" class="btn btn-default">
               <i v-if="testing" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
               <i v-else-if="tested === null" class="fa fa-fw fa-question"/>
               <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
@@ -775,8 +776,8 @@ Vue.component("oaipmh-manager", {
         </button>
         
         <oaipmh-config-modal 
+          v-if="showOptions"
           v-bind:config="harvestConfig"
-          v-bind:show="showOptions"
           v-bind:api="api"
           v-on:saved-config="saveConfigAndHarvest"
           v-on:error="showError"
