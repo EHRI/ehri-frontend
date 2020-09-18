@@ -58,7 +58,7 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
-      return DAO.listFiles(this.fileStage, this.filter.value)
+      return this.api.listFiles(this.fileStage, this.filter.value)
         .then(data => {
           this.files = data.files;
           this.truncated = data.truncated;
@@ -71,7 +71,7 @@ let stageMixin = {
     },
     downloadFiles: function(keys) {
       keys.forEach(key => this.$set(this.downloading, key, true));
-      DAO.fileUrls(this.fileStage, keys)
+      this.api.fileUrls(this.fileStage, keys)
         .then(urls => {
           _.forIn(urls, (url, fileName) => {
             window.open(url, '_blank');
@@ -86,7 +86,7 @@ let stageMixin = {
         this.previewing = null;
       }
       keys.forEach(key => this.$set(this.deleting, key, true));
-      DAO.deleteFiles(this.fileStage, keys)
+      this.api.deleteFiles(this.fileStage, keys)
         .then(deleted => {
           deleted.forEach(key => {
             this.$delete(this.deleting, key);
@@ -100,7 +100,7 @@ let stageMixin = {
     deleteAll: function () {
       this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return DAO.deleteAll(this.fileStage)
+      return this.api.deleteAll(this.fileStage)
         .then(r => {
           this.load();
           r;
@@ -184,7 +184,7 @@ Vue.component("files-table", {
       this.loadingMore = true;
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key : null;
-      return DAO.listFiles(this.fileStage, this.filter, from)
+      return this.api.listFiles(this.fileStage, this.filter, from)
         .then(data => {
           this.files.push.apply(this.files, data.files);
           this.$emit("files-loaded", data.truncated);
@@ -295,6 +295,7 @@ Vue.component("upload-manager", {
   props: {
     fileStage: String,
     config: Object,
+    api: Object,
   },
   data: function () {
     return {
@@ -331,25 +332,24 @@ Vue.component("upload-manager", {
         return Promise.resolve();
       }
 
-      let self = this;
-
-      return DAO.uploadHandle(this.fileStage, {
+      return this.api.uploadHandle(this.fileStage, {
         name: file.name,
         type: file.type,
         size: file.size
       })
       .then(data => {
-        self.setUploadProgress(file, 0);
-        return DAO.uploadFile(data.presignedUrl, file, function (evt) {
+        let self = this;
+        this.setUploadProgress(file, 0);
+        return this.api.uploadFile(data.presignedUrl, file, function (evt) {
           return evt.lengthComputable
             ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
             : true;
         })
         .then(() => {
-          self.finishUpload(file);
-          self.log.push("Uploaded file: " + file.name);
-          return self.load();
-        })
+          this.finishUpload(file);
+          this.log.push("Uploaded file: " + file.name);
+          return this.load();
+        });
       })
       .catch(error => this.showError("Upload error", error));
     },
@@ -506,6 +506,7 @@ Vue.component("upload-manager", {
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
+                       v-bind:api="api"
                        v-show="previewing !== null" />
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -538,7 +539,8 @@ Vue.component("upload-manager", {
 Vue.component("oaipmh-config-modal", {
   props: {
     show: Boolean,
-    config: Object
+    config: Object,
+    api: Object,
   },
   data: function() {
     return {
@@ -546,6 +548,7 @@ Vue.component("oaipmh-config-modal", {
       format: this.config ? this.config.format : null,
       set: this.config ? this.config.set : null,
       tested: null,
+      testing: false,
       error: null,
       noResume: false,
     }
@@ -560,12 +563,13 @@ Vue.component("oaipmh-config-modal", {
   },
   methods: {
     save: function() {
-      DAO.saveConfig({url: this.url, format: this.format, set: this.set})
+      this.api.saveConfig({url: this.url, format: this.format, set: this.set})
         .then(data => this.$emit("saved-config", data, !this.noResume))
         .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
-      DAO.testConfig({url: this.url, format: this.format, set: this.set})
+      this.testing = true;
+      this.api.testConfig({url: this.url, format: this.format, set: this.set})
         .then( r => {
           this.tested = !!r.name;
           this.error = null;
@@ -576,7 +580,8 @@ Vue.component("oaipmh-config-modal", {
           if (err.error) {
             this.error = err.error;
           }
-        });
+        })
+        .finally(() => this.testing = false);
     }
   },
   watch: {
@@ -638,7 +643,8 @@ Vue.component("oaipmh-config-modal", {
               Cancel
             </button>
             <button v-on:click="testEndpoint" type="button" class="btn btn-default">
-              <i v-if="tested === null" class="fa fa-fw fa-question"/>
+              <i v-if="testing" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+              <i v-else-if="tested === null" class="fa fa-fw fa-question"/>
               <i v-else-if="tested" class="fa fa-fw fa-check text-success"/>
               <i v-else class="fa fa-fw fa-close text-danger"/>
               Test Endpoint
@@ -659,6 +665,7 @@ Vue.component("oaipmh-manager", {
   props: {
     fileStage: String,
     config: Object,
+    api: Object,
   },
   data: function () {
     return {
@@ -670,7 +677,7 @@ Vue.component("oaipmh-manager", {
   },
   methods: {
     harvest: function() {
-      DAO.harvest(this.harvestConfig, this.fromLast)
+      this.api.harvest(this.harvestConfig, this.fromLast)
         .then(data => {
           this.harvestJobId = data.jobId;
           this.monitorHarvest(data.url, data.jobId);
@@ -678,7 +685,7 @@ Vue.component("oaipmh-manager", {
     },
     cancelHarvest: function() {
       if (this.harvestJobId) {
-        DAO.cancelHarvest(this.harvestJobId).then(r => {
+        this.api.cancelHarvest(this.harvestJobId).then(r => {
           if (r.ok) {
             this.harvestJobId = null;
           }
@@ -720,7 +727,7 @@ Vue.component("oaipmh-manager", {
       this.harvest();
     },
     loadConfig: function() {
-      DAO.getConfig()
+      this.api.getConfig()
         .then(data => this.harvestConfig = data);
     },
   },
@@ -770,6 +777,7 @@ Vue.component("oaipmh-manager", {
         <oaipmh-config-modal 
           v-bind:config="harvestConfig"
           v-bind:show="showOptions"
+          v-bind:api="api"
           v-on:saved-config="saveConfigAndHarvest"
           v-on:error="showError"
           v-on:close="showOptions = false"/>
@@ -838,6 +846,7 @@ Vue.component("oaipmh-manager", {
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
+                       v-bind:api="api"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -944,6 +953,7 @@ Vue.component("convert-manager", {
   props: {
     fileStage: String,
     config: Object,
+    api: Object,
     active: Boolean,
   },
   data: function () {
@@ -966,7 +976,7 @@ Vue.component("convert-manager", {
     loadTransformations: function() {
       this.loading = true;
 
-      return DAO.listDataTransformations()
+      return this.api.listDataTransformations()
         .then(available => {
           let each = _.partition(available, item => !_.includes(this.mappings, item.id));
           this.available = each[0];
@@ -996,7 +1006,7 @@ Vue.component("convert-manager", {
       this.editing = item;
     },
     convert: function(sources) {
-      DAO.convert({mappings: this.mappings, src: sources})
+      this.api.convert({mappings: this.mappings, src: sources})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
@@ -1005,7 +1015,7 @@ Vue.component("convert-manager", {
     },
     cancelConvert: function() {
       if (this.convertJobId) {
-        DAO.cancelConvert(this.convertJobId).then(r => {
+        this.api.cancelConvert(this.convertJobId).then(r => {
           if (r.ok) {
             this.convertJobId = null;
           }
@@ -1041,7 +1051,7 @@ Vue.component("convert-manager", {
       }
     },
     loadConfig: function() {
-      return DAO.getConvertConfig()
+      return this.api.getConvertConfig()
         .then(data => this.mappings = data.map(item => item.id))
         .catch(error => this.showError("Error loading convert configuration", error));
     },
@@ -1050,13 +1060,13 @@ Vue.component("convert-manager", {
       if (!_.isEqual(mappings, this.mappings)) {
         console.log("saving enabled:", this.enabled)
         this.mappings = mappings;
-        DAO.saveConvertConfig(this.mappings)
+        this.api.saveConvertConfig(this.mappings)
           .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
     loadPreviewList: function() {
       this.loading = true;
-      DAO.listFiles("upload", "")
+      this.api.listFiles("upload", "")
         .then(data => this.previewList = data.files)
         .catch(error => this.showError("Unable to list preview files", error))
         .finally(() => this.loading = false);
@@ -1095,6 +1105,7 @@ Vue.component("convert-manager", {
         v-bind:preview="previewing"
         v-bind:preview-list="previewList"
         v-bind:config="config"
+        v-bind:api="api"
         v-on:saved="saved"
         v-on:close="closeEditForm"/>
 
@@ -1227,6 +1238,7 @@ Vue.component("convert-manager", {
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
+                       v-bind:api="api"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1306,6 +1318,7 @@ Vue.component("ingest-manager", {
   props: {
     fileStage: String,
     config: Object,
+    api: Object,
   },
   data: function () {
     return {
@@ -1358,7 +1371,7 @@ Vue.component("ingest-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestFiles(this.fileStage, keys, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
+      this.api.ingestFiles(this.fileStage, keys, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
         .then(data => {
           if (data.url && data.jobId) {
             this.ingestJobId = data.jobId;
@@ -1381,7 +1394,7 @@ Vue.component("ingest-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      DAO.ingestAll(this.fileStage, this.opts.tolerant, this.opts.commit, this.opts.logMsg).then(data => {
+      this.api.ingestAll(this.fileStage, this.opts.tolerant, this.opts.commit, this.opts.logMsg).then(data => {
         if (data.url && data.jobId) {
           this.ingestJobId = data.jobId;
           this.monitorIngest(data.url, data.jobId, keys);
@@ -1518,6 +1531,7 @@ Vue.component("ingest-manager", {
                        v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
+                       v-bind:api="api"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1546,6 +1560,7 @@ Vue.component("data-manager", {
   mixins: [utilMixin],
   props: {
     config: Object,
+    api: Object,
   },
   data: function() {
     return {
@@ -1615,13 +1630,15 @@ Vue.component("data-manager", {
           v-bind:fileStage="config.upload" 
           v-bind:config="config" 
           v-bind:active="tab === config.upload"
+          v-bind:api="api"
           v-on:error="setError"  />
       </div>
       <div id="tab-upload" class="stage-tab" v-show="tab === 'oaipmh'">
         <oaipmh-manager 
           v-bind:fileStage="config.oaipmh" 
           v-bind:config="config" 
-          v-bind:active="tab === config.oaipmh" 
+          v-bind:active="tab === config.oaipmh"
+          v-bind:api="api"
           v-on:error="setError"  />
       </div>
       <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
@@ -1629,13 +1646,15 @@ Vue.component("data-manager", {
           v-bind:fileStage="config.ingest" 
           v-bind:config="config" 
           v-bind:active="tab === 'convert'"
+          v-bind:api="api"
           v-on:error="setError" />
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
         <ingest-manager 
           v-bind:fileStage="config.ingest" 
           v-bind:config="config" 
-          v-bind:active="tab === config.ingest" 
+          v-bind:active="tab === config.ingest"
+          v-bind:api="api"
           v-on:error="setError"  />
       </div>
     </div>  
@@ -1646,10 +1665,11 @@ let app = new Vue({
   el: '#vue-app',
   data: {
     config: CONFIG,
+    api: DAO,
   },
   template: `
     <div id="app-container">
-      <data-manager v-bind:config="config" />
+      <data-manager v-bind:config="config" v-bind:api="api" />
     </div>
   `
 });
