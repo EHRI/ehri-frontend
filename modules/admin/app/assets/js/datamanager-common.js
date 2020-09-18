@@ -126,6 +126,9 @@ let twoPanelMixin = {
 };
 
 let validatorMixin = {
+  props: {
+    api: Object,
+  },
   data: function() {
     return {
       validating: {},
@@ -153,7 +156,7 @@ let validatorMixin = {
     validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
       keys.forEach(key => this.$delete(this.validationResults, key));
-      DAO.validateFiles(this.fileStage, keys)
+      this.api.validateFiles(this.fileStage, keys)
         .then(errs => {
           this.tab = 'validation';
           keys.forEach(key => {
@@ -173,6 +176,7 @@ let previewPanelMixin = {
     previewing: Object,
     errors: null,
     config: Object,
+    api: Object,
     errored: false,
   },
   data: function () {
@@ -218,15 +222,14 @@ let previewPanelMixin = {
       });
     },
     validate: function () {
-      let self = this;
-      if (self.previewing === null) {
+      if (this.previewing === null) {
         return;
       }
 
-      self.validating = true;
-      DAO.validateFiles(this.fileStage, [self.previewing.key])
+      this.validating = true;
+      this.api.validateFiles(this.fileStage, [this.previewing.key])
         .then(errs => {
-          this.$set(this.errors, self.previewing.key, errs[self.previewing.key]);
+          this.$set(this.errors, this.previewing.key, errs[this.previewing.key]);
           this.updateErrors();
           this.validating = false;
         })
@@ -278,7 +281,7 @@ let previewPanelMixin = {
       }
 
       this.setLoading();
-      DAO.fileUrls(this.fileStage, [this.previewing.key])
+      this.api.fileUrls(this.fileStage, [this.previewing.key])
         .then(data => this.worker.postMessage({
           type: 'preview',
           url: data[this.previewing.key]
@@ -292,30 +295,29 @@ let previewPanelMixin = {
       this.editor.refresh();
     },
     receiveMessage: function(msg) {
-      let self = this;
       if (msg.data.error) {
         let errObj = msg.data.error;
-        self.previewData = errObj.line
+        this.previewData = errObj.line
           ? "Error at line " + errObj.line + ": " + errObj.error
           : "Error: " + msg.data.error.error;
-        self.editor.setOption("mode", null);
-        self.loading = false;
-        self.showingError = true;
+        this.editor.setOption("mode", null);
+        this.loading = false;
+        this.showingError = true;
       } else if (msg.data.init) {
-        if (self.editor) {
-          self.validate();
-          self.editor.scrollTo(0, 0);
-          self.editor.setOption("mode", "xml");
+        if (this.editor) {
+          this.validate();
+          this.editor.scrollTo(0, 0);
+          this.editor.setOption("mode", "xml");
         }
         // Stop loading indicator when first data arrives
-        self.loading = false;
-        self.showingError = false;
-        self.previewData = msg.data.text;
+        this.loading = false;
+        this.showingError = false;
+        this.previewData = msg.data.text;
       } else {
-        self.previewData += msg.data.text;
+        this.previewData += msg.data.text;
       }
       if (msg.data.done) {
-        self.$emit("loaded");
+        this.$emit("loaded");
       }
     }
   },
@@ -448,7 +450,7 @@ Vue.component("file-picker-suggestion", {
 });
 
 Vue.component("file-picker", {
-  props: {type: String, disabled: Boolean},
+  props: {type: String, disabled: Boolean, api: Object},
   data: function () {
     return {
       text: "",
@@ -463,11 +465,10 @@ Vue.component("file-picker", {
     search: function () {
       this.loading = true;
       this.text = this.input;
-      let self = this;
-      function list() {
-        DAO.listFiles(self.type, self.text).then(data => {
-          self.loading = false;
-          self.suggestions = data.files;
+      let list = () => {
+        this.api.listFiles(this.type, this.text).then(data => {
+          this.loading = false;
+          this.suggestions = data.files;
         });
       }
       _.debounce(list, 300)();
@@ -542,6 +543,7 @@ Vue.component("convert-preview", {
   props: {
     mappings: Array,
     trigger: String,
+    api: Object,
   },
   methods: {
     validate: function() {
@@ -555,7 +557,7 @@ Vue.component("convert-preview", {
       this.setLoading();
       this.worker.postMessage({
         type: 'convert-preview',
-        url: DAO.convertFileUrl(this.fileStage, this.previewing.key),
+        url: this.api.convertFileUrl(this.fileStage, this.previewing.key),
         src: [],
         mappings: this.mappings,
       });
@@ -633,7 +635,6 @@ Vue.component("drag-handle", {
       this.p2.style.flexBasis = perc + "%";
     },
     startDrag: function (evt) {
-      console.log("Bind resize", new Date());
       let us = this.container.style.userSelect;
       let cursor = this.container.style.cursor;
       this.offset = evt.clientY - this.$el.offsetTop;
