@@ -46,9 +46,6 @@ let previewMixin = {
       this.previewing = file;
       this.tab = 'preview';
     },
-    deselect: function() {
-      this.previewing = null;
-    }
   }
 };
 

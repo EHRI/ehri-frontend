@@ -109,6 +109,15 @@ let stageMixin = {
         .finally(() => this.deleting = {});
     },
     showError: function() {}, // Overridden by inheritors
+    selectNext: function() {
+      console.log("No implemented yet...")
+    },
+    selectPrev: function() {
+      console.log("No implemented yet...")
+    },
+    deselect: function() {
+      this.previewing = null;
+    }
   },
   watch: {
     active: function(newValue) {
@@ -149,6 +158,7 @@ Vue.component("upload-progress", {
 
 Vue.component("files-table", {
   props: {
+    api: Object,
     fileStage: String,
     dropping: Boolean,
     loaded: Boolean,
@@ -216,7 +226,11 @@ Vue.component("files-table", {
     },
   },
   template: `
-    <div class="file-list-container" v-bind:class="{'loading': !loaded, 'dropping': dropping}" v-on:click.stop="$emit('deselect-all')">
+    <div v-bind:class="{'loading': !loaded, 'dropping': dropping}"
+         v-on:keyup.down="$emit('select-next')"
+         v-on:keyup.up="$emit('select-prev')"
+         v-on:click.stop="$emit('deselect-all')" 
+         class="file-list-container">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
@@ -445,6 +459,7 @@ Vue.component("upload-manager", {
       <div id="upload-panel-container" class="panel-container">
         <div class="top-panel">
           <files-table
+            v-bind:api="api"
             v-bind:fileStage="fileStage"
             v-bind:dropping="dropping"
             v-bind:loaded="loaded"
@@ -464,6 +479,8 @@ Vue.component("upload-manager", {
             v-on:validate-files="validateFiles"
             v-on:files-loaded="filesLoaded"
             v-on:show-preview="showPreview"
+            v-on:select-next="selectNext"
+            v-on:select-prev="selectPrev"
             v-on:deselect-all="deselect"
           />
         </div>
@@ -787,6 +804,7 @@ Vue.component("oaipmh-manager", {
       <div id="oaipmh-panel-container" class="panel-container">
         <div class="top-panel">
           <files-table
+            v-bind:api="api"
             v-bind:fileStage="fileStage"
             v-bind:loaded="loaded"
             v-bind:files="files"
@@ -1471,6 +1489,7 @@ Vue.component("ingest-manager", {
       <div id="ingest-panel-container" class="panel-container">
         <div class="top-panel">
           <files-table
+            v-bind:api="api"
             v-bind:fileStage="fileStage"
             v-bind:loaded="loaded"
             v-bind:files="files"
