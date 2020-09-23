@@ -33,7 +33,7 @@ class BaseXXQueryXmlTransformerSpec extends PlaySpecification with ResourceUtils
       val transformer = BaseXXQueryXmlTransformer(Environment.simple())
       val map = resourceAsString("simple-mapping.tsv") +
         "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\tinvalid-func()"
-      transformer.transform(testPayload, map) must throwA[XmlTransformationError].like {
+      transformer.transform(testPayload, map) must throwA[InvalidMappingError].like {
         case e => e.getMessage must contain("at /ead: at /ead/eadheader: Unknown function: fn:invalid-func")
       }
     }
