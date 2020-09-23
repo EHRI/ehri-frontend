@@ -524,6 +524,7 @@ Vue.component("upload-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-on:error="showError"
                        v-show="previewing !== null" />
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -866,6 +867,7 @@ Vue.component("oaipmh-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-on:error="showError"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1258,6 +1260,7 @@ Vue.component("convert-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-on:error="showError"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
@@ -1552,6 +1555,7 @@ Vue.component("ingest-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-on:error="showError"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
                 No file selected.
