@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
 import javax.inject.Inject
 import play.api.http.HeaderNames
+import play.api.libs.json.JsonConfiguration.Aux
+import play.api.libs.json.JsonNaming.SnakeCase
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
@@ -65,9 +67,19 @@ case class IngestApiService @Inject()(
   }
 
   // The result of a regular import
-  case class ImportLog(created: Int, updated: Int, unchanged: Int, message: Option[String] = None, errors: Map[String, String] = Map.empty) extends IngestResult
+  case class ImportLog(
+    createdKeys: Map[String, Seq[String]],
+    created: Int,
+    updatedKeys: Map[String, Seq[String]],
+    updated: Int,
+    unchangedKeys: Map[String, Seq[String]],
+    unchanged: Int,
+    message: Option[String] = None,
+    errors: Map[String, String] = Map.empty
+  ) extends IngestResult
 
   object ImportLog {
+    implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
     implicit val format: Format[ImportLog] = Json.format[ImportLog]
   }
 
