@@ -100,7 +100,6 @@ let errorMixin = {
   methods: {
     showError: function(desc, exception) {
       this.errored = true;
-      console.log(desc, exception);
       this.$emit("error", desc, exception);
     },
     clearError: function() {
@@ -167,14 +166,14 @@ let validatorMixin = {
 };
 
 let previewPanelMixin = {
+  mixins: [errorMixin],
   props: {
     fileStage: String,
     panelSize: Number,
     previewing: Object,
-    errors: null,
+    errors: Object,
     config: Object,
     api: Object,
-    errored: false,
   },
   data: function () {
     return {
@@ -188,6 +187,7 @@ let previewPanelMixin = {
       prettified: false,
       showingError: false,
       worker: null,
+      errored: false,
     }
   },
   methods: {
@@ -283,10 +283,8 @@ let previewPanelMixin = {
           type: 'preview',
           url: data[this.previewing.key]
         }))
-        .catch(_ => {
-          this.loading = false;
-          this.errored = true;
-        });
+        .catch(error => this.showError('Unable to load preview URL', error))
+        .finally(() => this.loading = false);
     },
     refresh: function() {
       this.editor.refresh();
@@ -394,6 +392,48 @@ let previewPanelMixin = {
     </div>
   `
 };
+
+Vue.component("preview", {
+  mixins: [previewPanelMixin]
+});
+
+Vue.component("convert-preview", {
+  mixins: [previewPanelMixin],
+  props: {
+    mappings: Array,
+    trigger: String,
+    api: Object,
+  },
+  methods: {
+    validate: function() {
+      // FIXME: not yet supported
+    },
+    load: function() {
+      if (this.previewing === null) {
+        return;
+      }
+
+      this.setLoading();
+      this.worker.postMessage({
+        type: 'convert-preview',
+        url: this.api.convertFileUrl(this.fileStage, this.previewing.key),
+        src: [],
+        mappings: this.mappings,
+      });
+    }
+  },
+  watch: {
+    trigger: function() {
+      this.load();
+    },
+    config: function(newConfig, oldConfig) {
+      if (newConfig !== oldConfig && newConfig !== null) {
+        console.log("Refresh convert preview...");
+        this.load();
+      }
+    }
+  }
+});
 
 Vue.component("modal-alert", {
   props: {
@@ -534,49 +574,6 @@ Vue.component("file-picker", {
     </div>
   `
 });
-
-Vue.component("convert-preview", {
-  mixins: [previewPanelMixin],
-  props: {
-    mappings: Array,
-    trigger: String,
-    api: Object,
-  },
-  methods: {
-    validate: function() {
-      // FIXME: not yet supported
-    },
-    load: function() {
-      if (this.previewing === null) {
-        return;
-      }
-
-      this.setLoading();
-      this.worker.postMessage({
-        type: 'convert-preview',
-        url: this.api.convertFileUrl(this.fileStage, this.previewing.key),
-        src: [],
-        mappings: this.mappings,
-      });
-    }
-  },
-  watch: {
-    trigger: function() {
-      this.load();
-    },
-    config: function(newConfig, oldConfig) {
-      if (newConfig !== oldConfig && newConfig !== null) {
-        console.log("Refresh convert preview...");
-        this.load();
-      }
-    }
-  }
-})
-
-Vue.component("preview", {
-  mixins: [previewPanelMixin]
-});
-
 
 Vue.component("filter-control", {
   props: {
