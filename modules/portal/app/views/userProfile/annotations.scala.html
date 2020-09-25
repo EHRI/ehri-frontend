@@ -1,9 +1,9 @@
-@(item: UserProfile, annotations: services.search.SearchResult[(Annotation,services.search.SearchHit)], searchAction: Call, followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: UserProfile, annotations: services.search.SearchResult[(Annotation,services.search.SearchHit)], searchAction: Call, followed: Boolean, messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
         @helper.form(action = searchAction) {
-            @views.html.userProfile.itemDetails(item, followed = followed, canMessage = canMessage) {
+            @views.html.userProfile.itemDetails(item, followed = followed, messagingInfo = messagingInfo) {
                 <div class="user-profile-content">
                     <header class="block-header">
                         <h2>@Messages("annotation.list")</h2>

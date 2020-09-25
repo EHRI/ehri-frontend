@@ -1,22 +1,21 @@
 package controllers.portal.social
 
-import javax.inject._
-
-import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import controllers.portal.base.PortalController
+import javax.inject._
 import models.base.Model
+import models.view.MessagingInfo
 import models.{SystemEvent, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.data.ApiUser
-import utils._
+import services.cypher.CypherService
 import services.search._
+import utils._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -74,42 +73,43 @@ case class Social @Inject()(
         .withHeaders("activity-more" -> theirActivity.more.toString)
     } else {
       val isFollowing: Future[Boolean] = userDataApi.isFollowing(request.user.id, userId)
-      val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
+      val messagingInfoF: Future[MessagingInfo] = getMessagingInfo(request.user.id, userId)
       for {
         them <- userDataApi.get[UserProfile](userId)
         theirActivity <- events
         followed <- isFollowing
-        canMessage <- allowMessage
+        messagingInfo <- messagingInfoF
       } yield Ok(views.html.userProfile.show(
-          them, theirActivity, range, eventParams, followed, canMessage))
+          them, theirActivity, range, eventParams, followed, messagingInfo))
     }
   }
 
   def userWatchList(userId: String, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
     // Show a list of watched item by a defined User
+    val themF = userDataApi.get[UserProfile](userId)
     val theirWatchingF: Future[Page[Model]] = userDataApi.watching[Model](userId)
     val myWatchingF: Future[Seq[String]] = watchedItemIds(Some(request.user.id))
     val isFollowingF: Future[Boolean] = userDataApi.isFollowing(request.user.id, userId)
-    val allowMessageF: Future[Boolean] = canMessage(request.user.id, userId)
+    val messagingInfoF: Future[MessagingInfo] = getMessagingInfo(request.user.id, userId)
 
     for {
-      them <- userDataApi.get[UserProfile](userId)
+      them <- themF
+      followed <- isFollowingF
+      messagingInfo <- messagingInfoF
       theirWatching <- theirWatchingF
       myWatching <- myWatchingF
       result <- findIn[Model](theirWatching, params, paging)
-      followed <- isFollowingF
-      canMessage <- allowMessageF
     } yield Ok(views.html.userProfile.watched(
       them,
       result,
       socialRoutes.userWatchList(userId),
       followed,
-      canMessage,
+      messagingInfo,
       myWatching
     ))
   }
 
-  def followUser(userId: String) = WithUserAction { implicit request =>
+  def followUser(userId: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("social.follow",
       socialRoutes.followUserPost(userId)))
   }
@@ -124,7 +124,7 @@ case class Social @Inject()(
     }
   }
 
-  def unfollowUser(userId: String) = WithUserAction { implicit request =>
+  def unfollowUser(userId: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("social.unfollow",
       socialRoutes.unfollowUserPost(userId)))
   }
@@ -139,7 +139,7 @@ case class Social @Inject()(
     }
   }
 
-  def blockUser(userId: String) = WithUserAction { implicit request =>
+  def blockUser(userId: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("social.block",
       socialRoutes.blockUserPost(userId)))
   }
@@ -154,7 +154,7 @@ case class Social @Inject()(
     }
   }
 
-  def unblockUser(userId: String) = WithUserAction { implicit request =>
+  def unblockUser(userId: String): Action[AnyContent] = WithUserAction { implicit request =>
     Ok(views.html.helpers.simpleForm("social.unblock",
       socialRoutes.unblockUserPost(userId)))
   }
@@ -173,59 +173,33 @@ case class Social @Inject()(
    * Render list of someone else's followers via Ajax...
    */
   def followersForUser(userId: String, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
+    val messagingInfoF: Future[MessagingInfo] = getMessagingInfo(request.user.id, userId)
     for {
       them <- userDataApi.get[UserProfile](userId)
       theirFollowers <- userDataApi.followers[UserProfile](userId, paging)
       whoImFollowing <- userDataApi.following[UserProfile](request.user.id, PageParams.empty.withoutLimit)
-      canMessage <- allowMessage
+      messagingInfo <- messagingInfoF
     } yield {
       if (isAjax)
         Ok(views.html.userProfile.followerList(them, theirFollowers, paging, whoImFollowing))
       else
-        Ok(views.html.userProfile.listFollowers(them, theirFollowers, paging, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowers(them, theirFollowers, paging, whoImFollowing, messagingInfo))
     }
   }
 
   def followingForUser(userId: String, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val allowMessage: Future[Boolean] = canMessage(request.user.id, userId)
-    for {
-      them <- userDataApi.get[UserProfile](userId)
-      theirFollowing <- userDataApi.following[UserProfile](userId, paging)
-      whoImFollowing <- userDataApi.following[UserProfile](request.user.id, PageParams.empty.withoutLimit)
-      canMessage <- allowMessage
-    } yield {
+    val messagingInfoF: Future[MessagingInfo] = getMessagingInfo(request.user.id, userId)
+    val themF = userDataApi.get[UserProfile](userId)
+    val followingF = userDataApi.following[UserProfile](userId, paging)
+    val whoImFollowingF = userDataApi.following[UserProfile](request.user.id, PageParams.empty.withoutLimit)
+    for (them <- themF; following <- followingF; whoImFollowing <- whoImFollowingF; messagingInfo <- messagingInfoF) yield {
       if (isAjax)
-        Ok(views.html.userProfile.followingList(them, theirFollowing, paging, whoImFollowing))
+        Ok(views.html.userProfile.followingList(them, following, paging, whoImFollowing))
       else
-        Ok(views.html.userProfile.listFollowing(them, theirFollowing, paging, whoImFollowing, canMessage))
+        Ok(views.html.userProfile.listFollowing(them, following, paging, whoImFollowing, messagingInfo))
     }
   }
 
-  import play.api.data.Form
-  import play.api.data.Forms._
-  private val messageForm = Form(
-    tuple(
-      "subject" -> nonEmptyText,
-      "message" -> nonEmptyText,
-      "copySelf" -> default(boolean, false)
-    )
-  )
-
-  /**
-   * Ascertain if a user can receive messages from other users.
-   */
-  private def canMessage(senderId: String, recipientId: String)(implicit apiUser: ApiUser): Future[Boolean] = {
-    // First, find their account. If we don't have
-    // an account we don't have an email, so we can't
-    // message them... Ignore accounts which have disabled
-    // messaging.
-    accounts.findById(recipientId).flatMap {
-      case Some(account) if account.allowMessaging =>
-        userDataApi.isBlocking(recipientId, senderId).map(blocking => !blocking)
-      case _ => immediate(false)
-    }
-  }
 
   private def sendMessageEmail(from: UserProfile, to: UserProfile, subject: String, message: String, copy: Boolean)(implicit request: RequestHeader): Future[Unit] = {
     for {
@@ -262,18 +236,13 @@ case class Social @Inject()(
   }
 
   def sendMessage(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config
-      .getOptional[String]("recaptcha.key.public")
-      .getOrElse("fakekey")
     for {
       userTo <- userDataApi.get[UserProfile](userId)
-      allowed <- canMessage(request.user.id, userId)
+      info <- getMessagingInfo(request.user.id, userId)
     } yield {
-      if (allowed) {
-        if (isAjax) Ok(views.html.userProfile.messageForm(userTo, messageForm, socialRoutes.sendMessagePost(userId),
-          recaptchaKey))
-        else Ok(views.html.userProfile.messageUser(userTo, messageForm,
-          socialRoutes.sendMessagePost(userId), recaptchaKey))
+      if (info.canMessage) {
+        if (isAjax) Ok(views.html.userProfile.messageForm(userTo, info))
+        else Ok(views.html.userProfile.messageUser(userTo, info))
       } else {
         BadRequest(Messages("social.message.send.userNotAcceptingMessages"))
       }
@@ -281,26 +250,22 @@ case class Social @Inject()(
   }
 
   def sendMessagePost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val recaptchaKey = config
-      .getOptional[String]("recaptcha.key.public")
-      .getOrElse("fakekey")
     val boundForm = messageForm.bindFromRequest
 
-    def onError(userTo: UserProfile, form: Form[(String,String,Boolean)]): Result = {
-      if (isAjax) BadRequest(form.errorsAsJson)
-      else BadRequest(views.html.userProfile.messageUser(userTo, form,
-        socialRoutes.sendMessagePost(userId), recaptchaKey))
+    def onError(userTo: UserProfile, info: MessagingInfo): Result = {
+      if (isAjax) BadRequest(info.form.errorsAsJson)
+      else BadRequest(views.html.userProfile.messageUser(userTo, info))
     }
 
-    def doIt(captcha: Boolean, allowed: Boolean, to: UserProfile): Future[Result] = {
+    def doIt(captcha: Boolean, info: MessagingInfo, to: UserProfile): Future[Result] = {
       if (!captcha) {
-        immediate(onError(to, boundForm.withGlobalError("error.badRecaptcha")))
-      } else if (!allowed) {
-        immediate(onError(to, boundForm
-          .withGlobalError("social.message.send.userNotAcceptingMessages")))
+        immediate(onError(to, info.copy(form = boundForm.withGlobalError("error.badRecaptcha"))))
+      } else if (!info.canMessage) {
+        immediate(onError(to, info.copy(form = boundForm
+          .withGlobalError("social.message.send.userNotAcceptingMessages"))))
       } else {
         boundForm.fold(
-          errForm => immediate(onError(to, errForm)),
+          errForm => immediate(onError(to, info.copy(form = errForm))),
           data => {
             val (subject, message, copyMe) = data
             sendMessageEmail(request.user, to, subject, message, copyMe).map { _ =>
@@ -315,9 +280,9 @@ case class Social @Inject()(
 
     for {
       captcha <- checkRecapture
-      allowed <- canMessage(request.user.id, userId)
+      info <- getMessagingInfo(request.user.id, userId)
       userTo <- userDataApi.get[UserProfile](userId)
-      r <- doIt(captcha, allowed, userTo)
+      r <- doIt(captcha, info, userTo)
     } yield r
   }
 }

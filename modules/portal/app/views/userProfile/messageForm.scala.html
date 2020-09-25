@@ -1,20 +1,20 @@
-@(user: UserProfile, form: Form[(String,String,Boolean)], action: Call, recaptchaKey: String)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, messages: Messages)
+@(user: UserProfile, info: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
-@implicitField = @{ helper.FieldConstructor(views.html.helpers.fieldTemplate.f) }
+@implicitField = @{ helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
-@helper.form(action = action, 'class -> "message-form", 'role -> "form") {
+@helper.form(action = info.action, 'class -> "message-form", 'role -> "form") {
     @formHelpers.csrfToken()
     <div class="modal-header">
+        <h4 class="modal-title">@Messages("social.message.send", user.toStringLang)</h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4>@Messages("social.message.send", user.toStringLang)</h4>
+    </div>
+    <div class="modal-body">
         <p class="minor-notice">
             @Messages("social.message.send.warning")
         </p>
-    </div>
-    <div class="modal-body">
-        @helper.inputText(form("subject"), 'required -> "true", '_label -> Messages("social.message.send.subject"))
-        @helper.textarea(form("message"), 'required -> "true", 'rows -> "6", '_label -> Messages("social.message.send.message"))
-        @helper.checkbox(form("copySelf"), '_label -> Messages("social.message.send.copy"))
+        @helper.inputText(info.form("subject"), 'required -> "true", '_label -> Messages("social.message.send.subject"))
+        @helper.textarea(info.form("message"), 'required -> "true", 'rows -> "6", '_label -> Messages("social.message.send.message"))
+        @helper.checkbox(info.form("copySelf"), '_label -> Messages("social.message.send.copy"))
     </div>
     <div class="modal-footer">
         <button type="submit" class=" btn  btn-post ">@Messages("social.message.send.submit")</button>

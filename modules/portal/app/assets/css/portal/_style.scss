@@ -1287,6 +1287,10 @@ ul.list-export-options {
 
   @include search-box($secondary);
   margin-left: auto;
+
+  input[type=search] {
+    background-color: rgba(255,255,255,.9);
+  }
 }
 
 // Sidebar facets
@@ -1580,9 +1584,8 @@ ul.list-export-options {
   padding: 0 $margin-xs $margin-xs $margin-xs;
   margin-bottom: $margin-sm;
 
-  input,
   textarea {
-    background-color: rgba($white, .3);
+    background-color: rgba($white, .7);
     margin-bottom: $margin-xs;
   }
 }
@@ -1606,6 +1609,10 @@ ul.list-export-options {
   }
 }
 
+button.submit-annotation {
+  border: 1px solid $ehri-border-gray;
+}
+
 .markdown-cheatsheet {
   display: none;
 }
@@ -1617,7 +1624,11 @@ ul.list-export-options {
   align-items: center;
 
   .checkbox-inline {
-    margin: 0 $margin-xs;
+    margin: 0 $margin-md;
+
+    input[type=checkbox] {
+      margin-top: 2px; // HACK
+    }
   }
 }
 

@@ -8,7 +8,6 @@ import forms.VisibilityForm
 import javax.inject._
 import models._
 import play.api.data.Form
-import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers

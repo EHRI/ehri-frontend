@@ -20,7 +20,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
     AnnotationF.BODY -> Seq(testAnnotationBody)
   )
   private def testPromotableAnnotation: Map[String,Seq[String]] =
-    testAnnotation.updated(AnnotationF.IS_PRIVATE, Seq(false.toString))
+    testAnnotation.updated(AnnotationF.IS_PUBLIC, Seq(true.toString))
 
   "Portal annotation views" should {
     "allow annotating items with correct visibility" in new ITestApp {
@@ -157,7 +157,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
 
         val edit = FakeRequest(annotationRoutes.editAnnotationPost(id))
           .withUser(privilegedUser).withCsrf.callWith(
-          testAnnotation.updated(AnnotationF.IS_PRIVATE, Seq(true.toString)))
+          testAnnotation.updated(AnnotationF.IS_PUBLIC, Seq(false.toString)))
         status(edit) must equalTo(OK)
 
         // Now the moderator cannot see the item...

@@ -1,6 +1,6 @@
 @(elements: helper.FieldElements)
 
 <div class="form-check">
-    @elements.input
-    @elements.label
+    @Html(elements.input.body.replaceFirst("(<\\w+ )", "$1class=\"form-check-input\" "))
+    <label for="@elements.id" class="form-check-label">@elements.label</label>
 </div>

@@ -35,7 +35,7 @@ case class Annotations @Inject()(
   private val annotationRoutes = controllers.portal.annotate.routes.Annotations
 
   private val annotationDefaults: Map[String,String] = Map(
-    AnnotationF.IS_PRIVATE -> true.toString
+    AnnotationF.IS_PUBLIC -> true.toString
   )
 
   def searchAll(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>

@@ -1,9 +1,9 @@
-@(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams, followed: Boolean, canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams, followed: Boolean, messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
 
     @views.html.common.mainContent {
-        @views.html.userProfile.itemDetails(item, followed = followed, canMessage = canMessage) {
+        @views.html.userProfile.itemDetails(item, followed, messagingInfo) {
             @views.html.userProfile.userActivity(item, events, params, eventParams)
         }
     }

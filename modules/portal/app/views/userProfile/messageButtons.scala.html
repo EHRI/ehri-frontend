@@ -1,6 +1,6 @@
-@(user: UserProfile, canMessage: Boolean)(implicit messages: Messages, request: RequestHeader)
+@(user: UserProfile, info: view.MessagingInfo)(implicit userOpt: Option[UserProfile], messages: Messages, request: RequestHeader)
 
-@if(canMessage) {
+@if(info.canMessage) {
     <a class="btn btn-sm btn-default message-user"
        data-toggle="modal"
        data-target="#message-modal"
@@ -11,7 +11,7 @@
     <div class="modal fade" id="message-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-
+                @views.html.userProfile.messageForm(user, info)
             </div>
         </div>
     </div>

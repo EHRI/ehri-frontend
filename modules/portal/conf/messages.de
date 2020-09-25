@@ -489,8 +489,6 @@ contribution.visibility.custom=Benutzerdefiniert
 contribution.visibility.allowPublic=Hochstufung erlauben
 contribution.visibility.allowPublic.title=Erlaube EHRI-Moderatoren, diese Anmerkung hochzustufen, so dass sie für alle Benutzer sichtbar ist.
 contribution.visibility.isPrivate=Private Anmerkung
-contribution.visibility.isPrivate.title=Nur Sie können diese Anmerkung sehen. \
-    Wenn Sie diese Option deaktivieren, kann sie von EHRI-Moderatoren hochgestuft werden, so dass sie für alle Benutzer sichtbar ist.
 search=Suchen
 search.sort.title=Sortierung der Suchergebnisse
 search.global=Alles durchsuchen

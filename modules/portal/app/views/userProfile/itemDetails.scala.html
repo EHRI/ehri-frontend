@@ -1,4 +1,4 @@
-@(item: UserProfile, followed: Boolean, canMessage: Boolean)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: UserProfile, followed: Boolean, messagingInfo: models.view.MessagingInfo)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @isCurrentUser = @{userOpt.exists(_.id == item.id)}
 
@@ -54,8 +54,8 @@
                     </li>
                 } else {
                     <li>
-                        @views.html.common.messageButtons(item, canMessage)
-                        @views.html.common.followingButtons(item, followed)
+                        @views.html.userProfile.messageButtons(item, messagingInfo)
+                        @views.html.userProfile.followingButtons(item, followed)
                     </li>
                 }
                 <li class="user-profile-social">

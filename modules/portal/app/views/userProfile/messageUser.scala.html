@@ -1,5 +1,5 @@
-@(them: UserProfile, form: Form[(String,String,Boolean)], action: Call, recaptchaKey: String)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, prefs: utils.SessionPrefs)
+@(them: UserProfile, info: view.MessagingInfo)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, prefs: utils.SessionPrefs)
 
-@views.html.layout.portalLayout(Messages("social.message", them.toStringLang), EntityType.UserProfile.toString) {
-    @messageForm(them, form, action, recaptchaKey)
+@views.html.layout.portalLayout(Messages("social.message", them.toStringLang), defines.EntityType.UserProfile.toString) {
+    @views.html.userProfile.messageForm(them, info)
 }

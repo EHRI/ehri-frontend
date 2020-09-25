@@ -1,16 +1,17 @@
 @(elements: helper.FieldElements)
 
-@inputType = @{ elements.args.get('type).map(_.toString).getOrElse("text") }
-
-<div class="form-group @if(elements.hasErrors) {has-error}">
-    @if(inputType == "checkbox") {
-        <div class="form-check checkbox">
-            <label for="@elements.id" class="control-elements">
-                @elements.input
-                @elements.label
-            </label>
-        </div>
-    } else {
+@* FIXME: this matching is terrible *@
+@if(elements.input.body.contains("type=\"checkbox\"") || elements.input.body.contains("type=\"radio\"")) {
+    <div class="form-check checkbox @if(elements.hasErrors) {has-error}">
+        @if(elements.input.body.contains("class=")) {
+            @Html(elements.input.body.replaceFirst("(class=[\"'])", "$1form-check-input "))
+        } else {
+            @Html(elements.input.body.replaceFirst("(<\\w+ )", "$1class=\"form-check-input\" "))
+        }
+        <label for="@elements.id" class="form-check-label">@elements.label</label>
+    </div>
+} else {
+    <div class="form-group @if(elements.hasErrors) {has-error}">
         @defining(Messages("constraint.required")(elements.p)) { required =>
             <label for="@elements.id" class="control-label">
                 @elements.label
@@ -19,7 +20,11 @@
                 }
             </label>
             <div class="control-elements">
-                @elements.input
+                @if(elements.input.body.contains("class=")) {
+                    @Html(elements.input.body.replaceFirst("(class=[\"'])", "$1form-control "))
+                } else {
+                    @Html(elements.input.body.replaceFirst("(<\\w+ )", "$1class=\"form-control\" "))
+                }
                 @if(elements.hasErrors) {
                     <span class="help-inline errors">@elements.errors</span>
                 } else {
@@ -27,5 +32,5 @@
                 }
             </div>
         }
-    }
-</div>
+    </div>
+}
