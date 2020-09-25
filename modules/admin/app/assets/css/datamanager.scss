@@ -84,7 +84,27 @@ body {
 }
 
 .file-picker {
-  position: relative;
+  display: flex;
+  align-items: center;
+
+  .file-picker-stage-selector {
+    width: unset;
+  }
+
+  .file-picker-input-container {
+    position: relative;
+    flex: 1;
+    align-items: center;
+
+    .dropdown-backdrop {
+      z-index: 50;
+    }
+
+    .file-picker-input {
+      z-index: 51;
+      height: unset;
+    }
+  }
 
   .file-picker-suggestions {
     position: absolute;
@@ -93,6 +113,8 @@ body {
     background-color: $white;
     min-width: 100%;
     cursor: pointer;
+    max-height: 20rem;
+    overflow-y: auto;
 
     .file-picker-suggestion {
       &.selected,
@@ -103,6 +125,17 @@ body {
       padding: $margin-xs $margin-sm;
       white-space: nowrap;
     }
+
+    .file-picker-suggestions-empty {
+      color: $text-muted;
+      padding: $margin-xs $margin-sm;
+    }
+  }
+
+  .loading-indicator {
+    position: absolute;
+    right: $margin-xs;
+    top: $margin-xs;
   }
 }
 
@@ -622,6 +655,10 @@ body {
 
   button {
     margin-left: $margin-xs;
+  }
+
+  .file-picker {
+    flex: 1;
   }
 }
 

@@ -981,8 +981,8 @@ Vue.component("convert-manager", {
     return {
       convertJobId: null,
       ingesting: {},
+      previewStage: this.config.upload,
       previewing: null,
-      previewList: [],
       tab: 'preview',
       log: [],
       showOptions: false,
@@ -1085,13 +1085,6 @@ Vue.component("convert-manager", {
           .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
-    loadPreviewList: function() {
-      this.loading = true;
-      this.api.listFiles("upload", "")
-        .then(data => this.previewList = data.files)
-        .catch(error => this.showError("Unable to list preview files", error))
-        .finally(() => this.loading = false);
-    },
   },
   watch: {
     enabled: function() {
@@ -1099,17 +1092,11 @@ Vue.component("convert-manager", {
         this.saveConfig();
       }
     },
-    active: function(value) {
-      if (value) {
-        this.loadPreviewList();
-      }
-    }
   },
   created: function () {
     this.loadConfig().then(_ => {
       this.loadTransformations();
     });
-    this.loadPreviewList();
     this.resumeMonitor();
   },
   template: `
@@ -1123,8 +1110,8 @@ Vue.component("convert-manager", {
         v-bind:body-type="editing.bodyType"
         v-bind:body="editing.body"
         v-bind:comments="editing.comments"
-        v-bind:preview="previewing"
-        v-bind:preview-list="previewList"
+        v-bind:init-preview-stage="previewStage"
+        v-bind:init-previewing="previewing"
         v-bind:config="config"
         v-bind:api="api"
         v-on:saved="saved"
@@ -1132,10 +1119,13 @@ Vue.component("convert-manager", {
 
 
       <div class="actions-bar">
-        <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
-          <option v-bind:value="null">Select file to preview...</option>
-          <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
-        </select>
+        <file-picker v-bind:disabled="convertJobId !== null"
+                     v-bind:init-stage="previewStage"
+                     v-bind:file-stages="[this.config.upload, this.config.oaipmh]"
+                     v-bind:api="api"
+                     v-bind:config="config"
+                     v-on:change-stage="s => this.previewStage = s"
+                     v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
           <i class="fa fa-file-code-o"></i>
@@ -1249,7 +1239,7 @@ Vue.component("convert-manager", {
           <div class="status-panels">
             <div class="status-panel" v-show="tab === 'preview'">
               <convert-preview
-                       v-bind:file-stage="'upload'"
+                       v-bind:file-stage="previewStage"
                        v-bind:mappings="mappings"
                        v-bind:trigger="JSON.stringify({
                          mappings: mappings, 
