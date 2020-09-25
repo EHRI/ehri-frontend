@@ -487,21 +487,18 @@ Vue.component("file-picker-suggestion", {
 });
 
 Vue.component("file-picker", {
-  props: {type: String, disabled: Boolean, api: Object},
+  props: {value: Object, type: String, disabled: Boolean, api: Object},
   data: function () {
     return {
-      text: "",
-      input: "",
+      text: this.value ? this.value.key : "",
       selectedIdx: -1,
       suggestions: [],
       loading: false,
-      item: null,
     }
   },
   methods: {
     search: function () {
       this.loading = true;
-      this.text = this.input;
       let list = () => {
         this.api.listFiles(this.type, this.text).then(data => {
           this.loading = false;
@@ -509,9 +506,6 @@ Vue.component("file-picker", {
         });
       }
       _.debounce(list, 300)();
-    },
-    setItem: function (item) {
-      this.item = item;
     },
     selectPrev: function () {
       this.selectedIdx = Math.max(-1, this.selectedIdx - 1);
@@ -522,8 +516,9 @@ Vue.component("file-picker", {
       this.setItemFromSelection();
     },
     setAndChooseItem: function (item) {
-      this.setItem(item);
-      this.accept();
+      this.$emit("input", item);
+      this.cancelComplete();
+      this.text = item ? item.key : "";
     },
     setItemFromSelection: function () {
       let idx = this.selectedIdx,
@@ -531,21 +526,12 @@ Vue.component("file-picker", {
       if (idx > -1 && len > 0 && idx < len) {
         this.setItem(this.suggestions[idx]);
       } else if (idx === -1) {
-        this.item = null;
-      }
-    },
-    accept: function () {
-      if (this.item) {
-        this.$emit("item-accepted", this.item);
-        this.input = this.item.key;
-        this.cancelComplete();
-        this.text = "";
+        this.$emit('input', null);
       }
     },
     cancelComplete: function () {
       this.suggestions = [];
       this.selectedIdx = -1;
-      this.item = null;
     }
   },
   template: `
@@ -553,12 +539,11 @@ Vue.component("file-picker", {
       <label class="control-label sr-only">File:</label>
       <input class="form-control" type="text" placeholder="Select file to preview"
         v-bind:disabled="disabled"
-        v-model.trim="input" 
-        v-on:input="search"
+        v-model="text"
         v-on:focus="search"
+        v-on:input="search"
         v-on:keydown.up="selectPrev"
         v-on:keydown.down="selectNext"
-        v-on:keydown.enter="accept"
         v-on:keydown.esc="cancelComplete"/>
       <div class="dropdown-list" v-if="suggestions.length">
         <div class="file-picker-suggestions">

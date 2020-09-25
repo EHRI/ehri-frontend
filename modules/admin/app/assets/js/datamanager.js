@@ -1132,10 +1132,14 @@ Vue.component("convert-manager", {
 
 
       <div class="actions-bar">
-        <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">
-          <option v-bind:value="null">Select file to preview...</option>
-          <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
-        </select>
+<!--        <select id="preview-file-selector" v-model="previewing" v-bind:disabled="convertJobId !== null" class="btn btn-sm btn-default">-->
+<!--          <option v-bind:value="null">Select file to preview...</option>-->
+<!--          <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>-->
+<!--        </select>-->
+        <file-picker v-bind:disabled="convertJobId !== null"
+                     v-bind:type="fileStage"
+                     v-bind:api="api"
+                     v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
           <i class="fa fa-file-code-o"></i>
