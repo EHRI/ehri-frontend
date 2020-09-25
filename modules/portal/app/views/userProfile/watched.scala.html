@@ -1,8 +1,8 @@
-@(item: UserProfile, watchList: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], searchAction: Call, followed: Boolean, canMessage: Boolean, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: UserProfile, watchList: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], searchAction: Call, followed: Boolean, messagingInfo: view.MessagingInfo, currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
-        @itemDetails(item, followed = followed, canMessage = canMessage) {
+        @views.html.userProfile.itemDetails(item, followed = followed, messagingInfo = messagingInfo) {
             @helper.form(action = searchAction) {
                 <div class="user-profile-content">
                     <header class="block-header">

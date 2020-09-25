@@ -19,7 +19,7 @@ object AnnotationF {
   val FIELD = "field"
   val ANNOTATION_TYPE = "annotationType"
   val COMMENT = "comment"
-  val IS_PRIVATE = "isPrivate"
+  val IS_PUBLIC = "isPublic"
 
   object AnnotationType extends Enumeration {
     type Type = Value
@@ -110,20 +110,17 @@ object Annotation {
 
   import AnnotationF.{ANNOTATION_TYPE => ANNOTATION_TYPE_PROP, _}
 
-  val form = Form(mapping(
+  val form: Form[AnnotationF] = Form(mapping(
     ISA -> ignored(EntityType.Annotation),
     ID -> optional(nonEmptyText),
     ANNOTATION_TYPE_PROP -> optional(enumMapping(AnnotationType)),
     BODY -> nonEmptyText(maxLength = 600),
     FIELD -> optional(nonEmptyText),
     COMMENT -> optional(nonEmptyText),
-    // NB: The object itself has an isPromotable flag, but the
-    // form uses reverse semantics, forcing the user to un-check
-    // the isPrivate (default: true) flag.
-    IS_PRIVATE -> default(boolean.transform[Boolean](f => !f, f => !f), true)
+    IS_PUBLIC -> boolean
   )(AnnotationF.apply)(AnnotationF.unapply))
 
-  val multiForm = Form(single(
+  val multiForm: Form[Seq[(String, AnnotationF)]] = Form(single(
     "annotation" -> seq(tuple(
       "id" -> nonEmptyText,
       "data" -> form.mapping

@@ -17,12 +17,14 @@
             }
         </ul>
     } else {
-        <p class="no-content">
-            @if(isCurrentUser) {
-                @Messages("social.noItemsWatchedYet")
-            } else {
-                @Messages("social.noUserItemsWatchedYet", them.toStringLang)
-            }
-        </p>
+        @if(isCurrentUser) {
+            <p class="no-content">@Messages("social.noItemsWatchedYet")</p>
+            <p class="small minor-notice">
+                <i class="fa fa-info-circle"></i>
+                @Messages("social.noItemsWatchedYet.detail")
+            </p>
+        } else {
+            <p class="no-content">@Messages("social.noUserItemsWatchedYet", them.toStringLang)</p>
+        }
     }
 }

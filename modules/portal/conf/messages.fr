@@ -492,8 +492,6 @@ contribution.visibility.custom=Personnalisé
 contribution.visibility.allowPublic=Autoriser la promotion
 contribution.visibility.allowPublic.title=Autoriser les modérateurs EHRI à promouvoir cette note pour qu''elle soit visible de tous les utilisateurs.
 contribution.visibility.isPrivate=Note privée
-contribution.visibility.isPrivate.title=Vous seul pouvez voir cette note. \
-    La désélection de cette option permettra aux modérateurs EHRI de la promouvoir pour qu''elle soit visible de tous les utilisateurs.
 search=Chercher
 search.sort.title=Ordre des résultats de recherche
 search.global=Rechercher dans tout

@@ -1,15 +1,15 @@
-@(item: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: Seq[UserProfile], canMessage: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: Seq[UserProfile], messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
 
     @views.html.common.mainContent {
-        @itemDetails(item, followed = myFollowing.exists(_.id == item.id), canMessage = canMessage) {
+        @views.html.userProfile.itemDetails(item, followed = myFollowing.exists(_.id == item.id), messagingInfo = messagingInfo) {
             <div class="user-profile-activity">
                 <div class="block-header">
                     <h2>@Messages("social.usersFollowedBy", item.toStringLang)</h2>
                 </div>
                 <div class="browse-users-following">
-                    @followingList(item, users, params, myFollowing)
+                    @views.html.userProfile.followingList(item, users, params, myFollowing)
                 </div>
             </div>
         }

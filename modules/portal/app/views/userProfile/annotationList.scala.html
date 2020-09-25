@@ -19,11 +19,13 @@
         }
     </ul>
 } else {
-     <p class="no-content">
-         @annotations.params.query.map { q =>
-             @Messages("annotation.search.noneFound", q)
-         }.getOrElse {
-             @Messages("annotation.none")
-         }
-     </p>
+     @annotations.params.query.map { q =>
+         <p class="no-content">@Messages("annotation.search.noneFound", q)</p>
+     }.getOrElse {
+         <p class="no-content">@Messages("annotation.none")</p>
+         <p class="small minor-notice">
+             <i class="fa fa-info-circle"></i>
+             @Messages("annotation.none.detail")
+         </p>
+     }
 }

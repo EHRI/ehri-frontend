@@ -586,6 +586,7 @@ social.followedBy=Followed By
 social.noFollowersYet=No one''s following {0} yet.
 social.noFollowingYet={0} isn''t following anyone yet.
 social.noItemsWatchedYet=You''re not watching any items yet.
+social.noItemsWatchedYet.detail=Clicking the "Watch Item" button on item description pages will show updates to those items in your activity feed.
 social.noUserItemsWatchedYet={0} is not watching any items yet.
 social.userFollowing=Users Following {0}
 social.usersFollowedBy=Users Followed by {0}
@@ -607,6 +608,7 @@ annotation.field=Field
 annotation.list=Notes
 annotation.list.by={0} - Notes
 annotation.none=You haven''t made any notes yet.
+annotation.none.detail=You can make (public or private) notes on items by clicking the "Add Note" button on descriptions or individual fields.
 annotation.create=Add Note
 annotation.create.submit=Add Note
 annotation.create.title=Create a note attached to this description
@@ -700,8 +702,9 @@ contribution.visibility.custom=Custom
 contribution.visibility.allowPublic=Allow Promotion
 contribution.visibility.allowPublic.title=Allow EHRI moderators to promote this note so it is visible to all users.
 contribution.visibility.isPrivate=Private Note
-contribution.visibility.isPrivate.title=Only you can see this note. \
-  Deselecting this option will allow EHRI moderators to promote it so it is visible to all users.
+contribution.visibility.isPublic=Public Note
+contribution.visibility.isPublic.title=Uncheck this option to make this note private. \
+  By default EHRI moderators can promote notes so they are visible to all users.
 
 #
 # General search

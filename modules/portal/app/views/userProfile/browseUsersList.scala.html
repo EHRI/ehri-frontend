@@ -43,7 +43,7 @@
             @if(!isCurrentUser(other)) {
                 @defining(following.exists(_.id == other.id)) { follows =>
                     <div class="follow-controls">
-                        @views.html.common.followingButtons(other, follows)
+                        @views.html.userProfile.followingButtons(other, follows)
                     </div>
                 }
             }

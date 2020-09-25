@@ -9,9 +9,9 @@
     <div class="annotation-form-controls">
         @views.html.annotation.form(f)
         <div class="annotation-submit-controls">
-            <label class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPrivate.title")">
-                @helper.checkbox(f(IS_PRIVATE), '_label -> Messages("contribution.visibility.isPrivate"))
-            </label>
+            <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPublic.title")">
+                @helper.checkbox(f(IS_PUBLIC), '_label -> Messages("contribution.visibility.isPublic"))
+            </div>
             <button type="submit" class="submit-annotation">
                 @Messages("annotation.create.submit")
             </button>

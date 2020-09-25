@@ -2,13 +2,14 @@ package controllers.portal.users
 
 import java.io.File
 
-import javax.inject._
 import akka.stream.Materializer
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
+import javax.inject._
 import models._
 import models.base.Model
+import models.view.MessagingInfo
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.Logger
@@ -19,9 +20,9 @@ import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.libs.mailer.MailerClient
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{MaxSizeExceeded, _}
-import utils._
 import services.search._
 import services.storage.FileStorage
+import utils._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -88,14 +89,15 @@ case class UserProfiles @Inject()(
     // Activity is the default page
     val eventParams: SystemEventParams = params
       .copy(eventTypes = activityEventTypes, itemTypes = activityItemTypes)
-    val events: Future[RangePage[Seq[SystemEvent]]] =
+    val eventsF: Future[RangePage[Seq[SystemEvent]]] =
       userDataApi.userActions[SystemEvent](request.user.id, range, eventParams)
+    val messagingInfoF = getMessagingInfo(request.user.id, request.user.id)
 
-    events.map { myActivity =>
+    for (myActivity <- eventsF; messagingInfo <- messagingInfoF) yield {
       if (isAjax) Ok(views.html.activity.eventItems(myActivity))
         .withHeaders("activity-more" -> myActivity.more.toString)
       else Ok(views.html.userProfile.show(request.user, myActivity,
-        range, eventParams, followed = false, canMessage = false))
+        range, eventParams, followed = false, messagingInfo = messagingInfo))
     }
   }
 
@@ -103,6 +105,7 @@ case class UserProfiles @Inject()(
     for {
       watching <- userDataApi.watching[Model](request.user.id)
       result <- findIn[Model](watching, params, paging)
+      messagingInfo <- getMessagingInfo(request.user.id, request.user.id)
     } yield {
       val watchList = result.mapItems(_._1).page
       format match {
@@ -122,7 +125,7 @@ case class UserProfiles @Inject()(
           result,
           searchAction = profileRoutes.watching(format = DataFormat.Html),
           followed = false,
-          canMessage = false,
+          messagingInfo,
           watching.map(_.id) // our current watched item IDs
         ))
       }
@@ -177,7 +180,8 @@ case class UserProfiles @Inject()(
           annotations = result,
           searchAction = profileRoutes.profile(),
           followed = false,
-          canMessage = false)
+          messagingInfo = MessagingInfo(request.user.id)
+         )
         )
       }
     }

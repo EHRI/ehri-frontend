@@ -11,7 +11,7 @@ import defines.{EntityType, EventType}
 import global.{GlobalConfig, ItemLifecycle}
 import models.UserProfile
 import models.base.Model
-import models.view.UserDetails
+import models.view.{MessagingInfo, UserDetails}
 import play.api.cache.SyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}
@@ -43,10 +43,10 @@ trait PortalController
   protected implicit def cache: SyncCacheApi = appComponents.cacheApi
   protected implicit def globalConfig: GlobalConfig = appComponents.globalConfig
   protected implicit def markdown: MarkdownRenderer = appComponents.markdown
+  protected implicit def config: Configuration = appComponents.config
 
   protected def accounts: AccountManager = appComponents.accounts
   protected def dataApi: DataApi = appComponents.dataApi
-  protected def config: Configuration = appComponents.config
   protected def authHandler: AuthHandler = appComponents.authHandler
   protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
@@ -268,6 +268,35 @@ trait PortalController
       } getOrElse {
         immediate(UserDetailsRequest(Nil, None, request))
       }
+    }
+  }
+
+  import play.api.data.Form
+  import play.api.data.Forms._
+  protected val messageForm: Form[(String, String, Boolean)] = Form(
+    tuple(
+      "subject" -> nonEmptyText,
+      "message" -> nonEmptyText,
+      "copySelf" -> default(boolean, false)
+    )
+  )
+
+  /**
+    * Ascertain if a user can receive messages from other users.
+    */
+  protected def getMessagingInfo(senderId: String, recipientId: String)(implicit apiUser: ApiUser): Future[MessagingInfo] = {
+    // First, find their account. If we don't have
+    // an account we don't have an email, so we can't
+    // message them... Ignore accounts which have disabled
+    // messaging.
+    val info = MessagingInfo(recipientId)(appComponents.config)
+    if (senderId == recipientId) immediate(info)
+    else accounts.findById(recipientId).flatMap {
+      case Some(account) if account.allowMessaging =>
+        userDataApi.isBlocking(recipientId, senderId)
+          .map(blocking => !blocking)
+          .map(canMessage => info.copy(canMessage = canMessage))
+      case _ => immediate(info)
     }
   }
 }

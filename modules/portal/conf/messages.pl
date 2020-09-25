@@ -491,8 +491,6 @@ contribution.visibility.custom=Ustawienie niestandardowe
 contribution.visibility.allowPublic=Zezwalaj na promowanie
 contribution.visibility.allowPublic.title=Pozwól moderatorom EHRI na promowanie tej uwagi, aby była widoczna dla wszystkich użytkowników.
 contribution.visibility.isPrivate=Uwaga prywatna
-contribution.visibility.isPrivate.title=Tylko Ty możesz zobaczyć tę uwagę. \
-    Pozwól moderatorom EHRI na promowanie tej uwagi, aby była widoczna dla wszystkich użytkowników.
 search=Szukaj
 search.sort.title=Porządek wyników wyszukiwania
 search.global=Przeszukaj wszystko
