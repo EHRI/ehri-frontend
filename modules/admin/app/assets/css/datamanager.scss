@@ -84,7 +84,19 @@ body {
 }
 
 .file-picker {
-  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+
+  .file-picker-stage-selector {
+    width: unset;
+  }
+
+  .file-picker-input-container {
+    position: relative;
+    flex: 1;
+    align-items: center;
+  }
 
   .file-picker-suggestions {
     position: absolute;
@@ -93,6 +105,8 @@ body {
     background-color: $white;
     min-width: 100%;
     cursor: pointer;
+    max-height: 20rem;
+    overflow-y: auto;
 
     .file-picker-suggestion {
       &.selected,
@@ -103,6 +117,17 @@ body {
       padding: $margin-xs $margin-sm;
       white-space: nowrap;
     }
+
+    .file-picker-suggestions-empty {
+      color: $text-muted;
+      padding: $margin-xs $margin-sm;
+    }
+  }
+
+  .loading-indicator {
+    position: absolute;
+    right: $margin-xs;
+    top: $margin-xs;
   }
 }
 

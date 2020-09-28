@@ -1137,8 +1137,9 @@ Vue.component("convert-manager", {
 <!--          <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>-->
 <!--        </select>-->
         <file-picker v-bind:disabled="convertJobId !== null"
-                     v-bind:type="fileStage"
+                     v-bind:types="['upload', 'oaipmh']"
                      v-bind:api="api"
+                     v-bind:config="config"
                      v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">

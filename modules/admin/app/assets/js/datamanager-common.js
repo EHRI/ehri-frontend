@@ -27,6 +27,15 @@ Vue.filter("humanFileSize", function (bytes, si) {
   return _.memoize(f)(bytes, si);
 });
 
+Vue.filter("stageName", function(code, config) {
+  switch (code) {
+    case config.oaipmh: return "Harvesting";
+    case config.upload: return "Uploads";
+    case config.ingest: return "Ingest";
+    default: return code;
+  }
+})
+
 Vue.filter("prettyDate", function (time) {
   let f = time => {
     let m = luxon.DateTime.fromISO(time);
@@ -487,44 +496,46 @@ Vue.component("file-picker-suggestion", {
 });
 
 Vue.component("file-picker", {
-  props: {value: Object, type: String, disabled: Boolean, api: Object},
+  props: {value: Object, types: Array, disabled: Boolean, api: Object, config: Object},
   data: function () {
     return {
-      text: this.value ? this.value.key : "",
+      text: null,
       selectedIdx: -1,
       suggestions: [],
       loading: false,
+      showSuggestions: false,
+      type: this.types[0] ? this.types[0] : ""
     }
   },
   methods: {
     search: function () {
       this.loading = true;
       let list = () => {
-        this.api.listFiles(this.type, this.text).then(data => {
-          this.loading = false;
-          this.suggestions = data.files;
-        });
+        this.api.listFiles(this.type, this.text ? this.text : "")
+          .then(data => {
+            this.suggestions = data.files;
+            this.showSuggestions = true;
+          })
+          .finally(() => this.loading = false);
       }
       _.debounce(list, 300)();
     },
     selectPrev: function () {
       this.selectedIdx = Math.max(-1, this.selectedIdx - 1);
-      this.setItemFromSelection();
     },
     selectNext: function () {
       this.selectedIdx = Math.min(this.suggestions.length, this.selectedIdx + 1);
-      this.setItemFromSelection();
     },
     setAndChooseItem: function (item) {
       this.$emit("input", item);
       this.cancelComplete();
-      this.text = item ? item.key : "";
+      this.text = null;
     },
     setItemFromSelection: function () {
       let idx = this.selectedIdx,
         len = this.suggestions.length;
       if (idx > -1 && len > 0 && idx < len) {
-        this.setItem(this.suggestions[idx]);
+        this.setAndChooseItem(this.suggestions[idx]);
       } else if (idx === -1) {
         this.$emit('input', null);
       }
@@ -532,28 +543,44 @@ Vue.component("file-picker", {
     cancelComplete: function () {
       this.suggestions = [];
       this.selectedIdx = -1;
+      this.showSuggestions = false;
+    }
+  },
+  watch: {
+    type: function() {
+      this.$emit("input", null);
+      this.cancelComplete();
     }
   },
   template: `
     <div class="file-picker">
-      <label class="control-label sr-only">File:</label>
-      <input class="form-control" type="text" placeholder="Select file to preview"
-        v-bind:disabled="disabled"
-        v-model="text"
-        v-on:focus="search"
-        v-on:input="search"
-        v-on:keydown.up="selectPrev"
-        v-on:keydown.down="selectNext"
-        v-on:keydown.esc="cancelComplete"/>
-      <div class="dropdown-list" v-if="suggestions.length">
-        <div class="file-picker-suggestions">
+      <label class="control-label sr-only">Stage:</label>
+      <select v-model="type" class="file-picker-stage-selector btn btn-default">
+        <option v-for="t in types" v-bind:value="t" v-bind:selected="t===type">{{t|stageName(config)}}</option>
+      </select>
+      <div class="file-picker-input-container">
+        <label class="control-label sr-only">File:</label>
+        <input class="file-picker-input form-control form-control-sm" type="text" placeholder="Select file to preview"
+               v-bind:disabled="disabled"
+               v-bind:value="text !== null ? text : (value ? value.key : '')"
+               v-on:focus="search"
+               v-on:input="text = $event.target.value; search()"
+               v-on:keydown.up="selectPrev"
+               v-on:keydown.down="selectNext"
+               v-on:keydown.enter="setItemFromSelection"
+               v-on:keydown.esc="cancelComplete"/>
+        <i v-if="loading" class="loading-indicator fa fa-circle-o-notch fa-fw fa-spin"></i>
+        <div v-if="showSuggestions" class="file-picker-suggestions dropdown-list">
           <file-picker-suggestion
-              v-for="(suggestion, i) in suggestions"
-              v-bind:class="{selected: i === selectedIdx}"
-              v-bind:key="suggestion.key"
-              v-bind:item="suggestion"
-              v-bind:selected="i === selectedIdx"
-              v-on:selected="setAndChooseItem"/>
+            v-for="(suggestion, i) in suggestions"
+            v-bind:class="{selected: i === selectedIdx}"
+            v-bind:key="suggestion.key"
+            v-bind:item="suggestion"
+            v-bind:selected="i === selectedIdx"
+            v-on:selected="setAndChooseItem"/>
+          <div v-if="!loading && suggestions.length === 0" class="file-picker-suggestions-empty">
+            No files found...
+          </div>
         </div>
       </div>
     </div>
