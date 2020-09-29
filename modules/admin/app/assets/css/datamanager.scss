@@ -85,7 +85,6 @@ body {
 
 .file-picker {
   display: flex;
-  flex: 1;
   align-items: center;
 
   .file-picker-stage-selector {
@@ -96,6 +95,15 @@ body {
     position: relative;
     flex: 1;
     align-items: center;
+
+    .dropdown-backdrop {
+      z-index: 50;
+    }
+
+    .file-picker-input {
+      z-index: 51;
+      height: unset;
+    }
   }
 
   .file-picker-suggestions {
@@ -647,6 +655,10 @@ body {
 
   button {
     margin-left: $margin-xs;
+  }
+
+  .file-picker {
+    flex: 1;
   }
 }
 

@@ -173,15 +173,16 @@ Vue.component("transformation-editor", {
     bodyType: String,
     body: String,
     comments: String,
-    preview: Object,
-    previewList: Array,
+    initPreviewStage: String,
+    initPreviewing: Object,
     config: Object,
     api: Object,
   },
   data: function() {
     return {
       saving: false,
-      previewing: this.preview,
+      previewStage: this.initPreviewStage,
+      previewing: this.initPreviewing,
       loading: false,
       panelSize: 0,
       data: {
@@ -325,10 +326,14 @@ Vue.component("transformation-editor", {
             <div id="transformation-editor-preview-section" class="bottom-panel">
               <div id="transformation-editor-preview-select">
                 <label for="transformation-editor-preview-options">Preview transformation</label>
-                <select id="transformation-editor-preview-options" v-model="previewing">
-                  <option v-bind:value="null">---</option>
-                  <option v-for="file in previewList" v-bind:value="file">{{file.key}}</option>
-                </select>
+                <file-picker v-bind:disabled="loading"
+                             v-bind:init-stage="previewStage"
+                             v-bind:file-stages="[this.config.upload, this.config.oaipmh]"
+                             v-bind:api="api"
+                             v-bind:config="config"
+                             v-on:change-stage="s => this.previewStage = s"
+                             v-model="previewing" />
+
                 <button id="transformation-editor-preview-refresh"  title="Refresh preview"
                         class="btn btn-sm" v-bind:disabled="previewing === null || loadingOut" v-on:click="triggerRefresh">
                   <i class="fa fa-refresh"></i>
@@ -342,7 +347,7 @@ Vue.component("transformation-editor", {
                 <div class="transformation-editor-preview-window">
                   <preview 
                     v-if="previewing !== null"
-                    v-bind:file-stage="fileStage"
+                    v-bind:file-stage="previewStage"
                     v-bind:previewing="previewing"
                     v-bind:errors="inputValidationResults"
                     v-bind:panel-size="panelSize"
@@ -359,7 +364,7 @@ Vue.component("transformation-editor", {
                     v-if="previewing !== null"
                     v-bind:mappings="mappings"
                     v-bind:trigger="timestamp"
-                    v-bind:file-stage="fileStage"
+                    v-bind:file-stage="previewStage"
                     v-bind:previewing="previewing"
                     v-bind:errors="outputValidationResults"
                     v-bind:panel-size="panelSize"

@@ -496,7 +496,14 @@ Vue.component("file-picker-suggestion", {
 });
 
 Vue.component("file-picker", {
-  props: {value: Object, types: Array, disabled: Boolean, api: Object, config: Object},
+  props: {
+    value: Object,
+    fileStages: Array,
+    initStage: String,
+    disabled: Boolean,
+    api: Object,
+    config: Object
+  },
   data: function () {
     return {
       text: null,
@@ -504,14 +511,14 @@ Vue.component("file-picker", {
       suggestions: [],
       loading: false,
       showSuggestions: false,
-      type: this.types[0] ? this.types[0] : ""
+      fileStage: this.initStage ? this.initStage : (this.fileStages[0] ? this.fileStages[0] : ""),
     }
   },
   methods: {
     search: function () {
       this.loading = true;
       let list = () => {
-        this.api.listFiles(this.type, this.text ? this.text : "")
+        this.api.listFiles(this.fileStage, this.text ? this.text : "")
           .then(data => {
             this.suggestions = data.files;
             this.showSuggestions = true;
@@ -541,24 +548,33 @@ Vue.component("file-picker", {
       }
     },
     cancelComplete: function () {
-      this.suggestions = [];
-      this.selectedIdx = -1;
-      this.showSuggestions = false;
+      this.$nextTick(() => {
+        this.suggestions = [];
+        this.selectedIdx = -1;
+        this.showSuggestions = false;
+      })
     }
   },
   watch: {
-    type: function() {
+    fileStage: function(newType) {
       this.$emit("input", null);
+      this.$emit('change-stage', newType);
       this.cancelComplete();
     }
   },
   template: `
     <div class="file-picker">
       <label class="control-label sr-only">Stage:</label>
-      <select v-model="type" class="file-picker-stage-selector btn btn-default">
-        <option v-for="t in types" v-bind:value="t" v-bind:selected="t===type">{{t|stageName(config)}}</option>
+      <select v-model="fileStage" v-bind:disabled="disabled" class="file-picker-stage-selector btn btn-default">
+        <option 
+          v-for="t in fileStages" 
+          v-bind:value="t" 
+          v-bind:selected="t===fileStage">
+          {{t|stageName(config)}}
+        </option>
       </select>
       <div class="file-picker-input-container">
+        <div v-show="showSuggestions" class="dropdown-backdrop" v-on:click="cancelComplete"></div>
         <label class="control-label sr-only">File:</label>
         <input class="file-picker-input form-control form-control-sm" type="text" placeholder="Select file to preview"
                v-bind:disabled="disabled"
