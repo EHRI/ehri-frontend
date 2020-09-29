@@ -1128,7 +1128,7 @@ Vue.component("convert-manager", {
                      v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
-          <i class="fa fa-file-code-o"></i>
+          <i class="fa fa-file-o"></i>
           New Transformation...
         </button>
 
@@ -1617,24 +1617,28 @@ Vue.component("data-manager", {
         <li class="nav-item">
           <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': tab === 'oaipmh'}"
              v-on:click.prevent="switchTab('oaipmh')">
+            <i class="fa fa-fw fa-download"></i>
             Harvesting
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
              v-on:click.prevent="switchTab('upload')">
+            <i class="fa fw-fw fa-upload"></i>
             Uploads
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-convert" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
              v-on:click.prevent="switchTab('convert')">
+            <i class="fa fa-fw fa-file-code-o"></i>
             Transform
           </a>
         </li>
         <li class="nav-item">
           <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
                 v-on:click.prevent="switchTab('ingest')">
+            <i class="fa fa-fw fa-database"></i>
               Ingest
             </a>
         </li>
