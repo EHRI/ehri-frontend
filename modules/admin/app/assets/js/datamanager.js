@@ -59,7 +59,6 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
-      this.loaded = false;
       return this.api.listFiles(this.fileStage, this.filter.value)
         .then(data => {
           this.files = data.files;
@@ -517,7 +516,6 @@ Vue.component("upload-manager", {
             <div class="status-panel" v-show="tab === 'preview'">
               <preview v-bind:file-stage="fileStage"
                        v-bind:previewing="previewing"
-                       v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
@@ -861,7 +859,6 @@ Vue.component("oaipmh-manager", {
             <div class="status-panel" v-show="tab === 'preview'">
               <preview v-bind:file-stage="fileStage" 
                        v-bind:previewing="previewing"
-                       v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
@@ -1250,7 +1247,6 @@ Vue.component("convert-manager", {
                          previewing: previewing
                        })"
                        v-bind:previewing="previewing"
-                       v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
@@ -1546,7 +1542,6 @@ Vue.component("ingest-manager", {
             <div class="status-panel" v-show="tab === 'preview'">
               <preview v-bind:file-stage="fileStage"
                        v-bind:previewing="previewing"
-                       v-bind:errors="validationResults"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"

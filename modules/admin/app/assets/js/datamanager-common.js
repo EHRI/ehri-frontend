@@ -180,7 +180,6 @@ let previewPanelMixin = {
     fileStage: String,
     panelSize: Number,
     previewing: Object,
-    errors: Object,
     config: Object,
     api: Object,
   },
@@ -197,6 +196,7 @@ let previewPanelMixin = {
       showingError: false,
       worker: null,
       errored: false,
+      errors: null,
     }
   },
   methods: {
@@ -234,44 +234,43 @@ let previewPanelMixin = {
 
       this.validating = true;
       this.api.validateFiles(this.fileStage, [this.previewing.key])
-        .then(errs => {
-          this.$set(this.errors, this.previewing.key, errs[this.previewing.key]);
-          this.updateErrors();
-          this.validating = false;
+        .then(errors => {
+          this.errors = errors[this.previewing.key];
+          this.updateErrors()
         })
-        .catch(error => this.showError("Error attempting validation", error));
+        .catch(error => this.showError("Error attempting validation", error))
+        .finally(() => this.validating = false);
     },
     updateErrors: function () {
-      if (this.previewing && this.errors[this.previewing.key] && this.editor) {
+      function makeWidget(err) {
+        let widget = document.createElement("div");
+        widget.style.color = "#822";
+        widget.style.backgroundColor = "rgba(255,197,199,0.44)";
+        widget.innerHTML = err.error;
+        return widget;
+      }
+
+      function makeMarker(err) {
+        let marker = document.createElement("div");
+        marker.style.color = "#822";
+        marker.style.marginLeft = "3px";
+        marker.className = "validation-error";
+        marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
+        marker.querySelector("i").setAttribute("title", err.error);
+        marker.addEventListener("click", function () {
+          if (marker.widget) {
+            marker.widget.clear();
+            delete marker.widget;
+          } else {
+            marker.widget = doc.addLineWidget(err.line - 1, makeWidget(err));
+          }
+        });
+        return marker;
+      }
+
+      if (this.previewing && this.errors && this.editor) {
         let doc = this.editor.getDoc();
-
-        function makeMarker(err) {
-          let marker = document.createElement("div");
-          marker.style.color = "#822";
-          marker.style.marginLeft = "3px";
-          marker.className = "validation-error";
-          marker.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
-          marker.querySelector("i").setAttribute("title", err.error);
-          marker.addEventListener("click", function () {
-            if (marker.widget) {
-              marker.widget.clear();
-              delete marker.widget;
-            } else {
-              marker.widget = doc.addLineWidget(err.line - 1, makeWidget(err));
-            }
-          });
-          return marker;
-        }
-
-        function makeWidget(err) {
-          let widget = document.createElement("div");
-          widget.style.color = "#822";
-          widget.style.backgroundColor = "rgba(255,197,199,0.44)";
-          widget.innerHTML = err.error;
-          return widget;
-        }
-
-        this.errors[this.previewing.key].forEach(e => {
+        this.errors.forEach(e => {
           doc.addLineClass(e.line - 1, 'background', 'line-error');
           doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
         });
@@ -384,7 +383,7 @@ let previewPanelMixin = {
         <i class="fa fa-circle"></i>
       </div>
       <div class="valid-indicator" title="No errors detected"
-           v-if="!validating && previewing && errors[previewing.key] && errors[previewing.key].length === 0">
+           v-if="!validating && previewing && errors !== null && errors.length === 0">
         <i class="fa fa-check"></i>
       </div>
       <div class="preview-loading-indicator" v-if="loading">
