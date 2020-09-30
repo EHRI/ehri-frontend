@@ -895,6 +895,7 @@ Vue.component("oaipmh-manager", {
 Vue.component("convert-config", {
   props: {
     show: Boolean,
+    config: Object,
   },
   data: function() {
     return {
@@ -930,8 +931,10 @@ Vue.component("convert-config", {
                   File Source(s)
                 </label>
                 <select id="opt-convert-src" class="form-control" multiple v-model="sources">
-                  <option value="oaipmh">OAI-PMH</option>
-                  <option value="upload">Upload</option>
+                  <option v-for="stage in [config.oaipmh, config.upload]"
+                          v-bind:value="stage">
+                    {{stage|stageName(config)}}
+                  </option>
                 </select>
               </div>
             </div>
@@ -953,7 +956,9 @@ Vue.component("transformation-item", {
     enabled: Boolean,
   },
   template: `
-    <div class="list-group-item transformation-item list-group-item-action" v-bind:class="{'enabled': enabled}">
+    <div v-bind:class="{'enabled': enabled}"
+         v-on:dblclick="$emit('edit')"
+         class="list-group-item transformation-item list-group-item-action">
       <h4 class="transformation-item-name">
         {{item.name}}
         <span class="transformation-item-comments" v-bind:title="item.comments">{{item.comments}}</span>
@@ -1147,6 +1152,7 @@ Vue.component("convert-manager", {
 
           <convert-config
             v-bind:show="showOptions"
+            v-bind:config="config"
             v-on:close="showOptions = false"
             v-on:convert="convert"
             v-show="showOptions" />
