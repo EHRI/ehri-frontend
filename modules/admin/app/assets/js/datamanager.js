@@ -20,6 +20,7 @@ let stageMixin = {
   data: function() {
     return {
       loaded: false,
+      loadingMore: false,
       truncated: false,
       tab: 'preview',
       previewing: null,
@@ -58,6 +59,7 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
+      this.loaded = false;
       return this.api.listFiles(this.fileStage, this.filter.value)
         .then(data => {
           this.files = data.files;
@@ -66,8 +68,18 @@ let stageMixin = {
         .catch(error => this.showError("Error listing files", error))
         .finally(() => this.loaded = true);
     },
-    filesLoaded: function (truncated) {
-      this.truncated = truncated;
+    loadMore: function () {
+      this.loadingMore = true;
+      let from = this.files.length > 0
+        ? this.files[this.files.length - 1].key
+        : null;
+      return this.api.listFiles(this.fileStage, this.filter.value, from)
+        .then(data => {
+          this.files.push.apply(this.files, data.files);
+          this.truncated = data.truncated;
+        })
+        .catch(error => this.showError("Error listing files", error))
+        .finally(() => this.loadingMore = false);
     },
     downloadFiles: function(keys) {
       keys.forEach(key => this.$set(this.downloading, key, true));
@@ -160,6 +172,7 @@ Vue.component("files-table", {
   props: {
     api: Object,
     fileStage: String,
+    loadingMore: Boolean,
     dropping: Boolean,
     loaded: Boolean,
     previewing: Object,
@@ -173,11 +186,6 @@ Vue.component("files-table", {
     ingesting: Object,
     filter: String,
   },
-  data: function () {
-    return {
-      loadingMore: false,
-    }
-  },
   computed: {
     allChecked: function () {
       return Object.keys(this.selected).length === this.files.length;
@@ -190,18 +198,6 @@ Vue.component("files-table", {
     }
   },
   methods: {
-    fetchMore: function () {
-      this.loadingMore = true;
-      let from = this.files.length > 0
-        ? this.files[this.files.length - 1].key : null;
-      return this.api.listFiles(this.fileStage, this.filter, from)
-        .then(data => {
-          this.files.push.apply(this.files, data.files);
-          this.$emit("files-loaded", data.truncated);
-        })
-        .catch(error => this.showError("Error fetching files", error))
-        .finally(() => this.loadingMore = false);
-    },
     toggleAll: function (evt) {
       for (let i = 0; i < this.files.length; i++) {
         this.toggleItem(this.files[i].key, evt);
@@ -286,7 +282,7 @@ Vue.component("files-table", {
         </tr>
         </tbody>
       </table>
-      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent.stop="fetchMore">
+      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent.stop="$emit('load-more')">
         Load more
         <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
         <i v-else class="fa fa-fw fa-caret-down"/>
@@ -463,6 +459,7 @@ Vue.component("upload-manager", {
             v-bind:fileStage="fileStage"
             v-bind:dropping="dropping"
             v-bind:loaded="loaded"
+            v-bind:loading-more="loadingMore"
             v-bind:files="files"
             v-bind:selected="selected"
             v-bind:previewing="previewing"
@@ -477,7 +474,7 @@ Vue.component("upload-manager", {
             v-on:delete-files="deleteFiles"
             v-on:download-files="downloadFiles"
             v-on:validate-files="validateFiles"
-            v-on:files-loaded="filesLoaded"
+            v-on:load-more="loadMore"
             v-on:show-preview="showPreview"
             v-on:select-next="selectNext"
             v-on:select-prev="selectPrev"
@@ -807,6 +804,7 @@ Vue.component("oaipmh-manager", {
           <files-table
             v-bind:api="api"
             v-bind:fileStage="fileStage"
+            v-bind:loading-more="loadingMore"
             v-bind:loaded="loaded"
             v-bind:files="files"
             v-bind:selected="selected"
@@ -822,7 +820,7 @@ Vue.component("oaipmh-manager", {
             v-on:delete-files="deleteFiles"
             v-on:download-files="downloadFiles"
             v-on:validate-files="validateFiles"
-            v-on:files-loaded="filesLoaded"
+            v-on:load-more="loadMore"
             v-on:show-preview="showPreview"
             v-on:deselect-all="deselect"
           />
@@ -1491,6 +1489,7 @@ Vue.component("ingest-manager", {
             v-bind:api="api"
             v-bind:fileStage="fileStage"
             v-bind:loaded="loaded"
+            v-bind:loading-more="loadingMore"
             v-bind:files="files"
             v-bind:selected="selected"
             v-bind:previewing="previewing"
@@ -1506,7 +1505,7 @@ Vue.component("ingest-manager", {
             v-on:download-files="downloadFiles"
             v-on:ingest-files="ingestFiles"
             v-on:validate-files="validateFiles"
-            v-on:files-loaded="filesLoaded"
+            v-on:load-more="loadMore"
             v-on:show-preview="showPreview"
             v-on:deselect-all="deselect"
           />
