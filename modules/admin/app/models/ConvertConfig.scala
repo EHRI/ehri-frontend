@@ -15,7 +15,7 @@ object ConvertConfig {
 
 case class TransformationList(
   src: Seq[FileStage.Value],
-  mappings: Seq[Long]
+  mappings: Seq[String]
 ) extends ConvertConfig
 
 object TransformationList {

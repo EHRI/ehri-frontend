@@ -36,7 +36,7 @@ trait DataTransformationService {
     * @param id the transformation's id
     * @return a transformation object
     */
-  def get(id: Long): Future[DataTransformation]
+  def get(id: String): Future[DataTransformation]
 
   /**
     * Fetch a sequence of transformations by ID
@@ -44,7 +44,7 @@ trait DataTransformationService {
     * @param ids the sequence of transformation ids
     * @return an ordered sequence of transformations
     */
-  def get(ids: Seq[Long]): Future[Seq[DataTransformation]]
+  def get(ids: Seq[String]): Future[Seq[DataTransformation]]
 
   /**
     * Create a new transformation object.
@@ -63,7 +63,7 @@ trait DataTransformationService {
     * @param repoId an optional associated repository ID
     * @return the updated transformation
     */
-  def update(id: Long, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation]
+  def update(id: String, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation]
 
   /**
     * Delete a transformation
@@ -71,7 +71,7 @@ trait DataTransformationService {
     * @param id the transformation's id
     * @return a confirmation boolean
     */
-  def delete(id: Long): Future[Boolean]
+  def delete(id: String): Future[Boolean]
 
   /**
     * Check a transformation is valid.
@@ -96,5 +96,5 @@ trait DataTransformationService {
     * @param dtIds  an ordered sequence of transformation IDs
     * @return the number of transformations saved
     */
-  def saveConfig(repoId: String, dtIds: Seq[Long]): Future[Int]
+  def saveConfig(repoId: String, dtIds: Seq[String]): Future[Int]
 }

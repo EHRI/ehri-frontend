@@ -1,13 +1,14 @@
 package services.transformation
 
-import java.sql.SQLException
+import java.sql.{Connection, SQLException}
 
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, SqlParser, _}
 import javax.inject.{Inject, Singleton}
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
-import play.api.db.Database
+import play.api.db.{Database, TransactionIsolationLevel}
+import _root_.utils.{db => dbUtils}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,21 +30,21 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     }
   }
 
-  override def get(id: Long): Future[DataTransformation] = Future {
+  override def get(id: String): Future[DataTransformation] = Future {
     db.withConnection { implicit conn =>
       SQL"SELECT * FROM data_transformation WHERE id = $id"
         .as(parser.single)
     }
   }
 
-  override def get(ids: Seq[Long]): Future[Seq[DataTransformation]] = Future {
+  override def get(ids: Seq[String]): Future[Seq[DataTransformation]] = Future {
     if (ids.isEmpty) Seq.empty else db.withConnection { implicit conn =>
       val dts = SQL"SELECT * FROM data_transformation WHERE id IN ($ids)".as(parser.*)
       ids.flatMap(id => dts.find(_.id == id).toSeq)
     }
   }
 
-  override def delete(id: Long): Future[Boolean] = Future {
+  override def delete(id: String): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
       SQL"DELETE FROM data_transformation WHERE id = $id".executeUpdate() == 1
     }
@@ -52,19 +53,22 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
   override def create(info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
     db.withTransaction { implicit conn =>
       try {
-        val id = SQL"""INSERT INTO data_transformation
-        (repo_id, name, type, map, comments)
-        VALUES (
-          $repoId,
-          ${info.name},
-          ${info.bodyType},
-          ${info.body},
-          ${info.comments}
-      )
-      """.executeInsert(SqlParser.scalar[Int].single)
+          conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED)
+        val strId = dbUtils.newObjectId(10)
+        SQL"""INSERT INTO data_transformation
+          (id, repo_id, name, type, map, comments)
+          VALUES (
+            $strId,
+            $repoId,
+            ${info.name},
+            ${info.bodyType},
+            ${info.body},
+            ${info.comments}
+        )
+        """.execute()(conn)
 
         // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
-        SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
+        SQL"SELECT * FROM data_transformation WHERE id = $strId".as(parser.single)
       } catch {
         case e: SQLException if e.getSQLState == "23505" => // unique violation
           throw DataTransformationExists(info.name, e)
@@ -72,7 +76,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     }
   }
 
-  override def update(id: Long, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
+  override def update(id: String, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
     db.withTransaction { implicit conn =>
       try {
         SQL"""UPDATE data_transformation SET
@@ -104,7 +108,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     }
   }
 
-  override def saveConfig(repoId: String, dtIds: Seq[Long]): Future[Int] = Future {
+  override def saveConfig(repoId: String, dtIds: Seq[String]): Future[Int] = Future {
     db.withTransaction { implicit conn =>
 
       // First, delete all the existing mappings:

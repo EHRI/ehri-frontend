@@ -101,9 +101,7 @@ case class RepositoryData @Inject()(
     val results: Seq[Future[(String, Seq[XmlValidationError])]] = urls.map { case (key, url) =>
       eadValidator.validateEad(Uri(url)).map(errs => key -> errs)
     }
-    Future.sequence(results).map { out =>
-      Ok(Json.toJson(out.toMap))
-    }.recover {
+    Future.sequence(results).map(out => Ok(Json.toJson(out.toMap))).recover {
       case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
   }
@@ -319,7 +317,7 @@ case class RepositoryData @Inject()(
     dataTransformations.getConfig(id).map(dts => Ok(Json.toJson(dts)))
   }
 
-  def saveConvertConfig(id: String): Action[Seq[Long]] = EditAction(id).async(parse.json[Seq[Long]]) { implicit request =>
+  def saveConvertConfig(id: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
     dataTransformations.saveConfig(id, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
   }
 
@@ -329,7 +327,7 @@ case class RepositoryData @Inject()(
       .map(dts => Ok(Json.toJson(dts)))
   }
 
-  def getDataTransformation(id: String, dtId: Long): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def getDataTransformation(id: String, dtId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     dataTransformations.get(dtId).map(dt => Ok(Json.toJson(dt)))
   }
 
@@ -341,7 +339,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def updateDataTransformation(id: String, dtId: Long, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
+  def updateDataTransformation(id: String, dtId: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
     dataTransformations.update(dtId, request.body, if(generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
     }.recover {
@@ -349,7 +347,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def deleteDataTransformation(id: String, dtId: Long): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def deleteDataTransformation(id: String, dtId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     dataTransformations.delete(dtId).map( ok => Ok(Json.toJson(ok)))
   }
 
