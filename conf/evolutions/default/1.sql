@@ -127,7 +127,7 @@ CREATE INDEX harvest_event_repo_job ON harvest_event(repo_id, job_id);
 ALTER TABLE harvest_event ADD CONSTRAINT harvest_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL;
 
 CREATE TABLE data_transformation (
-    id          SERIAL PRIMARY KEY,
+    id          CHAR(10) NOT NULL PRIMARY KEY ,
     name        VARCHAR(255) NOT NULL,
     repo_id     VARCHAR(50) NULL,
     type        VARCHAR(10) NOT NULL,
@@ -141,7 +141,7 @@ CREATE UNIQUE INDEX data_transformation_name ON data_transformation (name);
 CREATE TABLE transformation_config (
     repo_id                 VARCHAR(50) NOT NULL,
     ordering                INTEGER NOT NULL,
-    data_transformation_id  INTEGER NOT NULL,
+    data_transformation_id  CHAR(10) NOT NULL,
     PRIMARY KEY (repo_id, ordering)
 );
 

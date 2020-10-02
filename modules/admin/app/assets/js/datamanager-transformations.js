@@ -167,7 +167,7 @@ Vue.component("xquery-editor", {
 Vue.component("transformation-editor", {
   mixins: [twoPanelMixin],
   props: {
-    id: Number,
+    id: String,
     name: String,
     generic: Boolean,
     bodyType: String,

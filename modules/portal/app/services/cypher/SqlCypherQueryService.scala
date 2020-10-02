@@ -79,7 +79,8 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
   }
 
   override def create(data: CypherQuery): Future[String] = Future {
-    val query = data.copy(objectId = data.objectId.orElse(Some(utils.db.newObjectId(10))),
+    val strId = utils.db.newObjectId(10)
+    val query = data.copy(objectId = data.objectId.orElse(Some(strId)),
       created = data.created.orElse(Some(ZonedDateTime.now())))
     db.withConnection { implicit conn =>
       SQL"""INSERT INTO cypher_queries
@@ -94,7 +95,7 @@ case class SqlCypherQueryService @Inject()(db: Database, actorSystem: ActorSyste
           ${query.created},
           ${query.updated}
       )""".execute()
-      query.objectId.get
+      strId
     }
   }
 }
