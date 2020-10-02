@@ -164,8 +164,9 @@ case class RepositoryData @Inject()(
   }
 
   def ingestFiles(id: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
+    import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, stage)}$path")
-    val urls = keys.map(key => key -> storage.uri(bucket, key)).toMap
+    val urls = keys.map(key => key -> storage.uri(bucket, key, 24.hours)).toMap
 
     // Tag this task with a unique ID...
     val jobId = UUID.randomUUID().toString
