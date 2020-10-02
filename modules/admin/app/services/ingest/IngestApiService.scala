@@ -236,7 +236,7 @@ case class IngestApiService @Inject()(
 
     logger.info(s"Dispatching ingest: ${job.data.params}")
     val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
-      .withRequestTimeout(20.minutes)
+      .withRequestTimeout(Duration.Inf)
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
       .addQueryStringParameters(wsParams(job.data.params): _*)
