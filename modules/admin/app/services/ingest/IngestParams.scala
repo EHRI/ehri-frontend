@@ -6,6 +6,20 @@ import play.api.data.Forms._
 import play.api.libs.Files.TemporaryFile
 
 
+sealed trait PropertiesHandle
+case class LocalProperties(f: Option[TemporaryFile]) extends PropertiesHandle {
+  override def toString: String = f.map(_ => "local").getOrElse("none")
+}
+case class UrlProperties(url: String) extends PropertiesHandle {
+  override def toString: String = url
+}
+
+object PropertiesHandle {
+  def apply(f: Option[TemporaryFile]): PropertiesHandle = LocalProperties(f)
+  def apply(url: String): PropertiesHandle = UrlProperties(url)
+  def empty: PropertiesHandle = LocalProperties(Option.empty)
+}
+
 case class IngestParams(
   scopeType: ContentTypes.Value,
   scope: String,
@@ -20,7 +34,7 @@ case class IngestParams(
   baseURI: Option[String] = None,
   suffix: Option[String] = None,
   file: Option[TemporaryFile] = None,
-  properties: Option[TemporaryFile] = None,
+  properties: PropertiesHandle = PropertiesHandle.empty,
   commit: Boolean = false
 )
 
@@ -41,7 +55,7 @@ object IngestParams {
   val PROPERTIES_FILE = "properties"
   val COMMIT = "commit"
 
-  val ingestForm = Form(
+  val ingestForm: Form[IngestParams] = Form(
     mapping(
       SCOPE_TYPE -> utils.EnumUtils.enumMapping(ContentTypes),
       SCOPE -> nonEmptyText,
@@ -58,7 +72,7 @@ object IngestParams {
       BASE_URI -> optional(text),
       SUFFIX -> optional(text),
       DATA_FILE -> ignored(Option.empty[TemporaryFile]),
-      PROPERTIES_FILE -> ignored(Option.empty[TemporaryFile]),
+      PROPERTIES_FILE -> ignored(PropertiesHandle.empty),
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )

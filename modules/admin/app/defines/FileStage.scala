@@ -7,6 +7,7 @@ import utils.binders.bindableEnum
 import utils.db.StorableEnum
 
 object FileStage extends Enumeration with StorableEnum {
+  val Config = Value("config")
   val Upload = Value("upload")
   val OaiPmh = Value("oaipmh")
   val Ingest = Value("ingest")

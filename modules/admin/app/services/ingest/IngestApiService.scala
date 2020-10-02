@@ -99,7 +99,7 @@ case class IngestApiService @Inject()(
 
   // Actor that just prints out a progress indicator
   object Ticker {
-    def props = Props(new Ticker())
+    def props: Props = Props(new Ticker())
     case object Stop
     case object Run
   }
@@ -150,7 +150,7 @@ case class IngestApiService @Inject()(
         "handler" -> job.data.params.handler,
         "importer" -> job.data.params.importer,
         "excludes" -> job.data.params.excludes,
-        "properties" -> job.data.params.properties.nonEmpty,
+        "properties" -> job.data.params.properties.toString,
         "commit" -> job.data.params.commit
       ),
       "user" -> job.data.user.toOption,
@@ -201,17 +201,25 @@ case class IngestApiService @Inject()(
     // which it can read, which involves copying it.
     // NB: Hack that assumes the server is on the same
     // host and we really shouldn't do this!
-    val props: Option[java.nio.file.Path] = job.data.params.properties.map { propTmp =>
-      import scala.collection.JavaConverters._
-      val readTmp = Files.createTempFile(s"ingest", ".properties")
-      propTmp.moveTo(readTmp, replace = true)
-      val perms = Set(
-        PosixFilePermission.OTHERS_READ,
-        PosixFilePermission.GROUP_READ,
-        PosixFilePermission.OWNER_READ,
-        PosixFilePermission.OWNER_WRITE)
-      Files.setPosixFilePermissions(readTmp, perms.asJava)
-      readTmp
+    val propFile: Option[Path] = job.data.params.properties match {
+      case LocalProperties(f) => f.map { propTmp =>
+        import scala.collection.JavaConverters._
+        val readTmp = Files.createTempFile(s"ingest", ".properties")
+        propTmp.moveTo(readTmp, replace = true)
+        val perms = Set(
+          PosixFilePermission.OTHERS_READ,
+          PosixFilePermission.GROUP_READ,
+          PosixFilePermission.OWNER_READ,
+          PosixFilePermission.OWNER_WRITE)
+        Files.setPosixFilePermissions(readTmp, perms.asJava)
+        readTmp
+      }
+      case UrlProperties(url) => None
+    }
+
+    val propStr: Option[String] = job.data.params.properties match {
+      case LocalProperties(_) => propFile.map(_.toAbsolutePath.toString)
+      case UrlProperties(url) => Some(url)
     }
 
     def wsParams(params: IngestParams): Seq[(String, String)] = {
@@ -227,7 +235,7 @@ case class IngestApiService @Inject()(
         params.handler.map(HANDLER -> _).toSeq ++
         params.importer.map(IMPORTER -> _).toSeq ++
         params.excludes.map(EXCLUDES -> _) ++
-        props.map(PROPERTIES_FILE -> _.toAbsolutePath.toString)
+        propStr.map(PROPERTIES_FILE -> _)
     }
 
 
@@ -256,7 +264,7 @@ case class IngestApiService @Inject()(
 
     upload.onComplete { _ =>
       // Delete properties temp file...
-      props.foreach(f => f.toFile.delete())
+      propFile.foreach(f => f.toFile.delete())
     }
 
     upload
