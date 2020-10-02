@@ -52,6 +52,7 @@ case class IngestPayload(
   logMessage: String,
   tolerant: Boolean = false,
   commit: Boolean = false,
+  properties: Option[String] = None,
   files: Seq[String] = Seq.empty
 )
 
@@ -186,7 +187,10 @@ case class RepositoryData @Inject()(
       file = Some(temp),
       log = request.body.logMessage,
       tolerant = request.body.tolerant,
-      commit = request.body.commit
+      commit = request.body.commit,
+      properties = request.body.properties
+        .map(url => PropertiesHandle(url))
+        .getOrElse(PropertiesHandle.empty)
     )
 
     val ingestTask = IngestData(task,

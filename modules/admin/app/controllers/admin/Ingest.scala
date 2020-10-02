@@ -19,7 +19,7 @@ import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
 import services.ingest.IngestApi.{IngestData, IngestJob}
-import services.ingest.{IngestApi, IngestParams}
+import services.ingest.{IngestApi, IngestParams, LocalProperties}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -71,7 +71,7 @@ case class Ingest @Inject()(
                 .filter(_.filename.nonEmpty)
                 .map(_.ref)
 
-            val task = ingestTask.copy(properties = props, file = Some(data.ref))
+            val task = ingestTask.copy(properties = LocalProperties(props), file = Some(data.ref))
             val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id))
 
             val runner = system.actorOf(Props(IngestActor(ingestApi)), jobId)
