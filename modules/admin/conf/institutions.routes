@@ -47,9 +47,9 @@ POST        /:id/validate-ead                         @controllers.institutions.
 
 GET         /:id/transformations                      @controllers.institutions.RepositoryData.listDataTransformations(id: String)
 POST        /:id/transformations                      @controllers.institutions.RepositoryData.createDataTransformation(id: String, generic: Boolean ?= false)
-GET         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.getDataTransformation(id: String, dt: Long)
-PUT         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.updateDataTransformation(id: String, dt: Long, generic: Boolean ?= false)
-DELETE      /:id/transformations/:dt                  @controllers.institutions.RepositoryData.deleteDataTransformation(id: String, dt: Long)
+GET         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.getDataTransformation(id: String, dt: String)
+PUT         /:id/transformations/:dt                  @controllers.institutions.RepositoryData.updateDataTransformation(id: String, dt: String, generic: Boolean ?= false)
+DELETE      /:id/transformations/:dt                  @controllers.institutions.RepositoryData.deleteDataTransformation(id: String, dt: String)
 
 POST        /:id/oaipmh                               @controllers.institutions.RepositoryData.harvestOaiPmh(id: String, fromLast: Boolean ?= true)
 DELETE      /:id/oaipmh                               @controllers.institutions.RepositoryData.cancelOaiPmhHarvest(id: String, jobId: String)

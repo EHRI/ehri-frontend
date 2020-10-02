@@ -19,7 +19,7 @@ object DataTransformation {
 }
 
 case class DataTransformation(
-  id: Long,
+  id: String,
   name: String,
   repoId: Option[String],
   bodyType: DataTransformation.TransformationType.Value,
