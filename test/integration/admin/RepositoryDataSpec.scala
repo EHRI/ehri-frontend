@@ -101,6 +101,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
     }
 
     "validate files" in new ITestApp {
+      await(putFile())
       val r = FakeRequest(repoDataRoutes.validateFiles("r1", FileStage.Ingest))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
@@ -108,10 +109,11 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .callWith(Json.arr(testFileName))
 
-      // Currently this will simply fail this an error because
-      // we can't access the mocked files via URI in the test
-      // environment
-      contentAsJson(r) must_== Json.obj("error" -> "ehri-assets.mystorage.com")
+      // Validator will object because EAD without the namespace is not
+      // recognised as EAD.
+      contentAsJson(r) must_== Json.parse("{\"test.xml\":[{\"line\":1,\"pos\":6," +
+        "\"error\":\"element \\\"ead\\\" not allowed anywhere; " +
+        "expected element \\\"ead\\\" (with xmlns=\\\"urn:isbn:1-931666-22-9\\\")\"}]}")
     }
 
     "convert files" in new ITestApp {
