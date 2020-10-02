@@ -15,10 +15,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String, (FileMeta, ByteString)]]) extends FileStorage {
 
-  private implicit val as: ActorSystem = ActorSystem("test")
-  private implicit val mat: Materializer = Materializer(as)
+  implicit val as: ActorSystem = ActorSystem("test")
+  implicit val mat: Materializer = Materializer(as)
   private implicit val ec: ExecutionContext = mat.executionContext
-  private def urlPrefix(classifier: String) = s"https://$classifier.mystorage.com/"
+
+  private def urlPrefix(classifier: String): String = s"https://$classifier.mystorage.com/"
 
   private def bucket(classifier: String): Map[String, (FileMeta, ByteString)] =
     fakeFiles.getOrElse(classifier, Map.empty)
@@ -82,4 +83,12 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
       }.toSeq
     }
   }(ec)
+
+  /**
+    * A public method for testing purposes only.
+    */
+  def fromUrl(url: String, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
+    if (url.startsWith(urlPrefix(classifier)))
+      get(classifier, url.replace(urlPrefix(classifier), ""))
+    else Future.successful(Option.empty)
 }

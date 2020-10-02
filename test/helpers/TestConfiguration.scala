@@ -29,6 +29,7 @@ import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data.{IdSearchResolver, _}
 import services.feedback.{FeedbackService, MockFeedbackService}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
+import services.ingest.{EadValidator, MockEadValidatorService}
 import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 import services.search.{MockSearchIndexMediator, _}
@@ -72,7 +73,8 @@ trait TestConfiguration {
   private def mockOAuth2Flow: OAuth2Service = MockOAuth2Service()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
-  private def mockDamFileStorage: FileStorage = MockFileStorage(damFileBuffer)
+  private def mockDamFileStorage: MockFileStorage = MockFileStorage(damFileBuffer)
+  private def mockEadValidator: EadValidator = MockEadValidatorService(mockDamFileStorage)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
   // More or less the same as run config but synchronous (so
@@ -111,6 +113,7 @@ trait TestConfiguration {
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       bind[ItemLifecycle].to(classOf[NoopItemLifecycle]),
+      bind[EadValidator].to(mockEadValidator),
       // NB: Graph IDs are not stable during testing due to
       // DB churn, so using the String ID resolver rather than
       // the more efficient GID one used in production
