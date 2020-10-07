@@ -102,8 +102,10 @@ case class XmlConvertRunner (job: XmlConvertJob, transformer: XmlTransformer, st
               meta = Map("source" -> "convert")
             ).map { _ =>
               msgTo ! DoneFile(fileName)
+              log.debug(s"Finished $fileName")
               Convert(src :: rest, others, truncated, Some(file.key), count + 1)
             }.recover { case e =>
+              log.error(e, s"Error converting $fileName")
               msgTo ! Error(fileName, e)
               Convert(src :: rest, others, truncated, Some(file.key), count)
           }.pipeTo(self)
