@@ -9,8 +9,8 @@ import helpers.ResourceUtils
    */
 class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
-  def testAccessData = resourceAsString("facebookAccessData.txt")
-  def testUserData = resourceAsString("facebookUserData.txt")
+  def testAccessData = resourceAsString("facebookAccessData.json")
+  def testUserData = resourceAsString("facebookUserData.json")
   val config = new GuiceApplicationBuilder().build().configuration
 
    "Facebook OAuth2 provider" should {

@@ -25,6 +25,7 @@ case class WebOAuth2Service @Inject ()(
       .map { r =>
       logger.trace(s"Access Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
       provider.parseAccessInfo(r.body).getOrElse {
+        logger.error(s"Failed to parse access token info info for ${provider.name}, status ${r.status}: ${r.body}")
         throw new AuthenticationError(s"Unable to fetch access token and info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }
@@ -35,12 +36,14 @@ case class WebOAuth2Service @Inject ()(
     val url: String = provider.getUserInfoUrl(info)
     val headers: Seq[(String, String)] = provider.getUserInfoHeader(info)
     logger.debug(s"Fetching info at $url with headers $headers")
+    val params = provider.getUserInfoParams(info)
     ws.url(url)
-      .addQueryStringParameters(provider.getUserInfoParams(info): _*)
+      .addQueryStringParameters(params: _*)
       .addHttpHeaders(headers: _*).get()
       .map { r =>
       logger.trace(s"User Info Data for OAuth2 ${provider.name}:-------\n${r.body}\n-----")
-      provider.parseUserInfo(r.body).getOrElse{
+      provider.parseUserInfo(r.body).getOrElse {
+        logger.error(s"Failed to parse user info info for ${provider.name}, status ${r.status}: ${r.body}")
         throw new AuthenticationError(s"Unable to fetch user info for provider ${provider.name} " +
           s" via response data: ${r.body}")
       }

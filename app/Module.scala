@@ -1,6 +1,6 @@
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
-import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
+import auth.oauth2.providers.{FacebookOAuth2Provider, GoogleOAuth2Provider, MicrosoftOAuth2Provider, OAuth2Provider, YahooOAuth2Provider}
 import auth.oauth2.OAuth2Config
 import com.google.inject.AbstractModule
 import eu.ehri.project.indexing.index.Index
@@ -30,6 +30,7 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
   override def get(): OAuth2Config = new OAuth2Config {
     override def providers: Seq[OAuth2Provider] = Seq(
       GoogleOAuth2Provider(config),
+      MicrosoftOAuth2Provider(config),
       FacebookOAuth2Provider(config),
       YahooOAuth2Provider(config)
     )

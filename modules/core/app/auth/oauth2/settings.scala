@@ -39,7 +39,7 @@ case class UserData(
   providerId: String,
   email: String,
   name: String,
-  imageUrl: String
+  imageUrl: Option[String]
 )
 
 case class ProviderSettings(

@@ -14,8 +14,8 @@ case class MockOAuth2Service() extends OAuth2Service {
     .getLines().mkString("\n")
 
   override def getAccessToken(provider: OAuth2Provider, handlerUrl: String, code: String): Future[OAuth2Info] =
-    immediate(provider.parseAccessInfo(resourceAsString(provider.name + "AccessData.txt")).get)
+    immediate(provider.parseAccessInfo(resourceAsString(provider.name + "AccessData.json")).get)
 
   override def getUserData(provider: OAuth2Provider, info: OAuth2Info): Future[UserData] =
-    immediate(provider.parseUserInfo(resourceAsString(provider.name + "UserData.txt")).get)
+    immediate(provider.parseUserInfo(resourceAsString(provider.name + "UserData.json")).get)
 }

@@ -1,15 +1,15 @@
-@(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, forSignup: Boolean)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
+@(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
 
-    @defining(if (forSignup) "login.signupWith" else "login.loginWith") { messagePrefix =>
+    @defining(if (isLogin) "login.loginWith" else "login.signupWith") { messagePrefix =>
         <div class="oauth-providers form-field">
             @oauth2Config.providers.map { provider =>
-                <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name, isLogin = isLogin)" class="btn btn-@provider.name"
-                title="@Html(Messages(messagePrefix, provider.name.capitalize))">
-                @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name}'></i>")))
+                <a href="@oauth2Call(provider.name)" class="btn btn-@provider.name"
+                    title="@Html(Messages(messagePrefix, provider.name.capitalize))">
+                    @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name.replace("microsoft", "windows")}'></i>")))
                 </a>
             }
             <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
@@ -21,7 +21,7 @@
             <div class="form-field">
             @helper.inputText(
                 openIdForm("openid_identifier"),
-                'id -> s"${if(forSignup) "signup" else "login"}_openid_identifier",
+                'id -> s"${if(isLogin) "login" else "signup"}_openid_identifier",
                 'placeholder -> Messages("login.openid.urlPlaceholder"),
                 'type -> "url"
             )

@@ -7,8 +7,8 @@ import helpers.ResourceUtils
 
 class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
-  def testAccessData = resourceAsString("googleAccessData.txt")
-  def testUserData = resourceAsString("googleUserData.txt")
+  def testAccessData = resourceAsString("googleAccessData.json")
+  def testUserData = resourceAsString("googleUserData.json")
   val config = new GuiceApplicationBuilder().build().configuration
 
   "Google OAuth2 provider" should {
