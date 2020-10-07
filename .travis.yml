@@ -11,7 +11,7 @@ services:
  - docker
 
 before_install:
- - docker run --publish 7575:7474 --detach -it ehri/ehri-rest
+ - docker-compose up -d
 
 # Dummy SMTP server, which runs on 2500
 env:
