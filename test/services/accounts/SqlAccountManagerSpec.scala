@@ -81,6 +81,14 @@ class SqlAccountManagerSpec extends PlaySpecification {
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beNone
     }
 
+    "set accounts logged in" in withFixtures { implicit db =>
+      val user = await(accounts.get(mockdata.privilegedUser.id))
+      user.lastLogin must beNone
+      await(accounts.setLoggedIn(user))
+      val user2 = await(accounts.get(user.id))
+      user2.lastLogin must beSome
+    }
+
     "verify accounts via token" in withFixtures { implicit db =>
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = false))

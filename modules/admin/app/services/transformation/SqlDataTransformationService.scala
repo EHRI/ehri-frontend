@@ -1,14 +1,14 @@
 package services.transformation
 
-import java.sql.{Connection, SQLException}
+import java.sql.SQLException
 
+import _root_.utils.{db => dbUtils}
 import akka.actor.ActorSystem
-import anorm.{Macro, RowParser, SqlParser, _}
+import anorm.{Macro, RowParser, _}
 import javax.inject.{Inject, Singleton}
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
-import play.api.db.{Database, TransactionIsolationLevel}
-import _root_.utils.{db => dbUtils}
+import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,22 +53,19 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
   override def create(info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
     db.withTransaction { implicit conn =>
       try {
-          conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED)
         val strId = dbUtils.newObjectId(10)
         SQL"""INSERT INTO data_transformation
-          (id, repo_id, name, type, map, comments)
-          VALUES (
-            $strId,
-            $repoId,
-            ${info.name},
-            ${info.bodyType},
-            ${info.body},
-            ${info.comments}
-        )
-        """.execute()(conn)
-
-        // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
-        SQL"SELECT * FROM data_transformation WHERE id = $strId".as(parser.single)
+                (id, repo_id, name, type, map, comments)
+              VALUES (
+                $strId,
+                $repoId,
+                ${info.name},
+                ${info.bodyType},
+                ${info.body},
+                ${info.comments}
+              )
+              RETURNING *
+            """.as(parser.single)
       } catch {
         case e: SQLException if e.getSQLState == "23505" => // unique violation
           throw DataTransformationExists(info.name, e)
@@ -77,7 +74,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
   }
 
   override def update(id: String, info: DataTransformationInfo, repoId: Option[String]): Future[DataTransformation] = Future {
-    db.withTransaction { implicit conn =>
+    db.withConnection { implicit conn =>
       try {
         SQL"""UPDATE data_transformation SET
               repo_id = $repoId,
@@ -86,9 +83,8 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
               map = ${info.body},
               comments = ${info.comments}
             WHERE id = $id
-          """.executeUpdate()
-      // FIXME: not using PostgreSQL 'returning' stmt for testing h2 compat
-      SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
+            RETURNING *
+          """.as(parser.single)
     } catch {
         case e: SQLException if e.getSQLState == "23505" => // unique violation
           throw DataTransformationExists(info.name, e)
@@ -115,30 +111,18 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
       SQL"""DELETE FROM transformation_config WHERE repo_id = $repoId""".execute()
 
       if (dtIds.isEmpty) 0 else {
-        val dbName = conn.getMetaData.getDatabaseProductName.toLowerCase
+        val q = """INSERT INTO transformation_config
+                   VALUES({repo_id}, {ordering}, {data_transformation_id})
+                   ON CONFLICT (repo_id, ordering)
+                   DO UPDATE SET data_transformation_id = {data_transformation_id}"""
 
-        val qs =
-          """INSERT INTO transformation_config
-          VALUES({repo_id}, {ordering}, {data_transformation_id})"""
-
-        // For reasons I don't understand, PostgreSQL will still throw *occasional*
-        // duplicate primary key errors even though we should have deleted everything
-        // for this item above. For these cases, update the row instead.
-        val q = qs + (dbName match {
-          case "postgresql" => """
-              ON CONFLICT (repo_id, ordering)
-              DO UPDATE SET data_transformation_id = {data_transformation_id}"""
-          case _ => "" // works fine on H2 as is!
-        })
         val inserts = dtIds.zipWithIndex.map { case (dtId, i) =>
           Seq[NamedParameter](
             "repo_id" -> repoId,
             "ordering" -> i,
+            "data_transformation_id" -> dtId,
             "data_transformation_id" -> dtId
-          ) ++ (dbName match {
-            case "postgresql" => Seq[NamedParameter]("data_transformation_id" -> dtId)
-            case _ => Seq.empty[NamedParameter]
-          })
+          )
         }
         val batch = BatchSql(q, inserts.head, inserts.tail: _*)
         val rows: Array[Int] = batch.execute()

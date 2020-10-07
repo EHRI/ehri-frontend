@@ -1,10 +1,10 @@
 package services.accounts
 
 import java.sql.Connection
-import javax.inject.Inject
 
 import anorm.SqlParser._
 import anorm._
+import javax.inject.Inject
 import models.OAuth2Association
 import play.api.db.Database
 
@@ -60,7 +60,8 @@ case class SqlOAuth2AssociationManager @Inject()(db: Database)(implicit executio
   def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] = Future {
     db.withConnection { implicit connection =>
       SQL"""
-        INSERT INTO oauth2_association (id, provider_id, provider) VALUES ($id, $providerId, $provider)
+        INSERT INTO oauth2_association (id, provider_id, provider)
+        VALUES ($id, $providerId, $provider)
         """.executeInsert(SqlParser.scalar[String].singleOpt)
       getByInfo(providerId, provider)
     }
