@@ -3,19 +3,17 @@ package services.accounts
 import java.sql.Connection
 import java.time.ZonedDateTime
 import java.util.UUID
-import javax.inject._
 
 import akka.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import auth._
+import javax.inject._
 import models.Account
 import play.api.db.Database
 import utils.PageParams
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.postfixOps
-import scala.languageFeature.postfixOps
 
 
 @Singleton
@@ -33,9 +31,10 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
 
   override def setLoggedIn(account: Account): Future[Account] = Future {
     db.withTransaction { implicit conn =>
-      SQL"UPDATE users SET last_login = NOW() WHERE id = ${account.id}".executeUpdate()
-      // This is a bit dodgy
-      account.copy(lastLogin = Some(ZonedDateTime.now()))
+      SQL"""UPDATE users
+            SET last_login = NOW()
+            WHERE id = ${account.id}
+            RETURNING *""".as(userParser.single)
     }
   }
 
@@ -73,9 +72,11 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
 
   override def verify(account: Account, token: String): Future[Option[Account]] = Future {
     db.withTransaction { implicit conn =>
-      SQL"UPDATE users SET verified = TRUE WHERE id = ${account.id}".executeUpdate()
       SQL"DELETE FROM token WHERE token = $token".execute()
-      Some(account.copy(verified = true))
+      SQL"""UPDATE users
+            SET verified = ${true}
+            WHERE id = ${account.id}
+            RETURNING *""".as(userParser.singleOpt)
     }
   }
 
@@ -89,7 +90,7 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
     if (ids.isEmpty) Future.successful(Seq.empty)
     else Future {
       db.withConnection { implicit conn =>
-        SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser *)
+        SQL"SELECT * FROM users WHERE users.id IN ($ids)".as(userParser.*)
       }
     }
 
@@ -117,8 +118,8 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
           ${account.allowMessaging},
           ${account.password},
           ${account.isLegacy}
-      )""".execute()
-      getById(account.id).get
+        )
+        RETURNING *""".as(userParser.single)
     }
   }
 
@@ -135,8 +136,8 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
           password = ${account.password},
           is_legacy = ${account.isLegacy}
         WHERE id = ${account.id}
-        """.executeUpdate()
-      getById(account.id).get
+        RETURNING *
+        """.as(userParser.single)
     }
   }
 
@@ -165,7 +166,7 @@ case class SqlAccountManager @Inject()(db: Database, actorSystem: ActorSystem) e
                 AND (${filters.staff} IS NULL OR staff = ${filters.staff})
              ORDER BY id
              LIMIT $limit OFFSET ${params.offset}"""
-          .as(userParser *)
+          .as(userParser.*)
       }
     }
 
