@@ -1,0 +1,16 @@
+version: "3.1"
+
+services:
+  rmdbs:
+    image: postgres:12
+    ports:
+    - 5431:5432
+    environment:
+      POSTGRES_USER: docview_test
+      POSTGRES_PASSWORD: changeme
+    command: -c "max_connections=1000" -c "shared_buffers=256MB"
+
+  neo4j:
+    image: ehri/ehri-rest
+    ports:
+      - 7575:7474

@@ -3,7 +3,6 @@ package services.harvesting
 import akka.actor.ActorSystem
 import helpers._
 import models.OaiPmhConfig
-import org.h2.jdbc.JdbcSQLException
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
@@ -26,9 +25,7 @@ class SqlOaiPmhConfigServiceSpec extends PlaySpecification {
 
     "create items" in withDatabaseFixture("oaipmh-config-fixtures.sql") { implicit db =>
       val config = OaiPmhConfig("https://test.com/testing", "oai_dc")
-      // TODO: fix this so it works with H2 for testing
-      // in the meantime validate it throws an exception
-      await(service.save("r1", config)) must throwA[JdbcSQLException]
+      await(service.save("r1", config)) must_== config
     }
   }
 }
