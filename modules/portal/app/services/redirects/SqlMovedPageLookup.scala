@@ -29,6 +29,8 @@ case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: Act
     // version of MySql on which we were forced to run, the lookup key here
     // is a hash of the original path, rather than the path itself (which could
     // easily overflow the 255 varchar limit on MySql 5.0.-something-old.)
+    // NB2: this is preserved for compatibility now we're using a different
+    // database.
     if (moved.isEmpty) Future.successful(0)
     else Future {
       db.withConnection { implicit conn =>
@@ -39,21 +41,9 @@ case class SqlMovedPageLookup @Inject ()(db: Database)(implicit actorSystem: Act
             'path -> to
           )
         }
-        // Unfortunate hack around SQL syntax variations
-        val dbName = conn.getMetaData.getDatabaseProductName.toLowerCase
-
-        val q = dbName match {
-          case "postgresql" => """
-                        INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
-                        VALUES({hash}, {original}, {path})
-                        ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
-          case "h2" => """MERGE INTO moved_pages(original_path_sha1, original_path, new_path)
-                        KEY(original_path_sha1)
-                        VALUES({hash}, {original}, {path})"""
-          case _ =>    """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
-                        VALUES({hash}, {original}, {path})
-                        ON DUPLICATE KEY UPDATE new_path = {path}"""
-        }
+        val q = """INSERT INTO moved_pages(original_path_sha1, original_path, new_path)
+                   VALUES({hash}, {original}, {path})
+                   ON CONFLICT (original_path_sha1) DO UPDATE SET new_path = {path}"""
         val batch = BatchSql(q, inserts.head, inserts.tail: _*)
         val rows: Array[Int] = batch.execute()
         rows.count(_ > 0)
