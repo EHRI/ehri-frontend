@@ -950,6 +950,10 @@ body.home {
   @include button-variant(#DD4B39, #DD4B39);
 }
 
+.btn-microsoft {
+  @include button-variant(#00A4EF, #00A4EF);
+}
+
 .btn-yahoo {
   @include button-variant(#7B0099, #7B0099);
 }

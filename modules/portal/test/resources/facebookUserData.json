@@ -1,0 +1,13 @@
+{
+  "name": "Any Name",
+  "first_name": "Any",
+  "last_name": "Name",
+  "picture": {
+    "data": {
+      "is_silhouette": false,
+      "url": "https:\/\/fbcdn-profile-a.akamaihd.net\/hprofile-ak-ash2\/v\/t1.0-1\/c14.14.172.172\/s50x50\/blah.jpg"
+    }
+  },
+  "email": "example1\u0040example.com",
+  "id": "123456789"
+}

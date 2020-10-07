@@ -169,9 +169,7 @@ case class UserProfiles @Inject()(
               id = profile.id,
               email = email.toLowerCase,
               verified = true,
-              active = true,
               staff = true,
-              allowMessaging = true,
               password = Some(HashedPassword.fromPlain(pw))
             ))
             _ <- userDataApi.setItemPermissions(profile.id, ContentTypes.UserProfile,
@@ -257,13 +255,13 @@ case class UserProfiles @Inject()(
             userRoutes.updatePost(id)))),
           data => accountOpt match {
             case Some(account) => for {
-              profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
-              newAccount <- accounts.update(account.copy(
+              _ <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+              _ <- accounts.update(account.copy(
                 active = data.active, staff = data.staff, verified = data.verified))
             } yield Redirect(userRoutes.search())
                 .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
             case None => for {
-              profile <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
+              _ <- userDataApi.patch[UserProfile](id, Json.toJson(data).as[JsObject])
             } yield Redirect(userRoutes.search())
                 .flashing("success" -> Messages("item.update.confirmation", request.item.toStringLang))
           }
@@ -287,14 +285,14 @@ case class UserProfiles @Inject()(
       deleteForm(request.item).bindFromRequest.fold(
         errForm => {
           immediate(BadRequest(views.html.admin.userProfile.delete(
-            request.item, deleteForm(request.item), userRoutes.deletePost(id),
+            request.item, errForm, userRoutes.deletePost(id),
             userRoutes.get(id))))
         },
         _ => {
           accounts.findById(id).flatMap {
             case Some(account) => for {
-              _ <- userDataApi.delete[UserProfile](id, logMsg = getLogMessage)
-              _ <- accounts.delete(id)
+              _ <- userDataApi.delete[UserProfile](account.id, logMsg = getLogMessage)
+              _ <- accounts.delete(account.id)
             } yield Redirect(userRoutes.search())
                 .flashing("success" -> Messages("item.delete.confirmation", id))
             case None => for {

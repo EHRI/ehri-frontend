@@ -21,7 +21,7 @@ case class FacebookOAuth2Provider (config: play.api.Configuration) extends OAuth
         guid <- (json \ "id").asOpt[String]
         email <- (json \ "email").asOpt[String]
         name <- (json \ "name").asOpt[String]
-        imageUrl <- (json \ "picture" \ "data" \ "url").asOpt[String]
+        imageUrl = (json \ "picture" \ "data" \ "url").asOpt[String]
       } yield UserData(
         providerId = guid,
         email = email,

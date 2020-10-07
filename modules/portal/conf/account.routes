@@ -3,7 +3,9 @@ GET         /login                          @controllers.portal.account.Accounts
 POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
 GET         /openid                         @controllers.portal.account.Accounts.openIDCallback
 POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
-GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None, isLogin: Boolean ?= true)
+GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None, isLogin: Boolean ?= false)
+GET         /login-with/:provider           @controllers.portal.account.Accounts.oauth2Login(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
+GET         /register-with/:provider        @controllers.portal.account.Accounts.oauth2Register(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /logout                         @controllers.portal.account.Accounts.logout
 
 GET         /signup                         @controllers.portal.account.Accounts.signup

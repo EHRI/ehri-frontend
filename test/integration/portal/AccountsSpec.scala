@@ -63,7 +63,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val singleUseKey = "useOnce"
       val randomState = "473284374"
       cache.set(singleUseKey, randomState)
-      val login = FakeRequest(accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
+      val login = FakeRequest(accountRoutes.oauth2Login(GoogleOAuth2Provider(app.configuration).name,
         code = Some("blah"), state = Some(randomState)))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
@@ -72,19 +72,19 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "error with bad session state" in new WithApplication with Injecting {
-      implicit val messagesApi = inject[MessagesApi]
+      private implicit val messagesApi = inject[MessagesApi]
       val singleUseKey = "useOnce"
       cache.set(singleUseKey, "jdjjjr")
       val login = FakeRequest(
-        accountRoutes.oauth2(GoogleOAuth2Provider(app.configuration).name,
+        accountRoutes.oauth2Login(GoogleOAuth2Provider(app.configuration).name,
           code = Some("blah"), state = Some("dk3kdm34")))
         .withSession("sid" -> singleUseKey).call()
       status(login) must equalTo(SEE_OTHER)
-      flash(login).get("danger") must_== Some(message("login.error.oauth2.badSessionId", "Google"))
+      flash(login).get("danger") must beSome(message("login.error.oauth2.badSessionId", "Google"))
     }
 
     "error with bad provider" in new ITestApp {
-      val login = FakeRequest(accountRoutes.oauth2("no-provider")).call()
+      val login = FakeRequest(accountRoutes.oauth2Register("no-provider")).call()
       status(login) must equalTo(NOT_FOUND)
     }
   }

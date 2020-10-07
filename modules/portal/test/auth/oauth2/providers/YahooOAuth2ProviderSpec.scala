@@ -8,8 +8,8 @@ import play.api.test.PlaySpecification
    */
 class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
-  val testAccessData = resourceAsString("yahooAccessData.txt")
-  val testUserData = resourceAsString("yahooUserData.txt")
+  val testAccessData = resourceAsString("yahooAccessData.json")
+  val testUserData = resourceAsString("yahooUserData.json")
   val config = new GuiceApplicationBuilder().build().configuration
 
   "Yahoo OAuth2 provider" should {

@@ -15,7 +15,7 @@ case class GoogleOAuth2Provider(config: play.api.Configuration) extends OAuth2Pr
         guid <- (json \ "id").asOpt[String]
         email <- (json \ "email").asOpt[String]
         name <- (json \ "name").asOpt[String]
-        imageUrl <- (json \ "picture").asOpt[String]
+        imageUrl = (json \ "picture").asOpt[String]
       } yield UserData(
         providerId = guid,
         email = email,

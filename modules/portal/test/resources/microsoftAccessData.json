@@ -1,0 +1,8 @@
+{
+  "access_token": "some-access-token",
+  "token_type": "Bearer",
+  "expires_in": 100,
+  "scope": "https%3A%2F%2Fgraph.microsoft.com%2Fmail.read",
+  "refresh_token": "some-refresh-token",
+  "id_token": "some-id-token"
+}

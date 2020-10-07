@@ -24,7 +24,12 @@
         <li>@Messages("login.benefits.3")</li>
     </ol>
     <div id="register">
-        @views.html.account.oauth2Form(openIdForm, oauthConfig, isLogin = false, forSignup = true)
+        @views.html.account.oauth2Form(
+            openIdForm,
+            oauthConfig,
+            isLogin = false,
+            oauth2Call = name => controllers.portal.account.routes.Accounts.oauth2Register(name)
+        )
         @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)
     </div>
 }

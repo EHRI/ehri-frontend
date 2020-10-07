@@ -11,20 +11,19 @@ import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
-import forms.AccountForms
+import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.Logger
 import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsObject, JsString}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import services.data.{AnonymousUser, AuthenticatedUser}
-import forms.{HoneyPotForm, TimeCheckForm}
 import services.oauth2.OAuth2Service
 
 import scala.concurrent.Future.{successful => immediate}
@@ -91,7 +90,7 @@ case class Accounts @Inject()(
       block(request)
     }
 
-    override def composeAction[A](action: Action[A]) = NotReadOnly(action)
+    override def composeAction[A](action: Action[A]): Action[A] = NotReadOnly(action)
   }
 
   object RateLimit extends CoreActionBuilder[Request, AnyContent] {
@@ -349,6 +348,16 @@ case class Accounts @Inject()(
     gotoLogoutSucceeded(authRequest)
   }
 
+  def oauth2Login(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] =
+    NotReadOnlyAction.async { implicit request =>
+      oauth2(providerId, code, state, isLogin = true).apply(request)
+    }
+
+  def oauth2Register(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] =
+    NotReadOnlyAction.async { implicit request =>
+      oauth2(providerId, code, state, isLogin = false).apply(request)
+    }
+
   def oauth2(providerId: String, code: Option[String], state: Option[String], isLogin: Boolean): Action[AnyContent] =
     NotReadOnlyAction.async { implicit request =>
       oauth2Providers.providers.find(_.name == providerId).map { provider =>
@@ -356,7 +365,9 @@ case class Accounts @Inject()(
         // Create a random nonce to stamp this OAuth2 session
         val sessionKey = "sid"
         val sessionId = request.session.get(sessionKey).getOrElse(UUID.randomUUID().toString)
-        val handlerUrl: String = accountRoutes.oauth2(providerId, isLogin = isLogin).absoluteURL(globalConfig.https)
+        val handlerUrl: String =
+          if (isLogin) accountRoutes.oauth2Login(providerId).absoluteURL(globalConfig.https)
+          else accountRoutes.oauth2Register(providerId).absoluteURL(globalConfig.https)
 
         code match {
 
@@ -386,11 +397,10 @@ case class Accounts @Inject()(
                 val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
                 Redirect(url)
                   .removingFromSession(sessionKey)
-                  .flashing("danger" -> "login.error.oauth2.info")
+                  .flashing("danger" -> Messages("login.error.oauth2.info", provider.name.capitalize))
             }
           } else authenticationFailed(request)
-            .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId",
-              provider.name.substring(0, 1).toUpperCase + provider.name.substring(1))))
+            .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize)))
         }
       } getOrElse {
         notFoundError(request)
@@ -537,20 +547,19 @@ case class Accounts @Inject()(
   private def updateUserInfo(account: Account, userData: UserData): Future[UserProfile] = {
     implicit val apiUser: AuthenticatedUser = AuthenticatedUser(account.id)
     userDataApi.get[UserProfile](account.id).flatMap { up =>
-      userDataApi.patch[UserProfile](account.id, Json.obj(
-        UserProfileF.NAME -> JsString(userData.name),
+      val data: Seq[(String, JsString)] = Seq(
+        UserProfileF.NAME -> Some(userData.name),
         // Only update the user image if it hasn't already been set
-        UserProfileF.IMAGE_URL -> JsString(up.data.imageUrl.getOrElse(userData.imageUrl))
-      ))
+        UserProfileF.IMAGE_URL -> up.data.imageUrl.orElse(userData.imageUrl)
+      ).collect { case (k, Some(v)) => k -> JsString(v)}
+      userDataApi.patch[UserProfile](account.id, JsObject(data))
     }
   }
 
   private def createNewProfile(userData: UserData, provider: OAuth2Provider): Future[Account] = {
     implicit val apiUser: AnonymousUser.type = AnonymousUser
-    val profileData = Map(
-      UserProfileF.NAME -> userData.name,
-      UserProfileF.IMAGE_URL -> userData.imageUrl
-    )
+    val profileData = Map(UserProfileF.NAME -> Some(userData.name),  UserProfileF.IMAGE_URL -> userData.imageUrl)
+      .collect{ case (k, Some(v)) => k -> v }
     for {
       profile <- userDataApi.createNewUserProfile[UserProfile](
         profileData, groups = globalConfig.defaultPortalGroups)

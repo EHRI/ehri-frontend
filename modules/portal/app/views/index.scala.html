@@ -136,10 +136,10 @@
 
                         <div class="oauth-providers form-field">
                             @accountForms.oAuth2Config.providers.map { provider =>
-                                <a href="@controllers.portal.account.routes.Accounts.oauth2(provider.name)" class="btn btn-@provider.name"
+                                <a href="@controllers.portal.account.routes.Accounts.oauth2Login(provider.name)" class="btn btn-@provider.name"
                                 title="@Html(Messages("login.loginWith", provider.name.capitalize))"
                                 aria-label="@Html(Messages("login.loginWith", provider.name.capitalize))">
-                                    <i class="fa fa-fw fa-@provider.name" aria-hidden="true"></i>
+                                    <i class="fa fa-fw fa-@provider.name.replace("microsoft", "windows")" aria-hidden="true"></i>
                                 </a>
                             }
                         </div>
