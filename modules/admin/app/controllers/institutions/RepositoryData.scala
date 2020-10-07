@@ -110,7 +110,7 @@ case class RepositoryData @Inject()(
   def listFiles(id: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
       prefix = Some(prefix(id, stage) + path.getOrElse("")),
-      from.map(key => s"${prefix(id, stage)}$key"), max = 20).map { list =>
+      from.map(key => s"${prefix(id, stage)}$key"), max = 500).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, stage), ""))))))
     }
   }
@@ -167,7 +167,7 @@ case class RepositoryData @Inject()(
   def ingestFiles(id: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, stage)}$path")
-    val urls = keys.map(key => key -> storage.uri(bucket, key, 24.hours)).toMap
+    val urls = keys.map(key => key -> storage.uri(bucket, key, duration = 24.hours)).toMap
 
     // Tag this task with a unique ID...
     val jobId = UUID.randomUUID().toString

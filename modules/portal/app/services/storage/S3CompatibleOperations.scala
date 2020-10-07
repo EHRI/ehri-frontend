@@ -6,9 +6,9 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
+import akka.stream.alpakka.s3._
 import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.alpakka.s3.{ApiVersion, MetaHeaders, ObjectMetadata, S3Attributes, S3Ext, S3Settings}
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import com.amazonaws.auth.AWSCredentialsProvider
@@ -66,8 +66,7 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
 
   def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
     val expTime = new java.util.Date()
-    var expTimeMillis = expTime.getTime
-    expTimeMillis = expTimeMillis + duration.toMillis
+    val expTimeMillis = expTime.getTime + duration.toMillis
     expTime.setTime(expTimeMillis)
 
     val method = if (contentType.isDefined) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET

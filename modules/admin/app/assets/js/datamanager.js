@@ -767,12 +767,12 @@ Vue.component("oaipmh-manager", {
           Validate All
         </button>
 
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+        <button v-bind:disabled="files.length ===0 || harvestJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
           <i class="fa fa-trash-o"/>
           Delete Selected ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+        <button v-bind:disabled="files.length === 0 || harvestJobId" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
                 v-else>
           <i class="fa fa-trash-o"/>
           Delete All
@@ -1353,7 +1353,11 @@ Vue.component("ingest-manager", {
         if (msg.data.error) {
           this.log.push(msg.data.error);
         } else if (msg.data.msg) {
-          this.log.push(msg.data.msg);
+          if (this.log && _.startsWith(_.last(this.log), "Ingesting...") && _.startsWith(msg.data.msg, "Ingesting...")) {
+            this.log.splice(this.log.length - 1, 1, msg.data.msg);
+          } else {
+            this.log.push(msg.data.msg);
+          }
         }
         if (msg.data.done || msg.data.error) {
           worker.terminate();
@@ -1447,18 +1451,18 @@ Vue.component("ingest-manager", {
           Validate All
         </button>
 
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
+        <button v-bind:disabled="files.length === 0 || ingestJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
           <i class="fa fa-trash-o"/>
           Delete Selected ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+        <button v-bind:disabled="files.length === 0 || ingestJobId" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
                 v-else>
           <i class="fa fa-trash-o"/>
           Delete All
         </button>
 
-        <button v-bind:disabled="files.length===0 || ingestJobId" class="btn btn-sm btn-default"
+        <button v-bind:disabled="files.length === 0 || ingestJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions" v-if="selectedKeys.length">
           <i v-if="!ingestJobId" class="fa fa-fw fa-database"/>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
