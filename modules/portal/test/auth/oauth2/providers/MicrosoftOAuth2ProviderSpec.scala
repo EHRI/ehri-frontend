@@ -1,6 +1,6 @@
 package auth.oauth2.providers
 
-import auth.oauth2.{OAuth2Constants, OAuth2Info}
+import auth.oauth2.OAuth2Info
 import helpers.ResourceUtils
 import play.api.http.HeaderNames
 import play.api.inject.guice.GuiceApplicationBuilder
