@@ -70,6 +70,7 @@ Use the `conf/aws.conf.example` as a template.
 
 ### Testing
 
-Running integration tests requires an instance of the backend service running locally on port 7575. This can be done with a single Docker command:
+Running integration tests requires an instance of the backend service running locally on port 7575 
+and a PostgreSQL database on port 5431. This can be done with a single Docker Compose command:
 
-    sudo docker run --publish 7575:7474 -it ehri/ehri-rest
+    sudo docker-compose up
