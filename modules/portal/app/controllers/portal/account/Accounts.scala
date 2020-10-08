@@ -548,18 +548,17 @@ case class Accounts @Inject()(
     implicit val apiUser: AuthenticatedUser = AuthenticatedUser(account.id)
     userDataApi.get[UserProfile](account.id).flatMap { up =>
       val data: Seq[(String, JsString)] = Seq(
-        UserProfileF.NAME -> Some(userData.name),
         // Only update the user image if it hasn't already been set
-        UserProfileF.IMAGE_URL -> up.data.imageUrl.orElse(userData.imageUrl)
+        UserProfileF.IMAGE_URL -> up.data.imageUrl.filter(!_.trim.isEmpty).orElse(userData.imageUrl)
       ).collect { case (k, Some(v)) => k -> JsString(v)}
       userDataApi.patch[UserProfile](account.id, JsObject(data))
     }
   }
 
-  private def createNewProfile(userData: UserData, provider: OAuth2Provider): Future[Account] = {
+  private def createNewProfile(userData: UserData): Future[Account] = {
     implicit val apiUser: AnonymousUser.type = AnonymousUser
     val profileData = Map(UserProfileF.NAME -> Some(userData.name),  UserProfileF.IMAGE_URL -> userData.imageUrl)
-      .collect{ case (k, Some(v)) => k -> v }
+      .collect{ case (k, Some(v)) if !v.trim.isEmpty => k -> v }
     for {
       profile <- userDataApi.createNewUserProfile[UserProfile](
         profileData, groups = globalConfig.defaultPortalGroups)
@@ -592,7 +591,7 @@ case class Accounts @Inject()(
           } getOrElse {
             logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
             for {
-              newAccount <- createNewProfile(userData, provider)
+              newAccount <- createNewProfile(userData)
               _ <- accounts.oAuth2.addAssociation(newAccount.id, userData.providerId, provider.name)
             } yield newAccount
           }
