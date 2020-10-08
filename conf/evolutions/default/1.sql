@@ -19,29 +19,35 @@ CREATE TABLE openid_association (
     id           VARCHAR(50) NOT NULL,
     openid_url   VARCHAR(255) NOT NULL,
     created      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(id, openid_url)
+    PRIMARY KEY(id, openid_url),
+    CONSTRAINT openid_association_id
+        FOREIGN KEY (id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
 );
-
-ALTER TABLE openid_association ADD CONSTRAINT openid_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE oauth2_association (
     id           VARCHAR(50) NOT NULL,
     provider_id  VARCHAR(255) NOT NULL,
     provider     VARCHAR(255) NOT NULL,
     created      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(id, provider_id, provider)
+    PRIMARY KEY(id, provider_id, provider),
+    CONSTRAINT oauth2_association_id
+        FOREIGN KEY (id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
 );
-
-ALTER TABLE oauth2_association ADD CONSTRAINT oauth2_association_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE token (
     id          VARCHAR(50) NOT NULL,
     token       VARCHAR(255) NOT NULL PRIMARY KEY,
     expires     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE
+    is_sign_up  BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT token_profile_id
+        FOREIGN KEY (id)
+        REFERENCES users (id)
+        ON DELETE CASCADE
 );
-
-ALTER TABLE token ADD CONSTRAINT token_profile_id FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE;
 
 CREATE TABLE moved_pages(
     original_path_sha1  CHAR(40) PRIMARY KEY,
@@ -59,10 +65,10 @@ CREATE TABLE research_guide (
     description     TEXT,
     css             TEXT,
     active          BOOLEAN NOT NULL DEFAULT TRUE,
-    default_page    INTEGER NULL
+    default_page    INTEGER NULL,
+    CONSTRAINT research_guide_path_unique
+        UNIQUE (path)
 );
-
-ALTER TABLE research_guide ADD CONSTRAINT research_guide_path_unique UNIQUE(path);
 
 CREATE TABLE research_guide_page (
     id                  SERIAL PRIMARY KEY,
@@ -73,11 +79,14 @@ CREATE TABLE research_guide_page (
     path                VARCHAR(45) DEFAULT NULL,
     position            VARCHAR(45) DEFAULT NULL,
     description         TEXT,
-    params              VARCHAR(255) DEFAULT NULL
+    params              VARCHAR(255) DEFAULT NULL,
+    CONSTRAINT research_guide_page_id
+        FOREIGN KEY (research_guide_id)
+        REFERENCES research_guide (id)
+        ON DELETE CASCADE,
+    CONSTRAINT research_guide_path_guide_id
+        UNIQUE (research_guide_id, path)
 );
-
-ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_page_id FOREIGN KEY (research_guide_id) REFERENCES research_guide (id) ON DELETE CASCADE;
-ALTER TABLE research_guide_page ADD CONSTRAINT research_guide_path_guide_id UNIQUE (research_guide_id, path);
 
 CREATE TABLE feedback (
     id          CHAR(10) NOT NULL PRIMARY KEY,
@@ -120,11 +129,14 @@ CREATE TABLE harvest_event (
     user_id     VARCHAR (50) NULL ,
     event_type  VARCHAR (50) NOT NULL,
     created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    info        TEXT
+    info        TEXT,
+    CONSTRAINT harvest_event_user_id
+        FOREIGN KEY (user_id)
+        REFERENCES users (id)
+        ON DELETE SET NULL
 );
 
 CREATE INDEX harvest_event_repo_job ON harvest_event(repo_id, job_id);
-ALTER TABLE harvest_event ADD CONSTRAINT harvest_event_user_id FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL;
 
 CREATE TABLE data_transformation (
     id          CHAR(10) NOT NULL PRIMARY KEY ,
@@ -132,7 +144,7 @@ CREATE TABLE data_transformation (
     repo_id     VARCHAR(50) NULL,
     type        VARCHAR(10) NOT NULL,
     map         TEXT NOT NULL,
-    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments    TEXT
 );
 
@@ -142,10 +154,13 @@ CREATE TABLE transformation_config (
     repo_id                 VARCHAR(50) NOT NULL,
     ordering                INTEGER NOT NULL,
     data_transformation_id  CHAR(10) NOT NULL,
-    PRIMARY KEY (repo_id, ordering)
+    PRIMARY KEY (repo_id, ordering),
+    CONSTRAINT transformation_config_dt_id
+        FOREIGN KEY (data_transformation_id)
+        REFERENCES data_transformation (id)
+        ON DELETE CASCADE
 );
 
-ALTER TABLE transformation_config ADD CONSTRAINT transformation_config_dt_id FOREIGN KEY (data_transformation_id) REFERENCES data_transformation (id) ON DELETE CASCADE;
 
  # --- !Downs
 
