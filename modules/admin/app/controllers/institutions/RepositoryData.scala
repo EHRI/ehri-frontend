@@ -319,11 +319,11 @@ case class RepositoryData @Inject()(
   }
 
   def getConvertConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    dataTransformations.getConfig(id).map(dts => Ok(Json.toJson(dts)))
+    dataTransformations.getConfig(id, ds).map(dts => Ok(Json.toJson(dts)))
   }
 
   def saveConvertConfig(id: String, ds: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
-    dataTransformations.saveConfig(id, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
+    dataTransformations.saveConfig(id, ds, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
   }
 
   def listDataTransformations(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>

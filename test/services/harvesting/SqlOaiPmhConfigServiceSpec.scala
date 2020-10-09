@@ -15,17 +15,17 @@ class SqlOaiPmhConfigServiceSpec extends PlaySpecification {
 
   "OAI-PMH config service" should {
     "locate items" in withDatabaseFixture("oaipmh-config-fixtures.sql") { implicit db =>
-      val config = await(service.get("r1"))
+      val config = await(service.get("r1", "default"))
       config must beSome
     }
 
     "delete items" in withDatabaseFixture("oaipmh-config-fixtures.sql") { implicit db =>
-      await(service.delete("r1")) must_== true
+      await(service.delete("r1", "default")) must_== true
     }
 
     "create items" in withDatabaseFixture("oaipmh-config-fixtures.sql") { implicit db =>
       val config = OaiPmhConfig("https://test.com/testing", "oai_dc")
-      await(service.save("r1", config)) must_== config
+      await(service.save("r1", "default", config)) must_== config
     }
   }
 }

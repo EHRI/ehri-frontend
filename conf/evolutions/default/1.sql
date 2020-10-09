@@ -113,13 +113,30 @@ CREATE TABLE cypher_queries (
     updated         TIMESTAMP NULL
 );
 
+CREATE TABLE import_dataset(
+    repo_id             VARCHAR(50) NOT NULL,
+    id                  VARCHAR(50) NOT NULL,
+    name                TEXT NOT NULL,
+    type                VARCHAR(10) NOT NULL,
+    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comments            TEXT,
+    PRIMARY KEY (id, repo_id),
+    UNIQUE (id, repo_id)
+);
+
 CREATE TABLE oaipmh_config (
-    repo_id             VARCHAR(50) NOT NULL PRIMARY KEY ,
-    endpoint_url        VARCHAR (512) NOT NULL ,
+    repo_id             VARCHAR(50) NOT NULL,
+    import_dataset_id   VARCHAR(50) NOT NULL,
+    endpoint_url        VARCHAR (512) NOT NULL,
     metadata_prefix     VARCHAR(10) NOT NULL,
     set_spec            VARCHAR (50),
-    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-    comments            TEXT
+    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comments            TEXT,
+    PRIMARY KEY (repo_id, import_dataset_id),
+    CONSTRAINT oaipmh_config_repo_id_import_dataset_id
+        FOREIGN KEY (repo_id, import_dataset_id)
+        REFERENCES import_dataset(repo_id, id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE harvest_event (
@@ -152,9 +169,14 @@ CREATE UNIQUE INDEX data_transformation_name ON data_transformation (name);
 
 CREATE TABLE transformation_config (
     repo_id                 VARCHAR(50) NOT NULL,
+    import_dataset_id       VARCHAR(50) NOT NULL,
     ordering                INTEGER NOT NULL,
     data_transformation_id  CHAR(10) NOT NULL,
-    PRIMARY KEY (repo_id, ordering),
+    PRIMARY KEY (repo_id, import_dataset_id, ordering),
+    CONSTRAINT transformation_config_repo_id_import_dataset_id
+        FOREIGN KEY (repo_id, import_dataset_id)
+        REFERENCES import_dataset(repo_id, id)
+        ON DELETE CASCADE,
     CONSTRAINT transformation_config_dt_id
         FOREIGN KEY (data_transformation_id)
         REFERENCES data_transformation (id)
@@ -174,6 +196,7 @@ DROP TABLE IF EXISTS moved_pages CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS feedback CASCADE;
 DROP TABLE IF EXISTS cypher_queries CASCADE;
+DROP TABLE IF EXISTS import_dataset CASCADE;
 DROP TABLE IF EXISTS oaipmh_config CASCADE;
 DROP TABLE IF EXISTS harvest_event CASCADE;
 DROP TABLE IF EXISTS data_transformation CASCADE;
