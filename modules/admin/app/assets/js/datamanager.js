@@ -892,19 +892,9 @@ Vue.component("convert-config", {
     show: Boolean,
     config: Object,
   },
-  data: function() {
-    return {
-      sources: [],
-    }
-  },
-  computed: {
-    isValidConfig: function() {
-      return this.sources;
-    },
-  },
   methods: {
     convert: function() {
-      this.$emit("convert", this.sources);
+      this.$emit("convert");
       this.$emit("close");
     },
   },
@@ -920,22 +910,10 @@ Vue.component("convert-config", {
             </button>
           </div>
           <div class="modal-body">
-            <div class="options-form">
-              <div class="form-group">
-                <label class="form-label" for="opt-convert-src">
-                  File Source(s)
-                </label>
-                <select id="opt-convert-src" class="form-control" multiple v-model="sources">
-                  <option v-for="stage in [config.oaipmh, config.upload]"
-                          v-bind:value="stage">
-                    {{stage|stageName(config)}}
-                  </option>
-                </select>
-              </div>
-            </div>
+            <p>TODO: options here...</p>
           </div>
           <div class="modal-footer">
-            <button v-bind:disabled="!isValidConfig" v-on:click="convert" type="button" class="btn btn-secondary">
+            <button v-on:click="convert" type="button" class="btn btn-secondary">
               Run Conversion
             </button>
           </div>
@@ -981,7 +959,7 @@ Vue.component("convert-manager", {
     return {
       convertJobId: null,
       ingesting: {},
-      previewStage: this.config.upload,
+      previewStage: this.config.input,
       previewing: null,
       tab: 'preview',
       log: [],
@@ -1026,8 +1004,9 @@ Vue.component("convert-manager", {
     saved: function(item) {
       this.editing = item;
     },
-    convert: function(sources) {
-      this.api.convert({mappings: this.mappings, src: sources})
+    convert: function() {
+      // FIXME: don't actually need the src parameter here any more
+      this.api.convert({mappings: this.mappings, src: [this.config.input]})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
@@ -1052,7 +1031,7 @@ Vue.component("convert-manager", {
           this.log.push(msg.data.error);
         } else if (msg.data.msg) {
           this.log.push(msg.data.msg);
-          this.$emit('refresh-stage', this.config.ingest);
+          this.$emit('refresh-stage', this.config.output);
         }
         if (msg.data.done || msg.data.error) {
           worker.terminate();
@@ -1120,11 +1099,9 @@ Vue.component("convert-manager", {
 
       <div class="actions-bar">
         <file-picker v-bind:disabled="convertJobId !== null"
-                     v-bind:init-stage="previewStage"
-                     v-bind:file-stages="[this.config.upload, this.config.oaipmh]"
+                     v-bind:file-stage="config.input"
                      v-bind:api="api"
                      v-bind:config="config"
-                     v-on:change-stage="s => this.previewStage = s"
                      v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
@@ -1619,13 +1596,6 @@ Vue.component("data-manager", {
       </div>
       <ul id="stage-tabs" class="nav nav-tabs">
         <li class="nav-item">
-          <a href="#tab-oaipmh" class="nav-link" v-bind:class="{'active': tab === 'oaipmh'}"
-             v-on:click.prevent="switchTab('oaipmh')">
-            <i class="fa fa-fw fa-download"></i>
-            Harvesting
-          </a>
-        </li>
-        <li class="nav-item">
           <a href="#tab-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
              v-on:click.prevent="switchTab('upload')">
             <i class="fa fw-fw fa-upload"></i>
@@ -1647,25 +1617,17 @@ Vue.component("data-manager", {
             </a>
         </li>
       </ul>
-      <div id="tab-oaipmh" class="stage-tab" v-show="tab === 'upload'">
+      <div id="tab-upload" class="stage-tab" v-show="tab === 'upload'">
         <upload-manager 
-          v-bind:fileStage="config.upload" 
+          v-bind:fileStage="config.input" 
           v-bind:config="config" 
-          v-bind:active="tab === config.upload"
-          v-bind:api="api"
-          v-on:error="setError"  />
-      </div>
-      <div id="tab-upload" class="stage-tab" v-show="tab === 'oaipmh'">
-        <oaipmh-manager 
-          v-bind:fileStage="config.oaipmh" 
-          v-bind:config="config" 
-          v-bind:active="tab === config.oaipmh"
+          v-bind:active="tab === 'upload'"
           v-bind:api="api"
           v-on:error="setError"  />
       </div>
       <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
         <convert-manager 
-          v-bind:fileStage="config.ingest" 
+          v-bind:fileStage="config.output" 
           v-bind:config="config" 
           v-bind:active="tab === 'convert'"
           v-bind:api="api"
@@ -1673,9 +1635,9 @@ Vue.component("data-manager", {
       </div>
       <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
         <ingest-manager 
-          v-bind:fileStage="config.ingest" 
+          v-bind:fileStage="config.output" 
           v-bind:config="config" 
-          v-bind:active="tab === config.ingest"
+          v-bind:active="tab === 'ingest'"
           v-bind:api="api"
           v-on:error="setError"  />
       </div>
@@ -1687,7 +1649,7 @@ let app = new Vue({
   el: '#vue-app',
   data: {
     config: CONFIG,
-    api: DAO,
+    api: new DAO(SERVICE, CONFIG.repositoryId, "default"),
   },
   template: `
     <div id="app-container">

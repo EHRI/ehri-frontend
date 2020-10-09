@@ -8,10 +8,8 @@ import utils.db.StorableEnum
 
 object FileStage extends Enumeration with StorableEnum {
   val Config = Value("config")
-  val Upload = Value("upload")
-  val OaiPmh = Value("oaipmh")
-  val Ingest = Value("ingest")
-  val Rs = Value("rs")
+  val Input = Value("input")
+  val Output = Value("output")
 
   implicit val _binder: PathBindable[FileStage.Value] = bindableEnum(FileStage)
   implicit val _format: Format[FileStage.Value]= EnumUtils.enumFormat(FileStage)

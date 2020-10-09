@@ -327,11 +327,9 @@ Vue.component("transformation-editor", {
               <div id="transformation-editor-preview-select">
                 <label for="transformation-editor-preview-options">Preview transformation</label>
                 <file-picker v-bind:disabled="loading"
-                             v-bind:init-stage="previewStage"
-                             v-bind:file-stages="[this.config.upload, this.config.oaipmh]"
+                             v-bind:file-stage="config.input"
                              v-bind:api="api"
                              v-bind:config="config"
-                             v-on:change-stage="s => this.previewStage = s"
                              v-model="previewing" />
 
                 <button id="transformation-editor-preview-refresh"  title="Refresh preview"

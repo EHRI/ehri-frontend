@@ -11,7 +11,7 @@ import scala.concurrent.Future
  */
 @ImplementedBy(classOf[SqlOaiPmhConfigService])
 trait OaiPmhConfigService {
-  def get(id: String): Future[Option[OaiPmhConfig]]
-  def save(id: String, config: OaiPmhConfig): Future[OaiPmhConfig]
-  def delete(id: String): Future[Boolean]
+  def get(id: String, ds: String): Future[Option[OaiPmhConfig]]
+  def save(id: String, ds: String, config: OaiPmhConfig): Future[OaiPmhConfig]
+  def delete(id: String, ds: String): Future[Boolean]
 }
