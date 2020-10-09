@@ -13,6 +13,7 @@ class SqlDataTransformationServiceSpec extends PlaySpecification {
 
   def service(implicit db: Database) = SqlDataTransformationService(db, actorSystem)
 
+  private val dsId = "default";
   private val dtId = "FG8jdRd43j" // from fixture file
 
   "Data transformation service" should {
@@ -50,27 +51,27 @@ class SqlDataTransformationServiceSpec extends PlaySpecification {
     }
 
     "save repository configs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
-      val saved = await(service.saveConfig("r2", Seq(dtId)))
+      val saved = await(service.saveConfig("r2", dsId, Seq(dtId)))
       saved must_== 1
 
-      val saved2 = await(service.saveConfig("r2", Seq.empty))
+      val saved2 = await(service.saveConfig("r2", dsId, Seq.empty))
       saved2 must_== 0
 
-      val saved3 = await(service.saveConfig("r2", Seq(dtId)))
+      val saved3 = await(service.saveConfig("r2", dsId, Seq(dtId)))
       saved3 must_== 1
 
       val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
-      val saved4 = await(service.saveConfig(repoId = "r2", Seq(dtId, dt.id)))
+      val saved4 = await(service.saveConfig(repoId = "r2", dsId, Seq(dtId, dt.id)))
       saved4 must_== 2
 
-      val saved5 = await(service.saveConfig("r2", Seq.empty))
+      val saved5 = await(service.saveConfig("r2", dsId, Seq.empty))
       saved5 must_== 0
     }
 
     "get repository configs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
-      await(service.saveConfig("r2", Seq(dt.id, dtId)))
-      val configs = await(service.getConfig("r2"))
+      await(service.saveConfig("r2", dsId, Seq(dt.id, dtId)))
+      val configs = await(service.getConfig("r2", dsId))
       configs.size must_== 2
       configs.head.name must_== "test2"
     }

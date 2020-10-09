@@ -20,27 +20,28 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
 
   override def get(id: String, ds: String): Future[Option[OaiPmhConfig]] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT * FROM oaipmh_config WHERE repo_id = $id"
+      SQL"SELECT * FROM oaipmh_config WHERE repo_id = $id AND import_dataset_id = $ds"
         .as(parser.singleOpt)
     }
   }
 
   override def delete(id: String, ds: String): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
-      SQL"DELETE FROM oaipmh_config WHERE repo_id = $id".executeUpdate() == 1
+      SQL"DELETE FROM oaipmh_config WHERE repo_id = $id AND import_dataset_id = $ds".executeUpdate() == 1
     }
   }
 
   override def save(id: String, ds: String, data: OaiPmhConfig): Future[OaiPmhConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO oaipmh_config
-        (repo_id, endpoint_url, metadata_prefix, set_spec)
+        (repo_id, import_dataset_id, endpoint_url, metadata_prefix, set_spec)
         VALUES (
           $id,
+          $ds,
           ${data.url},
           ${data.format},
           ${data.set}
-      ) ON CONFLICT (repo_id) DO UPDATE
+      ) ON CONFLICT (repo_id, import_dataset_id) DO UPDATE
         SET
           endpoint_url = ${data.url},
           metadata_prefix = ${data.format},
