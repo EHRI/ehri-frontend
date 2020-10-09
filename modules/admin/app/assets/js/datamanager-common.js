@@ -496,9 +496,8 @@ Vue.component("file-picker-suggestion", {
 
 Vue.component("file-picker", {
   props: {
+    fileStage: String,
     value: Object,
-    fileStages: Array,
-    initStage: String,
     disabled: Boolean,
     api: Object,
     config: Object
@@ -510,7 +509,6 @@ Vue.component("file-picker", {
       suggestions: [],
       loading: false,
       showSuggestions: false,
-      fileStage: this.initStage ? this.initStage : (this.fileStages[0] ? this.fileStages[0] : ""),
     }
   },
   methods: {
@@ -554,24 +552,8 @@ Vue.component("file-picker", {
       })
     }
   },
-  watch: {
-    fileStage: function(newType) {
-      this.$emit("input", null);
-      this.$emit('change-stage', newType);
-      this.cancelComplete();
-    }
-  },
   template: `
     <div class="file-picker">
-      <label class="control-label sr-only">Stage:</label>
-      <select v-model="fileStage" v-bind:disabled="disabled" class="file-picker-stage-selector btn btn-default">
-        <option 
-          v-for="t in fileStages" 
-          v-bind:value="t" 
-          v-bind:selected="t===fileStage">
-          {{t|stageName(config)}}
-        </option>
-      </select>
       <div class="file-picker-input-container">
         <div v-show="showSuggestions" class="dropdown-backdrop" v-on:click="cancelComplete"></div>
         <label class="control-label sr-only">File:</label>
