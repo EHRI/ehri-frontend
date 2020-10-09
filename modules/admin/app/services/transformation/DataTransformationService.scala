@@ -84,17 +84,19 @@ trait DataTransformationService {
   /**
     * Get a list of data transformations for a given repository.
     *
-    * @param repoId the repository ID
+    * @param repoId    the repository ID
+    * @param datasetId the dataset ID
     * @return the transformations in application order
     */
-  def getConfig(repoId: String): Future[Seq[DataTransformation]]
+  def getConfig(repoId: String, datasetId: String): Future[Seq[DataTransformation]]
 
   /**
     * Save transformations for a given repository.
     *
-    * @param repoId the repository ID
-    * @param dtIds  an ordered sequence of transformation IDs
+    * @param repoId    the repository ID
+    * @param datasetId the dataset ID
+    * @param dtIds     an ordered sequence of transformation IDs
     * @return the number of transformations saved
     */
-  def saveConfig(repoId: String, dtIds: Seq[String]): Future[Int]
+  def saveConfig(repoId: String, datasetId: String, dtIds: Seq[String]): Future[Int]
 }

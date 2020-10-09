@@ -6,7 +6,7 @@ import _root_.utils.{db => dbUtils}
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
 import javax.inject.{Inject, Singleton}
-import models.{DataTransformation, DataTransformationInfo}
+import models.{DataTransformation, DataTransformationInfo, ImportDataset}
 import play.api.Logger
 import play.api.db.Database
 
@@ -96,7 +96,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     ???
   }
 
-  override def getConfig(repoId: String): Future[Seq[DataTransformation]] = Future {
+  override def getConfig(repoId: String, datasetId: String): Future[Seq[DataTransformation]] = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT dt.* FROM data_transformation dt
            LEFT JOIN transformation_config tc ON tc.data_transformation_id = dt.id
@@ -104,21 +104,23 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     }
   }
 
-  override def saveConfig(repoId: String, dtIds: Seq[String]): Future[Int] = Future {
+  override def saveConfig(repoId: String, datasetId: String, dtIds: Seq[String]): Future[Int] = Future {
     db.withTransaction { implicit conn =>
-
       // First, delete all the existing mappings:
-      SQL"""DELETE FROM transformation_config WHERE repo_id = $repoId""".execute()
+      SQL"""DELETE FROM transformation_config
+            WHERE repo_id = $repoId
+              AND import_dataset_id = $datasetId""".execute()
 
       if (dtIds.isEmpty) 0 else {
         val q = """INSERT INTO transformation_config
-                   VALUES({repo_id}, {ordering}, {data_transformation_id})
-                   ON CONFLICT (repo_id, ordering)
+                   VALUES({repo_id}, {import_dataset_id}, {ordering}, {data_transformation_id})
+                   ON CONFLICT (repo_id, import_dataset_id, ordering)
                    DO UPDATE SET data_transformation_id = {data_transformation_id}"""
 
         val inserts = dtIds.zipWithIndex.map { case (dtId, i) =>
           Seq[NamedParameter](
             "repo_id" -> repoId,
+            "import_dataset_id" -> datasetId,
             "ordering" -> i,
             "data_transformation_id" -> dtId,
             "data_transformation_id" -> dtId
