@@ -3,8 +3,14 @@
 /**
  * A data access object encapsulating the management API endpoints.
  */
-let DAO = {
-  call: function (endpoint, data) {
+let DAO = class {
+  constructor(service, repoId, datasetId) {
+    this.service = service;
+    this.repoId = repoId;
+    this.datasetId = datasetId;
+  }
+
+  call(endpoint, data) {
     return axios.request({
       url: endpoint.url,
       method: endpoint.method,
@@ -17,52 +23,53 @@ let DAO = {
       },
       withCredentials: true,
     }).then(r => r.data);
-  },
+  }
 
-  listFiles: function (stage, prefix, after) {
-    return this.call(SERVICE.listFiles(CONFIG.repositoryId, stage, prefix, after));
-  },
+  listFiles(stage, prefix, after) {
+    return this.call(this.service.listFiles(this.repoId, this.datasetId, stage, prefix, after));
+  }
 
-  ingestFiles: function (stage, paths, tolerant, commit, logMessage) {
+  ingestFiles(stage, paths, tolerant, commit, logMessage) {
     let data = {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
       files: paths
     };
-    return this.call(SERVICE.ingestFiles(CONFIG.repositoryId, stage), data);
-  },
+    return this.call(this.service.ingestFiles(this.repoId, this.datasetId, stage), data);
+  }
 
-  ingestAll: function (stage, tolerant, commit, logMessage) {
-    return this.call(SERVICE.ingestAll(CONFIG.repositoryId, stage), {
+  ingestAll(stage, tolerant, commit, logMessage) {
+    return this.call(this.service.ingestAll(this.repoId, this.datasetId, stage), {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
       files: []
     });
-  },
+  }
 
-  deleteFiles: function (stage, paths) {
-    return this.call(SERVICE.deleteFiles(CONFIG.repositoryId, stage), paths);
-  },
+  deleteFiles(stage, paths) {
+    return this.call(this.service.deleteFiles(this.repoId, this.datasetId, stage), paths);
+  }
 
-  deleteAll: function (stage) {
-    return this.call(SERVICE.deleteAll(CONFIG.repositoryId, stage)).then(data => data.ok || false);
-  },
+  deleteAll(stage) {
+    return this.call(this.service.deleteAll(this.repoId, this.datasetId, stage))
+      .then(data => data.ok || false);
+  }
 
-  validateFiles: function (stage, paths) {
-    return this.call(SERVICE.validateFiles(CONFIG.repositoryId, stage), paths);
-  },
+  validateFiles(stage, paths) {
+    return this.call(this.service.validateFiles(this.repoId, this.datasetId, stage), paths);
+  }
 
-  fileUrls: function (stage, paths) {
-    return this.call(SERVICE.fileUrls(CONFIG.repositoryId, stage), paths);
-  },
+  fileUrls(stage, paths) {
+    return this.call(this.service.fileUrls(this.repoId, this.datasetId, stage), paths);
+  }
 
-  uploadHandle: function (stage, fileSpec) {
-    return this.call(SERVICE.uploadHandle(CONFIG.repositoryId, stage), fileSpec);
-  },
+  uploadHandle(stage, fileSpec) {
+    return this.call(this.service.uploadHandle(this.repoId, this.datasetId, stage), fileSpec);
+  }
 
-  uploadFile: function (url, file, progressHandler) {
+  uploadFile(url, file, progressHandler) {
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
 
@@ -87,69 +94,69 @@ let DAO = {
           throw e;
         }
       });
-  },
+  }
 
-  harvest: function (config, fromLast) {
-    return this.call(SERVICE.harvestOaiPmh(CONFIG.repositoryId, fromLast), config);
-  },
+  harvest(config, fromLast) {
+    return this.call(this.service.harvestOaiPmh(this.repoId, this.datasetId, fromLast), config);
+  }
 
-  cancelHarvest: function(jobId) {
-    return this.call(SERVICE.cancelOaiPmhHarvest(CONFIG.repositoryId, jobId));
-  },
+  cancelHarvest(jobId) {
+    return this.call(this.service.cancelOaiPmhHarvest(this.repoId, jobId));
+  }
 
-  getConfig: function () {
-    return this.call(SERVICE.getOaiPmhConfig(CONFIG.repositoryId));
-  },
+  getConfig() {
+    return this.call(this.service.getOaiPmhConfig(this.repoId, this.datasetId));
+  }
 
-  saveConfig: function (config) {
-    return this.call(SERVICE.saveOaiPmhConfig(CONFIG.repositoryId), config);
-  },
+  saveConfig(config) {
+    return this.call(this.service.saveOaiPmhConfig(this.repoId, this.datasetId), config);
+  }
 
-  deleteConfig: function () {
-    return this.call(SERVICE.deleteOaiPmhConfig(CONFIG.repositoryId));
-  },
+  deleteConfig() {
+    return this.call(this.service.deleteOaiPmhConfig(this.repoId, this.datasetId));
+  }
 
-  testConfig: function (config) {
-    return this.call(SERVICE.testOaiPmhConfig(CONFIG.repositoryId), config);
-  },
+  testConfig(config) {
+    return this.call(this.service.testOaiPmhConfig(this.repoId, this.datasetId), config);
+  }
 
-  convert: function(config) {
-    return this.call(SERVICE.convert(CONFIG.repositoryId), config);
-  },
+  convert(config) {
+    return this.call(this.service.convert(this.repoId, this.datasetId), config);
+  }
 
-  convertFileUrl: function(stage, key) {
-    return SERVICE.convertFile(CONFIG.repositoryId, stage, key).url;
-  },
+  convertFileUrl(stage, key) {
+    return this.service.convertFile(this.repoId, this.datasetId, stage, key).url;
+  }
 
-  cancelConvert: function(jobId) {
-    return this.call(SERVICE.cancelConvert(CONFIG.repositoryId, jobId));
-  },
+  cancelConvert(jobId) {
+    return this.call(this.service.cancelConvert(this.repoId, jobId));
+  }
 
-  getConvertConfig: function () {
-    return this.call(SERVICE.getConvertConfig(CONFIG.repositoryId));
-  },
+  getConvertConfig() {
+    return this.call(this.service.getConvertConfig(this.repoId, this.datasetId));
+  }
 
-  saveConvertConfig: function (dtIds) {
-    return this.call(SERVICE.saveConvertConfig(CONFIG.repositoryId), dtIds);
-  },
+  saveConvertConfig(dtIds) {
+    return this.call(this.service.saveConvertConfig(this.repoId, this.datasetId), dtIds);
+  }
 
-  listDataTransformations: function() {
-    return this.call(SERVICE.listDataTransformations(CONFIG.repositoryId));
-  },
+  listDataTransformations() {
+    return this.call(this.service.listDataTransformations(this.repoId));
+  }
 
-  getDataTransformation: function(id) {
-    return this.call(SERVICE.getDataTransformation(CONFIG.repositoryId, id));
-  },
+  getDataTransformation(id) {
+    return this.call(this.service.getDataTransformation(this.repoId, id));
+  }
 
-  createDataTransformation: function(generic, data) {
-    return this.call(SERVICE.createDataTransformation(CONFIG.repositoryId, generic), data);
-  },
+  createDataTransformation(generic, data) {
+    return this.call(this.service.createDataTransformation(this.repoId, generic), data);
+  }
 
-  updateDataTransformation: function(id, generic, data) {
-    return this.call(SERVICE.updateDataTransformation(CONFIG.repositoryId, id, generic), data);
-  },
+  updateDataTransformation(id, generic, data) {
+    return this.call(this.service.updateDataTransformation(this.repoId, id, generic), data);
+  }
 
-  deleteDataTransformation: function(id) {
-    return this.call(SERVICE.deleteDataTransformation(CONFIG.repositoryId, id));
-  },
+  deleteDataTransformation(id) {
+    return this.call(this.service.deleteDataTransformation(this.repoId, id));
+  }
 };

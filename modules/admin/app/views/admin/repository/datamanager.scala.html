@@ -56,14 +56,13 @@
                 window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
                     repositoryId: "@item.id",
-                    upload: "@defines.FileStage.Upload",
-                    ingest: "@defines.FileStage.Ingest",
-                    oaipmh: "@defines.FileStage.OaiPmh",
+                    input: "@defines.FileStage.Input",
+                    output: "@defines.FileStage.Output",
                     previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datamanager.worker.js")",
                     monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
                                 .absoluteURL(location.protocol === "https:")
                                 .replace(/^http/, "ws"),
-                    defaultTab: "@defines.FileStage.Upload",
+                    defaultTab: "upload",
                 };
                 let DONE_MSG = "@utils.WebsocketConstants.DONE_MESSAGE";
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";

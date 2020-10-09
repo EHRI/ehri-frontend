@@ -91,14 +91,14 @@ case class RepositoryData @Inject()(
   private def instance(implicit request: RequestHeader): String =
     URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
 
-  private def prefix(id: String, stage: FileStage.Value)(implicit request: RequestHeader): String = s"$instance/$stage/$id/"
+  private def prefix(id: String, ds: String, stage: FileStage.Value)(implicit request: RequestHeader): String = s"$instance/$id/$ds/$stage/"
 
   def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.datamanager(request.item))
   }
 
-  def validateFiles(id: String, stage: FileStage.Value): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
-    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id, stage)}$key").toString)
+  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
+    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id, ds, stage)}$key").toString)
     val results: Seq[Future[(String, Seq[XmlValidationError])]] = urls.map { case (key, url) =>
       eadValidator.validateEad(Uri(url)).map(errs => key -> errs)
     }
@@ -107,54 +107,54 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def listFiles(id: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
-      prefix = Some(prefix(id, stage) + path.getOrElse("")),
-      from.map(key => s"${prefix(id, stage)}$key"), max = 500).map { list =>
-      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, stage), ""))))))
+      prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
+      from.map(key => s"${prefix(id, ds, stage)}$key"), max = 500).map { list =>
+      Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, ds, stage), ""))))))
     }
   }
 
-  def countFiles(id: String, stage: FileStage.Value, path: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def countFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._
 
-    val pathPrefix: String = prefix(id, stage) + path.getOrElse("")
+    val pathPrefix: String = prefix(id, ds, stage) + path.getOrElse("")
     asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
-      storage.streamFiles(bucket, Some(prefix(id, stage) + path.getOrElse(""))).runFold(0)((acc, _) => acc + 1).map { count =>
+      storage.streamFiles(bucket, Some(prefix(id, ds, stage) + path.getOrElse(""))).runFold(0)((acc, _) => acc + 1).map { count =>
         Json.obj("path" -> pathPrefix, "count" -> count)
       }
     }.map(Ok(_))
   }
 
-  def fileUrls(id: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id, stage)}$path")
-    val result = keys.map(key => key.replace(prefix(id, stage), "") -> storage.uri(bucket, key)).toMap
+  def fileUrls(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
+    val result = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(bucket, key)).toMap
     Ok(Json.toJson(result))
   }
 
-  def ingestAll(id: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
-    storage.streamFiles(bucket, Some(prefix(id, stage))).map(_.key.replace(prefix(id, stage), ""))
+  def ingestAll(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
+    storage.streamFiles(bucket, Some(prefix(id, ds, stage))).map(_.key.replace(prefix(id, ds, stage), ""))
       .runWith(Sink.seq).flatMap { seq =>
-      ingestFiles(id, stage).apply(request.withBody(request.body.copy(files = seq)))
+      ingestFiles(id, ds, stage).apply(request.withBody(request.body.copy(files = seq)))
     }
   }
 
-  private def streamToStorage(id: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
+  private def streamToStorage(id: String, ds: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
     Accumulator.source[ByteString]
-      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id, stage)}$fileName", src, r.contentType))
+      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id, ds, stage)}$fileName", src, r.contentType))
       .map(f => Source.single(ByteString(Json.prettyPrint(Json.obj("url" -> f.toString)))))
       .map(Right.apply)
   }
 
-  def uploadStream(id: String, stage: FileStage.Value, fileName: String): Action[Source[ByteString, _]] =
-    EditAction(id).apply(streamToStorage(id, stage, fileName)) { implicit request =>
+  def uploadStream(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[Source[ByteString, _]] =
+    EditAction(id).apply(streamToStorage(id, ds, stage, fileName)) { implicit request =>
       // Upload via the server. Normally you'd PUT direct from the client
       // to the storage, but this is useful for testing
       Ok.chunked(request.body).as(ContentTypes.JSON)
     }
 
-  def download(id: String, stage: FileStage.Value, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
-    storage.get(bucket, s"${prefix(id, stage)}$fileName").map {
+  def download(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
+    storage.get(bucket, s"${prefix(id, ds, stage)}$fileName").map {
       case Some((meta, bytes)) =>
         Ok.chunked(bytes)
         .as(meta.contentType.getOrElse(ContentTypes.BINARY))
@@ -164,9 +164,9 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
+  def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
-    val keys = request.body.files.map(path => s"${prefix(id, stage)}$path")
+    val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
     val urls = keys.map(key => key -> storage.uri(bucket, key, duration = 24.hours)).toMap
 
     // Tag this task with a unique ID...
@@ -204,20 +204,20 @@ case class RepositoryData @Inject()(
     ))
   }
 
-  def uploadHandle(id: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
-    val path = s"${prefix(id, stage)}${request.body.name}"
+  def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
+    val path = s"${prefix(id, ds, stage)}${request.body.name}"
     val url = storage.uri(bucket, path, contentType = Some(request.body.`type`))
     Ok(Json.obj("presignedUrl" -> url))
   }
 
-  def deleteFiles(id: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id, stage)}$path")
+  def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+    val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
     storage.deleteFiles(bucket, keys: _*).map { deleted =>
-      Ok(Json.toJson(deleted.map(_.replace(prefix(id, stage), ""))))
+      Ok(Json.toJson(deleted.map(_.replace(prefix(id, ds, stage), ""))))
     }
   }
 
-  def deleteAll(id: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def deleteAll(id: String, ds: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
     def deleteBatch(batch: Seq[FileMeta]): Future[Boolean] = {
       storage
         .deleteFiles(bucket, batch.map(_.key): _*)
@@ -225,7 +225,7 @@ case class RepositoryData @Inject()(
     }
 
     val r: Future[Boolean] = storage
-      .streamFiles(bucket, Some(prefix(id, stage)))
+      .streamFiles(bucket, Some(prefix(id, ds, stage)))
       .grouped(200)
       .mapAsync(2)(deleteBatch)
       .runWith(Sink.seq)
@@ -255,7 +255,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def harvestOaiPmh(id: String, fromLast: Boolean): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def harvestOaiPmh(id: String, ds: String, fromLast: Boolean): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
       if (fromLast) harvestEvents.get(id).map( events =>
         events
@@ -267,7 +267,7 @@ case class RepositoryData @Inject()(
     lastHarvest.map { last =>
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
-      val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, FileStage.OaiPmh), from = last)
+      val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input), from = last)
       val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
       mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
 
@@ -290,25 +290,25 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def getOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    oaipmhConfigs.get(id).map { opt =>
+  def getOaiPmhConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    oaipmhConfigs.get(id, ds).map { opt =>
       Ok(Json.toJson(opt))
     }
   }
 
-  def saveOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
-    oaipmhConfigs.save(id, request.body).map { r =>
+  def saveOaiPmhConfig(id: String, ds: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+    oaipmhConfigs.save(id, ds, request.body).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def deleteOaiPmhConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    oaipmhConfigs.delete(id).map { r =>
+  def deleteOaiPmhConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    oaipmhConfigs.delete(id, ds).map { r =>
       Ok(Json.toJson(r))
     }
   }
 
-  def testOaiPmhConfig(id: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
+  def testOaiPmhConfig(id: String, ds: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val getIdentF = oaipmhClient.identify(request.body)
     val listIdentF = oaipmhClient.listIdentifiers(request.body)
     (for (ident <- getIdentF; _ <- listIdentF)
@@ -318,11 +318,11 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def getConvertConfig(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def getConvertConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     dataTransformations.getConfig(id).map(dts => Ok(Json.toJson(dts)))
   }
 
-  def saveConvertConfig(id: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+  def saveConvertConfig(id: String, ds: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
     dataTransformations.saveConfig(id, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
   }
 
@@ -373,7 +373,7 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def convertFile(id: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(parse.json[ConvertConfig]) { implicit request =>
+  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(parse.json[ConvertConfig]) { implicit request =>
     configToMappings(request.body).flatMap { m =>
       import services.transformation.utils.digest
 
@@ -386,7 +386,7 @@ case class RepositoryData @Inject()(
         case e: XmlTransformationError => BadRequest(Json.toJson(e))
       }
 
-      val path = prefix(id, stage) + fileName
+      val path = prefix(id, ds, stage) + fileName
       storage.info(bucket, path).flatMap {
         case Some(meta) =>
           val outF = meta.eTag match {
@@ -404,15 +404,15 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def convert(id: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
+  def convert(id: String, ds: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
     configToMappings(request.body).map { ts =>
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
         request.body.src,
         ts,
         bucket,
-        inPrefix = stage => prefix(id, stage),
-        outPrefix = prefix(id, FileStage.Ingest)
+        inPrefix = stage => prefix(id, ds, FileStage.Input),
+        outPrefix = prefix(id, ds, FileStage.Output)
       )
       val job = XmlConvertJob(jobId, repoId = id, data = data)
       mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)

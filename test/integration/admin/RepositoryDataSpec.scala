@@ -34,13 +34,17 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
       |  </eadheader>
       |</ead>
       |""".stripMargin)
-  private val testPrefix = "https://ehri-assets.mystorage.com/localhost/ingest/r1/"
+  private val repoId = "r1"
+  private val datasetId = "default"
+  private val stage = FileStage.Input
+  private val testPrefix = s"https://ehri-assets.mystorage.com/localhost/$repoId/$datasetId/$stage/"
   private val testFileName = "test.xml"
+
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
   private def putFile()(implicit app: play.api.Application): Future[Result] = {
-    FakeRequest(repoDataRoutes.uploadStream("r1", FileStage.Ingest, testFileName))
+    FakeRequest(repoDataRoutes.uploadStream(repoId, datasetId, stage, testFileName))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"
@@ -52,7 +56,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
   "Repository Data API" should {
 
     "provide PUT urls" in new ITestApp {
-      val r = FakeRequest(repoDataRoutes.uploadHandle("r1", FileStage.Ingest)).withUser(privilegedUser).callWith(
+      val r = FakeRequest(repoDataRoutes.uploadHandle(repoId, datasetId, stage)).withUser(privilegedUser).callWith(
         Json.toJson(FileToUpload(
           name = testFileName,
           `type` = ContentTypes.XML,
@@ -69,7 +73,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "fetch data" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.download("r1", FileStage.Ingest, testFileName))
+      val r = FakeRequest(repoDataRoutes.download(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
         .call()
 
@@ -79,7 +83,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "list files" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.listFiles("r1", FileStage.Ingest))
+      val r = FakeRequest(repoDataRoutes.listFiles(repoId, datasetId, stage))
         .withUser(privilegedUser)
         .call()
 
@@ -90,7 +94,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "delete files" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.deleteFiles("r1", FileStage.Ingest))
+      val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, stage))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
         ))
@@ -102,7 +106,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "validate files" in new ITestApp {
       await(putFile())
-      val r = FakeRequest(repoDataRoutes.validateFiles("r1", FileStage.Ingest))
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
         ))
@@ -119,7 +123,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
     "convert files" in new ITestApp {
       await(putFile())
       val map = resourceAsString("simple-mapping.tsv")
-      val r = FakeRequest(repoDataRoutes.convertFile("r1", FileStage.Ingest, testFileName))
+      val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
         .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
 
@@ -132,7 +136,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
     "convert files with correct errors" in new ITestApp {
       await(putFile())
       val map = resourceAsString("simple-mapping.tsv") + "/ead/\t@foobar\t/blah\t&\n" // invalid junk
-      val r = FakeRequest(repoDataRoutes.convertFile("r1", FileStage.Ingest, testFileName))
+      val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
         .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
 
