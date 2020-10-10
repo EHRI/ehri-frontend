@@ -32,6 +32,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
+import services.datasets.ImportDatasetService
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
@@ -74,6 +75,7 @@ case class RepositoryData @Inject()(
   harvestEvents: HarvestEventService,
   xmlTransformer: XmlTransformer,
   dataTransformations: DataTransformationService,
+  datasets: ImportDatasetService,
   asyncCache: AsyncCacheApi,
   @NamedCache("transformer-cache") transformCache: AsyncCacheApi
 )(
@@ -434,5 +436,21 @@ case class RepositoryData @Inject()(
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
+  }
+
+  def listDatasets(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    datasets.list(id).map(ds => Ok(Json.toJson(ds)))
+  }
+
+  def createDataset(id: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
+    datasets.create(id, request.body).map( ds => Ok(Json.toJson(ds)))
+  }
+
+  def deleteDataset(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    // Delete all files in stages in the dataset, then the dataset itself...
+    val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq
+      .map(s => storage.deleteFilesWithPrefix(bucket, prefix(id, ds, s)))
+    for (_ <- Future.sequence(del); ds <- datasets.delete(id, ds))
+      yield Ok(Json.toJson(ds))
   }
 }

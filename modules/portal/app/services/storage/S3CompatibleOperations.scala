@@ -121,8 +121,19 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
   def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
-    val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
-    client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
+    deleteKeys(classifier, paths)
+  }(ec)
+
+  def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
+    @scala.annotation.tailrec
+    def deleteBatch(done: Seq[String] = Seq.empty): Seq[String] = {
+      val fm = listPrefix(classifier, Some(prefix), done.lastOption, max = 1000)
+      val keys = fm.files.map(_.key)
+      deleteKeys(classifier, keys)
+      if (fm.truncated) deleteBatch(done ++ keys)
+      else done ++ keys
+    }
+    deleteBatch()
   }(ec)
 
   def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
@@ -133,18 +144,27 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       .map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
 
   def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
+    listPrefix(classifier, prefix, after, max)
+  }(ec)
+
+  private def deleteKeys(classifier: String, paths: Seq[String]) = {
+    val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
+    client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
+  }
+
+  private def listPrefix(classifier: String, prefix: Option[String], after: Option[String], max: Int) = {
     // FIXME: Update this to ListObjectsV2 when Digital Ocean
     // implement support for the StartAfter parameter.
     // For now the marker param in ListObject (v1) seems
     // to do the same thing.
     val req = new ListObjectsRequest()
-        .withBucketName(classifier)
-        .withMaxKeys(max)
+      .withBucketName(classifier)
+      .withMaxKeys(max)
     after.foreach(req.setMarker)
     prefix.foreach(req.setPrefix)
     val r = client.listObjects(req)
     FileList(r.getObjectSummaries.asScala.map { f =>
       FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag))
     }.toList, r.isTruncated)
-  }(ec)
+  }
 }
