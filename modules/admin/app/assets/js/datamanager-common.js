@@ -253,7 +253,7 @@ let previewPanelMixin = {
         return widget;
       }
 
-      function makeMarker(err) {
+      function makeMarker(doc, err) {
         let marker = document.createElement("div");
         marker.style.color = "#822";
         marker.style.marginLeft = "3px";
@@ -275,7 +275,7 @@ let previewPanelMixin = {
         let doc = this.editor.getDoc();
         this.errors.forEach(e => {
           doc.addLineClass(e.line - 1, 'background', 'line-error');
-          doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(e));
+          doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(doc, e));
         });
       }
     },
