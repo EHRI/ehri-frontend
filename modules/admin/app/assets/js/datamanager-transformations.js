@@ -173,7 +173,8 @@ Vue.component("transformation-editor", {
     bodyType: String,
     body: String,
     comments: String,
-    initPreviewStage: String,
+    datasetId: String,
+    fileStage: String,
     initPreviewing: Object,
     config: Object,
     api: Object,
@@ -181,7 +182,6 @@ Vue.component("transformation-editor", {
   data: function() {
     return {
       saving: false,
-      previewStage: this.initPreviewStage,
       previewing: this.initPreviewing,
       loading: false,
       panelSize: 0,
@@ -327,6 +327,7 @@ Vue.component("transformation-editor", {
               <div id="transformation-editor-preview-select">
                 <label for="transformation-editor-preview-options">Preview transformation</label>
                 <file-picker v-bind:disabled="loading"
+                             v-bind:dataset-id="datasetId"
                              v-bind:file-stage="config.input"
                              v-bind:api="api"
                              v-bind:config="config"
@@ -345,7 +346,8 @@ Vue.component("transformation-editor", {
                 <div class="transformation-editor-preview-window">
                   <preview 
                     v-if="previewing !== null"
-                    v-bind:file-stage="previewStage"
+                    v-bind:dataset-id="datasetId"
+                    v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"
@@ -359,9 +361,10 @@ Vue.component("transformation-editor", {
                 <div class="transformation-editor-preview-window">
                   <convert-preview 
                     v-if="previewing !== null"
+                    v-bind:dataset-id="datasetId"
+                    v-bind:file-stage="fileStage"
                     v-bind:mappings="mappings"
                     v-bind:trigger="timestamp"
-                    v-bind:file-stage="previewStage"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"

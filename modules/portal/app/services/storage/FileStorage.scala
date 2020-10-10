@@ -95,11 +95,20 @@ trait FileStorage {
   def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList]
 
   /**
-    * Delete a file from storage.
+    * Delete files from storage.
     *
     * @param classifier the "bucket", or set, to which this file belongs
-    * @param paths      additional file paths, including the file name with extension
+    * @param paths      file paths, including the file name with extension
     * @return paths which were successfully deleted
     */
   def deleteFiles(classifier: String, paths: String*): Future[Seq[String]]
+
+  /**
+    * Delete files with a given prefix from storage.
+    *
+    * @param classifier the "bucket", or set, to which this file belongs
+    * @param prefix     the file path prefix
+    * @return paths which were successfully deleted
+    */
+  def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]]
 }

@@ -132,6 +132,8 @@ let twoPanelMixin = {
 
 let validatorMixin = {
   props: {
+    datasetId: String,
+    fileStage: String,
     api: Object,
   },
   data: function() {
@@ -161,7 +163,7 @@ let validatorMixin = {
     validateFiles: function (keys) {
       keys.forEach(key => this.$set(this.validating, key, true));
       keys.forEach(key => this.$delete(this.validationResults, key));
-      this.api.validateFiles(this.fileStage, keys)
+      this.api.validateFiles(this.datasetId, this.fileStage, keys)
         .then(errs => {
           this.tab = 'validation';
           keys.forEach(key => {
@@ -177,6 +179,7 @@ let validatorMixin = {
 let previewPanelMixin = {
   mixins: [errorMixin],
   props: {
+    datasetId: String,
     fileStage: String,
     panelSize: Number,
     previewing: Object,
@@ -233,7 +236,7 @@ let previewPanelMixin = {
       }
 
       this.validating = true;
-      this.api.validateFiles(this.fileStage, [this.previewing.key])
+      this.api.validateFiles(this.datasetId, this.fileStage, [this.previewing.key])
         .then(errors => {
           this.errors = errors[this.previewing.key];
           this.updateErrors()
@@ -286,7 +289,7 @@ let previewPanelMixin = {
       }
 
       this.setLoading();
-      this.api.fileUrls(this.fileStage, [this.previewing.key])
+      this.api.fileUrls(this.datasetId, this.fileStage, [this.previewing.key])
         .then(data => this.worker.postMessage({
           type: 'preview',
           url: data[this.previewing.key]
@@ -424,7 +427,7 @@ Vue.component("convert-preview", {
       this.setLoading();
       this.worker.postMessage({
         type: 'convert-preview',
-        url: this.api.convertFileUrl(this.fileStage, this.previewing.key),
+        url: this.api.convertFileUrl(this.datasetId, this.fileStage, this.previewing.key),
         src: [],
         mappings: this.mappings,
       });
@@ -496,6 +499,7 @@ Vue.component("file-picker-suggestion", {
 
 Vue.component("file-picker", {
   props: {
+    datasetId: String,
     fileStage: String,
     value: Object,
     disabled: Boolean,
@@ -515,7 +519,7 @@ Vue.component("file-picker", {
     search: function () {
       this.loading = true;
       let list = () => {
-        this.api.listFiles(this.fileStage, this.text ? this.text : "")
+        this.api.listFiles(this.datasetId, this.fileStage, this.text ? this.text : "")
           .then(data => {
             this.suggestions = data.files;
             this.showSuggestions = true;

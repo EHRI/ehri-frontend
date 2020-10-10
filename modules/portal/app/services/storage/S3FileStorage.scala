@@ -55,4 +55,7 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] =
     ops.deleteFiles(classifier, paths: _*)
+
+  override def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] =
+    ops.deleteFilesWithPrefix(classifier, prefix)
 }

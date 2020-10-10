@@ -41,6 +41,13 @@ body {
   flex: 1;
 }
 
+.dataset-selector {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
 #app-error-notice {
   position: absolute;
   bottom: $margin-sm;
@@ -53,6 +60,10 @@ body {
     margin-top: -3px;
     cursor: pointer;
   }
+}
+
+.modal-content {
+  box-shadow: $box-shadow;
 }
 
 #stage-tabs {
@@ -741,12 +752,6 @@ body {
 
 .preview-container .CodeMirror-gutters {
   background-color: $gray-100;
-}
-
-.options-dialog {
-  .modal-content {
-    box-shadow: $box-shadow;
-  }
 }
 
 .options-form {
