@@ -567,6 +567,7 @@ Vue.component("upload-manager", {
 
 Vue.component("oaipmh-config-modal", {
   props: {
+    datasetId: String,
     config: Object,
     api: DAO,
   },
@@ -806,6 +807,7 @@ Vue.component("oaipmh-manager", {
         
         <oaipmh-config-modal 
           v-if="showOptions"
+          v-bind:dataset-id="datasetId"
           v-bind:config="harvestConfig"
           v-bind:api="api"
           v-on:saved-config="saveConfigAndHarvest"
@@ -1124,7 +1126,6 @@ Vue.component("convert-manager", {
         v-bind:api="api"
         v-on:saved="saved"
         v-on:close="closeEditForm"/>
-
 
       <div class="actions-bar">
         <file-picker v-bind:disabled="convertJobId !== null"
@@ -1610,8 +1611,10 @@ Vue.component("new-dataset-form", {
     isValidConfig: function() {
       return this.src !== null
         && this.name !== null
-        && this.id !== null
-        && this.id.match(/[a-z0-9_]+/) !== null;
+        && this.id !== null;
+    },
+    isValidIdentifier: function() {
+      return !this.id || this.id.match(/^[a-z0-9_]+$/) !== null;
     }
   },
   template: `
@@ -1626,25 +1629,29 @@ Vue.component("new-dataset-form", {
             </button>
           </div>
           <div class="modal-body">
-            <div class="dataset-form">
+            <div class="options-form">
               <div class="form-group">
-                <label for="dataset-id">Identifier</label>
-                <input type="text" pattern="[a-z0-9_]" v-model="id" id="dataset-id" class="form-control"/>
+                <label class="form-label" for="dataset-id">Identifier</label>
+                <input v-model="id" v-bind:class="{'is-invalid': !isValidIdentifier}" 
+                       pattern="[a-z0-9_]+" type="text" id="dataset-id" class="form-control"/>
+                <div class="small form-text">
+                  Dataset identifiers can only contain lower case letters, numbers and underscores.
+                </div>
               </div>
               <div class="form-group">
-                <label for="dataset-name">Name</label>
+                <label class="form-label" for="dataset-name">Name</label>
                 <input type="text" v-model="name" id="dataset-name" class="form-control"/>
               </div>
               <div class="form-group">
-                <label for="dataset-src">Type</label>
+                <label class="form-label" for="dataset-src">Type</label>
                 <select v-model="src" class="form-control" id="dataset-src">
                   <option value="upload">Uploads</option>
                   <option value="oaipmh">OAI-PMH Harvesting</option>
                 </select>
               </div>
               <div class="form-group">
-                  <label for="dataset-notes">Notes</label>
-                  <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control"/>
+                  <label class="form-label" for="dataset-notes">Notes</label>
+                  <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control" placeholder="(optional)"/>
                 </div>
             </div>
           </div>
@@ -1652,7 +1659,7 @@ Vue.component("new-dataset-form", {
             <button v-on:click="$emit('close')" type="button" class="btn btn-default">
               Cancel
             </button>
-            <button v-bind:disabled="!isValidConfig"
+            <button v-bind:disabled="!(isValidConfig && isValidIdentifier)"
                     v-on:click="save" type="button" class="btn btn-secondary">
               Create New Dataset
             </button>
@@ -1687,6 +1694,7 @@ Vue.component("data-manager", {
       this.error = err + ": " + exc.message;
     },
     switchTab: function(tab) {
+      console.log("switching to tab: ", tab)
       this.tab = tab;
       history.pushState(
         _.merge(this.queryParams(window.location.search), {'tab': tab}),
@@ -1750,6 +1758,8 @@ Vue.component("data-manager", {
     this.loadDatasets().then(() => {
       if (this.dsId) {
         this.selectDataset(_.find(this.datasets, d => d.id === this.dsId));
+      } else if (this.datasets.length === 1) {
+        this.selectDataset(this.datasets[0]);
       }
     });
   },
@@ -1764,16 +1774,37 @@ Vue.component("data-manager", {
         v-on:close="showForm = false"
         v-on:new-dataset="createDataset" />
       
-      <div v-if="!loaded && dataset === null" class="loading-indicator"></div>
-      <div v-else-if="dataset === null">
+      <div v-if="!loaded && dataset === null" class="dataset-loading-indicator">
+        <h2>
+          <i class="fa fa-lg fa-spin fa-spinner"></i>
+          Loading datasets...
+        </h2>
+      </div>
+      <div class="dataset-manager" v-else-if="dataset === null">
         <div v-if="loaded && datasets.length === 0">
-          <h1>Create a new dataset</h1>
-
+          <h2>Create a dataset...</h2>
+          <p class="info-message">
+            To manage institution data you must create at least one dataset. A dataset is
+            a set of files that typically come from the same source and are processed in
+            the same way.
+          </p>
         </div>
-        <h1>Select dataset</h1>
-        <div v-for="ds in datasets" v-on:click="selectDataset(ds)">
-          <h2>{{ds.name}}</h2>
+        <div v-else>
+          <h2 v-if="datasets">Select dataset</h2>
+          <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)">
+            <div class="dataset-manager-item">
+              <h3>{{ds.name}}</h3>
+              <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
+                {{ds.src|stageName(config)}}
+              </div>
+              <p v-if="ds.notes">{{ds.notes}}</p>
+            </div>
+          </div>
         </div>
+        <button v-on:click.prevent="showNewDatasetForm" class="btn btn-success">
+          <i class="fa fa-plus-circle"></i>
+          Create a new dataset
+        </button>
       </div>
       <template v-else>
         <ul id="stage-tabs" class="nav nav-tabs">
@@ -1806,6 +1837,7 @@ Vue.component("data-manager", {
           <li class="dataset-selector">
             <div class="dropdown">
               <button class="btn btn-info" v-on:click="showSelector = !showSelector">
+                <i class="fa fa-lg fa-caret-down"></i>
                 Dataset: {{dataset.name}}
               </button>
               <div v-if="showSelector" class="dropdown-backdrop" v-on:click="showSelector = false">

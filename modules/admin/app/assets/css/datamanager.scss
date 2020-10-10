@@ -41,11 +41,32 @@ body {
   flex: 1;
 }
 
+.dataset-loading-indicator {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+}
+
 .dataset-selector {
   display: flex;
   align-items: center;
   flex: 1;
   justify-content: flex-end;
+}
+
+.dataset-manager-item {
+  padding: $margin-sm;
+  margin-bottom: $margin-sm;
+  background-color: $white;
+  border: 1px solid $border-color;
+  box-shadow: $box-shadow-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken($white, 2%);
+  }
 }
 
 #app-error-notice {
@@ -280,9 +301,13 @@ body {
   }
 }
 
+.dropdown-menu.show {
+  box-shadow: $box-shadow;
+}
+
 .dropdown-backdrop {
   position: fixed;
-  z-index: 0;
+  z-index: 500;
   top: 0;
   left: 0;
   right: 0;
@@ -756,6 +781,10 @@ body {
 
 .options-form {
   padding: $margin-md;
+}
+
+.options-form .small.form-text {
+  color: $text-muted;
 }
 
 .data-manager-form-item {
