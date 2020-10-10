@@ -84,6 +84,13 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     }
   }(ec)
 
+  override def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
+    fileMeta(classifier).filter(_.key.startsWith(prefix)).map { f =>
+      del(classifier, f.key)
+      f.key
+    }
+  }(ec)
+
   /**
     * A public method for testing purposes only.
     */

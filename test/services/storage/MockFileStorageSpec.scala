@@ -63,5 +63,13 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
       items2.files.map(_.key) must_== paths.drop(2)
       items2.truncated must_== false
     }
+
+    "delete files with a given prefix" in {
+      val storage = putTestItems._1
+      val deleted = await(storage.deleteFilesWithPrefix(bucket, "b"))
+      deleted.sorted must_== Seq("bar", "baz")
+      val items = await(storage.listFiles(bucket))
+      items.files.size must_== 2
+    }
   }
 }

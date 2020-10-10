@@ -13,27 +13,32 @@ function sequential(func, arr, index) {
     .then(() => sequential(func, arr, index + 1));
 }
 
+let initialStageState = function() {
+  return {
+    loaded: false,
+    loadingMore: false,
+    truncated: false,
+    tab: 'preview',
+    previewing: null,
+    deleting: {},
+    downloading: {},
+    selected: {},
+    filter: {
+      value: "",
+      active: false
+    },
+    files: [],
+    log: [],
+  };
+};
+
 let stageMixin = {
   props: {
+    datasetId: String,
     active: Boolean,
   },
   data: function() {
-    return {
-      loaded: false,
-      loadingMore: false,
-      truncated: false,
-      tab: 'preview',
-      previewing: null,
-      deleting: {},
-      downloading: {},
-      selected: {},
-      filter : {
-        value: "",
-        active: false
-      },
-      files: [],
-      log: [],
-    }
+    return initialStageState();
   },
   computed: {
     selectedKeys: function () {
@@ -41,6 +46,9 @@ let stageMixin = {
     },
   },
   methods: {
+    reset: function() {
+      Object.assign(this.$data, initialStageState());
+    },
     clearFilter: function () {
       this.filter.value = "";
       return this.refresh();
@@ -59,7 +67,7 @@ let stageMixin = {
       return this.load();
     }, 500),
     load: function () {
-      return this.api.listFiles(this.fileStage, this.filter.value)
+      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value)
         .then(data => {
           this.files = data.files;
           this.truncated = data.truncated;
@@ -72,7 +80,7 @@ let stageMixin = {
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key
         : null;
-      return this.api.listFiles(this.fileStage, this.filter.value, from)
+      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from)
         .then(data => {
           this.files.push.apply(this.files, data.files);
           this.truncated = data.truncated;
@@ -97,7 +105,7 @@ let stageMixin = {
         this.previewing = null;
       }
       keys.forEach(key => this.$set(this.deleting, key, true));
-      this.api.deleteFiles(this.fileStage, keys)
+      this.api.deleteFiles(this.datasetId, this.fileStage, keys)
         .then(deleted => {
           deleted.forEach(key => {
             this.$delete(this.deleting, key);
@@ -111,7 +119,7 @@ let stageMixin = {
     deleteAll: function () {
       this.previewing = null;
       this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return this.api.deleteAll(this.fileStage)
+      return this.api.deleteAll(this.datasetId, this.fileStage)
         .then(r => {
           this.load();
           r;
@@ -135,6 +143,10 @@ let stageMixin = {
       if (newValue) {
         this.load();
       }
+    },
+    datasetId: function() {
+      this.reset();
+      this.load();
     }
   },
   created: function() {
@@ -169,7 +181,7 @@ Vue.component("upload-progress", {
 
 Vue.component("files-table", {
   props: {
-    api: Object,
+    api: DAO,
     fileStage: String,
     loadingMore: Boolean,
     dropping: Boolean,
@@ -216,8 +228,10 @@ Vue.component("files-table", {
   watch: {
     selected: function (newValue) {
       let selected = Object.keys(newValue).length;
-      this.$el.querySelector("#" + this.fileStage + "-checkall").indeterminate =
-        selected > 0 && selected !== this.files.length;
+      let checkAll = this.$el.querySelector("#" + this.fileStage + "-checkall");
+      if (checkAll) {
+        checkAll.indeterminate = selected > 0 && selected !== this.files.length;
+      }
     },
   },
   template: `
@@ -302,9 +316,10 @@ Vue.component("files-table", {
 Vue.component("upload-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
+    datasetId: String,
     fileStage: String,
     config: Object,
-    api: Object,
+    api: DAO,
   },
   data: function () {
     return {
@@ -341,7 +356,7 @@ Vue.component("upload-manager", {
         return Promise.resolve();
       }
 
-      return this.api.uploadHandle(this.fileStage, {
+      return this.api.uploadHandle(this.datasetId, this.fileStage, {
         name: file.name,
         type: file.type,
         size: file.size
@@ -514,7 +529,8 @@ Vue.component("upload-manager", {
 
           <div class="status-panels">
             <div class="status-panel" v-show="tab === 'preview'">
-              <preview v-bind:file-stage="fileStage"
+              <preview v-bind:dataset-id="datasetId"
+                       v-bind:file-stage="fileStage"
                        v-bind:previewing="previewing"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
@@ -552,7 +568,7 @@ Vue.component("upload-manager", {
 Vue.component("oaipmh-config-modal", {
   props: {
     config: Object,
-    api: Object,
+    api: DAO,
   },
   data: function() {
     return {
@@ -575,13 +591,13 @@ Vue.component("oaipmh-config-modal", {
   },
   methods: {
     save: function() {
-      this.api.saveConfig({url: this.url, format: this.format, set: this.set})
+      this.api.saveConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
         .then(data => this.$emit("saved-config", data, !this.noResume))
         .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testConfig({url: this.url, format: this.format, set: this.set})
+      this.api.testConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
         .then( r => {
           this.tested = !!r.name;
           this.error = null;
@@ -679,7 +695,7 @@ Vue.component("oaipmh-manager", {
   props: {
     fileStage: String,
     config: Object,
-    api: Object,
+    api: DAO,
   },
   data: function () {
     return {
@@ -691,7 +707,7 @@ Vue.component("oaipmh-manager", {
   },
   methods: {
     harvest: function() {
-      this.api.harvest(this.harvestConfig, this.fromLast)
+      this.api.harvest(this.datasetId, this.harvestConfig, this.fromLast)
         .then(data => {
           this.harvestJobId = data.jobId;
           this.monitorHarvest(data.url, data.jobId);
@@ -741,7 +757,7 @@ Vue.component("oaipmh-manager", {
       this.harvest();
     },
     loadConfig: function() {
-      this.api.getConfig()
+      this.api.getConfig(this.datasetId)
         .then(data => this.harvestConfig = data);
     },
   },
@@ -857,7 +873,8 @@ Vue.component("oaipmh-manager", {
 
           <div class="status-panels">
             <div class="status-panel" v-show="tab === 'preview'">
-              <preview v-bind:file-stage="fileStage" 
+              <preview v-bind:dataset-id="datasetId" 
+                       v-bind:file-stage="fileStage" 
                        v-bind:previewing="previewing"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
@@ -947,29 +964,34 @@ Vue.component("transformation-item", {
   `
 });
 
+let initialConvertState = function(config) {
+  return {
+    convertJobId: null,
+    ingesting: {},
+    previewStage: config.input,
+    previewing: null,
+    tab: 'preview',
+    log: [],
+    showOptions: false,
+    available: [],
+    enabled: [],
+    mappings: [], // IDs of enabled transformations
+    editing: null,
+    loading: false,
+  };
+};
+
 Vue.component("convert-manager", {
   mixins: [twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
+    datasetId: String,
     fileStage: String,
     config: Object,
-    api: Object,
+    api: DAO,
     active: Boolean,
   },
   data: function () {
-    return {
-      convertJobId: null,
-      ingesting: {},
-      previewStage: this.config.input,
-      previewing: null,
-      tab: 'preview',
-      log: [],
-      showOptions: false,
-      available: [],
-      enabled: [],
-      mappings: [], // IDs of enabled transformations
-      editing: null,
-      loading: false,
-    }
+    return initialConvertState(this.config);
   },
   methods: {
     loadTransformations: function() {
@@ -1006,7 +1028,7 @@ Vue.component("convert-manager", {
     },
     convert: function() {
       // FIXME: don't actually need the src parameter here any more
-      this.api.convert({mappings: this.mappings, src: [this.config.input]})
+      this.api.convert(this.datasetId, {mappings: this.mappings, src: [this.config.input]})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
@@ -1051,7 +1073,7 @@ Vue.component("convert-manager", {
       }
     },
     loadConfig: function() {
-      return this.api.getConvertConfig()
+      return this.api.getConvertConfig(this.datasetId)
         .then(data => this.mappings = data.map(item => item.id))
         .catch(error => this.showError("Error loading convert configuration", error));
     },
@@ -1060,7 +1082,7 @@ Vue.component("convert-manager", {
       if (!_.isEqual(mappings, this.mappings)) {
         console.log("saving enabled:", this.enabled)
         this.mappings = mappings;
-        this.api.saveConvertConfig(this.mappings)
+        this.api.saveConvertConfig(this.datasetId, this.mappings)
           .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
@@ -1071,6 +1093,12 @@ Vue.component("convert-manager", {
         this.saveConfig();
       }
     },
+    datasetId: function() {
+      Object.assign(this.$data, initialConvertState(this.config));
+      this.loadConfig().then(_ => {
+        this.loadTransformations();
+      });
+    }
   },
   created: function () {
     this.loadConfig().then(_ => {
@@ -1089,7 +1117,8 @@ Vue.component("convert-manager", {
         v-bind:body-type="editing.bodyType"
         v-bind:body="editing.body"
         v-bind:comments="editing.comments"
-        v-bind:init-preview-stage="previewStage"
+        v-bind:dataset-id="datasetId"
+        v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
         v-bind:config="config"
         v-bind:api="api"
@@ -1099,6 +1128,7 @@ Vue.component("convert-manager", {
 
       <div class="actions-bar">
         <file-picker v-bind:disabled="convertJobId !== null"
+                     v-bind:dataset-id="datasetId"
                      v-bind:file-stage="config.input"
                      v-bind:api="api"
                      v-bind:config="config"
@@ -1217,6 +1247,7 @@ Vue.component("convert-manager", {
           <div class="status-panels">
             <div class="status-panel" v-show="tab === 'preview'">
               <convert-preview
+                       v-bind:dataset-id="datasetId"
                        v-bind:file-stage="previewStage"
                        v-bind:mappings="mappings"
                        v-bind:trigger="JSON.stringify({
@@ -1305,9 +1336,10 @@ Vue.component("ingest-options-panel", {
 Vue.component("ingest-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
+    datasetId: String,
     fileStage: String,
     config: Object,
-    api: Object,
+    api: DAO,
   },
   data: function () {
     return {
@@ -1364,7 +1396,7 @@ Vue.component("ingest-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      this.api.ingestFiles(this.fileStage, keys, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
+      this.api.ingestFiles(this.datasetId, this.fileStage, keys, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
         .then(data => {
           if (data.url && data.jobId) {
             this.ingestJobId = data.jobId;
@@ -1387,14 +1419,16 @@ Vue.component("ingest-manager", {
       // Set key status to ingesting.
       keys.forEach(key => this.$set(this.ingesting, key, true));
 
-      this.api.ingestAll(this.fileStage, this.opts.tolerant, this.opts.commit, this.opts.logMsg).then(data => {
-        if (data.url && data.jobId) {
-          this.ingestJobId = data.jobId;
-          this.monitorIngest(data.url, data.jobId, keys);
-        } else {
-          console.error("unexpected job data", data);
-        }
-      }).catch(error => this.showError("Error running ingest", error));
+      this.api.ingestAll(this.datasetId, this.fileStage, this.opts.tolerant, this.opts.commit, this.opts.logMsg)
+        .then(data => {
+          if (data.url && data.jobId) {
+            this.ingestJobId = data.jobId;
+            this.monitorIngest(data.url, data.jobId, keys);
+          } else {
+            console.error("unexpected job data", data);
+          }
+        })
+        .catch(error => this.showError("Error running ingest", error));
     },
     doIngest: function() {
       this.showOptions = false;
@@ -1521,7 +1555,8 @@ Vue.component("ingest-manager", {
 
           <div class="status-panels">
             <div class="status-panel" v-show="tab === 'preview'">
-              <preview v-bind:file-stage="fileStage"
+              <preview v-bind:dataset-id="datasetId" 
+                       v-bind:file-stage="fileStage"
                        v-bind:previewing="previewing"
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
@@ -1551,16 +1586,100 @@ Vue.component("ingest-manager", {
   `
 });
 
+Vue.component("new-dataset-form", {
+  data: function() {
+    return {
+      id: null,
+      name: null,
+      src: null,
+      notes: null
+    }
+  },
+  methods: {
+    save: function() {
+      this.$emit('new-dataset', {
+        id: this.id,
+        name: this.name,
+        src: this.src,
+        notes: this.notes
+      });
+      this.$emit('close');
+    }
+  },
+  computed: {
+    isValidConfig: function() {
+      return this.src !== null
+        && this.name !== null
+        && this.id !== null
+        && this.id.match(/[a-z0-9_]+/) !== null;
+    }
+  },
+  template: `
+    <div class="modal show fade" tabindex="-1" role="dialog" style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create New Dataset</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    v-on:click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="dataset-form">
+              <div class="form-group">
+                <label for="dataset-id">Identifier</label>
+                <input type="text" pattern="[a-z0-9_]" v-model="id" id="dataset-id" class="form-control"/>
+              </div>
+              <div class="form-group">
+                <label for="dataset-name">Name</label>
+                <input type="text" v-model="name" id="dataset-name" class="form-control"/>
+              </div>
+              <div class="form-group">
+                <label for="dataset-src">Type</label>
+                <select v-model="src" class="form-control" id="dataset-src">
+                  <option value="upload">Uploads</option>
+                  <option value="oaipmh">OAI-PMH Harvesting</option>
+                </select>
+              </div>
+              <div class="form-group">
+                  <label for="dataset-notes">Notes</label>
+                  <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control"/>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-on:click="$emit('close')" type="button" class="btn btn-default">
+              Cancel
+            </button>
+            <button v-bind:disabled="!isValidConfig"
+                    v-on:click="save" type="button" class="btn btn-secondary">
+              Create New Dataset
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  `
+});
+
 Vue.component("data-manager", {
   mixins: [utilMixin],
   props: {
     config: Object,
-    api: Object,
+    api: DAO,
+    initTab: String,
   },
   data: function() {
     return {
-      tab: this.config.defaultTab,
+      loaded: false,
+      datasets: [],
+      dataset: null,
+      tab: this.initTab,
       error: null,
+      showForm: false,
+      showSelector: false,
     }
   },
   methods: {
@@ -1573,6 +1692,38 @@ Vue.component("data-manager", {
         _.merge(this.queryParams(window.location.search), {'tab': tab}),
         document.title,
         this.setQueryParam(window.location.search, 'tab', tab));
+    },
+    selectDataset: function(ds) {
+      if (!ds) {
+        this.dataset = null;
+        this.dsId = null;
+        return;
+      }
+      this.dataset = ds;
+      this.dsId = ds.id;
+      history.pushState(
+        _.merge(this.queryParams(window.location.search), {'ds': ds.id}),
+        document.title,
+        this.setQueryParam(window.location.search, 'ds', ds.id));
+    },
+    showNewDatasetForm: function () {
+      this.showForm = true;
+    },
+    loadDatasets: function() {
+      return this.api.listDatasets()
+        .then(dsl => this.datasets = dsl)
+        .catch(e => this.showError("Error loading datasets", e))
+        .finally(() => this.loaded = true);
+    },
+    createDataset: function(data) {
+      this.api.createDataset(data)
+        .then(data => {
+          this.api.listDatasets()
+            .then(ds => {
+              this.datasets = ds;
+              this.selectDataset(data);
+            });
+        });
     }
   },
   created() {
@@ -1582,11 +1733,25 @@ Vue.component("data-manager", {
       } else {
         this.tab = this.config.defaultTab;
       }
+      if (event.state && event.stage.ds) {
+        this.dsId = event.stage.ds;
+      }
     }
     let qsTab = this.getQueryParam(window.location.search, "tab");
     if (qsTab) {
       this.tab = qsTab;
     }
+
+    let qsDs = this.getQueryParam(window.location.search, "ds");
+    if (qsDs) {
+      this.dsId = qsDs;
+    }
+
+    this.loadDatasets().then(() => {
+      if (this.dsId) {
+        this.selectDataset(_.find(this.datasets, d => d.id === this.dsId));
+      }
+    });
   },
   template: `
     <div id="data-manager-container" class="container">
@@ -1594,66 +1759,126 @@ Vue.component("data-manager", {
         <span class="close" v-on:click="error = null">&times;</span>
         {{error}}
       </div>
-      <ul id="stage-tabs" class="nav nav-tabs">
-        <li class="nav-item">
-          <a href="#tab-upload" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
-             v-on:click.prevent="switchTab('upload')">
-            <i class="fa fw-fw fa-upload"></i>
-            Uploads
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab-convert" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
-             v-on:click.prevent="switchTab('convert')">
-            <i class="fa fa-fw fa-file-code-o"></i>
-            Transform
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
-                v-on:click.prevent="switchTab('ingest')">
-            <i class="fa fa-fw fa-database"></i>
+
+      <new-dataset-form v-if="showForm"
+        v-on:close="showForm = false"
+        v-on:new-dataset="createDataset" />
+      
+      <div v-if="!loaded && dataset === null" class="loading-indicator"></div>
+      <div v-else-if="dataset === null">
+        <div v-if="loaded && datasets.length === 0">
+          <h1>Create a new dataset</h1>
+
+        </div>
+        <h1>Select dataset</h1>
+        <div v-for="ds in datasets" v-on:click="selectDataset(ds)">
+          <h2>{{ds.name}}</h2>
+        </div>
+      </div>
+      <template v-else>
+        <ul id="stage-tabs" class="nav nav-tabs">
+          <li class="nav-item">
+            <a v-if="dataset.src === 'oaipmh'" href="#tab-input" class="nav-link" v-bind:class="{'active': tab === 'input'}"
+               v-on:click.prevent="switchTab('input')">
+              <i class="fa fw-fw fa-cloud-download"></i>
+              Harvest Data
+            </a>
+            <a v-if="dataset.src === 'upload'" href="#tab-input" class="nav-link" v-bind:class="{'active': tab === 'input'}"
+               v-on:click.prevent="switchTab('input')">
+              <i class="fa fw-fw fa-upload"></i>
+              Uploads
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tab-convert" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
+               v-on:click.prevent="switchTab('convert')">
+              <i class="fa fa-fw fa-file-code-o"></i>
+              Transform
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tab-ingest" class="nav-link" v-bind:class="{'active': tab === 'ingest'}"
+               v-on:click.prevent="switchTab('ingest')">
+              <i class="fa fa-fw fa-database"></i>
               Ingest
             </a>
-        </li>
-      </ul>
-      <div id="tab-upload" class="stage-tab" v-show="tab === 'upload'">
-        <upload-manager 
-          v-bind:fileStage="config.input" 
-          v-bind:config="config" 
-          v-bind:active="tab === 'upload'"
-          v-bind:api="api"
-          v-on:error="setError"  />
-      </div>
-      <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
-        <convert-manager 
-          v-bind:fileStage="config.output" 
-          v-bind:config="config" 
-          v-bind:active="tab === 'convert'"
-          v-bind:api="api"
-          v-on:error="setError" />
-      </div>
-      <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
-        <ingest-manager 
-          v-bind:fileStage="config.output" 
-          v-bind:config="config" 
-          v-bind:active="tab === 'ingest'"
-          v-bind:api="api"
-          v-on:error="setError"  />
-      </div>
+          </li>
+          <li class="dataset-selector">
+            <div class="dropdown">
+              <button class="btn btn-info" v-on:click="showSelector = !showSelector">
+                Dataset: {{dataset.name}}
+              </button>
+              <div v-if="showSelector" class="dropdown-backdrop" v-on:click="showSelector = false">
+              </div>
+              <div v-if="showSelector" class="dropdown-menu dropdown-menu-right show">
+                <a v-for="ds in datasets" href="#" class="dropdown-item"
+                        v-on:click.prevent="selectDataset(ds); showSelector = false;">
+                  {{ds.name}}
+                  <i v-if="ds.id === dataset.id" class="fa fa-asterisk"></i>
+                </a>
+                <a v-on:click.prevent="showForm = true; showSelector = false;" href="#" class="dropdown-item">
+                  Create New Dataset...
+                </a>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div id="tab-input" class="stage-tab" v-show="tab === 'input'">
+          <oaipmh-manager
+            v-if="dataset.src === 'oaipmh'"
+            v-bind:dataset-id="dataset.id"
+            v-bind:fileStage="config.input"
+            v-bind:config="config"
+            v-bind:active="tab === 'input'"
+            v-bind:api="api"
+            v-on:error="setError"  />
+          <upload-manager
+            v-else
+            v-bind:dataset-id="dataset.id"
+            v-bind:fileStage="config.input"
+            v-bind:config="config"
+            v-bind:active="tab === 'input'"
+            v-bind:api="api"
+            v-on:error="setError"  />
+        </div>
+        <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
+          <convert-manager
+            v-bind:dataset-id="dataset.id"
+            v-bind:fileStage="config.output"
+            v-bind:config="config"
+            v-bind:active="tab === 'convert'"
+            v-bind:api="api"
+            v-on:error="setError" />
+        </div>
+        <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
+          <ingest-manager
+            v-bind:dataset-id="dataset.id"
+            v-bind:fileStage="config.output"
+            v-bind:config="config"
+            v-bind:active="tab === 'ingest'"
+            v-bind:api="api"
+            v-on:error="setError"  />
+        </div>
+        
+      </template>
     </div>  
   `
 });
 
 let app = new Vue({
   el: '#vue-app',
+  mixins: [utilMixin],
   data: {
     config: CONFIG,
-    api: new DAO(SERVICE, CONFIG.repositoryId, "default"),
+    api: new DAO(SERVICE, CONFIG.repositoryId, null),
+    tab: 'input',
   },
   template: `
     <div id="app-container">
-      <data-manager v-bind:config="config" v-bind:api="api" />
+      <data-manager
+                    v-bind:config="config" 
+                    v-bind:init-tab="tab"
+                    v-bind:api="api" />
     </div>
   `
 });

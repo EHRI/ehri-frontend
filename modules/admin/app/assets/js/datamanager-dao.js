@@ -7,7 +7,6 @@ let DAO = class {
   constructor(service, repoId, datasetId) {
     this.service = service;
     this.repoId = repoId;
-    this.datasetId = datasetId;
   }
 
   call(endpoint, data) {
@@ -25,22 +24,22 @@ let DAO = class {
     }).then(r => r.data);
   }
 
-  listFiles(stage, prefix, after) {
-    return this.call(this.service.listFiles(this.repoId, this.datasetId, stage, prefix, after));
+  listFiles(ds, stage, prefix, after) {
+    return this.call(this.service.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
-  ingestFiles(stage, paths, tolerant, commit, logMessage) {
+  ingestFiles(ds, stage, paths, tolerant, commit, logMessage) {
     let data = {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
       files: paths
     };
-    return this.call(this.service.ingestFiles(this.repoId, this.datasetId, stage), data);
+    return this.call(this.service.ingestFiles(this.repoId, ds, stage), data);
   }
 
-  ingestAll(stage, tolerant, commit, logMessage) {
-    return this.call(this.service.ingestAll(this.repoId, this.datasetId, stage), {
+  ingestAll(ds, stage, tolerant, commit, logMessage) {
+    return this.call(this.service.ingestAll(this.repoId, ds, stage), {
       logMessage: logMessage,
       tolerant: tolerant,
       commit: commit,
@@ -48,25 +47,25 @@ let DAO = class {
     });
   }
 
-  deleteFiles(stage, paths) {
-    return this.call(this.service.deleteFiles(this.repoId, this.datasetId, stage), paths);
+  deleteFiles(ds, stage, paths) {
+    return this.call(this.service.deleteFiles(this.repoId, ds, stage), paths);
   }
 
-  deleteAll(stage) {
-    return this.call(this.service.deleteAll(this.repoId, this.datasetId, stage))
+  deleteAll(ds, stage) {
+    return this.call(this.service.deleteAll(this.repoId, ds, stage))
       .then(data => data.ok || false);
   }
 
-  validateFiles(stage, paths) {
-    return this.call(this.service.validateFiles(this.repoId, this.datasetId, stage), paths);
+  validateFiles(ds, stage, paths) {
+    return this.call(this.service.validateFiles(this.repoId, ds, stage), paths);
   }
 
-  fileUrls(stage, paths) {
-    return this.call(this.service.fileUrls(this.repoId, this.datasetId, stage), paths);
+  fileUrls(ds, stage, paths) {
+    return this.call(this.service.fileUrls(this.repoId, ds, stage), paths);
   }
 
-  uploadHandle(stage, fileSpec) {
-    return this.call(this.service.uploadHandle(this.repoId, this.datasetId, stage), fileSpec);
+  uploadHandle(ds, stage, fileSpec) {
+    return this.call(this.service.uploadHandle(this.repoId, ds, stage), fileSpec);
   }
 
   uploadFile(url, file, progressHandler) {
@@ -96,48 +95,48 @@ let DAO = class {
       });
   }
 
-  harvest(config, fromLast) {
-    return this.call(this.service.harvestOaiPmh(this.repoId, this.datasetId, fromLast), config);
+  harvest(ds, config, fromLast) {
+    return this.call(this.service.harvestOaiPmh(this.repoId, ds, fromLast), config);
   }
 
   cancelHarvest(jobId) {
     return this.call(this.service.cancelOaiPmhHarvest(this.repoId, jobId));
   }
 
-  getConfig() {
-    return this.call(this.service.getOaiPmhConfig(this.repoId, this.datasetId));
+  getConfig(ds) {
+    return this.call(this.service.getOaiPmhConfig(this.repoId, ds));
   }
 
-  saveConfig(config) {
-    return this.call(this.service.saveOaiPmhConfig(this.repoId, this.datasetId), config);
+  saveConfig(ds, config) {
+    return this.call(this.service.saveOaiPmhConfig(this.repoId, ds), config);
   }
 
-  deleteConfig() {
-    return this.call(this.service.deleteOaiPmhConfig(this.repoId, this.datasetId));
+  deleteConfig(ds) {
+    return this.call(this.service.deleteOaiPmhConfig(this.repoId, ds));
   }
 
-  testConfig(config) {
-    return this.call(this.service.testOaiPmhConfig(this.repoId, this.datasetId), config);
+  testConfig(ds, config) {
+    return this.call(this.service.testOaiPmhConfig(this.repoId, ds), config);
   }
 
-  convert(config) {
-    return this.call(this.service.convert(this.repoId, this.datasetId), config);
+  convert(ds, config) {
+    return this.call(this.service.convert(this.repoId, ds), config);
   }
 
-  convertFileUrl(stage, key) {
-    return this.service.convertFile(this.repoId, this.datasetId, stage, key).url;
+  convertFileUrl(ds, stage, key) {
+    return this.service.convertFile(this.repoId, ds, stage, key).url;
   }
 
   cancelConvert(jobId) {
     return this.call(this.service.cancelConvert(this.repoId, jobId));
   }
 
-  getConvertConfig() {
-    return this.call(this.service.getConvertConfig(this.repoId, this.datasetId));
+  getConvertConfig(ds) {
+    return this.call(this.service.getConvertConfig(this.repoId, ds));
   }
 
-  saveConvertConfig(dtIds) {
-    return this.call(this.service.saveConvertConfig(this.repoId, this.datasetId), dtIds);
+  saveConvertConfig(ds, dtIds) {
+    return this.call(this.service.saveConvertConfig(this.repoId, ds), dtIds);
   }
 
   listDataTransformations() {
@@ -158,5 +157,17 @@ let DAO = class {
 
   deleteDataTransformation(id) {
     return this.call(this.service.deleteDataTransformation(this.repoId, id));
+  }
+
+  listDatasets() {
+    return this.call(this.service.listDatasets(this.repoId));
+  }
+
+  createDataset(info) {
+    return this.call(this.service.createDataset(this.repoId), info);
+  }
+
+  deleteDataset(id, ds) {
+    return this.call(this.service.deleteDataset(id, ds));
   }
 };

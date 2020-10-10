@@ -15,7 +15,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "id", "repo_id", "name", "type", "created", "comments")
+      "repo_id", "id", "name", "type", "created", "comments")
 
   override def get(repoId: String, datasetId: String): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>

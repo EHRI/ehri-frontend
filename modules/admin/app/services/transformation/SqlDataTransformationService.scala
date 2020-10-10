@@ -100,7 +100,9 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     db.withConnection { implicit conn =>
       SQL"""SELECT dt.* FROM data_transformation dt
            LEFT JOIN transformation_config tc ON tc.data_transformation_id = dt.id
-           WHERE tc.repo_id = $repoId ORDER BY tc.ordering ASC""".as(parser.*)
+           WHERE tc.repo_id = $repoId
+             AND tc.import_dataset_id = $datasetId
+           ORDER BY tc.ordering ASC""".as(parser.*)
     }
   }
 

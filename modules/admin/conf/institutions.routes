@@ -64,4 +64,8 @@ GET         /:id/convert/:ds/config                   @controllers.institutions.
 PUT         /:id/convert/:ds/config                   @controllers.institutions.RepositoryData.saveConvertConfig(id: String, ds: String)
 POST        /:id/convert/:ds/:stage/:fileName         @controllers.institutions.RepositoryData.convertFile(id: String, ds: String, stage: defines.FileStage.Value, fileName: String)
 
+GET         /:id/datasets                             @controllers.institutions.RepositoryData.listDatasets(id: String)
+POST        /:id/datasets                             @controllers.institutions.RepositoryData.createDataset(id: String)
+DELETE      /:id/datasets/:ds                         @controllers.institutions.RepositoryData.deleteDataset(id: String, ds: String)
+
 
