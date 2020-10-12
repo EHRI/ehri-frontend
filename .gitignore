@@ -27,9 +27,9 @@ OLD
 # stupid Mac stuff
 .DS_Store
 
-conf/oauth2.conf
-conf/parse.conf
-conf/aws.conf
+conf/oauth2.conf*
+conf/parse.conf*
+conf/aws.conf*
 conf/external_pages.conf
-conf/dos.conf
-conf/api-keys.conf
+conf/dos.conf*
+conf/api-keys.conf*
