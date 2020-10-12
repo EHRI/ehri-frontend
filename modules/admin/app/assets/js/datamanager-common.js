@@ -185,6 +185,7 @@ let previewPanelMixin = {
     previewing: Object,
     config: Object,
     api: Object,
+    maxSize: Number,
   },
   data: function () {
     return {
@@ -292,7 +293,8 @@ let previewPanelMixin = {
       this.api.fileUrls(this.datasetId, this.fileStage, [this.previewing.key])
         .then(data => this.worker.postMessage({
           type: 'preview',
-          url: data[this.previewing.key]
+          url: data[this.previewing.key],
+          max: this.config.maxPreviewSize,
         }))
         .catch(error => this.showError('Unable to load preview URL', error))
         .finally(() => this.loading = false);
@@ -318,9 +320,11 @@ let previewPanelMixin = {
         // Stop loading indicator when first data arrives
         this.loading = false;
         this.showingError = false;
+        this.previewTruncated = false;
         this.previewData = msg.data.text;
       } else {
         this.previewData += msg.data.text;
+        this.previewTruncated = msg.data.truncated;
       }
       if (msg.data.done) {
         this.$emit("loaded");
@@ -386,7 +390,7 @@ let previewPanelMixin = {
         <i class="fa fa-circle"></i>
       </div>
       <div class="valid-indicator" title="No errors detected"
-           v-if="!validating && previewing && errors !== null && errors.length === 0">
+           v-if="!validating && previewing && (_.isArray(errors) && errors.length === 0)">
         <i class="fa fa-check"></i>
       </div>
       <div class="preview-loading-indicator" v-if="loading">
@@ -428,8 +432,8 @@ Vue.component("convert-preview", {
       this.worker.postMessage({
         type: 'convert-preview',
         url: this.api.convertFileUrl(this.datasetId, this.fileStage, this.previewing.key),
-        src: [],
         mappings: this.mappings,
+        max: this.config.maxPreviewSize,
       });
     }
   },

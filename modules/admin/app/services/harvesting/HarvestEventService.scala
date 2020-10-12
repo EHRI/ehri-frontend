@@ -19,31 +19,28 @@ trait HarvestEventHandle {
   */
 trait HarvestEventService {
   /**
-    * Get all harvesting events for the given repository.
-    *
-    * @param repoId the repository ID
-    * @return a sequence of harvest events in date order
-    */
-  def get(repoId: String): Future[Seq[HarvestEvent]]
-
-  /**
     * Get all harvesting events for the given repository
     * and job.
     *
     * @param repoId the repository ID
+    * @param datasetId the dataset ID
     * @param jobId  the job ID
     * @return a sequence of harvest events
     */
-  def get(repoId: String, jobId: String): Future[Seq[HarvestEvent]]
+  def get(repoId: String, datasetId: Option[String] = None, jobId: Option[String] = None): Future[Seq[HarvestEvent]]
 
   /**
     * Store a new harvest event for the given repository and job.
     *
-    * @param repoId  the repository ID
-    * @param jobId   the job ID
-    * @param info    optional unstructured text information
-    * @param userOpt the user context of this event
+    * @param repoId    the repository ID
+    * @param datasetId the dataset ID
+    * @param jobId     the job ID
+    * @param info      optional unstructured text information
+    * @param userOpt   the user context of this event
     * @return a handle with which to conclude the harvest job
     */
-  def save(repoId: String, jobId: String, info: Option[String] = None)(implicit userOpt: Option[UserProfile]): Future[HarvestEventHandle]
+  def save(repoId: String,
+    jobId: String,
+    datasetId: String,
+    info: Option[String] = None)(implicit userOpt: Option[UserProfile]): Future[HarvestEventHandle]
 }

@@ -7,7 +7,6 @@ import actors.transformation.XmlConverter.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.stream.Materializer
-import defines.FileStage
 import models.{DataTransformation, UserProfile}
 import services.harvesting.HarvestEventHandle
 import services.storage.FileStorage
@@ -22,18 +21,16 @@ object XmlConverter {
   /**
     * A description of a conversion task.
     *
-    * @param sources      the input file buckets
     * @param transformers the sequence of transformations
     * @param from         the starting date and time
     * @param classifier   the storage classifier on which to save files
-    * @param outPrefix    the path prefix on which to save files, after
-    *                     which the item identifier will be appended
+    * @param inPrefix     the path prefix of input files
+    * @param outPrefix    the replacement output path prefix
     */
   case class XmlConvertData(
-    sources: Seq[FileStage.Value],
     transformers: Seq[(DataTransformation.TransformationType.Value, String)],
     classifier: String,
-    inPrefix: FileStage.Value => String,
+    inPrefix: String,
     outPrefix: String,
     from: Option[Instant] = None,
   )
@@ -41,8 +38,12 @@ object XmlConverter {
   /**
     * A single convert job with a unique ID.
     */
-  case class XmlConvertJob(jobId: String, repoId: String, data: XmlConvertData)
-
+  case class XmlConvertJob(
+    repoId: String,
+    datasetId: String,
+    jobId: String,
+    data: XmlConvertData
+  )
 
 }
 
@@ -89,11 +90,11 @@ case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage
       context.unwatch(chan)
       context.become(running(runner, subs - chan, handle))
 
-    case Counting(srcs, _) =>
-      msg(s"Counting files in ${srcs.size} source(s)", subs)
+    case Counting(_) =>
+      msg(s"Counting files...", subs)
 
     case Counted(total) =>
-      msg(s"Total of $total file(s) in ${job.data.sources.size} source(s)", subs)
+      msg(s"Total of $total file(s)", subs)
 
     // Confirmation the runner has started
     case Starting =>

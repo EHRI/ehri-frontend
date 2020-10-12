@@ -1029,8 +1029,7 @@ Vue.component("convert-manager", {
       this.editing = item;
     },
     convert: function() {
-      // FIXME: don't actually need the src parameter here any more
-      this.api.convert(this.datasetId, {mappings: this.mappings, src: [this.config.input]})
+      this.api.convert(this.datasetId, {mappings: this.mappings})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
