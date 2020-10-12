@@ -35,7 +35,7 @@ object OaiPmhHarvester {
   /**
     * A single harvest job with a unique ID.
     */
-  case class OaiPmhHarvestJob(jobId: String, repoId: String, data: OaiPmhHarvestData)
+  case class OaiPmhHarvestJob(repoId: String, datasetId: String, jobId: String, data: OaiPmhHarvestData)
 
 }
 
@@ -103,7 +103,7 @@ case class OaiPmhHarvester(job: OaiPmhHarvestJob, client: OaiPmhClient, storage:
     case DoneFile(id) =>
       msg(id, subs)
       if (handle.isEmpty) {
-        eventLog.save(job.repoId, job.jobId).pipeTo(self)
+        eventLog.save(job.repoId, job.datasetId, job.jobId).pipeTo(self)
       }
 
       // We've received a log handle which we can use to say how

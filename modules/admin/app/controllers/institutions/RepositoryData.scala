@@ -38,7 +38,7 @@ import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
-import services.transformation.{DataTransformationExists, DataTransformationService, InvalidMappingError, XmlTransformationError, XmlTransformer}
+import services.transformation._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -259,7 +259,7 @@ case class RepositoryData @Inject()(
 
   def harvestOaiPmh(id: String, ds: String, fromLast: Boolean): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
-      if (fromLast) harvestEvents.get(id).map( events =>
+      if (fromLast) harvestEvents.get(id, Some(ds)).map( events =>
         events
           .filter(_.eventType == HarvestEventType.Completed)
           .map(_.created)
@@ -270,7 +270,7 @@ case class RepositoryData @Inject()(
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
       val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input), from = last)
-      val job = OaiPmhHarvestJob(jobId, repoId = id, data = data)
+      val job = OaiPmhHarvestJob(id, ds, jobId, data = data)
       mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
 
       Ok(Json.obj(
@@ -359,8 +359,8 @@ case class RepositoryData @Inject()(
   }
 
   private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String)]] = config match {
-    case TransformationList(_, mappings) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
-    case ConvertSpec(_, mappings) => immediate(mappings)
+    case TransformationList(mappings) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
+    case ConvertSpec(mappings) => immediate(mappings)
   }
 
   private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Future[String] = {
@@ -410,13 +410,12 @@ case class RepositoryData @Inject()(
     configToMappings(request.body).map { ts =>
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
-        request.body.src,
         ts,
         bucket,
-        inPrefix = stage => prefix(id, ds, FileStage.Input),
+        inPrefix = prefix(id, ds, FileStage.Input),
         outPrefix = prefix(id, ds, FileStage.Output)
       )
-      val job = XmlConvertJob(jobId, repoId = id, data = data)
+      val job = XmlConvertJob(repoId = id, datasetId = ds, jobId = jobId, data = data)
       mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)
 
       Ok(Json.obj(

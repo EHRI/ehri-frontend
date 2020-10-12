@@ -1,13 +1,32 @@
 addEventListener('message', ({data}) => {
 
+  let abortController = new AbortController();
+  let decoder = new TextDecoder("UTF-8");
+
   function readStream(r) {
     let init = true;
+    let truncated = false;
+    let read = 0;
+
     let reader = r.body.getReader();
-    let decoder = new TextDecoder("UTF-8");
+
     reader.read().then(function appendBody({done, value}) {
       if (!done) {
         let text = decoder.decode(value);
-        postMessage({init: init, text: text, done: done, type: r.headers.get("content-type")});
+        read += (value ? value.length : 0);
+        if (data.max && read > data.max) {
+          truncated = true;
+          console.log("Aborting preview at", data.max, "bytes")
+          abortController.abort();
+        }
+        postMessage({
+          init: init,
+          text: text,
+          done: false,
+          truncated: truncated,
+          type: r.headers.get("content-type"),
+        });
+
         if (init) {
           init = false;
         }
@@ -15,18 +34,25 @@ addEventListener('message', ({data}) => {
       } else {
         // Special case if there's an empty file, we post
         // an empty string
-        postMessage({init: init, text: "", done: done})
+        postMessage({
+          init: init,
+          text: "",
+          done: true,
+          truncated: false,
+        });
       }
     });
   }
 
   if (data.type === 'preview') {
-    fetch(data.url).then(r => readStream(r));
+    fetch(data.url, {
+      signal: abortController.signal
+    }).then(r => readStream(r));
 
   } else if (data.type === 'convert-preview') {
     fetch(data.url, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({mappings: data.mappings}),
       headers: {
         "ajax-ignore-csrf": true,
         "Content-Type": "application/json",
@@ -34,6 +60,7 @@ addEventListener('message', ({data}) => {
         "X-Requested-With": "XMLHttpRequest",
       },
       credentials: 'same-origin',
+      signal: abortController.signal,
     }).then(r => {
       if (r.status === 200) {
         readStream(r)
@@ -44,7 +71,7 @@ addEventListener('message', ({data}) => {
   } else if (data.type === 'websocket') {
     let url = data.url;
     let websocket = new WebSocket(url);
-    websocket.onopen = function() {
+    websocket.onopen = function () {
       console.log("Websocket open")
     };
     websocket.onerror = function (e) {
@@ -58,7 +85,7 @@ addEventListener('message', ({data}) => {
         websocket.close();
       }
     };
-    websocket.onclose = function() {
+    websocket.onclose = function () {
       console.log("Websocket close")
     }
   }

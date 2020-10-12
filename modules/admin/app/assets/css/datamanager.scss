@@ -83,6 +83,10 @@ body {
   }
 }
 
+.modal {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .modal-content {
   box-shadow: $box-shadow;
 }
