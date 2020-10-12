@@ -17,42 +17,34 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
 
   private implicit val parser: RowParser[HarvestEvent] =
     Macro.parser[HarvestEvent](
-      "repo_id", "job_id", "user_id", "event_type", "info", "created")
+      "repo_id", "import_dataset_id", "job_id", "user_id", "event_type", "info", "created")
 
-
-
-  override def get(repoId: String): Future[Seq[HarvestEvent]] = Future {
-    db.withConnection { implicit conn =>
-      SQL"""
-           SELECT * FROM harvest_event
-           WHERE repo_id = $repoId
-           ORDER BY created ASC""".as(parser.*)
-    }
-  }(ec)
-
-  override def get(repoId: String, jobId: String): Future[Seq[HarvestEvent]] = Future {
+  override def get(repoId: String, datasetId: Option[String] = None, jobId: Option[String] = None): Future[Seq[HarvestEvent]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
          SELECT * FROM harvest_event
-         WHERE repo_id = $repoId AND job_id = $jobId
-         ORDER BY created ASC""".as(parser.*)
+         WHERE repo_id = $repoId
+           AND ($datasetId Is NULL || import_dataset_id = $datasetId)
+           AND ($jobId IS NULL || job_id = $jobId)
+         ORDER BY created ASC
+         """.as(parser.*)
     }
   }(ec)
 
-  override def save(repoId: String, jobId: String, info: Option[String] = None)(
+  override def save(repoId: String, datasetId: String, jobId: String, info: Option[String] = None)(
       implicit userOpt: Option[UserProfile]): Future[HarvestEventHandle] = Future {
-    saveEvent(repoId, jobId, HarvestEventType.Started, info, userOpt)
+    saveEvent(repoId, datasetId, jobId, HarvestEventType.Started, info, userOpt)
     new HarvestEventHandle {
       override def close(): Future[Unit] = Future {
-        saveEvent(repoId, jobId, HarvestEventType.Completed, Option.empty, userOpt)
+        saveEvent(repoId, datasetId, jobId, HarvestEventType.Completed, Option.empty, userOpt)
       }(ec)
 
       override def cancel(): Future[Unit] = Future {
-        saveEvent(repoId, jobId, HarvestEventType.Cancelled, Option.empty, userOpt)
+        saveEvent(repoId, datasetId, jobId, HarvestEventType.Cancelled, Option.empty, userOpt)
       }(ec)
 
       override def error(t: Throwable): Future[Unit] = Future {
-        saveEvent(repoId, jobId, HarvestEventType.Errored, Some(stackTrace(t)), userOpt)
+        saveEvent(repoId, datasetId, jobId, HarvestEventType.Errored, Some(stackTrace(t)), userOpt)
       }(ec)
 
       private def stackTrace(e: Throwable): String = {
@@ -64,6 +56,7 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
   }(ec)
 
   private def saveEvent(repoId: String,
+                        datasetId: String,
                         jobId: String,
                         eventType: HarvestEventType.Value,
                         info: Option[String],
@@ -71,9 +64,10 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
     db.withConnection { implicit conn =>
       SQL"""
          INSERT INTO harvest_event
-            (repo_id, job_id, user_id, event_type, info)
+            (repo_id, import_dataset_id, job_id, user_id, event_type, info)
          VALUES (
             $repoId,
+            $datasetId,
             $jobId,
             ${userOpt.map(_.id)},
             $eventType,

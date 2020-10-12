@@ -17,9 +17,10 @@ class OaiPmhHarvestRunnerSpec extends AkkaTestkitSpecs2Support with IntegrationT
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
 
   private val jobId = "test-job-id"
+  private val datasetId = "default"
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
-  private def job(implicit app: Application) = OaiPmhHarvestJob(jobId, "r1", OaiPmhHarvestData(
+  private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
     config = OaiPmhConfig(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
     // on-storage location:

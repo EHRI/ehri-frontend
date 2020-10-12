@@ -140,13 +140,18 @@ CREATE TABLE oaipmh_config (
 );
 
 CREATE TABLE harvest_event (
-    id          SERIAL PRIMARY KEY,
-    repo_id     VARCHAR(50) NOT NULL,
-    job_id      VARCHAR (50) NOT NULL,
-    user_id     VARCHAR (50) NULL ,
-    event_type  VARCHAR (50) NOT NULL,
-    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    info        TEXT,
+    id                  SERIAL PRIMARY KEY,
+    repo_id             VARCHAR(50) NOT NULL,
+    import_dataset_id   VARCHAR(50) NOT NULL,
+    job_id              VARCHAR (50) NOT NULL,
+    user_id             VARCHAR (50) NULL ,
+    event_type          VARCHAR (50) NOT NULL,
+    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    info                TEXT,
+    CONSTRAINT harvest_event_repo_id_import_dataset_id
+        FOREIGN KEY (repo_id, import_dataset_id)
+        REFERENCES import_dataset(repo_id, id)
+        ON DELETE SET NULL,
     CONSTRAINT harvest_event_user_id
         FOREIGN KEY (user_id)
         REFERENCES users (id)

@@ -6,7 +6,7 @@ import _root_.utils.{db => dbUtils}
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
 import javax.inject.{Inject, Singleton}
-import models.{DataTransformation, DataTransformationInfo, ImportDataset}
+import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
 import play.api.db.Database
 

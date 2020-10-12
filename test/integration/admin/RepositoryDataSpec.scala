@@ -125,7 +125,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
       val map = resourceAsString("simple-mapping.tsv")
       val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
+        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
 
       println(contentAsString(r))
       status(r) must_== OK
@@ -138,7 +138,7 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
       val map = resourceAsString("simple-mapping.tsv") + "/ead/\t@foobar\t/blah\t&\n" // invalid junk
       val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq.empty, Seq(TransformationType.XQuery -> map))))
+        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
 
       status(r) must_== BAD_REQUEST
       contentAsString(r) must contain("at /ead: at /ead/eadheader: Expecting valid step.")
