@@ -7,10 +7,43 @@ const LOG_MESSAGE = "Testing Ingest";
 window.addEventListener("dragover", e => e.preventDefault(), false);
 window.addEventListener("drop", e => e.preventDefault(), false);
 
-function sequential(func, arr, index) {
-  if (index >= arr.length) return Promise.resolve();
-  return func(arr[index])
-    .then(() => sequential(func, arr, index + 1));
+
+class UploadCancelled extends Error {
+  constructor(fileName) {
+    super("Upload cancelled: " + fileName);
+    this.name = "UploadCancelled";
+  }
+}
+
+/**
+ * Sequentially invoke an upload function. Cancellation of individual
+ * files or the whole batch is handled via throwing an {{UploadCancelled}}
+ * error which is caught and increases the cancellation state passed to the
+ * next invocation.
+ *
+ * @param uploadFunc  a function to invoke to upload a file
+ * @param argArray    an array of {{File}} objects
+ * @param index       the index to the {{argArray}} item to upload
+ * @param done        the number of files uploaded in this batch
+ * @param cancelled   the number of cancellations in this batch
+ * @returns {*|Promise<{cancelled: *, done: *}>}
+ */
+function sequentialUpload(uploadFunc, argArray, index, {done, cancelled}) {
+  if (index >= argArray.length) return Promise.resolve({done, cancelled});
+  return uploadFunc(argArray[index])
+    .then(() => sequentialUpload(uploadFunc, argArray, index + 1, {
+      done: done + 1, cancelled
+    }))
+    .catch(e => {
+      if (e instanceof UploadCancelled) {
+        return Promise.resolve(sequentialUpload(uploadFunc, argArray, index + 1, {
+          done,
+          cancelled: cancelled + 1
+        }));
+      } else {
+        throw e;
+      }
+    });
 }
 
 let initialStageState = function() {
@@ -111,7 +144,7 @@ let stageMixin = {
             this.$delete(this.deleting, key);
             this.$delete(this.selected, key);
           });
-          this.load();
+          this.refresh();
         })
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});
@@ -158,156 +191,40 @@ Vue.component("upload-progress", {
   props: {
     uploading: Array,
   },
+  data: function() {
+    return {
+      showProgress: true,
+    };
+  },
   template: `
-    <div class="upload-progress" v-if="uploading.length > 0">
-      <div v-for="job in uploading" v-bind:key="job.spec.name" class="progress-container">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated"
-               role="progressbar"
-               v-bind:aria-valuemax="100"
-               v-bind:aria-valuemin="0"
-               v-bind:aria-valuenow="job.progress"
-               v-bind:style="'width: ' + job.progress + '%'">
-            {{ job.spec.name}}
-          </div>
+    <div v-if="uploading.length > 0" class="upload-progress-container">
+      <div class="upload-progress-title">
+        <div v-on:click.prevent="showProgress = !showProgress" class="close">
+          <i class="fa fa-window-restore"></i>
         </div>
-        <button class="cancel-button" v-on:click.prevent="$emit('finish-item', job.spec)">
-          <i class="fa fa-fw fa-times-circle"/>
-        </button>
       </div>
-    </div>
-  `
-});
-
-Vue.component("files-table", {
-  props: {
-    api: DAO,
-    fileStage: String,
-    loadingMore: Boolean,
-    dropping: Boolean,
-    loaded: Boolean,
-    previewing: Object,
-    validating: Object,
-    validationResults: Object,
-    files: Array,
-    selected: Object,
-    truncated: Boolean,
-    deleting: Object,
-    downloading: Object,
-    ingesting: Object,
-    filter: String,
-  },
-  computed: {
-    allChecked: function () {
-      return Object.keys(this.selected).length === this.files.length;
-    },
-    utilRows: function() {
-      return Number(this.deleted !== null) +
-        Number(this.validating !== null) +
-        Number(this.deleting !== null) +
-        Number(this.downloading !== null);
-    }
-  },
-  methods: {
-    toggleAll: function (evt) {
-      for (let i = 0; i < this.files.length; i++) {
-        this.toggleItem(this.files[i].key, evt);
-      }
-    },
-    toggleItem: function (key, evt) {
-      if (evt.target.checked) {
-        this.$set(this.selected, key, true);
-      } else {
-        this.$delete(this.selected, key);
-      }
-    },
-    isPreviewing: function(file) {
-      return this.previewing !== null && this.previewing.key === file.key;
-    }
-  },
-  watch: {
-    selected: function (newValue) {
-      let selected = Object.keys(newValue).length;
-      let checkAll = this.$el.querySelector("#" + this.fileStage + "-checkall");
-      if (checkAll) {
-        checkAll.indeterminate = selected > 0 && selected !== this.files.length;
-      }
-    },
-  },
-  template: `
-    <div v-bind:class="{'loading': !loaded, 'dropping': dropping}"
-         v-on:keyup.down="$emit('select-next')"
-         v-on:keyup.up="$emit('select-prev')"
-         v-on:click.stop="$emit('deselect-all')" 
-         class="file-list-container">
-      <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
-        <thead>
-        <tr>
-          <th><input type="checkbox" v-bind:id="fileStage + '-checkall'" v-on:change="toggleAll"/></th>
-          <th>Name</th>
-          <th>Last Modified</th>
-          <th>Size</th>
-          <th v-bind:colspan="utilRows"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="file in files"
-            v-bind:key="file.key"
-            v-on:click.stop="$emit('show-preview', file)"
-            v-bind:class="{'active': isPreviewing(file)}">
-          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)">
-          </td>
-          <td>{{file.key}}</td>
-          <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
-          <td>{{file.size | humanFileSize(true)}}</td>
-          
-          <td v-if="validating !== null"><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
-            <i v-if="validating[file.key]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-            <i v-else-if="validationResults[file.key]" class="fa fa-fw" v-bind:class="{
-              'fa-check text-success': validationResults[file.key].length === 0,
-              'fa-exclamation-circle text-danger': validationResults[file.key].length > 0
-             }"></i>
-            <i v-else class="fa fa-fw fa-flag-o"></i>
-          </a>
-          </td>
-          <td v-if="ingesting !== null"><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
-            <i class="fa fa-fw" v-bind:class="{
-              'fa-database': !ingesting[file.key], 
-              'fa-circle-o-notch fa-spin': ingesting[file.key]
-            }"></i></a>
-          </td>
-          <td v-if="deleting !== null">
-            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
-              <i class="fa fa-fw" v-bind:class="{
-                'fa-circle-o-notch fa-spin': deleting[file.key], 
-                'fa-trash-o': !deleting[file.key] 
-              }"></i>
-            </a>
-          </td>
-          <td v-if="downloading !== null">
-            <a href="#" title="" v-on:click.prevent.stop="$emit('download-files', [file.key])">
-              <i class="fa fa-fw" v-bind:class="{
-                'fa-circle-o-notch fa-spin': downloading[file.key],
-                'fa-download': !downloading[file.key]
-              }"></i>
-            </a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent.stop="$emit('load-more')">
-        Load more
-        <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
-        <i v-else class="fa fa-fw fa-caret-down"/>
-      </button>
-      <div class="panel-placeholder" v-else-if="loaded && filter && files.length === 0">
-        No files found starting with &quot;<code>{{filter}}</code>&quot;...
+      <div v-if="showProgress" class="upload-progress">
+        <div v-for="job in uploading" v-bind:key="job.spec.name" class="progress-container">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar"
+                 v-bind:aria-valuemax="100"
+                 v-bind:aria-valuemin="0"
+                 v-bind:aria-valuenow="job.progress"
+                 v-bind:style="'width: ' + job.progress + '%'">
+              {{ job.spec.name}}
+            </div>
+          </div>
+          <button class="btn btn-sm btn-default cancel-button" v-on:click.prevent="$emit('finish-item', job.spec)">
+            <i class="fa fa-fw fa-times-circle"/>
+          </button>
+        </div>
       </div>
-      <div class="panel-placeholder" v-else-if="loaded && files.length === 0">
-        There are no files here yet.
-      </div>
-      <div class="file-list-loading-indicator" v-show="!loaded">
-        <i class="fa fa-3x fa-spinner fa-spin"></i>
+      <div class="upload-progress-controls">
+        <div class="btn btn-sm btn-default" v-on:click="$emit('cancel-upload')">
+          <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          Cancel Uploads
+        </div>
       </div>
     </div>
   `
@@ -344,6 +261,9 @@ Vue.component("upload-manager", {
       }
       return false;
     },
+    finishAllUploads: function() {
+      this.uploading = [];
+    },
     dragOver: function () {
       this.dropping = true;
     },
@@ -353,7 +273,7 @@ Vue.component("upload-manager", {
     uploadFile: function (file) {
       // Check we're still in the queue and have not been cancelled...
       if (_.findIndex(this.uploading, f => f.spec.name === file.name) === -1) {
-        return Promise.resolve();
+        return Promise.reject(new UploadCancelled(file.name));
       }
 
       return this.api.uploadHandle(this.datasetId, this.fileStage, {
@@ -372,7 +292,8 @@ Vue.component("upload-manager", {
         .then(() => {
           this.finishUpload(file);
           this.log.push("Uploaded file: " + file.name);
-          return this.load();
+          this.refresh();
+          return file;
         });
       })
       .catch(error => this.showError("Upload error", error));
@@ -409,14 +330,14 @@ Vue.component("upload-manager", {
       }
 
       // Proceed with upload
-      return sequential(self.uploadFile, files, 0)
-        .then(() => {
-          if (event.target.files) {
-            // Delete the value of the control, if loaded
-            event.target.value = null;
-          }
+      return sequentialUpload(self.uploadFile, files, 0, {done: 0, cancelled: 0})
+        .then(({done, cancelled}) => {
+            if (event.target.files) {
+              // Delete the value of the control, if loaded
+              event.target.value = null;
+            }
 
-          console.log("Files uploaded...")
+            this.log.push("Uploaded: " + done + (cancelled ? (", Cancelled: " + cancelled) : ""))
         });
     },
   },
@@ -560,7 +481,8 @@ Vue.component("upload-manager", {
 
       <upload-progress
         v-bind:uploading="uploading"
-        v-on:finish-item="finishUpload"/>
+        v-on:finish-item="finishUpload"
+        v-on:cancel-upload="finishAllUploads" />
     </div>
   `
 });

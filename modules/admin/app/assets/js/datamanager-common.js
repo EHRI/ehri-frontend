@@ -492,6 +492,140 @@ Vue.component("modal-alert", {
   `
 });
 
+Vue.component("files-table", {
+  props: {
+    api: DAO,
+    fileStage: String,
+    loadingMore: Boolean,
+    dropping: Boolean,
+    loaded: Boolean,
+    previewing: Object,
+    validating: Object,
+    validationResults: Object,
+    files: Array,
+    selected: Object,
+    truncated: Boolean,
+    deleting: Object,
+    downloading: Object,
+    ingesting: Object,
+    filter: String,
+  },
+  computed: {
+    allChecked: function () {
+      return Object.keys(this.selected).length === this.files.length;
+    },
+    utilRows: function() {
+      return Number(this.deleted !== null) +
+        Number(this.validating !== null) +
+        Number(this.deleting !== null) +
+        Number(this.downloading !== null);
+    }
+  },
+  methods: {
+    toggleAll: function (evt) {
+      for (let i = 0; i < this.files.length; i++) {
+        this.toggleItem(this.files[i].key, evt);
+      }
+    },
+    toggleItem: function (key, evt) {
+      if (evt.target.checked) {
+        this.$set(this.selected, key, true);
+      } else {
+        this.$delete(this.selected, key);
+      }
+    },
+    isPreviewing: function(file) {
+      return this.previewing !== null && this.previewing.key === file.key;
+    }
+  },
+  watch: {
+    selected: function (newValue) {
+      let selected = Object.keys(newValue).length;
+      let checkAll = this.$el.querySelector("#" + this.fileStage + "-checkall");
+      if (checkAll) {
+        checkAll.indeterminate = selected > 0 && selected !== this.files.length;
+      }
+    },
+  },
+  template: `
+    <div v-bind:class="{'loading': !loaded, 'dropping': dropping}"
+         v-on:keyup.down="$emit('select-next')"
+         v-on:keyup.up="$emit('select-prev')"
+         v-on:click.stop="$emit('deselect-all')" 
+         class="file-list-container">
+      <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
+        <thead>
+        <tr>
+          <th><input type="checkbox" v-bind:id="fileStage + '-checkall'" v-on:change="toggleAll"/></th>
+          <th>Name</th>
+          <th>Last Modified</th>
+          <th>Size</th>
+          <th v-bind:colspan="utilRows"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="file in files"
+            v-bind:key="file.key"
+            v-on:click.stop="$emit('show-preview', file)"
+            v-bind:class="{'active': isPreviewing(file)}">
+          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)">
+          </td>
+          <td>{{file.key}}</td>
+          <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
+          <td>{{file.size | humanFileSize(true)}}</td>
+          
+          <td v-if="validating !== null"><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
+            <i v-if="validating[file.key]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+            <i v-else-if="validationResults[file.key]" class="fa fa-fw" v-bind:class="{
+              'fa-check text-success': validationResults[file.key].length === 0,
+              'fa-exclamation-circle text-danger': validationResults[file.key].length > 0
+             }"></i>
+            <i v-else class="fa fa-fw fa-flag-o"></i>
+          </a>
+          </td>
+          <td v-if="ingesting !== null"><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
+            <i class="fa fa-fw" v-bind:class="{
+              'fa-database': !ingesting[file.key], 
+              'fa-circle-o-notch fa-spin': ingesting[file.key]
+            }"></i></a>
+          </td>
+          <td v-if="deleting !== null">
+            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': deleting[file.key], 
+                'fa-trash-o': !deleting[file.key] 
+              }"></i>
+            </a>
+          </td>
+          <td v-if="downloading !== null">
+            <a href="#" title="" v-on:click.prevent.stop="$emit('download-files', [file.key])">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': downloading[file.key],
+                'fa-download': !downloading[file.key]
+              }"></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-sm btn-default" v-if="truncated" v-on:click.prevent.stop="$emit('load-more')">
+        Load more
+        <i v-if="loadingMore" class="fa fa-fw fa-cog fa-spin"/>
+        <i v-else class="fa fa-fw fa-caret-down"/>
+      </button>
+      <div class="panel-placeholder" v-else-if="loaded && filter && files.length === 0">
+        No files found starting with &quot;<code>{{filter}}</code>&quot;...
+      </div>
+      <div class="panel-placeholder" v-else-if="loaded && files.length === 0">
+        There are no files here yet.
+      </div>
+      <div class="file-list-loading-indicator" v-show="!loaded">
+        <i class="fa fa-3x fa-spinner fa-spin"></i>
+      </div>
+    </div>
+  `
+});
+
 Vue.component("file-picker-suggestion", {
   props: {selected: Boolean, item: Object,},
   template: `

@@ -718,39 +718,53 @@ body {
   float: left;
 }
 
-.upload-progress {
+.upload-progress-container {
   position: absolute;
-  z-index: 100;
   bottom: $margin-sm;
   left: $margin-sm;
-  border: 1px solid $gray-300;
+  max-height: 20rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $ehri-border-gray;
   background-color: $ehri-gray;
   padding: $margin-xs;
-  min-width: 20rem;
-  overflow-y: auto;
-  max-height: 20rem;
+  box-shadow: $box-shadow-sm;
 
-  .progress-container {
-    background-color: lighten($ehri-gray, 1%);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    .cancel-button {
-      margin-left: auto;
-    }
+  .close {
+    font-size: $font-size-sm;
+    padding: 0 0 $margin-xxs $margin-xxs;
+  }
 
+  .upload-progress {
+    min-width: 20rem;
     margin-bottom: $margin-xs;
-    &:last-child {
-      margin-bottom: 0;
-    }
+    overflow-y: auto;
+    flex: 1;
 
-    .progress {
-      flex-grow: 1;
-      height: 1.6rem;
-      background-color: darken($ehri-gray, 20%);
-    }
-    .progress-bar {
-      padding: $margin-sm 0;
+    .progress-container {
+      background-color: lighten($ehri-gray, 1%);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .cancel-button {
+        margin-left: auto;
+        padding: .1rem .3rem;
+      }
+
+      margin-bottom: $margin-xs;
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .progress {
+        flex-grow: 1;
+        height: 1.6rem;
+        background-color: darken($ehri-gray, 20%);
+      }
+      .progress-bar {
+        padding: $margin-sm 0;
+      }
     }
   }
 }
