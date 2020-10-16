@@ -167,7 +167,11 @@ let DAO = class {
     return this.call(this.service.createDataset(this.repoId), info);
   }
 
-  deleteDataset(id, ds) {
-    return this.call(this.service.deleteDataset(id, ds));
+  updateDataset(ds, info) {
+    return this.call(this.service.updateDataset(this.repoId, ds), info);
+  }
+
+  deleteDataset(ds) {
+    return this.call(this.service.deleteDataset(this.repoId, ds));
   }
 };
