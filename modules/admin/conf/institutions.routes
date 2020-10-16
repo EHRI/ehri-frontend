@@ -66,6 +66,7 @@ POST        /:id/convert/:ds/:stage/:fileName         @controllers.institutions.
 
 GET         /:id/datasets                             @controllers.institutions.RepositoryData.listDatasets(id: String)
 POST        /:id/datasets                             @controllers.institutions.RepositoryData.createDataset(id: String)
+PUT         /:id/datasets/:ds                         @controllers.institutions.RepositoryData.updateDataset(id: String, ds: String)
 DELETE      /:id/datasets/:ds                         @controllers.institutions.RepositoryData.deleteDataset(id: String, ds: String)
 
 

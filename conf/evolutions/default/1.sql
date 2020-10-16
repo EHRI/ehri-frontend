@@ -121,7 +121,8 @@ CREATE TABLE import_dataset(
     created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments            TEXT,
     PRIMARY KEY (id, repo_id),
-    UNIQUE (id, repo_id)
+    UNIQUE (id, repo_id),
+    CONSTRAINT import_dataset_id_pattern CHECK(id ~ '^[a-z0-9_]+$')
 );
 
 CREATE TABLE oaipmh_config (

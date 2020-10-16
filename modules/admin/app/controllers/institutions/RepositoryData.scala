@@ -32,7 +32,7 @@ import play.api.libs.json.{Format, Json}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
-import services.datasets.ImportDatasetService
+import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
 import services.ingest.IngestApi.{IngestData, IngestJob}
 import services.ingest._
@@ -438,11 +438,21 @@ case class RepositoryData @Inject()(
   }
 
   def listDatasets(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    datasets.list(id).map(ds => Ok(Json.toJson(ds)))
+    datasets.list(id).map(dsl => Ok(Json.toJson(dsl)))
   }
 
   def createDataset(id: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
-    datasets.create(id, request.body).map( ds => Ok(Json.toJson(ds)))
+    datasets.create(id, request.body).map { ds =>
+      Ok(Json.toJson(ds))
+    }.recover {
+      case e: ImportDatasetExists => BadRequest(e)
+    }
+  }
+
+  def updateDataset(id: String, ds: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
+    datasets.update(id, ds, request.body).map { ds =>
+      Ok(Json.toJson(ds))
+    }
   }
 
   def deleteDataset(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>

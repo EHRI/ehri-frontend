@@ -1,5 +1,7 @@
 package services.datasets
 
+import java.sql.SQLException
+
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser}
 import javax.inject.Inject
@@ -25,7 +27,9 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   override def list(repoId: String): Future[Seq[ImportDataset]] = Future {
     db.withConnection { implicit conn =>
-      SQL"""SELECT * FROM import_dataset WHERE repo_id = $repoId""".as(parser.*)
+      SQL"""SELECT * FROM import_dataset
+           WHERE repo_id = $repoId
+           ORDER BY name ASC""".as(parser.*)
     }
   }(ec)
 
@@ -35,9 +39,11 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
     }
   }(ec)
 
+  @throws[ImportDatasetExists]
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
-      SQL"""INSERT INTO import_dataset (repo_id, id, name, type, comments)
+      try {
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, comments)
           VALUES (
             $repoId,
             ${info.id},
@@ -46,6 +52,23 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             ${info.notes}
           )
           RETURNING *""".as(parser.single)
+      } catch {
+        case e: SQLException if e.getSQLState == "23505" => // unique violation
+          throw ImportDatasetExists(info.id, e)
+      }
+    }
+  }(ec)
+
+  override def update(repoId: String, datasetId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""UPDATE import_dataset
+            SET
+              name = ${info.name},
+              type = ${info.src},
+              comments = ${info.notes}
+            WHERE repo_id = $repoId
+              AND id = $datasetId
+        RETURNING *""".as(parser.single)
     }
   }(ec)
 }

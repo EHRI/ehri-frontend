@@ -29,9 +29,8 @@ Vue.filter("humanFileSize", function (bytes, si) {
 
 Vue.filter("stageName", function(code, config) {
   switch (code) {
-    case config.oaipmh: return "Harvesting";
-    case config.upload: return "Uploads";
-    case config.ingest: return "Ingest";
+    case "oaipmh": return "Harvesting";
+    case "upload": return "Uploads";
     default: return code;
   }
 })
