@@ -218,6 +218,8 @@ Vue.component("transformation-editor", {
         .catch(error => {
           if (error.response && error.response.data && error.response.data.error) {
             this.error = error.response.data.error;
+          } else {
+            throw error;
           }
         })
         .finally(() => this.saving = false);

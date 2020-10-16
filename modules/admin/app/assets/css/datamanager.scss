@@ -39,21 +39,24 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
+  padding-bottom: $margin-sm;
 }
 
-.dataset-loading-indicator {
+#dataset-manager {
+  width: 60%;
+  align-self: center;
   display: flex;
+  flex-direction: column;
   flex: 1;
-  align-items: center;
-  justify-content: center;
-  color: $text-muted;
 }
 
-.dataset-selector {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  justify-content: flex-end;
+.dataset-manager-list {
+  overflow-y: auto;
+  margin-bottom: $margin-xs;
+  // FIXME: hack because I can't figure out
+  // how to make it expand but overflow: auto
+  // when the size of the parent.
+  max-height: 70vh;
 }
 
 .dataset-manager-item {
@@ -67,6 +70,39 @@ body {
   &:hover {
     background-color: darken($white, 2%);
   }
+
+  .badge {
+    border-radius: $border-radius-sm;
+    float: right;
+
+    &.badge-upload {
+      color: $white;
+      background-color: $info;
+    }
+    &.badge-oaipmh {
+      color: $white;
+      background-color: $purple;
+    }
+  }
+
+}
+#delete-dataset {
+  margin-right: auto;
+}
+
+.dataset-loading-indicator {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+}
+
+.dataset-menu {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 #app-error-notice {
