@@ -59,9 +59,9 @@ let previewMixin = {
 
 let utilMixin = {
   methods: {
-    removeQueryParam: function(qs, name) {
+    removeQueryParam: function(qs, names) {
       let qp = this.queryParams(qs);
-      return this.queryString(_.omit(qp, name));
+      return this.queryString(_.omit(qp, names));
     },
     setQueryParam: function(qs, name, value) {
       let qp = this.queryParams(qs);
@@ -800,4 +800,169 @@ Vue.component("drag-handle", {
   `
 });
 
+Vue.component("modal-window", {
+  template: `
+    <div class="modal show fade" tabindex="-1" role="dialog" style="display: block">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+                <slot name="title"></slot>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="$emit('close')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <slot></slot>
+          </div>
+          <div class="modal-footer">
+            <slot name="footer"></slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
 
+
+let initialStageState = function() {
+  return {
+    loaded: false,
+    loadingMore: false,
+    truncated: false,
+    tab: 'preview',
+    previewing: null,
+    deleting: {},
+    downloading: {},
+    selected: {},
+    filter: {
+      value: "",
+      active: false
+    },
+    files: [],
+    log: [],
+  };
+};
+
+let stageMixin = {
+  props: {
+    datasetId: String,
+    active: Boolean,
+  },
+  data: function() {
+    return initialStageState();
+  },
+  computed: {
+    selectedKeys: function () {
+      return Object.keys(this.selected);
+    },
+  },
+  methods: {
+    reset: function() {
+      Object.assign(this.$data, initialStageState());
+    },
+    clearFilter: function () {
+      this.filter.value = "";
+      return this.refresh();
+    },
+    filterFiles: function () {
+      let func = () => {
+        this.filter.active = true;
+        return this.load().then(r => {
+          this.filter.active = false;
+          return r;
+        });
+      };
+      return _.debounce(func, 300)();
+    },
+    refresh: _.debounce(function() {
+      return this.load();
+    }, 500),
+    load: function () {
+      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value)
+        .then(data => {
+          this.files = data.files;
+          this.truncated = data.truncated;
+        })
+        .catch(error => this.showError("Error listing files", error))
+        .finally(() => this.loaded = true);
+    },
+    loadMore: function () {
+      this.loadingMore = true;
+      let from = this.files.length > 0
+        ? this.files[this.files.length - 1].key
+        : null;
+      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from)
+        .then(data => {
+          this.files.push.apply(this.files, data.files);
+          this.truncated = data.truncated;
+        })
+        .catch(error => this.showError("Error listing files", error))
+        .finally(() => this.loadingMore = false);
+    },
+    downloadFiles: function(keys) {
+      keys.forEach(key => this.$set(this.downloading, key, true));
+      this.api.fileUrls(this.fileStage, keys)
+        .then(urls => {
+          _.forIn(urls, (url, fileName) => {
+            window.open(url, '_blank');
+            this.$delete(this.downloading, fileName);
+          });
+        })
+        .catch(error => this.showError("Error fetching download URLs", error))
+        .finally(() => this.downloading = {});
+    },
+    deleteFiles: function (keys) {
+      if (keys.includes(this.previewing)) {
+        this.previewing = null;
+      }
+      keys.forEach(key => this.$set(this.deleting, key, true));
+      this.api.deleteFiles(this.datasetId, this.fileStage, keys)
+        .then(deleted => {
+          deleted.forEach(key => {
+            this.$delete(this.deleting, key);
+            this.$delete(this.selected, key);
+          });
+          this.refresh();
+        })
+        .catch(error => this.showError("Error deleting files", error))
+        .finally(() => this.deleting = {});
+    },
+    deleteAll: function () {
+      this.previewing = null;
+      this.files.forEach(f => this.$set(this.deleting, f.key, true));
+      return this.api.deleteAll(this.datasetId, this.fileStage)
+        .then(r => {
+          this.load();
+          r;
+        })
+        .catch(error => this.showError("Error deleting files", error))
+        .finally(() => this.deleting = {});
+    },
+    showError: function() {}, // Overridden by inheritors
+    selectNext: function() {
+      console.log("No implemented yet...")
+    },
+    selectPrev: function() {
+      console.log("No implemented yet...")
+    },
+    deselect: function() {
+      this.previewing = null;
+    }
+  },
+  watch: {
+    active: function(newValue) {
+      if (newValue) {
+        this.load();
+      }
+    },
+    datasetId: function() {
+      this.reset();
+      this.load();
+    }
+  },
+  created: function() {
+    this.load();
+  },
+};
