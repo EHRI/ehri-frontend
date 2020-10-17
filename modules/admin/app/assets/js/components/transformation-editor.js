@@ -193,7 +193,6 @@ Vue.component("transformation-editor", {
         comments: this.comments,
       },
       timestamp: (new Date()).toString(),
-      fileStage: 'upload',
       inputValidationResults: {},
       outputValidationResults: {},
       showOptions: false,
