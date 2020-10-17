@@ -91,6 +91,10 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     }
   }(ec)
 
+  override def count(classifier: String, prefix: Option[String]): Future[Int] = Future {
+    fileMeta(classifier).count(f => prefix.isEmpty || prefix.forall(f.key.startsWith))
+  }(ec)
+
   /**
     * A public method for testing purposes only.
     */

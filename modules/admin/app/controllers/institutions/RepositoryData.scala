@@ -122,7 +122,7 @@ case class RepositoryData @Inject()(
 
     val pathPrefix: String = prefix(id, ds, stage) + path.getOrElse("")
     asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
-      storage.streamFiles(bucket, Some(prefix(id, ds, stage) + path.getOrElse(""))).runFold(0)((acc, _) => acc + 1).map { count =>
+      storage.count(bucket, Some(prefix(id, ds, stage) + path.getOrElse(""))).map { count =>
         Json.obj("path" -> pathPrefix, "count" -> count)
       }
     }.map(Ok(_))
@@ -435,6 +435,21 @@ case class RepositoryData @Inject()(
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
+  }
+
+  def datasetStats(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    import scala.concurrent.duration._
+    def countInDataset(ds: String): Future[(String, Int)] = {
+      val pathPrefix: String = prefix(id, ds, FileStage.Input)
+      asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
+        storage.count(bucket, Some(pathPrefix)).map( count => ds -> count)
+      }
+    }
+
+    for {
+      dsl <- datasets.list(id)
+      idToCount <- Future.sequence(dsl.map(ds => countInDataset(ds.id)))
+    } yield Ok(Json.toJson(idToCount.toMap))
   }
 
   def listDatasets(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>

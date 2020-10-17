@@ -13,7 +13,7 @@ trait FileStorage {
   /**
     * Get a bytestream for the given file.
     *
-    * @param classifier the "bucket", or set, to which this file will belong
+    * @param classifier the "bucket", or set
     * @param path       additional file path, including the file name with extension
     * @return a file-meta/byte stream pair
     */
@@ -31,7 +31,7 @@ trait FileStorage {
   /**
     * Get the URI for a stored file with the given classifier and key.
     *
-    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param duration    the duration for which the URI is valid
     * @param contentType the content type of the file, if the URI is
@@ -43,7 +43,7 @@ trait FileStorage {
   /**
     * Put a file object in storage.
     *
-    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param file        the file object to store
     * @param contentType the content/type value. If None is given this will
@@ -59,7 +59,7 @@ trait FileStorage {
   /**
     * Put arbitrary bytes to file storage
     *
-    * @param classifier  the "bucket", or set, to which this file will belong
+    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param src         the byte source
     * @param contentType the content/type value. If None is given this will
@@ -75,7 +75,7 @@ trait FileStorage {
   /**
     * Stream all files which share this classifier.
     *
-    * @param classifier the "bucket", or set, to which this file belongs
+    * @param classifier the "bucket", or set
     * @param prefix     an optional path prefix
     * @return a stream of file metadata objects.
     */
@@ -84,7 +84,7 @@ trait FileStorage {
   /**
     * List files which share this classifier.
     *
-    * @param classifier the "bucket", or set, to which this file belongs
+    * @param classifier the "bucket", or set
     * @param prefix     an optional path prefix
     * @param after      list files starting after this key
     * @param max        the maximum number of keys to list
@@ -97,7 +97,7 @@ trait FileStorage {
   /**
     * Delete files from storage.
     *
-    * @param classifier the "bucket", or set, to which this file belongs
+    * @param classifier the "bucket", or set
     * @param paths      file paths, including the file name with extension
     * @return paths which were successfully deleted
     */
@@ -106,9 +106,18 @@ trait FileStorage {
   /**
     * Delete files with a given prefix from storage.
     *
-    * @param classifier the "bucket", or set, to which this file belongs
+    * @param classifier the "bucket", or set
     * @param prefix     the file path prefix
     * @return paths which were successfully deleted
     */
   def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]]
+
+  /**
+    * Count files in the classifier, with an optional prefix.
+    *
+    * @param classifier the "bucket", or set
+    * @param prefix     an optional prefix
+    * @return the number of files in the set with the given prefix
+    */
+  def count(classifier: String, prefix: Option[String]): Future[Int]
 }

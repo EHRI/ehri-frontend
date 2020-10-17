@@ -163,6 +163,10 @@ let DAO = class {
     return this.call(this.service.listDatasets(this.repoId));
   }
 
+  datasetStats() {
+    return this.call(this.service.datasetStats(this.repoId));
+  }
+
   createDataset(info) {
     return this.call(this.service.createDataset(this.repoId), info);
   }

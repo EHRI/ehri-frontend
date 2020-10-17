@@ -124,6 +124,17 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     deleteKeys(classifier, paths)
   }(ec)
 
+  def countFilesWithPrefix(classifier: String, prefix: Option[String] = None): Future[Int] = Future {
+    @scala.annotation.tailrec
+    def countBatch(done: Int = 0, last: Option[String] = None): Int = {
+      val fm = listPrefix(classifier, prefix, last, max = 1000)
+      val count = fm.files.size
+      if (fm.truncated) countBatch(done + count, fm.files.lastOption.map(_.key))
+      else done + count
+    }
+    countBatch()
+  }(ec)
+
   def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
     @scala.annotation.tailrec
     def deleteBatch(done: Seq[String] = Seq.empty): Seq[String] = {
