@@ -252,6 +252,7 @@ Vue.component("dataset-manager", {
       showForm: false,
       showEditForm: false,
       showSelector: false,
+      stats: {},
     }
   },
   methods: {
@@ -288,6 +289,7 @@ Vue.component("dataset-manager", {
       this.showForm = true;
     },
     loadDatasets: function() {
+      this.api.datasetStats().then(stats => this.stats = stats);
       return this.api.listDatasets()
         .then(dsl => this.datasets = dsl)
         .catch(e => this.showError("Error loading datasets", e))
@@ -363,6 +365,7 @@ Vue.component("dataset-manager", {
             <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" class="dataset-manager-item">
               <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
                 {{ds.src|stageName(config)}}
+                <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
               </div>
               <h3>{{ds.name}}</h3>
               <p v-if="ds.notes">{{ds.notes}}</p>
