@@ -5,35 +5,31 @@
         @if(dropdown) {
             <div class="dropdown">
                 <div class="dropdown-toggle" id="description-switcher-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <label>
                     @descriptions.find(_._2).map { case (desc, _) =>
                         @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
                     }.getOrElse {
                         @Messages(labelKey)
                     }
-                    </label>
                     <span class="caret"></span>
                 </div>
-                <ul class="dropdown-menu" aria-labelledby="description-switcher-toggle">
+                <div class="dropdown-menu" aria-labelledby="description-switcher-toggle">
                     @descriptions.map { case (desc, selected) =>
-                        <li>
-                            <a class="@(if(selected) "active")"
-                                    title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
-                                    href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
-                                    data-id="@desc.localId">
-                                @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
-                            </a>
-                        </li>
+                        <a class="dropdown-item @(if(selected) "active")"
+                                title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
+                                href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"
+                                data-id="@desc.localId">
+                            @views.Helpers.languageCodeToName(desc.languageCode) - @desc.name
+                        </a>
                     }
-                </ul>
+                </div>
             </div>
         } else {
             <p class="multiple-description-help">
                 @Messages("description.multiple.text")
             </p>
-            <ul>
+            <ul class="description-list" aria-labelledby="description-switcher-toggle">
                 @descriptions.map { case (desc, selected) =>
-                    <li>
+                    <li class="description-list-item">
                         <a class="@(if(selected) "active")"
                                 title="@views.Helpers.languageCodeToName(desc.languageCode) - @desc.name"
                                 href="@utils.http.joinPath(req.path, req.queryString.updated("dlid", desc.localId.toSeq))"

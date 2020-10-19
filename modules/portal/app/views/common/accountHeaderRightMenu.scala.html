@@ -19,27 +19,19 @@
             @Messages("help")
             <span class="caret"></span>
         </a>
-        <ul id="help-dropdown" class="dropdown-menu" role="menu">
+        <div id="help-dropdown" class="dropdown-menu" role="menu">
             @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
-                <li>
-                    <a href="@url" target="_blank" rel="noopener">
-                        @Messages("help.manual")
-                    </a>
-                </li>
-            }
-            <li>
-                <a href="@controllers.portal.routes.Portal.externalPage("faq")">
-                    @Messages("help.faq")
+                <a class="dropdown-item" href="@url" target="_blank" rel="noopener">
+                    @Messages("help.manual")
                 </a>
-            </li>
-            <li class="divider"></li>
-            <li>
-                <a href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
-            </li>
-            <li>
-                <a href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
-            </li>
-        </ul>
+            }
+            <a class="dropdown-item" href="@controllers.portal.routes.Portal.externalPage("faq")">
+                @Messages("help.faq")
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
+            <a class="dropdown-item" href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
+        </div>
     </li>
     @userOpt.map { user =>
         @if(showAdminLink && user.account.exists(_.staff)) {
@@ -53,31 +45,25 @@
                 <div class="user-img-icon" style="background-image: url('@views.Helpers.gravitar(user.data.imageUrl)')"></div>
                 <span class="caret"></span>
             </a>
-            <ul class="boolean-preferences dropdown-menu" role="menu">
-                <li>
-                    <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="gravitar">
-                        <i class="fa fa-user-o" aria-hidden="true"></i>
-                        @Messages("profile.menu.link")
-                    </a>
-                </li>
+            <div class="boolean-preferences dropdown-menu" role="menu">
+                <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="dropdown-item gravitar">
+                    <i class="fa fa-user-o" aria-hidden="true"></i>
+                    @Messages("profile.menu.link")
+                </a>
                 @prefsOpt.map { prefs =>
-                    <li role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</li>
-                    <li>
-                        <a href="#" class="toggle-boolean-preference boolean-@prefs.showUserContent"
-                            data-preference-name="showUserContent"
-                            data-preference-value="@prefs.showUserContent">
-                        @Messages("profile.preferences.view.showUserContent")
-                        </a>
-                    </li>
+                    <div role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</div>
+                    <a href="#" class="dropdown-item toggle-boolean-preference boolean-@prefs.showUserContent"
+                        data-preference-name="showUserContent"
+                        data-preference-value="@prefs.showUserContent">
+                    @Messages("profile.preferences.view.showUserContent")
+                    </a>
                 }
 
-                <li role="presentation" class="dropdown-header">@Messages("account")</li>
-                <li>
-                    <a href="@controllers.portal.account.routes.Accounts.logout()">
-                        @Messages("logout")
-                    </a>
-                </li>
-            </ul>
+                <div role="presentation" class="dropdown-header">@Messages("account")</div>
+                <a class="dropdown-item" href="@controllers.portal.account.routes.Accounts.logout()">
+                    @Messages("logout")
+                </a>
+            </div>
         </li>
     }.getOrElse {
         <li>
