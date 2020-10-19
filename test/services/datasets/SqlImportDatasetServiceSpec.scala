@@ -2,7 +2,7 @@ package services.datasets
 
 import akka.actor.ActorSystem
 import helpers._
-import models.ImportDatasetInfo
+import models.{ImportDataset, ImportDatasetInfo}
 import org.postgresql.util.PSQLException
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,12 +29,12 @@ class SqlImportDatasetServiceSpec extends PlaySpecification {
     }
 
     "create items" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
-      val ds = await(service.create("r1", ImportDatasetInfo("new", "New DS", "upload")))
+      val ds = await(service.create("r1", ImportDatasetInfo("new", "New DS", ImportDataset.Src.Upload)))
       ds.name must_== "New DS"
     }
 
     "enforce id pattern" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
-      await(service.create("r1", ImportDatasetInfo("foo bar", "New DS", "upload"))) must throwA[PSQLException].like {
+      await(service.create("r1", ImportDatasetInfo("foo bar", "New DS", ImportDataset.Src.Upload))) must throwA[PSQLException].like {
         case e => e.getMessage must contain("import_dataset_id_pattern")
       }
     }
