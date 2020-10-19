@@ -190,18 +190,12 @@ figure {
   }
 }
 
-ul.dropdown-menu {
+.dropdown-menu {
   font-size: $font-size-sm;
   margin-top: 0;
+  box-shadow: $box-shadow-sm;
 
-  > li {
-    padding: 0;
-    &:active {
-      background-color: $gray-100;
-    }
-  }
-
-  > li.dropdown-header {
+  > .dropdown-header {
     font-size: $font-size-xs;
     color: $text-darkened;
     padding: $margin-xs $margin-sm;
@@ -211,7 +205,7 @@ ul.dropdown-menu {
     }
   }
 
-  > li > a {
+  > .dropdown-item {
     font-size: $font-size-sm;
     display: block;
     padding: $margin-xs $margin-sm;
@@ -219,14 +213,16 @@ ul.dropdown-menu {
     color: $gray-800;
     white-space: nowrap;
 
-    &:hover {
-      text-decoration: none;
-      background-color: $gray-200;
-    }
-
+    &:active,
+    &:hover,
     &:focus {
       text-decoration: none;
-      background-color: $gray-100;
+    }
+
+    &:active,
+    &.active {
+      @include color-var(background-color, 'info');
+      @include color-var(color, 'white');
     }
   }
 }
@@ -1514,36 +1510,42 @@ ul.list-export-options {
 }
 
 .description-switcher {
+
+  #description-switcher-toggle {
+    cursor: pointer;
+  }
+
   .sidebar-section-body {
 
     .multiple-description-help {
       color: $text-darkened;
     }
 
-    > ul > li {
+    .description-list-item {
       margin-bottom: 0;
-    }
 
-    > ul > li > a {
-      font-size: $font-size-xs;
-      @include color-var(color, 'secondary');
-      padding: $margin-sm;
-      display: block;
-      border: $border-width solid $border-color;
-      border-top: 0;
+      > a {
+        font-size: $font-size-xs;
+        @include color-var(color, 'secondary');
+        padding: $margin-sm;
+        display: block;
+        border: $border-width solid $border-color;
+        border-top: 0;
 
-      &:hover {
-        text-decoration: none;
-        @include color-var('background-color', 'light');
+        &:hover {
+          text-decoration: none;
+          @include color-var('background-color', 'light');
+        }
       }
     }
 
-    > ul > li:first-child > a {
+    .description-list-item:first-child > a {
       border-top: $border-width solid $border-color;
     }
 
-    > ul > li > a.active {
+    .description-list-item > a.active {
       @include color-var(background-color, 'info');
+      @include color-var(border-color, 'info');
       @include color-var(color, 'white');
     }
   }
