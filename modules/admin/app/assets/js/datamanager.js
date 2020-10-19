@@ -418,8 +418,18 @@ Vue.component("dataset-manager", {
                   <i class="fa fa-edit"></i>
                   Edit Dataset
                 </a>
+                <template v-if="datasets.length > 1">
+                  <div class="dropdown-divider"></div>
+                  <a v-for="ds in datasets" v-on:click.prevent="selectDataset(ds); showSelector = false" href="#" class="dropdown-item">
+                    <i class="fa fa-fw" v-bind:class="{'fa-asterisk': ds.id===dataset.id}"></i>
+                    {{ ds.name }}
+                    <div class="badge badge-pill" v-bind:class="'badge-' + ds.src">
+                      <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                    </div>
+                  </a>
+                </template>
                 <div class="dropdown-divider"></div>
-                <a v-on:click.prevent="showSelector = false; closeDataset()" href="#" class="dropdown-item">
+                <a v-on:click.prevent="closeDataset(); showSelector = false" href="#" class="dropdown-item">
                   <i class="fa fa-close"></i>
                   Close
                 </a>
