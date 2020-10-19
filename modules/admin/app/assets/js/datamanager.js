@@ -10,43 +10,53 @@ window.addEventListener("drop", e => e.preventDefault(), false);
 
 
 
-Vue.component("edit-dataset-form", {
+
+Vue.component("dataset-form", {
   props: {
     api: DAO,
-    id: String,
     info: Object,
   },
   data: function() {
     return {
-      name: this.info.name,
-      src: this.info.src,
-      notes: this.info.notes,
+      id: this.info ? this.info.id : null,
+      name: this.info ? this.info.name : null,
+      src: this.info ? this.info.src : null,
+      notes: this.info ? this.info.notes : null,
+      error: null,
       saving: false,
       deleting: false,
       showRemoveDialog: false,
-      error: null,
     }
   },
   methods: {
     save: function() {
       this.saving = true;
-      this.api.updateDataset(this.id, {
-        id: this.id,
-        name: this.name,
-        src: this.src,
-        notes: this.notes
+
+      let op = this.info !== null
+        ? this.api.updateDataset(this.id, {
+          id: this.id,
+          name: this.name,
+          src: this.src,
+          notes: this.notes
+        }).then(ds => this.$emit('saved-dataset', ds))
+        : this.api.createDataset({
+          id: this.id,
+          name: this.name,
+          src: this.src,
+          notes: this.notes
+        }).then(ds => {
+            this.$emit('saved-dataset', ds);
+            this.$emit('close');
+          });
+
+      op.catch(error => {
+        if (error.response && error.response.data && error.response.data.error) {
+          this.error = error.response.data.error;
+        } else {
+          throw error;
+        }
       })
-        .then(ds => {
-          this.$emit('updated-dataset', ds);
-        })
-        .catch(error => {
-          if (error.response && error.response.data && error.response.data.error) {
-            this.error = error.response.data.error;
-          } else {
-            throw error;
-          }
-        })
-        .finally(() => this.saving = false);
+      .finally(() => this.saving = false);
     },
     remove: function() {
       this.deleting = true;
@@ -65,18 +75,22 @@ Vue.component("edit-dataset-form", {
     isValidConfig: function() {
       return this.src !== null
         && this.name !== null
-        && this.name.trim() !== ""
         && this.id !== null;
     },
+    isValidIdentifier: function() {
+      return !this.id || (this.id.match(/^[a-z0-9_]+$/) !== null && this.id.length <= 50);
+    },
     hasChanged: function() {
-      return this.info.name !== this.name
-        || this.info.src !== this.src
-        || this.info.notes !== this.notes;
+      return this.info === null || (
+        this.info.name !== this.name
+          || this.info.src !== this.src
+          || this.info.notes !== this.notes);
     }
   },
   template: `
     <modal-window v-on:close="$emit('close')">
-      <template v-slot:title>Update Dataset: {{info.name}}</template>
+      <template v-if="info === null" v-slot:title>Create New Dataset...</template>
+      <template v-else v-slot:title>Update Dataset: {{info.name}}</template>
 
       <modal-alert v-if="showRemoveDialog"
                    v-on:accept="remove"
@@ -94,104 +108,12 @@ Vue.component("edit-dataset-form", {
                    v-bind:cls="'warning'">
         <p>{{error}}</p>
       </modal-alert>
-      <div class="options-form">
-        <div class="form-group">
-          <label class="form-label" for="dataset-name">Name</label>
-          <input type="text" v-model="name" id="dataset-name" class="form-control"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="dataset-src">Type</label>
-          <select v-model="src" class="form-control" id="dataset-src">
-            <option value="upload">Uploads</option>
-            <option value="oaipmh">OAI-PMH Harvesting</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="dataset-notes">Notes</label>
-          <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control" placeholder="(optional)"/>
-        </div>
-      </div>
-
-      <template v-slot:footer>
-        <button v-bind:disabled="saving || deleting"
-                v-on:click="showRemoveDialog = true" class="btn btn-danger" id="delete-dataset" tabindex="-1">
-          <i v-if="deleting" class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-          <i v-else class="fa fa-fw fa-trash-o"></i>
-          Delete Dataset
-        </button>
-        <button v-bind:disabled="!hasChanged || !isValidConfig || saving || deleting"
-                v-on:click="save" type="button" class="btn btn-secondary">
-          <i v-if="saving" class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-          <i v-else class="fa fa-fw fa-save"></i>
-          Save Dataset
-        </button>
-      </template>
-    </modal-window>
-  `
-});
-
-Vue.component("new-dataset-form", {
-  props: {
-    api: DAO
-  },
-  data: function() {
-    return {
-      id: null,
-      name: null,
-      src: null,
-      notes: null,
-      error: null,
-      saving: false,
-    }
-  },
-  methods: {
-    save: function() {
-      this.saving = true;
-      this.api.createDataset({
-          id: this.id,
-          name: this.name,
-          src: this.src,
-          notes: this.notes
-        })
-        .then(ds => {
-          this.$emit('created-dataset', ds);
-          this.$emit('close');
-        })
-        .catch(error => {
-          if (error.response && error.response.data && error.response.data.error) {
-            this.error = error.response.data.error;
-          } else {
-            throw error;
-          }
-        })
-        .finally(() => this.saving = false);
-    }
-  },
-  computed: {
-    isValidConfig: function() {
-      return this.src !== null
-        && this.name !== null
-        && this.id !== null;
-    },
-    isValidIdentifier: function() {
-      return !this.id || (this.id.match(/^[a-z0-9_]+$/) !== null && this.id.length <= 50);
-    },
-  },
-  template: `
-    <modal-window v-on:close="$emit('close')">
-      <template v-slot:title>Create New Dataset...</template>
-
-      <modal-alert v-if="error"
-                   v-on:accept="error = null"
-                   v-on:close="error = null"
-                   v-bind:cancel="null"
-                   v-bind:title="'Error saving dataset...'"
-                   v-bind:cls="'warning'">
-        <p>{{error}}</p>
-      </modal-alert>
-      <div class="options-form">
-        <div class="form-group">
-          <label class="form-label" for="dataset-id">Identifier</label>
+      <fieldset v-bind:disabled="deleting" class="options-form">
+        <div class="form-group" v-if="info === null">
+          <label class="form-label" for="dataset-id">
+            Identifier
+            <span class="required-input">*</span>
+          </label>
           <input v-model="id"
                  v-bind:class="{'is-invalid': !isValidIdentifier}"
                  pattern="[a-z0-9_]+"
@@ -200,19 +122,27 @@ Vue.component("new-dataset-form", {
                  id="dataset-id"
                  class="form-control"
                  autofocus="autofocus"
-                 autocomplete="off" />
+                 autocomplete="off" 
+                 placeholder="(required)" />
           <div class="small form-text">
             Dataset identifiers must be at least 6 characters in length
             and can only contain lower case letters, numbers and underscores.
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="dataset-name">Name</label>
-          <input type="text" v-model="name" id="dataset-name" class="form-control"/>
+          <label class="form-label" for="dataset-name">
+            Name
+            <span class="required-input">*</span>
+          </label>
+          <input type="text" v-model="name" id="dataset-name" class="form-control" placeholder="(required)"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="dataset-src">Type</label>
+          <label class="form-label" for="dataset-src">
+            Type
+            <span class="required-input">*</span>
+          </label>
           <select v-model="src" class="form-control" id="dataset-src">
+            <option v-bind:value="null" disabled selected hidden>(required)</option>
             <option value="upload">Uploads</option>
             <option value="oaipmh">OAI-PMH Harvesting</option>
           </select>
@@ -221,14 +151,22 @@ Vue.component("new-dataset-form", {
           <label class="form-label" for="dataset-notes">Notes</label>
           <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control" placeholder="(optional)"/>
         </div>
-      </div>
+      </fieldset>
       
       <template v-slot:footer>
-        <button v-bind:disabled="saving || !(isValidConfig && isValidIdentifier)"
+        <button v-if="info"
+                v-bind:disabled="saving || deleting"
+                v-on:click="showRemoveDialog = true" class="btn btn-danger" id="delete-dataset" tabindex="-1">
+          <i v-if="deleting" class="fa fa-fw fa-spin fa-circle-o-notch"></i>
+          <i v-else class="fa fa-fw fa-trash-o"></i>
+          Delete Dataset
+        </button>
+        <button v-bind:disabled="saving || deleting || !hasChanged || !(isValidConfig && isValidIdentifier)"
                 v-on:click="save" type="button" class="btn btn-secondary">
           <i v-if="saving" class="fa fa-fw fa-spin fa-circle-o-notch"></i>
           <i v-else class="fa fa-fw fa-save"></i>
-          Create New Dataset
+          <template v-if="info">Save Dataset</template>
+          <template v-else>Create Dataset</template>
         </button>
       </template>
     </modal-window>
@@ -250,7 +188,6 @@ Vue.component("dataset-manager", {
       tab: this.initTab,
       error: null,
       showForm: false,
-      showEditForm: false,
       showSelector: false,
       stats: {},
     }
@@ -331,18 +268,12 @@ Vue.component("dataset-manager", {
         <span class="close" v-on:click="error = null">&times;</span>
         {{error}}
       </div>
-      <edit-dataset-form v-if="showEditForm"
-                         v-bind:id="dataset.id"
+      <dataset-form v-if="showForm"
                          v-bind:info="dataset"
                          v-bind:api="api"
-                         v-on:close="showEditForm = false"
-                         v-on:updated-dataset="reloadDatasets"    
+                         v-on:close="showForm = false"
+                         v-on:saved-dataset="reloadDatasets"
                          v-on:deleted-dataset="reloadDatasets" />
-
-      <new-dataset-form v-if="showForm"
-        v-bind:api="api"
-        v-on:close="showForm = false"
-        v-on:created-dataset="reloadDatasets" />
       
       <div v-if="!loaded && dataset === null" class="dataset-loading-indicator">
         <h2>
@@ -414,7 +345,7 @@ Vue.component("dataset-manager", {
               <div v-if="showSelector" class="dropdown-backdrop" v-on:click="showSelector = false">
               </div>
               <div v-if="showSelector" class="dropdown-menu dropdown-menu-right show">
-                <a v-on:click.prevent="showSelector = false; showEditForm = true" class="dropdown-item" href="#">
+                <a v-on:click.prevent="showSelector = false; showForm = true" class="dropdown-item" href="#">
                   <i class="fa fa-edit"></i>
                   Edit Dataset
                 </a>
