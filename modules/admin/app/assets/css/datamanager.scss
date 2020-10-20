@@ -4,6 +4,8 @@
 @import "./admin/admin";
 @import "./admin/forms";
 
+$active-table-row: #e7f1ff;
+
 body {
   height: 100%;
   margin: 0;
@@ -566,7 +568,7 @@ body {
     cursor: pointer;
   }
   tbody tr.active {
-    background-color: #e7f1ff;
+    background-color: $active-table-row;
   }
 }
 
@@ -865,3 +867,36 @@ body {
   }
 }
 
+.ingest-options-properties-container {
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+  background-color: $gray-100;
+
+  .panel-placeholder {
+    position: relative;
+  }
+}
+
+#opt-new-props {
+  position: relative;
+}
+
+.opt-new-props-input {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  cursor: pointer;
+}
+
+.ingest-options-properties tr {
+  cursor: pointer;
+  &.active {
+    background-color: $active-table-row;
+  }
+}
