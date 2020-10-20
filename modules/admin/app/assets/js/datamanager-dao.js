@@ -28,22 +28,18 @@ let DAO = class {
     return this.call(this.service.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
-  ingestFiles(ds, stage, paths, tolerant, commit, logMessage) {
+  ingestFiles(ds, stage, paths, opts) {
     let data = {
-      logMessage: logMessage,
-      tolerant: tolerant,
-      commit: commit,
-      files: paths
+      files: paths,
+      ...opts
     };
     return this.call(this.service.ingestFiles(this.repoId, ds, stage), data);
   }
 
-  ingestAll(ds, stage, tolerant, commit, logMessage) {
+  ingestAll(ds, stage, opts) {
     return this.call(this.service.ingestAll(this.repoId, ds, stage), {
-      logMessage: logMessage,
-      tolerant: tolerant,
-      commit: commit,
-      files: []
+      files: [],
+      ...opts
     });
   }
 
@@ -71,10 +67,11 @@ let DAO = class {
   uploadFile(url, file, progressHandler) {
     const CancelToken = axios.CancelToken;
     const source = CancelToken.source();
+    const progressFunc = progressHandler || function () { return true };
 
     return axios.put(url, file, {
       onUploadProgress: function (evt) {
-        if (!progressHandler(evt)) {
+        if (!progressFunc(evt)) {
           source.cancel();
         }
       },

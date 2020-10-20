@@ -64,6 +64,7 @@
                     repositoryId: "@item.id",
                     input: "@defines.FileStage.Input",
                     output: "@defines.FileStage.Output",
+                    config: "@defines.FileStage.Config",
                     previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datamanager.worker.js")",
                     monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
                                 .absoluteURL(location.protocol === "https:")

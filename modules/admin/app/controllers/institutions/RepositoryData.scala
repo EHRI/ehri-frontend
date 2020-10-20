@@ -169,7 +169,7 @@ case class RepositoryData @Inject()(
   def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
-    val urls = keys.map(key => key -> storage.uri(bucket, key, duration = 24.hours)).toMap
+    val urls = keys.map(key => key -> storage.uri(bucket, key, duration = 2.hours)).toMap
 
     // Tag this task with a unique ID...
     val jobId = UUID.randomUUID().toString
@@ -191,7 +191,8 @@ case class RepositoryData @Inject()(
       tolerant = request.body.tolerant,
       commit = request.body.commit,
       properties = request.body.properties
-        .map(url => PropertiesHandle(url))
+        .map(ref => PropertiesHandle(
+          storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
         .getOrElse(PropertiesHandle.empty)
     )
 

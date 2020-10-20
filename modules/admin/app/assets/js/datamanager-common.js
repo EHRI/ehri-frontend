@@ -506,7 +506,6 @@ Vue.component("files-table", {
     truncated: Boolean,
     deleting: Object,
     downloading: Object,
-    ingesting: Object,
     filter: String,
   },
   computed: {
@@ -581,12 +580,6 @@ Vue.component("files-table", {
              }"></i>
             <i v-else class="fa fa-fw fa-flag-o"></i>
           </a>
-          </td>
-          <td v-if="ingesting !== null"><a href="#" v-on:click.prevent.stop="$emit('ingest-files', [file.key])">
-            <i class="fa fa-fw" v-bind:class="{
-              'fa-database': !ingesting[file.key], 
-              'fa-circle-o-notch fa-spin': ingesting[file.key]
-            }"></i></a>
           </td>
           <td v-if="deleting !== null">
             <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
