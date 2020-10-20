@@ -254,7 +254,6 @@ Vue.component("oaipmh-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:downloading="downloading"
-            v-bind:ingesting="null"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
