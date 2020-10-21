@@ -52,8 +52,12 @@ let DAO = class {
       .then(data => data.ok || false);
   }
 
-  validateFiles(ds, stage, paths) {
-    return this.call(this.service.validateFiles(this.repoId, ds, stage), paths);
+  validateAll(ds, stage) {
+    return this.call(this.service.validateAll(this.repoId, ds, stage));
+  }
+
+  validateFiles(ds, stage, tagToPath) {
+    return this.call(this.service.validateFiles(this.repoId, ds, stage), tagToPath);
   }
 
   fileUrls(ds, stage, paths) {

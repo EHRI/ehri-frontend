@@ -138,39 +138,57 @@ let validatorMixin = {
   data: function() {
     return {
       validating: {},
+      validationRunning: false,
       validationResults: {},
-    }
-  },
-  computed: {
-    validationLog: function () {
-      let log = [];
-      this.files.forEach(file => {
-        let key = file.key;
-        let errs = this.validationResults[key];
-        if (errs) {
-          let cls = errs.length === 0 ? "text-success" : "text-danger";
-          log.push('<span class="' + cls + '">' + key + '</span>' + ":" + (errs.length === 0 ? " ✓" : ""));
-          errs.forEach(err => {
-            log.push("    " + err.line + "/" + err.pos + " - " + err.error);
-          });
-        }
-      });
-      return log;
+      validationLog: [],
     }
   },
   methods: {
-    validateFiles: function (keys) {
-      keys.forEach(key => this.$set(this.validating, key, true));
-      keys.forEach(key => this.$delete(this.validationResults, key));
-      this.api.validateFiles(this.datasetId, this.fileStage, keys)
-        .then(errs => {
-          this.tab = 'validation';
-          keys.forEach(key => {
-            this.$set(this.validationResults, key, errs[key] ? errs[key] : []);
-            this.$delete(this.validating, key);
-          });
-        })
-        .catch(error => this.showError("Error attempting validation", error));
+    handleValidationResults: function(errs) {
+      _.forEach(errs, (item) => {
+        this.$set(this.validationResults, item.eTag, item.errors)
+        this.$delete(this.validating, item.eTag);
+      });
+      if (_.isUndefined(_.find(errs, (err) => err.errors.length > 0))) {
+        this.validationLog.push('<span class="text-success">No errors found ✓</span>');
+      } else {
+        errs.forEach(item => {
+          if (item.errors.length > 0) {
+            this.validationLog.push('<span class="text-danger">' + item.key + ':</span>')
+            item.errors.forEach(err => {
+              this.validationLog.push("    " + err.line + "/" + err.pos + " - " + err.error);
+            })
+          }
+        });
+      }
+    },
+    validateAll: function() {
+      this.tab = 'validation';
+      this.validationRunning = true;
+      this.validationLog = [];
+      this.files.forEach(f => this.$set(this.validating, f.eTag, true));
+
+      this.api.validateAll(this.datasetId, this.fileStage)
+        .then(errs => this.handleValidationResults(errs))
+        .catch(error => this.showError("Error attempting validation", error))
+        .finally(() => {
+          this.validating = {};
+          this.validationRunning = false;
+        });
+    },
+    validateFiles: function (tagToKey) {
+      this.tab = 'validation';
+      this.validationRunning = true;
+      this.validationLog = [];
+      _.forEach(tagToKey, (key, tag) => this.$set(this.validating, tag, true));
+
+      this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
+        .then(errs => this.handleValidationResults(errs))
+        .catch(error => this.showError("Error attempting validation", error))
+        .finally(() => {
+          this.validating = {};
+          this.validationRunning = false;
+        });
     },
   }
 };
@@ -185,6 +203,10 @@ let previewPanelMixin = {
     config: Object,
     api: Object,
     maxSize: Number,
+    validationResults: {
+      type: Object,
+      default: function () { return {} },
+    },
   },
   data: function () {
     return {
@@ -235,14 +257,24 @@ let previewPanelMixin = {
         return;
       }
 
-      this.validating = true;
-      this.api.validateFiles(this.datasetId, this.fileStage, [this.previewing.key])
-        .then(errors => {
-          this.errors = errors[this.previewing.key];
-          this.updateErrors()
-        })
-        .catch(error => this.showError("Error attempting validation", error))
-        .finally(() => this.validating = false);
+      if (this.validationResults[this.previewing.eTag]) {
+        this.errors = this.validationResults[this.previewing.eTag];
+        this.updateErrors();
+      } else {
+        this.validating = true;
+        let tagToPath = _.fromPairs([[this.previewing.eTag, this.previewing.key]]);
+        this.api.validateFiles(this.datasetId, this.fileStage, tagToPath)
+          .then(errors => {
+            let e = _.find(errors, e => this.previewing.eTag === e.eTag);
+            if (e) {
+              this.errors = e.errors;
+              this.updateErrors()
+              this.$emit("validation-results", this.previewing.eTag, e.errors);
+            }
+          })
+          .catch(error => this.showError("Error attempting validation", error))
+          .finally(() => this.validating = false);
+      }
     },
     updateErrors: function () {
       function makeWidget(err) {
@@ -521,15 +553,13 @@ Vue.component("files-table", {
   },
   methods: {
     toggleAll: function (evt) {
-      for (let i = 0; i < this.files.length; i++) {
-        this.toggleItem(this.files[i].key, evt);
-      }
+      this.files.forEach(f => this.toggleItem(f, evt));
     },
-    toggleItem: function (key, evt) {
+    toggleItem: function (file, evt) {
       if (evt.target.checked) {
-        this.$set(this.selected, key, true);
+        this.$emit('item-selected', file);
       } else {
-        this.$delete(this.selected, key);
+        this.$emit('item-deselected', file);
       }
     },
     isPreviewing: function(file) {
@@ -566,20 +596,22 @@ Vue.component("files-table", {
             v-bind:key="file.key"
             v-on:click.stop="$emit('show-preview', file)"
             v-bind:class="{'active': isPreviewing(file)}">
-          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file.key, $event)">
+          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file, $event)">
           </td>
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
           
-          <td v-if="validating !== null"><a href="#" v-on:click.prevent.stop="$emit('validate-files', [file.key])">
-            <i v-if="validating[file.key]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-            <i v-else-if="validationResults[file.key]" class="fa fa-fw" v-bind:class="{
-              'fa-check text-success': validationResults[file.key].length === 0,
-              'fa-exclamation-circle text-danger': validationResults[file.key].length > 0
-             }"></i>
-            <i v-else class="fa fa-fw fa-flag-o"></i>
-          </a>
+          <td v-if="validating !== null">
+            <a href="#" v-on:click.prevent.stop="$emit('validate-files', _.fromPairs([[file.eTag, file.key]]))">
+                <i v-if="validating[file.eTag]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+                <i v-else-if="validationResults && validationResults[file.eTag]" class="fa fa-fw" v-bind:class="{
+                    'fa-check text-success': validationResults[file.eTag].length === 0,
+                    'fa-exclamation-circle text-danger': validationResults[file.eTag].length > 0
+                    }">
+                </i>
+              <i v-else class="fa fa-fw fa-flag-o"></i>
+            </a>
           </td>
           <td v-if="deleting !== null">
             <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
@@ -850,6 +882,9 @@ let stageMixin = {
     selectedKeys: function () {
       return Object.keys(this.selected);
     },
+    selectedTags: function() {
+      return _.invert(_.mapValues(this.selected, f => f.eTag));
+    }
   },
   methods: {
     reset: function() {
@@ -933,13 +968,13 @@ let stageMixin = {
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});
     },
+    selectItem: function(file) {
+      this.$set(this.selected, file.key, file);
+    },
+    deselectItem: function(file) {
+      this.$delete(this.selected, file.key);
+    },
     showError: function() {}, // Overridden by inheritors
-    selectNext: function() {
-      console.log("No implemented yet...")
-    },
-    selectPrev: function() {
-      console.log("No implemented yet...")
-    },
     deselect: function() {
       this.previewing = null;
     }

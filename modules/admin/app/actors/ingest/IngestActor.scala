@@ -1,4 +1,4 @@
-package actors
+package actors.ingest
 
 import akka.actor.{Actor, ActorRef}
 import services.ingest.IngestApi
