@@ -6,9 +6,9 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.CompletionException
 
-import actors.IngestActor
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.{OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.ingest
 import actors.transformation.XmlConverter.{XmlConvertData, XmlConvertJob}
 import actors.transformation.{XmlConvertRunner, XmlConverter}
 import akka.actor.Props
@@ -28,7 +28,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.Files.SingletonTemporaryFileCreator
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
@@ -60,6 +60,13 @@ case class IngestPayload(
 object IngestPayload {
   implicit val _json: Format[IngestPayload] = Json.format[IngestPayload]
 }
+
+case class ValidationResult(key: String, eTag: Option[String], errors: Seq[XmlValidationError])
+
+object ValidationResult {
+  implicit val _json: Writes[ValidationResult] = Json.writes[ValidationResult]
+}
+
 
 @Singleton
 case class RepositoryData @Inject()(
@@ -99,16 +106,6 @@ case class RepositoryData @Inject()(
     Ok(views.html.admin.repository.datamanager(request.item))
   }
 
-  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = Action.async(parse.json[Seq[String]]) { implicit request =>
-    val urls = request.body.map(key => key -> storage.uri(bucket, s"${prefix(id, ds, stage)}$key").toString)
-    val results: Seq[Future[(String, Seq[XmlValidationError])]] = urls.map { case (key, url) =>
-      eadValidator.validateEad(Uri(url)).map(errs => key -> errs)
-    }
-    Future.sequence(results).map(out => Ok(Json.toJson(out.toMap))).recover {
-      case e => BadRequest(Json.obj("error" -> e.getMessage))
-    }
-  }
-
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(bucket,
       prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
@@ -132,6 +129,34 @@ case class RepositoryData @Inject()(
     val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
     val result = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(bucket, key)).toMap
     Ok(Json.toJson(result))
+  }
+
+  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(parse.json[Map[String, String]]) { implicit request =>
+    val pre = prefix(id, ds, stage)
+    val results = request.body.toSeq.map { case (tag, key) =>
+      val url = storage.uri(bucket, pre + key).toString
+      eadValidator.validateEad(Uri(url))
+        .map(errs => ValidationResult(key, Some(tag), errs))
+    }
+    Future.sequence(results).map(out => Ok(Json.toJson(out))).recover {
+      case e => BadRequest(Json.obj("error" -> e.getMessage))
+    }
+  }
+
+  def validateAll(id: String, ds: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
+    val pre = prefix(id, ds, stage)
+    val results: Future[Seq[ValidationResult]] = storage
+      .streamFiles(bucket, Some(pre))
+      .mapAsync(3) { f =>
+        eadValidator.validateEad(Uri(storage.uri(bucket, f.key).toString))
+          .map(errs =>
+            ValidationResult(f.key.replace(prefix(id, ds, stage), ""), f.eTag, errs))
+      }
+      .runWith(Sink.seq)
+
+    results.map(out => Ok(Json.toJson(out))).recover {
+      case e => BadRequest(Json.obj("error" -> e.getMessage))
+    }
   }
 
   def ingestAll(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
@@ -198,7 +223,7 @@ case class RepositoryData @Inject()(
 
     val ingestTask = IngestData(task,
       IngestApi.IngestDataType.Ead, contentType, implicitly[ApiUser])
-    val runner = mat.system.actorOf(Props(IngestActor(ingestApi)), jobId)
+    val runner = mat.system.actorOf(Props(ingest.IngestActor(ingestApi)), jobId)
     runner ! IngestJob(jobId, ingestTask)
 
     Ok(Json.obj(

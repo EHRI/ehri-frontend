@@ -254,14 +254,14 @@ Vue.component("ingest-manager", {
           v-on:clear="clearFilter"
           v-on:refresh="load" />
         
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedKeys)" v-if="selectedKeys.length">
-          <i class="fa fa-flag-o"/>
+        <button v-bind:disabled="files.length===0 || validationRunning" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateFiles(selectedTags)" v-if="selectedKeys.length">
+          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
           Validate Selected ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(files.map(f => f.key))" v-else>
-          <i class="fa fa-flag-o"/>
+        <button v-bind:disabled="files.length===0 || validationRunning" class="btn btn-sm btn-default"
+                v-on:click.prevent="validateAll" v-else>
+          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
           Validate All
         </button>
 
@@ -324,6 +324,8 @@ Vue.component("ingest-manager", {
             v-on:validate-files="validateFiles"
             v-on:load-more="loadMore"
             v-on:show-preview="showPreview"
+            v-on:item-selected="selectItem"
+            v-on:item-deselected="deselectItem"
             v-on:deselect-all="deselect"
           />
         </div>
@@ -367,6 +369,8 @@ Vue.component("ingest-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-bind:validation-results="validationResults"
+                       v-on:validation-results="(tag, e) => this.$set(this.validationResults, tag, e)"
                        v-on:error="showError"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">

@@ -6,6 +6,7 @@ import defines.FileStage
 import helpers._
 import models.DataTransformation.TransformationType
 import models._
+import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json
 import play.api.mvc.{Headers, Result}
@@ -106,18 +107,27 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
 
     "validate files" in new ITestApp {
       await(putFile())
+      val tag = DigestUtils.md5Hex(testPayload.utf8String)
       val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
         .withHeaders(Headers(
           HeaderNames.HOST -> "localhost"
         ))
         .withUser(privilegedUser)
-        .callWith(Json.arr(testFileName))
+        .callWith(Json.obj(tag -> testFileName))
 
       // Validator will object because EAD without the namespace is not
       // recognised as EAD.
-      contentAsJson(r) must_== Json.parse("{\"test.xml\":[{\"line\":1,\"pos\":6," +
-        "\"error\":\"element \\\"ead\\\" not allowed anywhere; " +
-        "expected element \\\"ead\\\" (with xmlns=\\\"urn:isbn:1-931666-22-9\\\")\"}]}")
+      contentAsJson(r) must_== Json.parse(
+        s"""[{
+          "key": "$testFileName",
+          "eTag": "$tag",
+          "errors": [{
+            "line": 1,
+            "pos": 6,
+            "error": "element \\"ead\\" not allowed anywhere; expected element \\"ead\\" (with xmlns=\\"urn:isbn:1-931666-22-9\\")"
+           }]
+          }]"""
+      )
     }
 
     "convert files" in new ITestApp {
