@@ -37,6 +37,7 @@ GET         /:id/data/count/:ds/:stage                @controllers.institutions.
 DELETE      /:id/data/delete/:ds/:stage               @controllers.institutions.RepositoryData.deleteFiles(id: String, ds: String, stage: defines.FileStage.Value)
 DELETE      /:id/data/delete-all/:ds/:stage           @controllers.institutions.RepositoryData.deleteAll(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/upload/:ds/:stage               @controllers.institutions.RepositoryData.uploadHandle(id: String, ds: String, stage: defines.FileStage.Value)
+GET         /:id/data/validate/:ds/:stage             @controllers.institutions.RepositoryData.validateAll(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/validate/:ds/:stage             @controllers.institutions.RepositoryData.validateFiles(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/ingest/:ds/:stage               @controllers.institutions.RepositoryData.ingestFiles(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/ingest-all/:ds/:stage           @controllers.institutions.RepositoryData.ingestAll(id: String, ds: String, stage: defines.FileStage.Value)

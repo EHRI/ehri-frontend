@@ -2,7 +2,7 @@ package controllers.admin
 
 import java.util.UUID
 
-import actors.IngestActor
+import actors.ingest.IngestActor
 import akka.actor.{ActorSystem, Props}
 import akka.stream.Materializer
 import controllers.AppComponents

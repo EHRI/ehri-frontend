@@ -156,6 +156,7 @@ Vue.component("oaipmh-manager", {
           this.log.push(msg.data.error);
         } else if (msg.data.msg) {
           this.log.push(msg.data.msg);
+          this.$delete(this.validationResults, msg.data.msg);
           this.refresh();
         }
         if (msg.data.done || msg.data.error) {
@@ -198,13 +199,13 @@ Vue.component("oaipmh-manager", {
                         v-on:clear="clearFilter"/>
 
         <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedKeys)">
-          <i class="fa fa-flag-o"/>
+                v-on:click.prevent="validateFiles(selectedTags)">
+          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
           Validate Selected ({{selectedKeys.length}})
         </button>
         <button v-else v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(files.map(f => f.key))">
-          <i class="fa fa-flag-o"/>
+                v-on:click.prevent="validateAll">
+          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
           Validate All
         </button>
 
@@ -261,6 +262,8 @@ Vue.component("oaipmh-manager", {
             v-on:validate-files="validateFiles"
             v-on:load-more="loadMore"
             v-on:show-preview="showPreview"
+            v-on:item-selected="selectItem"
+            v-on:item-deselected="deselectItem"
             v-on:deselect-all="deselect"
           />
         </div>
@@ -304,6 +307,8 @@ Vue.component("oaipmh-manager", {
                        v-bind:panel-size="panelSize"
                        v-bind:config="config"
                        v-bind:api="api"
+                       v-bind:validation-results="validationResults"
+                       v-on:validation-results="(tag, e) => this.$set(this.validationResults, tag, e)"
                        v-on:error="showError"
                        v-show="previewing !== null"/>
               <div class="panel-placeholder" v-if="previewing === null">
