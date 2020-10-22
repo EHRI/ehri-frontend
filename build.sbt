@@ -17,7 +17,7 @@ val projectScalaVersion = "2.12.10"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
-val backendVersion = "0.13.11"
+val backendVersion = "0.13.12"
 val dataConverterVersion = "1.1.10"
 
 val backendDependencies = Seq(
@@ -114,7 +114,6 @@ val additionalResolvers = Seq(
   Resolver.mavenLocal,
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "EHRI Snapshots" at "https://dev.ehri-project.eu/artifactory/libs-snapshot/",
   "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/"
 )
 
