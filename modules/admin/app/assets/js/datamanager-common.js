@@ -222,6 +222,7 @@ let previewPanelMixin = {
       worker: null,
       errored: false,
       errors: null,
+      lineHandles: [],
       firstLoad: true,
     }
   },
@@ -304,10 +305,15 @@ let previewPanelMixin = {
         return marker;
       }
 
-      if (this.previewing && this.errors && this.editor) {
+      // First clear any existing errors on the document...
+      if (this.previewing && this.editor) {
         let doc = this.editor.getDoc();
+        this.lineHandles.forEach(handle => doc.removeLineClass(handle, 'background'));
+        doc.clearGutter('validation-errors');
+        this.lineHandles = [];
+
         this.errors.forEach(e => {
-          doc.addLineClass(e.line - 1, 'background', 'line-error');
+          this.lineHandles.push(doc.addLineClass(e.line - 1, 'background', 'line-error'));
           doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(doc, e));
         });
       }
@@ -389,6 +395,8 @@ let previewPanelMixin = {
     previewing: function (newValue, oldValue) {
       if (!_.isEqual(newValue, oldValue)) {
         this.load();
+      }
+      if (newValue && oldValue && newValue.key !== oldValue.key) {
         this.firstLoad = true;
       }
     },
