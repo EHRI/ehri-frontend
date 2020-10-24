@@ -222,6 +222,7 @@ let previewPanelMixin = {
       worker: null,
       errored: false,
       errors: null,
+      firstLoad: true,
     }
   },
   methods: {
@@ -345,8 +346,14 @@ let previewPanelMixin = {
       } else if (msg.data.init) {
         if (this.editor) {
           this.validate();
-          this.editor.scrollTo(0, 0);
           this.editor.setOption("mode", "xml");
+
+          // On the first load of a given file scroll back
+          // to the beginning...
+          if (this.firstLoad) {
+            this.editor.scrollTo(0, 0);
+            this.firstLoad = false;
+          }
         }
         // Stop loading indicator when first data arrives
         this.loading = false;
@@ -382,6 +389,7 @@ let previewPanelMixin = {
     previewing: function (newValue, oldValue) {
       if (!_.isEqual(newValue, oldValue)) {
         this.load();
+        this.firstLoad = true;
       }
     },
     panelSize: function (newValue, oldValue) {
