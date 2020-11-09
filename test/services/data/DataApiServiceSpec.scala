@@ -1,6 +1,5 @@
 package services.data
 
-import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import defines.{ContentTypes, EntityType, PermissionType}
 import helpers.IntegrationTestRunner
@@ -33,7 +32,6 @@ class DataApiServiceSpec extends IntegrationTestRunner {
   private def ws(implicit app: play.api.Application) = app.injector.instanceOf[WSClient]
   private def config(implicit app: play.api.Application) = app.injector.instanceOf[Configuration]
   private def cache(implicit app: play.api.Application) = app.injector.instanceOf[SyncCacheApi]
-  private implicit def actorSystem(implicit app: play.api.Application): ActorSystem = app.injector.instanceOf[ActorSystem]
 
   /**
    * A minimal object that has a resource type and can be read.

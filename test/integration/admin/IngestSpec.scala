@@ -32,12 +32,8 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
 
   "Ingest views" should {
-
     val port = 9902
-
     "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.build(), port = port) {
-      private implicit val as = app.actorSystem
-      private implicit val mat = app.materializer
 
       val result = FakeRequest(controllers.admin.routes.Ingest
           .ingestPost(ContentTypes.Repository, "r1", IngestApi.IngestDataType.EadSync))

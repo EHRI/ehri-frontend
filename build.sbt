@@ -7,6 +7,7 @@ import com.typesafe.sbt.web.SbtWeb.autoImport._
 import net.ground5hark.sbt.concat.Import._
 import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
+import play.core.PlayVersion.{akkaVersion, akkaHttpVersion}
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 
 
@@ -19,6 +20,7 @@ val appVersion = "1.0.6-SNAPSHOT"
 
 val backendVersion = "0.13.12"
 val dataConverterVersion = "1.1.10"
+val alpakkaVersion = "1.1.2"
 
 val backendDependencies = Seq(
   // Play stuff
@@ -29,10 +31,10 @@ val backendDependencies = Seq(
   "org.apache.commons" % "commons-text" % "1.4",
 
   // Push JSON parser used for stream parsing...
-  "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % "1.1.2",
+  "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % alpakkaVersion,
 
   // CSV parser/writer...
-  "com.lightbend.akka" %% "akka-stream-alpakka-csv" % "1.1.2",
+  "com.lightbend.akka" %% "akka-stream-alpakka-csv" % alpakkaVersion,
 
   // IRI helper...
   "org.apache.jena" % "jena-iri" % "3.9.0",
@@ -49,8 +51,8 @@ val coreDependencies = backendDependencies ++ Seq(
   openId,
 
   // Force Akka HTTP version
-  "com.typesafe.akka" %% "akka-http"   % "10.1.11",
-  "com.typesafe.akka" %% "akka-http-xml"   % "10.1.11",
+  "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-http-xml"   % akkaHttpVersion,
 
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.6.2",
@@ -107,7 +109,7 @@ val testDependencies = Seq(
   "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.6.3" % Test
+  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
 )
 
 val additionalResolvers = Seq(

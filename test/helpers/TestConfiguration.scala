@@ -3,6 +3,7 @@ package helpers
 import java.net.URI
 import java.nio.file.Paths
 
+import akka.actor.ActorSystem
 import akka.stream.Materializer
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
@@ -161,10 +162,19 @@ trait TestConfiguration {
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
     new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) with Injecting {
     implicit def implicitMaterializer: Materializer = inject[Materializer]
-    implicit def implicitExecContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+    implicit def implicitExecContext: ExecutionContext = implicitMaterializer.executionContext
+    implicit def implicitActorSystem: ActorSystem = implicitMaterializer.system
     implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
-    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => super.around(t)))
+    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => {
+      // NB: this line is needed because since Play 2.8.2 the router is lazily
+      // injected in such a way that they reverse routes can be resolved before
+      // prefixes are added: https://github.com/playframework/playframework/issues/10311
+      // Hopefully this bug will one day be fixed...
+      inject[play.api.routing.Router]
+
+      super.around(t)
+    }))
   }
 
   /**
@@ -174,9 +184,19 @@ trait TestConfiguration {
     */
   protected abstract class ITestServer(app: Application = GuiceApplicationBuilder().build(),
     port: Int = Helpers.testServerPort) extends WithServer(app, port) with Injecting {
-    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
 
-    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => super.around(t)))
+    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
+    implicit def implicitActorSystem: ActorSystem = inject[ActorSystem]
+
+    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => {
+      // NB: this line is needed because since Play 2.8.2 the router is lazily
+      // injected in such a way that they reverse routes can be resolved before
+      // prefixes are added: https://github.com/playframework/playframework/issues/10311
+      // Hopefully this bug will one day be fixed...
+      inject[play.api.routing.Router]
+
+      super.around(t)
+    }))
   }
 
   /**
