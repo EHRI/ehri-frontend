@@ -55,9 +55,6 @@ class SearchSpec extends IntegrationTestRunner {
   "Search index mediator" should {
     val port = 9902
     "perform indexing correctly via Websocket endpoint" in new ITestServer(app = appBuilder.build(), port = port) {
-      implicit val as = app.actorSystem
-      import as.dispatcher
-
       val cmd = List(EntityType.DocumentaryUnit)
       val data = IndexTypes(cmd)
       val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
