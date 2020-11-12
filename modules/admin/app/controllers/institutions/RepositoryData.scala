@@ -1,6 +1,5 @@
 package controllers.institutions
 
-import java.io.PrintWriter
 import java.net.URLEncoder
 import java.time.Instant
 import java.util.UUID
@@ -27,7 +26,6 @@ import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
@@ -191,45 +189,53 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).apply(parse.json[IngestPayload]) { implicit request =>
+  private def getUrlMap(keys: Seq[String]): Future[Map[String, java.net.URI]] = {
+    import scala.concurrent.duration._
+    // NB: Not doing this with regular Future.successful so as to
+    // limit parallelism to the specified amount
+    Source(keys.toList)
+      .mapAsync(4)(path => storage.info(bucket, path).map(info => path -> info))
+      .collect { case (path, Some(meta)) =>
+        path -> storage.uri(meta.classifier, meta.key, duration = 2.hours, versionId = meta.versionId)
+      }
+      .runFold(Map.empty[String, java.net.URI])(_ + _)
+  }
+
+  def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
-    val urls = keys.map(key => key -> storage.uri(bucket, key, duration = 2.hours)).toMap
+    for (urls <- getUrlMap(keys)) yield  {
 
-    // Tag this task with a unique ID...
-    val jobId = UUID.randomUUID().toString
+      // Tag this task with a unique ID...
+      val jobId = UUID.randomUUID().toString
 
-    // Type is json, since it's a mapping of key -> URL
-    val contentType = play.api.http.ContentTypes.JSON
+      // Type is json, since it's a mapping of key -> URL
+      val contentType = play.api.http.ContentTypes.JSON
 
-    val temp = SingletonTemporaryFileCreator.create("ingest", ".json")
-    val writer = new PrintWriter(temp.path.toString, "UTF-8")
-    writer.write(Json.stringify(Json.toJson(urls)))
-    writer.close()
+      val task = IngestParams(
+        scopeType = defines.ContentTypes.Repository,
+        scope = id,
+        allowUpdate = true,
+        data = UrlMapPayload(urls),
+        log = request.body.logMessage,
+        tolerant = request.body.tolerant,
+        commit = request.body.commit,
+        properties = request.body.properties
+          .map(ref => PropertiesHandle(
+            storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
+          .getOrElse(PropertiesHandle.empty)
+      )
 
-    val task = IngestParams(
-      scopeType = defines.ContentTypes.Repository,
-      scope = id,
-      allowUpdate = true,
-      file = Some(temp),
-      log = request.body.logMessage,
-      tolerant = request.body.tolerant,
-      commit = request.body.commit,
-      properties = request.body.properties
-        .map(ref => PropertiesHandle(
-          storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
-        .getOrElse(PropertiesHandle.empty)
-    )
+      val ingestTask = IngestData(task,
+        IngestApi.IngestDataType.Ead, contentType, implicitly[ApiUser])
+      val runner = mat.system.actorOf(Props(ingest.IngestActor(ingestApi)), jobId)
+      runner ! IngestJob(jobId, ingestTask)
 
-    val ingestTask = IngestData(task,
-      IngestApi.IngestDataType.Ead, contentType, implicitly[ApiUser])
-    val runner = mat.system.actorOf(Props(ingest.IngestActor(ingestApi)), jobId)
-    runner ! IngestJob(jobId, ingestTask)
-
-    Ok(Json.obj(
-      "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
-      "jobId" -> jobId
-    ))
+      Ok(Json.obj(
+        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+        "jobId" -> jobId
+      ))
+    }
   }
 
   def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>

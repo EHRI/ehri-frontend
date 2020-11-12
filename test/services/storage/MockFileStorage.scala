@@ -19,7 +19,7 @@ case class Version(meta: FileMeta, data: ByteString) extends FileMarker
 
 /**
   * An in-memory implementation of the [[FileStorage]] class.
-  * 
+  *
   * @param fakeFiles a mutable map
   */
 case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String, Seq[FileMarker]]]) extends FileStorage {
