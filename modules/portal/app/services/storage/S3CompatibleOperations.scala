@@ -62,9 +62,10 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     meta.getContentLength,
     meta.eTag,
     meta.contentType,
+    meta.versionId
   )
 
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI = {
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     val expTimeMillis = expTime.getTime + duration.toMillis
     expTime.setTime(expTimeMillis)
@@ -73,15 +74,14 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     val psur = new GeneratePresignedUrlRequest(classifier, path)
       .withExpiration(expTime)
       .withMethod(method)
-    contentType.foreach { ct =>
-      psur.setContentType(ct);
-    }
+    contentType.foreach(psur.setContentType)
+    versionId.foreach(psur.setVersionId)
 
     client.generatePresignedUrl(psur).toURI
   }
 
-  def info(bucket: String, path: String): Future[Option[FileMeta]] = {
-    S3.getObjectMetadata(bucket, path)
+  def info(bucket: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]] = {
+    S3.getObjectMetadata(bucket, path, versionId = versionId)
       .withAttributes(S3Attributes.settings(endpoint))
       .runWith(Sink.headOption).map(_.flatten)
       .map {
@@ -90,8 +90,8 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
       }
   }
 
-  def get(bucket: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
-      .download(bucket, path)
+  def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
+      .download(bucket, path, versionId = versionId)
       .withAttributes(S3Attributes.settings(endpoint))
       .runWith(Sink.headOption).map(_.flatten)
       .map {

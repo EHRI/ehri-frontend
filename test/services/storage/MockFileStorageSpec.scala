@@ -73,5 +73,29 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
       val items = await(storage.listFiles(bucket))
       items.files.size must_== 2
     }
+
+    "get item info with version ID" in {
+      val storage = putTestItems._1
+      val info: Option[FileMeta] = await(storage.info(bucket, "baz"))
+      info must beSome.which(_.versionId must_== Some("1"))
+
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+      val info2: Option[FileMeta] = await(storage.info(bucket, "baz"))
+      info2 must beSome.which(_.versionId must_== Some("2"))
+
+      val info3: Option[FileMeta] = await(storage.info(bucket, "baz", versionId = Some("1")))
+      info3 must beSome.which(_.versionId must_== Some("1"))
+    }
+
+    "get item data with version ID" in {
+      val storage = putTestItems._1
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+
+      val data1 = await(storage.get(bucket, "baz", versionId = Some("1")))
+      data1 must beSome.which { case (_, src) =>
+        val s = await(src.runFold(ByteString.empty)(_ ++ _))
+        s.utf8String must_== "Hello, world"
+      }
+    }
   }
 }

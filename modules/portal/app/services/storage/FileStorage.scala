@@ -15,9 +15,10 @@ trait FileStorage {
     *
     * @param classifier the "bucket", or set
     * @param path       additional file path, including the file name with extension
+    * @param versionId  the version ID of the file content
     * @return a file-meta/byte stream pair
     */
-  def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]]
+  def get(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]]
 
   /**
     * Get info about a given file.
@@ -26,7 +27,7 @@ trait FileStorage {
     * @param path       additional file path, including the file name with extension
     * @return a file-meta object
     */
-  def info(classifier: String, path: String): Future[Option[FileMeta]]
+  def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]]
 
   /**
     * Get the URI for a stored file with the given classifier and key.
@@ -36,9 +37,10 @@ trait FileStorage {
     * @param duration    the duration for which the URI is valid
     * @param contentType the content type of the file, if the URI is
     *                    for file upload
+    * @param versionId   the version ID of the file content
     * @return the file URI of the stored file
     */
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI
+  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI
 
   /**
     * Put a file object in storage.
