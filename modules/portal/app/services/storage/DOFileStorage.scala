@@ -38,13 +38,14 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
     region
   )
 
-  override def info(classifier: String, path: String): Future[Option[FileMeta]] = ops.info(classifier, path)
+  override def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]] =
+    ops.info(classifier, path, versionId)
 
-  override def get(classifier: String, path: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
-    ops.get(classifier, path)
+  override def get(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] =
+    ops.get(classifier, path, versionId)
 
-  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None): URI =
-    ops.uri(classifier, path, duration, contentType)
+  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI =
+    ops.uri(classifier, path, duration, contentType, versionId)
 
   override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
     ops.putBytes(bucket, path, src, contentType, public, meta)
@@ -66,4 +67,11 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   override def count(classifier: String, prefix: Option[String]): Future[Int] =
     ops.countFilesWithPrefix(classifier, prefix)
+
+  override def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = ops.setVersioned(classifier, enabled)
+
+  override def isVersioned(classifier: String): Future[Boolean] = ops.isVersioned(classifier)
+
+  override def listVersions(classifier: String, path: String, after: Option[String]): Future[FileList] =
+    ops.listVersions(classifier, Some(path), after = None, afterVersion = after, max = 200)
 }

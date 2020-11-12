@@ -887,7 +887,8 @@ body.home {
 // General form styling
 .control-label .required-input,
 .form-label .required-input,
-.control-elements .help-block.errors,
+.control-elements .help-b
+lock.errors,
 .control-elements .help-inline.errors {
   @include color-var(color, 'danger');
 }

@@ -7,12 +7,14 @@ import akka.util.ByteString
 import helpers.TestConfiguration
 import play.api.test.PlaySpecification
 
+import scala.concurrent.ExecutionContext
+
 class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
 
   private val injector = appBuilder.injector
   private implicit val actorSystem: ActorSystem = injector.instanceOf[ActorSystem]
   private implicit val mat: Materializer = injector.instanceOf[Materializer]
-  private implicit val ec = mat.executionContext
+  private implicit val ec: ExecutionContext = mat.executionContext
 
   private val bytes = Source.single(ByteString("Hello, world"))
   private val paths = Seq("bar", "baz", "spam", "eggs")
@@ -70,6 +72,40 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
       deleted.sorted must_== Seq("bar", "baz")
       val items = await(storage.listFiles(bucket))
       items.files.size must_== 2
+    }
+
+    "get item info with version ID" in {
+      val storage = putTestItems._1
+      val info: Option[FileMeta] = await(storage.info(bucket, "baz"))
+      info must beSome.which(_.versionId must_== Some("1"))
+
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+      val info2: Option[FileMeta] = await(storage.info(bucket, "baz"))
+      info2 must beSome.which(_.versionId must_== Some("2"))
+
+      val info3: Option[FileMeta] = await(storage.info(bucket, "baz", versionId = Some("1")))
+      info3 must beSome.which(_.versionId must_== Some("1"))
+    }
+
+    "get item data with version ID" in {
+      val storage = putTestItems._1
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+
+      val data1 = await(storage.get(bucket, "baz", versionId = Some("1")))
+      data1 must beSome.which { case (_, src) =>
+        val s = await(src.runFold(ByteString.empty)(_ ++ _))
+        s.utf8String must_== "Hello, world"
+      }
+    }
+
+    "list versions" in {
+      val storage = putTestItems._1
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+
+      val versions = await(storage.listVersions(bucket, "baz"))
+      versions.files.size must_== 2
+      versions.files.head.versionId must beSome("2")
+      versions.files.last.versionId must beSome("1")
     }
   }
 }
