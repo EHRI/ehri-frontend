@@ -26,6 +26,8 @@ object XmlConverter {
     * @param classifier   the storage classifier on which to save files
     * @param inPrefix     the path prefix of input files
     * @param outPrefix    the replacement output path prefix
+    * @param only         a single key to convert. If not given the whole
+    *                     classifier will be converted.
     */
   case class XmlConvertData(
     transformers: Seq[(DataTransformation.TransformationType.Value, String)],
@@ -33,6 +35,7 @@ object XmlConverter {
     inPrefix: String,
     outPrefix: String,
     from: Option[Instant] = None,
+    only: Option[String] = None,
   )
 
   /**
@@ -90,7 +93,7 @@ case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage
       context.unwatch(chan)
       context.become(running(runner, subs - chan, handle))
 
-    case Counting(_) =>
+    case Counting =>
       msg(s"Counting files...", subs)
 
     case Counted(total) =>

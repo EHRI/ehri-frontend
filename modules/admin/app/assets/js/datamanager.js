@@ -237,6 +237,9 @@ Vue.component("dataset-manager", {
     },
   },
   created() {
+    if (!this.config.versioned) {
+      this.error = "Note: file storage does not have versioning enabled."
+    }
     window.onpopstate = event => {
       if (event.state && event.state.tab) {
         this.tab = event.state.tab;

@@ -20,6 +20,16 @@ object PropertiesHandle {
   def empty: PropertiesHandle = LocalProperties(Option.empty)
 }
 
+sealed trait PayloadHandle
+case class UrlMapPayload(urls: Map[String, java.net.URI]) extends PayloadHandle
+case class FilePayload(f: Option[TemporaryFile]) extends PayloadHandle
+
+object PayloadHandle {
+  def apply(f: Option[TemporaryFile]): PayloadHandle = FilePayload(f)
+  def apply(urls: Map[String, java.net.URI]): PayloadHandle = UrlMapPayload(urls)
+  def empty: PayloadHandle = FilePayload(Option.empty)
+}
+
 case class IngestParams(
   scopeType: ContentTypes.Value,
   scope: String,
@@ -33,7 +43,7 @@ case class IngestParams(
   excludes: Seq[String] = Nil,
   baseURI: Option[String] = None,
   suffix: Option[String] = None,
-  file: Option[TemporaryFile] = None,
+  data: PayloadHandle = PayloadHandle.empty,
   properties: PropertiesHandle = PropertiesHandle.empty,
   commit: Boolean = false
 )
@@ -71,7 +81,7 @@ object IngestParams {
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       BASE_URI -> optional(text),
       SUFFIX -> optional(text),
-      DATA_FILE -> ignored(Option.empty[TemporaryFile]),
+      DATA_FILE -> ignored(PayloadHandle.empty),
       PROPERTIES_FILE -> ignored(PropertiesHandle.empty),
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)

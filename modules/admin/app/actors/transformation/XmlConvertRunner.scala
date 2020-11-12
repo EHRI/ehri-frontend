@@ -19,7 +19,7 @@ object XmlConvertRunner {
   sealed trait Action
   case object Initial extends Action
   case object Starting extends Action
-  case class Counting(done: Int) extends Action
+  case object Counting extends Action
   case class Counted(total: Int) extends Action
   case class Completed(total: Int, secs: Long) extends Action
   case class Error(id: String, e: Throwable) extends Action
@@ -44,18 +44,18 @@ case class XmlConvertRunner (job: XmlConvertJob, transformer: XmlTransformer, st
     case Initial =>
       val msgTo = sender()
       context.become(counting(msgTo, LocalDateTime.now()))
-      msgTo ! Counting(0)
-      self ! Counting(0)
+      msgTo ! Counting
+      self ! Counting
   }
 
   // We're counting the full set of files to convert
   def counting(msgTo: ActorRef, start: LocalDateTime): Receive = {
     // Count files in the given prefix...
-    case Counting(acc) =>
-      storage.streamFiles(job.data.classifier, Some(job.data.inPrefix))
-        .runFold(0)((acc, _) => acc + 1)
-        .map( filesInSrc => Counted(filesInSrc))
-        .pipeTo(self)
+    case Counting =>
+      if (job.data.only.nonEmpty) self ! Counted(1)
+      else storage.count(job.data.classifier, Some(job.data.inPrefix))
+          .map(filesInSrc => Counted(filesInSrc))
+          .pipeTo(self)
 
     // Start the actual job
     case Counted(total) =>
@@ -71,9 +71,22 @@ case class XmlConvertRunner (job: XmlConvertJob, transformer: XmlTransformer, st
 
     // Fetch a list of files from the storage API
     case FetchFiles(after) =>
-      storage.listFiles(job.data.classifier, Some(job.data.inPrefix), after, max = 200)
-        .map(list => Convert(list.files.toList, list.truncated, after, done))
-        .pipeTo(self)
+      // If we're only converting a single key, fetch its metadata
+      job.data.only.map { key =>
+        storage.info(job.data.classifier, job.data.inPrefix + key)
+          .map {
+            case Some(meta) => Convert(List(meta), truncated = false, None, done)
+            case None =>
+              msgTo ! Error(s"Key not found: ${job.data.inPrefix + key}",
+                new RuntimeException(s"Missing key: ${job.data.inPrefix + key}"))
+          }
+          .pipeTo(self)
+      } getOrElse {
+        // Otherwise, fetch all items from the storage
+        storage.listFiles(job.data.classifier, Some(job.data.inPrefix), after, max = 200)
+          .map(list => Convert(list.files.toList, list.truncated, after, done))
+          .pipeTo(self)
+      }
 
     // Fetching a file
     case Convert(file :: others, truncated, _, count) =>
@@ -111,7 +124,7 @@ case class XmlConvertRunner (job: XmlConvertJob, transformer: XmlTransformer, st
     // Files exhausted and there are no more batches, that means we're done...
     case Convert(Nil, false, _, count)  =>
       context.become(running(msgTo, count, total, start))
-      msgTo ! Completed(done, time(start))
+      msgTo ! Completed(count, time(start))
 
     // Status requests
     case Status =>

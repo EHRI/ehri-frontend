@@ -1,5 +1,6 @@
 package services.ingest
 
+import java.io.PrintWriter
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.PosixFilePermission
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
 import javax.inject.Inject
 import play.api.http.HeaderNames
+import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json.JsonConfiguration.Aux
 import play.api.libs.json.JsonNaming.SnakeCase
 import play.api.libs.json._
@@ -139,6 +141,11 @@ case class IngestApiService @Inject()(
       case Right(r: IngestResult) => Json.toJson(r)
     }
 
+    implicit val payloadHandleWrites: Writes[PayloadHandle] = Writes {
+      case FilePayload(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
+      case UrlMapPayload(urls) => Json.toJson(urls.mapValues(_.toString))
+    }
+
     val data = Json.obj(
       "id" -> job.id,
       "type" -> job.data.dataType,
@@ -154,7 +161,8 @@ case class IngestApiService @Inject()(
         "commit" -> job.data.params.commit
       ),
       "user" -> job.data.user.toOption,
-      "stats" -> out
+      "stats" -> out,
+      "data" -> job.data.params.data
     )
 
     val bytes = Source.single(ByteString.fromArray(
@@ -214,12 +222,22 @@ case class IngestApiService @Inject()(
         Files.setPosixFilePermissions(readTmp, perms.asJava)
         readTmp
       }
-      case UrlProperties(url) => None
+      case UrlProperties(_) => None
     }
 
     val propStr: Option[String] = job.data.params.properties match {
       case LocalProperties(_) => propFile.map(_.toAbsolutePath.toString)
       case UrlProperties(url) => Some(url)
+    }
+
+    val dataFile: Option[Path] = job.data.params.data match {
+      case FilePayload(f) => f.map(_.toAbsolutePath)
+      case UrlMapPayload(urls) =>
+        val temp = SingletonTemporaryFileCreator.create("ingest", ".json")
+        val writer = new PrintWriter(temp.path.toString, "UTF-8")
+        writer.write(Json.stringify(Json.toJson(urls)))
+        writer.close()
+        Some(temp.path)
     }
 
     def wsParams(params: IngestParams): Seq[(String, String)] = {
@@ -238,7 +256,6 @@ case class IngestApiService @Inject()(
         propStr.map(PROPERTIES_FILE -> _)
     }
 
-
     val bodyWritable: BodyWritable[Path] =
         BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
 
@@ -248,8 +265,8 @@ case class IngestApiService @Inject()(
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
       .addQueryStringParameters(wsParams(job.data.params): _*)
-      .post(job.data.params.file.map(_.path)
-        .getOrElse(sys.error("Unexpectedly empty ingest data!")))(bodyWritable)
+      // FIXME: make a BodyWritable that can serialize the URL map without a temp file
+      .post(dataFile.getOrElse(sys.error("Unexpectedly empty ingest data!")))(bodyWritable)
       .map { r =>
         logger.trace(r.body)
         logger.debug(s"Ingest WS status: ${r.status}")

@@ -237,6 +237,8 @@ Vue.component("upload-manager", {
           <i class="fa fa-cloud-upload"/>
           Upload Files...
         </button>
+
+        <info-modal v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
       </div>
 
       <div id="upload-panel-container" class="panel-container">
@@ -255,6 +257,7 @@ Vue.component("upload-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:downloading="downloading"
+            v-bind:loading-info="loadingInfo"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
@@ -265,6 +268,7 @@ Vue.component("upload-manager", {
             v-on:item-selected="selectItem"
             v-on:item-deselected="deselectItem"
             v-on:deselect-all="deselect"
+            v-on:info="info"
           />
         </div>
 

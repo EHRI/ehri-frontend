@@ -10,13 +10,17 @@ object ConvertConfig {
   }
 }
 
-case class TransformationList(mappings: Seq[String]) extends ConvertConfig
+case class TransformationList(
+  mappings: Seq[String]
+) extends ConvertConfig
 
 object TransformationList {
   implicit val _format: Format[TransformationList] = Json.format[TransformationList]
 }
 
-case class ConvertSpec(mappings: Seq[(DataTransformation.TransformationType.Value, String)]) extends ConvertConfig
+case class ConvertSpec(
+  mappings: Seq[(DataTransformation.TransformationType.Value, String)]
+) extends ConvertConfig
 
 object ConvertSpec {
   implicit val _format: Format[ConvertSpec] = Json.format[ConvertSpec]

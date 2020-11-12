@@ -26,12 +26,20 @@ Vue.component("transformation-item", {
 
 Vue.component("convert-config", {
   props: {
+    datasetId: String,
     show: Boolean,
+    api: DAO,
     config: Object,
+  },
+  data: function() {
+    return {
+      all: true,
+      file: null,
+    }
   },
   methods: {
     convert: function() {
-      this.$emit("convert");
+      this.$emit("convert", this.all ? null : this.file);
       this.$emit("close");
     },
   },
@@ -39,10 +47,26 @@ Vue.component("convert-config", {
     <modal-window v-on:close="$emit('close')">
       <template v-slot:title>Transformation Configuration</template>
 
-      <p>TODO: options here...</p>
+      <fieldset class="options-form">
+        <div class="form-group form-check">
+          <input class="form-check-input" id="opt-all-check" type="checkbox" v-model="all"/>
+          <label class="form-check-label" for="opt-all-check">
+            Convert all input files
+          </label>
+        </div>
+
+        <file-picker
+          v-bind:disabled="all"
+          v-bind:config="config"
+          v-bind:api="api"
+          v-bind:dataset-id="datasetId"
+          v-bind:file-stage="config.input"
+          v-bind:placeholder="'Select file to convert...'"
+          v-model="file" />
+      </fieldset>
       
       <template v-slot:footer>
-        <button v-on:click="convert" type="button" class="btn btn-secondary">
+        <button v-bind:disabled="!all && file === null" v-on:click="convert" type="button" class="btn btn-secondary">
           Run Conversion
         </button>
       </template>
@@ -112,8 +136,9 @@ Vue.component("convert-manager", {
     saved: function(item) {
       this.editing = item;
     },
-    convert: function() {
-      this.api.convert(this.datasetId, {mappings: this.mappings})
+    convert: function(file) {
+      console.log("Converting: ", file)
+      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.mappings})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
@@ -216,6 +241,7 @@ Vue.component("convert-manager", {
                      v-bind:file-stage="config.input"
                      v-bind:api="api"
                      v-bind:config="config"
+                     v-bind:placeholder="'Select file to preview...'"
                      v-model="previewing" />
         
         <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
@@ -239,6 +265,8 @@ Vue.component("convert-manager", {
           <convert-config
             v-bind:show="showOptions"
             v-bind:config="config"
+            v-bind:api="api"
+            v-bind:dataset-id="datasetId"
             v-on:close="showOptions = false"
             v-on:convert="convert"
             v-show="showOptions" />

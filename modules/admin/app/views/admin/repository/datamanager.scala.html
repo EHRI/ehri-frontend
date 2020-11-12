@@ -1,4 +1,4 @@
-@(item: Repository)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Repository, isVersioned: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 <!DOCTYPE html>
 
@@ -27,6 +27,7 @@
         @helper.javascriptRouter("dataManagerRoutes")(
             controllers.admin.routes.javascript.Tasks.taskMonitorWS,
             controllers.institutions.routes.javascript.RepositoryData.listFiles,
+            controllers.institutions.routes.javascript.RepositoryData.info,
             controllers.institutions.routes.javascript.RepositoryData.validateFiles,
             controllers.institutions.routes.javascript.RepositoryData.validateAll,
             controllers.institutions.routes.javascript.RepositoryData.deleteFiles,
@@ -63,6 +64,7 @@
                 window.SERVICE = dataManagerRoutes.controllers.institutions.RepositoryData;
                 window.CONFIG = {
                     repositoryId: "@item.id",
+                    versioned: @isVersioned,
                     input: "@defines.FileStage.Input",
                     output: "@defines.FileStage.Output",
                     config: "@defines.FileStage.Config",
