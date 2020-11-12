@@ -120,4 +120,14 @@ trait FileStorage {
     * @return the number of files in the set with the given prefix
     */
   def count(classifier: String, prefix: Option[String]): Future[Int]
+
+  /**
+    * Enable versioning on the classifier. NB: this may not
+    * be available on some implementations and is not for
+    * everyday use.
+    *
+    * @param classifier the "bucket", or set
+    * @return
+    */
+  def enableVersioning(classifier: String): Future[Unit]
 }

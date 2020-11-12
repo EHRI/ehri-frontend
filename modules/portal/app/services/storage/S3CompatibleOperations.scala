@@ -15,7 +15,7 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest}
+import com.amazonaws.services.s3.model.{BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest, SetBucketVersioningConfigurationRequest}
 import play.api.Logger
 
 import scala.collection.JavaConverters._
@@ -156,6 +156,12 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
 
   def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
     listPrefix(classifier, prefix, after, max)
+  }(ec)
+
+  def enableVersioning(classifier: String): Future[Unit] = Future {
+    val bvc = new BucketVersioningConfiguration().withStatus(BucketVersioningConfiguration.ENABLED)
+    val bcr = new SetBucketVersioningConfigurationRequest(classifier, bvc)
+    client.setBucketVersioningConfiguration(bcr)
   }(ec)
 
   private def deleteKeys(classifier: String, paths: Seq[String]) = {

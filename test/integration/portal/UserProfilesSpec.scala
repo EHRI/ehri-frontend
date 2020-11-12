@@ -64,7 +64,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val watchingJson = FakeRequest(profileRoutes.watching(format = DataFormat.Json))
         .withUser(privilegedUser).call()
       contentType(watchingJson)  must beSome.which { ct =>
-        ct must_== MimeTypes.JSON.toString
+        ct must_== MimeTypes.JSON
       }
       contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
       
@@ -158,8 +158,10 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(result) must equalTo(SEE_OTHER)
       storedFileBuffer
         .get("profileImage")
-        .flatMap(_.values
-        .find(_._1.key.endsWith(s"${privilegedUser.id}.png"))) must beSome
+        .flatMap(_
+          .keys
+          .find(_.endsWith(s"${privilegedUser.id}.png"))
+        ) must beSome
     }
 
     "prevent uploading files that are too large" in new ITestApp(

@@ -66,4 +66,6 @@ case class DOFileStorage @Inject()(config: play.api.Configuration)(implicit acto
 
   override def count(classifier: String, prefix: Option[String]): Future[Int] =
     ops.countFilesWithPrefix(classifier, prefix)
+
+  override def enableVersioning(classifier: String): Future[Unit] = ops.enableVersioning(classifier)
 }
