@@ -131,5 +131,7 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
       get(classifier, url.replace(urlPrefix(classifier), ""))
     else Future.successful(Option.empty)
 
-  override def enableVersioning(classifier: String) = Future.successful(())
+  override def setVersioned(classifier: String, enabled: Boolean) = Future.successful(())
+
+  override def isVersioned(classifier: String) = Future.successful(true)
 }

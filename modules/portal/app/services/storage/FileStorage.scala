@@ -93,7 +93,7 @@ trait FileStorage {
     * @return a FileList object consisting of a sequence of file metadata objects
     *         and a boolean indicating if the stream is paged, in which case
     *         subsequent objects will need to be retrieved using the `after` parameter.
-    */
+      */
   def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList]
 
   /**
@@ -124,12 +124,21 @@ trait FileStorage {
   def count(classifier: String, prefix: Option[String]): Future[Int]
 
   /**
-    * Enable versioning on the classifier. NB: this may not
-    * be available on some implementations and is not for
-    * everyday use.
+    * Enable/disable on the classifier. NB: this may not
+    * be available on some implementations.
     *
     * @param classifier the "bucket", or set
+    * @param enabled    whether versioning should be enabled or disabled
     * @return
     */
-  def enableVersioning(classifier: String): Future[Unit]
+  def setVersioned(classifier: String, enabled: Boolean): Future[Unit]
+
+  /**
+    * Check if the classifier has is versioned.
+    *
+    * @param classifier the "bucket", or set
+    * @return whether or not files are versioned or
+    *         not
+    */
+  def isVersioned(classifier: String): Future[Boolean]
 }

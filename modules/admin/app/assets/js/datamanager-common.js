@@ -682,7 +682,11 @@ Vue.component("file-picker", {
     value: Object,
     disabled: Boolean,
     api: Object,
-    config: Object
+    config: Object,
+    placeholder: {
+      type: String,
+      default: "Select file..."
+    }
   },
   data: function () {
     return {
@@ -739,7 +743,7 @@ Vue.component("file-picker", {
       <div class="file-picker-input-container">
         <div v-show="showSuggestions" class="dropdown-backdrop" v-on:click="cancelComplete"></div>
         <label class="control-label sr-only">File:</label>
-        <input class="file-picker-input form-control form-control-sm" type="text" placeholder="Select file to preview"
+        <input class="file-picker-input form-control form-control-sm" type="text" v-bind:placeholder="placeholder"
                v-bind:disabled="disabled"
                v-bind:value="text !== null ? text : (value ? value.key : '')"
                v-on:focus="search"

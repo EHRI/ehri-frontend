@@ -120,8 +120,8 @@ let DAO = class {
     return this.call(this.service.testOaiPmhConfig(this.repoId, ds), config);
   }
 
-  convert(ds, config) {
-    return this.call(this.service.convert(this.repoId, ds), config);
+  convert(ds, key, config) {
+    return this.call(this.service.convert(this.repoId, ds, key), config);
   }
 
   convertFileUrl(ds, stage, key) {

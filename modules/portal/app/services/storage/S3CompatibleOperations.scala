@@ -15,7 +15,7 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest, SetBucketVersioningConfigurationRequest}
+import com.amazonaws.services.s3.model.{BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest, ListVersionsRequest, SetBucketVersioningConfigurationRequest}
 import play.api.Logger
 
 import scala.collection.JavaConverters._
@@ -158,11 +158,35 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     listPrefix(classifier, prefix, after, max)
   }(ec)
 
-  def enableVersioning(classifier: String): Future[Unit] = Future {
-    val bvc = new BucketVersioningConfiguration().withStatus(BucketVersioningConfiguration.ENABLED)
+  def listVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): Future[FileList] = Future {
+    listPrefixVersions(classifier, prefix, after, afterVersion, max)
+  }(ec)
+
+  def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = Future {
+    val status = if (enabled) BucketVersioningConfiguration.ENABLED
+                  else BucketVersioningConfiguration.OFF
+    val bvc = new BucketVersioningConfiguration().withStatus(status)
     val bcr = new SetBucketVersioningConfigurationRequest(classifier, bvc)
     client.setBucketVersioningConfiguration(bcr)
   }(ec)
+
+  def isVersioned(classifier: String): Future[Boolean] = Future {
+    val bvc = client.getBucketVersioningConfiguration(classifier)
+    bvc.getStatus == BucketVersioningConfiguration.ENABLED
+  }(ec)
+
+  private def listPrefixVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): FileList = {
+    val lvr = new ListVersionsRequest()
+      .withBucketName(classifier)
+      .withMaxResults(max)
+    prefix.foreach(lvr.setPrefix)
+    after.foreach(lvr.setKeyMarker)
+    afterVersion.foreach(lvr.setVersionIdMarker)
+    val r = client.listVersions(lvr)
+    FileList(r.getVersionSummaries.asScala.map { f =>
+      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag), Some(f.getVersionId))
+    }, r.isTruncated)
+  }
 
   private def deleteKeys(classifier: String, paths: Seq[String]) = {
     val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)

@@ -60,7 +60,7 @@ POST        /:id/oaipmh/:ds                           @controllers.institutions.
 DELETE      /:id/oaipmh                               @controllers.institutions.RepositoryData.cancelOaiPmhHarvest(id: String, jobId: String)
 
 DELETE      /:id/convert                              @controllers.institutions.RepositoryData.cancelConvert(id: String, jobId: String)
-POST        /:id/convert/:ds                          @controllers.institutions.RepositoryData.convert(id: String, ds: String)
+POST        /:id/convert/:ds                          @controllers.institutions.RepositoryData.convert(id: String, ds: String, key: Option[String] ?= None)
 GET         /:id/convert/:ds/config                   @controllers.institutions.RepositoryData.getConvertConfig(id: String, ds: String)
 PUT         /:id/convert/:ds/config                   @controllers.institutions.RepositoryData.saveConvertConfig(id: String, ds: String)
 POST        /:id/convert/:ds/:stage/:fileName         @controllers.institutions.RepositoryData.convertFile(id: String, ds: String, stage: defines.FileStage.Value, fileName: String)

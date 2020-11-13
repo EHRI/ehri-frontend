@@ -63,5 +63,7 @@ case class S3FileStorage @Inject()(config: play.api.Configuration)(implicit acto
   override def count(classifier: String, prefix: Option[String]): Future[Int] =
     ops.countFilesWithPrefix(classifier, prefix)
 
-  override def enableVersioning(classifier: String): Future[Unit] = ops.enableVersioning(classifier)
+  override def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = ops.setVersioned(classifier, enabled)
+
+  override def isVersioned(classifier: String): Future[Boolean] = ops.isVersioned(classifier)
 }

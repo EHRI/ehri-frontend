@@ -93,15 +93,17 @@ case class RepositoryData @Inject()(
   private val repositoryDataRoutes = controllers.institutions.routes.RepositoryData
 
   private val fileForm = Form(single("file" -> text))
-  private val bucket = "ehri-assets"
+  private val bucket = config.get[String]("storage.dam.classifier")
 
   private def instance(implicit request: RequestHeader): String =
     URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
 
   private def prefix(id: String, ds: String, stage: FileStage.Value)(implicit request: RequestHeader): String = s"$instance/$id/$ds/$stage/"
 
-  def manager(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.datamanager(request.item))
+  def manager(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    storage.isVersioned(bucket).map { versioned =>
+      Ok(views.html.admin.repository.datamanager(request.item, versioned))
+    }
   }
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
@@ -438,14 +440,16 @@ case class RepositoryData @Inject()(
     }
   }
 
-  def convert(id: String, ds: String): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
-    configToMappings(request.body).map { ts =>
+  def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
+    val config = request.body
+    configToMappings(config).map { ts =>
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
         ts,
         bucket,
         inPrefix = prefix(id, ds, FileStage.Input),
-        outPrefix = prefix(id, ds, FileStage.Output)
+        outPrefix = prefix(id, ds, FileStage.Output),
+        only = key
       )
       val job = XmlConvertJob(repoId = id, datasetId = ds, jobId = jobId, data = data)
       mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)

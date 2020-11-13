@@ -332,6 +332,7 @@ Vue.component("transformation-editor", {
                              v-bind:file-stage="config.input"
                              v-bind:api="api"
                              v-bind:config="config"
+                             v-bind:placeholder="'Select file to preview...'"
                              v-model="previewing" />
 
                 <button id="transformation-editor-preview-refresh"  title="Refresh preview"
