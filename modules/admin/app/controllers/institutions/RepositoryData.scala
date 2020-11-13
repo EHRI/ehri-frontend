@@ -199,7 +199,7 @@ case class RepositoryData @Inject()(
       Some(meta) <- storage.info(bucket, path, versionId)
       versions <- storage.listVersions(bucket, path)
     } yield Ok(Json.obj(
-      "meta" -> meta.key.replace(pre, ""),
+      "meta" -> meta.copy(key = meta.key.replace(pre, "")),
       "presignedUrl" -> storage.uri(bucket, path, 2.hours, versionId = versionId, contentType = meta.contentType),
       "versions" -> versions.files.map(v => v.copy(key = v.key.replace(pre, "")))
     ))

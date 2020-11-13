@@ -312,10 +312,12 @@ let previewPanelMixin = {
         doc.clearGutter('validation-errors');
         this.lineHandles = [];
 
-        this.errors.forEach(e => {
-          this.lineHandles.push(doc.addLineClass(e.line - 1, 'background', 'line-error'));
-          doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(doc, e));
-        });
+        if (this.errors) {
+          this.errors.forEach(e => {
+            this.lineHandles.push(doc.addLineClass(e.line - 1, 'background', 'line-error'));
+            doc.setGutterMarker(e.line - 1, 'validation-errors', makeMarker(doc, e));
+          });
+        }
       }
     },
     setLoading:  function() {
@@ -554,7 +556,12 @@ Vue.component("files-table", {
     truncated: Boolean,
     deleting: Object,
     downloading: Object,
+    loadingInfo: Object,
     filter: String,
+    info: {
+      type: Boolean,
+      default: true
+    }
   },
   computed: {
     allChecked: function () {
@@ -564,7 +571,8 @@ Vue.component("files-table", {
       return Number(this.deleted !== null) +
         Number(this.validating !== null) +
         Number(this.deleting !== null) +
-        Number(this.downloading !== null);
+        Number(this.downloading !== null) +
+        Number(this.loadingInfo !== null);
     }
   },
   methods: {
@@ -617,7 +625,15 @@ Vue.component("files-table", {
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
-          
+
+          <td v-if="loadingInfo !== null">
+            <a href="#" v-on:click.prevent.stop="$emit('info', file.key)">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': loadingInfo[file.key],
+                'fa-info-circle': !loadingInfo[file.key]
+              }"></i>
+            </a>
+          </td>
           <td v-if="validating !== null">
             <a href="#" v-on:click.prevent.stop="$emit('validate-files', _.fromPairs([[file.eTag, file.key]]))">
                 <i v-if="validating[file.eTag]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
@@ -629,19 +645,19 @@ Vue.component("files-table", {
               <i v-else class="fa fa-fw fa-flag-o"></i>
             </a>
           </td>
-          <td v-if="deleting !== null">
-            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
-              <i class="fa fa-fw" v-bind:class="{
-                'fa-circle-o-notch fa-spin': deleting[file.key], 
-                'fa-trash-o': !deleting[file.key] 
-              }"></i>
-            </a>
-          </td>
           <td v-if="downloading !== null">
             <a href="#" title="" v-on:click.prevent.stop="$emit('download-files', [file.key])">
               <i class="fa fa-fw" v-bind:class="{
                 'fa-circle-o-notch fa-spin': downloading[file.key],
                 'fa-download': !downloading[file.key]
+              }"></i>
+            </a>
+          </td>
+          <td v-if="deleting !== null">
+            <a href="#" v-on:click.prevent.stop="$emit('delete-files', [file.key])">
+              <i class="fa fa-fw" v-bind:class="{
+                'fa-circle-o-notch fa-spin': deleting[file.key], 
+                'fa-trash-o': !deleting[file.key] 
               }"></i>
             </a>
           </td>
@@ -770,6 +786,43 @@ Vue.component("file-picker", {
   `
 });
 
+Vue.component("info-modal", {
+  props: {
+    fileInfo: Object
+  },
+  template: `
+    <modal-window v-on:close="$emit('close')">
+      <template v-slot:title>{{fileInfo.meta.key}}</template>
+      <dl>
+        <dt>File size:</dt>
+        <dd>{{fileInfo.meta.size|humanFileSize}}</dd>
+        <dt>Last Modified:</dt>
+        <dd v-bind:title="fileInfo.meta.lastModified">{{fileInfo.meta.lastModified|prettyDate}}</dd>
+      </dl>
+      <template v-if="fileInfo.versions && fileInfo.versions.length > 1">
+        <h4>Version History</h4>
+        <table class="version-history-list table table-striped table-sm table-bordered">
+          <tr>
+            <th>ID</th>
+            <th>Created</th>
+            <th>Size</th>
+          </tr>
+          <tr v-for="version in fileInfo.versions">
+            <td>{{version.versionId}}</td>
+            <td v-bind:title="version.lastModified">{{version.lastModified|prettyDate}}</td>
+            <td>{{version.size|humanFileSize}}</td>
+          </tr>
+        </table>
+      </template>
+      <template v-slot:footer>
+        <button v-on:click="$emit('close')" type="button" class="btn btn-default">
+          Close
+        </button>
+      </template>
+    </modal-window>
+  `
+});
+
 Vue.component("filter-control", {
   props: {
     filter: Object
@@ -880,6 +933,7 @@ let initialStageState = function() {
     previewing: null,
     deleting: {},
     downloading: {},
+    loadingInfo: {},
     selected: {},
     filter: {
       value: "",
@@ -887,6 +941,7 @@ let initialStageState = function() {
     },
     files: [],
     log: [],
+    fileInfo: null,
   };
 };
 
@@ -987,6 +1042,13 @@ let stageMixin = {
         })
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});
+    },
+    info: function(key) {
+      this.$set(this.loadingInfo, key, true);
+      return this.api.info(this.datasetId, this.fileStage, key)
+        .then(r => this.fileInfo = r)
+        .catch(error => this.showError("Error fetching file info", error))
+        .finally(() => this.loadingInfo = {});
     },
     selectItem: function(file) {
       this.$set(this.selected, file.key, file);

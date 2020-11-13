@@ -300,6 +300,8 @@ Vue.component("ingest-manager", {
           v-on:submit="doIngest"
           v-on:update="loadPropertyConfigs"
           v-on:close="showOptions = false" />
+        
+        <info-modal v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
       </div>
 
       <div id="ingest-panel-container" class="panel-container">
@@ -317,6 +319,7 @@ Vue.component("ingest-manager", {
             v-bind:truncated="truncated"
             v-bind:deleting="deleting"
             v-bind:downloading="downloading"
+            v-bind:loading-info="loadingInfo"
             v-bind:filter="filter.value"
 
             v-on:delete-files="deleteFiles"
@@ -327,6 +330,7 @@ Vue.component("ingest-manager", {
             v-on:item-selected="selectItem"
             v-on:item-deselected="deselectItem"
             v-on:deselect-all="deselect"
+            v-on:info="info"
           />
         </div>
 

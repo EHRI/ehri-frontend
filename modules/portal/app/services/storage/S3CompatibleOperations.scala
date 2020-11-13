@@ -184,7 +184,14 @@ private case class S3CompatibleOperations(endpointUrl: Option[String], creds: AW
     afterVersion.foreach(lvr.setVersionIdMarker)
     val r = client.listVersions(lvr)
     FileList(r.getVersionSummaries.asScala.map { f =>
-      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag), Some(f.getVersionId))
+      FileMeta(
+        f.getBucketName,
+        f.getKey,
+        f.getLastModified.toInstant,
+        f.getSize,
+        eTag = Some(f.getETag),
+        versionId = Some(f.getVersionId)
+      )
     }, r.isTruncated)
   }
 
