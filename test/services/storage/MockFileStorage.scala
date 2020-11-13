@@ -13,8 +13,10 @@ import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait FileMarker
-case object Deleted extends FileMarker
+sealed trait FileMarker {
+  def meta: FileMeta
+}
+case class Deleted(meta: FileMeta) extends FileMarker
 case class Version(meta: FileMeta, data: ByteString) extends FileMarker
 
 /**
@@ -52,7 +54,8 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   }
 
   private def del(classifier: String, path: String): Unit = {
-    val newVersions = bucket(classifier)(path).dropRight(1) :+ Deleted
+    val old = bucket(classifier)(path).lastOption.map(m => Deleted(m.meta))
+    val newVersions = bucket(classifier)(path).dropRight(1) ++ old.toSeq
     fakeFiles += (classifier -> (bucket(classifier) + (path -> newVersions)))
   }
 
@@ -70,7 +73,7 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   override def get(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = Future {
     getF(classifier, path, versionId).flatMap {
       case Version(m, bytes) => Some(m -> Source.single(bytes))
-      case Deleted => None
+      case Deleted(_) => None
     }
   }(ec)
 
@@ -130,6 +133,13 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     if (url.startsWith(urlPrefix(classifier)))
       get(classifier, url.replace(urlPrefix(classifier), ""))
     else Future.successful(Option.empty)
+
+  override def listVersions(classifier: String, path: String, after: Option[String]): Future[FileList] = Future {
+    FileList(bucket(classifier).getOrElse(path, Seq.empty)
+      .zipWithIndex
+      .map(m => m._1.meta.copy(versionId = Some((m._2 + 1).toString)))
+      .reverse, truncated = false)
+  }(ec)
 
   override def setVersioned(classifier: String, enabled: Boolean) = Future.successful(())
 

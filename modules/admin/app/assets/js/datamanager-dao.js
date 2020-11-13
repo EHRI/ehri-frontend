@@ -4,7 +4,7 @@
  * A data access object encapsulating the management API endpoints.
  */
 let DAO = class {
-  constructor(service, repoId, datasetId) {
+  constructor(service, repoId) {
     this.service = service;
     this.repoId = repoId;
   }
@@ -26,6 +26,10 @@ let DAO = class {
 
   listFiles(ds, stage, prefix, after) {
     return this.call(this.service.listFiles(this.repoId, ds, stage, prefix, after));
+  }
+
+  info(ds, stage, key, versionId) {
+    return this.call(this.service.info(this.repoId, ds, stage, key, versionId));
   }
 
   ingestFiles(ds, stage, paths, opts) {

@@ -93,7 +93,7 @@ trait FileStorage {
     * @return a FileList object consisting of a sequence of file metadata objects
     *         and a boolean indicating if the stream is paged, in which case
     *         subsequent objects will need to be retrieved using the `after` parameter.
-      */
+    */
   def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList]
 
   /**
@@ -122,6 +122,18 @@ trait FileStorage {
     * @return the number of files in the set with the given prefix
     */
   def count(classifier: String, prefix: Option[String]): Future[Int]
+
+  /**
+    * List versions of a given file.
+    *
+    * @param classifier the "bucket", or set
+    * @param path       the file path
+    * @param after      list versions starting after this versionId
+    * @return a FileList object consisting of a sequence of file metadata objects
+    *         and a boolean indicating if the stream is paged, in which case
+    *         subsequent objects will need to be retrieved using the `after` parameter.
+    */
+  def listVersions(classifier: String, path: String, after: Option[String] = None): Future[FileList]
 
   /**
     * Enable/disable on the classifier. NB: this may not

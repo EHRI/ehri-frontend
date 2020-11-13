@@ -30,8 +30,9 @@ POST        /:id/logo                                 @controllers.institutions.
 
 # Data management
 GET         /:id/data                                 @controllers.institutions.RepositoryData.manager(id: String)
-GET         /:id/data/file/:ds/:stage/:fileName       @controllers.institutions.RepositoryData.download(id: String, ds: String, stage: defines.FileStage.Value, fileName: String)
+GET         /:id/data/file/:ds/:stage/:fileName       @controllers.institutions.RepositoryData.download(id: String, ds: String, stage: defines.FileStage.Value, fileName: String, versionId: Option[String] ?= None)
 PUT         /:id/data/file/:ds/:stage/:fileName       @controllers.institutions.RepositoryData.uploadStream(id: String, ds: String, stage: defines.FileStage.Value, fileName: String)
+GET         /:id/data/info/:ds/:stage/:fileName       @controllers.institutions.RepositoryData.info(id: String, ds: String, stage: defines.FileStage.Value, fileName: String, versionId: Option[String] ?= None)
 GET         /:id/data/list/:ds/:stage                 @controllers.institutions.RepositoryData.listFiles(id: String, ds: String, stage: defines.FileStage.Value, path: Option[String] ?= None, from: Option[String] ?= None)
 GET         /:id/data/count/:ds/:stage                @controllers.institutions.RepositoryData.countFiles(id: String, ds: String, stage: defines.FileStage.Value, path: Option[String] ?= None)
 DELETE      /:id/data/delete/:ds/:stage               @controllers.institutions.RepositoryData.deleteFiles(id: String, ds: String, stage: defines.FileStage.Value)

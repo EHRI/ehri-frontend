@@ -40,6 +40,7 @@ import services.transformation._
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration._
 
 case class FileToUpload(name: String, `type`: String, size: Long)
 
@@ -180,19 +181,31 @@ case class RepositoryData @Inject()(
       Ok.chunked(request.body).as(ContentTypes.JSON)
     }
 
-  def download(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[AnyContent] = EditAction(id).async { implicit req =>
-    storage.get(bucket, s"${prefix(id, ds, stage)}$fileName").map {
+  def download(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
+    storage.get(bucket, s"${prefix(id, ds, stage)}$fileName", versionId = versionId).map {
       case Some((meta, bytes)) =>
         Ok.chunked(bytes)
-        .as(meta.contentType.getOrElse(ContentTypes.BINARY))
-        .withHeaders(meta.eTag.toSeq.map(tag => HeaderNames.ETAG -> tag): _*)
-        .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment;filename=$fileName")
+          .as(meta.contentType.getOrElse(ContentTypes.BINARY))
+          .withHeaders(meta.eTag.toSeq.map(tag => HeaderNames.ETAG -> tag): _*)
+          .withHeaders(HeaderNames.CONTENT_DISPOSITION -> s"attachment;filename=$fileName")
       case _ => NotFound
     }
   }
 
+  def info(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
+    val pre = prefix(id, ds, stage)
+    val path = pre + fileName
+    for {
+      Some(meta) <- storage.info(bucket, path, versionId)
+      versions <- storage.listVersions(bucket, path)
+    } yield Ok(Json.obj(
+      "meta" -> meta.key.replace(pre, ""),
+      "presignedUrl" -> storage.uri(bucket, path, 2.hours, versionId = versionId, contentType = meta.contentType),
+      "versions" -> versions.files.map(v => v.copy(key = v.key.replace(pre, "")))
+    ))
+  }
+
   private def getUrlMap(keys: Seq[String]): Future[Map[String, java.net.URI]] = {
-    import scala.concurrent.duration._
     // NB: Not doing this with regular Future.successful so as to
     // limit parallelism to the specified amount
     Source(keys.toList)
@@ -206,7 +219,7 @@ case class RepositoryData @Inject()(
   def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
-    for (urls <- getUrlMap(keys)) yield  {
+    for (urls <- getUrlMap(keys)) yield {
 
       // Tag this task with a unique ID...
       val jobId = UUID.randomUUID().toString
@@ -293,7 +306,7 @@ case class RepositoryData @Inject()(
 
   def harvestOaiPmh(id: String, ds: String, fromLast: Boolean): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>
     val lastHarvest: Future[Option[Instant]] =
-      if (fromLast) harvestEvents.get(id, Some(ds)).map( events =>
+      if (fromLast) harvestEvents.get(id, Some(ds)).map(events =>
         events
           .filter(_.eventType == HarvestEventType.Completed)
           .map(_.created)
@@ -373,7 +386,7 @@ case class RepositoryData @Inject()(
   }
 
   def createDataTransformation(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
-    dataTransformations.create(request.body, if(generic) None else Some(id)).map { dt =>
+    dataTransformations.create(request.body, if (generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
     }.recover {
       case e: DataTransformationExists => BadRequest(e)
@@ -381,7 +394,7 @@ case class RepositoryData @Inject()(
   }
 
   def updateDataTransformation(id: String, dtId: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
-    dataTransformations.update(dtId, request.body, if(generic) None else Some(id)).map { dt =>
+    dataTransformations.update(dtId, request.body, if (generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
     }.recover {
       case e: DataTransformationExists => BadRequest(e)
@@ -389,7 +402,7 @@ case class RepositoryData @Inject()(
   }
 
   def deleteDataTransformation(id: String, dtId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    dataTransformations.delete(dtId).map( ok => Ok(Json.toJson(ok)))
+    dataTransformations.delete(dtId).map(ok => Ok(Json.toJson(ok)))
   }
 
   private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String)]] = config match {
@@ -478,7 +491,7 @@ case class RepositoryData @Inject()(
     def countInDataset(ds: String): Future[(String, Int)] = {
       val pathPrefix: String = prefix(id, ds, FileStage.Input)
       asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
-        storage.count(bucket, Some(pathPrefix)).map( count => ds -> count)
+        storage.count(bucket, Some(pathPrefix)).map(count => ds -> count)
       }
     }
 

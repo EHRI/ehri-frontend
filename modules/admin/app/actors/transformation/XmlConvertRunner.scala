@@ -123,7 +123,7 @@ case class XmlConvertRunner (job: XmlConvertJob, transformer: XmlTransformer, st
 
     // Files exhausted and there are no more batches, that means we're done...
     case Convert(Nil, false, _, count)  =>
-      cckontext.become(running(msgTo, count, total, start))
+      context.become(running(msgTo, count, total, start))
       msgTo ! Completed(count, time(start))
 
     // Status requests

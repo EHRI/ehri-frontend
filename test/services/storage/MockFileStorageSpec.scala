@@ -97,5 +97,15 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
         s.utf8String must_== "Hello, world"
       }
     }
+
+    "list versions" in {
+      val storage = putTestItems._1
+      await(storage.putBytes(bucket, "baz", Source.single(ByteString("Bye, world"))))
+
+      val versions = await(storage.listVersions(bucket, "baz"))
+      versions.files.size must_== 2
+      versions.files.head.versionId must beSome("2")
+      versions.files.last.versionId must beSome("1")
+    }
   }
 }

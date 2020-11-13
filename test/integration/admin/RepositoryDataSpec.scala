@@ -11,7 +11,7 @@ import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json
 import play.api.mvc.{Headers, Result}
 import play.api.test.FakeRequest
-import services.storage.FileList
+import services.storage.{FileList, FileMeta}
 
 import scala.concurrent.Future
 
@@ -91,6 +91,18 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
       contentType(r) must beSome(MimeTypes.JSON)
       val list = contentAsJson(r).as[FileList]
       list.files.map(_.key) must contain(testFileName)
+    }
+
+    "get file info" in new ITestApp {
+      await(putFile())
+      val r = FakeRequest(repoDataRoutes.info(repoId, datasetId, stage, testFileName))
+        .withUser(privilegedUser)
+        .call()
+
+      contentType(r) must beSome(MimeTypes.JSON)
+      val versions = (contentAsJson(r) \ "versions").as[Seq[FileMeta]]
+      versions.map(_.key) must contain(testFileName)
+      versions.map(_.versionId) must contain(Some("1"))
     }
 
     "delete files" in new ITestApp {
