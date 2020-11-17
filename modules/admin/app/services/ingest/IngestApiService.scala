@@ -33,6 +33,60 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
 
+// A result from the import endpoint
+sealed trait IngestResult
+
+object IngestResult {
+  implicit val reads: Reads[IngestResult] = Reads { json =>
+    json.validate[ErrorLog].orElse(json.validate[ImportLog].orElse(json.validate[SyncLog]))
+  }
+  implicit val writes: Writes[IngestResult] = Writes {
+    case i: ImportLog => Json.toJson(i)(ImportLog.format)
+    case i: SyncLog => Json.toJson(i)(SyncLog.format)
+    case i: ErrorLog => Json.toJson(i)(ErrorLog.format)
+  }
+  implicit val format: Format[IngestResult] = Format(reads, writes)
+}
+
+// The result of a regular import
+case class ImportLog(
+  createdKeys: Map[String, Seq[String]],
+  created: Int,
+  updatedKeys: Map[String, Seq[String]],
+  updated: Int,
+  unchangedKeys: Map[String, Seq[String]],
+  unchanged: Int,
+  message: Option[String] = None,
+  event: Option[String] = None,
+  errors: Map[String, String] = Map.empty,
+) extends IngestResult
+
+object ImportLog {
+  implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
+  implicit val format: Format[ImportLog] = Json.format[ImportLog]
+}
+
+// The result of an EAD synchronisation, which incorporates an import
+case class SyncLog(
+  deleted: Seq[String],
+  created: Seq[String],
+  moved: Map[String, String],
+  log: ImportLog
+) extends IngestResult
+
+object SyncLog {
+  implicit val format: Format[SyncLog] = Json.format[SyncLog]
+}
+
+// An import error we can understand, e.g. not a crash!
+case class ErrorLog(error: String, details: String) extends IngestResult
+
+object ErrorLog {
+  implicit val format: Format[ErrorLog] = Json.format[ErrorLog]
+}
+
+
+
 /**
   * Service class for ingesting XML data into the database backend.
   *
@@ -52,52 +106,6 @@ case class IngestApiService @Inject()(
 
   private implicit val ec: ExecutionContext = mat.executionContext
   private val logger = Logger(getClass)
-
-  // A result from the import endpoint
-  sealed trait IngestResult
-
-  object IngestResult {
-    implicit val reads: Reads[IngestResult] = Reads { json =>
-      json.validate[ErrorLog].orElse(json.validate[ImportLog].orElse(json.validate[SyncLog]))
-    }
-    implicit val writes: Writes[IngestResult] = Writes {
-      case i: ImportLog => Json.toJson(i)(ImportLog.format)
-      case i: SyncLog => Json.toJson(i)(SyncLog.format)
-      case i: ErrorLog => Json.toJson(i)(ErrorLog.format)
-    }
-    implicit val format: Format[IngestResult] = Format(reads, writes)
-  }
-
-  // The result of a regular import
-  case class ImportLog(
-    createdKeys: Map[String, Seq[String]],
-    created: Int,
-    updatedKeys: Map[String, Seq[String]],
-    updated: Int,
-    unchangedKeys: Map[String, Seq[String]],
-    unchanged: Int,
-    message: Option[String] = None,
-    errors: Map[String, String] = Map.empty
-  ) extends IngestResult
-
-  object ImportLog {
-    implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
-    implicit val format: Format[ImportLog] = Json.format[ImportLog]
-  }
-
-  // The result of an EAD synchronisation, which incorporates an import
-  case class SyncLog(deleted: Seq[String], created: Seq[String], moved: Map[String, String], log: ImportLog) extends IngestResult
-
-  object SyncLog {
-    implicit val format: Format[SyncLog] = Json.format[SyncLog]
-  }
-
-  // An import error we can understand, e.g. not a crash!
-  case class ErrorLog(error: String, details: String) extends IngestResult
-
-  object ErrorLog {
-    implicit val format: Format[ErrorLog] = Json.format[ErrorLog]
-  }
 
   // Actor that just prints out a progress indicator
   object Ticker {
@@ -210,7 +218,7 @@ case class IngestApiService @Inject()(
     // NB: Hack that assumes the server is on the same
     // host and we really shouldn't do this!
     val propFile: Option[Path] = job.data.params.properties match {
-      case LocalProperties(f) => f.map { propTmp =>
+      case FileProperties(f) => f.map { propTmp =>
         import scala.collection.JavaConverters._
         val readTmp = Files.createTempFile(s"ingest", ".properties")
         propTmp.moveTo(readTmp, replace = true)
@@ -226,7 +234,7 @@ case class IngestApiService @Inject()(
     }
 
     val propStr: Option[String] = job.data.params.properties match {
-      case LocalProperties(_) => propFile.map(_.toAbsolutePath.toString)
+      case FileProperties(_) => propFile.map(_.toAbsolutePath.toString)
       case UrlProperties(url) => Some(url)
     }
 
@@ -312,6 +320,7 @@ case class IngestApiService @Inject()(
   // Handle reindexing if item have changed
   private def handleIngestResult(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
     msg(s"Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}, errors: ${log.errors.size}", chan)
+    log.event.foreach(e => msg(s"Event ID: $e", chan))
     if (job.data.params.commit) {
       if (log.created > 0 || log.updated > 0) {
         reindex(job.data.params.scopeType, job.data.params.scope)
