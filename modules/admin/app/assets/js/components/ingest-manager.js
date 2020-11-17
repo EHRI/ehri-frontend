@@ -205,12 +205,6 @@ Vue.component("ingest-manager", {
     doIngest: function(opts) {
       this.opts = opts;
 
-      // Switch to ingest tab...
-      this.tab = "ingest";
-
-      // Clear existing log...
-      this.log.length = 0;
-
       this.waiting = true;
 
       let keys = this.selectedKeys.length > 0
@@ -218,19 +212,23 @@ Vue.component("ingest-manager", {
                   : this.files.map(f => f.key);
 
       let op = this.selectedKeys.length > 0
-                ? this.api.ingestFiles(this.datasetId, this.fileStage, keys, this.opts)
-                : this.api.ingestAll(this.datasetId, this.fileStage, this.opts);
+        ? this.api.ingestFiles(this.datasetId, this.fileStage, keys, this.opts)
+        : this.api.ingestAll(this.datasetId, this.fileStage, this.opts);
 
       op.then(data => {
+        if (data.url && data.jobId) {
+          // Switch to ingest tab...
+          this.tab = "ingest";
+          // Clear existing log...
+          this.log.length = 0;
           this.showOptions = false;
-          if (data.url && data.jobId) {
-            this.ingestJobId = data.jobId;
-            this.monitorIngest(data.url, data.jobId, keys);
-          } else {
-            console.error("unexpected job data", data);
-          }
-        })
-        .catch(error => this.showError("Error running ingest", error))
+
+          this.ingestJobId = data.jobId;
+          this.monitorIngest(data.url, data.jobId, keys);
+        } else {
+          console.error("unexpected job data", data);
+        }
+      }).catch(error => this.showError("Error running ingest", error))
         .finally(() => this.waiting = false);
     },
     loadPropertyConfigs: function() {

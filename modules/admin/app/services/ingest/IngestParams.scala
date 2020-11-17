@@ -7,17 +7,17 @@ import play.api.libs.Files.TemporaryFile
 
 
 sealed trait PropertiesHandle
-case class LocalProperties(f: Option[TemporaryFile]) extends PropertiesHandle {
-  override def toString: String = f.map(_ => "local").getOrElse("none")
+case class FileProperties(f: Option[TemporaryFile]) extends PropertiesHandle {
+  override def toString: String = f.map(_.path.getFileName.toString).getOrElse("-")
 }
 case class UrlProperties(url: String) extends PropertiesHandle {
   override def toString: String = url
 }
 
 object PropertiesHandle {
-  def apply(f: Option[TemporaryFile]): PropertiesHandle = LocalProperties(f)
+  def apply(f: Option[TemporaryFile]): PropertiesHandle = FileProperties(f)
   def apply(url: String): PropertiesHandle = UrlProperties(url)
-  def empty: PropertiesHandle = LocalProperties(Option.empty)
+  def empty: PropertiesHandle = FileProperties(Option.empty)
 }
 
 sealed trait PayloadHandle
