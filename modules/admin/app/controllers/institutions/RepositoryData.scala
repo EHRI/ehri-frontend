@@ -161,7 +161,8 @@ case class RepositoryData @Inject()(
   }
 
   def ingestAll(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
-    storage.streamFiles(bucket, Some(prefix(id, ds, stage))).map(_.key.replace(prefix(id, ds, stage), ""))
+    storage.streamFiles(bucket, Some(prefix(id, ds, stage)))
+      .map(_.key.replace(prefix(id, ds, stage), ""))
       .runWith(Sink.seq).flatMap { seq =>
       ingestFiles(id, ds, stage).apply(request.withBody(request.body.copy(files = seq)))
     }
@@ -211,7 +212,8 @@ case class RepositoryData @Inject()(
     Source(keys.toList)
       .mapAsync(4)(path => storage.info(bucket, path).map(info => path -> info))
       .collect { case (path, Some(meta)) =>
-        path -> storage.uri(meta.classifier, meta.key, duration = 2.hours, versionId = meta.versionId)
+        val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
+        id -> storage.uri(meta.classifier, meta.key, duration = 2.hours, versionId = meta.versionId)
       }
       .runFold(Map.empty[String, java.net.URI])(_ + _)
   }
