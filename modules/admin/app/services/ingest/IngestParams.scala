@@ -33,8 +33,8 @@ object PayloadHandle {
 case class IngestParams(
   scopeType: ContentTypes.Value,
   scope: String,
-  fonds: Option[String] = None,
   log: String,
+  fonds: Option[String] = None,
   lang: Option[String] = None,
   allowUpdate: Boolean = false,
   tolerant: Boolean = false,
@@ -69,8 +69,8 @@ object IngestParams {
     mapping(
       SCOPE_TYPE -> utils.EnumUtils.enumMapping(ContentTypes),
       SCOPE -> nonEmptyText,
-      FONDS -> optional(nonEmptyText),
       LOG -> nonEmptyText,
+      FONDS -> optional(nonEmptyText),
       LANG -> optional(text),
       ALLOW_UPDATE -> boolean,
       TOLERANT -> boolean,

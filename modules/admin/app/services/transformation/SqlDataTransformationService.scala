@@ -5,14 +5,13 @@ import java.sql.SQLException
 import _root_.utils.{db => dbUtils}
 import akka.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
 import play.api.db.Database
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
 case class SqlDataTransformationService @Inject()(db: Database, actorSystem: ActorSystem) extends DataTransformationService {
 
   private val logger: Logger = Logger(classOf[SqlDataTransformationService])
@@ -85,7 +84,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
             WHERE id = $id
             RETURNING *
           """.as(parser.single)
-    } catch {
+      } catch {
         case e: SQLException if e.getSQLState == "23505" => // unique violation
           throw DataTransformationExists(info.name, e)
       }
@@ -114,7 +113,8 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
               AND import_dataset_id = $datasetId""".execute()
 
       if (dtIds.isEmpty) 0 else {
-        val q = """INSERT INTO transformation_config
+        val q =
+          """INSERT INTO transformation_config
                    VALUES({repo_id}, {import_dataset_id}, {ordering}, {data_transformation_id})
                    ON CONFLICT (repo_id, import_dataset_id, ordering)
                    DO UPDATE SET data_transformation_id = {data_transformation_id}"""
