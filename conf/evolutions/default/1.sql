@@ -189,21 +189,43 @@ CREATE TABLE transformation_config (
         ON DELETE CASCADE
 );
 
+CREATE TABLE import_log (
+    id                  CHAR (36) PRIMARY KEY,
+    repo_id             VARCHAR (50) NOT NULL,
+    import_dataset_id   VARCHAR (50) NOT NULL,
+    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT import_log_repo_id_import_dataset_id
+        FOREIGN KEY (repo_id, import_dataset_id)
+        REFERENCES import_dataset(repo_id, id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE import_file_mapping (
+    id              SERIAL PRIMARY KEY,
+    import_log_id   CHAR(36) REFERENCES import_log(id) ON DELETE CASCADE,
+    key             TEXT NOT NULL,
+    version_id      VARCHAR (1024),
+    item_id         TEXT NOT NULL,
+    type            VARCHAR (10) NOT NULL
+);
+
 
  # --- !Downs
 
+DROP TABLE IF EXISTS import_file_mapping;
+DROP TABLE IF EXISTS import_log;
+DROP TABLE IF EXISTS data_transformation CASCADE;
+DROP TABLE IF EXISTS transformation_config CASCADE;
+DROP TABLE IF EXISTS harvest_event CASCADE;
+DROP TABLE IF EXISTS oaipmh_config CASCADE;
+DROP TABLE IF EXISTS import_dataset CASCADE;
+DROP TABLE IF EXISTS cypher_queries CASCADE;
+DROP TABLE IF EXISTS feedback CASCADE;
 DROP TABLE IF EXISTS research_guide_page CASCADE;
 DROP TABLE IF EXISTS research_guide CASCADE;
+DROP TABLE IF EXISTS moved_pages CASCADE;
 DROP TABLE IF EXISTS user_auth_token CASCADE;
 DROP TABLE IF EXISTS token CASCADE;
 DROP TABLE IF EXISTS openid_association CASCADE;
 DROP TABLE IF EXISTS oauth2_association CASCADE;
-DROP TABLE IF EXISTS moved_pages CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS feedback CASCADE;
-DROP TABLE IF EXISTS cypher_queries CASCADE;
-DROP TABLE IF EXISTS import_dataset CASCADE;
-DROP TABLE IF EXISTS oaipmh_config CASCADE;
-DROP TABLE IF EXISTS harvest_event CASCADE;
-DROP TABLE IF EXISTS data_transformation CASCADE;
-DROP TABLE IF EXISTS transformation_config CASCADE;
