@@ -1,21 +1,14 @@
 package actors.harvesting
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-
 import actors.harvesting
-import actors.harvesting.OaiPmhHarvestRunner.Cancel
-import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
-import models.HarvestEvent.HarvestEventType
 import models.{OaiPmhConfig, UserProfile}
 import play.api.{Application, Configuration}
-import services.harvesting.{MockHarvestEventService, OaiPmhClient}
+import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
-import utils.WebsocketConstants
-
 
 class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
 
@@ -35,50 +28,28 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
     prefix = "oaipmh/r1/"
   ))
 
-  "OAI-PMH harvester" should {
-    import scala.concurrent.duration._
+  import OaiPmhHarvester._
+
+  "OAI-PMH harvest runner" should {
 
     "send correct messages when harvesting an endpoint" in new ITestApp {
-      val events = MockHarvestEventService()
-      val harvester = system.actorOf(Props(OaiPmhHarvester(job, client, storage, events)))
+      val runner = system.actorOf(Props(OaiPmhHarvester(job, client, storage)))
 
-      harvester ! self // initial subscriber should start harvesting
-      expectMsg(s"Starting harvest with job id: $jobId")
-      expectMsg(s"Harvesting from earliest date")
-      expectMsgAnyOf("c4", "nl-r1-m19")
-      expectMsgAnyOf("c4", "nl-r1-m19")
-      val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
-      events.events(1).eventType must_== HarvestEventType.Completed
+      runner ! Initial
+      expectMsg(Starting)
+      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+      expectMsgClass(classOf[Completed])
     }
 
-    "harvest selectively with `from` date" in new ITestApp {
-      val events = MockHarvestEventService()
-      val now: Instant = Instant.now()
-      val job2 = job(app)
-      val dateJob = job2.copy(data = job2.data.copy(from = Some(now)))
-      val harvester = system.actorOf(Props(OaiPmhHarvester(dateJob, client, storage, events)))
+    "allow cancellation" in new ITestApp {
+      val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage)))
 
-      harvester ! self // initial subscriber should start harvesting
-      expectMsg(s"Starting harvest with job id: $jobId")
-      expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(now)}")
-      expectMsg("Done: nothing to harvest")
-      events.events.size must_== 0
-    }
-
-    "cancel jobs" in new ITestApp {
-      val events = MockHarvestEventService()
-      val harvester = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage, events)))
-
-      harvester ! self // initial subscriber should start harvesting
-      expectMsg(s"Starting harvest with job id: $jobId")
-      expectMsg(s"Harvesting from earliest date")
-      expectMsgAnyOf("c4", "nl-r1-m19")
-      harvester ! Cancel
-      val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-      msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
-      events.events.head.eventType must_== HarvestEventType.Started
-      events.events(1).eventType must_== HarvestEventType.Cancelled
+      runner ! Initial
+      expectMsg(Starting)
+      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+      runner ! Cancel
+      expectMsgClass(classOf[Cancelled])
     }
   }
 }

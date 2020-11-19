@@ -12,7 +12,7 @@ case class ImportDataset(
   name: String,
   src: ImportDataset.Src.Value,
   created: Instant,
-  notes: Option[String] = None
+  notes: Option[String] = None,
 )
 
 object ImportDataset {
