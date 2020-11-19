@@ -69,10 +69,15 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       promise.success(None)
 
       val messages = await(out)
+      println(messages)
       messages.head.asTextMessage.getStrictText must contain(jobId)
       messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Event ID:") => t } must beSome
       messages must contain(TextMessage.Strict(JsString("Data: created: 5, updated: 0, unchanged: 0, errors: 0").toString))
       messages must contain(TextMessage.Strict(JsString("Sync: moved: 0, new: 5, deleted: 0").toString))
+      messages must contain(TextMessage.Strict(JsString("Creating redirects...").toString))
+      messages must contain(TextMessage.Strict(JsString("Remapped 0 item(s)").toString))
+      messages must contain(TextMessage.Strict(JsString("Reindexing...").toString))
+      messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at https") => t } must beSome
       messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
       // check the log has been stored

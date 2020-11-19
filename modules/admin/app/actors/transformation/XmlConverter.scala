@@ -1,146 +1,151 @@
 package actors.transformation
 
-import java.time.Instant
+import java.time.{Duration, LocalDateTime}
 
-import actors.transformation.XmlConvertRunner._
-import actors.transformation.XmlConverter.XmlConvertJob
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import actors.transformation.XmlConverter._
+import actors.transformation.XmlConverterManager.XmlConvertJob
+import akka.actor.Status.Failure
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.stream.Materializer
-import models.{DataTransformation, UserProfile}
-import services.harvesting.HarvestEventHandle
-import services.storage.FileStorage
+import models.UserProfile
+import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
-import utils.WebsocketConstants
 
 import scala.concurrent.ExecutionContext
 
 
 object XmlConverter {
-
-  /**
-    * A description of a conversion task.
-    *
-    * @param transformers the sequence of transformations
-    * @param from         the starting date and time
-    * @param classifier   the storage classifier on which to save files
-    * @param inPrefix     the path prefix of input files
-    * @param outPrefix    the replacement output path prefix
-    * @param only         a single key to convert. If not given the whole
-    *                     classifier will be converted.
-    */
-  case class XmlConvertData(
-    transformers: Seq[(DataTransformation.TransformationType.Value, String)],
-    classifier: String,
-    inPrefix: String,
-    outPrefix: String,
-    from: Option[Instant] = None,
-    only: Option[String] = None,
-  )
-
-  /**
-    * A single convert job with a unique ID.
-    */
-  case class XmlConvertJob(
-    repoId: String,
-    datasetId: String,
-    jobId: String,
-    data: XmlConvertData
-  )
+  // Other messages we can handle
+  sealed trait Action
+  case object Initial extends Action
+  case object Starting extends Action
+  case object Counting extends Action
+  case class Counted(total: Int) extends Action
+  case class Completed(total: Int, secs: Long) extends Action
+  case class Error(id: String, e: Throwable) extends Action
+  case class Resuming(after: String) extends Action
+  case class DoneFile(id: String) extends Action
+  case class FetchFiles(from: Option[String] = None) extends Action
+  case class Progress(done: Int, total: Int) extends Action
+  case object Status extends Action
+  case class Cancelled(total: Int, secs: Long) extends Action
+  case object Cancel extends Action
+  case class Convert(files: List[FileMeta], truncated: Boolean, last: Option[String], count: Int)
 
 }
 
-case class XmlConverter(job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
-  implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
+case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
+    implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
 
-  override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
-    case e =>
-      self ! e
-      Stop
-  }
+  import akka.pattern.pipe
 
-  // Ready state: we've received a job but won't actually start
-  // until there is a channel to talk through
   override def receive: Receive = {
-    case chan: ActorRef =>
-      log.debug("Received initial subscriber, starting...")
-      val runner = context.actorOf(Props(XmlConvertRunner(job, transformer, storage)))
-      context.become(running(runner, Set(chan), Option.empty))
-      runner ! Initial
+    // Start the initial harvest
+    case Initial =>
+      val msgTo = sender()
+      context.become(counting(msgTo, LocalDateTime.now()))
+      msgTo ! Counting
+      self ! Counting
   }
 
-  /**
-    * Running state.
-    *
-    * @param runner the harvest runner actor
-    * @param subs   a set of subscribers to message w/ updates
-    * @param handle a handle through which the job logging can be concluded
-    */
-  def running(runner: ActorRef, subs: Set[ActorRef], handle: Option[HarvestEventHandle]): Receive = {
-
-    // Add a new message subscriber
-    case chan: ActorRef =>
-      log.debug(s"Added new message subscriber, ${subs.size}")
-      context.watch(chan)
-      context.become(running(runner, subs + chan, handle))
-
-    case Terminated(actor) if actor == runner =>
-      context.stop(self)
-
-    // Remove terminated subscribers
-    case Terminated(chan) =>
-      log.debug(s"Removing subscriber: $chan")
-      context.unwatch(chan)
-      context.become(running(runner, subs - chan, handle))
-
+  // We're counting the full set of files to convert
+  def counting(msgTo: ActorRef, start: LocalDateTime): Receive = {
+    // Count files in the given prefix...
     case Counting =>
-      msg(s"Counting files...", subs)
+      if (job.data.only.nonEmpty) self ! Counted(1)
+      else storage.count(job.data.classifier, Some(job.data.inPrefix))
+          .map(filesInSrc => Counted(filesInSrc))
+          .pipeTo(self)
 
+    // Start the actual job
     case Counted(total) =>
-      msg(s"Total of $total file(s)", subs)
+      msgTo ! Counted(total)
+      context.become(running(msgTo, 0, total, start))
+      msgTo ! Starting
+      self ! FetchFiles()
+  }
 
-    // Confirmation the runner has started
-    case Starting =>
-      msg(s"Starting convert with job id: ${job.jobId}", subs)
 
-    // Cancel conversion... here we tell the runner to exit
-    // and shut down on its termination signal...
-    case Cancel => runner ! Cancel
+  // The convert job is running
+  def running(msgTo: ActorRef, done: Int, total: Int, start: LocalDateTime): Receive = {
 
-    // A file has been converted
-    case DoneFile(id) =>
-      msg(id, subs)
+    // Fetch a list of files from the storage API
+    case FetchFiles(after) =>
+      // If we're only converting a single key, fetch its metadata
+      job.data.only.map { key =>
+        storage.info(job.data.classifier, job.data.inPrefix + key)
+          .map {
+            case Some(meta) => Convert(List(meta), truncated = false, None, done)
+            case None =>
+              msgTo ! Error(s"Key not found: ${job.data.inPrefix + key}",
+                new RuntimeException(s"Missing key: ${job.data.inPrefix + key}"))
+          }
+          .pipeTo(self)
+      } getOrElse {
+        // Otherwise, fetch all items from the storage
+        storage.listFiles(job.data.classifier, Some(job.data.inPrefix), after, max = 200)
+          .map(list => Convert(list.files.toList, list.truncated, after, done))
+          .pipeTo(self)
+      }
 
-    case Resuming(from) =>
-      msg(s"Resuming from marker: $from", subs)
+    // Fetching a file
+    case Convert(file :: others, truncated, _, count) =>
+      context.become(running(msgTo, count, total, start))
+      storage.get(job.data.classifier, file.key).map {
+          case None => log.error(s"Storage.get returned None " +
+            s"for '${job.data.classifier}/${file.key}': this shouldn't happen!")
 
-    // Received confirmation that the runner has shut down
-    case Cancelled(count, secs) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
+          case Some((_, stream)) =>
+            val newStream = stream.via(transformer.transform(job.data.transformers))
+            val fileName = basename(file.key)
+            storage.putBytes(
+              job.data.classifier,
+              job.data.outPrefix + fileName,
+              newStream,
+              contentType = Some("text/xml"),
+              meta = Map("source" -> "convert")
+            ).map { _ =>
+              msgTo ! DoneFile(fileName)
+              log.debug(s"Finished $fileName")
+              Convert(others, truncated, Some(file.key), count + 1)
+            }.recover { case e =>
+              log.error(e, s"Error converting $fileName")
+              msgTo ! Error(fileName, e)
+              Convert(others, truncated, Some(file.key), count)
+          }.pipeTo(self)
+        }
+
+    // Files in this batch exhausted, continue from last marker
+    case Convert(Nil, true, last, count) =>
+      last.foreach(from => msgTo ! Resuming(basename(from)))
+      context.become(running(msgTo, count, total, start))
+      self ! FetchFiles(last)
+
+    // Files exhausted and there are no more batches, that means we're done...
+    case Convert(Nil, false, _, count)  =>
+      context.become(running(msgTo, count, total, start))
+      msgTo ! Completed(count, time(start))
+
+    // Status requests
+    case Status =>
+      msgTo ! Progress(done, total)
+
+    // Cancel conversion
+    case Cancel =>
+      msgTo ! Cancelled(done, time(start))
       context.stop(self)
 
-    // The runner has completed, so we log the
-    // event and shut down too
-    case Completed(count, secs) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"converted $count file(s) in $secs seconds", subs)
-      context.stop(self)
-
-    // The runner has thrown a conversion error. Log the event but do not shut down...
-    case Error(id, e) =>
-      msg(s"$id: conversion error: ${e.getMessage}", subs)
-
-    // We've encountered an expected error...
-    case e: Throwable =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: unexpected error in file conversion ${e.getMessage}", subs)
+    case Failure(e) =>
+      msgTo ! e
       context.stop(self)
 
     case m =>
-      log.error(s"Unexpected message: $m")
+      log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def msg(s: String, subs: Set[ActorRef]): Unit = {
-    log.info(s + s" (subscribers: ${subs.size})")
-    subs.foreach(_ ! s)
-  }
+  private def time(from: LocalDateTime): Long =
+    Duration.between(from, LocalDateTime.now()).toMillis / 1000
+
+  private def basename(key: String): String =
+    key.substring(key.lastIndexOf('/') + 1)
 }

@@ -32,19 +32,16 @@ Vue.component("dataset-form", {
     save: function() {
       this.saving = true;
 
+      let data = {
+        id: this.id,
+        name: this.name,
+        src: this.src,
+        notes: this.notes,
+      };
+
       let op = this.info !== null
-        ? this.api.updateDataset(this.id, {
-          id: this.id,
-          name: this.name,
-          src: this.src,
-          notes: this.notes
-        }).then(ds => this.$emit('saved-dataset', ds))
-        : this.api.createDataset({
-          id: this.id,
-          name: this.name,
-          src: this.src,
-          notes: this.notes
-        }).then(ds => {
+        ? this.api.updateDataset(this.id, data).then(ds => this.$emit('saved-dataset', ds))
+        : this.api.createDataset(data).then(ds => {
             this.$emit('saved-dataset', ds);
             this.$emit('close');
           });
@@ -152,7 +149,6 @@ Vue.component("dataset-form", {
           <textarea rows="4" v-model="notes" id="dataset-notes" class="form-control" placeholder="(optional)"/>
         </div>
       </fieldset>
-      
       <template v-slot:footer>
         <button v-if="info"
                 v-bind:disabled="saving || deleting"

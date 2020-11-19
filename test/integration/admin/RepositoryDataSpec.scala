@@ -149,7 +149,6 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
 
-      println(contentAsString(r))
       status(r) must_== OK
       contentType(r) must beSome("text/xml")
       contentAsString(r) must contain("test-id-EHRI")
