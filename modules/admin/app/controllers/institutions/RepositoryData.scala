@@ -5,11 +5,11 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.CompletionException
 
-import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.harvesting.{OaiPmhHarvestRunner, OaiPmhHarvester}
+import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.{OaiPmhHarvester, OaiPmhHarvesterManager}
 import actors.ingest
-import actors.transformation.XmlConverter.{XmlConvertData, XmlConvertJob}
-import actors.transformation.{XmlConvertRunner, XmlConverter}
+import actors.transformation.XmlConverterManager.{XmlConvertData, XmlConvertJob}
+import actors.transformation.{XmlConverter, XmlConverterManager}
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -32,7 +32,7 @@ import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
-import services.ingest.IngestApi.{IngestData, IngestJob}
+import services.ingest.IngestApi.{IngestData, IngestDataType, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
@@ -76,6 +76,7 @@ case class RepositoryData @Inject()(
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
   ingestApi: IngestApi,
+  importLogService: ImportLogService,
   oaipmhClient: OaiPmhClient,
   oaipmhConfigs: OaiPmhConfigService,
   harvestEvents: HarvestEventService,
@@ -221,7 +222,7 @@ case class RepositoryData @Inject()(
   def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
     val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
-    for (urls <- getUrlMap(keys)) yield {
+    for (urls <- getUrlMap(keys); dataset <- datasets.get(id, ds)) yield {
 
       // Tag this task with a unique ID...
       val jobId = UUID.randomUUID().toString
@@ -242,11 +243,13 @@ case class RepositoryData @Inject()(
             storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
           .getOrElse(PropertiesHandle.empty)
       )
+      val ingestTask = IngestData(task, IngestDataType.Ead, contentType, implicitly[ApiUser])
+      val job = IngestJob(jobId, ingestTask)
+      val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
+        if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)
+        else Future.successful(())
 
-      val ingestTask = IngestData(task,
-        IngestApi.IngestDataType.Ead, contentType, implicitly[ApiUser])
-      val runner = mat.system.actorOf(Props(ingest.IngestActor(ingestApi)), jobId)
-      runner ! IngestJob(jobId, ingestTask)
+      mat.system.actorOf(Props(ingest.DataImporterManager(job, ingestApi, onDone)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
@@ -320,7 +323,7 @@ case class RepositoryData @Inject()(
       val jobId = UUID.randomUUID().toString
       val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input), from = last)
       val job = OaiPmhHarvestJob(id, ds, jobId, data = data)
-      mat.system.actorOf(Props(OaiPmhHarvester(job, oaipmhClient, storage, harvestEvents)), jobId)
+      mat.system.actorOf(Props(OaiPmhHarvesterManager(job, oaipmhClient, storage, harvestEvents)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks
@@ -334,7 +337,7 @@ case class RepositoryData @Inject()(
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
-      ref ! OaiPmhHarvestRunner.Cancel
+      ref ! OaiPmhHarvester.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
@@ -467,7 +470,7 @@ case class RepositoryData @Inject()(
         only = key
       )
       val job = XmlConvertJob(repoId = id, datasetId = ds, jobId = jobId, data = data)
-      mat.system.actorOf(Props(XmlConverter(job, xmlTransformer, storage)), jobId)
+      mat.system.actorOf(Props(XmlConverterManager(job, xmlTransformer, storage)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks
@@ -481,7 +484,7 @@ case class RepositoryData @Inject()(
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
-      ref ! XmlConvertRunner.Cancel
+      ref ! XmlConverter.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))

@@ -32,9 +32,13 @@ object PermissionDenied {
     permissionDeniedReads, permissionDeniedWrites)
 }
 
-case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError
+case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError {
+  override def toString: String = errorSet.toString
+}
 
 object ValidationError {
+  def apply(field: String, error: String): ValidationError = ValidationError(ErrorSet(Map(field -> Seq(error))))
+
   implicit val validationErrorReads: Reads[ValidationError] = (
     (__ \ "error").read[String] and
       (__ \ "details").read[ErrorSet]

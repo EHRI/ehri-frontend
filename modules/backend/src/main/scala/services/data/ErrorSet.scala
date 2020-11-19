@@ -6,7 +6,7 @@ import play.api.libs.json._
 
 case class ErrorSet(
   errors: Map[String,Seq[String]],
-  relationships: Map[String,Seq[Option[ErrorSet]]]
+  relationships: Map[String,Seq[Option[ErrorSet]]] = Map.empty
 ) {
   /**
    * Given a persistable class, unfurl the nested errors so that they
@@ -17,7 +17,12 @@ case class ErrorSet(
     errors
   }
 
-  override def toString: String = errors.toString() // TODO: Handle nested errors
+  override def toString: String = {
+    // TODO: Handle nested errors
+    errors.toSeq.map { case (field, errors) =>
+      s"[$field: ${errors.mkString(", ")}]"
+    }.mkString("; ")
+  }
 }
 
 /**

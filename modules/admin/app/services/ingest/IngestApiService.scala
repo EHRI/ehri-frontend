@@ -22,15 +22,12 @@ import play.api.libs.json.JsonNaming.SnakeCase
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
-import services.data.Constants
+import services.data.{Constants, ValidationError}
 import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator}
 import services.storage.FileStorage
-import utils.WebsocketConstants
 
-import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Failure
 
 
 // A result from the import endpoint
@@ -38,7 +35,11 @@ sealed trait IngestResult
 
 object IngestResult {
   implicit val reads: Reads[IngestResult] = Reads { json =>
-    json.validate[ErrorLog].orElse(json.validate[ImportLog].orElse(json.validate[SyncLog]))
+    json.validate[ValidationError]
+      .map(e => ErrorLog("Validation error", e.toString))
+      .orElse(json.validate[ErrorLog])
+      .orElse(json.validate[ImportLog])
+      .orElse(json.validate[SyncLog])
   }
   implicit val writes: Writes[IngestResult] = Writes {
     case i: ImportLog => Json.toJson(i)(ImportLog.format)
@@ -59,7 +60,9 @@ case class ImportLog(
   message: Option[String] = None,
   event: Option[String] = None,
   errors: Map[String, String] = Map.empty,
-) extends IngestResult
+) extends IngestResult {
+  def hasDoneWork: Boolean = createdKeys.nonEmpty || updatedKeys.nonEmpty
+}
 
 object ImportLog {
   implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
@@ -134,21 +137,12 @@ case class IngestApiService @Inject()(
     }
   }
 
-  private def msg(s: String, chan: ActorRef): Unit = {
-    logger.info(s)
-    chan ! s
-  }
-
   // Get an indexer handle with our our channel and filtered output
-  private def indexer(implicit chan: ActorRef) =
+  private def indexer(chan: ActorRef) =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
-  private def storeManifestAndLog(job: IngestJob, res: Either[String, IngestResult]): Future[URI] = {
+  override def storeManifestAndLog(job: IngestJob, res: IngestResult): Future[URI] = {
     import play.api.libs.json._
-    val out: JsValue = res match {
-      case Left(s) => JsString(s)
-      case Right(r: IngestResult) => Json.toJson(r)
-    }
 
     implicit val payloadHandleWrites: Writes[PayloadHandle] = Writes {
       case FilePayload(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
@@ -170,7 +164,7 @@ case class IngestApiService @Inject()(
         "commit" -> job.data.params.commit
       ),
       "user" -> job.data.user.toOption,
-      "stats" -> out,
+      "stats" -> res,
       "data" -> job.data.params.data
     )
 
@@ -184,7 +178,7 @@ case class IngestApiService @Inject()(
   }
 
   // Create 301 redirects for items that have moved URLs
-  private def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
+  override def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
     def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
       def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
       items.flatMap { case (from, to) =>
@@ -202,16 +196,23 @@ case class IngestApiService @Inject()(
   }
 
   // Re-index the scope in which the ingest was run
-  private def reindex(scopeType: ContentTypes.Value, id: String)(implicit chan: ActorRef): Future[Unit] = {
-    msg(s"Reindexing... $scopeType $id", chan)
-    indexer.clearKeyValue(SearchConstants.HOLDER_ID, id).flatMap { _ =>
-      msg(s"Cleared ${SearchConstants.HOLDER_ID}: $id", chan)
-      indexer.indexChildren(EntityType.withName(scopeType.toString), id)
+  override def reindex(scopeType: ContentTypes.Value, id: String, chan: ActorRef): Future[Unit] = {
+    indexer(chan).clearKeyValue(SearchConstants.HOLDER_ID, id).flatMap { _ =>
+      indexer(chan).indexChildren(EntityType.withName(scopeType.toString), id)
     }
   }
 
+  // Re-index the scope in which the ingest was run
+  override def reindex(ids: Seq[String], chan: ActorRef): Future[Unit] = {
+    indexer(chan).indexIds(ids: _*)
+  }
+
+  override def clearIndex(ids: Seq[String], chan: ActorRef): Future[Unit] = {
+    indexer(chan).clearIds(ids: _*)
+  }
+
   // Run the actual data ingest on the backend
-  private def handleIngest(job: IngestJob): Future[Either[String, IngestResult]] = {
+  override def importData(job: IngestJob): Future[IngestResult] = {
     import scala.concurrent.duration._
 
     // We need to pass the server a reference of the properties file
@@ -266,7 +267,7 @@ case class IngestApiService @Inject()(
     }
 
     val bodyWritable: BodyWritable[Path] =
-        BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
+      BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
 
     logger.info(s"Dispatching ingest: ${job.data.params}")
     val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
@@ -279,13 +280,15 @@ case class IngestApiService @Inject()(
       .map { r =>
         logger.trace(r.body)
         logger.debug(s"Ingest WS status: ${r.status}")
-        try Right(r.json.as[IngestResult]) catch {
-          case _: JsonMappingException | _: JsResultException => Left(r.body)
+
+        try r.json.as[IngestResult] catch {
+          case _: JsonMappingException | _: JsResultException =>
+            ErrorLog("Unexpected data received from ingest backend", r.body)
         }
       } recover {
       case e: Throwable =>
         logger.error("Error running ingest", e)
-        Left(s"Error running ingest: ${e.getMessage}")
+        ErrorLog(s"Unexpected error running ingest", e.getMessage)
     }
 
     upload.onComplete { _ =>
@@ -294,99 +297,5 @@ case class IngestApiService @Inject()(
     }
 
     upload
-  }
-
-  // If we ran a sync job, handle moving and reindexing
-  private def handleSyncResult(job: IngestJob, sync: SyncLog)(implicit chan: ActorRef): Future[Unit] = {
-    msg("Received a valid sync manifest...", chan)
-    handleIngestResult(job, sync.log).flatMap { _ =>
-      msg(s"Sync: moved: ${sync.moved.size}, new: ${sync.created.size}, deleted: ${sync.deleted.size}", chan)
-      if (job.data.params.commit) {
-        if (sync.moved.nonEmpty) {
-          msg("Creating redirects...", chan)
-          remapMovedUnits(sync.moved.toSeq).map { num =>
-            msg(s"Relocated $num item(s)", chan)
-          }
-        } else {
-          msg("No reindexing necessary", chan)
-          immediate(())
-        }
-      } else {
-        msg("Task was a dry run so not creating redirects", chan)
-        immediate(())
-      }
-    }
-  }
-
-  // Handle reindexing if item have changed
-  private def handleIngestResult(job: IngestJob, log: ImportLog)(implicit chan: ActorRef): Future[Unit] = {
-    msg(s"Data: created: ${log.created}, updated: ${log.updated}, unchanged: ${log.unchanged}, errors: ${log.errors.size}", chan)
-    log.event.foreach(e => msg(s"Event ID: $e", chan))
-    if (job.data.params.commit) {
-      if (log.created > 0 || log.updated > 0) {
-        reindex(job.data.params.scopeType, job.data.params.scope)
-      } else {
-        msg("No reindexing necessary", chan)
-        immediate(())
-      }
-    } else {
-      msg("Task was a dry run so not proceeding to reindex", chan)
-      immediate(())
-    }
-  }
-
-  private def handleError(job: IngestJob, err: ErrorLog)(implicit chan: ActorRef): Future[Unit] = {
-    msg(s"${WebsocketConstants.ERR_MESSAGE}: ${err.details}", chan)
-    immediate(())
-  }
-
-  override def run(job: IngestJob, chan: ActorRef): Future[Unit] = {
-
-    msg(s"Initialising ingest for job: ${job.id}...", chan)
-
-    val mainTask: Future[Either[String, IngestResult]] = handleIngest(job)
-
-    val ticker: ActorRef = actorSystem.actorOf(Ticker.props)
-    ticker ! (chan -> "Ingesting")
-    mainTask.onComplete { _ =>
-      ticker ! Ticker.Stop
-    }
-
-    val uploadLog: Future[Unit] = mainTask.flatMap { out =>
-      msg("Uploading log...", chan)
-      storeManifestAndLog(job, out).map { url =>
-        msg(s"Log stored at $url", chan)
-      } recover {
-        case e =>
-          logger.error("Unable to upload ingest log:", e)
-          msg(s"Error uploading ingest log: ${e.getMessage}", chan)
-      }
-    }
-
-    val ingestTasks: Future[Unit] = mainTask.flatMap {
-      case Right(result) => result match {
-        case log: ImportLog => handleIngestResult(job, log)(chan)
-        case log: SyncLog => handleSyncResult(job, log)(chan)
-        case err: ErrorLog => handleError(job, err)(chan)
-      }
-      case Left(errorString) =>
-        msg(errorString, chan)
-        immediate(())
-    }
-
-    // Do uploading and result handling asynchronously
-    val allTasks: Future[Unit] = for {
-      _ <- uploadLog
-      r <- ingestTasks
-    } yield r
-
-    allTasks.onComplete {
-      case Failure(e) =>
-        logger.error("Ingest error: ", e)
-        msg(WebsocketConstants.ERR_MESSAGE, chan)
-      case _ => msg(WebsocketConstants.DONE_MESSAGE, chan)
-    }
-
-    allTasks
   }
 }
