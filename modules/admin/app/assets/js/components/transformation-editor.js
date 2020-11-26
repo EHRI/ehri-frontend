@@ -178,9 +178,11 @@ Vue.component("transformation-editor", {
     initPreviewing: Object,
     config: Object,
     api: Object,
+    inputPipeline: Array,
   },
   data: function() {
     return {
+      solo: false,
       saving: false,
       previewing: this.initPreviewing,
       loading: false,
@@ -239,7 +241,10 @@ Vue.component("transformation-editor", {
   },
   computed: {
     mappings: function() {
-      return [[this.data.bodyType, this.data.body]];
+      let stage = [[this.data.bodyType, this.data.body]];
+      return this.solo
+        ? stage
+        : _.concat(this.inputPipeline, stage);
     },
     modified: function() {
       return !_.isEqual(this.data, {
