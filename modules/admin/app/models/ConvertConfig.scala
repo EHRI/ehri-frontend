@@ -2,6 +2,8 @@ package models
 
 import play.api.libs.json.{Format, Json, Reads}
 
+
+
 sealed trait ConvertConfig
 
 object ConvertConfig {
