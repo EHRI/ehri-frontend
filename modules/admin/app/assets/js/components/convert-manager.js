@@ -79,6 +79,7 @@ let initialConvertState = function(config) {
     convertJobId: null,
     ingesting: {},
     previewStage: config.input,
+    previewPipeline: [],
     previewing: null,
     tab: 'preview',
     log: [],
@@ -116,8 +117,14 @@ Vue.component("convert-manager", {
         .catch(error => this.showError("Unable to load transformations", error))
         .finally(() => this.loading = false);
     },
-    editTransformation: function(item) {
+    editTransformation: function(item, withPreviewPipeline) {
       this.editing = item;
+      // if editing in the context of a pipeline, set the preview
+      // pipeline to be the items ahead of this one in the enabled
+      // list...
+      this.previewPipeline = withPreviewPipeline
+        ? _.takeWhile(this.enabled, dt => dt.id !== item.id).map(dt => [dt.bodyType, dt.body])
+        : [];
     },
     newTransformation: function() {
       this.editing = {
@@ -196,6 +203,9 @@ Vue.component("convert-manager", {
           .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
+    priorConversions: function(dt) {
+      return _.takeWhile(this.enabled, s => s.id !== dt.id);
+    }
   },
   watch: {
     enabled: function() {
@@ -232,6 +242,7 @@ Vue.component("convert-manager", {
         v-bind:init-previewing="previewing"
         v-bind:config="config"
         v-bind:api="api"
+        v-bind:input-pipeline="previewPipeline"
         v-on:saved="saved"
         v-on:close="closeEditForm"/>
 
@@ -296,7 +307,7 @@ Vue.component("convert-manager", {
                   v-bind:item="dt"
                   v-bind:key="i"
                   v-bind:enabled="_.includes(mappings, item => item.id)"
-                  v-on:edit="editTransformation(dt)"
+                  v-on:edit="editTransformation(dt, false)"
                 />
               </draggable>
             </div>
@@ -324,7 +335,7 @@ Vue.component("convert-manager", {
                   v-bind:item="dt"
                   v-bind:key="i"
                   v-bind:enabled="_.includes(mappings, item => item.id)"
-                  v-on:edit="editTransformation(dt)"
+                  v-on:edit="editTransformation(dt, true)"
                 />
               </draggable>
             </div>
