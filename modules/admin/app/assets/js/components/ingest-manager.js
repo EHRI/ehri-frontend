@@ -68,7 +68,7 @@ Vue.component("ingest-options-panel", {
   },
   computed: {
     isValidConfig: function() {
-      return this.opts.logMessage && this.opts.logMessage.trim() !== "";
+      return this.logMessage && this.logMessage.trim() !== "";
     },
     hasProps: function() {
       return _.size(this.props) > 0;
@@ -80,13 +80,13 @@ Vue.component("ingest-options-panel", {
 
       <fieldset v-bind:disabled="loading" class="options-form">
         <div class="form-group form-check">
-          <input class="form-check-input" id="opt-tolerant-check" type="checkbox" v-model="tolerant"/>
+          <input v-model="tolerant" class="form-check-input" id="opt-tolerant-check" type="checkbox"/>
           <label class="form-check-label" for="opt-tolerant-check">
             Tolerant Mode: do not abort on individual file errors
           </label>
         </div>
         <div class="form-group form-check">
-          <input class="form-check-input" id="opt-commit-check" type="checkbox" v-model="commit"/>
+          <input v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
           <label class="form-check-label" for="opt-commit-check">
             Commit Ingest: make changes to database
           </label>
@@ -97,19 +97,19 @@ Vue.component("ingest-options-panel", {
             <span class="text-success" title="Upload Properties File" id="opt-new-props">
               <i class="fa fa-plus-circle"></i>
               <label class="sr-only" for="opt-new-props-input">Upload Properties File...</label>
-              <input class="opt-new-props-input" 
-                     type="file" pattern=".*.properties$" v-on:change.prevent="uploadProperties"/>
+              <input v-on:change.prevent="uploadProperties" class="opt-new-props-input" 
+                     type="file" pattern=".*.properties$"/>
             </span>
           </label>
           <div class="ingest-options-properties-container">
             <table v-if="hasProps" class="ingest-options-properties table table-bordered table-sm table-striped">
               <tr v-for="f in props" v-on:click="selectPropFile(f)" v-bind:class="{'active': f.key===properties}">
-                <td><i class="fa fa-fw" v-bind:class="{
+                <td><i v-bind:class="{
                   'fa-check': f.key===properties,
                   'text-success': f.key===properties,
                   'fa-minus': f.key!==properties,
                   'text-muted': f.key!==properties,
-                }"></i></td>
+                }" class="fa fa-fw"></i></td>
                 <td>{{f.key}}</td>
                 <td v-on:click.stop.prevent="deleteProperties(f)"><i class="fa fa-trash-o"></i></td>
               </tr>
@@ -126,7 +126,7 @@ Vue.component("ingest-options-panel", {
         </div>
         <div class="form-group">
           <label class="form-label" for="opt-log-message">Log Message</label>
-          <input class="form-control form-control-sm" id="opt-log-message" v-model="logMessage"/>
+          <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)"/>
         </div>
         <div v-if="error" class="alert alert-danger">
           {{error}}
@@ -134,14 +134,16 @@ Vue.component("ingest-options-panel", {
       </fieldset>
       
       <template v-slot:footer>
-        <button type="button" class="btn btn-default" data-dismiss="modal" v-on:click="$emit('close')">
+        <button v-on:click="$emit('close')" type="button" class="btn btn-default">
           Cancel
         </button>
-        <button v-bind:disabled="!isValidConfig" type="button" class="btn btn-secondary" data-dismiss="modal"
-                v-on:click="submit">
+        <button v-bind:disabled="!isValidConfig" v-on:click="submit" 
+                v-bind:class="{'btn-danger': commit, 'btn-secondary': !commit}"  
+                type="button" class="btn">
           <i v-if="!waiting" class="fa fa-fw fa-database"></i>
           <i v-else class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-          Run Ingest
+          <template v-if="commit">Run Ingest</template>
+          <template v-else>Start Dry Run</template>
         </button>
       </template>
     </modal-window>
@@ -165,7 +167,7 @@ Vue.component("ingest-manager", {
       opts: {
         commit: false,
         tolerant: false,
-        logMessage: LOG_MESSAGE,
+        logMessage: "",
         properties: null,
       }
     }
