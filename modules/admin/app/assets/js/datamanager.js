@@ -1,8 +1,5 @@
 "use strict";
 
-// Default log message testing. Overrideable in settings
-const LOG_MESSAGE = "Testing Ingest";
-
 // Prevent default drag/drop action...
 window.addEventListener("dragover", e => e.preventDefault(), false);
 window.addEventListener("drop", e => e.preventDefault(), false);

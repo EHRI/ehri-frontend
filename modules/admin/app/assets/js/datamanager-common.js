@@ -516,7 +516,7 @@ Vue.component("modal-alert", {
     }
   },
   mounted() {
-    this.$el.querySelector("button[data-dismiss='modal']").focus();
+    this.$el.querySelector("button.close").focus();
   },
   template: `
     <div v-bind:class="cls" class="modal modal-alert" tabindex="-1" role="dialog">
@@ -524,7 +524,7 @@ Vue.component("modal-alert", {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">{{title}}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="$emit('close')" tabindex="-1">
+            <button type="button" class="close" aria-label="Close" v-on:click="$emit('close')" tabindex="-1">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -532,7 +532,7 @@ Vue.component("modal-alert", {
             <slot></slot>
           </div>
           <div class="modal-footer">
-            <button v-if="cancel" type="button" class="btn" data-dismiss="modal" v-on:click="$emit('close')" autofocus>{{cancel}}</button>
+            <button v-if="cancel" type="button" class="btn" v-on:click="$emit('close')" autofocus>{{cancel}}</button>
             <button v-if="accept" type="button" class="btn" v-bind:class="'btn-' + cls" v-on:click="$emit('accept')">{{accept}}</button>
           </div>
         </div>
@@ -579,8 +579,8 @@ Vue.component("files-table", {
     toggleAll: function (evt) {
       this.files.forEach(f => this.toggleItem(f, evt));
     },
-    toggleItem: function (file, evt) {
-      if (evt.target.checked) {
+    toggleItem: function (file, checked) {
+      if (!checked) {
         this.$emit('item-selected', file);
       } else {
         this.$emit('item-deselected', file);
@@ -620,7 +620,8 @@ Vue.component("files-table", {
             v-bind:key="file.key"
             v-on:click.stop="$emit('show-preview', file)"
             v-bind:class="{'active': isPreviewing(file)}">
-          <td><input type="checkbox" v-bind:checked="selected[file.key]" v-on:click.stop="toggleItem(file, $event)">
+          <td v-on:click.stop="toggleItem(file, selected[file.key])">
+            <input type="checkbox" v-bind:checked="selected[file.key]">
           </td>
           <td>{{file.key}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
@@ -907,7 +908,7 @@ Vue.component("modal-window", {
             <h5 class="modal-title">
                 <slot name="title"></slot>
             </h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="$emit('close')">
+            <button type="button" class="close" aria-label="Close" v-on:click="$emit('close')">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
