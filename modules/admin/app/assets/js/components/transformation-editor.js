@@ -268,7 +268,7 @@ Vue.component("transformation-editor", {
         <div id="transformation-editor" class="modal-content">
           <div id="transformation-editor-heading" class="modal-header">
             <h5 class="modal-title">{{id ? ('Edit transformation: ' + name) : 'New Transformation...'}}</h5>
-            <button type="button" class="close" tabindex="-1" data-dismiss="modal" aria-label="Close" v-on:click="$emit('close')">
+            <button type="button" class="close" tabindex="-1" aria-label="Close" v-on:click="$emit('close')">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
