@@ -1,3 +1,4 @@
+import akka.stream.Materializer
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.OAuth2Config
@@ -20,7 +21,7 @@ import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiS
 import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
-import services.storage.{DOFileStorage, FileStorage, S3FileStorage}
+import services.storage.{FileStorage, S3CompatibleStorage}
 import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
 
@@ -37,6 +38,16 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
       YahooOAuth2Provider(config)
     )
   }
+}
+
+private class AWSStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
+  override def get(): FileStorage =
+    S3CompatibleStorage(config.get[com.typesafe.config.Config]("alpakka.s3.aws"))
+}
+
+private class DAMStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
+  override def get(): FileStorage =
+    S3CompatibleStorage(config.get[com.typesafe.config.Config]("digitalocean.spaces"))
 }
 
 class Module extends AbstractModule {
@@ -59,8 +70,8 @@ class Module extends AbstractModule {
     bind(classOf[OAuth2Service]).to(classOf[WebOAuth2Service])
     bind(classOf[OAuth2Config]).toProvider(classOf[OAuth2ConfigProvider])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
-    bind(classOf[FileStorage]).to(classOf[S3FileStorage])
-    bind(classOf[FileStorage]).annotatedWith(Names.named("dam")).to(classOf[DOFileStorage])
+    bind(classOf[FileStorage]).toProvider(classOf[AWSStorageProvider])
+    bind(classOf[FileStorage]).annotatedWith(Names.named("dam")).toProvider(classOf[DAMStorageProvider])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
