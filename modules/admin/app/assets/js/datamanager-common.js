@@ -1007,7 +1007,7 @@ let stageMixin = {
     },
     downloadFiles: function(keys) {
       keys.forEach(key => this.$set(this.downloading, key, true));
-      this.api.fileUrls(this.fileStage, keys)
+      this.api.fileUrls(this.datasetId, this.fileStage, keys)
         .then(urls => {
           _.forIn(urls, (url, fileName) => {
             window.open(url, '_blank');

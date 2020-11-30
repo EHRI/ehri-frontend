@@ -187,7 +187,7 @@ Vue.component("dataset-manager", {
   },
   methods: {
     setError: function(err, exc) {
-      this.error = err + ": " + exc.message;
+      this.error = err + (exc ? (": " + exc.message) : "");
     },
     switchTab: function(tab) {
       this.tab = tab;
@@ -219,7 +219,7 @@ Vue.component("dataset-manager", {
       this.showForm = true;
     },
     loadDatasets: function() {
-      this.api.datasetStats().then(stats => this.stats = stats);
+        this.api.datasetStats().then(stats => this.stats = stats);
       return this.api.listDatasets()
         .then(dsl => this.datasets = dsl)
         .catch(e => this.showError("Error loading datasets", e))
@@ -411,7 +411,7 @@ let app = new Vue({
   mixins: [utilMixin],
   data: {
     config: CONFIG,
-    api: new DAO(SERVICE, CONFIG.repositoryId, null),
+    api: new DAO(SERVICE, CONFIG.repositoryId),
     tab: 'input',
   },
   template: `

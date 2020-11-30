@@ -4,7 +4,6 @@ import akka.util.ByteString
 import controllers.institutions.FileToUpload
 import defines.FileStage
 import helpers._
-import models.DataTransformation.TransformationType
 import models._
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
@@ -16,11 +15,11 @@ import services.storage.{FileList, FileMeta}
 import scala.concurrent.Future
 
 
-class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
+class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
-  private val repoDataRoutes = controllers.institutions.routes.RepositoryData
+  private val repoDataRoutes = controllers.institutions.routes.ImportFiles
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -140,29 +139,6 @@ class RepositoryDataSpec extends IntegrationTestRunner with ResourceUtils {
            }]
           }]"""
       )
-    }
-
-    "convert files" in new ITestApp {
-      await(putFile())
-      val map = resourceAsString("simple-mapping.tsv")
-      val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
-        .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
-
-      status(r) must_== OK
-      contentType(r) must beSome("text/xml")
-      contentAsString(r) must contain("test-id-EHRI")
-    }
-
-    "convert files with correct errors" in new ITestApp {
-      await(putFile())
-      val map = resourceAsString("simple-mapping.tsv") + "/ead/\t@foobar\t/blah\t&\n" // invalid junk
-      val r = FakeRequest(repoDataRoutes.convertFile(repoId, datasetId, stage, testFileName))
-        .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
-
-      status(r) must_== BAD_REQUEST
-      contentAsString(r) must contain("at /ead: at /ead/eadheader: Expecting valid step.")
     }
   }
 }
