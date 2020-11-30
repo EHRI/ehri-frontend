@@ -17,7 +17,7 @@ logBuffered := false
 
 logLevel := Level.Debug
 
-val projectScalaVersion = "2.12.10"
+val projectScalaVersion = "2.12.12"
 val appName = "docview"
 val appVersion = "1.0.6-SNAPSHOT"
 
