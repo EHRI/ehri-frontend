@@ -18,9 +18,11 @@ import play.api.Logger
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-case class EadValidatorService @Inject() ()(implicit mat: Materializer, exec: ExecutionContext) extends EadValidator {
 
-  private val logger = Logger(classOf[EadValidatorService])
+case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: ExecutionContext) extends EadValidator {
+
+  private val logger = Logger(classOf[RelaxNGEadValidator])
+  //noinspection UnstableApiUsage
   private val rngUrl = Resources.getResource("ehri_ead.rng")
   private val rng: InputSource = ValidationDriver.uriOrFileInputSource(rngUrl.toString)
 
@@ -44,7 +46,9 @@ case class EadValidatorService @Inject() ()(implicit mat: Materializer, exec: Ex
     val bs = ArrayBuffer[XmlValidationError]()
     val erh: ErrorHandler = new ErrorHandler {
       override def warning(e: SAXParseException): Unit = addError(e)
+
       override def error(e: SAXParseException): Unit = addError(e)
+
       override def fatalError(e: SAXParseException): Unit = addError(e)
 
       private def addError(e: SAXParseException): Unit =

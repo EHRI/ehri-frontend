@@ -6,7 +6,7 @@ import anorm._
 import javax.inject.Inject
 import play.api.Logger
 import play.api.db.Database
-import services.ingest.IngestApi.IngestData
+import services.ingest.IngestService.IngestData
 
 import scala.concurrent.{ExecutionContext, Future}
 case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem) extends ImportLogService {

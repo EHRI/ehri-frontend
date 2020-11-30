@@ -8,8 +8,8 @@ import scala.concurrent.Future
   * No-op importer. Does nothing, nowt, nada, but on the
   * plus side has no dependencies.
   */
-case class MockIngestApiService(res: IngestResult) extends IngestApi {
-  override def importData(job: IngestApi.IngestJob) =
+case class MockIngestServiceService(res: IngestResult) extends IngestService {
+  override def importData(job: IngestService.IngestJob) =
     Future.successful(res)
 
   override def remapMovedUnits(movedIds: Seq[(String, String)]) =
@@ -21,7 +21,7 @@ case class MockIngestApiService(res: IngestResult) extends IngestApi {
   override def reindex(ids: Seq[String], chan: ActorRef) =
     Future.successful(())
 
-  override def storeManifestAndLog(job: IngestApi.IngestJob, res: IngestResult) =
+  override def storeManifestAndLog(job: IngestService.IngestJob, res: IngestResult) =
     Future.successful(java.net.URI.create("http://example.com/log"))
 
   override def clearIndex(ids: Seq[String], chan: ActorRef) =

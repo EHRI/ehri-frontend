@@ -11,7 +11,7 @@ import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{IngestApi, IngestParams}
+import services.ingest.{IngestService, IngestParams}
 import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
@@ -331,7 +331,7 @@ case class DocumentaryUnits @Inject()(
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     request.item.holder.map { scope =>
-      val dataType = IngestApi.IngestDataType.EadSync
+      val dataType = IngestService.IngestDataType.EadSync
       Ok(views.html.admin.tools.ingest(scope, Some(request.item), IngestParams.ingestForm, dataType,
         controllers.admin.routes.Ingest.ingestPost(ContentTypes.DocumentaryUnit,
           scope.id, dataType, Some(id)), sync = true))

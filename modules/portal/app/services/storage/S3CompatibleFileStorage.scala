@@ -23,13 +23,15 @@ import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
 
 
-object S3CompatibleStorage {
-  def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleStorage = {
+object S3CompatibleFileStorage {
+  def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleFileStorage = {
     val credentials = new AWSCredentialsProvider {
       override def getCredentials: AWSCredentials = new AWSCredentials {
         override def getAWSAccessKeyId: String = config.getString("credentials.access-key-id")
+
         override def getAWSSecretKey: String = config.getString("credentials.secret-access-key")
       }
+
       override def refresh(): Unit = {}
     }
 
@@ -40,12 +42,15 @@ object S3CompatibleStorage {
     val endpoint: Option[String] = if (config.hasPath("endpoint"))
       Some(config.getString("endpoint")) else None
 
-    new S3CompatibleStorage(credentials, region, endpoint)(mat)
+    new S3CompatibleFileStorage(credentials, region, endpoint)(mat)
   }
 }
 
-case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsRegionProvider, endpointUrl: Option[String] = None)(implicit mat: Materializer)
-  extends FileStorage {
+case class S3CompatibleFileStorage(
+  credentials: AWSCredentialsProvider,
+  region: AwsRegionProvider,
+  endpointUrl: Option[String] = None
+)(implicit mat: Materializer) extends FileStorage {
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
   private implicit val actorSystem: ActorSystem = mat.system
@@ -78,17 +83,7 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
       .build()
   )
 
-  private def infoToMeta(bucket: String, path: String, meta: ObjectMetadata): FileMeta = FileMeta(
-    bucket,
-    path,
-    java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
-    meta.getContentLength,
-    meta.eTag,
-    meta.contentType,
-    meta.versionId
-  )
-
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
+  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
     val expTime = new java.util.Date()
     val expTimeMillis = expTime.getTime + duration.toMillis
     expTime.setTime(expTimeMillis)
@@ -117,16 +112,16 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
   }
 
   override def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
-      .download(bucket, path, versionId = versionId)
-      .withAttributes(S3Attributes.settings(endpoint))
-      .runWith(Sink.headOption).map(_.flatten)
-      .map {
-        case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
-        case _ => None
-      }
+    .download(bucket, path, versionId = versionId)
+    .withAttributes(S3Attributes.settings(endpoint))
+    .runWith(Sink.headOption).map(_.flatten)
+    .map {
+      case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
+      case _ => None
+    }
 
   override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None,
-      public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
+    public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     val cType = contentType.map(ContentType.parse) match {
       case Some(Right(ct)) => ct
       case _ =>
@@ -143,22 +138,11 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
   }
 
   override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None,
-      public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
+    public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
     putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
   override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
     deleteKeys(classifier, paths)
-  }(ec)
-
-  def countFilesWithPrefix(classifier: String, prefix: Option[String] = None): Future[Int] = Future {
-    @scala.annotation.tailrec
-    def countBatch(done: Int = 0, last: Option[String] = None): Int = {
-      val fm = listPrefix(classifier, prefix, last, max = 1000)
-      val count = fm.files.size
-      if (fm.truncated) countBatch(done + count, fm.files.lastOption.map(_.key))
-      else done + count
-    }
-    countBatch()
   }(ec)
 
   override def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
@@ -170,6 +154,7 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
       if (fm.truncated) deleteBatch(done ++ keys)
       else done ++ keys
     }
+
     deleteBatch()
   }(ec)
 
@@ -187,13 +172,9 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
   override def listVersions(classifier: String, path: String, after: Option[String] = None): Future[FileList] =
     listVersions(classifier, Some(path), None, after, max = 200)
 
-  def listVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): Future[FileList] = Future {
-    listPrefixVersions(classifier, prefix, after, afterVersion, max)
-  }(ec)
-
   override def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = Future {
     val status = if (enabled) BucketVersioningConfiguration.ENABLED
-                  else BucketVersioningConfiguration.OFF
+    else BucketVersioningConfiguration.OFF
     val bvc = new BucketVersioningConfiguration().withStatus(status)
     val bcr = new SetBucketVersioningConfigurationRequest(classifier, bvc)
     client.setBucketVersioningConfiguration(bcr)
@@ -202,6 +183,33 @@ case class S3CompatibleStorage(credentials: AWSCredentialsProvider, region: AwsR
   override def isVersioned(classifier: String): Future[Boolean] = Future {
     val bvc = client.getBucketVersioningConfiguration(classifier)
     bvc.getStatus == BucketVersioningConfiguration.ENABLED
+  }(ec)
+
+
+  private def infoToMeta(bucket: String, path: String, meta: ObjectMetadata): FileMeta = FileMeta(
+    bucket,
+    path,
+    java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
+    meta.getContentLength,
+    meta.eTag,
+    meta.contentType,
+    meta.versionId
+  )
+
+  private def countFilesWithPrefix(classifier: String, prefix: Option[String] = None): Future[Int] = Future {
+    @scala.annotation.tailrec
+    def countBatch(done: Int = 0, last: Option[String] = None): Int = {
+      val fm = listPrefix(classifier, prefix, last, max = 1000)
+      val count = fm.files.size
+      if (fm.truncated) countBatch(done + count, fm.files.lastOption.map(_.key))
+      else done + count
+    }
+
+    countBatch()
+  }(ec)
+
+  private def listVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): Future[FileList] = Future {
+    listPrefixVersions(classifier, prefix, after, afterVersion, max)
   }(ec)
 
   private def listPrefixVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): FileList = {

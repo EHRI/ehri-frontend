@@ -94,16 +94,16 @@ object ErrorLog {
   * Service class for ingesting XML data into the database backend.
   *
   */
-case class IngestApiService @Inject()(
+case class WSIngestService @Inject()(
   config: Configuration,
   ws: WSClient,
   searchIndexer: SearchIndexMediator,
   pageRelocator: MovedPageLookup,
   fileStorage: FileStorage,
   importLogger: ImportLogService
-)(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestApi {
+)(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
 
-  import services.ingest.IngestApi._
+  import services.ingest.IngestService._
 
   import scala.concurrent.duration._
 

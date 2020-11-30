@@ -6,7 +6,7 @@ import actors.ingest.DataImporter._
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props}
 import akka.pattern._
 import models.UserProfile
-import services.ingest.IngestApi.IngestJob
+import services.ingest.IngestService.IngestJob
 import services.ingest._
 
 import scala.concurrent.duration._
@@ -51,7 +51,7 @@ object DataImporter {
   case class UnexpectedError(throwable: Throwable) extends State
 }
 
-case class DataImporter(job: IngestJob, ingestApi: IngestApi, onDone: (IngestJob, ImportLog) => Future[Unit])(
+case class DataImporter(job: IngestJob, ingestApi: IngestService, onDone: (IngestJob, ImportLog) => Future[Unit])(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
   case class Forwarder(to: ActorRef) extends Actor {

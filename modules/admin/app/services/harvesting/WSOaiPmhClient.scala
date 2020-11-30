@@ -39,9 +39,9 @@ case class OaiPmhError(code: String, value: String = "") extends RuntimeExceptio
 }
 
 
-case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
+case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
-  private val logger = Logger(classOf[OaiPmhClientService])
+  private val logger = Logger(classOf[WSOaiPmhClient])
 
   @throws[OaiPmhError]
   private def checkError(r: WSResponse): Unit = {
@@ -111,7 +111,7 @@ case class OaiPmhClientService @Inject()(ws: WSClient)(implicit ec: ExecutionCon
                             resume: Option[String]): Future[Seq[(String, String)]] = {
     resume.fold(
       ifEmpty = getFormattedTime(endpoint, from).map { timeOpt =>
-        logger.debug(s"Harvesting with `from` time: ${timeOpt}")
+        logger.debug(s"Harvesting with `from` time: $timeOpt")
         Seq(
           "verb" -> verb,
           "metadataPrefix" -> endpoint.format
