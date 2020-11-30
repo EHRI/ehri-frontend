@@ -4,14 +4,10 @@ import akka.actor.Props
 import defines.ContentTypes
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import models.UserProfile
-import play.api.Application
-import services.data
 import services.data.ApiUser
-import services.ingest.IngestApi.{IngestData, IngestJob}
+import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 import utils.WebsocketConstants
-
-import scala.concurrent.Future
 
 class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
   import mockdata.adminUserProfile
@@ -29,7 +25,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
         log = "Testing...",
         data = UrlMapPayload(Map(keyVersion -> java.net.URI.create("http://example.com/foo.ead")))
       ),
-      IngestApi.IngestDataType.Ead,
+      IngestService.IngestDataType.Ead,
       "application/json",
       ApiUser(userOpt.map(_.id)),
     )
@@ -39,7 +35,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
   "Data Import manager" should {
 
     "send correct messages when importing files" in new ITestApp {
-      val importApi = MockIngestApiService(ImportLog())
+      val importApi = MockIngestServiceService(ImportLog())
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
       importManager ! self
@@ -53,8 +49,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
     }
 
     "send correct messages when imports throw an error" in new ITestApp {
-      import scala.concurrent.duration._
-      val importApi = MockIngestApiService(ErrorLog("identifier", "Missing field"))
+      val importApi = MockIngestServiceService(ErrorLog("identifier", "Missing field"))
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
       importManager ! self

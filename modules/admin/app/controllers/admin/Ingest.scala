@@ -18,8 +18,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
-import services.ingest.IngestApi.{IngestData, IngestJob}
-import services.ingest.{FilePayload, FileProperties, IngestApi, IngestParams}
+import services.ingest.IngestService.{IngestData, IngestJob}
+import services.ingest.{FilePayload, FileProperties, IngestService, IngestParams}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -29,7 +29,7 @@ import scala.concurrent.Future.{successful => immediate}
 case class Ingest @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  ingestApi: IngestApi
+  ingestApi: IngestService
 )(implicit mat: Materializer) extends AdminController {
 
   private def logger = Logger(this.getClass)
@@ -37,7 +37,7 @@ case class Ingest @Inject()(
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
 
-  def ingestPost(scopeType: ContentTypes.Value, scopeId: String, dataType: IngestApi.IngestDataType.Value, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] =
+  def ingestPost(scopeType: ContentTypes.Value, scopeId: String, dataType: IngestService.IngestDataType.Value, fonds: Option[String]): Action[MultipartFormData[TemporaryFile]] =
     AdminAction(parse.multipartFormData(Int.MaxValue)).async { implicit request =>
 
       def showErrorForm(form: Form[IngestParams]): Future[Result] = {

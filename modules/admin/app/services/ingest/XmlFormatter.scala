@@ -20,7 +20,7 @@ private case object SeenNone extends SeenState
 private case object SeenData extends SeenState
 private case object SeenElem extends SeenState
 
-case class XmlFormatter(indent: Int) extends GraphStage[FlowShape[ParseEvent, ParseEvent]] {
+protected[ingest] case class XmlFormatter(indent: Int) extends GraphStage[FlowShape[ParseEvent, ParseEvent]] {
   val in: Inlet[ParseEvent] = Inlet("XMLFormatter.in")
   val out: Outlet[ParseEvent] = Outlet("XMLFormatter.out")
   override def shape: FlowShape[ParseEvent, ParseEvent] = FlowShape.of(in, out)

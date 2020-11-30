@@ -11,7 +11,7 @@ import play.api.test.PlaySpecification
 
 import scala.concurrent.ExecutionContext
 
-class EadValidatorServiceSpec extends PlaySpecification {
+class RelaxNGEadValidatorSpec extends PlaySpecification {
 
   private implicit val ctx: ExecutionContext = scala.concurrent.ExecutionContext.global
   private implicit val as: ActorSystem = ActorSystem.create("test")
@@ -19,7 +19,7 @@ class EadValidatorServiceSpec extends PlaySpecification {
 
   "EAD validator service" should {
     "validate a file" in {
-      val validator = EadValidatorService()
+      val validator = RelaxNGEadValidator()
 
       val file = Paths.get(Resources.getResource("valid-ead.xml").toURI)
       val errs = await(validator.validateEad(file))
@@ -27,7 +27,7 @@ class EadValidatorServiceSpec extends PlaySpecification {
     }
 
     "validate an URL" in {
-      val validator = EadValidatorService()
+      val validator = RelaxNGEadValidator()
 
       val file = Uri(Resources.getResource("valid-ead.xml").toString)
       val errs = await(validator.validateEad(file))
@@ -35,7 +35,7 @@ class EadValidatorServiceSpec extends PlaySpecification {
     }
 
     "validate a stream" in {
-      val validator = EadValidatorService()
+      val validator = RelaxNGEadValidator()
 
       val file = Resources.getResource("valid-ead.xml")
       val src = FileIO.fromPath(Paths.get(file.toURI))
@@ -44,7 +44,7 @@ class EadValidatorServiceSpec extends PlaySpecification {
     }
 
     "report errors from a stream" in {
-      val validator = EadValidatorService()
+      val validator = RelaxNGEadValidator()
 
       val file = Resources.getResource("invalid-ead.xml")
       val src = FileIO.fromPath(Paths.get(file.toURI))

@@ -18,7 +18,7 @@ import play.api.libs.json.Json
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc._
 import services.data.DataHelpers
-import services.ingest.{EadValidator, IngestApi, IngestParams}
+import services.ingest.{EadValidator, IngestService, IngestParams}
 import services.search._
 import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
@@ -263,7 +263,7 @@ case class Repositories @Inject()(
   }
 
   def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    val dataType = if (sync) IngestApi.IngestDataType.EadSync else IngestApi.IngestDataType.Ead
+    val dataType = if (sync) IngestService.IngestDataType.EadSync else IngestService.IngestDataType.Ead
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.Repository, id, dataType), sync = sync))
   }
