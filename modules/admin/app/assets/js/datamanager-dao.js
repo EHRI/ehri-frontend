@@ -25,11 +25,11 @@ let DAO = class {
   }
 
   listFiles(ds, stage, prefix, after) {
-    return this.call(this.service.listFiles(this.repoId, ds, stage, prefix, after));
+    return this.call(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
   info(ds, stage, key, versionId) {
-    return this.call(this.service.info(this.repoId, ds, stage, key, versionId));
+    return this.call(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
   }
 
   ingestFiles(ds, stage, paths, opts) {
@@ -37,39 +37,39 @@ let DAO = class {
       files: paths,
       ...opts
     };
-    return this.call(this.service.ingestFiles(this.repoId, ds, stage), data);
+    return this.call(this.service.ImportFiles.ingestFiles(this.repoId, ds, stage), data);
   }
 
   ingestAll(ds, stage, opts) {
-    return this.call(this.service.ingestAll(this.repoId, ds, stage), {
+    return this.call(this.service.ImportFiles.ingestAll(this.repoId, ds, stage), {
       files: [],
       ...opts
     });
   }
 
   deleteFiles(ds, stage, paths) {
-    return this.call(this.service.deleteFiles(this.repoId, ds, stage), paths);
+    return this.call(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
   }
 
   deleteAll(ds, stage) {
-    return this.call(this.service.deleteAll(this.repoId, ds, stage))
+    return this.call(this.service.ImportFiles.deleteAll(this.repoId, ds, stage))
       .then(data => data.ok || false);
   }
 
   validateAll(ds, stage) {
-    return this.call(this.service.validateAll(this.repoId, ds, stage));
+    return this.call(this.service.ImportFiles.validateAll(this.repoId, ds, stage));
   }
 
   validateFiles(ds, stage, tagToPath) {
-    return this.call(this.service.validateFiles(this.repoId, ds, stage), tagToPath);
+    return this.call(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
   }
 
   fileUrls(ds, stage, paths) {
-    return this.call(this.service.fileUrls(this.repoId, ds, stage), paths);
+    return this.call(this.service.ImportFiles.fileUrls(this.repoId, ds, stage), paths);
   }
 
   uploadHandle(ds, stage, fileSpec) {
-    return this.call(this.service.uploadHandle(this.repoId, ds, stage), fileSpec);
+    return this.call(this.service.ImportFiles.uploadHandle(this.repoId, ds, stage), fileSpec);
   }
 
   uploadFile(url, file, progressHandler) {
@@ -101,86 +101,86 @@ let DAO = class {
   }
 
   harvest(ds, config, fromLast) {
-    return this.call(this.service.harvestOaiPmh(this.repoId, ds, fromLast), config);
+    return this.call(this.service.OaiPmhConfigs.harvest(this.repoId, ds, fromLast), config);
   }
 
   cancelHarvest(jobId) {
-    return this.call(this.service.cancelOaiPmhHarvest(this.repoId, jobId));
+    return this.call(this.service.OaiPmhConfigs.cancelHarvest(this.repoId, jobId));
   }
 
   getConfig(ds) {
-    return this.call(this.service.getOaiPmhConfig(this.repoId, ds));
+    return this.call(this.service.OaiPmhConfigs.get(this.repoId, ds));
   }
 
   saveConfig(ds, config) {
-    return this.call(this.service.saveOaiPmhConfig(this.repoId, ds), config);
+    return this.call(this.service.OaiPmhConfigs.save(this.repoId, ds), config);
   }
 
   deleteConfig(ds) {
-    return this.call(this.service.deleteOaiPmhConfig(this.repoId, ds));
+    return this.call(this.service.OaiPmhConfigs.delete(this.repoId, ds));
   }
 
   testConfig(ds, config) {
-    return this.call(this.service.testOaiPmhConfig(this.repoId, ds), config);
+    return this.call(this.service.OaiPmhConfigs.test(this.repoId, ds), config);
   }
 
   convert(ds, key, config) {
-    return this.call(this.service.convert(this.repoId, ds, key), config);
+    return this.call(this.service.DataTransformations.convert(this.repoId, ds, key), config);
   }
 
   convertFileUrl(ds, stage, key) {
-    return this.service.convertFile(this.repoId, ds, stage, key).url;
+    return this.service.DataTransformations.convertFile(this.repoId, ds, stage, key).url;
   }
 
   cancelConvert(jobId) {
-    return this.call(this.service.cancelConvert(this.repoId, jobId));
+    return this.call(this.service.DataTransformations.cancelConvert(this.repoId, jobId));
   }
 
   getConvertConfig(ds) {
-    return this.call(this.service.getConvertConfig(this.repoId, ds));
+    return this.call(this.service.DataTransformations.getConfig(this.repoId, ds));
   }
 
   saveConvertConfig(ds, dtIds) {
-    return this.call(this.service.saveConvertConfig(this.repoId, ds), dtIds);
+    return this.call(this.service.DataTransformations.saveConfig(this.repoId, ds), dtIds);
   }
 
   listDataTransformations() {
-    return this.call(this.service.listDataTransformations(this.repoId));
+    return this.call(this.service.DataTransformations.list(this.repoId));
   }
 
   getDataTransformation(id) {
-    return this.call(this.service.getDataTransformation(this.repoId, id));
+    return this.call(this.service.DataTransformations.get(this.repoId, id));
   }
 
   createDataTransformation(generic, data) {
-    return this.call(this.service.createDataTransformation(this.repoId, generic), data);
+    return this.call(this.service.DataTransformations.create(this.repoId, generic), data);
   }
 
   updateDataTransformation(id, generic, data) {
-    return this.call(this.service.updateDataTransformation(this.repoId, id, generic), data);
+    return this.call(this.service.DataTransformations.update(this.repoId, id, generic), data);
   }
 
   deleteDataTransformation(id) {
-    return this.call(this.service.deleteDataTransformation(this.repoId, id));
+    return this.call(this.service.DataTransformations.delete(this.repoId, id));
   }
 
   listDatasets() {
-    return this.call(this.service.listDatasets(this.repoId));
+    return this.call(this.service.ImportDatasets.list(this.repoId));
   }
 
   datasetStats() {
-    return this.call(this.service.datasetStats(this.repoId));
+    return this.call(this.service.ImportDatasets.stats(this.repoId));
   }
 
   createDataset(info) {
-    return this.call(this.service.createDataset(this.repoId), info);
+    return this.call(this.service.ImportDatasets.create(this.repoId), info);
   }
 
   updateDataset(ds, info) {
-    return this.call(this.service.updateDataset(this.repoId, ds), info);
+    return this.call(this.service.ImportDatasets.update(this.repoId, ds), info);
   }
 
   deleteDataset(ds) {
-    return this.call(this.service.deleteDataset(this.repoId, ds));
+    return this.call(this.service.ImportDatasets.delete(this.repoId, ds));
   }
 };
