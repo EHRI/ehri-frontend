@@ -135,7 +135,7 @@ Vue.component("upload-manager", {
         .then(data => {
           let self = this;
           this.setUploadProgress(file, 0);
-          return this.api.uploadFile(data.presignedUrl, file, function (evt) {
+            return this.api.uploadFile(data.presignedUrl, file, function (evt) {
             return evt.lengthComputable
               ? self.setUploadProgress(file, Math.round((evt.loaded / evt.total) * 100))
               : true;
@@ -173,7 +173,8 @@ Vue.component("upload-manager", {
 
       // Files were dropped but there were no file ones
       if (files.length === 0 && fileList.length > 0) {
-        return Promise.reject("No valid files found")
+        this.showError("No valid files found; expecting type to be text/xml");
+        return Promise.resolve();
       }
 
       // Nothing is selected: no-op
