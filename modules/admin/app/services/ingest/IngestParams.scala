@@ -4,6 +4,9 @@ import defines.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.Files.TemporaryFile
+import play.api.libs.json.JsonConfiguration.Aux
+import play.api.libs.json.JsonNaming.SnakeCase
+import play.api.libs.json.{Json, JsonConfiguration, Writes}
 
 
 sealed trait PropertiesHandle
@@ -18,6 +21,11 @@ object PropertiesHandle {
   def apply(f: Option[TemporaryFile]): PropertiesHandle = FileProperties(f)
   def apply(url: String): PropertiesHandle = UrlProperties(url)
   def empty: PropertiesHandle = FileProperties(Option.empty)
+
+  implicit val _writes: Writes[PropertiesHandle] = Writes {
+    case FileProperties(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
+    case UrlProperties(url) => Json.toJson(url)
+  }
 }
 
 sealed trait PayloadHandle
@@ -28,6 +36,11 @@ object PayloadHandle {
   def apply(f: Option[TemporaryFile]): PayloadHandle = FilePayload(f)
   def apply(urls: Map[String, java.net.URI]): PayloadHandle = UrlMapPayload(urls)
   def empty: PayloadHandle = FilePayload(Option.empty)
+
+  implicit val _writes: Writes[PayloadHandle] = Writes {
+    case FilePayload(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
+    case UrlMapPayload(urls) => Json.toJson(urls.mapValues(_.toString))
+  }
 }
 
 case class IngestParams(
@@ -86,4 +99,7 @@ object IngestParams {
       COMMIT -> default(boolean, false)
     )(IngestParams.apply)(IngestParams.unapply)
   )
+
+  private implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
+  implicit val _writes: Writes[IngestParams] = Json.writes[IngestParams]
 }
