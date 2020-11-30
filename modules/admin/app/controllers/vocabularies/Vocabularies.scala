@@ -11,7 +11,7 @@ import play.api.data.Form
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{IngestApi, IngestParams}
+import services.ingest.{IngestService, IngestParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
@@ -192,7 +192,7 @@ case class Vocabularies @Inject()(
   }
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    val dataType = IngestApi.IngestDataType.Skos
+    val dataType = IngestService.IngestDataType.Skos
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.Vocabulary, id, dataType)))
   }

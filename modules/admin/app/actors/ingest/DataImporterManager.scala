@@ -5,14 +5,14 @@ import actors.ingest.DataImporter.{Done, Initial, Message, UnexpectedError}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.UserProfile
-import services.ingest.IngestApi.IngestJob
+import services.ingest.IngestService.IngestJob
 import services.ingest._
 import utils.WebsocketConstants
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class DataImporterManager(job: IngestJob, ingestApi: IngestApi,
+case class DataImporterManager(job: IngestJob, ingestApi: IngestService,
   onDone: (IngestJob, ImportLog) => Future[Unit] = (_, _) => Future.successful(()))
   (implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 

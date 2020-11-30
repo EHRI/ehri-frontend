@@ -6,11 +6,11 @@ import akka.actor.ActorRef
 import defines.ContentTypes
 import play.api.mvc.QueryStringBindable
 import services.data.ApiUser
-import services.ingest.IngestApi.IngestJob
+import services.ingest.IngestService.IngestJob
 
 import scala.concurrent.Future
 
-object IngestApi {
+object IngestService {
 
   case object IngestDataType extends Enumeration() {
     val Eac = Value("eac")
@@ -34,7 +34,7 @@ object IngestApi {
 
 }
 
-trait IngestApi {
+trait IngestService {
   /**
     * Import data into the backend.
     *

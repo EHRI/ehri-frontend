@@ -15,7 +15,7 @@ GET         /updateIndex                        @controllers.admin.Indexing.upda
 GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
 
 # Ingest
-POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestApi.IngestDataType.Value, fonds: Option[String] ?= None)
+POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestService.IngestDataType.Value, fonds: Option[String] ?= None)
 GET         /ingest                             @controllers.admin.Ingest.ingestMonitor(jobId: String)
 
 # Tasks

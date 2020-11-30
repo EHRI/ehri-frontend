@@ -8,8 +8,8 @@ import helpers._
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
-import services.data.{AnonymousUser, ApiUser}
-import services.ingest.IngestApi.IngestData
+import services.data.AnonymousUser
+import services.ingest.IngestService.IngestData
 
 class SqlImportLogServiceSpec extends PlaySpecification {
 
@@ -27,7 +27,7 @@ class SqlImportLogServiceSpec extends PlaySpecification {
           log = "Testing...",
           data = UrlMapPayload(Map(keyVersion -> java.net.URI.create("http://example.com/foo.ead")))
         ),
-        IngestApi.IngestDataType.Ead,
+        IngestService.IngestDataType.Ead,
         "application/json",
         AnonymousUser,
       )

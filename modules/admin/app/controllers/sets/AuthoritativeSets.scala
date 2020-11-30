@@ -11,7 +11,7 @@ import models.{Entity, _}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.{DataHelpers, IdGenerator}
-import services.ingest.{IngestApi, IngestParams}
+import services.ingest.{IngestService, IngestParams}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
@@ -203,7 +203,7 @@ AuthoritativeSets @Inject()(
   }
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
-    val dataType = IngestApi.IngestDataType.Eac
+    val dataType = IngestService.IngestDataType.Eac
     Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.AuthoritativeSet, id, dataType)))
   }

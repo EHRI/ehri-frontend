@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class MockEadValidatorService(fileStorage: MockFileStorage) extends EadValidator {
   private implicit val mat: Materializer = fileStorage.mat
   private implicit val ec: ExecutionContext = fileStorage.mat.executionContext
-  private val validator = EadValidatorService()
+  private val validator = RelaxNGEadValidator()
 
   override def validateEad(path: Path): Future[Seq[XmlValidationError]] = validator.validateEad(path)
 

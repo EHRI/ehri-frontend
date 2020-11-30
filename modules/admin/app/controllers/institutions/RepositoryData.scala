@@ -32,7 +32,7 @@ import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
-import services.ingest.IngestApi.{IngestData, IngestDataType, IngestJob}
+import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest._
 import services.search._
 import services.storage.{FileMeta, FileStorage}
@@ -75,7 +75,7 @@ case class RepositoryData @Inject()(
   searchIndexer: SearchIndexMediator,
   @Named("dam") storage: FileStorage,
   eadValidator: EadValidator,
-  ingestApi: IngestApi,
+  ingestApi: IngestService,
   importLogService: ImportLogService,
   oaipmhClient: OaiPmhClient,
   oaipmhConfigs: OaiPmhConfigService,

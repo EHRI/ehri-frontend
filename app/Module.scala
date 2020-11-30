@@ -15,13 +15,13 @@ import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
-import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhClientService, SqlHarvestEventService}
+import services.harvesting.{HarvestEventService, OaiPmhClient, WSOaiPmhClient, SqlHarvestEventService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
-import services.ingest.{EadValidator, EadValidatorService, IngestApi, IngestApiService}
+import services.ingest.{EadValidator, RelaxNGEadValidator, IngestService, WSIngestService}
 import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
-import services.storage.{FileStorage, S3CompatibleStorage}
+import services.storage.{FileStorage, S3CompatibleFileStorage}
 import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
 
@@ -42,12 +42,12 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
 
 private class AWSStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
   override def get(): FileStorage =
-    S3CompatibleStorage(config.get[com.typesafe.config.Config]("alpakka.s3.aws"))
+    S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("alpakka.s3.aws"))
 }
 
 private class DAMStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
   override def get(): FileStorage =
-    S3CompatibleStorage(config.get[com.typesafe.config.Config]("digitalocean.spaces"))
+    S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("digitalocean.spaces"))
 }
 
 class Module extends AbstractModule {
@@ -77,9 +77,9 @@ class Module extends AbstractModule {
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
     bind(classOf[MarkdownRenderer]).to(classOf[SanitisingMarkdownRenderer])
     bind(classOf[CypherService]).to(classOf[Neo4jCypherService])
-    bind(classOf[IngestApi]).to(classOf[IngestApiService])
-    bind(classOf[EadValidator]).to(classOf[EadValidatorService])
-    bind(classOf[OaiPmhClient]).to(classOf[OaiPmhClientService])
+    bind(classOf[IngestService]).to(classOf[WSIngestService])
+    bind(classOf[EadValidator]).to(classOf[RelaxNGEadValidator])
+    bind(classOf[OaiPmhClient]).to(classOf[WSOaiPmhClient])
     bind(classOf[HarvestEventService]).to(classOf[SqlHarvestEventService])
   }
 }

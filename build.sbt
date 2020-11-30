@@ -39,9 +39,6 @@ val backendDependencies = Seq(
   // CSV parser/writer...
   "com.lightbend.akka" %% "akka-stream-alpakka-csv" % alpakkaVersion,
 
-  // XML parsing:  TODO: move to admin module
-  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % "1.1.2",
-
   // IRI helper...
   "org.apache.jena" % "jena-iri" % "3.9.0",
 
@@ -109,18 +106,24 @@ val portalDependencies = Seq(
   // S3 Upload plugin
   "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "1.1.2",
 
-  // EAD validation testing
+  // S3 sdk
+  "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
+)
+
+val adminDependencies = Seq(
+
+  // EAD validation
   "org.relaxng" % "jing" % "20181222",
 
-  // EAD transformation... unstable!
+  // EAD transformation...
   "org.basex" % "basex" % "8.5",
 
   // Saxon for XSLT transformation
   "net.sf.saxon" % "Saxon-HE" % "10.2",
 
-  // S3 sdk
-  "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
+  // XML parsing
+  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % "1.1.2",
 )
 
 val testDependencies = Seq(
@@ -356,7 +359,7 @@ lazy val api = Project(appName + "-api", file("modules/api"))
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala)
-  .settings(libraryDependencies += specs2 % Test)
+  .settings(libraryDependencies ++= adminDependencies)
   .settings(commonSettings ++ webAppSettings)
   .dependsOn(api % "test->test;compile->compile")
 

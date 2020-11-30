@@ -1,7 +1,7 @@
 package services.ingest
 
 import com.google.inject.ImplementedBy
-import services.ingest.IngestApi.IngestData
+import services.ingest.IngestService.IngestData
 import utils.db.StorableEnum
 
 import scala.concurrent.Future
