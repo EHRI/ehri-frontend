@@ -14,6 +14,7 @@ object ImportLogOpType extends Enumeration with StorableEnum {
 }
 
 case class ImportFileHandle(
+  eventId: String,
   repoId: String,
   datasetId: String,
   key: String,
@@ -22,7 +23,7 @@ case class ImportFileHandle(
 
 @ImplementedBy(classOf[SqlImportLogService])
 trait ImportLogService {
-  def getHandle(unitId: String): Future[Option[ImportFileHandle]]
+  def getHandles(unitId: String): Future[Seq[ImportFileHandle]]
 
   def save(repoId: String, datasetId: String, job: IngestData, log: ImportLog): Future[Unit]
 }

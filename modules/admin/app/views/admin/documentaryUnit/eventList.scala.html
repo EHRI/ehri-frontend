@@ -1,0 +1,32 @@
+@(item: models.base.Model, page: _root_.utils.RangePage[Seq[SystemEvent]], params: _root_.utils.RangeParams, handles: Map[String, Seq[(String, java.net.URI)]] = Map.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+
+@views.html.admin.layout.noSidebar(Messages("item.history.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+    <ul class="event-list">
+        @for(eventSeq <- page) {
+            @for(event <- eventSeq) {
+                <li class="list-item event-item">
+                    @views.html.admin.systemEvent.eventItem(event)
+                    @handles.get(event.id).map { seq =>
+                        <div class="source-info">
+                            <span>
+                                @Messages("ingest.sourceFiles"):
+                            </span>
+                            <ul class="source-file-list">
+                                @seq.map { case (name, uri) =>
+                                    <li>
+                                        <a target="_blank" href="@uri">
+                                            <i class="fa fa-file-code-o"></i>
+                                            @name.substring(name.lastIndexOf('/') + 1)
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </li>
+            }
+        }
+    </ul>
+
+    @common.rangePagination(page)
+}

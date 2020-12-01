@@ -32,7 +32,8 @@ class SqlAccountManagerSpec extends PlaySpecification {
 
     "enforce email uniqueness" in withFixtures { implicit db =>
       db.withConnection { implicit connection =>
-        SQL"insert into users (id,email,verified,staff) values ('blah',${mockdata.privilegedUser.email},1,1)"
+        SQL"""insert into users (id,email,verified,staff)
+              values ('blah',${mockdata.privilegedUser.email}, true, true)"""
           .executeInsert() must throwA[SQLIntegrityConstraintViolationException]
             .or(throwA[SQLException]) // H2 throws these, annoyingly
       }
