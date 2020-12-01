@@ -1474,6 +1474,8 @@ ingest.format.skos=SKOS
 ingest.commit=Commit Ingest
 ingest.commit.description=Apply the ingest. Leave unchecked to dry-run.
 
+ingest.sourceFiles=Ingest Sources
+
 #
 # Geocoding
 #

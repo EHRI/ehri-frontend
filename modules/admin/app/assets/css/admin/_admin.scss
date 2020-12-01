@@ -191,6 +191,23 @@ body > .admin-content > .flash {
   }
 }
 
+.source-info {
+  display: inline-flex;
+  background-color: lighten($ehri-gray, 5%);
+  padding: $margin-xxs 0;
+  font-size: $font-size-sm;
+  span {
+    margin-right: $margin-xs;
+  }
+  a {
+    color: $blue;
+  }
+}
+
+.source-file-list {
+  @include list-unstyled;
+}
+
 pre.code-format {
   border: $border-width solid $border-color;
   background-color: $gray-100;

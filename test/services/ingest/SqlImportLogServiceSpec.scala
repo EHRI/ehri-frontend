@@ -31,15 +31,16 @@ class SqlImportLogServiceSpec extends PlaySpecification {
         "application/json",
         AnonymousUser,
       )
+      val eventId = UUID.randomUUID().toString
       val log: ImportLog = ImportLog(
         createdKeys = Map(keyVersion -> Seq("unit-1", "unit-2")),
-        event = Some(UUID.randomUUID().toString)
+        event = Some(eventId)
       )
 
       await(service.save("r1", "default", job, log))
 
-      val handle = await(service.getHandle("unit-1"))
-      handle must beSome(ImportFileHandle("r1", "default", "foo.ead", Some("1")))
+      val handle = await(service.getHandles("unit-1"))
+      handle.headOption must beSome(ImportFileHandle(eventId, "r1", "default", "foo.ead", Some("1")))
     }
   }
 }
