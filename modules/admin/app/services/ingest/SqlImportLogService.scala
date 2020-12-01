@@ -16,14 +16,14 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
   private implicit val parser: RowParser[ImportFileHandle] =
-    Macro.parser[ImportFileHandle]("repo_id", "import_dataset_id", "key", "version_id")
+    Macro.parser[ImportFileHandle]("id", "repo_id", "import_dataset_id", "key", "version_id")
 
-  override def getHandle(unitId: String): Future[Option[ImportFileHandle]] = Future {
+  override def getHandles(unitId: String): Future[Seq[ImportFileHandle]] = Future {
     db.withConnection { implicit conn =>
-      SQL"""SELECT l.repo_id, l.import_dataset_id, m.key, m.version_id
+      SQL"""SELECT l.id, l.repo_id, l.import_dataset_id, m.key, m.version_id
           FROM import_log l, import_file_mapping m
           WHERE l.id = m.import_log_id AND m.item_id = $unitId
-          ORDER BY l.created DESC LIMIT 1""".as(parser.singleOpt)
+          ORDER BY l.created DESC""".as(parser.*)
     }
   }
 

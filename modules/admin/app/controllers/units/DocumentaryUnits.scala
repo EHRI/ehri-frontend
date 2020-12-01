@@ -11,8 +11,9 @@ import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{IngestService, IngestParams}
+import services.ingest.{ImportLogService, IngestParams, IngestService}
 import services.search._
+import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
@@ -21,7 +22,9 @@ import views.Helpers
 case class DocumentaryUnits @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  dataHelpers: DataHelpers
+  dataHelpers: DataHelpers,
+  importLogs: ImportLogService,
+  @Named("dam") damStorage: FileStorage,
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -133,8 +136,17 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
-    Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
+  def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).async { implicit request =>
+    import scala.concurrent.duration._
+    for (fileHandles <- importLogs.getHandles(id)) yield {
+      val classifier = config.get[String]("storage.dam.classifier")
+      val eventHandles: Map[String, Seq[(String, java.net.URI)]] = fileHandles
+        .groupBy(_.eventId)
+        .mapValues(_.map(f => (f.key, damStorage.uri(classifier, f.key, duration = 2.hours, versionId = f.versionId))))
+
+      Ok(views.html.admin.documentaryUnit.eventList(
+        request.item, request.page, request.params, eventHandles))
+    }
   }
 
   def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>
