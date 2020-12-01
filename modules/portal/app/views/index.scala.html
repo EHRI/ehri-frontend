@@ -146,12 +146,29 @@
 
                         @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost()) {
                             @formHelpers.csrfToken()
-                            @helper.inputText(accountForms.passwordLoginForm("email"), 'id -> "signup_email", 'class -> "form-control", 'autocomplete -> "email", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> true)
-                            @helper.inputPassword(accountForms.passwordLoginForm("password"), 'id -> "login_password", 'class -> "form-control", 'autocomplete -> "current-password", 'placeholder -> Messages("login.password"), 'required -> true)
+                            @helper.inputText(
+                                accountForms.passwordLoginForm("email"),
+                                'id -> "login_email",
+                                'class -> "form-control",
+                                'autocomplete -> "email",
+                                'placeholder -> Messages("login.email"),
+                                '_label -> Messages("login.email"),
+                                'type -> "email",
+                                'required -> true
+                            )
+                            @helper.inputPassword(
+                                accountForms.passwordLoginForm("password"),
+                                'id -> "login_password",
+                                'class -> "form-control",
+                                'autocomplete -> "current-password",
+                                'placeholder -> Messages("login.password"),
+                                '_label -> Messages("login.password"),
+                                'required -> true
+                            )
 
                             <div class="welcome-section-footer">
                                 <a class="forgot" href="@controllers.portal.account.routes.Accounts.forgotPassword()">
-                                @Messages("login.password.forgot")
+                                    @Messages("login.password.forgot")
                                 </a>
                                 <button type="submit" class="btn btn-primary">@Messages("login")</button>
                             </div>

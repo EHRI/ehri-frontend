@@ -7,7 +7,7 @@
                 @Messages("feedback")
                 <span class="caret"></span>
             </a>
-            <div id="feedback-dropdown" class="dropdown-menu" role="menu">
+            <div id="feedback-dropdown" class="dropdown-menu">
                 <div class="feedback">
                     @views.html.feedback.form(models.Feedback.form)
                 </div>
@@ -21,16 +21,16 @@
         </a>
         <div id="help-dropdown" class="dropdown-menu" role="menu">
             @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
-                <a class="dropdown-item" href="@url" target="_blank" rel="noopener">
+                <a class="dropdown-item" role="menuitem" href="@url" target="_blank" rel="noopener">
                     @Messages("help.manual")
                 </a>
             }
-            <a class="dropdown-item" href="@controllers.portal.routes.Portal.externalPage("faq")">
+            <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.externalPage("faq")">
                 @Messages("help.faq")
             </a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
-            <a class="dropdown-item" href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
+            <div class="dropdown-divider" role="presentation"></div>
+            <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.about()">@Messages("about")</a>
+            <a class="dropdown-item" role="menuitem" href="@controllers.portal.routes.Portal.contact()">@Messages("help.contact")</a>
         </div>
     </li>
     @userOpt.map { user =>
@@ -46,21 +46,22 @@
                 <span class="caret"></span>
             </a>
             <div class="boolean-preferences dropdown-menu" role="menu">
-                <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="dropdown-item gravitar">
+                <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="dropdown-item gravitar" role="menuitem">
                     <i class="fa fa-user-o" aria-hidden="true"></i>
                     @Messages("profile.menu.link")
                 </a>
                 @prefsOpt.map { prefs =>
                     <div role="presentation" class="dropdown-header">@Messages("profile.preferences.view")</div>
                     <a href="#" class="dropdown-item toggle-boolean-preference boolean-@prefs.showUserContent"
-                        data-preference-name="showUserContent"
-                        data-preference-value="@prefs.showUserContent">
-                    @Messages("profile.preferences.view.showUserContent")
+                            role="menuitemcheckbox"
+                            data-preference-name="showUserContent"
+                            data-preference-value="@prefs.showUserContent">
+                        @Messages("profile.preferences.view.showUserContent")
                     </a>
                 }
 
                 <div role="presentation" class="dropdown-header">@Messages("account")</div>
-                <a class="dropdown-item" href="@controllers.portal.account.routes.Accounts.logout()">
+                <a class="dropdown-item" role="menuitem" href="@controllers.portal.account.routes.Accounts.logout()">
                     @Messages("logout")
                 </a>
             </div>

@@ -4,8 +4,26 @@
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(pwForm)
 
-    @helper.inputText(pwForm("email"), 'id -> "signup_email", 'class -> "form-control", 'autocomplete -> "email", 'autofocus -> "autofocus", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> true)
-    @helper.inputPassword(pwForm("password"), 'id -> "login_password", 'class -> "form-control", 'autocomplete -> "current-password", 'placeholder -> Messages("login.password"), 'required -> true)
+    @helper.inputText(
+        pwForm("email"),
+        'id -> "login_email",
+        'class -> "form-control",
+        'autocomplete -> "email",
+        'autofocus -> "autofocus",
+        'placeholder -> Messages("login.email"),
+        '_label -> Messages("login.email"),
+        'type -> "email",
+        'required -> true
+    )
+    @helper.inputPassword(
+        pwForm("password"),
+        'id -> "login_password",
+        'class -> "form-control",
+        'autocomplete -> "current-password",
+        'placeholder -> Messages("login.password"),
+        '_label -> Messages("login.password"),
+        'required -> true
+    )
 
     <p>
         <a class="forgot-password-link" href="@controllers.portal.account.routes.Accounts.forgotPassword()">@Messages("login.recover.link")</a>
