@@ -1,6 +1,5 @@
 package controllers.admin
 
-import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
@@ -14,7 +13,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
 import services.data.AuthenticatedUser
-import services.ingest.{EadValidator, FileObject, XmlValidationError}
+import services.ingest.{EadValidator, XmlValidationError}
 import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
@@ -37,8 +36,6 @@ case class Utils @Inject()(
 )(implicit mat: Materializer) extends AdminController {
 
   override val staffOnly = false
-
-  private def logger = play.api.Logger(classOf[Utils])
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -96,29 +93,12 @@ case class Utils @Inject()(
       .map(Right.apply)
   }
 
-  private val fileObjectValidatingBodyParser: BodyParser[Source[ByteString, _]] = BodyParser { req =>
-    parse.json[FileObject].apply(req)
-      .mapFuture {
-        case Right(fileObject) =>
-          val uri = storage.uri(fileObject.classifier, fileObject.path)
-          eadValidator.validateEad(Uri(uri.toString)).map { errs =>
-            Right(Source.apply(errs.toList).via(errorsToBytes))
-          }
-        case Left(r) => Future.successful(Left(r))
-      }
-  }
-
   private val eadStreamOrObject: BodyParser[Source[ByteString, _]] = BodyParser { req =>
-    if (req.contentType.exists(_.equalsIgnoreCase("text/xml"))) {
-      eadValidatingBodyParser(req)
-    } else if (req.contentType.exists(_.equalsIgnoreCase("application/json"))) {
-      fileObjectValidatingBodyParser(req)
-    } else {
-      Accumulator.done(
-        Future.successful(UnsupportedMediaType("Expecting text/xml or application/json body"))
+    if (req.contentType.exists(_.equalsIgnoreCase("text/xml"))) eadValidatingBodyParser(req)
+    else Accumulator.done(
+        Future.successful(UnsupportedMediaType("Expecting text/xml"))
           .map(Left.apply)(Execution.trampoline)
       )
-    }
   }
 
   def validateEad: Action[Source[ByteString, _]] = Action(eadStreamOrObject) { implicit request =>
