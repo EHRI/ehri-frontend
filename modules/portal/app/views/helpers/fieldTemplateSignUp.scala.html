@@ -2,6 +2,7 @@
 
 @if(!elements.input.toString.contains("checkbox")) {
     <div class="form-field @if(elements.hasErrors) {has-error}">
+        <label class="sr-only" for="@elements.id">@elements.label</label>
         @if(elements.input.toString.contains("class=")) {
             @Html(elements.input.toString.replaceFirst("(class=[\"'])", "$1form-control "))
         } else {

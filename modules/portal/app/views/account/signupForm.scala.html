@@ -8,10 +8,35 @@
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 
-    @helper.inputText(form(NAME), 'autocomplete -> "name", 'required -> "required", 'placeholder -> Messages("profile.name"))
-    @helper.inputText(form(EMAIL), 'id -> "login_email", 'autocomplete -> "email", 'placeholder -> Messages("login.email"), 'type -> "email", 'required -> "required")
-    @helper.inputPassword(form(PASSWORD), 'id -> "signup_password", 'autocomplete -> "new-password", 'placeholder -> Messages("login.password"))
-    @helper.inputPassword(form(CONFIRM), 'autocomplete -> "new-password", 'placeholder -> Messages("login.password.confirm"))
+    @helper.inputText(
+        form(NAME),
+        'autocomplete -> "name",
+        'required -> "required",
+        'placeholder -> Messages("profile.name"),
+        '_label -> Messages("profile.name")
+    )
+    @helper.inputText(
+        form(EMAIL),
+        'id -> "login_email",
+        'autocomplete -> "email",
+        'placeholder -> Messages("login.email"),
+        '_label -> Messages("login.email"),
+        'type -> "email",
+        'required -> true
+    )
+    @helper.inputPassword(
+        form(PASSWORD),
+        'id -> "signup_password",
+        'autocomplete -> "new-password",
+        'placeholder -> Messages("login.password"),
+        '_label -> Messages("login.password")
+    )
+    @helper.inputPassword(
+        form(CONFIRM),
+        'autocomplete -> "new-password",
+        'placeholder -> Messages("login.password.confirm"),
+        '_label -> Messages("login.password.confirm")
+    )
 
     @helper.checkbox(form(AGREE_TERMS), 'required -> "required", '_label -> "", '_text -> Html(Messages(
         "signup.dataPolicyNag",

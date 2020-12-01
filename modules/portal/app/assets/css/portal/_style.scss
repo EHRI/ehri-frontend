@@ -631,7 +631,8 @@ body.home {
 
   #footer-blurb {
     margin-bottom: $margin-md;
-    @extend %small-muted;
+    font-size: $font-size-xs;
+    color: $text-darkened;
 
     @include media-breakpoint-up(md) {
       margin-bottom: 0;
@@ -856,7 +857,8 @@ body.home {
   }
 
   ul > li > a {
-    @extend %small-muted;
+    font-size: $font-size-xs;
+    color: $text-darkened;
   }
 
   ul > li.active > a {
