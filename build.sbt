@@ -5,21 +5,21 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import net.ground5hark.sbt.concat.Import._
+import play.core.PlayVersion.{akkaHttpVersion, akkaVersion}
 import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
-import play.core.PlayVersion.{akkaVersion, akkaHttpVersion}
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 import sbt.Keys.mappings
+import sbt.util
 
 
 parallelExecution in ThisBuild := false
 logBuffered := false
-
-logLevel := Level.Debug
+logLevel := Level.Info
 
 val projectScalaVersion = "2.12.12"
 val appName = "docview"
-val appVersion = "1.0.6-SNAPSHOT"
+val appVersion = "2.0.0"
 
 val backendVersion = "0.13.12"
 val dataConverterVersion = "1.1.10"
@@ -148,8 +148,6 @@ val additionalResolvers = Seq(
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
 
 val commonSettings = Seq(
-
-  logLevel := Level.Debug,
 
   version := appVersion,
 
@@ -286,8 +284,9 @@ val excludedResources = Seq(
 
 val resourceSettings = Seq(
   // The xtra.xqm XQuery module needs to be accessible outside of a Jar since it
-  // is loaded dynamically by URL. This means we need to copy it at staging time
-  // from the admin module to the main conf directory.
+  // is loaded dynamically by file URL from within the transform.xqy script.
+  // This means we need to copy it at staging time from the admin module to the main
+  // conf directory.
   (PlayKeys.playExternalizedResources in Compile) += file("modules/admin/conf/xtra.xqm") -> "xtra.xqm",
 
   // Filter out excluded resources from packaging
