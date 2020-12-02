@@ -1,17 +1,14 @@
-@(results: Map[String, Seq[services.ingest.XmlValidationError]], item: Repository, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(results: Map[String, Seq[services.ingest.XmlValidationError]], f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@extraCss = {
-}
-
-@views.html.admin.layout.noSidebar(Messages("repository.data.validate"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), styles = extraCss) {
+@views.html.admin.layout.noSidebar(Messages("admin.utils.validate")) {
     @if(results.nonEmpty) {
         <table id="validation-results" class="table table-bordered table-sm">
             <thead>
                 <tr>
-                    <td>@Messages("repository.data.validate.file.name")</td>
-                    <td>@Messages("repository.data.validate.file.errors")</td>
+                    <td>@Messages("admin.utils.validate.file.name")</td>
+                    <td>@Messages("admin.utils.validate.file.errors")</td>
                 </tr>
             </thead>
             <tbody>
@@ -20,15 +17,15 @@
                         <td class="file-name">@name</td>
                         <td>
                             @if(errs.isEmpty) {
-                                @Messages("repository.data.validate.okay")
+                                @Messages("admin.utils.validate.okay")
                             } else {
-                                @Messages("repository.data.validate.file.errors.number", errs.size)
+                                @Messages("admin.utils.validate.file.errors.number", errs.size)
                                 <div class="validation-errors">
                                     <table class="table table-sm">
                                         <tr>
-                                            <th>@Messages("repository.data.validate.file.line")</th>
-                                            <th>@Messages("repository.data.validate.file.pos")</th>
-                                            <th>@Messages("repository.data.validate.file.details")</th>
+                                            <th>@Messages("admin.utils.validate.file.line")</th>
+                                            <th>@Messages("admin.utils.validate.file.pos")</th>
+                                            <th>@Messages("admin.utils.validate.file.details")</th>
                                         </tr>
                                         @errs.map { err =>
                                             <tr class="table-danger">
@@ -51,8 +48,8 @@
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
-        @helper.inputFile(f("files"), '_label -> Messages("repository.data.validate.files"), 'multiple -> true)
+        @helper.inputFile(f("files"), '_label -> Messages("admin.utils.validate.files"), 'multiple -> true)
 
-        @formHelpers.submitButton(Messages("repository.data.validate.submit"))
+        @formHelpers.submitButton(Messages("admin.utils.validate.submit"))
     }
 }

@@ -24,23 +24,24 @@ object Helpers {
     ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
     ("contentTypes.CvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
     ("contentTypes.AuthoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
-    ("contentTypes.Link", controllers.links.routes.Links.search().url),
+    ("contentTypes.Link",             controllers.links.routes.Links.search().url),
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),
     ("s2", "-"),
-    ("cypherQuery.list",           controllers.cypher.routes.CypherQueries.listQueries().url)
+    ("cypherQuery.list",              controllers.cypher.routes.CypherQueries.listQueries().url),
   )
 
   val adminMenu = Seq(
     ("s3", "-"),
     ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
-    ("admin.utils.findReplace",     controllers.admin.routes.Tools.findReplace().url),
-    ("admin.utils.regenerateIds",   controllers.admin.routes.Tools.regenerateIds().url),
-    ("admin.utils.renameItems",     controllers.admin.routes.Tools.renameItems().url),
-    ("admin.utils.reparentItems",   controllers.admin.routes.Tools.reparentItems().url),
-    ("admin.utils.movedItems",   controllers.admin.routes.Tools.addMovedItems().url),
-    ("admin.utils.redirect",   controllers.admin.routes.Tools.redirect().url),
-    ("admin.utils.batchDelete",   controllers.admin.routes.Tools.batchDelete().url)
+    ("admin.utils.findReplace",     controllers.tools.routes.Tools.findReplace().url),
+    ("admin.utils.regenerateIds",   controllers.tools.routes.Tools.regenerateIds().url),
+    ("admin.utils.renameItems",     controllers.tools.routes.Tools.renameItems().url),
+    ("admin.utils.reparentItems",   controllers.tools.routes.Tools.reparentItems().url),
+    ("admin.utils.movedItems",      controllers.tools.routes.Tools.addMovedItems().url),
+    ("admin.utils.redirect",        controllers.tools.routes.Tools.redirect().url),
+    ("admin.utils.batchDelete",     controllers.tools.routes.Tools.batchDelete().url),
+    ("admin.utils.validate",        controllers.tools.routes.Tools.validateEad().url),
   )
 
   def linkTo(isA: defines.EntityType.Value, id: String): Call = {

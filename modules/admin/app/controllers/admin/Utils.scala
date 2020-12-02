@@ -1,19 +1,15 @@
 package controllers.admin
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Source}
-import akka.util.ByteString
+import controllers.AppComponents
 import controllers.base.AdminController
-import controllers.{AppComponents, Execution}
 import javax.inject._
-import play.api.http.ContentTypes
 import play.api.libs.json._
-import play.api.libs.streams.Accumulator
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
 import services.data.AuthenticatedUser
-import services.ingest.{EadValidator, XmlValidationError}
+import services.ingest.EadValidator
 import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
@@ -73,35 +69,5 @@ case class Utils @Inject()(
       }
       Ok(out)
     }
-  }
-
-  private val errorsToBytes: Flow[XmlValidationError, ByteString, akka.NotUsed] = Flow[XmlValidationError]
-    .map(e => Json.toJson(e))
-    .map(Json.prettyPrint)
-    .map(ByteString.apply)
-    .intersperse(ByteString("["), ByteString(","), ByteString("]"))
-
-  private val eadValidatingBodyParser: BodyParser[Source[ByteString, _]] = BodyParser { req =>
-    val validateFlow: Flow[ByteString, ByteString, akka.NotUsed] = Flow[ByteString]
-        .prefixAndTail(0)
-        .mapAsync(1) { case (_, src) => eadValidator.validateEad(src) }
-        .flatMapConcat(errs => Source.apply(errs.toList))
-        .via(errorsToBytes)
-
-    Accumulator.source[ByteString]
-      .map(_.via(validateFlow))
-      .map(Right.apply)
-  }
-
-  private val eadStreamOrObject: BodyParser[Source[ByteString, _]] = BodyParser { req =>
-    if (req.contentType.exists(_.equalsIgnoreCase("text/xml"))) eadValidatingBodyParser(req)
-    else Accumulator.done(
-        Future.successful(UnsupportedMediaType("Expecting text/xml"))
-          .map(Left.apply)(Execution.trampoline)
-      )
-  }
-
-  def validateEad: Action[Source[ByteString, _]] = Action(eadStreamOrObject) { implicit request =>
-    Ok.chunked(request.body).as(ContentTypes.JSON)
   }
 }
