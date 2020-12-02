@@ -11,8 +11,8 @@ GET         /login                              @controllers.admin.Home.loginRed
 # Js Routes
 GET         /metricRoutes                       @controllers.admin.Home.metricsJsRoutes
 
-GET         /updateIndex                        @controllers.admin.Indexing.updateIndex
-GET         /updateIndexSocket                  @controllers.admin.Indexing.indexer
+GET         /update-index                        @controllers.admin.Indexing.updateIndex
+GET         /update-index-ws                  @controllers.admin.Indexing.indexer
 
 # Ingest
 POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestService.IngestDataType.Value, fonds: Option[String] ?= None)
@@ -32,39 +32,9 @@ GET         /metrics/agentTypes                 @controllers.admin.Metrics.agent
 GET         /metrics/restricted                 @controllers.admin.Metrics.restricted
 GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached
 
-# Upload a CSV of moved items
-GET         /movedItems                         @controllers.admin.Tools.addMovedItems
-POST        /movedItems                         @controllers.admin.Tools.addMovedItemsPost
-GET         /renameItems                        @controllers.admin.Tools.renameItems
-POST        /renameItems                        @controllers.admin.Tools.renameItemsPost
-GET         /reparentItems                      @controllers.admin.Tools.reparentItems
-POST        /reparentItems                      @controllers.admin.Tools.reparentItemsPost
-
-# ID regeneration
-GET         /regenerate                         @controllers.admin.Tools.regenerateIds
-POST        /regenerate                         @controllers.admin.Tools.regenerateIdsPost(tolerant: Boolean ?= false)
-GET         /regenerateType/:ct                 @controllers.admin.Tools.regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean ?= false)
-GET         /regenerateScope/:id                @controllers.admin.Tools.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
-
-# Find and replace
-GET         /findReplace                        @controllers.admin.Tools.findReplace
-POST        /findReplace                        @controllers.admin.Tools.findReplacePost(commit: Boolean ?= false)
-
-# Batch delete
-GET         /delete                             @controllers.admin.Tools.batchDelete
-POST        /delete                             @controllers.admin.Tools.batchDeletePost
-
-# Redirects
-GET         /redirect                           @controllers.admin.Tools.redirect
-POST        /redirect                           @controllers.admin.Tools.redirectPost
-
-
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
-
-# Test EAD validation
-POST        /validate-ead                       @controllers.admin.Utils.validateEad
 
 # API
 # Forward to any dataApi GET method
@@ -89,6 +59,8 @@ GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemR
 ->          /authorities                        authorities.Routes
 ->          /vocabularies                       vocabularies.Routes
 ->          /keywords                           keywords.Routes
+
+->          /tools                              tools.Routes
 
 # Managing Cypher queries
 ->          /cypher                             cypher.Routes
