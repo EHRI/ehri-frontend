@@ -15,8 +15,6 @@ import defines.FileStage
 import javax.inject._
 import models._
 import play.api.cache.AsyncCacheApi
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
@@ -27,7 +25,6 @@ import services.ingest._
 import services.storage.{FileMeta, FileStorage}
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration._
 
 
@@ -69,12 +66,16 @@ case class ImportFiles @Inject()(
 
   private val repositoryDataRoutes = controllers.institutions.routes.ImportFiles
 
-  private val fileForm = Form(single("file" -> text))
-
 
   def manager(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.isVersioned(bucket).map { versioned =>
       Ok(views.html.admin.repository.datamanager(request.item, versioned))
+    }
+  }
+
+  def toggleVersioning(id: String, enabled: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
+    storage.setVersioned(bucket, enabled).map { _ =>
+      Redirect(repositoryDataRoutes.manager(id))
     }
   }
 
@@ -169,26 +170,6 @@ case class ImportFiles @Inject()(
       .map((s: Seq[Boolean]) => s.forall(g => g))
     r.map { ok: Boolean =>
       Ok(Json.obj("ok" -> ok))
-    }
-  }
-
-  def validateEad(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.repository.validateEad(Map.empty[String, Seq[XmlValidationError]], request.item, fileForm,
-      repositoryDataRoutes.validateEadPost(id)))
-  }
-
-  def validateEadPost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    request.body.asMultipartFormData.map { data =>
-      val results: Seq[Future[(String, Seq[XmlValidationError])]] = data.files.map { file =>
-        eadValidator.validateEad(file.ref.toPath).map(errs => file.filename -> errs)
-      }
-
-      Future.sequence(results).map { out =>
-        Ok(views.html.admin.repository.validateEad(out.sortBy(_._1).toMap, request.item, fileForm,
-          repositoryDataRoutes.validateEadPost(id)))
-      }
-    }.getOrElse {
-      immediate(Redirect(repositoryDataRoutes.validateEad(id)))
     }
   }
 

@@ -15,13 +15,15 @@ import play.api.test.FakeRequest
  */
 class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
+  private val toolRoutes = controllers.tools.routes.Tools
+
   "Tools" should {
     "allow uploading moved items" in new ITestApp {
       val f = File.createTempFile("/upload", ".csv")
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "ιταλία,c1\nfoo,c4", "UTF-8")
 
-      val result = FakeRequest(controllers.admin.routes.Tools.addMovedItemsPost())
+      val result = FakeRequest(toolRoutes.addMovedItemsPost())
         .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
         .withUser(privilegedUser)
         .withCsrf
@@ -41,8 +43,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "perform ID regeneration" in new ITestApp {
-      val result = FakeRequest(controllers.admin.routes.Tools
-          .regenerateIdsForType(ContentTypes.DocumentaryUnit))
+      val result = FakeRequest(toolRoutes.regenerateIdsForType(ContentTypes.DocumentaryUnit))
           .withHeaders("X-REQUESTED-WITH" -> "xmlhttprequest")
         .withUser(privilegedUser)
         .withCsrf
@@ -53,7 +54,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       contentAsString(result) must contain("nl-r1-c1-c2-c3")
       contentAsString(result) must contain("nl-r1-c4")
 
-      val rename = FakeRequest(controllers.admin.routes.Tools.regenerateIdsPost())
+      val rename = FakeRequest(toolRoutes.regenerateIdsPost())
         .withUser(privilegedUser)
         .withCsrf
         .callWith(Map(
@@ -74,7 +75,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "c1,new-c1\nc4,new-c4", "UTF-8")
 
-      val result = FakeRequest(controllers.admin.routes.Tools.renameItemsPost())
+      val result = FakeRequest(toolRoutes.renameItemsPost())
         .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
         .withUser(privilegedUser)
         .withCsrf
@@ -101,7 +102,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       f.deleteOnExit()
       FileUtils.writeStringToFile(f, "c4,c1", "UTF-8")
 
-      val result = FakeRequest(controllers.admin.routes.Tools.reparentItemsPost())
+      val result = FakeRequest(toolRoutes.reparentItemsPost())
         .withFileUpload("csv", f, "text/csv", Map("path-prefix" -> Seq("/units/,/admin/units/")))
         .withUser(privilegedUser)
         .withCsrf
@@ -131,8 +132,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         LOG_MSG -> Seq("Testing")
       )
 
-      val find = FakeRequest(controllers.admin
-        .routes.Tools.findReplacePost())
+      val find = FakeRequest(toolRoutes.findReplacePost())
         .withUser(privilegedUser)
         .withCsrf
         .callWith(data)
@@ -140,8 +140,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(find) must_== OK
       contentAsString(find) must contain("NIOD Description")
 
-      val replace = FakeRequest(controllers.admin
-        .routes.Tools.findReplacePost(commit = true))
+      val replace = FakeRequest(toolRoutes.findReplacePost(commit = true))
         .withUser(privilegedUser)
         .withCsrf
         .callWith(data)
@@ -163,8 +162,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
         LOG_MSG -> Seq("Testing")
       )
 
-      val del = FakeRequest(controllers.admin
-        .routes.Tools.batchDeletePost())
+      val del = FakeRequest(toolRoutes.batchDeletePost())
         .withUser(privilegedUser)
         .withCsrf
         .callWith(data)
@@ -178,7 +176,7 @@ class ToolsSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val from = "/foo"
       val to = controllers.admin.routes.Home.overview().url
 
-      val res = FakeRequest(controllers.admin.routes.Tools.redirectPost())
+      val res = FakeRequest(toolRoutes.redirectPost())
         .withUser(privilegedUser)
         .withCsrf
         .callWith(Map("from" -> Seq(from), "to" -> Seq(to)))

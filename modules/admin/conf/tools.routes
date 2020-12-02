@@ -1,0 +1,33 @@
+# Routes for portal admin tools
+
+# Upload a CSV of moved items
+GET         /moved-items                         @controllers.tools.Tools.addMovedItems
+POST        /moved-items                         @controllers.tools.Tools.addMovedItemsPost
+GET         /rename-items                        @controllers.tools.Tools.renameItems
+POST        /rename-items                        @controllers.tools.Tools.renameItemsPost
+GET         /reparent-items                      @controllers.tools.Tools.reparentItems
+POST        /reparent-items                      @controllers.tools.Tools.reparentItemsPost
+
+# ID regeneration
+GET         /regenerate                         @controllers.tools.Tools.regenerateIds
+POST        /regenerate                         @controllers.tools.Tools.regenerateIdsPost(tolerant: Boolean ?= false)
+GET         /regenerate-type/:ct                 @controllers.tools.Tools.regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean ?= false)
+GET         /regenerate-scope/:id                @controllers.tools.Tools.regenerateIdsForScope(id: String, tolerant: Boolean ?= false)
+
+# Find and replace
+GET         /find-replace                        @controllers.tools.Tools.findReplace
+POST        /find-replace                        @controllers.tools.Tools.findReplacePost(commit: Boolean ?= false)
+
+# Batch delete
+GET         /delete                             @controllers.tools.Tools.batchDelete
+POST        /delete                             @controllers.tools.Tools.batchDeletePost
+
+# Redirects
+GET         /redirect                           @controllers.tools.Tools.redirect
+POST        /redirect                           @controllers.tools.Tools.redirectPost
+
+# EAD validation
+GET         /validate-ead                       @controllers.tools.Tools.validateEad
+POST        /validate-ead                       @controllers.tools.Tools.validateEadPost
+POST        /validate-ead-file                  @controllers.tools.Tools.validateEadStream
+

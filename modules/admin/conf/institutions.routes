@@ -44,9 +44,6 @@ POST        /:id/data/ingest/:ds/:stage               @controllers.institutions.
 POST        /:id/data/ingest-all/:ds/:stage           @controllers.institutions.ImportFiles.ingestAll(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/urls/:ds/:stage                 @controllers.institutions.ImportFiles.fileUrls(id: String, ds: String, stage: defines.FileStage.Value)
 
-GET         /:id/validate-ead                         @controllers.institutions.ImportFiles.validateEad(id: String)
-POST        /:id/validate-ead                         @controllers.institutions.ImportFiles.validateEadPost(id: String)
-
 GET         /:id/transformations                      @controllers.institutions.DataTransformations.list(id: String)
 POST        /:id/transformations                      @controllers.institutions.DataTransformations.create(id: String, generic: Boolean ?= false)
 GET         /:id/transformations/:dt                  @controllers.institutions.DataTransformations.get(id: String, dt: String)

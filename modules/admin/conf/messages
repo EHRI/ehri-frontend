@@ -330,6 +330,20 @@ search.index.clear.types=Clear Each Type First
 search.index.types=Types to Update
 search.index.types.selectAll=Select All
 
+# Ead Validation
+admin.utils.validate=EAD Validation
+admin.utils.validate.file.name=File
+admin.utils.validate.file.line=Line
+admin.utils.validate.file.pos=Column
+admin.utils.validate.file.details=Details
+admin.utils.validate.file.errors=Errors
+admin.utils.validate.file.errors.number={0,choice,0#No errors|1#1 error|1<{0,number,integer} errors}
+admin.utils.validate.okay=No Errors
+admin.utils.validate.files=Select EAD Files
+admin.utils.validate.submit=Validate
+
+
+
 # Users- and Group-related i18n messages
 
 accessor.groups.manage=Manage Groups
@@ -858,16 +872,6 @@ repository.data.upload.file.name=File Name
 repository.data.upload.file.lastModified=Last Modified
 repository.data.upload.file.size=Size
 repository.data.upload.file.delete=Delete
-repository.data.validate=EAD Validation
-repository.data.validate.file.name=File
-repository.data.validate.file.line=Line
-repository.data.validate.file.pos=Column
-repository.data.validate.file.details=Details
-repository.data.validate.file.errors=Errors
-repository.data.validate.file.errors.number={0,choice,0#No errors|1#1 error|1<{0,number,integer} errors}
-repository.data.validate.okay=No Errors
-repository.data.validate.files=Select EAD Files
-repository.data.validate.submit=Validate
 
 #
 # ISDIAH
