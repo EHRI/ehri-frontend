@@ -10,7 +10,6 @@ import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
 import sbt.Keys.mappings
-import sbt.util
 
 
 parallelExecution in ThisBuild := false
@@ -104,7 +103,7 @@ val portalDependencies = Seq(
   "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
-  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % "1.1.2",
+  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % alpakkaVersion,
 
   // S3 sdk
   "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
@@ -123,12 +122,11 @@ val adminDependencies = Seq(
   "net.sf.saxon" % "Saxon-HE" % "10.2",
 
   // XML parsing
-  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % "1.1.2",
+  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % alpakkaVersion,
 )
 
 val testDependencies = Seq(
   specs2 % Test,
-  "com.h2database" % "h2" % "1.4.193" % Test,
 
   // Used for testing JSON stream parsing...
   "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
