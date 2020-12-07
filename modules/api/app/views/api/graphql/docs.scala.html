@@ -5,12 +5,6 @@
 @views.html.api.layout.apiDocLayout(Messages("api.graphql.header")) {
     <section id="overview">
         <h2>Overview</h2>
-        <p class="alert alert-warning">
-            <i class="fa fa-asterisk" aria-hidden="true"></i>
-            The EHRI GraphQL API is currently in testing and not recommended for use in important
-            applications.
-        </p>
-
         <p>In addition to the <a href="@controllers.api.v1.routes.ApiV1Home.index()">REST-style JSON API</a>,
             the EHRI portal has an experimental web <a class="external" href="http://graphql.org/">
             GraphQL</a> API, intended for retrieving specific EHRI data in structured <a href="https://en.wikipedia.org/wiki/JSON" class="external">JSON</a> format.
