@@ -48,9 +48,6 @@
                 <a href="@controllers.institutions.routes.ImportFiles.manager(item.id)">@Messages("repository.data.manage")</a>
             }
             @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
-                <a href="@controllers.institutions.routes.Repositories.ingest(item.id)">@Messages("ingest.format.ead")</a>
-            }
-            @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
                 <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">@Messages("ingest.format.ead-sync")</a>
             }
         }
