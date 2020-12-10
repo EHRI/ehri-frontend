@@ -139,6 +139,7 @@ Vue.component("dataset-form", {
             <option v-bind:value="null" disabled selected hidden>(required)</option>
             <option value="upload">Uploads</option>
             <option value="oaipmh">OAI-PMH Harvesting</option>
+            <option value="rs">ResourceSync</option>
           </select>
         </div>
         <div class="form-group">
@@ -312,6 +313,11 @@ Vue.component("dataset-manager", {
               <i class="fa fw-fw fa-cloud-download"></i>
               Harvest Data
             </a>
+            <a v-if="dataset.src === 'rs'" href="#tab-input" class="nav-link" v-bind:class="{'active': tab === 'input'}"
+               v-on:click.prevent="switchTab('input')">
+              <i class="fa fw-fw fa-clone"></i>
+              Sync Data
+            </a>
             <a v-if="dataset.src === 'upload'" href="#tab-input" class="nav-link" v-bind:class="{'active': tab === 'input'}"
                v-on:click.prevent="switchTab('input')">
               <i class="fa fw-fw fa-upload"></i>
@@ -367,6 +373,14 @@ Vue.component("dataset-manager", {
         <div id="tab-input" class="stage-tab" v-show="tab === 'input'">
           <oaipmh-manager
             v-if="dataset.src === 'oaipmh'"
+            v-bind:dataset-id="dataset.id"
+            v-bind:fileStage="config.input"
+            v-bind:config="config"
+            v-bind:active="tab === 'input'"
+            v-bind:api="api"
+            v-on:error="setError"  />
+          <rs-manager
+            v-if="dataset.src === 'rs'"
             v-bind:dataset-id="dataset.id"
             v-bind:fileStage="config.input"
             v-bind:config="config"

@@ -15,7 +15,7 @@ import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, ListObjectsRequest, ListVersionsRequest, SetBucketVersioningConfigurationRequest}
+import com.amazonaws.services.s3.model.{AmazonS3Exception, BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, GetObjectMetadataRequest, ListObjectsRequest, ListVersionsRequest, SetBucketVersioningConfigurationRequest}
 import play.api.Logger
 
 import scala.collection.JavaConverters._
@@ -101,15 +101,26 @@ case class S3CompatibleFileStorage(
   override def count(classifier: String, prefix: Option[String]): Future[Int] =
     countFilesWithPrefix(classifier, prefix)
 
-  override def info(bucket: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]] = {
-    S3.getObjectMetadata(bucket, path, versionId = versionId)
-      .withAttributes(S3Attributes.settings(endpoint))
-      .runWith(Sink.headOption).map(_.flatten)
-      .map {
-        case Some(meta) => Some(infoToMeta(bucket, path, meta))
-        case _ => None
-      }
-  }
+  override def info(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
+    val omr = new GetObjectMetadataRequest(bucket, path)
+    versionId.foreach(omr.setVersionId)
+
+    try {
+      val meta = client.getObjectMetadata(omr)
+      val fm = FileMeta(
+        bucket,
+        path,
+        meta.getLastModified.toInstant,
+        meta.getContentLength,
+        Option(meta.getETag),
+        Option(meta.getContentType),
+        Option(meta.getVersionId)
+      )
+      Some((fm, meta.getUserMetadata.asScala.toMap))
+    } catch {
+      case e: AmazonS3Exception => None
+    }
+  }(ec)
 
   override def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
     .download(bucket, path, versionId = versionId)

@@ -17,7 +17,7 @@ sealed trait FileMarker {
   def meta: FileMeta
 }
 case class Deleted(meta: FileMeta) extends FileMarker
-case class Version(meta: FileMeta, data: ByteString) extends FileMarker
+case class Version(meta: FileMeta, userMeta: Map[String, String], data: ByteString) extends FileMarker
 
 /**
   * An in-memory implementation of the [[FileStorage]] class.
@@ -35,20 +35,20 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   private def bucket(classifier: String): Map[String, Seq[FileMarker]] =
     fakeFiles.getOrElse(classifier, Map.empty)
 
-  private def fileMeta(classifier: String, versionId: Option[String] = None): immutable.Seq[FileMeta] = bucket(classifier)
+  private def fileMeta(classifier: String, versionId: Option[String] = None): immutable.Seq[(FileMeta, Map[String, String])] = bucket(classifier)
     .values
     .map(versions => versionId.fold(ifEmpty = versions.size.toString -> versions.lastOption) { vid =>
       vid -> getV(versions, Some(vid))
     })
-    .collect { case (id, Some(Version(m, _))) => m.copy(versionId = Some(id))}
+    .collect { case (id, Some(Version(m, um, _))) => (m.copy(versionId = Some(id)), um)}
     .toList
 
   private def getF(classifier: String, path: String, versionId: Option[String] = None): Option[FileMarker] =
     bucket(classifier).get(path).flatMap(f => getV(f, versionId))
 
-  private def put(classifier: String, path: String, bytes: ByteString, contentType: Option[String]): Unit = {
+  private def put(classifier: String, path: String, bytes: ByteString, contentType: Option[String], user: Map[String, String]): Unit = {
     val existing: Seq[FileMarker] = bucket(classifier).getOrElse(path, Seq.empty)
-    val newVersion = Version(FileMeta(classifier, path, Instant.now, bytes.size, Some(bytes.hashCode.toString), contentType), bytes)
+    val newVersion = Version(FileMeta(classifier, path, Instant.now, bytes.size, Some(bytes.hashCode.toString), contentType), user, bytes)
     val versions: Seq[FileMarker] = existing :+ newVersion
     fakeFiles += (classifier -> (bucket(classifier) + (path -> versions)))
   }
@@ -66,13 +66,13 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     }.getOrElse(versions.lastOption)
   }
 
-  override def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]] = Future {
-    fileMeta(classifier, versionId).find(_.key == path)
+  override def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
+    fileMeta(classifier, versionId).find(_._1.key == path)
   }(ec)
 
   override def get(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = Future {
     getF(classifier, path, versionId).flatMap {
-      case Version(m, bytes) => Some(m -> Source.single(bytes))
+      case Version(m, _, bytes) => Some(m -> Source.single(bytes))
       case Deleted(_) => None
     }
   }(ec)
@@ -84,7 +84,7 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   override def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     src.runFold(ByteString.empty)(_ ++ _).map { bytes =>
       val result: URI = new URI(urlPrefix(classifier) + path)
-      put(classifier, path, bytes, contentType)
+      put(classifier, path, bytes, contentType, meta)
       result
     }(ec)
   }
@@ -93,12 +93,12 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
     Source(fakeFiles.getOrElse(classifier, Map.empty)
       .values
       .map(_.headOption)
-      .collect { case Some(Version(m, _)) => m}
+      .collect { case Some(Version(m, _, _)) => m}
       .filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith)).toList)
 
   override def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList] = Future {
-    val all = fileMeta(classifier).filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith))
-    val idx = after.map(a => fileMeta(classifier).indexWhere(_.key == a)).getOrElse(-1) + 1
+    val all = fileMeta(classifier).map(_._1).filter(p => prefix.isEmpty || prefix.forall(p.key.startsWith))
+    val idx = after.map(a => fileMeta(classifier).map(_._1).indexWhere(_.key == a)).getOrElse(-1) + 1
     if (max >= 0) FileList(all.slice(idx, idx + max), (idx + max) < all.size)
     else FileList(all, truncated = false)
   }(ec)
@@ -108,22 +108,22 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
 
   override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
     paths.flatMap { path =>
-      fileMeta(classifier).find(_.key == path).map { f =>
+      fileMeta(classifier).find(_._1.key == path).map { f =>
         del(classifier, path)
-        f.key
+        f._1.key
       }.toSeq
     }
   }(ec)
 
   override def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
-    fileMeta(classifier).filter(_.key.startsWith(prefix)).map { f =>
-      del(classifier, f.key)
-      f.key
+    fileMeta(classifier).filter(_._1.key.startsWith(prefix)).map { f =>
+      del(classifier, f._1.key)
+      f._1.key
     }
   }(ec)
 
   override def count(classifier: String, prefix: Option[String]): Future[Int] = Future {
-    fileMeta(classifier).count(f => prefix.isEmpty || prefix.forall(f.key.startsWith))
+    fileMeta(classifier).count(f => prefix.isEmpty || prefix.forall(f._1.key.startsWith))
   }(ec)
 
   /**

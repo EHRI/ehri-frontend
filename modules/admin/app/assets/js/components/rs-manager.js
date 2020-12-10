@@ -1,6 +1,6 @@
 "use strict";
 
-Vue.component("oaipmh-config-modal", {
+Vue.component("rs-config-modal", {
   props: {
     datasetId: String,
     config: Object,
@@ -9,33 +9,29 @@ Vue.component("oaipmh-config-modal", {
   data: function() {
     return {
       url: this.config ? this.config.url : null,
-      format: this.config ? this.config.format : null,
-      set: this.config ? this.config.set : null,
+      filter: this.config ? this.config.filter : null,
       tested: null,
       testing: false,
-      error: null,
-      noResume: false,
+      error: null
     }
   },
   computed: {
     isValidConfig: function() {
-      return this.url
-        && this.url.trim() !== ""
-        && this.format
-        && this.format.trim() !== "";
+      return this.url && this.url.trim() !== "";
     },
   },
   methods: {
     save: function() {
-      this.api.saveConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
-        .then(data => this.$emit("saved-config", data, !this.noResume))
-        .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
+      // this.api.saveConfig(this.datasetId, {url: this.url, filter: this.filter})
+      //   .then(data => this.$emit("saved-config", data))
+      //   .catch(error => this.$emit("error", "Error saving RS config", error));
+      this.$emit("saved-config", {url: this.url, filter: this.filter});
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
-        .then( r => {
-          this.tested = !!r.name;
+      this.api.testSync(this.datasetId, {url: this.url, filter: this.filter})
+        .then(() => {
+          this.tested = true;
           this.error = null;
         })
         .catch(e => {
@@ -51,40 +47,25 @@ Vue.component("oaipmh-config-modal", {
   watch: {
     config: function(newValue) {
       this.url = newValue ? newValue.url : null;
-      this.format = newValue ? newValue.format : null;
-      this.set = newValue ? newValue.set : null;
+      this.filter = newValue ? newValue.filter : null;
     }
   },
   template: `
     <modal-window v-on:close="$emit('close')">
-     <template v-slot:title>OAI-PMH Endpoint Configuration</template>
+     <template v-slot:title>ResourceSync Endpoint Configuration</template>
 
       <div class="options-form">
         <div class="form-group">
           <label class="form-label" for="opt-endpoint-url">
-            OAI-PMH endpoint URL
+            ResourceSync capability list endpoint URL
           </label>
           <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url" placeholder="(required)"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="opt-format">
-            OAI-PMH metadata format
+          <label class="form-label" for="opt-filter">
+            ResourceSync path filter
           </label>
-          <input class="form-control" id="opt-format" type="text" v-model.trim="format" placeholder="(required)"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="opt-set">
-            OAI-PMH set
-          </label>
-          <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
-        </div>
-        <div class="form-group">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="opt-no-resume" v-model="noResume"/>
-            <label class="form-check-label" for="opt-no-resume">
-              <strong>Do not</strong> resume from last harvest timestamp
-            </label>
-          </div>
+          <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optionalOai)"/>
         </div>
         <div id="endpoint-errors">
           <span v-if="tested === null">&nbsp;</span>
@@ -108,14 +89,14 @@ Vue.component("oaipmh-config-modal", {
         </button>
         <button v-bind:disabled="!isValidConfig"
                 v-on:click="save" type="button" class="btn btn-secondary">
-          Harvest Endpoint
+          Sync Endpoint
         </button>
       </template>
     </modal-window>
   `
 });
 
-Vue.component("oaipmh-manager", {
+Vue.component("rs-manager", {
   mixins: [stageMixin, twoPanelMixin, previewMixin, validatorMixin, errorMixin, utilMixin],
   props: {
     fileStage: String,
@@ -124,31 +105,30 @@ Vue.component("oaipmh-manager", {
   },
   data: function () {
     return {
-      harvestJobId: null,
+      syncJobId: null,
       showOptions: false,
-      harvestConfig: null,
-      fromLast: true,
+      syncConfig: null,
     }
   },
   methods: {
-    harvest: function() {
-      this.api.harvest(this.datasetId, this.harvestConfig, this.fromLast)
+    sync: function() {
+      this.api.sync(this.datasetId, this.syncConfig)
         .then(data => {
-          this.harvestJobId = data.jobId;
-          this.monitorHarvest(data.url, data.jobId);
+          this.syncJobId = data.jobId;
+          this.monitorSync(data.url, data.jobId);
         });
     },
-    cancelHarvest: function() {
-      if (this.harvestJobId) {
-        this.api.cancelHarvest(this.harvestJobId).then(r => {
+    cancelSync: function() {
+      if (this.syncJobId) {
+        this.api.cancelSync(this.syncJobId).then(r => {
           if (r.ok) {
-            this.harvestJobId = null;
+            this.syncJobId = null;
           }
         });
       }
     },
-    monitorHarvest: function (url, jobId) {
-      this.tab = 'harvest';
+    monitorSync: function (url, jobId) {
+      this.tab = 'sync';
 
       let worker = new Worker(this.config.previewLoader);
       worker.onmessage = msg => {
@@ -162,29 +142,28 @@ Vue.component("oaipmh-manager", {
         if (msg.data.done || msg.data.error) {
           worker.terminate();
 
-          this.harvestJobId = null;
-          this.removeUrlState('harvest-job-id');
+          this.syncJobId = null;
+          this.removeUrlState('sync-job-id');
         }
       };
       worker.postMessage({type: 'websocket', url: url, DONE: DONE_MSG, ERR: ERR_MSG});
-      this.replaceUrlState('harvest-job-id', jobId);
+      this.replaceUrlState('sync-job-id', jobId);
     },
     resumeMonitor: function() {
-      let jobId = this.getQueryParam(window.location.search, "harvest-job-id");
+      let jobId = this.getQueryParam(window.location.search, "sync-job-id");
       if (jobId) {
-        this.harvestJobId = jobId;
-        this.monitorHarvest(this.config.monitorUrl(jobId), jobId);
+        this.syncJobId = jobId;
+        this.monitorSync(this.config.monitorUrl(jobId), jobId);
       }
     },
-    saveConfigAndHarvest: function(config, fromLast) {
-      this.harvestConfig = config;
-      this.fromLast = fromLast;
+    saveConfigAndSync: function(config) {
+      this.syncConfig = config;
       this.showOptions = false;
-      this.harvest();
+      this.sync();
     },
     loadConfig: function() {
-      this.api.getConfig(this.datasetId)
-        .then(data => this.harvestConfig = data);
+      // this.api.getConfig(this.datasetId)
+      //   .then(data => this.syncConfig = data);
     },
   },
   created: function () {
@@ -192,7 +171,7 @@ Vue.component("oaipmh-manager", {
     this.resumeMonitor();
   },
   template: `
-    <div id="oaipmh-manager-container" class="stage-manager-container">
+    <div id="rs-manager-container" class="stage-manager-container">
       <div class="actions-bar">
         <filter-control v-bind:filter="filter"
                         v-on:filter="filterFiles"
@@ -209,40 +188,40 @@ Vue.component("oaipmh-manager", {
           Validate All
         </button>
 
-        <button v-bind:disabled="files.length ===0 || harvestJobId" class="btn btn-sm btn-default"
+        <button v-bind:disabled="files.length ===0 || syncJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
           <i class="fa fa-trash-o"/>
           Delete Selected ({{selectedKeys.length}})
         </button>
-        <button v-bind:disabled="files.length === 0 || harvestJobId" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
+        <button v-bind:disabled="files.length === 0 || syncJobId" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
                 v-else>
           <i class="fa fa-trash-o"/>
           Delete All
         </button>
 
-        <button v-if="!harvestJobId" class="btn btn-sm btn-default"
+        <button v-if="!syncJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions">
           <i class="fa fa-fw fa-cloud-download"/>
-          Harvest Files...
+          Sync Files...
         </button>
-        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
+        <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelSync">
           <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-          Cancel Harvest
+          Cancel Sync
         </button>
         
-        <oaipmh-config-modal 
+        <rs-config-modal 
           v-if="showOptions"
           v-bind:dataset-id="datasetId"
-          v-bind:config="harvestConfig"
+          v-bind:config="syncConfig"
           v-bind:api="api"
-          v-on:saved-config="saveConfigAndHarvest"
+          v-on:saved-config="saveConfigAndSync"
           v-on:error="showError"
           v-on:close="showOptions = false"/>
 
         <info-modal v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
       </div>
 
-      <div id="oaipmh-panel-container" class="panel-container">
+      <div id="rs-panel-container" class="panel-container">
         <div class="top-panel">
           <files-table
             v-bind:api="api"
@@ -272,7 +251,7 @@ Vue.component("oaipmh-manager", {
           />
         </div>
 
-        <div id="oaipmh-status-panels" class="bottom-panel">
+        <div id="rs-status-panels" class="bottom-panel">
           <ul class="status-panel-tabs nav nav-tabs">
             <li class="nav-item">
               <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
@@ -288,15 +267,15 @@ Vue.component("oaipmh-manager", {
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
-                 v-on:click.prevent="tab = 'harvest'">
-                Harvest Log
+              <a href="#" class="nav-link" v-bind:class="{'active': tab === 'sync'}"
+                 v-on:click.prevent="tab = 'sync'">
+                Sync Log
               </a>
             </li>
             <li>
               <drag-handle
                 v-bind:ns="fileStage"
-                v-bind:p2="$root.$el.querySelector('#oaipmh-status-panels')"
+                v-bind:p2="$root.$el.querySelector('#rs-status-panels')"
                 v-bind:container="$root.$el.querySelector('#oaipmh-panel-container')"
                 v-on:resize="setPanelSize"
               />
@@ -325,10 +304,10 @@ Vue.component("oaipmh-manager", {
                 Validation log output will show here.
               </div>
             </div>
-            <div class="status-panel log-container" v-show="tab === 'harvest'">
+            <div class="status-panel log-container" v-show="tab === 'sync'">
               <log-window v-bind:log="log" v-if="log.length > 0"/>
               <div class="panel-placeholder" v-else>
-                Harvest log output will show here.
+                Sync log output will show here.
               </div>
             </div>
           </div>

@@ -109,7 +109,7 @@ case class DataTransformations @Inject()(
 
       val path = prefix(id, ds, stage) + fileName
       storage.info(bucket, path).flatMap {
-        case Some(meta) =>
+        case Some((meta, _)) =>
           val outF = meta.eTag match {
             // If we have an eTag for the file contents, cache the transformation against it
             case Some(tag) => transformCache.getOrElseUpdate(digest(tag, m))(downloadAndConvertFile(path, m))
