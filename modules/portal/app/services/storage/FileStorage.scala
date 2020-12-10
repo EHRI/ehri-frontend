@@ -27,7 +27,7 @@ trait FileStorage {
     * @param path       additional file path, including the file name with extension
     * @return a file-meta object
     */
-  def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[FileMeta]]
+  def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]]
 
   /**
     * Get the URI for a stored file with the given classifier and key.

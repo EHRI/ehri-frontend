@@ -6,8 +6,13 @@ import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
+import play.api.i18n.Messages
 
 import scala.concurrent.Future
+
+case class OaiPmhError(code: String, value: String = "") extends RuntimeException(code) {
+  def errorMessage(implicit messages: Messages): String = Messages(s"oaipmh.error.$code", value)
+}
 
 /**
   * Interact with OAI-PMH endpoints.

@@ -15,9 +15,9 @@ import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data.{GidSearchResolver, _}
 import services.feedback.{FeedbackService, SqlFeedbackService}
-import services.harvesting.{HarvestEventService, OaiPmhClient, WSOaiPmhClient, SqlHarvestEventService}
+import services.harvesting.{HarvestEventService, OaiPmhClient, ResourceSyncClient, SqlHarvestEventService, WSOaiPmhClient, WSResourceSyncClient}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
-import services.ingest.{EadValidator, RelaxNGEadValidator, IngestService, WSIngestService}
+import services.ingest.{EadValidator, IngestService, RelaxNGEadValidator, WSIngestService}
 import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
@@ -80,6 +80,7 @@ class Module extends AbstractModule {
     bind(classOf[IngestService]).to(classOf[WSIngestService])
     bind(classOf[EadValidator]).to(classOf[RelaxNGEadValidator])
     bind(classOf[OaiPmhClient]).to(classOf[WSOaiPmhClient])
+    bind(classOf[ResourceSyncClient]).to(classOf[WSResourceSyncClient])
     bind(classOf[HarvestEventService]).to(classOf[SqlHarvestEventService])
   }
 }

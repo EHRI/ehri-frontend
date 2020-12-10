@@ -8,7 +8,7 @@ import scala.concurrent.Future
   * No-op importer. Does nothing, nowt, nada, but on the
   * plus side has no dependencies.
   */
-case class MockIngestServiceService(res: IngestResult) extends IngestService {
+case class MockIngestService(res: IngestResult) extends IngestService {
   override def importData(job: IngestService.IngestJob) =
     Future.successful(res)
 

@@ -108,6 +108,30 @@ let DAO = class {
     return this.call(this.service.OaiPmhConfigs.cancelHarvest(this.repoId, jobId));
   }
 
+  sync(ds, config) {
+    return this.call(this.service.ResourceSyncConfigs.sync(this.repoId, ds), config);
+  }
+
+  cancelSync(jobId) {
+    return this.call(this.service.ResourceSyncConfigs.cancelSync(this.repoId, jobId));
+  }
+
+  getSyncConfig(ds) {
+    return this.call(this.service.ResourceSyncConfigs.get(this.repoId, ds));
+  }
+
+  saveSyncConfig(ds, config) {
+    return this.call(this.service.ResourceSyncConfigs.save(this.repoId, ds), config);
+  }
+
+  deleteSyncConfig(ds) {
+    return this.call(this.service.ResourceSyncConfigs.delete(this.repoId, ds));
+  }
+
+  testSyncConfig(ds, config) {
+    return this.call(this.service.ResourceSyncConfigs.test(this.repoId, ds), config);
+  }
+
   getConfig(ds) {
     return this.call(this.service.OaiPmhConfigs.get(this.repoId, ds));
   }

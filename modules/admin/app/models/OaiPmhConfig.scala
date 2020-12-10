@@ -17,8 +17,7 @@ object OaiPmhConfig {
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
   implicit val _reads: Reads[OaiPmhConfig] = (
-    (__ \ URL).read[String](Reads.filter(
-      JsonValidationError("errors.badUrlPattern"))(url => utils.forms.isValidUrl(url))) and
+    (__ \ URL).read[String](Reads.filter(JsonValidationError("errors.invalidUrl"))(utils.forms.isValidUrl)) and
     (__ \ METADATA_FORMAT).read[String] and
     (__ \ SET).readNullable[String]
   )(OaiPmhConfig.apply _)
@@ -27,9 +26,7 @@ object OaiPmhConfig {
   implicit val _format: Format[OaiPmhConfig] = Format(_reads, _writes)
 
   val form: Form[OaiPmhConfig] = Form(mapping(
-    URL -> nonEmptyText.verifying("errors.badUrlPattern",
-      url => utils.forms.isValidUrl(url)
-    ),
+    URL -> nonEmptyText.verifying("errors.invalidUrl", utils.forms.isValidUrl),
     METADATA_FORMAT -> nonEmptyText,
     SET -> optional(text).transform[Option[String]](_.filterNot(_.trim.isEmpty), identity)
   )(OaiPmhConfig.apply)(OaiPmhConfig.unapply))

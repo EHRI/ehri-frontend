@@ -133,7 +133,7 @@ case class ImportFiles @Inject()(
     val pre = prefix(id, ds, stage)
     val path = pre + fileName
     for {
-      Some(meta) <- storage.info(bucket, path, versionId)
+      Some((meta, _)) <- storage.info(bucket, path, versionId)
       versions <- storage.listVersions(bucket, path)
     } yield Ok(Json.obj(
       "meta" -> meta.copy(key = meta.key.replace(pre, "")),
@@ -253,7 +253,7 @@ case class ImportFiles @Inject()(
     // limit parallelism to the specified amount
     Source(keys.toList)
       .mapAsync(4)(path => storage.info(bucket, path).map(info => path -> info))
-      .collect { case (path, Some(meta)) =>
+      .collect { case (path, Some((meta, _))) =>
         val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
         id -> storage.uri(meta.classifier, meta.key, duration = 2.hours, versionId = meta.versionId)
       }
