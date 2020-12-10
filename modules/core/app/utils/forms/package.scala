@@ -12,16 +12,12 @@ package object forms {
 
   /**
    * Check if a string is a valid URL.
-   * @param s url string
-   * @return
    */
-  def isValidUrl(s: String): Boolean = {
-    try {
-      new URL(s)
-      true
-    } catch {
-      case s: MalformedURLException => false
-    }
+  val isValidUrl: String => Boolean = s => try {
+    new URL(s)
+    true
+  } catch {
+    case _: MalformedURLException => false
   }
 
   import play.api.data.format.Formatter

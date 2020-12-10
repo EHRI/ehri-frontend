@@ -19,6 +19,7 @@ object ImportDataset {
   object Src extends Enumeration with StorableEnum {
     val Upload = Value("upload")
     val OaiPmh = Value("oaipmh")
+    val Rs = Value("rs")
 
     implicit val _format: Format[ImportDataset.Src.Value] = EnumUtils.enumFormat(ImportDataset.Src)
   }

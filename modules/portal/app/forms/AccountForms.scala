@@ -17,7 +17,7 @@ case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalCo
 
   val openidForm: Form[String] = Form(single(
     "openid_identifier" -> nonEmptyText
-  ) verifying("error.badUrl", url => utils.forms.isValidUrl(url)))
+  ) verifying("errors.invalidUrl", utils.forms.isValidUrl))
 
   val passwordLoginForm: Form[(String, String)] = Form(
     tuple(
@@ -41,7 +41,7 @@ case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalCo
     ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
-  val forgotPasswordForm = Form(Forms.single("email" -> email))
+  val forgotPasswordForm: Form[String] = Form(Forms.single("email" -> email))
 
   //
   // Signup data validation. This does several checks:

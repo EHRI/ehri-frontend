@@ -75,7 +75,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
       job.data.only.map { key =>
         storage.info(job.data.classifier, job.data.inPrefix + key)
           .map {
-            case Some(meta) => Convert(List(meta), truncated = false, None, done)
+            case Some((meta, _)) => Convert(List(meta), truncated = false, None, done)
             case None =>
               msgTo ! Error(s"Key not found: ${job.data.inPrefix + key}",
                 new RuntimeException(s"Missing key: ${job.data.inPrefix + key}"))

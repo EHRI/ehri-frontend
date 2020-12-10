@@ -35,7 +35,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
   "Data Import manager" should {
 
     "send correct messages when importing files" in new ITestApp {
-      val importApi = MockIngestServiceService(ImportLog())
+      val importApi = MockIngestService(ImportLog())
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
       importManager ! self
@@ -49,7 +49,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
     }
 
     "send correct messages when imports throw an error" in new ITestApp {
-      val importApi = MockIngestServiceService(ErrorLog("identifier", "Missing field"))
+      val importApi = MockIngestService(ErrorLog("identifier", "Missing field"))
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
       importManager ! self

@@ -204,28 +204,20 @@ Vue.component("upload-manager", {
         <filter-control v-bind:filter="filter"
                         v-on:filter="filterFiles"
                         v-on:clear="clearFilter"/>
-        
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedTags)" v-if="selectedKeys.length">
-          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
-          Validate Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0 || validationRunning" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateAll" v-else>
-          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
-          Validate All
-        </button>
 
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-          <i class="fa fa-trash-o"/>
-          Delete Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length===0" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
-                v-else>
-          <i class="fa fa-trash-o"/>
-          Delete All
-        </button>
+        <validate-button
+          v-bind:selected="selectedKeys.length"
+          v-bind:disabled="files.length === 0 || uploading.length > 0"
+          v-bind:active="validationRunning"
+          v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
+        />
+
+        <delete-button
+          v-bind:selected="selectedKeys.length"
+          v-bind:disabled="files.length === 0 || uploading.length > 0"
+          v-bind:active="!_.isEmpty(deleting)"
+          v-on:delete="selectedKeys.length ? deleteFiles(selectedKeys) : deleteAll()"
+        />
 
         <button class="file-upload-button btn btn-sm btn-default">
           <input class="file-selector-input"

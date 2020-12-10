@@ -21,6 +21,11 @@ facet.linkType=Link Type
 facet.linkField=Link Field
 
 #
+# Errors
+#
+errors.badRegexPattern=Regular expression syntax error
+
+#
 #
 # Friendly names for content types
 contentTypes=Content types
@@ -1122,6 +1127,9 @@ oaipmh.error.idDoesNotExist=The repository reported that item with id ''{0}'' do
 oaipmh.error.url=Endpoint URL responded with invalid status: {0}
 oaipmh.error.invalidXml=Endpoint URL responded with invalid XML content
 
+
+resourceSync.error.notFound=Resource not found: {0}
+resourceSync.error.unexpectedStatus=Unexpected HTTP status code: {0}
 
 # Authority i18n messages
 

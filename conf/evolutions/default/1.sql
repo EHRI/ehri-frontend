@@ -140,6 +140,20 @@ CREATE TABLE oaipmh_config (
         ON DELETE CASCADE
 );
 
+CREATE TABLE resourcesync_config (
+    repo_id             VARCHAR(50) NOT NULL,
+    import_dataset_id   VARCHAR(50) NOT NULL,
+    endpoint_url        VARCHAR (512) NOT NULL,
+    filter_spec         VARCHAR (512),
+    created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comments            TEXT,
+    PRIMARY KEY (repo_id, import_dataset_id),
+    CONSTRAINT resourcesync_config_repo_id_import_dataset_id
+        FOREIGN KEY (repo_id, import_dataset_id)
+        REFERENCES import_dataset(repo_id, id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE harvest_event (
     id                  SERIAL PRIMARY KEY,
     repo_id             VARCHAR(50) NOT NULL,
@@ -217,6 +231,7 @@ DROP TABLE IF EXISTS import_log;
 DROP TABLE IF EXISTS data_transformation CASCADE;
 DROP TABLE IF EXISTS transformation_config CASCADE;
 DROP TABLE IF EXISTS harvest_event CASCADE;
+DROP TABLE IF EXISTS resourcesync_config CASCADE;
 DROP TABLE IF EXISTS oaipmh_config CASCADE;
 DROP TABLE IF EXISTS import_dataset CASCADE;
 DROP TABLE IF EXISTS cypher_queries CASCADE;

@@ -31,9 +31,14 @@ Vue.filter("stageName", function(code, config) {
   switch (code) {
     case "oaipmh": return "Harvesting";
     case "upload": return "Uploads";
+    case "rs": return "ResourceSync";
     default: return code;
   }
-})
+});
+
+Vue.filter("decodeUri", function(s) {
+  return decodeURI(s);
+});
 
 Vue.filter("prettyDate", function (time) {
   let f = time => {
@@ -154,7 +159,7 @@ let validatorMixin = {
       } else {
         errs.forEach(item => {
           if (item.errors.length > 0) {
-            this.validationLog.push('<span class="text-danger">' + item.key + ':</span>')
+            this.validationLog.push('<span class="text-danger">' + decodeURI(item.key) + ':</span>')
             item.errors.forEach(err => {
               this.validationLog.push("    " + err.line + "/" + err.pos + " - " + err.error);
             })
@@ -623,7 +628,7 @@ Vue.component("files-table", {
           <td v-on:click.stop="toggleItem(file, selected[file.key])">
             <input type="checkbox" v-bind:checked="selected[file.key]">
           </td>
-          <td>{{file.key}}</td>
+          <td>{{file.key|decodeUri}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>
           <td>{{file.size | humanFileSize(true)}}</td>
 
@@ -687,7 +692,7 @@ Vue.component("file-picker-suggestion", {
   props: {selected: Boolean, item: Object,},
   template: `
     <div @click="$emit('selected', item)" class="file-picker-suggestion" v-bind:class="{'selected': selected}">
-        {{ item.key }} 
+        {{ item.key|decodeUri }} 
     </div>
   `
 });
@@ -793,7 +798,7 @@ Vue.component("info-modal", {
   },
   template: `
     <modal-window v-on:close="$emit('close')">
-      <template v-slot:title>{{fileInfo.meta.key}}</template>
+      <template v-slot:title>{{fileInfo.meta.key|decodeUri}}</template>
       <dl>
         <dt>File size:</dt>
         <dd>{{fileInfo.meta.size|humanFileSize}}</dd>
@@ -838,6 +843,44 @@ Vue.component("filter-control", {
     </div>
   `
 });
+
+Vue.component("validate-button", {
+  props: {
+    disabled: Boolean,
+    selected: Number,
+    active: Boolean,
+  },
+  template: `
+    <button v-bind:disabled="disabled" v-on:click.prevent="$emit('validate')" class="btn btn-sm btn-default">
+      <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !active, 'fa-circle-o-notch fa-spin': active}"/>
+      <template v-if="selected > 0">
+        Validate Selected ({{selected}})
+      </template>
+      <template v-else>
+        Validate All
+      </template>
+    </button>
+ `
+});
+
+Vue.component("delete-button", {
+  props: {
+    disabled: Boolean,
+    selected: Number,
+    active: Boolean,
+  },
+  template: `
+    <button v-bind:disabled="disabled" v-on:click.prevent="$emit('delete')" class="btn btn-sm btn-default">
+      <i class="fa fa-fw" v-bind:class="{'fa-trash-o': !active, 'fa-circle-o-notch fa-spin': active}"/>
+      <template v-if="selected > 0">
+        Delete Selected ({{selected}})
+      </template>
+      <template v-else>
+        Delete All
+      </template>
+    </button>
+  `
+})
 
 Vue.component("log-window", {
   props: {

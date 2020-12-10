@@ -14,7 +14,6 @@ import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.Logger
-import play.api.i18n.Messages
 import play.api.libs.ws.{WSClient, WSResponse}
 import services.ingest.XmlFormatter
 
@@ -33,11 +32,6 @@ case object Initial extends TokenState
 case class Resume(token: String) extends TokenState
 
 case object Final extends TokenState
-
-case class OaiPmhError(code: String, value: String = "") extends RuntimeException(code) {
-  def errorMessage(implicit messages: Messages): String = Messages(s"oaipmh.error.$code", value)
-}
-
 
 case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
