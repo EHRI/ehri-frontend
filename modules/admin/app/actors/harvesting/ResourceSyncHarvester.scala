@@ -2,22 +2,22 @@ package actors.harvesting
 
 import java.time.{Duration, LocalDateTime}
 
-import actors.harvesting.OaiRsHarvesterManager.OaiRsHarvestJob
+import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import models.{ResourceLink, UserProfile}
+import models.{FileLink, UserProfile}
 import play.api.libs.ws.WSClient
-import services.harvesting.OaiRsClient
+import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future.{successful => immediate}
 
 
-object OaiRsHarvester {
+object ResourceSyncHarvester {
 
   // Internal message we send ourselves
-  private case class Fetch(ids: List[ResourceLink], prefix: String, count: Int) extends Action
+  private case class Fetch(ids: List[FileLink], prefix: String, count: Int) extends Action
 
   // Other messages we can handle
   sealed trait Action
@@ -31,9 +31,9 @@ object OaiRsHarvester {
 }
 
 
-case class OaiRsHarvester (job: OaiRsHarvestJob, ws: WSClient, client: OaiRsClient, storage: FileStorage)(
+case class ResourceSyncHarvester (job: ResourceSyncJob, ws: WSClient, client: ResourceSyncClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
-  import OaiRsHarvester._
+  import ResourceSyncHarvester._
   import akka.pattern.pipe
 
   override def receive: Receive = {
@@ -58,12 +58,12 @@ case class OaiRsHarvester (job: OaiRsHarvestJob, ws: WSClient, client: OaiRsClie
 
       // get the basename, or unique segment, for this file
       // in most cases this will be the basename, but not always
-      val name = item.loc.toString.replace(prefix, "")
+      val name = item.loc.replace(prefix, "")
 
       // file metadata
       val meta = Map(
         "source" -> "rs",
-        "rs-endpoint" -> job.data.config.changeList.toString,
+        "rs-endpoint" -> job.data.config.url,
         "rs-filter" -> job.data.config.filter.getOrElse(""),
         "rs-job-id" -> job.jobId,
       ) ++ item.hash.map(h => "hash" -> h)
@@ -71,13 +71,13 @@ case class OaiRsHarvester (job: OaiRsHarvestJob, ws: WSClient, client: OaiRsClie
       // Get the storage metadata for checking the file hash...
       storage.info(job.data.classifier, job.data.prefix + name).flatMap {
         // If it exists and matches we've got nowt to do..
-        case Some((_, um)) if um.contains("hash") && um.get("hash") == item.hash =>
+        case Some((_, userMeta)) if userMeta.contains("hash") && userMeta.get("hash") == item.hash =>
           immediate("~ " + name)
 
         // Either the hash doesn't match or the file's not there yet
         // so upload it now...
         case _ =>
-          ws.url(item.loc.toString).get().flatMap { r =>
+          ws.url(item.loc).get().flatMap { r =>
             storage.putBytes(
               job.data.classifier,
               job.data.prefix + name,
@@ -108,7 +108,7 @@ case class OaiRsHarvester (job: OaiRsHarvestJob, ws: WSClient, client: OaiRsClie
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def longestCommonPrefix(resLinks: Seq[ResourceLink]): String = {
+  private def longestCommonPrefix(resLinks: Seq[FileLink]): String = {
     // Pinched from Rosetta code because I'm too lazy to write this:
     // https://rosettacode.org/wiki/Longest_common_prefix#Scala
     def lcp(list: Seq[String]): String = list.foldLeft("") { (_, _) =>

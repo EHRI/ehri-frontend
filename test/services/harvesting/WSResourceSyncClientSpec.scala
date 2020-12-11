@@ -3,12 +3,12 @@ package services.harvesting
 import java.io.StringWriter
 
 import helpers.TestConfiguration
-import models.OaiRsConfig
+import models.ResourceSyncConfig
 import org.w3c.dom.Element
 import play.api.Application
 import play.api.test.PlaySpecification
 
-class WSOaiRsClientSpec extends PlaySpecification with TestConfiguration {
+class WSResourceSyncClientSpec extends PlaySpecification with TestConfiguration {
 
   private def stringify(elem: Element): String = {
     import javax.xml.transform.TransformerFactory
@@ -24,12 +24,12 @@ class WSOaiRsClientSpec extends PlaySpecification with TestConfiguration {
   }
 
   private def endpoint(implicit app: Application) = {
-    OaiRsConfig(java.net.URI.create("https://collections.ushmm.org/resourcesync/ushmm/sitemaps/capabilitylist.xml"))
+    ResourceSyncConfig("https://collections.ushmm.org/resourcesync/ushmm/sitemaps/capabilitylist.xml")
   }
 
   "OAI RS client service" should {
     "list items" in new ITestApp {
-      val client = inject[OaiRsClient]
+      val client = inject[ResourceSyncClient]
 
       val list = await(client.list(endpoint))
       println(list)

@@ -61,10 +61,13 @@ DELETE      /:id/oaipmh/:ds/config                    @controllers.institutions.
 POST        /:id/oaipmh/:ds                           @controllers.institutions.OaiPmhConfigs.harvest(id: String, ds: String, fromLast: Boolean ?= true)
 DELETE      /:id/oaipmh                               @controllers.institutions.OaiPmhConfigs.cancelHarvest(id: String, jobId: String)
 
-POST        /:id/rs/:ds                               @controllers.institutions.OaiRsConfigs.sync(id: String, ds: String)
-DELETE      /:id/rs                                   @controllers.institutions.OaiRsConfigs.cancelSync(id: String, jobId: String)
+GET         /:id/rs/:ds/config                        @controllers.institutions.ResourceSyncConfigs.get(id: String, ds: String)
+PUT         /:id/rs/:ds/config                        @controllers.institutions.ResourceSyncConfigs.save(id: String, ds: String)
+POST        /:id/rs/:ds/config                        @controllers.institutions.ResourceSyncConfigs.test(id: String, ds: String)
+DELETE      /:id/rs/:ds/config                        @controllers.institutions.ResourceSyncConfigs.delete(id: String, ds: String)
 
-POST        /:id/rs/:ds/config                        @controllers.institutions.OaiRsConfigs.test(id: String, ds: String)
+POST        /:id/rs/:ds                               @controllers.institutions.ResourceSyncConfigs.sync(id: String, ds: String)
+DELETE      /:id/rs                                   @controllers.institutions.ResourceSyncConfigs.cancelSync(id: String, jobId: String)
 
 DELETE      /:id/convert                              @controllers.institutions.DataTransformations.cancelConvert(id: String, jobId: String)
 POST        /:id/convert/:ds                          @controllers.institutions.DataTransformations.convert(id: String, ds: String, key: Option[String] ?= None)

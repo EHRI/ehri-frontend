@@ -2,8 +2,8 @@ package controllers.institutions
 
 import java.util.UUID
 
-import actors.harvesting.OaiRsHarvesterManager.{OaiRsHarvestData, OaiRsHarvestJob}
-import actors.harvesting.{OaiRsHarvester, OaiRsHarvesterManager}
+import actors.harvesting.ResourceSyncHarvesterManager.{ResourceSyncData, ResourceSyncJob}
+import actors.harvesting.{ResourceSyncHarvester, ResourceSyncHarvesterManager}
 import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
@@ -17,24 +17,43 @@ import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.harvesting.{HarvestEventService, OaiRsClient}
+import services.harvesting.{HarvestEventService, ResourceSyncClient, ResourceSyncConfigService}
 import services.storage.FileStorage
 
 
 @Singleton
-case class OaiRsConfigs @Inject()(
+case class ResourceSyncConfigs @Inject()(
   controllerComponents: ControllerComponents,
   @Named("dam") storage: FileStorage,
   appComponents: AppComponents,
-  rsClient: OaiRsClient,
+  rsClient: ResourceSyncClient,
   ws: WSClient,
+  configs: ResourceSyncConfigService,
   harvestEvents: HarvestEventService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
-  private val logger: Logger = Logger(classOf[OaiRsConfigs])
+  private val logger: Logger = Logger(classOf[ResourceSyncConfigs])
 
-  def test(id: String, ds: String): Action[OaiRsConfig] = EditAction(id).async(parse.json[OaiRsConfig]) { implicit request =>
-    ws.url(request.body.changeList.toString).head().map { r =>
+  def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    configs.get(id, ds).map { opt =>
+      Ok(Json.toJson(opt))
+    }
+  }
+
+  def save(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).async(parse.json[ResourceSyncConfig]) { implicit request =>
+    configs.save(id, ds, request.body).map { r =>
+      Ok(Json.toJson(r))
+    }
+  }
+
+  def delete(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    configs.delete(id, ds).map { r =>
+      Ok(Json.toJson(r))
+    }
+  }
+
+  def test(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).async(parse.json[ResourceSyncConfig]) { implicit request =>
+    ws.url(request.body.url.toString).head().map { r =>
       if (r.status != 200)
         BadRequest(Json.obj("error" -> s"Unexpected status: ${r.status}"))
       else if (r.header(HeaderNames.CONTENT_LENGTH).map(_.toLong).getOrElse(0L) <= 0)
@@ -47,12 +66,12 @@ case class OaiRsConfigs @Inject()(
   }
 
 
-  def sync(id: String, ds: String): Action[OaiRsConfig] = EditAction(id).apply(parse.json[OaiRsConfig]) { implicit request =>
+  def sync(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).apply(parse.json[ResourceSyncConfig]) { implicit request =>
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
-      val data = OaiRsHarvestData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input))
-      val job = OaiRsHarvestJob(id, ds, jobId, data = data)
-      mat.system.actorOf(Props(OaiRsHarvesterManager(job, ws, rsClient, storage, harvestEvents)), jobId)
+      val data = ResourceSyncData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input))
+      val job = ResourceSyncJob(id, ds, jobId, data = data)
+      mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, ws, rsClient, storage, harvestEvents)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks
@@ -65,7 +84,7 @@ case class OaiRsConfigs @Inject()(
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
       logger.info(s"Monitoring job: $jobId")
-      ref ! OaiRsHarvester.Cancel
+      ref ! ResourceSyncHarvester.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))

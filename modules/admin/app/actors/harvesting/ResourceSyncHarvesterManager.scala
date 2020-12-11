@@ -1,18 +1,18 @@
 package actors.harvesting
 
-import actors.harvesting.OaiRsHarvesterManager.OaiRsHarvestJob
+import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
-import models.{OaiRsConfig, UserProfile}
+import models.{ResourceSyncConfig, UserProfile}
 import play.api.libs.ws.WSClient
-import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiRsClient}
+import services.harvesting.{HarvestEventHandle, HarvestEventService, ResourceSyncClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
 import scala.concurrent.ExecutionContext
 
 
-object OaiRsHarvesterManager {
+object ResourceSyncHarvesterManager {
 
   /**
     * A description of an OAI-ResourceSync harvest task.
@@ -22,8 +22,8 @@ object OaiRsHarvesterManager {
     * @param prefix     the path prefix on which to save files, after
     *                   which the item identifier will be appended
     */
-  case class OaiRsHarvestData(
-    config: OaiRsConfig,
+  case class ResourceSyncData(
+    config: ResourceSyncConfig,
     classifier: String,
     prefix: String,
   )
@@ -31,15 +31,15 @@ object OaiRsHarvesterManager {
   /**
     * A single harvest job with a unique ID.
     */
-  case class OaiRsHarvestJob(repoId: String, datasetId: String, jobId: String, data: OaiRsHarvestData)
+  case class ResourceSyncJob(repoId: String, datasetId: String, jobId: String, data: ResourceSyncData)
 
 }
 
 
-case class OaiRsHarvesterManager(job: OaiRsHarvestJob, ws: WSClient, client: OaiRsClient, storage: FileStorage, eventLog: HarvestEventService)(
+case class ResourceSyncHarvesterManager(job: ResourceSyncJob, ws: WSClient, client: ResourceSyncClient, storage: FileStorage, eventLog: HarvestEventService)(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
-  import OaiRsHarvester._
+  import ResourceSyncHarvester._
   import akka.pattern.pipe
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
@@ -53,7 +53,7 @@ case class OaiRsHarvesterManager(job: OaiRsHarvestJob, ws: WSClient, client: Oai
   override def receive: Receive = {
     case chan: ActorRef =>
       log.debug("Received initial subscriber, starting...")
-      val runner = context.actorOf(Props(OaiRsHarvester(job, ws, client, storage)))
+      val runner = context.actorOf(Props(ResourceSyncHarvester(job, ws, client, storage)))
       context.become(running(runner, Set(chan), Option.empty))
       runner ! Initial
   }

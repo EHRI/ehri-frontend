@@ -12,7 +12,8 @@ Vue.component("rs-config-modal", {
       filter: this.config ? this.config.filter : null,
       tested: null,
       testing: false,
-      error: null
+      error: null,
+      saving: false,
     }
   },
   computed: {
@@ -22,14 +23,15 @@ Vue.component("rs-config-modal", {
   },
   methods: {
     save: function() {
-      // this.api.saveConfig(this.datasetId, {url: this.url, filter: this.filter})
-      //   .then(data => this.$emit("saved-config", data))
-      //   .catch(error => this.$emit("error", "Error saving RS config", error));
-      this.$emit("saved-config", {url: this.url, filter: this.filter});
+      this.saving = true;
+      this.api.saveSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
+        .then(data => this.$emit("saved-config", data))
+        .catch(error => this.$emit("error", "Error saving RS config", error))
+        .finally(() => this.saving = false);
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testSync(this.datasetId, {url: this.url, filter: this.filter})
+      this.api.testSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
         .then(() => {
           this.tested = true;
           this.error = null;
@@ -65,7 +67,7 @@ Vue.component("rs-config-modal", {
           <label class="form-label" for="opt-filter">
             ResourceSync path filter
           </label>
-          <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optionalOai)"/>
+          <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optional)"/>
         </div>
         <div id="endpoint-errors">
           <span v-if="tested === null">&nbsp;</span>
@@ -89,6 +91,7 @@ Vue.component("rs-config-modal", {
         </button>
         <button v-bind:disabled="!isValidConfig"
                 v-on:click="save" type="button" class="btn btn-secondary">
+          <i v-bind:class="{'fa-clone': !saving, 'fa-circle-o-notch fa-spin': saving}" class="fa fa-fw"></i>
           Sync Endpoint
         </button>
       </template>
@@ -162,8 +165,11 @@ Vue.component("rs-manager", {
       this.sync();
     },
     loadConfig: function() {
-      // this.api.getConfig(this.datasetId)
-      //   .then(data => this.syncConfig = data);
+      this.api.getSyncConfig(this.datasetId)
+        .then(data => {
+          this.syncConfig = data;
+          console.log("Loaded", data);
+        });
     },
   },
   created: function () {
