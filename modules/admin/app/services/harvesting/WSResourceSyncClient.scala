@@ -50,6 +50,7 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
     readUrlSet(config.url).flatMap { list =>
 
       val s: Source[FileLink, NotUsed] = Source(list.toList)
+        .collect { case rl: ResourceList => rl }
         .mapAsync(1) { urlItem => readUrlSet(urlItem.loc) }
         .flatMapConcat(s => Source(s.toList))
         .collect { case link: FileLink => link }

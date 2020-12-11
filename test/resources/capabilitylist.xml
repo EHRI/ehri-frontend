@@ -1,0 +1,8 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:rs="http://www.openarchives.org/rs/terms/">
+    <rs:ln href="/.well-known/resourcesync" rel="up"/>
+    <rs:md capability="capabilitylist"/>
+    <url>
+        <loc>/resourcesync/resourcelist.xml</loc>
+        <rs:md capability="resourcelist"/>
+    </url>
+</urlset>

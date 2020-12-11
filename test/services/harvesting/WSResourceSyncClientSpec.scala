@@ -1,41 +1,49 @@
 package services.harvesting
 
-import java.io.StringWriter
-
+import akka.actor.ActorSystem
+import akka.stream.Materializer
 import helpers.TestConfiguration
 import models.ResourceSyncConfig
-import org.w3c.dom.Element
-import play.api.Application
+import play.api.BuiltInComponentsFromContext
+import play.api.routing.Router
 import play.api.test.PlaySpecification
+import play.filters.HttpFiltersComponents
 
 class WSResourceSyncClientSpec extends PlaySpecification with TestConfiguration {
 
-  private def stringify(elem: Element): String = {
-    import javax.xml.transform.TransformerFactory
-    import javax.xml.transform.dom.DOMSource
-    import javax.xml.transform.stream.StreamResult
-    val s = new DOMSource(elem)
-    val w = new StringWriter()
-    val r = new StreamResult(w)
-    val tf = TransformerFactory.newInstance()
-    val t = tf.newTransformer()
-    t.transform(s, r)
-    w.toString
+  private implicit val as: ActorSystem = ActorSystem("test")
+  private implicit val mat: Materializer = Materializer(as)
+
+  def withResourceSyncClient[T](block: WSResourceSyncClient => T): T = {
+    import play.api.mvc._
+    import play.api.routing.sird._
+    import play.api.test._
+    import play.core.server.Server
+    Server.withApplicationFromContext() { context =>
+      new BuiltInComponentsFromContext(context) with HttpFiltersComponents {
+        override def router: Router = Router.from {
+          case play.api.routing.sird.GET(p"/resourcesync/$file") =>
+            Action { implicit req =>
+              Results.Ok.sendResource(file)(executionContext, fileMimeTypes)
+            }
+        }
+      }.application
+    } { implicit port =>
+      WsTestClient.withClient { client =>
+        block(WSResourceSyncClient(client))
+      }
+    }
   }
 
-  private def endpoint(implicit app: Application) = {
-    ResourceSyncConfig("https://collections.ushmm.org/resourcesync/ushmm/sitemaps/capabilitylist.xml")
-  }
+  private val endpoint = ResourceSyncConfig("/resourcesync/capabilitylist.xml")
 
   "OAI RS client service" should {
-    "list items" in new ITestApp {
-      val client = inject[ResourceSyncClient]
+    "list items" in withResourceSyncClient { client =>
 
       val list = await(client.list(endpoint))
-      println(list)
-
-      success
-
+      list.headOption must beSome.which { link =>
+        link.loc must_== "/resourcesync/hierarchical-ead.xml"
+      }
     }
   }
 }
