@@ -139,7 +139,6 @@ Vue.component("rs-manager", {
           this.log.push(msg.data.error);
         } else if (msg.data.msg) {
           this.log.push(msg.data.msg);
-          this.$delete(this.validationResults, msg.data.msg);
           this.refresh();
         }
         if (msg.data.done || msg.data.error) {
@@ -183,27 +182,19 @@ Vue.component("rs-manager", {
                         v-on:filter="filterFiles"
                         v-on:clear="clearFilter"/>
 
-        <button v-if="selectedKeys.length" v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateFiles(selectedTags)">
-          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
-          Validate Selected ({{selectedKeys.length}})
-        </button>
-        <button v-else v-bind:disabled="files.length===0" class="btn btn-sm btn-default"
-                v-on:click.prevent="validateAll">
-          <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !validationRunning, 'fa-circle-o-notch fa-spin': validationRunning}"/>
-          Validate All
-        </button>
+        <validate-button
+          v-bind:selected="selectedKeys.length"
+          v-bind:disabled="files.length === 0 || syncJobId !== null"
+          v-bind:active="validationRunning"
+          v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
+        />
 
-        <button v-bind:disabled="files.length ===0 || syncJobId" class="btn btn-sm btn-default"
-                v-on:click.prevent="deleteFiles(selectedKeys)" v-if="selectedKeys.length > 0">
-          <i class="fa fa-trash-o"/>
-          Delete Selected ({{selectedKeys.length}})
-        </button>
-        <button v-bind:disabled="files.length === 0 || syncJobId" class="btn btn-sm btn-default" v-on:click.prevent="deleteAll()"
-                v-else>
-          <i class="fa fa-trash-o"/>
-          Delete All
-        </button>
+        <delete-button
+          v-bind:selected="selectedKeys.length"
+          v-bind:disabled="files.length === 0 || syncJobId !== null"
+          v-bind:active="!_.isEmpty(deleting)"
+          v-on:delete="selectedKeys.length ? deleteFiles(selectedKeys) : deleteAll()"
+        />
 
         <button v-if="!syncJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions">

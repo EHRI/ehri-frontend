@@ -844,6 +844,44 @@ Vue.component("filter-control", {
   `
 });
 
+Vue.component("validate-button", {
+  props: {
+    disabled: Boolean,
+    selected: Number,
+    active: Boolean,
+  },
+  template: `
+    <button v-bind:disabled="disabled" v-on:click.prevent="$emit('validate')" class="btn btn-sm btn-default">
+      <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !active, 'fa-circle-o-notch fa-spin': active}"/>
+      <template v-if="selected > 0">
+        Validate Selected ({{selected}})
+      </template>
+      <template v-else>
+        Validate All
+      </template>
+    </button>
+ `
+});
+
+Vue.component("delete-button", {
+  props: {
+    disabled: Boolean,
+    selected: Number,
+    active: Boolean,
+  },
+  template: `
+    <button v-bind:disabled="disabled" v-on:click.prevent="$emit('delete')" class="btn btn-sm btn-default">
+      <i class="fa fa-fw" v-bind:class="{'fa-trash-o': !active, 'fa-circle-o-notch fa-spin': active}"/>
+      <template v-if="selected > 0">
+        Delete Selected ({{selected}})
+      </template>
+      <template v-else>
+        Delete All
+      </template>
+    </button>
+  `
+})
+
 Vue.component("log-window", {
   props: {
     log: Array,
