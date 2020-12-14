@@ -6,4 +6,9 @@
         <lastmod>2020-12-11T15:00:00Z</lastmod>
         <rs:md hash="md5:777da8d34a7763ac939440ffbfa2de4f" length="3668" type="text/xml"/>
     </url>
+    <url>
+        <loc>/resourcesync/test.xml</loc>
+        <lastmod>2020-12-11T15:00:00Z</lastmod>
+        <rs:md hash="md5:d41d8cd98f00b204e9800998ecf8427e" length="0" type="text/xml"/>
+    </url>
 </urlset>

@@ -1,5 +1,7 @@
 package services.harvesting
 
+import java.util.regex.Pattern
+
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -21,25 +23,26 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
   private def parseAttr(node: Node, key: String): Option[String] =
     node.attribute(key).flatMap(_.headOption.map(_.text))
 
-  private def readUrlSet(url: String): Future[Seq[ResourceSyncItem]] = {
+  private def readUrlSet(url: String, filter: String => Boolean): Future[Seq[ResourceSyncItem]] = {
     ws.url(url).get().map { r =>
       (r.xml \ "url").flatMap { urlNode =>
         val md = urlNode \ "md"
         val lastMod = urlNode \ "lastmod"
         val capability = parseAttr(md, "capability")
 
-        (urlNode \ "loc").map { locNode =>
+        (urlNode \ "loc").flatMap { locNode =>
           val loc = locNode.text
           capability match {
-            case Some("resourcelist") => ResourceList(loc)
-            case Some("capabilitylist") => CapabilityList(loc)
-            case _ => FileLink(
+            case Some("resourcelist") => Some(ResourceList(loc))
+            case Some("capabilitylist") => Some(CapabilityList(loc))
+            case None if filter(loc) => Some(FileLink(
               loc,
               contentType = parseAttr(md, "type"),
               hash = parseAttr(md, "hash"),
               length = parseAttr(md, "length").map(_.toLong),
               updated = lastMod.headOption.map(n => java.time.Instant.parse(n.text))
-            )
+            ))
+            case _ => None
           }
         }
       }
@@ -47,11 +50,15 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
   }
 
   override def list(config: ResourceSyncConfig): Future[Seq[FileLink]] = {
-    readUrlSet(config.url).flatMap { list =>
+
+    val test: String => Boolean = config.filter.fold(ifEmpty = (_:String) => true)(
+      s => t => Pattern.compile(s).matcher(t).find())
+
+    readUrlSet(config.url, test).flatMap { list =>
 
       val s: Source[FileLink, NotUsed] = Source(list.toList)
         .collect { case rl: ResourceList => rl }
-        .mapAsync(1) { urlItem => readUrlSet(urlItem.loc) }
+        .mapAsync(1) { urlItem => readUrlSet(urlItem.loc, test) }
         .flatMapConcat(s => Source(s.toList))
         .collect { case link: FileLink => link }
 

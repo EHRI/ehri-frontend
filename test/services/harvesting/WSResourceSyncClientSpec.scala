@@ -44,6 +44,13 @@ class WSResourceSyncClientSpec extends PlaySpecification with TestConfiguration 
       list.headOption must beSome.which { link =>
         link.loc must_== "/resourcesync/hierarchical-ead.xml"
       }
+      list.size must_== 2
+    }
+
+    "list items with filter" in withResourceSyncClient { client =>
+      val list = await(client.list(endpoint.copy(filter = Some("hier"))))
+      list.headOption must beSome
+      list.size must_== 1
     }
   }
 }

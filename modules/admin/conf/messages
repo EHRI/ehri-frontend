@@ -21,6 +21,11 @@ facet.linkType=Link Type
 facet.linkField=Link Field
 
 #
+# Errors
+#
+errors.badRegexPattern=Regular expression syntax error
+
+#
 #
 # Friendly names for content types
 contentTypes=Content types

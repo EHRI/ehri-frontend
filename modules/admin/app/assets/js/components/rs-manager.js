@@ -65,7 +65,7 @@ Vue.component("rs-config-modal", {
         </div>
         <div class="form-group">
           <label class="form-label" for="opt-filter">
-            ResourceSync path filter
+            ResourceSync path filter RegEx
           </label>
           <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optional)"/>
         </div>

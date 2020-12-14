@@ -86,6 +86,9 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, ws: WSClient, clie
     case Starting =>
       msg(s"Starting harvest with job id: ${job.jobId}", subs)
 
+    case ToDo(num) =>
+      msg(s"Syncing $num file(s)", subs)
+
     // Cancel harvest.. here we tell the runner to exit
     // and shut down on its termination signal...
     case Cancel => runner ! Cancel
