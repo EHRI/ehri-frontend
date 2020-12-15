@@ -5,12 +5,19 @@ import java.util.regex.Pattern
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
+import akka.util.ByteString
 import javax.inject.Inject
 import models._
+import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.{Node, NodeSeq}
+
+
+case class ResourceSyncError(code: String, value: String = "") extends RuntimeException(code) {
+  def errorMessage(implicit messages: Messages): String = Messages(s"resourceSync.error.$code", value)
+}
 
 
 case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materializer) extends ResourceSyncClient {
@@ -65,4 +72,13 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
       s.runWith(Sink.seq)
     }
   }
+
+  override def get(link: FileLink): Source[ByteString, _] =
+    Source.future(ws.url(link.loc).withFollowRedirects(true).get().map { r =>
+      if (r.status == 404) {
+        Source.failed(ResourceSyncError("notFound", link.loc))
+      } else if (r.status != 200) {
+        Source.failed(ResourceSyncError("unexpectedStatus", r.status.toString))
+      } else r.bodyAsSource
+    }).flatMapConcat(src => src)
 }

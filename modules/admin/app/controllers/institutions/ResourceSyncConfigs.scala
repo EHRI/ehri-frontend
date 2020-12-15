@@ -53,7 +53,7 @@ case class ResourceSyncConfigs @Inject()(
   }
 
   def test(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).async(parse.json[ResourceSyncConfig]) { implicit request =>
-    ws.url(request.body.url.toString).head().map { r =>
+    ws.url(request.body.url).head().map { r =>
       if (r.status != 200)
         BadRequest(Json.obj("error" -> s"Unexpected status: ${r.status}"))
       else if (r.header(HeaderNames.CONTENT_LENGTH).map(_.toLong).getOrElse(0L) <= 0)
@@ -71,7 +71,7 @@ case class ResourceSyncConfigs @Inject()(
       val jobId = UUID.randomUUID().toString
       val data = ResourceSyncData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input))
       val job = ResourceSyncJob(id, ds, jobId, data = data)
-      mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, ws, rsClient, storage, harvestEvents)), jobId)
+      mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, rsClient, storage, harvestEvents)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks

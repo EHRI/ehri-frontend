@@ -27,6 +27,7 @@ import services.accounts.{AccountManager, MockAccountManager}
 import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data.{IdSearchResolver, _}
 import services.feedback.{FeedbackService, MockFeedbackService}
+import services.harvesting.{MockResourceSyncClient, ResourceSyncClient}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
 import services.ingest.{EadValidator, MockEadValidatorService}
 import services.oauth2.OAuth2Service
@@ -113,10 +114,11 @@ trait TestConfiguration {
       bind[HtmlPages].toInstance(mockHtmlPages),
       bind[ItemLifecycle].to(classOf[NoopItemLifecycle]),
       bind[EadValidator].to(mockEadValidator),
+      bind[ResourceSyncClient].to[MockResourceSyncClient],
       // NB: Graph IDs are not stable during testing due to
       // DB churn, so using the String ID resolver rather than
       // the more efficient GID one used in production
-      bind[SearchItemResolver].to[IdSearchResolver]
+      bind[SearchItemResolver].to[IdSearchResolver],
     ).bindings(
       bind[SearchLogger].toInstance(searchLogger)
     )

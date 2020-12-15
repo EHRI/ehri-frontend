@@ -6,7 +6,6 @@ import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import models.{FileLink, UserProfile}
-import play.api.libs.ws.WSClient
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
@@ -32,7 +31,7 @@ object ResourceSyncHarvester {
 }
 
 
-case class ResourceSyncHarvester (job: ResourceSyncJob, ws: WSClient, client: ResourceSyncClient, storage: FileStorage)(
+case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
   import ResourceSyncHarvester._
   import akka.pattern.pipe
@@ -103,15 +102,14 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, ws: WSClient, client: Re
       // Either the hash doesn't match or the file's not there yet
       // so upload it now...
       case _ =>
-        ws.url(item.loc).get().flatMap { r =>
-          storage.putBytes(
-            job.data.classifier,
-            job.data.prefix + name,
-            r.bodyAsSource,
-            item.contentType,
-            meta = meta
-          ).map { _ => "+ " + name }
-        }
+        val bytes = client.get(item)
+        storage.putBytes(
+          job.data.classifier,
+          job.data.prefix + name,
+          bytes,
+          item.contentType,
+          meta = meta
+        ).map { _ => "+ " + name }
     }
   }
 
@@ -119,13 +117,17 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, ws: WSClient, client: Re
     case Nil => ""
     case head :: Nil => head.loc.substring(0, head.loc.lastIndexOf('/') + 1)
     case list =>
+      // Get the common string prefix...
       // Pinched from Rosetta code because I'm too lazy to write this:
       // https://rosettacode.org/wiki/Longest_common_prefix#Scala
       def lcp(list: Seq[String]): String = list.foldLeft("") { (_, _) =>
         (list.min.view, list.max.view).zipped.takeWhile(v => v._1 == v._2).map(_._1).mkString
       }
 
-      lcp(list.map(_.loc).sorted)
+      // Now get the dirname of the common string prefix
+      val prefix = lcp(list.map(_.loc).sorted)
+      if (prefix.endsWith("/")) prefix
+      else prefix.substring(0, prefix.lastIndexOf('/') + 1)
   }
 
   private def time(from: LocalDateTime): Long =

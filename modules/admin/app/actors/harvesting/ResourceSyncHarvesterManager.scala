@@ -4,7 +4,6 @@ import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{ResourceSyncConfig, UserProfile}
-import play.api.libs.ws.WSClient
 import services.harvesting.{HarvestEventHandle, HarvestEventService, ResourceSyncClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
@@ -36,7 +35,7 @@ object ResourceSyncHarvesterManager {
 }
 
 
-case class ResourceSyncHarvesterManager(job: ResourceSyncJob, ws: WSClient, client: ResourceSyncClient, storage: FileStorage, eventLog: HarvestEventService)(
+case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSyncClient, storage: FileStorage, eventLog: HarvestEventService)(
   implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
 
   import ResourceSyncHarvester._
@@ -53,7 +52,7 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, ws: WSClient, clie
   override def receive: Receive = {
     case chan: ActorRef =>
       log.debug("Received initial subscriber, starting...")
-      val runner = context.actorOf(Props(ResourceSyncHarvester(job, ws, client, storage)))
+      val runner = context.actorOf(Props(ResourceSyncHarvester(job, client, storage)))
       context.become(running(runner, Set(chan), Option.empty))
       runner ! Initial
   }
