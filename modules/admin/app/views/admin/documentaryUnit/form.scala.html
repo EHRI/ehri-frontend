@@ -1,17 +1,17 @@
 @(f: play.api.data.Form[DocumentaryUnitF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
 
 @import models.IsadG._
-@import models.DocumentaryUnitF._
+    @import models.DocumentaryUnitF._
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
-@defining("documentaryUnit") { implicit fieldPrefix =>
-    @defining(Some(config)) { implicit implicitConfig =>
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+@defining(Some(config)) { implicit implicitConfig =>
+
+    @defining("documentaryUnit") { implicit fieldPrefix =>
         @formHelpers.inlineNameSet(f(""), OTHER_IDENTIFIERS)
 
         @formHelpers.descriptionFormTabs(f) { desc =>
-            @descriptionForm(desc)
+            @views.html.admin.documentaryUnit.descriptionForm(desc)
         }
 
         @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {

@@ -5,7 +5,8 @@
 @views.html.admin.layout.rightSidebar(Messages("authoritativeSet.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @form(Some(item), f)
+        @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
+        @views.html.admin.authoritativeSet.form(Some(item), f)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("authoritativeSet.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

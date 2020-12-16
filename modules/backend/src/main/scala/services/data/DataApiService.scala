@@ -146,6 +146,21 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
+  override def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]] = {
+    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename", local)).post().map { response =>
+      val mappings = checkErrorAndParse[Seq[(String,String)]](response)
+      eventHandler.handleDelete(mappings.map(_._1): _*)
+      eventHandler.handleUpdate(mappings.map(_._2): _*)
+      // FIXME: this is a bit fragile since it assumes all the items
+      // updated are the same type. While this is currently true for
+      // rename methods implemented in the backend it may not always be the
+      // case. However, the worst that will happen is that the cache will
+      // contain dead entries which will eventually be displaced anyway.
+      mappings.foreach(m => cache.remove(canonicalUrl[MT](m._1)))
+      mappings
+    }
+  }
+
   override def parent[MT: Resource, PMT: Resource](id: String, parentIds: Seq[String]): Future[MT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType, id, "parent")
     userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post().map { response =>

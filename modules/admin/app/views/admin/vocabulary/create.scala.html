@@ -5,7 +5,8 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.create"), defines.EntityType.Vocabulary) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @form(None, f)
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @views.html.admin.vocabulary.form(None, f)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocVocabulary.create.submit"))

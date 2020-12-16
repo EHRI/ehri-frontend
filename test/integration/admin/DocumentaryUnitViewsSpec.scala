@@ -322,6 +322,19 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       indexEventBuffer.last must equalTo("c1")
     }
 
+    "allow renaming items" in new ITestApp {
+      val testData: Map[String, Seq[String]] = Map("identifier" -> Seq("z2"))
+      val cr = FakeRequest(docRoutes.renamePost("c2"))
+        .withUser(privilegedUser).callWith(testData)
+
+      status(cr) must equalTo(SEE_OTHER)
+      flash(cr).get("success") must beSome.which { m =>
+        // We've renamed 2 items (c2) and its child, for
+        // which 3 redirects are created each for a total of 6
+        m must_== message("item.rename.confirmation", 6)
+      }
+    }
+
     "disallow updating items when logged in as unprivileged user" in new ITestApp {
       val testData: Map[String, Seq[String]] = Map(
         "identifier" -> Seq("c4"),

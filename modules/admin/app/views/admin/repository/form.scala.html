@@ -11,8 +11,6 @@
 
 @defining("repository") { implicit fieldPrefix =>
     @defining(Some(config)) { implicit implicitConfig =>
-        @formHelpers.lineInput(f(""), IDENTIFIER)
-
         @helper.repeat(f("descriptions"), min = math.max(f("descriptions").indexes.length, 1)) { desc =>
             @descriptionForm(desc)
         }

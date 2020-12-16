@@ -1,7 +1,6 @@
 @(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @defining("authoritativeSet") { implicit fieldPrefix =>
-    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
     @formHelpers.lineInput(f(""), AuthoritativeSetF.NAME)
     @formHelpers.textInput(f(""), AuthoritativeSetF.DESCRIPTION)
     @formHelpers.hiddenInput(f(models.AuthoritativeSetF.ALLOW_PUBLIC))

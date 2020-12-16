@@ -119,7 +119,7 @@ link.relatedUnitsOfDescription=Related Units of Description
 # Generic actions
 #
 item.actions=Actions
-item.identifier=Identifier(s)
+item.identifier=Identifier
 item.history=Item History
 item.history.item=Change history for item: {0}
 item.annotate.submit=Annotate Item
@@ -148,6 +148,12 @@ item.demote.confirmation=Item promotion removed
 item.noItemsFound=No items found
 item.field.add=Add Field
 item.field.remove=Remove Field
+item.rename=Change Identifier
+item.rename.warning=Changing an item''s identifier will change it's URL and the URLs of any child items. The current identifier is:
+item.rename.submit=Submit
+item.rename.identifier=New Identifier
+item.rename.confirmation=Item successfully renamed; new 301 URL redirects: {0}
+item.rename.title=Change identifier
 
 
 #

@@ -5,10 +5,11 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("repository.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
-        @form(f, config)
+        @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
+        @views.html.admin.repository.form(f, config)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {
-	@formNav()
+	@views.html.admin.repository.formNav()
 }

@@ -4,10 +4,10 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
-import forms.VisibilityForm
-import javax.inject._
+import forms.{FormConfigBuilder, VisibilityForm}
 import models._
-import forms.FormConfigBuilder
+import play.api.data.Form
+import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -16,6 +16,10 @@ import services.search._
 import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
 import views.Helpers
+
+import javax.inject._
+import scala.concurrent.Future
+
 
 
 @Singleton
@@ -41,6 +45,7 @@ case class DocumentaryUnits @Inject()(
   // Documentary unit facets
   import SearchConstants._
 
+  override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -88,17 +93,13 @@ case class DocumentaryUnits @Inject()(
       ),
     )
   }
-
   private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
-
-  override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
-
   private val form = models.DocumentaryUnit.form
   private val childForm = models.DocumentaryUnit.form
   private val descriptionForm = models.DocumentaryUnitDescription.form
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
-
+  private val renameForm = Form(single(IDENTIFIER -> nonEmptyText))
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     // What filters we gonna use? How about, only list stuff here that
@@ -166,6 +167,32 @@ case class DocumentaryUnits @Inject()(
       case Right(item) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
+  }
+
+  def rename(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
+    Ok(views.html.admin.documentaryUnit.rename(request.item, renameForm, docRoutes.renamePost(id)))
+  }
+
+  def renamePost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    renameForm.bindFromRequest().fold(
+      errForm => Future.successful(
+        BadRequest(views.html.admin.documentaryUnit.rename(request.item, errForm, docRoutes.renamePost(id)))),
+      local => userDataApi.rename[DocumentaryUnit](id, local, getLogMessage).flatMap { mappings =>
+        val newId = mappings.headOption.map(_._2).getOrElse(id)
+        val portalRoutes = controllers.portal.routes.DocumentaryUnits
+        val redirectUrls = mappings.flatMap { case (from, to) =>
+          Seq(
+            portalRoutes.browse(from).url -> portalRoutes.browse(to).url,
+            portalRoutes.search(from).url -> portalRoutes.search(to).url,
+            docRoutes.get(from).url -> docRoutes.get(to).url
+          )
+        }
+        appComponents.pageRelocator.addMoved(redirectUrls).map { count =>
+          Redirect(docRoutes.get(newId))
+            .flashing("success" -> Messages("item.rename.confirmation", count))
+        }
+      }
+    )
   }
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
