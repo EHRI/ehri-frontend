@@ -11,10 +11,18 @@ import models._
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future.{successful => immediate}
 import scala.xml.{Node, NodeSeq}
 
-
-case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materializer) extends ResourceSyncClient {
+/**
+  * TODO: needs a lot of work this one
+  *
+  *  - handle changelists
+  *  - handle changedumps
+  *  - prevent infinite redirection
+  *
+  */
+case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializer) extends ResourceSyncClient {
 
   private implicit val ec: ExecutionContext = mat.executionContext
 
@@ -25,7 +33,7 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
     node.attribute(key).flatMap(_.headOption.map(_.text))
 
   private def readUrlSet(url: String, filter: String => Boolean): Future[Seq[ResourceSyncItem]] = {
-    ws.url(url).get().map { r =>
+    ws.url(url).withFollowRedirects(true).get().map { r =>
       (r.xml \ "url").flatMap { urlNode =>
         val md = urlNode \ "md"
         val lastMod = urlNode \ "lastmod"
@@ -52,14 +60,18 @@ case class WSResourceSyncClient @Inject ()(ws: WSClient)(implicit mat: Materiali
 
   override def list(config: ResourceSyncConfig): Future[Seq[FileLink]] = {
 
-    val test: String => Boolean = config.filter.fold(ifEmpty = (_:String) => true)(
+    val test: String => Boolean = config.filter.fold(ifEmpty = (_: String) => true)(
       s => t => Pattern.compile(s).matcher(t).find())
 
     readUrlSet(config.url, test).flatMap { list =>
 
       val s: Source[FileLink, NotUsed] = Source(list.toList)
-        .collect { case rl: ResourceList => rl }
-        .mapAsync(1) { urlItem => readUrlSet(urlItem.loc, test) }
+        .mapAsync(1) {
+          case item: FileLink => immediate(Seq(item))
+          case ResourceList(loc) => readUrlSet(loc, test)
+          // TODO: other states...
+          case _ => immediate(Seq.empty)
+        }
         .flatMapConcat(s => Source(s.toList))
         .collect { case link: FileLink => link }
 
