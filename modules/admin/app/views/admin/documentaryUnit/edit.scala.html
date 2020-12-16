@@ -2,13 +2,18 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.update"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.update"), item.isA, breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
 		
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-		@form(f, config)
+
+        @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
+        <p>@Messages("item.identifier"): <strong>@item.data.identifier</strong> [
+            <a href="@controllers.units.routes.DocumentaryUnits.rename(item.id)">@Messages("item.rename.title")</a>]</p>
+
+        @views.html.admin.documentaryUnit.form(f, config)
         @formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-    @formNav()
+    @views.html.admin.documentaryUnit.formNav()
 }

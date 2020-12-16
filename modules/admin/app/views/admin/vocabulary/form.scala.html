@@ -1,7 +1,6 @@
 @(item: Option[Vocabulary], f: Form[models.VocabularyF])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
 
 @defining("cvocVocabulary") { implicit fieldPrefix =>
-    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
     @formHelpers.lineInput(f(""), models.VocabularyF.NAME)
     @formHelpers.textInput(f(""), models.VocabularyF.DESCRIPTION)
     @formHelpers.hiddenInput(f(models.VocabularyF.ALLOW_PUBLIC))

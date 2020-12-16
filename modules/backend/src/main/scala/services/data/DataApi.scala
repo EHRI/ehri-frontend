@@ -279,6 +279,17 @@ trait DataApiHandle {
   def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit]
 
   /**
+    * Rename an item.
+    *
+    * @param id    the item's id
+    * @param local the item's new local identifier
+    * @tparam MT the generic type of the item
+    * @return a mapping of old-ID to new-ID for this
+    *         item and it's children
+    */
+  def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]]
+
+  /**
     * List items with the given resource type.
     *
     * @param resource the resource type

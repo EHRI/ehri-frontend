@@ -40,3 +40,5 @@ POST    /:id/deleteAccess/:did/:accessPoint        @controllers.units.Documentar
 POST    /:id/deleteLink/:link                      @controllers.units.DocumentaryUnits.deleteLink(id: String, link: String)
 POST    /:id/deleteLink/:did/:accessPoint/:link    @controllers.units.DocumentaryUnits.deleteLinkAndAccessPoint(id: String, did: String, accessPoint: String, link: String)
 GET     /:id/ingest                                @controllers.units.DocumentaryUnits.ingest(id: String)
+GET     /:id/rename                                @controllers.units.DocumentaryUnits.rename(id: String)
+POST    /:id/rename                                @controllers.units.DocumentaryUnits.renamePost(id: String)

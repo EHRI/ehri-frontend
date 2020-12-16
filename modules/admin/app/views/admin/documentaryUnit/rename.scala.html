@@ -1,0 +1,18 @@
+@(item: DocumentaryUnit, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+ 
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("item.rename"), breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item)) {
+
+    <p class="alert alert-warning">
+        @Messages("item.rename.warning")
+        <code><strong>@item.data.identifier</strong></code>
+    </p>
+	@helper.form(action = action) {
+        @formHelpers.csrfToken()
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, '_label -> Messages("item.rename.identifier"), 'autofocus -> "autofocus")
+
+        @formHelpers.submitButtonWithLogMessageInput(Messages("item.rename.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+	}
+} {
+}

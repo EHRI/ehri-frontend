@@ -5,10 +5,12 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("repository.create"), defines.EntityType.Repository, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @form(f, config)
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'disabled -> "disabled")
+
+        @views.html.admin.repository.form(f, config)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.create.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-	@formNav()
+	@views.html.admin.repository.formNav()
 }
