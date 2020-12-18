@@ -173,7 +173,9 @@ CREATE TABLE harvest_event (
         ON DELETE SET NULL
 );
 
+CREATE INDEX harvest_event_repo_dataset ON harvest_event(repo_id, import_dataset_id);
 CREATE INDEX harvest_event_repo_job ON harvest_event(repo_id, job_id);
+CREATE INDEX harvest_event_user ON harvest_event(user_id);
 
 CREATE TABLE data_transformation (
     id          CHAR(10) NOT NULL PRIMARY KEY ,
@@ -214,6 +216,8 @@ CREATE TABLE import_log (
         ON DELETE CASCADE
 );
 
+CREATE INDEX import_log_repo_dataset ON import_log(repo_id, import_dataset_id);
+
 CREATE TABLE import_file_mapping (
     id              SERIAL PRIMARY KEY,
     import_log_id   CHAR(36) REFERENCES import_log(id) ON DELETE CASCADE,
@@ -222,6 +226,12 @@ CREATE TABLE import_file_mapping (
     item_id         TEXT NOT NULL,
     type            VARCHAR (10) NOT NULL
 );
+
+
+CREATE INDEX import_file_mapping_import_log_id ON import_file_mapping (import_log_id);
+CREATE INDEX import_file_mapping_key ON import_file_mapping (key);
+CREATE INDEX import_file_mapping_item_id ON import_file_mapping (item_id);
+CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping(import_log_id, item_id);
 
 
  # --- !Downs

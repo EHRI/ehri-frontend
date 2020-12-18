@@ -321,9 +321,12 @@ case class Tools @Inject()(
         controllers.tools.routes.Tools.batchDeletePost()))),
       data => userDataApi.batchDelete(
         data.ids, data.scope, data.log, version = data.version, commit = data.commit
-      ).map { deleted =>
-        Redirect(controllers.tools.routes.Tools.batchDelete())
-          .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+      ).flatMap { deleted =>
+        val indexOp = if (data.commit) searchIndexer.handle.clearIds(data.ids: _*) else immediate(Unit)
+        indexOp.map { _ =>
+          Redirect(controllers.tools.routes.Tools.batchDelete())
+            .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))
+        }
       } recover {
         case e: InputDataError =>
           BadRequest(views.html.admin.tools.batchDelete(boundForm.withGlobalError(e.details),

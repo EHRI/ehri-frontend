@@ -149,6 +149,13 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   override def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]] = {
     userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename")).post(local).map { response =>
       val mappings = checkErrorAndParse[Seq[(String,String)]](response)
+      if (!mappings.toMap.contains(id)) {
+        // It's possible the ID won't have changed but the local identifier has (for ex:
+        // if they're out-of-sync to start with.) In this case we need to invalidate the
+        // existing ID anyway.
+        eventHandler.handleUpdate(id)
+        cache.remove(canonicalUrl(id))
+      }
       eventHandler.handleDelete(mappings.map(_._1): _*)
       eventHandler.handleUpdate(mappings.map(_._2): _*)
       // FIXME: this is a bit fragile since it assumes all the items
