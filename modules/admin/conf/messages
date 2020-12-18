@@ -148,13 +148,17 @@ item.demote.confirmation=Item promotion removed
 item.noItemsFound=No items found
 item.field.add=Add Field
 item.field.remove=Remove Field
-item.rename=Change Identifier
+item.rename=Change Identifier: {0}
 item.rename.warning=Changing an item''s identifier will change it's URL and the URLs of any child items. The current identifier is:
 item.rename.submit=Submit
 item.rename.identifier=New Identifier
 item.rename.confirmation=Item successfully renamed; new 301 URL redirects: {0}
 item.rename.title=Change identifier
-
+item.rename.collisions.error=ID collisions detected
+item.rename.collisions=ID Collisions
+item.rename.collisions.details=Identifiers must be unique at the same level of description. \
+  Changing the identifier of this item would create conflicts with the following items: 
+item.rename.subject=This item
 
 #
 # Cypher queries

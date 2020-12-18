@@ -146,8 +146,10 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
     }
   }
 
-  override def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]] = {
-    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename")).post(local).map { response =>
+  override def rename[MT: Resource](id: String, local: String, logMsg: Option[String], check: Boolean = false): Future[Seq[(String, String)]] = {
+    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename"))
+      .withQueryString("check" -> check.toString)
+      .post(local).map { response =>
       val mappings = checkErrorAndParse[Seq[(String,String)]](response)
       if (!mappings.toMap.contains(id)) {
         // It's possible the ID won't have changed but the local identifier has (for ex:
