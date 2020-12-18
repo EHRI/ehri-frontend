@@ -147,7 +147,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   }
 
   override def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]] = {
-    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename", local)).post().map { response =>
+    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename")).post(local).map { response =>
       val mappings = checkErrorAndParse[Seq[(String,String)]](response)
       eventHandler.handleDelete(mappings.map(_._1): _*)
       eventHandler.handleUpdate(mappings.map(_._2): _*)

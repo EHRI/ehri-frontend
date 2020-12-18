@@ -323,7 +323,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "allow renaming items" in new ITestApp {
-      val testData: Map[String, Seq[String]] = Map("identifier" -> Seq("z2"))
+      val testData: Map[String, Seq[String]] = Map("identifier" -> Seq("z2 / b"))
       val cr = FakeRequest(docRoutes.renamePost("c2"))
         .withUser(privilegedUser).callWith(testData)
 
