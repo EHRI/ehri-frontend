@@ -174,24 +174,30 @@ case class DocumentaryUnits @Inject()(
   }
 
   def renamePost(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    renameForm.bindFromRequest().fold(
+    val boundForm = renameForm.bindFromRequest()
+    boundForm.fold(
       errForm => Future.successful(
         BadRequest(views.html.admin.documentaryUnit.rename(request.item, errForm, docRoutes.renamePost(id)))),
-      local => userDataApi.rename[DocumentaryUnit](id, local, getLogMessage).flatMap { mappings =>
-        val newId = mappings.headOption.map(_._2).getOrElse(id)
-        val portalRoutes = controllers.portal.routes.DocumentaryUnits
-        val redirectUrls = mappings.flatMap { case (from, to) =>
-          Seq(
-            portalRoutes.browse(from).url -> portalRoutes.browse(to).url,
-            portalRoutes.search(from).url -> portalRoutes.search(to).url,
-            docRoutes.get(from).url -> docRoutes.get(to).url
-          )
-        }
-        val relocateF = appComponents.pageRelocator.addMoved(redirectUrls)
-        val importRefsF = importLogs.updateHandles(mappings)
-        for (count <- relocateF; _ <- importRefsF) yield {
-          Redirect(docRoutes.get(newId))
-            .flashing("success" -> Messages("item.rename.confirmation", count))
+      local => userDataApi.rename[DocumentaryUnit](id, local, getLogMessage, check = true).flatMap { collisions =>
+        if (collisions.nonEmpty) {
+          Future.successful(BadRequest(views.html.admin.documentaryUnit.rename(
+            request.item, boundForm, docRoutes.renamePost(id), collisions)))
+        } else userDataApi.rename[DocumentaryUnit](id, local, getLogMessage).flatMap { mappings =>
+          val newId = mappings.headOption.map(_._2).getOrElse(id)
+          val portalRoutes = controllers.portal.routes.DocumentaryUnits
+          val redirectUrls = mappings.flatMap { case (from, to) =>
+            Seq(
+              portalRoutes.browse(from).url -> portalRoutes.browse(to).url,
+              portalRoutes.search(from).url -> portalRoutes.search(to).url,
+              docRoutes.get(from).url -> docRoutes.get(to).url
+            )
+          }
+          val relocateF = appComponents.pageRelocator.addMoved(redirectUrls)
+          val importRefsF = importLogs.updateHandles(mappings)
+          for (count <- relocateF; _ <- importRefsF) yield {
+            Redirect(docRoutes.get(newId))
+              .flashing("success" -> Messages("item.rename.confirmation", count))
+          }
         }
       }
     )

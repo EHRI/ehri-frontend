@@ -333,6 +333,16 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
         // which 3 redirects are created each for a total of 6
         m must_== message("item.rename.confirmation", 6)
       }
+      // Empty the mutable rename buffer so other tests are not
+      // affected
+      movedPages.clear()
+    }
+
+    "handle colliding renames" in new ITestApp {
+      val testData: Map[String, Seq[String]] = Map("identifier" -> Seq("m19"))
+      val cr = FakeRequest(docRoutes.renamePost("c1"))
+        .withUser(privilegedUser).callWith(testData)
+      status(cr) must equalTo(BAD_REQUEST)
     }
 
     "disallow updating items when logged in as unprivileged user" in new ITestApp {

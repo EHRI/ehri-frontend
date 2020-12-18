@@ -1,14 +1,33 @@
-@(item: DocumentaryUnit, f: play.api.data.Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: play.api.data.Form[String], action: Call, collisions: Seq[(String, String)] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("item.rename"), breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item)) {
+@views.html.admin.layout.rightSidebar(Messages("item.rename", item.toStringLang), breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item)) {
 
     <p class="alert alert-warning">
         @Messages("item.rename.warning")
         <code><strong>@item.data.identifier</strong></code>
     </p>
 	@helper.form(action = action) {
+        @if(collisions.nonEmpty) {
+            <div class="alert alert-danger">
+                <p>@Messages("item.rename.collisions.details")</p>
+                <table class="table table-bordered table-striped table-sm">
+                @collisions.map { case (from, to) =>
+                <tr>
+                    <td>
+                        @if(from == item.id) {
+                            @Messages("item.rename.subject")
+                        } else {
+                            <a href="@controllers.units.routes.DocumentaryUnits.get(from)">@from</a>
+                        }
+                    </td>
+                    <td><a href="@controllers.units.routes.DocumentaryUnits.get(to)">@to</a></td>
+                </tr>
+                }
+                </table>
+            </div>
+        }
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, '_label -> Messages("item.rename.identifier"), 'autofocus -> "autofocus")
 

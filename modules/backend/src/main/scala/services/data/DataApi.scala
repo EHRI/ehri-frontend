@@ -81,6 +81,18 @@ trait DataApiHandle {
   def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T]
 
   /**
+    * Rename an item.
+    *
+    * @param id    the item's id
+    * @param local the item's new local identifier
+    * @param check   perform a check for ID collisions in the affected items
+    * @tparam MT the generic type of the item
+    * @return a mapping of old-ID to new-ID for this item and it's children, or,
+    *         if run with check=true, a list of potential colliding IDs
+    */
+  def rename[MT: Resource](id: String, local: String, logMsg: Option[String], check: Boolean = false): Future[Seq[(String, String)]]
+
+  /**
     * Rename a batch of items.
     *
     * @param mapping a mapping of current global ID to new local identifier
@@ -277,17 +289,6 @@ trait DataApiHandle {
     * @tparam MT the generic type of the item
     */
   def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit]
-
-  /**
-    * Rename an item.
-    *
-    * @param id    the item's id
-    * @param local the item's new local identifier
-    * @tparam MT the generic type of the item
-    * @return a mapping of old-ID to new-ID for this
-    *         item and it's children
-    */
-  def rename[MT: Resource](id: String, local: String, logMsg: Option[String]): Future[Seq[(String, String)]]
 
   /**
     * List items with the given resource type.
