@@ -187,7 +187,9 @@ case class DocumentaryUnits @Inject()(
             docRoutes.get(from).url -> docRoutes.get(to).url
           )
         }
-        appComponents.pageRelocator.addMoved(redirectUrls).map { count =>
+        val relocateF = appComponents.pageRelocator.addMoved(redirectUrls)
+        val importRefsF = importLogs.updateHandles(mappings)
+        for (count <- relocateF; _ <- importRefsF) yield {
           Redirect(docRoutes.get(newId))
             .flashing("success" -> Messages("item.rename.confirmation", count))
         }

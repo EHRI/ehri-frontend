@@ -27,6 +27,16 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     }
   }
 
+  override def updateHandles(mappings: Seq[(String, String)]): Future[Int] = Future {
+    if (mappings.isEmpty) 0 else db.withTransaction { implicit conn =>
+      mappings.foldLeft(0) { case (acc, (from, to)) =>
+        acc + SQL"""UPDATE import_file_mapping
+            SET item_id = $to
+            WHERE item_id = $from""".executeUpdate()
+      }
+    }
+  }
+
   override def save(repoId: String, datasetId: String, job: IngestData, log: ImportLog): Future[Unit] = Future {
     db.withTransaction { implicit conn =>
 
