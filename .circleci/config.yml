@@ -13,7 +13,7 @@ jobs:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
       SMTP_PORT: 2500
-      SBT_VERSION: 0.13.17
+      SBT_VERSION: 1.3.13
 
     steps:
       - run:
@@ -32,7 +32,9 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: cat /dev/null | sbt test:compile
+      - run:
+          name: Compile
+          command: sbt test:compile
 
       - save_cache:
           paths:
@@ -40,16 +42,29 @@ jobs:
           key: v1-dependencies--{{ checksum "build.sbt" }}
       
       # run echo email server
-      - run:
-          name: Start the mock SMTP server
-          command: |
-            python -m smtpd -n -c DebuggingServer localhost:$SMTP_PORT &
-            SMTP_PID=$!
+      #- run:
+      #    name: Start the mock SMTP server
+      #    command: |
+      #      sudo python -m smtpd -n -c DebuggingServer localhost:$SMTP_PORT &
+      #      export SMTP_PID=$!
+      #      echo "Started SMTP daemon on port $SMTP_PORT with pid $SMTP_PID"
 
       # Start service dependencies
-      - run: docker-compose up -d
+      - run:
+          name: Start Service Dependencies
+          command: docker-compose up -d
 
       # run tests!
-      - run: cat /dev/null | sbt test:test
+      - run:
+          name: Run tests
+          command: |
+            sudo python -m smtpd -n -c DebuggingServer localhost:$SMTP_PORT &
+            export SMTP_PID=$!
 
-      - run: kill $SMTP_PID
+            sbt test:test
+
+            sudo kill $SMTP_PID
+
+      #- run:
+      #    name: Shutdown SMTP server
+      #    command: sudo kill $SMTP_PID
