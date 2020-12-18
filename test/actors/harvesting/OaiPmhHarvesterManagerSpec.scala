@@ -78,7 +78,6 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
       events.events.head.eventType must_== HarvestEventType.Started
-      events.events(1).eventType must_== HarvestEventType.Cancelled
     }
   }
 }
