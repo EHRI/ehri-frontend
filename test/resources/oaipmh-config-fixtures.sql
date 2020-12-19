@@ -1,3 +1,6 @@
+INSERT INTO users (id, email, staff, active)
+VALUES ('mike', 'user@example.com', true, true);
+
 INSERT INTO import_dataset (repo_id, id, name, type, comments)
 VALUES ('r1', 'default', 'Default', 'oaipmh', 'test');
 

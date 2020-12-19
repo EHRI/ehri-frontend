@@ -49,7 +49,7 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
-      events.events(1).eventType must_== HarvestEventType.Completed
+      events.events.lift(1) must beSome.which(_.eventType must_== HarvestEventType.Completed)
     }
 
     "harvest selectively with `from` date" in new ITestApp {
@@ -78,6 +78,7 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
       events.events.head.eventType must_== HarvestEventType.Started
+      events.events.lift(1) must beSome.which(_.eventType must_== HarvestEventType.Cancelled)
     }
   }
 }
