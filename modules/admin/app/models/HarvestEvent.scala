@@ -15,8 +15,8 @@ object HarvestEvent {
 
 case class HarvestEvent(
   repoId: String,
-  jobId: String,
   datasetId: String,
+  jobId: String,
   userId: Option[String],
   eventType: HarvestEvent.HarvestEventType.Value,
   info: Option[String],

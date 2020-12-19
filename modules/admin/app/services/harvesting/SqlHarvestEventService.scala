@@ -24,8 +24,8 @@ case class SqlHarvestEventService @Inject()(db: Database, actorSystem: ActorSyst
       SQL"""
          SELECT * FROM harvest_event
          WHERE repo_id = $repoId
-           AND ($datasetId Is NULL || import_dataset_id = $datasetId)
-           AND ($jobId IS NULL || job_id = $jobId)
+           AND ($datasetId IS NULL OR import_dataset_id = $datasetId)
+           AND ($jobId IS NULL OR job_id = $jobId)
          ORDER BY created ASC
          """.as(parser.*)
     }

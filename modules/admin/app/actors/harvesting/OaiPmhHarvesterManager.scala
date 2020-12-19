@@ -3,7 +3,7 @@ package actors.harvesting
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-import actors.harvesting.OaiPmhHarvesterManager.OaiPmhHarvestJob
+import actors.harvesting.OaiPmhHarvesterManager.{Finalise, OaiPmhHarvestJob}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{OaiPmhConfig, UserProfile}
@@ -11,7 +11,8 @@ import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClien
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 object OaiPmhHarvesterManager {
@@ -37,6 +38,7 @@ object OaiPmhHarvesterManager {
     */
   case class OaiPmhHarvestJob(repoId: String, datasetId: String, jobId: String, data: OaiPmhHarvestData)
 
+  protected case class Finalise(s: String)
 }
 
 case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
@@ -113,40 +115,48 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
     // Received confirmation that the runner has shut down
     case Cancelled(count, secs) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
-      handle.foreach(_.cancel())
-      context.stop(self)
+      runAndThen(handle, _.cancel())(
+          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: " +
+            s"cancelled after $count file(s) in $secs seconds"))
+        .pipeTo(self)
 
     // The runner has completed, so we log the
     // event and shut down too
     case Completed(count, secs) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"harvested $count file(s) in $secs seconds", subs)
-      handle.foreach(_.close())
-      context.stop(self)
+      runAndThen(handle, _.close())(
+          Finalise(s"${WebsocketConstants.DONE_MESSAGE}: " +
+            s"harvested $count file(s) in $secs seconds"))
+        .pipeTo(self)
 
     // Error case where the `set` or `from` parameters mean that
     // no records are returned
     case OaiPmhError("noRecordsMatch", _) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: nothing to harvest", subs)
-      context.stop(self)
+      self ! Finalise(s"${WebsocketConstants.DONE_MESSAGE}: nothing to harvest")
 
     // Error case where we get some other problem...
     case e: OaiPmhError =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: ${e.code}", subs)
-      handle.map(_.error(e))
-      context.stop(self)
+      runAndThen(handle, _.error(e)) (
+          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: ${e.code}"))
+        .pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: harvesting error: ${e.getMessage}", subs)
-      handle.foreach(_.error(e))
+      runAndThen(handle, _.error(e))(
+          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: harvesting error: ${e.getMessage}"))
+        .pipeTo(self)
+
+    case Finalise(s) =>
+      msg(s, subs)
       context.stop(self)
 
     case m =>
       log.error(s"Unexpected message: $m")
   }
+
+  private def runAndThen(op: Option[HarvestEventHandle], f: HarvestEventHandle => Future[Unit])(
+      andThen: => Finalise): Future[Finalise] =
+    op.fold(ifEmpty = immediate(()))(s => f(s)).map(_ => andThen)
 
   private def msg(s: String, subs: Set[ActorRef]): Unit = {
     log.info(s + s" (subscribers: ${subs.size})")

@@ -1,6 +1,6 @@
 package actors.harvesting
 
-import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
+import actors.harvesting.ResourceSyncHarvesterManager.{Finalise, ResourceSyncJob}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{ResourceSyncConfig, UserProfile}
@@ -8,7 +8,8 @@ import services.harvesting.{HarvestEventHandle, HarvestEventService, ResourceSyn
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 object ResourceSyncHarvesterManager {
@@ -32,6 +33,7 @@ object ResourceSyncHarvesterManager {
     */
   case class ResourceSyncJob(repoId: String, datasetId: String, jobId: String, data: ResourceSyncData)
 
+  protected case class Finalise(s: String)
 }
 
 
@@ -106,28 +108,37 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSy
 
     // Received confirmation that the runner has shut down
     case Cancelled(count, secs) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
-      handle.foreach(_.cancel())
-      context.stop(self)
+      runAndThen(handle, _.cancel())(
+          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: " +
+            s"cancelled after $count file(s) in $secs seconds"))
+        .pipeTo(self)
 
     // The runner has completed, so we log the
     // event and shut down too
     case Completed(count, secs) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"harvested $count file(s) in $secs seconds", subs)
-      handle.foreach(_.close())
-      context.stop(self)
+      runAndThen(handle, _.close())(
+        Finalise(s"${WebsocketConstants.DONE_MESSAGE}: " +
+          s"harvested $count file(s) in $secs seconds")
+      ).pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: sync error: ${e.getMessage}", subs)
-      handle.foreach(_.error(e))
+      runAndThen(handle, _.error(e))(
+          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: sync error: ${e.getMessage}"))
+        .pipeTo(self)
+
+    case Finalise(s) =>
+      msg(s, subs)
       context.stop(self)
 
     case m =>
       log.error(s"Unexpected message: $m")
   }
+
+  private def runAndThen(op: Option[HarvestEventHandle], f: HarvestEventHandle => Future[Unit])(
+      andThen: => Finalise): Future[Finalise] =
+    op.fold(ifEmpty = immediate(()))(s => f(s)).map(_ => andThen)
 
   private def msg(s: String, subs: Set[ActorRef]): Unit = {
     log.info(s + s" (subscribers: ${subs.size})")
