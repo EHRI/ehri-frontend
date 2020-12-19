@@ -73,7 +73,7 @@ class SearchSpec extends IntegrationTestRunner {
 
       await(connected) must_== StatusCodes.SwitchingProtocols
       // bodge: if this test fails it's probably because we need more time here
-      Thread.sleep(500)
+      Thread.sleep(scala.util.Properties.envOrElse("WAIT_FOR_WS", "500").toLong)
       // close the connection...
       promise.success(None)
       indexEventBuffer.lastOption must beSome.which(_ must contain(EntityType.DocumentaryUnit.toString))

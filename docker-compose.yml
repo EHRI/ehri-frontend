@@ -1,16 +1,28 @@
 version: "3.1"
 
 services:
+
+  # PostgreSQL admin DB
   rmdbs:
     image: postgres:9.5
     ports:
-    - 5431:5432
+      - 5431:5432
     environment:
       POSTGRES_USER: docview_test
       POSTGRES_PASSWORD: changeme
     command: -c "max_connections=1000" -c "shared_buffers=256MB"
 
+  # The actual Neo4j data backend
   neo4j:
     image: ehri/ehri-rest
     ports:
       - 7575:7474
+
+  # This simply allows us to send mails from CI environments
+  smtp:
+    image: python
+    ports:
+      - 2500:2500
+    environment:
+      PYTHON_UNBUFFERED: 1
+    entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
