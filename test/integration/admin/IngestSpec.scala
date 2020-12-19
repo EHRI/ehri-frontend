@@ -64,7 +64,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
         Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
       // bodge: if this test fails it's probably because we need more time here
-      Thread.sleep(750)
+      Thread.sleep(scala.util.Properties.envOrElse("WAIT_FOR_WS", "750").toLong)
       // close the connection...
       promise.success(None)
 
