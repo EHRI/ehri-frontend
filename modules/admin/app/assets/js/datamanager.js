@@ -380,7 +380,7 @@ Vue.component("dataset-manager", {
             v-bind:api="api"
             v-on:error="setError"  />
           <rs-manager
-            v-if="dataset.src === 'rs'"
+            v-else-if="dataset.src === 'rs'"
             v-bind:dataset-id="dataset.id"
             v-bind:fileStage="config.input"
             v-bind:config="config"
