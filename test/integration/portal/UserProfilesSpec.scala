@@ -148,7 +148,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "allow uploading image files as profile image" in new ITestApp(
-      specificConfig = Map("storage.profiles.classifier" -> "profileImage")
+      specificConfig = Map("storage.portal.classifier" -> "profileImage")
     ) {
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
         .withFileUpload("image", getProfileImage, "image/png")
