@@ -233,7 +233,7 @@ case class ImportFiles @Inject()(
             storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
           .getOrElse(PropertiesHandle.empty)
       )
-      val ingestTask = IngestData(task, IngestDataType.Ead, contentType, implicitly[ApiUser])
+      val ingestTask = IngestData(task, IngestDataType.Ead, contentType, implicitly[ApiUser], instance)
       val job = IngestJob(jobId, ingestTask)
       val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
         if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)

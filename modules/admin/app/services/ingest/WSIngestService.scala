@@ -7,14 +7,15 @@ import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-
 import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
+
 import javax.inject.Inject
+import javax.inject.Named
 import play.api.http.HeaderNames
 import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json._
@@ -37,7 +38,7 @@ case class WSIngestService @Inject()(
   ws: WSClient,
   searchIndexer: SearchIndexMediator,
   pageRelocator: MovedPageLookup,
-  fileStorage: FileStorage,
+  @Named("dam") fileStorage: FileStorage,
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
 
   import services.ingest.IngestService._
@@ -84,17 +85,18 @@ case class WSIngestService @Inject()(
     val data = Json.obj(
       "id" -> job.id,
       "type" -> job.data.dataType,
-      "params" -> job.data.params,
       "user" -> job.data.user.toOption,
+      "params" -> job.data.params,
       "stats" -> res,
     )
 
+    val classifier = config.get[String]("storage.dam.classifier")
     val bytes = Source.single(ByteString.fromArray(
       Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8)))
-    val classifier = config.get[String]("storage.ingest.classifier")
     val time = ZonedDateTime.now()
     val now = time.format(DateTimeFormatter.ofPattern("uMMddHHmmss"))
-    val path = s"ingest-logs/ingest-$now-${job.id}.json"
+    val dry = if (!job.data.params.commit) "-dryrun" else ""
+    val path = s"${job.data.instance}/ingest-logs/ingest${dry}-$now-${job.id}.json"
     fileStorage.putBytes(classifier, path, bytes, public = true)
   }
 

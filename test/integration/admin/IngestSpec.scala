@@ -81,7 +81,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
       // check the log has been stored
-      storedFileBuffer.lastOption must beSome.which { f =>
+      damFileBuffer.lastOption must beSome.which { f =>
         f.toString must contain(jobId)
       }
     }
