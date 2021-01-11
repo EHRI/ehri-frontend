@@ -1,10 +1,10 @@
 package controllers.institutions
 
-import java.net.URLEncoder
-
 import defines.FileStage
 import play.api.Configuration
 import play.api.mvc.RequestHeader
+
+import java.net.URLEncoder
 
 /**
   * Helpers for controllers which need to access files from storage

@@ -28,27 +28,20 @@ sealed trait TokenState {
 }
 
 case object Initial extends TokenState
-
 case class Resume(token: String) extends TokenState
-
 case object Final extends TokenState
+
 
 case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
   private val logger = Logger(classOf[WSOaiPmhClient])
 
   @throws[OaiPmhError]
-  private def checkError(r: WSResponse): Unit = {
-    if (r.status != 200) {
-      throw OaiPmhError(OaiPmhConfig.URL, r.status.toString)
-    }
-    try {
-      (r.xml \ "error").headOption.map { n =>
-        throw OaiPmhError(n \@ "code", n.text)
-      }
-    } catch {
-      case _: SAXParseException => throw OaiPmhError("invalidXml")
-    }
+  private def checkError(r: WSResponse): Unit = try {
+    if (r.status != 200) throw OaiPmhError(OaiPmhConfig.URL, r.status.toString)
+    else (r.xml \ "error").headOption.map(n => throw OaiPmhError(n \@ "code", n.text))
+  } catch {
+    case _: SAXParseException => throw OaiPmhError("invalidXml")
   }
 
   private def stream[T](endpoint: OaiPmhConfig, params: Seq[(String, String)], transform: Flow[ParseEvent, T, NotUsed]): Source[T, _] = {

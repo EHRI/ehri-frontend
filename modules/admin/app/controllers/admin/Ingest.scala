@@ -1,13 +1,14 @@
 package controllers.admin
 
 import java.util.UUID
-
 import actors.ingest.DataImporterManager
 import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
+import controllers.institutions.StorageHelpers
 import defines.ContentTypes
+
 import javax.inject.{Inject, Singleton}
 import models.base.Model
 import play.api.Logger
@@ -19,7 +20,7 @@ import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
 import services.ingest.IngestService.{IngestData, IngestJob}
-import services.ingest.{FilePayload, FileProperties, IngestService, IngestParams}
+import services.ingest.{FilePayload, FileProperties, IngestParams, IngestService}
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -30,7 +31,7 @@ case class Ingest @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   ingestApi: IngestService
-)(implicit mat: Materializer) extends AdminController {
+)(implicit mat: Materializer) extends AdminController with StorageHelpers {
 
   private def logger = Logger(this.getClass)
 
@@ -72,7 +73,7 @@ case class Ingest @Inject()(
                 .map(_.ref)
 
             val task = ingestTask.copy(properties = FileProperties(props), data = FilePayload(Some(data.ref)))
-            val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id))
+            val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id), instance)
 
             mat.system.actorOf(Props(DataImporterManager(IngestJob(jobId, ingest), ingestApi)), jobId)
             logger.info(s"Submitted ingest job: $jobId")

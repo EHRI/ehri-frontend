@@ -26,7 +26,8 @@ object IngestService {
     params: IngestParams,
     dataType: IngestDataType.Value,
     contentType: String,
-    user: ApiUser
+    user: ApiUser,
+    instance: String,
   )
 
   // A job with a given ID tag

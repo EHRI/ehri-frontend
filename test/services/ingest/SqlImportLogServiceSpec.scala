@@ -27,6 +27,7 @@ class SqlImportLogServiceSpec extends PlaySpecification {
     IngestService.IngestDataType.Ead,
     "application/json",
     AnonymousUser,
+    "localhost"
   )
   private val eventId = UUID.randomUUID().toString
   private val log: ImportLog = ImportLog(
