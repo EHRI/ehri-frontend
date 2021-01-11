@@ -325,15 +325,15 @@ case class UserProfiles @Inject()(
     file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
+    val classifier = config.get[String]("storage.portal.classifier")
     val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
-    val classifier = config.get[String]("storage.profiles.classifier")
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val storeName = s"images/$instance/${user.id}$extension"
+    val storeName = s"$instance/images/${user.isA}/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
     for {
       url1 <- fileStorage.putFile(classifier, storeName, file.ref.path.toFile, public = true).map(_.toString)
-      url2 <- fileStorage.putFile(classifier, storeName, temp, public = true).map(_.toString)
+      _ <- fileStorage.putFile(classifier, storeName, temp, public = true).map(_.toString)
     } yield {
       temp.delete()
       url1
