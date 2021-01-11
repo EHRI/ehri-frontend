@@ -4,7 +4,7 @@
     <nav id="navbar-primary">
         <a id="navbar-logo" href="@controllers.portal.routes.Portal.index()" title="@Messages("home")">
             <img alt="European Holocaust Research Infrastructure" height="auto" width="106"
-                src="//s3-eu-west-1.amazonaws.com/ehri-assets/ehri-logo@@2x.png" rel="logo" />
+                src="@controllers.portal.routes.PortalAssets.versioned("img/ehri-logo@2x.png")" rel="logo" />
         </a>
         <button type="button" class="navbar-toggler collapsed" data-toggle="collapse"
                 data-target="#navbar-primary-dropdown" aria-expanded="false" aria-controls="navbar-dropdown">
