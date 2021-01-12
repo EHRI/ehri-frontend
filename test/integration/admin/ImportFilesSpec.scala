@@ -37,8 +37,13 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
   private val repoId = "r1"
   private val datasetId = "default"
   private val stage = FileStage.Input
-  private val testPrefix = s"https://ehri-assets.mystorage.com/localhost/$repoId/$datasetId/$stage/"
   private val testFileName = "test.xml"
+
+  private def testFilePath(implicit app: play.api.Application): String = {
+    val bucket = app.configuration.get[String]("storage.dam.classifier")
+    val testPrefix = s"https://$bucket.mystorage.com/localhost/ingest-data/$repoId/$datasetId/$stage/"
+    testPrefix + testFileName
+  }
 
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
@@ -63,12 +68,12 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
           size = testPayload.size
         )))
 
-      contentAsJson(r) must_== Json.parse("{\"presignedUrl\":\"" + testPrefix + testFileName + "\"}")
+      contentAsJson(r) must_== Json.parse("{\"presignedUrl\":\"" + testFilePath + "\"}")
     }
 
     "upload via server" in new ITestApp {
       val r = putFile()
-      contentAsJson(r) must_== Json.parse("{\"url\":\"" + testPrefix + testFileName + "\"}")
+      contentAsJson(r) must_== Json.parse("{\"url\":\"" + testFilePath + "\"}")
     }
 
     "fetch data" in new ITestApp {

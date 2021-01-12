@@ -153,4 +153,14 @@ trait FileStorage {
     *         not
     */
   def isVersioned(classifier: String): Future[Boolean]
+
+  /**
+    * Resolve a URI to a file instance. This may throw an [[UnsupportedOperationException]]
+    * if the implementation does not support it.
+    *
+    * @param uri        a URI to resolve to a file
+    * @param classifier the set in which to look for the item
+    * @return an optional pair of metadata and a byte source
+    */
+  def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]]
 }

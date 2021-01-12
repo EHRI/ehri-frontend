@@ -41,7 +41,6 @@ POST        /:id/data/upload/:ds/:stage               @controllers.institutions.
 GET         /:id/data/validate/:ds/:stage             @controllers.institutions.ImportFiles.validateAll(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/validate/:ds/:stage             @controllers.institutions.ImportFiles.validateFiles(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/ingest/:ds/:stage               @controllers.institutions.ImportFiles.ingestFiles(id: String, ds: String, stage: defines.FileStage.Value)
-POST        /:id/data/ingest-all/:ds/:stage           @controllers.institutions.ImportFiles.ingestAll(id: String, ds: String, stage: defines.FileStage.Value)
 POST        /:id/data/urls/:ds/:stage                 @controllers.institutions.ImportFiles.fileUrls(id: String, ds: String, stage: defines.FileStage.Value)
 
 GET         /:id/transformations                      @controllers.institutions.DataTransformations.list(id: String)

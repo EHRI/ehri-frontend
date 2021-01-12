@@ -4,8 +4,6 @@ import defines.FileStage
 import play.api.Configuration
 import play.api.mvc.RequestHeader
 
-import java.net.URLEncoder
-
 /**
   * Helpers for controllers which need to access files from storage
   * via Repository and dataset IDs and their associated bucket.
@@ -18,8 +16,8 @@ trait StorageHelpers {
     config.get[String]("storage.dam.classifier")
 
   protected def instance(implicit request: RequestHeader): String =
-    URLEncoder.encode(config.getOptional[String]("storage.instance").getOrElse(request.host), "UTF-8")
+    config.getOptional[String]("storage.instance").getOrElse(request.host)
 
   protected def prefix(id: String, ds: String, stage: FileStage.Value)(implicit request: RequestHeader): String =
-    s"$instance/$id/$ds/$stage/"
+    s"$instance/ingest-data/$id/$ds/$stage/"
 }

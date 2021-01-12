@@ -11,6 +11,7 @@ Vue.component("ingest-options-panel", {
   },
   data: function() {
     return {
+      allowUpdates: this.opts.allowUpdates,
       tolerant: this.opts.tolerant,
       commit: this.opts.commit,
       logMessage: this.opts.logMessage,
@@ -22,6 +23,7 @@ Vue.component("ingest-options-panel", {
   methods: {
     submit: function() {
       this.$emit('submit', {
+        allowUpdates: this.allowUpdates,
         tolerant: this.tolerant,
         commit: this.commit,
         logMessage: this.logMessage,
@@ -80,15 +82,15 @@ Vue.component("ingest-options-panel", {
 
       <fieldset v-bind:disabled="loading" class="options-form">
         <div class="form-group form-check">
-          <input v-model="tolerant" class="form-check-input" id="opt-tolerant-check" type="checkbox"/>
-          <label class="form-check-label" for="opt-tolerant-check">
-            Tolerant Mode: do not abort on individual file errors
+          <input v-model="allowUpdates" class="form-check-input" id="opt-allowUpdates-check" type="checkbox"/>
+          <label class="form-check-label" for="opt-allowUpdates-check">
+            Allow updates: overwrite existing files
           </label>
         </div>
         <div class="form-group form-check">
-          <input v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
-          <label class="form-check-label" for="opt-commit-check">
-            Commit Ingest: make changes to database
+          <input v-model="tolerant" class="form-check-input" id="opt-tolerant-check" type="checkbox"/>
+          <label class="form-check-label" for="opt-tolerant-check">
+            Tolerant Mode: do not abort on individual file errors
           </label>
         </div>
         <div class="form-group">
@@ -128,6 +130,12 @@ Vue.component("ingest-options-panel", {
           <label class="form-label" for="opt-log-message">Log Message</label>
           <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)"/>
         </div>
+        <div class="form-group form-check">
+          <input v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
+          <label class="form-check-label" for="opt-commit-check">
+            Commit Ingest: make changes to database
+          </label>
+        </div>
         <div v-if="error" class="alert alert-danger">
           {{error}}
         </div>
@@ -165,15 +173,16 @@ Vue.component("ingest-manager", {
       showOptions: false,
       propertyConfigs: [],
       opts: {
-        commit: false,
+        allowUpdates: false,
         tolerant: false,
+        commit: false,
         logMessage: "",
         properties: null,
       }
     }
   },
   methods: {
-    monitorIngest: function (url, jobId, keys) {
+    monitorIngest: function (url, jobId) {
       this.tab = 'ingest';
 
       let worker = new Worker(this.config.previewLoader);
@@ -205,17 +214,10 @@ Vue.component("ingest-manager", {
       }
     },
     doIngest: function(opts) {
-      this.opts = opts;
-
       this.waiting = true;
 
-      let keys = this.selectedKeys.length > 0
-                  ? this.selectedKeys
-                  : this.files.map(f => f.key);
-
-      let op = this.selectedKeys.length > 0
-        ? this.api.ingestFiles(this.datasetId, this.fileStage, keys, this.opts)
-        : this.api.ingestAll(this.datasetId, this.fileStage, this.opts);
+      this.opts = opts;
+      let op = this.api.ingestFiles(this.datasetId, this.fileStage, this.selectedKeys, this.opts);
 
       op.then(data => {
         if (data.url && data.jobId) {
@@ -226,7 +228,7 @@ Vue.component("ingest-manager", {
           this.showOptions = false;
 
           this.ingestJobId = data.jobId;
-          this.monitorIngest(data.url, data.jobId, keys);
+          this.monitorIngest(data.url, data.jobId);
         } else {
           console.error("unexpected job data", data);
         }

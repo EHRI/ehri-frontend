@@ -54,5 +54,8 @@ package object http {
     * @param iri the IRI string
     * @return a URI-encoding string
     */
-  def iriToUri(iri: String): String = IRIFactory.iriImplementation().create(iri).toURI.toASCIIString
+  def iriToUri(iri: String): String = {
+    // FIXME: is toASCIIString necessary here, rather than regular toString?
+    IRIFactory.iriImplementation().create(iri).toURI.toASCIIString
+  }
 }

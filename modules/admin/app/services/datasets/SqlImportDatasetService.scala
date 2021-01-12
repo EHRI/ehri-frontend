@@ -17,7 +17,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "repo_id", "id", "name", "type", "created", "comments")
+      "repo_id", "id", "name", "type", "created", "item_id", "sync", "comments")
 
   override def get(repoId: String, datasetId: String): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
@@ -43,12 +43,14 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       try {
-        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, comments)
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, item_id, sync, comments)
           VALUES (
             $repoId,
             ${info.id},
             ${info.name},
             ${info.src},
+            ${info.fonds},
+            ${info.sync},
             ${info.notes}
           )
           RETURNING *""".as(parser.single)
@@ -65,6 +67,8 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             SET
               name = ${info.name},
               type = ${info.src},
+              item_id = ${info.fonds},
+              sync = ${info.sync},
               comments = ${info.notes}
             WHERE repo_id = $repoId
               AND id = $datasetId

@@ -1,7 +1,6 @@
 package controllers.institutions
 
 import java.util.UUID
-
 import actors.ingest
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
@@ -12,6 +11,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.FileStage
+
 import javax.inject._
 import models._
 import play.api.cache.AsyncCacheApi
@@ -20,6 +20,7 @@ import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
 import services.data.{ApiUser, DataHelpers}
+import services.datasets.ImportDatasetService
 import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest._
 import services.storage.{FileMeta, FileStorage}
@@ -36,6 +37,7 @@ object FileToUpload {
 
 case class IngestPayload(
   logMessage: String,
+  allowUpdates: Boolean = false,
   tolerant: Boolean = false,
   commit: Boolean = false,
   properties: Option[String] = None,
@@ -62,6 +64,7 @@ case class ImportFiles @Inject()(
   ingestService: IngestService,
   importLogService: ImportLogService,
   asyncCache: AsyncCacheApi,
+  datasets: ImportDatasetService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
   private val repositoryDataRoutes = controllers.institutions.routes.ImportFiles
@@ -201,39 +204,39 @@ case class ImportFiles @Inject()(
     }
   }
 
-  def ingestAll(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = Action.async(parse.json[IngestPayload]) { implicit request =>
-    storage.streamFiles(bucket, Some(prefix(id, ds, stage)))
-      .map(_.key.replace(prefix(id, ds, stage), ""))
-      .runWith(Sink.seq).flatMap { seq =>
-      ingestFiles(id, ds, stage).apply(request.withBody(request.body.copy(files = seq)))
-    }
-  }
-
   def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
     import scala.concurrent.duration._
-    val keys = request.body.files.map(path => s"${prefix(id, ds, stage)}$path")
-    for (urls <- getUrlMap(keys)) yield {
 
+    val urlsF = getUrlMap(request.body, prefix(id, ds, stage))
+    for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
+
+      val task = IngestParams(
+        scopeType = defines.ContentTypes.Repository,
+        scope = id,
+        data = UrlMapPayload(urls),
+        allowUpdate = request.body.allowUpdates,
+        log = request.body.logMessage,
+        tolerant = request.body.tolerant,
+        commit = request.body.commit,
+        properties = request.body.properties.map(ref =>
+          PropertiesHandle(storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
+          .getOrElse(PropertiesHandle.empty),
+        fonds = dataset.fonds
+      )
       // Tag this task with a unique ID...
       val jobId = UUID.randomUUID().toString
 
       // Type is json, since it's a mapping of key -> URL
       val contentType = play.api.http.ContentTypes.JSON
 
-      val task = IngestParams(
-        scopeType = defines.ContentTypes.Repository,
-        scope = id,
-        allowUpdate = true,
-        data = UrlMapPayload(urls),
-        log = request.body.logMessage,
-        tolerant = request.body.tolerant,
-        commit = request.body.commit,
-        properties = request.body.properties
-          .map(ref => PropertiesHandle(
-            storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
-          .getOrElse(PropertiesHandle.empty)
-      )
-      val ingestTask = IngestData(task, IngestDataType.Ead, contentType, implicitly[ApiUser], instance)
+      // Use the sync endpoint if this fonds is synced and we a) are doing the complete
+      // set and b) have a fonds.
+      // Don't allow sync on the repository scope, because it is too dangerous.
+      val idt = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
+        IngestDataType.EadSync else IngestDataType.Ead
+      println(s"Type: $idt: ${dataset.sync}, ${request.body.files.isEmpty}, ${dataset.fonds}")
+
+      val ingestTask = IngestData(task, idt, contentType, implicitly[ApiUser], instance)
       val job = IngestJob(jobId, ingestTask)
       val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
         if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)
@@ -248,10 +251,13 @@ case class ImportFiles @Inject()(
     }
   }
 
-  private def getUrlMap(keys: Seq[String]): Future[Map[String, java.net.URI]] = {
+  private def getUrlMap(data: IngestPayload, prefix: String): Future[Map[String, java.net.URI]] = {
     // NB: Not doing this with regular Future.successful so as to
     // limit parallelism to the specified amount
-    Source(keys.toList)
+    val keys = if (data.files.isEmpty) storage.streamFiles(bucket, Some(prefix)).map(_.key)
+    else Source(data.files.map(prefix + _).toList)
+
+    keys
       .mapAsync(4)(path => storage.info(bucket, path).map(info => path -> info))
       .collect { case (path, Some((meta, _))) =>
         val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)

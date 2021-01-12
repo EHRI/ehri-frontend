@@ -119,6 +119,8 @@ CREATE TABLE import_dataset(
     name                TEXT NOT NULL,
     type                VARCHAR(10) NOT NULL,
     created             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    item_id             TEXT,
+    sync                BOOLEAN DEFAULT FALSE,
     comments            TEXT,
     PRIMARY KEY (id, repo_id),
     UNIQUE (id, repo_id),

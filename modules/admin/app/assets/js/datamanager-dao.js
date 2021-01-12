@@ -40,13 +40,6 @@ let DAO = class {
     return this.call(this.service.ImportFiles.ingestFiles(this.repoId, ds, stage), data);
   }
 
-  ingestAll(ds, stage, opts) {
-    return this.call(this.service.ImportFiles.ingestAll(this.repoId, ds, stage), {
-      files: [],
-      ...opts
-    });
-  }
-
   deleteFiles(ds, stage, paths) {
     return this.call(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
   }
