@@ -12,6 +12,8 @@ case class ImportDataset(
   name: String,
   src: ImportDataset.Src.Value,
   created: Instant,
+  fonds: Option[String] = None,
+  sync: Boolean = false,
   notes: Option[String] = None,
 )
 
@@ -31,6 +33,8 @@ case class ImportDatasetInfo(
   id: String,
   name: String,
   src: ImportDataset.Src.Value,
+  fonds: Option[String] = None,
+  sync: Boolean = false,
   notes: Option[String] = None
 )
 

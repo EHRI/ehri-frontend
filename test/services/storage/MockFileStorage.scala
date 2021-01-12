@@ -1,14 +1,13 @@
 package services.storage
 
-import java.net.URI
-import java.time.Instant
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 
+import java.net.URI
+import java.time.Instant
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -129,10 +128,11 @@ case class MockFileStorage(fakeFiles: collection.mutable.Map[String, Map[String,
   /**
     * A public method for testing purposes only.
     */
-  def fromUrl(url: String, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] =
-    if (url.startsWith(urlPrefix(classifier)))
-      get(classifier, url.replace(urlPrefix(classifier), ""))
+  override def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] = {
+    if (uri.toString.startsWith(urlPrefix(classifier)))
+      get(classifier, uri.toString.replace(urlPrefix(classifier), ""))
     else Future.successful(Option.empty)
+  }
 
   override def listVersions(classifier: String, path: String, after: Option[String]): Future[FileList] = Future {
     FileList(bucket(classifier).getOrElse(path, Seq.empty)

@@ -1,18 +1,17 @@
 package services.transformation
 
-import java.io.{ByteArrayOutputStream, IOException}
-import java.net.URL
-import java.nio.charset.StandardCharsets
-
 import akka.stream.Materializer
 import com.google.common.io.Resources
-import javax.inject.Inject
 import org.basex.core.Context
 import org.basex.io.IOStream
 import org.basex.query.util.UriResolver
 import org.basex.query.{QueryException, QueryProcessor}
 import play.api.{Environment, Logger}
 
+import java.io.{ByteArrayOutputStream, IOException}
+import java.net.URI
+import java.nio.charset.StandardCharsets
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 //noinspection UnstableApiUsage
@@ -32,7 +31,7 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
   import BaseXXQueryXmlTransformer._
 
   val script: String = readResource("transform.xqy")
-  val utilLibUrl: URL = Resources.getResource("xtra.xqm")
+  val utilLibUrl: URI = URI.create(Resources.getResource("xtra.xqm").toString)
 
   def readResource(name: String): String =
     Resources.toString(env.resource(name)

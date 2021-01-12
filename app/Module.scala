@@ -42,7 +42,7 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
 
 private class AWSStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
   override def get(): FileStorage =
-    S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("alpakka.s3.aws"))
+    S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("alpakka.s3"))
 }
 
 private class DAMStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {

@@ -11,6 +11,7 @@ window.addEventListener("drop", e => e.preventDefault(), false);
 Vue.component("dataset-form", {
   props: {
     api: DAO,
+    config: Object,
     info: Object,
   },
   data: function() {
@@ -18,6 +19,8 @@ Vue.component("dataset-form", {
       id: this.info ? this.info.id : null,
       name: this.info ? this.info.name : null,
       src: this.info ? this.info.src : null,
+      fonds: this.info ? this.info.fonds : null,
+      sync: this.info ? this.info.sync : null,
       notes: this.info ? this.info.notes : null,
       error: null,
       saving: false,
@@ -33,6 +36,8 @@ Vue.component("dataset-form", {
         id: this.id,
         name: this.name,
         src: this.src,
+        fonds: this.fonds,
+        sync: this.sync,
         notes: this.notes,
       };
 
@@ -69,7 +74,8 @@ Vue.component("dataset-form", {
     isValidConfig: function() {
       return this.src !== null
         && this.name !== null
-        && this.id !== null;
+        && this.id !== null
+        && (!this.fonds || _.startsWith(this.fonds, this.config.repositoryId));
     },
     isValidIdentifier: function() {
       return !this.id || (this.id.match(/^[a-z0-9_]+$/) !== null && this.id.length <= 50);
@@ -78,7 +84,9 @@ Vue.component("dataset-form", {
       return this.info === null || (
         this.info.name !== this.name
           || this.info.src !== this.src
-          || this.info.notes !== this.notes);
+          || this.info.notes !== this.notes
+          || this.info.fonds !== this.fonds
+          || this.info.sync !== this.sync);
     }
   },
   template: `
@@ -141,6 +149,18 @@ Vue.component("dataset-form", {
             <option value="oaipmh">OAI-PMH Harvesting</option>
             <option value="rs">ResourceSync</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dataset-fonds">
+            Fonds
+          </label>
+          <input type="text" v-model="fonds" id="dataset-fonds" class="form-control" placeholder="(optional)"/>
+        </div>
+        <div v-bind:class="{disabled: !this.fonds}" class="form-group form-check">
+          <input v-bind:disabled="!this.fonds" v-model="sync" class="form-check-input" id="opt-sync" type="checkbox"/>
+          <label class="form-check-label" for="opt-sync">
+            Synchronise fonds with dataset
+          </label>
         </div>
         <div class="form-group">
           <label class="form-label" for="dataset-notes">Notes</label>
@@ -267,6 +287,7 @@ Vue.component("dataset-manager", {
       </div>
       <dataset-form v-if="showForm"
                          v-bind:info="dataset"
+                         v-bind:config="config"
                          v-bind:api="api"
                          v-on:close="showForm = false"
                          v-on:saved-dataset="reloadDatasets"

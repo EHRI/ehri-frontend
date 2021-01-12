@@ -1,7 +1,5 @@
 package services.storage
 
-import java.net.URI
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
@@ -14,10 +12,11 @@ import akka.util.ByteString
 import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.AwsRegionProvider
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.services.s3.model.{AmazonS3Exception, BucketVersioningConfiguration, DeleteObjectsRequest, GeneratePresignedUrlRequest, GetObjectMetadataRequest, ListObjectsRequest, ListVersionsRequest, SetBucketVersioningConfigurationRequest}
+import com.amazonaws.services.s3.model.{ObjectMetadata => _, _}
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import play.api.Logger
 
+import java.net.URI
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,20 +26,21 @@ object S3CompatibleFileStorage {
   def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleFileStorage = {
     val credentials = new AWSCredentialsProvider {
       override def getCredentials: AWSCredentials = new AWSCredentials {
-        override def getAWSAccessKeyId: String = config.getString("credentials.access-key-id")
+        override def getAWSAccessKeyId: String = config.getString("aws.credentials.access-key-id")
 
-        override def getAWSSecretKey: String = config.getString("credentials.secret-access-key")
+        override def getAWSSecretKey: String = config.getString("aws.credentials.secret-access-key")
       }
 
       override def refresh(): Unit = {}
     }
 
     val region = new AwsRegionProvider {
-      override def getRegion: String = config.getString("region.default-region")
+      override def getRegion: String = config.getString("aws.region.default-region")
     }
 
-    val endpoint: Option[String] = if (config.hasPath("endpoint"))
-      Some(config.getString("endpoint")) else None
+    val endpoint: Option[String] = if (config.hasPath("endpoint-url"))
+      Some(config.getString("endpoint-url"))
+    else None
 
     new S3CompatibleFileStorage(credentials, region, endpoint)(mat)
   }
@@ -55,33 +55,20 @@ case class S3CompatibleFileStorage(
   private implicit val ec: ExecutionContext = mat.executionContext
   private implicit val actorSystem: ActorSystem = mat.system
 
-  private val endpoint = endpointUrl.fold(
-    ifEmpty = S3Ext(actorSystem)
-      .settings
-      .withCredentialsProvider(credentials)
-      .withS3RegionProvider(region)
-  )(
-    url => S3Ext(actorSystem)
-      .settings
-      .withCredentialsProvider(credentials)
-      .withS3RegionProvider(region)
-      .withEndpointUrl(url)
-  )
+  private val endpoint: S3Settings = endpointUrl
+    .fold(ifEmpty = S3Ext(actorSystem).settings)(url => S3Ext(actorSystem).settings.withEndpointUrl(url))
+    .withCredentialsProvider(credentials)
+    .withS3RegionProvider(region)
+    // FIXME: switch off path style access after upgrading
+    // toe Alpakka 2.x
+    .withPathStyleAccess(true)
+    // FIXME: Switch to ListObjectsV2 when Digital Ocean supports it
+    .withListBucketApiVersion(ApiVersion.ListBucketVersion1)
 
-  private val client = endpointUrl.fold(
-    ifEmpty = AmazonS3ClientBuilder.standard()
-      .withCredentials(credentials)
-      .withRegion(region.getRegion)
-      .build()
-  )(
-    url => AmazonS3ClientBuilder.standard()
-      .withCredentials(credentials)
-      .withEndpointConfiguration(new EndpointConfiguration(
-        url,
-        region.getRegion
-      ))
-      .build()
-  )
+  private val client: AmazonS3 = endpointUrl
+    .fold(ifEmpty = AmazonS3ClientBuilder.standard().withRegion(region.getRegion))(url => AmazonS3ClientBuilder.standard()
+      .withEndpointConfiguration(new EndpointConfiguration(url, region.getRegion)))
+    .withCredentials(credentials).build()
 
   override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
     val expTime = new java.util.Date()
@@ -118,18 +105,21 @@ case class S3CompatibleFileStorage(
       )
       Some((fm, meta.getUserMetadata.asScala.toMap))
     } catch {
-      case e: AmazonS3Exception => None
+      case e: AmazonS3Exception =>
+        e.printStackTrace()
+        None
     }
   }(ec)
 
-  override def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = S3
-    .download(bucket, path, versionId = versionId)
-    .withAttributes(S3Attributes.settings(endpoint))
-    .runWith(Sink.headOption).map(_.flatten)
-    .map {
-      case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
-      case _ => None
-    }
+  override def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = {
+    S3.download(bucket, path, versionId = versionId)
+      .withAttributes(S3Attributes.settings(endpoint))
+      .runWith(Sink.headOption).map(_.flatten)
+      .map {
+        case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
+        case _ => None
+      }
+  }
 
   override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None,
     public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
@@ -143,9 +133,11 @@ case class S3CompatibleFileStorage(
     val acl = if (public) CannedAcl.PublicRead else CannedAcl.AuthenticatedRead
 
     val uploader = S3.multipartUpload(bucket, path, contentType = cType, cannedAcl = acl, metaHeaders = MetaHeaders(meta))
-    val sink = endpointUrl.fold(uploader)(_ => uploader.withAttributes(S3Attributes.settings(endpoint)))
+      .withAttributes(S3Attributes.settings(endpoint))
 
-    src.runWith(sink).map(r => new URI(r.location.toString))
+    // FIXME: Annoyingly the Alpakka API returns a relative Uri which doesn't include schemeL
+    src.runWith(uploader)
+      .map(r => URI.create(r.location.toString.replaceFirst("^(https?://)?", "https://")))
   }
 
   override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None,
@@ -169,12 +161,11 @@ case class S3CompatibleFileStorage(
     deleteBatch()
   }(ec)
 
-  override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] =
+  override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = {
     S3.listBucket(classifier, prefix)
-      // FIXME: Switch to ListObjectsV2 when Digital Ocean supports it
-      .withAttributes(S3Attributes.settings(endpoint
-        .withListBucketApiVersion(ApiVersion.ListBucketVersion1)))
+      .withAttributes(S3Attributes.settings(endpoint))
       .map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
+  }
 
   override def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
     listPrefix(classifier, prefix, after, max)
@@ -196,6 +187,11 @@ case class S3CompatibleFileStorage(
     bvc.getStatus == BucketVersioningConfiguration.ENABLED
   }(ec)
 
+  override def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] = {
+    if (uri.getHost.startsWith(classifier)) get(classifier, uri.getPath)
+    else if (uri.getPath.startsWith("/" + classifier)) get(classifier, uri.getPath.substring(classifier.length + 1))
+    else Future.successful(Option.empty)
+  }
 
   private def infoToMeta(bucket: String, path: String, meta: ObjectMetadata): FileMeta = FileMeta(
     bucket,

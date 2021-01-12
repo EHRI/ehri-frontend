@@ -74,7 +74,6 @@ trait TestConfiguration {
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
   private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
   private def mockDamFileStorage: MockFileStorage = MockFileStorage(damFileBuffer)
-  private def mockEadValidator: EadValidator = MockEadValidatorService(mockDamFileStorage)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
   // More or less the same as run config but synchronous (so
@@ -112,8 +111,8 @@ trait TestConfiguration {
       bind[DataApi].to[DataApiService],
       bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
-      bind[ItemLifecycle].to(classOf[NoopItemLifecycle]),
-      bind[EadValidator].to(mockEadValidator),
+      bind[ItemLifecycle].to[NoopItemLifecycle],
+      bind[EadValidator].to[MockEadValidatorService],
       bind[ResourceSyncClient].to[MockResourceSyncClient],
       // NB: Graph IDs are not stable during testing due to
       // DB churn, so using the String ID resolver rather than

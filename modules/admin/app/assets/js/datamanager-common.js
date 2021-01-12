@@ -581,11 +581,11 @@ Vue.component("files-table", {
     }
   },
   methods: {
-    toggleAll: function (evt) {
-      this.files.forEach(f => this.toggleItem(f, evt));
+    toggleAll: function (checked) {
+      this.files.forEach(f => this.toggleItem(f, checked));
     },
     toggleItem: function (file, checked) {
-      if (!checked) {
+      if (checked) {
         this.$emit('item-selected', file);
       } else {
         this.$emit('item-deselected', file);
@@ -608,12 +608,12 @@ Vue.component("files-table", {
     <div v-bind:class="{'loading': !loaded, 'dropping': dropping}"
          v-on:keyup.down="$emit('select-next')"
          v-on:keyup.up="$emit('select-prev')"
-         v-on:click.stop="$emit('deselect-all')" 
+         v-on:click.self.stop="$emit('deselect-all')"
          class="file-list-container">
       <table class="table table-bordered table-striped table-sm" v-if="files.length > 0">
         <thead>
         <tr>
-          <th><input type="checkbox" v-bind:id="fileStage + '-checkall'" v-on:change="toggleAll"/></th>
+          <th><input type="checkbox" v-bind:id="fileStage + '-checkall'" v-on:input="toggleAll($event.target.checked)"/></th>
           <th>Name</th>
           <th>Last Modified</th>
           <th>Size</th>
@@ -625,8 +625,10 @@ Vue.component("files-table", {
             v-bind:key="file.key"
             v-on:click.stop="$emit('show-preview', file)"
             v-bind:class="{'active': isPreviewing(file)}">
-          <td v-on:click.stop="toggleItem(file, selected[file.key])">
-            <input type="checkbox" v-bind:checked="selected[file.key]">
+          <td v-on:click.stop.prevent.self="toggleItem(file, !selected[file.key])">
+            <input type="checkbox" v-bind:checked="Boolean(selected[file.key])" 
+                   v-on:input.stop.prevent.self="toggleItem(file, !selected[file.key])"
+                    v-on:click="$event.stopPropagation()">
           </td>
           <td>{{file.key|decodeUri}}</td>
           <td v-bind:title="file.lastModified">{{file.lastModified | prettyDate}}</td>

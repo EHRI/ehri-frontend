@@ -1,26 +1,28 @@
 package services.ingest
 
-import java.nio.file.Path
-
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import services.storage.MockFileStorage
+import play.api.Configuration
+import services.storage.FileStorage
 
+import java.net.URI
+import java.nio.file.Path
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class MockEadValidatorService(fileStorage: MockFileStorage) extends EadValidator {
-  private implicit val mat: Materializer = fileStorage.mat
-  private implicit val ec: ExecutionContext = fileStorage.mat.executionContext
+case class MockEadValidatorService @Inject() (@Named("dam") fileStorage: FileStorage, config: Configuration)(implicit map: Materializer, ec: ExecutionContext) extends EadValidator {
+
   private val validator = RelaxNGEadValidator()
 
   override def validateEad(path: Path): Future[Seq[XmlValidationError]] = validator.validateEad(path)
 
-  override def validateEad(url: Uri): Future[Seq[XmlValidationError]] = {
-    fileStorage.fromUrl(url.toString(), "ehri-assets").flatMap {
+  override def validateEad(uri: Uri): Future[Seq[XmlValidationError]] = {
+    val classifier = config.get[String]("storage.dam.classifier")
+    fileStorage.fromUri(URI.create(uri.toString()), classifier).flatMap {
       case Some((_, src)) => validator.validateEad(src)
-      case _ => throw new RuntimeException(s"Can't get bytes for URL: $url: ${fileStorage.fakeFiles}")
+      case _ => throw new RuntimeException(s"Can't get bytes for URL: $uri in '$classifier'")
     }
   }
 
