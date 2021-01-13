@@ -22,7 +22,7 @@ val appVersion = "2.0.0"
 
 val backendVersion = "0.13.12"
 val dataConverterVersion = "1.1.10"
-val alpakkaVersion = "1.1.2"
+val alpakkaVersion = "2.0.2"
 
 val backendDependencies = Seq(
   // Play stuff
@@ -106,8 +106,8 @@ val portalDependencies = Seq(
   "com.lightbend.akka" %% "akka-stream-alpakka-s3" % alpakkaVersion,
 
   // S3 sdk
-  "com.amazonaws" % "aws-java-sdk-core" % "1.11.476",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
+  "software.amazon.awssdk" % "s3" % "2.15.63",
+//  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
 )
 
 val adminDependencies = Seq(

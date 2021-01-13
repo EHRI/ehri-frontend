@@ -9,12 +9,15 @@ import akka.stream.alpakka.s3.headers.CannedAcl
 import akka.stream.alpakka.s3.scaladsl.S3
 import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
-import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.regions.AwsRegionProvider
-import com.amazonaws.services.s3.model.{ObjectMetadata => _, _}
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
 import play.api.Logger
+import software.amazon.awssdk.auth.credentials.{AwsCredentials, AwsCredentialsProvider, StaticCredentialsProvider}
+import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.regions.providers.AwsRegionProvider
+import software.amazon.awssdk.services.s3.{S3Client, S3Configuration}
+import software.amazon.awssdk.services.s3.model._
+import software.amazon.awssdk.services.s3.presigner.S3Presigner
+import software.amazon.awssdk.services.s3.presigner.model.{GetObjectPresignRequest, PutObjectPresignRequest}
 
 import java.net.URI
 import scala.collection.JavaConverters._
@@ -24,18 +27,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object S3CompatibleFileStorage {
   def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleFileStorage = {
-    val credentials = new AWSCredentialsProvider {
-      override def getCredentials: AWSCredentials = new AWSCredentials {
-        override def getAWSAccessKeyId: String = config.getString("aws.credentials.access-key-id")
-
-        override def getAWSSecretKey: String = config.getString("aws.credentials.secret-access-key")
-      }
-
-      override def refresh(): Unit = {}
-    }
-
-    val region = new AwsRegionProvider {
-      override def getRegion: String = config.getString("aws.region.default-region")
+    val credentials = StaticCredentialsProvider.create(new AwsCredentials {
+      override def accessKeyId(): String = config.getString("aws.credentials.access-key-id")
+      override def secretAccessKey(): String = config.getString("aws.credentials.secret-access-key")
+    })
+    val region: AwsRegionProvider = new AwsRegionProvider {
+      override def getRegion: Region = Region.of(config.getString("aws.region.default-region"))
     }
 
     val endpoint: Option[String] = if (config.hasPath("endpoint-url"))
@@ -47,7 +44,7 @@ object S3CompatibleFileStorage {
 }
 
 case class S3CompatibleFileStorage(
-  credentials: AWSCredentialsProvider,
+  credentials: AwsCredentialsProvider,
   region: AwsRegionProvider,
   endpointUrl: Option[String] = None
 )(implicit mat: Materializer) extends FileStorage {
@@ -56,58 +53,78 @@ case class S3CompatibleFileStorage(
   private implicit val actorSystem: ActorSystem = mat.system
 
   private val endpoint: S3Settings = endpointUrl
-    .fold(ifEmpty = S3Ext(actorSystem).settings)(url => S3Ext(actorSystem).settings.withEndpointUrl(url))
+    .fold(ifEmpty = S3Ext(actorSystem).settings)(url =>
+      S3Ext(actorSystem).settings.withEndpointUrl(url
+        .replaceFirst("^https?://", "https://{bucket}.")))
     .withCredentialsProvider(credentials)
     .withS3RegionProvider(region)
-    // FIXME: switch off path style access after upgrading
-    // toe Alpakka 2.x
-    .withPathStyleAccess(true)
+    .withAccessStyle(AccessStyle.virtualHostAccessStyle)
     // FIXME: Switch to ListObjectsV2 when Digital Ocean supports it
     .withListBucketApiVersion(ApiVersion.ListBucketVersion1)
 
-  private val client: AmazonS3 = endpointUrl
-    .fold(ifEmpty = AmazonS3ClientBuilder.standard().withRegion(region.getRegion))(url => AmazonS3ClientBuilder.standard()
-      .withEndpointConfiguration(new EndpointConfiguration(url, region.getRegion)))
-    .withCredentials(credentials).build()
+  private val clientBuilder = S3Client.builder()
+    .credentialsProvider(credentials)
+    .region(region.getRegion)
+  private val client = endpointUrl
+    .fold(clientBuilder)(url => clientBuilder.endpointOverride(URI.create(url)))
+    .build()
 
   override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
-    val expTime = new java.util.Date()
-    val expTimeMillis = expTime.getTime + duration.toMillis
-    expTime.setTime(expTimeMillis)
+    val expire = java.time.Duration.ofNanos(duration.toNanos)
+    val preSignerBuilder = S3Presigner.builder()
+      .credentialsProvider(credentials)
+      .region(region.getRegion)
+    val preSigner = endpointUrl.fold(preSignerBuilder)(url => preSignerBuilder.endpointOverride(URI.create(url)))
+      .build()
 
-    val method = if (contentType.isDefined) com.amazonaws.HttpMethod.PUT else com.amazonaws.HttpMethod.GET
-    val psur = new GeneratePresignedUrlRequest(classifier, path)
-      .withExpiration(expTime)
-      .withMethod(method)
-    contentType.foreach(psur.setContentType)
-    versionId.foreach(psur.setVersionId)
-
-    client.generatePresignedUrl(psur).toURI
+    contentType.map { ct =>
+      val r = PutObjectRequest.builder()
+        .contentType(ct)
+        .bucket(classifier)
+        .key(path)
+        .build()
+      val pr = PutObjectPresignRequest.builder()
+        .putObjectRequest(r)
+        .signatureDuration(expire)
+        .build()
+      preSigner.presignPutObject(pr).url().toURI
+    }.getOrElse {
+      val rb = GetObjectRequest.builder()
+        .bucket(classifier)
+        .key(path)
+      val r = versionId.fold(rb)(id => rb.versionId(id)).build()
+      val pr = GetObjectPresignRequest.builder()
+        .getObjectRequest(r)
+        .signatureDuration(expire)
+        .build()
+      preSigner.presignGetObject(pr).url().toURI
+    }
   }
 
   override def count(classifier: String, prefix: Option[String]): Future[Int] =
     countFilesWithPrefix(classifier, prefix)
 
   override def info(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
-    val omr = new GetObjectMetadataRequest(bucket, path)
-    versionId.foreach(omr.setVersionId)
 
+    val omrb = HeadObjectRequest.builder()
+      .bucket(bucket)
+      .key(path)
+
+    val omr = versionId.fold(omrb)(id => omrb.versionId(id)).build()
     try {
-      val meta = client.getObjectMetadata(omr)
+      val meta = client.headObject(omr)
       val fm = FileMeta(
         bucket,
         path,
-        meta.getLastModified.toInstant,
-        meta.getContentLength,
-        Option(meta.getETag),
-        Option(meta.getContentType),
-        Option(meta.getVersionId)
+        meta.lastModified,
+        meta.contentLength,
+        Option(meta.eTag),
+        Option(meta.contentType),
+        Option(meta.versionId)
       )
-      Some((fm, meta.getUserMetadata.asScala.toMap))
+      Some((fm, meta.metadata.asScala.toMap))
     } catch {
-      case e: AmazonS3Exception =>
-        e.printStackTrace()
-        None
+      case _: AwsServiceException => None
     }
   }(ec)
 
@@ -164,7 +181,15 @@ case class S3CompatibleFileStorage(
   override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = {
     S3.listBucket(classifier, prefix)
       .withAttributes(S3Attributes.settings(endpoint))
-      .map(f => FileMeta(classifier, f.key, f.lastModified, f.size, Some(f.eTag)))
+      .map(f => FileMeta(
+        classifier,
+        f.key,
+        f.lastModified,
+        f.size,
+        // NB: S3 returns eTags wrapped in quotes, but Alpakka doesn't
+        // hence for compatibility we add it here.
+        Some(f.eTag).map(f => "\"" + f + "\"")
+      ))
   }
 
   override def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
@@ -175,16 +200,22 @@ case class S3CompatibleFileStorage(
     listVersions(classifier, Some(path), None, after, max = 200)
 
   override def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = Future {
-    val status = if (enabled) BucketVersioningConfiguration.ENABLED
-    else BucketVersioningConfiguration.OFF
-    val bvc = new BucketVersioningConfiguration().withStatus(status)
-    val bcr = new SetBucketVersioningConfigurationRequest(classifier, bvc)
-    client.setBucketVersioningConfiguration(bcr)
+    val status = if (enabled) BucketVersioningStatus.ENABLED
+    else BucketVersioningStatus.SUSPENDED
+    val vc = VersioningConfiguration.builder().status(status).build()
+    val bvc = PutBucketVersioningRequest.builder()
+      .bucket(classifier)
+      .versioningConfiguration(vc)
+      .build()
+
+    client.putBucketVersioning(bvc)
+    ()
   }(ec)
 
   override def isVersioned(classifier: String): Future[Boolean] = Future {
-    val bvc = client.getBucketVersioningConfiguration(classifier)
-    bvc.getStatus == BucketVersioningConfiguration.ENABLED
+    val bvr = GetBucketVersioningRequest.builder().bucket(classifier).build()
+    val bvc = client.getBucketVersioning(bvr)
+    bvc.status() == BucketVersioningStatus.ENABLED
   }(ec)
 
   override def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] = {
@@ -220,28 +251,35 @@ case class S3CompatibleFileStorage(
   }(ec)
 
   private def listPrefixVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): FileList = {
-    val lvr = new ListVersionsRequest()
-      .withBucketName(classifier)
-      .withMaxResults(max)
-    prefix.foreach(lvr.setPrefix)
-    after.foreach(lvr.setKeyMarker)
-    afterVersion.foreach(lvr.setVersionIdMarker)
-    val r = client.listVersions(lvr)
-    FileList(r.getVersionSummaries.asScala.map { f =>
+    val rb = ListObjectVersionsRequest.builder()
+      .bucket(classifier)
+      .maxKeys(max)
+      .prefix(prefix.getOrElse(""))
+    val rb2 = after.fold(rb)(key => rb.keyMarker(key))
+    val lvr = afterVersion.fold(rb2)(id => rb2.versionIdMarker(id)).build()
+
+    val r = client.listObjectVersions(lvr)
+    FileList(r.versions().asScala.map { f =>
       FileMeta(
-        f.getBucketName,
-        f.getKey,
-        f.getLastModified.toInstant,
-        f.getSize,
-        eTag = Some(f.getETag),
-        versionId = Some(f.getVersionId)
+        classifier,
+        f.key,
+        f.lastModified,
+        f.size,
+        eTag = Some(f.eTag),
+        versionId = Some(f.versionId)
       )
     }, r.isTruncated)
   }
 
   private def deleteKeys(classifier: String, paths: Seq[String]) = {
-    val dor = new DeleteObjectsRequest(classifier).withKeys(paths: _*)
-    client.deleteObjects(dor).getDeletedObjects.asScala.map(_.getKey)
+    val delete = Delete.builder()
+      .objects(paths.map(key => ObjectIdentifier.builder().key(key).build()): _*)
+      .build()
+    val dor = DeleteObjectsRequest.builder()
+      .bucket(classifier)
+      .delete(delete)
+      .build()
+    client.deleteObjects(dor).deleted().asScala.map(_.key)
   }
 
   private def listPrefix(classifier: String, prefix: Option[String], after: Option[String], max: Int) = {
@@ -249,14 +287,21 @@ case class S3CompatibleFileStorage(
     // implement support for the StartAfter parameter.
     // For now the marker param in ListObject (v1) seems
     // to do the same thing.
-    val req = new ListObjectsRequest()
-      .withBucketName(classifier)
-      .withMaxKeys(max)
-    after.foreach(req.setMarker)
-    prefix.foreach(req.setPrefix)
-    val r = client.listObjects(req)
-    FileList(r.getObjectSummaries.asScala.map { f =>
-      FileMeta(f.getBucketName, f.getKey, f.getLastModified.toInstant, f.getSize, Some(f.getETag))
-    }.toList, r.isTruncated)
+    val rb = ListObjectsRequest.builder()
+      .bucket(classifier)
+      .maxKeys(max)
+    val rb2 = after.fold(rb)(key => rb.marker(key))
+    val lor = prefix.fold(rb2)(p => rb2.prefix(p)).build()
+
+    val resp = client.listObjects(lor)
+      FileList(resp.contents().asScala.map { f =>
+      FileMeta(
+        classifier,
+        f.key,
+        f.lastModified,
+        f.size,
+        Some(f.eTag),
+      )
+    }.toList, resp.isTruncated)
   }
 }
