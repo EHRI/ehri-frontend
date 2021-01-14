@@ -150,7 +150,7 @@ let validatorMixin = {
   },
   methods: {
     handleValidationResults: function(errs) {
-      _.forEach(errs, (item) => {
+      _.forEach(errs, item => {
         this.$set(this.validationResults, item.eTag, item.errors)
         this.$delete(this.validating, item.eTag);
       });
@@ -167,25 +167,12 @@ let validatorMixin = {
         });
       }
     },
-    validateAll: function() {
-      this.tab = 'validation';
-      this.validationRunning = true;
-      this.validationLog = [];
-      this.files.forEach(f => this.$set(this.validating, f.eTag, true));
-
-      this.api.validateAll(this.datasetId, this.fileStage)
-        .then(errs => this.handleValidationResults(errs))
-        .catch(error => this.showError("Error attempting validation", error))
-        .finally(() => {
-          this.validating = {};
-          this.validationRunning = false;
-        });
-    },
     validateFiles: function (tagToKey) {
       this.tab = 'validation';
       this.validationRunning = true;
       this.validationLog = [];
-      _.forEach(tagToKey, (key, tag) => this.$set(this.validating, tag, true));
+      let allTags = _.isEmpty(tagToKey) ? this.files.map(f => f.eTag) : _.keys(tagToKey);
+      _.forEach(allTags, tag => this.$set(this.validating, tag, true));
 
       this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
         .then(errs => this.handleValidationResults(errs))
@@ -269,8 +256,8 @@ let previewPanelMixin = {
         this.updateErrors();
       } else {
         this.validating = true;
-        let tagToPath = _.fromPairs([[this.previewing.eTag, this.previewing.key]]);
-        this.api.validateFiles(this.datasetId, this.fileStage, tagToPath)
+        let tagToKey = _.fromPairs([[this.previewing.eTag, this.previewing.key]]);
+        this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
           .then(errors => {
             let e = _.find(errors, e => this.previewing.eTag === e.eTag);
             if (e) {
@@ -806,6 +793,8 @@ Vue.component("info-modal", {
         <dd>{{fileInfo.meta.size|humanFileSize}}</dd>
         <dt>Last Modified:</dt>
         <dd v-bind:title="fileInfo.meta.lastModified">{{fileInfo.meta.lastModified|prettyDate}}</dd>
+        <dt>E-Tag:</dt>
+        <dd v-bind:title="fileInfo.meta.eTag">{{fileInfo.meta.eTag}}</dd>
       </dl>
       <template v-if="fileInfo.versions && fileInfo.versions.length > 1">
         <h4>Version History</h4>
@@ -1004,7 +993,7 @@ let stageMixin = {
       return Object.keys(this.selected);
     },
     selectedTags: function() {
-      return _.invert(_.mapValues(this.selected, f => f.eTag));
+      return _.fromPairs(Object.values(this.selected).map(f => [f.eTag, f.key]));
     }
   },
   methods: {
@@ -1063,28 +1052,18 @@ let stageMixin = {
         .finally(() => this.downloading = {});
     },
     deleteFiles: function (keys) {
-      if (keys.includes(this.previewing)) {
+      if (_.isEmpty(keys) || keys.includes(this.previewing)) {
         this.previewing = null;
       }
-      keys.forEach(key => this.$set(this.deleting, key, true));
+      let dkeys = _.isEmpty(keys) ? this.files.map(f => f.key) : keys;
+      dkeys.forEach(key => this.$set(this.deleting, key, true));
       this.api.deleteFiles(this.datasetId, this.fileStage, keys)
-        .then(deleted => {
-          deleted.forEach(key => {
+        .then(() => {
+          dkeys.forEach(key => {
             this.$delete(this.deleting, key);
             this.$delete(this.selected, key);
           });
           this.refresh();
-        })
-        .catch(error => this.showError("Error deleting files", error))
-        .finally(() => this.deleting = {});
-    },
-    deleteAll: function () {
-      this.previewing = null;
-      this.files.forEach(f => this.$set(this.deleting, f.key, true));
-      return this.api.deleteAll(this.datasetId, this.fileStage)
-        .then(r => {
-          this.load();
-          r;
         })
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});
