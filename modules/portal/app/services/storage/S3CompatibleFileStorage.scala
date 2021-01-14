@@ -11,10 +11,10 @@ import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import play.api.Logger
 import software.amazon.awssdk.auth.credentials.{AwsCredentials, AwsCredentialsProvider, StaticCredentialsProvider}
-import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.core.exception.SdkException
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.regions.providers.AwsRegionProvider
-import software.amazon.awssdk.services.s3.{S3Client, S3Configuration}
+import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.{GetObjectPresignRequest, PutObjectPresignRequest}
@@ -28,39 +28,41 @@ import scala.concurrent.{ExecutionContext, Future}
 object S3CompatibleFileStorage {
   def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleFileStorage = {
     val credentials = StaticCredentialsProvider.create(new AwsCredentials {
-      override def accessKeyId(): String = config.getString("aws.credentials.access-key-id")
-      override def secretAccessKey(): String = config.getString("aws.credentials.secret-access-key")
+      override def accessKeyId(): String = config.getString("config.aws.credentials.access-key-id")
+      override def secretAccessKey(): String = config.getString("config.aws.credentials.secret-access-key")
     })
     val region: AwsRegionProvider = new AwsRegionProvider {
-      override def getRegion: Region = Region.of(config.getString("aws.region.default-region"))
+      override def getRegion: Region = Region.of(config.getString("config.aws.region.default-region"))
     }
 
-    val endpoint: Option[String] = if (config.hasPath("endpoint-url"))
-      Some(config.getString("endpoint-url"))
+    val endpoint: Option[String] = if (config.hasPath("config.endpoint-url"))
+      Some(config.getString("config.endpoint-url"))
     else None
 
-    new S3CompatibleFileStorage(credentials, region, endpoint)(mat)
+    val bucket = config.getString("classifier")
+
+    new S3CompatibleFileStorage(credentials, region, bucket, endpoint)(mat)
   }
 }
 
 case class S3CompatibleFileStorage(
   credentials: AwsCredentialsProvider,
   region: AwsRegionProvider,
+  name: String,
   endpointUrl: Option[String] = None
 )(implicit mat: Materializer) extends FileStorage {
   private val logger = Logger(getClass)
   private implicit val ec: ExecutionContext = mat.executionContext
   private implicit val actorSystem: ActorSystem = mat.system
 
-  private val endpoint: S3Settings = endpointUrl
-    .fold(ifEmpty = S3Ext(actorSystem).settings)(url =>
-      S3Ext(actorSystem).settings.withEndpointUrl(url
-        .replaceFirst("^https?://", "https://{bucket}.")))
-    .withCredentialsProvider(credentials)
-    .withS3RegionProvider(region)
-    .withAccessStyle(AccessStyle.virtualHostAccessStyle)
-    // FIXME: Switch to ListObjectsV2 when Digital Ocean supports it
-    .withListBucketApiVersion(ApiVersion.ListBucketVersion1)
+  private val s3Settings = endpointUrl
+    .foldLeft(S3Settings.create(
+      MemoryBufferType,
+      credentials,
+      region,
+      ApiVersion.ListBucketVersion1
+    ))(_.withEndpointUrl(_))
+    .withAccessStyle(AccessStyle.pathAccessStyle)
 
   private val clientBuilder = S3Client.builder()
     .credentialsProvider(credentials)
@@ -69,7 +71,7 @@ case class S3CompatibleFileStorage(
     .fold(clientBuilder)(url => clientBuilder.endpointOverride(URI.create(url)))
     .build()
 
-  override def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
+  override def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
     val expire = java.time.Duration.ofNanos(duration.toNanos)
     val preSignerBuilder = S3Presigner.builder()
       .credentialsProvider(credentials)
@@ -80,7 +82,7 @@ case class S3CompatibleFileStorage(
     contentType.map { ct =>
       val r = PutObjectRequest.builder()
         .contentType(ct)
-        .bucket(classifier)
+        .bucket(name)
         .key(path)
         .build()
       val pr = PutObjectPresignRequest.builder()
@@ -90,7 +92,7 @@ case class S3CompatibleFileStorage(
       preSigner.presignPutObject(pr).url().toURI
     }.getOrElse {
       val rb = GetObjectRequest.builder()
-        .bucket(classifier)
+        .bucket(name)
         .key(path)
       val r = versionId.fold(rb)(id => rb.versionId(id)).build()
       val pr = GetObjectPresignRequest.builder()
@@ -101,20 +103,20 @@ case class S3CompatibleFileStorage(
     }
   }
 
-  override def count(classifier: String, prefix: Option[String]): Future[Int] =
-    countFilesWithPrefix(classifier, prefix)
+  override def count(prefix: Option[String]): Future[Int] =
+    countFilesWithPrefix(prefix)
 
-  override def info(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
+  override def info(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
 
-    val omrb = HeadObjectRequest.builder()
-      .bucket(bucket)
+    val rb = HeadObjectRequest.builder()
+      .bucket(name)
       .key(path)
 
-    val omr = versionId.fold(omrb)(id => omrb.versionId(id)).build()
+    val r = versionId.fold(rb)(id => rb.versionId(id)).build()
     try {
-      val meta = client.headObject(omr)
+      val meta = client.headObject(r)
       val fm = FileMeta(
-        bucket,
+        name,
         path,
         meta.lastModified,
         meta.contentLength,
@@ -124,21 +126,21 @@ case class S3CompatibleFileStorage(
       )
       Some((fm, meta.metadata.asScala.toMap))
     } catch {
-      case _: AwsServiceException => None
+      case _: SdkException => None
     }
   }(ec)
 
-  override def get(bucket: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = {
-    S3.download(bucket, path, versionId = versionId)
-      .withAttributes(S3Attributes.settings(endpoint))
+  override def get(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]] = {
+    S3.download(name, path, versionId = versionId)
+      .withAttributes(S3Attributes.settings(s3Settings))
       .runWith(Sink.headOption).map(_.flatten)
       .map {
-        case Some((src, meta)) => Some(infoToMeta(bucket, path, meta) -> src)
+        case Some((src, meta)) => Some(infoToMeta(path, meta) -> src)
         case _ => None
       }
   }
 
-  override def putBytes(bucket: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None,
+  override def putBytes(path: String, src: Source[ByteString, _], contentType: Option[String] = None,
     public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] = {
     val cType = contentType.map(ContentType.parse) match {
       case Some(Right(ct)) => ct
@@ -146,31 +148,31 @@ case class S3CompatibleFileStorage(
         val mediaType: MediaType = MediaTypes.forExtension(path.substring(path.lastIndexOf(".") + 1))
         ContentType(mediaType, () => HttpCharsets.`UTF-8`)
     }
-    logger.debug(s"Uploading file: $path to $bucket with content-type: $contentType")
+    logger.debug(s"Uploading file: $path to $name with content-type: $contentType")
     val acl = if (public) CannedAcl.PublicRead else CannedAcl.AuthenticatedRead
 
-    val uploader = S3.multipartUpload(bucket, path, contentType = cType, cannedAcl = acl, metaHeaders = MetaHeaders(meta))
-      .withAttributes(S3Attributes.settings(endpoint))
+    val uploader = S3.multipartUpload(name, path, contentType = cType, cannedAcl = acl, metaHeaders = MetaHeaders(meta))
+      .withAttributes(S3Attributes.settings(s3Settings))
 
     // FIXME: Annoyingly the Alpakka API returns a relative Uri which doesn't include schemeL
     src.runWith(uploader)
       .map(r => URI.create(r.location.toString.replaceFirst("^(https?://)?", "https://")))
   }
 
-  override def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None,
+  override def putFile(path: String, file: java.io.File, contentType: Option[String] = None,
     public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
-    putBytes(classifier, path, FileIO.fromPath(file.toPath), contentType, public, meta)
+    putBytes(path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
-  override def deleteFiles(classifier: String, paths: String*): Future[Seq[String]] = Future {
-    deleteKeys(classifier, paths)
+  override def deleteFiles(paths: String*): Future[Seq[String]] = Future {
+    deleteKeys(paths)
   }(ec)
 
-  override def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]] = Future {
+  override def deleteFilesWithPrefix(prefix: String): Future[Seq[String]] = Future {
     @scala.annotation.tailrec
     def deleteBatch(done: Seq[String] = Seq.empty): Seq[String] = {
-      val fm = listPrefix(classifier, Some(prefix), done.lastOption, max = 1000)
+      val fm = listPrefix(Some(prefix), done.lastOption, max = 1000)
       val keys = fm.files.map(_.key)
-      deleteKeys(classifier, keys)
+      deleteKeys(keys)
       if (fm.truncated) deleteBatch(done ++ keys)
       else done ++ keys
     }
@@ -178,11 +180,11 @@ case class S3CompatibleFileStorage(
     deleteBatch()
   }(ec)
 
-  override def streamFiles(classifier: String, prefix: Option[String]): Source[FileMeta, NotUsed] = {
-    S3.listBucket(classifier, prefix)
-      .withAttributes(S3Attributes.settings(endpoint))
+  override def streamFiles(prefix: Option[String]): Source[FileMeta, NotUsed] = {
+    S3.listBucket(name, prefix)
+      .withAttributes(S3Attributes.settings(s3Settings))
       .map(f => FileMeta(
-        classifier,
+        name,
         f.key,
         f.lastModified,
         f.size,
@@ -192,19 +194,19 @@ case class S3CompatibleFileStorage(
       ))
   }
 
-  override def listFiles(classifier: String, prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
-    listPrefix(classifier, prefix, after, max)
+  override def listFiles(prefix: Option[String], after: Option[String], max: Int): Future[FileList] = Future {
+    listPrefix(prefix, after, max)
   }(ec)
 
-  override def listVersions(classifier: String, path: String, after: Option[String] = None): Future[FileList] =
-    listVersions(classifier, Some(path), None, after, max = 200)
+  override def listVersions(path: String, after: Option[String] = None): Future[FileList] =
+    listVersions(Some(path), None, after, max = 200)
 
-  override def setVersioned(classifier: String, enabled: Boolean): Future[Unit] = Future {
+  override def setVersioned(enabled: Boolean): Future[Unit] = Future {
     val status = if (enabled) BucketVersioningStatus.ENABLED
     else BucketVersioningStatus.SUSPENDED
     val vc = VersioningConfiguration.builder().status(status).build()
     val bvc = PutBucketVersioningRequest.builder()
-      .bucket(classifier)
+      .bucket(name)
       .versioningConfiguration(vc)
       .build()
 
@@ -212,20 +214,20 @@ case class S3CompatibleFileStorage(
     ()
   }(ec)
 
-  override def isVersioned(classifier: String): Future[Boolean] = Future {
-    val bvr = GetBucketVersioningRequest.builder().bucket(classifier).build()
+  override def isVersioned: Future[Boolean] = Future {
+    val bvr = GetBucketVersioningRequest.builder().bucket(name).build()
     val bvc = client.getBucketVersioning(bvr)
     bvc.status() == BucketVersioningStatus.ENABLED
   }(ec)
 
-  override def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]] = {
-    if (uri.getHost.startsWith(classifier)) get(classifier, uri.getPath)
-    else if (uri.getPath.startsWith("/" + classifier)) get(classifier, uri.getPath.substring(classifier.length + 1))
+  override def fromUri(uri: URI): Future[Option[(FileMeta, Source[ByteString, _])]] = {
+    if (uri.getHost.startsWith(name)) get(uri.getPath)
+    else if (uri.getPath.startsWith("/" + name)) get(uri.getPath.substring(name.length + 1))
     else Future.successful(Option.empty)
   }
 
-  private def infoToMeta(bucket: String, path: String, meta: ObjectMetadata): FileMeta = FileMeta(
-    bucket,
+  private def infoToMeta(path: String, meta: ObjectMetadata): FileMeta = FileMeta(
+    name,
     path,
     java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
     meta.getContentLength,
@@ -234,10 +236,10 @@ case class S3CompatibleFileStorage(
     meta.versionId
   )
 
-  private def countFilesWithPrefix(classifier: String, prefix: Option[String] = None): Future[Int] = Future {
+  private def countFilesWithPrefix(prefix: Option[String] = None): Future[Int] = Future {
     @scala.annotation.tailrec
     def countBatch(done: Int = 0, last: Option[String] = None): Int = {
-      val fm = listPrefix(classifier, prefix, last, max = 1000)
+      val fm = listPrefix(prefix, last, max = 1000)
       val count = fm.files.size
       if (fm.truncated) countBatch(done + count, fm.files.lastOption.map(_.key))
       else done + count
@@ -246,13 +248,13 @@ case class S3CompatibleFileStorage(
     countBatch()
   }(ec)
 
-  private def listVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): Future[FileList] = Future {
-    listPrefixVersions(classifier, prefix, after, afterVersion, max)
+  private def listVersions(prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): Future[FileList] = Future {
+    listPrefixVersions(prefix, after, afterVersion, max)
   }(ec)
 
-  private def listPrefixVersions(classifier: String, prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): FileList = {
+  private def listPrefixVersions(prefix: Option[String], after: Option[String], afterVersion: Option[String], max: Int): FileList = {
     val rb = ListObjectVersionsRequest.builder()
-      .bucket(classifier)
+      .bucket(name)
       .maxKeys(max)
       .prefix(prefix.getOrElse(""))
     val rb2 = after.fold(rb)(key => rb.keyMarker(key))
@@ -261,7 +263,7 @@ case class S3CompatibleFileStorage(
     val r = client.listObjectVersions(lvr)
     FileList(r.versions().asScala.map { f =>
       FileMeta(
-        classifier,
+        name,
         f.key,
         f.lastModified,
         f.size,
@@ -271,24 +273,24 @@ case class S3CompatibleFileStorage(
     }, r.isTruncated)
   }
 
-  private def deleteKeys(classifier: String, paths: Seq[String]) = {
+  private def deleteKeys(paths: Seq[String]) = {
     val delete = Delete.builder()
       .objects(paths.map(key => ObjectIdentifier.builder().key(key).build()): _*)
       .build()
     val dor = DeleteObjectsRequest.builder()
-      .bucket(classifier)
+      .bucket(name)
       .delete(delete)
       .build()
     client.deleteObjects(dor).deleted().asScala.map(_.key)
   }
 
-  private def listPrefix(classifier: String, prefix: Option[String], after: Option[String], max: Int) = {
+  private def listPrefix(prefix: Option[String], after: Option[String], max: Int) = {
     // FIXME: Update this to ListObjectsV2 when Digital Ocean
     // implement support for the StartAfter parameter.
     // For now the marker param in ListObject (v1) seems
     // to do the same thing.
     val rb = ListObjectsRequest.builder()
-      .bucket(classifier)
+      .bucket(name)
       .maxKeys(max)
     val rb2 = after.fold(rb)(key => rb.marker(key))
     val lor = prefix.fold(rb2)(p => rb2.prefix(p)).build()
@@ -296,7 +298,7 @@ case class S3CompatibleFileStorage(
     val resp = client.listObjects(lor)
       FileList(resp.contents().asScala.map { f =>
       FileMeta(
-        classifier,
+        name,
         f.key,
         f.lastModified,
         f.size,

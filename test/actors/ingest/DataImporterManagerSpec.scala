@@ -28,7 +28,7 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
       IngestService.IngestDataType.Ead,
       "application/json",
       ApiUser(userOpt.map(_.id)),
-      "localhost"
+      hostInstance,
     )
   )
 

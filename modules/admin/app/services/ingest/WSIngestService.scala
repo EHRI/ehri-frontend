@@ -90,14 +90,13 @@ case class WSIngestService @Inject()(
       "stats" -> res,
     )
 
-    val classifier = config.get[String]("storage.dam.classifier")
     val bytes = Source.single(ByteString.fromArray(
       Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8)))
     val time = ZonedDateTime.now()
     val now = time.format(DateTimeFormatter.ofPattern("uMMddHHmmss"))
     val dry = if (!job.data.params.commit) "-dryrun" else ""
     val path = s"${job.data.instance}/ingest-logs/ingest${dry}-$now-${job.id}.json"
-    fileStorage.putBytes(classifier, path, bytes, public = true)
+    fileStorage.putBytes(path, bytes, public = true)
   }
 
   // Create 301 redirects for items that have moved URLs

@@ -70,20 +70,19 @@ case class ImportFiles @Inject()(
 
 
   def manager(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.isVersioned(bucket).map { versioned =>
+    storage.isVersioned.map { versioned =>
       Ok(views.html.admin.repository.datamanager(request.item, versioned))
     }
   }
 
   def toggleVersioning(id: String, enabled: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
-    storage.setVersioned(bucket, enabled).map { _ =>
+    storage.setVersioned(enabled).map { _ =>
       Redirect(repositoryDataRoutes.manager(id))
     }
   }
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.listFiles(bucket,
-      prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
+    storage.listFiles(prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
       from.map(key => s"${prefix(id, ds, stage)}$key"), max = 500).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, ds, stage), ""))))))
     }
@@ -93,8 +92,8 @@ case class ImportFiles @Inject()(
     import scala.concurrent.duration._
 
     val pathPrefix: String = prefix(id, ds, stage) + path.getOrElse("")
-    asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
-      storage.count(bucket, Some(prefix(id, ds, stage) + path.getOrElse(""))).map { count =>
+    asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 1.minute) {
+      storage.count(Some(prefix(id, ds, stage) + path.getOrElse(""))).map { count =>
         Json.obj("path" -> pathPrefix, "count" -> count)
       }
     }.map(Ok(_))
@@ -102,13 +101,13 @@ case class ImportFiles @Inject()(
 
   def fileUrls(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
     val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
-    val result = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(bucket, key)).toMap
+    val result = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(key)).toMap
     Ok(Json.toJson(result))
   }
 
   private def streamToStorage(id: String, ds: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>
     Accumulator.source[ByteString]
-      .mapFuture(src => storage.putBytes(bucket, s"${prefix(id, ds, stage)}$fileName", src, r.contentType))
+      .mapFuture(src => storage.putBytes(s"${prefix(id, ds, stage)}$fileName", src, r.contentType))
       .map(f => Source.single(ByteString(Json.prettyPrint(Json.obj("url" -> f.toString)))))
       .map(Right.apply)
   }
@@ -121,7 +120,7 @@ case class ImportFiles @Inject()(
     }
 
   def download(id: String, ds: String, stage: FileStage.Value, fileName: String, versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit req =>
-    storage.get(bucket, s"${prefix(id, ds, stage)}$fileName", versionId = versionId).map {
+    storage.get(s"${prefix(id, ds, stage)}$fileName", versionId = versionId).map {
       case Some((meta, bytes)) =>
         Ok.chunked(bytes)
           .as(meta.contentType.getOrElse(ContentTypes.BINARY))
@@ -135,29 +134,29 @@ case class ImportFiles @Inject()(
     val pre = prefix(id, ds, stage)
     val path = pre + fileName
     for {
-      Some((meta, _)) <- storage.info(bucket, path, versionId)
-      versions <- storage.listVersions(bucket, path)
+      Some((meta, _)) <- storage.info(path, versionId)
+      versions <- storage.listVersions(path)
     } yield Ok(Json.obj(
       "meta" -> meta.copy(key = meta.key.replace(pre, "")),
-      "presignedUrl" -> storage.uri(bucket, path, 2.hours, versionId = versionId, contentType = meta.contentType),
+      "presignedUrl" -> storage.uri(path, 2.hours, versionId = versionId, contentType = meta.contentType),
       "versions" -> versions.files.map(v => v.copy(key = v.key.replace(pre, "")))
     ))
   }
 
   def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
     val path = s"${prefix(id, ds, stage)}${request.body.name}"
-    val url = storage.uri(bucket, path, contentType = Some(request.body.`type`))
+    val url = storage.uri(path, contentType = Some(request.body.`type`))
     Ok(Json.obj("presignedUrl" -> url))
   }
 
   def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
     def deleteBatch(batch: Seq[String]): Future[Int] = {
-      storage.deleteFiles(bucket, batch: _*).map(_.size)
+      storage.deleteFiles(batch: _*).map(_.size)
     }
 
     val pre = prefix(id, ds, stage)
     val src: Source[String, _] = if (request.body.isEmpty)
-      storage.streamFiles(bucket, Some(pre)).map(f => f.key)
+      storage.streamFiles(Some(pre)).map(f => f.key)
     else Source(request.body.map(p => pre + p).toList)
 
     val r = src
@@ -173,13 +172,13 @@ case class ImportFiles @Inject()(
     // Convert the map to a sequence and reverse key/value
     val pre = prefix(id, ds, stage)
     val src: Source[(String, Option[String]), _] = if (request.body.isEmpty) storage
-        .streamFiles(bucket, Some(pre))
+        .streamFiles(Some(pre))
         .map(f => f.key -> f.eTag)
     else Source(request.body.map{ case (t, k) => (pre + k) -> Some(t)}.toList)
 
     val results: Future[Seq[ValidationResult]] = src
       .mapAsync(3) { case (key, tag) =>
-        val url = storage.uri(bucket, key).toString
+        val url = storage.uri(key).toString
         eadValidator.validateEad(Uri(url)).map(errs =>
           ValidationResult(key.replace(pre, ""), tag, errs))
       }
@@ -205,7 +204,7 @@ case class ImportFiles @Inject()(
         tolerant = request.body.tolerant,
         commit = request.body.commit,
         properties = request.body.properties.map(ref =>
-          PropertiesHandle(storage.uri(bucket, s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
+          PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
           .getOrElse(PropertiesHandle.empty),
         fonds = dataset.fonds
       )
@@ -240,14 +239,14 @@ case class ImportFiles @Inject()(
   private def getUrlMap(data: IngestPayload, prefix: String): Future[Map[String, java.net.URI]] = {
     // NB: Not doing this with regular Future.successful so as to
     // limit parallelism to the specified amount
-    val keys = if (data.files.isEmpty) storage.streamFiles(bucket, Some(prefix)).map(_.key)
+    val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
     else Source(data.files.map(prefix + _).toList)
 
     keys
-      .mapAsync(4)(path => storage.info(bucket, path).map(info => path -> info))
+      .mapAsync(4)(path => storage.info(path).map(info => path -> info))
       .collect { case (path, Some((meta, _))) =>
         val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
-        id -> storage.uri(meta.classifier, meta.key, duration = 2.hours, versionId = meta.versionId)
+        id -> storage.uri(meta.key, duration = 2.hours, versionId = meta.versionId)
       }
       .runFold(Map.empty[String, java.net.URI])(_ + _)
   }

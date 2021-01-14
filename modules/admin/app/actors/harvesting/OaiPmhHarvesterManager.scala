@@ -22,13 +22,11 @@ object OaiPmhHarvesterManager {
     *
     * @param config     the endpoint configuration
     * @param from       the starting date and time
-    * @param classifier the storage classifier on which to save files
     * @param prefix     the path prefix on which to save files, after
     *                   which the item identifier will be appended
     */
   case class OaiPmhHarvestData(
     config: OaiPmhConfig,
-    classifier: String,
     prefix: String,
     from: Option[Instant] = None,
   )

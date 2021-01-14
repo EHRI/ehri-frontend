@@ -2,14 +2,15 @@ package integration.portal
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import models._
 import org.apache.commons.io.FileUtils
+import play.api.Application
 import play.api.http.MimeTypes
 import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
 import services.data.AuthenticatedUser
+import services.storage.FileStorage
 
 
 
@@ -25,6 +26,8 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     FileUtils.copyFile(new File("modules/portal/public/img/logo.png"), tmpFile)
     tmpFile
   }
+
+  private def files(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
 
   "Portal views" should {
     "allow watching and unwatching items" in new ITestApp {
@@ -57,13 +60,13 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
       val watchingText = FakeRequest(profileRoutes.watching(format = DataFormat.Text))
         .withUser(privilegedUser).call()
-      contentType(watchingText)  must beSome.which { ct =>
+      contentType(watchingText)  must beSome.which { ct: String =>
         ct must_== MimeTypes.TEXT
       }
       
       val watchingJson = FakeRequest(profileRoutes.watching(format = DataFormat.Json))
         .withUser(privilegedUser).call()
-      contentType(watchingJson)  must beSome.which { ct =>
+      contentType(watchingJson)  must beSome.which { ct: String =>
         ct must_== MimeTypes.JSON
       }
       contentAsJson(watchingJson).validate[Seq[JsObject]].asOpt must beSome
@@ -71,7 +74,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val watchingCsv = FakeRequest(profileRoutes.watching(format = DataFormat.Csv))
         .withUser(privilegedUser).call()
       println(contentAsString(watchingCsv))
-      contentType(watchingCsv)  must beSome.which { ct =>
+      contentType(watchingCsv)  must beSome.which { ct: String =>
         ct must_== "text/csv"
       }
     }
@@ -147,21 +150,16 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       contentAsString(result) must contain(message("errors.badFileType"))
     }
 
-    "allow uploading image files as profile image" in new ITestApp(
-      specificConfig = Map("storage.portal.classifier" -> "profileImage")
-    ) {
+
+    "allow uploading image files as profile image" in new ITestApp {
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
         .withFileUpload("image", getProfileImage, "image/png")
         .withUser(privilegedUser)
         .withCsrf
         .call()
       status(result) must equalTo(SEE_OTHER)
-      storedFileBuffer
-        .get("profileImage")
-        .flatMap(_
-          .keys
-          .find(_.endsWith(s"${privilegedUser.id}.png"))
-        ) must beSome
+      val path = s"$hostInstance/images/UserProfile/${privilegedUser.id}.png"
+      await(files.get(path)) must beSome
     }
 
     "prevent uploading files that are too large" in new ITestApp(
@@ -177,7 +175,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
     "allow deleting profile with correct confirmation" in new ITestApp {
       // Fetch the current name
-      implicit val apiUser = AuthenticatedUser(privilegedUser.id)
+      implicit val apiUser: AuthenticatedUser = AuthenticatedUser(privilegedUser.id)
       val cname = await(dataApi.get[UserProfile](privilegedUser.id)).data.name
       val data = Map("confirm" -> Seq(cname))
       val delete = FakeRequest(profileRoutes.deleteProfilePost())

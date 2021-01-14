@@ -94,7 +94,7 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
     ) ++ item.hash.map(h => "hash" -> h)
 
     // Get the storage metadata for checking the file hash...
-    storage.info(job.data.classifier, job.data.prefix + name).flatMap {
+    storage.info(job.data.prefix + name).flatMap {
       // If it exists and matches we've got nowt to do..
       case Some((_, userMeta)) if userMeta.contains("hash") && userMeta.get("hash") == item.hash =>
         immediate("~ " + name)
@@ -104,7 +104,6 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
       case _ =>
         val bytes = client.get(item)
         storage.putBytes(
-          job.data.classifier,
           job.data.prefix + name,
           bytes,
           item.contentType,

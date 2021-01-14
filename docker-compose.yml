@@ -26,3 +26,34 @@ services:
     environment:
       PYTHON_UNBUFFERED: 1
     entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
+
+  minio:
+    image: minio/minio
+    ports:
+      - 9876:9000
+    environment:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: changeme
+    entrypoint: sh
+    command: server /data
+    command: -c '/usr/bin/minio server /data{1...4}'
+    restart: always
+
+  # Use the mc client to create an ehri-test bucket in minio
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc config host add ehri http://minio:9000 admin changeme;
+      /usr/bin/mc mb ehri/test;
+      /usr/bin/mc version enable ehri/test
+
+      /usr/bin/mc mb ehri/dam;
+      /usr/bin/mc version enable ehri/dam
+
+      /usr/bin/mc mb ehri/portal;
+      exit 0;
+      "

@@ -53,7 +53,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     // Count files in the given prefix...
     case Counting =>
       if (job.data.only.nonEmpty) self ! Counted(1)
-      else storage.count(job.data.classifier, Some(job.data.inPrefix))
+      else storage.count(Some(job.data.inPrefix))
           .map(filesInSrc => Counted(filesInSrc))
           .pipeTo(self)
 
@@ -73,7 +73,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     case FetchFiles(after) =>
       // If we're only converting a single key, fetch its metadata
       job.data.only.map { key =>
-        storage.info(job.data.classifier, job.data.inPrefix + key)
+        storage.info(job.data.inPrefix + key)
           .map {
             case Some((meta, _)) => Convert(List(meta), truncated = false, None, done)
             case None =>
@@ -83,7 +83,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
           .pipeTo(self)
       } getOrElse {
         // Otherwise, fetch all items from the storage
-        storage.listFiles(job.data.classifier, Some(job.data.inPrefix), after, max = 200)
+        storage.listFiles(Some(job.data.inPrefix), after, max = 200)
           .map(list => Convert(list.files.toList, list.truncated, after, done))
           .pipeTo(self)
       }
@@ -91,15 +91,13 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     // Fetching a file
     case Convert(file :: others, truncated, _, count) =>
       context.become(running(msgTo, count, total, start))
-      storage.get(job.data.classifier, file.key).map {
-          case None => log.error(s"Storage.get returned None " +
-            s"for '${job.data.classifier}/${file.key}': this shouldn't happen!")
+      storage.get(file.key).map {
+          case None => log.error(s"Storage.get returned None for '${file.key}': this shouldn't happen!")
 
           case Some((_, stream)) =>
             val newStream = stream.via(transformer.transform(job.data.transformers))
             val fileName = basename(file.key)
             storage.putBytes(
-              job.data.classifier,
               job.data.outPrefix + fileName,
               newStream,
               contentType = Some("text/xml"),

@@ -12,17 +12,16 @@ import java.nio.file.Path
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class MockEadValidatorService @Inject() (@Named("dam") fileStorage: FileStorage, config: Configuration)(implicit map: Materializer, ec: ExecutionContext) extends EadValidator {
+case class MockEadValidatorService @Inject() (@Named("dam") storage: FileStorage, config: Configuration)(implicit map: Materializer, ec: ExecutionContext) extends EadValidator {
 
   private val validator = RelaxNGEadValidator()
 
   override def validateEad(path: Path): Future[Seq[XmlValidationError]] = validator.validateEad(path)
 
   override def validateEad(uri: Uri): Future[Seq[XmlValidationError]] = {
-    val classifier = config.get[String]("storage.dam.classifier")
-    fileStorage.fromUri(URI.create(uri.toString()), classifier).flatMap {
+    storage.fromUri(URI.create(uri.toString())).flatMap {
       case Some((_, src)) => validator.validateEad(src)
-      case _ => throw new RuntimeException(s"Can't get bytes for URL: $uri in '$classifier'")
+      case _ => throw new RuntimeException(s"Can't get bytes for URL: $uri in '${storage.name}'")
     }
   }
 

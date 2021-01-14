@@ -4,24 +4,28 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.typesafe.config.Config
 import helpers.TestConfiguration
+import play.api.Configuration
 import play.api.test.PlaySpecification
 
 import scala.concurrent.ExecutionContext
 
-class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
+class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfiguration {
 
   private val injector = appBuilder.injector
   private implicit val actorSystem: ActorSystem = injector.instanceOf[ActorSystem]
   private implicit val mat: Materializer = injector.instanceOf[Materializer]
   private implicit val ec: ExecutionContext = mat.executionContext
+  private val config = injector.instanceOf[Configuration]
 
   private val bytes = Source.single(ByteString("Hello, world"))
   private val paths = Seq("bar", "baz", "spam", "eggs")
-  private val bucket = "bucket1"
+  private val bucket = "test"
 
-  def putTestItems: (MockFileStorage, Seq[String]) = {
-    val storage = MockFileStorage(bucket, collection.mutable.Map.empty)
+  def putTestItems: (FileStorage, Seq[String]) = {
+    val storage = S3CompatibleFileStorage(config.get[Config]("storage.test"))
+    await(storage.setVersioned(enabled = true))
     val urls = paths.map { path =>
       await(storage.putBytes(path, bytes, public = true)).toString
     }
@@ -30,7 +34,7 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
 
   "storage service" should {
     "put items correctly" in {
-      putTestItems._2 must_== paths.map(p => s"https://$bucket.mystorage.com/$p")
+      putTestItems._2.sorted must_== paths.sorted.map(p => s"https://localhost:9876/$bucket/$p")
     }
 
     "get item bytes" in {
@@ -52,17 +56,17 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
     "list items correctly with prefix" in {
       val storage = putTestItems._1
       val items = await(storage.listFiles(Some("b")))
-      items.files.map(_.key).sorted must_== paths.filter(_.startsWith("b")).sorted
+      items.files.map(_.key) must_== paths.filter(_.startsWith("b"))
     }
 
     "list items correctly with paging" in {
       val storage = putTestItems._1
       val items = await(storage.listFiles(max = 2))
-      items.files.map(_.key) must_== paths.take(2)
+      items.files.map(_.key).sorted must_== paths.take(2).sorted
       items.truncated must_== true
 
       val items2 = await(storage.listFiles(after = Some("baz"), max = 2))
-      items2.files.map(_.key).sorted must_== paths.sorted.drop(2)
+      items2.files.map(_.key).sorted must_== paths.drop(2).sorted
       items2.truncated must_== false
     }
 
@@ -77,24 +81,29 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
     "get item info with version ID" in {
       val storage = putTestItems._1
       val info: Option[(FileMeta, Map[String, String])] = await(storage.info("baz"))
-      info must beSome.which(_._1.versionId must_== Some("1"))
+      info.map(_._1) must beSome.which {fm: FileMeta => fm.versionId must beSome}
 
       await(storage.putBytes("baz", Source.single(ByteString("Bye, world"))))
       val info2: Option[(FileMeta, Map[String, String])] = await(storage.info("baz"))
-      info2 must beSome.which(_._1.versionId must_== Some("2"))
-
-      val info3: Option[(FileMeta, Map[String, String])] = await(storage.info("baz", versionId = Some("1")))
-      info3 must beSome.which(_._1.versionId must_== Some("1"))
+      info2 must beSome.which { case (fm: FileMeta, _) =>
+        fm.versionId must beSome
+        val info3: Option[(FileMeta, Map[String, String])] = await(storage.info("baz", versionId = fm.versionId))
+        info3.map(_._1) must beSome.which { fm2: FileMeta => fm2.versionId must_== fm.versionId }
+      }
     }
 
     "get item data with version ID" in {
       val storage = putTestItems._1
-      await(storage.putBytes("baz", Source.single(ByteString("Bye, world"))))
+      val info: Option[(FileMeta, Map[String, String])] = await(storage.info("baz"))
+      info.map(_._1) must beSome.which { (fm: FileMeta) =>
 
-      val data1 = await(storage.get("baz", versionId = Some("1")))
-      data1 must beSome.which { case (_, src) =>
-        val s = await(src.runFold(ByteString.empty)(_ ++ _))
-        s.utf8String must_== "Hello, world"
+        await(storage.putBytes("baz", Source.single(ByteString("Bye, world"))))
+
+        val data1 = await(storage.get("baz", versionId = fm.versionId))
+        data1.map(_._2) must beSome.which { src: Source[ByteString, _] =>
+          val s = await(src.runFold(ByteString.empty)(_ ++ _))
+          s.utf8String must_== "Hello, world"
+        }
       }
     }
 
@@ -103,9 +112,7 @@ class MockFileStorageSpec extends PlaySpecification with TestConfiguration {
       await(storage.putBytes("baz", Source.single(ByteString("Bye, world"))))
 
       val versions = await(storage.listVersions("baz"))
-      versions.files.size must_== 2
-      versions.files.head.versionId must beSome("2")
-      versions.files.last.versionId must beSome("1")
+      versions.files.size must beGreaterThan(2)
     }
   }
 }

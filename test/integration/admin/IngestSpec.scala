@@ -1,18 +1,20 @@
 package integration.admin
 
-import java.io.File
-
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import com.google.inject.name.Names
 import defines.ContentTypes
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import org.apache.commons.io.FileUtils
+import play.api.inject.{BindingKey, QualifierInstance}
 import play.api.libs.json.JsString
 import play.api.test.FakeRequest
-import services.ingest.{IngestService, IngestParams}
+import services.ingest.{IngestParams, IngestService}
+import services.storage.FileStorage
 
+import java.io.File
 import scala.concurrent.{Future, Promise}
 
 
@@ -34,6 +36,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
   "Ingest views" should {
     val port = 9902
     "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.build(), port = port) {
+      val damStorage = app.injector.instanceOf(BindingKey(classOf[FileStorage], Some(QualifierInstance(Names.named("dam")))))
 
       val result = FakeRequest(controllers.admin.routes.Ingest
           .ingestPost(ContentTypes.Repository, "r1", IngestService.IngestDataType.EadSync))
@@ -80,10 +83,8 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at https") => t } must beSome
       messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
-      // check the log has been stored
-      damFileBuffer.lastOption must beSome.which { f =>
-        f.toString must contain(jobId)
-      }
+      val list = await(damStorage.listFiles())
+      list.files.find(_.key.contains(jobId)) must beSome
     }
   }
 }

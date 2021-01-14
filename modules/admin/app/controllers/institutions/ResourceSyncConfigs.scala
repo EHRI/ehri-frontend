@@ -69,7 +69,7 @@ case class ResourceSyncConfigs @Inject()(
   def sync(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).apply(parse.json[ResourceSyncConfig]) { implicit request =>
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
-      val data = ResourceSyncData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input))
+      val data = ResourceSyncData(endpoint, prefix = prefix(id, ds, FileStage.Input))
       val job = ResourceSyncJob(id, ds, jobId, data = data)
       mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, rsClient, storage, harvestEvents)), jobId)
 

@@ -23,7 +23,6 @@ object XmlConverterManager {
     *
     * @param transformers the sequence of transformations
     * @param from         the starting date and time
-    * @param classifier   the storage classifier on which to save files
     * @param inPrefix     the path prefix of input files
     * @param outPrefix    the replacement output path prefix
     * @param only         a single key to convert. If not given the whole
@@ -31,7 +30,6 @@ object XmlConverterManager {
     */
   case class XmlConvertData(
     transformers: Seq[(DataTransformation.TransformationType.Value, String)],
-    classifier: String,
     inPrefix: String,
     outPrefix: String,
     from: Option[Instant] = None,

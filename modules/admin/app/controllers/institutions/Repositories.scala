@@ -320,14 +320,13 @@ case class Repositories @Inject()(
     file.contentType.exists(_.toLowerCase.startsWith("image/"))
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], repo: Repository, request: RequestHeader): Future[String] = {
-    val classifier = config.get[String]("storage.portal.classifier")
     val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
     val storeName = s"$instance/images/${repo.isA}/${repo.id}$extension"
     val temp = File.createTempFile(repo.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
 
-    val url: Future[String] = fileStorage.putFile(classifier, storeName, temp, public = true).map(_.toString)
+    val url: Future[String] = fileStorage.putFile(storeName, temp, public = true).map(_.toString)
     url.onComplete { _ => temp.delete() }
     url
   }

@@ -23,8 +23,6 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
   private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
     config = OaiPmhConfig(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
-    // on-storage location:
-    classifier = "test-bucket",
     prefix = "oaipmh/r1/"
   ))
 

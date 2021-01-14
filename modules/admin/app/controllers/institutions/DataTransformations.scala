@@ -83,14 +83,14 @@ case class DataTransformations @Inject()(
   }
 
   private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Future[String] = {
-    storage.get(bucket, path).flatMap {
+    storage.get(path).flatMap {
       case Some((_, src)) =>
         val flow = xmlTransformer.transform(mappings)
         src
           .via(flow)
           .runFold(ByteString(""))(_ ++ _)
           .map(_.utf8String)
-      case None => throw new RuntimeException(s"No data found at $bucket: $path")
+      case None => throw new RuntimeException(s"No data found at ${storage.name}: $path")
     }
   }
 
@@ -108,7 +108,7 @@ case class DataTransformations @Inject()(
       }
 
       val path = prefix(id, ds, stage) + fileName
-      storage.info(bucket, path).flatMap {
+      storage.info(path).flatMap {
         case Some((meta, _)) =>
           val outF = meta.eTag match {
             // If we have an eTag for the file contents, cache the transformation against it
@@ -131,7 +131,6 @@ case class DataTransformations @Inject()(
       val jobId = UUID.randomUUID().toString
       val data = XmlConvertData(
         ts,
-        bucket,
         inPrefix = prefix(id, ds, FileStage.Input),
         outPrefix = prefix(id, ds, FileStage.Output),
         only = key

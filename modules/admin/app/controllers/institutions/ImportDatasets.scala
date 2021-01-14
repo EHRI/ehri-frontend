@@ -30,8 +30,8 @@ case class ImportDatasets @Inject()(
     import scala.concurrent.duration._
     def countInDataset(ds: String): Future[(String, Int)] = {
       val pathPrefix: String = prefix(id, ds, FileStage.Input)
-      asyncCache.getOrElseUpdate(s"bucket:count:$bucket/$pathPrefix", 1.minute) {
-        storage.count(bucket, Some(pathPrefix)).map(count => ds -> count)
+      asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 1.minute) {
+        storage.count(Some(pathPrefix)).map(count => ds -> count)
       }
     }
 
@@ -62,7 +62,7 @@ case class ImportDatasets @Inject()(
   def delete(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     // Delete all files in stages in the dataset, then the dataset itself...
     val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq
-      .map(s => storage.deleteFilesWithPrefix(bucket, prefix(id, ds, s)))
+      .map(s => storage.deleteFilesWithPrefix(prefix(id, ds, s)))
     for (_ <- Future.sequence(del); ds <- datasets.delete(id, ds))
       yield Ok(Json.toJson(ds))
   }

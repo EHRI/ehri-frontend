@@ -12,9 +12,6 @@ trait StorageHelpers {
 
   protected def config: Configuration
 
-  protected val bucket: String =
-    config.get[String]("storage.dam.classifier")
-
   protected def instance(implicit request: RequestHeader): String =
     config.getOptional[String]("storage.instance").getOrElse(request.host)
 
