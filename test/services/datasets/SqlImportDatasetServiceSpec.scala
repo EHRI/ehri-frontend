@@ -38,5 +38,13 @@ class SqlImportDatasetServiceSpec extends PlaySpecification {
         case e => e.getMessage must contain("import_dataset_id_pattern")
       }
     }
+
+    "enforce item_id pattern" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      await(service.create("r1", ImportDatasetInfo("foo_bar", "New DS", ImportDataset.Src.Upload, fonds = Some("nope")))) must throwA[PSQLException].like {
+        case e => e.getMessage must contain("import_dataset_item_id_pattern")
+      }
+      val ds = await(service.create("r1", ImportDatasetInfo("foo_bar", "New DS", ImportDataset.Src.Upload, fonds = Some("r1-1"))))
+      ds.fonds must beSome("r1-1")
+    }
   }
 }

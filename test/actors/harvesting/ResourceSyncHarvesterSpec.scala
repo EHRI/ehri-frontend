@@ -23,8 +23,6 @@ class ResourceSyncHarvesterSpec extends AkkaTestkitSpecs2Support with Integratio
   private def job(implicit app: Application): ResourceSyncJob = ResourceSyncJob("r1", datasetId, jobId, ResourceSyncData(
     // where we're harvesting from:
     config = ResourceSyncConfig(s"https://example.com/resourcesync/capabilitylist.xml"),
-    // on-storage location:
-    classifier = "test-bucket",
     prefix = "r1/input/"
   ))
 

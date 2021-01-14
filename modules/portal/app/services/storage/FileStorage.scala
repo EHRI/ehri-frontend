@@ -11,28 +11,31 @@ import scala.concurrent.duration.{FiniteDuration, _}
 trait FileStorage {
 
   /**
+    * A name associated with this storage instance
+    * @return a unique name
+    */
+  def name: String
+
+  /**
     * Get a bytestream for the given file.
     *
-    * @param classifier the "bucket", or set
     * @param path       additional file path, including the file name with extension
     * @param versionId  the version ID of the file content
     * @return a file-meta/byte stream pair
     */
-  def get(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]]
+  def get(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Source[ByteString, _])]]
 
   /**
     * Get info about a given file.
     *
-    * @param classifier the "bucket", or set, to which this file will belong
     * @param path       additional file path, including the file name with extension
     * @return a file-meta object
     */
-  def info(classifier: String, path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]]
+  def info(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]]
 
   /**
-    * Get the URI for a stored file with the given classifier and key.
+    * Get the URI for a stored file with the given key.
     *
-    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param duration    the duration for which the URI is valid
     * @param contentType the content type of the file, if the URI is
@@ -40,12 +43,11 @@ trait FileStorage {
     * @param versionId   the version ID of the file content
     * @return the file URI of the stored file
     */
-  def uri(classifier: String, path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI
+  def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI
 
   /**
     * Put a file object in storage.
     *
-    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param file        the file object to store
     * @param contentType the content/type value. If None is given this will
@@ -56,12 +58,11 @@ trait FileStorage {
     *                    must be variable-safe names.
     * @return the file URI of the stored file
     */
-  def putFile(classifier: String, path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
+  def putFile(path: String, file: java.io.File, contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
 
   /**
     * Put arbitrary bytes to file storage
     *
-    * @param classifier  the "bucket", or set
     * @param path        additional file path, including the file name with extension
     * @param src         the byte source
     * @param contentType the content/type value. If None is given this will
@@ -72,21 +73,19 @@ trait FileStorage {
     *                    must be variable-safe names.
     * @return the file URI of the stored file
     */
-  def putBytes(classifier: String, path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
+  def putBytes(path: String, src: Source[ByteString, _], contentType: Option[String] = None, public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI]
 
   /**
-    * Stream all files which share this classifier.
+    * Stream all files
     *
-    * @param classifier the "bucket", or set
     * @param prefix     an optional path prefix
     * @return a stream of file metadata objects.
     */
-  def streamFiles(classifier: String, prefix: Option[String] = None): Source[FileMeta, _]
+  def streamFiles(prefix: Option[String] = None): Source[FileMeta, _]
 
   /**
-    * List files which share this classifier.
+    * List files
     *
-    * @param classifier the "bucket", or set
     * @param prefix     an optional path prefix
     * @param after      list files starting after this key
     * @param max        the maximum number of keys to list
@@ -94,73 +93,65 @@ trait FileStorage {
     *         and a boolean indicating if the stream is paged, in which case
     *         subsequent objects will need to be retrieved using the `after` parameter.
     */
-  def listFiles(classifier: String, prefix: Option[String] = None, after: Option[String] = None, max: Int = -1): Future[FileList]
+  def listFiles(prefix: Option[String] = None, after: Option[String] = None, max: Int = 200): Future[FileList]
 
   /**
     * Delete files from storage.
     *
-    * @param classifier the "bucket", or set
     * @param paths      file paths, including the file name with extension
     * @return paths which were successfully deleted
     */
-  def deleteFiles(classifier: String, paths: String*): Future[Seq[String]]
+  def deleteFiles(paths: String*): Future[Seq[String]]
 
   /**
     * Delete files with a given prefix from storage.
     *
-    * @param classifier the "bucket", or set
     * @param prefix     the file path prefix
     * @return paths which were successfully deleted
     */
-  def deleteFilesWithPrefix(classifier: String, prefix: String): Future[Seq[String]]
+  def deleteFilesWithPrefix(prefix: String): Future[Seq[String]]
 
   /**
-    * Count files in the classifier, with an optional prefix.
+    * Count files, with an optional prefix.
     *
-    * @param classifier the "bucket", or set
     * @param prefix     an optional prefix
     * @return the number of files in the set with the given prefix
     */
-  def count(classifier: String, prefix: Option[String]): Future[Int]
+  def count(prefix: Option[String]): Future[Int]
 
   /**
     * List versions of a given file.
     *
-    * @param classifier the "bucket", or set
     * @param path       the file path
     * @param after      list versions starting after this versionId
     * @return a FileList object consisting of a sequence of file metadata objects
     *         and a boolean indicating if the stream is paged, in which case
     *         subsequent objects will need to be retrieved using the `after` parameter.
     */
-  def listVersions(classifier: String, path: String, after: Option[String] = None): Future[FileList]
+  def listVersions(path: String, after: Option[String] = None): Future[FileList]
 
   /**
-    * Enable/disable on the classifier. NB: this may not
+    * Enable/disable versioning.
     * be available on some implementations.
     *
-    * @param classifier the "bucket", or set
     * @param enabled    whether versioning should be enabled or disabled
     * @return
     */
-  def setVersioned(classifier: String, enabled: Boolean): Future[Unit]
+  def setVersioned(enabled: Boolean): Future[Unit]
 
   /**
-    * Check if the classifier has is versioned.
+    * Check if the storage is versioned.
     *
-    * @param classifier the "bucket", or set
-    * @return whether or not files are versioned or
-    *         not
+    * @return whether or not files are versioned or not
     */
-  def isVersioned(classifier: String): Future[Boolean]
+  def isVersioned: Future[Boolean]
 
   /**
     * Resolve a URI to a file instance. This may throw an [[UnsupportedOperationException]]
     * if the implementation does not support it.
     *
     * @param uri        a URI to resolve to a file
-    * @param classifier the set in which to look for the item
     * @return an optional pair of metadata and a byte source
     */
-  def fromUri(uri: URI, classifier: String): Future[Option[(FileMeta, Source[ByteString, _])]]
+  def fromUri(uri: URI): Future[Option[(FileMeta, Source[ByteString, _])]]
 }

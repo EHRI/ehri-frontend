@@ -1,7 +1,5 @@
 package helpers
 
-import java.nio.file.Paths
-
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import auth.handler.cookie.CookieIdContainer
@@ -33,12 +31,13 @@ import services.ingest.{EadValidator, MockEadValidatorService}
 import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
 import services.search.{MockSearchIndexMediator, _}
-import services.storage.{FileMarker, FileStorage, MockFileStorage}
 import utils.MockBufferedMailer
 
+import java.nio.file.Paths
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.Random
 
 
 /**
@@ -56,8 +55,6 @@ trait TestConfiguration {
   protected val feedbackBuffer: mutable.HashMap[Int, Feedback] = collection.mutable.HashMap.empty[Int,Feedback]
   protected val cypherQueryBuffer: mutable.HashMap[Int, CypherQuery] = collection.mutable.HashMap.empty[Int,CypherQuery]
   protected val mailBuffer: ListBuffer[Email] = collection.mutable.ListBuffer.empty[Email]
-  protected val storedFileBuffer = collection.mutable.Map.empty[String, Map[String, Seq[FileMarker]]]
-  protected val damFileBuffer = collection.mutable.Map.empty[String, Map[String, Seq[FileMarker]]]
   protected val searchParamBuffer: ListBuffer[ParamLog] = collection.mutable.ListBuffer.empty[ParamLog]
   protected val indexEventBuffer: ListBuffer[String] = collection.mutable.ListBuffer.empty[String]
   protected val movedPages: collection.mutable.ListBuffer[(String, String)] = collection.mutable.ListBuffer.empty[(String, String)]
@@ -72,8 +69,6 @@ trait TestConfiguration {
   protected def mockAccounts: AccountManager = MockAccountManager(ExecutionContext.Implicits.global)
   private def mockOAuth2Flow: OAuth2Service = MockOAuth2Service()
   private def mockRelocator: MovedPageLookup = MockMovedPageLookup(movedPages)
-  private def mockFileStorage: FileStorage = MockFileStorage(storedFileBuffer)
-  private def mockDamFileStorage: MockFileStorage = MockFileStorage(damFileBuffer)
   private def mockHtmlPages: HtmlPages = MockHtmlPages()
 
   // More or less the same as run config but synchronous (so
@@ -100,8 +95,6 @@ trait TestConfiguration {
       bind[AuthIdContainer].to(classOf[CookieIdContainer]),
       bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Service].toInstance(mockOAuth2Flow),
-      bind[FileStorage].toInstance(mockFileStorage),
-      bind[FileStorage].qualifiedWith("dam").toInstance(mockDamFileStorage),
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
       bind[SearchEngine].to[MockSearchEngine],
@@ -130,12 +123,13 @@ trait TestConfiguration {
   protected val CSRF_TOKEN_NAME = "csrfToken"
   protected val fakeCsrfString = "fake-csrf-token"
   protected val testPassword = "testpass"
+  protected val hostInstance = "test-" + Random.alphanumeric.take(10).mkString
 
   /**
    * Override this value for configuration common to
    * an entire class of specs.
    */
-  protected def getConfig = Map.empty[String,Any]
+  protected def getConfig = Map[String,Any]("storage.instance" -> hostInstance)
 
   /**
     * Access an i18n message with default lang.
@@ -145,6 +139,7 @@ trait TestConfiguration {
 
   private def loadFixtures(f: () => Result)(implicit app: Application, ex: ExecutionContext): Future[Result] = {
     val config = app.injector.instanceOf[Configuration]
+
     val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
     val ws = app.injector.instanceOf[WSClient]
     val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
@@ -157,6 +152,7 @@ trait TestConfiguration {
       } recover {
         case e => Failure(s"Unable to initialise test DB, got exception: ${e.getMessage}")
       }
+
   }
 
   /**
@@ -172,15 +168,18 @@ trait TestConfiguration {
     implicit def implicitActorSystem: ActorSystem = implicitMaterializer.system
     implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
-    override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => {
-      // NB: this line is needed because since Play 2.8.2 the router is lazily
-      // injected in such a way that they reverse routes can be resolved before
-      // prefixes are added: https://github.com/playframework/playframework/issues/10311
-      // Hopefully this bug will one day be fixed...
-      inject[play.api.routing.Router]
+    override def around[T: AsResult](t: => T): Result = {
 
-      super.around(t)
-    }))
+      await(loadFixtures(() => {
+        // NB: this line is needed because since Play 2.8.2 the router is lazily
+        // injected in such a way that they reverse routes can be resolved before
+        // prefixes are added: https://github.com/playframework/playframework/issues/10311
+        // Hopefully this bug will one day be fixed...
+        inject[play.api.routing.Router]
+
+        super.around(t)
+      }))
+    }
   }
 
   /**

@@ -73,7 +73,6 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
       context.become(running(msgTo, count, start))
       val byteSrc = client.getRecord(job.data.config, id)
       storage.putBytes(
-        job.data.classifier,
         fileName(job.data.prefix, id),
         byteSrc,
         Some("text/xml"),

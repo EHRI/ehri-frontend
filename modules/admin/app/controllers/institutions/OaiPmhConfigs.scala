@@ -77,7 +77,7 @@ case class OaiPmhConfigs @Inject()(
     lastHarvest.map { last =>
       val endpoint = request.body
       val jobId = UUID.randomUUID().toString
-      val data = OaiPmhHarvestData(endpoint, bucket, prefix = prefix(id, ds, FileStage.Input), from = last)
+      val data = OaiPmhHarvestData(endpoint, prefix = prefix(id, ds, FileStage.Input), from = last)
       val job = OaiPmhHarvestJob(id, ds, jobId, data = data)
       mat.system.actorOf(Props(OaiPmhHarvesterManager(job, oaiPmhClient, storage, harvestEvents)), jobId)
 

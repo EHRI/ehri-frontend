@@ -140,10 +140,9 @@ case class DocumentaryUnits @Inject()(
   def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).async { implicit request =>
     import scala.concurrent.duration._
     for (fileHandles <- importLogs.getHandles(id)) yield {
-      val classifier = config.get[String]("storage.dam.classifier")
       val eventHandles: Map[String, Seq[(String, java.net.URI)]] = fileHandles
         .groupBy(_.eventId)
-        .mapValues(_.map(f => (f.key, damStorage.uri(classifier, f.key, duration = 2.hours, versionId = f.versionId))))
+        .mapValues(_.map(f => (f.key, damStorage.uri(f.key, duration = 2.hours, versionId = f.versionId))))
 
       Ok(views.html.admin.documentaryUnit.eventList(
         request.item, request.page, request.params, eventHandles))

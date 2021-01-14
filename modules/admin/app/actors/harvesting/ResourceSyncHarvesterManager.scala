@@ -18,13 +18,11 @@ object ResourceSyncHarvesterManager {
     * A description of an OAI-ResourceSync harvest task.
     *
     * @param config     the endpoint configuration
-    * @param classifier the storage classifier on which to save files
     * @param prefix     the path prefix on which to save files, after
     *                   which the item identifier will be appended
     */
   case class ResourceSyncData(
     config: ResourceSyncConfig,
-    classifier: String,
     prefix: String,
   )
 
