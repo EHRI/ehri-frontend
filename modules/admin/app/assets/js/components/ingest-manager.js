@@ -260,14 +260,14 @@ Vue.component("ingest-manager", {
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || ingestJobId !== null"
           v-bind:active="validationRunning"
-          v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
+          v-on:validate="validateFiles(selectedTags)"
         />
 
         <delete-button
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || ingestJobId !== null"
           v-bind:active="!_.isEmpty(deleting)"
-          v-on:delete="selectedKeys.length ? deleteFiles(selectedKeys) : deleteAll()"
+          v-on:delete="deleteFiles(selectedKeys)"
         />
 
         <button v-bind:disabled="files.length === 0 || ingestJobId" class="btn btn-sm btn-default"

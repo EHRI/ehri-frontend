@@ -49,7 +49,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             ${info.id},
             ${info.name},
             ${info.src},
-            ${info.fonds},
+            ${info.fonds.filter(_.trim.nonEmpty)},
             ${info.sync},
             ${info.notes}
           )
@@ -67,7 +67,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             SET
               name = ${info.name},
               type = ${info.src},
-              item_id = ${info.fonds},
+              item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
               comments = ${info.notes}
             WHERE repo_id = $repoId

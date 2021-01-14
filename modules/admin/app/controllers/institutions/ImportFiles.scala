@@ -1,6 +1,5 @@
 package controllers.institutions
 
-import java.util.UUID
 import actors.ingest
 import akka.actor.Props
 import akka.http.scaladsl.model.Uri
@@ -11,8 +10,6 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.FileStage
-
-import javax.inject._
 import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
@@ -23,8 +20,10 @@ import services.data.{ApiUser, DataHelpers}
 import services.datasets.ImportDatasetService
 import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest._
-import services.storage.{FileMeta, FileStorage}
+import services.storage.FileStorage
 
+import java.util.UUID
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -152,50 +151,37 @@ case class ImportFiles @Inject()(
   }
 
   def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
-    val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
-    storage.deleteFiles(bucket, keys: _*).map { deleted =>
-      Ok(Json.toJson(deleted.map(_.replace(prefix(id, ds, stage), ""))))
-    }
-  }
-
-  def deleteAll(id: String, ds: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
-    def deleteBatch(batch: Seq[FileMeta]): Future[Boolean] = {
-      storage
-        .deleteFiles(bucket, batch.map(_.key): _*)
-        .map(_.size == batch.size)
+    def deleteBatch(batch: Seq[String]): Future[Int] = {
+      storage.deleteFiles(bucket, batch: _*).map(_.size)
     }
 
-    val r: Future[Boolean] = storage
-      .streamFiles(bucket, Some(prefix(id, ds, stage)))
+    val pre = prefix(id, ds, stage)
+    val src: Source[String, _] = if (request.body.isEmpty)
+      storage.streamFiles(bucket, Some(pre)).map(f => f.key)
+    else Source(request.body.map(p => pre + p).toList)
+
+    val r = src
       .grouped(200)
       .mapAsync(2)(deleteBatch)
-      .runWith(Sink.seq)
-      .map((s: Seq[Boolean]) => s.forall(g => g))
-    r.map { ok: Boolean =>
-      Ok(Json.obj("ok" -> ok))
-    }
+      .runWith(Sink.fold(0)(_ + _))
+
+    r.map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
   def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(parse.json[Map[String, String]]) { implicit request =>
+    // Input is a map of eTag -> key
+    // Convert the map to a sequence and reverse key/value
     val pre = prefix(id, ds, stage)
-    val results = request.body.toSeq.map { case (tag, key) =>
-      val url = storage.uri(bucket, pre + key).toString
-      eadValidator.validateEad(Uri(url))
-        .map(errs => ValidationResult(key, Some(tag), errs))
-    }
-    Future.sequence(results).map(out => Ok(Json.toJson(out))).recover {
-      case e => BadRequest(Json.obj("error" -> e.getMessage))
-    }
-  }
+    val src: Source[(String, Option[String]), _] = if (request.body.isEmpty) storage
+        .streamFiles(bucket, Some(pre))
+        .map(f => f.key -> f.eTag)
+    else Source(request.body.map{ case (t, k) => (pre + k) -> Some(t)}.toList)
 
-  def validateAll(id: String, ds: String, stage: FileStage.Value): Action[AnyContent] = EditAction(id).async { implicit request =>
-    val pre = prefix(id, ds, stage)
-    val results: Future[Seq[ValidationResult]] = storage
-      .streamFiles(bucket, Some(pre))
-      .mapAsync(3) { f =>
-        eadValidator.validateEad(Uri(storage.uri(bucket, f.key).toString))
-          .map(errs =>
-            ValidationResult(f.key.replace(prefix(id, ds, stage), ""), f.eTag, errs))
+    val results: Future[Seq[ValidationResult]] = src
+      .mapAsync(3) { case (key, tag) =>
+        val url = storage.uri(bucket, key).toString
+        eadValidator.validateEad(Uri(url)).map(errs =>
+          ValidationResult(key.replace(pre, ""), tag, errs))
       }
       .runWith(Sink.seq)
 

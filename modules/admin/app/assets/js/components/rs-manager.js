@@ -193,7 +193,7 @@ Vue.component("rs-manager", {
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || syncJobId !== null"
           v-bind:active="!_.isEmpty(deleting)"
-          v-on:delete="selectedKeys.length ? deleteFiles(selectedKeys) : deleteAll()"
+          v-on:delete="deleteFiles(selectedKeys)"
         />
 
         <button v-if="!syncJobId" class="btn btn-sm btn-default"

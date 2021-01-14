@@ -124,7 +124,8 @@ CREATE TABLE import_dataset(
     comments            TEXT,
     PRIMARY KEY (id, repo_id),
     UNIQUE (id, repo_id),
-    CONSTRAINT import_dataset_id_pattern CHECK(id ~ '^[a-z0-9_]+$')
+    CONSTRAINT import_dataset_id_pattern CHECK(id ~ '^[a-z0-9_]+$'),
+    CONSTRAINT import_dataset_item_id_pattern CHECK(item_id IS NULL OR item_id ~ concat('^', repo_id, '\-.+') )
 );
 
 CREATE TABLE oaipmh_config (

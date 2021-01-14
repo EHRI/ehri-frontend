@@ -209,14 +209,14 @@ Vue.component("upload-manager", {
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || uploading.length > 0"
           v-bind:active="validationRunning"
-          v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
+          v-on:validate="validateFiles(selectedTags)"
         />
 
         <delete-button
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || uploading.length > 0"
           v-bind:active="!_.isEmpty(deleting)"
-          v-on:delete="selectedKeys.length ? deleteFiles(selectedKeys) : deleteAll()"
+          v-on:delete="deleteFiles(selectedKeys)"
         />
 
         <button class="file-upload-button btn btn-sm btn-default">

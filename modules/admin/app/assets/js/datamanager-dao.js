@@ -28,10 +28,6 @@ let DAO = class {
     return this.call(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
-  info(ds, stage, key, versionId) {
-    return this.call(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
-  }
-
   ingestFiles(ds, stage, paths, opts) {
     let data = {
       files: paths,
@@ -44,17 +40,12 @@ let DAO = class {
     return this.call(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
   }
 
-  deleteAll(ds, stage) {
-    return this.call(this.service.ImportFiles.deleteAll(this.repoId, ds, stage))
-      .then(data => data.ok || false);
-  }
-
-  validateAll(ds, stage) {
-    return this.call(this.service.ImportFiles.validateAll(this.repoId, ds, stage));
-  }
-
   validateFiles(ds, stage, tagToPath) {
     return this.call(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
+  }
+
+  info(ds, stage, key, versionId) {
+    return this.call(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
   }
 
   fileUrls(ds, stage, paths) {
