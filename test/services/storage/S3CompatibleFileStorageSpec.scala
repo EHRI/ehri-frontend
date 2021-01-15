@@ -22,6 +22,7 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
   private val bytes = Source.single(ByteString("Hello, world"))
   private val paths = Seq("bar", "baz", "spam", "eggs")
   private val bucket = "test"
+  private val endpoint = config.get[String]("storage.test.config.endpoint-url")
 
   def putTestItems: (FileStorage, Seq[String]) = {
     val storage = S3CompatibleFileStorage(config.get[Config]("storage.test"))
@@ -34,7 +35,7 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
 
   "storage service" should {
     "put items correctly" in {
-      putTestItems._2.sorted must_== paths.sorted.map(p => s"https://localhost:9876/$bucket/$p")
+      putTestItems._2.sorted must_== paths.sorted.map(p => s"$endpoint/$bucket/$p")
     }
 
     "get item bytes" in {

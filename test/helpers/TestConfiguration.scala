@@ -187,7 +187,7 @@ trait TestConfiguration {
     * @param app the app to use
     * @param port the server port
     */
-  protected abstract class ITestServer(app: Application = GuiceApplicationBuilder().build(),
+  protected abstract class ITestServer(app: Application = GuiceApplicationBuilder().configure(getConfig).build(),
     port: Int = Helpers.testServerPort) extends WithServer(app, port) with Injecting {
 
     implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]

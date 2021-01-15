@@ -59,7 +59,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       .callWith(testPayload)
   }
 
-  "Repository Data API" should {
+  "Import Files API" should {
 
     "provide PUT urls" in new ITestApp {
       val r = FakeRequest(repoDataRoutes.uploadHandle(repoId, datasetId, stage)).withUser(privilegedUser).callWith(
@@ -70,14 +70,12 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
         )))
 
       val data: Option[Map[String,String]] = contentAsJson(r).validate[Map[String,String]].asOpt
-      data must beSome
-      data.get.get("presignedUrl") must beSome.which(_ must startWith(testFilePath))
+      data must beSome.which(_.get("presignedUrl") must beSome.which(_ must startWith(testFilePath)))
     }
 
     "upload via server" in new ITestApp {
       val r = putFile(testFileName)
-      // FIXME: urls are being returned secure URLs, even from the test minio endpoint???
-      contentAsJson(r) must_== Json.parse("{\"url\":\"" + testFilePath.replace("http", "https") + "\"}")
+      contentAsJson(r) must_== Json.parse("{\"url\":\"" + testFilePath + "\"}")
     }
 
     "fetch data" in new ITestApp {

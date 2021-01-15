@@ -1,3 +1,4 @@
+import akka.actor.ActorSystem
 import akka.stream.Materializer
 import auth.handler.AuthIdContainer
 import auth.handler.cookie.CookieIdContainer
@@ -9,6 +10,7 @@ import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
 import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler, _}
+
 import javax.inject.{Inject, Provider}
 import models.{GuideService, SqlGuideService}
 import services.accounts.{AccountManager, SqlAccountManager}
@@ -25,6 +27,8 @@ import services.storage.{FileStorage, S3CompatibleFileStorage}
 import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
 
+import scala.concurrent.ExecutionContext
+
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
   override def get(): Index = new SolrIndex(utils.serviceBaseUrl("solr", config))
 }
@@ -40,12 +44,12 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
   }
 }
 
-private class AWSStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
+private class PortalStorageProvider @Inject()(config: play.api.Configuration)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Provider[FileStorage] {
   override def get(): FileStorage =
     S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("storage.portal"))
 }
 
-private class DAMStorageProvider @Inject()(config: play.api.Configuration)(implicit mat: Materializer) extends Provider[FileStorage] {
+private class DamStorageProvider @Inject()(config: play.api.Configuration)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Provider[FileStorage] {
   override def get(): FileStorage =
     S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("storage.dam"))
 }
@@ -70,8 +74,8 @@ class Module extends AbstractModule {
     bind(classOf[OAuth2Service]).to(classOf[WebOAuth2Service])
     bind(classOf[OAuth2Config]).toProvider(classOf[OAuth2ConfigProvider])
     bind(classOf[MovedPageLookup]).to(classOf[SqlMovedPageLookup])
-    bind(classOf[FileStorage]).toProvider(classOf[AWSStorageProvider])
-    bind(classOf[FileStorage]).annotatedWith(Names.named("dam")).toProvider(classOf[DAMStorageProvider])
+    bind(classOf[FileStorage]).toProvider(classOf[PortalStorageProvider])
+    bind(classOf[FileStorage]).annotatedWith(Names.named("dam")).toProvider(classOf[DamStorageProvider])
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[GuideService]).to(classOf[SqlGuideService])
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
