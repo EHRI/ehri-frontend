@@ -32,7 +32,11 @@ object IndexTypes {
   implicit val _fmt: Format[IndexTypes] = Json.format[IndexTypes]
 }
 
-case class IndexChildren(id: String, entityType: EntityType.Value, field: String)
+case class IndexChildren(
+  id: String,
+  entityType: EntityType.Value,
+  field: String
+)
 
 object IndexChildren {
   val FIELD = "field"
