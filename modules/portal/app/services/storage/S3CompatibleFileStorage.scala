@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 object S3CompatibleFileStorage {
-  def apply(config: com.typesafe.config.Config)(implicit mat: Materializer): S3CompatibleFileStorage = {
+  def apply(config: com.typesafe.config.Config)(implicit actorSystem: ActorSystem, mat: Materializer, ec: ExecutionContext): S3CompatibleFileStorage = {
     val credentials = StaticCredentialsProvider.create(new AwsCredentials {
       override def accessKeyId(): String = config.getString("config.aws.credentials.access-key-id")
       override def secretAccessKey(): String = config.getString("config.aws.credentials.secret-access-key")
@@ -41,7 +41,7 @@ object S3CompatibleFileStorage {
 
     val bucket = config.getString("classifier")
 
-    new S3CompatibleFileStorage(credentials, region, bucket, endpoint)(mat)
+    new S3CompatibleFileStorage(credentials, region, bucket, endpoint)
   }
 }
 
@@ -50,10 +50,8 @@ case class S3CompatibleFileStorage(
   region: AwsRegionProvider,
   name: String,
   endpointUrl: Option[String] = None
-)(implicit mat: Materializer) extends FileStorage {
+)(implicit actorSystem: ActorSystem, mat: Materializer, ec: ExecutionContext) extends FileStorage {
   private val logger = Logger(getClass)
-  private implicit val ec: ExecutionContext = mat.executionContext
-  private implicit val actorSystem: ActorSystem = mat.system
 
   private val s3Settings = endpointUrl
     .foldLeft(S3Settings.create(
@@ -107,7 +105,6 @@ case class S3CompatibleFileStorage(
     countFilesWithPrefix(prefix)
 
   override def info(path: String, versionId: Option[String] = None): Future[Option[(FileMeta, Map[String, String])]] = Future {
-
     val rb = HeadObjectRequest.builder()
       .bucket(name)
       .key(path)
@@ -154,9 +151,7 @@ case class S3CompatibleFileStorage(
     val uploader = S3.multipartUpload(name, path, contentType = cType, cannedAcl = acl, metaHeaders = MetaHeaders(meta))
       .withAttributes(S3Attributes.settings(s3Settings))
 
-    // FIXME: Annoyingly the Alpakka API returns a relative Uri which doesn't include schemeL
-    src.runWith(uploader)
-      .map(r => URI.create(r.location.toString.replaceFirst("^(https?://)?", "https://")))
+    src.runWith(uploader).map(r => URI.create(r.location.toString()))
   }
 
   override def putFile(path: String, file: java.io.File, contentType: Option[String] = None,

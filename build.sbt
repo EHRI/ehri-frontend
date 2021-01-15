@@ -107,7 +107,6 @@ val portalDependencies = Seq(
 
   // S3 sdk
   "software.amazon.awssdk" % "s3" % "2.15.63",
-//  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.476"
 )
 
 val adminDependencies = Seq(

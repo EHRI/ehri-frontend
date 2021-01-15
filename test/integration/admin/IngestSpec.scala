@@ -35,7 +35,7 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
   "Ingest views" should {
     val port = 9902
-    "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.build(), port = port) {
+    "perform ead-sync and monitor progress correctly" in new ITestServer(app = appBuilder.configure(getConfig).build(), port = port) {
       val damStorage = app.injector.instanceOf(BindingKey(classOf[FileStorage], Some(QualifierInstance(Names.named("dam")))))
 
       val result = FakeRequest(controllers.admin.routes.Ingest
@@ -80,11 +80,11 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       messages must contain(TextMessage.Strict(JsString("Creating redirects...").toString))
       messages must contain(TextMessage.Strict(JsString("Remapped 0 item(s)").toString))
       messages must contain(TextMessage.Strict(JsString("Reindexing...").toString))
-      messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at https") => t } must beSome
+      messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at http") => t } must beSome
       messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
-      val list = await(damStorage.listFiles())
-      list.files.find(_.key.contains(jobId)) must beSome
+      val logFiles = await(damStorage.listFiles(Some(s"$hostInstance/ingest-logs/")))
+      logFiles.files.headOption must beSome.which(_.key must contain(jobId))
     }
   }
 }
