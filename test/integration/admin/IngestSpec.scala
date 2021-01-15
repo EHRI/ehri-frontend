@@ -15,6 +15,7 @@ import services.ingest.{IngestParams, IngestService}
 import services.storage.FileStorage
 
 import java.io.File
+import scala.concurrent.duration._
 import scala.concurrent.{Future, Promise}
 
 
@@ -66,8 +67,11 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val (_, (out, promise)) =
         Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
-      // bodge: if this test fails it's probably because we need more time here
-      Thread.sleep(scala.util.Properties.envOrElse("WAIT_FOR_WS", "750").toLong)
+      // Repeat this matcher until we have a suitable log, up to 10 seconds
+      await(damStorage.listFiles(Some(s"$hostInstance/ingest-logs/")))
+        .files.find(_.key.contains(jobId)) must beSome
+        .eventually(retries = 50, sleep = 200.millis)
+
       // close the connection...
       promise.success(None)
 
@@ -83,8 +87,6 @@ class IngestSpec extends IntegrationTestRunner with FakeMultipartUpload {
       messages.collectFirst { case TextMessage.Strict(t) if t.startsWith("\"Log stored at http") => t } must beSome
       messages.last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
 
-      val logFiles = await(damStorage.listFiles(Some(s"$hostInstance/ingest-logs/")))
-      logFiles.files.headOption must beSome.which(_.key must contain(jobId))
     }
   }
 }

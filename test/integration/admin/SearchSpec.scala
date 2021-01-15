@@ -14,6 +14,7 @@ import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
 import services.search.SearchConstants
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Future, Promise}
 
 
@@ -47,12 +48,18 @@ class SearchSpec extends IntegrationTestRunner {
 
   "Search index mediator" should {
     val port = 9902
-    "perform indexing correctly via Websocket endpoint" in new ITestServer(app = appBuilder.build(), port = port) {
+    "perform indexing correctly via Websocket endpoint" in new ITestServer(
+        app = appBuilder.configure(getConfig).build(), port = port) {
+
       val cmd = List(EntityType.DocumentaryUnit)
       val data = IndexTypes(cmd)
       val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
 
+      // Ensure the buffer of index events is empty.
+      indexEventBuffer.clear()
+
+      // Perform the indexing operation.
       val source: Source[Message, NotUsed] = Source(
         List(TextMessage(Json.stringify(Json.toJson(data)))))
 
@@ -72,12 +79,19 @@ class SearchSpec extends IntegrationTestRunner {
       }
 
       await(connected) must_== StatusCodes.SwitchingProtocols
-      // bodge: if this test fails it's probably because we need more time here
-      Thread.sleep(scala.util.Properties.envOrElse("WAIT_FOR_WS", "500").toLong)
+
+      // Wait for the buffer to contain what we expect
+      indexEventBuffer.lastOption must beSome
+        .eventually(retries = 50, sleep = 100.millis)
+        indexEventBuffer.last must contain(EntityType.DocumentaryUnit.toString)
+
       // close the connection...
       promise.success(None)
-      indexEventBuffer.lastOption must beSome.which(_ must contain(EntityType.DocumentaryUnit.toString))
-      await(out).last must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
+
+      // Check the last WS message is as expected
+      await(out).lastOption must beSome.which { (msg: Message) =>
+        msg must_== TextMessage.Strict(JsString(utils.WebsocketConstants.DONE_MESSAGE).toString)
+      }
     }
   }
 
