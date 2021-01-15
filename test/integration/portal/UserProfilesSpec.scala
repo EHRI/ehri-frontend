@@ -73,7 +73,6 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       
       val watchingCsv = FakeRequest(profileRoutes.watching(format = DataFormat.Csv))
         .withUser(privilegedUser).call()
-      println(contentAsString(watchingCsv))
       contentType(watchingCsv)  must beSome.which { ct: String =>
         ct must_== "text/csv"
       }
