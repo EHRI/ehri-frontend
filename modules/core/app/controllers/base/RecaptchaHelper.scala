@@ -4,12 +4,12 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.ws.WSClient
-import play.api.mvc.Request
+import play.api.mvc.{BaseController, Request}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RecaptchaHelper {
-  self: ControllerHelpers =>
+  self: BaseController with ControllerHelpers =>
 
   private def logger = Logger(getClass)
 
