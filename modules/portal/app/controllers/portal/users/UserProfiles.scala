@@ -1,12 +1,9 @@
 package controllers.portal.users
 
-import java.io.File
-
 import akka.stream.Materializer
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
-import javax.inject._
 import models._
 import models.base.Model
 import models.view.MessagingInfo
@@ -24,6 +21,8 @@ import services.search._
 import services.storage.FileStorage
 import utils._
 
+import java.io.File
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -326,16 +325,12 @@ case class UserProfiles @Inject()(
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
     val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
-    val extension = file.filename.substring(file.filename.lastIndexOf("."))
+    val extension = file.filename.substring(file.filename.lastIndexOf(".")).toLowerCase
     val storeName = s"$instance/images/${user.isA}/${user.id}$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
-    for {
-      url1 <- fileStorage.putFile(storeName, file.ref.path.toFile, public = true).map(_.toString)
-      _ <- fileStorage.putFile(storeName, temp, public = true).map(_.toString)
-    } yield {
-      temp.delete()
-      url1
-    }
+    val url: Future[String] = fileStorage.putFile(storeName, temp, public = true).map(_.toString)
+    url.onComplete { _ => temp.delete() }
+    url
   }
 }
