@@ -70,7 +70,13 @@ Use the `conf/aws.conf.example` as a template.
 
 ### Testing
 
-Running integration tests requires an instance of the backend service running locally on port 7575 
-and a PostgreSQL database on port 5431. This can be done with a single Docker Compose command:
+Running integration tests requires a number of different external services, including:
+
+ - an instance of the Neo4j backend on port 7575
+ - a PostgreSQL database on port 5431
+ - an S3-compatible storage service with appropriate buckets set up running on port 9876 
+ - an SMTP server on port 2500
+
+This can be done with a single Docker Compose command:
 
     sudo docker-compose up
