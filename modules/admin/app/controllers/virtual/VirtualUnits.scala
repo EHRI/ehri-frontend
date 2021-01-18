@@ -4,7 +4,7 @@ import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
-import forms.VisibilityForm
+import forms._
 import javax.inject._
 import models._
 import models.base.{Description, Model}
@@ -168,7 +168,7 @@ case class VirtualUnits @Inject()(
   def create: Action[AnyContent] = NewItemAction.async { implicit request =>
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        formConfig.forCreate, VisibilityForm.form, request.usersAndGroups, vuRoutes.createPost()))
+        formConfig.forCreate, visibilityForm, request.usersAndGroups, vuRoutes.createPost()))
     }
   }
 
@@ -186,7 +186,7 @@ case class VirtualUnits @Inject()(
     idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
       Ok(views.html.admin.virtualUnit.create(
         Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups, vuRoutes.createChildPost(id)))
     }
   }
@@ -330,7 +330,7 @@ case class VirtualUnits @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, vuRoutes.visibilityPost(id)))
   }
 

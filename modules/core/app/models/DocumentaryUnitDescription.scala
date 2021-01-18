@@ -227,7 +227,7 @@ object DocumentaryUnitDescription {
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
-      UNKNOWN_DATA -> seq(entity)
+      UNKNOWN_DATA -> seq(entityForm)
     )(DocumentaryUnitDescriptionF.apply)(DocumentaryUnitDescriptionF.unapply)
   )
 }

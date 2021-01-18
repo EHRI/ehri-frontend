@@ -5,7 +5,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{EntityType, PermissionType}
-import forms.VisibilityForm
+import forms._
 import models._
 import forms.FormConfigBuilder
 import play.api.i18n.Messages
@@ -99,7 +99,7 @@ case class HistoricalAgents @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, histRoutes.visibilityPost(id)))
   }
 

@@ -4,7 +4,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.EntityType
-import forms.VisibilityForm
+import forms._
 import javax.inject._
 import models.base.Accessor
 import models.{Group, UserProfile}
@@ -53,7 +53,7 @@ case class Groups @Inject()(
     }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.group.create(form, VisibilityForm.form,
+    Ok(views.html.admin.group.create(form, visibilityForm,
       request.usersAndGroups, groupRoutes.createPost()))
   }
 

@@ -4,16 +4,17 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
-import forms.VisibilityForm
-import javax.inject._
+import forms._
 import models._
 import play.api.data.Form
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{IngestService, IngestParams}
+import services.ingest.{IngestParams, IngestService}
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
+
+import javax.inject._
 
 
 @Singleton
@@ -55,7 +56,7 @@ case class Vocabularies @Inject()(
   }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.vocabulary.create(form, VisibilityForm.form,
+    Ok(views.html.admin.vocabulary.create(form, visibilityForm,
       request.usersAndGroups, vocabRoutes.createPost()))
   }
 
@@ -85,7 +86,7 @@ case class Vocabularies @Inject()(
 
   def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
-      request.item, childForm, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.item, childForm, visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, vocabRoutes.createConceptPost(id)))
   }
 
@@ -111,7 +112,7 @@ case class Vocabularies @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, vocabRoutes.visibilityPost(id)))
   }
 

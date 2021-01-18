@@ -35,7 +35,7 @@ trait Visibility[MT] extends Read[MT] {
     WithItemPermissionAction(id, PermissionType.Update) andThen new CoreActionTransformer[ItemPermissionRequest, ItemPermissionRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemPermissionRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        val data = forms.VisibilityForm.form.bindFromRequest.value.getOrElse(Nil)
+        val data = forms.visibilityForm.bindFromRequest.value.getOrElse(Nil)
         userDataApi.setVisibility(id, data).map { newItem =>
           ItemPermissionRequest(newItem, request.userOpt, request)
         }

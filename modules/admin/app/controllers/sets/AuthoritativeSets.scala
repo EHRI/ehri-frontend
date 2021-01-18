@@ -4,7 +4,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
-import forms.VisibilityForm
+import forms._
 import javax.inject._
 import forms.FormConfigBuilder
 import models.{Entity, _}
@@ -58,7 +58,7 @@ AuthoritativeSets @Inject()(
   }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.authoritativeSet.create(form, VisibilityForm.form,
+    Ok(views.html.admin.authoritativeSet.create(form, visibilityForm,
       request.usersAndGroups, setRoutes.createPost()))
   }
 
@@ -90,7 +90,7 @@ AuthoritativeSets @Inject()(
     idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent, "%06d").map { newid =>
       Ok(views.html.admin.historicalAgent.create(
         request.item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-        formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups,
           setRoutes.createHistoricalAgentPost(id)))
     }
@@ -118,7 +118,7 @@ AuthoritativeSets @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-        VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        visibilityForm.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups, setRoutes.visibilityPost(id)))
   }
 
