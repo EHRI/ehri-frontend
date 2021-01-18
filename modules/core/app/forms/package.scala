@@ -1,4 +1,6 @@
 import models.Entity
+import play.api.data.Form
+import play.api.data.Forms.{nonEmptyText, seq, single}
 
 import java.net.{MalformedURLException, URL}
 
@@ -30,13 +32,7 @@ package object forms {
     *   Form("randomData" -> jsonObj(Status))
     * }}}
     */
-  def entity: Mapping[Entity] = Forms.of(entityMapping)
-
-  /**
-    * Default formatter for `scala.Enumeration`
-    *
-    */
-  private def entityMapping: Formatter[Entity] = new Formatter[Entity] {
+  val entityForm: Mapping[Entity] = Forms.of(new Formatter[Entity] {
     def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Entity] = {
       play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
         scala.util.control.Exception.allCatch[Entity]
@@ -46,5 +42,13 @@ package object forms {
     }
 
     def unbind(key: String, value: Entity) = Map(key -> Json.stringify(Json.toJson(value)(Entity.entityWrites)))
-  }
+  })
+
+  /**
+    * Form for a set of user or group identifiers that can
+    * access a given resource.
+    */
+  val visibilityForm: Form[Seq[String]] = Form(single(
+    services.data.Constants.ACCESSOR_PARAM -> seq(nonEmptyText)
+  ))
 }

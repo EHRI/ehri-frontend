@@ -4,7 +4,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
-import forms.{FormConfigBuilder, VisibilityForm}
+import forms._
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -204,7 +204,7 @@ case class DocumentaryUnits @Inject()(
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
-      request.item, childForm, formConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      request.item, childForm, formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, docRoutes.createDocPost(id)))
   }
 
@@ -278,7 +278,7 @@ case class DocumentaryUnits @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, docRoutes.visibilityPost(id)))
   }
 

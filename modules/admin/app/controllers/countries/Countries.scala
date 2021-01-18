@@ -1,17 +1,13 @@
 package controllers.countries
 
-import java.util.UUID
-
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType, PermissionType}
-import forms.VisibilityForm
-import javax.inject._
+import forms.{FormConfigBuilder, _}
 import models._
-import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -20,6 +16,8 @@ import services.geocoding.GeocodingService
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
+import java.util.UUID
+import javax.inject._
 import scala.concurrent.Future
 
 
@@ -70,7 +68,7 @@ case class Countries @Inject()(
     }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.country.create(form, VisibilityForm.form,
+    Ok(views.html.admin.country.create(form, visibilityForm,
       request.usersAndGroups, countryRoutes.createPost()))
   }
 
@@ -107,7 +105,7 @@ case class Countries @Inject()(
     idGenerator.getNextNumericIdentifier(EntityType.Repository, "%06d").map { newid =>
       val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
       Ok(views.html.admin.repository.create(
-        request.item, form, childFormConfig.forCreate, VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+        request.item, form, childFormConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
         request.usersAndGroups, countryRoutes.createRepositoryPost(id)))
     }
   }
@@ -135,7 +133,7 @@ case class Countries @Inject()(
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
-      VisibilityForm.form.fill(request.item.accessors.map(_.id)),
+      visibilityForm.fill(request.item.accessors.map(_.id)),
       request.usersAndGroups, countryRoutes.visibilityPost(id)))
   }
 

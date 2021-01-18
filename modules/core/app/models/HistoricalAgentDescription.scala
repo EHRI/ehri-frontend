@@ -146,7 +146,7 @@ object HistoricalAgentDescription {
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
-      UNKNOWN_DATA -> seq(forms.entity)
+      UNKNOWN_DATA -> seq(forms.entityForm)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }
