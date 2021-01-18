@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: VirtualUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -8,15 +8,12 @@
     <ul class="search-item-details">
         @item.ancestors.reverse.map { parent =>
             <li>
-                <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
+                <a href="@controllers.virtual.routes.VirtualUnits.get(parent.id)">@views.Helpers.ellipsize(parent.toStringLang,100)</a>
             </li>
         }
     </ul>
 }
 <ul class="search-item-details">
-    @item.holder.map { holder =>
-        <li><a class="alt" href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringAbbr</a></li>
-    }
     <li><span class="minor-notice">@views.Helpers.languageCodeToName(desc.languageCode)</span></li>
 
     @desc.dates.headOption.filterNot(_.years.isEmpty).map { dp =>

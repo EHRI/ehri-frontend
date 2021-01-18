@@ -32,7 +32,7 @@ case class AdminSearch @Inject()(
       ),
       FieldFacetClass(
         key = "type",
-        name = Messages("search.type"),
+        name = Messages("facet.type"),
         param = "type",
         render = s => Messages("contentTypes." + s),
         display = FacetDisplay.Choice

@@ -1,0 +1,14 @@
+@(item: DocumentaryUnit, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+
+<h5>@views.html.admin.helpers.linkTo(item)</h5>
+@item.data.primaryDescription.map { desc =>
+    <ul class="search-item-details">
+        @views.html.documentaryUnit.listItemMeta(item, desc, highlighter)
+    </ul>
+}
+@views.html.common.childCount(item) { count =>
+    @views.html.helpers.link(controllers.units.routes.DocumentaryUnits.get(item.id), 'class -> "child-items-inline-load collapsed") {
+        <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
+        @Messages("documentaryUnit.childCount", count)
+    }
+}

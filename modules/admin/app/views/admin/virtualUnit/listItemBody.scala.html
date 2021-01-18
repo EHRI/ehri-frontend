@@ -2,13 +2,9 @@
 
 @views.html.virtualUnit.ifVirtual(item) { v =>
     @v.data.primaryDescription(descriptionId).map { desc =>
-        @views.html.admin.documentaryUnit.searchItemBody(v.asDocumentaryUnit, desc)
+        @views.html.admin.virtualUnit.searchItemBody(v, desc)
     }.getOrElse {
-        @v.includedUnits.flatMap(_.descriptions).headOption.map { desc =>
-            @views.html.admin.documentaryUnit.searchItemBody(v.asDocumentaryUnit, desc)
-        }.getOrElse {
-            <small>@Messages("description.noDescriptions")</small>
-        }
+        <small>@Messages("description.noDescriptions")</small>
     }
 } { d =>
     @d.data.primaryDescription(descriptionId).map { desc =>
