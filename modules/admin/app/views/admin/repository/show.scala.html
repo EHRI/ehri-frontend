@@ -7,16 +7,16 @@
             @defining("repository") { implicit fieldPrefix =>
                 @item.data.identifier
                 @item.data.priority.map { p =>
-                    <span class="badge priority@p">
-                    @Messages("priority"):
+                    <span class="badge badge-info priority@p">
+                    @Messages("repository.priority"):
                     @p match {
-                        case p if p == 0 =>  { @Messages("priority.zero") }
-                        case p if p == 1 =>  { @Messages("priority.one") }
-                        case p if p == 2 =>  { @Messages("priority.two") }
-                        case p if p == 3 =>  { @Messages("priority.three") }
-                        case p if p == 4 =>  { @Messages("priority.four") }
-                        case p if p == 5 =>  { @Messages("priority.five") }
-                        case p if p == -1 => { @Messages("priority.reject") }
+                        case p if p == 0 =>  { @Messages("repository.priority.zero") }
+                        case p if p == 1 =>  { @Messages("repository.priority.one") }
+                        case p if p == 2 =>  { @Messages("repository.priority.two") }
+                        case p if p == 3 =>  { @Messages("repository.priority.three") }
+                        case p if p == 4 =>  { @Messages("repository.priority.four") }
+                        case p if p == 5 =>  { @Messages("repository.priority.five") }
+                        case p if p == -1 => { @Messages("repository.priority.reject") }
                     }
                     </span>
                 }
