@@ -10,7 +10,7 @@ import play.api.data.Forms._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import services.data.Writable
-import utils.forms._
+import forms._
 
 case class IsadGIdentity(
   name: String,

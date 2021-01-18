@@ -25,7 +25,7 @@ object ResourceSyncConfig {
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
   implicit val _reads: Reads[ResourceSyncConfig] = (
-    (__ \ URL).read(Reads.filter(JsonValidationError("errors.invalidUrl"))(utils.forms.isValidUrl)) and
+    (__ \ URL).read(Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl)) and
     (__ \ FILTER).readNullable[String](Reads.filter(JsonValidationError("errors.badRegexPattern"))(isValidRegex))
   )(ResourceSyncConfig.apply _)
 
@@ -33,7 +33,7 @@ object ResourceSyncConfig {
   implicit val _format: Format[ResourceSyncConfig] = Format(_reads, _writes)
 
   val form: Form[ResourceSyncConfig] = Form(mapping(
-    URL -> nonEmptyText.verifying("errors.invalidUrl", utils.forms.isValidUrl),
+    URL -> nonEmptyText.verifying("errors.invalidUrl", forms.isValidUrl),
     FILTER -> optional(nonEmptyText.verifying("errors.badRegexPattern", isValidRegex))
   )(ResourceSyncConfig.apply)(ResourceSyncConfig.unapply))
 }
