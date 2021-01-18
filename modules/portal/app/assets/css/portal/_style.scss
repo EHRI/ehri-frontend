@@ -1390,6 +1390,10 @@ ul.list-export-options {
   }
 }
 
+.modal-content {
+  box-shadow: $box-shadow;
+}
+
 // Make modal dialogs wider with wide screens...
 @include media-breakpoint-up(lg) {
   .modal-dialog {
