@@ -8,7 +8,6 @@ import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.forms._
 import Description._
 import services.data.Writable
 
@@ -115,7 +114,7 @@ object HistoricalAgentDescription {
   import Entity._
   import utils.EnumUtils.enumMapping
 
-  val form = Form(
+  val form: Form[HistoricalAgentDescriptionF] = Form(
     mapping(
       ISA -> ignored(EntityType.HistoricalAgentDescription),
       ID -> optional(nonEmptyText),
@@ -147,7 +146,7 @@ object HistoricalAgentDescription {
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
-      UNKNOWN_DATA -> seq(entity)
+      UNKNOWN_DATA -> seq(forms.entity)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

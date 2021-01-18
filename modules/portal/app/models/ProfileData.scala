@@ -51,7 +51,6 @@ object ProfileData {
   import play.api.data.Forms._
   import play.api.data.Form
   import models.UserProfileF.{LOCATION => USERLOC, _}
-  import utils.forms.isValidUrl
 
   val form: Form[ProfileData] = Form(
     mapping(
@@ -59,8 +58,8 @@ object ProfileData {
       USERLOC -> optional(text),
       LANGUAGES -> seq(nonEmptyText(minLength = 3, maxLength = 3)),
       ABOUT -> optional(text),
-      URL -> optional(text.verifying(s => isValidUrl(s))),
-      WORK_URL -> optional(text.verifying(s => isValidUrl(s))),
+      URL -> optional(text.verifying(s => forms.isValidUrl(s))),
+      WORK_URL -> optional(text.verifying(s => forms.isValidUrl(s))),
       TITLE -> optional(text),
       INSTITUTION -> optional(text),
       ROLE -> optional(text),

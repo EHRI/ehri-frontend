@@ -17,7 +17,7 @@ case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalCo
 
   val openidForm: Form[String] = Form(single(
     "openid_identifier" -> nonEmptyText
-  ) verifying("errors.invalidUrl", utils.forms.isValidUrl))
+  ) verifying("errors.invalidUrl", forms.isValidUrl))
 
   val passwordLoginForm: Form[(String, String)] = Form(
     tuple(

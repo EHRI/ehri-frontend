@@ -97,7 +97,7 @@ case class Repository(
   def url: Option[URL] = (for {
     desc <- descriptions
     address <- desc.addresses
-    url <- address.url if utils.forms.isValidUrl(url)
+    url <- address.url if forms.isValidUrl(url)
   } yield url).headOption.map(new URL(_))
 
   def emails: Seq[String] = for {
@@ -135,11 +135,10 @@ object Repository {
    */
   private def validateUrlPattern(s: String) = {
     val replace = "identifier"
-    s.contains(s"{$replace}") && utils.forms
-      .isValidUrl(s.replaceAll("\\{" + replace + "\\}", "test"))
+    s.contains(s"{$replace}") && forms.isValidUrl(s.replaceAll("\\{" + replace + "\\}", "test"))
   }
 
-  val form = Form(
+  val form: Form[RepositoryF] = Form(
     mapping(
       ISA -> ignored(EntityType.Repository),
       ID -> optional(nonEmptyText),
@@ -151,7 +150,7 @@ object Repository {
         pattern => validateUrlPattern(pattern)
       )),
       LOGO_URL -> optional(nonEmptyText verifying("error.badUrl",
-        url => utils.forms.isValidUrl(url)
+        url => forms.isValidUrl(url)
       )),
       LONGITUDE -> optional(bigDecimal),
       LATITUDE -> optional(bigDecimal)

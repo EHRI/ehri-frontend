@@ -1,19 +1,15 @@
 package models
 
-import defines.{ContentTypes, PermissionType}
 import acl._
-import models.base._
-import base.Persistable
-import defines.EntityType
-import play.api.libs.json._
+import defines.{ContentTypes, EntityType, PermissionType}
+import eu.ehri.project.definitions.Ontology
+import models.base.{Persistable, _}
 import models.json._
-import play.api.i18n.Messages
-import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.forms._
-import eu.ehri.project.definitions.Ontology
-import play.api.libs.json.JsObject
+import play.api.i18n.Messages
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsObject, _}
 import services.data.{ContentType, Writable}
 
 
@@ -90,9 +86,9 @@ case class UserProfileF(
 
 
 object UserProfile {
-  import UserProfileF._
   import Entity._
   import Ontology._
+  import UserProfileF._
 
   private implicit val groupReads = Group.GroupResource.restReads
   private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
@@ -130,9 +126,9 @@ object UserProfile {
       LOCATION -> optional(text),
       ABOUT -> optional(text),
       LANGUAGES -> seq(nonEmptyText),
-      IMAGE_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
-      URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
-      WORK_URL -> optional(nonEmptyText.verifying(s => isValidUrl(s))),
+      IMAGE_URL -> optional(nonEmptyText.verifying(s => forms.isValidUrl(s))),
+      URL -> optional(nonEmptyText.verifying(s => forms.isValidUrl(s))),
+      WORK_URL -> optional(nonEmptyText.verifying(s => forms.isValidUrl(s))),
       FIRST_NAMES -> optional(text),
       LAST_NAME -> optional(text),
       TITLE -> optional(text),
