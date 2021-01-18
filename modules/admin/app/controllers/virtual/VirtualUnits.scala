@@ -106,23 +106,14 @@ case class VirtualUnits @Inject()(
     }
   }
 
-  def searchChildren(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemPermissionAction(id).async { implicit request =>
-    for {
-      filters <- vcSearchFilters(request.item)
-      result <- find[Model](params, paging, filters = filters,
-        entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
-    } yield {
-      Ok(views.html.admin.virtualUnit.search(result, vuRoutes.search()))
-    }
-  }
-
   def get(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
       filters <- vcSearchFilters(request.item)
       result <- find[Model](params, paging, filters = filters,
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
-      Ok(views.html.admin.virtualUnit.show(request.item, result,
+      if (isAjax) Ok(views.html.admin.search.inlineItemList(result))
+      else Ok(views.html.admin.virtualUnit.show(request.item, result,
         vuRoutes.get(id), request.annotations, request.links, dlid, Seq.empty))
     }
   }

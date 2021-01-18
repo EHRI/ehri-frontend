@@ -115,23 +115,11 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def searchChildren(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] =
-    ItemPermissionAction(id).async { implicit request =>
-      val filterKey = if (!hasActiveQuery(request)) SearchConstants.PARENT_ID
-      else SearchConstants.ANCESTOR_IDS
-
-      findType[DocumentaryUnit](params, paging, filters = Map(filterKey -> request.item.id),
-        facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
-        Ok(views.html.admin.documentaryUnit.search(
-          result,
-          docRoutes.search()))
-      }
-    }
-
   def get(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[DocumentaryUnit](params, paging, filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
-      Ok(views.html.admin.documentaryUnit.show(request.item, result,
+      if (isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+      else Ok(views.html.admin.documentaryUnit.show(request.item, result,
         docRoutes.get(id), request.annotations, request.links, dlid))
           .withPreferences(preferences.withRecentItem(id))
     }

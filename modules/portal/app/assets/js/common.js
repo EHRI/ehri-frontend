@@ -113,7 +113,7 @@ jQuery(function($) {
     $(".item-children > a.child-items-inline-load.collapsed", scope)
         .map(function () {
           $(this)
-              .attr("href", this.href.replace(/(\?inline=true)?$/, "?inline=true"));
+              .attr("href", this.href.replace(/([^#]*)(\?inline=true)?(#.*)?$/, "$1?inline=true$3"));
         });
   }
 

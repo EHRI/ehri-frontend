@@ -1,0 +1,15 @@
+@(item: Repository, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+
+<h5>@views.html.admin.helpers.linkTo(item)</h5>
+@item.data.primaryDescription.map { desc =>
+    @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)
+    <ul class="search-item-details">
+        @views.html.repository.conciseAddress(item, desc, includeCountry = false, highlighter = highlighter)
+    </ul>
+}
+@views.html.common.childCount(item) { count =>
+    @views.html.admin.helpers.linkToWithBody(item, fragment = "#search-items", attributes = Seq('class -> "child-items-inline-load collapsed")) {
+        <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
+        @Messages("repository.childCount", count)
+    }
+}

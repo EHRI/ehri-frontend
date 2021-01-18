@@ -1,3 +1,3 @@
-@(item: models.base.Model, fragment: String, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty)(implicit conf: AppConfig, userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(item: models.base.Model, fragment: String, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
-<a href="@{views.admin.Helpers.linkTo(item) + fragment}" class="@("type-highlight " + item.isA)" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@{if(content.body.trim.isEmpty) Html(item.toStringLang) else content}</a>
+<a href="@{views.admin.Helpers.linkTo(item) + fragment}" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@{if(content.body.trim.isEmpty) Html(item.toStringLang) else content}</a>
