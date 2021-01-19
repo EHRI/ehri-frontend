@@ -2,7 +2,6 @@ package utils
 
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.{LocalDate, LocalDateTime, YearMonth}
-
 import defines.{ContentTypes, EntityType, EventType}
 import play.api.mvc.QueryStringBindable.bindableOption
 import play.api.mvc.{PathBindable, QueryStringBindable}
@@ -62,7 +61,7 @@ package object binders {
     new QueryStringBindable[LocalDateTime] {
       def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, LocalDateTime]] = {
         stringBinder.bind(key, params).collect {
-          case Right(ds) if !ds.trim.isEmpty => try {
+          case Right(ds) if ds.trim.nonEmpty => try {
             Right(LocalDateTime.parse(ds))
           } catch {
             case e: DateTimeParseException => try {
@@ -159,8 +158,8 @@ package object binders {
   implicit def systemEventParamsQueryBinder: QueryStringBindable[SystemEventParams] =
     new QueryStringBindable[SystemEventParams] with NamespaceExtractor {
 
-      private implicit val aggBinder = queryStringBinder(Aggregation)
-      private implicit val showBinder = queryStringBinder(ShowType)
+      private implicit val aggBinder: QueryStringBindable[SystemEventParams.Aggregation.Value] = queryStringBinder(Aggregation)
+      private implicit val showBinder: QueryStringBindable[SystemEventParams.ShowType.Value] = queryStringBinder(ShowType)
 
       override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SystemEventParams]] = {
         val namespace = ns(key)

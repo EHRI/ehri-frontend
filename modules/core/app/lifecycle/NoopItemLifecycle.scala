@@ -1,4 +1,5 @@
-package config
+package lifecycle
+
 import defines.EventType
 import models.base.Model
 

@@ -7,8 +7,9 @@ import auth.handler.AuthHandler
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
 import defines.{EntityType, EventType}
-import config.{AppConfig, ItemLifecycle}
+import config.AppConfig
 import cookies.{SessionPreferences, SessionPrefs}
+import lifecycle.ItemLifecycle
 import models.UserProfile
 import models.base.Model
 import models.view.{MessagingInfo, UserDetails}

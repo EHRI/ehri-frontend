@@ -1,11 +1,11 @@
-package config
+package lifecycle
 
 import defines.EventType
-import javax.inject.{Inject, Singleton}
 import models.base.Model
 import models.{AddressF, RepositoryF}
 import services.geocoding.GeocodingService
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton

@@ -4,7 +4,8 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
-import config.{AppConfig, ItemLifecycle}
+import config.AppConfig
+import lifecycle.ItemLifecycle
 import play.api.Configuration
 import play.api.cache.{Cached, SyncCacheApi}
 import services.accounts.AccountManager

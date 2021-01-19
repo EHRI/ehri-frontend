@@ -5,7 +5,8 @@ import akka.stream.Materializer
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
-import config.{ItemLifecycle, NoopItemLifecycle}
+import cookies.SessionPreferences
+import lifecycle.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
 import org.jsoup.Jsoup
 import org.specs2.execute.{AsResult, Result}
@@ -18,12 +19,11 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
-import _root_.cookies.SessionPreferences
 import play.api.test._
 import play.api.{Application, Configuration}
 import services.accounts.{AccountManager, MockAccountManager}
 import services.cypher.{CypherQueryService, MockCypherQueryService}
-import services.data.{IdSearchResolver, _}
+import services.data._
 import services.feedback.{FeedbackService, MockFeedbackService}
 import services.harvesting.{MockResourceSyncClient, ResourceSyncClient}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
