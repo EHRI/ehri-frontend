@@ -100,5 +100,5 @@ case class Country(
 
   type T = CountryF
 
-  override def toStringLang(implicit messages: Messages): String = utils.i18n.countryCodeToName(id)
+  override def toStringLang(implicit messages: Messages): String = i18n.countryCodeToName(id)
 }

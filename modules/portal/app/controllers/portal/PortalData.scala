@@ -101,10 +101,10 @@ case class PortalData @Inject()(
           |  },
           |}
         """.stripMargin.format(
-          utils.i18n.languagePairList.map { case (code, name) =>
+          i18n.languagePairList.map { case (code, name) =>
             code + ": \"" + name + "\""
           }.mkString(",\n  "),
-          utils.i18n.countryPairList.map { case (code, name) =>
+          i18n.countryPairList.map { case (code, name) =>
             code.toLowerCase + ": \"" + name + "\""
           }.mkString(",\n  ")
         )

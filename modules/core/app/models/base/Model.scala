@@ -195,7 +195,7 @@ trait Description extends ModelData {
 
   def languageCode: String
 
-  def languageCode2: String = utils.i18n.lang3to2lookup.getOrElse(languageCode, languageCode)
+  def languageCode2: String = i18n.lang3to2lookup.getOrElse(languageCode, languageCode)
 
   def accessPoints: Seq[AccessPointF]
 
@@ -303,7 +303,7 @@ trait Described extends ModelData {
    * @return The first description found with a matching language code
    */
   def primaryDescription(implicit messages: Messages): Option[D] = {
-    val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
+    val code3 = i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     descriptions.find(_.languageCode == code3).orElse(descriptions.headOption)
   }
 
@@ -314,7 +314,7 @@ trait Described extends ModelData {
     * @return a list of descriptions
     */
   def currentLangFirstDescriptions(implicit messages: Messages): Seq[D] = {
-    val code3 = utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
+    val code3 = i18n.lang2to3lookup.getOrElse(messages.lang.language, messages.lang.language)
     val (matchLang, others) = descriptions.partition(_.languageCode == code3)
     matchLang ++ others
   }

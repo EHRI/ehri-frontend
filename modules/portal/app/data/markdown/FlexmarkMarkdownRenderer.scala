@@ -1,4 +1,4 @@
-package utils.markdown
+package data.markdown
 
 import com.vladsch.flexmark.ast.{LinkNode, Node}
 import com.vladsch.flexmark.html.HtmlRenderer.{Builder, HtmlRendererExtension}

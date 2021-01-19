@@ -1,4 +1,4 @@
-package utils.markdown
+package data.markdown
 
 import play.api.test.PlaySpecification
 

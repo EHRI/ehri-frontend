@@ -8,7 +8,7 @@ import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
 import services.data.{ItemNotFound, PermissionDenied}
-import utils.caching.FutureCache
+import services.data.caching.FutureCache
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}

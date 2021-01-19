@@ -18,7 +18,7 @@ object BookmarkSet {
   def bookmarkForm(implicit messages: Messages): Form[BookmarkSet] = Form(
     mapping(
       NAME -> nonEmptyText,
-      LANG_CODE -> ignored(utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, utils.i18n.defaultLang)),
+      LANG_CODE -> ignored(i18n.lang2to3lookup.getOrElse(messages.lang.language, i18n.defaultLang)),
       DESCRIPTION -> optional(text)
     )(BookmarkSet.apply)(BookmarkSet.unapply)
   )

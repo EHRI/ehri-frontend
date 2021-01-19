@@ -20,7 +20,7 @@ import services.accounts.AccountManager
 import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
-import utils.caching.FutureCache
+import services.data.caching.FutureCache
 import views.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance, pageNotFound}
 

@@ -101,7 +101,7 @@ object Helpers {
    * Get a list of code->name pairs for the given language.
    */
   def languagePairList(implicit messages: Messages): List[(String,String)] =
-    utils.i18n.languagePairList(messages)
+    i18n.languagePairList(messages)
 
   /**
    * Get a list of ISO15924 script.
@@ -110,31 +110,31 @@ object Helpers {
    * the script data is not localised.
    */
   def scriptPairList(implicit messages: Messages): List[(String,String)] =
-    utils.i18n.scriptPairList(messages)
+    i18n.scriptPairList(messages)
 
   /**
    * Get a list of country->name pairs for the given language.
    */
   def countryPairList(implicit messages: Messages): List[(String,String)] =
-    utils.i18n.countryPairList(messages)
+    i18n.countryPairList(messages)
 
   /**
    * Get a language name for a given code.
    */
   def languageCodeToName(code: String)(implicit messages: Messages): String =
-    utils.i18n.languageCodeToName(code)(messages)
+    i18n.languageCodeToName(code)(messages)
 
   /**
    * Get the script name for a given code.
    */
   def scriptCodeToName(code: String)(implicit messages: Messages): String =
-    utils.i18n.scriptCodeToName(code)(messages)
+    i18n.scriptCodeToName(code)(messages)
 
   /**
    * Get the country name for a given code.
    */
   def countryCodeToName(code: String)(implicit messages: Messages): String =
-    utils.i18n.countryCodeToName(code)(messages)
+    i18n.countryCodeToName(code)(messages)
 
   /**
    * Function that shouldn't be necessary. Extract a list of values from

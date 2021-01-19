@@ -1,4 +1,4 @@
-package utils.streams
+package services.data.streams
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
