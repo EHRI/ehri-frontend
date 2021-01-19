@@ -1,4 +1,4 @@
-@(action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 <!DOCTYPE html>
 <html>
@@ -30,7 +30,7 @@
 
         <meta charset="UTF-8">
         <meta name="copyright" content="EHRI Consortium @(java.time.Year.now(java.time.ZoneId.systemDefault()).getValue)">
-        @globalConfig.extraHeadContent.map(c => Html(c))
+        @conf.extraHeadContent.map(c => Html(c))
     </head>
     <body>
         <div id="graphiql">Loading...</div>

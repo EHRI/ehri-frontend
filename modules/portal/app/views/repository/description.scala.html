@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, fieldPrefix: String)
 
 @import Isdiah._
 @import views.html.common.{descriptionSection, textField, listField}

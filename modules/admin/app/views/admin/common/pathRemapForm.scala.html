@@ -1,4 +1,4 @@
-@(submitName: String, form: Form[_])(html: Html)(implicit fieldConstructor: views.html.helper.FieldConstructor, request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(submitName: String, form: Form[_])(html: Html)(implicit fieldConstructor: views.html.helper.FieldConstructor, request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @formHelpers.csrfToken()
 @views.html.formHelpers.globalErrors(form)

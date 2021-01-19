@@ -1,4 +1,4 @@
-@(item: Annotation, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Annotation, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebarWithType(item.toStringLang, defines.EntityType.Annotation, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @views.html.admin.common.annotated(item, annotations) {

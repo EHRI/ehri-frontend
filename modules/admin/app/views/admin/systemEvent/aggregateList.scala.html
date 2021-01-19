@@ -1,4 +1,4 @@
-@(page: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(page: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @for(eventSeq <- page) {
     @for(event <- eventSeq) {

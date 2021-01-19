@@ -1,4 +1,4 @@
-@(guide: Guide, item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, context: Option[models.base.Holder[_]] = None)
+@(guide: Guide, item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, context: Option[models.base.Holder[_]] = None)
 
 @if(result.nonEmpty) {
     <ul id="search-items" class="search-result-list">

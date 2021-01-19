@@ -1,4 +1,4 @@
-@(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @Messages(heading)
 
@@ -11,5 +11,5 @@
 
 @Messages("profile.preferences.updatePreferences"):
 
-@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = globalConfig.https)
+@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = conf.https)
 }

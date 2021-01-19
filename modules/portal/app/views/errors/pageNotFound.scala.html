@@ -1,4 +1,4 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @import services.search.SearchParams
 
@@ -13,7 +13,7 @@
 
 <h2>@Messages("errors.pageNotFound.links")</h2>
 <ul class="page-links">
-    @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
+    @conf.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
         <li>
             <a href="@url" rel="noopener" target="_blank">@Messages("help.manual")</a>
         </li>

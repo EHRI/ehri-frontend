@@ -1,4 +1,4 @@
-@(cls: String = "")(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: global.GlobalConfig, req: RequestHeader, messages: Messages)
+@(cls: String = "")(html: Html = Html(""))(implicit userOpt: Option[UserProfile], globalGonfig: AppConfig, req: RequestHeader, messages: Messages)
 
 <ol class="breadcrumb collapsible @(if(cls.nonEmpty) cls else "")">
     @if(html.body.trim.isEmpty) {

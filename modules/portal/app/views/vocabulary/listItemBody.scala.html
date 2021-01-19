@@ -1,4 +1,4 @@
-@(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @item.latestEvent.map { event =>
     <ul class="search-item-details">

@@ -1,4 +1,4 @@
-@(item: models.base.Model, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], dlid: Option[String], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.Model, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], dlid: Option[String], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.virtualUnit.ifVirtual(item) { v =>
     @views.html.admin.virtualUnit.show(v, result, action, annotations, links, dlid, path)

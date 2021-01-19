@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, allPages: Seq[GuidePage])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, allPages: Seq[GuidePage])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @styles = {
     <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/css/timeline.css">

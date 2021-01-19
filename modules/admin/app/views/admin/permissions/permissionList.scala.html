@@ -1,4 +1,4 @@
-@(accessorOpt: Option[models.base.Accessor], page: utils.Page[PermissionGrant], namespace: String = "")(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(accessorOpt: Option[models.base.Accessor], page: utils.Page[PermissionGrant], namespace: String = "")(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <h4>@Messages("permissions.permissionGrants", page.offset + 1, page.offset + page.items.size, page.total)</h4>
 @if(page.items.nonEmpty) {

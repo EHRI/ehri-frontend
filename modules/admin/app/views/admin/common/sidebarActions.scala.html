@@ -1,4 +1,4 @@
-@(f: UserProfile => Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(f: UserProfile => Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @userOpt.map { user =>
     @defining(f(user)) { html =>

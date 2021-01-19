@@ -1,4 +1,4 @@
-package global
+package config
 
 import defines.EventType
 import javax.inject.{Inject, Singleton}

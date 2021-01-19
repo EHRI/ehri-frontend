@@ -1,4 +1,4 @@
-@(item: Vocabulary)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Vocabulary)(implicit req: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.vocabularies.routes.Vocabularies.get(item.id)">@item.toStringLang</a>

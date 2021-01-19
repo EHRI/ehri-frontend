@@ -1,15 +1,11 @@
-package global
+package config
 
 import java.io.File
-import javax.inject.Inject
-
+import javax.inject.{Inject, Singleton}
 import play.api.mvc.RequestHeader
 
-case class AppGlobalConfig @Inject()(configuration: play.api.Configuration) extends GlobalConfig
-
-trait GlobalConfig {
-
-  def configuration: play.api.Configuration
+@Singleton
+case class AppConfig @Inject()(configuration: play.api.Configuration) {
 
   /**
     * Default group(s) new users belong to.

@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, items: utils.Page[(Any,services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long], pageParam: String = "page")(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, items: utils.Page[(Any,services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long], pageParam: String = "page")(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @getTitle(d: Concept, href:Boolean = false) = {
     <a @d.broaderTerms.map { bt =>  data-toggle="tooltip" data-placement="top" title="@bt.toStringLang" } @if(href) { href="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)?parent=@d.id" }>

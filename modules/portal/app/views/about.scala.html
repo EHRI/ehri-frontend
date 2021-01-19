@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages)
 
 @views.html.layout.textLayout(Messages("about"), cls = "about") {
     <h2>@Messages("about.heading")</h2>

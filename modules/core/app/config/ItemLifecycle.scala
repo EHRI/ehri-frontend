@@ -1,4 +1,4 @@
-package global
+package config
 
 import defines.EventType
 import models.base.Model

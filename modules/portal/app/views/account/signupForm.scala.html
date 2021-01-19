@@ -1,4 +1,4 @@
-@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
+@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
 @import forms.HoneyPotForm.BLANK_CHECK
 @import forms.TimeCheckForm.TIMESTAMP

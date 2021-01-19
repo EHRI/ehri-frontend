@@ -1,4 +1,4 @@
-@(title: Any)(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(title: Any)(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <!DOCTYPE html>
 
@@ -7,7 +7,7 @@
     <body class="error">
         @views.html.common.preambleScripts()
         <header id="header" class="navigation">
-            @views.html.common.accountHeader(showAdminLink = true, showFeedback = globalConfig.showFeedback)
+            @views.html.common.accountHeader(showAdminLink = true, showFeedback = conf.showFeedback)
             @views.html.common.primaryHeader()
         </header>
         @views.html.common.mainContent {

@@ -1,4 +1,4 @@
-@(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
+@(item: Option[AuthoritativeSet], f: Form[models.AuthoritativeSetF])(implicit fieldConstructor: helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @defining("authoritativeSet") { implicit fieldPrefix =>
     @formHelpers.lineInput(f(""), AuthoritativeSetF.NAME)

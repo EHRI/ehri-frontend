@@ -1,4 +1,4 @@
-@(item: Accessible, url: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Accessible, url: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.sidebarSectionWithFooter(Messages("visibility")) {
     @if(item.accessors.nonEmpty) {

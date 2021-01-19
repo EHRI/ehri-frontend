@@ -1,4 +1,4 @@
-@(item: models.base.Model, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: models.base.Model, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.VirtualUnit.toString) {
     @views.html.virtualUnit.infobar(item, path, watched.contains(item.id))

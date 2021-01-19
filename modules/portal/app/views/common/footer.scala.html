@@ -1,4 +1,4 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @import org.apache.commons.lang3.StringUtils
 
@@ -13,7 +13,7 @@
         <div id="footer-navs">
             <div class="newsletter">
                 <h3>@Messages("mailingList.prompt")</h3>
-                @globalConfig.configuration.getOptional[String]("ehri.portal.mailingListUrl").map { url =>
+                @conf.configuration.getOptional[String]("ehri.portal.mailingListUrl").map { url =>
                     <a href="@url" class="btn btn-primary" target="_blank" rel="noopener" id="subscribe-to-newsletter">
                         @Messages("mailingList.subscribe")
                     </a>
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <ul id="lang-switcher">
-            @globalConfig.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
+            @conf.languages.map(c => (c, new java.util.Locale(c))).map { case (changeLang, locale) =>
                 <li class="@{if(messages.lang.toString.toLowerCase.contains(changeLang)) "active"}">
                     <a href="@controllers.portal.routes.Portal.changeLocale(changeLang)">
                         @StringUtils.capitalize(locale.getDisplayName(locale))

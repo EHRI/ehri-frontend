@@ -1,15 +1,13 @@
 package integration.portal
 
 import java.util.zip.{ZipEntry, ZipInputStream}
-
 import akka.util.ByteString
-import controllers.base.SessionPreferences
 import controllers.portal.ReversePortal
+import cookies.{SessionPreferences, SessionPrefs}
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
-import utils.SessionPrefs
 import services.search.SearchParams
 
 

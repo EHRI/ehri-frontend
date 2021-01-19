@@ -1,4 +1,4 @@
-@(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import models.base.Description.CreationProcess
 @import models.base.Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS, SOURCE_FILE_ID}

@@ -1,4 +1,4 @@
-@(item: Repository, isVersioned: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Repository, isVersioned: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 <!DOCTYPE html>
 
@@ -13,7 +13,7 @@
         <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2-bootstrap.css")" rel="stylesheet">
         <link href="@controllers.admin.routes.AdminAssets.versioned("css/datamanager.css")" rel="stylesheet">
 
-        @globalConfig.extraHeadContent.map(c => Html(c))
+        @conf.extraHeadContent.map(c => Html(c))
     </head>
     <body>
 
@@ -82,7 +82,7 @@
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
-        @if(globalConfig.isTestMode) {
+        @if(conf.isTestMode) {
             <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12/dist/vue.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/sortablejs@@1.8.4/Sortable.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/vuedraggable@@2.24.1/dist/vuedraggable.umd.js"></script>

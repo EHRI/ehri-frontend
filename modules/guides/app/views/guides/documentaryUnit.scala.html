@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash, md: views.MarkdownRenderer)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash, md: MarkdownRenderer)
 
 @sidebar(page: GuidePage) = {
     <div class="guides-notice">

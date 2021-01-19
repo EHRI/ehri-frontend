@@ -140,7 +140,7 @@ case class DataTransformations @Inject()(
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks
-          .taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+          .taskMonitorWS(jobId).webSocketURL(conf.https),
         "jobId" -> jobId
       ))
     }

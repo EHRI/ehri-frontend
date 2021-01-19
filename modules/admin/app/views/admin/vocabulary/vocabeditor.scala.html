@@ -1,4 +1,4 @@
-@(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 <!DOCTYPE html>
 <html>
@@ -12,7 +12,7 @@
         <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2-bootstrap.css")" rel="stylesheet">
         <link href="@controllers.admin.routes.AdminAssets.versioned("css/vocabeditor.css")" rel="stylesheet">
 
-        @globalConfig.extraHeadContent.map(c => Html(c))
+        @conf.extraHeadContent.map(c => Html(c))
     </head>
     <body>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-3.4.1.js")"></script>
@@ -53,7 +53,7 @@
                 }
         </script>
 
-        @if(globalConfig.isTestMode) {
+        @if(conf.isTestMode) {
             <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12/dist/vue.js"></script>
         } else {
             <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12"></script>

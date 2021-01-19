@@ -1,4 +1,4 @@
-@(link: Link)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(link: Link)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 <div class="item-link" id="@link.id">
     <ul class="link-target-list">

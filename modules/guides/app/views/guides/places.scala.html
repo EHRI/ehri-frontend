@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], concepts: utils.Page[(Concept,services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long], json: play.api.libs.json.JsValue)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], concepts: utils.Page[(Concept,services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long], json: play.api.libs.json.JsValue)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 
 @import play.api.libs.json._

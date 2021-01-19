@@ -1,4 +1,4 @@
-@(page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import services.data.Constants.OFFSET_PARAM
 

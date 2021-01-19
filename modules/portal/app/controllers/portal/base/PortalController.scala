@@ -2,13 +2,13 @@ package controllers.portal.base
 
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
-
 import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
-import controllers.base.{ControllerHelpers, CoreActionBuilders, SessionPreferences}
+import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
 import defines.{EntityType, EventType}
-import global.{GlobalConfig, ItemLifecycle}
+import config.{AppConfig, ItemLifecycle}
+import cookies.{SessionPreferences, SessionPrefs}
 import models.UserProfile
 import models.base.Model
 import models.view.{MessagingInfo, UserDetails}
@@ -21,7 +21,7 @@ import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import services.data.caching.FutureCache
-import views.MarkdownRenderer
+import views.html.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance, pageNotFound}
 
 import scala.concurrent.Future
@@ -41,7 +41,7 @@ trait PortalController
 
   // Implicits hoisted to class scope so as to be provided to views
   protected implicit def cache: SyncCacheApi = appComponents.cacheApi
-  protected implicit def globalConfig: GlobalConfig = appComponents.globalConfig
+  protected implicit def conf: AppConfig = appComponents.conf
   protected implicit def markdown: MarkdownRenderer = appComponents.markdown
   protected implicit def config: Configuration = appComponents.config
 

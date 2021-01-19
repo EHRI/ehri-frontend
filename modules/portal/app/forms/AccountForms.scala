@@ -1,7 +1,8 @@
 package forms
 
 import auth.oauth2.OAuth2Config
-import global.GlobalConfig
+import config.AppConfig
+
 import javax.inject.{Inject, Singleton}
 import models.SignupData
 import play.api.data.{Form, Forms}
@@ -10,7 +11,7 @@ import models.SignupData._
 import play.api.Configuration
 
 @Singleton
-case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalConfig, oAuth2Config: OAuth2Config) {
+case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth2Config: OAuth2Config) {
 
   import HoneyPotForm._
   import TimeCheckForm._
@@ -29,15 +30,15 @@ case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalCo
   val changePasswordForm: Form[(String, String, String)] = Form(
     tuple(
       "current" -> nonEmptyText,
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
+      PASSWORD -> nonEmptyText(minLength = conf.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = conf.minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
   )
 
   val resetPasswordForm: Form[(String, String)] = Form(
     tuple(
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength)
+      PASSWORD -> nonEmptyText(minLength = conf.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = conf.minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
@@ -54,8 +55,8 @@ case class AccountForms @Inject() (config: Configuration, globalConfig: GlobalCo
     mapping(
       NAME -> nonEmptyText,
       EMAIL -> email,
-      PASSWORD -> nonEmptyText(minLength = globalConfig.minPasswordLength),
-      CONFIRM -> nonEmptyText(minLength = globalConfig.minPasswordLength),
+      PASSWORD -> nonEmptyText(minLength = conf.minPasswordLength),
+      CONFIRM -> nonEmptyText(minLength = conf.minPasswordLength),
       ALLOW_MESSAGING -> ignored(true),
       TIMESTAMP -> text, // submission time check
       BLANK_CHECK -> text, // honeypot

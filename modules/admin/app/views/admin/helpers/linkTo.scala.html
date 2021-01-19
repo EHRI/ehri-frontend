@@ -1,3 +1,3 @@
-@(item: models.base.Model, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty)(implicit globalConfig: global.GlobalConfig, userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(item: models.base.Model, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty)(implicit conf: AppConfig, userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 @views.html.admin.helpers.linkToWithFragment(item, fragment="", content=content, attributes=attributes)

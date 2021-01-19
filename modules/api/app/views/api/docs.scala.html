@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @includeCss = {
     <style>
@@ -51,8 +51,8 @@
             <h2>@Messages("api.oaipmh.header")</h2>
 
             <p>EHRI provides an <a href="https://www.openarchives.org/pmh/">Open Archives Initiative Protocol for Metadata Harvesting</a>
-                endpoint at: <code><a href="@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)">
-                @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)
+                endpoint at: <code><a href="@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(conf.https)">
+                @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(conf.https)
                 </a></code>.</p>
 
             <strong><a href="@controllers.api.oaipmh.routes.OaiPmhHome.index()">

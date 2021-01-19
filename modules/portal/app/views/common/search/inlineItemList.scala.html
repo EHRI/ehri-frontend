@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "", path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "", path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import services.data.Constants.PAGE_PARAM
 

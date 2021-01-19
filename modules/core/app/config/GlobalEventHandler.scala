@@ -1,4 +1,4 @@
-package global
+package config
 
 import javax.inject.Inject
 

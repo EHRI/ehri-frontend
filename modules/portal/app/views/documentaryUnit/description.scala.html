@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], selected: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], selected: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import models.IsadG._
 @import views.html.common.{descriptionSection, textField, listField}

@@ -1,4 +1,4 @@
-@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Country, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <ul class="search-item-details">
     @views.html.country.listItemMeta(item, highlighter)

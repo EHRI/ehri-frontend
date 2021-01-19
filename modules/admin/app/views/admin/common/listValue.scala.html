@@ -1,4 +1,4 @@
-@(key: String, list: Seq[String], transformFunc: String => String = identity)(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
+@(key: String, list: Seq[String], transformFunc: String => String = identity)(implicit fieldPrefix: String = "", messages: Messages, md: MarkdownRenderer)
 
 @if(list.nonEmpty) {
     <div class="item-text-field" id="@key">

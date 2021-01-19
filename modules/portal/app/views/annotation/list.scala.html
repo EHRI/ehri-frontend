@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(Annotation,services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(result: services.search.SearchResult[(Annotation,services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("type.Annotation"), cls = EntityType.Annotation.toString) {
     @views.html.common.mainContent {

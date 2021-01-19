@@ -1,9 +1,8 @@
 package auth.handler.cookie
 
 import javax.inject.Inject
-
 import auth.handler.TokenAccessor
-import global.GlobalConfig
+import config.AppConfig
 import play.api.Configuration
 import play.api.libs.crypto.CookieSigner
 import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader, Result}
@@ -18,10 +17,10 @@ import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader, Result}
   * Modified for Play 2.5+.
   */
 case class CookieTokenAccessor @Inject()()(val signer: CookieSigner,
-                                           config: Configuration, globalConfig: GlobalConfig) extends TokenAccessor {
+                                           config: Configuration, conf: AppConfig) extends TokenAccessor {
 
   val cookieName: String = config.getOptional[String]("auth.session.cookieName").getOrElse("PLAY2AUTH_SESS_ID")
-  val cookieSecureOption: Boolean = globalConfig.https
+  val cookieSecureOption: Boolean = conf.https
   val cookieHttpOnlyOption: Boolean = true
   val cookieDomainOption: Option[String] = None
   val cookiePathOption: String = "/"

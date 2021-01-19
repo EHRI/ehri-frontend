@@ -1,4 +1,4 @@
-@(item: UserProfile)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: UserProfile)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.users.routes.UserProfiles.get(item.id)">@item.toStringLang</a>

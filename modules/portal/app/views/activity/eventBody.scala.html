@@ -1,4 +1,4 @@
-@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import defines.EventType
 

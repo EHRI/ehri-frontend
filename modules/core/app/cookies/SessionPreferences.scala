@@ -1,7 +1,7 @@
-package controllers.base
+package cookies
 
-import play.api.mvc.{Result, RequestHeader}
-import play.api.libs.json.{Writes, Reads, Json}
+import play.api.libs.json.{Json, Reads, Writes}
+import play.api.mvc.{RequestHeader, Result}
 
 trait SessionPreferences[T] {
 

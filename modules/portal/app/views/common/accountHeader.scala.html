@@ -1,4 +1,4 @@
-@(showFeedback: Boolean = false, showAdminLink: Boolean = false, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(showFeedback: Boolean = false, showAdminLink: Boolean = false, prefsOpt: Option[SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.common.topNavBar {
     @if(userOpt.isDefined) {

@@ -1,4 +1,4 @@
-@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(user: UserProfile, profilePage: Boolean = false)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @textSection(key: String, data: Option[String]) = {
     @data.filterNot(_.trim.isEmpty).map { text =>

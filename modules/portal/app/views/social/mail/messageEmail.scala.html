@@ -1,4 +1,4 @@
-@(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(heading: String, subject: String, message: String, isCopy: Boolean = false)(implicit req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.layout.mailLayout(heading) {
 
@@ -12,7 +12,7 @@
         <small>
             @if(!isCopy) {
                 @Messages("mail.message.replyFooter"):
-                <a href="@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = globalConfig.https)">
+                <a href="@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = conf.https)">
                     @Messages("profile.preferences.updatePreferences")
                 </a>
             }

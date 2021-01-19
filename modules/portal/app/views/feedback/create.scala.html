@@ -1,8 +1,8 @@
-@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, messages: Messages, flash: Flash, globalConfig: global.GlobalConfig)
+@(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, messages: Messages, flash: Flash, conf: AppConfig)
 
 
 @views.html.layout.portalLayout(Messages("feedback")) {
     @views.html.common.mainContent {
         @views.html.feedback.form(form)
     }
-}(userOpt, request, prefs, globalConfig, messages, flash)
+}(userOpt, request, prefs, conf, messages, flash)

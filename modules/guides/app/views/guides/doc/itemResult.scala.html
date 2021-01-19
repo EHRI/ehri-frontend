@@ -1,4 +1,4 @@
-@(guide: Guide, item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @wrapParent(doc: DocumentaryUnit, parent: Option[DocumentaryUnit]) = {
     @parent.map { p =>

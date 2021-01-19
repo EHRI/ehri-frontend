@@ -1,4 +1,4 @@
-@(item: SystemEvent)(implicit globalConfig: global.GlobalConfig, messages: Messages)
+@(item: SystemEvent)(implicit conf: AppConfig, messages: Messages)
 
 <h4 class="event-item-heading">
     <a data-timestamp="@item.time" href="@controllers.events.routes.SystemEvents.get(item.id)">

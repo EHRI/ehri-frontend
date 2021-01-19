@@ -1,4 +1,4 @@
-@(id: String, altIds: Option[Seq[String]] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(id: String, altIds: Option[Seq[String]] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.common.sidebarSection(Messages("item.identifier"), cls = "identifiers") {
     <ul>

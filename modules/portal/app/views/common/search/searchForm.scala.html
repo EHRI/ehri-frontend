@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false, inline: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(result: services.search.SearchResult[_], action: Call, key: String = "search", headerKey: String = "pagination.displayingItems", autofocus: Boolean = false, inline: Boolean = false)(html: Html)(facets: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @import services.data.Constants.PAGE_PARAM
 

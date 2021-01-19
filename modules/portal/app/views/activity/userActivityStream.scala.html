@@ -1,4 +1,4 @@
-@(user: UserProfile, page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(user: UserProfile, page: utils.RangePage[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <div class="activity-stream-wrapper">
     @if(page.nonEmpty) {

@@ -1,4 +1,4 @@
-@(item: Concept)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: Concept)(implicit req: RequestHeader, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.keywords.routes.Concepts.get(item.id)">@item.toStringLang</a>

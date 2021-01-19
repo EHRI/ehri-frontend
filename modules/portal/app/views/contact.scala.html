@@ -1,19 +1,19 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages)
 
 @views.html.layout.textLayout(Messages("contact")) {
     <h2>@Messages("contact.header")</h2>
 
     <p>@Messages("contact.p1")</p>
     <address>
-        @globalConfig.configuration.get[Seq[String]]("ehri.portal.contact.address").map { line =>
+        @conf.configuration.get[Seq[String]]("ehri.portal.contact.address").map { line =>
             @line<br>
         }
     </address>
 
     <p>@Messages("contact.p2")</p>
     @defining((
-            globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("privacy@example.com"),
-            globalConfig.configuration.getOptional[String]("ehri.portal.emails.feedback").getOrElse("feedback@example.com"))) { case (privacyMail, feedbackMail) =>
+            conf.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("privacy@example.com"),
+            conf.configuration.getOptional[String]("ehri.portal.emails.feedback").getOrElse("feedback@example.com"))) { case (privacyMail, feedbackMail) =>
     <ul>
         <li>@Html(Messages("contact.p2.1", s"<a href='mailto:$privacyMail'>$privacyMail</a>"))</li>
         <li>@Messages("contact.p2.2")</li>

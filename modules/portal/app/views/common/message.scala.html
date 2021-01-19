@@ -1,6 +1,6 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@globalConfig.message.map { msg =>
+@conf.message.map { msg =>
     <div class="portal-message info-message">
         <strong>@msg</strong>
     </div>

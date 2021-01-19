@@ -230,7 +230,7 @@ case class ImportFiles @Inject()(
       mat.system.actorOf(Props(ingest.DataImporterManager(job, ingestService, onDone)), jobId)
 
       Ok(Json.obj(
-        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(conf.https),
         "jobId" -> jobId
       ))
     }

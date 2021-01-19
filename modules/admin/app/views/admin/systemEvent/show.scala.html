@@ -1,4 +1,4 @@
-@(item: SystemEvent, page: utils.Page[models.base.Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: SystemEvent, page: utils.Page[models.base.Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @title(item: SystemEvent) = {
     @item.scope.map { scope =>

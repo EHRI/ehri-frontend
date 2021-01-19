@@ -1,4 +1,4 @@
-@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: cookies.SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 @userOpt.map { user => @defining(user.toStringLang + " - " + Messages("annotation.list")) { title =>
 @title
 @{"=" * title.size}}}
@@ -8,5 +8,5 @@
 
   @annotation.data.body
         @for(user <- annotation.user ; event <- annotation.latestEvent ; src <- annotation.target) {
-  @{views.Helpers.linkTo(src).absoluteURL(globalConfig.https).trim + "#" + annotation.id}
+  @{views.Helpers.linkTo(src).absoluteURL(conf.https).trim + "#" + annotation.id}
   @event.data.timestamp}}

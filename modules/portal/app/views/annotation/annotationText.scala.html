@@ -1,4 +1,4 @@
-@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 <blockquote class="annotation-body">
     @Html(highlighter.highlight(md.renderUntrustedMarkdown(item.data.body)))

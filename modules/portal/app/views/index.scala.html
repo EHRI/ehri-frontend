@@ -1,4 +1,4 @@
-@(stats: utils.Stats, accountForms: forms.AccountForms)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(stats: utils.Stats, accountForms: forms.AccountForms)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
@@ -7,7 +7,7 @@
 }
 
 @extraStyles = {
-    @globalConfig.bannerImageUrl.map { url =>
+    @conf.bannerImageUrl.map { url =>
         <style>
             body.home #header {
               background-image: url(@url);
@@ -26,7 +26,7 @@
         @views.html.common.message()
         @views.html.common.ipFilter()
         <header id="header" class="navigation">
-            @views.html.common.accountHeader(showAdminLink = true, showFeedback = globalConfig.showFeedback, prefsOpt = Some(prefs))
+            @views.html.common.accountHeader(showAdminLink = true, showFeedback = conf.showFeedback, prefsOpt = Some(prefs))
             <div id="welcome-banner">
                 @views.html.common.primaryHeader(showSearch = false)
                 <div id="welcome-container">

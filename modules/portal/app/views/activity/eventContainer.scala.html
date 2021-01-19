@@ -1,4 +1,4 @@
-@(img: Html)(heading: Html)(content: Html)(badge: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(img: Html)(heading: Html)(content: Html)(badge: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <li class="timeline-event">
     @img

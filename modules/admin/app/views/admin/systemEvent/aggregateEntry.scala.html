@@ -1,4 +1,4 @@
-@(items: Seq[SystemEvent])(implicit globalConfig: global.GlobalConfig, messages: Messages)
+@(items: Seq[SystemEvent])(implicit conf: AppConfig, messages: Messages)
 
 <li class="event-item">
     @items.headOption.map { item =>

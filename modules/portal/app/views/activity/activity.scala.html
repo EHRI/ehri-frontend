@@ -1,4 +1,4 @@
-@(events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("activity"), "userProfile") {
     @views.html.common.mainContent {

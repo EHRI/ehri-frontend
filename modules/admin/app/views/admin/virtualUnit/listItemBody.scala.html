@@ -1,4 +1,4 @@
-@(item: models.base.Model)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: models.base.Model)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None)
 
 @views.html.virtualUnit.ifVirtual(item) { v =>
     @v.data.primaryDescription(descriptionId).map { desc =>

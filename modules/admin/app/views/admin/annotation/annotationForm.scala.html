@@ -1,4 +1,4 @@
-@(form: play.api.data.Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, fieldConstructor: helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(form: play.api.data.Form[AnnotationF])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, fieldConstructor: helper.FieldConstructor, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import AnnotationF._
 

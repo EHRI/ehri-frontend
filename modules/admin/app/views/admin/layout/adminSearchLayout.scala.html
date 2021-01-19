@@ -1,4 +1,4 @@
-@(title: Any, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs:Html = Html(""))(main: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(title: Any, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs:Html = Html(""))(main: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminLayout(Messages("documentaryUnit.search")) {
     @if(breadcrumbs.body.trim.isEmpty) {

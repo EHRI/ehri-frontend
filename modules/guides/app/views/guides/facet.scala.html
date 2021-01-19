@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], available: Map[String, Seq[models.base.Model]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], available: Map[String, Seq[models.base.Model]], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import services.search.SearchSort
 

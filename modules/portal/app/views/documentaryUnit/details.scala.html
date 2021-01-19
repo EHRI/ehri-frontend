@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, conf: AppConfig)
 
 <dl class="item-meta">
     <dt>@Messages("documentaryUnit.identifier")</dt>
