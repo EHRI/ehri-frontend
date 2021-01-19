@@ -1,7 +1,7 @@
 package services.data.rest
 
+import cookies.FakeApp
 import play.api.test.PlaySpecification
-import controllers.base.FakeApp
 import services.data.IdGenerator
 
 class IdGeneratorSpec extends PlaySpecification {

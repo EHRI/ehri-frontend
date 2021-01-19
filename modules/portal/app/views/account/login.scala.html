@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)], recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,prefs: utils.SessionPrefs)
+@(pwForm: Form[(String,String)], recaptchaKey: String, openIdForm: Form[String], oauthConfig: auth.oauth2.OAuth2Config)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,prefs: SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 

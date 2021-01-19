@@ -1,4 +1,4 @@
-@(watchList: utils.AbstractPage[models.base.Model])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(watchList: utils.AbstractPage[models.base.Model])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, flash: Flash)
 @userOpt.map { user => @defining(user.toStringLang + " - " + Messages("profile.watch.list")) { title =>
 @title
 @{"=" * title.size}
@@ -6,5 +6,5 @@
 @watchList.map { item =>
 * @item.toStringLang
 
-  @views.Helpers.linkTo(item).absoluteURL(secure = globalConfig.https)
+  @views.Helpers.linkTo(item).absoluteURL(secure = conf.https)
 }

@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, holderIds: Seq[String] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, holderIds: Seq[String] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.documentaryUnit.itemPage(item) {
     @helper.javascriptRouter("adminJsRoutes")(

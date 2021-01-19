@@ -1,4 +1,4 @@
-@(watchList: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(watchList: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], currentWatchedIds: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @* user should always be defined here *@
 @userOpt.map { user =>

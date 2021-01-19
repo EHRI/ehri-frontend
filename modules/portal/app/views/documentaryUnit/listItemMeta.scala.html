@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, highlighter: views.Highlighter)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF, highlighter: views.Highlighter)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <li class="truncate truncate-100" title="@Messages("documentaryUnit.identifier"): @item.data.identifier">@item.data.identifier</li>
 

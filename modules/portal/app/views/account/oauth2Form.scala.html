@@ -1,4 +1,4 @@
-@(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call)(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
+@(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call)(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()

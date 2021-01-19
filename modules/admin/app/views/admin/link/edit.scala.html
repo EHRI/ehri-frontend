@@ -1,4 +1,4 @@
-@(item: Link, form: play.api.data.Form[LinkF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Link, form: play.api.data.Form[LinkF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebarWithType(Messages("link.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.dateJs()) {
 	@helper.form(action = action) {

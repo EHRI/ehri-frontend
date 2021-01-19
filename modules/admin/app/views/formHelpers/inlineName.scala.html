@@ -1,4 +1,4 @@
-@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
+@(field: play.api.data.Field, name: String)(implicit fieldPrefix: String, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-element">
     <div class="form-group @{if(field.hasErrors) "has-error"}">

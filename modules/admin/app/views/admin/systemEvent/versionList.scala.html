@@ -1,4 +1,4 @@
-@(item: models.base.Model, page: utils.Page[Version], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(item: models.base.Model, page: utils.Page[Version], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @import views.Helpers
 

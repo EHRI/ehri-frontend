@@ -80,8 +80,8 @@ case class UserProfiles @Inject()(
       "email" -> Forms.email,
       "identifier" -> Forms.nonEmptyText(minLength= 3, maxLength = 20),
       "name" -> Forms.nonEmptyText,
-      "password" -> Forms.nonEmptyText(minLength = globalConfig.minPasswordLength),
-      "confirm" -> Forms.nonEmptyText(minLength = globalConfig.minPasswordLength)
+      "password" -> Forms.nonEmptyText(minLength = conf.minPasswordLength),
+      "confirm" -> Forms.nonEmptyText(minLength = conf.minPasswordLength)
     ) verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
   )
 
@@ -158,7 +158,7 @@ case class UserProfiles @Inject()(
         val user = UserProfileF(id = None, identifier = username, name = name,
           location = None, about = None, languages = Nil)
         val groups = (groupMembershipForm.bindFromRequest.value
-          .getOrElse(List.empty) ++ globalConfig.defaultPortalGroups).distinct
+          .getOrElse(List.empty) ++ conf.defaultPortalGroups).distinct
         createUserProfile(user, groups, allGroups).flatMap {
           case Left(ValidationError(errorSet)) =>
             val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)

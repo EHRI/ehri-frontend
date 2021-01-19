@@ -1,4 +1,4 @@
-@(show: Boolean = true, warning: Boolean = false, danger: Boolean = false)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(show: Boolean = true, warning: Boolean = false, danger: Boolean = false)(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @if(show) {
     <li class="@{if(warning) "warning"} @{if(danger) "danger"}">@html</li>

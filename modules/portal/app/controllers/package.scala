@@ -1,4 +1,4 @@
-import global.GlobalConfig
+import config.AppConfig
 import models.UserProfile
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
@@ -10,6 +10,6 @@ package object controllers {
   def isAjax(implicit request: RequestHeader): Boolean =
     request.headers.get("X-REQUESTED-WITH").exists(_.toUpperCase == "XMLHTTPREQUEST")
 
-  def renderError(titleKey: String, body: Html)(implicit request: RequestHeader, globalConfig: GlobalConfig, messages: Messages, userOpt: Option[UserProfile] = None): Html =
+  def renderError(titleKey: String, body: Html)(implicit request: RequestHeader, conf: AppConfig, messages: Messages, userOpt: Option[UserProfile] = None): Html =
     if (isAjax(request)) body else errorLayout(Messages(titleKey))(body)
 }

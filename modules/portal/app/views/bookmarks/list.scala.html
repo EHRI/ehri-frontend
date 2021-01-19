@@ -1,4 +1,4 @@
-@(paging: utils.PageParams, result: services.search.SearchResult[VirtualUnit], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(paging: utils.PageParams, result: services.search.SearchResult[VirtualUnit], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @js = {
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-ui/jquery-ui.js")" type="text/javascript"></script>

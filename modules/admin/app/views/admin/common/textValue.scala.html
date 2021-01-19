@@ -1,4 +1,4 @@
-@(key: String, value: Option[String])(implicit fieldPrefix: String = "", messages: Messages, md: views.MarkdownRenderer)
+@(key: String, value: Option[String])(implicit fieldPrefix: String = "", messages: Messages, md: MarkdownRenderer)
 
 @value.map { str =>
     @if(str.trim.nonEmpty) {

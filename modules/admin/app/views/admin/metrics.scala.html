@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @extrascript = {
 

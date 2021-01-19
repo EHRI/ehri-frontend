@@ -1,4 +1,4 @@
-@(page: utils.Page[DocumentaryUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(page: utils.Page[DocumentaryUnit])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <ul class="list-unstyled">
 @page.items.map { item =>

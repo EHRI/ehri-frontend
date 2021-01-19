@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF, annotations: Seq[Annotation], visible: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, fieldPrefix: String)
+@(item: Concept, desc: ConceptDescriptionF, annotations: Seq[Annotation], visible: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, fieldPrefix: String)
 
 @import ConceptF._
 @import views.html.common.descriptionSection

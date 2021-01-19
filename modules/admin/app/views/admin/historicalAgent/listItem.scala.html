@@ -1,4 +1,4 @@
-@(item: HistoricalAgent)(implicit req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: HistoricalAgent)(implicit req: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.authorities.routes.HistoricalAgents.get(item.id)">@item.toStringLang</a>

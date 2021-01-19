@@ -1,6 +1,6 @@
-@(recaptchaKey: String)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(recaptchaKey: String)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@if(!globalConfig.skipRecaptcha) {
+@if(!conf.skipRecaptcha) {
 <script type="text/javascript"
         src="http://www.google.com/recaptcha/api/challenge?k=@recaptchaKey">
 </script>

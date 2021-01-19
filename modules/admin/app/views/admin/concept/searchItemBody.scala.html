@@ -1,4 +1,4 @@
-@(item: Concept, desc: ConceptDescriptionF)(implicit messages: Messages, md: views.MarkdownRenderer)
+@(item: Concept, desc: ConceptDescriptionF)(implicit messages: Messages, md: MarkdownRenderer)
 
 <ul class="search-item-details">
     @item.vocabulary.map { vocab =>

@@ -1,4 +1,4 @@
-@(item: Promotable, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(item: Promotable, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 @userOpt.map { user =>
     @if(item.isPromotable && user.hasPermission(contentType, PermissionType.Promote)) {

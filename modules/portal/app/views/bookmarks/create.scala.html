@@ -1,4 +1,4 @@
-@(f: Form[BookmarkSet], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(f: Form[BookmarkSet], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("bookmarkSet.create"), EntityType.UserProfile.toString) {
     @common.infobar {

@@ -1,4 +1,4 @@
-@(item: Country)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(item: Country)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>

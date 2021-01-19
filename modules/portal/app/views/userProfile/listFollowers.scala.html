@@ -1,4 +1,4 @@
-@(item: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: Seq[UserProfile], messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, myFollowing: Seq[UserProfile], messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
 

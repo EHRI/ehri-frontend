@@ -1,7 +1,7 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <p class="error-notice">@Messages("errors.maintenance.explanation")</p>
 
-@globalConfig.message.map { msg =>
+@conf.message.map { msg =>
     <p>@msg</p>
 }

@@ -9,7 +9,7 @@ import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
-import global.{GlobalConfig, ItemLifecycle}
+import config.{AppConfig, ItemLifecycle}
 import models._
 import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._
@@ -60,7 +60,7 @@ case class ApiV1 @Inject()(
   with SearchVC {
 
   protected implicit val cache: SyncCacheApi = appComponents.cacheApi
-  protected implicit val globalConfig: GlobalConfig = appComponents.globalConfig
+  protected implicit val conf: AppConfig = appComponents.conf
   protected val accounts: AccountManager = appComponents.accounts
   protected val dataApi: DataApi = appComponents.dataApi
   protected val config: Configuration = appComponents.config
@@ -189,10 +189,10 @@ case class ApiV1 @Inject()(
         links = Some(
           Json.toJson(
             DocumentaryUnitLinks(
-              self = apiRoutes.fetch(doc.id).absoluteURL(globalConfig.https),
-              search = apiRoutes.searchIn(doc.id).absoluteURL(globalConfig.https),
-              holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL(globalConfig.https)),
-              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(globalConfig.https))
+              self = apiRoutes.fetch(doc.id).absoluteURL(conf.https),
+              search = apiRoutes.searchIn(doc.id).absoluteURL(conf.https),
+              holder = doc.holder.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https)),
+              parent = doc.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
             )
           )
         ),
@@ -216,9 +216,9 @@ case class ApiV1 @Inject()(
         links = Some(
           Json.toJson(
             DocumentaryUnitLinks(
-              self = apiRoutes.fetch(vu.id).absoluteURL(globalConfig.https),
-              search = apiRoutes.searchIn(vu.id).absoluteURL(globalConfig.https),
-              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(globalConfig.https))
+              self = apiRoutes.fetch(vu.id).absoluteURL(conf.https),
+              search = apiRoutes.searchIn(vu.id).absoluteURL(conf.https),
+              parent = vu.parent.map(r => apiRoutes.fetch(r.id).absoluteURL(conf.https))
             )
           )
         ),
@@ -242,9 +242,9 @@ case class ApiV1 @Inject()(
         links = Some(
           Json.toJson(
             RepositoryLinks(
-              self = apiRoutes.fetch(repo.id).absoluteURL(globalConfig.https),
-              search = apiRoutes.searchIn(repo.id).absoluteURL(globalConfig.https),
-              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(globalConfig.https))
+              self = apiRoutes.fetch(repo.id).absoluteURL(conf.https),
+              search = apiRoutes.searchIn(repo.id).absoluteURL(conf.https),
+              country = repo.country.map(c => apiRoutes.fetch(c.id).absoluteURL(conf.https))
             )
           )
         ),
@@ -258,7 +258,7 @@ case class ApiV1 @Inject()(
         attributes = Json.toJson(HistoricalAgentAttrs(agent)),
         links = Some(
           Json.obj(
-            "self" -> apiRoutes.fetch(agent.id).absoluteURL(globalConfig.https)
+            "self" -> apiRoutes.fetch(agent.id).absoluteURL(conf.https)
           )
         ),
         meta = Some(meta(agent))
@@ -272,8 +272,8 @@ case class ApiV1 @Inject()(
         links = Some(
           Json.toJson(
             CountryLinks(
-              self = apiRoutes.fetch(country.id).absoluteURL(globalConfig.https),
-              search = apiRoutes.searchIn(country.id).absoluteURL(globalConfig.https)
+              self = apiRoutes.fetch(country.id).absoluteURL(conf.https),
+              search = apiRoutes.searchIn(country.id).absoluteURL(conf.https)
             )
           )
         ),
@@ -346,7 +346,7 @@ case class ApiV1 @Inject()(
         Ok(Json.toJson(
           pageData(
             r.mapItems(_._1).page,
-            p => apiRoutes.search(`type`, params, paging.copy(page = p), fields).absoluteURL(globalConfig.https)
+            p => apiRoutes.search(`type`, params, paging.copy(page = p), fields).absoluteURL(conf.https)
           )
         )).as(JSONAPI_MIMETYPE)
       } recoverWith errorHandler
@@ -381,7 +381,7 @@ case class ApiV1 @Inject()(
             facetBuilder = apiSearchFacets
           )
         } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p), fields).absoluteURL(globalConfig.https), Some(Seq(item))))
+          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p), fields).absoluteURL(conf.https), Some(Seq(item))))
         ).as(JSONAPI_MIMETYPE)
       } recoverWith errorHandler
     }

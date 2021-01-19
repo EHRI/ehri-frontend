@@ -1,6 +1,6 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@globalConfig.ipFilter.map { whitelist =>
+@conf.ipFilter.map { whitelist =>
     <div class="portal-message filter-message">
         <strong>Blocked for IPs except: @whitelist.mkString(", ")</strong>
     </div>

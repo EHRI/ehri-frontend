@@ -1,4 +1,4 @@
-@(form: Form[(Option[defines.ContentTypes.Value], Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(form: Form[(Option[defines.ContentTypes.Value], Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.regenerateIds")) {
     @views.html.admin.tools.regenerateForm(form, action)

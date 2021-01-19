@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(HistoricalAgent, services.search.SearchHit)], params: services.search.SearchParams, linkCount: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(HistoricalAgent, services.search.SearchHit)], params: services.search.SearchParams, linkCount: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @sidebar(page: GuidePage) = {
     @page.description.map(d => Html(md.renderTrustedMarkdown(d)))

@@ -1,7 +1,7 @@
 package controllers.generic
 
+import config.AppConfig
 import controllers.base.CoreActionBuilders
-import global.GlobalConfig
 import play.api.mvc.Request
 import services.data.Constants
 
@@ -11,7 +11,7 @@ import services.data.Constants
   */
 trait Write extends CoreActionBuilders {
 
-  protected def globalConfig: GlobalConfig
+  protected def conf: AppConfig
 
   /**
     * Extract a log message from an incoming request params
@@ -19,7 +19,7 @@ trait Write extends CoreActionBuilders {
   def getLogMessage(implicit request: Request[_]): Option[String] = {
     import play.api.data.Form
     import play.api.data.Forms._
-    Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText(maxLength = globalConfig.logMessageMaxLength))))
+    Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText(maxLength = conf.logMessageMaxLength))))
       .bindFromRequest.value.flatten
   }
 }

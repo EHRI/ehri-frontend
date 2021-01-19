@@ -1,4 +1,4 @@
-@(item: Vocabulary, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Vocabulary, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.searchItemOutline(item, watched) {
     @views.html.helpers.linkTo(item)

@@ -1,4 +1,4 @@
-@(item: models.base.Model, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(item: models.base.Model, link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 @item match {
     case d: models.base.Holder[_] => {@views.html.common.childItemLink(d, link)}

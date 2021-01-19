@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: AuthoritativeSet, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @views.html.common.rightSidebar {

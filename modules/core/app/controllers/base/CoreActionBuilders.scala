@@ -3,7 +3,7 @@ package controllers.base
 import akka.stream.scaladsl.Flow
 import auth.handler.AuthHandler
 import defines.{ContentTypes, PermissionType}
-import global.ItemLifecycle
+import config.{AppConfig, ItemLifecycle}
 import models.{Account, UserProfile}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
@@ -32,7 +32,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
 
   protected def itemLifecycle: ItemLifecycle
 
-  protected def globalConfig: global.GlobalConfig
+  protected def conf: AppConfig
 
   protected implicit val implicitEc: ExecutionContext = controllerComponents.executionContext
   protected val parsers: PlayBodyParsers = controllerComponents.parsers
@@ -296,7 +296,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     */
   protected object ReadOnlyTransformer extends ActionTransformer[OptionalAccountRequest, OptionalAccountRequest] {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
-      if (globalConfig.readOnly) OptionalAccountRequest(None, request) else request
+      if (conf.readOnly) OptionalAccountRequest(None, request) else request
     }
 
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
@@ -304,7 +304,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
 
   protected object EmbedTransformer extends ActionTransformer[OptionalAccountRequest, OptionalAccountRequest] {
     protected def transform[A](request: OptionalAccountRequest[A]): Future[OptionalAccountRequest[A]] = immediate {
-      if (globalConfig.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
+      if (conf.isEmbedMode(request)) OptionalAccountRequest(None, request) else request
     }
 
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
@@ -316,7 +316,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     */
   protected object MaintenanceFilter extends ActionFilter[OptionalAccountRequest] {
     override protected def filter[A](request: OptionalAccountRequest[A]): Future[Option[Result]] = {
-      if (globalConfig.maintenance) downForMaintenance(request).map(r => Some(r))
+      if (conf.maintenance) downForMaintenance(request).map(r => Some(r))
       else immediate(None)
     }
 
@@ -329,7 +329,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     */
   protected object IpFilter extends ActionFilter[OptionalAccountRequest] {
     override protected def filter[A](request: OptionalAccountRequest[A]): Future[Option[Result]] = {
-      globalConfig.ipFilter.map { whitelist =>
+      conf.ipFilter.map { whitelist =>
         // Extract the client from the forwarded header, falling back
         // on the remote address. This is dependent on the proxy situation.
         if (whitelist.contains(request.remoteAddress)) immediate(None)

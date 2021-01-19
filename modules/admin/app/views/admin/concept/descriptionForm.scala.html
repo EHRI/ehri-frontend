@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field)(implicit prefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(desc: play.api.data.Field)(implicit prefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import Entity.IDENTIFIER
 @import models.ConceptF._

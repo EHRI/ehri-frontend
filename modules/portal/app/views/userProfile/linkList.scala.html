@@ -1,4 +1,4 @@
-@(links: utils.AbstractPage[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig)
+@(links: utils.AbstractPage[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 @if(links.nonEmpty) {
     <ul class="list-unstyled user-link-list">

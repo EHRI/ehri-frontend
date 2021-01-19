@@ -1,4 +1,4 @@
-@(pwForm: Form[(String,String)])(implicit request: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
+@(pwForm: Form[(String,String)])(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost(), 'class -> "login-form form validate-form", 'role -> "form") {
     @formHelpers.csrfToken()

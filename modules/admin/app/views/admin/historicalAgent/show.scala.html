@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {

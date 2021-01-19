@@ -1,4 +1,4 @@
-@(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.loginLayout(Messages("profile.delete"), defines.EntityType.UserProfile.toString) {
     @views.html.common.itemHeader(Messages("profile.delete"))

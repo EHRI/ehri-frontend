@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, geonameRemote: String = "")(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: views.MarkdownRenderer)
+@(desc: play.api.data.Field, fieldName: String, geonameRemote: String = "")(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @*
  *	For convenience, this field take a data-remote parameter for GeoName remote plugin configured in `app/admin/views/repository/edit.scala.html

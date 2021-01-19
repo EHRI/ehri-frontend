@@ -1,3 +1,3 @@
-@(call: Call, attributes: (Symbol,String)*)(content: Html)(implicit globalConfig: global.GlobalConfig, req: RequestHeader, messages: Messages)
+@(call: Call, attributes: (Symbol,String)*)(content: Html)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
 
-<a @{if(globalConfig.isEmbedMode) "target=\"_top\""} href="@call" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@content</a>
+<a @{if(conf.isEmbedMode) "target=\"_top\""} href="@call" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@content</a>

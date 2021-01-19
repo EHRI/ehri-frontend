@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @common.infobar {
     @item.holder.flatMap(_.country).map { country =>

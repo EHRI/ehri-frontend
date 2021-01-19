@@ -1,4 +1,4 @@
-@(showFeedback: Boolean = false, showAdminLink: Boolean = false, prefsOpt: Option[utils.SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(showFeedback: Boolean = false, showAdminLink: Boolean = false, prefsOpt: Option[SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 <ul>
     @if(showFeedback) {
@@ -20,7 +20,7 @@
             <span class="caret"></span>
         </a>
         <div id="help-dropdown" class="dropdown-menu" role="menu">
-            @globalConfig.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
+            @conf.configuration.get[Option[String]]("ehri.portal.manualUrl").map { url =>
                 <a class="dropdown-item" role="menuitem" href="@url" target="_blank" rel="noopener">
                     @Messages("help.manual")
                 </a>

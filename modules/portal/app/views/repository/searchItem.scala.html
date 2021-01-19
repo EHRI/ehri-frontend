@@ -1,4 +1,4 @@
-@(item: Repository, highlighter: views.Highlighter, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Repository, highlighter: views.Highlighter, watched: Boolean, showCountry: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @image = {
     <img alt="Institution Logo" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))"/>

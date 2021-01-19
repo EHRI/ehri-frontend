@@ -1,4 +1,4 @@
-@(them: UserProfile, info: view.MessagingInfo)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, prefs: utils.SessionPrefs)
+@(them: UserProfile, info: view.MessagingInfo)(implicit req: RequestHeader, userOpt: Option[UserProfile], conf: AppConfig, messages: Messages, flash: Flash, prefs: SessionPrefs)
 
 @views.html.layout.portalLayout(Messages("social.message", them.toStringLang), defines.EntityType.UserProfile.toString) {
     @views.html.userProfile.messageForm(them, info)

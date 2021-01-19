@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, flash: Flash)
 
 <p class="error-notice">
     @Messages("errors.staffOnlyMessage")

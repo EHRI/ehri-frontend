@@ -1,4 +1,4 @@
-@(added: Seq[(String, String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(added: Seq[(String, String)])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.movedItems")) {
     @if(added.nonEmpty) {

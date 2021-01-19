@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.DescribedModel, desc: models.base.Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @relatedLinks(list: Seq[AccessPointF], accessPointType: AccessPointF.AccessPointType.Value) = {
     @if(list.nonEmpty) {

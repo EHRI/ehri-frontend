@@ -75,7 +75,7 @@ case class Accounts @Inject()(
     */
   case class NotReadOnly[A](action: Action[A]) extends Action[A] {
     def apply(request: Request[A]): Future[Result] = {
-      if (globalConfig.readOnly) {
+      if (conf.readOnly) {
         Future.successful(Redirect(portalRoutes.index())
           .flashing("warning" -> "login.disabled"))
       } else action(request)
@@ -147,7 +147,7 @@ case class Accounts @Inject()(
                 val profileData = Map(UserProfileF.NAME -> data.name)
                 for {
                   profile <- userDataApi.createNewUserProfile[UserProfile](
-                    data = profileData, groups = globalConfig.defaultPortalGroups)
+                    data = profileData, groups = conf.defaultPortalGroups)
                   account <- accounts.create(Account(
                     id = profile.id,
                     email = data.email.toLowerCase,
@@ -206,12 +206,12 @@ case class Accounts @Inject()(
               implicit val apiUser: AnonymousUser.type = AnonymousUser
               for {
                 up <- userDataApi.createNewUserProfile[UserProfile](
-                  data, groups = globalConfig.defaultPortalGroups)
+                  data, groups = conf.defaultPortalGroups)
                 account <- accounts.create(Account(
                   id = up.id,
                   email = email.toLowerCase,
                   verified = true,
-                  allowMessaging = globalConfig.canMessage
+                  allowMessaging = conf.canMessage
                 ))
                 _ <- accounts.openId.addAssociation(account.id, info.id)
                 r <- doLogin(account)
@@ -287,7 +287,7 @@ case class Accounts @Inject()(
       boundForm.fold(
         error => immediate(badForm(error)),
         openidUrl => openId
-          .redirectURL(openidUrl, accountRoutes.openIDCallback().absoluteURL(globalConfig.https),
+          .redirectURL(openidUrl, accountRoutes.openIDCallback().absoluteURL(conf.https),
             openIDAttributes)
           .map(url => Redirect(url))
           .recover {
@@ -366,8 +366,8 @@ case class Accounts @Inject()(
         val sessionKey = "sid"
         val sessionId = request.session.get(sessionKey).getOrElse(UUID.randomUUID().toString)
         val handlerUrl: String =
-          if (isLogin) accountRoutes.oauth2Login(providerId).absoluteURL(globalConfig.https)
-          else accountRoutes.oauth2Register(providerId).absoluteURL(globalConfig.https)
+          if (isLogin) accountRoutes.oauth2Login(providerId).absoluteURL(conf.https)
+          else accountRoutes.oauth2Register(providerId).absoluteURL(conf.https)
 
         code match {
 
@@ -561,12 +561,12 @@ case class Accounts @Inject()(
       .collect{ case (k, Some(v)) if !v.trim.isEmpty => k -> v }
     for {
       profile <- userDataApi.createNewUserProfile[UserProfile](
-        profileData, groups = globalConfig.defaultPortalGroups)
+        profileData, groups = conf.defaultPortalGroups)
       account <- accounts.create(Account(
         id = profile.id,
         email = userData.email.toLowerCase,
         verified = true,
-        allowMessaging = globalConfig.canMessage
+        allowMessaging = conf.canMessage
       ))
     } yield account
   }

@@ -1,4 +1,4 @@
-@(item: Link)(implicit req: RequestHeader, userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Link)(implicit req: RequestHeader, userOpt: Option[UserProfile], conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 
 <div class="search-item" id="@item.id" dir="auto">

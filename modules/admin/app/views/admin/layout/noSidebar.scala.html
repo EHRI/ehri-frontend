@@ -1,4 +1,4 @@
-@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(title: Any, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminLayout(title, scripts, styles) {
     @if(breadcrumbs.body.trim.isEmpty) {

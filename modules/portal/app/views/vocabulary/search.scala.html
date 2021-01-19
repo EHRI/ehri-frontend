@@ -1,4 +1,4 @@
-@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, flash: Flash)
+@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.itemSearchLayout(item, result) {
 } {

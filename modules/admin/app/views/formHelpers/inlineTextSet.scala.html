@@ -1,4 +1,4 @@
-@(desc: Field, label: String, rows: Int = 2)(implicit fieldPrefix: String, messages: Messages, md: views.MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: Field, label: String, rows: Int = 2)(implicit fieldPrefix: String, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 <div class="inline-formset form-group clearfix" data-prefix="@label">
     <!-- Template for adding inline date forms via JS -->

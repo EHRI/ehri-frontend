@@ -1,4 +1,4 @@
-@(item: models.base.Hierarchical[_ <: models.base.Model], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: models.base.Hierarchical[_ <: models.base.Model], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <div class="virtual-collection-header info-bar">
     @path.headOption.map { vc =>

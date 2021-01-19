@@ -1,4 +1,4 @@
-@(page: utils.Page[Country], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(page: utils.Page[Country], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebarWithType(Messages("country.list"), defines.EntityType.Country) {
 

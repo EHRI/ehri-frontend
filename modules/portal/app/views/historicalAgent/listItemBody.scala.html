@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, globalConfig: global.GlobalConfig, md: views.MarkdownRenderer)
+@(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit req: RequestHeader, messages: Messages, conf: AppConfig, md: MarkdownRenderer)
 
 @item.data.descriptions.headOption.map { desc =>
     @common.otherNameList(desc.parallelFormsOfName ++ desc.otherFormsOfName, highlighter)

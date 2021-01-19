@@ -1,4 +1,4 @@
-package utils
+package cookies
 
 import play.api.data.Form
 
@@ -23,8 +23,8 @@ object SessionPrefs {
   val DEFAULT_LANGUAGES = "defaultLanguages"
   val RECENT_ITEMS = "recentItems"
 
-  import play.api.libs.json._
   import play.api.libs.functional.syntax._
+  import play.api.libs.json._
 
   implicit val reads: Reads[SessionPrefs] = (
     (__ \ SHOW_USER_CONTENT).readNullable[Boolean].map(_.getOrElse(true)) and

@@ -1,4 +1,4 @@
-@(title: Any)(content: Html)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(title: Any)(content: Html)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -51,8 +51,8 @@
                 <tr>
                     <td width="12%" valign="top"></td>
                     <td width="76%" valign="middle">
-                        <a href="@controllers.portal.routes.Portal.index.absoluteURL(secure = globalConfig.https)" title="European Holocaust Research Infrastructure">
-                            <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo-small.png").absoluteURL(secure = globalConfig.https)" alt="EHRI" class="image_fix" />
+                        <a href="@controllers.portal.routes.Portal.index.absoluteURL(secure = conf.https)" title="European Holocaust Research Infrastructure">
+                            <img src="@controllers.portal.routes.PortalAssets.versioned("img/text-logo-small.png").absoluteURL(secure = conf.https)" alt="EHRI" class="image_fix" />
                         </a>
                     </td>
                     <td width="12%" valign="top"></td>

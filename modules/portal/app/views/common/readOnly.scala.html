@@ -1,6 +1,6 @@
-@()(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@()(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@if(globalConfig.readOnly) {
+@if(conf.readOnly) {
     <div class="portal-message readonly-message">
         @Messages("errors.readonly")
     </div>

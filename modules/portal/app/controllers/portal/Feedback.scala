@@ -74,7 +74,7 @@ case class Feedback @Inject()(
   }
 
   def feedback: Action[AnyContent] = OptionalUserAction { implicit request =>
-    if (globalConfig.showFeedback) Ok(views.html.feedback.create(models.Feedback.form))
+    if (conf.showFeedback) Ok(views.html.feedback.create(models.Feedback.form))
     else Redirect(controllers.portal.routes.Portal.index())
       .flashing("warning" -> "feedback.disabled")
   }

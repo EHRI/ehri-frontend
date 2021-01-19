@@ -1,4 +1,4 @@
-@(g: Guide, page:GuidePage, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(g: Guide, page:GuidePage, f: Form[models.GuidePage], pages: List[GuidePage], guides: List[Guide], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @breadcrumbs = {
     <li><a href="@controllers.guides.routes.Guides.list()">@Messages("guide.heading")</a></li>

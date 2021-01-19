@@ -1,4 +1,4 @@
-@(annotation: Annotation, editable: Boolean, cls: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(annotation: Annotation, editable: Boolean, cls: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <li class="annotation @{cls} @{if(annotation.isPromoted) "promoted"}" id="@annotation.id">
     @Html(md.renderUntrustedMarkdown(annotation.data.body))

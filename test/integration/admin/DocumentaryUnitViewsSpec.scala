@@ -1,6 +1,6 @@
 package integration.admin
 
-import controllers.base.SessionPreferences
+import cookies.SessionPreferences
 import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models._

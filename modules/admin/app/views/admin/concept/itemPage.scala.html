@@ -1,4 +1,4 @@
-@(item: Concept, scripts: Html = Html(""), styles: Html = Html(""), sidebar: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(item: Concept, scripts: Html = Html(""), styles: Html = Html(""), sidebar: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebarWithType(item.data.identifier, item.isA, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
     @html

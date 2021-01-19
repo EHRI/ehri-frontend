@@ -2,12 +2,13 @@ package controllers.portal
 
 import java.util.IllformedLocaleException
 import java.util.concurrent.TimeUnit
-
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
+import cookies.SessionPrefs
 import defines.EntityType
 import forms.AccountForms
+
 import javax.inject._
 import models._
 import models.base.Model

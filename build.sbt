@@ -240,7 +240,9 @@ val webAppSettings = Seq(
   templateImports in Compile ++= Seq(
     "models.base._",
     "acl._",
-    "defines._"
+    "defines._",
+    "config._",
+    "cookies._",
   ),
 
   // Auto-import EntityType enum into routes

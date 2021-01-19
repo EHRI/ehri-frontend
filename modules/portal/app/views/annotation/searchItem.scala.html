@@ -1,4 +1,4 @@
-@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
 @item.target.map { src =>
     @views.html.common.searchItemOutlineWithActions(src.id, src.isA.toString, footer = views.html.annotation.listItemFooter(item, highlighter)) {

@@ -1,4 +1,4 @@
-@(item: SystemEvent)(implicit globalConfig: global.GlobalConfig, messages: Messages)
+@(item: SystemEvent)(implicit conf: AppConfig, messages: Messages)
 
 <li class="list-item event-item">
     @views.html.admin.systemEvent.eventItem(item)

@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, context: Option[models.base.Holder[_]] = None)
+@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, context: Option[models.base.Holder[_]] = None)
 
 <ol class="search-result-list">
     @result.page.map { case(item, hit) =>

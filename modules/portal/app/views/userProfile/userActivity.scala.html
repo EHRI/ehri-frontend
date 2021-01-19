@@ -1,4 +1,4 @@
-@(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 

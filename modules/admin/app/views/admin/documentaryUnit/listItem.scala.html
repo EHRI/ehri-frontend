@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None)
 
 @common.search.searchItemOutline(item) {
     @item.data.primaryDescription(descriptionId).map { desc =>

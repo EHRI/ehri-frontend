@@ -1,4 +1,4 @@
-@(accessorOpt: Option[models.base.Accessor], perm: PermissionGrant, showRevoke: Boolean = false)(implicit req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(accessorOpt: Option[models.base.Accessor], perm: PermissionGrant, showRevoke: Boolean = false)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
 
 <li class="list-item list-unstyled">
         <h4>

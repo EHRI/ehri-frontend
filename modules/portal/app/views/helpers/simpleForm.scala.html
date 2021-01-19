@@ -1,4 +1,4 @@
-@(title: String, action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(title: String, action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages(title)) {
     @views.html.common.mainContent {

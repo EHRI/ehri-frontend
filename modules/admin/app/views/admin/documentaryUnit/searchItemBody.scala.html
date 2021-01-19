@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import org.apache.commons.lang3.StringUtils
 

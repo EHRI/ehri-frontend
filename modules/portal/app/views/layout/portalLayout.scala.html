@@ -1,16 +1,16 @@
-@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash)
+@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 <!DOCTYPE html>
 
 @fsstyles = {
     @styles
-    @if(globalConfig.isEmbedMode) {
+    @if(conf.isEmbedMode) {
         <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/fullscreen.css")">
     }
 }
 
 <html lang="@messages.lang.code">
-    @defining(globalConfig.isEmbedMode) { fullscreen =>
+    @defining(conf.isEmbedMode) { fullscreen =>
         @views.html.common.head(title, styles = fsstyles, meta = meta)
         <body class="@cls @(if(fullscreen) "fullscreen")">
             @views.html.common.preambleScripts()
@@ -19,7 +19,7 @@
                 @views.html.common.message()
                 @views.html.common.ipFilter()
                 <header id="header" class="navigation">
-                    @views.html.common.accountHeader(showAdminLink = true, showFeedback = globalConfig.showFeedback, prefsOpt = Some(prefs))
+                    @views.html.common.accountHeader(showAdminLink = true, showFeedback = conf.showFeedback, prefsOpt = Some(prefs))
                     @views.html.common.primaryHeader()
                 </header>
                 @views.html.common.flash(flash)
@@ -30,7 +30,7 @@
                 @views.html.dataPolicyModal()
             } else {
                 <footer id="fullscreen-footer" class="footer sticky">
-                    <a id="open-in-portal" class="external" target="_blank" href="@globalConfig.absolutePath">@Messages("fullscreen.viewOnPortal")</a>
+                    <a id="open-in-portal" class="external" target="_blank" href="@conf.absolutePath">@Messages("fullscreen.viewOnPortal")</a>
                 </footer>
             }
             @views.html.common.postambleScripts(extra = scripts)

@@ -1,10 +1,9 @@
 package data.markdown
 
 import javax.inject.Inject
-
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
-import views.MarkdownRenderer
+import views.html.MarkdownRenderer
 
 
 case class SanitisingMarkdownRenderer @Inject() (rawMarkdownRenderer: RawMarkdownRenderer) extends MarkdownRenderer {

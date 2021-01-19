@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 
 @searchParams = {
@@ -135,7 +135,7 @@
             <br/>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("global-search-curl") {
-                curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(globalConfig.https)"
+                curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(conf.https)"
             }
         </div>
 
@@ -162,7 +162,7 @@
             <br/>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("retrieve-item-curl") {
-                curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(globalConfig.https)"
+                curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(conf.https)"
             }
             <hr/>
         </div>
@@ -193,7 +193,7 @@
             <br/>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("item-search-curl") {
-                curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(globalConfig.https)"
+                curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(conf.https)"
             }
             <hr/>
         </div>
@@ -291,7 +291,7 @@
             a search of EHRI archival descriptions, e.g:</p>
 
         <pre>python3 scopecontent.py "@java.net.URLDecoder.decode(controllers.api.v1.routes.ApiV1.search(`type` = Seq(models.api.v1.ApiEntity.DocumentaryUnit),
-            params = services.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(globalConfig.https), "UTF-8")"
+            params = services.search.SearchParams(query = Some("title:Amsterdam"))).absoluteURL(conf.https), "UTF-8")"
         </pre>
 
         <p>This will run a search for documentary unit items with &quot;Amsterdam&quot; in the title and

@@ -1,4 +1,4 @@
-@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig)
+@(item: Annotation, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
 <ul class="search-item-details">
     @for(field <- item.data.field; target <- item.target) {

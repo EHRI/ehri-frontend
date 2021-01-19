@@ -1,4 +1,4 @@
-@(item: models.base.Model, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages)
+@(item: models.base.Model, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @defining(links.filter(_.bodies.isEmpty)) { annotationLinks =>
     @if(annotationLinks.nonEmpty) {

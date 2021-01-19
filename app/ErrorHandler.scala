@@ -1,8 +1,9 @@
 import auth.handler.AuthHandler
+import config.AppConfig
 import controllers.api.v1.ApiV1
-import controllers.base.SessionPreferences
 import controllers.renderError
-import global.GlobalConfig
+import cookies.{SessionPreferences, SessionPrefs}
+
 import javax.inject.{Inject, Provider}
 import models.UserProfile
 import play.api.http.DefaultHttpErrorHandler
@@ -14,7 +15,6 @@ import play.api.{Configuration, Environment, OptionalSourceMapper, UsefulExcepti
 import services.ServiceOffline
 import services.data._
 import services.redirects.MovedPageLookup
-import utils.SessionPrefs
 import views.html.errors._
 
 import scala.concurrent.Future.{successful => immediate}
@@ -30,7 +30,7 @@ class ErrorHandler @Inject() (
   langs: Langs,
   authHandler: AuthHandler,
   dataApi: DataApi
-)(implicit val messagesApi: MessagesApi, globalConfig: GlobalConfig, executionContext: ExecutionContext)
+)(implicit val messagesApi: MessagesApi, conf: AppConfig, executionContext: ExecutionContext)
   extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
 with I18nSupport
 with SessionPreferences[SessionPrefs] {

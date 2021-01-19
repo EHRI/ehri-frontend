@@ -1,4 +1,4 @@
-@(f: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, flash: Flash, fieldConstructor: helper.FieldConstructor)
+@(f: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash, fieldConstructor: helper.FieldConstructor)
 
 @userOpt.map { user =>
     @helper.form(action = action, 'role -> "form", 'enctype -> "multipart/form-data") {

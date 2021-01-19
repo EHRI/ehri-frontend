@@ -1,4 +1,4 @@
-@(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
+@(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
 @helper.form(action = action, 'role -> "form") {
     @formHelpers.csrfToken()

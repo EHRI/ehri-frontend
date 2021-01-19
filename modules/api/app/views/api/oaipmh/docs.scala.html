@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @import play.api.libs.json.Json
 
@@ -17,7 +17,7 @@
     <section id="api-usage">
         <h2>Usage</h2>
 
-        <p>EHRI's OAI-PMH endpoint is located at <code>@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)</code>.</p>
+        <p>EHRI's OAI-PMH endpoint is located at <code>@controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(conf.https)</code>.</p>
 
         <h3>Verbs</h3>
 
@@ -119,7 +119,7 @@
             <br/>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("api-usage-curl") {
-                curl @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(globalConfig.https)?verb=Identify
+                curl @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(conf.https)?verb=Identify
             }
         </div>
 

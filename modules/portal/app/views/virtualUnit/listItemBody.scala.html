@@ -1,4 +1,4 @@
-@(item: VirtualUnit, path: Seq[models.base.Model], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, descriptionId: Option[String] = None)
+@(item: VirtualUnit, path: Seq[models.base.Model], showAuthor: Boolean = true, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None)
 
 @item.data.primaryDescription(descriptionId).map { desc =>
     <ul class="search-item-details">

@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: utils.SessionPrefs, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: DocumentaryUnit, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[models.base.Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("documentaryUnit") { implicit fieldPrefix =>

@@ -4,14 +4,14 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
-import global.{GlobalConfig, ItemLifecycle}
+import config.{AppConfig, ItemLifecycle}
 import play.api.Configuration
 import play.api.cache.{Cached, SyncCacheApi}
 import services.accounts.AccountManager
 import services.data.DataApi
 import services.redirects.MovedPageLookup
 import services.search.{SearchEngine, SearchItemResolver}
-import views.MarkdownRenderer
+import views.html.MarkdownRenderer
 
 
 /**
@@ -26,7 +26,7 @@ trait AppComponents {
   def cacheApi: SyncCacheApi
   def statusCache: Cached
   def config: Configuration
-  def globalConfig: GlobalConfig
+  def conf: AppConfig
   def markdown: MarkdownRenderer
   def pageRelocator: MovedPageLookup
   def searchEngine: SearchEngine
@@ -40,7 +40,7 @@ case class DefaultAppComponents @Inject ()(
   cacheApi: SyncCacheApi,
   config: Configuration,
   dataApi: DataApi,
-  globalConfig: GlobalConfig,
+  conf: AppConfig,
   markdown: MarkdownRenderer,
   materializer: Materializer,
   pageRelocator: MovedPageLookup,

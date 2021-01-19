@@ -1,4 +1,4 @@
-@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(navItems: Html = Html(""))(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(title: String, scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(navItems: Html = Html(""))(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @includeScripts = {
     @scripts

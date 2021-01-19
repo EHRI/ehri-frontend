@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: Seq[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit userOpt: Option[UserProfile], globalConfig: global.GlobalConfig, request: RequestHeader, messages: Messages, md: views.MarkdownRenderer)
+@(guide: Guide, page: GuidePage, pages: Seq[GuidePage], scripts: Html = Html(""), styles: Html = Html(""), optionalContent: Option[Html] = None, otherTitle: Option[String] = None)(content: Html)(implicit userOpt: Option[UserProfile], conf: AppConfig, request: RequestHeader, messages: Messages, md: MarkdownRenderer)
 
 <!DOCTYPE html>
 

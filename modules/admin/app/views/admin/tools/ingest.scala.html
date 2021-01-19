@@ -1,4 +1,4 @@
-@(scope: models.base.Model, fonds: Option[models.base.Model], form: Form[services.ingest.IngestParams], dataType: services.ingest.IngestService.IngestDataType.Value, action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(scope: models.base.Model, fonds: Option[models.base.Model], form: Form[services.ingest.IngestParams], dataType: services.ingest.IngestService.IngestDataType.Value, action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import services.ingest.IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

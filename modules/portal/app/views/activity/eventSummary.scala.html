@@ -1,4 +1,4 @@
-@(summary: EventSummary)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(summary: EventSummary)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.activity.eventContainer {
     @summary.user.collect {

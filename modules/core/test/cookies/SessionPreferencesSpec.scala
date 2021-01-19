@@ -1,13 +1,12 @@
-package controllers.base
-
-import javax.inject.Inject
+package cookies
 
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{Format, Json}
 import play.api.mvc._
 import play.api.test.{FakeRequest, Injecting, PlaySpecification, WithApplication}
 
+import javax.inject.Inject
 import scala.concurrent.Future
-import play.api.libs.json.{Format, Json}
 
 case class TestPrefs(
   foo: String,

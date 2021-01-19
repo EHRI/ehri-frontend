@@ -1,4 +1,4 @@
-@(item: models.base.Model, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit globalConfig: global.GlobalConfig, req: RequestHeader, messages: Messages)
+@(item: models.base.Model, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
 
 @* This just delegates to the anchored link (which no fragment)
    because we can't use a default argument with a varargs method. *@

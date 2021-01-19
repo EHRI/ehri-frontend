@@ -1,4 +1,4 @@
-@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty)(implicit globalConfig: global.GlobalConfig, messages: Messages)
+@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty)(implicit conf: AppConfig, messages: Messages)
 
 <head>
     <title>EHRI - @title</title>
@@ -30,5 +30,5 @@
     <![endif]-->
 
     @styles
-    @globalConfig.extraHeadContent.map(c => Html(c))
+    @conf.extraHeadContent.map(c => Html(c))
 </head>

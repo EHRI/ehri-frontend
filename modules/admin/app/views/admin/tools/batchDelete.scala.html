@@ -1,4 +1,4 @@
-@(f: Form[BatchDeleteTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(f: Form[BatchDeleteTask], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import BatchDeleteTask.{VERSION, SCOPE, COMMIT, LOG_MSG, IDS}
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

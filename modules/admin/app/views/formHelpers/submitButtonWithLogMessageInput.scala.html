@@ -1,8 +1,8 @@
-@(buttonText: String, defaultLogMessage: String = "", cancel: Option[Call] = None)(implicit extra: Html = Html(""), globalConfig: global.GlobalConfig, messages: Messages)
+@(buttonText: String, defaultLogMessage: String = "", cancel: Option[Call] = None)(implicit extra: Html = Html(""), conf: AppConfig, messages: Messages)
 
 <div class="form-actions">
     <label class="sr-only" for="log-message">@Messages("forms.logMessage")</label>
-    <input maxlength="@globalConfig.logMessageMaxLength"
+    <input maxlength="@conf.logMessageMaxLength"
             class="form-control" type="text" name="logMessage"
             placeholder="@Messages("forms.logMessagePlaceholder")" id="log-message" value="@defaultLogMessage" />
 

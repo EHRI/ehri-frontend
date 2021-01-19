@@ -1,4 +1,4 @@
-@()(implicit userOpt: Option[UserProfile], request: RequestHeader, globalConfig: global.GlobalConfig, sessionPrefs: utils.SessionPrefs, flash: Flash, messages: Messages)
+@()(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages)
 
 @views.html.layout.textLayout(Messages("dataPolicy")) {
 
@@ -42,7 +42,7 @@
         <li>@Messages("privacy.cookies.3.a")</li>
         <li>@Messages("privacy.cookies.3.b")</li>
     </ol>
-    @defining(controllers.portal.routes.Portal.index().absoluteURL(globalConfig.https)) { siteUrl =>
+    @defining(controllers.portal.routes.Portal.index().absoluteURL(conf.https)) { siteUrl =>
         <p>@Html(Messages(
             "privacy.cookies.4",
             s"<a href='$siteUrl'>$siteUrl</a>"
@@ -79,15 +79,15 @@
         <li>@Messages("privacy.rights.1.f")</li>
     </ul>
 
-    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("?")) { email =>
+    @defining(conf.configuration.getOptional[String]("ehri.portal.emails.privacy").getOrElse("?")) { email =>
         <p>@Html(Messages(
             "privacy.rights.2",
             s"<a href='mailto:$email'>$email</a>"
         ))</p>
     }
-    @defining(globalConfig.configuration.getOptional[String]("ehri.portal.contact.dataProtection.name").getOrElse("?")) { name =>
-        @defining(globalConfig.configuration.getOptional[String]("ehri.portal.contact.dataProtection.phone").getOrElse("?")) { phone =>
-            @defining(globalConfig.configuration.getOptional[String]("ehri.portal.emails.dataProtection").getOrElse("?")) { email =>
+    @defining(conf.configuration.getOptional[String]("ehri.portal.contact.dataProtection.name").getOrElse("?")) { name =>
+        @defining(conf.configuration.getOptional[String]("ehri.portal.contact.dataProtection.phone").getOrElse("?")) { phone =>
+            @defining(conf.configuration.getOptional[String]("ehri.portal.emails.dataProtection").getOrElse("?")) { email =>
                 <p>@Messages("privacy.rights.2.1")</p>
                 <p>@Messages("privacy.rights.2.2", name)</p>
                 <p>@Html(Messages("privacy.rights.2.3", phone, s"<a href='mailto:$email'>$email</a>"))</p>

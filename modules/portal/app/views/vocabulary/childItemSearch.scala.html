@@ -1,4 +1,4 @@
-@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(item: Vocabulary, result: services.search.SearchResult[(Concept,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @if(item.hasChildren) {
     <section id="@item.id-child-item-search" class="child-item-search">

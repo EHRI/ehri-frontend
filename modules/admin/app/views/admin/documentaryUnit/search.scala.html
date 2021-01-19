@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer, prefs: utils.SessionPrefs, flash: Flash)
+@(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("documentaryUnit.search"), result, action) {
     @views.html.admin.search.searchItemList(result)

@@ -9,7 +9,7 @@ import com.google.inject.name.Names
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
-import global.{AppGlobalConfig, GlobalConfig, GlobalEventHandler, _}
+import config.{AppConfig, GlobalEventHandler, _}
 
 import javax.inject.{Inject, Provider}
 import models.{GuideService, SqlGuideService}
@@ -25,7 +25,7 @@ import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import services.storage.{FileStorage, S3CompatibleFileStorage}
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
-import views.MarkdownRenderer
+import views.html.MarkdownRenderer
 
 import scala.concurrent.ExecutionContext
 
@@ -56,9 +56,9 @@ private class DamStorageProvider @Inject()(config: play.api.Configuration)(impli
 
 class Module extends AbstractModule {
   override def configure(): Unit = {
+    bind(classOf[AppConfig])
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
     bind(classOf[AccountManager]).to(classOf[SqlAccountManager])
-    bind(classOf[GlobalConfig]).to(classOf[AppGlobalConfig])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
     bind(classOf[ResponseParser]).to(classOf[SolrJsonResponseParser])
     bind(classOf[QueryBuilder]).to(classOf[SolrQueryBuilder])

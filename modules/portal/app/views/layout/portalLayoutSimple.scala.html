@@ -1,4 +1,4 @@
-@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, flash: Flash, messages: Messages)
+@(title: Any, itemClass: String = "", scripts: Html = Html(""), styles: Html = Html(""))(content: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages)
 
 <!DOCTYPE html>
 
@@ -9,7 +9,7 @@
         @views.html.common.message()
         @views.html.common.preambleScripts()
         <header id="header" class="navigation">
-            @views.html.common.accountHeader(showAdminLink = true, showFeedback = globalConfig.showFeedback)
+            @views.html.common.accountHeader(showAdminLink = true, showFeedback = conf.showFeedback)
             @views.html.common.primaryHeader()
         </header>
         @views.html.common.flash(flash)

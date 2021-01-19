@@ -1,4 +1,4 @@
-@(event: SystemEvent)(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(event: SystemEvent)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @for(et <- event.effectiveType; user <- event.actioner; subject <- event.effectiveSubject; count <- event.childCount) {
     @views.html.activity.eventContainer {

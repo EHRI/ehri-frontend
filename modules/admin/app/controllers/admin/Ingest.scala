@@ -80,7 +80,7 @@ case class Ingest @Inject()(
 
             immediate {
               if (isAjax) Ok(Json.obj(
-                "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(globalConfig.https),
+                "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(conf.https),
                 "jobId" -> jobId
               ))
               else Redirect(controllers.admin.routes.Ingest.ingestMonitor(jobId))

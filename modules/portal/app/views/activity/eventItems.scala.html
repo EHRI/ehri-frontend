@@ -1,4 +1,4 @@
-@(events: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, md: views.MarkdownRenderer)
+@(events: Iterable[Seq[SystemEvent]])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @for(eventSeq <- events) {
     @if(eventSeq.size == 1) {

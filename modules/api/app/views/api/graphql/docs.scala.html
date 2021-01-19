@@ -1,4 +1,4 @@
-@(query: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(query: String)(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @import play.api.libs.json.Json
 
@@ -50,7 +50,7 @@
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("api-usage-curl") {
                 curl --header Content-type:application/json \
-                    @controllers.api.graphql.routes.GraphQL.query().absoluteURL(globalConfig.https) \
+                    @controllers.api.graphql.routes.GraphQL.query().absoluteURL(conf.https) \
                     --data-binary '@Html(org.jsoup.Jsoup.clean(Json.stringify(Json.obj("query" -> query)), org.jsoup.safety.Whitelist.simpleText()))'
             }
         </div>
@@ -118,7 +118,7 @@
         <p>You can copy the code to a file called <code>history.py</code> and run it with URL for
             the EHRI GraphQL API, e.g:</p>
 
-        <pre>python3 history.py "@controllers.api.graphql.routes.GraphQL.query().absoluteURL(globalConfig.https)"</pre>
+        <pre>python3 history.py "@controllers.api.graphql.routes.GraphQL.query().absoluteURL(conf.https)"</pre>
 
         <p>This will run a query for the history field of repository descriptions, and download
             and convert the data to TSV in pages of 50 items at a time.</p>

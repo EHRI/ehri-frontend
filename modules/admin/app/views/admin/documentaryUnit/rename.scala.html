@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, f: play.api.data.Form[String], action: Call, collisions: Seq[(String, String)] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, md: views.MarkdownRenderer, globalConfig: global.GlobalConfig, messages: Messages, prefs: utils.SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: play.api.data.Form[String], action: Call, collisions: Seq[(String, String)] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
