@@ -22,8 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class DataApiService @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiServiceHandle =
-    DataApiServiceHandle(eventHandler)(
-      cache: SyncCacheApi, config, apiUser, executionContext, ws)
+    DataApiServiceHandle(eventHandler)(cache: SyncCacheApi, config, apiUser, executionContext, ws)
 }
 
 case class DataApiServiceHandle(eventHandler: EventHandler)(

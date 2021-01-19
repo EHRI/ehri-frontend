@@ -2,7 +2,9 @@ package defines
 
 import eu.ehri.project.definitions.Entities
 import play.api.libs.json.Format
+import play.api.mvc.{PathBindable, QueryStringBindable}
 import utils.EnumUtils
+import utils.binders.{bindableEnum, queryStringBinder}
 
 object ContentTypes extends Enumeration {
   type Type = Value
@@ -21,4 +23,6 @@ object ContentTypes extends Enumeration {
   val VirtualUnit = Value(Entities.VIRTUAL_UNIT)
 
   implicit val _format: Format[ContentTypes.Value] = EnumUtils.enumFormat(this)
+  implicit val _pathBinder: PathBindable[ContentTypes.Value] = bindableEnum(ContentTypes)
+  implicit val _queryBinder: QueryStringBindable[ContentTypes.Value] = queryStringBinder(ContentTypes)
 }

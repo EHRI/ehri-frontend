@@ -1,60 +1,12 @@
 package utils
 
+import defines.{EntityType, EventType}
+import play.api.mvc.QueryStringBindable
+import services.data.Constants._
+import utils.binders._
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
-import services.data.Constants._
-import defines.{EntityType, EventType}
-import utils.SystemEventParams.{Aggregation, ShowType}
-
-object Ranged {
-  def streamHeader: (String, String) = STREAM_HEADER_NAME -> true.toString
-}
-
-trait Ranged {
-  def offset: Int
-
-  def limit: Int
-
-  def hasLimit: Boolean = limit >= 0
-
-  def queryParams: Seq[(String, String)] =
-    Seq(OFFSET_PARAM -> offset.toString, LIMIT_PARAM -> limit.toString)
-
-  def headers: Seq[(String, String)] =
-    if (hasLimit) Seq.empty else Seq(Ranged.streamHeader)
-}
-
-object RangeParams {
-  def empty: RangeParams = RangeParams()
-}
-
-case class RangeParams(offset: Int = 0, limit: Int = DEFAULT_LIST_LIMIT) extends Ranged {
-  def withoutLimit: RangeParams = copy(limit = -1)
-
-  def next: RangeParams = if (hasLimit) copy(offset + limit, limit) else this
-
-  def prev: RangeParams = if (hasLimit) copy(0.max(offset - limit), limit) else this
-}
-
-
-object PageParams {
-  def empty: PageParams = PageParams()
-}
-
-/**
-  * Class for handling page parameter data
-  */
-case class PageParams(page: Int = 1, limit: Int = DEFAULT_LIST_LIMIT) extends Ranged {
-  def withoutLimit: PageParams = copy(limit = -1)
-
-  def offset: Int = (page - 1) * limit.max(0)
-
-  def next: PageParams = copy(page + 1)
-
-  def prev: PageParams = copy(1.max(page - 1))
-}
-
 
 case class SystemEventParams(
   users: Seq[String] = Nil,
@@ -62,8 +14,8 @@ case class SystemEventParams(
   itemTypes: Seq[EntityType.Value] = Nil,
   from: Option[LocalDateTime] = None,
   to: Option[LocalDateTime] = None,
-  show: Option[ShowType.Value] = None,
-  aggregation: Option[Aggregation.Value] = None) {
+  show: Option[SystemEventParams.ShowType.Value] = None,
+  aggregation: Option[SystemEventParams.Aggregation.Value] = None) {
 
   import utils.SystemEventParams._
 
@@ -112,19 +64,32 @@ object SystemEventParams {
       AGGREGATION -> optional(enumMapping(Aggregation))
     )(SystemEventParams.apply)(SystemEventParams.unapply)
   )
+
+  implicit val _queryBinder: QueryStringBindable[SystemEventParams] =
+    new QueryStringBindable[SystemEventParams] with NamespaceExtractor {
+
+      private implicit val aggBinder: QueryStringBindable[SystemEventParams.Aggregation.Value] = queryStringBinder(Aggregation)
+      private implicit val showBinder: QueryStringBindable[SystemEventParams.ShowType.Value] = queryStringBinder(ShowType)
+
+      override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SystemEventParams]] = {
+        val namespace = ns(key)
+        Some(Right(SystemEventParams(
+          bindOr(namespace + USERS, params, Seq.empty[String]),
+          bindOr(namespace + EVENT_TYPE, params, Seq.empty[EventType.Value])(
+            tolerantSeqBinder(queryStringBinder(EventType))),
+          bindOr(namespace + ITEM_TYPE, params, Seq.empty[EntityType.Value])(
+            tolerantSeqBinder(queryStringBinder(EntityType))),
+          bindOr(namespace + FROM, params, Option.empty[LocalDateTime])(optionalDateTimeQueryBinder),
+          bindOr(namespace + TO, params, Option.empty[LocalDateTime])(optionalDateTimeQueryBinder),
+          bindOr(namespace + SHOW, params, Option.empty[ShowType.Value]),
+          bindOr(namespace + AGGREGATION, params, Option.empty[Aggregation.Value])
+        )))
+      }
+
+      override def unbind(key: String, value: SystemEventParams): String =
+        utils.http.joinQueryString(value.toSeq(ns(key)))
+    }
 }
 
-// Sparse field filters, used by the search API
-case class FieldFilter(
-  et: EntityType.Value,
-  fields: Seq[String] = Seq.empty
-) {
-  def toSeq(ns: String = ""): Seq[(String, String)] =
-    Seq(s"$ns${FieldFilter.FIELDS}[$et]" -> fields.mkString(","))
-}
-
-object FieldFilter {
-  val FIELDS = "fields"
-}
 
 
