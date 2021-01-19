@@ -4,7 +4,6 @@ import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.stream.scaladsl.{JsonFraming, Source}
 import akka.util.ByteString
 import defines.{ContentTypes, EntityType}
-import javax.inject.Inject
 import play.api.cache.SyncCacheApi
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
 import play.api.libs.json._
@@ -12,9 +11,10 @@ import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
 import services._
 import services.data.Constants._
+import services.data.caching.FutureCache
 import utils._
-import utils.caching.FutureCache
 
+import javax.inject.Inject
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}

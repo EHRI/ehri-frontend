@@ -44,7 +44,7 @@ object JsonApiV1 {
       new DocumentaryUnitDescriptionAttrs(
         localId = d.localId,
         languageCode = d.languageCode,
-        language = utils.i18n.languageCodeToName(d.languageCode),
+        language = i18n.languageCodeToName(d.languageCode),
         name = d.name,
         parallelFormsOfName = d.identity.parallelFormsOfName,
         extentAndMedium = d.identity.extentAndMedium,
@@ -55,8 +55,8 @@ object JsonApiV1 {
         scopeAndContent = d.content.scopeAndContent,
         appraisal = d.content.appraisal,
         systemOfArrangement = d.content.systemOfArrangement,
-        languageOfMaterials = d.conditions.languageOfMaterials.map(utils.i18n.languageCodeToName),
-        scriptOfMaterials = d.conditions.scriptOfMaterials.map(utils.i18n.scriptCodeToName)
+        languageOfMaterials = d.conditions.languageOfMaterials.map(i18n.languageCodeToName),
+        scriptOfMaterials = d.conditions.scriptOfMaterials.map(i18n.scriptCodeToName)
       )
   }
 
@@ -102,7 +102,7 @@ object JsonApiV1 {
       a.city,
       a.region,
       a.postalCode,
-      a.countryCode.map(utils.i18n.countryCodeToName),
+      a.countryCode.map(i18n.countryCodeToName),
       a.countryCode,
       a.email,
       a.telephone,

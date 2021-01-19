@@ -1,4 +1,4 @@
-package utils.markdown
+package data.markdown
 
 /**
   * Markdown renderer which does no sanitisation of HTML output.

@@ -18,7 +18,7 @@ import play.api.mvc._
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._
-import utils.caching.FutureCache
+import services.data.caching.FutureCache
 import views.html.errors.pageNotFound
 
 import scala.concurrent.Future

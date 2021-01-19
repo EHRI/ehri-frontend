@@ -1,4 +1,4 @@
-package utils.i18n
+package i18n
 
 import play.api.test.PlaySpecification
 

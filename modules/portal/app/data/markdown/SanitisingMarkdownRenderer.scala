@@ -1,4 +1,4 @@
-package utils.markdown
+package data.markdown
 
 import javax.inject.Inject
 

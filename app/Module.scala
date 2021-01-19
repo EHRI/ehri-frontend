@@ -24,7 +24,7 @@ import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
 import services.storage.{FileStorage, S3CompatibleFileStorage}
-import utils.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
+import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.MarkdownRenderer
 
 import scala.concurrent.ExecutionContext

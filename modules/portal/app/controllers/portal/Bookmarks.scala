@@ -37,7 +37,7 @@ case class Bookmarks @Inject()(
     s"${user.id}-bookmarks"
 
   private def bookmarkLang(implicit messages: Messages): String =
-    utils.i18n.lang2to3lookup.getOrElse(messages.lang.language, utils.i18n.defaultLang)
+    i18n.lang2to3lookup.getOrElse(messages.lang.language, i18n.defaultLang)
 
   /**
     * Implicit helper to transform an in-scope `ProfileRequest` (of any type)

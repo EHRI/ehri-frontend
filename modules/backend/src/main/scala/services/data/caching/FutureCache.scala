@@ -1,4 +1,4 @@
-package utils.caching
+package services.data.caching
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
