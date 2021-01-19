@@ -1,7 +1,6 @@
 package controllers.api.v1
 
 import java.util.concurrent.TimeUnit
-
 import javax.inject.{Inject, Singleton}
 import auth.handler.AuthHandler
 import services.cypher.CypherService
@@ -9,7 +8,8 @@ import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import defines.EntityType
-import config.{AppConfig, ItemLifecycle}
+import config.AppConfig
+import lifecycle.ItemLifecycle
 import models._
 import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._

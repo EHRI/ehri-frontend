@@ -6,27 +6,27 @@ import auth.oauth2.OAuth2Config
 import auth.oauth2.providers._
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import config.AppConfig
+import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
-import config.{AppConfig, GlobalEventHandler, _}
-
-import javax.inject.{Inject, Provider}
+import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
 import models.{GuideService, SqlGuideService}
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
-import services.data.{GidSearchResolver, _}
+import services.data._
 import services.feedback.{FeedbackService, SqlFeedbackService}
-import services.harvesting.{HarvestEventService, OaiPmhClient, ResourceSyncClient, SqlHarvestEventService, WSOaiPmhClient, WSResourceSyncClient}
+import services.harvesting._
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.ingest.{EadValidator, IngestService, RelaxNGEadValidator, WSIngestService}
 import services.oauth2.{OAuth2Service, WebOAuth2Service}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
-import services.search.{AkkaStreamsIndexMediator, SearchEngine, SearchIndexMediator, SearchItemResolver}
+import services.search._
 import services.storage.{FileStorage, S3CompatibleFileStorage}
-import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import views.html.MarkdownRenderer
 
+import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
@@ -65,7 +65,7 @@ class Module extends AbstractModule {
     bind(classOf[SearchIndexMediator]).to(classOf[AkkaStreamsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
-    bind(classOf[EventHandler]).to(classOf[GlobalEventHandler])
+    bind(classOf[EventHandler]).to(classOf[IndexingEventHandler])
     bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[DataApi]).to(classOf[DataApiService])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
