@@ -1,5 +1,6 @@
 package controllers.api.oaipmh
 
+import config.serviceBaseUrl
 import akka.util.ByteString
 import controllers.AppComponents
 import controllers.portal.base.PortalController
@@ -26,7 +27,7 @@ case class OaiPmhHome @Inject()(
     */
   def query: Action[RawBuffer] = OptionalUserAction.async(parsers.raw) { implicit request =>
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
-    ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh?" + request.rawQueryString)
+    ws.url(s"${serviceBaseUrl("ehridata", config)}/oaipmh?" + request.rawQueryString)
       .withMethod(HttpVerbs.GET)
       .withBody(bytes)
       .stream().map { r =>

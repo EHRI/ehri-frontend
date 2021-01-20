@@ -4,6 +4,7 @@ import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.stream.scaladsl.{JsonFraming, Source}
 import akka.util.ByteString
 import defines.{ContentTypes, EntityType}
+import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
 import play.api.libs.json._
@@ -20,20 +21,17 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class DataApiService @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient) extends DataApi {
-  override def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiServiceHandle =
-    DataApiServiceHandle(eventHandler)(cache: SyncCacheApi, config, apiUser, executionContext, ws)
+case class DataApiService @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: Configuration, ws: WSClient) extends DataApi {
+  override def withContext(apiUser: ApiUser)(implicit ec: ExecutionContext): DataApiServiceHandle =
+    DataApiServiceHandle(eventHandler, config, cache, ws)(apiUser, ec)
 }
 
-case class DataApiServiceHandle(eventHandler: EventHandler)(
-  implicit val cache: SyncCacheApi,
-  val config: play.api.Configuration,
-  val apiUser: ApiUser,
-  val executionContext: ExecutionContext,
-  val ws: WSClient
-) extends DataApiHandle with RestService with DataApiContext {
+case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuration, cache: SyncCacheApi, ws: WSClient)(
+  implicit apiUser: ApiUser, ec: ExecutionContext
+) extends DataApiHandle with RestService {
 
   private val cacheTime: Duration = config.get[Duration]("ehri.backend.cacheExpiration")
+  private val fCache = FutureCache(cache)
 
   override def withEventHandler(eventHandler: EventHandler): DataApiServiceHandle = this.copy(eventHandler = eventHandler)
 
@@ -271,7 +269,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
   override def history[A: Readable](id: String, params: RangeParams,
     filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(genericItemUrl, id, "events")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
   }
 
   override def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, item: AP, logMsg: Option[String] = None): Future[AP] = {
@@ -296,12 +294,12 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "actions")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
   }
 
   override def userEvents[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "events")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
   }
 
 
@@ -368,7 +366,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.SystemEvent)
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads))
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
   }
 
   override def subjectsForEvent[A: Readable](id: String, params: PageParams): Future[Page[A]] = {
@@ -416,7 +414,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def globalPermissions(userId: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId)
-    FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
+    fCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -424,7 +422,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def setGlobalPermissions(userId: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId)
-    FutureCache.set(url, cacheTime) {
+    fCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -432,7 +430,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def itemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "item", id)
-    FutureCache.getOrElse[ItemPermissionSet](url, cacheTime) {
+    fCache.getOrElse[ItemPermissionSet](url, cacheTime) {
       userCall(url).get().map { response =>
         checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
@@ -441,7 +439,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String]): Future[ItemPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "item", id)
-    FutureCache.set(url, cacheTime) {
+    fCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data)).map { response =>
         checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
@@ -450,7 +448,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def scopePermissions(userId: String, id: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
-    FutureCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
+    fCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
       userCall(url).get()
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -458,7 +456,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
-    FutureCache.set(url, cacheTime) {
+    fCache.set(url, cacheTime) {
       userCall(url).post(Json.toJson(data))
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -516,7 +514,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def isFollowing(userId: String, otherId: String): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
-    FutureCache.getOrElse[Boolean](url) {
+    fCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -568,7 +566,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def isWatching(userId: String, otherId: String): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
-    FutureCache.getOrElse[Boolean](url) {
+    fCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -600,7 +598,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler)(
 
   override def isBlocking(userId: String, otherId: String): Future[Boolean] = {
     val url = isBlockingUrl(userId, otherId)
-    FutureCache.getOrElse[Boolean](url) {
+    fCache.getOrElse[Boolean](url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }

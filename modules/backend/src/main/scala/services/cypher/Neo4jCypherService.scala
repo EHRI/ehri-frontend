@@ -5,7 +5,7 @@ import akka.stream.alpakka.json.scaladsl.JsonReader
 import akka.stream.scaladsl.Source
 import akka.stream.{Materializer, scaladsl}
 import akka.util.ByteString
-import javax.inject.{Inject, Singleton}
+import config.serviceBaseUrl
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
@@ -13,6 +13,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsValue, Json, Reads, __}
 import play.api.libs.ws.{WSClient, WSRequest}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -47,7 +48,7 @@ case class Neo4jCypherService @Inject ()(
 
   val logger: Logger = play.api.Logger(getClass)
 
-  private val requestUrl = utils.serviceBaseUrl("cypher", config)
+  private val requestUrl = serviceBaseUrl("cypher", config)
 
   override def get(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[CypherResult] =
     raw(scriptBody, params).execute(HttpVerbs.POST)
@@ -70,7 +71,7 @@ case class Neo4jCypherService @Inject ()(
     )
     logger.debug(s"Legacy Cypher: ${Json.toJson(data)}")
     Source.future(
-      ws.url(utils.serviceBaseUrl("legacyCypher", config))
+      ws.url(serviceBaseUrl("legacyCypher", config))
         .withMethod(HttpVerbs.POST)
         .withHttpHeaders("X-Stream" -> "true")
         .withBody(data)

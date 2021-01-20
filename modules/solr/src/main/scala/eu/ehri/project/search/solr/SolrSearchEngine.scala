@@ -1,15 +1,15 @@
 package eu.ehri.project.search.solr
 
-import java.net.ConnectException
-import javax.inject.Inject
-
+import config.serviceBaseUrl
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
 import services.data.BadJson
-import utils.Page
 import services.search.{SearchHit, _}
+import utils.Page
 
+import java.net.ConnectException
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -27,7 +27,7 @@ case class SolrSearchEngine @Inject()(
 
   private val logger: Logger = Logger(this.getClass)
 
-  private lazy val solrPath = utils.serviceBaseUrl("solr", config)
+  private lazy val solrPath = serviceBaseUrl("solr", config)
 
   private def solrSelectUrl = solrPath + "/select"
 

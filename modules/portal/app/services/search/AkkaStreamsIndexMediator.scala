@@ -1,8 +1,5 @@
 package services.search
 
-import java.io.StringWriter
-import java.time
-
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.HostConnectionPool
@@ -15,11 +12,14 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import config.serviceBaseUrl
 import eu.ehri.project.indexing.converter.impl.JsonConverter
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.{Configuration, Logger}
 
+import java.io.StringWriter
+import java.time
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -47,8 +47,8 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private val logger = Logger(this.getClass)
 
-  private val serviceBaseUrl: Uri = utils.serviceBaseUrl("ehridata", config)
-  private val solrBaseUrl: Uri = utils.serviceBaseUrl("solr", config) + "/update"
+  private val dataBaseUrl: Uri = serviceBaseUrl("ehridata", config)
+  private val solrBaseUrl: Uri = serviceBaseUrl("solr", config) + "/update"
   private val jsonSupport = EntityStreamingSupport.json(Integer.MAX_VALUE)
   private val jsonConverter = new JsonConverter
   private val mapper = new ObjectMapper
@@ -97,21 +97,21 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private def entitiesToRequests(entityTypes: Seq[defines.EntityType.Value]): List[HttpRequest] =
     entityTypes.map { et =>
-      val uri = serviceBaseUrl
+      val uri = dataBaseUrl
         .withPath(Uri.Path(s"/ehri/classes/$et"))
         .withQuery(Query("limit" -> "-1"))
       HttpRequest(HttpMethods.GET, uri)
     }.toList
 
   private def idsToRequests(ids: Seq[String]): List[HttpRequest] = {
-    val uri = serviceBaseUrl.withPath(Uri.Path(s"/ehri/entities"))
+    val uri = dataBaseUrl.withPath(Uri.Path(s"/ehri/entities"))
     val entity = HttpEntity(ContentTypes.`application/json`, Json.stringify(Json.toJson(ids)))
     val req = HttpRequest(HttpMethods.POST, uri, entity = entity)
     List(req)
   }
 
   private def childrenToRequests(et: defines.EntityType.Value, id: String): List[HttpRequest] = {
-    List(HttpRequest(HttpMethods.GET, serviceBaseUrl.withPath(Uri.Path(s"/ehri/classes/$et/$id/list"))
+    List(HttpRequest(HttpMethods.GET, dataBaseUrl.withPath(Uri.Path(s"/ehri/classes/$et/$id/list"))
       .withQuery(Query("limit" -> "-1", "all" -> "true"))))
   }
 

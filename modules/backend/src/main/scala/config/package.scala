@@ -1,4 +1,4 @@
-package object utils {
+package object config {
 
   def serviceBaseUrl(name: String, config: play.api.Configuration): String = {
     def nameKey(key: String) = s"services.$name.$key"
@@ -8,6 +8,6 @@ package object utils {
     val mountPoint = config.get[String](nameKey("mountPoint"))
     val secure = config.getOptional[Boolean](nameKey("secure")).getOrElse(false)
 
-    s"http${if(secure) "s" else ""}://$host:$port/$mountPoint"
+    s"http${if (secure) "s" else ""}://$host:$port/$mountPoint"
   }
 }

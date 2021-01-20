@@ -1,10 +1,8 @@
 package services.search
 
-import java.util.Properties
-import javax.inject.Inject
-
 import akka.actor.{ActorRef, ActorSystem}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
+import config.serviceBaseUrl
 import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder
 import eu.ehri.project.indexing.converter.impl.JsonConverter
@@ -15,6 +13,8 @@ import eu.ehri.project.indexing.{IndexHelper, Pipeline}
 import play.api.Logger
 import services.data.Constants
 
+import java.util.Properties
+import javax.inject.Inject
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,9 +42,9 @@ case class SearchToolsIndexMediatorHandle(
   progressFilter: Int => Boolean = _ % 100 == 0
 )(index: Index, config: play.api.Configuration)(implicit executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
-  val logger  = Logger(this.getClass)
+  private val logger  = Logger(this.getClass)
 
-  val serviceBaseUrl: String = utils.serviceBaseUrl("ehridata", config)
+  val dataBaseUrl: String = serviceBaseUrl("ehridata", config)
 
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): SearchToolsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)(index, config)
@@ -82,7 +82,7 @@ case class SearchToolsIndexMediatorHandle(
          }
        }))
 
-    IndexHelper.urlsFromSpecs(serviceBaseUrl, specs: _*).asScala.foreach { url =>
+    IndexHelper.urlsFromSpecs(dataBaseUrl, specs: _*).asScala.foreach { url =>
       builder.addSource(new WebJsonSource(url, indexProperties()))
     }
     builder.build()

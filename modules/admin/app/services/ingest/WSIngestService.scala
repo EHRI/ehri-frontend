@@ -1,5 +1,7 @@
 package services.ingest
 
+import config.serviceBaseUrl
+
 import java.io.PrintWriter
 import java.net.URI
 import java.nio.charset.StandardCharsets
@@ -13,6 +15,7 @@ import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import defines.{ContentTypes, EntityType}
+import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject
 import javax.inject.Named
@@ -38,6 +41,7 @@ case class WSIngestService @Inject()(
   ws: WSClient,
   searchIndexer: SearchIndexMediator,
   pageRelocator: MovedPageLookup,
+  cache: AsyncCacheApi,
   @Named("dam") fileStorage: FileStorage,
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
 
@@ -130,7 +134,10 @@ case class WSIngestService @Inject()(
   }
 
   override def clearIndex(ids: Seq[String], chan: ActorRef): Future[Unit] = {
-    indexer(chan).clearIds(ids: _*)
+    def uri(id: String): String =  s"${serviceBaseUrl("ehridata", config)}/classes/${EntityType.DocumentaryUnit}/$id"
+    val cacheF = Future.sequence(ids.map(id => cache.remove(uri(id))))
+    val indexF = indexer(chan).clearIds(ids: _*)
+    for (_ <-  cacheF; r <- indexF) yield r
   }
 
   // Run the actual data ingest on the backend
@@ -192,7 +199,7 @@ case class WSIngestService @Inject()(
       BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
 
     logger.info(s"Dispatching ingest: ${job.data.params}")
-    val upload = ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
+    val upload = ws.url(s"${serviceBaseUrl("ehridata", config)}/import/${job.data.dataType}")
       .withRequestTimeout(Duration.Inf)
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)

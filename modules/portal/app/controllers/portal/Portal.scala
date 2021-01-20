@@ -1,17 +1,14 @@
 package controllers.portal
 
-import java.util.IllformedLocaleException
-import java.util.concurrent.TimeUnit
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import cookies.SessionPrefs
 import defines.EntityType
 import forms.AccountForms
-
-import javax.inject._
 import models._
 import models.base.Model
+import play.api.cache.AsyncCacheApi
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -19,9 +16,11 @@ import play.api.mvc._
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._
-import services.data.caching.FutureCache
 import views.html.errors.pageNotFound
 
+import java.util.IllformedLocaleException
+import java.util.concurrent.TimeUnit
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
@@ -33,7 +32,8 @@ case class Portal @Inject()(
   htmlPages: HtmlPages,
   ws: WSClient,
   fc: FacetConfig,
-  accountForms: AccountForms
+  accountForms: AccountForms,
+  asyncCache: AsyncCacheApi
 ) extends PortalController
   with Search {
 
@@ -185,7 +185,7 @@ case class Portal @Inject()(
   }
 
   private def getStats(implicit request: RequestHeader): Future[Stats] =
-    FutureCache.getOrElse("index:metrics", Duration(5, TimeUnit.MINUTES)) {
+    asyncCache.getOrElseUpdate("index:metrics", Duration(5, TimeUnit.MINUTES)) {
       // Assume no user for fetching global stats
       implicit val userOpt: Option[UserProfile] = None
       find[Model](
