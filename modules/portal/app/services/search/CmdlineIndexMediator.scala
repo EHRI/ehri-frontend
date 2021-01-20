@@ -1,18 +1,19 @@
 package services.search
 
-import javax.inject.Inject
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
+import config.serviceBaseUrl
 import defines.EntityType
 import play.api.{Configuration, Logger}
 import services.data.Constants
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.sys.process._
 
 
 case class CmdlineIndexMediator @Inject()()(implicit config: Configuration, executionContext: ExecutionContext) extends SearchIndexMediator {
-  def handle = CmdlineIndexMediatorHandle()
+  def handle: CmdlineIndexMediatorHandle = CmdlineIndexMediatorHandle()
 }
 
 /**
@@ -68,9 +69,9 @@ case class CmdlineIndexMediatorHandle(
   private def jar = config.getOptional[String]("solr.indexer.jar")
     .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
-  private val restUrl = utils.serviceBaseUrl("ehridata", config)
+  private val restUrl = serviceBaseUrl("ehridata", config)
 
-  private val solrUrl = utils.serviceBaseUrl("solr", config)
+  private val solrUrl = serviceBaseUrl("solr", config)
 
   private val clearArgs = binary ++ Seq(
     "--solr", solrUrl

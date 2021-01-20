@@ -1,10 +1,8 @@
 package services.data
 
-import java.net.{ConnectException, URLEncoder}
-import java.nio.charset.StandardCharsets
-
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
+import config.serviceBaseUrl
 import play.api.Logger
 import play.api.http._
 import play.api.libs.json._
@@ -12,6 +10,8 @@ import play.api.libs.ws._
 import services._
 import utils.{Page, RangePage, RangeParams}
 
+import java.net.{ConnectException, URLEncoder}
+import java.nio.charset.StandardCharsets
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,7 +19,6 @@ import scala.concurrent.{ExecutionContext, Future}
 trait RestService {
 
   implicit def config: play.api.Configuration
-  implicit def executionContext: ExecutionContext
   def ws: WSClient
 
   import HttpVerbs._
@@ -58,7 +57,7 @@ trait RestService {
       timeout.fold(hc)(t => hc.withRequestTimeout(t))
     }
 
-    private def runWs: Future[WSResponse] = {
+    private def runWs(implicit ec: ExecutionContext): Future[WSResponse] = {
       logger.debug(s"WS: $apiUser $method $fullUrl")
       holderWithAuth
         .execute(method)
@@ -68,24 +67,24 @@ trait RestService {
         }
     }
 
-    def stream(): Future[WSResponse] = {
+    def stream()(implicit ec: ExecutionContext): Future[WSResponse] = {
       logger.debug(s"WS (stream): $apiUser $method $fullUrl")
       holderWithAuth.stream().recover {
         case e: ConnectException => throw ServiceOffline(fullUrl, e)
       }
     }
 
-    def get(): Future[WSResponse] = copy(method = GET).execute()
+    def get()(implicit ec: ExecutionContext): Future[WSResponse] = copy(method = GET).execute()
 
-    def post(): Future[WSResponse] = withMethod(POST).execute()
+    def post()(implicit ec: ExecutionContext): Future[WSResponse] = withMethod(POST).execute()
 
-    def post[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
+    def post[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T], ec: ExecutionContext): Future[WSResponse] =
       withMethod(POST).withBody(body).execute()
 
-    def put[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T]): Future[WSResponse] =
+    def put[T](body: T)(implicit wrt: BodyWritable[T], ct: ContentTypeOf[T], ec: ExecutionContext): Future[WSResponse] =
       withMethod(PUT).withBody(body).execute()
 
-    def delete(): Future[WSResponse] = withMethod(DELETE).execute()
+    def delete()(implicit ec: ExecutionContext): Future[WSResponse] = withMethod(DELETE).execute()
 
     /**
       * Sets the body for this request. Copy and paste from WSRequest :(
@@ -113,7 +112,7 @@ trait RestService {
 
     def withTimeout(duration: Duration): BackendRequest = copy(timeout = Some(duration))
 
-    def execute(): Future[WSResponse] = runWs
+    def execute()(implicit ec: ExecutionContext): Future[WSResponse] = runWs
   }
 
   import Constants._
@@ -170,7 +169,7 @@ trait RestService {
     * Fetch a range, working out if there are more items by going one-beyond-the-end.
     */
   protected def fetchRange[T](req: BackendRequest, params: RangeParams, context: Option[String])(
-    implicit reader: Reads[T]): Future[RangePage[T]] = {
+    implicit reader: Reads[T], ec: ExecutionContext): Future[RangePage[T]] = {
     val incParams = if (params.hasLimit) params.copy(limit = params.limit + 1) else params
     req.withHeaders(STREAM_HEADER_NAME -> true.toString)
       .withQueryString(incParams.queryParams: _*)
@@ -195,7 +194,7 @@ trait RestService {
     uri.toString
   }
 
-  protected def baseUrl: String = utils.serviceBaseUrl("ehridata", config)
+  protected def baseUrl: String = serviceBaseUrl("ehridata", config)
 
   protected def typeBaseUrl: String = enc(baseUrl, "classes")
 

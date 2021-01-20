@@ -4,6 +4,7 @@ import java.io.StringWriter
 
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
+import config.serviceBaseUrl
 import helpers.TestConfiguration
 import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
@@ -30,7 +31,7 @@ class WSOaiPmhClientSpec extends PlaySpecification with TestConfiguration {
 
   private def endpoint(implicit app: Application) = {
     val config = app.injector.instanceOf[Configuration]
-    OaiPmhConfig(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh", "ead")
+    OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead")
   }
 
   "OAI PMH client service" should {

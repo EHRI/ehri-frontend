@@ -1,15 +1,13 @@
 package services.htmlpages
 
-import javax.inject.Inject
-
-import play.api.cache.SyncCacheApi
+import play.api.cache.AsyncCacheApi
 import play.api.http.Status
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.twirl.api.Html
 import services.data.{ItemNotFound, PermissionDenied}
-import services.data.caching.FutureCache
 
+import javax.inject.Inject
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,10 +19,9 @@ import scala.concurrent.{ExecutionContext, Future}
  * page css to put all the selectors in a scope so it
  * doesn't affect the rest of the page.
  */
-case class GoogleDocsHtmlPages @Inject ()(
-  ws: WSClient,
-  config: play.api.Configuration)(implicit cache: SyncCacheApi, executionContext: ExecutionContext)
-  extends HtmlPages {
+case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configuration)(
+    implicit cache: AsyncCacheApi, executionContext: ExecutionContext) extends HtmlPages {
+
   private def googleDocBody(url: String): Future[(Html, Html)] = {
     ws.url(url).addQueryStringParameters(
       "e" -> "download",
@@ -65,10 +62,9 @@ case class GoogleDocsHtmlPages @Inject ()(
     getUrl.map { url =>
       val cacheKey = s"htmlpages.googledocs.$key.${messages.lang.code}"
       val cacheTime = (60 * 60).seconds
-      if (noCache) googleDocBody(url).map { data =>
-        cache.set(cacheKey, data, cacheTime)
-        data
-      } else FutureCache.getOrElse(cacheKey, cacheTime) {
+      if (noCache) googleDocBody(url).flatMap { data =>
+        cache.set(cacheKey, data, cacheTime).map(_ => data)
+      } else cache.getOrElseUpdate(cacheKey, cacheTime) {
         googleDocBody(url)
       }
     }

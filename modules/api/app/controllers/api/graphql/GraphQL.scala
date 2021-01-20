@@ -1,5 +1,6 @@
 package controllers.api.graphql
 
+import config.serviceBaseUrl
 import javax.inject.{Inject, Singleton}
 import akka.util.ByteString
 import controllers.AppComponents
@@ -40,7 +41,7 @@ case class GraphQL @Inject()(
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
     val ct = request.contentType.getOrElse(ContentTypes.BINARY)
     val streamHeader: Option[String] = request.headers.get(Constants.STREAM_HEADER_NAME)
-    ws.url(s"${utils.serviceBaseUrl("ehridata", config)}/graphql")
+    ws.url(s"${serviceBaseUrl("ehridata", config)}/graphql")
       .withMethod(HttpVerbs.POST)
       .addHttpHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)

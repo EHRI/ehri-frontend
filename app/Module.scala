@@ -6,7 +6,7 @@ import auth.oauth2.OAuth2Config
 import auth.oauth2.providers._
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import config.AppConfig
+import config.{AppConfig, serviceBaseUrl}
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
@@ -30,7 +30,7 @@ import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
-  override def get(): Index = new SolrIndex(utils.serviceBaseUrl("solr", config))
+  override def get(): Index = new SolrIndex(serviceBaseUrl("solr", config))
 }
 
 private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) extends Provider[OAuth2Config] {

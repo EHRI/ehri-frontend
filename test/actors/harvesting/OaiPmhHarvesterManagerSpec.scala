@@ -7,6 +7,7 @@ import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.Cancel
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
+import config.serviceBaseUrl
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
@@ -29,7 +30,7 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
 
   private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
-    config = OaiPmhConfig(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
+    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
     prefix = "oaipmh/r1/"
   ))
 

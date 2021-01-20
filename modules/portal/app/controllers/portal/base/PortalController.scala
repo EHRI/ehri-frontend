@@ -1,14 +1,12 @@
 package controllers.portal.base
 
-import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
+import config.AppConfig
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
-import defines.{EntityType, EventType}
-import config.AppConfig
 import cookies.{SessionPreferences, SessionPrefs}
+import defines.{EntityType, EventType}
 import lifecycle.ItemLifecycle
 import models.UserProfile
 import models.base.Model
@@ -18,13 +16,15 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
+import services.data.caching.FutureCache
 import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
-import services.data.caching.FutureCache
 import views.html.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance, pageNotFound}
 
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.Duration
@@ -66,6 +66,7 @@ trait PortalController
    * **implicit** `preferences` object that can be picked up by views.
    */
   protected val defaultPreferences = new SessionPrefs
+  private val fCache = FutureCache(cache)
 
   /**
    * Ensure that functions requiring an optional user in scope
@@ -213,7 +214,7 @@ trait PortalController
    * Fetched watched items for an optional user.
    */
   protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
-    FutureCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
+    fCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
       implicit val apiUser: ApiUser = ApiUser(Some(userId))
       userDataApi.watching[Model](userId, PageParams.empty.withoutLimit).map { page =>
         page.items.map(_.id)

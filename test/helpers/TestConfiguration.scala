@@ -5,6 +5,7 @@ import akka.stream.Materializer
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
+import config.serviceBaseUrl
 import cookies.SessionPreferences
 import lifecycle.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
@@ -142,7 +143,7 @@ trait TestConfiguration {
 
     val fixtures = Paths.get(this.getClass.getClassLoader.getResource("testdata.yaml").toURI).toFile
     val ws = app.injector.instanceOf[WSClient]
-    val url = s"${utils.serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
+    val url = s"${serviceBaseUrl("ehridata", config)}/tools/__INITIALISE"
     import org.specs2.execute.{Error, Failure}
     // Integration tests assume a server running locally. We then use the
     // initialise endpoint to clean it before each individual test.

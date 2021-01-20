@@ -3,6 +3,7 @@ package actors.harvesting
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
+import config.serviceBaseUrl
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
 import models.{OaiPmhConfig, UserProfile}
@@ -22,7 +23,7 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
 
   private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
-    config = OaiPmhConfig(s"${utils.serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
+    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
     prefix = "oaipmh/r1/"
   ))
 
