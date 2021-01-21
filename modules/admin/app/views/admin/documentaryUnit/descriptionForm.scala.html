@@ -11,7 +11,7 @@
 @views.html.admin.common.descriptionForm(desc) {
     @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
     @defining("description") { implicit fieldPrefix =>
-        @lineInput(desc, IDENTIFIER)
+        @lineInput(desc, IDENTIFIER, 'autocomplete -> "off")
     }
 
     @descriptionFormSection(IDENTITY_AREA) {

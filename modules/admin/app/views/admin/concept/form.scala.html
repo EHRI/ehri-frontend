@@ -5,7 +5,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@lineInput(f(""), Entity.IDENTIFIER)
+@lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
 
 @defining("cvocConcept") { implicit prefix =>
     @defining(Option.empty[forms.FormConfig]) { implicit implicitConfig =>

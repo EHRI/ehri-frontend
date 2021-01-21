@@ -5,7 +5,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining("group") { implicit prefix =>
-    @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+    @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
     @formHelpers.lineInput(f(""), GroupF.NAME)
     @formHelpers.textInput(f(""), GroupF.DESCRIPTION)
 }

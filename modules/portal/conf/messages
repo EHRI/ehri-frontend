@@ -97,7 +97,8 @@ errors.noFileGiven=No image file was selected.
 errors.invalidUrl=Web URL is invalid
 
 identifier=Identifier
-identifier.description=A locally-unique item identifier.
+identifier.description=An item identifier that is unique with the scope of it''s parent item. \
+  An item''s identifier determines it''s URL and should not ordinarily be changed once created.
 
 #
 # Additional Language codes that aren't official ISO639-2

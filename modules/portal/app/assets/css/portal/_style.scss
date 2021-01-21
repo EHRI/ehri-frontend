@@ -893,7 +893,9 @@ lock.errors,
   @include color-var(color, 'danger');
 }
 
-.form-field.has-error {
+.form-field.has-error,
+.form-group.has-error
+{
   .form-control {
     @include color-var(border-color, 'danger');
   }
@@ -901,6 +903,10 @@ lock.errors,
   .help-block {
     @include color-var(color, 'danger');
     font-size: $font-size-xs;
+  }
+
+  .invalid-feedback {
+    display: block;
   }
 }
 

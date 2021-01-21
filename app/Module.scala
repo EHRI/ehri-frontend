@@ -66,7 +66,7 @@ class Module extends AbstractModule {
     bind(classOf[QueryBuilder]).to(classOf[SolrQueryBuilder])
     bind(classOf[SearchIndexMediator]).to(classOf[AkkaStreamsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
-    bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
+    bind(classOf[SearchItemResolver]).to(classOf[IdSearchResolver])
     bind(classOf[EventHandler]).to(classOf[IndexingEventHandler])
     bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[DataApi]).to(classOf[DataApiService])

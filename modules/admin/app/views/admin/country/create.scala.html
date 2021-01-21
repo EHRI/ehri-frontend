@@ -3,7 +3,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("country.create"), defines.EntityType.Country) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
         @views.html.admin.country.form(None, f)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
