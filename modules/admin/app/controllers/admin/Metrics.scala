@@ -1,14 +1,14 @@
 package controllers.admin
 
 import javax.inject._
-
 import client.json.ClientWriteable
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.EntityType
 import models.Isaar
-import models.base.{Model, Description}
+import models.base.{Description, Model}
+import play.api.cache.{Cached, SyncCacheApi}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes, __}
 import play.api.mvc._
@@ -20,12 +20,13 @@ import views.Helpers
 @Singleton
 case class Metrics @Inject()(
   controllerComponents: ControllerComponents,
-  appComponents: AppComponents
+  appComponents: AppComponents,
+  cache: SyncCacheApi,
+  statusCache: Cached,
 ) extends AdminController with Search {
   import scala.concurrent.duration._
 
   private val metricCacheTime = 1.hour
-  private val statusCache = appComponents.statusCache
 
   import play.api.libs.functional.syntax._
   private implicit def pageWrites[T](implicit r: Writes[T]): Writes[Page[T]] = (

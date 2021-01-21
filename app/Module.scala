@@ -13,6 +13,7 @@ import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
 import models.{GuideService, SqlGuideService}
+import services.RateLimitChecker
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
 import services.data._
@@ -57,6 +58,7 @@ private class DamStorageProvider @Inject()(config: play.api.Configuration)(impli
 class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[AppConfig])
+    bind(classOf[RateLimitChecker])
     bind(classOf[AuthIdContainer]).to(classOf[CookieIdContainer])
     bind(classOf[AccountManager]).to(classOf[SqlAccountManager])
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])

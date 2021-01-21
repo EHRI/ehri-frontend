@@ -21,6 +21,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Configuration, Logger}
+import services.RateLimitChecker
 import services.accounts.AccountManager
 import services.data._
 import utils.{FieldFilter, Page, PageParams}
@@ -53,7 +54,8 @@ case class ApiV1 @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   ws: WSClient,
-  cypher: CypherService
+  cypher: CypherService,
+  rateLimits: RateLimitChecker
 ) extends CoreActionBuilders
   with ControllerHelpers
   with Search
@@ -131,7 +133,7 @@ case class ApiV1 @Inject()(
 
   private object RateLimit extends CoreActionBuilder[Request, AnyContent] {
     override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
-      if (checkRateLimit(hitsPerSecond, rateLimitTimeoutDuration)(request)) block(request)
+      if (rateLimits.checkHits(hitsPerSecond, rateLimitTimeoutDuration)(request)) block(request)
       else immediate(error(TOO_MANY_REQUESTS)(request))
     }
   }

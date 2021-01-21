@@ -3,7 +3,6 @@ package controllers.portal.account
 import java.net.ConnectException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Config, UserData}
 import auth.{AuthenticationError, HashedPassword}
@@ -12,9 +11,11 @@ import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
+
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.Logger
+import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.http.HttpVerbs
 import play.api.i18n.Messages
@@ -23,6 +24,7 @@ import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
+import services.RateLimitChecker
 import services.data.{AnonymousUser, AuthenticatedUser}
 import services.oauth2.OAuth2Service
 
@@ -41,6 +43,8 @@ case class Accounts @Inject()(
   openId: OpenIdClient,
   oauth2Providers: OAuth2Config,
   accountForms: AccountForms,
+  rateLimits: RateLimitChecker,
+  cache: SyncCacheApi,
 ) extends PortalController with RecaptchaHelper {
 
   import accountForms._
@@ -97,7 +101,7 @@ case class Accounts @Inject()(
     override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
       if (request.method != HttpVerbs.POST) block(request)
       else {
-        if (checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) block(request)
+        if (rateLimits.checkHits(rateLimitHitsPerSec, rateLimitDuration)(request)) block(request)
         else immediate(TooManyRequests(rateLimitError(request)))
       }
     }
@@ -122,7 +126,7 @@ case class Accounts @Inject()(
     checkRecapture.flatMap {
       case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
-      case true if !checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request) =>
+      case true if !rateLimits.checkHits(rateLimitHitsPerSec, rateLimitDuration)(request) =>
         badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
       case true =>
         boundForm.fold(
@@ -317,7 +321,7 @@ case class Accounts @Inject()(
     }
 
     val boundForm = passwordLoginForm.bindFromRequest
-    if (!checkRateLimit(rateLimitHitsPerSec, rateLimitDuration)(request)) {
+    if (!rateLimits.checkHits(rateLimitHitsPerSec, rateLimitDuration)(request)) {
       badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
     } else boundForm.fold(
       errForm => badForm(errForm),
@@ -549,7 +553,7 @@ case class Accounts @Inject()(
     userDataApi.get[UserProfile](account.id).flatMap { up =>
       val data: Seq[(String, JsString)] = Seq(
         // Only update the user image if it hasn't already been set
-        UserProfileF.IMAGE_URL -> up.data.imageUrl.filter(!_.trim.isEmpty).orElse(userData.imageUrl)
+        UserProfileF.IMAGE_URL -> up.data.imageUrl.filter(_.trim.nonEmpty).orElse(userData.imageUrl)
       ).collect { case (k, Some(v)) => k -> JsString(v)}
       userDataApi.patch[UserProfile](account.id, JsObject(data))
     }
@@ -558,7 +562,7 @@ case class Accounts @Inject()(
   private def createNewProfile(userData: UserData): Future[Account] = {
     implicit val apiUser: AnonymousUser.type = AnonymousUser
     val profileData = Map(UserProfileF.NAME -> Some(userData.name),  UserProfileF.IMAGE_URL -> userData.imageUrl)
-      .collect{ case (k, Some(v)) if !v.trim.isEmpty => k -> v }
+      .collect{ case (k, Some(v)) if v.trim.nonEmpty => k -> v }
     for {
       profile <- userDataApi.createNewUserProfile[UserProfile](
         profileData, groups = conf.defaultPortalGroups)

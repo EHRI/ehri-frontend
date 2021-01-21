@@ -5,7 +5,6 @@ import controllers.generic.Search
 import models.VirtualUnit
 import models.base.Model
 import play.api.Logger
-import play.api.cache.SyncCacheApi
 import play.api.mvc.RequestHeader
 import services.search.SearchConstants._
 
@@ -19,7 +18,6 @@ import scala.concurrent.Future.{successful => immediate}
 trait SearchVC {
   this: Search =>
 
-  protected implicit def cache: SyncCacheApi
   protected def cypher: CypherService
 
   private def logger = Logger(getClass)

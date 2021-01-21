@@ -1,8 +1,8 @@
 package controllers.portal
 
 import javax.inject.{Inject, Singleton}
-
 import controllers.AppComponents
+import play.api.cache.Cached
 import play.api.http.{ContentTypes, MimeTypes}
 import play.api.i18n.MessagesApi
 import play.api.mvc._
@@ -11,7 +11,8 @@ import play.api.mvc._
 @Singleton
 case class PortalData @Inject()(
   controllerComponents: ControllerComponents,
-  appComponents: AppComponents
+  appComponents: AppComponents,
+  statusCache: Cached,
 )(override implicit val messagesApi: MessagesApi) extends BaseController
   with play.api.i18n.I18nSupport {
 
@@ -19,7 +20,7 @@ case class PortalData @Inject()(
 
   private val cacheTime = 1.hour
 
-  def jsRoutes: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:portalJsRoutes", OK, cacheTime) {
+  def jsRoutes: EssentialAction = statusCache.status((_: RequestHeader) => "pages:portalJsRoutes", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(
@@ -64,7 +65,7 @@ case class PortalData @Inject()(
     *
     * @return
     */
-  def globalData: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:globalData", OK, cacheTime) {
+  def globalData: EssentialAction = statusCache.status((_: RequestHeader) => "pages:globalData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       import defines.EntityType
       Ok(
@@ -78,7 +79,7 @@ case class PortalData @Inject()(
     }
   }
 
-  def localeData(lang: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:localeData", OK, cacheTime) {
+  def localeData(lang: String): EssentialAction = statusCache.status((_: RequestHeader) => "pages:localeData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
       //implicit val locale: Lang = request.lang
 

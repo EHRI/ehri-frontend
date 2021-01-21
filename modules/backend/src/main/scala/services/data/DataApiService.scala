@@ -1,18 +1,18 @@
 package services.data
 
 import acl.{GlobalPermissionSet, ItemPermissionSet}
+import akka.Done
 import akka.stream.scaladsl.{JsonFraming, Source}
 import akka.util.ByteString
 import defines.{ContentTypes, EntityType}
 import play.api.Configuration
-import play.api.cache.SyncCacheApi
+import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
 import services._
 import services.data.Constants._
-import services.data.caching.FutureCache
 import utils._
 
 import javax.inject.Inject
@@ -21,17 +21,16 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class DataApiService @Inject()(eventHandler: EventHandler, cache: SyncCacheApi, config: Configuration, ws: WSClient) extends DataApi {
+case class DataApiService @Inject()(eventHandler: EventHandler, cache: AsyncCacheApi, config: Configuration, ws: WSClient) extends DataApi {
   override def withContext(apiUser: ApiUser)(implicit ec: ExecutionContext): DataApiServiceHandle =
     DataApiServiceHandle(eventHandler, config, cache, ws)(apiUser, ec)
 }
 
-case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuration, cache: SyncCacheApi, ws: WSClient)(
+case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuration, cache: AsyncCacheApi, ws: WSClient)(
   implicit apiUser: ApiUser, ec: ExecutionContext
 ) extends DataApiHandle with RestService {
 
   private val cacheTime: Duration = config.get[Duration]("ehri.backend.cacheExpiration")
-  private val fCache = FutureCache(cache)
 
   override def withEventHandler(eventHandler: EventHandler): DataApiServiceHandle = this.copy(eventHandler = eventHandler)
 
@@ -66,14 +65,15 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def get[MT](resource: Resource[MT], id: String): Future[MT] = {
     val url = canonicalUrl(id)(resource)
-    cache.get[JsValue](url).map { json =>
-      Future.successful(jsonReadToRestError(json, resource.restReads))
-    }.getOrElse {
-      userCall(url, resource.defaultParams).get().map { response =>
-        val item = checkErrorAndParse(response, context = Some(url))(resource.restReads)
-        cache.set(url, response.json, cacheTime)
-        item
-      }
+    // NB: not using getOrElseUpdate here because we actually cache the item as
+    // a JSON object due to the lack of a ClassTag in the API.
+    cache.get[JsValue](url).flatMap {
+      case Some(json) => immediate(jsonReadToRestError(json, resource.restReads))
+      case None => for {
+        response <- userCall(url, resource.defaultParams).get()
+        item = checkErrorAndParse(response, context = Some(url))(resource.restReads)
+        _ <- cache.set(url, response.json, cacheTime)
+      } yield item
     }
   }
 
@@ -97,85 +97,90 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def createInContext[MT: Resource, T: Writable, TT <: WithId : Readable](id: String, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[TT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
-    userCall(url)
+    val callF = userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
-      val created = checkErrorAndParse(response, context = Some(url))(Readable[TT].restReads)
+      .post(Json.toJson(item)(Writable[T].restFormat))
+    for {
+      response <- callF
+      created = checkErrorAndParse(response, context = Some(url))(Readable[TT].restReads)
       // also reindex parent since this will update child count caches
-      eventHandler.handleUpdate(id)
-      eventHandler.handleCreate(created.id)
-      cache.remove(canonicalUrl(id))
-      created
-    }
+      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleCreate(created.id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield created
   }
 
   override def update[MT: Resource, T: Writable](id: String, item: T, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
-    userCall(url).withHeaders(msgHeader(logMsg): _*)
+    val callF = userCall(url).withHeaders(msgHeader(logMsg): _*)
       .withQueryString(unpack(params): _*)
-      .put(Json.toJson(item)(Writable[T].restFormat)).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      eventHandler.handleUpdate(id)
-      cache.remove(canonicalUrl(id))
-      item
-    }
+      .put(Json.toJson(item)(Writable[T].restFormat))
+    for {
+      response <- callF
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      _ = eventHandler.handleUpdate(id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield item
   }
 
   override def patch[MT: Resource](id: String, data: JsObject, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
     val item = Json.obj("type" -> Resource[MT].entityType, "data" -> data)
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
-    userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
-      .put(item).map { response =>
-      val item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      eventHandler.handleUpdate(id)
-      cache.remove(canonicalUrl(id))
-      item
-    }
+    val callF = userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
+      .put(item)
+    for {
+      response <- callF
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      _ = eventHandler.handleUpdate(id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield item
   }
 
   override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
-    userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete().map { response =>
-      checkError(response)
-      eventHandler.handleDelete(id)
-      cache.remove(canonicalUrl(id))
-    }
+    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete()
+    for {
+      response <- callF
+      _ = checkError(response)
+      _ = eventHandler.handleDelete(id)
+      _ <- cache.remove(canonicalUrl(id)).map(_ => ())
+    } yield ()
   }
 
   override def rename[MT: Resource](id: String, local: String, logMsg: Option[String], check: Boolean = false): Future[Seq[(String, String)]] = {
-    userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename"))
+    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename"))
       .withQueryString("check" -> check.toString)
-      .post(local).map { response =>
-      val mappings = checkErrorAndParse[Seq[(String,String)]](response)
-      if (!mappings.toMap.contains(id)) {
-        // It's possible the ID won't have changed but the local identifier has (for ex:
-        // if they're out-of-sync to start with.) In this case we need to invalidate the
-        // existing ID anyway.
-        eventHandler.handleUpdate(id)
-        cache.remove(canonicalUrl(id))
-      }
-      eventHandler.handleDelete(mappings.map(_._1): _*)
-      eventHandler.handleUpdate(mappings.map(_._2): _*)
+      .post(local)
+    for {
+      response <- callF
+      mappings = checkErrorAndParse[Seq[(String,String)]](response)
+      // It's possible the ID won't have changed but the local identifier has (for ex:
+      // if they're out-of-sync to start with.) In this case we need to invalidate the
+      // existing ID anyway.
+      _ = if (!mappings.toMap.contains(id)) eventHandler.handleUpdate(id)
+      _ <- if (mappings.toMap.contains(id)) immediate(Done) else cache.remove(id)
+      _ = eventHandler.handleDelete(mappings.map(_._1): _*)
+      _ = eventHandler.handleUpdate(mappings.map(_._2): _*)
       // FIXME: this is a bit fragile since it assumes all the items
       // updated are the same type. While this is currently true for
       // rename methods implemented in the backend it may not always be the
       // case. However, the worst that will happen is that the cache will
       // contain dead entries which will eventually be displaced anyway.
-      mappings.foreach(m => cache.remove(canonicalUrl[MT](m._1)))
-      mappings
-    }
+      _ <- Future.sequence(mappings.map(m => cache.remove(canonicalUrl[MT](m._1))))
+    } yield mappings
   }
 
   override def parent[MT: Resource, PMT: Resource](id: String, parentIds: Seq[String]): Future[MT] = {
     val url = enc(typeBaseUrl, Resource[MT].entityType, id, "parent")
-    userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post().map { response =>
-      val r = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      parentIds.foreach(id => cache.remove(canonicalUrl[PMT](id)(Resource[PMT])))
-      cache.remove(canonicalUrl[MT](id))
-      eventHandler.handleUpdate(parentIds :+ id: _*)
-      r
-    }
+    val callF = userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post()
+    for {
+      response <- callF
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      _ <- Future.sequence(parentIds.map(id => cache.remove(canonicalUrl[PMT](id)(Resource[PMT]))))
+      _ = eventHandler.handleUpdate(parentIds :+ id: _*)
+      _ <- cache.remove(canonicalUrl[MT](id))
+    } yield item
   }
 
   override def list[MT: Resource](params: PageParams = PageParams.empty): Future[Page[MT]] =
@@ -222,27 +227,28 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def setVisibility[MT: Resource](id: String, data: Seq[String]): Future[MT] = {
     val url: String = enc(genericItemUrl, id, "access")
-    userCall(url)
+    val callF = userCall(url)
       .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
-      .post().map { response =>
-      val r = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      cache.remove(canonicalUrl(id))
-      eventHandler.handleUpdate(id)
-      r
-    }
+      .post()
+    for {
+      response <- callF
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      _ = eventHandler.handleUpdate(id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield item
   }
 
   override def promote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "promote")).post().map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "promote")).post().flatMap(itemResponse(id, _))
 
   override def removePromotion[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "promote")).delete().map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "promote")).delete().flatMap(itemResponse(id, _))
 
   override def demote[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "demote")).post().map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "demote")).post().flatMap(itemResponse(id, _))
 
   override def removeDemotion[MT: Resource](id: String): Future[MT] =
-    userCall(enc(genericItemUrl, id, "demote")).delete().map(itemResponse(id, _))
+    userCall(enc(genericItemUrl, id, "demote")).delete().flatMap(itemResponse(id, _))
 
   override def links[A: Readable](id: String): Future[Page[A]] = {
     val pageParams = PageParams.empty.withoutLimit
@@ -274,22 +280,25 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, item: AP, logMsg: Option[String] = None): Future[AP] = {
     val url: String = enc(genericItemUrl, id, "descriptions", did, "access-points")
-    userCall(url)
+    val callF = userCall(url)
       .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(Writable[AP].restFormat)).map { response =>
-      eventHandler.handleUpdate(id)
-      cache.remove(canonicalUrl(id))
-      checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
-    }
+      .post(Json.toJson(item)(Writable[AP].restFormat))
+    for {
+      response <- callF
+      item = checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
+      _ = eventHandler.handleUpdate(id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield item
   }
 
   override def deleteAccessPoint[MT: Resource](id: String, did: String, apid: String, logMsg: Option[String] = None): Future[Unit] = {
     val url = enc(genericItemUrl, id, "descriptions", did, "access-points", apid)
-    userCall(url).withHeaders(msgHeader(logMsg): _*).delete().map { response =>
-      checkError(response)
-      eventHandler.handleUpdate(id)
-      cache.remove(canonicalUrl(id))
-    }
+    for {
+      response <- userCall(url).withHeaders(msgHeader(logMsg): _*).delete()
+      _ = checkError(response)
+      _ = eventHandler.handleUpdate(id)
+      _ <- cache.remove(canonicalUrl(id))
+    } yield ()
   }
 
   override def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
@@ -334,19 +343,20 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, to: String, link: AF, accessPoint: Option[String] = None, directional: Boolean = false): Future[A] = {
     val url: String = enc(typeBaseUrl, EntityType.Link)
-    userCall(url)
+    val callF = userCall(url)
       .withQueryString(
         SOURCE_PARAM -> id,
         TARGET_PARAM -> to,
         "directional" -> directional.toString
       )
       .withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
-      .post(Json.toJson(link)(Writable[AF].restFormat)).map { response =>
-      cache.remove(canonicalUrl[MT](id))
-      val link: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
-      eventHandler.handleCreate(link.id)
-      link
-    }
+      .post(Json.toJson(link)(Writable[AF].restFormat))
+    for {
+      response <- callF
+      link = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
+      _= eventHandler.handleCreate(link.id)
+      _ <- cache.remove(canonicalUrl[MT](id))
+    } yield link
   }
 
   /**
@@ -358,10 +368,10 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
         linkItems(id, other, ann, accessPoint)
       }
     }
-    done.map { r =>
-      cache.remove(canonicalUrl(id))
-      r
-    }
+    for {
+      r <- done
+      _ <- cache.remove(canonicalUrl(id))
+    } yield r
   }
 
   override def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
@@ -378,30 +388,35 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     }
   }
 
-  override def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] =
-    userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post().map { _ =>
-      eventHandler.handleUpdate(vcId)
-      cache.remove(canonicalUrl(vcId))
-    }
+  override def addReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] = {
+    for {
+      _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
+        .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
+      _ = eventHandler.handleUpdate(vcId)
+      _ <- cache.remove(canonicalUrl(vcId))
+    } yield ()
+  }
 
-  override def deleteReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] =
+  override def deleteReferences[MT: Resource](vcId: String, ids: Seq[String]): Future[Unit] = {
     if (ids.isEmpty) immediate(())
-    else userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).delete().map { _ =>
-      eventHandler.handleUpdate(vcId)
-      cache.remove(canonicalUrl(vcId))
-    }
+    else for {
+      _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
+        .withQueryString(ids.map(id => ID_PARAM -> id): _*).delete()
+      _ = eventHandler.handleUpdate(vcId)
+      _ <- cache.remove(canonicalUrl(vcId))
+    } yield ()
+  }
 
   override def moveReferences[MT: Resource](fromVc: String, toVc: String, ids: Seq[String]): Future[Unit] =
     if (ids.isEmpty) immediate(())
-    else userCall(enc(typeBaseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
-      .withQueryString(ids.map(id => ID_PARAM -> id): _*).post().map { _ =>
+    else for {
+      _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
+        .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
       // Update both source and target sets in the index
-      cache.remove(canonicalUrl(fromVc))
-      cache.remove(canonicalUrl(toVc))
-      eventHandler.handleUpdate(toVc, fromVc)
-    }
+      _ <- cache.remove(canonicalUrl(fromVc))
+      _ <- cache.remove(canonicalUrl(toVc))
+      _ = eventHandler.handleUpdate(toVc, fromVc)
+    } yield ()
 
   private val permissionRequestUrl = enc(baseUrl, "permissions")
 
@@ -414,7 +429,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def globalPermissions(userId: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId)
-    fCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get()
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -422,15 +437,16 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def setGlobalPermissions(userId: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId)
-    fCache.set(url, cacheTime) {
-      userCall(url).post(Json.toJson(data))
-        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
-    }
+    for {
+      response <- userCall(url).post(Json.toJson(data))
+      gp = checkErrorAndParse[GlobalPermissionSet](response, context = Some(url))
+      _ <- cache.set(url, gp, cacheTime)
+    } yield gp
   }
 
   override def itemPermissions(userId: String, contentType: ContentTypes.Value, id: String): Future[ItemPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "item", id)
-    fCache.getOrElse[ItemPermissionSet](url, cacheTime) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get().map { response =>
         checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
       }
@@ -439,16 +455,16 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def setItemPermissions(userId: String, contentType: ContentTypes.Value, id: String, data: Seq[String]): Future[ItemPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "item", id)
-    fCache.set(url, cacheTime) {
-      userCall(url).post(Json.toJson(data)).map { response =>
-        checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
-      }
-    }
+    for {
+      response <- userCall(url).post(Json.toJson(data))
+      ip = checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
+      _ <- cache.set(url, ip, cacheTime)
+    } yield ip
   }
 
   override def scopePermissions(userId: String, id: String): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
-    fCache.getOrElse[GlobalPermissionSet](url, cacheTime) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get()
         .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
     }
@@ -456,28 +472,33 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def setScopePermissions(userId: String, id: String, data: Map[String, Seq[String]]): Future[GlobalPermissionSet] = {
     val url = enc(permissionRequestUrl, userId, "scope", id)
-    fCache.set(url, cacheTime) {
-      userCall(url).post(Json.toJson(data))
-        .map(r => checkErrorAndParse[GlobalPermissionSet](r, context = Some(url)))
-    }
+    for {
+      response <- userCall(url).post(Json.toJson(data))
+      gp = checkErrorAndParse[GlobalPermissionSet](response, context = Some(url))
+      _ <- cache.set(url, gp, cacheTime)
+    } yield gp
   }
 
   override def addGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit] = {
-    userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]()).map { response =>
-      checkError(response)
-      cache.remove(canonicalUrl[UT](userId))
-      cache.remove(canonicalUrl[GT](groupId))
-      cache.remove(enc(permissionRequestUrl, userId))
-    }
+    val callF = userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).post(Map[String, Seq[String]]())
+    for {
+      response <- callF
+      _ = checkError(response)
+      _ <- cache.remove(canonicalUrl[UT](userId))
+      _ <- cache.remove(canonicalUrl[GT](groupId))
+      _ <- cache.remove(enc(permissionRequestUrl, userId))
+    } yield ()
   }
 
   override def removeGroup[GT: Resource, UT: Resource](groupId: String, userId: String): Future[Unit] = {
-    userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).delete().map { response =>
-      checkError(response)
-      cache.remove(canonicalUrl[UT](userId))
-      cache.remove(canonicalUrl[GT](groupId))
-      cache.remove(enc(permissionRequestUrl, userId))
-    }
+    val callF = userCall(enc(typeBaseUrl, EntityType.Group, groupId, userId)).delete()
+    for {
+      response <- callF
+      _ = checkError(response)
+      _ <- cache.remove(canonicalUrl[UT](userId))
+      _ <- cache.remove(canonicalUrl[GT](groupId))
+      _ <- cache.remove(enc(permissionRequestUrl, userId))
+    } yield ()
   }
 
   private val userRequestUrl = enc(typeBaseUrl, EntityType.UserProfile)
@@ -495,26 +516,30 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
   private def isBlockingUrl(userId: String, otherId: String) = enc(userRequestUrl, userId, "is-blocking", otherId)
 
   override def follow[U: Resource](userId: String, otherId: String): Future[Unit] = {
-    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
-      checkError(r)
-      cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
-      cache.remove(followingUrl(userId))
-      cache.remove(canonicalUrl(userId))
-    }
+    val callF = userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).post()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
+      _ <- cache.remove(followingUrl(userId))
+      _ <- cache.remove(canonicalUrl(userId))
+    } yield ()
   }
 
   override def unfollow[U: Resource](userId: String, otherId: String): Future[Unit] = {
-    userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
-      checkError(r)
-      cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
-      cache.remove(followingUrl(userId))
-      cache.remove(canonicalUrl(userId))
-    }
+    val callF = userCall(followingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
+      _ <- cache.remove(followingUrl(userId))
+      _ <- cache.remove(canonicalUrl(userId))
+    } yield ()
   }
 
   override def isFollowing(userId: String, otherId: String): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
-    fCache.getOrElse[Boolean](url) {
+    cache.getOrElseUpdate(url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -549,24 +574,28 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
   }
 
   override def watch(userId: String, otherId: String): Future[Unit] = {
-    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
-      cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
-      cache.remove(watchingUrl(userId))
-      checkError(r)
-    }
+    val callF = userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).post()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isWatchingUrl(userId, otherId), true, cacheTime)
+      _ <- cache.remove(watchingUrl(userId))
+    } yield ()
   }
 
   override def unwatch(userId: String, otherId: String): Future[Unit] = {
-    userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
-      cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
-      cache.remove(watchingUrl(userId))
-      checkError(r)
-    }
+    val callF = userCall(watchingUrl(userId)).withQueryString(ID_PARAM -> otherId).delete()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isWatchingUrl(userId, otherId), false, cacheTime)
+      _ <- cache.remove(watchingUrl(userId))
+    } yield ()
   }
 
   override def isWatching(userId: String, otherId: String): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
-    fCache.getOrElse[Boolean](url) {
+    cache.getOrElseUpdate(url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -581,24 +610,28 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
   }
 
   override def block(userId: String, otherId: String): Future[Unit] = {
-    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post().map { r =>
-      cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
-      cache.remove(blockedUrl(userId))
-      checkError(r)
-    }
+    val callF = userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).post()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isBlockingUrl(userId, otherId), true, cacheTime)
+      _ <- cache.remove(blockedUrl(userId))
+    } yield ()
   }
 
   override def unblock(userId: String, otherId: String): Future[Unit] = {
-    userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).delete().map { r =>
-      cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
-      cache.remove(blockedUrl(userId))
-      checkError(r)
-    }
+    val callF = userCall(blockedUrl(userId)).withQueryString(ID_PARAM -> otherId).delete()
+    for {
+      r <- callF
+      _ = checkError(r)
+      _ <- cache.set(isBlockingUrl(userId, otherId), false, cacheTime)
+      _ <- cache.remove(blockedUrl(userId))
+    } yield ()
   }
 
   override def isBlocking(userId: String, otherId: String): Future[Boolean] = {
     val url = isBlockingUrl(userId, otherId)
-    fCache.getOrElse[Boolean](url) {
+    cache.getOrElseUpdate(url) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -733,11 +766,10 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       }.getOrElse(-1L)
     }
 
-  private def itemResponse[MT: Resource](id: String, response: WSResponse): MT = {
+  private def itemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
     val item: MT = checkErrorAndParse(response)(Resource[MT].restReads)
-    cache.remove(canonicalUrl(id))
     eventHandler.handleUpdate(id)
-    item
+    cache.remove(canonicalUrl(id)).map(_ => item)
   }
 
   private def listWithUrl[A: Readable](url: String, params: PageParams, extra: Seq[(String,String)] = Seq.empty): Future[Page[A]] = {
@@ -759,12 +791,12 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 }
 
 object DataApiService {
-  def withNoopHandler(cache: SyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
+  def withNoopHandler(cache: AsyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
     new DataApiService(new EventHandler {
       def handleCreate(ids: String*): Unit = ()
 
       def handleUpdate(ids: String*): Unit = ()
 
       def handleDelete(ids: String*): Unit = ()
-    }, cache: SyncCacheApi, config, ws)
+    }, cache: AsyncCacheApi, config, ws)
 }
