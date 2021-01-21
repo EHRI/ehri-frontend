@@ -201,7 +201,7 @@ trait RestService {
   protected def canonicalUrl[MT: Resource](id: String): String =
     enc(typeBaseUrl, Resource[MT].entityType, id)
 
-  protected def checkError(response: WSResponse, uri: Option[String] = None): WSResponse = {
+  protected def checkError(response: WSResponse, context: Option[String] = None): WSResponse = {
     logger.trace(s"Response body ! : ${response.body}")
     response.status match {
       case OK | CREATED | NO_CONTENT => response
@@ -243,10 +243,10 @@ trait RestService {
         )
       } catch {
         case e@(_: JsonParseException | _: JsonMappingException) =>
-          sys.error(s"Backend 404 at $uri: ${e.getMessage}: '${response.body}")
+          sys.error(s"Backend 404 at $context: ${e.getMessage}: '${response.body}")
       }
       case _ =>
-        val err = s"Unexpected response at ${uri.getOrElse("(?)")}: ${response.status}: '${response.body}'"
+        val err = s"Unexpected response at ${context.getOrElse("(?)")}: ${response.status}: '${response.body}'"
         logger.error(err)
         sys.error(err)
     }

@@ -8,7 +8,7 @@ import defines.EntityType
 import forms.AccountForms
 import models._
 import models.base.Model
-import play.api.cache.AsyncCacheApi
+import play.api.cache.{AsyncCacheApi, Cached}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -33,7 +33,8 @@ case class Portal @Inject()(
   ws: WSClient,
   fc: FacetConfig,
   accountForms: AccountForms,
-  asyncCache: AsyncCacheApi
+  asyncCache: AsyncCacheApi,
+  statusCache: Cached,
 ) extends PortalController
   with Search {
 
@@ -159,7 +160,7 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String): EssentialAction = appComponents.statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60 * 60) {
     Action.async { implicit request =>
       futurePageOr404 {
         config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>

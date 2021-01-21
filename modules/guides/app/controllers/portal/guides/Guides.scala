@@ -1,7 +1,6 @@
 package controllers.portal.guides
 
 import javax.inject._
-
 import services.cypher.CypherService
 import controllers.base.SearchVC
 import controllers.generic.Search
@@ -12,6 +11,7 @@ import defines.EntityType
 import models.GuidePage.Layout
 import models.base.Model
 import models.{GeoCoordinates, Guide, GuidePage, _}
+import play.api.cache.Cached
 import play.api.data.Forms._
 import play.api.data._
 import play.api.http.MimeTypes
@@ -30,7 +30,8 @@ case class Guides @Inject()(
   appComponents: AppComponents,
   guides: GuideService,
   cypher: CypherService,
-  fc: FacetConfig
+  fc: FacetConfig,
+  statusCache: Cached,
 ) extends PortalController
   with Search
   with SearchVC {
@@ -41,7 +42,7 @@ case class Guides @Inject()(
   private val htmlAgentOrder = services.search.SearchSort.Detail
   private val htmlConceptOrder = services.search.SearchSort.ChildCount
 
-  def jsRoutes: EssentialAction = appComponents.statusCache.status((_: RequestHeader) => "pages:guideJsRoutes", OK, 1.hour) {
+  def jsRoutes: EssentialAction = statusCache.status((_: RequestHeader) => "pages:guideJsRoutes", OK, 1.hour) {
     Action { implicit request =>
       Ok(
         play.api.routing.JavaScriptReverseRouter("jsRoutes")(

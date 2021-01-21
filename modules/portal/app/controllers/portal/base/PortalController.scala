@@ -11,12 +11,10 @@ import lifecycle.ItemLifecycle
 import models.UserProfile
 import models.base.Model
 import models.view.{MessagingInfo, UserDetails}
-import play.api.cache.SyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
-import services.data.caching.FutureCache
 import services.data.{ApiUser, DataApi}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
@@ -24,10 +22,8 @@ import views.html.MarkdownRenderer
 import views.html.errors.{itemNotFound, maintenance, pageNotFound}
 
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.Duration
 
 
 trait PortalController
@@ -41,7 +37,6 @@ trait PortalController
   def appComponents: AppComponents
 
   // Implicits hoisted to class scope so as to be provided to views
-  protected implicit def cache: SyncCacheApi = appComponents.cacheApi
   protected implicit def conf: AppConfig = appComponents.conf
   protected implicit def markdown: MarkdownRenderer = appComponents.markdown
   protected implicit def config: Configuration = appComponents.config
@@ -66,7 +61,6 @@ trait PortalController
    * **implicit** `preferences` object that can be picked up by views.
    */
   protected val defaultPreferences = new SessionPrefs
-  private val fCache = FutureCache(cache)
 
   /**
    * Ensure that functions requiring an optional user in scope
@@ -76,7 +70,7 @@ trait PortalController
 
   private def userWatchCacheKey(userId: String) = s"$userId-watchlist"
 
-  protected def clearWatchedItemsCache(userId: String): Unit = cache.remove(userWatchCacheKey(userId))
+  protected def clearWatchedItemsCache(userId: String): Unit = appComponents.cacheApi.remove(userWatchCacheKey(userId))
 
   /**
    * Activity event types that we think the user would care about.
@@ -214,11 +208,16 @@ trait PortalController
    * Fetched watched items for an optional user.
    */
   protected def watchedItemIds(implicit userIdOpt: Option[String]): Future[Seq[String]] = userIdOpt.map { userId =>
-    fCache.getOrElse(userWatchCacheKey(userId), Duration.apply(20 * 60, TimeUnit.SECONDS)) {
-      implicit val apiUser: ApiUser = ApiUser(Some(userId))
-      userDataApi.watching[Model](userId, PageParams.empty.withoutLimit).map { page =>
-        page.items.map(_.id)
-      }
+    appComponents.cacheApi.get[Seq[String]](userWatchCacheKey(userId)) match {
+      case Some(seq) => immediate(seq)
+      case None =>
+        import scala.concurrent.duration._
+        implicit val apiUser: ApiUser = ApiUser(Some(userId))
+        userDataApi.watching[Model](userId, PageParams.empty.withoutLimit).map { page =>
+          val seq = page.items.map(_.id)
+          appComponents.cacheApi.set(userWatchCacheKey(userId), seq, 20.minutes)
+          seq
+        }
     }
   }.getOrElse(Future.successful(Seq.empty))
 

@@ -1,7 +1,6 @@
 package controllers.portal
 
 import javax.inject._
-
 import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.generic.Search
@@ -9,6 +8,7 @@ import controllers.portal.base.PortalController
 import defines.EntityType
 import models._
 import models.base.Model
+import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.mvc._
@@ -26,7 +26,8 @@ case class Bookmarks @Inject()(
   appComponents: AppComponents,
   idGenerator: IdGenerator,
   cypher: CypherService,
-  fc: FacetConfig
+  fc: FacetConfig,
+  cache: SyncCacheApi,
 ) extends PortalController
   with Search {
 

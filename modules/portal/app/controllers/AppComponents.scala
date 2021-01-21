@@ -1,18 +1,19 @@
 package controllers
 
-import javax.inject.Inject
 import akka.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
 import config.AppConfig
 import lifecycle.ItemLifecycle
 import play.api.Configuration
-import play.api.cache.{Cached, SyncCacheApi}
+import play.api.cache.SyncCacheApi
 import services.accounts.AccountManager
 import services.data.DataApi
 import services.redirects.MovedPageLookup
 import services.search.{SearchEngine, SearchItemResolver}
 import views.html.MarkdownRenderer
+
+import javax.inject.Inject
 
 
 /**
@@ -25,7 +26,6 @@ trait AppComponents {
   def accounts: AccountManager
   def authHandler: AuthHandler
   def cacheApi: SyncCacheApi
-  def statusCache: Cached
   def config: Configuration
   def conf: AppConfig
   def markdown: MarkdownRenderer
@@ -48,6 +48,5 @@ case class DefaultAppComponents @Inject ()(
   searchEngine: SearchEngine,
   searchResolver: SearchItemResolver,
   itemLifecycle: ItemLifecycle,
-  statusCache: Cached
 ) extends AppComponents
 
