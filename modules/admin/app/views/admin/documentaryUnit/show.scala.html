@@ -28,6 +28,7 @@
                     } {
                         @common.typeLabel(item.isA) {
                         }
+                        @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     } {
                         @views.html.admin.common.identifiers(item.data.identifier, item.data.otherIdentifiers)
                         @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))

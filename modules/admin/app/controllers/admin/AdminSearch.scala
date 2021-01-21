@@ -60,10 +60,7 @@ case class AdminSearch @Inject()(
     EntityType.Concept,
     EntityType.Vocabulary,
     EntityType.AuthoritativeSet,
-    EntityType.UserProfile,
-    EntityType.Group,
     EntityType.VirtualUnit,
-    EntityType.Link
   )
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>

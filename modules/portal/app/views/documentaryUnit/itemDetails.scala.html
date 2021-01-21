@@ -14,7 +14,7 @@
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
                 @views.html.common.sidepanelToc {
-                    @archivalContext(item)
+                    @views.html.documentaryUnit.archivalContext(item)
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
                         Map("ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true)))

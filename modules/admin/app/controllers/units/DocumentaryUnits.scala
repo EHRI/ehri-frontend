@@ -119,6 +119,7 @@ case class DocumentaryUnits @Inject()(
     findType[DocumentaryUnit](params, paging, filters = Map(SearchConstants.PARENT_ID -> request.item.id),
       facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
       if (isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+        .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.admin.documentaryUnit.show(request.item, result,
         docRoutes.get(id), request.annotations, request.links, dlid))
           .withPreferences(preferences.withRecentItem(id))

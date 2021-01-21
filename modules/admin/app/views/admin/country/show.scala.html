@@ -15,13 +15,14 @@
     }
 
     @views.html.admin.search.searchSection(item, Messages("country.searchItems", item.toStringAbbr), result) {
-        @views.html.common.search.searchForm(result, action, autofocus = false) {
+        @views.html.common.search.searchForm(result, action) {
             @views.html.admin.search.searchItemList(result)
         } {
             @common.search.facetList(result.facetClasses, action)
         }
     }
 } {
+    @views.html.common.childItemSidebar(item, EntityType.Repository)
     @views.html.admin.common.visibility(item, controllers.countries.routes.Countries.visibility(item.id), ContentTypes.Country)
     @views.html.admin.common.latestAction(item, controllers.countries.routes.Countries.history(item.id))
 

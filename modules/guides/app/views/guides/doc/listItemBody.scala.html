@@ -25,7 +25,7 @@
     </ul>
     @views.html.common.childCount(item) { count =>
         @if(count > 0) {
-            <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)#search-items">@Messages("documentaryUnit.childCount", count)</a>
+            <a href="@controllers.portal.guides.routes.DocumentaryUnits.browse(guide.path, item.id)#@(item.id)-child-item-search">@Messages("documentaryUnit.childCount", count)</a>
         }
     }
 
