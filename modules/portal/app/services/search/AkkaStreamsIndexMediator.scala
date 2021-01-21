@@ -19,7 +19,7 @@ import play.api.{Configuration, Logger}
 
 import java.io.StringWriter
 import java.time
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 

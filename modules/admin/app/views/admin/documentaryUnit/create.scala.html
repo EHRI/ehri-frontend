@@ -22,7 +22,7 @@
 
     @helper.form(action = action) {
         @formHelpers.csrfToken()
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER)
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
         @views.html.admin.documentaryUnit.form(f, config)
 
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
