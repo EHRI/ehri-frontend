@@ -37,6 +37,7 @@
                             </a>
 
                         }
+                        @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     } {
                         @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
@@ -45,7 +46,7 @@
                 }
 
                 @views.html.admin.search.searchSection(item, Messages("repository.searchInside", item.toStringAbbr(messages)), result) {
-                    @views.html.common.search.searchForm(result, action, autofocus = false) {
+                    @views.html.common.search.searchForm(result, action) {
                         @views.html.admin.search.searchItemList(result)
                     } {
 

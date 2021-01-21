@@ -115,6 +115,7 @@ case class Repositories @Inject()(
     findType[DocumentaryUnit](params, paging, filters = filters,
       facetBuilder = repositoryFacets, sort = SearchSort.Id).map { result =>
       if(isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+        .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.admin.repository.show(request.item, result,
         repositoryRoutes.get(id), request.annotations, request.links))
         .withPreferences(preferences.withRecentItem(id))

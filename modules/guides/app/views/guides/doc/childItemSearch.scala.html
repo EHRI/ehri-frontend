@@ -1,7 +1,7 @@
 @(guide: Guide, item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, context: Option[models.base.Holder[_]] = None)
 
 @if(result.nonEmpty) {
-    <ul id="search-items" class="search-result-list">
+    <ul id="@(item.id)-child-item-search" class="search-result-list">
         @result.page.map { case (doc, hit) =>
             <li>
                 @views.html.common.searchItemOutline(doc, watched.contains(doc.id)) {

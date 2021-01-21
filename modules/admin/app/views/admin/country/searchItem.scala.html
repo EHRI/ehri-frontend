@@ -5,7 +5,7 @@
 } {
     @views.html.common.childCount(item) { count =>
         <ul class="search-item-details">
-            <li><a href="@controllers.countries.routes.Countries.get(item.id)#search-items">@Messages("country.childCount", count)</a></li>
+            <li><a href="@controllers.countries.routes.Countries.get(item.id)#@(item.id)-child-item-search">@Messages("country.childCount", count)</a></li>
         </ul>
     }
     @item.data.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>

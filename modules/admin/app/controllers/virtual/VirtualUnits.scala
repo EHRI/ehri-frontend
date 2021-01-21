@@ -113,6 +113,7 @@ case class VirtualUnits @Inject()(
         entities = List(EntityType.VirtualUnit, EntityType.DocumentaryUnit), facetBuilder = entityFacets)
     } yield {
       if (isAjax) Ok(views.html.admin.search.inlineItemList(result))
+        .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.admin.virtualUnit.show(request.item, result,
         vuRoutes.get(id), request.annotations, request.links, dlid, Seq.empty))
     }
