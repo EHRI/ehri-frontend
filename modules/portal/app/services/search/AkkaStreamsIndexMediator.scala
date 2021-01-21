@@ -23,11 +23,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-@Singleton
-case class AkkaStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, configuration:
-Configuration, executionContext: ExecutionContext) extends
+
+case class AkkaStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, config: Configuration, executionContext: ExecutionContext) extends
   SearchIndexMediator {
-  override val handle: SearchIndexMediatorHandle = AkkaStreamsIndexMediatorHandle()(actorSystem, mat, configuration, executionContext)
+  override val handle: SearchIndexMediatorHandle = AkkaStreamsIndexMediatorHandle()(actorSystem, mat, config, executionContext)
 }
 
 case class AkkaStreamsIndexMediatorHandle(
@@ -45,7 +44,7 @@ case class AkkaStreamsIndexMediatorHandle(
   import scala.collection.JavaConverters._
   import scala.concurrent.duration._
 
-  private val logger = Logger(this.getClass)
+  private val logger = Logger(classOf[AkkaStreamsIndexMediator])
 
   private val dataBaseUrl: Uri = serviceBaseUrl("ehridata", config)
   private val solrBaseUrl: Uri = serviceBaseUrl("solr", config) + "/update"
@@ -209,16 +208,20 @@ case class AkkaStreamsIndexMediatorHandle(
     bytes.runWith(sinkFlow(solrUri)).map(r => logger.debug(s"Solr response: $r"))
   }
 
-  override def indexTypes(entityTypes: Seq[defines.EntityType.Value]): Future[Unit] =
+  override def indexTypes(entityTypes: Seq[defines.EntityType.Value]): Future[Unit] = {
+    logger.debug(s"Indexing types: $entityTypes")
     index(entitiesToRequests(entityTypes))
+  }
 
   override def indexIds(ids: String*): Future[Unit] = {
-    println(s"Indexing: ${ids.size}")
+    logger.debug(s"Indexing IDs: $ids")
     index(idsToRequests(ids))
   }
 
-  override def indexChildren(entityType: defines.EntityType.Value, id: String): Future[Unit] =
+  override def indexChildren(entityType: defines.EntityType.Value, id: String): Future[Unit] = {
+    logger.debug(s"Indexing children: $entityType:$id")
     index(childrenToRequests(entityType, id))
+  }
 
   override def clearAll(): Future[Unit] = deleteByQuery("id:*")
 
