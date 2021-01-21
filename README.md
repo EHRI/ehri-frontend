@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/EHRI/ehri-frontend.svg?branch=master)](https://travis-ci.org/EHRI/ehri-frontend)
+[![Build Status](https://github.com/EHRI/ehri-frontend/workflows/CI/badge.svg)](https://github.com/EHRI/ehri-frontend/actions?query=workflow%3ACI)
 
 Front-end for  the [EHRI REST](https://github.com/EHRI/ehri-rest) web service.
 
