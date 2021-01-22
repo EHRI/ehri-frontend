@@ -131,6 +131,8 @@ item.delete=Delete Item
 item.delete.info=Are you sure you want to delete item: "{0}"?  This action cannot be undone.
 item.delete.submit=Delete Item
 item.delete.confirmation=Item successfully deleted
+item.delete.childrenFirst=This item has {0} child {0,choice,1#item|1<items}. \
+    Deleting a parent item requires deleting lower level items first.
 item.create=Create Item
 item.create.submit=Create
 item.create.confirmation=Item successfully created

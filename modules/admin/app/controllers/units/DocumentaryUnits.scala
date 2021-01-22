@@ -255,9 +255,12 @@ case class DocumentaryUnits @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(
-      request.item, docRoutes.deletePost(id, goToId = request.item.parent.map(_.id)), docRoutes.get(id)))
+  def delete(id: String, params: PageParams): Action[AnyContent] = CheckDeleteAction(id).async { implicit request =>
+    userDataApi.children[DocumentaryUnit, DocumentaryUnit](id, params).map { children =>
+      Ok(views.html.admin.documentaryUnit.delete(
+        request.item, children,
+        docRoutes.deletePost(id, goToId = request.item.parent.map(_.id)), docRoutes.get(id)))
+    }
   }
 
   def deletePost(id: String, goToId: Option[String]): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
