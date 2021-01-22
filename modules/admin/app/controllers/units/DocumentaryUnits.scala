@@ -257,11 +257,11 @@ case class DocumentaryUnits @Inject()(
 
   def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-      request.item, docRoutes.deletePost(id), docRoutes.get(id)))
+      request.item, docRoutes.deletePost(id, goToId = request.item.parent.map(_.id)), docRoutes.get(id)))
   }
 
-  def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
-    Redirect(docRoutes.search())
+  def deletePost(id: String, goToId: Option[String]): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
+    Redirect(goToId.map(p => docRoutes.get(p)).getOrElse(docRoutes.search()))
       .flashing("success" -> "item.delete.confirmation")
   }
 
