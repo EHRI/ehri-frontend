@@ -111,6 +111,12 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       status(show) must equalTo(NOT_FOUND)
     }
 
+    "prevent deleting c1 due to child items" in new ITestApp {
+      val confirm = FakeRequest(docRoutes.delete("c1")).withUser(privilegedUser).call()
+      status(confirm) must equalTo(OK)
+      contentAsString(confirm) must contain(message("item.delete.childrenFirst", 1))
+    }
+
     "allow deleting c4 when logged in" in new ITestApp {
       val del = FakeRequest(docRoutes.deletePost("c4"))
         .withUser(privilegedUser).call()

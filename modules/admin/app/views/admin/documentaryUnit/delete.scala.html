@@ -1,0 +1,28 @@
+@(item: DocumentaryUnit, children: utils.Page[DocumentaryUnit], action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+
+@views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item)) {
+
+    @if(children.nonEmpty) {
+        <div class="alert alert-danger">
+            @Messages("item.delete.childrenFirst", children.total)
+        </div>
+        <table class="table table-bordered table-striped">
+        @for(child <- children) {
+            <tr>
+                <td>@child.toStringLang</td>
+                <td><a href="@controllers.units.routes.DocumentaryUnits.delete(child.id)">@Messages("item.delete")</a></td>
+            </tr>
+        }
+        </table>
+        @common.pagination(children)
+    } else {
+        <p>@Messages("item.delete.info", item.toStringLang)</p>
+        @helper.form(action = action) {
+            @formHelpers.csrfToken()
+            @formHelpers.submitButtonWithLogMessageInput(Messages("item.delete.submit"), cancel = views.admin.Helpers.linkToOpt(item))
+        }
+    }
+} {
+
+}
+
