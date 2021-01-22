@@ -1,5 +1,6 @@
 package services.search
 
+import play.api.Logger
 import services.data
 import services.data.{ApiUser, DataApi}
 
@@ -10,6 +11,9 @@ import scala.concurrent.{ExecutionContext, Future}
   * Resolve search hits to DB items by the GID field
   */
 case class GidSearchResolver @Inject()(dataApi: DataApi)(implicit executionContext: ExecutionContext) extends SearchItemResolver {
-  def resolve[MT: data.Readable](docs: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[Option[MT]]] =
+  private val logger = Logger(classOf[GidSearchResolver])
+  def resolve[MT: data.Readable](docs: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[Option[MT]]] = {
+    logger.debug(s"Fetching GIDs: ${docs.map(_.gid)}")
     dataApi.withContext(apiUser).fetch(gids = docs.map(_.gid))
+  }
 }

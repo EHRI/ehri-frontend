@@ -140,11 +140,16 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
     val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete()
+    // Caching hack: all parents are invalid since their child counts have changed
+    // FIXME: Unfortunately the types vary so canonicalUrl will not find the right item!
+    val clearIds: Seq[String] = id.split("-").foldLeft(Seq.empty[String]) { case (acc, part) =>
+      acc.lastOption.map(last => acc :+ s"$last-$part").getOrElse(Seq(part))
+    }
     for {
       response <- callF
       _ = checkError(response)
       _ = eventHandler.handleDelete(id)
-      _ <- cache.remove(canonicalUrl(id)).map(_ => ())
+      _ <- Future.sequence(clearIds.map(id => cache.remove(canonicalUrl(id))))
     } yield ()
   }
 

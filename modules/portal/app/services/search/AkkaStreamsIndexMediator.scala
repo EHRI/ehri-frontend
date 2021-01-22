@@ -16,6 +16,8 @@ import config.serviceBaseUrl
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import play.api.libs.json.Json
 import play.api.{Configuration, Logger}
+import services.data.Constants.{AUTH_HEADER_NAME, STREAM_HEADER_NAME}
+import services.search.SearchConstants.{ID, ITEM_ID, TYPE}
 
 import java.io.StringWriter
 import java.time
@@ -116,7 +118,7 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private def urisToRequests(uris: List[HttpRequest]): List[(HttpRequest, Uri)] = uris.map { r =>
     val req = r
-      .withHeaders(RawHeader("X-Stream", "true"), RawHeader("X-User", "admin"))
+      .withHeaders(RawHeader(STREAM_HEADER_NAME, "true"), RawHeader(AUTH_HEADER_NAME, "admin"))
     req -> r.uri
   }
 
@@ -223,13 +225,14 @@ case class AkkaStreamsIndexMediatorHandle(
     index(childrenToRequests(entityType, id))
   }
 
-  override def clearAll(): Future[Unit] = deleteByQuery("id:*")
+  override def clearAll(): Future[Unit] =
+    deleteByQuery(s"$ID:*")
 
   override def clearTypes(entityTypes: Seq[defines.EntityType.Value]): Future[Unit] =
-    deleteByQuery(entityTypes.map(et => s"type:$et"):_*)
+    deleteByQuery(entityTypes.map(et => s"$TYPE:$et"):_*)
 
   override def clearIds(ids: String*): Future[Unit] =
-    deleteByQuery(ids.map(id => s"id:$id"): _*)
+    deleteByQuery(ids.map(id => s"$ITEM_ID:$id"): _*)
 
   override def clearKeyValue(key: String, value: String): Future[Unit] =
     deleteByQuery(s"$key:$value")
