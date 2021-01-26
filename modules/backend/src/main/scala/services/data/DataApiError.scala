@@ -14,22 +14,21 @@ case class PermissionDenied(
 ) extends RuntimeException(s"Permission denied on $item for $user") with RestError
 
 object PermissionDenied {
-  val permissionDeniedReads: Reads[PermissionDenied] = (
+  private val _reads: Reads[PermissionDenied] = (
     (__ \ "details" \ "accessor").readNullable[String] and
-      (__ \ "details" \ "permission").readNullable[String] and
-      (__ \ "details" \ "item").readNullable[String] and
-      (__ \ "details" \ "scope").readNullable[String]
-    )(PermissionDenied.apply _)
+    (__ \ "details" \ "permission").readNullable[String] and
+    (__ \ "details" \ "item").readNullable[String] and
+    (__ \ "details" \ "scope").readNullable[String]
+  )(PermissionDenied.apply _)
 
-  val permissionDeniedWrites: Writes[PermissionDenied] = (
+  private val _writes: Writes[PermissionDenied] = (
     (__ \ "accessor").writeNullable[String] and
-      (__ \ "permission").writeNullable[String] and
-      (__ \ "item").writeNullable[String] and
-      (__ \ "scope").writeNullable[String]
-    )(unlift(PermissionDenied.unapply))
+    (__ \ "permission").writeNullable[String] and
+    (__ \ "item").writeNullable[String] and
+    (__ \ "scope").writeNullable[String]
+  )(unlift(PermissionDenied.unapply))
 
-  implicit val permissionDeniedFormat: Format[PermissionDenied] = Format(
-    permissionDeniedReads, permissionDeniedWrites)
+  implicit val _format: Format[PermissionDenied] = Format(_reads, _writes)
 }
 
 case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError {
@@ -39,17 +38,26 @@ case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet
 object ValidationError {
   def apply(field: String, error: String): ValidationError = ValidationError(ErrorSet(Map(field -> Seq(error))))
 
-  implicit val validationErrorReads: Reads[ValidationError] = (
+  implicit val _reads: Reads[ValidationError] = (
     (__ \ "error").read[String] and
-      (__ \ "details").read[ErrorSet]
-    )((_, s) => ValidationError(s))
+    (__ \ "details").read[ErrorSet]
+  )((_, s) => ValidationError(s))
 }
 
 case class JsonError(msg: String) extends RuntimeException(msg) with RestError
 
+case class HierarchyError(error: String, id: String, count: Int) extends RuntimeException(error) with RestError
+object HierarchyError {
+  implicit val _reads: Reads[HierarchyError] = (
+    (__ \ "details" \ "message").read[String] and
+    (__ \ "details" \ "id").read[String] and
+    (__ \ "details" \ "count").read[Int]
+  )(HierarchyError.apply _)
+}
+
 case class InputDataError(error: String, details: String) extends RuntimeException(error) with RestError
 object InputDataError {
-  implicit val _fmt: Format[InputDataError] = Json.format[InputDataError]
+  implicit val _format: Format[InputDataError] = Json.format[InputDataError]
 }
 
 case class DeserializationError() extends RuntimeException() with RestError
@@ -91,20 +99,19 @@ case class BadJson(
 }
 
 object ItemNotFound {
-  val itemNotFoundReads: Reads[ItemNotFound] = (
+  private val _reads: Reads[ItemNotFound] = (
     (__ \ "details" \ "key").readNullable[String] and
     (__ \ "details" \ "value").readNullable[String] and
     (__ \ "details" \ "message").readNullable[String]
   )(ItemNotFound.apply _)
 
-  val itemNotFoundWrites: Writes[ItemNotFound] = (
+  private val _writes: Writes[ItemNotFound] = (
     (__ \ "key").writeNullable[String] and
     (__ \ "value").writeNullable[String] and
     (__ \ "message").writeNullable[String]
   )(unlift(ItemNotFound.unapply))
 
-  implicit val itemNotFoundFormat: Format[ItemNotFound] = Format(
-    itemNotFoundReads, itemNotFoundWrites)
+  implicit val _format: Format[ItemNotFound] = Format(_reads, _writes)
 }
 
 

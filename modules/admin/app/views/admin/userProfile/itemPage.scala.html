@@ -26,8 +26,8 @@
         @views.html.admin.common.sidebarAction(user.isAdmin, danger = true) {
             <a href="@controllers.users.routes.UserProfiles.delete(item.id)">@Messages("userProfile.delete")</a>
         }
-        @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.users.routes.UserProfiles.history(item.id)">@Messages("item.history")</a>
+        @views.html.admin.common.sidebarAction(user.isAdmin) {
+            <a href="@controllers.users.routes.UserProfiles.actions(item.id)">@Messages("userProfile.actions")</a>
         }
     }
 

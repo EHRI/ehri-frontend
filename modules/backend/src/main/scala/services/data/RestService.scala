@@ -86,6 +86,10 @@ trait RestService {
 
     def delete()(implicit ec: ExecutionContext): Future[WSResponse] = withMethod(DELETE).execute()
 
+    def head()(implicit ec: ExecutionContext): Future[WSResponse] = holderWithAuth.execute().recover {
+      case e: ConnectException => throw ServiceOffline(fullUrl, e)
+    }
+
     /**
       * Sets the body for this request. Copy and paste from WSRequest :(
       */
@@ -185,6 +189,7 @@ trait RestService {
     * Encode a bunch of URL parts.
     */
   protected def enc(base: String, s: Any*): String = {
+    // FIXME: Clean up/revise/destroy/test this mess of a function
     def clean(segment: Any): String =
       segment.toString.replace("?", "%3F").replace("#", "%23")
     import java.net.URI
@@ -197,9 +202,6 @@ trait RestService {
   protected def baseUrl: String = serviceBaseUrl("ehridata", config)
 
   protected def typeBaseUrl: String = enc(baseUrl, "classes")
-
-  protected def canonicalUrl[MT: Resource](id: String): String =
-    enc(typeBaseUrl, Resource[MT].entityType, id)
 
   protected def checkError(response: WSResponse, context: Option[String] = None): WSResponse = {
     logger.trace(s"Response body ! : ${response.body}")
@@ -215,6 +217,7 @@ trait RestService {
       case BAD_REQUEST | CONFLICT => try {
         response.json.validate[ValidationError]
           .orElse(response.json.validate[InputDataError])
+          .orElse(response.json.validate[HierarchyError])
           .fold(
             e => {
               // Temporary approach to handling random Deserialization errors.

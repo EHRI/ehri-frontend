@@ -1,12 +1,10 @@
 package controllers.admin
 
-import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
 import defines.{EntityType, EventType}
-import models.base.{Model, Description}
+import models.base.{Description, Model}
 import models.{Isaar, SystemEvent}
 import play.api.http.MimeTypes
 import play.api.i18n.Messages
@@ -16,6 +14,7 @@ import services.search._
 import utils.{PageParams, RangePage, SystemEventParams}
 import views.Helpers
 
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -96,8 +95,10 @@ case class Home @Inject()(
         .fetch[Model](preferences.recentItems)
         .map(_.collect { case Some(m) => m })
 
-      for (recent <- recentF; events <- eventsF)
-        yield Ok(views.html.admin.index(events, recent))
+      for {
+        recent <- recentF
+        events <- eventsF
+      } yield Ok(views.html.admin.index(events, recent))
     } getOrElse {
       immediate(Ok(views.html.admin.index(Seq.empty, Seq.empty)))
     }

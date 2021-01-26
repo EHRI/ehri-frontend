@@ -5,7 +5,7 @@ import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
-import services.data.{ApiUser, AuthenticatedUser}
+import services.data.{ApiUser, AuthenticatedUser, HierarchyError}
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
@@ -115,6 +115,12 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       val confirm = FakeRequest(docRoutes.delete("c1")).withUser(privilegedUser).call()
       status(confirm) must equalTo(OK)
       contentAsString(confirm) must contain(message("item.delete.childrenFirst", 1))
+    }
+
+    "error deleting c1 due to child items" in new ITestApp {
+      await(FakeRequest(docRoutes.deletePost("c1"))
+        .withUser(privilegedUser)
+        .call()) must throwA[HierarchyError]
     }
 
     "allow deleting c4 when logged in" in new ITestApp {

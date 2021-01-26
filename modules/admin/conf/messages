@@ -1,12 +1,13 @@
 # Admin messages
 
 # General main page parts
-pages.portal=Portal
+pages.portal=Public Site
 pages.home=Home
 pages.search=Search
 pages.more=More
 pages.admin=Admin Site
 
+admin.home=Home
 admin.recentActivity=Recent Activity
 admin.recentlyViewed=Recently Viewed
 admin.home.title=Welcome to the EHRI Administration interface
@@ -39,7 +40,7 @@ contentTypes.CvocVocabulary=Vocabularies
 contentTypes.AuthoritativeSet=Authority Sets
 contentTypes.CvocConcept=Terms
 contentTypes.Annotation=Annotations
-contentTypes.Country=Countries
+contentTypes.Country=Country Reports
 contentTypes.Link=Links
 contentTypes.SystemEvent=History
 contentTypes.VirtualUnit=Virtual Collections
@@ -423,6 +424,7 @@ userProfile.update.submit=Update User
 userProfile.manage=Manage User
 userProfile.manage.item=Manage User {0}
 userProfile.manage.submit=Submit
+userProfile.actions=Action History
 userProfile.delete=Delete User
 userProfile.delete.item=Delete User {0}
 userProfile.delete.confirm=User profiles should almost never be deleted as doing so loses information \

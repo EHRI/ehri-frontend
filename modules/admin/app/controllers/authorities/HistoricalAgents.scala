@@ -88,8 +88,8 @@ case class HistoricalAgents @Inject()(
   }
 
   def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(request.item, histRoutes.deletePost(id),
-      histRoutes.get(id)))
+    Ok(views.html.admin.delete(request.item, histRoutes.deletePost(id), histRoutes.get(id),
+      breadcrumbs = views.html.admin.historicalAgent.breadcrumbs(request.item)))
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>

@@ -120,10 +120,14 @@ case class Countries @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(
-      request.item, countryRoutes.deletePost(id),
-      countryRoutes.get(id)))
+  def delete(id: String, params: PageParams): Action[AnyContent] = CheckDeleteAction(id).async { implicit request =>
+    userDataApi.children[Country, Repository](id, params).map { children =>
+      Ok(views.html.admin.deleteParent(
+        request.item, children,
+        countryRoutes.deletePost(id),
+        cancel = countryRoutes.get(id),
+        delChild = cid => controllers.institutions.routes.Repositories.delete(cid)))
+    }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>

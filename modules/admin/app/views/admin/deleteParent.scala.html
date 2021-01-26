@@ -1,6 +1,6 @@
-@(item: DocumentaryUnit, children: utils.Page[DocumentaryUnit], action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: Model, children: utils.Page[Model], action: Call, cancel: Call, delChild: String => Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item)) {
+@views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = breadcrumbs) {
 
     @if(children.nonEmpty) {
         <div class="alert alert-danger">
@@ -10,11 +10,11 @@
         @for(child <- children) {
             <tr>
                 <td>@child.toStringLang</td>
-                <td><a href="@controllers.units.routes.DocumentaryUnits.delete(child.id)">@Messages("item.delete")</a></td>
+                <td><a href="@delChild(child.id)">@Messages("item.delete")</a></td>
             </tr>
         }
         </table>
-        @common.pagination(children)
+        @views.html.common.pagination(children)
     } else {
         <p>@Messages("item.delete.info", item.toStringLang)</p>
         @helper.form(action = action) {

@@ -1,7 +1,7 @@
 @()(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs)
 
-@activeIfCurrent(url: String, text: String) = {
-    <li class="@{if(request.path.startsWith(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
+@activeIfCurrent(url: String, text: String, f: String => Boolean = url => request.path.startsWith(url)) = {
+    <li class="@{if(f(url)) "active" else ""}"><a href="@url">@Html(text)</a></li>
 }
 
 @dropdownMenu(key: String, url: String) = {
@@ -14,7 +14,7 @@
 
 @views.html.common.topNavBar {
     <ul class="nav navbar-nav navbar-left">
-        <li><a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a></li>
+        @activeIfCurrent(controllers.admin.routes.Home.index().url, Messages("admin.home"), url => request.path.equals(url))
         @views.admin.Helpers.mainMenu.map { case (key, url) =>
             @activeIfCurrent(url, Messages(key))
         }
@@ -37,5 +37,5 @@
         </li>
     </ul>
 } {
-    @views.html.common.accountHeaderRightMenu(showFeedback = false, showAdminLink = false, prefsOpt = Some(prefs))
+    @views.html.common.accountHeaderRightMenu(showPortalLink = true, prefsOpt = Some(prefs))
 }

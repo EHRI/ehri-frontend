@@ -26,7 +26,10 @@
         @formHelpers.csrfToken()
 
         <div class="form-actions">
-            <input type="submit" id="submit-update" class="btn btn-danger" value="@Messages("search.index.update")" />
+            <button type="submit" id="submit-update" class="btn btn-danger btn-progress">
+                <i class="fa fa-circle-o-notch" aria-hidden="true"></i>
+                @Messages("search.index.update")
+            </button>
         </div>
 
         <div id="update-progress"></div>

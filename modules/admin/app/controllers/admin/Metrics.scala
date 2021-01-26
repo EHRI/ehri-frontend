@@ -153,7 +153,7 @@ case class Metrics @Inject()(
     }
   }
 
-  def clearCached = AdminAction { implicit request =>
+  def clearCached: Action[AnyContent] = AdminAction { implicit request =>
     // Hack around lack of manual expiry
     cache.remove("pages:agentTypeMetric")
     cache.remove("pages:restrictedMetric")

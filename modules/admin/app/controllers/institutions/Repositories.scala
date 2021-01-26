@@ -162,9 +162,15 @@ case class Repositories @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(request.item, repositoryRoutes.deletePost(id),
-        repositoryRoutes.get(id)))
+  def delete(id: String, params: PageParams): Action[AnyContent] = CheckDeleteAction(id).async { implicit request =>
+    userDataApi.children[Repository, DocumentaryUnit](id, params).map { children =>
+      Ok(views.html.admin.deleteParent(
+        request.item, children,
+        repositoryRoutes.deletePost(id),
+        cancel = repositoryRoutes.get(id),
+        delChild = cid => controllers.units.routes.DocumentaryUnits.delete(cid),
+        breadcrumbs = views.html.admin.repository.breadcrumbs(request.item)))
+    }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>

@@ -27,16 +27,16 @@ object IngestResult {
 // The result of a regular import
 case class ImportLog(
   createdKeys: Map[String, Seq[String]] = Map.empty,
-  created: Int = 0,
   updatedKeys: Map[String, Seq[String]] = Map.empty,
-  updated: Int = 0,
   unchangedKeys: Map[String, Seq[String]] = Map.empty,
-  unchanged: Int = 0,
   message: Option[String] = None,
   event: Option[String] = None,
   errors: Map[String, String] = Map.empty,
 ) extends IngestResult {
   def hasDoneWork: Boolean = createdKeys.nonEmpty || updatedKeys.nonEmpty
+  def created: Int = createdKeys.map(_._2.size).sum
+  def updated: Int = updatedKeys.map(_._2.size).sum
+  def unchanged: Int = unchangedKeys.map(_._2.size).sum
 }
 
 object ImportLog {

@@ -29,6 +29,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
   def testBackend(implicit app: play.api.Application, apiUser: ApiUser, ec: ExecutionContext): DataApiHandle =
     app.injector.instanceOf[DataApi].withContext(apiUser)
 
+
   private def ws(implicit app: play.api.Application) = app.injector.instanceOf[WSClient]
   private def config(implicit app: play.api.Application) = app.injector.instanceOf[Configuration]
   private def cache(implicit app: play.api.Application) = app.injector.instanceOf[SyncCacheApi]
@@ -129,6 +130,17 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       r.includedUnits.headOption must beSome.which { desc =>
         desc.id must equalTo("c1")
       }
+    }
+
+    "delete a doc and its child items" in new ITestApp {
+      val items = Seq("c1", "c2", "c3")
+      items.foreach { id =>
+        await(testBackend.get[DocumentaryUnit](id))
+        cache.get(s"item:$id") must beSome
+      }
+      val ids = await(testBackend.deleteAll[DocumentaryUnit]("c1"))
+      ids must_== items
+      ids.foreach(id => cache.get(s"item:$id") must beNone)
     }
 
     "update an item by id" in new ITestApp {
