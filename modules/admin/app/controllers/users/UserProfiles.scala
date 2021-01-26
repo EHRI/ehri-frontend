@@ -172,8 +172,8 @@ case class UserProfiles @Inject()(
               staff = true,
               password = Some(HashedPassword.fromPlain(pw))
             ))
-            _ <- userDataApi.setItemPermissions(profile.id, ContentTypes.UserProfile,
-              profile.id, List(PermissionType.Owner.toString))
+            _ <- userDataApi.setItemPermissions(account.id, ContentTypes.UserProfile,
+              account.id, List(PermissionType.Owner.toString))
           } yield Redirect(controllers.users.routes.UserProfiles.get(profile.id))
         }
     }
@@ -198,6 +198,12 @@ case class UserProfiles @Inject()(
 
   def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
     Ok(views.html.admin.systemEvent.itemList(request.item, request.page, request.params))
+  }
+
+  def actions(id: String, params: RangeParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    userDataApi.userActions[SystemEvent](id, params).map { actions =>
+      Ok(views.html.admin.systemEvent.itemList(request.item, actions, params))
+    }
   }
 
   def list(paging: PageParams): Action[AnyContent] = ItemPageAction(paging).apply { implicit request =>

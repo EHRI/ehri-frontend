@@ -227,12 +227,13 @@ figure {
   }
 }
 
-#navbar-actions,
-#navbar-account {
-  > ul > li > a:hover {
-    text-decoration: none;
-    background-color: $gray-900;
-  }
+#navbar-actions > ul > li > a:hover,
+#navbar-account > ul > li > a:hover,
+#navbar-actions > ul > li.active > a,
+#navbar-account > ul > li.active > a
+{
+  text-decoration: none;
+  background-color: $gray-900;
 }
 
 body.home #navbar-primary-container {

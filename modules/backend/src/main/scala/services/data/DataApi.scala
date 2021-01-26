@@ -291,6 +291,16 @@ trait DataApiHandle {
   def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit]
 
   /**
+    * Delete an item and all child items.
+    *
+    * @param id     the item's id
+    * @param logMsg the log message
+    * @tparam MT the generic type of the item
+    * @return a list of deleted item ids
+    */
+  def deleteAll[MT: Resource](id: String, logMsg: Option[String] = None): Future[Seq[String]]
+
+  /**
     * List items with the given resource type.
     *
     * @param resource the resource type
@@ -488,18 +498,6 @@ trait DataApiHandle {
     */
   def createAnnotation[A <: WithId : Readable, AF: Writable](id: String, ann: AF, accessors: Seq[String] = Nil,
     subItem: Option[String] = None): Future[A]
-
-  /**
-    * Create an annotation on a specific description.
-    *
-    * @param id        the item id
-    * @param did       the description id
-    * @param ann       the annotation data
-    * @param accessors the user's who can access this annotation
-    * @return the updated item
-    */
-  @Deprecated
-  def createAnnotationForDependent[A <: WithId : Readable, AF: Writable](id: String, did: String, ann: AF, accessors: Seq[String] = Nil): Future[A]
 
   /**
     * Create a link on an item.

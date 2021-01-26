@@ -11,19 +11,18 @@ object Helpers {
   import scala.util.control.Exception.catching
 
   val mainMenu = Seq(
-    ("pages.search",                  controllers.admin.routes.AdminSearch.search().url),
+    ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
+    ("contentTypes.Repository",       controllers.institutions.routes.Repositories.search().url),
     ("contentTypes.DocumentaryUnit",  controllers.units.routes.DocumentaryUnits.search().url),
     ("contentTypes.HistoricalAgent",  controllers.authorities.routes.HistoricalAgents.search().url),
-    ("contentTypes.Repository",       controllers.institutions.routes.Repositories.search().url),
-    ("contentTypes.CvocConcept",      controllers.keywords.routes.Concepts.search().url)
+    ("contentTypes.CvocConcept",      controllers.keywords.routes.Concepts.search().url),
   )
 
   val moreMenu = Seq(
-    ("contentTypes.UserProfile",      controllers.users.routes.UserProfiles.search().url),
-    ("contentTypes.Group",            controllers.groups.routes.Groups.search().url),
-    ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
     ("contentTypes.CvocVocabulary",   controllers.vocabularies.routes.Vocabularies.list().url),
     ("contentTypes.AuthoritativeSet", controllers.sets.routes.AuthoritativeSets.list().url),
+    ("contentTypes.UserProfile",      controllers.users.routes.UserProfiles.search().url),
+    ("contentTypes.Group",            controllers.groups.routes.Groups.search().url),
     ("contentTypes.Link",             controllers.links.routes.Links.search().url),
     ("s1", "-"),
     ("contentTypes.SystemEvent",      controllers.events.routes.SystemEvents.list().url),

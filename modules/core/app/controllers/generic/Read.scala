@@ -141,10 +141,8 @@ Read[MT] extends CoreActionBuilders {
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest,ItemHistoryRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemHistoryRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        val getF: Future[MT] = userDataApi.get(itemId)
         val historyF: Future[RangePage[Seq[SystemEvent]]] = userDataApi.history[SystemEvent](itemId, range)
         for {
-          item <- getF
           events <- historyF
         } yield ItemHistoryRequest(request.item, events, range, request.userOpt, request)
       }
@@ -154,10 +152,8 @@ Read[MT] extends CoreActionBuilders {
     ItemPermissionAction(itemId) andThen new CoreActionTransformer[ItemPermissionRequest, ItemVersionsRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[ItemVersionsRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        val getF: Future[MT] = userDataApi.get(itemId)
         val versionsF: Future[Page[Version]] = userDataApi.versions[Version](itemId, paging)
         for {
-          item <- getF
           versions <- versionsF
         } yield ItemVersionsRequest(request.item, versions, paging, request.userOpt, request)
       }

@@ -2,6 +2,11 @@
 
 @views.html.admin.layout.rightSidebar(Messages("admin.home.title")) {
 
+    @helper.form(action = controllers.admin.routes.AdminSearch.search()) {
+        @views.html.common.search.searchBar(services.search.SearchParams.empty, autofocus = true, tips = false, placeholder = Messages("search.queryPlaceholder"))
+    }
+
+
     <div id="admin-info">
         @if(recentItems.nonEmpty) {
             <div id="admin-recently-viewed" class="admin-info-item">
@@ -17,7 +22,11 @@
             <div id="admin-recent-activity" class="admin-info-item">
                 <h3>@Messages("admin.recentActivity")</h3>
                 <ol id="activity-stream">
-                    @views.html.admin.systemEvent.aggregateList(events)
+                    @for(eventSeq <- events) {
+                        @for(event <- eventSeq.headOption) {
+                            @views.html.admin.systemEvent.listEntry(event)
+                        }
+                    }
                 </ol>
             </div>
         }

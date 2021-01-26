@@ -1,4 +1,4 @@
-@(showFeedback: Boolean = false, showAdminLink: Boolean = false, prefsOpt: Option[SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
+@(showFeedback: Boolean = false, showAdminLink: Boolean = false, showPortalLink: Boolean = false, prefsOpt: Option[SessionPrefs] = None)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 <ul>
     @if(showFeedback) {
@@ -35,9 +35,14 @@
     </li>
     @userOpt.map { user =>
         @if(showAdminLink && user.account.exists(_.staff)) {
-        <li>
-            <a href="/admin">@Messages("admin.site")</a>
-        </li>
+            <li>
+                <a href="/admin">@Messages("admin.site")</a>
+            </li>
+        }
+        @if(showPortalLink) {
+            <li>
+                <a href="@controllers.portal.routes.Portal.index()">@Messages("pages.portal")</a>
+            </li>
         }
 
         <li class="view-options">

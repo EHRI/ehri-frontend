@@ -1,6 +1,6 @@
-@(item: models.base.Model, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: models.base.Model, action: Call, cancel: Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = breadcrumbs) {
 
     <p>@Messages("item.delete.info", item.toStringLang)</p>
     @helper.form(action = action) {

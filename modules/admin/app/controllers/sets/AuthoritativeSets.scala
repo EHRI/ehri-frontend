@@ -106,9 +106,14 @@ AuthoritativeSets @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(
-        request.item, setRoutes.deletePost(id), setRoutes.get(id)))
+  def delete(id: String, params: PageParams): Action[AnyContent] = CheckDeleteAction(id).async { implicit request =>
+    userDataApi.children[AuthoritativeSet, HistoricalAgent](id, params).map { children =>
+      Ok(views.html.admin.deleteParent(
+        request.item, children,
+        setRoutes.deletePost(id),
+        cancel = setRoutes.get(id),
+        delChild = cid => controllers.authorities.routes.HistoricalAgents.delete(cid)))
+    }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>

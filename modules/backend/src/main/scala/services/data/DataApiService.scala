@@ -7,7 +7,7 @@ import akka.util.ByteString
 import defines.{ContentTypes, EntityType}
 import play.api.Configuration
 import play.api.cache.AsyncCacheApi
-import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs}
+import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Status}
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
@@ -51,7 +51,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
     userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
-      .withHeaders(headers.headers: _*).withMethod("GET").stream()
+      .withHeaders(headers.headers: _*).withMethod(HttpVerbs.GET).stream()
 
   override def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
     userCall(enc(baseUrl, "admin", "create-default-user-profile"))
@@ -65,15 +65,25 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def get[MT](resource: Resource[MT], id: String): Future[MT] = {
     val url = canonicalUrl(id)(resource)
-    // NB: not using getOrElseUpdate here because we actually cache the item as
-    // a JSON object due to the lack of a ClassTag in the API.
-    cache.get[JsValue](url).flatMap {
-      case Some(json) => immediate(jsonReadToRestError(json, resource.restReads))
-      case None => for {
-        response <- userCall(url, resource.defaultParams).get()
-        item = checkErrorAndParse(response, context = Some(url))(resource.restReads)
-        _ <- cache.set(url, response.json, cacheTime)
-      } yield item
+    // NB: Caching this is not straightforward since the types are generic and
+    // we don't have the runtime type (or a `scala.reflect.ClassTag`) available.
+    // As a result we cache the JSON response from the backend rather than the
+    // item itself directly.
+    // This requires doing a HEAD request to check the item exists and has the
+    // right resource type on the backend to avoid potentially fetching something
+    // from the cache as the wrong resource type. An alternate solution would be
+    // to use the resource type as part of the cache key, but that would prevent
+    // invalidating items without knowing their type first.
+    userCall(url).head().flatMap { check =>
+      if (check.status == Status.OK) {
+        // Fetch the JSON object from the cache
+        val jsonF = cache.getOrElseUpdate(itemCacheKey(id)) {
+          // Or else fetch it from the backend...
+          userCall(url, resource.defaultParams).get().map(_.json)
+        }
+        // Deserialize it now...
+        jsonF.map(json => jsonReadToRestError(json, resource.restReads, context = Some(url)))
+      } else Future.failed(new ItemNotFound())
     }
   }
 
@@ -108,7 +118,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       // also reindex parent since this will update child count caches
       _ = eventHandler.handleUpdate(id)
       _ = eventHandler.handleCreate(created.id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield created
   }
 
@@ -121,7 +131,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       _ = eventHandler.handleUpdate(id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield item
   }
 
@@ -134,23 +144,28 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       _ = eventHandler.handleUpdate(id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield item
   }
 
   override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
     val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete()
-    // Caching hack: all parents are invalid since their child counts have changed
-    // FIXME: Unfortunately the types vary so canonicalUrl will not find the right item!
-    val clearIds: Seq[String] = id.split("-").foldLeft(Seq.empty[String]) { case (acc, part) =>
-      acc.lastOption.map(last => acc :+ s"$last-$part").getOrElse(Seq(part))
-    }
     for {
       response <- callF
       _ = checkError(response)
       _ = eventHandler.handleDelete(id)
-      _ <- Future.sequence(clearIds.map(id => cache.remove(canonicalUrl(id))))
+      _ <- invalidate(parentIds(id))
     } yield ()
+  }
+
+  override def deleteAll[MT: Resource](id: String, logMsg: Option[String] = None): Future[Seq[String]] = {
+    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "all")).delete()
+    for {
+      response <- callF
+      deleted = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
+      _ = eventHandler.handleDelete(id)
+      _ <- invalidate(parentIds(id) ++ deleted)
+    } yield deleted
   }
 
   override def rename[MT: Resource](id: String, local: String, logMsg: Option[String], check: Boolean = false): Future[Seq[(String, String)]] = {
@@ -167,12 +182,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ <- if (mappings.toMap.contains(id)) immediate(Done) else cache.remove(id)
       _ = eventHandler.handleDelete(mappings.map(_._1): _*)
       _ = eventHandler.handleUpdate(mappings.map(_._2): _*)
-      // FIXME: this is a bit fragile since it assumes all the items
-      // updated are the same type. While this is currently true for
-      // rename methods implemented in the backend it may not always be the
-      // case. However, the worst that will happen is that the cache will
-      // contain dead entries which will eventually be displaced anyway.
-      _ <- Future.sequence(mappings.map(m => cache.remove(canonicalUrl[MT](m._1))))
+      _ <- invalidate(mappings.map(_._1))
     } yield mappings
   }
 
@@ -182,9 +192,9 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
-      _ <- Future.sequence(parentIds.map(id => cache.remove(canonicalUrl[PMT](id)(Resource[PMT]))))
+      _ <- invalidate(parentIds)
+      _ <- invalidate(id)
       _ = eventHandler.handleUpdate(parentIds :+ id: _*)
-      _ <- cache.remove(canonicalUrl[MT](id))
     } yield item
   }
 
@@ -239,7 +249,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
       _ = eventHandler.handleUpdate(id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield item
   }
 
@@ -292,7 +302,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
       _ = eventHandler.handleUpdate(id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield item
   }
 
@@ -302,7 +312,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- userCall(url).withHeaders(msgHeader(logMsg): _*).delete()
       _ = checkError(response)
       _ = eventHandler.handleUpdate(id)
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield ()
   }
 
@@ -341,11 +351,6 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     }
   }
 
-  @Deprecated
-  override def createAnnotationForDependent[A <: WithId : Readable, AF: Writable](id: String, did: String, ann: AF, accessors: Seq[String] = Nil): Future[A] = {
-    createAnnotation(id, ann, accessors, Some(did))
-  }
-
   override def linkItems[MT: Resource, A <: WithId : Readable, AF: Writable](id: String, to: String, link: AF, accessPoint: Option[String] = None, directional: Boolean = false): Future[A] = {
     val url: String = enc(typeBaseUrl, EntityType.Link)
     val callF = userCall(url)
@@ -360,7 +365,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       response <- callF
       link = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
       _= eventHandler.handleCreate(link.id)
-      _ <- cache.remove(canonicalUrl[MT](id))
+      _ <- invalidate(id)
     } yield link
   }
 
@@ -375,7 +380,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     }
     for {
       r <- done
-      _ <- cache.remove(canonicalUrl(id))
+      _ <- invalidate(id)
     } yield r
   }
 
@@ -398,7 +403,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
       _ = eventHandler.handleUpdate(vcId)
-      _ <- cache.remove(canonicalUrl(vcId))
+      _ <- invalidate(vcId)
     } yield ()
   }
 
@@ -408,7 +413,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).delete()
       _ = eventHandler.handleUpdate(vcId)
-      _ <- cache.remove(canonicalUrl(vcId))
+      _ <- invalidate(vcId)
     } yield ()
   }
 
@@ -418,8 +423,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, fromVc, "includes", toVc))
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
       // Update both source and target sets in the index
-      _ <- cache.remove(canonicalUrl(fromVc))
-      _ <- cache.remove(canonicalUrl(toVc))
+      _ <- invalidate(toVc, fromVc)
       _ = eventHandler.handleUpdate(toVc, fromVc)
     } yield ()
 
@@ -489,8 +493,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     for {
       response <- callF
       _ = checkError(response)
-      _ <- cache.remove(canonicalUrl[UT](userId))
-      _ <- cache.remove(canonicalUrl[GT](groupId))
+      _ <- invalidate(userId, groupId)
       _ <- cache.remove(enc(permissionRequestUrl, userId))
     } yield ()
   }
@@ -500,8 +503,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     for {
       response <- callF
       _ = checkError(response)
-      _ <- cache.remove(canonicalUrl[UT](userId))
-      _ <- cache.remove(canonicalUrl[GT](groupId))
+      _ <- invalidate(userId, groupId)
       _ <- cache.remove(enc(permissionRequestUrl, userId))
     } yield ()
   }
@@ -527,7 +529,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ = checkError(r)
       _ <- cache.set(isFollowingUrl(userId, otherId), true, cacheTime)
       _ <- cache.remove(followingUrl(userId))
-      _ <- cache.remove(canonicalUrl(userId))
+      _ <- cache.remove(itemCacheKey(userId))
     } yield ()
   }
 
@@ -538,7 +540,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       _ = checkError(r)
       _ <- cache.set(isFollowingUrl(userId, otherId), false, cacheTime)
       _ <- cache.remove(followingUrl(userId))
-      _ <- cache.remove(canonicalUrl(userId))
+      _ <- cache.remove(itemCacheKey(userId))
     } yield ()
   }
 
@@ -753,19 +755,31 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int] = {
     val url = enc(baseUrl, "batch", "delete")
-    userCall(url).withQueryString(
+    val callF = userCall(url).withQueryString(
         "version" -> version.toString,
         "commit" -> commit.toString,
         "log" -> logMsg)
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Int](r, Some(url)))
+    for (count <- callF; _ <- invalidate(ids)) yield count
   }
 
   // Helpers
 
+  private def itemCacheKey(id: String) = s"item:$id"
+
+  private def canonicalUrl[MT: Resource](id: String): String = enc(typeBaseUrl, Resource[MT].entityType, id)
+
+  private def parentIds(id: String): Seq[String] = {
+    // Given an item ID, use the '-' delimiter to infer its parent item IDs...
+    id.split("-").foldLeft(Seq.empty[String]) { case (acc, part) =>
+      acc.lastOption.map(last => acc :+ s"$last-$part").getOrElse(Seq(part))
+    }
+  }
+
   private def getTotal(url: String): Future[Long] =
-    userCall(url).withMethod("HEAD").execute().map { response =>
+    userCall(url).withMethod(HttpVerbs.HEAD).execute().map { response =>
       parsePagination(response, context = Some(url)).map { case (_, _, total) =>
         total.toLong
       }.getOrElse(-1L)
@@ -774,7 +788,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
   private def itemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
     val item: MT = checkErrorAndParse(response)(Resource[MT].restReads)
     eventHandler.handleUpdate(id)
-    cache.remove(canonicalUrl(id)).map(_ => item)
+    invalidate(id).map(_ => item)
   }
 
   private def listWithUrl[A: Readable](url: String, params: PageParams, extra: Seq[(String,String)] = Seq.empty): Future[Page[A]] = {
@@ -782,6 +796,11 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
       parsePage(response, context = Some(url))(Readable[A].restReads)
     }
   }
+
+  private def invalidate(id: String, rest: String*): Future[Done] = invalidate(id +: rest)
+
+  private def invalidate(ids: Seq[String]): Future[Done] =
+    Future.sequence(ids.map(id => cache.remove(itemCacheKey(id)))).map(_ => Done)
 
   private def streamWithUrl[A: Readable](url: String, extra: Seq[(String, String)] = Seq.empty): Source[A, _] = {
     val reader = implicitly[Readable[A]]

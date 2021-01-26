@@ -100,9 +100,14 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
-    Ok(views.html.admin.delete(
-      request.item, vocabRoutes.deletePost(id), vocabRoutes.get(id)))
+  def delete(id: String, params: PageParams): Action[AnyContent] = CheckDeleteAction(id).async { implicit request =>
+    userDataApi.children[Vocabulary, Concept](id, params).map { children =>
+      Ok(views.html.admin.deleteParent(
+        request.item, children,
+        vocabRoutes.deletePost(id),
+        cancel = vocabRoutes.get(id),
+        delChild = cid => controllers.keywords.routes.Concepts.delete(cid)))
+    }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>

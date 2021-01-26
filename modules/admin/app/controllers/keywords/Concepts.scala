@@ -110,7 +110,8 @@ case class Concepts @Inject()(
 
   def delete(id: String): Action[AnyContent] = CheckDeleteAction(id).apply { implicit request =>
     Ok(views.html.admin.delete(
-      request.item, conceptRoutes.deletePost(id), conceptRoutes.get(id)))
+      request.item, conceptRoutes.deletePost(id), conceptRoutes.get(id),
+      breadcrumbs = views.html.admin.concept.breadcrumbs(request.item)))
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
