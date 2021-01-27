@@ -265,7 +265,7 @@ case class Repositories @Inject()(
 
   def updateIndex(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     Ok(views.html.admin.search.updateItemIndex(request.item, field = SearchConstants.HOLDER_ID,
-      action = controllers.admin.routes.Indexing.indexer()))
+      action = controllers.admin.routes.Indexing.indexer(), views.html.admin.repository.breadcrumbs(request.item)))
   }
 
   def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>

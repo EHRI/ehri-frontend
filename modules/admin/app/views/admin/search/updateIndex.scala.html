@@ -1,4 +1,4 @@
-@(form: Form[(Boolean,Boolean,List[defines.EntityType.Value])], types: Seq[defines.EntityType.Value], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(form: Form[(Boolean,Boolean,List[defines.EntityType.Value])], types: Seq[defines.EntityType.Value], action: Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import controllers.admin.IndexTypes._
 
@@ -21,7 +21,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts, breadcrumbs = breadcrumbs) {
     @helper.form(action = action, 'id -> "update-form") {
         @helper.checkbox(form(CLEAR_ALL), '_label -> Messages("search.index.clear.all"))
         @helper.checkbox(form(CLEAR_TYPES), '_label -> Messages("search.index.clear.types"))
