@@ -107,7 +107,10 @@ case class SystemEvent(
     case et => et
   }
 
-  override def toStringLang(implicit messages: play.api.i18n.Messages): String =
+  def title(implicit messages: Messages): String =
+    scope.fold(ifEmpty = toStringLang)(scope => s"${scope.toStringLang} - $toStringLang")
+
+  override def toStringLang(implicit messages: Messages): String =
     Messages("systemEvent." + data.eventType.map(_.toString).getOrElse("unknown"))(messages)
 }
 

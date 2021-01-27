@@ -1,4 +1,4 @@
-@(item: models.base.Model, field: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: models.base.Model, field: String, action: Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @import controllers.admin.IndexChildren._
 
@@ -20,8 +20,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript,
-        breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("search.index.update.for", item.toStringLang), scripts=extraScript, breadcrumbs = breadcrumbs) {
     @helper.form(action = action, 'id -> "update-form") {
         @formHelpers.csrfToken()
 

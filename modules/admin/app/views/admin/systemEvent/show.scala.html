@@ -1,14 +1,6 @@
 @(item: SystemEvent, page: utils.Page[models.base.Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@title(item: SystemEvent) = {
-    @item.scope.map { scope =>
-        @scope.toStringLang -
-    }
-    @item.toStringLang
-}
-
-@views.html.admin.layout.rightSidebar(title(item), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
+@views.html.admin.layout.rightSidebar(item.title, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <p>
         @item.actioner.map { accessor =>
             <a href="@views.admin.Helpers.linkTo(accessor)">@accessor.toStringLang</a>:
