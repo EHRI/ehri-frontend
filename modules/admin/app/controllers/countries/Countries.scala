@@ -52,7 +52,9 @@ case class Countries @Inject()(
 
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     findType[Repository](params, paging, filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)).map { result =>
-      Ok(views.html.admin.country.show(request.item, result,
+      if(isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+        .withHeaders("more" -> result.page.hasMore.toString)
+      else Ok(views.html.admin.country.show(request.item, result,
         countryRoutes.get(id), request.annotations, request.links))
         .withPreferences(preferences.withRecentItem(id))
     }

@@ -1,16 +1,17 @@
-@(item: Country)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer)
+@(item: Country)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
 @common.search.searchItemOutline(item) {
     <a href="@controllers.countries.routes.Countries.get(item.id)">@item.toStringLang</a>
 } {
-    @views.html.common.childCount(item) { count =>
-        <ul class="search-item-details">
-            <li><a href="@controllers.countries.routes.Countries.get(item.id)#@(item.id)-child-item-search">@Messages("country.childCount", count)</a></li>
-        </ul>
-    }
     @item.data.displayText.map(views.Helpers.ellipsize(_, 600)).map { sc =>
         <div class="national-report">
             @Markdown(sc)
         </div>
+    }
+    @views.html.common.childCount(item) { count =>
+        @views.html.admin.helpers.linkToWithBody(item, fragment = s"#${item.id}-child-item-search", attributes = Seq('class -> "child-items-inline-load collapsed")) {
+            <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
+            @Messages("country.childCount", count)
+        }
     }
 }
