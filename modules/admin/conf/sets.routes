@@ -5,6 +5,8 @@ GET         /:id                                      @controllers.sets.Authorit
 GET         /:id/history                              @controllers.sets.AuthoritativeSets.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.sets.AuthoritativeSets.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 POST        /:id/delete                               @controllers.sets.AuthoritativeSets.deletePost(id: String)
+GET         /:id/delete-contents                      @controllers.sets.AuthoritativeSets.deleteContents(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
+POST        /:id/delete-contents                      @controllers.sets.AuthoritativeSets.deleteContentsPost(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/update                               @controllers.sets.AuthoritativeSets.update(id: String)
 POST        /:id/update                               @controllers.sets.AuthoritativeSets.updatePost(id: String)
 GET         /:id/create                               @controllers.sets.AuthoritativeSets.createHistoricalAgent(id: String)

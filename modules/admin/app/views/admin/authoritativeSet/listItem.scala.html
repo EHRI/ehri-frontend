@@ -8,7 +8,15 @@
             <li title="@common.eventTitle(event)">@Messages("systemEvent.lastUpdated", views.Helpers.relativeDate(event.data.timestamp))</li>
         </ul>
     }
+
     @item.data.description.filterNot(_.isEmpty).map { desc =>
         <p>@desc</p>
+    }
+
+    @views.html.common.childCount(item) { count =>
+        @views.html.admin.helpers.linkToWithBody(item, fragment = s"#${item.id}-child-item-search", attributes = Seq('class -> "child-items-inline-load collapsed")) {
+            <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
+            @Messages("authoritativeSet.childCount", count)
+        }
     }
 }

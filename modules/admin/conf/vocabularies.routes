@@ -7,6 +7,8 @@ GET         /:id                                      @controllers.vocabularies.
 GET         /:id/history                              @controllers.vocabularies.Vocabularies.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.vocabularies.Vocabularies.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 POST        /:id/delete                               @controllers.vocabularies.Vocabularies.deletePost(id: String)
+GET         /:id/delete-contents                      @controllers.vocabularies.Vocabularies.deleteContents(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
+POST        /:id/delete-contents                      @controllers.vocabularies.Vocabularies.deleteContentsPost(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/update                               @controllers.vocabularies.Vocabularies.update(id: String)
 POST        /:id/update                               @controllers.vocabularies.Vocabularies.updatePost(id: String)
 GET         /:id/create                               @controllers.vocabularies.Vocabularies.createConcept(id: String)

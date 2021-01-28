@@ -35,6 +35,7 @@ case class DocumentaryUnits @Inject()(
   with Creator[DocumentaryUnit, DocumentaryUnit]
   with Update[DocumentaryUnit]
   with Delete[DocumentaryUnit]
+  with DeleteChildren[DocumentaryUnit, DocumentaryUnit]
   with ScopePermissions[DocumentaryUnit]
   with Annotate[DocumentaryUnit]
   with Linking[DocumentaryUnit]
@@ -261,7 +262,8 @@ case class DocumentaryUnits @Inject()(
         request.item, children,
         docRoutes.deletePost(id, goToId = request.item.parent.map(_.id)),
         cancel = docRoutes.get(id),
-        delChild = cid => docRoutes.delete(cid),
+        deleteChild = cid => docRoutes.delete(cid),
+        deleteAll = Some(docRoutes.deleteContents(id)),
         breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(request.item)))
     }
   }
@@ -271,6 +273,31 @@ case class DocumentaryUnits @Inject()(
       .flashing("success" -> "item.delete.confirmation")
   }
 
+  def deleteContents(id: String, params: PageParams): Action[AnyContent] = CheckDeleteChildrenAction(id, params).apply { implicit request =>
+    Ok(views.html.admin.deleteChildren(
+      request.item,
+      request.children,
+      DeleteChildrenOptions.form,
+      docRoutes.deleteContentsPost(id),
+      cancel = docRoutes.get(id),
+      breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(request.item)))
+  }
+
+  def deleteContentsPost(id: String, params: PageParams): Action[AnyContent] = DeleteChildrenAction(id, params).apply { implicit request =>
+    request.formOrIds match {
+      case Left((errForm, children)) =>
+        BadRequest(views.html.admin.deleteChildren(
+          request.item,
+          children,
+          errForm,
+          docRoutes.deleteContentsPost(id),
+          cancel = docRoutes.get(id),
+          breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(request.item)))
+      case Right(ids) =>
+        Redirect(docRoutes.get(id))
+          .flashing("success" -> Messages("item.deleteChildren.confirmation", ids.size))
+    }
+  }
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
     Ok(views.html.admin.permissions.visibility(request.item,
       visibilityForm.fill(request.item.accessors.map(_.id)),

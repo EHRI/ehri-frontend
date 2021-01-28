@@ -134,6 +134,19 @@ item.delete.submit=Delete Item
 item.delete.confirmation=Item successfully deleted
 item.delete.childrenFirst=This item has {0} child {0,choice,1#item|1<items}. \
     Deleting a parent item requires deleting lower level items first.
+item.deleteChildren=Delete Contents
+item.deleteChildren.all=Include lower level items
+item.deleteChildren.all.description=Checking this box confirms you want to delete all items, including those \
+    that contain lower-level items of their own.
+item.deleteChildren.answer=Confirm phrase
+item.deleteChildren.answer.description=
+item.deleteChildren.badConfirmation=Confirmation phrase did not match
+item.deleteChildren.noChildren=No contents found.
+item.deleteChildren.confirm=delete {0} {0,choice,1#item|1<items}
+item.deleteChildren.info=You are about to delete {0} {0,choice,1#item|1<items} and this action cannot be undone.
+item.deleteChildren.submit=Delete {0} {0,choice,1#Item|1<Items}
+item.deleteChildren.confirmPhrase=Type the following confirmation phrase: "{0}":
+item.deleteChildren.confirmation={0} {0,choice,1#item|1<items} successfully deleted
 item.create=Create Item
 item.create.submit=Create
 item.create.confirmation=Item successfully created

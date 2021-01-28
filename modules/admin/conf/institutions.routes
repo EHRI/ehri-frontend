@@ -6,6 +6,8 @@ GET         /:id                                      @controllers.institutions.
 GET         /:id/history                              @controllers.institutions.Repositories.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.institutions.Repositories.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 POST        /:id/delete                               @controllers.institutions.Repositories.deletePost(id: String)
+GET         /:id/delete-contents                      @controllers.institutions.Repositories.deleteContents(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
+POST        /:id/delete-contents                      @controllers.institutions.Repositories.deleteContentsPost(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/update                               @controllers.institutions.Repositories.update(id: String)
 POST        /:id/update                               @controllers.institutions.Repositories.updatePost(id: String)
 GET         /:id/create                               @controllers.institutions.Repositories.createDoc(id: String)

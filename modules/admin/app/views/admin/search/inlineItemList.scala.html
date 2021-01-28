@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import services.data.Constants.PAGE_PARAM
 
@@ -15,6 +15,12 @@
                 }
                 case d: VirtualUnit => {
                     @views.html.admin.virtualUnit.inlineListItem(d, hit)
+                }
+                case d: HistoricalAgent => {
+                    @views.html.admin.historicalAgent.inlineListItem(d, hit)
+                }
+                case d: Concept => {
+                    @views.html.admin.concept.inlineListItem(d, hit)
                 }
                 case _ => {
                     <h5>@views.html.admin.helpers.linkTo(child)</h5>

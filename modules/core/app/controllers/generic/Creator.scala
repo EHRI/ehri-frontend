@@ -83,5 +83,5 @@ trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] e
    */
   type ExtraParams = Request[_] => Map[String,Seq[String]]
 
-  protected def defaultExtra: ExtraParams = (request: Request[_]) => Map.empty
+  protected def defaultExtra: ExtraParams = (_: Request[_]) => Map.empty
 }

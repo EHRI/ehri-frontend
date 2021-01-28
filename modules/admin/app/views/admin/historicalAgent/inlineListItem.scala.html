@@ -1,0 +1,3 @@
+@(item: HistoricalAgent, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+
+<h5>@views.html.admin.helpers.linkTo(item)</h5>

@@ -2,6 +2,12 @@ package forms
 
 import play.api.{ConfigLoader, Configuration}
 
+/**
+  * This class provides helpers for reading configuration affecting how
+  * form's for an entity type are displayed, including hiding values,
+  * setting input sizes, marking fields required and setting default
+  * values.
+  */
 case class FormConfig(private val config: Option[Configuration], update: Boolean) {
   def hidden(field: String): Boolean =
     config.flatMap(_.getOptional[Boolean](s"$field.hidden")).getOrElse(false)

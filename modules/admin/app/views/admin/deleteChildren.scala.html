@@ -1,0 +1,38 @@
+@(item: Model, children: utils.Page[Model], f: Form[DeleteChildrenOptions], action: Call, cancel: Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+
+@import DeleteChildrenOptions._
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.rightSidebar(Messages("item.deleteChildren", item.toStringLang), breadcrumbs = breadcrumbs) {
+
+    @if(children.isEmpty) {
+
+        <p class="alert alert-info">
+            @Messages("item.deleteChildren.noChildren")
+        </p>
+    } else {
+        <p>@Messages("item.deleteChildren.info", children.total)</p>
+
+        @helper.form(action = action) {
+            @defining("item.deleteChildren") { implicit fieldPrefix =>
+                @formHelpers.csrfToken()
+                @formHelpers.globalErrors(f)
+
+                <div class="form-field">
+                    @formHelpers.checkbox(f(""), ALL)
+                <input type="hidden" name="@CONFIRM" value="@Messages("item.deleteChildren.confirm", children.total)"/>
+                <p class="alert alert-warning">
+                @Messages("item.deleteChildren.confirmPhrase", Html(Messages("item.deleteChildren.confirm", children.total)))
+                </p>
+                    @formHelpers.lineInput(f(""), ANSWER, 'autocomplete -> "off")
+                </div>
+
+                @formHelpers.submitButtonWithLogMessageInput(
+                    Messages("item.deleteChildren.submit", children.total),
+                    cancel = views.admin.Helpers.linkToOpt(item)
+                )
+            }
+        }
+    }
+} {
+}
