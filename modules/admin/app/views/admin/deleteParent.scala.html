@@ -1,16 +1,23 @@
-@(item: Model, children: utils.Page[Model], action: Call, cancel: Call, delChild: String => Call, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: Model, children: utils.Page[Model], action: Call, cancel: Call, deleteChild: String => Call, deleteAll: Option[Call] = None, breadcrumbs: Html = Html(""))(implicit userOpt: Option[UserProfile], request: RequestHeader, md: MarkdownRenderer, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("item.delete", item.toStringLang), breadcrumbs = breadcrumbs) {
 
     @if(children.nonEmpty) {
         <div class="alert alert-danger">
             @Messages("item.delete.childrenFirst", children.total)
+            @deleteAll.map { call =>
+                <br/>
+                <br/>
+                <a title="@Messages("item.deleteChildren.submit", children.total)" href="@call">
+                    <strong>@Messages("item.deleteChildren")</strong>
+                </a>
+            }
         </div>
         <table class="table table-bordered table-striped">
         @for(child <- children) {
             <tr>
                 <td>@child.toStringLang</td>
-                <td><a href="@delChild(child.id)">@Messages("item.delete")</a></td>
+                <td><a href="@deleteChild(child.id)">@Messages("item.delete")</a></td>
             </tr>
         }
         </table>

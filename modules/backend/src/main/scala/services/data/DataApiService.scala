@@ -165,6 +165,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     for {
       response <- callF
       deleted = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
+      _ = eventHandler.handleDelete(deleted: _*)
       _ <- invalidate(parentIds(id) ++ deleted)
     } yield deleted
   }

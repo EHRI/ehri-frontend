@@ -4,7 +4,6 @@ import java.util.NoSuchElementException
 
 import defines.{ContentTypes, EntityType}
 import models._
-import models.json.Utils
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}
@@ -41,11 +40,30 @@ trait Model extends WithId {
 
 object Model {
 
+  val readMap: PartialFunction[EntityType.Value, Reads[Model]] = {
+    case EntityType.Repository => Repository.RepositoryResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Country => Country.CountryResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.DocumentaryUnit => DocumentaryUnit.DocumentaryUnitResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Vocabulary => Vocabulary.VocabularyResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Concept => Concept.ConceptResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.HistoricalAgent => HistoricalAgent.HistoricalAgentResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.AuthoritativeSet => AuthoritativeSet.AuthoritativeSetResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.SystemEvent => SystemEvent.SystemEventResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Group => Group.GroupResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.UserProfile => UserProfile.UserProfileResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Link => Link.LinkResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Annotation => Annotation.AnnotationResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.ContentType => DataContentType.Converter.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.AccessPoint => AccessPoint.Converter.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource.restReads.asInstanceOf[Reads[Model]]
+  }
+
   implicit object Converter extends Readable[Model] {
     implicit val restReads: Reads[Model] = Reads[Model] { json =>
       // Sniff the type...
       val et = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
-      Utils.restReadRegistry.lift(et).map { reads =>
+      readMap.lift(et).map { reads =>
         json.validate(reads)
       }.getOrElse {
         JsError(

@@ -7,11 +7,12 @@ import defines.{ContentTypes, EntityType}
 import forms._
 import models._
 import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
 import services.ingest.{IngestParams, IngestService}
-import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import services.search.{SearchConstants, SearchIndexMediator, SearchParams, SearchSort}
 import utils.{PageParams, RangeParams}
 
 import javax.inject._
@@ -26,6 +27,7 @@ case class Vocabularies @Inject()(
   ws: WSClient
 ) extends AdminController
   with CRUD[Vocabulary]
+  with DeleteChildren[Concept, Vocabulary]
   with Creator[Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]
@@ -40,8 +42,10 @@ case class Vocabularies @Inject()(
   private val vocabRoutes = controllers.vocabularies.routes.Vocabularies
 
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[Concept](params, paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id)).map { result =>
-      Ok(views.html.admin.vocabulary.show(
+    findType[Concept](params, paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id), sort = SearchSort.Name).map { result =>
+      if (isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+        .withHeaders("more" -> result.page.hasMore.toString)
+      else Ok(views.html.admin.vocabulary.show(
         request.item, result,
         vocabRoutes.get(id), request.annotations, request.links))
     }
@@ -106,13 +110,39 @@ case class Vocabularies @Inject()(
         request.item, children,
         vocabRoutes.deletePost(id),
         cancel = vocabRoutes.get(id),
-        delChild = cid => controllers.keywords.routes.Concepts.delete(cid)))
+        deleteChild = cid => controllers.keywords.routes.Concepts.delete(cid),
+        deleteAll = Some(vocabRoutes.deleteContents(id)),
+      ))
     }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(vocabRoutes.list())
       .flashing("success" -> "item.delete.confirmation")
+  }
+
+  def deleteContents(id: String, params: PageParams): Action[AnyContent] = CheckDeleteChildrenAction(id, params).apply { implicit request =>
+    Ok(views.html.admin.deleteChildren(
+      request.item,
+      request.children,
+      DeleteChildrenOptions.form,
+      vocabRoutes.deleteContentsPost(id),
+      cancel = vocabRoutes.get(id)))
+  }
+
+  def deleteContentsPost(id: String, params: PageParams): Action[AnyContent] = DeleteChildrenAction(id, params).apply { implicit request =>
+    request.formOrIds match {
+      case Left((errForm, children)) =>
+        BadRequest(views.html.admin.deleteChildren(
+          request.item,
+          children,
+          errForm,
+          vocabRoutes.deleteContentsPost(id),
+          cancel = vocabRoutes.get(id)))
+      case Right(ids) =>
+        Redirect(vocabRoutes.get(id))
+          .flashing("success" -> Messages("item.deleteChildren.confirmation", ids.size))
+    }
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>

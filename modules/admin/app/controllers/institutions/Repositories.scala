@@ -41,6 +41,7 @@ case class Repositories @Inject()(
   with Read[Repository]
   with Update[Repository]
   with Delete[Repository]
+  with DeleteChildren[DocumentaryUnit, Repository]
   with Creator[DocumentaryUnit, Repository]
 	with Visibility[Repository]
   with ScopePermissions[Repository]
@@ -168,7 +169,8 @@ case class Repositories @Inject()(
         request.item, children,
         repositoryRoutes.deletePost(id),
         cancel = repositoryRoutes.get(id),
-        delChild = cid => controllers.units.routes.DocumentaryUnits.delete(cid),
+        deleteChild = cid => controllers.units.routes.DocumentaryUnits.delete(cid),
+        deleteAll = Some(repositoryRoutes.deleteContents(id)),
         breadcrumbs = views.html.admin.repository.breadcrumbs(request.item)))
     }
   }
@@ -176,6 +178,32 @@ case class Repositories @Inject()(
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(repositoryRoutes.search())
         .flashing("success" -> "item.delete.confirmation")
+  }
+
+  def deleteContents(id: String, params: PageParams): Action[AnyContent] = CheckDeleteChildrenAction(id, params).apply { implicit request =>
+    Ok(views.html.admin.deleteChildren(
+      request.item,
+      request.children,
+      DeleteChildrenOptions.form,
+      repositoryRoutes.deleteContentsPost(id),
+      cancel = repositoryRoutes.get(id),
+      breadcrumbs = views.html.admin.repository.breadcrumbs(request.item)))
+  }
+
+  def deleteContentsPost(id: String, params: PageParams): Action[AnyContent] = DeleteChildrenAction(id, params).apply { implicit request =>
+    request.formOrIds match {
+      case Left((errForm, children)) =>
+          BadRequest(views.html.admin.deleteChildren(
+            request.item,
+            children,
+            errForm,
+            repositoryRoutes.deleteContentsPost(id),
+            cancel = repositoryRoutes.get(id),
+            breadcrumbs = views.html.admin.repository.breadcrumbs(request.item)))
+      case Right(ids) =>
+        Redirect(repositoryRoutes.get(id))
+          .flashing("success" -> Messages("item.deleteChildren.confirmation", ids.size))
+    }
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>

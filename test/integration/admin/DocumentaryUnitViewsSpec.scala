@@ -5,6 +5,7 @@ import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import services.data.{ApiUser, AuthenticatedUser, HierarchyError}
 
 
@@ -109,24 +110,6 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     "deny access to c2 when logged in as an ordinary user" in new ITestApp {
       val show = FakeRequest(docRoutes.get("c2")).withUser(unprivilegedUser).call()
       status(show) must equalTo(NOT_FOUND)
-    }
-
-    "prevent deleting c1 due to child items" in new ITestApp {
-      val confirm = FakeRequest(docRoutes.delete("c1")).withUser(privilegedUser).call()
-      status(confirm) must equalTo(OK)
-      contentAsString(confirm) must contain(message("item.delete.childrenFirst", 1))
-    }
-
-    "error deleting c1 due to child items" in new ITestApp {
-      await(FakeRequest(docRoutes.deletePost("c1"))
-        .withUser(privilegedUser)
-        .call()) must throwA[HierarchyError]
-    }
-
-    "allow deleting c4 when logged in" in new ITestApp {
-      val del = FakeRequest(docRoutes.deletePost("c4"))
-        .withUser(privilegedUser).call()
-      status(del) must equalTo(SEE_OTHER)
     }
   }
 
@@ -332,6 +315,74 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       // Log message should be in the history section...
       contentAsString(show) must contain(msg)
       indexEventBuffer.last must equalTo("c1")
+    }
+
+    "prevent deleting c1 due to child items" in new ITestApp {
+      val confirm = FakeRequest(docRoutes.delete("c1")).withUser(privilegedUser).call()
+      status(confirm) must equalTo(OK)
+      contentAsString(confirm) must contain(message("item.delete.childrenFirst", 1))
+    }
+
+    "error deleting c1 due to child items" in new ITestApp {
+      await(FakeRequest(docRoutes.deletePost("c1"))
+        .withUser(privilegedUser)
+        .call()) must throwA[HierarchyError]
+    }
+
+    "allow deleting c4 when logged in" in new ITestApp {
+      val del = FakeRequest(docRoutes.deletePost("c4"))
+        .withUser(privilegedUser).call()
+      status(del) must equalTo(SEE_OTHER)
+    }
+
+    "error deleting contents without confirmation" in new ITestApp {
+      val data = Map(
+        DeleteChildrenOptions.ALL -> Seq("true"),
+        DeleteChildrenOptions.CONFIRM -> Seq("foo"),
+        DeleteChildrenOptions.ANSWER -> Seq("bar")
+      )
+      val del = FakeRequest(docRoutes.deleteContentsPost("c1"))
+        .withUser(privilegedUser)
+        .callWith(data)
+      status(del) must_== BAD_REQUEST
+    }
+
+    "error deleting contents without all option" in new ITestApp {
+      val data = Map(
+        DeleteChildrenOptions.ALL -> Seq("false"),
+        DeleteChildrenOptions.CONFIRM -> Seq("foo"),
+        DeleteChildrenOptions.ANSWER -> Seq("bar")
+      )
+      val del = FakeRequest(docRoutes.deleteContentsPost("c1"))
+        .withUser(privilegedUser)
+        .callWith(data)
+      status(del) must_== BAD_REQUEST
+    }
+
+    "check deleting contents with a confirmation" in new ITestApp {
+      val check = FakeRequest(docRoutes.deleteContents("c1"))
+        .withUser(privilegedUser)
+        .call()
+      status(check) must_== OK
+
+      // Check should contain a prompt like: `Type the following confirmation phrase: "delete 1 item"`
+      val checkPhrase = message("item.deleteChildren.confirm", 1)
+      val prompt = message("item.deleteChildren.confirmPhrase", checkPhrase)
+        .replace("\"", "&quot;")
+      contentAsString(check) must contain(prompt)
+    }
+
+    "allow deleting contents" in new ITestApp {
+      val data = Map(
+        DeleteChildrenOptions.ALL -> Seq("true"),
+        DeleteChildrenOptions.CONFIRM -> Seq("foo"),
+        DeleteChildrenOptions.ANSWER -> Seq("foo")
+      )
+      val del = FakeRequest(docRoutes.deleteContentsPost("c1"))
+        .withUser(privilegedUser)
+        .callWith(data)
+      status(del) must_== SEE_OTHER
+      flash(del).apply("success") must_== message("item.deleteChildren.confirmation", 2)
     }
 
     "allow renaming items" in new ITestApp {

@@ -128,7 +128,7 @@ case class Countries @Inject()(
         request.item, children,
         countryRoutes.deletePost(id),
         cancel = countryRoutes.get(id),
-        delChild = cid => controllers.institutions.routes.Repositories.delete(cid)))
+        deleteChild = cid => controllers.institutions.routes.Repositories.delete(cid)))
     }
   }
 

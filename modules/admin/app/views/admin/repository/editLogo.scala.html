@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("repository.logo.edit"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("repository.logo.edit"), breadcrumbs = views.html.admin.repository.breadcrumbs(item)) {
     @helper.form(action = action, 'enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)

@@ -5,14 +5,16 @@ import controllers.base.AdminController
 import controllers.generic._
 import defines.{ContentTypes, EntityType}
 import forms._
+
 import javax.inject._
 import forms.FormConfigBuilder
 import models.{Entity, _}
+import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.{DataHelpers, IdGenerator}
-import services.ingest.{IngestService, IngestParams}
-import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import services.ingest.{IngestParams, IngestService}
+import services.search.{SearchConstants, SearchIndexMediator, SearchParams, SearchSort}
 import utils.{PageParams, RangeParams}
 
 
@@ -27,6 +29,7 @@ AuthoritativeSets @Inject()(
   ws: WSClient
 ) extends AdminController
   with CRUD[AuthoritativeSet]
+  with DeleteChildren[HistoricalAgent, AuthoritativeSet]
   with Creator[HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]
@@ -43,8 +46,10 @@ AuthoritativeSets @Inject()(
 
 
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[HistoricalAgent](params, paging = paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id)).map { result =>
-      Ok(views.html.admin.authoritativeSet.show(
+    findType[HistoricalAgent](params, paging = paging, filters = Map(SearchConstants.HOLDER_ID -> request.item.id), sort = SearchSort.Name).map { result =>
+      if (isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
+        .withHeaders("more" -> result.page.hasMore.toString)
+      else Ok(views.html.admin.authoritativeSet.show(
           request.item, result, setRoutes.get(id), request.annotations, request.links))
     }
   }
@@ -112,13 +117,39 @@ AuthoritativeSets @Inject()(
         request.item, children,
         setRoutes.deletePost(id),
         cancel = setRoutes.get(id),
-        delChild = cid => controllers.authorities.routes.HistoricalAgents.delete(cid)))
+        deleteChild = cid => controllers.authorities.routes.HistoricalAgents.delete(cid),
+        deleteAll = Some(setRoutes.deleteContents(id)),
+      ))
     }
   }
 
   def deletePost(id: String): Action[AnyContent] = DeleteAction(id).apply { implicit request =>
     Redirect(setRoutes.list())
         .flashing("success" -> "item.delete.confirmation")
+  }
+
+  def deleteContents(id: String, params: PageParams): Action[AnyContent] = CheckDeleteChildrenAction(id, params).apply { implicit request =>
+    Ok(views.html.admin.deleteChildren(
+      request.item,
+      request.children,
+      DeleteChildrenOptions.form,
+      setRoutes.deleteContentsPost(id),
+      cancel = setRoutes.get(id)))
+  }
+
+  def deleteContentsPost(id: String, params: PageParams): Action[AnyContent] = DeleteChildrenAction(id, params).apply { implicit request =>
+    request.formOrIds match {
+      case Left((errForm, children)) =>
+        BadRequest(views.html.admin.deleteChildren(
+          request.item,
+          children,
+          errForm,
+          setRoutes.deleteContentsPost(id),
+          cancel = setRoutes.get(id)))
+      case Right(ids) =>
+        Redirect(setRoutes.get(id))
+          .flashing("success" -> Messages("item.deleteChildren.confirmation", ids.size))
+    }
   }
 
   def visibility(id: String): Action[AnyContent] = EditVisibilityAction(id).apply { implicit request =>
