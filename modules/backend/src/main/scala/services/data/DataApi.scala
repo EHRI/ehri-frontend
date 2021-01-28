@@ -291,14 +291,17 @@ trait DataApiHandle {
   def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit]
 
   /**
-    * Delete an item and all child items.
+    * Delete all children of an item.
     *
-    * @param id     the item's id
+    * @param id     the parent's id
+    * @param all    recursively descend the hierarchy, rather than
+    *               throwing an error if any children are parents
+    *               themselves
     * @param logMsg the log message
     * @tparam MT the generic type of the item
     * @return a list of deleted item ids
     */
-  def deleteAll[MT: Resource](id: String, logMsg: Option[String] = None): Future[Seq[String]]
+  def deleteChildren[MT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]]
 
   /**
     * List items with the given resource type.

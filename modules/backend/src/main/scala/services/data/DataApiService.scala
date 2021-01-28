@@ -158,12 +158,13 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     } yield ()
   }
 
-  override def deleteAll[MT: Resource](id: String, logMsg: Option[String] = None): Future[Seq[String]] = {
-    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "all")).delete()
+  override def deleteChildren[MT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]] = {
+    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "list"))
+      .withQueryString("all" -> all.toString)
+      .delete()
     for {
       response <- callF
       deleted = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
-      _ = eventHandler.handleDelete(id)
       _ <- invalidate(parentIds(id) ++ deleted)
     } yield deleted
   }
