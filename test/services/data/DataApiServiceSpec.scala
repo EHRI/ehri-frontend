@@ -132,13 +132,17 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       }
     }
 
+    "error deleting children w/ children" in new ITestApp {
+      await(testBackend.deleteChildren[DocumentaryUnit]("c1")) must throwA[HierarchyError]
+    }
+
     "delete a doc and its child items" in new ITestApp {
-      val items = Seq("c1", "c2", "c3")
+      val items = Seq("c2", "c3")
       items.foreach { id =>
         await(testBackend.get[DocumentaryUnit](id))
         cache.get(s"item:$id") must beSome
       }
-      val ids = await(testBackend.deleteAll[DocumentaryUnit]("c1"))
+      val ids = await(testBackend.deleteChildren[DocumentaryUnit]("c1", all = true))
       ids must_== items
       ids.foreach(id => cache.get(s"item:$id") must beNone)
     }
