@@ -60,6 +60,9 @@ Vue.component("ingest-options-panel", {
     },
     deleteProperties: function(file) {
       this.loading = true;
+      if (file.key === this.properties) {
+        this.properties = null;
+      }
       this.api.deleteFiles(this.datasetId, this.config.config, [file.key])
         .then(() => this.$emit("update"))
         .finally(() => this.loading = false);
