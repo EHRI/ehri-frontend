@@ -144,6 +144,5 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
   private def time(from: LocalDateTime): Long =
     Duration.between(from, LocalDateTime.now()).toMillis / 1000
 
-  private def basename(key: String): String =
-    key.substring(key.lastIndexOf('/') + 1)
+  private def basename(key: String): String = key.replace(job.data.inPrefix, "")
 }
