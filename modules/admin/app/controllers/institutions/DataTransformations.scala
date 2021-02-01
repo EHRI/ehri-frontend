@@ -58,7 +58,7 @@ case class DataTransformations @Inject()(
 
   def create(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
     dataTransformations.create(request.body, if (generic) None else Some(id)).map { dt =>
-      Ok(Json.toJson(dt))
+      Created(Json.toJson(dt))
     }.recover {
       case e: DataTransformationExists => BadRequest(e)
     }
@@ -73,7 +73,7 @@ case class DataTransformations @Inject()(
   }
 
   def delete(id: String, dtId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    dataTransformations.delete(dtId).map(ok => Ok(Json.toJson(ok)))
+    dataTransformations.delete(dtId).map(_ => NoContent)
   }
 
 

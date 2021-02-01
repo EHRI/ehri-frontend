@@ -129,7 +129,7 @@ Vue.component("convert-manager", {
     newTransformation: function() {
       this.editing = {
         id: null,
-        repoId: this.config.repositoryId,
+        repoId: this.config.repoId,
         name: "",
         bodyType: "xslt",
         body: "",

@@ -47,9 +47,7 @@ case class ResourceSyncConfigs @Inject()(
   }
 
   def delete(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    configs.delete(id, ds).map { r =>
-      Ok(Json.toJson(r))
-    }
+    configs.delete(id, ds).map(_ => NoContent)
   }
 
   def test(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).async(parse.json[ResourceSyncConfig]) { implicit request =>
