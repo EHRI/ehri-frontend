@@ -59,7 +59,7 @@ class RelaxNGEadValidatorSpec extends PlaySpecification {
 
       errs2.head.line must_== 8
       errs2.head.pos must_== 80
-      errs2.head.error must contain("value of attribute \"mainagencycode\" is invalid")
+      errs2.head.error must contain("value of attribute \"countrycode\" is invalid")
     }
   }
 }
