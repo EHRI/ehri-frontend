@@ -50,9 +50,7 @@ case class OaiPmhConfigs @Inject()(
   }
 
   def delete(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    oaipmhConfigs.delete(id, ds).map { r =>
-      Ok(Json.toJson(r))
-    }
+    oaipmhConfigs.delete(id, ds).map(_ => NoContent)
   }
 
   def test(id: String, ds: String): Action[OaiPmhConfig] = EditAction(id).async(parse.json[OaiPmhConfig]) { implicit request =>

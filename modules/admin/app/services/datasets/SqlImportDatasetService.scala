@@ -69,7 +69,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
               type = ${info.src},
               item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
-              comments = ${info.notes}
+              comments = ${info.notes.filter(_.trim.nonEmpty)}
             WHERE repo_id = $repoId
               AND id = $datasetId
         RETURNING *""".as(parser.single)

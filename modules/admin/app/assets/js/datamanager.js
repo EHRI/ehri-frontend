@@ -26,6 +26,7 @@ Vue.component("dataset-form", {
       saving: false,
       deleting: false,
       showRemoveDialog: false,
+      showAdvanced: false,
     }
   },
   methods: {
@@ -70,15 +71,26 @@ Vue.component("dataset-form", {
         .finally(() => this.deleting = false);
     },
   },
+  watch: {
+    fonds: function(newValue) {
+      if (!newValue) {
+        this.fonds = null;
+        this.sync = false;
+      }
+    }
+  },
   computed: {
     isValidConfig: function() {
       return this.src !== null
         && this.name !== null
         && this.id !== null
-        && (!this.fonds || _.startsWith(this.fonds, this.config.repositoryId));
+        && this.isValidFonds;
     },
     isValidIdentifier: function() {
       return !this.id || (this.id.match(/^[a-z0-9_]+$/) !== null && this.id.length <= 50);
+    },
+    isValidFonds: function() {
+      return !this.fonds || this.fonds.match("^" + this.config.repoId + "-.+");
     },
     hasChanged: function() {
       return this.info === null || (
@@ -86,7 +98,7 @@ Vue.component("dataset-form", {
           || this.info.src !== this.src
           || this.info.notes !== this.notes
           || this.info.fonds !== this.fonds
-          || this.info.sync !== this.sync);
+          || Boolean(this.info.sync) !== Boolean(this.sync));
     }
   },
   template: `
@@ -152,12 +164,12 @@ Vue.component("dataset-form", {
         </div>
         <div class="form-group">
           <label class="form-label" for="dataset-fonds">
-            Fonds
+            Fonds ID
           </label>
           <input type="text" v-model="fonds" id="dataset-fonds" class="form-control" placeholder="(optional)"/>
         </div>
-        <div v-bind:class="{disabled: !this.fonds}" class="form-group form-check">
-          <input v-bind:disabled="!this.fonds" v-model="sync" class="form-check-input" id="opt-sync" type="checkbox"/>
+        <div class="form-group form-check">
+          <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="sync" class="form-check-input" id="opt-sync" type="checkbox"/>
           <label class="form-check-label" for="opt-sync">
             Synchronise fonds with dataset
           </label>
@@ -446,7 +458,7 @@ let app = new Vue({
   mixins: [utilMixin],
   data: {
     config: CONFIG,
-    api: new DAO(SERVICE, CONFIG.repositoryId),
+    api: new DAO(SERVICE, CONFIG.repoId),
     tab: 'input',
   },
   template: `

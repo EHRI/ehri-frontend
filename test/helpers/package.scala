@@ -39,9 +39,9 @@ package object helpers {
     }
   }
 
-  def withDatabaseFixture[T](resource: String)(block: Database => T): T = {
+  def withDatabaseFixture[T](resources: String*)(block: Database => T): T = {
     withDatabase { implicit db =>
-      loadSqlResource(resource)
+      resources.foreach(loadSqlResource)
       block(db)
     }
   }

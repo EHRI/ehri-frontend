@@ -38,7 +38,6 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
   private val datasetId = "default"
   private val stage = FileStage.Input
   private val testFileName = "test.xml"
-  private val storageHost = "localhost:9876"
 
   private def testFilePath(implicit app: play.api.Application): String = {
     val bucket = app.configuration.get[String]("storage.dam.classifier")

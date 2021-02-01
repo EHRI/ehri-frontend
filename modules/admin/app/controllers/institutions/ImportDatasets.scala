@@ -47,7 +47,7 @@ case class ImportDatasets @Inject()(
 
   def create(id: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
     datasets.create(id, request.body).map { ds =>
-      Ok(Json.toJson(ds))
+      Created(Json.toJson(ds))
     }.recover {
       case e: ImportDatasetExists => BadRequest(e)
     }
@@ -63,7 +63,7 @@ case class ImportDatasets @Inject()(
     // Delete all files in stages in the dataset, then the dataset itself...
     val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq
       .map(s => storage.deleteFilesWithPrefix(prefix(id, ds, s)))
-    for (_ <- Future.sequence(del); ds <- datasets.delete(id, ds))
-      yield Ok(Json.toJson(ds))
+    for (_ <- Future.sequence(del); out <- datasets.delete(id, ds))
+      yield NoContent
   }
 }
