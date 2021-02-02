@@ -169,11 +169,11 @@ CREATE TABLE harvest_event (
     CONSTRAINT harvest_event_repo_id_import_dataset_id
         FOREIGN KEY (repo_id, import_dataset_id)
         REFERENCES import_dataset(repo_id, id)
-        ON DELETE SET NULL,
+        ON DELETE CASCADE,
     CONSTRAINT harvest_event_user_id
         FOREIGN KEY (user_id)
         REFERENCES users (id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
 );
 
 CREATE INDEX harvest_event_repo_dataset ON harvest_event(repo_id, import_dataset_id);
