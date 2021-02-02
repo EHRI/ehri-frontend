@@ -20,7 +20,7 @@ Vue.component("dataset-form", {
       name: this.info ? this.info.name : null,
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
-      sync: this.info ? this.info.sync : null,
+      sync: this.info ? this.info.sync : false,
       notes: this.info ? this.info.notes : null,
       error: null,
       saving: false,
