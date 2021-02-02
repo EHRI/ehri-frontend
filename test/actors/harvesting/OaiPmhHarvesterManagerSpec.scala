@@ -2,7 +2,6 @@ package actors.harvesting
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.Cancel
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
@@ -11,7 +10,7 @@ import config.serviceBaseUrl
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
-import models.{OaiPmhConfig, UserProfile}
+import models.{HarvestEvent, OaiPmhConfig, UserProfile}
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
@@ -48,7 +47,8 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
-      events.events.lift(1) must beSome.which(_.eventType must_== HarvestEventType.Completed)
+      events.events.lift(1) must beSome[HarvestEvent]
+        .which(_.eventType must_== HarvestEventType.Completed)
     }
 
     "harvest selectively with `from` date" in new ITestApp {
@@ -78,12 +78,12 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
 
       harvester ! Cancel
 
-      // Wait up to 10 seconds for the expected events to appear
-      events.events.find(_.eventType == HarvestEventType.Cancelled) must beSome
-        .eventually(retries = 100, sleep = 200.millis)
-
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
       msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
+
+      // Wait up to 20 seconds for the expected events to appear
+      events.events.find(_.eventType == HarvestEventType.Cancelled) must beSome
+        .eventually(retries = 100, sleep = 200.millis)
     }
   }
 }
