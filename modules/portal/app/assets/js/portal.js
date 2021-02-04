@@ -35,6 +35,60 @@ EhriJs.$loader = $("<div></div>")
     .append($("<span></span>")
         .addClass("loader"));
 
+/*
+* Quick search
+*/
+function setupAutoSuggest(elem, types) {
+  var $quicksearch = jQuery(elem);
+  var typeQ = types.map(function(t) { return "st=" + t}).join("&");
+  if ($quicksearch.length) {
+    var quicksearchBH = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      identify: function (obj) {
+        return obj.href
+      },
+      remote: {
+        url: jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&q=%QUERY&" + typeQ,
+        wildcard: "%QUERY",
+        transform: function (response) {
+          // Only show distinct names in the hint list...
+          var result = [], seen = [];
+          response.items.forEach(function (item) {
+            if (jQuery.inArray(item.name, seen) === -1) {
+              result.push({
+                name: item.name,
+                value: item.name,
+                href: jsRoutes.controllers.portal.Portal.browseItem(item.type, item.id).url
+              });
+              seen.push(item.name);
+            }
+          });
+          return result;
+        }
+      }
+    });
+
+    /**
+     * Initialize typeahead.js
+     */
+    $quicksearch.typeahead({
+        hint: false,
+        limit: Infinity
+      }, {
+        name: "quicksearch",
+        source: quicksearchBH,
+        display: 'name',
+        templates: {
+          suggestion: Handlebars.compile('<div><a href="{{href}}">{{name}}</a></div>')
+        }
+      }
+    ).bind('typeahead:select', function (ev, suggestion) {
+      window.location.href = suggestion.href;
+    });
+  }
+}
+
 
 jQuery(function ($) {
 
@@ -123,58 +177,6 @@ jQuery(function ($) {
     $(this).find(".modal-content").load(e.relatedTarget.href);
 
   });
-
-  /*
-  * Quick search
-  */
-
-  var $quicksearch = $("#quicksearch");
-  if ($quicksearch.length) {
-    var quicksearchBH = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
-      identify: function (obj) {
-        return obj.href
-      },
-      remote: {
-        url: jsRoutes.controllers.portal.Portal.filterItems().url + "?limit=5&st=DocumentaryUnit&st=Repository&st=Country&q=%QUERY",
-        wildcard: "%QUERY",
-        transform: function (response) {
-          // Only show distinct names in the hint list...
-          var result = [], seen = [];
-          response.items.forEach(function(item) {
-            if ($.inArray(item.name, seen) === -1) {
-              result.push({
-                name: item.name,
-                value: item.name,
-                href: jsRoutes.controllers.portal.Portal.browseItem(item.type, item.id).url
-              });
-              seen.push(item.name);
-            }
-          });
-          return result;
-        }
-      }
-    });
-
-    /**
-     * Initialize typeahead.js
-     */
-    $quicksearch.typeahead({
-          hint: false,
-          limit: Infinity
-        }, {
-          name: "quicksearch",
-          source: quicksearchBH,
-          display: 'name',
-          templates: {
-            suggestion: Handlebars.compile('<div><a href="{{href}}">{{name}}</a></div>')
-          }
-        }
-    ).bind('typeahead:select', function(ev, suggestion) {
-      window.location.href = suggestion.href;
-    });
-  }
 
   /*
     Loadings

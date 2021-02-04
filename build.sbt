@@ -323,7 +323,7 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
         Seq(
           "js/lib/jquery-3.4.1.js",
           "js/lib/jquery.validate-1.19.1.js",
-          "js/lib/typeahead-1.2.1.js",
+          "js/lib/typeahead.bundle-1.3.1.js",
           "js/lib/handlebars-v4.4.3.js",
           "js/lib/jquery.cookie.js",
           "js/lib/jquery.hoverIntent.js",
