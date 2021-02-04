@@ -1,4 +1,4 @@
-@(params: services.search.SearchParams, fields: Seq[services.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder")(implicit request: RequestHeader, messages: Messages)
+@(params: services.search.SearchParams, fields: Seq[services.search.SearchField.Value] = Seq.empty, autofocus: Boolean = false, tips: Boolean = true, fielded: Boolean = false, placeholder: String = "search.queryPlaceholder", autocomplete: Boolean = false)(implicit request: RequestHeader, messages: Messages)
 
 @import services.search.{SearchParams,SearchField}
 
@@ -9,7 +9,11 @@
         <div class="input-group">
             <label for="id_q" class="sr-only">@Messages(placeholder)</label>
             <input type="search" id="id_q"
-                placeholder="@Messages(placeholder)" class="form-control" name="@SearchParams.QUERY" value="@params.query" @{if(autofocus) "autofocus"}>
+                placeholder="@Messages(placeholder)"
+                class="form-control" name="@SearchParams.QUERY"
+                value="@params.query"
+                    @{if(autofocus) "autofocus"}
+                    @{if(!autocomplete) "autocomplete=off"}>
             @if(fielded) {
                 <span class="input-group-addon field-selector">
                     <label for="id_field" class="sr-only">@Messages("search.field")</label>
