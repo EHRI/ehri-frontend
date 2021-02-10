@@ -17,7 +17,7 @@ import models._
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.data.Form
-import play.api.http.HttpVerbs
+import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, JsString}
 import play.api.libs.mailer.{Email, MailerClient}
@@ -604,7 +604,7 @@ case class Accounts @Inject()(
     }
   }
 
-  private def checkSessionNonce[A](sessionId: String, state: Option[String]): Boolean = {
+  private def checkSessionNonce[A](sessionId: String, state: Option[String])(implicit request: RequestHeader): Boolean = {
     val origStateOpt: Option[String] = cache.get[String](sessionId)
     (for {
       // check if the state we sent is equal to the one we're receiving now before continuing the flow.
@@ -616,7 +616,9 @@ case class Accounts @Inject()(
         s"original token: $origStateOpt, new token: $state")
       check
     }).getOrElse {
-      logger.error(s"Missing OAuth2 state data: session key -> $sessionId")
+      logger.error(s"Missing OAuth2 state data: session key -> $sessionId. " +
+        s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
+        s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
       false
     }
   }
