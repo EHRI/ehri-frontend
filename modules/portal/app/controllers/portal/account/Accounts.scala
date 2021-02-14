@@ -616,7 +616,7 @@ case class Accounts @Inject()(
         s"original token: $origStateOpt, new token: $state")
       check
     }).getOrElse {
-      logger.error(s"Missing OAuth2 state data: session key -> $sessionId. " +
+      logger.error(s"Missing OAuth2 state data: session key -> $sessionId at ${request.path} [${request.rawQueryString}]. " +
         s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
         s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
       false
