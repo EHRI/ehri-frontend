@@ -67,8 +67,8 @@
         @defining(desc(CONDITIONS_AREA)) { desc =>
             @textInput(desc, ACCESS_COND)
             @textInput(desc, REPROD_COND)
-            @choiceInput(desc, LANG_MATERIALS, views.Helpers.languagePairList, 'multiple -> true)
-            @choiceInput(desc, SCRIPT_MATERIALS, views.Helpers.scriptPairList, 'multiple -> true)
+            @choiceInput(desc, LANG_MATERIALS, views.Helpers.languagePairList, 'multiple -> true, 'size -> 1)
+            @choiceInput(desc, SCRIPT_MATERIALS, views.Helpers.scriptPairList, 'multiple -> true, 'size -> 1)
             @textInput(desc, PHYSICAL_CHARS)
             @inlineTextSet(desc, FINDING_AIDS, rows = 4)
         }

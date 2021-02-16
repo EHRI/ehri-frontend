@@ -99,11 +99,7 @@ Read[MT] extends CoreActionBuilders {
 
       override protected def refine[A](request: OptionalUserRequest[A]): Future[Either[Result, ItemPermissionRequest[A]]] = {
         transform(request).map(r => Right(r)).recoverWith {
-          case _: ItemNotFound =>
-            logger.warn(s"404 for itemId '$itemId' at ${request.path}. " +
-              s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
-              s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
-            notFoundError(request, msg = Some(itemId)).map(r => Left(r))
+          case _: ItemNotFound => notFoundError(request, msg = Some(itemId)).map(r => Left(r))
         }
       }
     }

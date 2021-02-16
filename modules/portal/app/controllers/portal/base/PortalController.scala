@@ -142,7 +142,11 @@ trait PortalController
         maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
       } yield maybeMoved match {
         case Some(path) => MovedPermanently(utils.http.iriToUri(path))
-        case None => notFoundResponse
+        case None =>
+          logger.warn(s"404 at ${request.path}. " +
+            s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
+            s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
+          notFoundResponse
       }
     }
   }

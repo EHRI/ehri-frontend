@@ -47,6 +47,10 @@
 @import "portal/layout";
 @import "portal/style";
 
+@import "select2-bootstrap/layout";
+@import "select2-bootstrap/single";
+@import "select2-bootstrap/multiple";
+
 .main-content {
   @extend .container;
 }

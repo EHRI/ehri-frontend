@@ -10,13 +10,13 @@
                 <img alt="Current Image" height="100" width="100" class="img-responsive img-thumbnail" src="@views.Helpers.gravitar(user.data.imageUrl)" />
             </label>
             <div class="control-elements">
-                <input type="file" name="image" />
+                <input type="file" name="image" accept=".png, .jpg, .jpeg, .gif" />
             </div>
         </div>
 
         <div class="form-field">
             <div class="form-submit">
-                <button type="submit" class=" btn  btn-post ">@Messages("profile.image.edit")</button>
+                <button type="submit" class="btn btn-info">@Messages("profile.image.edit")</button>
             </div>
         </div>
     }

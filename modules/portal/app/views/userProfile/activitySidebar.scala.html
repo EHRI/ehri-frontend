@@ -1,0 +1,29 @@
+@(activity: Call, watched: Call, notesOpt: Option[Call] = None)(implicit req: RequestHeader, messages: Messages)
+
+<div class="sidebar-section">
+    <nav class="sidebar-section-body">
+        <ul class="user-actions action-group">
+            <li class="@views.Helpers.maybeActive(activity.url)">
+                <a href="@activity">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                    @Messages("activity")
+                </a>
+            </li>
+            <li class="@views.Helpers.maybeActive(watched.url)">
+                <a href="@watched">
+                    <span class="fa fa-star"></span>
+                    @Messages("profile.watch.list")
+                </a>
+            </li>
+            @notesOpt.map { notes =>
+                <li class="@views.Helpers.maybeActive(notes.url)">
+                    <a href="@notes">
+                        <span class="fa fa-edit"></span>
+                        @Messages("annotation.list")
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+

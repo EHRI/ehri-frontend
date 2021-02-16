@@ -11,8 +11,10 @@ GET         /logout                         @controllers.portal.account.Accounts
 GET         /signup                         @controllers.portal.account.Accounts.signup
 POST        /signup                         @controllers.portal.account.Accounts.signupPost
 GET         /confirmEmail/:token            @controllers.portal.account.Accounts.confirmEmail(token: String)
-GET         /changePassword                 @controllers.portal.account.Accounts.changePassword
-POST        /changePassword                 @controllers.portal.account.Accounts.changePasswordPost
+GET         /change-email                   @controllers.portal.account.Accounts.changeEmail
+POST        /change-email                   @controllers.portal.account.Accounts.changeEmailPost
+GET         /change-password                @controllers.portal.account.Accounts.changePassword
+POST        /change-password                @controllers.portal.account.Accounts.changePasswordPost
 GET         /forgot                         @controllers.portal.account.Accounts.forgotPassword
 POST        /forgot                         @controllers.portal.account.Accounts.forgotPasswordPost
 POST        /resendVerification             @controllers.portal.account.Accounts.resendVerificationPost

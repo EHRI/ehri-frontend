@@ -1,0 +1,20 @@
+@(form: Form[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
+
+@import SignupData.{EMAIL, PASSWORD}
+
+@helper.form(action = action, 'class -> "login-form signup-form") {
+    @formHelpers.csrfToken()
+    @formHelpers.globalErrors(form)
+
+    @helper.inputText(form(EMAIL), 'type -> "email", 'placeholder -> Messages("login.email.new"))
+
+    <div class="alert alert-warning">
+        <h4>@Messages("login.email.passwordConfirmation")</h4>
+        @helper.inputPassword(form(PASSWORD), 'type -> "password", 'placeholder -> Messages("login.password"))
+    </div>
+
+    <div class="form-field">
+        <input type="submit" class="login-button btn btn-warning" value="@Messages("login.email.change.submit")" />
+        <a class="btn btn-cancel" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">@Messages("cancel")</a>
+    </div>
+}

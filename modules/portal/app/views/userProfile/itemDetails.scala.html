@@ -2,35 +2,6 @@
 
 @isCurrentUser = @{userOpt.exists(_.id == item.id)}
 
-@activitySidebar(activity: Call, watched: Call, notes: Call) = {
-    <div class="sidebar-section">
-        <nav class="sidebar-section-body">
-            <ul class="user-actions action-group">
-                <li class="@views.Helpers.maybeActive(activity.url)">
-                    <a href="@activity">
-                        <i class="fa fa-list" aria-hidden="true"></i>
-                        @Messages("activity")
-                    </a>
-                </li>
-                <li class="@views.Helpers.maybeActive(watched.url)">
-                    <a href="@watched">
-                        <span class="fa fa-star"></span>
-                        @Messages("profile.watch.list")
-                    </a>
-                </li>
-                @if(isCurrentUser) {
-                    <li class="@views.Helpers.maybeActive(notes.url)">
-                        <a href="@notes">
-                            <span class="fa fa-edit"></span>
-                            @Messages("annotation.list")
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    </div>
-}
-
 @views.html.common.itemDetails {
     @views.html.common.rightSidebar {
         @views.html.common.itemHeader(item.toStringLang)
@@ -39,48 +10,11 @@
         @content
     } {
 
-        @views.html.common.typeLabel(defines.EntityType.UserProfile) {
-            <ul class="user-controls">
-                <li class="user-img">
-                    <a href="@{if(isCurrentUser) controllers.portal.users.routes.UserProfiles.profile() else controllers.portal.social.routes.Social.userProfile(item.id)}" class="gravitar">
-                        <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
-                    </a>
-                </li>
-                @if(isCurrentUser) {
-                    <li>
-                        <a class="btn btn-primary" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">
-                            @Messages("profile.edit")
-                        </a>
-                    </li>
-                } else {
-                    <li>
-                        @views.html.userProfile.messageButtons(item, messagingInfo)
-                        @views.html.userProfile.followingButtons(item, followed)
-                    </li>
-                }
-                <li class="user-profile-social">
-                    <a class="followers" href="@controllers.portal.social.routes.Social.followersForUser(item.id)">
-                        @Messages("social.followers"): <span class="user-follower-count">@item.followerCount</span>
-                    </a>
-                    <a class="following" href="@controllers.portal.social.routes.Social.followingForUser(item.id)">
-                        @Messages("social.following"): <span class="user-following-count">@item.followingCount</span>
-                    </a>
-                </li>
-            </ul>
+        @if(isCurrentUser) {
+            @views.html.userProfile.currentUserSidebar(item)
+        } else {
+            @views.html.userProfile.userSidebar(item, followed, messagingInfo)
         }
 
-        @if(isCurrentUser) {
-            @activitySidebar(
-                controllers.portal.users.routes.UserProfiles.activity(),
-                controllers.portal.users.routes.UserProfiles.watching(),
-                controllers.portal.users.routes.UserProfiles.annotations()
-            )
-        } else  {
-            @activitySidebar(
-                controllers.portal.social.routes.Social.userActivity(item.id),
-                controllers.portal.social.routes.Social.userWatchList(item.id),
-                controllers.portal.users.routes.UserProfiles.profile()
-            )
-        }
     }
 }
