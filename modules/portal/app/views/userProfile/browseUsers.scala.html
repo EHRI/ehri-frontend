@@ -1,7 +1,5 @@
 @(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
-@import services.search.SearchParams
-
 @userInfo(html: Html) = {
     @if(html.body.trim.nonEmpty) {
         <ul>@html</ul>

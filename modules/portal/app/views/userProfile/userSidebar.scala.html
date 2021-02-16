@@ -1,0 +1,23 @@
+@(item: UserProfile, followed: Boolean, messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], requestHeader: RequestHeader, conf: AppConfig, messages: Messages)
+
+@views.html.common.typeLabel(defines.EntityType.UserProfile) {
+    <ul class="user-controls">
+        <li class="user-img">
+            <a href="@controllers.portal.social.routes.Social.userProfile(item.id)" class="gravitar">
+                <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
+            </a>
+        </li>
+        <li>
+            @views.html.userProfile.messageButtons(item, messagingInfo)
+            @views.html.userProfile.followingButtons(item, followed)
+        </li>
+        <li>
+            @views.html.userProfile.followCounts(item)
+        </li>
+    </ul>
+}
+
+@views.html.userProfile.activitySidebar(
+    controllers.portal.social.routes.Social.userActivity(item.id),
+    controllers.portal.social.routes.Social.userWatchList(item.id)
+)

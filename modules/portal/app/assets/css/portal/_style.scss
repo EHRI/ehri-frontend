@@ -911,7 +911,18 @@ lock.errors,
   }
 }
 
-.profile-form-section {
+.form-global-errors ul {
+  padding-inline-start: 1rem;
+}
+
+.edit-profile-form {
+  .form-submit {
+    margin-top: $margin-md;
+  }
+}
+
+.edit-profile-form-section {
+  padding-top: $margin-lg;
   padding-bottom: $margin-md;
   border-bottom: $border-width solid $border-color;
   margin-bottom: $margin-lg;

@@ -8,16 +8,16 @@
 
     @defining(f("")) { field =>
         @defining(FIELD_PREFIX) { implicit fieldPrefix =>
-            @formHelpers.lineInput(field, NAME)
-            @formHelpers.lineInput(field, TITLE)
-            @formHelpers.lineInput(field, LOCATION)
-            @formHelpers.lineInput(field, INSTITUTION)
-            @formHelpers.lineInput(field, ROLE)
-            @formHelpers.lineInput(field, URL, 'type -> "url")
-            @formHelpers.lineInput(field, WORK_URL, 'type -> "url")
-            @formHelpers.choiceInput(field, LANGUAGES, views.Helpers.languagePairList, 'multiple -> true)
-            @formHelpers.textInput(field, ABOUT)
-            @formHelpers.textInput(field, INTERESTS)
+            @formHelpers.lineInput(field, NAME, 'title -> "")
+            @formHelpers.lineInput(field, TITLE, 'title -> "")
+            @formHelpers.lineInput(field, LOCATION, 'title -> Messages("profile.location.description"))
+            @formHelpers.lineInput(field, INSTITUTION, 'title -> Messages("profile.institution.description"))
+            @formHelpers.lineInput(field, ROLE, 'title -> "")
+            @formHelpers.lineInput(field, URL, 'type -> "url", 'title -> "")
+            @formHelpers.lineInput(field, WORK_URL, 'type -> "url", 'title -> "")
+            @formHelpers.choiceInput(field, LANGUAGES, views.Helpers.languagePairList, 'multiple -> true, 'size -> 1, 'title -> "")
+            @formHelpers.textInput(field, ABOUT, 'title -> "")
+            @formHelpers.textInput(field, INTERESTS, 'title -> "")
             @* Currently for compatibility only *@
             @formHelpers.hiddenInput(f(FIRST_NAMES))
             @formHelpers.hiddenInput(f(LAST_NAME))
@@ -26,8 +26,7 @@
 
     <div class="form-field">
         <div class="form-submit">
-            <button type="submit" class="btn btn-post">@Messages("profile.update.submit")</button>
-            <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="btn btn-cancel">@Messages("cancel")</a>
+            <button type="submit" class="btn btn-info">@Messages("profile.update.submit")</button>
         </div>
     </div>
 }

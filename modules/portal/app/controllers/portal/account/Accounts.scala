@@ -482,6 +482,46 @@ case class Accounts @Inject()(
     )
   }
 
+  def changeEmail: Action[AnyContent] = WithUserAction { implicit request =>
+    Ok(views.html.account.changeEmail(request.user.account.get, changeEmailForm,
+      accountRoutes.changeEmailPost()))
+  }
+
+  /**
+    * Store a changed password.
+    */
+  def changeEmailPost: Action[AnyContent] = (NotReadOnlyAction andThen WithUserAction).async { implicit request =>
+    val account = request.user.account.get
+    val boundForm = changeEmailForm.bindFromRequest
+    boundForm.fold(
+      errForm => immediate(BadRequest(views.html.account.changeEmail(
+        account, errForm, accountRoutes.changeEmailPost()))),
+      data => {
+        val (newEmail, pw) = data
+        accounts.authenticateById(request.user.id, pw).flatMap {
+          case Some(acc) =>
+            accounts.findByEmail(newEmail).flatMap {
+              case Some(otherAcc) if otherAcc.id != acc.id =>
+                // Bad request... email is already taken.
+                immediate(BadRequest(views.html.account.changeEmail(
+                  account, boundForm.withGlobalError("login.error.badEmail"),
+                  accountRoutes.changeEmailPost())))
+
+              case _ =>
+                accounts.update(acc.copy(email = newEmail)).map { _ =>
+                  Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+                    .flashing("success" -> "login.email.change.confirmation")
+            }
+          }
+          case None =>
+            immediate(BadRequest(views.html.account.changeEmail(
+              account, boundForm.withGlobalError("login.error.badUsernameOrPassword"),
+              accountRoutes.changeEmailPost())))
+        }
+      }
+    )
+  }
+
   def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     accounts.findByToken(token).map {
       case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,

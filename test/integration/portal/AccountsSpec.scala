@@ -51,6 +51,55 @@ class AccountsSpec extends IntegrationTestRunner {
         .withSession(CSRF_TOKEN_NAME -> fakeCsrfString).callWith(data)
       status(login) must equalTo(SEE_OTHER)
     }
+
+    "allow users to change their email address" in new ITestApp {
+      await(mockAccounts.update(privilegedUser
+        .copy(password = Some(HashedPassword.fromPlain("letmein")))))
+      val data: Map[String, Seq[String]] = Map(
+        SignupData.EMAIL -> Seq("new@example.com"),
+        SignupData.PASSWORD -> Seq("letmein"))
+      val r = FakeRequest(accountRoutes.changeEmailPost())
+        .withUser(privilegedUser)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
+      status(r) must equalTo(SEE_OTHER)
+      redirectLocation(r) must beSome(
+        controllers.portal.users.routes.UserProfiles.updateProfile().url)
+
+      await(mockAccounts.get(privilegedUser.id)).email must_== "new@example.com"
+    }
+
+    "disallow changing email address to one that already exists" in new ITestApp {
+      await(mockAccounts.update(privilegedUser
+        .copy(password = Some(HashedPassword.fromPlain("letmein")))))
+      val data: Map[String, Seq[String]] = Map(
+        SignupData.EMAIL -> Seq("example2@example.com"),
+        SignupData.PASSWORD -> Seq("letmein"))
+      val r = FakeRequest(accountRoutes.changeEmailPost())
+        .withUser(privilegedUser)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
+      status(r) must equalTo(BAD_REQUEST)
+   }
+
+    "allow users to change their passwords" in new ITestApp {
+      await(mockAccounts.update(privilegedUser
+        .copy(password = Some(HashedPassword.fromPlain("letmein")))))
+      val data: Map[String, Seq[String]] = Map(
+        "current" -> Seq("letmein"),
+        SignupData.PASSWORD -> Seq("newp4sswd"),
+        SignupData.CONFIRM -> Seq("newp4sswd")
+      )
+      val r = FakeRequest(accountRoutes.changePasswordPost())
+        .withUser(privilegedUser)
+        .withSession(CSRF_TOKEN_NAME -> fakeCsrfString)
+        .callWith(data)
+      status(r) must equalTo(SEE_OTHER)
+      redirectLocation(r) must beSome(
+        controllers.portal.users.routes.UserProfiles.updateProfile().url)
+
+      await(mockAccounts.authenticateById(privilegedUser.id, "newp4sswd")) must beSome
+    }
   }
 
   "OAuth2" should {

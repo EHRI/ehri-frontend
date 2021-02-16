@@ -247,7 +247,7 @@ case class UserProfiles @Inject()(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
       profile => userDataApi.update[UserProfile, UserProfileF](
-          request.user.id, profile.toUser(request.user.data)).map { userProfile =>
+          request.user.id, profile.toUser(request.user.data)).map { _ =>
         Redirect(profileRoutes.profile())
           .flashing("success" -> Messages("profile.update.confirmation"))
       }

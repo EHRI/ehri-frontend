@@ -83,7 +83,7 @@ jQuery(function($) {
    * Select2 handling
    */
   window.select2Opts = {
-    theme: "bootstrap",
+    theme: "bootstrap4",
     allowClear: true,
     dropdownAutoWidth: true,
     dropdownCssClass: "facet-select-dropdown",

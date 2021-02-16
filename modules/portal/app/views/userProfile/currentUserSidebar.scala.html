@@ -1,0 +1,28 @@
+@(item: UserProfile, editing: Boolean = false)(implicit userOpt: Option[UserProfile], requestHeader: RequestHeader, conf: AppConfig, messages: Messages)
+
+@views.html.common.typeLabel(defines.EntityType.UserProfile) {
+    <ul class="user-controls">
+        <li class="user-img">
+            <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="gravitar">
+                <img class="user-img-full" src="@views.Helpers.gravitar(item.data.imageUrl)" alt="@item.data.name"/>
+            </a>
+        </li>
+        @if(!editing) {
+            <li>
+                <a class="btn btn-primary" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">
+                    <i class="fa fa-gears"></i>
+                    @Messages("profile.edit")
+                </a>
+            </li>
+        }
+        <li>
+            @views.html.userProfile.followCounts(item)
+        </li>
+    </ul>
+}
+
+@views.html.userProfile.activitySidebar(
+    controllers.portal.users.routes.UserProfiles.activity(),
+    controllers.portal.users.routes.UserProfiles.watching(),
+    Some(controllers.portal.users.routes.UserProfiles.annotations())
+)

@@ -2,7 +2,6 @@
 
 @extraCss = {
     <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2.css")" rel="stylesheet">
-    <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2-bootstrap.css")" rel="stylesheet">
 }
 
 @extraJs = {
@@ -11,53 +10,122 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
-@views.html.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString, styles = extraCss, scripts = extraJs) {
-    @views.html.common.mainContent {
-        @views.html.common.itemHeader(Messages("profile.edit"))
-        @userOpt.flatMap(_.account).map { account =>
-            @if(!account.verified) {
-                <fieldset>
-                    <legend>@Messages("mail.unverifiedEmailWarning")</legend>
-                    @unverified()
-                </fieldset>
+@views.html.layout.portalLayout(Messages("profile"), defines.EntityType.UserProfile.toString, styles = extraCss, scripts = extraJs) {
+    <script>
+            // Javascript to enable link to tab
+            var hash = location.hash.replace(/^#/, '');
+            if (hash) {
+                $('.nav-tabs a[href="#' + hash + '"]').tab('show');
             }
 
-            @if(userOpt.exists(_.account.exists(_.hasPassword))) {
-                <div class="profile-form-section">
-                    <h3>@Messages("profile.section.security")</h3>
-                    <div class="form-field">
-                        <div class="form-submit">
-                            <a href="@controllers.portal.account.routes.Accounts.changePassword()">@Messages("login.password.change.link")</a>
+            // Change hash for page-reload
+            $('.nav-tabs a').on('shown.bs.tab', function (e) {
+                window.location.hash = e.target.hash;
+                if ($.fn.select2) {
+                    $(".select2").select2(select2Opts);
+                }
+            });
+    </script>
+    @userOpt.map { user =>
+        @views.html.common.mainContent {
+            @views.html.common.itemDetails {
+                @views.html.common.rightSidebar {
+
+                    @views.html.common.itemHeader(Messages("profile.edit"))
+
+                    @user.account.map { account =>
+                        @if(!account.verified) {
+                            <fieldset>
+                                <legend>@Messages("mail.unverifiedEmailWarning")</legend>
+                                @views.html.userProfile.unverified()
+                            </fieldset>
+                        }
+                    }
+
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a id="profile-general-tab" class="nav-link active" data-toggle="tab" role="tab" href="#profile-general">@Messages("profile.section.general")</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="profile-image-tab" class="nav-link" data-toggle="tab" role="tab" href="#profile-image">@Messages("profile.section.image")</a>
+                        </li>
+                        @user.account.map { account =>
+                            <li class="nav-item">
+                                <a id="profile-email-tab" class="nav-link" data-toggle="tab" role="tab" href="#profile-email">@Messages("profile.section.email")</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="profile-password-tab" class="nav-link" data-toggle="tab" role="tab" href="#profile-password">@Messages("profile.section.password")</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a id="profile-prefs-tab" class="nav-link" data-toggle="tab" role="tab" href="#profile-prefs">@Messages("profile.section.preferences")</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="profile-delete-tab" class="nav-link" data-toggle="tab" role="tab" href="#profile-delete">@Messages("profile.section.delete")</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content edit-profile-form">
+                        <div class="tab-pane show active edit-profile-form-section" id="profile-general" role="tabpanel" aria-labelledby="profile-general-tab">
+                            @views.html.userProfile.editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost())
+                        </div>
+
+                        <div class="tab-pane edit-profile-form-section" id="profile-image" role="tabpanel" aria-labelledby="profile-image-tab">
+                            @views.html.userProfile.imageUploadForm(imageForm, controllers.portal.users.routes.UserProfiles.updateProfileImagePost())
+                        </div>
+
+                        @user.account.map { account =>
+                            <div class="tab-pane edit-profile-form-section" id="profile-email" role="tabpanel" aria-labelledby="profile-email-tab">
+
+                                <h4>@account.email</h4>
+                                <div class="form-field">
+                                @if(account.hasPassword) {
+                                    <div class="form-submit">
+                                        <a class="btn btn-info" href="@controllers.portal.account.routes.Accounts.changeEmail()">@Messages("login.email.change")</a>
+                                    </div>
+                                } else {
+                                    <p class="alert alert-info">
+                                        @Messages("login.email.emailIsOAuth")
+                                    </p>
+                                }
+                                </div>
+                            </div>
+                            <div class="tab-pane edit-profile-form-section" id="profile-password" role="tabpanel" aria-labelledby="profile-password-tab">
+                                @if(account.hasPassword) {
+                                    <h4>&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;&#x25cf;</h4>
+                                }
+                                <div class="form-field">
+                                @if(account.hasPassword) {
+                                    <div class="form-submit">
+                                        <a class="btn btn-info" href="@controllers.portal.account.routes.Accounts.changePassword()">@Messages("login.password.change")</a>
+                                    </div>
+                                } else {
+                                    <p class="alert alert-info">
+                                        @Messages("login.password.noPassword")
+                                    </p>
+                                }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="tab-pane edit-profile-form-section" id="profile-prefs" role="tabpanel" aria-labelledby="profile-prefs-tab">
+                        @user.account.map { acc =>
+                            @views.html.account.accountPrefsForm(accForm, controllers.portal.users.routes.UserProfiles.updateAccountPrefsPost())
+                        }
+                        </div>
+
+                        <div class="tab-pane edit-profile-form-section" id="profile-delete" role="tabpanel" aria-labelledby="profile-delete-tab">
+                            <div class="form-field">
+                                <div class="form-submit">
+                                    <a href="@controllers.portal.users.routes.UserProfiles.deleteProfile()" class="btn  btn-danger ">@Messages("profile.delete.link")</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                } {
+                    @views.html.userProfile.currentUserSidebar(user)
+                }
             }
         }
-
-        <div class="profile-form-section">
-            <h3>@Messages("profile.section.general")</h3>
-            @editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost())
-        </div>
-
-        <div class="profile-form-section">
-            <h3>@Messages("profile.section.image")</h3>
-            @imageUploadForm(imageForm, controllers.portal.users.routes.UserProfiles.updateProfileImagePost())
-        </div>
-
-        <div class="profile-form-section">
-            @userOpt.flatMap(_.account).map { acc =>
-                <h3>@Messages("profile.section.preferences")</h3>
-                @views.html.account.accountPrefsForm(accForm, controllers.portal.users.routes.UserProfiles.updateAccountPrefsPost())
-            }
-        </div>
-
-        <div class="profile-form-section">
-            <h3>@Messages("profile.section.delete")</h3>
-            <div class="form-field">
-                <div class="form-submit">
-                    <a href="@controllers.portal.users.routes.UserProfiles.deleteProfile()" class="btn  btn-danger ">@Messages("profile.delete.link")</a>
-                </div>
-            </div>
-        </div>
     }
 }

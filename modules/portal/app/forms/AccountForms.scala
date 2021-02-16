@@ -44,6 +44,13 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
 
   val forgotPasswordForm: Form[String] = Form(Forms.single("email" -> email))
 
+  val changeEmailForm: Form[(String, String)] = Form(
+    tuple(
+      "email" -> email,
+      "password" -> nonEmptyText
+    )
+  )
+
   //
   // Signup data validation. This does several checks:
   //  - passwords must be over 6 characters

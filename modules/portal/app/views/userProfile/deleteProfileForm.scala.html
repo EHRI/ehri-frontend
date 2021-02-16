@@ -18,17 +18,15 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, mess
             <h3><strong>@user.data.name</strong></h3>
         </div>
 
-
         @formHelpers.globalErrors(f)
 
         <div class="form-field">
-            <input type="text" class="form-control" name="confirm" placeholder="@Messages("profile.delete.check")" />
+            <label for="confirm-delete" class="sr-only">@Messages("profile.delete.check")</label>
+            <input id="confirm-delete" type="text" class="form-control" name="confirm" placeholder="@Messages("profile.delete.check")" autocomplete="off"/>
         </div>
         <div class="form-field">
-            <button type="submit" class=" btn  btn-danger ">
-                @Messages("profile.delete")
-            </button>
-            <a class=" btn  btn-cancel " href="@controllers.portal.users.routes.UserProfiles.profile()">@Messages("cancel")</a>
+            <button type="submit" class="btn btn-danger">@Messages("profile.delete")</button>
+            <a class="btn btn-cancel" href="@controllers.portal.users.routes.UserProfiles.updateProfile()">@Messages("cancel")</a>
         </div>
     }
 }

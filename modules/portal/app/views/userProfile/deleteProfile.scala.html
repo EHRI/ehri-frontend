@@ -1,6 +1,16 @@
 @(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
-@views.html.layout.loginLayout(Messages("profile.delete"), defines.EntityType.UserProfile.toString) {
-    @views.html.common.itemHeader(Messages("profile.delete"))
-    @views.html.userProfile.deleteProfileForm(confirmForm, action)
+@views.html.layout.portalLayout(Messages("profile.delete"), defines.EntityType.UserProfile.toString) {
+    @views.html.common.mainContent {
+        @views.html.common.itemDetails {
+            @views.html.common.rightSidebar {
+                @views.html.common.itemHeader(Messages("profile.delete"))
+                @views.html.userProfile.deleteProfileForm(confirmForm, action)
+            } {
+                @userOpt.map { user =>
+                    @views.html.userProfile.currentUserSidebar(user)
+                }
+            }
+        }
+    }
 }

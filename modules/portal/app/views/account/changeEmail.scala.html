@@ -1,17 +1,17 @@
-@(account: Account, form: Form[(String,String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, sessionPrefs: SessionPrefs)
+@(account: Account, form: Form[(String,String)], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, sessionPrefs: SessionPrefs)
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateSignUp.f) }
 
-@views.html.layout.portalLayout(Messages("login.password.change")) {
+@views.html.layout.portalLayout(Messages("login.email.change")) {
     @views.html.common.mainContent {
         @views.html.common.itemDetails {
             @views.html.common.rightSidebar {
-                @views.html.common.itemHeader(Messages("login.password.change"))
+                @views.html.common.itemHeader(Messages("login.email.change"))
                 @if(userOpt.exists(_.account.exists(_.hasPassword))) {
-                    @views.html.account.changePasswordForm(form, action)
+                    @views.html.account.changeEmailForm(form, action)
                 } else {
                     <p class="alert alert-info">
-                    @Messages("login.password.noPassword")
+                    @Messages("login.email.emailIsOAuth")
                     </p>
                 }
             } {
