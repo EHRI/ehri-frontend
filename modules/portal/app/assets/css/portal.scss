@@ -43,13 +43,15 @@
 // Font-awesome
 @import "./font-awesome.scss";
 
-// Portal layout CSS
-@import "portal/layout";
-@import "portal/style";
-
+// Select2
+@import "select2/select2";
 @import "select2-bootstrap/layout";
 @import "select2-bootstrap/single";
 @import "select2-bootstrap/multiple";
+
+// Portal layout CSS
+@import "portal/layout";
+@import "portal/style";
 
 .main-content {
   @extend .container;

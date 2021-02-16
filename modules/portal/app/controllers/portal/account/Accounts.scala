@@ -470,6 +470,7 @@ case class Accounts @Inject()(
             password = Some(HashedPassword.fromPlain(newPw)),
             isLegacy = false
           )).map { _ =>
+            logger.info(s"Password change: ${acc.id}")
             Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
               .flashing("success" -> "login.password.change.confirmation")
           }
@@ -509,6 +510,7 @@ case class Accounts @Inject()(
 
               case _ =>
                 accounts.update(acc.copy(email = newEmail)).map { _ =>
+                  logger.info(s"Email change: ${acc.id}")
                   Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
                     .flashing("success" -> "login.email.change.confirmation")
             }

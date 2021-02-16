@@ -1,16 +1,12 @@
 @(profileForm: play.api.data.Form[ProfileData], imageForm: Form[String], accForm: Form[AccountPreferences])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@extraCss = {
-    <link href="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/css/select2.css")" rel="stylesheet">
-}
-
 @extraJs = {
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.min.js")"></script>
 }
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
-@views.html.layout.portalLayout(Messages("profile"), defines.EntityType.UserProfile.toString, styles = extraCss, scripts = extraJs) {
+@views.html.layout.portalLayout(Messages("profile"), defines.EntityType.UserProfile.toString, scripts = extraJs) {
     <script>
             // Javascript to enable link to tab
             var hash = location.hash.replace(/^#/, '');

@@ -5,7 +5,6 @@ import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
-import play.twirl.api.Html
 import services.data.{ApiUser, AuthenticatedUser, HierarchyError}
 
 
