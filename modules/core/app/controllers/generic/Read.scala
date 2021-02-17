@@ -4,7 +4,6 @@ import controllers.base.CoreActionBuilders
 import defines.{ContentTypes, PermissionType}
 import models._
 import play.api.Logger
-import play.api.http.HeaderNames
 import play.api.mvc.{Result, _}
 import services.data.{ContentType, ItemNotFound, Resource}
 import utils.{Page, PageParams, RangePage, RangeParams}
@@ -17,8 +16,7 @@ import scala.concurrent.Future
  *
  * @tparam MT Meta-model
  */
-trait
-Read[MT] extends CoreActionBuilders {
+trait Read[MT] extends CoreActionBuilders {
 
   private def logger = Logger(getClass)
 

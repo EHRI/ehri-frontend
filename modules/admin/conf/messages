@@ -25,6 +25,7 @@ facet.linkField=Link Field
 # Errors
 #
 errors.badRegexPattern=Regular expression syntax error
+errors.invalidValue=Invalid value selected
 
 #
 #
@@ -1422,7 +1423,7 @@ accessPoint.delete.submit=Remove
 #
 # Date Periods
 #
-datePeriod.type=Date type
+datePeriod.type=Type
 datePeriod.type.creation=Creation
 datePeriod.type.existence=Existence
 datePeriod.precision=Precision

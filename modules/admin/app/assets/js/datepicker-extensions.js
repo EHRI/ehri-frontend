@@ -1,37 +1,39 @@
 $(document).ready(function () {
 
-  var defaultStartView = "decade";
+  // luxon.Settings.throwOnInvalid = true;
 
-  var dateField = function (name, src) {
+  function dateField(name, src) {
     return "*[name='" + /(.*?)\w+$/.exec(src)[1] + name + "']";
   }
 
   //Create datepicker
-  var createDatepicker = function (target, forced) {
+  function createDatePicker(target, forced) {
     var process = false,
-        override = true,
         hasDP = hasDatepicker(target),
         show = false;
 
     if (hasDP === true) {
+      process = false;
+      target.datepicker("destroy");
+      target.removeClass("datepicker-activated");
+    } else if (typeof forced !== "undefined" && forced) {
       process = true;
-      target.datepicker("remove");
-    } else if (typeof forced !== "undefined" && forced === true) {
-      process = true;
-      override = false;
       show = true;
     }
 
     if (process === true) {
       target.datepicker({
-        startView: defaultStartView,
-        format: function () {
-          console.log(defaultFormat(target));
-          return defaultFormat(target);
+        startView: defaultMinViewMode(target),
+        immediateUpdates: true,
+        format: {
+          toDisplay: function(date, format) {
+            return luxon.DateTime.fromJSDate(date).toFormat(defaultFormat(target));
+          },
+          toValue: function (date, format) {
+            return luxon.DateTime.fromISO(date).toJSDate();
+          },
         },
-        minViewMode: function () {
-          return defaultMinViewMode(target);
-        }
+        minViewMode: defaultMinViewMode(target),
       });
       target.addClass("datepicker-activated");
       if (show === true) {
@@ -40,48 +42,44 @@ $(document).ready(function () {
     }
   }
 
-  var defaultFormat = function (that) {
-    name = that.attr("name");
-    precision = $(dateField("precision", name)).val();
+  function defaultFormat(that) {
+    var name = that.attr("name");
+    var precision = $(dateField("precision", name)).val();
 
     switch (precision) {
       case 'month':
       case 'quarter':
-        precision = "yyyy-mm";
+        precision = "yyyy-MM";
         break;
       case 'year':
       case 'decade':
         precision = "yyyy";
         break;
       default:
-        precision = "yyyy-mm-dd";
+        precision = "yyyy-MM-dd";
         break;
     }
-    return precision || "yyyy-mm-dd";
+    return precision || "yyyy-MM-dd";
   }
 
-  var defaultMinViewMode = function (that) {
-    name = that.attr("name");
-    precision = $(dateField("precision", name)).val();
+  function defaultMinViewMode (that) {
+    var name = that.attr("name");
+    var precision = $(dateField("precision", name)).val();
 
+    console.log("Precision min view mode", precision)
     switch (precision) {
       case 'month':
       case 'quarter':
-        precision = 1;
-        break;
+        return 1;
       case 'year':
       case 'decade':
-        precision = 2;
-        break;
+        return 2;
       default:
-        precision = 0;
-        break;
+        return 0;
     }
-
-    return precision || false;
   }
 
-  var hasDatepicker = function (obj) {
+  function hasDatepicker(obj) {
     return obj.hasClass("datepicker-activated") !== false;
   }
 
@@ -91,8 +89,8 @@ $(document).ready(function () {
         start = $(dateField("startDate", that.attr("name"))),
         end = $(dateField("endDate", that.attr("name")));
 
-    createDatepicker(start);
-    createDatepicker(end);
+    createDatePicker(start);
+    createDatePicker(end);
   });
 
   $(document).on("keyup", "input.datepicker", function () {
@@ -130,15 +128,14 @@ $(document).ready(function () {
         //Set the precision field
         $(select + " > option[value='" + precision + "']").prop('selected', true);
         //Restart the datepicker
-        createDatepicker(start);
-        createDatepicker(end);
+        createDatePicker(start);
+        createDatePicker(end);
       }
     }
   });
 
   $(document).on('click', '.datepicker-activation', function () {
     var name = $(this).attr("data-target");
-    target = $(name);
-    createDatepicker(target, true);
+    createDatePicker($(name), true);
   });
 });

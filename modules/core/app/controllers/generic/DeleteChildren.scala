@@ -5,7 +5,7 @@ import models.base._
 import models.{DeleteChildrenOptions, UserProfile}
 import play.api.data.Form
 import play.api.mvc._
-import services.data.{ContentType, HierarchyError, Readable, Writable}
+import services.data.{ContentType, HierarchyError, Readable}
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future

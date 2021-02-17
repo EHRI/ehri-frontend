@@ -49,7 +49,7 @@ object EnumUtils {
       play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
         scala.util.control.Exception.allCatch[E#Value]
           .either(enum.withName(s))
-          .left.map(e => Seq(FormError(key, "error.enum", Nil)))
+          .left.map(e => Seq(FormError(key, "errors.invalidValue", Nil)))
       }
     }
     def unbind(key: String, value: E#Value) = Map(key -> value.toString)

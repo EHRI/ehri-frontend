@@ -1,8 +1,10 @@
 // <-- Bootstrap
+@import "bootstrap/functions";
+
+// Our overridden variables
 @import "portal/variables";
 
 // Bootstrap 4
-@import "bootstrap/functions";
 @import "bootstrap/variables";
 @import "bootstrap/mixins";
 @import "bootstrap/root";

@@ -1,0 +1,47 @@
+{
+  "description": "The EHRI project portal frontend",
+  "main": "build.sbt",
+  "dependencies": {
+    "@ttskch/select2-bootstrap4-theme": "^1.5.2",
+    "axios": "^0.21.1",
+    "bootstrap": "^4.3.1",
+    "bootstrap-datepicker": "^1.9.0",
+    "clipboard": "^2.0.6",
+    "codemirror": "^5.58.1",
+    "corejs-typeahead": "^1.3.1",
+    "font-awesome": "^4.7.0",
+    "handlebars": "^4.4.3",
+    "jquery": "^3.4.1",
+    "jquery-flot": "^0.8.3",
+    "jquery-hoverintent": "^1.10.1",
+    "jquery-placeholder": "^2.3.1",
+    "jquery-validation": "^1.19.3",
+    "leaflet": "^1.7.1",
+    "leaflet-curve": "^1.0.0",
+    "lodash": "^4.17.15",
+    "luxon": "^1.25.0",
+    "moment": "^2.24.0",
+    "select2": "^4.0.13",
+    "vue": "^2.5.17"
+  },
+  "scripts": {
+    "test": "sbt test"
+  },
+  "author": "EHRI",
+  "license": "EUPL-1.1",
+  "devDependencies": {
+    "grunt": "^1.3.0",
+    "grunt-contrib-copy": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EHRI/ehri-frontend.git"
+  },
+  "keywords": [
+    "archives"
+  ],
+  "bugs": {
+    "url": "https://github.com/EHRI/ehri-frontend/issues"
+  },
+  "homepage": "https://github.com/EHRI/ehri-frontend#README.md"
+}
