@@ -23,6 +23,7 @@ OLD
 .fonts
 .idea
 .idea_modules
+node_modules
 
 # stupid Mac stuff
 .DS_Store

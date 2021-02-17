@@ -8,15 +8,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
-        <link href="@controllers.portal.routes.PortalAssets.versioned("bootstrap/css/datepicker.css")" rel="stylesheet">
         <link href="@controllers.admin.routes.AdminAssets.versioned("css/datamanager.css")" rel="stylesheet">
 
         @conf.extraHeadContent.map(c => Html(c))
     </head>
     <body>
 
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery-3.4.1.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.history.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.js")"></script>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2/js/select2.full.min.js")"></script>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/bootstrap.bundle.js")"></script>
         <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
@@ -90,9 +88,9 @@
             <script src="https://cdn.jsdelivr.net/npm/vuedraggable@@2.24.1"></script>
         }
 
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/axios.min.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/lodash.min.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.min.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/axios.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/lodash.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.js")"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>
 
         <div id="flex-wrapper">
@@ -105,9 +103,9 @@
                 <div id="vue-app"></div>
             </div>
         </div>
-      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.58.1/codemirror.js")"></script>
-      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.58.1/xml.js")"></script>
-      <link rel="stylesheet" property="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror-5.58.1/codemirror.css")">
+      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/codemirror.js")"></script>
+      <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/xml.js")"></script>
+      <link rel="stylesheet" property="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/codemirror/codemirror.css")">
 
       <script src="@controllers.admin.routes.AdminAssets.versioned("js/datamanager-dao.js")"></script>
       <script src="@controllers.admin.routes.AdminAssets.versioned("js/datamanager-common.js")"></script>

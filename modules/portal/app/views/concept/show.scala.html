@@ -1,15 +1,11 @@
 @(item: Concept, annotations: Seq[Annotation], result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @extraCss = {
-    @for(_ <- item.data.longitude ; _ <- item.data.latitude) {
-        <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.css")"/>
-    }
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.css")"/>
 }
 
 @extraScript = {
-    @for(_ <- item.data.longitude ; _ <- item.data.latitude) {
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet-1.3.1/leaflet.js")"></script>
-    }
+    <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.js")"></script>
 }
 
 @views.html.layout.portalLayout(item.toStringLang, defines.EntityType.Concept.toString, styles = extraCss, scripts = extraScript) {

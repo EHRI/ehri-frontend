@@ -314,19 +314,21 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
   .settings(
     routesImport += "models.view._",
     libraryDependencies ++= portalDependencies,
-    uglifyMangle := false, // Mangling and compressing causes problems so don't
+
+    // Mangling and compressing causes problems so don't
+    uglifyMangle := false,
     uglifyCompress := false,
+
     // Should really add cssCompress stage here but it's too slow currently
     pipelineStages in Assets := Seq(concat, uglify, digest, gzip),
     Concat.groups := Seq(
       "js/script-pre.js" -> group(
         Seq(
-          "js/lib/jquery-3.4.1.js",
-          "js/lib/jquery.validate-1.19.1.js",
-          "js/lib/typeahead.bundle-1.3.1.js",
-          "js/lib/handlebars-v4.4.3.js",
-          "js/lib/jquery.cookie.js",
+          "js/lib/jquery.js",
+          "js/lib/jquery.validate.js",
           "js/lib/jquery.hoverIntent.js",
+          "js/lib/typeahead.bundle.js",
+          "js/lib/handlebars.js",
           "js/feedback.js",
           "js/common.js"
         )
