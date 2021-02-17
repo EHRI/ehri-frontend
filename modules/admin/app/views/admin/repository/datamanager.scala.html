@@ -78,16 +78,9 @@
                 let ERR_MSG = "@utils.WebsocketConstants.ERR_MESSAGE";
         </script>
 
-        @if(conf.isTestMode) {
-            <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12/dist/vue.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/sortablejs@@1.8.4/Sortable.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/vuedraggable@@2.24.1/dist/vuedraggable.umd.js"></script>
-        } else {
-            <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12"></script>
-            <script src="https://cdn.jsdelivr.net/npm/sortablejs@@1.8.4"></script>
-            <script src="https://cdn.jsdelivr.net/npm/vuedraggable@@2.24.1"></script>
-        }
-
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/Sortable.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vuedraggable.umd.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/axios.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/lodash.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.js")"></script>
