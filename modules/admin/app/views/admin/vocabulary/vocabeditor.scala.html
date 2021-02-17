@@ -49,12 +49,7 @@
                 }
         </script>
 
-        @if(conf.isTestMode) {
-            <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12/dist/vue.js"></script>
-        } else {
-            <script src="https://cdn.jsdelivr.net/npm/vue@@2.6.12"></script>
-        }
-
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/lodash.js")"></script>
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.js")"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>

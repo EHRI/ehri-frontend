@@ -168,6 +168,24 @@ module.exports = function (grunt) {
             src: ['jquery.flot.js', 'jquery.flot.pie.js'],
             dest: paths.adminJsLib
           },
+          {
+            expand: true,
+            cwd: 'node_modules/vue/dist',
+            src: 'vue.js',
+            dest: paths.adminJsLib
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/sortablejs',
+            src: 'Sortable.js',
+            dest: paths.adminJsLib
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/vuedraggable/dist',
+            src: 'vuedraggable.umd.js',
+            dest: paths.adminJsLib
+          },
         ],
       },
     },
