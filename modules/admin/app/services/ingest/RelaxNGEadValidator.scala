@@ -59,7 +59,7 @@ case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: Exe
       val driver = new ValidationDriver(props.toPropertyMap)
       driver.loadSchema(rng)
       driver.validate(is)
-      Seq(bs: _*)
+      bs.toSeq
     } catch {
       case e: SAXParseException =>
         Seq(XmlValidationError(e.getLineNumber, e.getColumnNumber, e.getLocalizedMessage))

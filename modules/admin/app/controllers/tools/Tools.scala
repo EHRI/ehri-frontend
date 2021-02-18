@@ -113,7 +113,7 @@ case class Tools @Inject()(
 
   def addMovedItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      val boundForm: Form[String] = urlMapForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools.movedItemsForm(errForm,
           controllers.tools.routes.Tools.addMovedItemsPost()))),
@@ -135,7 +135,7 @@ case class Tools @Inject()(
 
   def renameItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      val boundForm: Form[String] = urlMapForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools
           .renameItemsForm(errForm, controllers.tools.routes.Tools.renameItemsPost()))),
@@ -168,7 +168,7 @@ case class Tools @Inject()(
 
   def reparentItemsPost(): Action[MultipartFormData[TemporaryFile]] =
     AdminAction.async(parsers.multipartFormData) { implicit request =>
-      val boundForm: Form[String] = urlMapForm.bindFromRequest
+      val boundForm: Form[String] = urlMapForm.bindFromRequest()
       boundForm.fold(
         errForm => immediate(BadRequest(views.html.admin.tools
           .reparentItemsForm(errForm, controllers.tools.routes.Tools.reparentItemsPost()))),
@@ -206,7 +206,7 @@ case class Tools @Inject()(
   )
 
   def regenerateIds(): Action[AnyContent] = AdminAction.apply { implicit request =>
-    val form = regenerateForm.bindFromRequest
+    val form = regenerateForm.bindFromRequest()
     form.fold(
       err => BadRequest(views.html.admin.tools.regenerate(err, controllers.tools.routes.Tools.regenerateIds())), {
         case (Some(et), None, t) =>
@@ -315,14 +315,14 @@ case class Tools @Inject()(
   }
 
   def batchDeletePost: Action[AnyContent] = AdminAction.async { implicit request =>
-    val boundForm = BatchDeleteTask.form.bindFromRequest
+    val boundForm = BatchDeleteTask.form.bindFromRequest()
     boundForm.fold(
       err => immediate(BadRequest(views.html.admin.tools.batchDelete(err,
         controllers.tools.routes.Tools.batchDeletePost()))),
       data => userDataApi.batchDelete(
         data.ids, data.scope, data.log, version = data.version, commit = data.commit
       ).flatMap { deleted =>
-        val indexOp = if (data.commit) searchIndexer.handle.clearIds(data.ids: _*) else immediate(Unit)
+        val indexOp = if (data.commit) searchIndexer.handle.clearIds(data.ids: _*) else immediate(())
         indexOp.map { _ =>
           Redirect(controllers.tools.routes.Tools.batchDelete())
             .flashing("success" -> Messages("admin.utils.batchDelete.done", deleted))

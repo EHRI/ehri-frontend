@@ -20,6 +20,6 @@ trait Write extends CoreActionBuilders {
     import play.api.data.Form
     import play.api.data.Forms._
     Form(single(Constants.LOG_MESSAGE_PARAM -> optional(nonEmptyText(maxLength = conf.logMessageMaxLength))))
-      .bindFromRequest.value.flatten
+      .bindFromRequest().value.flatten
   }
 }

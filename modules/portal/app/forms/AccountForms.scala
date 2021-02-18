@@ -18,7 +18,7 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
 
   val openidForm: Form[String] = Form(single(
     "openid_identifier" -> nonEmptyText
-  ) verifying("errors.invalidUrl", forms.isValidUrl))
+  ).verifying("errors.invalidUrl", forms.isValidUrl))
 
   val passwordLoginForm: Form[(String, String)] = Form(
     tuple(
@@ -32,14 +32,14 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
       "current" -> nonEmptyText,
       PASSWORD -> nonEmptyText(minLength = conf.minPasswordLength),
       CONFIRM -> nonEmptyText(minLength = conf.minPasswordLength)
-    ) verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
+    ).verifying("login.error.passwordsDoNotMatch", passwords => passwords._2 == passwords._3)
   )
 
   val resetPasswordForm: Form[(String, String)] = Form(
     tuple(
       PASSWORD -> nonEmptyText(minLength = conf.minPasswordLength),
       CONFIRM -> nonEmptyText(minLength = conf.minPasswordLength)
-    ) verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
+    ).verifying("login.error.passwordsDoNotMatch", pc => pc._1 == pc._2)
   )
 
   val forgotPasswordForm: Form[String] = Form(Forms.single("email" -> email))
@@ -69,8 +69,8 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
       BLANK_CHECK -> text, // honeypot
       AGREE_TERMS -> checked("signup.agreeTerms")
     )(SignupData.apply)(SignupData.unapply)
-      verifying formSubmissionTime(config)
-      verifying blankFieldIsBlank
-      verifying("signup.badPasswords", s => s.password == s.confirm)
+     .verifying(formSubmissionTime(config))
+     .verifying(blankFieldIsBlank)
+     .verifying("signup.badPasswords", s => s.password == s.confirm)
   )
 }

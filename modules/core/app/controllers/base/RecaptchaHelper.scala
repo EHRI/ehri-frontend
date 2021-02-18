@@ -31,7 +31,7 @@ trait RecaptchaHelper {
     val skipRecapture = config.getOptional[Boolean]("recaptcha.skip").getOrElse(false)
     if (skipRecapture) Future.successful(true)
     else {
-      recaptchaForm.bindFromRequest.fold({ badCapture =>
+      recaptchaForm.bindFromRequest().fold({ badCapture =>
         Future.successful(false)
       }, { case (challenge, response) =>
         ws.url("http://www.google.com/recaptcha/api/verify")

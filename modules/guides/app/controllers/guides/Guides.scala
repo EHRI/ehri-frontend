@@ -45,7 +45,7 @@ case class Guides @Inject()(
   def editPost(path: String) = WithUserAction { implicit request =>
     itemOr404 {
       guides.find(path, activeOnly = false).map { guide =>
-        val boundForm = formGuide.bindFromRequest
+        val boundForm = formGuide.bindFromRequest()
         boundForm.fold(
           errorForm => {
             BadRequest(views.html.admin.guide.edit(guide, errorForm, guides.findAll(),
@@ -75,7 +75,7 @@ case class Guides @Inject()(
   }
 
   def createPost() = WithUserAction { implicit request =>
-    val boundForm = formGuide.bindFromRequest
+    val boundForm = formGuide.bindFromRequest()
     boundForm.fold(
       errorForm => {
         BadRequest(views.html.admin.guide.create(errorForm, guides.findAll(), guidesRoutes.createPost()))

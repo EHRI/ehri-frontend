@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfiguration {
 
-  private val injector = appBuilder.injector
+  private val injector = appBuilder.injector()
   private implicit val actorSystem: ActorSystem = injector.instanceOf[ActorSystem]
   private implicit val mat: Materializer = injector.instanceOf[Materializer]
   private implicit val ec: ExecutionContext = mat.executionContext

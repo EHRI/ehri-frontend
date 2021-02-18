@@ -39,7 +39,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         // Deleting the file should make the message go away
         f.delete()
 
-        val page = FakeRequest(accountRoutes.forgotPassword()).call
+        val page = FakeRequest(accountRoutes.forgotPassword()).call()
         status(page) must equalTo(OK)
         contentAsString(page) must not contain message("errors.readonly")
       } finally {

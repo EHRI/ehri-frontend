@@ -250,7 +250,7 @@ case class Social @Inject()(
   }
 
   def sendMessagePost(userId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    val boundForm = messageForm.bindFromRequest
+    val boundForm = messageForm.bindFromRequest()
 
     def onError(userTo: UserProfile, info: MessagingInfo): Result = {
       if (isAjax) BadRequest(info.form.errorsAsJson)

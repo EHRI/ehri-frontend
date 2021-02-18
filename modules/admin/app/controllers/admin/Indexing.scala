@@ -86,11 +86,11 @@ case class Indexing @Inject()(
       case js: JsValue if js.validate[IndexTypes].isSuccess =>
         val IndexTypes(types, clearAll, clearTypes) = js.as[IndexTypes]
         val optionallyClearIndex: Future[Unit] =
-          if (!clearAll) Future.successful(Unit)
+          if (!clearAll) Future.successful(())
           else indexer.clearAll()
 
         val optionallyClearType: Future[Unit] =
-          if (!clearTypes || clearAll) Future.successful(Unit)
+          if (!clearTypes || clearAll) Future.successful(())
           else indexer.clearTypes(types)
 
         val job = for {

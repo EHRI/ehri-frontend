@@ -137,8 +137,8 @@ object DatePeriod {
     ISA -> ignored(EntityType.DatePeriod),
     ID -> optional(nonEmptyText),
     TYPE -> optional(enumMapping(DatePeriodType)),
-    START_DATE -> optional(text verifying("error.date", dateValidator)),
-    END_DATE -> optional(text verifying("error.date", dateValidator)),
+    START_DATE -> optional(text.verifying("error.date", dateValidator)),
+    END_DATE -> optional(text.verifying("error.date", dateValidator)),
     PRECISION -> optional(enumMapping(DatePeriodPrecision)),
     DESCRIPTION -> optional(text)
   )(DatePeriodF.apply)(DatePeriodF.unapply))

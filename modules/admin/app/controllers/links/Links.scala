@@ -69,7 +69,7 @@ case class Links @Inject()(
     val filters = Map(
       "hasBody" -> false,
       "targetCount" -> 2,
-      s"targetTypes:(${targetTypes.mkString(" ")})" -> Unit
+      s"targetTypes:(${targetTypes.mkString(" ")})" -> ()
     )
 
     findType[Link](params, paging, filters = filters, facetBuilder = entityFacets ).map { result =>
