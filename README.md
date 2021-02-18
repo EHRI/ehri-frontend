@@ -68,6 +68,18 @@ At this point you should be able to access the admin pages and create data, e.g:
 NOTE: certain functionality also depends on a valid AWS S3 configuration set in the `conf/aws.conf` file.
 Use the `conf/aws.conf.example` as a template.
 
+### Note on JS/CSS library assets
+
+These assets live in the source tree in the `modules/{module}/app/assets/{js,css}/lib` directories but the reference for their 
+versions is the `package.json` file that is managed by NPM. Modules within the `node_modules` directory are then copied to the 
+source tree by the `./node_modules/.bin/grunt copy` command.
+
+The copying is configured to make a few small changes to some files for e.g. the relative font path in the font-awesome SASS file
+and to replace CRLF with LF where necessary.
+
+Note: at present Grunt is only used for copying assets from `node_modules`. JS minification and SASS compilation is managed by
+the main SBT build system.
+
 ### Testing
 
 Running integration tests requires a number of different external services, including:
