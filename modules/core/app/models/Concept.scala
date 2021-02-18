@@ -102,13 +102,13 @@ object Concept {
       ISA -> ignored(EntityType.Concept),
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText,
-      URI -> optional(nonEmptyText verifying("error.badUrl",
+      URI -> optional(nonEmptyText.verifying("error.badUrl",
         url => forms.isValidUrl(url))),
-      URL -> optional(nonEmptyText verifying("error.badUrl",
+      URL -> optional(nonEmptyText.verifying("error.badUrl",
         url => forms.isValidUrl(url))),
       LONGITUDE -> optional(bigDecimal),
       LATITUDE -> optional(bigDecimal),
-      SEEALSO -> seq(nonEmptyText verifying("error.badUrl",
+      SEEALSO -> seq(nonEmptyText.verifying("error.badUrl",
         url => forms.isValidUrl(url))),
       DESCRIPTIONS -> seq(ConceptDescription.form.mapping)
     )(ConceptF.apply)(ConceptF.unapply)

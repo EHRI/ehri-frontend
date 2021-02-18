@@ -54,8 +54,8 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
     WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new CoreActionTransformer[WithUserRequest, CreateRequest] {
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req: WithUserRequest[A] = request
-        val visForm = visibilityForm.bindFromRequest
-        form.bindFromRequest.fold(
+        val visForm = visibilityForm.bindFromRequest()
+        form.bindFromRequest().fold(
           errorForm => dataHelpers.getUserAndGroupList.map { usersAndGroups =>
             CreateRequest(Left((errorForm, visForm, usersAndGroups)), request.user, request.request)
           },

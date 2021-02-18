@@ -51,8 +51,8 @@ trait Creator[CMT <: Model{type T <: ModelData with Persistable}, MT <: Model] e
       def transform[A](request: ItemPermissionRequest[A]): Future[CreateChildRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
         val extra = extraParams.apply(request.request)
-        val visForm = visibilityForm.bindFromRequest
-        form.bindFromRequest.fold(
+        val visForm = visibilityForm.bindFromRequest()
+        form.bindFromRequest().fold(
           errorForm => dataHelpers.getUserAndGroupList.map { usersAndGroups =>
             CreateChildRequest(request.item, Left((errorForm, visForm, usersAndGroups)), request.userOpt, request.request)
           },

@@ -65,7 +65,7 @@ trait Search extends CoreActionBuilders {
   // Search sort logic. By default, if there's a query, items come out
   //sorted by their score. Otherwise, they are sorted by name.
   private def defaultSortFunction(sp: SearchParams, fallback: SearchSort.Value = SearchSort.DateNewest): SearchSort.Value =
-    sp.sort.getOrElse(if (sp.query.exists(!_.trim.isEmpty)) SearchSort.Score else fallback)
+    sp.sort.getOrElse(if (sp.query.exists(_.trim.nonEmpty)) SearchSort.Score else fallback)
 
   private def queryFromRequest(
     params: SearchParams,

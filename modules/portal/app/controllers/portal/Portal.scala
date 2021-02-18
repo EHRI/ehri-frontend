@@ -54,7 +54,7 @@ case class Portal @Inject()(
 
   def updatePrefs(): Action[AnyContent] = Action { implicit request =>
     val current = request.preferences
-    SessionPrefs.updateForm(current).bindFromRequest.fold(
+    SessionPrefs.updateForm(current).bindFromRequest().fold(
       errors => BadRequest(errors.errorsAsJson),
       updated => {
         (if (isAjax) Ok(Json.toJson(updated))

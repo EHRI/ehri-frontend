@@ -77,7 +77,7 @@ object Address {
       EMAIL -> seq(email),
       TELEPHONE -> seq(nonEmptyText),
       FAX -> seq(nonEmptyText),
-      URL -> seq(nonEmptyText verifying("error.badUrl",
+      URL -> seq(nonEmptyText.verifying("error.badUrl",
         url => forms.isValidUrl(url)
       ))
     )(AddressF.apply)(AddressF.unapply)

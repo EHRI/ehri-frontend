@@ -61,7 +61,7 @@ case class Annotations @Inject()(
 
   // Ajax
   def annotatePost(id: String, did: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    Annotation.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest().fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         val accessors: Seq[String] = getAccessors(ann, request.user)
@@ -86,7 +86,7 @@ case class Annotations @Inject()(
     WithItemPermissionAction(aid, PermissionType.Update).async { implicit request =>
       // save an override field, becuase it's not possible to change it.
       val field = request.item.data.field
-      Annotation.form.bindFromRequest.fold(
+      Annotation.form.bindFromRequest().fold(
         errForm => immediate(BadRequest(errForm.errorsAsJson)),
         edited => userDataApi.update[Annotation,AnnotationF](aid, edited.copy(field = field)).flatMap { updated =>
           // Because the user might have marked this item
@@ -124,7 +124,7 @@ case class Annotations @Inject()(
 
   // Ajax
   def annotateFieldPost(id: String, did: String, field: String): Action[AnyContent] = WithUserAction.async { implicit request =>
-    Annotation.form.bindFromRequest.fold(
+    Annotation.form.bindFromRequest().fold(
       errorForm => immediate(BadRequest(errorForm.errorsAsJson)),
       ann => {
         // Add the field to the model!

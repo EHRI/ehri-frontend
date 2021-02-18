@@ -223,7 +223,7 @@ case class UserProfiles @Inject()(
   }
 
   def updateAccountPrefsPost(): Action[AnyContent] = WithUserAction.async { implicit request =>
-    AccountPreferences.form.bindFromRequest.fold(
+    AccountPreferences.form.bindFromRequest().fold(
       errForm => immediate(BadRequest(views.html.userProfile.editProfile(
             ProfileData.form, imageForm, errForm))),
       accountPrefs => accounts.findById(request.user.id).flatMap {
@@ -242,7 +242,7 @@ case class UserProfiles @Inject()(
   }
 
   def updateProfilePost(): Action[AnyContent] = WithUserAction.async { implicit request =>
-    ProfileData.form.bindFromRequest.fold(
+    ProfileData.form.bindFromRequest().fold(
       errForm => immediate(
         BadRequest(views.html.userProfile.editProfile(errForm, imageForm, accountPrefsForm))
       ),
@@ -260,7 +260,7 @@ case class UserProfiles @Inject()(
   }
 
   def deleteProfilePost(): Action[AnyContent] = WithUserAction.async { implicit request =>
-    deleteForm(request.user).bindFromRequest.fold(
+    deleteForm(request.user).bindFromRequest().fold(
       errForm => immediate(BadRequest(views.html.userProfile.deleteProfile(
         errForm.withGlobalError("profile.delete.badConfirmation"),
         profileRoutes.deleteProfilePost()))),

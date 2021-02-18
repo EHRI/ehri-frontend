@@ -39,7 +39,7 @@ case class GuidePages @Inject()(
         guide <- guides.find(gPath)
         page <- guides.findPage(guide, path)
       } yield {
-        val boundForm = formPage.bindFromRequest
+        val boundForm = formPage.bindFromRequest()
         boundForm.fold(
           errorForm =>
             BadRequest(views.html.admin.guidePage.edit(guide, page,
@@ -82,7 +82,7 @@ case class GuidePages @Inject()(
   def createPost(gPath: String) = WithUserAction { implicit request =>
     itemOr404 {
       guides.find(gPath, activeOnly = false).flatMap { guide =>
-        val boundForm = formPage.bindFromRequest
+        val boundForm = formPage.bindFromRequest()
         boundForm.fold(
           errorForm => {
             Some(BadRequest(views.html.admin.guidePage.create(guide, errorForm,

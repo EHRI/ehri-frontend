@@ -53,18 +53,18 @@ class CacheIdContainer @Inject()(cacheApi: SyncCacheApi) extends AuthIdContainer
     if (lookup(token).isDefined) generate else token
   }
 
-  private def removeByUserId(userId: String) {
+  private def removeByUserId(userId: String): Unit = {
     cacheApi.get[String](userId + userIdSuffix).foreach(unsetToken)
     unsetUserId(userId)
   }
 
-  private def unsetToken(token: String) = cacheApi.remove(token + tokenSuffix)
+  private def unsetToken(token: String): Unit = cacheApi.remove(token + tokenSuffix)
 
-  private def unsetUserId(userId: String) = cacheApi.remove(userId + userIdSuffix)
+  private def unsetUserId(userId: String): Unit = cacheApi.remove(userId + userIdSuffix)
 
-  private def lookup(token: String) = cacheApi.get[String](token + tokenSuffix)
+  private def lookup(token: String): Option[String] = cacheApi.get[String](token + tokenSuffix)
 
-  private[auth] def store(token: String, userId: String, timeout: Duration) {
+  private[auth] def store(token: String, userId: String, timeout: Duration): Unit = {
     cacheApi.set(token + tokenSuffix, userId, timeout)
     cacheApi.set(userId + userIdSuffix, token, timeout)
   }

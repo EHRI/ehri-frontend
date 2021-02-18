@@ -146,10 +146,10 @@ object Repository {
       PUBLICATION_STATUS -> optional(enumMapping(models.PublicationStatus)),
       DESCRIPTIONS -> seq(RepositoryDescription.form.mapping),
       PRIORITY -> optional(number(min = -1, max = 5)),
-      URL_PATTERN -> optional(nonEmptyText verifying("errors.badUrlPattern",
+      URL_PATTERN -> optional(nonEmptyText.verifying("errors.badUrlPattern",
         pattern => validateUrlPattern(pattern)
       )),
-      LOGO_URL -> optional(nonEmptyText verifying("error.badUrl",
+      LOGO_URL -> optional(nonEmptyText.verifying("error.badUrl",
         url => forms.isValidUrl(url)
       )),
       LONGITUDE -> optional(bigDecimal),

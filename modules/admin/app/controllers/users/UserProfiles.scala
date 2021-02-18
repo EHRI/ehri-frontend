@@ -82,7 +82,7 @@ case class UserProfiles @Inject()(
       "name" -> Forms.nonEmptyText,
       "password" -> Forms.nonEmptyText(minLength = conf.minPasswordLength),
       "confirm" -> Forms.nonEmptyText(minLength = conf.minPasswordLength)
-    ) verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
+    ).verifying("login.error.passwordsDoNotMatch", d => d._4 == d._5)
   )
 
   /**
@@ -115,10 +115,10 @@ case class UserProfiles @Inject()(
    */
   def createUserPost: Action[AnyContent] = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
     dataHelpers.getGroupList.flatMap { allGroups =>
-      userPasswordForm.bindFromRequest.fold(
+      userPasswordForm.bindFromRequest().fold(
         errorForm => immediate(BadRequest(views.html.admin.userProfile.create(
             errorForm,
-            groupMembershipForm.bindFromRequest,
+            groupMembershipForm.bindFromRequest(),
             allGroups,
             userRoutes.createUserPost())
           )
@@ -149,20 +149,20 @@ case class UserProfiles @Inject()(
     // check if the email is already registered...
     accounts.findByEmail(email.toLowerCase).flatMap {
       case Some(account) =>
-        val errForm = userPasswordForm.bindFromRequest
+        val errForm = userPasswordForm.bindFromRequest()
           .withError(FormError("email", Messages("error.userEmailAlreadyRegistered", account.id)))
-        immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+        immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest(),
           allGroups, userRoutes.createUserPost())))
       case None =>
         // It's not registered, so create the account...
         val user = UserProfileF(id = None, identifier = username, name = name,
           location = None, about = None, languages = Nil)
-        val groups = (groupMembershipForm.bindFromRequest.value
+        val groups = (groupMembershipForm.bindFromRequest().value
           .getOrElse(List.empty) ++ conf.defaultPortalGroups).distinct
         createUserProfile(user, groups, allGroups).flatMap {
           case Left(ValidationError(errorSet)) =>
-            val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest)
-            immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest,
+            val errForm = user.getFormErrors(errorSet, userPasswordForm.bindFromRequest())
+            immediate(BadRequest(views.html.admin.userProfile.create(errForm, groupMembershipForm.bindFromRequest(),
               allGroups, userRoutes.createUserPost())))
           case Right(profile) => for {
             account <- accounts.create(Account(
@@ -256,7 +256,7 @@ case class UserProfiles @Inject()(
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
       accounts.findById(request.item.id).flatMap { accountOpt =>
         val userWithAccount = request.item.copy(account = accountOpt)
-        AdminUserData.form.bindFromRequest.fold(
+        AdminUserData.form.bindFromRequest().fold(
           errForm => immediate(BadRequest(views.html.admin.userProfile.edit(userWithAccount, errForm,
             userRoutes.updatePost(id)))),
           data => accountOpt match {
@@ -288,7 +288,7 @@ case class UserProfiles @Inject()(
 
   def deletePost(id: String): Action[AnyContent] =
     WithItemPermissionAction(id, PermissionType.Delete).async { implicit request =>
-      deleteForm(request.item).bindFromRequest.fold(
+      deleteForm(request.item).bindFromRequest().fold(
         errForm => {
           immediate(BadRequest(views.html.admin.userProfile.delete(
             request.item, errForm, userRoutes.deletePost(id),

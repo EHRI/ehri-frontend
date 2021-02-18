@@ -41,7 +41,7 @@ case class Feedback @Inject()(
       TIMESTAMP -> nonEmptyText,
       BLANK_CHECK -> text.verifying(s => s.isEmpty)
     )(CheckFeedbackData.apply)(CheckFeedbackData.unapply)
-      verifying blankFieldIsBlank verifying formSubmissionTime(appComponents.config)
+     .verifying(blankFieldIsBlank).verifying(formSubmissionTime(appComponents.config))
   )
 
   private def getCopyMail(feedbackType: Option[models.Feedback.Type.Value]): Seq[String] = {
@@ -87,7 +87,7 @@ case class Feedback @Inject()(
 
     // check the anti-bot measures and immediately return the original
     // form. No feedback needed since they're (hopefully) a bot.
-    if (checkFbForm.bindFromRequest.hasErrors) immediate(response(boundForm))
+    if (checkFbForm.bindFromRequest().hasErrors) immediate(response(boundForm))
     else boundForm.fold(
       errorForm => immediate(response(errorForm)),
       feedback => {

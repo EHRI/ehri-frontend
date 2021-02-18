@@ -31,7 +31,7 @@ trait Update[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
     EditAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, UpdateRequest] {
       def transform[A](request: ItemPermissionRequest[A]): Future[UpdateRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        form.bindFromRequest.fold(
+        form.bindFromRequest().fold(
           errorForm => immediate(UpdateRequest(request.item, Left(errorForm), request.userOpt, request.request)),
           mod => {
             (for {

@@ -30,7 +30,7 @@ case class SystemEvents @Inject()(
   def list(range: RangeParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     // Binding event params from the form instead of the query string binder
     // here because it allows doing multiselect values
-    val form = SystemEventParams.form.bindFromRequest
+    val form = SystemEventParams.form.bindFromRequest()
     val params = form.value.getOrElse(SystemEventParams.empty)
     for {
       users <- dataHelpers.getUserList

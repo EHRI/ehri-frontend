@@ -48,7 +48,7 @@ case class CypherQueries @Inject()(
   }
 
   def cypherQuery: Action[AnyContent] = AdminAction.apply { implicit request =>
-    queryForm.bindFromRequest.fold(
+    queryForm.bindFromRequest().fold(
       err => BadRequest(err.errorsAsJson),
       q => Ok.chunked(cypher.legacy(q, Map.empty))
     )
@@ -71,7 +71,7 @@ case class CypherQueries @Inject()(
   }
 
   def createQueryPost: Action[AnyContent] = AdminAction.async { implicit request =>
-    CypherQuery.form.bindFromRequest.fold(
+    CypherQuery.form.bindFromRequest().fold(
       errors => immediate(BadRequest(views.html.admin.cypherQueries.form(None, errors,
         controllers.cypher.routes.CypherQueries.createQueryPost()))),
       queryModel => cypherQueries.create(queryModel.copy(userId = Some(request.user.id))).map { _ =>
@@ -90,7 +90,7 @@ case class CypherQueries @Inject()(
   }
 
   def updateQueryPost(id: String): Action[AnyContent] = AdminAction.async { implicit request =>
-    CypherQuery.form.bindFromRequest.fold(
+    CypherQuery.form.bindFromRequest().fold(
       errors => cypherQueries.get(id).map { query =>
         BadRequest(views.html.admin.cypherQueries.form(Some(query), errors,
         controllers.cypher.routes.CypherQueries.updateQueryPost(id)))

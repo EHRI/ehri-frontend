@@ -101,7 +101,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate) andThen new CoreActionTransformer[ItemPermissionRequest, CreateLinkRequest] {
       override protected def transform[A](request: ItemPermissionRequest[A]): Future[CreateLinkRequest[A]] = {
         implicit val req: ItemPermissionRequest[A] = request
-        Link.form.bindFromRequest.fold(
+        Link.form.bindFromRequest().fold(
           errorForm => {
             // oh dear, we have an error...
             userDataApi.get[Model](Model.resourceFor(toType), to).map { toItem =>

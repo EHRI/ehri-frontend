@@ -4,15 +4,15 @@
 
 
 GET         /                                   @controllers.admin.Home.index(params: utils.SystemEventParams ?= utils.SystemEventParams.empty, range: utils.RangeParams ?= utils.RangeParams.empty)
-GET         /metrics                            @controllers.admin.Home.metrics
-GET         /overview                           @controllers.admin.Home.overview
-GET         /login                              @controllers.admin.Home.loginRedirect
+GET         /metrics                            @controllers.admin.Home.metrics()
+GET         /overview                           @controllers.admin.Home.overview()
+GET         /login                              @controllers.admin.Home.loginRedirect()
 
 # Js Routes
 GET         /metricRoutes                       @controllers.admin.Home.metricsJsRoutes
 
-GET         /update-index                        @controllers.admin.Indexing.updateIndex
-GET         /update-index-ws                  @controllers.admin.Indexing.indexer
+GET         /update-index                       @controllers.admin.Indexing.updateIndex()
+GET         /update-index-ws                    @controllers.admin.Indexing.indexer()
 
 # Ingest
 POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestService.IngestDataType.Value, fonds: Option[String] ?= None)
@@ -25,16 +25,16 @@ GET         /tasks/monitor                      @controllers.admin.Tasks.taskMon
 GET         /search                             @controllers.admin.AdminSearch.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
 # Metrics
-GET         /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial
-GET         /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository
-GET         /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries
-GET         /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes
-GET         /metrics/restricted                 @controllers.admin.Metrics.restricted
-GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached
+GET         /metrics/languageOfMaterial         @controllers.admin.Metrics.languageOfMaterial()
+GET         /metrics/holdingRepository          @controllers.admin.Metrics.holdingRepository()
+GET         /metrics/repositoryCountries        @controllers.admin.Metrics.repositoryCountries()
+GET         /metrics/agentTypes                 @controllers.admin.Metrics.agentTypes()
+GET         /metrics/restricted                 @controllers.admin.Metrics.restricted()
+GET         /metrics/_clear                     @controllers.admin.Metrics.clearCached()
 
 # Monitoring
-GET         /monitor/_check                     @controllers.admin.Utils.checkServices
-GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync
+GET         /monitor/_check                     @controllers.admin.Utils.checkServices()
+GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync()
 
 # API
 # Forward to any dataApi GET method

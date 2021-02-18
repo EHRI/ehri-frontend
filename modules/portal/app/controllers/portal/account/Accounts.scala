@@ -122,7 +122,7 @@ case class Accounts @Inject()(
       )
     }
 
-    val boundForm: Form[SignupData] = signupForm.bindFromRequest
+    val boundForm: Form[SignupData] = signupForm.bindFromRequest()
     checkRecapture.flatMap {
       case false =>
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
@@ -287,7 +287,7 @@ case class Accounts @Inject()(
     }
 
     try {
-      val boundForm: Form[String] = openidForm.bindFromRequest
+      val boundForm: Form[String] = openidForm.bindFromRequest()
       boundForm.fold(
         error => immediate(badForm(error)),
         openidUrl => openId
@@ -320,7 +320,7 @@ case class Accounts @Inject()(
       )
     }
 
-    val boundForm = passwordLoginForm.bindFromRequest
+    val boundForm = passwordLoginForm.bindFromRequest()
     if (!rateLimits.checkHits(rateLimitHitsPerSec, rateLimitDuration)(request)) {
       badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
     } else boundForm.fold(
@@ -423,7 +423,7 @@ case class Accounts @Inject()(
         immediate(BadRequest(views.html.account.forgotPassword(errForm,
           recaptchaKey, accountRoutes.forgotPasswordPost())))
       case true =>
-        forgotPasswordForm.bindFromRequest.fold({ errForm =>
+        forgotPasswordForm.bindFromRequest().fold({ errForm =>
           immediate(BadRequest(views.html.account.forgotPassword(errForm,
             recaptchaKey, accountRoutes.forgotPasswordPost())))
         }, { email =>
@@ -459,7 +459,7 @@ case class Accounts @Inject()(
     */
   def changePasswordPost: Action[AnyContent] = (NotReadOnlyAction andThen WithUserAction).async { implicit request =>
     val account = request.user.account.get
-    val boundForm = changePasswordForm.bindFromRequest
+    val boundForm = changePasswordForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.account.changePassword(
         account, errForm, accountRoutes.changePasswordPost()))),
@@ -493,7 +493,7 @@ case class Accounts @Inject()(
     */
   def changeEmailPost: Action[AnyContent] = (NotReadOnlyAction andThen WithUserAction).async { implicit request =>
     val account = request.user.account.get
-    val boundForm = changeEmailForm.bindFromRequest
+    val boundForm = changeEmailForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.account.changeEmail(
         account, errForm, accountRoutes.changeEmailPost()))),
@@ -548,7 +548,7 @@ case class Accounts @Inject()(
   }
 
   def resetPasswordPost(token: String): Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
-    val boundForm: Form[(String, String)] = resetPasswordForm.bindFromRequest
+    val boundForm: Form[(String, String)] = resetPasswordForm.bindFromRequest()
     boundForm.fold(
       errForm => immediate(BadRequest(views.html.account.resetPassword(errForm,
         accountRoutes.resetPasswordPost(token)))),

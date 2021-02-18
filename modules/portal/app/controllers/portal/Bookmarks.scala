@@ -134,7 +134,7 @@ case class Bookmarks @Inject()(
   }
 
   def createBookmarkSetPost(items: List[String] = Nil): Action[AnyContent] = WithUserAction.async { implicit request =>
-    BookmarkSet.bookmarkForm.bindFromRequest.fold(
+    BookmarkSet.bookmarkForm.bindFromRequest().fold(
       errs => immediate {
         if (isAjax) Ok(views.html.bookmarks.form(errs, bmRoutes.createBookmarkSetPost(items)))
         else Ok(views.html.bookmarks.create(errs, bmRoutes.createBookmarkSetPost(items)))
@@ -149,10 +149,10 @@ case class Bookmarks @Inject()(
 
   private def buildFilter(v: VirtualUnit): Map[String, Any] = {
     val pq = v.includedUnits.map(_.id)
-    if (pq.isEmpty) Map(s"${SearchConstants.PARENT_ID}:${v.id}" -> Unit)
+    if (pq.isEmpty) Map(s"${SearchConstants.PARENT_ID}:${v.id}" -> ())
     else {
       val q = s"${SearchConstants.PARENT_ID}:${v.id} OR ${SearchConstants.ITEM_ID}:(${pq.mkString(" ")})"
-      Map(q -> Unit)
+      Map(q -> ())
     }
   }
 
