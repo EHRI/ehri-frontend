@@ -5,9 +5,16 @@ module.exports = function (grunt) {
 	var paths = {
     portalJsLib: "modules/portal/app/assets/js/lib",
 	  portalCss: "modules/portal/app/assets/css",
+    portalFonts: "modules/portal/public/fonts",
     adminJsLib: "modules/admin/app/assets/js/lib",
     adminCss: "modules/admin/app/assets/css",
   };
+
+	// Since Git will replace CRLF with LF anyway we do it here
+  // so copying from Grunt doesn't result in modified files.
+	function normEndings(contents) {
+    return contents.replace(/\r\n/g, "\n");
+  }
 
 	grunt.initConfig({
 
@@ -17,13 +24,14 @@ module.exports = function (grunt) {
       main: {
         options: {
           process: function(contents, srcpath) {
+            // One small tweak to replace the font path in font-awesome.
+            // TODO: find a way to avoid this
             if (srcpath === "node_modules/font-awesome/scss/_variables.scss") {
-              return contents.replace(/"\.\.\/fonts"/, '"/v/fonts"');
+              return normEndings(contents.replace(/"\.\.\/fonts"/, '"/v/fonts"'));
             }
 
-            console.log(srcpath);
-
-            return contents;
+            // return normEndings(content);
+            return normEndings(contents);
           },
 
           noProcess: [
@@ -35,46 +43,37 @@ module.exports = function (grunt) {
             expand: true,
             cwd: 'node_modules/bootstrap/scss',
             src: '**/*.scss',
-            dest: 'modules/portal/app/assets/css/bootstrap/'
+            dest: paths.portalCss + '/bootstrap'
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/select2/dist/',
+            src: 'select2',
+            dest: paths.portalJsLib
           },
           {
             expand: true,
             cwd: 'node_modules/select2/src/scss',
             src: '**/*.scss',
-            dest: 'modules/portal/app/assets/css/select2/'
+            dest: paths.portalCss + '/select2'
           },
           {
             expand: true,
             cwd: 'node_modules/font-awesome/fonts',
             src: '**/*.{ttf,woff,woff2,eot,svg}',
-            dest: 'modules/portal/public/fonts'
+            dest: paths.portalFonts
           },
           {
             expand: true,
             cwd: 'node_modules/font-awesome/scss',
             src: '_*.scss',
-            dest: 'modules/portal/app/assets/css/fontawesome/',
+            dest: paths.portalCss + '/fontawesome',
           },
-
-          // Portal JS modules... these are uglified by SBT so we
-          // don't use the .min.js versions
           {
             expand: true,
             cwd: 'node_modules/jquery/dist',
             src: 'jquery.js',
             dest: paths.portalJsLib
-          },
-          {
-            expand: true,
-            cwd: 'node_modules/bootstrap-datepicker/dist/js',
-            src: 'bootstrap-datepicker.js',
-            dest: paths.adminJsLib
-          },
-          {
-            expand: true,
-            cwd: 'node_modules/bootstrap-datepicker/dist/css',
-            src: 'bootstrap-datepicker.standalone.css',
-            dest: paths.adminCss
           },
           {
             expand: true,
@@ -131,6 +130,18 @@ module.exports = function (grunt) {
             dest: paths.portalJsLib
           },
           // Admin JS modules
+          {
+            expand: true,
+            cwd: 'node_modules/bootstrap-datepicker/dist/js',
+            src: 'bootstrap-datepicker.js',
+            dest: paths.adminJsLib
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/bootstrap-datepicker/dist/css',
+            src: 'bootstrap-datepicker.standalone.css',
+            dest: paths.adminCss
+          },
           {
             expand: true,
             flatten: true,
@@ -195,4 +206,8 @@ module.exports = function (grunt) {
 	grunt.registerTask('copy-assets', [
 		'copy'
 	]);
+
+    grunt.registerTask('default', [
+        'copy-assets'
+    ]);
 };
