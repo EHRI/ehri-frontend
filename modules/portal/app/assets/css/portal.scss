@@ -1,55 +1,55 @@
 // <-- Bootstrap
-@import "bootstrap/functions";
+@import "lib/bootstrap/functions";
 
 // Our overridden variables
 @import "portal/variables";
 
 // Bootstrap 4
-@import "bootstrap/variables";
-@import "bootstrap/mixins";
-@import "bootstrap/root";
-@import "bootstrap/reboot";
-@import "bootstrap/type";
-@import "bootstrap/images";
-@import "bootstrap/code";
-@import "bootstrap/grid";
-@import "bootstrap/tables";
-@import "bootstrap/forms";
-@import "bootstrap/buttons";
-@import "bootstrap/transitions";
-@import "bootstrap/dropdown";
-@import "bootstrap/button-group";
-@import "bootstrap/input-group";
-@import "bootstrap/custom-forms";
-@import "bootstrap/nav";
-@import "bootstrap/navbar";
-@import "bootstrap/card";
-@import "bootstrap/breadcrumb";
-@import "bootstrap/pagination";
-@import "bootstrap/badge";
-@import "bootstrap/jumbotron";
-@import "bootstrap/alert";
-@import "bootstrap/progress";
-@import "bootstrap/media";
-@import "bootstrap/list-group";
-@import "bootstrap/close";
-@import "bootstrap/toasts";
-@import "bootstrap/modal";
-@import "bootstrap/tooltip";
-@import "bootstrap/popover";
+@import "lib/bootstrap/variables";
+@import "lib/bootstrap/mixins";
+@import "lib/bootstrap/root";
+@import "lib/bootstrap/reboot";
+@import "lib/bootstrap/type";
+@import "lib/bootstrap/images";
+@import "lib/bootstrap/code";
+@import "lib/bootstrap/grid";
+@import "lib/bootstrap/tables";
+@import "lib/bootstrap/forms";
+@import "lib/bootstrap/buttons";
+@import "lib/bootstrap/transitions";
+@import "lib/bootstrap/dropdown";
+@import "lib/bootstrap/button-group";
+@import "lib/bootstrap/input-group";
+@import "lib/bootstrap/custom-forms";
+@import "lib/bootstrap/nav";
+@import "lib/bootstrap/navbar";
+@import "lib/bootstrap/card";
+@import "lib/bootstrap/breadcrumb";
+@import "lib/bootstrap/pagination";
+@import "lib/bootstrap/badge";
+@import "lib/bootstrap/jumbotron";
+@import "lib/bootstrap/alert";
+@import "lib/bootstrap/progress";
+@import "lib/bootstrap/media";
+@import "lib/bootstrap/list-group";
+@import "lib/bootstrap/close";
+@import "lib/bootstrap/toasts";
+@import "lib/bootstrap/modal";
+@import "lib/bootstrap/tooltip";
+@import "lib/bootstrap/popover";
 //@import "bootstrap/carousel";
-@import "bootstrap/spinners";
-@import "bootstrap/utilities";
-@import "bootstrap/print";
+@import "lib/bootstrap/spinners";
+@import "lib/bootstrap/utilities";
+@import "lib/bootstrap/print";
 
 // Font-awesome
-@import "./font-awesome.scss";
+@import "lib/font-awesome/font-awesome.scss";
 
 // Select2
-@import "select2/select2";
-@import "select2-bootstrap/layout";
-@import "select2-bootstrap/single";
-@import "select2-bootstrap/multiple";
+@import "select2.scss";
+@import "lib/select2-bootstrap/layout";
+@import "lib/select2-bootstrap/single";
+@import "lib/select2-bootstrap/multiple";
 
 // Portal layout CSS
 @import "portal/layout";

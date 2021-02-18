@@ -2,15 +2,15 @@ module.exports = function (grunt) {
 
 	grunt.loadNpmTasks('grunt-contrib-copy');
 
-	var paths = {
+  const paths = {
     portalJsLib: "modules/portal/app/assets/js/lib",
-	  portalCss: "modules/portal/app/assets/css",
+    portalCssLib: "modules/portal/app/assets/css/lib",
     portalFonts: "modules/portal/public/fonts",
     adminJsLib: "modules/admin/app/assets/js/lib",
-    adminCss: "modules/admin/app/assets/css",
+    adminCssLib: "modules/admin/app/assets/css/lib",
   };
 
-	// Since Git will replace CRLF with LF anyway we do it here
+  // Since Git will replace CRLF with LF anyway we do it here
   // so copying from Grunt doesn't result in modified files.
 	function normEndings(contents) {
     return contents.replace(/\r\n/g, "\n");
@@ -43,19 +43,25 @@ module.exports = function (grunt) {
             expand: true,
             cwd: 'node_modules/bootstrap/scss',
             src: '**/*.scss',
-            dest: paths.portalCss + '/bootstrap'
+            dest: paths.portalCssLib + '/bootstrap'
           },
           {
             expand: true,
-            cwd: 'node_modules/select2/dist/',
-            src: 'select2',
+            cwd: 'node_modules/select2/dist/js',
+            src: 'select2.full.js',
             dest: paths.portalJsLib
           },
           {
             expand: true,
             cwd: 'node_modules/select2/src/scss',
             src: '**/*.scss',
-            dest: paths.portalCss + '/select2'
+            dest: paths.portalCssLib + '/select2'
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/@ttskch/select2-bootstrap4-theme/src',
+            src: '_*.scss',
+            dest: paths.portalCssLib + '/select2-bootstrap'
           },
           {
             expand: true,
@@ -66,8 +72,8 @@ module.exports = function (grunt) {
           {
             expand: true,
             cwd: 'node_modules/font-awesome/scss',
-            src: '_*.scss',
-            dest: paths.portalCss + '/fontawesome',
+            src: '*.scss',
+            dest: paths.portalCssLib + '/font-awesome',
           },
           {
             expand: true,
@@ -140,7 +146,7 @@ module.exports = function (grunt) {
             expand: true,
             cwd: 'node_modules/bootstrap-datepicker/dist/css',
             src: 'bootstrap-datepicker.standalone.css',
-            dest: paths.adminCss
+            dest: paths.adminCssLib
           },
           {
             expand: true,
@@ -202,7 +208,6 @@ module.exports = function (grunt) {
     },
   });
 
-	// Copy JS assets
 	grunt.registerTask('copy-assets', [
 		'copy'
 	]);
