@@ -1,7 +1,6 @@
 package models.view
 
-import models.base.Model
-import models.{Annotation, Link}
+import models.{Annotation, Link, Model}
 import utils.Page
 
 case class ItemDetails(

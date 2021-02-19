@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
+@(item: DescribedModel, links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 @defining(item.annotationLinks(links)
         .sortBy(_.opposingTarget(item).map(_.toStringLang))

@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, f: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Accessible, f: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("visibility.update"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @if(item.accessors.isEmpty) {

@@ -1,7 +1,6 @@
 package models
 
 import java.time.ZonedDateTime
-import models.base.{Accessor, Model}
 
 /**
  * Summarise a set of events. Typically the events will be

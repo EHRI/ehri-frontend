@@ -1,6 +1,5 @@
 package models
 
-import models.base._
 import play.api.libs.json._
 import models.json._
 import eu.ehri.project.definitions.Ontology

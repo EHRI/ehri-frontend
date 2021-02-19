@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, desc: HistoricalAgentDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(item: DescribedModel, desc: HistoricalAgentDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @userOpt.map { user =>
     @if(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {

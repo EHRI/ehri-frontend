@@ -2,7 +2,7 @@
 * Render annotation comments around some HTML content
 *
 *@
-@(item: models.base.Model, annotations: Seq[Annotation])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(item: Model, annotations: Seq[Annotation])(body: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @annotationList(notes: Seq[Annotation]) = {
     @if(notes.nonEmpty) {

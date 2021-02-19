@@ -1,4 +1,4 @@
-@(item: models.base.Model, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: Model, highlighter: views.Highlighter = views.NoopHighlighter)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @details(d: DocumentaryUnit) = {
     @d.data.primaryDescription.map { desc =>

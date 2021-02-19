@@ -1,4 +1,4 @@
-@(item: models.base.Model)(heading: Html)(body: Html = Html(""))(implicit messages: Messages)
+@(item: Model)(heading: Html)(body: Html = Html(""))(implicit messages: Messages)
 
 <div class="search-item" id="@item.id" dir="auto">
     <h2 class="search-item-heading type-highlight @item.isA">@heading</h2>

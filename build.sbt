@@ -238,7 +238,6 @@ val webAppSettings = Seq(
 
   // Classes to auto-import into templates
   templateImports in Compile ++= Seq(
-    "models.base._",
     "config._",
     "cookies._",
   ),

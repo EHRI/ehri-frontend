@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
+@(item: DescribedModel, links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 @defining(item.externalLinks(links)) { links =>
     @if(links.nonEmpty) {

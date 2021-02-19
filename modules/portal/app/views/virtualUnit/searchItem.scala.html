@@ -1,6 +1,6 @@
-@(item: models.base.Model, path: Seq[models.base.Model], highlighter: views.Highlighter, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
+@(item: Model, path: Seq[Model], highlighter: views.Highlighter, watched: Boolean, showRepository: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None, context: Option[Holder[_]] = None)
 
-@wrapParent(doc: models.base.Model, path: Seq[models.base.Model]) = {
+@wrapParent(doc: Model, path: Seq[Model]) = {
     @if(path.lastOption.map(_.id) != context.map(_.id)) {
         @path.lastOption.map { p =>
             @wrapParent(doc, path.dropRight(1))

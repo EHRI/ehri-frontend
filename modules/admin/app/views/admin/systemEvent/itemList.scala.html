@@ -1,4 +1,4 @@
-@(item: models.base.Model, page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Model, page: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.noSidebar(Messages("item.history.item", item.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <ul class="event-list">

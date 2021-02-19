@@ -1,4 +1,4 @@
-@(item: Repository, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Repository, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)

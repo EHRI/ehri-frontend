@@ -1,7 +1,6 @@
 package lifecycle
 
-import models.base.Model
-import models.{AddressF, EventType, RepositoryF}
+import models.{AddressF, EventType, Model, RepositoryF}
 import services.geocoding.GeocodingService
 
 import javax.inject.{Inject, Singleton}

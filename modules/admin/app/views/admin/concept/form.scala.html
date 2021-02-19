@@ -1,6 +1,6 @@
-@(f: play.api.data.Form[models.ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Form[ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-@import models.ConceptF._
+@import ConceptF._
 @import views.html.formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

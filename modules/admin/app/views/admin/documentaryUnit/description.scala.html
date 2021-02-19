@@ -1,7 +1,7 @@
-@(item: models.base.DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-@import models.IsadG._
-@import models.base.Description._
+@import IsadG._
+@import Description._
 @import views.html.admin.common.{descriptionSection,listValue,textValue,dateSet}
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions, visible) {

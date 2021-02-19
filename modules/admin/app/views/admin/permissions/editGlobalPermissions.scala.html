@@ -1,4 +1,4 @@
-@(item: models.base.Accessor, perms: GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: Accessor, perms: GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 

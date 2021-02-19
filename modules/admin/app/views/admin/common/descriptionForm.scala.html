@@ -1,7 +1,7 @@
 @(descriptionField: Field, cls: String = "description-form")(data: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-@import models.base.Description.CreationProcess
-@import models.base.Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS, SOURCE_FILE_ID}
+@import Description.CreationProcess
+@import Description.{MAINTENANCE_EVENTS, UNKNOWN_DATA, ACCESS_POINTS, CREATION_PROCESS, SOURCE_FILE_ID}
 
 <div class="@cls" id="@descriptionField("form").id">
     @*

@@ -1,4 +1,4 @@
-@(item: SystemEvent, page: utils.Page[models.base.Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: SystemEvent, page: utils.Page[Model], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(item.title, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <p>
@@ -21,7 +21,7 @@
         @* If it's a deletion event the subject won't be available (because
             it's been deleted. In this case we have to look for data in
             the last connected item version. *@
-        @if(item.data.eventType.contains(models.EventType.deletion)) {
+        @if(item.data.eventType.contains(EventType.deletion)) {
             @item.version.map { version =>
                 @Messages("systemEvent.deletion.itemInfo", version.data.itemType, version.data.itemId, item.childCount.map(_ - 1).getOrElse(0))
                 @version.data.entity.map { entity =>

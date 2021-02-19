@@ -7,10 +7,9 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.institutions.StorageHelpers
-import models.ContentTypes
+import models.{ContentTypes, Model}
 
 import javax.inject.{Inject, Singleton}
-import models.base.Model
 import play.api.Logger
 import play.api.data.Form
 import play.api.i18n.Messages

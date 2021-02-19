@@ -4,10 +4,10 @@ import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.generic.Search
 import controllers.portal.base.PortalController
+
 import javax.inject._
-import models.base.Model
 import models.view.MessagingInfo
-import models.{SystemEvent, UserProfile}
+import models.{Model, SystemEvent, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.libs.mailer.{Email, MailerClient}

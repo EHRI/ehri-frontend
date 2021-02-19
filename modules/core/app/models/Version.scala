@@ -1,6 +1,5 @@
 package models
 
-import models.base.{Model, ModelData}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.json.JsPathExtensions

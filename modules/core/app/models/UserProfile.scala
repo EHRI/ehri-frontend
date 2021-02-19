@@ -1,7 +1,6 @@
 package models
 
 import eu.ehri.project.definitions.Ontology
-import models.base.{Persistable, _}
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._

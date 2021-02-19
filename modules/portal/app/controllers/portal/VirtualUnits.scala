@@ -6,8 +6,7 @@ import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import models.{EntityType, _}
-import models.base.Model
+import models.{EntityType, Model, _}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.IdGenerator
 import utils.PageParams

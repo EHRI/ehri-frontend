@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.base.Accessor
-import models.{Group, PermissionType, UserProfile}
+import models.{Accessor, Group, PermissionType, UserProfile}
 import play.api.mvc._
 import services.data.{ContentType, DataHelpers}
 

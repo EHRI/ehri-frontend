@@ -1,4 +1,4 @@
-@(parent: Option[models.base.Model], them: UserProfile, paging: utils.PageParams, result: services.search.SearchResult[models.base.Model], more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, md: MarkdownRenderer, conf: AppConfig)
+@(parent: Option[Model], them: UserProfile, paging: utils.PageParams, result: services.search.SearchResult[Model], more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
 @defining(userOpt.exists(_.id == them.id)) { isCurrentUser =>
 

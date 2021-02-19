@@ -1,4 +1,4 @@
-@(item: Option[Country], f: Form[models.CountryF])(implicit messages: Messages, md: MarkdownRenderer)
+@(item: Option[Country], f: Form[CountryF])(implicit messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

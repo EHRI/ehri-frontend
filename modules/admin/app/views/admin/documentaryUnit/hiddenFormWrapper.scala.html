@@ -1,7 +1,7 @@
 @(f: play.api.data.Form[DocumentaryUnitF])(html: Html)
 
-@import models.IsadG._
-@import models.DocumentaryUnitF._
+@import IsadG._
+@import DocumentaryUnitF._
 
 @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
 @formHelpers.hiddenInputSet(f(OTHER_IDENTIFIERS))

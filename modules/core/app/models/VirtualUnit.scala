@@ -1,7 +1,5 @@
 package models
 
-import models.base._
-import models.base.Persistable
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._

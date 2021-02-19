@@ -1,4 +1,4 @@
-@(item: models.base.Accessor, perm: PermissionGrant, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: Accessor, perm: PermissionGrant, action: Call, cancel: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.revoke"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <ul>

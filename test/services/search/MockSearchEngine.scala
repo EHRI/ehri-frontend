@@ -2,7 +2,6 @@ package services.search
 
 import javax.inject.Inject
 import models.{EntityType, _}
-import models.base.{DescribedModel, Model}
 import play.api.i18n.{Lang, LangImplicits}
 import play.api.libs.json.JsString
 import services.data.{ApiUser, DataApi, DataApiHandle}

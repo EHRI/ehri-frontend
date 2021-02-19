@@ -6,8 +6,7 @@ import controllers.generic._
 import forms._
 
 import javax.inject._
-import models.base.Accessor
-import models.{EntityType, Group, UserProfile}
+import models.{Accessor, EntityType, Group, UserProfile}
 import play.api.data.{Form, Forms}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}

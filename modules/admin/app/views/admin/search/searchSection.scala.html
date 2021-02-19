@@ -1,4 +1,4 @@
-@(item: models.base.Holder[_], title: String, result: services.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(item: Holder[_], title: String, result: services.search.SearchResult[_])(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @if(result.nonEmpty) {
     <section class="search-section" id="@(item.id)-child-item-search">

@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(result: services.search.SearchResult[(Model, services.search.SearchHit)])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.admin.search.searchItemListWithAdditionalContent(result) { _ =>
 }

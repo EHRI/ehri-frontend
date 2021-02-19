@@ -7,8 +7,7 @@ import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
 import cookies.{SessionPreferences, SessionPrefs}
 import lifecycle.ItemLifecycle
-import models.{EntityType, EventType, UserProfile}
-import models.base.Model
+import models.{EntityType, EventType, Model, UserProfile}
 import models.view.{MessagingInfo, UserDetails}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}

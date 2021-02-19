@@ -2,8 +2,7 @@ package controllers.base
 
 import services.cypher.{CypherResult, CypherService}
 import controllers.generic.Search
-import models.VirtualUnit
-import models.base.Model
+import models.{Model, VirtualUnit}
 import play.api.Logger
 import play.api.mvc.RequestHeader
 import services.search.SearchConstants._

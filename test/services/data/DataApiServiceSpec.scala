@@ -2,8 +2,7 @@ package services.data
 
 import akka.stream.scaladsl.Source
 import helpers.IntegrationTestRunner
-import models.{EntityType, _}
-import models.base.Model
+import models.{EntityType, Model, _}
 import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
@@ -204,7 +203,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       try {
         // deliberate use the wrong readable here to generate a
         // deserialization error...
-        import models.base.Accessor
+        import models.Accessor
         import models.json.JsPathExtensions
         import play.api.libs.functional.syntax._
         import play.api.libs.json._

@@ -1,6 +1,6 @@
 @(f: Form[HistoricalAgentF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@import models.Isaar._
+@import Isaar._
 @import views.html.formHelpers._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }

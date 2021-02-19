@@ -1,4 +1,4 @@
-@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(models.base.Model, services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(guide: Guide, page: GuidePage, pages: List[GuidePage], items: utils.Page[(Model, services.search.SearchHit)], params: services.search.SearchParams, links: Map[String, Long])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @js = {
     <script type="text/javascript">
