@@ -11,7 +11,7 @@ import scala.concurrent.Future
 
 /**
  * Controller trait which handles the listing and showing of Entities that
- * implement the [[models.base.Accessible]] trait.
+ * implement the [[Accessible]] trait.
  *
  * @tparam MT Meta-model
  */

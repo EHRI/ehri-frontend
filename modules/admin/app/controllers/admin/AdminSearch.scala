@@ -4,8 +4,7 @@ import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
-import models.EntityType
-import models.base.{Description, Model}
+import models.{Description, EntityType, Model}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

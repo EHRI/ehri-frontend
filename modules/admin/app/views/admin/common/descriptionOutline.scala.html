@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, desc: models.base.Description, actions: Html = Html(""), visible: Boolean = true)(html: Html)(implicit fieldPrefix: String, messages: Messages)
+@(item: DescribedModel, desc: Description, actions: Html = Html(""), visible: Boolean = true)(html: Html)(implicit fieldPrefix: String, messages: Messages)
 
 <div class="description-holder @{if(!visible) "inactive"}" id="desc-@desc.localId" lang="@desc.languageCode2">
     @actions

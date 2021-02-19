@@ -1,4 +1,4 @@
-@(item: models.base.Model, nodeId: String, key: String, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages)
+@(item: Model, nodeId: String, key: String, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages)
 
 @for(user <- userOpt; ct <- item.contentType if user.hasPermission(ct, PermissionType.Annotate)) {
     <div class="field-annotation-controls">

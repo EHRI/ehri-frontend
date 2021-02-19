@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, accessor: models.base.Accessor, perms: ItemPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: Accessible, accessor: Accessor, perms: ItemPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action) {

@@ -3,8 +3,7 @@ package controllers.admin
 import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
-import models.EntityType
-import models.base.Model
+import models.{EntityType, Model}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

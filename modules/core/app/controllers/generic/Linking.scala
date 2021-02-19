@@ -1,7 +1,6 @@
 package controllers.generic
 
 import models._
-import models.base._
 import play.api.data.Form
 import play.api.libs.json._
 import play.api.mvc._

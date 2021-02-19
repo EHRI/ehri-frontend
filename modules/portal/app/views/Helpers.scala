@@ -1,8 +1,7 @@
 package views
 
 import java.net.{MalformedURLException, URL}
-import models.base.Model
-import models.{Annotation, Entity, EntityType, PermissionType, UserProfile}
+import models.{Annotation, Description, Entity, EntityType, Model, PermissionType, UserProfile}
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
 import org.jsoup.Jsoup
@@ -152,7 +151,7 @@ object Helpers {
     if(request.path.startsWith(url)) "active" else ""
   }
 
-  def textDirection(d: models.base.Description): String = if (d.isRightToLeft) "rtl" else "ltr"
+  def textDirection(d: Description): String = if (d.isRightToLeft) "rtl" else "ltr"
 
   /**
     * Attempt to detect the direction of a piece of text, given

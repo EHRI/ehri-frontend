@@ -1,4 +1,4 @@
-@(item: models.base.DescribedModel, desc: models.base.Description, links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: DescribedModel, desc: Description, links: Seq[Link], accessPointTypes: List[AccessPointF.AccessPointType.Value] = AccessPointF.AccessPointType.values.toList)(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @if(desc.accessPoints.nonEmpty) {
     @accessPointTypes.map { accessPointType =>

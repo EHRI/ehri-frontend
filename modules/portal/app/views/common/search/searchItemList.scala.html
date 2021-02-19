@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, context: Option[models.base.Holder[_]] = None)
+@(result: services.search.SearchResult[(Model,services.search.SearchHit)], watched: Seq[String], itemClass: String = "")(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, context: Option[Holder[_]] = None)
 
 <ol class="search-result-list">
     @result.page.map { case(item, hit) =>
@@ -33,7 +33,7 @@
                     case d: Annotation => {
                         @views.html.annotation.searchItem(d, hit)
                     }
-                    case _: models.base.Model => {
+                    case _: Model => {
                         <p class="text-warning">
                             <a href="@views.Helpers.linkTo(item)">@item.toStringLang</a>
                         </p>

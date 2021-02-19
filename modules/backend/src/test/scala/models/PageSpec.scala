@@ -1,6 +1,7 @@
-package utils
+package models
 
 import org.specs2.mutable.Specification
+import utils.Page
 
 class PageSpec extends Specification {
 

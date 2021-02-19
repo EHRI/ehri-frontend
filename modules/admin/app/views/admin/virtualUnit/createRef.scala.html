@@ -1,6 +1,6 @@
 @(item: VirtualUnit, rf: Form[String], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@import models.VirtualUnitF._
+@import VirtualUnitF._
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

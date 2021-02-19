@@ -5,7 +5,6 @@ package models
  */
 
 import play.api.libs.json._
-import models.base._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology

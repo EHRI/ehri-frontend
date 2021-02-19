@@ -1,6 +1,5 @@
 package models
 
-import models.base.{Model, ModelData, Persistable}
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._

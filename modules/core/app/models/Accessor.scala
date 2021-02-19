@@ -1,8 +1,8 @@
-package models.base
+package models
 
-import models.{EntityType, _}
 import play.api.libs.json._
 import services.data.{ContentType, Readable}
+
 
 object Accessor {
   final val ADMIN_GROUP_NAME = "admin"
@@ -29,11 +29,9 @@ trait Accessor extends Model {
   def id: String
   def isA: EntityType.Value
 
-  import models.base.Accessor._
-
   lazy val allGroups: Seq[Group] = getGroups(this)
 
-  def isAdmin: Boolean = getAccessor(groups, ADMIN_GROUP_NAME).isDefined
+  def isAdmin: Boolean = getAccessor(groups, Accessor.ADMIN_GROUP_NAME).isDefined
 
   // Search up the tree(?) if parent groups, looking
   // for one with the desired id.

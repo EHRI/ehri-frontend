@@ -1,4 +1,4 @@
-@(descriptions: Seq[(models.base.Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(descriptions: Seq[(Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple")(html: Html)(sidebarBefore: Html)(sidebarAfter: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 <section class="double descriptions">
     <aside class="sidebar description-sidebar">

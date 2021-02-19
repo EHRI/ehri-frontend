@@ -1,8 +1,7 @@
 package controllers.generic
 
 import forms._
-import models.base.{Model, ModelData, Persistable}
-import models.{EventType, PermissionType, UserProfile, UsersAndGroups}
+import models.{EventType, Model, ModelData, PermissionType, Persistable, UserProfile, UsersAndGroups}
 import play.api.data._
 import play.api.mvc._
 import services.data._
@@ -10,7 +9,7 @@ import services.data._
 import scala.concurrent.Future
 
 /**
-  * Controller trait for creating [[models.base.Accessible]] ites..
+  * Controller trait for creating entities..
   */
 trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT] with Write {
 

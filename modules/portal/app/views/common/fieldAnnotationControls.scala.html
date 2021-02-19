@@ -1,4 +1,4 @@
-@(item: models.base.Model, nodeId: String, key: String, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: Model, nodeId: String, key: String, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <div class="item-text-field-annotations annotation-set">
     @views.html.annotation.annotationInlineList(annotations)

@@ -1,6 +1,5 @@
 package models
 
-import models.base._
 import models.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -8,7 +7,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import forms._
 import eu.ehri.project.definitions.Ontology
-import models.base.Description._
+import Description._
 import services.data.Writable
 
 

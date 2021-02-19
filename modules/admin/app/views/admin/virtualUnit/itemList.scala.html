@@ -1,4 +1,4 @@
-@(page: utils.Page[VirtualUnit], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(page: utils.Page[VirtualUnit], path: Seq[Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <ul class="list-unstyled">
 @page.items.map { item =>

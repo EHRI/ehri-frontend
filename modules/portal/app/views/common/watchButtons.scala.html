@@ -1,4 +1,4 @@
-@(item: models.base.Model, watching: Boolean)(implicit userOpt: Option[UserProfile], messages: Messages)
+@(item: Model, watching: Boolean)(implicit userOpt: Option[UserProfile], messages: Messages)
 
 @if(userOpt.isDefined) {
     <div class="watch-controls">

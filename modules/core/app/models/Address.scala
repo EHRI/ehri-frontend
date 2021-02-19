@@ -1,6 +1,5 @@
 package models
 
-import models.base.ModelData
 import models.json._
 import play.api.libs.json._
 import services.data.Writable

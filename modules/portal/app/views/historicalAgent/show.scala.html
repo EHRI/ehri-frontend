@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], action: Call, watched: Seq[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
+@(item: HistoricalAgent, annotations: Seq[Annotation], result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString) {
     @infobar(item)

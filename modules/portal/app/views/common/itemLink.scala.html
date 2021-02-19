@@ -1,4 +1,4 @@
-@(link: Link, item: models.base.DescribedModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
+@(link: Link, item: DescribedModel)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages, conf: AppConfig)
 
 @linkItemHtml(html: Html) = {
     @if(html.body.trim.nonEmpty) {

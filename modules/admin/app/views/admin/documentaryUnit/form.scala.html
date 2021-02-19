@@ -1,7 +1,7 @@
 @(f: play.api.data.Form[DocumentaryUnitF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-@import models.IsadG._
-    @import models.DocumentaryUnitF._
+@import IsadG._
+    @import DocumentaryUnitF._
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 

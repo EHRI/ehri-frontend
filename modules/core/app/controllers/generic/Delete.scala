@@ -1,14 +1,13 @@
 package controllers.generic
 
-import models.{EventType, PermissionType}
-import models.base.Model
+import models.{EventType, Model, PermissionType}
 import play.api.mvc._
 import services.data.ContentType
 
 import scala.concurrent.Future
 
 /**
-  * Controller trait for deleting [[models.base.Accessible]] items.
+  * Controller trait for deleting entities.
   */
 trait Delete[MT <: Model] extends Read[MT] with Write {
 

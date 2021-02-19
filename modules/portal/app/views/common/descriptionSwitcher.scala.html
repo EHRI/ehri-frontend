@@ -1,4 +1,4 @@
-@(descriptions: Seq[(models.base.Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple")(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(descriptions: Seq[(Description, Boolean)], dropdown: Boolean = false, labelKey: String = "description.multiple")(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 @if(descriptions.size > 1) {
     @views.html.common.sidebarSection(Messages(labelKey), cls = "description-switcher") {

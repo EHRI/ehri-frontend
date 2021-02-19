@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.{PermissionType, UserProfile}
-import models.base._
+import models.{Described, DescribedModel, Description, ModelData, PermissionType, Persistable, UserProfile}
 import play.api.mvc._
 import services.data.ContentType
 

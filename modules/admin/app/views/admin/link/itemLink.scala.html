@@ -1,4 +1,4 @@
-@(link: Link, item: models.base.Model, src: Option[models.base.Model], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(link: Link, item: Model, src: Option[Model], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.admin.helpers.linkTo(item, content = Html(text.getOrElse(item.toStringLang)))
 <small>

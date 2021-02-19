@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
+@(result: services.search.SearchResult[(Model,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
 @views.html.layout.searchLayout(Messages("type.CvocVocabulary"), result, cls = EntityType.Vocabulary.toString) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.CvocVocabulary") {

@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.base._
-import models.{AccessPointF, EntityType, Link, LinkF}
+import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.data.Resource

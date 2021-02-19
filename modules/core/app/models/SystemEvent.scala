@@ -2,7 +2,6 @@ package models
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import models.base._
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._

@@ -1,17 +1,17 @@
-@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)@import models.EventType
+@(event: SystemEvent, subject: Model, user: Accessor, et: EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 
 @annotationBody(ann: Annotation) = {
     <blockquote>@Html(md.renderUntrustedMarkdown(ann.data.body))</blockquote>
 }
 
-@eventModification(subject: models.Annotation) = {
+@eventModification(subject: Annotation) = {
     @subject.target.map{ target =>
         @eventFooter(target, views.html.helpers.linkToWithFragment(target, "#" + subject.id))
     }
 }
 
-@eventFooter(item : models.base.Model, link: Html) = {
+@eventFooter(item : Model, link: Html) = {
     <div class="event-footer @item.isA">@link</div>
 }
 

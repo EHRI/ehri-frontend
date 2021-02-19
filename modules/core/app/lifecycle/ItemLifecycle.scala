@@ -1,7 +1,6 @@
 package lifecycle
 
-import models.EventType
-import models.base.Model
+import models.{EventType, Model}
 
 import scala.concurrent.{ExecutionContext, Future}
 

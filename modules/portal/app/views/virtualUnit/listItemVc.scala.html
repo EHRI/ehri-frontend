@@ -1,4 +1,4 @@
-@(item: models.base.Model, path: Seq[models.base.Model], watched: Boolean, showContext: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None, context: Option[models.base.Holder[_]] = None)
+@(item: Model, path: Seq[Model], watched: Boolean, showContext: Boolean = true)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None, context: Option[Holder[_]] = None)
 
 @views.html.common.searchItemOutline(item, watched) {
     @views.html.helpers.link(views.Helpers.virtualUnitUrl(path, item.id)) {

@@ -8,8 +8,7 @@ import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, renderError}
 import models.GuidePage.Layout
-import models.base.Model
-import models.{EntityType, GeoCoordinates, Guide, GuidePage, _}
+import models.{EntityType, GeoCoordinates, Guide, GuidePage, Model, _}
 import play.api.cache.Cached
 import play.api.data.Forms._
 import play.api.data._

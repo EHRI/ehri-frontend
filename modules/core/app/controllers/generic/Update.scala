@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.{EventType, PermissionType, UserProfile}
-import models.base._
+import models.{EventType, Model, ModelData, PermissionType, Persistable, UserProfile}
 import play.api.data.Form
 import play.api.mvc._
 import services.data.{ContentType, ValidationError, Writable}

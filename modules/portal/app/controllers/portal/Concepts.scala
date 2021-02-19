@@ -1,12 +1,12 @@
 package controllers.portal
 
 import akka.stream.Materializer
+
 import javax.inject.{Inject, Singleton}
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController, Related}
-import models.Concept
-import models.base.Model
+import models.{Concept, Model}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.CypherService
 import services.search._

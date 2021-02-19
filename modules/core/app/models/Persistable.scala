@@ -1,4 +1,4 @@
-package models.base
+package models
 
 /**
  * Welcome to an unpleasant package. Case classes that extend the Persistable
@@ -12,7 +12,6 @@ package models.base
  * TODO: Improve all of this drastically.
  */
 
-import models.Relation
 import services.data.ErrorSet
 
 
@@ -124,8 +123,7 @@ object Persistable {
 trait Persistable {
 
   import Persistable._
-  import play.api.data.FormError
-  import play.api.data.Form
+  import play.api.data.{Form, FormError}
 
   def getFormErrors[T](errorSet: ErrorSet, form: Form[T]): Form[T] = {
     val serverErrors: Seq[FormError] = errorsToForm(errorSet)

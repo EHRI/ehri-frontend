@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.base._
-import models.{EntityType, ItemPermissionSet, PermissionGrant, PermissionType, UserProfile}
+import models.{Accessor, EntityType, ItemPermissionSet, PermissionGrant, PermissionType, UserProfile}
 import play.api.mvc._
 import services.data.ContentType
 import utils.{Page, PageParams}

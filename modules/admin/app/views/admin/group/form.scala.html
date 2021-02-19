@@ -1,6 +1,4 @@
-@(item: Option[Group], f: Form[models.GroupF])(implicit messages: Messages, md: MarkdownRenderer)
-
-@import models.GroupF
+@(item: Option[Group], f: Form[GroupF])(implicit messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

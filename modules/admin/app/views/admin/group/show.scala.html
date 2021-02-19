@@ -1,6 +1,6 @@
-@(item: Group, page: utils.Page[models.base.Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Group, page: utils.Page[Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@removeLink(acc: models.base.Accessor) = {
+@removeLink(acc: Accessor) = {
     @if(acc.isA == EntityType.Group) {
         <a class="ajax-action" href="@controllers.groups.routes.Groups.checkRemoveFromGroup(acc.id, item.id)" title="@Messages("accessor.groups.remove.item", acc.toStringLang, item.toStringLang)">
             @Messages("accessor.groups.remove")
@@ -15,7 +15,7 @@
 @views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA,  breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @defining("group") { implicit prefix =>
-        @views.html.admin.common.textValue(models.GroupF.DESCRIPTION, item.data.description)
+        @views.html.admin.common.textValue(GroupF.DESCRIPTION, item.data.description)
     }
 
     @if(item.groups.nonEmpty) {

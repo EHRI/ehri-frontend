@@ -1,7 +1,6 @@
 package models.api.v1
 
 import models._
-import models.base.{Accessible, Model, Holder}
 import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.mvc.RequestHeader

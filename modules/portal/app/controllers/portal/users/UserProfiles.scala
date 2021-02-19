@@ -4,8 +4,7 @@ import akka.stream.Materializer
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
-import models._
-import models.base.Model
+import models.{Model, _}
 import models.view.MessagingInfo
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException

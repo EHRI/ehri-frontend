@@ -1,4 +1,4 @@
-@(item: VirtualUnit, f: Form[models.VirtualUnitF], did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: VirtualUnit, f: Form[VirtualUnitF], did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.deleteDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
 

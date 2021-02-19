@@ -1,4 +1,4 @@
-@(item: models.base.Holder[_], link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
+@(item: Holder[_], link: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @defining(item.childCount.getOrElse(0)) { childCount =>
     @if(childCount > 0) {

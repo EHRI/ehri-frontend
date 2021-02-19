@@ -1,4 +1,4 @@
-@(item: Repository, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, context: Option[models.base.Holder[_]] = None)
+@(item: Repository, result: services.search.SearchResult[(DocumentaryUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, context: Option[Holder[_]] = None)
 
 @if(item.hasChildren) {
     <section id="@item.id-child-item-search" class="child-item-search">

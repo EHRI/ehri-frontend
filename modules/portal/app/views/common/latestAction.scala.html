@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, historyUrl: Call)(implicit request: RequestHeader, messages: Messages)
+@(item: Accessible, historyUrl: Call)(implicit request: RequestHeader, messages: Messages)
 
 @item.latestEvent.map { ev =>
     @views.html.common.sidebarSectionWithFooter(Messages("item.history"), cls = "history") {

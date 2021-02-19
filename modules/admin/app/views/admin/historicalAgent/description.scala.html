@@ -1,6 +1,6 @@
 @(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
-@import models.Isaar._
+@import Isaar._
 @import views.html.admin.common.descriptionSection
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions) {

@@ -1,6 +1,6 @@
 @(form: Form[Feedback])(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
-@import models.Feedback.{NAME,EMAIL}
+@import Feedback.{NAME,EMAIL}
     @import forms.HoneyPotForm.BLANK_CHECK
     @import forms.TimeCheckForm.TIMESTAMP
 

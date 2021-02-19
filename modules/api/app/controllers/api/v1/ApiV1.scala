@@ -9,10 +9,9 @@ import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import config.AppConfig
 import lifecycle.ItemLifecycle
-import models.{EntityType, _}
+import models.{EntityType, Model, _}
 import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._
-import models.base.Model
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages

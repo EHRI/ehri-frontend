@@ -1,4 +1,4 @@
-@(item: models.base.Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], conf: AppConfig, messages: Messages)
+@(item: Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], conf: AppConfig, messages: Messages)
 
 @if(item.promoters.nonEmpty || (item.isPromotable && userOpt.exists(_.hasPermission(contentType, PermissionType.Promote)))) {
     @common.sidebarSection(Messages("promotion")) {

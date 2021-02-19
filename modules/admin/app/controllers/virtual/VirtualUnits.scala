@@ -7,7 +7,6 @@ import forms._
 
 import javax.inject._
 import models.{EntityType, _}
-import models.base.{Description, Model}
 import forms.FormConfigBuilder
 import play.api.data.Form
 import play.api.data.Forms._

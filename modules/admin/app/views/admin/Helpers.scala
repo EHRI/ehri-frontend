@@ -1,7 +1,6 @@
 package views.admin
 
-import models.EntityType
-import models.base.Model
+import models.{EntityType, Model}
 import play.api.mvc.Call
 
 /**

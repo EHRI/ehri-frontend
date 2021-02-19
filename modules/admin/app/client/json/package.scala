@@ -1,6 +1,5 @@
 package client
 
-import models.base.{Accessor, Model}
 import models.json._
 import models.{Entity, EntityType, _}
 import play.api.Logger

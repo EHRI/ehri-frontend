@@ -1,8 +1,7 @@
 package models
 
 import eu.ehri.project.definitions.Ontology
-import models.base.Description._
-import models.base._
+import Description._
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._

@@ -1,4 +1,4 @@
-@(item: DocumentaryUnit, f: Form[models.DocumentaryUnitF], config: forms.FormConfig, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: Form[DocumentaryUnitF], config: forms.FormConfig, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

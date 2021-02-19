@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.base._
-import models.{DeleteChildrenOptions, PermissionType, UserProfile}
+import models.{DeleteChildrenOptions, Holder, Model, PermissionType, UserProfile}
 import play.api.data.Form
 import play.api.mvc._
 import services.data.{ContentType, HierarchyError, Readable}

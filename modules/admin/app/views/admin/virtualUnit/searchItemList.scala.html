@@ -1,4 +1,4 @@
-@(result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], path: Seq[models.base.Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(result: services.search.SearchResult[(Model, services.search.SearchHit)], path: Seq[Model])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 <ul class="list-unstyled">
     @result.page.map { case(item, hit) =>

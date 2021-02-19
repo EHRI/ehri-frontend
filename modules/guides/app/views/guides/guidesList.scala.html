@@ -1,7 +1,5 @@
 @(guides: List[Any])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@import models.Guide
-
 @views.html.layout.portalLayoutSimple(Messages("guides.heading"), itemClass = "guides") {
     @views.html.common.mainContent {
         <h2 class="landing-header">

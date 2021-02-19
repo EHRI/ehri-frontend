@@ -1,7 +1,7 @@
 package models.base
 
 import play.api.test.PlaySpecification
-import models.{DatePeriod, DatePeriodF}
+import models.{DatePeriod, DatePeriodF, Persistable}
 import services.data.ErrorSet
 
 

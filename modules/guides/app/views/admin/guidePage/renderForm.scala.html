@@ -1,4 +1,4 @@
-@(item: Option[GuidePage], f: Form[models.GuidePage])(implicit messages: Messages, md: MarkdownRenderer)
+@(item: Option[GuidePage], f: Form[GuidePage])(implicit messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

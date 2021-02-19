@@ -1,7 +1,6 @@
 package controllers.generic
 
-import models.{ContentTypes, GlobalPermissionSet, _}
-import models.base.Accessor
+import models.{Accessor, ContentTypes, GlobalPermissionSet, _}
 import play.api.mvc._
 import services.data.ContentType
 import utils.{Page, PageParams}

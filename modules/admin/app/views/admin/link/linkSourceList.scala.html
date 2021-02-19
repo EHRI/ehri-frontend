@@ -1,4 +1,4 @@
-@(item: models.base.Model, result: services.search.SearchResult[(models.base.Model, services.search.SearchHit)], entityType: EntityType.Value, action: Call, linkAction: (String, Boolean) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Model, result: services.search.SearchResult[(Model, services.search.SearchHit)], entityType: EntityType.Value, action: Call, linkAction: (String, Boolean) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.adminSearchLayout(Messages("link.create"), result, action, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     <div class="search-section link-source-list" id="@(item.id)-child-item-search">

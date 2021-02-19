@@ -16,7 +16,7 @@
             <li class="nav-item" role="presentation">
                 <a href="#description_@(i)_tab" class="nav-link @(if(i == 0) "active")" role="tab" data-toggle="tab">
                     @Messages("describedEntity.description", i + 1) -
-                    @desc(models.base.Description.LANG_CODE).value.map(i18n.languageCodeToName)
+                    @desc(Description.LANG_CODE).value.map(i18n.languageCodeToName)
                 </a>
             </li>
         }

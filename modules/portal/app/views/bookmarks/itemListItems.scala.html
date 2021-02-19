@@ -1,11 +1,11 @@
-@(parent: Option[models.base.Model], items: Seq[models.base.Model], paging: utils.PageParams, params: services.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, conf: AppConfig)
+@(parent: Option[Model], items: Seq[Model], paging: utils.PageParams, params: services.search.SearchParams, more: Boolean, watched: Seq[String])(implicit req: RequestHeader, userOpt: Option[UserProfile], messages: Messages, conf: AppConfig)
 
 @items.map { item =>
     <li id="bookmark-@item.id" class="list-group-item bookmark-item @item.isA @(if(parent.exists(_.isInstanceOf[VirtualUnit])) "moveable") @(if(item.isInstanceOf[VirtualUnit]) "droppable")" data-id="@item.id">
         <div class="bookmark-data">
             <div class="drag-handle">&nbsp;</div>
             @views.html.helpers.linkTo(item) [@item.id]
-            @item.asInstanceOf[models.base.Holder[_]].childCount.map { count =>
+            @item.asInstanceOf[Holder[_]].childCount.map { count =>
                 <a class="badge bookmark-fetch-contents closed item-count" href="@controllers.portal.routes.Bookmarks.contents(item.id)">
                     @count
                 </a>

@@ -6,8 +6,7 @@ import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController, Related}
 
 import javax.inject.{Inject, Singleton}
-import models.{EntityType, HistoricalAgent}
-import models.base.Model
+import models.{EntityType, HistoricalAgent, Model}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.cypher.CypherService
 import services.search.{SearchParams, SearchSort}
