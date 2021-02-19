@@ -1,9 +1,7 @@
 package models
 
 import java.time.ZonedDateTime
-
 import models.base.{Accessor, Model, ModelData}
-import defines.{EntityType, PermissionType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.json.JsObject

@@ -1,7 +1,6 @@
-package acl
+package models
 
 import org.specs2.mutable.Specification
-import defines.{ContentTypes, PermissionType}
 import play.api.libs.json.Json
 
 

@@ -5,8 +5,7 @@ import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
-import defines.EntityType
-import models._
+import models.{EntityType, _}
 import models.base.Model
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames

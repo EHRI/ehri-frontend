@@ -8,7 +8,7 @@
         @views.html.annotation.annotationInlineList(annotations)
         @userOpt.map { user =>
             @item.contentType.map { ct =>
-                @if(user.hasPermission(ct, defines.PermissionType.Annotate)) {
+                @if(user.hasPermission(ct, PermissionType.Annotate)) {
                     <div class="annotate-item-controls">
                         @desc.id.map { did =>
                             <a data-item="@item.id" data-did="@did" class="annotate-item"

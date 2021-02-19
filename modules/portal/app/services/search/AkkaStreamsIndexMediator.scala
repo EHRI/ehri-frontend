@@ -14,6 +14,7 @@ import akka.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import config.serviceBaseUrl
 import eu.ehri.project.indexing.converter.impl.JsonConverter
+import models.EntityType
 import play.api.libs.json.Json
 import play.api.{Configuration, Logger}
 import services.data.Constants.{AUTH_HEADER_NAME, STREAM_HEADER_NAME}
@@ -96,7 +97,7 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private val solrUri: Uri = solrBaseUrl.withQuery(Uri.Query("commit" -> "true"))
 
-  private def entitiesToRequests(entityTypes: Seq[defines.EntityType.Value]): List[HttpRequest] =
+  private def entitiesToRequests(entityTypes: Seq[EntityType.Value]): List[HttpRequest] =
     entityTypes.map { et =>
       val uri = dataBaseUrl
         .withPath(Uri.Path(s"/ehri/classes/$et"))
@@ -111,7 +112,7 @@ case class AkkaStreamsIndexMediatorHandle(
     List(req)
   }
 
-  private def childrenToRequests(et: defines.EntityType.Value, id: String): List[HttpRequest] = {
+  private def childrenToRequests(et: EntityType.Value, id: String): List[HttpRequest] = {
     List(HttpRequest(HttpMethods.GET, dataBaseUrl.withPath(Uri.Path(s"/ehri/classes/$et/$id/list"))
       .withQuery(Query("limit" -> "-1", "all" -> "true"))))
   }
@@ -210,7 +211,7 @@ case class AkkaStreamsIndexMediatorHandle(
     bytes.runWith(sinkFlow(solrUri)).map(r => logger.debug(s"Solr response: $r"))
   }
 
-  override def indexTypes(entityTypes: Seq[defines.EntityType.Value]): Future[Unit] = {
+  override def indexTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] = {
     logger.debug(s"Indexing types: $entityTypes")
     index(entitiesToRequests(entityTypes))
   }
@@ -220,7 +221,7 @@ case class AkkaStreamsIndexMediatorHandle(
     index(idsToRequests(ids))
   }
 
-  override def indexChildren(entityType: defines.EntityType.Value, id: String): Future[Unit] = {
+  override def indexChildren(entityType: EntityType.Value, id: String): Future[Unit] = {
     logger.debug(s"Indexing children: $entityType:$id")
     index(childrenToRequests(entityType, id))
   }
@@ -228,7 +229,7 @@ case class AkkaStreamsIndexMediatorHandle(
   override def clearAll(): Future[Unit] =
     deleteByQuery(s"$ID:*")
 
-  override def clearTypes(entityTypes: Seq[defines.EntityType.Value]): Future[Unit] =
+  override def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] =
     deleteByQuery(entityTypes.map(et => s"$TYPE:$et"):_*)
 
   override def clearIds(ids: String*): Future[Unit] =

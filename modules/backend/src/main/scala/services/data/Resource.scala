@@ -1,6 +1,6 @@
 package services.data
 
-import defines.EntityType
+import models.EntityType
 
 import scala.annotation.implicitNotFound
 

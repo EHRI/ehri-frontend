@@ -3,9 +3,9 @@ package controllers.vocabularies
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{EntityType, PermissionType}
+
 import javax.inject._
-import models._
+import models.{EntityType, _}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._

@@ -5,8 +5,7 @@ import client.json.ClientWriteable
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
-import defines.EntityType
-import models.Isaar
+import models.{EntityType, Isaar}
 import models.base.{Description, Model}
 import play.api.cache.{Cached, SyncCacheApi}
 import play.api.i18n.Messages

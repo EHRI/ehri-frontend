@@ -1,4 +1,4 @@
-@(item: models.base.Holder[_], childType: defines.EntityType.Value)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
+@(item: models.base.Holder[_], childType: EntityType.Value)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages)
 
 @item.childCount.filter(_ > 0).map { childCount =>
     @views.html.common.sidebarSection(Messages(s"${views.Helpers.prefixFor(item.isA)}.childItems"), cls = "child-items") {

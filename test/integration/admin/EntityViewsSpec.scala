@@ -1,8 +1,7 @@
 package integration.admin
 
-import defines._
 import helpers._
-import models.{Group, HistoricalAgent, UserProfile, UserProfileF}
+import models.{ContentTypes, Group, HistoricalAgent, PermissionType, UserProfile, UserProfileF}
 import play.api.http.HeaderNames
 import play.api.i18n.Lang
 import play.api.test.FakeRequest

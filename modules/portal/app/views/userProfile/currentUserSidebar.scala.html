@@ -1,6 +1,6 @@
 @(item: UserProfile, editing: Boolean = false)(implicit userOpt: Option[UserProfile], requestHeader: RequestHeader, conf: AppConfig, messages: Messages)
 
-@views.html.common.typeLabel(defines.EntityType.UserProfile) {
+@views.html.common.typeLabel(EntityType.UserProfile) {
     <ul class="user-controls">
         <li class="user-img">
             <a href="@controllers.portal.users.routes.UserProfiles.profile()" class="gravitar">

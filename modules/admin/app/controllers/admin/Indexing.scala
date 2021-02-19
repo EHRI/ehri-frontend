@@ -1,11 +1,10 @@
 package controllers.admin
 
 import javax.inject._
-
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import controllers.AppComponents
 import controllers.base.AdminController
-import defines.EntityType
+import models.EntityType
 import utils.EnumUtils._
 import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
@@ -140,7 +139,7 @@ case class Indexing @Inject()(
     tuple(
       CLEAR_ALL -> default(boolean, false),
       CLEAR_TYPES -> default(boolean, false),
-      TYPES -> list(enumMapping(defines.EntityType))
+      TYPES -> list(enumMapping(models.EntityType))
     )
   )
 

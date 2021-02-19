@@ -1,4 +1,4 @@
-package defines
+package utils
 
 import org.specs2.mutable.Specification
 

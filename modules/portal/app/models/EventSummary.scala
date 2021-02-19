@@ -1,8 +1,6 @@
 package models
 
 import java.time.ZonedDateTime
-
-import defines.EventType
 import models.base.{Accessor, Model}
 
 /**

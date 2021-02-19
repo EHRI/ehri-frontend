@@ -1,7 +1,7 @@
-package acl
+package models
 
 import play.api.libs.json._
-import defines._
+
 import scala.util.control.Exception._
 
 object GlobalPermissionSet {

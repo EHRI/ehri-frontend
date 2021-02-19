@@ -18,7 +18,7 @@
     }
 }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.create"), defines.EntityType.DocumentaryUnit, breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.create"), EntityType.DocumentaryUnit, breadcrumbs = breadcrumbs, scripts = formHelpers.dateJs()) {
 
     @helper.form(action = action) {
         @formHelpers.csrfToken()

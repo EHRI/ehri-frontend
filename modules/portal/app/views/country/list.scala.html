@@ -1,6 +1,6 @@
 @(result: services.search.SearchResult[(Country,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[models.base.Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.Country"), result, cls = defines.EntityType.Country.toString) {
+@views.html.layout.searchLayout(Messages("type.Country"), result, cls = EntityType.Country.toString) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.Country") {
         @views.html.common.search.searchItemList(result, watched)
     } {

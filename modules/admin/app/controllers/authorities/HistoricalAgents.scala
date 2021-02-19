@@ -4,9 +4,8 @@ import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{EntityType, PermissionType}
 import forms._
-import models._
+import models.{EntityType, _}
 import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

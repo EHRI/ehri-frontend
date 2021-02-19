@@ -1,9 +1,8 @@
 package services.ingest
 
 import java.net.URI
-
 import akka.actor.ActorRef
-import defines.ContentTypes
+import models.ContentTypes
 import play.api.mvc.QueryStringBindable
 import services.data.ApiUser
 import services.ingest.IngestService.IngestJob

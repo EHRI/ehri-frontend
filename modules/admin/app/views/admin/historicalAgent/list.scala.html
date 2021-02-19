@@ -1,6 +1,6 @@
 @(page: utils.Page[HistoricalAgent], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("historicalAgent.list"), defines.EntityType.HistoricalAgent) {
+@views.html.admin.layout.rightSidebarWithType(Messages("historicalAgent.list"), EntityType.HistoricalAgent) {
     @views.html.admin.common.filterableList("pagination.displayingItems", page, params) {
         @itemList(page)
     }

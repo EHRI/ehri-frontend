@@ -1,9 +1,8 @@
 package actors.ingest
 
 import akka.actor.Props
-import defines.ContentTypes
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
-import models.UserProfile
+import models.{ContentTypes, UserProfile}
 import services.data.ApiUser
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._

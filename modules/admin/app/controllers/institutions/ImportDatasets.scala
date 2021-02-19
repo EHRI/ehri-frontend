@@ -4,10 +4,9 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.FileStage
 
 import javax.inject._
-import models._
+import models.{FileStage, _}
 import play.api.cache.AsyncCacheApi
 import play.api.libs.json.Json
 import play.api.mvc._

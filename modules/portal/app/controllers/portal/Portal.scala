@@ -4,9 +4,8 @@ import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import cookies.SessionPrefs
-import defines.EntityType
 import forms.AccountForms
-import models._
+import models.{EntityType, _}
 import models.base.Model
 import play.api.cache.{AsyncCacheApi, Cached}
 import play.api.i18n.{Lang, Messages}

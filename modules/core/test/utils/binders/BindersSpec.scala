@@ -1,9 +1,9 @@
 package utils.binders
 
+import models.EntityType
+
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-
-import defines.EntityType
 import play.api.test.PlaySpecification
 import services.data.Constants.{FROM => TFROM, _}
 import services.search.{BoundingBox, LatLng, SearchParams, SearchSort}

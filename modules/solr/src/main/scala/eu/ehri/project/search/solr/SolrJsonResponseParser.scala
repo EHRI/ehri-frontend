@@ -1,8 +1,8 @@
 package eu.ehri.project.search.solr
 
-import javax.inject.Inject
+import models.EntityType
 
-import defines.EntityType
+import javax.inject.Inject
 import play.api.PlayException
 import services.search.{SearchHit, _}
 

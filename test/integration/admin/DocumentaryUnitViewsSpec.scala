@@ -1,9 +1,8 @@
 package integration.admin
 
 import cookies.SessionPreferences
-import defines.{ContentTypes, EntityType}
 import helpers.IntegrationTestRunner
-import models._
+import models.{EntityType, _}
 import play.api.test.FakeRequest
 import services.data.{ApiUser, AuthenticatedUser, HierarchyError}
 

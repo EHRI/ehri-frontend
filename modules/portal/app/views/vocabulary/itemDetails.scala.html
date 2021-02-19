@@ -8,7 +8,7 @@
         }
     } {
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), views.html.vocabulary.introNotice())
-        @views.html.common.childItemSidebar(item, defines.EntityType.Concept)
+        @views.html.common.childItemSidebar(item, EntityType.Concept)
         @views.html.common.exportItem(
             Map(
                 "ttl" -> controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("TTL")),

@@ -1,5 +1,6 @@
 package views.admin
 
+import models.EntityType
 import models.base.Model
 import play.api.mvc.Call
 
@@ -43,8 +44,8 @@ object Helpers {
     ("admin.utils.validate",        controllers.tools.routes.Tools.validateEad().url),
   )
 
-  def linkTo(isA: defines.EntityType.Value, id: String): Call = {
-    import defines.EntityType._
+  def linkTo(isA: EntityType.Value, id: String): Call = {
+    import models.EntityType._
     isA match {
       case SystemEvent => controllers.events.routes.SystemEvents.get(id)
       case DocumentaryUnit => controllers.units.routes.DocumentaryUnits.get(id)
@@ -63,7 +64,7 @@ object Helpers {
     }
   }
 
-  def linkToOpt(isA: defines.EntityType.Value, id: String): Option[Call] =
+  def linkToOpt(isA: EntityType.Value, id: String): Option[Call] =
     catching(classOf[IllegalArgumentException]).opt(linkTo(isA, id))
 
   def linkTo(item: Model): Call = linkTo(item.isA, item.id)

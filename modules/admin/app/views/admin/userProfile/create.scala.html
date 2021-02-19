@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("userProfile.create"), defines.EntityType.UserProfile) {
+@views.html.admin.layout.rightSidebarWithType(Messages("userProfile.create"), EntityType.UserProfile) {
     @formHelpers.globalErrors(f)
 
 	@helper.form(action = action) {

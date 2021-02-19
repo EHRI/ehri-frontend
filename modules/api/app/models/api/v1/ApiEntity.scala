@@ -1,6 +1,6 @@
 package models.api.v1
 
-import defines.EntityType
+import models.EntityType
 import play.api.mvc.QueryStringBindable
 
 object ApiEntity extends Enumeration {

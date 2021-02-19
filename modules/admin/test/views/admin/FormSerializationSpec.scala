@@ -1,8 +1,7 @@
 package views.admin
 
-import defines.EntityType
 import helpers.ResourceUtils
-import models.{DocumentaryUnitDescription, DocumentaryUnitF}
+import models.{DocumentaryUnitDescription, DocumentaryUnitF, EntityType}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.test.PlaySpecification

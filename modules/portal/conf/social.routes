@@ -16,4 +16,3 @@ GET         /:userId/message          @controllers.portal.social.Social.sendMess
 POST        /:userId/message          @controllers.portal.social.Social.sendMessagePost(userId: String)
 GET         /:userId/following        @controllers.portal.social.Social.followingForUser(userId: String, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:userId/followers        @controllers.portal.social.Social.followersForUser(userId: String, paging: utils.PageParams ?= utils.PageParams.empty)
-

@@ -3,9 +3,9 @@ package controllers.portal
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import defines.EntityType
+
 import javax.inject.{Inject, Singleton}
-import models.{Concept, Vocabulary}
+import models.{Concept, EntityType, Vocabulary}
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.CypherService

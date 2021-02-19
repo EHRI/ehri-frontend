@@ -8,7 +8,7 @@
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.js")"></script>
 }
 
-@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.Concept.toString, styles = extraCss, scripts = extraScript) {
+@views.html.layout.portalLayout(item.toStringLang, EntityType.Concept.toString, styles = extraCss, scripts = extraScript) {
     @infobar(item)
 
     @views.html.common.mainContent {

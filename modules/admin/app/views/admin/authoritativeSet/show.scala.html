@@ -16,7 +16,7 @@
 } {
     @common.typeLabel(item.isA) {
     }
-    @views.html.admin.common.promotion(item, controllers.sets.routes.AuthoritativeSets.promote(item.id), controllers.sets.routes.AuthoritativeSets.demote(item.id), defines.ContentTypes.Vocabulary)
+    @views.html.admin.common.promotion(item, controllers.sets.routes.AuthoritativeSets.promote(item.id), controllers.sets.routes.AuthoritativeSets.demote(item.id), ContentTypes.Vocabulary)
     @views.html.admin.common.visibility(item, controllers.sets.routes.AuthoritativeSets.visibility(item.id), ContentTypes.AuthoritativeSet)
     @views.html.admin.common.latestAction(item, controllers.sets.routes.AuthoritativeSets.history(item.id))
 

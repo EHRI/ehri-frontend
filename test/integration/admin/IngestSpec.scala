@@ -5,8 +5,8 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import com.google.inject.name.Names
-import defines.ContentTypes
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
+import models.ContentTypes
 import org.apache.commons.io.FileUtils
 import play.api.inject.{BindingKey, QualifierInstance}
 import play.api.libs.json.JsString

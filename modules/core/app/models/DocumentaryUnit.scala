@@ -1,6 +1,5 @@
 package models
 
-import defines._
 import models.base._
 import models.base.Persistable
 import models.json._

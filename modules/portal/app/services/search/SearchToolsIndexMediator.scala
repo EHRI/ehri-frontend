@@ -3,13 +3,13 @@ package services.search
 import akka.actor.{ActorRef, ActorSystem}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import config.serviceBaseUrl
-import defines.EntityType
 import eu.ehri.project.indexing.Pipeline.Builder
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.sink.impl.{CallbackSink, IndexJsonSink}
 import eu.ehri.project.indexing.source.impl.WebJsonSource
 import eu.ehri.project.indexing.{IndexHelper, Pipeline}
+import models.EntityType
 import play.api.Logger
 import services.data.Constants
 

@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.institutions.StorageHelpers
-import defines.ContentTypes
+import models.ContentTypes
 
 import javax.inject.{Inject, Singleton}
 import models.base.Model

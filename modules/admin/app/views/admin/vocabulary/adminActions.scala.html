@@ -1,19 +1,19 @@
 @(item: Vocabulary)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.admin.common.sidebarActions { user =>
-    @views.html.admin.common.sidebarAction(user.hasPermission(defines.ContentTypes.Concept, defines.PermissionType.Create)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
         <a href="@controllers.vocabularies.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(defines.ContentTypes.Vocabulary, defines.PermissionType.Update)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
         <a href="@controllers.vocabularies.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(defines.ContentTypes.Vocabulary, defines.PermissionType.Delete)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Delete)) {
         <a href="@controllers.vocabularies.routes.Vocabularies.delete(item.id)">@Messages("item.delete")</a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(defines.ContentTypes.Vocabulary, defines.PermissionType.Grant)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
         <a href="@controllers.vocabularies.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(defines.ContentTypes.Concept, defines.PermissionType.Update)) {
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
         <a href="@controllers.vocabularies.routes.VocabularyEditor.editor(item.id)">@Messages("cvocVocabulary.items.edit")</a>
     }
     @views.html.admin.common.sidebarAction(user.isAdmin) {

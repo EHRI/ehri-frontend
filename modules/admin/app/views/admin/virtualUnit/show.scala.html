@@ -26,7 +26,7 @@
                         }
                     } {
                         @views.html.admin.common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))
-                        @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), defines.ContentTypes.VirtualUnit)
+                        @views.html.admin.common.visibility(item, controllers.virtual.routes.VirtualUnits.visibility(item.id), ContentTypes.VirtualUnit)
                         @views.html.admin.virtualUnit.adminActions(item)
                     }
                 }

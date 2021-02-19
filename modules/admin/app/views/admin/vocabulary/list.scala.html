@@ -1,6 +1,6 @@
 @(page: utils.Page[Vocabulary], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.list"), defines.EntityType.Vocabulary) {
+@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.list"), EntityType.Vocabulary) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 

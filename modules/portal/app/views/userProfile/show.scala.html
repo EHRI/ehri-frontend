@@ -1,6 +1,6 @@
 @(item: UserProfile, events: utils.RangePage[Seq[SystemEvent]], params: utils.RangeParams, eventParams: utils.SystemEventParams, followed: Boolean, messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
 
     @views.html.common.mainContent {
         @views.html.userProfile.itemDetails(item, followed, messagingInfo) {

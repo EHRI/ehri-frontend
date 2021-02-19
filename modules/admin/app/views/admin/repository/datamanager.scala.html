@@ -64,9 +64,9 @@
                 window.CONFIG = {
                     repoId: "@item.id",
                     versioned: @isVersioned,
-                    input: "@defines.FileStage.Input",
-                    output: "@defines.FileStage.Output",
-                    config: "@defines.FileStage.Config",
+                    input: "@models.FileStage.Input",
+                    output: "@models.FileStage.Output",
+                    config: "@models.FileStage.Config",
                     previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datamanager.worker.js")",
                     monitorUrl: jobId => dataManagerRoutes.controllers.admin.Tasks.taskMonitorWS(jobId)
                                 .absoluteURL(location.protocol === "https:")

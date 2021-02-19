@@ -1,6 +1,5 @@
 package models
 
-import defines.{ContentTypes, EntityType}
 import play.api.data.Form
 import play.api.data.Forms._
 

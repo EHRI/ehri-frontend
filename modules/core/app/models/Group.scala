@@ -1,7 +1,6 @@
 package models
 
 import models.base._
-import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.json._
 import play.api.i18n.Messages

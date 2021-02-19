@@ -1,11 +1,10 @@
 package integration.admin
 
 import java.io.File
-
-import defines.ContentTypes
 import eu.ehri.project.definitions.Entities
 import helpers._
 import mockdata._
+import models.ContentTypes
 import org.apache.commons.io.FileUtils
 import play.api.mvc.Flash
 import play.api.test.FakeRequest

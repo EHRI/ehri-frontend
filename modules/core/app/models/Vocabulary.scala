@@ -1,6 +1,5 @@
 package models
 
-import defines.{ContentTypes, EntityType}
 import eu.ehri.project.definitions.Ontology
 import models.base.{Persistable, _}
 import models.json._

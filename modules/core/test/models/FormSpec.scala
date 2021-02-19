@@ -1,6 +1,5 @@
 package models
 
-import defines.EntityType
 import helpers.ResourceUtils
 import play.api.test.PlaySpecification
 

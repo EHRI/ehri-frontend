@@ -1,6 +1,5 @@
-@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: defines.EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(event: SystemEvent, subject: models.base.Model, user: models.base.Accessor, et: EventType.Value, subjectCount: Int)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)@import models.EventType
 
-@import defines.EventType
 
 @annotationBody(ann: Annotation) = {
     <blockquote>@Html(md.renderUntrustedMarkdown(ann.data.body))</blockquote>

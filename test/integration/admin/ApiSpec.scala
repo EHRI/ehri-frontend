@@ -1,10 +1,9 @@
 package integration.admin
 
 import controllers.generic.AccessPointLink
-import defines.EntityType
 import helpers._
 import models.LinkF.LinkType
-import models.{AccessPointF, AnnotationF}
+import models.{AccessPointF, AnnotationF, EntityType}
 import play.api.libs.json.{JsBoolean, Json}
 import play.api.test.FakeRequest
 import services.data.Constants

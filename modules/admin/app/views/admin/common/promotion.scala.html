@@ -1,6 +1,6 @@
-@(item: models.base.Promotable, promoteUrl: Call, demoteUrl: Call, contentType: defines.ContentTypes.Value)(implicit userOpt: Option[UserProfile], conf: AppConfig, messages: Messages)
+@(item: models.base.Promotable, promoteUrl: Call, demoteUrl: Call, contentType: ContentTypes.Value)(implicit userOpt: Option[UserProfile], conf: AppConfig, messages: Messages)
 
-@if(item.promoters.nonEmpty || (item.isPromotable && userOpt.exists(_.hasPermission(contentType, defines.PermissionType.Promote)))) {
+@if(item.promoters.nonEmpty || (item.isPromotable && userOpt.exists(_.hasPermission(contentType, PermissionType.Promote)))) {
     @common.sidebarSection(Messages("promotion")) {
         @if(item.promoters.nonEmpty) {
             <h4>
@@ -18,7 +18,7 @@
             @if(item.promoters.exists(p => p.id == user.id)) {
                 <p><small><a href="@demoteUrl">@Messages("item.demote")</a></small></p>
             } else {
-                @if(user.hasPermission(contentType, defines.PermissionType.Promote)) {
+                @if(user.hasPermission(contentType, PermissionType.Promote)) {
                     <h4>
                         <i class="fa fa-star" aria-hidden="true"></i>
                         @Messages("promotion.notPromoted")

@@ -1,10 +1,9 @@
 package services.data
 
-import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.Done
 import akka.stream.scaladsl.{JsonFraming, Source}
 import akka.util.ByteString
-import defines.{ContentTypes, EntityType}
+import models.{ContentTypes, EntityType, GlobalPermissionSet, ItemPermissionSet}
 import play.api.Configuration
 import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypeOf, HeaderNames, HttpVerbs, Status}

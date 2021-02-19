@@ -1,6 +1,6 @@
 package controllers.institutions
 
-import defines.FileStage
+import models.FileStage
 import play.api.Configuration
 import play.api.mvc.RequestHeader
 

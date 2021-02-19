@@ -1,8 +1,7 @@
 package services.data
 
-import acl.{GlobalPermissionSet, ItemPermissionSet}
 import akka.stream.scaladsl.Source
-import defines.{ContentTypes, EntityType}
+import models.{ContentTypes, EntityType, GlobalPermissionSet, ItemPermissionSet}
 import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Headers

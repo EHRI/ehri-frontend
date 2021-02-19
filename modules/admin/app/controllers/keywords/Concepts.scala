@@ -3,10 +3,10 @@ package controllers.keywords
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{EntityType, PermissionType}
 import forms._
+
 import javax.inject._
-import models._
+import models.{EntityType, _}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages

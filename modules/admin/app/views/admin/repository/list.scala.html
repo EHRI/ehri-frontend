@@ -1,6 +1,6 @@
 @(page: utils.Page[Repository], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("repository.list"), defines.EntityType.Repository) {
+@views.html.admin.layout.rightSidebarWithType(Messages("repository.list"), EntityType.Repository) {
     @views.html.admin.common.filterableList("pagination.displayingItems", page, params) {
         @itemList(page)
     }

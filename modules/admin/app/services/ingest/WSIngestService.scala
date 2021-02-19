@@ -14,7 +14,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
-import defines.{ContentTypes, EntityType}
+import models.{ContentTypes, EntityType}
 import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject

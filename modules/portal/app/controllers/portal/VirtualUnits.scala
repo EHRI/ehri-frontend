@@ -1,14 +1,12 @@
 package controllers.portal
 
 import javax.inject._
-
 import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.SearchVC
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import defines.EntityType
-import models._
+import models.{EntityType, _}
 import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.IdGenerator

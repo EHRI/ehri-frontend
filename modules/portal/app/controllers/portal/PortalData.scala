@@ -67,7 +67,7 @@ case class PortalData @Inject()(
     */
   def globalData: EssentialAction = statusCache.status((_: RequestHeader) => "pages:globalData", OK, cacheTime) {
     controllerComponents.actionBuilder { implicit request =>
-      import defines.EntityType
+      import models.EntityType
       Ok(
         """
           |var EntityTypes = {

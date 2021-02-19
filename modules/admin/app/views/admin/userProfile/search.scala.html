@@ -3,7 +3,7 @@
 @views.html.admin.layout.adminSearchLayout(Messages("userProfile.search"), result, action) {
     @views.html.admin.search.searchItemList(result)
 } {
-    @common.typeLabel(defines.EntityType.UserProfile) {
+    @common.typeLabel(EntityType.UserProfile) {
     }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {

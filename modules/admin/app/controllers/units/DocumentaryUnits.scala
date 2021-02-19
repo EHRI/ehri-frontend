@@ -3,9 +3,8 @@ package controllers.units
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
 import forms._
-import models._
+import models.{EntityType, _}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages

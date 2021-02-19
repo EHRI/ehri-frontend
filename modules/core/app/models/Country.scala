@@ -2,7 +2,6 @@ package models
 
 import base._
 import models.base.Persistable
-import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.i18n.Messages
 import play.api.libs.json._

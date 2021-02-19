@@ -1,7 +1,7 @@
 package services.search
 
 import akka.actor.ActorRef
-import defines.EntityType
+import models.EntityType
 
 import scala.concurrent.Future
 

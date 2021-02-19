@@ -1,7 +1,6 @@
 package models
 
 import base._
-import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import eu.ehri.project.definitions.Ontology

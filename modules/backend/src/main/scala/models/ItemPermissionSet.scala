@@ -1,7 +1,6 @@
-package acl
+package models
 
 import play.api.libs.json._
-import defines._
 
 
 object ItemPermissionSet {

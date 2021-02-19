@@ -3,7 +3,7 @@ package services.search
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
 import config.serviceBaseUrl
-import defines.EntityType
+import models.EntityType
 import play.api.{Configuration, Logger}
 import services.data.Constants
 

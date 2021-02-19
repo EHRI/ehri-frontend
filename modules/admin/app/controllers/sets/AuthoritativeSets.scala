@@ -3,12 +3,11 @@ package controllers.sets
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType}
 import forms._
 
 import javax.inject._
 import forms.FormConfigBuilder
-import models.{Entity, _}
+import models.{Entity, EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

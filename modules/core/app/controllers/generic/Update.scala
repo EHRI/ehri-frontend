@@ -1,7 +1,6 @@
 package controllers.generic
 
-import defines.{EventType, PermissionType}
-import models.UserProfile
+import models.{EventType, PermissionType, UserProfile}
 import models.base._
 import play.api.data.Form
 import play.api.mvc._

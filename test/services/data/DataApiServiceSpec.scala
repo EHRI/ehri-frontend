@@ -1,9 +1,8 @@
 package services.data
 
 import akka.stream.scaladsl.Source
-import defines.{ContentTypes, EntityType, PermissionType}
 import helpers.IntegrationTestRunner
-import models._
+import models.{EntityType, _}
 import models.base.Model
 import play.api.Configuration
 import play.api.cache.SyncCacheApi

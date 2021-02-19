@@ -1,8 +1,6 @@
 package controllers.generic
 
-import acl.GlobalPermissionSet
-import defines.{ContentTypes, PermissionType}
-import models._
+import models.{ContentTypes, GlobalPermissionSet, _}
 import models.base.Accessor
 import play.api.mvc._
 import services.data.ContentType

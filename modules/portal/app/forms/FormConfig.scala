@@ -1,5 +1,6 @@
 package forms
 
+import models.EntityType
 import play.api.{ConfigLoader, Configuration}
 
 /**
@@ -25,7 +26,7 @@ case class FormConfig(private val config: Option[Configuration], update: Boolean
     config.flatMap(_.getOptional[Boolean](s"$field.required"))
 }
 
-case class FormConfigBuilder(et: defines.EntityType.Value, config: Configuration) {
+case class FormConfigBuilder(et: EntityType.Value, config: Configuration) {
   private val path = s"formConfig.$et"
   def forUpdate: FormConfig = FormConfig(config.getOptional[Configuration](path), update = true)
   def forCreate: FormConfig = FormConfig(config.getOptional[Configuration](path), update = false)
