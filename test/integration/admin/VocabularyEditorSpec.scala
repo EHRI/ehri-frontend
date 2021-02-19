@@ -1,6 +1,7 @@
 package integration.admin
 
 import helpers.IntegrationTestRunner
+import models.EntityType
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest
 
@@ -11,7 +12,7 @@ class VocabularyEditorSpec extends IntegrationTestRunner {
   private val veRoutes = controllers.vocabularies.routes.VocabularyEditor
   private val testConcept = Json.obj(
     "identifier" -> "cvocc3",
-    "isA" -> defines.EntityType.Concept.toString,
+    "isA" -> EntityType.Concept.toString,
     "seeAlso" -> Json.arr(),
     "broaderTerms" -> Json.arr(),
     "descriptions" -> Json.arr(),

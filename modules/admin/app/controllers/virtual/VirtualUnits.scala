@@ -3,10 +3,10 @@ package controllers.virtual
 import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
 import forms._
+
 import javax.inject._
-import models._
+import models.{EntityType, _}
 import models.base.{Description, Model}
 import forms.FormConfigBuilder
 import play.api.data.Form

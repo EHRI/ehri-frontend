@@ -18,13 +18,13 @@
                 </a>
             }
             @userOpt.map { user =>
-                @if(!annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote) && annotation.data.isPromotable) {
+                @if(!annotation.isPromoted && user.hasPermission(ContentTypes.Annotation, PermissionType.Promote) && annotation.data.isPromotable) {
                     <a data-item="@annotation.id" title="@Messages("promotion.promote.title")" class="promote-annotation" href="@controllers.portal.annotate.routes.Annotations.promoteAnnotation(annotation.id, context = models.view.AnnotationContext.Field)">
                         <i class="sr-only">@Messages("promotion.promote")</i>
                         <i class="material-icons" aria-hidden="true">thumb_up</i>
                     </a>
                 } else {
-                    @if(annotation.isPromoted && user.hasPermission(defines.ContentTypes.Annotation, defines.PermissionType.Promote)) {
+                    @if(annotation.isPromoted && user.hasPermission(ContentTypes.Annotation, PermissionType.Promote)) {
                         <a data-item="@annotation.id" title="@Messages("promotion.demote.title")" class="demote-annotation" href="@controllers.portal.annotate.routes.Annotations.demoteAnnotation(annotation.id, context = models.view.AnnotationContext.Field)">
                             <span class="sr-only">@Messages("promotion.demote")</span>
                             <i class="material-icons" aria-hidden="true">thumb_down</i>

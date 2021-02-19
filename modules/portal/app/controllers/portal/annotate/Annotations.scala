@@ -1,15 +1,13 @@
 package controllers.portal.annotate
 
 import javax.inject._
-
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.generic.{Promotion, Read, Search, Visibility}
 import controllers.portal.FacetConfig
 import controllers.portal.base.PortalController
-import defines.{EntityType, PermissionType}
 import models.view.AnnotationContext
-import models.{Annotation, AnnotationF, UserProfile}
+import models.{Annotation, AnnotationF, EntityType, PermissionType, UserProfile}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import services.data.DataHelpers

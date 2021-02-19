@@ -1,4 +1,4 @@
-package defines
+package models
 
 import eu.ehri.project.definitions.Entities
 import play.api.libs.json.Format

@@ -1,4 +1,4 @@
-@(form: Form[(Option[defines.ContentTypes.Value], Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(form: Form[(Option[ContentTypes.Value], Option[String], Boolean)], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -9,7 +9,7 @@
             @formHelpers.csrfToken()
             <div class="form-group"><strong>Choose either:</strong></div>
             @formHelpers.choiceInput(form(""), "type",
-                defines.ContentTypes.values.toList.map(et => et.toString -> et.toString), '_blank -> true)
+                ContentTypes.values.toList.map(et => et.toString -> et.toString), '_blank -> true)
             <div class="form-group"><strong>OR</strong></div>
             @formHelpers.lineInput(form(""), "scope")
 

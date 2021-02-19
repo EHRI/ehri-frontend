@@ -1,10 +1,9 @@
 package integration.admin
 
 import akka.util.ByteString
-import defines.FileStage
 import helpers._
 import models.DataTransformation.TransformationType
-import models._
+import models.{FileStage, _}
 import play.api.http.{ContentTypes, HeaderNames, Writeable}
 import play.api.libs.json.Json
 import play.api.mvc.{Headers, Result}

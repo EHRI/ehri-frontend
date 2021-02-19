@@ -1,8 +1,6 @@
 package models.base
 
-import acl.{GlobalPermissionSet, ItemPermissionSet, Permission}
-import defines.{ContentTypes, EntityType, PermissionType}
-import models._
+import models.{EntityType, _}
 import play.api.libs.json._
 import services.data.{ContentType, Readable}
 

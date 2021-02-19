@@ -1,7 +1,6 @@
 package models
 
 import models.base._
-import defines.{ContentTypes, EntityType}
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._

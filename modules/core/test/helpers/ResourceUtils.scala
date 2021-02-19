@@ -1,6 +1,6 @@
 package helpers
 
-import defines.EntityType
+import models.EntityType
 import play.api.libs.json.{JsValue, Json}
 
 import scala.io.{Codec, Source}

@@ -1,9 +1,8 @@
 package services.search
 
-import defines.EntityType
-
 import scala.annotation.tailrec
 import SearchConstants._
+import models.EntityType
 import play.api.libs.json.JsValue
 import play.twirl.api.HtmlFormat
 

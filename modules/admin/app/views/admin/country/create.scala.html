@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), defines.EntityType.Country) {
+@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")

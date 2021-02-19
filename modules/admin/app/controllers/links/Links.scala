@@ -3,10 +3,10 @@ package controllers.links
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.EntityType
 import forms._
+
 import javax.inject._
-import models.Link
+import models.{EntityType, Link}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, Call, ControllerComponents}
 import services.data.DataHelpers

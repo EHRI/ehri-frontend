@@ -1,6 +1,6 @@
 @(page: utils.Page[VirtualUnit], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.list"), defines.EntityType.VirtualUnit) {
+@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.list"), EntityType.VirtualUnit) {
     @views.html.admin.common.filterableList("pagination.displayingItems", page, params) {
         @itemList(page, Seq.empty)
     }

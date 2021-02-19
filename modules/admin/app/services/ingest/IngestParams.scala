@@ -1,6 +1,6 @@
 package services.ingest
 
-import defines.ContentTypes
+import models.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.Files.TemporaryFile

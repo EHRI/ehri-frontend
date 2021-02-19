@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.create"), defines.EntityType.Vocabulary) {
+@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.create"), EntityType.Vocabulary) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")

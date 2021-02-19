@@ -1,12 +1,11 @@
 package controllers.admin
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
-import defines.EntityType
-import models.base.{Model, Description}
+import models.EntityType
+import models.base.{Description, Model}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

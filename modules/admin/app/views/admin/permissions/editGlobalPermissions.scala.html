@@ -1,4 +1,4 @@
-@(item: models.base.Accessor, perms: acl.GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: models.base.Accessor, perms: GlobalPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -19,17 +19,17 @@
             <table class="table table-bordered permissions-matrix">
                 <tr>
                     <th></th>
-                    @defines.PermissionType.values.toList.map { perm =>
-                        @if(perm != defines.PermissionType.Owner) {
+                    @PermissionType.values.toList.map { perm =>
+                        @if(perm != PermissionType.Owner) {
                             <th>@Messages("permissionTypes." + perm.toString)</th>
                         }
                     }
                 </tr>
-                @defines.ContentTypes.values.filterNot(_ == defines.ContentTypes.SystemEvent).toList.sortBy(_.toString).map { entity =>
+                @ContentTypes.values.filterNot(_ == ContentTypes.SystemEvent).toList.sortBy(_.toString).map { entity =>
                     <tr>
                         <td>@Messages("contentTypes." + entity.toString)</td>
-                        @defines.PermissionType.values.toList.map { perm =>
-                            @if(perm != defines.PermissionType.Owner) {
+                        @PermissionType.values.toList.map { perm =>
+                            @if(perm != PermissionType.Owner) {
                                 <td>
                                 @defining(item.getPermission(perms, entity, perm)) { permOpt =>
                                     <input type="checkbox" name="@entity" value="@perm"

@@ -1,10 +1,9 @@
 package services.ingest
 
 import java.util.UUID
-
 import akka.actor.ActorSystem
-import defines.ContentTypes
 import helpers._
+import models.ContentTypes
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification

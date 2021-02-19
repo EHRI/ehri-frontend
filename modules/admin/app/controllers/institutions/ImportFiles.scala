@@ -9,8 +9,7 @@ import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.FileStage
-import models._
+import models.{FileStage, _}
 import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{Format, Json, Writes}
@@ -196,7 +195,7 @@ case class ImportFiles @Inject()(
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
       val task = IngestParams(
-        scopeType = defines.ContentTypes.Repository,
+        scopeType = models.ContentTypes.Repository,
         scope = id,
         data = UrlMapPayload(urls),
         allowUpdate = request.body.allowUpdates,

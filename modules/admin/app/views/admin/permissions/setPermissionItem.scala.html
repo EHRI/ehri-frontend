@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, accessor: models.base.Accessor, perms: acl.ItemPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: models.base.Accessible, accessor: models.base.Accessor, perms: ItemPermissionSet, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(Messages("permissions.grant.item", item.toStringLang, accessor.toStringLang), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
     @helper.form(action = action) {
@@ -6,12 +6,12 @@
         <fieldset id="permissionItem-area">
             <table class="table table-bordered permissions-matrix">
                 <tr>
-                @defines.PermissionType.values.toList.map { perm =>
+                @PermissionType.values.toList.map { perm =>
                     <th>@Messages("permissionTypes." + perm.toString)</th>
                 }
                 </tr>
                 <tr>
-                @defines.PermissionType.values.toList.map { perm =>
+                @PermissionType.values.toList.map { perm =>
                     <td>
                         @defining(accessor.getPermission(perms, perm)) { permOpt =>
                             <input type="checkbox" name="@item.contentType" value="@perm"

@@ -16,8 +16,8 @@
         }
     }
 } {
-    @views.html.admin.common.promotion(item, controllers.vocabularies.routes.Vocabularies.promote(item.id), controllers.vocabularies.routes.Vocabularies.demote(item.id), defines.ContentTypes.Vocabulary)
-    @views.html.admin.common.visibility(item, controllers.vocabularies.routes.Vocabularies.visibility(item.id), defines.ContentTypes.Vocabulary)
+    @views.html.admin.common.promotion(item, controllers.vocabularies.routes.Vocabularies.promote(item.id), controllers.vocabularies.routes.Vocabularies.demote(item.id), ContentTypes.Vocabulary)
+    @views.html.admin.common.visibility(item, controllers.vocabularies.routes.Vocabularies.visibility(item.id), ContentTypes.Vocabulary)
     @views.html.admin.common.latestAction(item, controllers.vocabularies.routes.Vocabularies.history(item.id))
 
     @views.html.admin.vocabulary.adminActions(item)

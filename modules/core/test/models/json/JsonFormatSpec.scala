@@ -1,8 +1,7 @@
 package models.json
 
-import defines.EntityType
 import helpers.ResourceUtils
-import models._
+import models.{EntityType, _}
 import play.api.libs.json.Json
 import play.api.test.PlaySpecification
 

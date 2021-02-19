@@ -15,7 +15,7 @@ GET         /update-index                       @controllers.admin.Indexing.upda
 GET         /update-index-ws                    @controllers.admin.Indexing.indexer()
 
 # Ingest
-POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: defines.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestService.IngestDataType.Value, fonds: Option[String] ?= None)
+POST        /ingest                             @controllers.admin.Ingest.ingestPost(scopeType: models.ContentTypes.Value, scopeId: String, dataType: services.ingest.IngestService.IngestDataType.Value, fonds: Option[String] ?= None)
 GET         /ingest                             @controllers.admin.Ingest.ingestMonitor(jobId: String)
 
 # Tasks
@@ -42,8 +42,8 @@ GET         /api/*path                          @controllers.admin.Data.forward(
 
 # Get items by id and type/id
 GET         /item/:id                           @controllers.admin.Data.getItem(id: String)
-GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: defines.EntityType.Value, id: String)
-GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemRawJson(entityType: defines.EntityType.Value, id: String)
+GET         /item/:entityType/:id               @controllers.admin.Data.getItemType(entityType: models.EntityType.Value, id: String)
+GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemRawJson(entityType: models.EntityType.Value, id: String)
 
 ->          /users                              users.Routes
 ->          /groups                             groups.Routes

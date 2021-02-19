@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.update"), defines.EntityType.Vocabulary, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.update"), EntityType.Vocabulary, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))

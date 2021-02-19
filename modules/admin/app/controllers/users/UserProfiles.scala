@@ -3,13 +3,11 @@ package controllers.users
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject._
-
 import auth.HashedPassword
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
-import models._
+import models.{EntityType, _}
 import play.api.data.{Form, FormError, Forms}
 import play.api.http.HeaderNames
 import play.api.i18n.Messages

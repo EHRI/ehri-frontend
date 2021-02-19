@@ -1,8 +1,7 @@
 package services.data
 
-import defines.EntityType
 import javax.inject.{Inject, Singleton}
-import models.UsersAndGroups
+import models.{EntityType, UsersAndGroups}
 import play.api.libs.json.JsString
 import services.cypher.{CypherResult, CypherService}
 

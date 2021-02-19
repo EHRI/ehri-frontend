@@ -1,6 +1,5 @@
 package models
 
-import defines.EntityType
 import eu.ehri.project.definitions.Ontology
 import models.base.Description._
 import models.base._

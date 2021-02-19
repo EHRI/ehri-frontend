@@ -1,6 +1,6 @@
 package utils
 
-import defines.{EntityType, EventType}
+import models.{EntityType, EventType}
 import play.api.mvc.QueryStringBindable
 import services.data.Constants._
 import utils.binders._

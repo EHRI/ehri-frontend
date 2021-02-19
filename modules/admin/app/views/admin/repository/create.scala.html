@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("repository.create"), defines.EntityType.Repository, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("repository.create"), EntityType.Repository, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'readonly -> true)

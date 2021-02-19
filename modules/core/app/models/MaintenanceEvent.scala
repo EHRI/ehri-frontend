@@ -1,6 +1,5 @@
 package models
 
-import defines.EntityType
 import models.base.{Model, ModelData, Persistable}
 import models.json._
 import play.api.data.Form

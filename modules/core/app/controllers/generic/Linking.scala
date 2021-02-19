@@ -1,6 +1,5 @@
 package controllers.generic
 
-import defines._
 import models._
 import models.base._
 import play.api.data.Form

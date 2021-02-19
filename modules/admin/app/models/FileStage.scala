@@ -1,4 +1,4 @@
-package defines
+package models
 
 import play.api.libs.json.Format
 import play.api.mvc.PathBindable
@@ -12,5 +12,5 @@ object FileStage extends Enumeration with StorableEnum {
   val Output = Value("output")
 
   implicit val _binder: PathBindable[FileStage.Value] = bindableEnum(FileStage)
-  implicit val _format: Format[FileStage.Value]= EnumUtils.enumFormat(FileStage)
+  implicit val _format: Format[FileStage.Value] = EnumUtils.enumFormat(FileStage)
 }

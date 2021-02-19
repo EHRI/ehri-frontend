@@ -1,9 +1,7 @@
 package controllers.generic
 
-import acl.ItemPermissionSet
-import defines._
 import models.base._
-import models.{PermissionGrant, UserProfile}
+import models.{EntityType, ItemPermissionSet, PermissionGrant, PermissionType, UserProfile}
 import play.api.mvc._
 import services.data.ContentType
 import utils.{Page, PageParams}

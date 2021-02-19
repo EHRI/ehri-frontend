@@ -4,7 +4,6 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{ContentTypes, EntityType}
 import base._
 import play.api.libs.json._
 import models.json._

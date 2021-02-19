@@ -7,8 +7,8 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import controllers.admin.IndexTypes
-import defines.EntityType
 import helpers._
+import models.EntityType
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsString, Json}
 import play.api.test.FakeRequest

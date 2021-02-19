@@ -1,6 +1,6 @@
 @(confirmForm: Form[String], action: Call)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
-@views.html.layout.portalLayout(Messages("profile.delete"), defines.EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(Messages("profile.delete"), EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
         @views.html.common.itemDetails {
             @views.html.common.rightSidebar {

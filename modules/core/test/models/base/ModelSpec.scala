@@ -1,10 +1,9 @@
 package models.base
 
 import play.api.test.PlaySpecification
-import models.{Entity, _}
+import models.{Entity, EntityType, _}
 import eu.ehri.project.definitions.Ontology
 import play.api.libs.json.{JsObject, Json}
-import defines.EntityType
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import Description._
 

@@ -1,7 +1,6 @@
 package controllers.generic
 
-import defines.PermissionType
-import models.{UserProfile, UsersAndGroups}
+import models.{PermissionType, UserProfile, UsersAndGroups}
 import play.api.mvc._
 import services.data.{ContentType, DataHelpers}
 

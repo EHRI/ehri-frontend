@@ -1,9 +1,7 @@
 package models.base
 
 import java.util.NoSuchElementException
-
-import defines.{ContentTypes, EntityType}
-import models._
+import models.{EntityType, _}
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}

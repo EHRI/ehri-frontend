@@ -1,9 +1,9 @@
 package controllers.admin
 
 import javax.inject._
-
 import controllers.AppComponents
 import controllers.base.AdminController
+import models.EntityType
 import models.base.Model
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.ws.WSClient
@@ -35,13 +35,13 @@ case class Data @Inject()(
     }
   }
 
-  def getItemType(entityType: defines.EntityType.Value, id: String) = OptionalUserAction { implicit request =>
+  def getItemType(entityType: EntityType.Value, id: String) = OptionalUserAction { implicit request =>
     views.admin.Helpers.linkToOpt(entityType, id)
       .map(Redirect)
       .getOrElse(NotFound(views.html.errors.itemNotFound()))
   }
 
-  def getItemRawJson(entityType: defines.EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def getItemRawJson(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     userDataApi.query(s"classes/$entityType/$id").map { r =>
       Ok(r.json)
     }

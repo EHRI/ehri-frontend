@@ -1,6 +1,4 @@
-package acl
-
-import defines.PermissionType
+package models
 
 case class Permission(
   permission: PermissionType.Value,

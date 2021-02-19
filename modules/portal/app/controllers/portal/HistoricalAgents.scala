@@ -4,9 +4,9 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController, Related}
-import defines.EntityType
+
 import javax.inject.{Inject, Singleton}
-import models.HistoricalAgent
+import models.{EntityType, HistoricalAgent}
 import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.cypher.CypherService

@@ -6,7 +6,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
-@views.html.layout.portalLayout(Messages("profile"), defines.EntityType.UserProfile.toString, scripts = extraJs) {
+@views.html.layout.portalLayout(Messages("profile"), EntityType.UserProfile.toString, scripts = extraJs) {
     <script>
             // Javascript to enable link to tab
             var hash = location.hash.replace(/^#/, '');

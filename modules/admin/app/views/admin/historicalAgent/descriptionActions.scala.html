@@ -1,7 +1,7 @@
 @(item: models.base.DescribedModel, desc: HistoricalAgentDescriptionF)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @userOpt.map { user =>
-    @if(user.hasPermission(defines.ContentTypes.HistoricalAgent, defines.PermissionType.Update)) {
+    @if(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
         @desc.id.map { did =>
             <div class="description-actions">
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">

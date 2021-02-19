@@ -4,14 +4,13 @@ package models
  * Classes representing an ISDIAH collection-holding institution
  */
 
-import defines.{ContentTypes, EntityType}
 import play.api.libs.json._
 import models.base._
 import models.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
-import java.net.URL
 
+import java.net.URL
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages

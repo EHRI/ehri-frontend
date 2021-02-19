@@ -5,9 +5,8 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
 import forms.{FormConfigBuilder, _}
-import models._
+import models.{EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}

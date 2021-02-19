@@ -1,8 +1,7 @@
 package integration.admin
 
-import defines._
 import helpers._
-import models.{Account, Group, PermissionGrant, UserProfile}
+import models.{Account, ContentTypes, EntityType, Group, PermissionGrant, PermissionType, UserProfile}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.data.ApiUser

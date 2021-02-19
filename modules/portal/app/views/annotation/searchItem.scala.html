@@ -4,7 +4,7 @@
     @views.html.common.searchItemOutlineWithActions(src.id, src.isA.toString, footer = views.html.annotation.listItemFooter(item, highlighter)) {
         @views.html.helpers.linkToWithFragment(src, "#" + item.id)
     } {
-        @views.html.annotation.listActions(item, defines.ContentTypes.Annotation)
+        @views.html.annotation.listActions(item, ContentTypes.Annotation)
     } {
         @views.html.annotation.listItemBody(item, highlighter)
     }
@@ -12,7 +12,7 @@
     @views.html.common.searchItemOutlineWithActions(item.id, item.isA.toString, footer = views.html.annotation.listItemFooter(item, highlighter)) {
         <strong>[No Target]</strong>@views.html.helpers.linkTo(item)
     } {
-        @views.html.annotation.listActions(item, defines.ContentTypes.Annotation)
+        @views.html.annotation.listActions(item, ContentTypes.Annotation)
     } {
         @views.html.annotation.listItemBody(item, highlighter)
     }

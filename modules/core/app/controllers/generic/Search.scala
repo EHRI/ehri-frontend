@@ -1,8 +1,7 @@
 package controllers.generic
 
 import controllers.base.CoreActionBuilders
-import defines.EntityType
-import models.UserProfile
+import models.{EntityType, UserProfile}
 import play.api.Logger
 import play.api.mvc._
 import services.data.{ContentType, Readable, WithId}

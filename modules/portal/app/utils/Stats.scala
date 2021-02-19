@@ -1,6 +1,6 @@
 package utils
 
-import defines.EntityType
+import models.EntityType
 import play.api.libs.json._
 
 case class Stats(

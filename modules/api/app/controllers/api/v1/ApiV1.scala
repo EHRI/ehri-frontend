@@ -7,10 +7,9 @@ import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
-import defines.EntityType
 import config.AppConfig
 import lifecycle.ItemLifecycle
-import models._
+import models.{EntityType, _}
 import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._
 import models.base.Model

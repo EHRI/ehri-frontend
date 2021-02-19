@@ -1,8 +1,7 @@
 package eu.ehri.project.search.solr
 
-import defines.EntityType
 import javax.inject.Inject
-import models.UserProfile
+import models.{EntityType, UserProfile}
 import play.api.i18n.Lang
 import play.api.{Configuration, Logger}
 import services.search.SearchConstants._

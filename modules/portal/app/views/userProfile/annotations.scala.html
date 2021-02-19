@@ -1,6 +1,6 @@
 @(item: UserProfile, annotations: services.search.SearchResult[(Annotation,services.search.SearchHit)], searchAction: Call, followed: Boolean, messagingInfo: view.MessagingInfo)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, defines.EntityType.UserProfile.toString) {
+@views.html.layout.portalLayout(item.toStringLang, EntityType.UserProfile.toString) {
     @views.html.common.mainContent {
         @helper.form(action = searchAction) {
             @views.html.userProfile.itemDetails(item, followed = followed, messagingInfo = messagingInfo) {

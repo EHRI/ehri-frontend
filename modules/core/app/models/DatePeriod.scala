@@ -3,8 +3,6 @@ package models
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.TemporalAccessor
 import java.time.{LocalDate, Year, YearMonth}
-
-import defines.EntityType
 import models.base.ModelData
 import services.data.Writable
 import utils.EnumUtils

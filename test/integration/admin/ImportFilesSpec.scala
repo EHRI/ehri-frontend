@@ -2,9 +2,8 @@ package integration.admin
 
 import akka.util.ByteString
 import controllers.institutions.FileToUpload
-import defines.FileStage
 import helpers._
-import models._
+import models.{FileStage, _}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json

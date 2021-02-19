@@ -7,13 +7,13 @@
         holderIds: [@Html(holderIds.map(id => "\"" + id + "\"").mkString(", "))],
         linkType: "@LinkF.LinkType.Associative",
         typeFilters: {
-            creator: ["@defines.EntityType.HistoricalAgent"],
-            person: ["@defines.EntityType.HistoricalAgent"],
-            family: ["@defines.EntityType.HistoricalAgent"],
-            corporateBody: ["@defines.EntityType.HistoricalAgent"],
-            place: ["@defines.EntityType.Concept"],
-            subject: ["@defines.EntityType.Concept"],
-            genre: ["@defines.EntityType.Concept"]
+            creator: ["@EntityType.HistoricalAgent"],
+            person: ["@EntityType.HistoricalAgent"],
+            family: ["@EntityType.HistoricalAgent"],
+            corporateBody: ["@EntityType.HistoricalAgent"],
+            place: ["@EntityType.Concept"],
+            subject: ["@EntityType.Concept"],
+            genre: ["@EntityType.Concept"]
 
         }
     };

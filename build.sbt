@@ -239,16 +239,8 @@ val webAppSettings = Seq(
   // Classes to auto-import into templates
   templateImports in Compile ++= Seq(
     "models.base._",
-    "acl._",
-    "defines._",
     "config._",
     "cookies._",
-  ),
-
-  // Auto-import EntityType enum into routes
-  routesImport ++= Seq(
-    "defines.EntityType",
-    "utils.binders._"
   ),
 
   // SBT magic: http://stackoverflow.com/a/12772739/285374

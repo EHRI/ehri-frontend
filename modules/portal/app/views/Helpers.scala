@@ -1,10 +1,8 @@
 package views
 
 import java.net.{MalformedURLException, URL}
-
-import defines.{EntityType, PermissionType}
 import models.base.Model
-import models.{Annotation, Entity, UserProfile}
+import models.{Annotation, Entity, EntityType, PermissionType, UserProfile}
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
 import org.jsoup.Jsoup

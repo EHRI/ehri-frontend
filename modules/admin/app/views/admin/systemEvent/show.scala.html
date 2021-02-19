@@ -21,7 +21,7 @@
         @* If it's a deletion event the subject won't be available (because
             it's been deleted. In this case we have to look for data in
             the last connected item version. *@
-        @if(item.data.eventType.contains(defines.EventType.deletion)) {
+        @if(item.data.eventType.contains(models.EventType.deletion)) {
             @item.version.map { version =>
                 @Messages("systemEvent.deletion.itemInfo", version.data.itemType, version.data.itemId, item.childCount.map(_ - 1).getOrElse(0))
                 @version.data.entity.map { entity =>

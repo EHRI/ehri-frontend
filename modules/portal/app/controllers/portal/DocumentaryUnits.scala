@@ -1,12 +1,10 @@
 package controllers.portal
 
 import javax.inject.{Inject, Singleton}
-
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController}
-import defines.EntityType
-import models.DocumentaryUnit
+import models.{DocumentaryUnit, EntityType}
 import models.base.Model
 import play.api.mvc.{Action, AnyContent, ControllerComponents, RequestHeader}
 import services.cypher.CypherService

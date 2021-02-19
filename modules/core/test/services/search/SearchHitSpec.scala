@@ -1,7 +1,7 @@
 package services.search
 
+import models.EntityType
 import play.api.test.PlaySpecification
-import defines.EntityType
 import play.api.libs.json.JsString
 
 class SearchHitSpec extends PlaySpecification {

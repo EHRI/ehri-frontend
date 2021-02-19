@@ -1,7 +1,8 @@
 package services.data
 
-import defines.EntityType
 import eu.ehri.project.definitions.Ontology
+import models.EntityType
+
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import services.cypher.CypherService

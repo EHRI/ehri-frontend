@@ -3,7 +3,7 @@
 @views.html.admin.layout.adminSearchLayout(Messages("link.search"), result, action) {
     @views.html.admin.search.searchItemList(result)
 } {
-    @common.typeLabel(defines.EntityType.Link) {
+    @common.typeLabel(EntityType.Link) {
     }
     @common.search.facetList(result.facetClasses, action)
 }

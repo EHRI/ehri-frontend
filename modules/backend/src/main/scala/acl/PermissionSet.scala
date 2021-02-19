@@ -1,3 +1,0 @@
-package acl
-
-trait PermissionSet

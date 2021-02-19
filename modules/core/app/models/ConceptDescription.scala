@@ -1,6 +1,5 @@
 package models
 
-import defines.EntityType
 import models.base._
 import models.json._
 import play.api.libs.functional.syntax._

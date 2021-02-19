@@ -1,8 +1,7 @@
 package controllers.generic
 
 import controllers.base.CoreActionBuilders
-import defines.{ContentTypes, PermissionType}
-import models._
+import models.{ContentTypes, _}
 import play.api.Logger
 import play.api.mvc.{Result, _}
 import services.data.{ContentType, ItemNotFound, Resource}

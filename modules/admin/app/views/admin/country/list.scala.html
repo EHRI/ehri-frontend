@@ -1,6 +1,6 @@
 @(page: utils.Page[Country], params: utils.PageParams)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("country.list"), defines.EntityType.Country) {
+@views.html.admin.layout.rightSidebarWithType(Messages("country.list"), EntityType.Country) {
 
 	<h3>@Messages("pagination.displayingItems", page.offset + 1, page.offset + page.items.size, page.total)</h3>
 

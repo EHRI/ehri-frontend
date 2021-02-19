@@ -1,6 +1,6 @@
 package lifecycle
 
-import defines.EventType
+import models.EventType
 import models.base.Model
 
 import scala.concurrent.{ExecutionContext, Future}

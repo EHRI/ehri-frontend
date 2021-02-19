@@ -1,7 +1,6 @@
 package controllers.institutions
 
 import java.util.UUID
-
 import actors.harvesting.ResourceSyncHarvesterManager.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.{ResourceSyncHarvester, ResourceSyncHarvesterManager}
 import akka.actor.Props
@@ -9,9 +8,9 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.FileStage
+
 import javax.inject._
-import models._
+import models.{FileStage, _}
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json

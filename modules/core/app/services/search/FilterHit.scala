@@ -1,6 +1,6 @@
 package services.search
 
-import defines.EntityType
+import models.EntityType
 import play.api.libs.json.{Format, Json}
 
 /**

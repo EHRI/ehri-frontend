@@ -1,6 +1,6 @@
 package services.ingest
 import akka.actor.ActorRef
-import defines.ContentTypes
+import models.ContentTypes
 
 import scala.concurrent.Future
 

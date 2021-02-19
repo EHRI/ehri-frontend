@@ -4,9 +4,8 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import defines.{ContentTypes, EntityType, PermissionType}
 import forms._
-import models._
+import models.{EntityType, _}
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.i18n.Messages

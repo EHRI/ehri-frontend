@@ -3,7 +3,7 @@
 @views.html.admin.layout.adminSearchLayout(Messages("group.search"), result, action) {
     @views.html.admin.search.searchItemList(result)
 } {
-    @common.typeLabel(defines.EntityType.Group) {
+    @common.typeLabel(EntityType.Group) {
     }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {

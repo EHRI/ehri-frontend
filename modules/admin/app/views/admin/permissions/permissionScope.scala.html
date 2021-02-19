@@ -1,4 +1,4 @@
-@(item: models.base.Accessible, usersAndGroups: UsersAndGroups, action: (String, defines.EntityType.Value,String) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+@(item: models.base.Accessible, usersAndGroups: UsersAndGroups, action: (String, EntityType.Value,String) => Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -13,7 +13,7 @@
         <ul>
         @usersAndGroups.groups.map { case (id, name) =>
         <li>
-            <a href="@action(item.id, defines.EntityType.Group, id)">@name</a>
+            <a href="@action(item.id, EntityType.Group, id)">@name</a>
         </li>
         }
         </ul>
@@ -25,7 +25,7 @@
         <ul>
         @usersAndGroups.users.map { case (id, name) =>
         <li>
-            <a href="@action(item.id, defines.EntityType.UserProfile, id)">@name</a>
+            <a href="@action(item.id, EntityType.UserProfile, id)">@name</a>
         </li>
         }
         </ul>

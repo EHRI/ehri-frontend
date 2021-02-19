@@ -1,8 +1,7 @@
 package services.search
 
-import defines.EntityType
 import javax.inject.Inject
-import models._
+import models.{EntityType, _}
 import models.base.{DescribedModel, Model}
 import play.api.i18n.{Lang, LangImplicits}
 import play.api.libs.json.JsString

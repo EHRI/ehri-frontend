@@ -1,7 +1,7 @@
 package integration.api.v1
 
-import defines.EntityType
 import helpers.IntegrationTestRunner
+import models.EntityType
 import models.api.v1.JsonApiV1
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader

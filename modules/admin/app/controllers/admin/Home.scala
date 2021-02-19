@@ -3,9 +3,8 @@ package controllers.admin
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Search
-import defines.{EntityType, EventType}
 import models.base.{Description, Model}
-import models.{Isaar, SystemEvent}
+import models.{EntityType, EventType, Isaar, SystemEvent}
 import play.api.http.MimeTypes
 import play.api.i18n.Messages
 import play.api.libs.json.Json

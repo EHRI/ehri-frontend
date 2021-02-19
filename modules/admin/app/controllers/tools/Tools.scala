@@ -1,16 +1,15 @@
 package controllers.tools
 
 import java.nio.charset.StandardCharsets
-
 import akka.stream.Materializer
 import akka.stream.alpakka.csv.scaladsl.CsvParsing
 import akka.stream.scaladsl.{FileIO, Flow, Sink, Source}
 import akka.util.ByteString
 import controllers.base.AdminController
 import controllers.{AppComponents, Execution}
-import defines.ContentTypes
+
 import javax.inject.{Inject, Singleton}
-import models.BatchDeleteTask
+import models.{BatchDeleteTask, ContentTypes}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -231,7 +230,7 @@ case class Tools @Inject()(
     )
   )
 
-  def regenerateIdsForType(ct: defines.ContentTypes.Value, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
+  def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
     if (isAjax) {
       userDataApi.regenerateIdsForType(ct, tolerant).map { items =>
         Ok(views.html.admin.tools.regenerateIdsForm(regenerateIdsForm
