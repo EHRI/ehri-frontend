@@ -31,12 +31,17 @@ case class SolrSearchEngine @Inject()(
 
   private def solrSelectUrl = solrPath + "/select"
 
+  private def paramsToForm(seq: Seq[(String, String)]): Map[String, Seq[String]] =
+    seq.foldLeft(Map.empty[String,Seq[String]]) { case (m, (key, vals)) =>
+      m.updated(key, vals +: m.getOrElse(key, Seq.empty))
+    }
+
   private def fullSearchUrl(query: Seq[(String, String)]) =
-    utils.http.joinPath(solrSelectUrl, utils.http.paramsToForm(query))
+    utils.http.joinPath(solrSelectUrl, paramsToForm(query))
 
   private def dispatch(query: Seq[(String, String)]): Future[WSResponse] = {
     ws.url(solrSelectUrl)
-      .post(utils.http.paramsToForm(query))
+      .post(paramsToForm(query))
       .recover {
         case e: ConnectException => throw SearchEngineOffline(solrSelectUrl, e)
       }

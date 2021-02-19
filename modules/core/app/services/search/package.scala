@@ -26,7 +26,7 @@ package object search {
   def pathWithoutFacets(fcs: Seq[FacetClass[_]], path: String, qs: Map[String, Seq[String]]): String = {
     val params = fcs.map(_.param)
     utils.http.joinPath(path, qs.collect {
-      case (q, vals) if !params.contains(q) => q -> vals
+      case (q, values) if !params.contains(q) => q -> values
     })
   }
 
@@ -42,9 +42,9 @@ package object search {
   def pathWithoutFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, qs.collect {
       // Specific facets
-      case (q, vals) if q == fc.param => q -> vals.filter(_ != f)
+      case (q, values) if q == fc.param => q -> values.filter(_ != f)
       // Generic facets
-      case (k, vals) if k == SearchParams.FACET => k -> vals.filter(_ != s"${fc.param}:$f")
+      case (k, values) if k == SearchParams.FACET => k -> values.filter(_ != s"${fc.param}:$f")
       case pair => pair
     })
 
@@ -60,7 +60,7 @@ package object search {
   def pathWithFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, if (qs.contains(fc.param)) {
       qs.collect {
-        case (q, vals) if q == fc.param => q -> vals.union(Seq(f)).distinct.sorted
+        case (q, values) if q == fc.param => q -> values.union(Seq(f)).distinct.sorted
         case pair => pair
       }
     } else qs.updated(fc.param, Seq(f)))
@@ -77,7 +77,7 @@ package object search {
   def pathWithGenericFacet(fc: FacetClass[_], f: String, path: String, qs: Map[String, Seq[String]]): String =
     utils.http.joinPath(path, if (qs.contains(SearchParams.FACET)) {
       qs.collect {
-        case (k, vals) if k == SearchParams.FACET => k -> vals.union(Seq(s"${fc.param}:$f")).distinct.sorted
+        case (k, values) if k == SearchParams.FACET => k -> values.union(Seq(s"${fc.param}:$f")).distinct.sorted
         case pair => pair
       }
     } else qs.updated(SearchParams.FACET, Seq(s"${fc.param}:$f")))
