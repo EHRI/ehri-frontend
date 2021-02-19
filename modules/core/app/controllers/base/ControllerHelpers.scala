@@ -16,5 +16,7 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
   /**
     * Check if a request is Ajax.
     */
-  protected def isAjax(implicit request: RequestHeader): Boolean = utils.http.isAjax
+  protected def isAjax(implicit request: RequestHeader): Boolean =
+    request.headers.get("X-REQUESTED-WITH").exists(_.toUpperCase == "XMLHTTPREQUEST")
+
 }
