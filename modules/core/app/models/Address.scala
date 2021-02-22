@@ -2,7 +2,6 @@ package models
 
 import models.json._
 import play.api.libs.json._
-import services.data.Writable
 
 
 object AddressF {

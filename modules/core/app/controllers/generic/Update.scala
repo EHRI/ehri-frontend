@@ -1,9 +1,9 @@
 package controllers.generic
 
-import models.{EventType, Model, ModelData, PermissionType, Persistable, UserProfile}
+import models.{ContentType, EventType, Model, ModelData, PermissionType, Persistable, UserProfile, Writable}
 import play.api.data.Form
 import play.api.mvc._
-import services.data.{ContentType, ValidationError, Writable}
+import services.data.ValidationError
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

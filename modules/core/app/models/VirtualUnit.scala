@@ -8,7 +8,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import services.data.{Constants, ContentType, Writable}
+import services.data.Constants
 
 
 object VirtualUnitF {

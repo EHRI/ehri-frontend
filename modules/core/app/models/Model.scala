@@ -3,7 +3,6 @@ package models
 import org.apache.commons.lang3.StringUtils
 import play.api.i18n.Messages
 import play.api.libs.json.{KeyPathNode, _}
-import services.data.{Readable, Resource, WithId}
 import utils.EnumUtils
 
 import java.util.NoSuchElementException

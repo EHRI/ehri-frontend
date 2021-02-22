@@ -1,7 +1,6 @@
 package models
 
 import play.api.libs.json._
-import services.data.{ContentType, Readable}
 
 
 object Accessor {

@@ -1,4 +1,4 @@
-package services.data
+package models
 
 trait WithId {
   def id: String

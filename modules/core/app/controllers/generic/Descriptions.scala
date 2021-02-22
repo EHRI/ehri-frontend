@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.{Described, DescribedModel, Description, ModelData, PermissionType, Persistable, UserProfile}
+import models.{ContentType, Described, DescribedModel, Description, ModelData, PermissionType, Persistable, UserProfile}
 import play.api.mvc._
-import services.data.ContentType
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

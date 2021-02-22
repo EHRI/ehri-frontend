@@ -1,7 +1,7 @@
 package services.data
 
 import akka.stream.scaladsl.Source
-import models.{ContentTypes, EntityType, GlobalPermissionSet, ItemPermissionSet}
+import models.{ContentTypes, EntityType, GlobalPermissionSet, ItemPermissionSet, Readable, Resource, WithId, Writable}
 import play.api.libs.json.{JsObject, JsValue}
 import play.api.libs.ws.WSResponse
 import play.api.mvc.Headers

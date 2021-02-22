@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.{Accessor, ContentTypes, GlobalPermissionSet, _}
+import models.{Accessor, ContentType, ContentTypes, GlobalPermissionSet, _}
 import play.api.mvc._
-import services.data.ContentType
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future

@@ -3,7 +3,6 @@ package models
 import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import services.data.Readable
 
 case class DataContentTypeF(
   id: Option[String],

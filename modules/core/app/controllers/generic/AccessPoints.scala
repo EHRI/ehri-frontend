@@ -1,9 +1,8 @@
 package controllers.generic
 
-import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF}
+import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF, Resource}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import services.data.Resource
 
 
 trait AccessPoints[MT <: DescribedModel] extends Read[MT] {

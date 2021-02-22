@@ -3,11 +3,10 @@ package controllers.portal.base
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import controllers.generic.Read
-import models.{Annotation, UserProfile}
+import models.{Annotation, ContentType, UserProfile}
 import play.api.libs.json.JsString
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.ContentType
 import utils.Page
 
 import scala.concurrent.Future

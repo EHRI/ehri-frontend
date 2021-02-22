@@ -8,7 +8,6 @@ import play.api.data.Forms._
 import forms._
 import eu.ehri.project.definitions.Ontology
 import Description._
-import services.data.Writable
 
 
 object ConceptDescriptionF {

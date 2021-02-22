@@ -1,10 +1,9 @@
 package controllers.generic
 
-import models._
+import models.{ContentType, _}
 import play.api.data.Form
 import play.api.libs.json._
 import play.api.mvc._
-import services.data.ContentType
 import utils.{EnumUtils, PageParams}
 import services.search.{SearchHit, _}
 

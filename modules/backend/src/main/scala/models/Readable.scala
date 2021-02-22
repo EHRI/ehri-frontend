@@ -1,4 +1,4 @@
-package services.data
+package models
 
 import play.api.libs.json.Reads
 
