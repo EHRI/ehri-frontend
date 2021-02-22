@@ -1,7 +1,9 @@
 package services.search
 
+import models.Readable
+
 import scala.concurrent.Future
-import services.data.{ApiUser, Readable}
+import services.data.ApiUser
 
 /**
  * Component responsible for resolving items from the

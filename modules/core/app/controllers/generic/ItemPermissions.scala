@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.{Accessor, EntityType, ItemPermissionSet, PermissionGrant, PermissionType, UserProfile}
+import models.{Accessor, ContentType, EntityType, ItemPermissionSet, PermissionGrant, PermissionType, UserProfile}
 import play.api.mvc._
-import services.data.ContentType
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future

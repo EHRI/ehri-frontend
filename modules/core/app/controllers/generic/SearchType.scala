@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.UserProfile
+import models.{ContentType, UserProfile}
 import play.api.mvc._
-import services.data.ContentType
 import utils.PageParams
 import services.search._
 

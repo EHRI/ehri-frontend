@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.{PermissionType, UserProfile}
+import models.{ContentType, PermissionType, UserProfile}
 import play.api.mvc._
-import services.data.ContentType
 
 import scala.concurrent.Future
 

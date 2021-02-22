@@ -1,9 +1,8 @@
 package controllers.portal.base
 
 import controllers.generic.Read
-import models.{Annotation, Link, UserProfile}
+import models.{Annotation, ContentType, Link, UserProfile}
 import play.api.mvc._
-import services.data.ContentType
 import utils.Page
 
 import scala.concurrent.Future

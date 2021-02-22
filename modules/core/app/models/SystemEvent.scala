@@ -7,7 +7,6 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import services.data.{ContentType, Readable}
 
 object SystemEventF {
 

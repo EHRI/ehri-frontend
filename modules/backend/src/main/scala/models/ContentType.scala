@@ -1,6 +1,4 @@
-package services.data
-
-import models.ContentTypes
+package models
 
 import scala.annotation.implicitNotFound
 

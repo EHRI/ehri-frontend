@@ -8,7 +8,6 @@ import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
-import services.data.{ContentType, Writable}
 
 
 object AuthoritativeSetF {

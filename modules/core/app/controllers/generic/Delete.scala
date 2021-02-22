@@ -1,8 +1,7 @@
 package controllers.generic
 
-import models.{EventType, Model, PermissionType}
+import models.{ContentType, EventType, Model, PermissionType}
 import play.api.mvc._
-import services.data.ContentType
 
 import scala.concurrent.Future
 

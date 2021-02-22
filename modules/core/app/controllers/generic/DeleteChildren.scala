@@ -1,9 +1,9 @@
 package controllers.generic
 
-import models.{DeleteChildrenOptions, Holder, Model, PermissionType, UserProfile}
+import models.{ContentType, DeleteChildrenOptions, Holder, Model, PermissionType, Readable, UserProfile}
 import play.api.data.Form
 import play.api.mvc._
-import services.data.{ContentType, HierarchyError, Readable}
+import services.data.HierarchyError
 import utils.{Page, PageParams}
 
 import scala.concurrent.Future

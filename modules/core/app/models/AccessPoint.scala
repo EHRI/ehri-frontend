@@ -7,7 +7,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.JsObject
 import play.api.i18n.Messages
-import services.data.{Readable, Writable}
 import utils.EnumUtils
 
 

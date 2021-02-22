@@ -4,7 +4,7 @@ import controllers.base.CoreActionBuilders
 import models.{ContentTypes, _}
 import play.api.Logger
 import play.api.mvc.{Result, _}
-import services.data.{ContentType, ItemNotFound, Resource}
+import services.data.ItemNotFound
 import utils.{Page, PageParams, RangePage, RangeParams}
 
 import scala.concurrent.Future
