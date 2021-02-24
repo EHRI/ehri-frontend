@@ -1,17 +1,14 @@
 package controllers.api.v1
 
-import java.util.concurrent.TimeUnit
-import javax.inject.{Inject, Singleton}
 import auth.handler.AuthHandler
-import services.cypher.CypherService
+import config.AppConfig
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
-import config.AppConfig
 import lifecycle.ItemLifecycle
-import models.{EntityType, Model, _}
 import models.api.v1.ApiEntity
 import models.api.v1.JsonApiV1._
+import models.{EntityType, Model, _}
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
@@ -21,15 +18,17 @@ import play.api.mvc._
 import play.api.{Configuration, Logger}
 import services.RateLimitChecker
 import services.accounts.AccountManager
+import services.cypher.CypherService
 import services.data._
-import utils.{FieldFilter, Page, PageParams}
 import services.search.SearchConstants._
 import services.search._
+import utils.{FieldFilter, Page, PageParams}
 import views.Helpers
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 
 object ApiV1 {
@@ -78,7 +77,7 @@ case class ApiV1 @Inject()(
 
   private val hitsPerSecond = 1000
   // basically, no limit at the moment
-  private val rateLimitTimeoutDuration: FiniteDuration = Duration(1, TimeUnit.SECONDS)
+  private val rateLimitTimeoutDuration: FiniteDuration = 1.second
 
   // Available facets, currently just language
   private val apiSearchFacets: FacetBuilder = { implicit request =>

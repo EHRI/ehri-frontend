@@ -29,7 +29,7 @@ import services.data.{AnonymousUser, AuthenticatedUser}
 import services.oauth2.OAuth2Service
 
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -55,12 +55,15 @@ case class Accounts @Inject()(
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
   private val rateLimitHitsPerSec: Int = config.get[Int]("ehri.ratelimit.limit")
-  private val rateLimitTimeoutSecs: Int = config.get[Int]("ehri.ratelimit.timeout")
-  private val rateLimitDuration: FiniteDuration = Duration(rateLimitTimeoutSecs, TimeUnit.SECONDS)
+  private val rateLimitDuration: FiniteDuration = config.get[FiniteDuration]("ehri.ratelimit.timeout")
 
-  private def rateLimitError(implicit r: RequestHeader) = Messages("error.rateLimit", rateLimitTimeoutSecs / 60)
+  private def rateLimitError(implicit r: RequestHeader) = Messages("error.rateLimit", rateLimitDuration.toMinutes)
 
   private val recaptchaKey = config.getOptional[String]("recaptcha.key.public").getOrElse("fakekey")
+
+  // The max time an OAuth2 flow can be in progress before it times out. The user will
+  // then have to begin the flow anew.
+  private val oauth2SessionTimeout = config.get[Duration]("ehri.oauth2.sessionExpiration")
 
 
   private val openIDAttributes = Seq(
@@ -380,7 +383,7 @@ case class Accounts @Inject()(
           // with a code parameter, initiating the second phase.
           case None =>
             val state = UUID.randomUUID().toString
-            cache.set(sessionId, state, Duration(30 * 60, TimeUnit.SECONDS))
+            cache.set(sessionId, state, oauth2SessionTimeout)
             val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
             logger.debug(s"OAuth2 redirect URL: $redirectUrl")
             immediate(Redirect(redirectUrl).addingToSession(sessionKey -> sessionId))

@@ -1,7 +1,5 @@
 package controllers.institutions
 
-import java.util.UUID
-import java.util.concurrent.CompletionException
 import actors.transformation.XmlConverterManager.{XmlConvertData, XmlConvertJob}
 import actors.transformation.{XmlConverter, XmlConverterManager}
 import akka.actor.Props
@@ -10,8 +8,6 @@ import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-
-import javax.inject._
 import models.{FileStage, _}
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
@@ -20,8 +16,12 @@ import play.api.mvc._
 import services.storage.FileStorage
 import services.transformation._
 
+import java.util.UUID
+import java.util.concurrent.CompletionException
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.Duration
 
 
 @Singleton
@@ -35,6 +35,7 @@ case class DataTransformations @Inject()(
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
   private val logger: Logger = Logger(classOf[DataTransformations])
+  private val cacheTime: Duration = appComponents.config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
 
 
   def getConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
@@ -111,7 +112,7 @@ case class DataTransformations @Inject()(
         case Some((meta, _)) =>
           val outF = meta.eTag match {
             // If we have an eTag for the file contents, cache the transformation against it
-            case Some(tag) => transformCache.getOrElseUpdate(digest(tag, m))(downloadAndConvertFile(path, m))
+            case Some(tag) => transformCache.getOrElseUpdate(digest(tag, m), cacheTime)(downloadAndConvertFile(path, m))
             // Otherwise, no caching at this stage.
             case None =>
               logger.error(s"No eTag found when converting file: $path")

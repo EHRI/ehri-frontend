@@ -17,10 +17,9 @@ import utils._
 import views.html.errors.pageNotFound
 
 import java.util.IllformedLocaleException
-import java.util.concurrent.TimeUnit
 import javax.inject._
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationInt}
 
 
 @Singleton
@@ -158,7 +157,7 @@ case class Portal @Inject()(
     Ok(views.html.contact())
   }
 
-  def externalFeed(key: String): EssentialAction = statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60 * 60) {
+  def externalFeed(key: String): EssentialAction = statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60.minutes) {
     Action.async { implicit request =>
       futurePageOr404 {
         config.getOptional[String](s"ehri.portal.externalFeed.$key.rss").map { url =>
@@ -184,7 +183,7 @@ case class Portal @Inject()(
   }
 
   private def getStats(implicit request: RequestHeader): Future[Stats] =
-    asyncCache.getOrElseUpdate("index:metrics", Duration(5, TimeUnit.MINUTES)) {
+    asyncCache.getOrElseUpdate("index:metrics", 10.minutes) {
       // Assume no user for fetching global stats
       implicit val userOpt: Option[UserProfile] = None
       find[Model](
