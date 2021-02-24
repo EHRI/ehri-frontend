@@ -2,7 +2,6 @@ package controllers.portal.account
 
 import java.net.ConnectException
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Config, UserData}
 import auth.{AuthenticationError, HashedPassword}
@@ -29,7 +28,7 @@ import services.data.{AnonymousUser, AuthenticatedUser}
 import services.oauth2.OAuth2Service
 
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
 
 
