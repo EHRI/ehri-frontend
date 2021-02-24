@@ -19,7 +19,7 @@ import views.html.errors.pageNotFound
 import java.util.IllformedLocaleException
 import javax.inject._
 import scala.concurrent.Future
-import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.duration.DurationInt
 
 
 @Singleton

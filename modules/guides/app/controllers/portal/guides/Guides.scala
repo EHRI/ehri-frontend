@@ -322,7 +322,7 @@ case class Guides @Inject()(
     import SearchConstants._
     vcDescendantIds(item).map { seq =>
       if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-      else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> ())
+      else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
     }
   }
 
@@ -423,7 +423,7 @@ case class Guides @Inject()(
         for {
           ids <- searchFacets(guide, facets)
           result <- if (ids.nonEmpty) findType[DocumentaryUnit](params, paging,
-            filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> ()),
+            filters = Map(s"gid:(${ids.take(1024).mkString(" ")})" -> Unit),
             sort = SearchSort.Name
           ) else immediate(SearchResult.empty)
           selectedAccessPoints <- userDataApi.fetch[Model](facets)
