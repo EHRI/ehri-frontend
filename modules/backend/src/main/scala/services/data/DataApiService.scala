@@ -76,7 +76,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
     userCall(url).head().flatMap { check =>
       if (check.status == Status.OK) {
         // Fetch the JSON object from the cache
-        val jsonF = cache.getOrElseUpdate(itemCacheKey(id)) {
+        val jsonF = cache.getOrElseUpdate(itemCacheKey(id), cacheTime) {
           // Or else fetch it from the backend...
           userCall(url, resource.defaultParams).get().map(_.json)
         }
@@ -547,7 +547,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def isFollowing(userId: String, otherId: String): Future[Boolean] = {
     val url = isFollowingUrl(userId, otherId)
-    cache.getOrElseUpdate(url) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -603,7 +603,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def isWatching(userId: String, otherId: String): Future[Boolean] = {
     val url = isWatchingUrl(userId, otherId)
-    cache.getOrElseUpdate(url) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }
@@ -639,7 +639,7 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
 
   override def isBlocking(userId: String, otherId: String): Future[Boolean] = {
     val url = isBlockingUrl(userId, otherId)
-    cache.getOrElseUpdate(url) {
+    cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get().map { r =>
         checkErrorAndParse[Boolean](r)
       }

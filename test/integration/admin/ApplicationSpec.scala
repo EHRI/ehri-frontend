@@ -240,8 +240,8 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
 
 
 
-    "rate limit repeated requests with a timeout" in new ITestApp(Map("ehri.ratelimit.limit" -> 2,
-      "ehri.ratelimit.timeout" -> 1)) {
+    "rate limit repeated requests with a timeout" in new ITestApp(
+        Map("ehri.ratelimit.limit" -> 2, "ehri.ratelimit.timeout" -> "1 second")) {
       val data = Map(
         SignupData.EMAIL -> Seq("test@nothing.com"),
         SignupData.PASSWORD -> Seq("blah"),
