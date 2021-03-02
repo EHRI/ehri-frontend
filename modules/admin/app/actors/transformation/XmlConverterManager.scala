@@ -1,13 +1,13 @@
 package actors.transformation
 
 import java.time.Instant
-
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.stream.Materializer
 import models.{DataTransformation, UserProfile}
+import play.api.i18n.Messages
 import services.harvesting.HarvestEventHandle
 import services.storage.FileStorage
 import services.transformation.XmlTransformer
@@ -27,6 +27,8 @@ object XmlConverterManager {
     * @param outPrefix    the replacement output path prefix
     * @param only         a single key to convert. If not given the whole
     *                     classifier will be converted.
+    * @param force        run conversion even if a matching file already
+    *                     exists
     */
   case class XmlConvertData(
     transformers: Seq[(DataTransformation.TransformationType.Value, String)],
@@ -34,6 +36,7 @@ object XmlConverterManager {
     outPrefix: String,
     from: Option[Instant] = None,
     only: Option[String] = None,
+    force: Boolean = false,
   )
 
   /**
@@ -49,7 +52,7 @@ object XmlConverterManager {
 }
 
 case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
-  implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
+  implicit userOpt: Option[UserProfile], messages: Messages, mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
@@ -92,14 +95,14 @@ case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, 
       context.become(running(runner, subs - chan, handle))
 
     case Counting =>
-      msg(s"Counting files...", subs)
+      msg(Messages("conversion.counting"), subs)
 
     case Counted(total) =>
-      msg(s"Total of $total file(s)", subs)
+      msg(Messages("conversion.counted", total), subs)
 
     // Confirmation the runner has started
     case Starting =>
-      msg(s"Starting convert with job id: ${job.jobId}", subs)
+      msg(Messages("conversion.starting", job.jobId), subs)
 
     // Cancel conversion... here we tell the runner to exit
     // and shut down on its termination signal...
@@ -110,27 +113,25 @@ case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, 
       msg(id, subs)
 
     case Resuming(from) =>
-      msg(s"Resuming from marker: $from", subs)
+      log.debug(s"Resuming from marker: $from")
 
     // Received confirmation that the runner has shut down
-    case Cancelled(count, secs) =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after $count file(s) in $secs seconds", subs)
+    case Cancelled(count, fresh, secs) =>
+      msg(Messages("conversion.cancelled", WebsocketConstants.ERR_MESSAGE, count, secs), subs)
       context.stop(self)
 
     // The runner has completed, so we log the
     // event and shut down too
-    case Completed(count, secs) =>
-      msg(s"${WebsocketConstants.DONE_MESSAGE}: " +
-        s"converted $count file(s) in $secs seconds", subs)
+    case Completed(count, fresh, secs) =>
+      msg(Messages("conversion.completed", WebsocketConstants.DONE_MESSAGE, count, fresh, secs), subs)
       context.stop(self)
 
     // The runner has thrown a conversion error. Log the event but do not shut down...
-    case Error(id, e) =>
-      msg(s"$id: conversion error: ${e.getMessage}", subs)
+    case Error(id, e) => msg(Messages("conversion.error", id, e.getMessage), subs)
 
     // We've encountered an expected error...
     case e: Throwable =>
-      msg(s"${WebsocketConstants.ERR_MESSAGE}: unexpected error in file conversion ${e.getMessage}", subs)
+      msg(Messages("conversion.unrecoverableError", WebsocketConstants.ERR_MESSAGE, e.getMessage), subs)
       context.stop(self)
 
     case m =>

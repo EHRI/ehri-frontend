@@ -1,9 +1,11 @@
 package actors.harvesting
 
+import actors.harvesting.OaiPmhHarvesterManager.Finalise
 import actors.harvesting.ResourceSyncHarvesterManager.{Finalise, ResourceSyncJob}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{ResourceSyncConfig, UserProfile}
+import play.api.i18n.Messages
 import services.harvesting.{HarvestEventHandle, HarvestEventService, ResourceSyncClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
@@ -36,7 +38,7 @@ object ResourceSyncHarvesterManager {
 
 
 case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSyncClient, storage: FileStorage, eventLog: HarvestEventService)(
-  implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+  implicit userOpt: Option[UserProfile], messages: Messages, ec: ExecutionContext) extends Actor with ActorLogging {
 
   import ResourceSyncHarvester._
   import akka.pattern.pipe
@@ -83,10 +85,10 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSy
 
     // Confirmation the runner has started
     case Starting =>
-      msg(s"Starting harvest with job id: ${job.jobId}", subs)
+      msg(Messages("harvesting.starting", job.jobId), subs)
 
     case ToDo(num) =>
-      msg(s"Syncing $num file(s)", subs)
+      msg(Messages("harvesting.syncingFiles", num), subs)
 
     // Cancel harvest.. here we tell the runner to exit
     // and shut down on its termination signal...
@@ -105,30 +107,42 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSy
       context.become(running(runner, subs, Some(handle)))
 
     // Received confirmation that the runner has shut down
-    case Cancelled(count, secs) =>
-      runAndThen(handle, _.cancel())(
-          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: " +
-            s"cancelled after $count file(s) in $secs seconds"))
-        .pipeTo(self)
+    case Cancelled(count, _, secs) =>
+      runAndThen(handle, _.cancel())(Finalise(Messages(
+        "harvesting.cancelled",
+        WebsocketConstants.ERR_MESSAGE,
+        count,
+        secs
+      ))).pipeTo(self)
 
     // The runner has completed, so we log the
     // event and shut down too
-    case Completed(count, secs) =>
-      runAndThen(handle, _.close())(
-        Finalise(s"${WebsocketConstants.DONE_MESSAGE}: " +
-          s"harvested $count file(s) in $secs seconds")
-      ).pipeTo(self)
+    case Completed(count, fresh, secs) =>
+      runAndThen(handle, _.close())(Finalise(Messages(
+        "harvesting.completed",
+          WebsocketConstants.DONE_MESSAGE,
+          count,
+          fresh,
+          secs
+        ))).pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      runAndThen(handle, _.error(e))(
-          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: sync error: ${e.getMessage}"))
-        .pipeTo(self)
+      runAndThen(handle, _.error(e))(Finalise(
+        Messages(
+          "harvesting.error",
+          WebsocketConstants.ERR_MESSAGE,
+          e.getMessage
+        ))).pipeTo(self)
 
     case Finalise(s) =>
       msg(s, subs)
       context.stop(self)
+
+    case e: Throwable =>
+      e.printStackTrace()
+      self ! Error(e)
 
     case m =>
       log.error(s"Unexpected message: $m")

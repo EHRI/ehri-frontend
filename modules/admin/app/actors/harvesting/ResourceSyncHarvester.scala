@@ -1,10 +1,10 @@
 package actors.harvesting
 
 import java.time.{Duration, LocalDateTime}
-
 import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.http.scaladsl.model.Uri
 import models.{FileLink, UserProfile}
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
@@ -16,17 +16,17 @@ import scala.concurrent.{ExecutionContext, Future}
 object ResourceSyncHarvester {
 
   // Internal message we send ourselves
-  private case class Fetch(ids: List[FileLink], prefix: String, count: Int) extends Action
+  private case class Fetch(ids: List[FileLink], count: Int, fresh: Int) extends Action
 
   // Other messages we can handle
   sealed trait Action
   case object Initial extends Action
   case object Starting extends Action
   case class ToDo(num: Int) extends Action
-  case class Completed(total: Int, secs: Long) extends Action
+  case class Completed(done: Int, fresh: Int, secs: Long) extends Action
   case class Error(e: Throwable) extends Action
   case class DoneFile(name: String) extends Action
-  case class Cancelled(total: Int, secs: Long) extends Action
+  case class Cancelled(done: Int, fresh: Int, secs: Long) extends Action
   case object Cancel extends Action
 }
 
@@ -40,36 +40,36 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
     // Start the initial harvest
     case Initial =>
       val msgTo = sender()
-      context.become(running(msgTo, 0, LocalDateTime.now()))
+      context.become(running(msgTo, 0, 0, LocalDateTime.now()))
       msgTo ! Starting
       client.list(job.data.config)
         .map {list =>
           msgTo ! ToDo(list.size)
-          Fetch(list.toList, commonDirPrefix(list.toList), 0)
+          Fetch(list.toList, 0, 0)
         }
         .pipeTo(self)
   }
 
 
   // The harvest is running
-  def running(msgTo: ActorRef, done: Int, start: LocalDateTime): Receive = {
+  def running(msgTo: ActorRef, done: Int, fresh: Int, start: LocalDateTime): Receive = {
     // Harvest an individual item
-    case Fetch(item :: rest, prefix, count) =>
+    case Fetch(item :: rest, count, fresh) =>
       log.debug(s"Calling become with new total: $count")
-      context.become(running(msgTo, count, start))
+      context.become(running(msgTo, count, fresh, start))
 
-      copyItem(item, prefix).map { name =>
+      copyItem(item).map { case (name, isFresh) =>
         msgTo ! DoneFile(name)
-        Fetch(rest, prefix, count + 1)
+        Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
       }.pipeTo(self)
 
     // Finished harvesting this resource list
-    case Fetch(Nil, _, done) =>
-      msgTo ! Completed(done, time(start))
+    case Fetch(Nil, done, fresh) =>
+      msgTo ! Completed(done, fresh, time(start))
 
     // Cancel harvest
     case Cancel =>
-      msgTo ! Cancelled(done, time(start))
+      msgTo ! Cancelled(done, fresh, time(start))
       context.stop(self)
 
     case Failure(e) =>
@@ -80,10 +80,11 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def copyItem(item: FileLink, prefix: String): Future[String] = {
-    // get the basename, or unique segment, for this file
-    // in most cases this will be the basename, but not always
-    val name = item.loc.replace(prefix, "")
+  private def copyItem(item: FileLink): Future[(String, Boolean)] = {
+    // Strip the hostname from the file URL but use the
+    // rest of the path
+    val name = Uri(item.loc).path.dropChars(1)
+    val path = job.data.prefix + name
 
     // file metadata
     val meta = Map(
@@ -93,40 +94,24 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
       "rs-job-id" -> job.jobId,
     ) ++ item.hash.map(h => "hash" -> h)
 
+    log.debug(s"Item: $meta")
     // Get the storage metadata for checking the file hash...
-    storage.info(job.data.prefix + name).flatMap {
+    storage.info(path).flatMap {
       // If it exists and matches we've got nowt to do..
       case Some((_, userMeta)) if userMeta.contains("hash") && userMeta.get("hash") == item.hash =>
-        immediate("~ " + name)
+        immediate(("~ " + name, false))
 
       // Either the hash doesn't match or the file's not there yet
       // so upload it now...
       case _ =>
         val bytes = client.get(item)
         storage.putBytes(
-          job.data.prefix + name,
+          path,
           bytes,
           item.contentType,
           meta = meta
-        ).map { _ => "+ " + name }
+        ).map { _ => ("+ " + name, true) }
     }
-  }
-
-  private def commonDirPrefix(resLinks: List[FileLink]): String = resLinks match {
-    case Nil => ""
-    case head :: Nil => head.loc.substring(0, head.loc.lastIndexOf('/') + 1)
-    case list =>
-      // Get the common string prefix...
-      // Pinched from Rosetta code because I'm too lazy to write this:
-      // https://rosettacode.org/wiki/Longest_common_prefix#Scala
-      def lcp(list: Seq[String]): String = list.foldLeft("") { (_, _) =>
-        (list.min.view, list.max.view).zipped.takeWhile(v => v._1 == v._2).map(_._1).mkString
-      }
-
-      // Now get the dirname of the common string prefix
-      val prefix = lcp(list.map(_.loc).sorted)
-      if (prefix.endsWith("/")) prefix
-      else prefix.substring(0, prefix.lastIndexOf('/') + 1)
   }
 
   private def time(from: LocalDateTime): Long =

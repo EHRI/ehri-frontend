@@ -2,11 +2,11 @@ package actors.harvesting
 
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-
 import actors.harvesting.OaiPmhHarvesterManager.{Finalise, OaiPmhHarvestJob}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{OaiPmhConfig, UserProfile}
+import play.api.i18n.Messages
 import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 import utils.WebsocketConstants
@@ -40,7 +40,7 @@ object OaiPmhHarvesterManager {
 }
 
 case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
-  implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+  implicit userOpt: Option[UserProfile], messages: Messages, ec: ExecutionContext) extends Actor with ActorLogging {
 
   import OaiPmhHarvester._
   import akka.pattern.pipe
@@ -88,8 +88,8 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
     // Confirmation the runner has started
     case Starting =>
       msg(s"Starting harvest with job id: ${job.jobId}", subs)
-      job.data.from.fold(msg("Harvesting from earliest date", subs)) { from =>
-        msg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(from)}", subs)
+      job.data.from.fold(msg(Messages("harvesting.earliestDate"), subs)) { from =>
+        msg(Messages("harvesting.fromDate", DateTimeFormatter.ISO_INSTANT.format(from)), subs)
       }
 
     // Cancel harvest.. here we tell the runner to exit
@@ -113,23 +113,29 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
     // Received confirmation that the runner has shut down
     case Cancelled(count, secs) =>
-      runAndThen(handle, _.cancel())(
-          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: " +
-            s"cancelled after $count file(s) in $secs seconds"))
-        .pipeTo(self)
+      runAndThen(handle, _.cancel())(Finalise(
+        Messages(
+          "harvesting.cancelled",
+          WebsocketConstants.ERR_MESSAGE,
+          count,
+          secs
+        ))).pipeTo(self)
 
     // The runner has completed, so we log the
     // event and shut down too
     case Completed(count, secs) =>
-      runAndThen(handle, _.close())(
-          Finalise(s"${WebsocketConstants.DONE_MESSAGE}: " +
-            s"harvested $count file(s) in $secs seconds"))
-        .pipeTo(self)
+      runAndThen(handle, _.close())(Finalise(
+        Messages(
+          "harvesting.completed",
+          WebsocketConstants.DONE_MESSAGE,
+          count,
+          secs
+        ))).pipeTo(self)
 
     // Error case where the `set` or `from` parameters mean that
     // no records are returned
     case OaiPmhError("noRecordsMatch", _) =>
-      self ! Finalise(s"${WebsocketConstants.DONE_MESSAGE}: nothing to harvest")
+      self ! Finalise(Messages("harvesting.nothingToDo", WebsocketConstants.DONE_MESSAGE))
 
     // Error case where we get some other problem...
     case e: OaiPmhError =>
@@ -140,9 +146,12 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
-      runAndThen(handle, _.error(e))(
-          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: harvesting error: ${e.getMessage}"))
-        .pipeTo(self)
+      runAndThen(handle, _.error(e))(Finalise(
+        Messages(
+          "harvesting.error",
+          WebsocketConstants.ERR_MESSAGE,
+          e.getMessage
+        ))).pipeTo(self)
 
     case Finalise(s) =>
       msg(s, subs)
