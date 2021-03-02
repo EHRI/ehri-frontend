@@ -1,7 +1,5 @@
 package actors.harvesting
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.Cancel
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
@@ -11,10 +9,14 @@ import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
 import models.{HarvestEvent, OaiPmhConfig, UserProfile}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
+
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 
 class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
@@ -22,6 +24,9 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
   private def client(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
+  implicit def messagesApi(implicit app: Application): MessagesApi = app.injector.instanceOf[MessagesApi]
+
+  implicit def messages(implicit app: Application): Messages = messagesApi.preferred(Seq(Lang.defaultLang))
 
   private val jobId = "test-job-id"
   private val datasetId = "default"
@@ -46,7 +51,7 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       expectMsgAnyOf("c4", "nl-r1-m19")
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: harvested 2 file(s)")
+      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
       events.events.lift(1) must beSome[HarvestEvent]
         .which(_.eventType must_== HarvestEventType.Completed)
     }
@@ -61,7 +66,7 @@ class OaiPmhHarvesterManagerSpec extends AkkaTestkitSpecs2Support with Integrati
       harvester ! self // initial subscriber should start harvesting
       expectMsg(s"Starting harvest with job id: $jobId")
       expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(now)}")
-      expectMsg("Done: nothing to harvest")
+      expectMsg("Done: nothing new to sync")
       events.events.size must_== 0
     }
 

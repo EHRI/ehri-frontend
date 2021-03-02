@@ -1519,3 +1519,26 @@ ingest.sourceFiles=Ingest Sources
 # Geocoding
 #
 geocode.monitor=Geocoding {0}
+
+#
+# Harvesting
+#
+harvesting.starting=Starting harvest with job id: {0}
+harvesting.syncingFiles={0,choice,0#No files to sync|1#Syncing one file|1<Syncing {0,number,integer} files}
+harvesting.cancelled={0}: cancelled after {1,choice,0#0 files|1#1 file|1<after {1,number,integer} files} in {2,choice,0#0 seconds|1#1 second|1<{2,number,integer} seconds}
+harvesting.completed={0}: synced {1,choice,0#0 new files|1#1 new file|1<{1,number,integer} new files} in {2,choice,0#0 seconds|1#1 second|1<{2,number,integer} seconds}
+harvesting.nothingToDo={0}: nothing new to sync
+harvesting.earliestDate=Harvesting from earliest date
+harvesting.fromDate=Harvesting from {0}
+harvesting.error={0}: harvesting error: {1}
+
+#
+# Conversion
+#
+conversion.starting=Starting convert with job id: {0}
+conversion.counting=Counting files...
+conversion.counted=Total of {0,choice,0#0 files|1#1 file|1<{0,number,integer} files}
+conversion.cancelled={0}: cancelled after {1,choice,0#0 files|1#1 file|1<after {1,number,integer} files} in {2,choice,0#0 seconds|1#1 second|1<{2,number,integer} seconds}
+conversion.completed={0}: converted {1,choice,0#0 files|1#1 file ({2,number,integer} fresh)|1<{1,number,integer} files ({2,number,integer} fresh)} in {3,choice,0#0 seconds|1#1 second|1<{3,number,integer} seconds}
+conversion.error={0}: conversion error: {1}
+conversion.unrecoverableError={0}: unexpected conversion error: {1}

@@ -4,7 +4,9 @@ import play.api.libs.json.{Format, Json, Reads}
 
 
 
-sealed trait ConvertConfig
+sealed trait ConvertConfig {
+  def force: Boolean
+}
 
 object ConvertConfig {
   implicit val _reads: Reads[ConvertConfig] = Reads { json =>
@@ -13,7 +15,8 @@ object ConvertConfig {
 }
 
 case class TransformationList(
-  mappings: Seq[String]
+  mappings: Seq[String],
+  force: Boolean = false
 ) extends ConvertConfig
 
 object TransformationList {
@@ -21,7 +24,8 @@ object TransformationList {
 }
 
 case class ConvertSpec(
-  mappings: Seq[(DataTransformation.TransformationType.Value, String)]
+  mappings: Seq[(DataTransformation.TransformationType.Value, String)],
+  force: Boolean = false
 ) extends ConvertConfig
 
 object ConvertSpec {

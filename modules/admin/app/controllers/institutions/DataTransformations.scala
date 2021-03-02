@@ -78,8 +78,8 @@ case class DataTransformations @Inject()(
 
 
   private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String)]] = config match {
-    case TransformationList(mappings) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
-    case ConvertSpec(mappings) => immediate(mappings)
+    case TransformationList(mappings, _) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
+    case ConvertSpec(mappings, _) => immediate(mappings)
   }
 
   private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Future[String] = {
@@ -133,7 +133,8 @@ case class DataTransformations @Inject()(
         ts,
         inPrefix = prefix(id, ds, FileStage.Input),
         outPrefix = prefix(id, ds, FileStage.Output),
-        only = key
+        only = key,
+        force = config.force
       )
       val job = XmlConvertJob(repoId = id, datasetId = ds, jobId = jobId, data = data)
       mat.system.actorOf(Props(XmlConverterManager(job, xmlTransformer, storage)), jobId)

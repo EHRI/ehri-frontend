@@ -35,11 +35,12 @@ Vue.component("convert-config", {
     return {
       all: true,
       file: null,
+      force: false,
     }
   },
   methods: {
     convert: function() {
-      this.$emit("convert", this.all ? null : this.file);
+      this.$emit("convert", this.all ? null : this.file, this.force);
       this.$emit("close");
     },
   },
@@ -48,6 +49,13 @@ Vue.component("convert-config", {
       <template v-slot:title>Transformation Configuration</template>
 
       <fieldset class="options-form">
+        <div class="form-group form-check">
+          <input class="form-check-input" id="opt-force-check" type="checkbox" v-model="force"/>
+          <label class="form-check-label" for="opt-force-check">
+            Rerun existing conversions
+          </label>
+        </div>
+        
         <div class="form-group form-check">
           <input class="form-check-input" id="opt-all-check" type="checkbox" v-model="all"/>
           <label class="form-check-label" for="opt-all-check">
@@ -64,7 +72,7 @@ Vue.component("convert-config", {
           v-bind:placeholder="'Select file to convert...'"
           v-model="file" />
       </fieldset>
-      
+
       <template v-slot:footer>
         <button v-bind:disabled="!all && file === null" v-on:click="convert" type="button" class="btn btn-secondary">
           Run Conversion
@@ -143,9 +151,9 @@ Vue.component("convert-manager", {
     saved: function(item) {
       this.editing = item;
     },
-    convert: function(file) {
+    convert: function(file, force) {
       console.log("Converting: ", file)
-      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.mappings})
+      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.mappings, force: force})
         .then(data => {
           this.convertJobId = data.jobId;
           this.monitorConvert(data.url, data.jobId);
