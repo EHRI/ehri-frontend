@@ -31,13 +31,13 @@ object OaiPmhHarvester {
 
   // Other messages we can handle
   sealed trait Action
-  case object Starting extends Action
-  case class Completed(total: Int, secs: Long) extends Action
+  case class Cancelled(done: Int, secs: Long) extends Action
+  case class Completed(done: Int, secs: Long) extends Action
+  case class DoneFile(id: String) extends Action
   case class Error(e: Throwable) extends Action
   case class Resuming(token: String) extends Action
-  case class DoneFile(id: String) extends Action
-  case class Cancelled(total: Int, secs: Long) extends Action
   case object Cancel extends Action
+  case object Starting extends Action
 }
 
 case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage)(

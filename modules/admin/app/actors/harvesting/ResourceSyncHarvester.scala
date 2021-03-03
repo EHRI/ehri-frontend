@@ -20,14 +20,14 @@ object ResourceSyncHarvester {
 
   // Other messages we can handle
   sealed trait Action
+  case class Cancelled(done: Int, fresh: Int, secs: Long) extends Action
+  case class Completed(done: Int, fresh: Int, secs: Long) extends Action
+  case class DoneFile(name: String) extends Action
+  case class Error(e: Throwable) extends Action
+  case class ToDo(num: Int) extends Action
+  case object Cancel extends Action
   case object Initial extends Action
   case object Starting extends Action
-  case class ToDo(num: Int) extends Action
-  case class Completed(done: Int, fresh: Int, secs: Long) extends Action
-  case class Error(e: Throwable) extends Action
-  case class DoneFile(name: String) extends Action
-  case class Cancelled(done: Int, fresh: Int, secs: Long) extends Action
-  case object Cancel extends Action
 }
 
 
