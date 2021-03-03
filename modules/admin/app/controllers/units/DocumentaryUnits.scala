@@ -10,7 +10,7 @@ import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{ImportLogService, IngestParams, IngestService}
+import services.ingest.{ImportLogService, IngestService}
 import services.search._
 import services.storage.FileStorage
 import utils.{PageParams, RangeParams}

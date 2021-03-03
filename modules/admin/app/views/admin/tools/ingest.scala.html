@@ -1,6 +1,6 @@
-@(scope: Model, fonds: Option[Model], form: Form[services.ingest.IngestParams], dataType: services.ingest.IngestService.IngestDataType.Value, action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(scope: Model, fonds: Option[Model], form: Form[IngestParams], dataType: services.ingest.IngestService.IngestDataType.Value, action: Call, sync: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@import services.ingest.IngestParams._
+@import IngestParams._
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.adminLayout(Messages("ingest.header", fonds.getOrElse(scope).toStringLang)) {

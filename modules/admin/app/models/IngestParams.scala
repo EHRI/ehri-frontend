@@ -1,6 +1,5 @@
-package services.ingest
+package models
 
-import models.ContentTypes
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.Files.TemporaryFile

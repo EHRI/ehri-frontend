@@ -3,7 +3,7 @@ package services.ingest
 import java.util.UUID
 import akka.actor.ActorSystem
 import helpers._
-import models.ContentTypes
+import models.{ContentTypes, ImportLog, IngestParams, UrlMapPayload}
 import play.api.db.Database
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification

@@ -14,7 +14,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
-import models.{ContentTypes, EntityType}
+import models.{ContentTypes, EntityType, ErrorLog, FilePayload, FileProperties, IngestParams, IngestResult, UrlMapPayload, UrlProperties}
 import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject
@@ -180,7 +180,7 @@ case class WSIngestService @Inject()(
     }
 
     def wsParams(params: IngestParams): Seq[(String, String)] = {
-      import IngestParams._
+      import models.IngestParams._
       Seq(
         SCOPE -> params.scope,
         TOLERANT -> params.tolerant.toString,

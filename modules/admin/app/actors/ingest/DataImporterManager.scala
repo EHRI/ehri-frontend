@@ -4,7 +4,7 @@ import actors.harvesting.OaiPmhHarvester.Error
 import actors.ingest.DataImporter.{Done, Initial, Message, UnexpectedError}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
-import models.UserProfile
+import models.{ErrorLog, ImportLog, UserProfile}
 import services.ingest.IngestService.IngestJob
 import services.ingest._
 import utils.WebsocketConstants

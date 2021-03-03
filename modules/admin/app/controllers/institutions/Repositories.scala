@@ -14,7 +14,7 @@ import play.api.libs.json.Json
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc._
 import services.data.DataHelpers
-import services.ingest.{EadValidator, IngestParams, IngestService}
+import services.ingest.{EadValidator, IngestService}
 import services.search._
 import services.storage.FileStorage
 import utils.{PageParams, RangeParams}

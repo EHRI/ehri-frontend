@@ -1,4 +1,4 @@
-package services.ingest
+package models
 
 import play.api.libs.json.JsonConfiguration.Aux
 import play.api.libs.json.JsonNaming.SnakeCase

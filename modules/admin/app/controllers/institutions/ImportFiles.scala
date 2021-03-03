@@ -1,7 +1,5 @@
 package controllers.institutions
 
-import actors.ingest
-import akka.actor.Props
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -15,13 +13,11 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
 import play.api.mvc._
-import services.data.{ApiUser, DataHelpers}
+import services.data.DataHelpers
 import services.datasets.ImportDatasetService
-import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest._
 import services.storage.FileStorage
 
-import java.util.UUID
 import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -31,19 +27,6 @@ case class FileToUpload(name: String, `type`: String, size: Long)
 
 object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
-}
-
-case class IngestPayload(
-  logMessage: String,
-  allowUpdates: Boolean = false,
-  tolerant: Boolean = false,
-  commit: Boolean = false,
-  properties: Option[String] = None,
-  files: Seq[String] = Seq.empty
-)
-
-object IngestPayload {
-  implicit val _json: Format[IngestPayload] = Json.format[IngestPayload]
 }
 
 case class ValidationResult(key: String, eTag: Option[String], errors: Seq[XmlValidationError])
@@ -186,67 +169,5 @@ case class ImportFiles @Inject()(
     results.map(out => Ok(Json.toJson(out))).recover {
       case e => BadRequest(Json.obj("error" -> e.getMessage))
     }
-  }
-
-  def ingestFiles(id: String, ds: String, stage: FileStage.Value): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
-    import scala.concurrent.duration._
-
-    val urlsF = getUrlMap(request.body, prefix(id, ds, stage))
-    for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
-
-      val task = IngestParams(
-        scopeType = models.ContentTypes.Repository,
-        scope = id,
-        data = UrlMapPayload(urls),
-        allowUpdate = request.body.allowUpdates,
-        log = request.body.logMessage,
-        tolerant = request.body.tolerant,
-        commit = request.body.commit,
-        properties = request.body.properties.map(ref =>
-          PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
-          .getOrElse(PropertiesHandle.empty),
-        fonds = dataset.fonds
-      )
-      // Tag this task with a unique ID...
-      val jobId = UUID.randomUUID().toString
-
-      // Type is json, since it's a mapping of key -> URL
-      val contentType = play.api.http.ContentTypes.JSON
-
-      // Use the sync endpoint if this fonds is synced and we a) are doing the complete
-      // set and b) have a fonds.
-      // Don't allow sync on the repository scope, because it is too dangerous.
-      val idt = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
-        IngestDataType.EadSync else IngestDataType.Ead
-      println(s"Type: $idt: ${dataset.sync}, ${request.body.files.isEmpty}, ${dataset.fonds}")
-
-      val ingestTask = IngestData(task, idt, contentType, implicitly[ApiUser], instance)
-      val job = IngestJob(jobId, ingestTask)
-      val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
-        if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)
-        else Future.successful(())
-
-      mat.system.actorOf(Props(ingest.DataImporterManager(job, ingestService, onDone)), jobId)
-
-      Ok(Json.obj(
-        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(conf.https),
-        "jobId" -> jobId
-      ))
-    }
-  }
-
-  private def getUrlMap(data: IngestPayload, prefix: String): Future[Map[String, java.net.URI]] = {
-    // NB: Not doing this with regular Future.successful so as to
-    // limit parallelism to the specified amount
-    val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
-    else Source(data.files.map(prefix + _).toList)
-
-    keys
-      .mapAsync(4)(path => storage.info(path).map(info => path -> info))
-      .collect { case (path, Some((meta, _))) =>
-        val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
-        id -> storage.uri(meta.key, duration = 2.hours, versionId = meta.versionId)
-      }
-      .runFold(Map.empty[String, java.net.URI])(_ + _)
   }
 }

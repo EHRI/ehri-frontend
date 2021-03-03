@@ -1,11 +1,10 @@
 package actors.ingest
 
 import java.time.LocalDateTime
-
 import actors.ingest.DataImporter._
 import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props}
 import akka.pattern._
-import models.UserProfile
+import models.{ErrorLog, ImportLog, IngestResult, SyncLog, UserProfile}
 import services.ingest.IngestService.IngestJob
 import services.ingest._
 
