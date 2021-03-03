@@ -17,21 +17,20 @@ import scala.concurrent.{ExecutionContext, Future}
 object XmlConverter {
   // Other messages we can handle
   sealed trait Action
-  case object Initial extends Action
-  case object Starting extends Action
-  case object Counting extends Action
+  case class Cancelled(done: Int, fresh: Int, secs: Long) extends Action
+  case class Completed(done: Int, fresh: Int, secs: Long) extends Action
+  case class Convert(files: List[FileMeta], truncated: Boolean, last: Option[String], count: Int, fresh: Int) extends Action
   case class Counted(total: Int) extends Action
-  case class Completed(total: Int, fresh: Int, secs: Long) extends Action
-  case class Error(id: String, e: Throwable) extends Action
-  case class Resuming(after: String) extends Action
   case class DoneFile(id: String) extends Action
+  case class Error(id: String, e: Throwable) extends Action
   case class FetchFiles(from: Option[String] = None) extends Action
   case class Progress(done: Int, total: Int) extends Action
-  case object Status extends Action
-  case class Cancelled(total: Int, fresh: Int, secs: Long) extends Action
+  case class Resuming(after: String) extends Action
   case object Cancel extends Action
-  case class Convert(files: List[FileMeta], truncated: Boolean, last: Option[String], count: Int, fresh: Int) extends Action
-
+  case object Counting extends Action
+  case object Initial extends Action
+  case object Starting extends Action
+  case object Status extends Action
 }
 
 case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
@@ -85,7 +84,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
           .pipeTo(self)
       } getOrElse {
         // Otherwise, fetch all items from the storage
-        storage.listFiles(Some(job.data.inPrefix), after, max = 200)
+        storage.listFiles(Some(job.data.inPrefix), after)
           .map(list => Convert(list.files.toList, list.truncated, after, done, fresh))
           .pipeTo(self)
       }
