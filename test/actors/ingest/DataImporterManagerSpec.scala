@@ -2,7 +2,7 @@ package actors.ingest
 
 import akka.actor.Props
 import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
-import models.{ContentTypes, UserProfile}
+import models.{ContentTypes, ErrorLog, ImportLog, IngestParams, UrlMapPayload, UserProfile}
 import services.data.ApiUser
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._

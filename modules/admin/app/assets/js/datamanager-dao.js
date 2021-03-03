@@ -28,12 +28,25 @@ let DAO = class {
     return this.call(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
-  ingestFiles(ds, stage, paths, opts) {
+  getImportConfig(ds) {
+    return this.call(this.service.ImportConfigs.get(this.repoId, ds));
+  }
+
+  saveImportConfig(ds, config) {
+    return this.call(this.service.ImportConfigs.save(this.repoId, ds), config);
+  }
+
+  deleteImportConfig(ds) {
+    return this.call(this.service.ImportConfigs.delete(this.repoId, ds));
+  }
+
+  ingestFiles(ds, stage, paths, opts, commit) {
     let data = {
+      config: opts,
+      commit: commit,
       files: paths,
-      ...opts
     };
-    return this.call(this.service.ImportFiles.ingestFiles(this.repoId, ds, stage), data);
+    return this.call(this.service.ImportConfigs.ingestFiles(this.repoId, ds, stage), data);
   }
 
   deleteFiles(ds, stage, paths) {

@@ -10,7 +10,7 @@ import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.ingest.{IngestParams, IngestService}
+import services.ingest.IngestService
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams, SearchSort}
 import utils.{PageParams, RangeParams}
 

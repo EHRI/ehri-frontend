@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.institutions.StorageHelpers
-import models.{ContentTypes, Model}
+import models.{ContentTypes, FilePayload, FileProperties, IngestParams, Model}
 
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
@@ -19,7 +19,7 @@ import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
 import services.ingest.IngestService.{IngestData, IngestJob}
-import services.ingest.{FilePayload, FileProperties, IngestParams, IngestService}
+import services.ingest.IngestService
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}

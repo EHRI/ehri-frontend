@@ -3,6 +3,8 @@ package services.ingest
 import akka.actor.ActorSystem
 import anorm.SqlParser.scalar
 import anorm._
+import models.ImportLog
+
 import javax.inject.Inject
 import play.api.Logger
 import play.api.db.Database

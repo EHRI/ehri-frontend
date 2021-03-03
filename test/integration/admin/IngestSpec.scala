@@ -6,12 +6,12 @@ import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import com.google.inject.name.Names
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
-import models.ContentTypes
+import models.{ContentTypes, IngestParams}
 import org.apache.commons.io.FileUtils
 import play.api.inject.{BindingKey, QualifierInstance}
 import play.api.libs.json.JsString
 import play.api.test.FakeRequest
-import services.ingest.{IngestParams, IngestService}
+import services.ingest.IngestService
 import services.storage.FileStorage
 
 import java.io.File

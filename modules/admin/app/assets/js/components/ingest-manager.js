@@ -11,24 +11,29 @@ Vue.component("ingest-options-panel", {
   },
   data: function() {
     return {
-      allowUpdates: this.opts.allowUpdates,
-      tolerant: this.opts.tolerant,
-      commit: this.opts.commit,
-      logMessage: this.opts.logMessage,
-      properties: this.opts.properties,
+      allowUpdates: this.opts ? this.opts.allowUpdates : false,
+      tolerant: this.opts ? this.opts.tolerant : false,
+      defaultLang: this.opts ? this.opts.defaultLang : null,
+      properties: this.opts ? this.opts.properties : null,
+      logMessage: this.opts ? this.opts.logMessage : "",
       loading: false,
+      commit: false,
       error: null,
     }
   },
   methods: {
     submit: function() {
-      this.$emit('submit', {
-        allowUpdates: this.allowUpdates,
-        tolerant: this.tolerant,
-        commit: this.commit,
-        logMessage: this.logMessage,
-        properties: this.properties,
-      });
+      this.api.saveImportConfig(
+        this.datasetId, {
+          allowUpdates: this.allowUpdates,
+          tolerant: this.tolerant,
+          defaultLang: this.defaultLang,
+          properties: this.properties,
+          logMessage: this.logMessage,
+          commit: this.commit,
+        })
+        .then(data => this.$emit("submit", data, this.commit))
+        .catch(error => this.$emit("error", "Error saving import config", error));
     },
     uploadProperties: function(event) {
       this.loading = true;
@@ -175,13 +180,7 @@ Vue.component("ingest-manager", {
       ingestJobId: null,
       showOptions: false,
       propertyConfigs: [],
-      opts: {
-        allowUpdates: false,
-        tolerant: false,
-        commit: false,
-        logMessage: "",
-        properties: null,
-      }
+      opts: null,
     }
   },
   methods: {
@@ -216,11 +215,13 @@ Vue.component("ingest-manager", {
         this.monitorIngest(this.config.monitorUrl(jobId), jobId, this.files.map(f => f.key));
       }
     },
-    doIngest: function(opts) {
+    doIngest: function(opts, commit) {
       this.waiting = true;
 
+      // Save opts for the next time we open the config UI
       this.opts = opts;
-      let op = this.api.ingestFiles(this.datasetId, this.fileStage, this.selectedKeys, this.opts);
+
+      let op = this.api.ingestFiles(this.datasetId, this.fileStage, this.selectedKeys, opts, commit);
 
       op.then(data => {
         if (data.url && data.jobId) {
@@ -238,6 +239,10 @@ Vue.component("ingest-manager", {
       }).catch(error => this.showError("Error running ingest", error))
         .finally(() => this.waiting = false);
     },
+    loadConfig: function() {
+      this.api.getImportConfig(this.datasetId)
+        .then(data => this.opts = data);
+    },
     loadPropertyConfigs: function() {
       this.loading = true;
       this.api.listFiles(this.datasetId, this.config.config)
@@ -249,6 +254,7 @@ Vue.component("ingest-manager", {
   created() {
     this.resumeMonitor();
     this.loadPropertyConfigs();
+    this.loadConfig();
   },
   template: `
     <div id="ingest-manager-container" class="stage-manager-container">
