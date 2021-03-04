@@ -23,6 +23,7 @@ Vue.component("ingest-options-panel", {
   },
   methods: {
     submit: function() {
+      this.$emit("saving");
       this.api.saveImportConfig(
         this.datasetId, {
           allowUpdates: this.allowUpdates,
@@ -30,9 +31,8 @@ Vue.component("ingest-options-panel", {
           defaultLang: this.defaultLang,
           properties: this.properties,
           logMessage: this.logMessage,
-          commit: this.commit,
         })
-        .then(data => this.$emit("submit", data, this.commit))
+        .then(data => this.$emit("saved-config", data, this.commit))
         .catch(error => this.$emit("error", "Error saving import config", error));
     },
     uploadProperties: function(event) {
@@ -221,22 +221,22 @@ Vue.component("ingest-manager", {
       // Save opts for the next time we open the config UI
       this.opts = opts;
 
-      let op = this.api.ingestFiles(this.datasetId, this.fileStage, this.selectedKeys, opts, commit);
+      this.api.ingestFiles(this.datasetId, this.selectedKeys, opts, commit)
+        .then(data => {
+          if (data.url && data.jobId) {
+            // Switch to ingest tab...
+            this.tab = "ingest";
+            // Clear existing log...
+            this.log.length = 0;
+            this.showOptions = false;
 
-      op.then(data => {
-        if (data.url && data.jobId) {
-          // Switch to ingest tab...
-          this.tab = "ingest";
-          // Clear existing log...
-          this.log.length = 0;
-          this.showOptions = false;
-
-          this.ingestJobId = data.jobId;
-          this.monitorIngest(data.url, data.jobId);
-        } else {
-          console.error("unexpected job data", data);
-        }
-      }).catch(error => this.showError("Error running ingest", error))
+            this.ingestJobId = data.jobId;
+            this.monitorIngest(data.url, data.jobId);
+          } else {
+            console.error("unexpected job data", data);
+          }
+        })
+        .catch(error => this.showError("Error running ingest", error))
         .finally(() => this.waiting = false);
     },
     loadConfig: function() {
@@ -300,7 +300,8 @@ Vue.component("ingest-manager", {
           v-bind:api="api"
           v-bind:config="config"
           v-bind:dataset-id="datasetId"
-          v-on:submit="doIngest"
+          v-on:saving="waiting = true"
+          v-on:saved-config="doIngest"
           v-on:update="loadPropertyConfigs"
           v-on:close="showOptions = false" />
         

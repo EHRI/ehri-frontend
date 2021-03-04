@@ -2,6 +2,7 @@
 
 Vue.component("rs-config-modal", {
   props: {
+    waiting: Boolean,
     datasetId: String,
     config: Object,
     api: DAO,
@@ -13,7 +14,6 @@ Vue.component("rs-config-modal", {
       tested: null,
       testing: false,
       error: null,
-      saving: false,
     }
   },
   computed: {
@@ -23,11 +23,10 @@ Vue.component("rs-config-modal", {
   },
   methods: {
     save: function() {
-      this.saving = true;
+      this.$emit("saving");
       this.api.saveSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
         .then(data => this.$emit("saved-config", data))
-        .catch(error => this.$emit("error", "Error saving RS config", error))
-        .finally(() => this.saving = false);
+        .catch(error => this.$emit("error", "Error saving RS config", error));
     },
     testEndpoint: function() {
       this.testing = true;
@@ -91,7 +90,7 @@ Vue.component("rs-config-modal", {
         </button>
         <button v-bind:disabled="!isValidConfig"
                 v-on:click="save" type="button" class="btn btn-secondary">
-          <i v-bind:class="{'fa-clone': !saving, 'fa-circle-o-notch fa-spin': saving}" class="fa fa-fw"></i>
+          <i v-bind:class="{'fa-clone': !waiting, 'fa-circle-o-notch fa-spin': waiting}" class="fa fa-fw"></i>
           Sync Endpoint
         </button>
       </template>
@@ -111,15 +110,23 @@ Vue.component("rs-manager", {
       syncJobId: null,
       showOptions: false,
       syncConfig: null,
+      waiting: false,
     }
   },
   methods: {
-    sync: function() {
-      this.api.sync(this.datasetId, this.syncConfig)
+    doSync: function(opts) {
+      this.waiting = true;
+
+      this.syncConfig = opts;
+
+      this.api.sync(this.datasetId, opts)
         .then(data => {
+          this.showOptions = false;
           this.syncJobId = data.jobId;
           this.monitorSync(data.url, data.jobId);
-        });
+        })
+        .catch(error => this.showError("Error running sync", error))
+        .finally(() => this.waiting = false);
     },
     cancelSync: function() {
       if (this.syncJobId) {
@@ -158,11 +165,6 @@ Vue.component("rs-manager", {
         this.monitorSync(this.config.monitorUrl(jobId), jobId);
       }
     },
-    saveConfigAndSync: function(config) {
-      this.syncConfig = config;
-      this.showOptions = false;
-      this.sync();
-    },
     loadConfig: function() {
       this.api.getSyncConfig(this.datasetId)
         .then(data => {
@@ -198,7 +200,7 @@ Vue.component("rs-manager", {
 
         <button v-if="!syncJobId" class="btn btn-sm btn-default"
                 v-on:click.prevent="showOptions = !showOptions">
-          <i class="fa fa-fw fa-cloud-download"/>
+          <i class="fa fa-fw fa-clone"/>
           Sync Files...
         </button>
         <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelSync">
@@ -208,10 +210,12 @@ Vue.component("rs-manager", {
         
         <rs-config-modal 
           v-if="showOptions"
+          v-bind:waiting="waiting"
           v-bind:dataset-id="datasetId"
           v-bind:config="syncConfig"
           v-bind:api="api"
-          v-on:saved-config="saveConfigAndSync"
+          v-on:saving="waiting = true"
+          v-on:saved-config="doSync"
           v-on:error="showError"
           v-on:close="showOptions = false"/>
 
