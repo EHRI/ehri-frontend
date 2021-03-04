@@ -40,13 +40,13 @@ let DAO = class {
     return this.call(this.service.ImportConfigs.delete(this.repoId, ds));
   }
 
-  ingestFiles(ds, stage, paths, opts, commit) {
+  ingestFiles(ds, paths, opts, commit) {
     let data = {
       config: opts,
       commit: commit,
       files: paths,
     };
-    return this.call(this.service.ImportConfigs.ingestFiles(this.repoId, ds, stage), data);
+    return this.call(this.service.ImportConfigs.ingestFiles(this.repoId, ds), data);
   }
 
   deleteFiles(ds, stage, paths) {
