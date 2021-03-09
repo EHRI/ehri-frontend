@@ -52,7 +52,7 @@ addEventListener('message', ({data}) => {
   } else if (data.type === 'convert-preview') {
     fetch(data.url, {
       method: 'POST',
-      body: JSON.stringify({mappings: data.mappings}),
+      body: JSON.stringify({mappings: data.mappings, force: false}),
       headers: {
         "ajax-ignore-csrf": true,
         "Content-Type": "application/json",
