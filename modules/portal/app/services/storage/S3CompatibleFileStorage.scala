@@ -158,9 +158,8 @@ case class S3CompatibleFileStorage(
     public: Boolean = false, meta: Map[String, String] = Map.empty): Future[URI] =
     putBytes(path, FileIO.fromPath(file.toPath), contentType, public, meta)
 
-  override def deleteFiles(paths: String*): Future[Seq[String]] = Future {
-    deleteKeys(paths)
-  }(ec)
+  override def deleteFiles(paths: String*): Future[Seq[String]] =
+    if (paths.isEmpty) Future.successful(Seq.empty) else Future(deleteKeys(paths))(ec)
 
   override def deleteFilesWithPrefix(prefix: String): Future[Seq[String]] = Future {
     @scala.annotation.tailrec
@@ -269,14 +268,16 @@ case class S3CompatibleFileStorage(
   }
 
   private def deleteKeys(paths: Seq[String]) = {
-    val delete = Delete.builder()
-      .objects(paths.map(key => ObjectIdentifier.builder().key(key).build()): _*)
-      .build()
-    val dor = DeleteObjectsRequest.builder()
-      .bucket(name)
-      .delete(delete)
-      .build()
-    client.deleteObjects(dor).deleted().asScala.map(_.key)
+    if (paths.isEmpty) paths else {
+      val delete = Delete.builder()
+        .objects(paths.map(key => ObjectIdentifier.builder().key(key).build()): _*)
+        .build()
+      val dor = DeleteObjectsRequest.builder()
+        .bucket(name)
+        .delete(delete)
+        .build()
+      client.deleteObjects(dor).deleted().asScala.map(_.key)
+    }
   }
 
   private def listPrefix(prefix: Option[String], after: Option[String], max: Int) = {

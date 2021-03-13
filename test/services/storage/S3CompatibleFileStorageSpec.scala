@@ -79,6 +79,12 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
       items.files.size must_== 2
     }
 
+    "do nothing on delete when no files match prefix" in {
+      val storage = putTestItems._1
+      val deleted = await(storage.deleteFilesWithPrefix("NOPE"))
+      deleted.size must_== 0
+    }
+
     "get item info with version ID" in {
       val storage = putTestItems._1
       val info: Option[(FileMeta, Map[String, String])] = await(storage.info("baz"))
