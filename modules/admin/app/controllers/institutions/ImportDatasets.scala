@@ -62,7 +62,7 @@ case class ImportDatasets @Inject()(
     // Delete all files in stages in the dataset, then the dataset itself...
     val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq
       .map(s => storage.deleteFilesWithPrefix(prefix(id, ds, s)))
-    for (_ <- Future.sequence(del); out <- datasets.delete(id, ds))
+    for (_ <- Future.sequence(del); _ <- datasets.delete(id, ds))
       yield NoContent
   }
 }
