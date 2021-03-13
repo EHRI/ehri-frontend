@@ -29,7 +29,7 @@ jobs:
 
     - name: Build and test
       run: |
-        sbt -v -Dfile.encoding=UTF-8 "+testOnly actors.harvesting.OaiPmhHarvesterManagerSpec"
+        sbt -v -Dfile.encoding=UTF-8 "+test"
         rm -rf "$HOME/.ivy2/local" || true
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
