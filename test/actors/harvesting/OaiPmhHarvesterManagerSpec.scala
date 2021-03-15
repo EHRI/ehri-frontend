@@ -89,7 +89,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         val msg: String = receiveOne(5.seconds).asInstanceOf[String]
         msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
 
-        // Wait up to 20 seconds for the expected events to appear
+        // Wait up to a minute for the expected events to appear
         events.events.find(_.eventType == HarvestEventType.Cancelled) must beSome
           .eventually(retries = 300, sleep = 200.millis)
     }
