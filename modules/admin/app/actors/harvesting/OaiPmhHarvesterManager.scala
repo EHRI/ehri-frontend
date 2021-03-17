@@ -14,6 +14,7 @@ import utils.WebsocketConstants
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
 
 
 object OaiPmhHarvesterManager {
@@ -78,8 +79,8 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
       context.watch(chan)
       context.become(running(runner, subs + chan, handle))
 
+      // If runner has died wait a few seconds before terminating ourselves...
     case Terminated(actor) if actor == runner =>
-      log.debug("Harvest runner terminated")
       context.system.scheduler.scheduleOnce(5.seconds, self,
         "Harvest runner unexpectedly shut down")
 
@@ -159,6 +160,7 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
     case Finalise(s) =>
       msg(s, subs)
+      context.become(running(runner, subs, Option.empty))
       context.stop(self)
 
     case m =>
