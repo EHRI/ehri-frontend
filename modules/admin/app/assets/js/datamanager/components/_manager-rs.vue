@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import FilterControl from './_filter-control';
 import ButtonValidate from './_button-validate';

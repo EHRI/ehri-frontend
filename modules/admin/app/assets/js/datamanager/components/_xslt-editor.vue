@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
@@ -28,7 +28,7 @@ export default {
 
 <template>
   <div class="xslt-editor">
-    <textarea>{{value}}</textarea>
+    <textarea>{{ value }}</textarea>
   </div>
 </template>
 

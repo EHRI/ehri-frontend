@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import ModalWindow from './_modal-window';
 import DataManagerApi from '../api';
@@ -23,7 +23,7 @@ export default {
     }
   },
   computed: {
-    isValidConfig: function() {
+    isValidConfig: function(): boolean {
       return this.url
           && this.url.trim() !== ""
           && this.format

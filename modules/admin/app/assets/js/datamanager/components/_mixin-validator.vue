@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
 
 import _forEach from 'lodash/forEach';
 import _isUndefined from 'lodash/isUndefined';
 import _isEmpty from 'lodash/isEmpty';
 import _keys from 'lodash/keys';
 import _find from 'lodash/find';
+import {ValidationResult} from "../types";
 
 export default {
   props: {
@@ -21,25 +22,25 @@ export default {
     }
   },
   methods: {
-    handleValidationResults: function (errs) {
-      _forEach(errs, item => {
-        this.$set(this.validationResults, item.eTag, item.errors)
-        this.$delete(this.validating, item.eTag);
+    handleValidationResults: function (errs: ValidationResult[]) {
+      _forEach(errs, res => {
+        this.$set(this.validationResults, res.eTag, res.errors)
+        this.$delete(this.validating, res.eTag);
       });
       if (_isUndefined(_find(errs, (err) => err.errors.length > 0))) {
         this.validationLog.push('<span class="text-success">No errors found ✓</span>');
       } else {
-        errs.forEach(item => {
-          if (item.errors.length > 0) {
-            this.validationLog.push('<span class="text-danger">' + decodeURI(item.key) + ':</span>')
-            item.errors.forEach(err => {
+        errs.forEach(res => {
+          if (res.errors.length > 0) {
+            this.validationLog.push('<span class="text-danger">' + decodeURI(res.key) + ':</span>')
+            res.errors.forEach(err => {
               this.validationLog.push("    " + err.line + "/" + err.pos + " - " + err.error);
             })
           }
         });
       }
     },
-    validateFiles: function (tagToKey) {
+    validateFiles: function (tagToKey: object) {
       this.tab = 'validation';
       this.validationRunning = true;
       this.validationLog = [];

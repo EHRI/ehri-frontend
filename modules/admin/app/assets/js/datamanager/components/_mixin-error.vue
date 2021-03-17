@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 export default {
     data: function() {
@@ -7,7 +7,7 @@ export default {
     };
   },
   methods: {
-    showError: function(desc, exception) {
+    showError: function(desc: string, exception: Error) {
       this.errored = true;
       this.$emit("error", desc, exception);
     },

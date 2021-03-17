@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import MixinError from './_mixin-error';
 import CodeMirror from 'codemirror';
@@ -11,17 +11,19 @@ import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
 import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
+import {FileMeta, XmlValidationError} from "../types";
+import DataManagerApi from "../api";
 
 
 export default {
   mixins: [MixinError],
   props: {
+    api: DataManagerApi,
     datasetId: String,
     fileStage: String,
     panelSize: Number,
     previewing: Object,
     config: Object,
-    api: Object,
     maxSize: Number,
     validationResults: {
       type: Object,
@@ -51,7 +53,7 @@ export default {
   methods: {
     _isArray,
 
-    prettifyXml: function (xml) {
+    prettifyXml: function (xml: string): string {
       let parser = new DOMParser();
       let xmlDoc = parser.parseFromString(xml, 'application/xml');
       let xsltDoc = parser.parseFromString(`
@@ -78,7 +80,7 @@ export default {
         this.prettifying = false;
       });
     },
-    validate: function () {
+    validate: function (): void {
       if (this.previewing === null) {
         return;
       }
@@ -111,7 +113,7 @@ export default {
         return widget;
       }
 
-      function makeMarker(doc, err) {
+      function makeMarker(doc: CodeMirror.Doc, err: XmlValidationError) {
         let marker = document.createElement("div");
         marker.style.color = "#822";
         marker.style.marginLeft = "3px";
@@ -148,7 +150,7 @@ export default {
       this.loading = true;
       this.$emit("loading");
     },
-    load: function () {
+    load: function (): void {
       if (this.previewing === null) {
         return;
       }
@@ -166,7 +168,7 @@ export default {
     refresh: function () {
       this.editor.refresh();
     },
-    receiveMessage: function (msg) {
+    receiveMessage: function (msg: object) {
       if (msg.data.error) {
         let errObj = msg.data.error;
         this.previewData = errObj.line
@@ -202,7 +204,7 @@ export default {
     }
   },
   watch: {
-    previewData: function (newValue, oldValue) {
+    previewData: function (newValue: string, oldValue: string) {
       let editorValue = this.editor.getValue();
       if (newValue !== editorValue) {
         let scrollInfo = this.editor.getScrollInfo();
@@ -218,7 +220,7 @@ export default {
         this.refresh();
       }
     },
-    previewing: function (newValue, oldValue) {
+    previewing: function (newValue: FileMeta, oldValue: FileMeta) {
       if (!_isEqual(newValue, oldValue)) {
         this.load();
       }
@@ -226,7 +228,7 @@ export default {
         this.firstLoad = true;
       }
     },
-    panelSize: function (newValue, oldValue) {
+    panelSize: function (newValue: number, oldValue: number) {
       if (newValue !== null && newValue !== oldValue) {
         this.refresh();
       }

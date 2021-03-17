@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import ModalWindow from './_modal-window';
 import FilePicker from './_file-picker';
@@ -20,7 +20,7 @@ export default {
     }
   },
   methods: {
-    convert: function() {
+    convert: function(): void {
       this.$emit("convert", this.all ? null : this.file, this.force);
       this.$emit("close");
     },
