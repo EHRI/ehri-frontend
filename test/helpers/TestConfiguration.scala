@@ -3,6 +3,7 @@ package helpers
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.testkit.{ImplicitSender, TestKitBase}
+import akka.util.Timeout
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
@@ -38,6 +39,7 @@ import utils.MockBufferedMailer
 import java.nio.file.Paths
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Random
 
@@ -48,7 +50,12 @@ import scala.util.Random
  */
 trait TestConfiguration {
 
-  this: PlayRunners with RouteInvokers =>
+  this: PlayRunners with RouteInvokers with DefaultAwaitTimeout =>
+
+  // Wait for up to 60 seconds for stuff to happen... this is excessive except
+  // in some very slow CI environments
+  override implicit def defaultAwaitTimeout: Timeout = 60.seconds
+
 
   // Stateful buffers for capturing stuff like feedback, search
   // parameters, and reset tokens. These persist across tests in
@@ -180,7 +187,7 @@ trait TestConfiguration {
         inject[play.api.routing.Router]
 
         super.around(t)
-      }))
+      }))(defaultAwaitTimeout)
     }
   }
 
