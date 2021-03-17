@@ -20,6 +20,7 @@ import DataManagerApi from '../api';
 
 import _startsWith from 'lodash/startsWith';
 import _last from 'lodash/last';
+import {ImportConfig} from "../types";
 
 
 export default {
@@ -41,7 +42,7 @@ export default {
     }
   },
   methods: {
-    monitorIngest: function (url, jobId) {
+    monitorIngest: function (url: string, jobId: string) {
       this.tab = 'ingest';
 
       let worker = new Worker(this.config.previewLoader);
@@ -72,7 +73,7 @@ export default {
         this.monitorIngest(this.config.monitorUrl(jobId), jobId, this.files.map(f => f.key));
       }
     },
-    doIngest: function(opts, commit) {
+    doIngest: function(opts: ImportConfig, commit: boolean) {
       this.waiting = true;
 
       // Save opts for the next time we open the config UI

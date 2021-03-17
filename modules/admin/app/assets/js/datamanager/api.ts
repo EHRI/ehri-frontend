@@ -8,7 +8,7 @@ import {
   ImportConfig, ImportDataset, ImportDatasetInfo,
   JobMonitor,
   OaiPmhConfig,
-  ResourceSyncConfig
+  ResourceSyncConfig, ValidationResult
 } from "./types";
 
 /**
@@ -26,8 +26,8 @@ export default class DataManagerApi {
     this.repoId = repoId;
   }
 
-  private static call(endpoint: {url: string, method: any}, data?: object) {
-    return axios.request({
+  private static call<T>(endpoint: {url: string, method: any}, data?: object): Promise<T> {
+    return axios.request<T>({
       url: endpoint.url,
       method: endpoint.method,
       data: data,
@@ -70,7 +70,7 @@ export default class DataManagerApi {
     return DataManagerApi.call(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
   }
 
-  validateFiles(ds: string, stage: string, tagToPath: object): Promise<object[]> {
+  validateFiles(ds: string, stage: string, tagToPath: object): Promise<ValidationResult[]> {
     return DataManagerApi.call(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
   }
 

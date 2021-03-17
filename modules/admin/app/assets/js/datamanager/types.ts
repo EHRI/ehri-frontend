@@ -91,3 +91,14 @@ export interface FileToUpload {
   size: number,
 }
 
+export interface XmlValidationError {
+  line: number,
+  pos: number,
+  error: string,
+}
+
+export interface ValidationResult {
+  key: string,
+  eTag?: string,
+  errors: XmlValidationError[],
+}

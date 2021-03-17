@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import FilterControl from './_filter-control';
 import ButtonValidate from './_button-validate';
@@ -25,7 +25,7 @@ import _pick from 'lodash/pick';
  * Custom Error class
  */
 class UploadCancelled extends Error {
-  constructor(fileName) {
+  constructor(fileName: string) {
     super("Upload cancelled: " + fileName);
     this.name = "UploadCancelled";
   }
@@ -45,21 +45,22 @@ class UploadCancelled extends Error {
  * @returns {*|Promise<{cancelled: *, done: *}>}
  */
 function sequentialUpload(uploadFunc, argArray, index, {done, cancelled}) {
-  if (index >= argArray.length) return Promise.resolve({done, cancelled});
-  return uploadFunc(argArray[index])
-      .then(() => sequentialUpload(uploadFunc, argArray, index + 1, {
-        done: done + 1, cancelled
-      }))
-      .catch(e => {
-        if (e instanceof UploadCancelled) {
-          return Promise.resolve(sequentialUpload(uploadFunc, argArray, index + 1, {
-            done,
-            cancelled: cancelled + 1
-          }));
-        } else {
-          throw e;
-        }
-      });
+  return index >= argArray.length
+      ? Promise.resolve({done, cancelled})
+      : uploadFunc(argArray[index])
+        .then(() => sequentialUpload(uploadFunc, argArray, index + 1, {
+          done: done + 1, cancelled
+        }))
+        .catch(e => {
+          if (e instanceof UploadCancelled) {
+            return Promise.resolve(sequentialUpload(uploadFunc, argArray, index + 1, {
+              done,
+              cancelled: cancelled + 1
+            }));
+          } else {
+            throw e;
+          }
+        });
 }
 
 export default {

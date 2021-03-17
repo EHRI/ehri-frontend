@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+
+import {FileMeta} from '../types';
 
 export default {
   data: function() {
@@ -7,7 +9,7 @@ export default {
     }
   },
   methods: {
-    showPreview: function (file) {
+    showPreview: function (file: FileMeta) {
       this.previewing = file;
       this.tab = 'preview';
     },

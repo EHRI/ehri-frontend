@@ -7,7 +7,7 @@ export default {
     }
   },
   methods: {
-    setPanelSize: function (arbitrarySize): void {
+    setPanelSize: function (arbitrarySize: number): void {
       this.panelSize = arbitrarySize;
     }
   }

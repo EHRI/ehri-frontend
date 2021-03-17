@@ -2,7 +2,7 @@
 export default {};
 </script>
 
-<template>
+<template functional>
   <div class="modal show fade" tabindex="-1" role="dialog" style="display: block">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -10,7 +10,7 @@ export default {};
           <h5 class="modal-title">
             <slot name="title"></slot>
           </h5>
-          <button type="button" class="close" aria-label="Close" v-on:click="$emit('close')">
+          <button type="button" class="close" aria-label="Close" v-on:click="listeners['close']()">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>

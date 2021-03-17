@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import ModalWindow from './_modal-window';
 import DataManagerApi from '../api';

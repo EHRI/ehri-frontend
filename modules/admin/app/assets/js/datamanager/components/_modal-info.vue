@@ -1,4 +1,4 @@
-<script>
+<script type="ts">
 
 import {prettyDate, humanFileSize} from "../common";
 import ModalWindow from './_modal-window';
