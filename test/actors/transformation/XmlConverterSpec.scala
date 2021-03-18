@@ -3,9 +3,10 @@ package actors.transformation
 import actors.transformation.XmlConverterManager.{XmlConvertData, XmlConvertJob}
 import akka.actor.Props
 import akka.stream.scaladsl.{Flow, Source}
+import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.ByteString
 import com.google.inject.name.Names
-import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
+import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{DataTransformation, UserProfile}
 import play.api.Application
@@ -15,7 +16,7 @@ import services.transformation.XmlTransformer
 
 import java.util.UUID
 
-class XmlConverterSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
+class XmlConverterSpec extends IntegrationTestRunner {
 
   import XmlConverter._
 
@@ -32,49 +33,55 @@ class XmlConverterSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunn
 
   "XML converter" should {
     "send the right messages when there's nothing to do" in new ITestApp {
-      val ds = UUID.randomUUID().toString
-      val job = XmlConvertJob("r1", ds, ds,
-        XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
-      val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
-      converter ! Initial
-      expectMsg(Starting)
-      expectMsg(Counting)
-      expectMsg(Counted(0))
-      expectMsgClass(classOf[Completed])
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val ds = UUID.randomUUID().toString
+        val job = XmlConvertJob("r1", ds, ds,
+          XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
+        val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
+        converter ! Initial
+        expectMsg(Starting)
+        expectMsg(Counting)
+        expectMsg(Counted(0))
+        expectMsgClass(classOf[Completed])
+      }
     }
 
     "copy files when transformation is a no-op" in new ITestApp {
-      val ds = UUID.randomUUID().toString
-      val job = XmlConvertJob("r1", ds, ds,
-        XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val ds = UUID.randomUUID().toString
+        val job = XmlConvertJob("r1", ds, ds,
+          XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
 
-      await(damStorage.putBytes(job.data.inPrefix + "file.xml", Source.single(ByteString("<xml>test</xml>"))))
-      val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
-      converter ! Initial
-      expectMsg(Starting)
-      expectMsg(Counting)
-      expectMsg(Counted(1))
-      expectMsg(DoneFile("+ file.xml"))
-      expectMsgClass(classOf[Completed])
+        await(damStorage.putBytes(job.data.inPrefix + "file.xml", Source.single(ByteString("<xml>test</xml>"))))
+        val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
+        converter ! Initial
+        expectMsg(Starting)
+        expectMsg(Counting)
+        expectMsg(Counted(1))
+        expectMsg(DoneFile("+ file.xml"))
+        expectMsgClass(classOf[Completed])
+      }
     }
 
     "not re-copy when a prior identical transformation has been run" in new ITestApp {
-      val ds = UUID.randomUUID().toString
-      val job = XmlConvertJob("r1", ds, ds,
-        XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val ds = UUID.randomUUID().toString
+        val job = XmlConvertJob("r1", ds, ds,
+          XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
 
-      await(damStorage.putBytes(job.data.inPrefix + "file.xml", Source.single(ByteString("<xml>test</xml>"))))
-      val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
-      converter ! Initial
-      val completed: Completed = fishForSpecificMessage() { case c: Completed => c }
-      completed.done must_== 1
-      completed.fresh must_== 1
+        await(damStorage.putBytes(job.data.inPrefix + "file.xml", Source.single(ByteString("<xml>test</xml>"))))
+        val converter = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
+        converter ! Initial
+        val completed: Completed = fishForSpecificMessage() { case c: Completed => c }
+        completed.done must_== 1
+        completed.fresh must_== 1
 
-      val converter2 = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
-      converter2 ! Initial
-      val completed2: Completed = fishForSpecificMessage() { case c: Completed => c }
-      completed2.done must_== 1
-      completed2.fresh must_== 0
+        val converter2 = implicitActorSystem.actorOf(Props(XmlConverter(job, transformer, damStorage)))
+        converter2 ! Initial
+        val completed2: Completed = fishForSpecificMessage() { case c: Completed => c }
+        completed2.done must_== 1
+        completed2.fresh must_== 0
+      }
     }
   }
 }

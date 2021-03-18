@@ -12,6 +12,7 @@ import services.storage.FileStorage
 import utils.WebsocketConstants
 
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -47,6 +48,7 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
+      log.error("Received a supervising error from a child", e)
       self ! Error(e)
       Stop
   }
@@ -77,7 +79,9 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
       context.become(running(runner, subs + chan, handle))
 
     case Terminated(actor) if actor == runner =>
-      context.stop(self)
+      log.debug("Harvest runner terminated")
+      context.system.scheduler.scheduleOnce(5.seconds, self,
+        "Harvest runner unexpectedly shut down")
 
     // Remove terminated subscribers
     case Terminated(chan) =>
