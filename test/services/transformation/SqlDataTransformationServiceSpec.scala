@@ -1,17 +1,13 @@
 package services.transformation
 
-import akka.actor.ActorSystem
 import helpers._
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 
-class SqlDataTransformationServiceSpec extends PlaySpecification {
+class SqlDataTransformationServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  def service(implicit db: Database) = SqlDataTransformationService(db, actorSystem)
+  def service(implicit db: Database) = SqlDataTransformationService(db, implicitApp.actorSystem)
 
   private val dsId = "default";
   private val dtId = "FG8jdRd43j" // from fixture file

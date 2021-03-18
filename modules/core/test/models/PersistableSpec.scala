@@ -1,15 +1,14 @@
-package models.base
+package models
 
 import play.api.test.PlaySpecification
-import models.{DatePeriod, DatePeriodF, Persistable}
 import services.data.ErrorSet
 
 
 class PersistableSpec extends PlaySpecification {
 
-  import play.api.libs.json._
   import play.api.data.Form
   import play.api.data.Forms._
+  import play.api.libs.json._
 
   case class SomeData(
     id: Option[String] = None,

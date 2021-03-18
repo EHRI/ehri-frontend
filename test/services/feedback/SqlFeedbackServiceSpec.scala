@@ -1,19 +1,15 @@
 package services.feedback
 
-import akka.actor.ActorSystem
-import helpers.withDatabaseFixture
+import helpers.{SimpleAppTest, withDatabaseFixture}
 import models.Feedback
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 import utils.{Page, PageParams}
 
 
-class SqlFeedbackServiceSpec extends PlaySpecification {
+class SqlFeedbackServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  private def feedbackService(implicit db: Database) = SqlFeedbackService(db, actorSystem)
+  private def feedbackService(implicit db: Database) = SqlFeedbackService(db, implicitApp.actorSystem)
 
   "Feedback service" should {
     "locate items correctly" in {

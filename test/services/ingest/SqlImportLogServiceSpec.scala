@@ -1,18 +1,20 @@
 package services.ingest
 
-import java.util.UUID
 import akka.actor.ActorSystem
 import helpers._
 import models.{ContentTypes, ImportLog, IngestParams, UrlMapPayload}
+import org.specs2.specification.AfterAll
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 import services.data.AnonymousUser
 import services.ingest.IngestService.IngestData
 
-class SqlImportLogServiceSpec extends PlaySpecification {
+import java.util.UUID
 
-  private val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
+class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
+
+  private val actorSystem = ActorSystem()
+  override def afterAll: Unit = await(actorSystem.terminate())
 
   def service(implicit db: Database) = SqlImportLogService(db, actorSystem)
   private val keyVersion = "foo.ead?versionId=1"

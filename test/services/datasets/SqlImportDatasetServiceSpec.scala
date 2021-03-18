@@ -1,18 +1,14 @@
 package services.datasets
 
-import akka.actor.ActorSystem
 import helpers._
 import models.{ImportDataset, ImportDatasetInfo}
 import org.postgresql.util.PSQLException
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 
-class SqlImportDatasetServiceSpec extends PlaySpecification {
+class SqlImportDatasetServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  def service(implicit db: Database) = SqlImportDatasetService(db, actorSystem)
+  def service(implicit db: Database) = SqlImportDatasetService(db, implicitApp.actorSystem)
 
   "Dataset service" should {
     "locate items" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>

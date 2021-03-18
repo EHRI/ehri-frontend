@@ -1,17 +1,13 @@
 package services.harvesting
 
-import akka.actor.ActorSystem
 import helpers._
 import models.ResourceSyncConfig
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 
-class SqlResourceSyncConfigServiceSpec extends PlaySpecification {
+class SqlResourceSyncConfigServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  def service(implicit db: Database) = SqlResourceSyncConfigService(db, actorSystem)
+  def service(implicit db: Database) = SqlResourceSyncConfigService(db, implicitApp.actorSystem)
 
   "ResourceSync config service" should {
     "locate items" in withDatabaseFixture("resourcesync-config-fixtures.sql") { implicit db =>

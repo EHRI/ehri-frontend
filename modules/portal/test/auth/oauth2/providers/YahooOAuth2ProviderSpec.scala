@@ -1,8 +1,8 @@
 package auth.oauth2.providers
 
 import helpers.ResourceUtils
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
+import play.api.{Configuration, Environment}
 
 /**
    */
@@ -10,7 +10,7 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   val testAccessData = resourceAsString("yahooAccessData.json")
   val testUserData = resourceAsString("yahooUserData.json")
-  val config = new GuiceApplicationBuilder().build().configuration
+  val config = Configuration.load(Environment.simple())
 
   "Yahoo OAuth2 provider" should {
     "parse access data" in {

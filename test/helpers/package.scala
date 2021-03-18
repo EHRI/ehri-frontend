@@ -34,8 +34,12 @@ package object helpers {
 
   def withDatabase[T](block: Database => T): T = {
     val db: Database = loadDatabaseForSimpleConfig
-    Evolutions.withEvolutions(db) {
-      block(db)
+    try {
+      Evolutions.withEvolutions(db) {
+        block(db)
+      }
+    } finally {
+      db.shutdown()
     }
   }
 

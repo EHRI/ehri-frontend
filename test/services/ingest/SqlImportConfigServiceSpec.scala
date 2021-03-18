@@ -1,17 +1,13 @@
 package services.ingest
 
-import akka.actor.ActorSystem
 import helpers._
 import models.ImportConfig
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 
-class SqlImportConfigServiceSpec extends PlaySpecification {
+class SqlImportConfigServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  def service(implicit db: Database) = SqlImportConfigService(db, actorSystem)
+  def service(implicit db: Database) = SqlImportConfigService(db, implicitApp.actorSystem)
 
   "Import config service" should {
     "locate items" in withDatabaseFixture("import-config-fixtures.sql") { implicit db =>

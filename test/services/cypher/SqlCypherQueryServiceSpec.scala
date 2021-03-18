@@ -1,18 +1,14 @@
 package services.cypher
 
-import akka.actor.ActorSystem
-import models.CypherQuery
 import helpers._
+import models.CypherQuery
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 import utils.{Page, PageParams}
 
-class SqlCypherQueryServiceSpec extends PlaySpecification {
+class SqlCypherQueryServiceSpec extends SimpleAppTest with PlaySpecification {
 
-  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
-
-  def queryService(implicit db: Database) = SqlCypherQueryService(db, actorSystem)
+  def queryService(implicit db: Database) = SqlCypherQueryService(db, implicitApp.actorSystem)
 
   "Cypher Query service" should {
     "locate items correctly" in withDatabaseFixture("cypher-query-fixtures.sql") { implicit db =>
