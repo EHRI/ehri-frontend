@@ -1,27 +1,26 @@
 package services.accounts
 
-import java.sql.{SQLException, SQLIntegrityConstraintViolationException}
-import java.time.ZonedDateTime
-import java.util.UUID
-
 import akka.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import auth.HashedPassword
-import helpers.withFixtures
+import helpers.{SimpleAppTest, withFixtures}
 import models.Account
 import play.api.db.Database
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
 import utils.PageParams
 
+import java.sql.{SQLException, SQLIntegrityConstraintViolationException}
+import java.time.ZonedDateTime
+import java.util.UUID
 
-class SqlAccountManagerSpec extends PlaySpecification {
+
+class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
 
   private implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
-  private implicit val actorSystem = new GuiceApplicationBuilder().build().injector.instanceOf[ActorSystem]
 
-  def accounts(implicit db: Database, actorSystem: ActorSystem): AccountManager = SqlAccountManager(db, actorSystem)
+  private implicit val actorSystem: ActorSystem = implicitApp.actorSystem
+  def accounts(implicit db: Database): AccountManager = SqlAccountManager(db, actorSystem)
 
   "account manager" should {
     "load fixtures with the right number of accounts" in withFixtures { implicit db =>

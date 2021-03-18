@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_USER: docview_test
       POSTGRES_PASSWORD: changeme
-    command: -c "max_connections=1000" -c "shared_buffers=256MB"
+    command: -c "shared_buffers=256MB"
 
   # The actual Neo4j data backend
   neo4j:

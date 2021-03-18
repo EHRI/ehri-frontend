@@ -1,15 +1,15 @@
 package auth.oauth2.providers
 
-import auth.oauth2.{OAuth2Info, OAuth2Constants}
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.PlaySpecification
+import auth.oauth2.{OAuth2Constants, OAuth2Info}
 import helpers.ResourceUtils
+import play.api.test.PlaySpecification
+import play.api.{Configuration, Environment}
 
 class GoogleOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   def testAccessData = resourceAsString("googleAccessData.json")
   def testUserData = resourceAsString("googleUserData.json")
-  val config = new GuiceApplicationBuilder().build().configuration
+  val config = Configuration.load(Environment.simple())
 
   "Google OAuth2 provider" should {
     "parse access data" in {

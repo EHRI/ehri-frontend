@@ -1,9 +1,9 @@
 package auth.oauth2.providers
 
 import auth.oauth2.{OAuth2Constants, OAuth2Info}
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.PlaySpecification
 import helpers.ResourceUtils
+import play.api.test.PlaySpecification
+import play.api.{Configuration, Environment}
 
 /**
    */
@@ -11,7 +11,7 @@ class FacebookOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   def testAccessData = resourceAsString("facebookAccessData.json")
   def testUserData = resourceAsString("facebookUserData.json")
-  val config = new GuiceApplicationBuilder().build().configuration
+  val config = Configuration.load(Environment.simple())
 
    "Facebook OAuth2 provider" should {
      "parse access data" in {

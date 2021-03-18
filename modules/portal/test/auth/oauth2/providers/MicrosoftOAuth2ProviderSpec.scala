@@ -3,14 +3,14 @@ package auth.oauth2.providers
 import auth.oauth2.OAuth2Info
 import helpers.ResourceUtils
 import play.api.http.HeaderNames
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.PlaySpecification
+import play.api.{Configuration, Environment}
 
 class MicrosoftOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   def testAccessData = resourceAsString("microsoftAccessData.json")
   def testUserData = resourceAsString("microsoftUserData.json")
-  val config = new GuiceApplicationBuilder().build().configuration
+  val config = Configuration.load(Environment.simple())
 
   "Microsoft OAuth2 provider" should {
     "parse access data" in {

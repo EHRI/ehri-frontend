@@ -4,18 +4,18 @@ import helpers.ResourceUtils
 import models.Description
 import play.api.test.PlaySpecification
 import services.search.FieldFacetClass
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import play.api.libs.json.Json
 
 
 class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
 
-  private def app(config: Map[String, Any] = Map.empty): play.api.Application =
-      new play.api.inject.guice.GuiceApplicationBuilder().configure(config).build()
   private def jsonResponseString: String = resourceAsString("solrQueryResponse1.json")
+  private def config(json: Boolean = false) =
+    Configuration.load(Environment.simple(), devSettings = Map("search.jsonFacets" -> json.toString))
 
   "Solr JSON Query Parser" should {
-    val jsonHandler = SolrJsonResponseParser(app().injector.instanceOf[Configuration])
+    val jsonHandler = SolrJsonResponseParser(config())
     "parse the correct number of docs with the right IDs" in {
       val qp = jsonHandler.parse(jsonResponseString)
       val docs = qp.items
@@ -44,8 +44,7 @@ class SolrQueryParserSpec extends PlaySpecification with ResourceUtils {
     }
 
     "parse JSON facets correctly" in {
-      val jsonHandler = SolrJsonResponseParser(app(Map("search.jsonFacets" -> true))
-        .injector.instanceOf[Configuration])
+      val jsonHandler = SolrJsonResponseParser(config(json = true))
       val allFacets = List(
           FieldFacetClass(
               key=Description.LANG_CODE,

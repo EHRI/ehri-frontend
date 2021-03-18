@@ -1,11 +1,10 @@
-package models.base
+package models
 
-import play.api.test.PlaySpecification
-import models.{Entity, EntityType, _}
 import eu.ehri.project.definitions.Ontology
+import models.Description._
+import play.api.i18n.{DefaultMessagesApi, Lang, MessagesApi, MessagesImpl}
 import play.api.libs.json.{JsObject, Json}
-import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
-import Description._
+import play.api.test.PlaySpecification
 
 case class TestDescriptionF(
   id: Option[String],
@@ -45,8 +44,7 @@ case class TestModel(
 
 class ModelSpec extends PlaySpecification with play.api.i18n.I18nSupport {
 
-  implicit val application = new play.api.inject.guice.GuiceApplicationBuilder().build
-  implicit val messagesApi = application.injector.instanceOf[MessagesApi]
+  implicit val messagesApi: MessagesApi = new DefaultMessagesApi()
 
   val accessPoint1 = AccessPoint(data = AccessPointF(
     id = Some("ap1"),
