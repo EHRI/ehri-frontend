@@ -2,6 +2,7 @@ package helpers
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import akka.testkit.{ImplicitSender, TestKitBase}
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
@@ -164,9 +165,9 @@ trait TestConfiguration {
    */
   protected abstract class ITestApp(val specificConfig: Map[String,Any] = Map.empty) extends WithApplicationLoader(
     new GuiceApplicationLoader(appBuilder.configure(getConfig ++ specificConfig))) with Injecting {
+    lazy implicit val system: ActorSystem = app.actorSystem
     implicit def implicitMaterializer: Materializer = inject[Materializer]
-    implicit def implicitExecContext: ExecutionContext = implicitMaterializer.executionContext
-    implicit def implicitActorSystem: ActorSystem = implicitMaterializer.system
+    implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
     implicit def messagesApi: MessagesApi = inject[MessagesApi]
 
     override def around[T: AsResult](t: => T): Result = {
@@ -183,6 +184,9 @@ trait TestConfiguration {
     }
   }
 
+  protected abstract class ITestAppWithAkka(specificConfig: Map[String,Any] = Map.empty)
+    extends ITestApp(specificConfig) with TestKitBase with ImplicitSender
+
   /**
     * Same as ITestApp but running a server.
     * @param app the app to use
@@ -191,8 +195,8 @@ trait TestConfiguration {
   protected abstract class ITestServer(app: Application = GuiceApplicationBuilder().configure(getConfig).build(),
     port: Int = Helpers.testServerPort) extends WithServer(app, port) with Injecting {
 
+    implicit lazy val system: ActorSystem = inject[ActorSystem]
     implicit def implicitExecContext: ExecutionContext = inject[ExecutionContext]
-    implicit def implicitActorSystem: ActorSystem = inject[ActorSystem]
 
     override def around[T: AsResult](t: => T): Result = await(loadFixtures(() => {
       // NB: this line is needed because since Play 2.8.2 the router is lazily

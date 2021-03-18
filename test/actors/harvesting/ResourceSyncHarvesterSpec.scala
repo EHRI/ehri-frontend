@@ -31,7 +31,7 @@ class ResourceSyncHarvesterSpec extends IntegrationTestRunner {
   "ResourceSync harvest" should {
 
     "send correct messages when syncing a capabilitylist" in new ITestApp {
-      new TestKit(implicitActorSystem) with ImplicitSender {
+      new TestKit(system) with ImplicitSender {
         val runner = system.actorOf(Props(ResourceSyncHarvester(job, client, storage)))
 
         runner ! Initial
@@ -45,7 +45,7 @@ class ResourceSyncHarvesterSpec extends IntegrationTestRunner {
     }
 
     "allow cancellation" in new ITestApp {
-      new TestKit(implicitActorSystem) with ImplicitSender {
+      new TestKit(system) with ImplicitSender {
         val runner = system.actorOf(Props(harvesting.ResourceSyncHarvester(job, client, storage)))
 
         // NB: this test is slightly non-deterministic in that the first `ToDo` can

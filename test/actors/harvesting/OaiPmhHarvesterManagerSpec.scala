@@ -4,13 +4,12 @@ import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.Cancel
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
-import akka.testkit.{ImplicitSender, TestKit}
 import config.serviceBaseUrl
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
 import models.{HarvestEvent, OaiPmhConfig, UserProfile}
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient}
 import services.storage.FileStorage
@@ -42,8 +41,11 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
   "OAI-PMH harvester" should {
     import scala.concurrent.duration._
 
-    "send correct messages when harvesting an endpoint" in new ITestApp {
-      new TestKit(implicitActorSystem) with ImplicitSender {
+    "do nothing" in new ITestApp {
+      success
+    }
+
+    "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
         val harvester = system.actorOf(Props(OaiPmhHarvesterManager(job, client, storage, events)))
 
@@ -56,11 +58,9 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
         events.events.lift(1) must beSome[HarvestEvent]
           .which(_.eventType must_== HarvestEventType.Completed)
-      }
     }
 
-    "harvest selectively with `from` date" in new ITestApp {
-      new TestKit(implicitActorSystem) with ImplicitSender {
+    "harvest selectively with `from` date" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
         val start: Instant = Instant.now()
         val job2 = job(app)
@@ -72,11 +72,9 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(start)}")
         expectMsg("Done: nothing new to sync")
         events.events.size must_== 0
-      }
     }
 
-    "cancel jobs" in new ITestApp {
-      new TestKit(implicitActorSystem) with ImplicitSender {
+    "cancel jobs" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
         val harvester = system.actorOf(Props(harvesting.OaiPmhHarvesterManager(job, client, storage, events)))
 
@@ -94,7 +92,6 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         // Wait up to 20 seconds for the expected events to appear
         events.events.find(_.eventType == HarvestEventType.Cancelled) must beSome
           .eventually(retries = 300, sleep = 200.millis)
-      }
     }
   }
 }
