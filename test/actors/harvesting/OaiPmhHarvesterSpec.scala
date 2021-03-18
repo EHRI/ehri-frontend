@@ -3,15 +3,16 @@ package actors.harvesting
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
+import akka.testkit.{ImplicitSender, TestKit}
 import config.serviceBaseUrl
-import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
+import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{OaiPmhConfig, UserProfile}
 import play.api.{Application, Configuration}
 import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
 
-class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
+class OaiPmhHarvesterSpec extends IntegrationTestRunner {
 
   private def client(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
@@ -32,23 +33,27 @@ class OaiPmhHarvesterSpec extends AkkaTestkitSpecs2Support with IntegrationTestR
   "OAI-PMH harvest runner" should {
 
     "send correct messages when harvesting an endpoint" in new ITestApp {
-      val runner = system.actorOf(Props(OaiPmhHarvester(job, client, storage)))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val runner = system.actorOf(Props(OaiPmhHarvester(job, client, storage)))
 
-      runner ! Initial
-      expectMsg(Starting)
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
-      expectMsgClass(classOf[Completed])
+        runner ! Initial
+        expectMsg(Starting)
+        expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+        expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+        expectMsgClass(classOf[Completed])
+      }
     }
 
     "allow cancellation" in new ITestApp {
-      val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage)))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage)))
 
-      runner ! Initial
-      expectMsg(Starting)
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
-      runner ! Cancel
-      expectMsgClass(classOf[Cancelled])
+        runner ! Initial
+        expectMsg(Starting)
+        expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+        runner ! Cancel
+        expectMsgClass(classOf[Cancelled])
+      }
     }
   }
 }

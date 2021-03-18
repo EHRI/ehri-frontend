@@ -1,14 +1,15 @@
 package actors.ingest
 
 import akka.actor.Props
-import helpers.{AkkaTestkitSpecs2Support, IntegrationTestRunner}
-import models.{ContentTypes, ErrorLog, ImportLog, IngestParams, UrlMapPayload, UserProfile}
+import akka.testkit.{ImplicitSender, TestKit}
+import helpers.IntegrationTestRunner
+import models._
 import services.data.ApiUser
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 import utils.WebsocketConstants
 
-class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationTestRunner {
+class DataImporterManagerSpec extends IntegrationTestRunner {
   import mockdata.adminUserProfile
 
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
@@ -35,27 +36,31 @@ class DataImporterManagerSpec extends AkkaTestkitSpecs2Support with IntegrationT
   "Data Import manager" should {
 
     "send correct messages when importing files" in new ITestApp {
-      val importApi = MockIngestService(ImportLog())
-      val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val importApi = MockIngestService(ImportLog())
+        val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
-      importManager ! self
+        importManager ! self
 
-      expectMsg(s"Initialising ingest for job: $jobId...")
-      expectMsg("Data: created: 0, updated: 0, unchanged: 0, errors: 0")
-      expectMsg("Task was a dry run so not proceeding to reindex")
-      expectMsg("Uploading log...")
-      expectMsg("Log stored at http://example.com/log")
-      expectMsg(WebsocketConstants.DONE_MESSAGE)
+        expectMsg(s"Initialising ingest for job: $jobId...")
+        expectMsg("Data: created: 0, updated: 0, unchanged: 0, errors: 0")
+        expectMsg("Task was a dry run so not proceeding to reindex")
+        expectMsg("Uploading log...")
+        expectMsg("Log stored at http://example.com/log")
+        expectMsg(WebsocketConstants.DONE_MESSAGE)
+      }
     }
 
     "send correct messages when imports throw an error" in new ITestApp {
-      val importApi = MockIngestService(ErrorLog("identifier", "Missing field"))
-      val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
+      new TestKit(implicitActorSystem) with ImplicitSender {
+        val importApi = MockIngestService(ErrorLog("identifier", "Missing field"))
+        val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
-      importManager ! self
+        importManager ! self
 
-      expectMsg(s"Initialising ingest for job: $jobId...")
-      expectMsg("Error: identifier: Missing field")
+        expectMsg(s"Initialising ingest for job: $jobId...")
+        expectMsg("Error: identifier: Missing field")
+      }
     }
   }
 }
