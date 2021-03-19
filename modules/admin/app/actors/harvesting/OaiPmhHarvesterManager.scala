@@ -1,8 +1,7 @@
 package actors.harvesting
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import actors.harvesting.OaiPmhHarvesterManager.{Finalise, OaiPmhHarvestJob}
+import akka.actor.Status.Failure
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{OaiPmhConfig, UserProfile}
@@ -11,10 +10,11 @@ import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClien
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 
 object OaiPmhHarvesterManager {
@@ -54,6 +54,11 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
       Stop
   }
 
+  override def postStop(): Unit = {
+    log.debug("Harvester manager stopped")
+    super.postStop()
+  }
+
  // Ready state: we've received a job but won't actually start
   // until there is a channel to talk through
   override def receive: Receive = {
@@ -81,6 +86,7 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
       // If runner has died wait a few seconds before terminating ourselves...
     case Terminated(actor) if actor == runner =>
+      log.debug(s"Actor terminated: $actor")
       context.system.scheduler.scheduleOnce(5.seconds, self,
         "Harvest runner unexpectedly shut down")
 
@@ -106,15 +112,12 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
     // A file has been harvested
     case DoneFile(id) =>
-      msg(id, subs)
       if (handle.isEmpty) {
-        eventLog.save(job.repoId, job.datasetId, job.jobId).pipeTo(self)
+        log.debug("Initialising event log handle")
+        val handle = Await.result(eventLog.save(job.repoId, job.datasetId, job.jobId), 5.seconds)
+        context.become(running(runner, subs, Some(handle)))
       }
-
-      // We've received a log handle which we can use to say how
-      // this job finished: via error, cancellation, or otherwise
-    case handle: HarvestEventHandle =>
-      context.become(running(runner, subs, Some(handle)))
+      msg(id, subs)
 
     // Received confirmation that the runner has shut down
     case Cancelled(count, secs) =>
@@ -145,12 +148,14 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
     // Error case where we get some other problem...
     case e: OaiPmhError =>
       runAndThen(handle, _.error(e)) (
-          Finalise(s"${WebsocketConstants.ERR_MESSAGE}: ${e.code}"))
+          Finalise(
+            s"${WebsocketConstants.ERR_MESSAGE}: ${Messages("oaipmh.error." + e.getMessage)}"))
         .pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event
     // and shut down
     case Error(e) =>
+      log.debug(s"Finalising with error: ${e.getMessage}")
       runAndThen(handle, _.error(e))(Finalise(
         Messages(
           "harvesting.error",
@@ -159,17 +164,22 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
         ))).pipeTo(self)
 
     case Finalise(s) =>
+      log.debug("Running finalise on harvest manager")
       msg(s, subs)
       context.become(running(runner, subs, Option.empty))
       context.stop(self)
+
+    case Failure(e) =>
+      log.error("Harvesting error {}", e)
 
     case m =>
       log.error(s"Unexpected message: $m")
   }
 
   private def runAndThen(op: Option[HarvestEventHandle], f: HarvestEventHandle => Future[Unit])(
-      andThen: => Finalise): Future[Finalise] =
+      andThen: => Finalise): Future[Finalise] = {
     op.fold(ifEmpty = immediate(()))(s => f(s)).map(_ => andThen)
+  }
 
   private def msg(s: String, subs: Set[ActorRef]): Unit = {
     log.info(s + s" (subscribers: ${subs.size})")

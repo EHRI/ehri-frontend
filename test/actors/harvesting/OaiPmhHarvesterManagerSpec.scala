@@ -41,10 +41,6 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
   "OAI-PMH harvester" should {
     import scala.concurrent.duration._
 
-    "do nothing" in new ITestApp {
-      success
-    }
-
     "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
         val harvester = system.actorOf(Props(OaiPmhHarvesterManager(job, client, storage, events)))
@@ -56,8 +52,23 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         expectMsgAnyOf("c4", "nl-r1-m19")
         val msg: String = receiveOne(5.seconds).asInstanceOf[String]
         msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
-        events.events.lift(1) must beSome[HarvestEvent]
+        await(events.get("r1")).lift(1) must beSome[HarvestEvent]
           .which(_.eventType must_== HarvestEventType.Completed)
+          .eventually(20, 100.millis)
+    }
+
+    "handle errors" in new ITestAppWithAkka {
+      val events = MockHarvestEventService()
+      val harvestConf = job.copy(data = job.data.copy(config = job.data.config.copy(url = "http://example.com/oaipmh")))
+      val harvester = system.actorOf(Props(OaiPmhHarvesterManager(harvestConf, client, storage, events)))
+
+      harvester ! self // initial subscriber should start harvesting
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Harvesting from earliest date")
+      expectMsg(20.seconds, s"${WebsocketConstants.ERR_MESSAGE}: ${Messages("oaipmh.error.url")}")
+
+      // If there's an error before anything is harvested we don't log anything
+      await(events.get("r1")).size must_== 0
     }
 
     "harvest selectively with `from` date" in new ITestAppWithAkka {
@@ -71,7 +82,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         expectMsg(s"Starting harvest with job id: $jobId")
         expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(start)}")
         expectMsg("Done: nothing new to sync")
-        events.events.size must_== 0
+        await(events.get("r1")).size must_== 0
     }
 
     "cancel jobs" in new ITestAppWithAkka {
@@ -82,7 +93,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         expectMsg(s"Starting harvest with job id: $jobId")
         expectMsg(s"Harvesting from earliest date")
         expectMsgAnyOf("c4", "nl-r1-m19")
-        events.events.head.eventType must_== HarvestEventType.Started
+        await(events.get("r1")).head.eventType must_== HarvestEventType.Started
 
         harvester ! Cancel
 
@@ -90,7 +101,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
 
         // Wait up to a minute for the expected events to appear
-        events.events.find(_.eventType == HarvestEventType.Cancelled) must beSome
+        await(events.get("r1")).find(_.eventType == HarvestEventType.Cancelled) must beSome
           .eventually(retries = 300, sleep = 200.millis)
     }
   }
