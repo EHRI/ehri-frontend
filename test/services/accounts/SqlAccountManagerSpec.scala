@@ -1,13 +1,11 @@
 package services.accounts
 
-import akka.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import auth.HashedPassword
-import helpers.{SimpleAppTest, withFixtures}
+import helpers.IntegrationTestRunner
 import models.Account
-import play.api.db.Database
-import play.api.test.PlaySpecification
+import play.api.Application
 import utils.PageParams
 
 import java.sql.{SQLException, SQLIntegrityConstraintViolationException}
@@ -15,21 +13,20 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 
-class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
+class SqlAccountManagerSpec extends IntegrationTestRunner {
 
   private implicit val dateTimeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  private implicit val actorSystem: ActorSystem = implicitApp.actorSystem
-  def accounts(implicit db: Database): AccountManager = SqlAccountManager(db, actorSystem)
+  private def accounts(implicit app: Application): AccountManager = app.injector.instanceOf[SqlAccountManager]
 
   "account manager" should {
-    "load fixtures with the right number of accounts" in withFixtures { implicit db =>
+    "load fixtures with the right number of accounts" in new DBTestApp("user-fixtures.sql") {
       db.withConnection { implicit connection =>
         SQL"select count(*) from users".as(scalar[Long].single) must equalTo(5L)
       }
     }
 
-    "enforce email uniqueness" in withFixtures { implicit db =>
+    "enforce email uniqueness" in new DBTestApp("user-fixtures.sql") {
       db.withConnection { implicit connection =>
         SQL"""insert into users (id,email,verified,staff)
               values ('blah',${mockdata.privilegedUser.email}, true, true)"""
@@ -38,7 +35,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       }
     }
 
-    "create accounts with correct properties" in withFixtures { implicit db =>
+    "create accounts with correct properties" in new DBTestApp("user-fixtures.sql") {
       // "now" with fudge factor for crap DBs that don't support
       // fractional timestamps...
       val now = ZonedDateTime.now().minusSeconds(1)
@@ -59,19 +56,19 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       acc.password must beSome.which(_.check("p4ssword") must beTrue)
     }
 
-    "find multiple accounts by id" in withFixtures { implicit db =>
+    "find multiple accounts by id" in new DBTestApp("user-fixtures.sql") {
       val accountsById: Seq[Account] = await(accounts.findAllById(
         Seq(mockdata.privilegedUser.id, mockdata.unprivilegedUser.id)))
       accountsById.find(_.id == mockdata.privilegedUser.id) must beSome
       accountsById.find(_.id == mockdata.unprivilegedUser.id) must beSome
     }
 
-    "handle empty id lists in multiple account queries" in withFixtures { implicit db =>
+    "handle empty id lists in multiple account queries" in new DBTestApp("user-fixtures.sql") {
       val accountsById: Seq[Account] = await(accounts.findAllById(Seq.empty))
       accountsById must beEmpty
     }
 
-    "find accounts by token and expire tokens" in withFixtures { implicit db =>
+    "find accounts by token and expire tokens" in new DBTestApp("user-fixtures.sql") {
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mockdata.privilegedUser.id, uuid, isSignUp = true))
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beSome.which { acc =>
@@ -81,7 +78,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       await(accounts.findByToken(uuid.toString, isSignUp = true)) must beNone
     }
 
-    "set accounts logged in" in withFixtures { implicit db =>
+    "set accounts logged in" in new DBTestApp("user-fixtures.sql") {
       val user = await(accounts.get(mockdata.privilegedUser.id))
       user.lastLogin must beNone
       await(accounts.setLoggedIn(user))
@@ -89,7 +86,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       user2.lastLogin must beSome
     }
 
-    "verify accounts via token" in withFixtures { implicit db =>
+    "verify accounts via token" in new DBTestApp("user-fixtures.sql") {
       val uuid = UUID.randomUUID()
       await(accounts.createToken(mockdata.unverifiedUser.id, uuid, isSignUp = false))
       mockdata.unverifiedUser.verified must beFalse
@@ -99,30 +96,30 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       }
     }
 
-    "find all accounts with pagination" in withFixtures { implicit db =>
+    "find all accounts with pagination" in new DBTestApp("user-fixtures.sql") {
       await(accounts.findAll()).size must equalTo(5)
       await(accounts.findAll(PageParams(limit = 2))).size must equalTo(2)
     }
 
-    "find all accounts with filters" in withFixtures { implicit db =>
+    "find all accounts with filters" in new DBTestApp("user-fixtures.sql") {
       await(accounts.findAll(filters = AccountFilters(staff = None))).size must equalTo(5)
       await(accounts.findAll(filters = AccountFilters(staff = Some(true)))).size must equalTo(3)
       await(accounts.findAll(filters = AccountFilters(staff = Some(false)))).size must equalTo(2)
     }
 
-    "find accounts by id" in withFixtures { implicit db =>
+    "find accounts by id" in new DBTestApp("user-fixtures.sql") {
       db.withConnection { implicit connection =>
         await(accounts.findById(mockdata.privilegedUser.id)) must beSome
       }
     }
 
-    "find accounts by email, case insensitively" in withFixtures { implicit db =>
+    "find accounts by email, case insensitively" in new DBTestApp("user-fixtures.sql") {
       db.withConnection { implicit connection =>
         await(accounts.findByEmail(mockdata.privilegedUser.email.toUpperCase())) must beSome
       }
     }
 
-    "allow deactivating accounts" in withFixtures { implicit db =>
+    "allow deactivating accounts" in new DBTestApp("user-fixtures.sql") {
       db.withConnection { implicit connection =>
         await(accounts.findById(mockdata.privilegedUser.id)) must beSome.which { user =>
           user.active must beTrue
@@ -134,7 +131,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       }
     }
 
-    "allow setting and updating user's passwords" in withFixtures { implicit db =>
+    "allow setting and updating user's passwords" in new DBTestApp("user-fixtures.sql") {
       val userOpt: Option[Account] = await(accounts.findByEmail(mockdata.privilegedUser.email))
       userOpt must beSome.which { user =>
         await(accounts.update(user.copy(password = Some(HashedPassword.fromPlain("foobar")))))
@@ -148,7 +145,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
 
 
   "openid assoc" should {
-    "find accounts by openid_url and allow adding another" in withFixtures { implicit db =>
+    "find accounts by openid_url and allow adding another" in new DBTestApp("user-fixtures.sql") {
       val assocOpt = await(accounts.openId.findByUrl(mockdata.yahooOpenId.url))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
@@ -164,13 +161,13 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       }
     }
 
-    "find all associations" in withFixtures { implicit db =>
+    "find all associations" in new DBTestApp("user-fixtures.sql") {
       await(accounts.openId.findAll).size must equalTo(1)
     }
   }
 
   "oauth2 assoc" should {
-    "find accounts by oauth2 provider info and allow adding another" in withFixtures { implicit db =>
+    "find accounts by oauth2 provider info and allow adding another" in new DBTestApp("user-fixtures.sql") {
       val assocOpt = await(accounts.oAuth2.findByProviderInfo(mockdata.googleOAuthAssoc.providerId, mockdata.googleOAuthAssoc.provider))
       assocOpt must beSome.which { assoc =>
         assoc.user must beSome.which { user =>
@@ -186,7 +183,7 @@ class SqlAccountManagerSpec extends SimpleAppTest with PlaySpecification {
       }
     }
 
-    "find all associations" in withFixtures { implicit db =>
+    "find all associations" in new DBTestApp("user-fixtures.sql") {
       await(accounts.oAuth2.findAll).size must equalTo(2)
     }
   }

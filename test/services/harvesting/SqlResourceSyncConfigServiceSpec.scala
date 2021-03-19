@@ -2,24 +2,23 @@ package services.harvesting
 
 import helpers._
 import models.ResourceSyncConfig
-import play.api.db.Database
-import play.api.test.PlaySpecification
+import play.api.Application
 
-class SqlResourceSyncConfigServiceSpec extends SimpleAppTest with PlaySpecification {
+class SqlResourceSyncConfigServiceSpec extends IntegrationTestRunner {
 
-  def service(implicit db: Database) = SqlResourceSyncConfigService(db, implicitApp.actorSystem)
+  def service(implicit app: Application) = app.injector.instanceOf[SqlResourceSyncConfigService]
 
   "ResourceSync config service" should {
-    "locate items" in withDatabaseFixture("resourcesync-config-fixtures.sql") { implicit db =>
+    "locate items" in new DBTestApp("resourcesync-config-fixtures.sql") {
       val config = await(service.get("r1", "default"))
       config must beSome
     }
 
-    "delete items" in withDatabaseFixture("resourcesync-config-fixtures.sql") { implicit db =>
+    "delete items" in new DBTestApp("resourcesync-config-fixtures.sql") {
       await(service.delete("r1", "default")) must_== true
     }
 
-    "create items" in withDatabaseFixture("resourcesync-config-fixtures.sql") { implicit db =>
+    "create items" in new DBTestApp("resourcesync-config-fixtures.sql") {
       val config = ResourceSyncConfig("https://test.com/testing")
       await(service.save("r1", "default", config)) must_== config
     }

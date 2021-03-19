@@ -1,19 +1,13 @@
 
-import java.io._
-
-import akka.actor.ActorSystem
-import models.OpenIDAssociation
 import play.api.Configuration
-import services.accounts.{AccountManager, SqlAccountManager}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import java.io._
 
 
 package object helpers {
 
-  import play.api.db.{Database, Databases}
   import play.api.db.evolutions._
+  import play.api.db.{Database, Databases}
 
   private def loadDatabaseForSimpleConfig: Database = {
     // This is annoying, but because we don't have (or want) a
@@ -43,33 +37,18 @@ package object helpers {
     }
   }
 
+  def withDatabaseFixture[T](db: Database, resources: String*)(block: Database => T): T = {
+      implicit val _db: Database = db
+      Evolutions.withEvolutions(_db) {
+        resources.filter(_.nonEmpty).foreach(loadSqlResource)
+        block(_db)
+      }
+  }
+
   def withDatabaseFixture[T](resources: String*)(block: Database => T): T = {
     withDatabase { implicit db =>
       resources.foreach(loadSqlResource)
       block(db)
-    }
-  }
-
-  def withFixtures[T](block: Database => T)(implicit actorSystem: ActorSystem): T = {
-    withDatabase { implicit db =>
-      loadSqlFixtures(db, actorSystem)
-      block(db)
-    }
-  }
-
-  /**
-   * Load database fixtures.
-   */
-  def loadSqlFixtures(implicit db: Database, actorSystem: ActorSystem): List[Option[OpenIDAssociation]] = {
-    val accounts: AccountManager = SqlAccountManager(db, actorSystem)
-    mockdata.users.foreach { case (profile, account) =>
-      Await.result(accounts.create(account), 1.second)
-    }
-    mockdata.oAuth2Associations.map { assoc =>
-      Await.result(accounts.oAuth2.addAssociation(assoc.id, assoc.providerId, assoc.provider), 1.second)
-    }
-    mockdata.openIDAssociations.map { assoc =>
-      Await.result(accounts.openId.addAssociation(assoc.id, assoc.url), 1.second)
     }
   }
 
