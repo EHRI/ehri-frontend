@@ -203,7 +203,7 @@ export default {
             <drag-handle
                 v-bind:ns="fileStage"
                 v-bind:p2="() => $root.$el.querySelector('#rs-status-panels')"
-                v-bind:container="() => $root.$el.querySelector('#oaipmh-panel-container')"
+                v-bind:container="() => $root.$el.querySelector('#rs-panel-container')"
                 v-on:resize="setPanelSize"
             />
           </li>
