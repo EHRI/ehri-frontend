@@ -163,11 +163,9 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     // Cancel conversion
     case Cancel =>
       msgTo ! Cancelled(done, fresh, time(start))
-      context.stop(self)
 
     case Failure(e) =>
       msgTo ! e
-      context.stop(self)
 
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")

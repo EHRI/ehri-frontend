@@ -11,6 +11,7 @@ import services.storage.FileStorage
 import utils.WebsocketConstants
 
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -75,7 +76,9 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSy
       context.become(running(runner, subs + chan, handle))
 
     case Terminated(actor) if actor == runner =>
-      context.stop(self)
+      log.debug(s"Actor terminated: $actor")
+      context.system.scheduler.scheduleOnce(5.seconds, self,
+        "Sync runner unexpectedly shut down")
 
     // Remove terminated subscribers
     case Terminated(chan) =>
