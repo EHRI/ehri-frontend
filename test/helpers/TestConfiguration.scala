@@ -13,6 +13,7 @@ import lifecycle.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
 import org.jsoup.Jsoup
 import org.specs2.execute.{AsResult, Result}
+import play.api.db.Database
 import play.api.http.{Status, Writeable}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
@@ -191,6 +192,11 @@ trait TestConfiguration {
     }
   }
 
+  /**
+    * Same as ITestApp but with Akka TestKit() functionality.
+    *
+    * @param specificConfig A map of config values for this test
+    */
   protected abstract class ITestAppWithAkka(specificConfig: Map[String,Any] = Map.empty)
     extends ITestApp(specificConfig) with TestKitBase with ImplicitSender
 
@@ -222,10 +228,11 @@ trait TestConfiguration {
    * will be merged.
    * @param specificConfig A map of config values for this test
    */
-  protected abstract class DBTestApp(resource: String, specificConfig: Map[String,Any] = Map.empty)
+  protected abstract class DBTestApp(resource: String = "", specificConfig: Map[String,Any] = Map.empty)
       extends ITestApp(specificConfig) {
+    lazy val db = app.injector.instanceOf[Database]
     override def around[T: AsResult](t: => T): Result =
-      super.around(withDatabaseFixture(resource)(implicit db => AsResult.effectively(t)))
+      super.around(withDatabaseFixture(db, resource)(implicit db => AsResult.effectively(t)))
   }
 
   /**

@@ -3,16 +3,15 @@ package services.harvesting
 import helpers._
 import mockdata.adminUserProfile
 import models.UserProfile
-import play.api.db.Database
-import play.api.test.PlaySpecification
+import play.api.Application
 
-class SqlHarvestEventServiceSpec extends SimpleAppTest with PlaySpecification {
+class SqlHarvestEventServiceSpec extends IntegrationTestRunner {
 
-  def service(implicit db: Database) = SqlHarvestEventService(db, implicitApp.actorSystem)
+  def service(implicit app: Application) = app.injector.instanceOf[SqlHarvestEventService]
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
   "Harvest event service" should {
-    "create items" in withDatabaseFixture("oaipmh-config-fixtures.sql") { implicit db =>
+    "create items" in new DBTestApp("oaipmh-config-fixtures.sql") {
       val handle = await(service.save("r1", "default", "1234"))
       await(handle.close())
 
