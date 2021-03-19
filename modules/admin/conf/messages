@@ -1142,17 +1142,17 @@ oaipmh.url.description=The base URL of the OAI-PMH endpoint
 oaipmh.format=Metadata Format
 oaipmh.format.description=The OAI-PMH metadata prefix parameter
 oaipmh.successCount=Items successfully harvested: {0}
-oaipmh.error.cannotDisseminateFormat=Format not supported for metadata prefix: {0}
-oaipmh.error.badArgument=Invalid set name, metadata format, or other argument: {0}
-oaipmh.error.noMetadataFormats=No metadata formats available for the requested item: {0}
+oaipmh.error.cannotDisseminateFormat=Format not supported for metadata prefix
+oaipmh.error.badArgument=Invalid set name, metadata format, or other argument
+oaipmh.error.noMetadataFormats=No metadata formats available for the requested item
 oaipmh.error.noSetHierarchy=Sets are not supported by this repository
 oaipmh.error.noRecordsMatch=No records found for this combination of arguments
-oaipmh.error.badResumptionToken=The resumption token ''{0}'' is incorrect or has expired. \
+oaipmh.error.badResumptionToken=The resumption token is incorrect or has expired. \
   This should not ordinarily happen.
 oaipmh.error.badVerb=The repository reported a ''bad verb'' error. This should not ordinarily happen.
 oaipmh.error.idDoesNotExist=The repository reported that item with id ''{0}'' does not exist. \
   This should not ordinarily happen.
-oaipmh.error.url=Endpoint URL responded with invalid status: {0}
+oaipmh.error.url=Endpoint URL responded with an invalid status
 oaipmh.error.invalidXml=Endpoint URL responded with invalid XML content
 
 

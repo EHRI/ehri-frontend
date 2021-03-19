@@ -1,12 +1,11 @@
 package actors.harvesting
 
 import java.time.{Duration, LocalDateTime}
-
 import actors.harvesting.OaiPmhHarvesterManager.OaiPmhHarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import models.UserProfile
-import services.harvesting.OaiPmhClient
+import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 
 import scala.concurrent.ExecutionContext
@@ -45,6 +44,11 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
   import OaiPmhHarvester._
   import akka.pattern.pipe
 
+  override def postStop(): Unit = {
+    log.debug("Harvester shut down")
+    super.postStop()
+  }
+
   override def receive: Receive = {
     // Start the initial harvest
     case Initial =>
@@ -52,7 +56,9 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
       context.become(running(msgTo, 0, LocalDateTime.now()))
       msgTo ! Starting
       client.listIdentifiers(job.data.config, from = job.data.from)
-        .map { case (idents, next) => Fetch(nonDeleted(idents), ResumptionState(next), 0)}
+        .map { case (idents, next) =>
+          Fetch(nonDeleted(idents), ResumptionState(next), 0)
+        }
         .pipeTo(self)
   }
 
@@ -82,10 +88,12 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
           "oaipmh-set" -> job.data.config.set.getOrElse(""),
           "oaipmh-job-id" -> job.jobId
         )
-      ).map { _ =>
+      )
+      .map { _ =>
         msgTo ! DoneFile(id)
         Fetch(rest, next, count + 1)
-      }.pipeTo(self)
+      }
+      .pipeTo(self)
 
     // Finished a batch, start a new one
     case Fetch(Nil, next, count) =>
@@ -95,17 +103,17 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
 
     // Finish harvesting
     case Empty =>
-      context.stop(self)
       msgTo ! Completed(done, time(start))
 
     // Cancel harvest
     case Cancel =>
       msgTo ! Cancelled(done, time(start))
-      context.stop(self)
+
+    case Failure(e: OaiPmhError) =>
+      msgTo ! e
 
     case Failure(e) =>
-      msgTo ! e
-      context.stop(self)
+      msgTo ! Error(e)
 
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")
