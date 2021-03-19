@@ -70,11 +70,9 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
     // Cancel harvest
     case Cancel =>
       msgTo ! Cancelled(done, fresh, time(start))
-      context.stop(self)
 
     case Failure(e) =>
       msgTo ! e
-      context.stop(self)
 
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")

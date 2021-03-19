@@ -14,6 +14,7 @@ import services.transformation.XmlTransformer
 import utils.WebsocketConstants
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
 
 
 object XmlConverterManager {
@@ -86,7 +87,9 @@ case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, 
       context.become(running(runner, subs + chan, handle))
 
     case Terminated(actor) if actor == runner =>
-      context.stop(self)
+      log.debug(s"Actor terminated: $actor")
+      context.system.scheduler.scheduleOnce(5.seconds, self,
+        "Convert runner unexpectedly shut down")
 
     // Remove terminated subscribers
     case Terminated(chan) =>
