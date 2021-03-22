@@ -2,7 +2,7 @@
   "description": "The EHRI project portal frontend",
   "main": "build.sbt",
   "dependencies": {
-    "@ttskch/select2-bootstrap4-theme": "^1.5.2",
+    "@ttskch/select2-bootstrap4-theme": "~1.5.2",
     "axios": "^0.21.1",
     "bootstrap": "^4.3.1",
     "bootstrap-datepicker": "^1.9.0",
@@ -21,7 +21,6 @@
     "leaflet-curve": "^1.0.0",
     "lodash": "^4.17.15",
     "luxon": "^1.25.0",
-    "moment": "^2.24.0",
     "select2": "^4.0.13",
     "sortablejs": "^1.13.0",
     "vue": "^2.6.12",
