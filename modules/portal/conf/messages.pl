@@ -844,14 +844,12 @@ contact.p2=Istnieje wiele innych sposobów, by uzyskać dalszą \
     pomoc bądź skontaktować się z nami:
 contact.p2.1=w sprawie wszelkich pytań dotyczących zasad ochrony danych osobowych/prywatności, \
     prosimy skontaktować się, pisząc na adres: {0}.
-contact.p2.2=W przypadku wszelkich pytań dotyczących zbiorów i zasad \
+contact.p2.2=w przypadku wszelkich pytań dotyczących zbiorów i zasad \
     ich udostępniania w archiwach, które przekazują dane na portal EHRI, \
     należy skontaktować się bezpośrednio z danym archiwum, korzystając \
     z informacji kontaktowych podanych w opisie danej instytucji.
-contact.p2.3=W przypadku wszelkich pozostałych pytań lub w sprawie uwag, \
-    podziękowań lub skarg na temat portalu EHRI można skorzystać z \
-    pozycji „Opinie” na górnym pasku menu w portalu lub wysłać \
-    e-mail na adres {0}.
+contact.p2.3=w przypadku wszystkich innych pytań lub jeśli chcesz zgłosić \
+    komentarz, pochwałę lub skargę dotyczącą portalu EHRI, wyślij nam wiadomość e-mail na adres {0}.
 about.heading=EHRI – informacje
 about.p1=Portal internetowy EHRI zapewnia dostęp do informacji na temat \
     materiałów archiwalnych związanych z Zagładą Żydów, które przechowywane są w instytucjach w całej Europie \

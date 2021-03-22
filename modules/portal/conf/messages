@@ -914,8 +914,8 @@ contact.p2.1=for all question in relation to our data/privacy policies, please c
 contact.p2.2=if you have any questions about the holdings and access policies of any of the archives that \
   contribute data to the EHRI portal, please contact the appropriate archive directly, using the contact information \
   provided in its institutional description.
-contact.p2.3=for all other questions or if you''d like to make a comment, compliment or complaint about the EHRI portal, \
-  you can either use the ''Feedback'' menu item on the top-menu bar of the portal, or send us an email at {0}.
+contact.p2.3=for all other questions or if you''d like to make a comment, compliment or complaint about the \
+  EHRI portal send us an email at {0}.
 
 #
 # Terms and conditions
