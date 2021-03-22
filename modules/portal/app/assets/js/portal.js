@@ -232,11 +232,6 @@ jQuery(function ($) {
     $link.addClass("loading");
     $data.load(this.href, function () {
       $link.removeClass("loading").addClass("loaded");
-      if ($.fn.select2) {
-        $data.find(".select2").each(function (i) {
-          $(this).select2(select2Opts);
-        });
-      }
       $link.hide();
     });
   });

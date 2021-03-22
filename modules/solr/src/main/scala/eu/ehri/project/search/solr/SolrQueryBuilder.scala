@@ -142,7 +142,7 @@ private[solr] object SolrQueryBuilder {
         // Have to quote strings
         case s: String => key + ":\"" + value + "\""
         // not value means the key is a query!
-        case Unit => key
+        case () => key
         case _ => s"$key:$value"
       }
       "fq" -> filter

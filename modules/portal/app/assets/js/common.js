@@ -109,14 +109,22 @@ jQuery(function($) {
   // Inline tree navigation
   // Add inline load class to all item-children items
   function addInlineLoadLinks(scope) {
-    $(".item-children > a.child-items-inline-load.collapsed", scope)
+    if (window.URLSearchParams) {
+      $(".item-children > a.child-items-inline-load.collapsed", scope)
         .map(function () {
-          $(this)
-              .attr("href", this.href.replace(/([^#]*)(\?inline=true)?(#.*)?$/, "$1?inline=true$3"));
+          var url = new URL(this.href),
+            params = new URLSearchParams(url.search);
+          params.set("inline", true)
+          url.search = params.toString();
+          $(this).attr("href", url.toString());
         });
+    }
   }
 
   addInlineLoadLinks(document);
+  $(document).ajaxComplete(function () {
+    addInlineLoadLinks(document);
+  });
 
   // remove inline lists when the [-] is clicked
   $(document).on("click", "a.child-items-inline-load.expanded", function(e) {
