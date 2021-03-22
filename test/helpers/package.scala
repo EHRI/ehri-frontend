@@ -1,5 +1,5 @@
 
-import play.api.Configuration
+import play.api.{Configuration, LoggerConfigurator}
 
 import java.io._
 
@@ -16,6 +16,7 @@ package object helpers {
     // NB: There should be an easier way of doing this.
     val env = play.api.Environment.simple()
     val config = Configuration.load(env)
+    LoggerConfigurator(env.classLoader).foreach(_.configure(env))
     Databases.apply(
       config.get[String]("db.default.driver"),
       config.get[String]("db.default.url"),
