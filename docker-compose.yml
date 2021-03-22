@@ -35,7 +35,6 @@ services:
       MINIO_ACCESS_KEY: admin
       MINIO_SECRET_KEY: changeme
     entrypoint: sh
-    command: server /data
     command: -c '/usr/bin/minio server /data{1...4}'
     restart: always
 
