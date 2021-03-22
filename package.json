@@ -16,6 +16,7 @@
     "jquery-hoverintent": "^1.10.1",
     "jquery-placeholder": "^2.3.1",
     "jquery-validation": "^1.19.3",
+    "js-cookie": "^2.2.1",
     "leaflet": "^1.7.1",
     "leaflet-curve": "^1.0.0",
     "lodash": "^4.17.15",
@@ -100,12 +101,12 @@
     ],
     "modulePathIgnorePatterns": [
       "/target/",
-      "/.+\/target/"
+      "/.+/target/"
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/target/",
-      "/.+\/target/"
+      "/.+/target/"
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest",
