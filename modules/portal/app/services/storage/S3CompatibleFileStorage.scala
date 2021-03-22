@@ -267,7 +267,7 @@ case class S3CompatibleFileStorage(
     }, r.isTruncated)
   }
 
-  private def deleteKeys(paths: Seq[String]) = {
+  private def deleteKeys(paths: Seq[String]): Seq[String] = {
     if (paths.isEmpty) paths else {
       val delete = Delete.builder()
         .objects(paths.map(key => ObjectIdentifier.builder().key(key).build()): _*)
@@ -276,7 +276,7 @@ case class S3CompatibleFileStorage(
         .bucket(name)
         .delete(delete)
         .build()
-      client.deleteObjects(dor).deleted().asScala.map(_.key)
+      client.deleteObjects(dor).deleted().asScala.map(_.key).toSeq
     }
   }
 

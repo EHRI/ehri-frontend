@@ -2,7 +2,7 @@ package services.feedback
 
 import helpers.IntegrationTestRunner
 import models.Feedback
-import play.api.Application
+import play.api.{Application, Mode}
 import utils.{Page, PageParams}
 
 
@@ -31,7 +31,7 @@ class SqlFeedbackServiceSpec extends IntegrationTestRunner {
       val f = Feedback(text = Some("Problem..."), mode = Some(play.api.Mode.Prod))
       val id = await(feedbackService.create(f))
       val f2 = await(feedbackService.get(id))
-      f2.mode must beSome(play.api.Mode.Prod)
+      f2.mode must beSome.which((_: Mode) must_== play.api.Mode.Prod)
       // If we delete it successfully assume all good...
       await(feedbackService.delete(id)) must_== true
     }

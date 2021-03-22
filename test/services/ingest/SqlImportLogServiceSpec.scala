@@ -14,7 +14,7 @@ import java.util.UUID
 class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
 
   private val actorSystem = ActorSystem()
-  override def afterAll: Unit = await(actorSystem.terminate())
+  override def afterAll(): Unit = await(actorSystem.terminate())
 
   def service(implicit db: Database) = SqlImportLogService(db, actorSystem)
   private val keyVersion = "foo.ead?versionId=1"

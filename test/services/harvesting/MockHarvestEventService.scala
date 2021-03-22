@@ -23,7 +23,7 @@ private class EventDb extends Actor {
   override def receive: Receive = {
     case e: HarvestEvent =>
       events :+= e
-      sender ! Unit
+      sender() ! e
 
     case Query(repoId, datasetId, jobId) =>
       sender() ! events
@@ -46,13 +46,13 @@ case class MockHarvestEventService()(implicit mat: Materializer, as: ActorSystem
     db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Started, info, Instant.now())).map { _ =>
       new HarvestEventHandle {
         override def close(): Future[Unit] =
-          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Completed, info, Instant.now())).map(_ => Unit)
+          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Completed, info, Instant.now())).map(_ => ())
 
         override def cancel(): Future[Unit] =
-          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Cancelled, info, Instant.now())).map(_ => Unit)
+          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Cancelled, info, Instant.now())).map(_ => ())
 
         override def error(t: Throwable): Future[Unit] =
-          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Errored, info, Instant.now())).map(_ => Unit)
+          db.ask(HarvestEvent(repoId, datasetId, jobId, userOpt.map(_.id), HarvestEventType.Errored, info, Instant.now())).map(_ => ())
       }
     }
   }
