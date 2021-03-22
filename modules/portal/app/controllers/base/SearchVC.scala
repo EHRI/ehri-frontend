@@ -86,11 +86,11 @@ trait SearchVC {
     item match {
       case v: VirtualUnit => vcDescendantIds(item.id).map { seq =>
         if (seq.isEmpty) Map(ITEM_ID -> "__NO_VALID_ID__")
-        else Map(s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})" -> Unit)
+        else Map((s"$ITEM_ID:(${seq.mkString(" ")}) OR $ANCESTOR_IDS:(${seq.mkString(" ")})", ()))
       }
       // otherwise, for documentary units, we can just query
       // all ancestors
-      case d => immediate(Map(s"$ANCESTOR_IDS:${item.id}" -> Unit))
+      case d => immediate(Map((s"$ANCESTOR_IDS:${item.id}", ())))
     }
 
   protected def buildChildSearchFilter(item: Model): Future[Map[String,Any]] =
@@ -108,9 +108,9 @@ trait SearchVC {
       item match {
         case v: VirtualUnit =>
           val pq = v.includedUnits.map(_.id)
-          if (pq.isEmpty) Map(s"$PARENT_ID:${v.id}" -> Unit)
-          else Map(s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})" -> Unit)
-        case d => Map(s"$PARENT_ID:${d.id}" -> Unit)
+          if (pq.isEmpty) Map((s"$PARENT_ID:${v.id}", ()))
+          else Map((s"$PARENT_ID:${v.id} OR $ITEM_ID:(${pq.mkString(" ")})", ()))
+        case d => Map((s"$PARENT_ID:${d.id}", ()))
       }
     }
 }
