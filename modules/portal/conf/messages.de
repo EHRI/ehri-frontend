@@ -834,10 +834,8 @@ contact.p2.2=Wenn Sie Fragen zu den Beständen und Zugangsbedingungen \
     eines der Archive haben, die Daten zum EHRI-Portal beisteuern, \
     kontaktieren Sie bitte entsprechend das jeweilige Archiv, indem Sie \
     die in der jeweiligen Institutsbeschreibung angegebenen Kontaktdaten verwenden.
-contact.p2.3=Für alle sonstigen Fragen oder Kommentare, Lob oder \
-    Beschwerden zum EHRI-Portal können Sie entweder den \
-    Menüpunkt „Feedback“ in der Menüleiste am oberen Rand der Portalseite nutzen \
-    oder uns eine E-Mail an {0} senden.
+contact.p2.3=Für alle anderen Fragen oder wenn Sie einen Kommentar, ein Kompliment \
+    oder eine Beschwerde zum EHRI-Portal abgeben möchten, senden Sie uns eine E-Mail an {0}.
 about.heading=Über EHRI
 about.p1=Das EHRI-Onlineportal bietet Zugang zu Informationen über \
   Archivmaterial zum Holocaust, das in Institutionen in Europa \

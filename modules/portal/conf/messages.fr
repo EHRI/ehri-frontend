@@ -848,9 +848,7 @@ contact.p2.2=si vous avez des questions à propos des collections et des règles
    veuillez contacter directement les archives concernées en utilisant \
   les coordonnées figurant dans leur description institutionnelle.
 contact.p2.3=pour toutes les autres questions ou si vous souhaitez formuler un commentaire, \
-  un compliment ou une réclamation à propos du portail EHRI, vous pouvez \
-  utiliser l''élément de menu « commentaire » dans la barre de menus supérieure du portail, \
-  ou nous écrire à {0}.
+  un compliment ou une réclamation à propos du portail EHRI nous écrire à {0}.
 about.heading=À propos de l''EHRI
 about.p1=Le portail en ligne de l''EHRI fournit un accès aux informations à propos \
   des documents d''archives liés à l''Holocauste qui sont détenus par des institutions en Europe \
