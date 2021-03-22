@@ -108,11 +108,11 @@ jQuery(function ($) {
       COOKIE_NAME = "ehriDataPolicy";
 
   function getDataPolicy() {
-    return $.cookie(COOKIE_NAME) === 'true';
+    return Cookies.get(COOKIE_NAME) === 'true';
   }
 
   function hideDataPolicy() {
-    $.cookie(COOKIE_NAME, true, {expires: 365, path: "/"});
+    Cookies.set(COOKIE_NAME, 'true', {expires: 365, path: "/"});
     $dataPolicyWidget.modal("hide");
   }
 

@@ -135,6 +135,12 @@ module.exports = function (grunt) {
             src: 'leaflet.curve.js',
             dest: paths.portalJsLib
           },
+          {
+            expand: true,
+            cwd: 'node_modules/js-cookie/src',
+            src: 'js.cookie.js',
+            dest: paths.portalJsLib
+          },
           // Admin JS modules
           {
             expand: true,
