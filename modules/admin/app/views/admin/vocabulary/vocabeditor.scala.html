@@ -50,8 +50,6 @@
         </script>
 
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/lodash.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.js")"></script>
         <script src="@controllers.portal.routes.PortalData.localeData()"></script>
 
         <div id="flex-wrapper">
@@ -65,6 +63,14 @@
                 <div id="vocab-editor"></div>
             </div>
         </div>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/vocabeditor.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/vocabeditor/app.js")"></script>
+        <script>
+            var app = new Vue({
+                el: '#vocab-editor',
+                render: function(html) {
+                    return html(App.default);
+                }
+            });
+        </script>
     </body>
 </html>
