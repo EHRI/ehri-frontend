@@ -3,7 +3,7 @@
 import AutocompleteInput from './_autocomplete-input';
 import ConceptHierarchy from './_concept-hierarchy';
 import VocabEditorApi from "../api";
-import {conceptTitle} from "../common";
+import {conceptTitle, sortByTitle} from "../common";
 
 import _findIndex from 'lodash/findIndex';
 
@@ -28,7 +28,7 @@ export default {
   },
   computed: {
     sorted: function () {
-      return this.state.concat().sort(this.api.sortByTitle(this.lang));
+      return this.state.concat().sort(sortByTitle(this.lang));
     },
     expandable: function() {
       return this.state.filter(i => i.broaderTerms.length > 0).length > 0;

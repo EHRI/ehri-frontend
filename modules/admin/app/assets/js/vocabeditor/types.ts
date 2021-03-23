@@ -9,7 +9,7 @@ export interface ConceptDescription {
   scopeNote: string[],
 }
 
-export interface ConceptData {
+export interface Concept {
   id: string,
   identifier: string,
   uri?: string,
@@ -18,10 +18,6 @@ export interface ConceptData {
   latitude?: number,
   seeAlso: string[],
   descriptions: ConceptDescription[],
-}
-
-export interface Concept {
-  id: string,
-  data: ConceptData,
   broaderTerms: Concept[],
 }
+

@@ -33,12 +33,12 @@ export default {
             this.error = false;
             this.saving = false;
             this.loading = false;
-          }).fail(err => {
+          }).catch(err => {
         this.error = true;
         this.saving = false;
         this.loading = false;
-        if (err.status === 400 && err.responseJSON) {
-          this.errors = err.responseJSON;
+        if (err.response.status === 400 && err.response.data) {
+          this.errors = err.response.data;
         }
       });
     },

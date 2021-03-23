@@ -1,8 +1,8 @@
-import {ConceptData} from "./types";
+import {Concept} from "./types";
 import {DateTime} from "luxon";
 
 
-function conceptTitle (data: ConceptData, lang: string, fallback: string): string {
+function conceptTitle (data: Concept, lang: string, fallback: string): string {
   for (let i in data.descriptions) {
     if (data.descriptions.hasOwnProperty(i)) {
       let desc = data.descriptions[i];
@@ -20,4 +20,10 @@ function formatTimestamp(s: string): string|null {
 }
 
 
-export { conceptTitle, formatTimestamp };
+function sortByTitle(lang: string) {
+  return (a: Concept, b: Concept): number => {
+    return conceptTitle(a, lang, a.id).localeCompare(conceptTitle(b, lang, b.id));
+  }
+}
+
+export { conceptTitle, formatTimestamp, sortByTitle };
