@@ -23,7 +23,7 @@ export default {
           this.loading = false;
           this.iAmSure = false;
           this.$emit("deleted-item", this.data);
-        }).fail(() => {
+        }).catch(_ => {
           this.error = true;
           this.loading = false;
         });
