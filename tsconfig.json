@@ -10,5 +10,8 @@
     "sourceMap": true
   },
   "exclude": ["node_modules"],
-  "include": ["modules/admin/app/assets/js/datamanager"]
+  "include": [
+    "modules/admin/app/assets/js/datamanager",
+    "modules/admin/app/assets/js/vocabeditor"
+  ]
 }

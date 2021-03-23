@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
         configFile: '../../../../tsconfig.json'
       }
     })],
-    stats: 'minimal',
+    stats: 'normal',
     devtool: argv.mode === 'development' ? 'eval-source-map' : 'source-map',
     cache: true,
     module: {
