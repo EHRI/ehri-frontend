@@ -19,7 +19,7 @@
         <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
         <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
         @helper.javascriptRouter("vocabEditorRoutes")(
-            controllers.portal.routes.javascript.Portal.filterItems,
+            controllers.vocabularies.routes.javascript.VocabularyEditor.search,
             controllers.vocabularies.routes.javascript.VocabularyEditor.get,
             controllers.vocabularies.routes.javascript.VocabularyEditor.list,
             controllers.vocabularies.routes.javascript.VocabularyEditor.langs,
@@ -32,18 +32,7 @@
         )
 
         <script>
-                window.SERVICE = {
-                    search: vocabEditorRoutes.controllers.portal.Portal.filterItems,
-                    get: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.get,
-                    list: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.list,
-                    langs: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.langs,
-                    broader: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.broader,
-                    narrower: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.narrower,
-                    createItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.createItem,
-                    updateItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.updateItem,
-                    deleteItem: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.deleteItem,
-                    nextIdentifier: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor.nextIdentifier,
-                };
+                window.SERVICE = vocabEditorRoutes.controllers.vocabularies.VocabularyEditor;
                 window.CONFIG = {
                     vocabId: "@item.id"
                 }

@@ -290,6 +290,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
       excludeFilterParams(query.params.excludes),
       filterParams(query.params.filters),
       groupParams(query.lang),
+      extraFilterParams(query.filters.toSeq),
       Seq("qf" -> s"$ITEM_ID^0.5 $OTHER_IDENTIFIERS^0.3 $NAME_MATCH^2.0 $NAME_NGRAM"),
       Seq("fl" -> s"$ID $ITEM_ID $NAME_EXACT $TYPE $HOLDER_NAME $DB_ID"),
       if (alphabetical) Seq("sort" -> s"$NAME_SORT asc") else Seq.empty,

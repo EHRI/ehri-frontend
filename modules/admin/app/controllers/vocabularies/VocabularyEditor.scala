@@ -3,15 +3,16 @@ package controllers.vocabularies
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-
-import javax.inject._
 import models.{EntityType, _}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
 import services.data.{ApiUser, AuthenticatedUser, IdGenerator, ValidationError}
+import services.search.{SearchConstants, SearchParams}
+import utils.PageParams
 
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -52,6 +53,12 @@ case class VocabularyEditor @Inject()(
 
   def editor(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
     Ok(views.html.admin.vocabulary.vocabeditor(request.item))
+  }
+
+  def search(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    filter(params, paging, filters = Map(SearchConstants.HOLDER_ID -> id)).map { page =>
+      Ok(Json.toJson(page.items))
+    }
   }
 
   def langs(id: String): Action[AnyContent] = UserAction(parse.anyContent).apply { implicit request =>

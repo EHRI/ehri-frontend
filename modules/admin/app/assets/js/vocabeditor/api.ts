@@ -19,11 +19,12 @@ export default class VocabEditorApi {
     this.vocabId = vocabId;
   }
 
-  private static call<T>(endpoint: {url: string, method: any}, data?: object): Promise<T> {
+  private static call<T>(endpoint: {url: string, method: any}, data?: object, params?: object): Promise<T> {
     return axios.request<T>({
       url: endpoint.url,
       method: endpoint.method,
-      data: data,
+      data,
+      params,
       headers: {
         "ajax-ignore-csrf": true,
         "Content-Type": "application/json",
@@ -43,13 +44,12 @@ export default class VocabEditorApi {
         .then(data => data.data.map((a: string[]) => a[0]));
   }
 
-  search(q: string, opts: any): Promise<SearchRef[]> {
-    return axios.get<{items: SearchRef[]}>(this.service.search().url, { params: {
-      q: q,
-        f: "holderId:" + this.vocabId,
-        ex: opts['excludeId'],
-        page: opts['page'] || 1
-      }}).then(r => r.data).then(data => data.items)
+  search(q: string, opts: {exclude?: string, page?: number}): Promise<SearchRef[]> {
+    return VocabEditorApi.call<SearchRef[]>(this.service.search(this.vocabId), {},  {
+        q: q,
+        ex: opts.exclude,
+        page: opts.page || 1
+      });
   }
 
   getConcepts(q: string, lang: string): Promise<ConceptRef[]> {
