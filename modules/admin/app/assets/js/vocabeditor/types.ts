@@ -4,9 +4,9 @@ export interface ConceptDescription {
   id: string,
   name: string,
   languageCode: string,
-  altLabel: string[],
-  hiddenLabel: string[],
-  scopeNote: string[],
+  altLabel?: string[],
+  hiddenLabel?: string[],
+  scopeNote?: string[],
 }
 
 export interface Concept {
@@ -16,8 +16,16 @@ export interface Concept {
   url?: string,
   longitude?: number,
   latitude?: number,
-  seeAlso: string[],
+  seeAlso?: string[],
   descriptions: ConceptDescription[],
   broaderTerms: Concept[],
+}
+
+export type ConceptRef = [string, string, number];
+
+export type SearchRef = {
+  id: string,
+  name: string,
+  did: string,
 }
 

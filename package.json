@@ -80,7 +80,10 @@
   "jest": {
     "globals": {
       "CONFIG": {},
-      "SERVICE": {}
+      "SERVICE": {},
+      "__languageData": {},
+      "LocaleData": {
+      }
     },
     "testEnvironment": "jsdom",
     "collectCoverage": false,
