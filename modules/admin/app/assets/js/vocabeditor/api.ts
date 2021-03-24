@@ -1,13 +1,5 @@
 import axios from "axios";
-import {Concept} from "./types";
-
-type ConceptRef = [string, string, number];
-
-type SearchRef = {
-  id: string,
-  name: string,
-  did: string,
-}
+import {Concept, ConceptRef, SearchRef} from "./types";
 
 export default class VocabEditorApi {
 
