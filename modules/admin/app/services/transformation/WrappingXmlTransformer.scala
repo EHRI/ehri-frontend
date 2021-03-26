@@ -28,9 +28,9 @@ case class WrappingXmlTransformer @Inject()(
   override def transform(mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Flow[ByteString, ByteString, _] = {
     Flow[ByteString]
       .prefixAndTail(0)
-      .map(ht => {
-        transformXml(ht._2, mappings)
-      })
+      .map { case (_, src) =>
+        transformXml(src, mappings)
+      }
       .flatMapConcat(identity)
   }
 
@@ -49,9 +49,13 @@ case class WrappingXmlTransformer @Inject()(
     cache.getOrElseUpdate(md5, cacheTime) {
       time(s"Transform $md5 (${mappings.size} mappings)") {
         mappings.foldLeft(src) { case (out, (mapType, map)) =>
-          mapType match {
-            case TransformationType.Xslt => xsltTransformer.transform(out, map)
-            case TransformationType.XQuery => xqueryTransformer.transform(out, map)
+          logger.debug(s"Running mapType: $mapType...")
+          time(s" - transform $mapType") {
+            mapType match {
+              case TransformationType.Xslt =>
+                xsltTransformer.transform(out, map)
+              case TransformationType.XQuery => xqueryTransformer.transform(out, map)
+            }
           }
         }
       }

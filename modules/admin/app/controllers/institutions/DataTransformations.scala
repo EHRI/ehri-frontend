@@ -11,7 +11,8 @@ import controllers.generic._
 import models.{FileStage, _}
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
-import play.api.libs.json.Json
+import play.api.libs.json.JsError.toJson
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import services.storage.FileStorage
 import services.transformation._
@@ -37,6 +38,21 @@ case class DataTransformations @Inject()(
   private val logger: Logger = Logger(classOf[DataTransformations])
   private val cacheTime: Duration = appComponents.config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
 
+  // To override the max request size we unfortunately need to define our own body parser here:
+  // The max value is drawn from config:
+  private def json[A](implicit reader: Reads[A]): BodyParser[A] = BodyParser { request =>
+    val max = config.get[Long]("ehri.admin.dataManager.maxTransformationSize")
+    parse.json(max)(request).map {
+      case Left(simpleResult) => Left(simpleResult)
+      case Right(jsValue) =>
+        jsValue.validate(reader).map { a =>
+          Right(a)
+        } recoverTotal { jsError =>
+          Left(BadRequest(Json.obj("error" -> "invalid", "details" -> toJson(jsError))))
+        }
+    }
+  }
+
 
   def getConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     dataTransformations.getConfig(id, ds).map(dts => Ok(Json.toJson(dts)))
@@ -56,7 +72,7 @@ case class DataTransformations @Inject()(
     dataTransformations.get(dtId).map(dt => Ok(Json.toJson(dt)))
   }
 
-  def create(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
+  def create(id: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(json[DataTransformationInfo]) { implicit request =>
     dataTransformations.create(request.body, if (generic) None else Some(id)).map { dt =>
       Created(Json.toJson(dt))
     }.recover {
@@ -64,7 +80,7 @@ case class DataTransformations @Inject()(
     }
   }
 
-  def update(id: String, dtId: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(parse.json[DataTransformationInfo]) { implicit request =>
+  def update(id: String, dtId: String, generic: Boolean): Action[DataTransformationInfo] = EditAction(id).async(json[DataTransformationInfo]) { implicit request =>
     dataTransformations.update(dtId, request.body, if (generic) None else Some(id)).map { dt =>
       Ok(Json.toJson(dt))
     }.recover {
@@ -94,7 +110,7 @@ case class DataTransformations @Inject()(
     }
   }
 
-  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(parse.json[ConvertConfig]) { implicit request =>
+  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(json[ConvertConfig]) { implicit request =>
     configToMappings(request.body).flatMap { m =>
       import services.transformation.utils.digest
 
@@ -125,7 +141,7 @@ case class DataTransformations @Inject()(
     }
   }
 
-  def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(parse.json[ConvertConfig]) { implicit request =>
+  def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(json[ConvertConfig]) { implicit request =>
     val config = request.body
     configToMappings(config).map { ts =>
       val jobId = UUID.randomUUID().toString

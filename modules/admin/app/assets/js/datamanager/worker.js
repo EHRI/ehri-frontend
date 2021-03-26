@@ -72,7 +72,7 @@ addEventListener('message', ({data}) => {
     let url = data.url;
     let websocket = new WebSocket(url);
     websocket.onopen = function () {
-      console.log("Websocket open")
+      console.debug("Websocket open")
     };
     websocket.onerror = function (e) {
       postMessage({error: e});
@@ -86,7 +86,7 @@ addEventListener('message', ({data}) => {
       }
     };
     websocket.onclose = function () {
-      console.log("Websocket close")
+      console.debug("Websocket close")
     }
   }
 }, false);

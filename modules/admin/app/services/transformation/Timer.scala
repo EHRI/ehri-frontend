@@ -13,7 +13,7 @@ trait Timer {
     val result = block
     val t1 = Instant.now()
     val ellapsed = Duration.between(t0, t1)
-    logger.debug(s"$op: Elapsed time: ${ellapsed.toMillis}")
+    logger.debug(s"$op: Elapsed time: ${ellapsed.toMillis} millis")
     result
   }
 }
