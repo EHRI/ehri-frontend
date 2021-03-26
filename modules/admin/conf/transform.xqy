@@ -18,6 +18,7 @@ declare function local:make-children(
   (: go through the target nodes defined for this target path in order of configuration :)
   for $configuration-record at $pos in $configuration/csv/record[target-path/text() = $target-path]
     (: go through the source nodes corresponding to each target node :)
+(:    let $f := trace($configuration-record, 'Record: '):)
     for $child-source-node in local:evaluate-xquery($configuration-record/source-node/text(), $source-node, $libURI)
       let $child-value := local:evaluate-xquery($configuration-record/value/text(), $child-source-node, $libURI)
       let $child-name := $configuration-record/target-node/text()
@@ -53,7 +54,10 @@ declare function local:evaluate-xquery(
   $libURI as xs:anyURI
 ) as item()* {
   if ($xquery) then
-    xquery:eval(fn:concat("import module namespace xtra = ""xtra"" at """, $libURI, """;", $xquery), map { "": $context })
+    if (fn:contains($xquery, "xtra")) then
+      xquery:eval(fn:concat("import module namespace xtra = ""xtra"" at """, $libURI, """;", $xquery), map { "": $context })
+    else
+      xquery:eval($xquery, map {"": $context})
 (:    xquery:eval($xquery, map { "": $context }):)
     else ()
 };

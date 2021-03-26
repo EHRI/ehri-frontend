@@ -3,14 +3,16 @@ package actors.transformation
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
 import akka.stream.Materializer
 import models.UserProfile
 import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
 
+import java.net.URI
 import java.time.{Duration, LocalDateTime}
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -118,25 +120,14 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
             // No matching fingerprint found: run the conversion.
             case _ =>
-              storage.get(file.key).flatMap {
-                case Some((_, stream)) =>
-                  val newStream = stream.via(transformer.transform(job.data.transformers))
-                  storage.putBytes(
-                    path,
-                    newStream,
-                    contentType = Some("text/xml"),
-                    meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
-                  ).map { _ =>
-                    msgTo ! DoneFile("+ " + name)
-                    log.debug(s"Finished $name")
-                    Convert(others, truncated, Some(file.key), count + 1, fresh + 1)
-                  }.recover { case e =>
-                    log.error(e, s"Error converting $name")
-                    msgTo ! Error(name, e)
-                    Convert(others, truncated, Some(file.key), count, fresh)
-                  }
-
-                case None => immediate(bail)
+              convertFile(file, path, fingerPrint).map { _ =>
+                msgTo ! DoneFile("+ " + name)
+                log.debug(s"Finished $name")
+                Convert(others, truncated, Some(file.key), count + 1, fresh + 1)
+              }.recover { case e =>
+                log.error(e, s"Error converting $name")
+                msgTo ! Error(name, e)
+                Convert(others, truncated, Some(file.key), count, fresh)
               }
           }
 
@@ -170,6 +161,27 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
+
+  private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] = {
+    import akka.pattern.retry
+    implicit val scheduler: Scheduler = context.system.scheduler
+
+    retry(() => {
+      storage.get(file.key).flatMap {
+        case Some((_, stream)) =>
+            val newStream = stream.via(transformer.transform(job.data.transformers))
+            storage.putBytes(
+              path,
+              newStream,
+              contentType = Some("text/xml"),
+              meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
+            )
+
+        case None => Future.failed(new Exception("Unable to retrieve file from storage (this shouldn't happen!)"))
+      }
+    } , attempts = 2, delay = 100.millis)
+  }
+
 
   private def time(from: LocalDateTime): Long = Duration.between(from, LocalDateTime.now()).toMillis / 1000
 
