@@ -29,6 +29,14 @@ class BaseXXQueryXmlTransformerSpec extends PlaySpecification with ResourceUtils
       out must contain("http://www.loc.gov")
     }
 
+    "handle custom functions" in {
+      val transformer = BaseXXQueryXmlTransformer(Environment.simple())
+      val map = resourceAsString("simple-mapping.tsv") +
+          "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\txtra:ehri()"
+      val out = transformer.transform(testPayload, map)
+      out must contain("EHRI_xtra_func")
+    }
+
     "report errors with context" in {
       val transformer = BaseXXQueryXmlTransformer(Environment.simple())
       val map = resourceAsString("simple-mapping.tsv") +

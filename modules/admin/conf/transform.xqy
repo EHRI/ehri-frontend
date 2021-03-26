@@ -1,5 +1,8 @@
 xquery version "3.1";
 
+declare namespace xquery="http://basex.org/modules/xquery";
+declare namespace csv="http://basex.org/modules/csv";
+
 (: make children for the given target path in the configuration :)
 (: $target-path: the target path for which to make children as in the configuration :)
 (: $source-node: the node (e.g. element) in the source document that corresponds to the given target path :)
@@ -40,13 +43,14 @@ declare function local:make-children(
           let $child := element { $child-qname } { $child-children, $child-value }
           return if ($child-children or local:ebv($child-value)) then $child else ()
       } catch * {
-        error(xs:QName("mapping-error"), "at " || $target-path || $child-name || ": " || $err:description)
+        fn:error(xs:QName("mapping-error"), "at " || $target-path || $child-name || ": " || $err:description)
       }
 };
 
 (: evaluate an XQuery expression within a given context node :)
 (: $xquery: the XQuery expression to evalute as a string :)
 (: $context: the node (e.g. element) to use as context for the XQuery expression :)
+(: $libURI: the URI of a library containing external functions :)
 (: returns: the list of atomic values or nodes that the XQuery expression evaluated to :)
 declare function local:evaluate-xquery(
   $xquery as xs:string?,
@@ -54,12 +58,11 @@ declare function local:evaluate-xquery(
   $libURI as xs:anyURI
 ) as item()* {
   if ($xquery) then
-    if (fn:contains($xquery, "xtra")) then
-      xquery:eval(fn:concat("import module namespace xtra = ""xtra"" at """, $libURI, """;", $xquery), map { "": $context })
+    if (fn:exists($libURI) and fn:contains($xquery, "xtra")) then
+      xquery:eval("import module namespace xtra = ""xtra"" at """ || $libURI || """;" || $xquery, map { "": $context })
     else
       xquery:eval($xquery, map {"": $context})
-(:    xquery:eval($xquery, map { "": $context }):)
-    else ()
+  else ()
 };
 
 declare function local:ebv(
