@@ -4,8 +4,9 @@ xquery version "3.0";
 
 module namespace xtra = "xtra";
 
+(: a test function to validate the functioning of the transform script :)
 declare function xtra:ehri() as xs:string {
-  "EHRI"
+  "EHRI_xtra_func"
 };
 
 declare function xtra:normalize-date-interval(
