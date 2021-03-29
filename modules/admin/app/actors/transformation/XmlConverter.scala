@@ -2,7 +2,6 @@ package actors.transformation
 
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
-import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
 import akka.stream.Materializer
 import models.UserProfile
@@ -34,6 +33,9 @@ object XmlConverter {
   case object Starting extends Action
   case object Status extends Action
 }
+
+case class XmlConvertError(m: String) extends Exception(m)
+case class XmlConvertException(m: String) extends Exception(m)
 
 case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], mat: Materializer, ec: ExecutionContext) extends Actor with ActorLogging {
@@ -79,9 +81,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
         storage.info(job.data.inPrefix + key)
           .map {
             case Some((meta, _)) => Convert(List(meta), truncated = false, None, done, fresh)
-            case None =>
-              msgTo ! Error(s"Key not found: ${job.data.inPrefix + key}",
-                new RuntimeException(s"Missing key: ${job.data.inPrefix + key}"))
+            case None => Error(key, XmlConvertException(s"Missing key: $key"))
           }
           .pipeTo(self)
       } getOrElse {
@@ -99,7 +99,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
       // If there's an unexpected error w/ conversion we post ourselves
       // this message to handle upstream.
-      def bail = Error(file.key, new Exception(
+      def bail = Error(file.key, XmlConvertException(
         s"File ${file.key} not found in storage: this shouldn't happen!"))
 
       // Sorry about this nested set of futures. What we want to do is create a fingerprint of
@@ -120,7 +120,10 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
             // No matching fingerprint found: run the conversion.
             case _ =>
-              convertFile(file, path, fingerPrint).map { _ =>
+              import akka.pattern.retry
+              implicit val scheduler: Scheduler = context.system.scheduler
+
+              retry(() => convertFile(file, path, fingerPrint), attempts = 2, delay = 200.millis).map { _ =>
                 msgTo ! DoneFile("+ " + name)
                 log.debug(s"Finished $name")
                 Convert(others, truncated, Some(file.key), count + 1, fresh + 1)
@@ -155,33 +158,27 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
     case Cancel =>
       msgTo ! Cancelled(done, fresh, time(start))
 
-    case Failure(e) =>
-      msgTo ! e
+    // Handle an error from an async operation
+    case Error(key, e) =>
+      msgTo ! Error(key, e)
 
     case m =>
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] = {
-    import akka.pattern.retry
-    implicit val scheduler: Scheduler = context.system.scheduler
+  private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] =
+    storage.get(file.key).flatMap {
+      case Some((_, stream)) =>
+          val newStream = stream.via(transformer.transform(job.data.transformers))
+          storage.putBytes(
+            path,
+            newStream,
+            contentType = Some("text/xml"),
+            meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
+          )
 
-    retry(() => {
-      storage.get(file.key).flatMap {
-        case Some((_, stream)) =>
-            val newStream = stream.via(transformer.transform(job.data.transformers))
-            storage.putBytes(
-              path,
-              newStream,
-              contentType = Some("text/xml"),
-              meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
-            )
-
-        case None => Future.failed(new Exception("Unable to retrieve file from storage (this shouldn't happen!)"))
-      }
-    } , attempts = 2, delay = 100.millis)
-  }
-
+      case None => Future.failed(XmlConvertException("Unable to retrieve file from storage (this shouldn't happen!)"))
+    }
 
   private def time(from: LocalDateTime): Long = Duration.between(from, LocalDateTime.now()).toMillis / 1000
 
