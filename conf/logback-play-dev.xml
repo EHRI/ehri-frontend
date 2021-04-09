@@ -35,9 +35,11 @@
     <appender-ref ref="STDOUT" />
   </appender>
 
+  <logger name="akka" level="WARN" />
   <logger name="play" level="INFO" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
+  <logger name="org.apache.logging" level="WARN" />
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />

@@ -2,10 +2,10 @@
 
 GET         /                                         @controllers.users.UserProfiles.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /list                                     @controllers.users.UserProfiles.list(paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /export                                   @controllers.users.UserProfiles.export
-GET         /create                                   @controllers.users.UserProfiles.createUser
-POST        /create                                   @controllers.users.UserProfiles.createUserPost
-GET         /syncDb                                   @controllers.users.UserProfiles.syncFromDbPost
+GET         /export                                   @controllers.users.UserProfiles.export()
+GET         /create                                   @controllers.users.UserProfiles.createUser()
+POST        /create                                   @controllers.users.UserProfiles.createUserPost()
+GET         /syncDb                                   @controllers.users.UserProfiles.syncFromDbPost()
 GET         /:id                                      @controllers.users.UserProfiles.get(id: String)
 GET         /:id/history                              @controllers.users.UserProfiles.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/actions                              @controllers.users.UserProfiles.actions(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)

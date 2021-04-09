@@ -1,10 +1,10 @@
 # Routes for executing Cypher and pre-baked queries
 
 GET         /                   @controllers.cypher.CypherQueries.listQueries(q: Option[String] ?= None, sort: Option[String] ?= None, public: Option[Boolean] ?= None, paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /query              @controllers.cypher.CypherQueries.cypherForm
-GET         /submit             @controllers.cypher.CypherQueries.cypherQuery
-GET         /create             @controllers.cypher.CypherQueries.createQuery
-POST        /create             @controllers.cypher.CypherQueries.createQueryPost
+GET         /query              @controllers.cypher.CypherQueries.cypherForm()
+GET         /submit             @controllers.cypher.CypherQueries.cypherQuery()
+GET         /create             @controllers.cypher.CypherQueries.createQuery()
+POST        /create             @controllers.cypher.CypherQueries.createQueryPost()
 GET         /update/:id         @controllers.cypher.CypherQueries.updateQuery(id: String)
 POST        /update/:id         @controllers.cypher.CypherQueries.updateQueryPost(id: String)
 GET         /delete/:id         @controllers.cypher.CypherQueries.deleteQuery(id: String)

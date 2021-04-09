@@ -1,23 +1,23 @@
 
 GET         /login                          @controllers.portal.account.Accounts.login()
-POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost
-GET         /openid                         @controllers.portal.account.Accounts.openIDCallback
+POST        /login                          @controllers.portal.account.Accounts.passwordLoginPost()
+GET         /openid                         @controllers.portal.account.Accounts.openIDCallback()
 POST        /openid                         @controllers.portal.account.Accounts.openIDLoginPost(isLogin: Boolean ?= true)
 GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None, isLogin: Boolean ?= false)
 GET         /login-with/:provider           @controllers.portal.account.Accounts.oauth2Login(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /register-with/:provider        @controllers.portal.account.Accounts.oauth2Register(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
-GET         /logout                         @controllers.portal.account.Accounts.logout
+GET         /logout                         @controllers.portal.account.Accounts.logout()
 
-GET         /signup                         @controllers.portal.account.Accounts.signup
-POST        /signup                         @controllers.portal.account.Accounts.signupPost
+GET         /signup                         @controllers.portal.account.Accounts.signup()
+POST        /signup                         @controllers.portal.account.Accounts.signupPost()
 GET         /confirmEmail/:token            @controllers.portal.account.Accounts.confirmEmail(token: String)
-GET         /change-email                   @controllers.portal.account.Accounts.changeEmail
-POST        /change-email                   @controllers.portal.account.Accounts.changeEmailPost
-GET         /change-password                @controllers.portal.account.Accounts.changePassword
-POST        /change-password                @controllers.portal.account.Accounts.changePasswordPost
-GET         /forgot                         @controllers.portal.account.Accounts.forgotPassword
-POST        /forgot                         @controllers.portal.account.Accounts.forgotPasswordPost
-POST        /resendVerification             @controllers.portal.account.Accounts.resendVerificationPost
-GET         /prs                            @controllers.portal.account.Accounts.passwordReminderSent
+GET         /change-email                   @controllers.portal.account.Accounts.changeEmail()
+POST        /change-email                   @controllers.portal.account.Accounts.changeEmailPost()
+GET         /change-password                @controllers.portal.account.Accounts.changePassword()
+POST        /change-password                @controllers.portal.account.Accounts.changePasswordPost()
+GET         /forgot                         @controllers.portal.account.Accounts.forgotPassword()
+POST        /forgot                         @controllers.portal.account.Accounts.forgotPasswordPost()
+POST        /resendVerification             @controllers.portal.account.Accounts.resendVerificationPost()
+GET         /prs                            @controllers.portal.account.Accounts.passwordReminderSent()
 GET         /rstp/:token                    @controllers.portal.account.Accounts.resetPassword(token: String)
 POST        /rstp/:token                    @controllers.portal.account.Accounts.resetPasswordPost(token: String)

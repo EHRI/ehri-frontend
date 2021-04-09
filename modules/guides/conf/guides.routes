@@ -1,6 +1,6 @@
 # Guide routes
 
-GET        /jsRoutes                         @controllers.portal.guides.Guides.jsRoutes
+GET        /jsRoutes                         @controllers.portal.guides.Guides.jsRoutes()
 
 GET        /                                 @controllers.portal.guides.Guides.listGuides()
 GET        /accesspoints/:id                 @controllers.portal.guides.Guides.linkedData(id:String)
