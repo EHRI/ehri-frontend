@@ -9,7 +9,7 @@ GET         /overview                           @controllers.admin.Home.overview
 GET         /login                              @controllers.admin.Home.loginRedirect()
 
 # Js Routes
-GET         /metricRoutes                       @controllers.admin.Home.metricsJsRoutes
+GET         /metricRoutes                       @controllers.admin.Home.metricsJsRoutes()
 
 GET         /update-index                       @controllers.admin.Indexing.updateIndex()
 GET         /update-index-ws                    @controllers.admin.Indexing.indexer()

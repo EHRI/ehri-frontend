@@ -1,8 +1,8 @@
 # Countries
 
 GET     /                                       @controllers.countries.Countries.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
-GET     /create                                 @controllers.countries.Countries.create
-POST    /create                                 @controllers.countries.Countries.createPost
+GET     /create                                 @controllers.countries.Countries.create()
+POST    /create                                 @controllers.countries.Countries.createPost()
 GET     /:id                                    @controllers.countries.Countries.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET     /:id/history                            @controllers.countries.Countries.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET     /:id/delete                             @controllers.countries.Countries.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)

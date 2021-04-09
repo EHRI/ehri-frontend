@@ -2,8 +2,8 @@
 
 GET         /                                         @controllers.virtual.VirtualUnits.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /contents/:id                             @controllers.virtual.VirtualUnits.contentsOf(id: String)
-GET         /create                                   @controllers.virtual.VirtualUnits.create
-POST        /create                                   @controllers.virtual.VirtualUnits.createPost
+GET         /create                                   @controllers.virtual.VirtualUnits.create()
+POST        /create                                   @controllers.virtual.VirtualUnits.createPost()
 GET         /:id                                      @controllers.virtual.VirtualUnits.get(id: String, dlid: Option[String] ?= None, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.virtual.VirtualUnits.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.virtual.VirtualUnits.delete(id: String)

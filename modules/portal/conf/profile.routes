@@ -1,7 +1,7 @@
 
 GET         /                    @controllers.portal.users.UserProfiles.profile(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /activity            @controllers.portal.users.UserProfiles.activity(params: utils.SystemEventParams ?= utils.SystemEventParams.empty, range: utils.RangeParams ?= utils.RangeParams.empty)
-POST        /accountPrefs        @controllers.portal.users.UserProfiles.updateAccountPrefsPost
+POST        /accountPrefs        @controllers.portal.users.UserProfiles.updateAccountPrefsPost()
 
 GET         /notes               @controllers.portal.users.UserProfiles.annotations(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /watch/:id           @controllers.portal.users.UserProfiles.watchItem(id: String)
@@ -10,10 +10,10 @@ GET         /unwatch/:id         @controllers.portal.users.UserProfiles.unwatchI
 POST        /unwatch/:id         @controllers.portal.users.UserProfiles.unwatchItemPost(id: String)
 GET         /watched             @controllers.portal.users.UserProfiles.watching(format: controllers.DataFormat.Value ?= controllers.DataFormat.Html, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
-GET         /edit                @controllers.portal.users.UserProfiles.updateProfile
-POST        /edit                @controllers.portal.users.UserProfiles.updateProfilePost
-GET         /delete              @controllers.portal.users.UserProfiles.deleteProfile
-POST        /delete              @controllers.portal.users.UserProfiles.deleteProfilePost
-GET         /editImage           @controllers.portal.users.UserProfiles.updateProfileImage
-POST        /editImage           @controllers.portal.users.UserProfiles.updateProfileImagePost
+GET         /edit                @controllers.portal.users.UserProfiles.updateProfile()
+POST        /edit                @controllers.portal.users.UserProfiles.updateProfilePost()
+GET         /delete              @controllers.portal.users.UserProfiles.deleteProfile()
+POST        /delete              @controllers.portal.users.UserProfiles.deleteProfilePost()
+GET         /editImage           @controllers.portal.users.UserProfiles.updateProfileImage()
+POST        /editImage           @controllers.portal.users.UserProfiles.updateProfileImagePost()
 

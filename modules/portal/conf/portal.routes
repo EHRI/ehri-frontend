@@ -5,26 +5,26 @@
 ->          /profile                              profile.Routes
 ->          /people                               social.Routes
 
-GET         /                                     @controllers.portal.Portal.index
+GET         /                                     @controllers.portal.Portal.index()
 
 GET         /robots.txt                           @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="robots.txt")
 GET         /sitemap.xml                          @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file="sitemap.xml")
 
-GET         /contact                              @controllers.portal.Portal.contact
-GET         /about                                @controllers.portal.Portal.about
-GET         /terms                                @controllers.portal.Portal.terms
+GET         /contact                              @controllers.portal.Portal.contact()
+GET         /about                                @controllers.portal.Portal.about()
+GET         /terms                                @controllers.portal.Portal.terms()
 
 GET         /help/$page<\w+>                      @controllers.portal.Portal.externalPage(page: String)
 
 # Change locale
-GET         /prefs                                @controllers.portal.Portal.prefs
-POST        /prefs                                @controllers.portal.Portal.updatePrefs
+GET         /prefs                                @controllers.portal.Portal.prefs()
+POST        /prefs                                @controllers.portal.Portal.updatePrefs()
 GET         /locale/:lang                         @controllers.portal.Portal.changeLocale(lang: String)
 GET         /localeData                           @controllers.portal.PortalData.localeData(lang: String ?= "en")
 
 # Feedback
-GET         /feedback                             @controllers.portal.Feedback.feedback
-POST        /feedback                             @controllers.portal.Feedback.feedbackPost
+GET         /feedback                             @controllers.portal.Feedback.feedback()
+POST        /feedback                             @controllers.portal.Feedback.feedbackPost()
 GET         /feedback/list                        @controllers.portal.Feedback.list(paging: utils.PageParams ?= utils.PageParams.empty)
 POST        /feedback/:id/delete                  @controllers.portal.Feedback.deletePost(id: String)
 
@@ -85,13 +85,13 @@ GET         /bookmarks                            @controllers.portal.Bookmarks.
 GET         /bookmarks/createSet                  @controllers.portal.Bookmarks.createBookmarkSet(item: List[String] ?= Nil)
 POST        /bookmarks/createSet                  @controllers.portal.Bookmarks.createBookmarkSetPost(item: List[String] ?= Nil)
 
-GET         /data-policy                          @controllers.portal.Portal.dataPolicy
+GET         /data-policy                          @controllers.portal.Portal.dataPolicy()
 
 GET         /filter                               @controllers.portal.Portal.filterItems(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 
 # Various JS data helpers
-GET         /routes                               @controllers.portal.PortalData.jsRoutes
-GET         /globalData                           @controllers.portal.PortalData.globalData
+GET         /routes                               @controllers.portal.PortalData.jsRoutes()
+GET         /globalData                           @controllers.portal.PortalData.globalData()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                         @controllers.portal.PortalAssets.at(path="/public/lib/docview-portal", file)

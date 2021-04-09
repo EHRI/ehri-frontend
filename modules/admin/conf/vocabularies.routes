@@ -1,8 +1,8 @@
 # Routes for vocabularies
 
 GET         /                                         @controllers.vocabularies.Vocabularies.list(paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /create                                   @controllers.vocabularies.Vocabularies.create
-POST        /create                                   @controllers.vocabularies.Vocabularies.createPost
+GET         /create                                   @controllers.vocabularies.Vocabularies.create()
+POST        /create                                   @controllers.vocabularies.Vocabularies.createPost()
 GET         /:id                                      @controllers.vocabularies.Vocabularies.get(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/history                              @controllers.vocabularies.Vocabularies.history(id: String, range: utils.RangeParams ?= utils.RangeParams.empty)
 GET         /:id/delete                               @controllers.vocabularies.Vocabularies.delete(id: String, paging: utils.PageParams ?= utils.PageParams.empty)
