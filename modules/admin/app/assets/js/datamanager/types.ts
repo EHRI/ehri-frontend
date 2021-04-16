@@ -91,6 +91,13 @@ export interface FileToUpload {
   size: number,
 }
 
+export interface FileInfo {
+  meta: FileMeta,
+  user: object,
+  presignedUrl: string,
+  versions: FileList,
+}
+
 export interface XmlValidationError {
   line: number,
   pos: number,

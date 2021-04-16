@@ -15,14 +15,30 @@ export default {
 <template>
   <modal-window v-on:close="$emit('close')">
     <template v-slot:title>{{ decodeURI(fileInfo.meta.key) }}</template>
-    <dl>
-      <dt>File size:</dt>
-      <dd>{{ humanFileSize(fileInfo.meta.size) }}</dd>
-      <dt>Last Modified:</dt>
-      <dd v-bind:title="fileInfo.meta.lastModified">{{ prettyDate(fileInfo.meta.lastModified) }}</dd>
-      <dt>E-Tag:</dt>
-      <dd v-bind:title="fileInfo.meta.eTag">{{fileInfo.meta.eTag}}</dd>
-    </dl>
+    <h4>Attributes</h4>
+    <table class="info-table">
+      <tr>
+        <td>File size:</td>
+        <td>{{ humanFileSize(fileInfo.meta.size) }}</td>
+      </tr>
+      <tr>
+        <td>Last Modified:</td>
+        <td v-bind:title="fileInfo.meta.lastModified">{{ prettyDate(fileInfo.meta.lastModified) }}</td>
+      </tr>
+      <tr>
+        <td>E-Tag:</td>
+        <td v-bind:title="fileInfo.meta.eTag">{{fileInfo.meta.eTag}}</td>
+      </tr>
+    </table>
+    <template v-if="fileInfo.user">
+      <h4>Metadata</h4>
+      <table class="info-table">
+        <tr v-for="(value, key) in fileInfo.user">
+          <td>{{ key }}</td>
+          <td>{{ value }}</td>
+        </tr>
+      </table>
+    </template>
     <template v-if="fileInfo.versions && fileInfo.versions.length > 1">
       <h4>Version History</h4>
       <table class="version-history-list table table-striped table-sm table-bordered">
