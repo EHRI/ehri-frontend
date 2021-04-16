@@ -603,6 +603,10 @@ body {
   }
 }
 
+.file-meta {
+  overflow: auto;
+}
+
 .info-table {
   @extend .table, .table-striped, .table-bordered, .table-sm;
   tr td:first-child {
