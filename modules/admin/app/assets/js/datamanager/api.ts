@@ -3,7 +3,7 @@ import axios from "axios";
 
 import {
   ConvertConfig,
-  DataTransformation, DataTransformationInfo,
+  DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
   ImportConfig, ImportDataset, ImportDatasetInfo,
   JobMonitor,
@@ -74,7 +74,7 @@ export default class DataManagerApi {
     return DataManagerApi.call(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
   }
 
-  info(ds: string, stage: string, key: string, versionId?: string): Promise<object> {
+  info(ds: string, stage: string, key: string, versionId?: string): Promise<FileInfo> {
     return DataManagerApi.call(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
   }
 

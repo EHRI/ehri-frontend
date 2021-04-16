@@ -117,10 +117,11 @@ case class ImportFiles @Inject()(
     val pre = prefix(id, ds, stage)
     val path = pre + fileName
     for {
-      Some((meta, _)) <- storage.info(path, versionId)
+      Some((meta, userMeta)) <- storage.info(path, versionId)
       versions <- storage.listVersions(path)
     } yield Ok(Json.obj(
       "meta" -> meta.copy(key = meta.key.replace(pre, "")),
+      "user" -> userMeta,
       "presignedUrl" -> storage.uri(path, 2.hours, versionId = versionId, contentType = meta.contentType),
       "versions" -> versions.files.map(v => v.copy(key = v.key.replace(pre, "")))
     ))
