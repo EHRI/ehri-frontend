@@ -49,14 +49,26 @@ class IndexingSpec extends SearchTestRunner {
       val outFlow: Flow[Message, Message, (Future[Seq[Message]], Promise[Option[Message]])] =
         Flow.fromSinkAndSourceMat(Sink.seq[Message], src.concatMat(Source.maybe[Message])(Keep.right))(Keep.both)
 
+      // NB: using the technique mentioned for "half-closed" websockets here to get output
+      // even when we are not putting any items in.
+      // https://doc.akka.io/docs/akka-http/current/client-side/websocket-support.html#half-closed-websockets
+      //
       val (_, (out, promise)) =
         Http().singleWebSocketRequest(WebSocketRequest(wsUrl, extraHeaders = headers), outFlow)
 
+      // Clear the index so we know we're testing against a clean start
+      await(mediator.handle.clearAll())
+      await(engine.search(query)).page.size must_== 0
+
       // Here we can't read any messages till we've signalled the end of the input stream, but in
       // reality the indexer is working behind-the-scenes. So we need to wait for some time.
-      // Wait up to ten seconds until a search query is non-empty. Since Solr won't show anything till
-      // it commits the request this means we're done:
-      await(engine.search(query)).page.headOption must beSome.eventually(100, 100.millis)
+      // Currently we'd expect X number of items to be returned by a fully-indexed search engine:
+      // change this if the fixtures change and you're getting unexpected results!
+      // NB: this is the number of items, not descriptions which is what the
+      // search engine indexes - there are something like 46 descriptions.
+      // Wait up to ten seconds until we get the expected number of items:
+      val EXPECTED = 39
+      await(engine.search(query)).page.size must be_==(EXPECTED).eventually(100, 100.millis)
 
       // close the connection...
       promise.success(None)

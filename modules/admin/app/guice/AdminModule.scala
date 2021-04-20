@@ -3,7 +3,7 @@ package guice
 import com.google.inject.AbstractModule
 import eu.ehri.project.xml.{BaseXXQueryXmlTransformer, SaxonXsltXmlTransformer, XQueryXmlTransformer, XsltXmlTransformer}
 import services.harvesting._
-import services.ingest.{CoreferenceService, EadValidator, IngestService, RelaxNGEadValidator, SqlCoreferenceService, WSIngestService}
+import services.ingest._
 
 import javax.inject.Provider
 

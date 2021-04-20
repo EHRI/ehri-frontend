@@ -118,6 +118,8 @@ trait TestConfiguration {
       bind[CypherQueryService].toInstance(mockCypherQueries),
 
       bind[EventHandler].toInstance(testEventHandler),
+      bind[DataServiceBuilder].to[WsDataServiceBuilder],
+//      bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       bind[GeocodingService].to[NoopGeocodingService],
       bind[EadValidator].to[MockEadValidatorService],

@@ -35,18 +35,18 @@ trait AppComponents {
   def itemLifecycle: ItemLifecycle
 }
 
-case class DefaultAppComponents @Inject ()(
-                                            accounts: AccountManager,
-                                            authHandler: AuthHandler,
-                                            cacheApi: SyncCacheApi,
-                                            config: Configuration,
-                                            dataApi: DataServiceBuilder,
-                                            conf: AppConfig,
-                                            markdown: MarkdownRenderer,
-                                            materializer: Materializer,
-                                            pageRelocator: MovedPageLookup,
-                                            searchEngine: SearchEngine,
-                                            searchResolver: SearchItemResolver,
-                                            itemLifecycle: ItemLifecycle,
+case class DefaultAppComponents @Inject()(
+  accounts: AccountManager,
+  authHandler: AuthHandler,
+  cacheApi: SyncCacheApi,
+  config: Configuration,
+  dataApi: DataServiceBuilder,
+  conf: AppConfig,
+  markdown: MarkdownRenderer,
+  materializer: Materializer,
+  pageRelocator: MovedPageLookup,
+  searchEngine: SearchEngine,
+  searchResolver: SearchItemResolver,
+  itemLifecycle: ItemLifecycle,
 ) extends AppComponents
 

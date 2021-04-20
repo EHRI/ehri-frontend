@@ -28,6 +28,11 @@ services:
     ports:
       - 8982:8983
 
+  solr:
+    image: ehri/ehri-search-tools
+    ports:
+      - 8982:8983
+
   # This simply allows us to send mails from CI environments
   smtp:
     image: python:3.9.7-slim
