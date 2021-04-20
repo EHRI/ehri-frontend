@@ -16,7 +16,7 @@ import org.specs2.execute.{AsResult, Result}
 import play.api.db.Database
 import play.api.http.{Status, Writeable}
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader}
+import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader, GuiceableModule}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.ws.WSClient
@@ -91,28 +91,32 @@ trait TestConfiguration {
     def handleDelete(ids: String*): Unit = mockIndexer.handle.clearIds(ids: _*)
   }
 
-  protected val searchLogger = new SearchLogger {
-    override def log(params: ParamLog): Unit = searchParamBuffer += params
+  protected val mockSearchLogger = new SearchLogger {
+    override def log(params: => ParamLog): Unit = searchParamBuffer += params
   }
 
   import play.api.inject.bind
 
-  protected val appBuilder: GuiceApplicationBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
+  protected def testSearchComponents: Seq[GuiceableModule] = Seq(
+    bind[SearchIndexMediator].toInstance(mockIndexer),
+    bind[SearchEngine].to[MockSearchEngine],
+    bind[SearchLogger].toInstance(mockSearchLogger)
+  )
+
+  protected def appBuilder: GuiceApplicationBuilder = new play.api.inject.guice.GuiceApplicationBuilder()
     .overrides(
       // since we run some concurrent requests as the same user its
       // important not to use the CacheIdContainer, since each new
       // login evicts the last.
-      bind[AuthIdContainer].to(classOf[CookieIdContainer]),
+      bind[AuthIdContainer].to[CookieIdContainer],
       bind[MailerClient].toInstance(mockMailer),
       bind[OAuth2Service].toInstance(mockOAuth2Flow),
       bind[MovedPageLookup].toInstance(mockRelocator),
       bind[AccountManager].toInstance(mockAccounts),
-      bind[SearchEngine].to[MockSearchEngine],
       bind[FeedbackService].toInstance(mockFeedback),
       bind[CypherQueryService].toInstance(mockCypherQueries),
+
       bind[EventHandler].toInstance(testEventHandler),
-      bind[DataApi].to[DataApiService],
-      bind[SearchIndexMediator].toInstance(mockIndexer),
       bind[HtmlPages].toInstance(mockHtmlPages),
       bind[ItemLifecycle].to[NoopItemLifecycle],
       bind[EadValidator].to[MockEadValidatorService],
@@ -121,9 +125,8 @@ trait TestConfiguration {
       // DB churn, so using the String ID resolver rather than
       // the more efficient GID one used in production
       bind[SearchItemResolver].to[IdSearchResolver],
-    ).bindings(
-      bind[SearchLogger].toInstance(searchLogger)
     )
+    .overrides(testSearchComponents: _*)
 
   // Might want to mock the dataApi at at some point!
   protected def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =

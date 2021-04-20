@@ -68,7 +68,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
       expectMsg(20.seconds, s"${WebsocketConstants.ERR_MESSAGE}: ${Messages("oaipmh.error.url")}")
 
       // If there's an error before anything is harvested we don't log anything
-      await(events.get("r1")).size must_== 0
+      await(events.get("r1")) must_== List.empty[HarvestEvent]
     }
 
     "harvest selectively with `from` date" in new ITestAppWithAkka {
@@ -82,7 +82,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         expectMsg(s"Starting harvest with job id: $jobId")
         expectMsg(s"Harvesting from ${DateTimeFormatter.ISO_INSTANT.format(start)}")
         expectMsg("Done: nothing new to sync")
-        await(events.get("r1")).size must_== 0
+        await(events.get("r1")) must_== List.empty[HarvestEvent]
     }
 
     "cancel jobs" in new ITestAppWithAkka {

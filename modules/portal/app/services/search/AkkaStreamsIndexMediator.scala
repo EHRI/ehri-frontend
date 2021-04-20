@@ -227,7 +227,7 @@ case class AkkaStreamsIndexMediatorHandle(
   }
 
   override def clearAll(): Future[Unit] =
-    deleteByQuery(s"$ID:*")
+    deleteByQuery(s"*:*")
 
   override def clearTypes(entityTypes: Seq[EntityType.Value]): Future[Unit] =
     deleteByQuery(entityTypes.map(et => s"$TYPE:$et"):_*)

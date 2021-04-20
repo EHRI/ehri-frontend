@@ -23,7 +23,7 @@ class RelaxNGEadValidatorSpec extends PlaySpecification {
 
       val file = Paths.get(Resources.getResource("valid-ead.xml").toURI)
       val errs = await(validator.validateEad(file))
-      errs.size must_== 0
+      errs must_== Seq.empty[XmlValidationError]
     }
 
     "validate an URL" in {
@@ -31,7 +31,7 @@ class RelaxNGEadValidatorSpec extends PlaySpecification {
 
       val file = Uri(Resources.getResource("valid-ead.xml").toString)
       val errs = await(validator.validateEad(file))
-      errs.size must_== 0
+      errs must_== Seq.empty[XmlValidationError]
     }
 
     "validate a stream" in {
@@ -40,7 +40,7 @@ class RelaxNGEadValidatorSpec extends PlaySpecification {
       val file = Resources.getResource("valid-ead.xml")
       val src = FileIO.fromPath(Paths.get(file.toURI))
       val errs = await(validator.validateEad(src))
-      errs.size must_== 0
+      errs must_== Seq.empty[XmlValidationError]
     }
 
     "report errors from a stream" in {
