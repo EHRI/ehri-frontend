@@ -1,4 +1,4 @@
-package utils.mailer
+package services
 
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -17,7 +17,7 @@ class MailerSpec extends PlaySpecification {
   "SMTP mailer" should {
     "send mails" in new WithApplication(app) {
       val mailer = app.injector.instanceOf[MailerClient]
-      val email = new Email(
+      val email = Email(
         "Test Email",
         "Test FROM <test@example.com>",
         Seq("Test TO <test@example.com>"))

@@ -1,5 +1,6 @@
 package eu.ehri.project.search.solr
 
+import config.serviceHost
 import config.serviceBaseUrl
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -22,6 +23,7 @@ case class SolrSearchEngine @Inject()(
   queryBuilder: QueryBuilder,
   parser: ResponseParser,
   ws: WSClient,
+  queryLog: SearchLogger,
   config: Configuration
 )(implicit executionContext: ExecutionContext) extends SearchEngine {
 
@@ -48,12 +50,8 @@ case class SolrSearchEngine @Inject()(
   }
 
   override def status(): Future[String] = {
-    val url = (for {
-      host <- config.getOptional[String]("services.solr.host")
-      port <- config.getOptional[String]("services.solr.port")
-    } yield s"http://$host:$port/solr/admin/cores")
-      .getOrElse(sys.error("Missing config key: service.solr.host/port"))
-
+    val host = serviceHost("solr", config)
+    val url = s"$host/solr/admin/cores"
     val params = Seq("action" -> "STATUS", "wt" -> "json", "core" -> "portal")
 
     ws.url(url).withQueryStringParameters(params: _*).get().map { r =>
@@ -86,6 +84,7 @@ case class SolrSearchEngine @Inject()(
   override def search(query: SearchQuery): Future[SearchResult[SearchHit]] = {
     val queryRequest = queryBuilder.searchQuery(query)
     logger.debug(fullSearchUrl(queryRequest))
+    queryLog.log(ParamLog(query.params, query.appliedFacets, query.facetClasses, query.filters))
 
     // Skip dispatch if we have an empty ID set
     query.withinIds match {

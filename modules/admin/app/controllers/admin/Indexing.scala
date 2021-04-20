@@ -29,6 +29,21 @@ object IndexTypes {
   val CLEAR_TYPES = "clearTypes"
 
   implicit val _fmt: Format[IndexTypes] = Json.format[IndexTypes]
+
+  val all = Seq(
+    EntityType.Country,
+    EntityType.DocumentaryUnit,
+    EntityType.HistoricalAgent,
+    EntityType.Repository,
+    EntityType.Concept,
+    EntityType.Vocabulary,
+    EntityType.AuthoritativeSet,
+    EntityType.UserProfile,
+    EntityType.Group,
+    EntityType.VirtualUnit,
+    EntityType.Annotation,
+    EntityType.Link
+  )
 }
 
 case class IndexChildren(
@@ -54,21 +69,6 @@ case class Indexing @Inject()(
 ) extends AdminController {
 
   private def logger = Logger(this.getClass)
-
-  private val indexTypes = Seq(
-    EntityType.Country,
-    EntityType.DocumentaryUnit,
-    EntityType.HistoricalAgent,
-    EntityType.Repository,
-    EntityType.Concept,
-    EntityType.Vocabulary,
-    EntityType.AuthoritativeSet,
-    EntityType.UserProfile,
-    EntityType.Group,
-    EntityType.VirtualUnit,
-    EntityType.Annotation,
-    EntityType.Link
-  )
 
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
@@ -98,9 +98,7 @@ case class Indexing @Inject()(
           task <- indexer.indexTypes(entityTypes = types)
         } yield task
 
-        job.map { _ =>
-          out ! WebsocketConstants.DONE_MESSAGE
-        } recover {
+        job.map( _ => out ! WebsocketConstants.DONE_MESSAGE).recover {
           case t =>
             logger.logger.error(t.getMessage)
             out ! s"${WebsocketConstants.ERR_MESSAGE}: ${t.getMessage}"
@@ -128,6 +126,8 @@ case class Indexing @Inject()(
         }.onComplete { _ =>
           out ! WebsocketConstants.DONE_MESSAGE
         }
+
+      case msg => println(s"UNHANDLED: $msg")
     }
   }
 
@@ -144,7 +144,7 @@ case class Indexing @Inject()(
   )
 
   def updateIndex(): Action[AnyContent] = AdminAction { implicit request =>
-    Ok(views.html.admin.search.updateIndex(form = updateIndexForm, types = indexTypes,
+    Ok(views.html.admin.search.updateIndex(form = updateIndexForm, types = IndexTypes.all,
       action = controllers.admin.routes.Indexing.indexer()))
   }
 

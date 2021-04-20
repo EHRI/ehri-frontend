@@ -7,6 +7,5 @@ case class ParamLog(
   params: SearchParams,
   facets: Seq[AppliedFacet],
   allFacets: Seq[FacetClass[Facet]],
-  filters: Map[String,Any] = Map.empty
+  filters: Map[String, Any] = Map.empty
 )
-
