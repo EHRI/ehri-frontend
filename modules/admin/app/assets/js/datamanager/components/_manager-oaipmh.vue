@@ -17,7 +17,7 @@ import MixinValidator from './_mixin-validator';
 import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
 
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 
 export default {
@@ -26,7 +26,7 @@ export default {
   props: {
     fileStage: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function () {
     return {
@@ -79,7 +79,7 @@ export default {
           this.removeUrlState('harvest-job-id');
         }
       };
-      worker.postMessage({type: 'websocket', url: url, DONE: DataManagerApi.DONE_MSG, ERR: DataManagerApi.ERR_MSG});
+      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
       this.replaceUrlState('harvest-job-id', jobId);
     },
     resumeMonitor: function() {

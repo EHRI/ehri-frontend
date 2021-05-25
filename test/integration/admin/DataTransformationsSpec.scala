@@ -16,7 +16,7 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
-  private val dtRoutes = controllers.institutions.routes.DataTransformations
+  private val dtRoutes = controllers.datasets.routes.DataTransformations
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -40,7 +40,7 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
   private def putFile()(implicit app: play.api.Application): Future[Result] = {
-    FakeRequest(controllers.institutions.routes.ImportFiles.uploadStream(repoId, datasetId, stage, testFileName))
+    FakeRequest(controllers.datasets.routes.ImportFiles.uploadStream(repoId, datasetId, stage, testFileName))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"

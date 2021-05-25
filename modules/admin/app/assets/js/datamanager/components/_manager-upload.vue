@@ -16,7 +16,7 @@ import MixinValidator from './_mixin-validator';
 import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
 
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 import _findIndex from 'lodash/findIndex';
 import _pick from 'lodash/pick';
@@ -70,7 +70,7 @@ export default {
     datasetId: String,
     fileStage: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function () {
     return {

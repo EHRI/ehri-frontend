@@ -1,7 +1,7 @@
 package integration.admin
 
 import akka.util.ByteString
-import controllers.institutions.FileToUpload
+import controllers.datasets.FileToUpload
 import helpers._
 import models.{FileStage, _}
 import org.apache.commons.codec.digest.DigestUtils
@@ -18,7 +18,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
-  private val repoDataRoutes = controllers.institutions.routes.ImportFiles
+  private val repoDataRoutes = controllers.datasets.routes.ImportFiles
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(

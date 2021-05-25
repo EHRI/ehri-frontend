@@ -1,4 +1,4 @@
-package controllers.institutions
+package controllers.datasets
 
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -48,21 +48,6 @@ case class ImportFiles @Inject()(
   asyncCache: AsyncCacheApi,
   datasets: ImportDatasetService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
-
-  private val repositoryDataRoutes = controllers.institutions.routes.ImportFiles
-
-
-  def manager(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    storage.isVersioned.map { versioned =>
-      Ok(views.html.admin.repository.datamanager(request.item, versioned))
-    }
-  }
-
-  def toggleVersioning(id: String, enabled: Boolean): Action[AnyContent] = AdminAction.async { implicit request =>
-    storage.setVersioned(enabled).map { _ =>
-      Redirect(repositoryDataRoutes.manager(id))
-    }
-  }
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),

@@ -45,7 +45,7 @@
     @views.html.common.sidebarSection(Messages("ingest")) {
         @views.html.admin.common.sidebarActionGroup {
             @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-                <a href="@controllers.institutions.routes.ImportFiles.manager(item.id)">@Messages("repository.data.manage")</a>
+                <a href="@controllers.datasets.routes.ImportDatasets.manager(item.id)">@Messages("repository.data.manage")</a>
             }
             @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
                 <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">@Messages("ingest.format.ead-sync")</a>

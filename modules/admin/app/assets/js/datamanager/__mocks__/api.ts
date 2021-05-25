@@ -1,8 +1,8 @@
 import {ResourceSyncConfig, FileList} from "../types";
 
-export default class DataManagerApi {
+export class DatasetManagerApi {
   constructor(service: object, repoId: string) {
-    console.log("DataManagerApi mock constructor called");
+    console.log("DatasetManagerApi mock constructor called");
   }
 
   listFiles(ds: string, stage: string, prefix: string, after?: string): Promise<FileList> {

@@ -2,7 +2,7 @@
 
 import ModalWindow from './_modal-window';
 import {FileMeta} from '../types';
-import DataManagerApi from "../api";
+import {DatasetManagerApi} from "../api";
 
 import _pick from 'lodash/pick';
 import _size from 'lodash/size';
@@ -12,7 +12,7 @@ export default {
   components: {ModalWindow},
   props: {
     datasetId: String,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     config: Object,
     opts: Object,
     waiting: Boolean,

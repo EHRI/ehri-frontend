@@ -9,7 +9,7 @@ import ManagerConvert from './_manager-convert.vue';
 
 import MixinUtil from './_mixin-util';
 import {ImportDataset, ImportDatasetSrc} from '../types';
-import DataManagerApi from "../api";
+import {DatasetManagerApi} from "../api";
 
 import _find from 'lodash/find';
 import _merge from 'lodash/merge';
@@ -20,7 +20,7 @@ export default {
   mixins: [MixinUtil],
   props: {
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     initTab: String,
   },
   data: function() {
@@ -121,7 +121,7 @@ export default {
 </script>
 
 <template>
-  <div id="data-manager-container" class="container">
+  <div id="dataset-manager-container" class="container">
     <div v-if="error" id="app-error-notice" class="alert alert-danger alert-dismissable">
       <span class="close" v-on:click="error = null">&times;</span>
       {{error}}

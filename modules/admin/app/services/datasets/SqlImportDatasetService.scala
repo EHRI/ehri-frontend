@@ -19,6 +19,13 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
     Macro.parser[ImportDataset](
       "repo_id", "id", "name", "type", "created", "item_id", "sync", "comments")
 
+  override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT * FROM import_dataset ORDER BY repo_id, name ASC""".as(parser.*)
+        .groupBy(_.repoId)
+    }
+  }(ec)
+
   override def get(repoId: String, datasetId: String): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT * FROM import_dataset WHERE repo_id = $repoId AND id = $datasetId""".as(parser.single)

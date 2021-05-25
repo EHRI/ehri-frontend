@@ -12,13 +12,13 @@ import _isEqual from 'lodash/isEqual';
 import _isArray from 'lodash/isArray';
 import _fromPairs from 'lodash/fromPairs';
 import {FileMeta, XmlValidationError} from "../types";
-import DataManagerApi from "../api";
+import {DatasetManagerApi} from "../api";
 
 
 export default {
   mixins: [MixinError],
   props: {
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     datasetId: String,
     fileStage: String,
     panelSize: Number,

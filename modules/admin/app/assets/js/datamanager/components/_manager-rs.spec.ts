@@ -1,11 +1,11 @@
 import {shallowMount} from '@vue/test-utils';
 import ManagerRs from './_manager-rs.vue';
-import DataManagerApi from "../api";
+import {DatasetManagerApi} from "../api";
 
 jest.mock('../api');
 
 describe('ManagerRs component', () => {
-  let api = new DataManagerApi({}, 'r1');
+  let api = new DatasetManagerApi({}, 'r1');
   const wrapper = shallowMount(ManagerRs, {
     propsData: {
       fileStage: 'input',

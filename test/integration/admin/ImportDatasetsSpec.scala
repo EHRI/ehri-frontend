@@ -10,7 +10,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
-  private val routes = controllers.institutions.routes.ImportDatasets
+  private val routes = controllers.datasets.routes.ImportDatasets
 
   "Import Dataset API" should {
 

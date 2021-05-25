@@ -19,6 +19,10 @@ class SqlImportDatasetServiceSpec extends IntegrationTestRunner {
       await(service.list("r1")).size must_== 1
     }
 
+    "list all items" in new DBTestApp("data-transformation-fixtures.sql") {
+      await(service.listAll()).size must_== 2
+    }
+
     "delete items" in new DBTestApp("data-transformation-fixtures.sql") {
       await(service.delete("r1", "default")) must_== true
     }
