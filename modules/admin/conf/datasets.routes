@@ -1,0 +1,53 @@
+# Data management
+
+GET         /                                             @controllers.datasets.ImportDatasets.ui()
+GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
+
+# API/JSON routes
+GET         /api/list                                     @controllers.datasets.ImportDatasets.listAll()
+GET         /api/:id/datasets-stats                       @controllers.datasets.ImportDatasets.stats(id: String)
+GET         /api/:id/datasets                             @controllers.datasets.ImportDatasets.list(id: String)
+POST        /api/:id/datasets                             @controllers.datasets.ImportDatasets.create(id: String)
+PUT         /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.update(id: String, ds: String)
+DELETE      /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.delete(id: String, ds: String)
+
+GET         /api/:id/files/file/:ds/:stage                @controllers.datasets.ImportFiles.download(id: String, ds: String, stage: models.FileStage.Value, fileName: String, versionId: Option[String] ?= None)
+PUT         /api/:id/files/file/:ds/:stage                @controllers.datasets.ImportFiles.uploadStream(id: String, ds: String, stage: models.FileStage.Value, fileName: String)
+GET         /api/:id/files/info/:ds/:stage                @controllers.datasets.ImportFiles.info(id: String, ds: String, stage: models.FileStage.Value, fileName: String, versionId: Option[String] ?= None)
+GET         /api/:id/files/list/:ds/:stage                @controllers.datasets.ImportFiles.listFiles(id: String, ds: String, stage: models.FileStage.Value, path: Option[String] ?= None, from: Option[String] ?= None)
+GET         /api/:id/files/count/:ds/:stage               @controllers.datasets.ImportFiles.countFiles(id: String, ds: String, stage: models.FileStage.Value, path: Option[String] ?= None)
+DELETE      /api/:id/files/delete/:ds/:stage              @controllers.datasets.ImportFiles.deleteFiles(id: String, ds: String, stage: models.FileStage.Value)
+POST        /api/:id/files/upload/:ds/:stage              @controllers.datasets.ImportFiles.uploadHandle(id: String, ds: String, stage: models.FileStage.Value)
+POST        /api/:id/files/validate/:ds/:stage            @controllers.datasets.ImportFiles.validateFiles(id: String, ds: String, stage: models.FileStage.Value)
+POST        /api/:id/files/urls/:ds/:stage                @controllers.datasets.ImportFiles.fileUrls(id: String, ds: String, stage: models.FileStage.Value)
+
+GET         /api/:id/transformations                      @controllers.datasets.DataTransformations.list(id: String)
+POST        /api/:id/transformations                      @controllers.datasets.DataTransformations.create(id: String, generic: Boolean ?= false)
+GET         /api/:id/transformations/:dt                  @controllers.datasets.DataTransformations.get(id: String, dt: String)
+PUT         /api/:id/transformations/:dt                  @controllers.datasets.DataTransformations.update(id: String, dt: String, generic: Boolean ?= false)
+DELETE      /api/:id/transformations/:dt                  @controllers.datasets.DataTransformations.delete(id: String, dt: String)
+
+GET         /api/:id/convert/:ds/config                   @controllers.datasets.DataTransformations.getConfig(id: String, ds: String)
+PUT         /api/:id/convert/:ds/config                   @controllers.datasets.DataTransformations.saveConfig(id: String, ds: String)
+POST        /api/:id/convert/:ds                          @controllers.datasets.DataTransformations.convert(id: String, ds: String, key: Option[String] ?= None)
+POST        /api/:id/convert/:ds/:stage                   @controllers.datasets.DataTransformations.convertFile(id: String, ds: String, stage: models.FileStage.Value, fileName: String)
+DELETE      /api/:id/convert                              @controllers.datasets.DataTransformations.cancelConvert(id: String, jobId: String)
+
+GET         /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.get(id: String, ds: String)
+PUT         /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.save(id: String, ds: String)
+POST        /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.test(id: String, ds: String)
+DELETE      /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.delete(id: String, ds: String)
+POST        /api/:id/oaipmh/:ds                           @controllers.datasets.OaiPmhConfigs.harvest(id: String, ds: String, fromLast: Boolean ?= true)
+DELETE      /api/:id/oaipmh                               @controllers.datasets.OaiPmhConfigs.cancelHarvest(id: String, jobId: String)
+
+GET         /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.get(id: String, ds: String)
+PUT         /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.save(id: String, ds: String)
+POST        /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.test(id: String, ds: String)
+DELETE      /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.delete(id: String, ds: String)
+POST        /api/:id/rs/:ds                               @controllers.datasets.ResourceSyncConfigs.sync(id: String, ds: String)
+DELETE      /api/:id/rs                                   @controllers.datasets.ResourceSyncConfigs.cancelSync(id: String, jobId: String)
+
+GET         /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.get(id: String, ds: String)
+PUT         /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.save(id: String, ds: String)
+DELETE      /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.delete(id: String, ds: String)
+POST        /api/:id/import/:ds                           @controllers.datasets.ImportConfigs.ingestFiles(id: String, ds: String)

@@ -6,7 +6,7 @@ import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
-import controllers.institutions.StorageHelpers
+import controllers.datasets.StorageHelpers
 import models.{ContentTypes, FilePayload, FileProperties, IngestParams, Model}
 
 import javax.inject.{Inject, Singleton}
@@ -18,6 +18,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
+import services.datasets.ImportDatasetService
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest.IngestService
 
@@ -29,7 +30,8 @@ import scala.concurrent.Future.{successful => immediate}
 case class Ingest @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  ingestApi: IngestService
+  ingestApi: IngestService,
+  datasetApi: ImportDatasetService
 )(implicit mat: Materializer) extends AdminController with StorageHelpers {
 
   private def logger = Logger(this.getClass)
@@ -47,7 +49,7 @@ case class Ingest @Inject()(
             .map(item => Some(item))).getOrElse(Future.successful(None))
 
         for (scopeItem <- scopeItemF; fondsItem <- fondsItemF)
-          yield BadRequest(views.html.admin.tools.ingest(scopeItem, fondsItem, form, dataType,
+          yield BadRequest(views.html.admin.ingest.ingest(scopeItem, fondsItem, form, dataType,
             controllers.admin.routes.Ingest.ingestPost(scopeType, scopeId, dataType, fonds)))
       }
 

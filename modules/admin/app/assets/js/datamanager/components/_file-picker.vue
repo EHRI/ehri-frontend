@@ -3,7 +3,7 @@
 import FilePickerSuggestion from './_file-picker-suggestion';
 
 import _debounce from 'lodash/debounce';
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 export default {
   components: {FilePickerSuggestion},
@@ -12,7 +12,7 @@ export default {
     fileStage: String,
     value: Object,
     disabled: Boolean,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     config: Object,
     placeholder: {
       type: String,

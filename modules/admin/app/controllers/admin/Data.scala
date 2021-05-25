@@ -33,7 +33,7 @@ case class Data @Inject()(
     }
   }
 
-  def getItemType(entityType: EntityType.Value, id: String) = OptionalUserAction { implicit request =>
+  def getItemType(entityType: EntityType.Value, id: String): Action[AnyContent] = OptionalUserAction { implicit request =>
     views.admin.Helpers.linkToOpt(entityType, id)
       .map(Redirect)
       .getOrElse(NotFound(views.html.errors.itemNotFound()))

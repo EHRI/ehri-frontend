@@ -17,7 +17,7 @@ import MixinError from './_mixin-error';
 import MixinStage from './_mixin-stage';
 import MixinUtil from './_mixin-util';
 
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 
 export default {
@@ -26,7 +26,7 @@ export default {
   props: {
     fileStage: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function () {
     return {
@@ -78,7 +78,7 @@ export default {
           this.removeUrlState('sync-job-id');
         }
       };
-      worker.postMessage({type: 'websocket', url: url, DONE: DataManagerApi.DONE_MSG, ERR: DataManagerApi.ERR_MSG});
+      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
       this.replaceUrlState('sync-job-id', jobId);
     },
     resumeMonitor: function () {

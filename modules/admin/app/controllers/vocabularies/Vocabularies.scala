@@ -228,7 +228,7 @@ case class Vocabularies @Inject()(
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     val dataType = IngestService.IngestDataType.Skos
-    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
+    Ok(views.html.admin.ingest.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.Vocabulary, id, dataType)))
   }
 }

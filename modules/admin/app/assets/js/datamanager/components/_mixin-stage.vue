@@ -7,7 +7,7 @@ import _fromPairs from 'lodash/fromPairs';
 import _isEmpty from 'lodash/isEmpty';
 
 import {FileMeta} from '../types';
-import DataManagerApi from "../api";
+import {DatasetManagerApi} from "../api";
 
 
 let initialStageState = function(): object {
@@ -35,7 +35,7 @@ export default {
   props: {
     datasetId: String,
     active: Boolean,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function(): object {
     return initialStageState();

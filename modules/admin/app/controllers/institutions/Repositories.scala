@@ -297,7 +297,7 @@ case class Repositories @Inject()(
 
   def ingest(id: String, sync: Boolean): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>
     val dataType = if (sync) IngestService.IngestDataType.EadSync else IngestService.IngestDataType.Ead
-    Ok(views.html.admin.tools.ingest(request.item, None, IngestParams.ingestForm, dataType,
+    Ok(views.html.admin.ingest.ingest(request.item, None, IngestParams.ingestForm, dataType,
       controllers.admin.routes.Ingest.ingestPost(ContentTypes.Repository, id, dataType), sync = sync))
   }
 

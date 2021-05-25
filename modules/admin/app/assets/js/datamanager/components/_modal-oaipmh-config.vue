@@ -1,7 +1,7 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 export default {
   components: {ModalWindow},
@@ -9,7 +9,7 @@ export default {
     waiting: Boolean,
     datasetId: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function() {
     return {

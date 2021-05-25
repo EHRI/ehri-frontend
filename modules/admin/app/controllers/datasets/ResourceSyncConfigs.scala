@@ -1,24 +1,23 @@
-package controllers.institutions
+package controllers.datasets
 
-import java.util.UUID
 import actors.harvesting.ResourceSyncHarvesterManager.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.{ResourceSyncHarvester, ResourceSyncHarvesterManager}
 import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
-import controllers.generic._
-
-import javax.inject._
-import models.{FileStage, _}
+import controllers.generic.Update
+import models.{FileStage, Repository, ResourceSyncConfig}
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.mvc._
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.harvesting.{HarvestEventService, ResourceSyncClient, ResourceSyncConfigService}
 import services.storage.FileStorage
 
+import java.util.UUID
+import javax.inject.{Inject, Named, Singleton}
 
 @Singleton
 case class ResourceSyncConfigs @Inject()(
@@ -64,17 +63,17 @@ case class ResourceSyncConfigs @Inject()(
 
 
   def sync(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).apply(parse.json[ResourceSyncConfig]) { implicit request =>
-      val endpoint = request.body
-      val jobId = UUID.randomUUID().toString
-      val data = ResourceSyncData(endpoint, prefix = prefix(id, ds, FileStage.Input))
-      val job = ResourceSyncJob(id, ds, jobId, data = data)
-      mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, rsClient, storage, harvestEvents)), jobId)
+    val endpoint = request.body
+    val jobId = UUID.randomUUID().toString
+    val data = ResourceSyncData(endpoint, prefix = prefix(id, ds, FileStage.Input))
+    val job = ResourceSyncJob(id, ds, jobId, data = data)
+    mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, rsClient, storage, harvestEvents)), jobId)
 
-      Ok(Json.obj(
-        "url" -> controllers.admin.routes.Tasks
-          .taskMonitorWS(jobId).webSocketURL(conf.https),
-        "jobId" -> jobId
-      ))
+    Ok(Json.obj(
+      "url" -> controllers.admin.routes.Tasks
+        .taskMonitorWS(jobId).webSocketURL(conf.https),
+      "jobId" -> jobId
+    ))
   }
 
   def cancelSync(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>

@@ -3,12 +3,12 @@
 import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
 
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 export default {
   components: {ModalWindow, ModalAlert},
   props: {
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     config: Object,
     info: Object,
   },

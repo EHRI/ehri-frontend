@@ -1,0 +1,25 @@
+@(datasets: Seq[(String, String, Seq[ImportDataset])])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+
+@views.html.admin.layout.adminLayout(Messages("ingest.datasets")) {
+    @common.mainContent {
+        @common.itemHeader(Messages("ingest.datasets"))
+        <ul class="list-unstyled">
+        @datasets.map { case (id, repo, sets) =>
+
+          <li>
+              <h4><a class="alt" href="@controllers.institutions.routes.Repositories.get(id)">@repo</a></h4>
+             <ul>
+                 @sets.map { s =>
+                     <li>
+                         <a href="@controllers.datasets.routes.ImportDatasets.manager(id, Some(s.id))">@s.name</a>
+                     </li>
+                 }
+             </ul>
+          </li>
+
+        }
+        </ul>
+    }
+}

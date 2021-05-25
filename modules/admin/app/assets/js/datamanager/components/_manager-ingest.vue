@@ -16,7 +16,7 @@ import MixinError from './_mixin-error';
 import MixinPreview from './_mixin-preview';
 import MixinStage from './_mixin-stage';
 import MixinUtil from './_mixin-util';
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 import _startsWith from 'lodash/startsWith';
 import _last from 'lodash/last';
@@ -30,7 +30,7 @@ export default {
     datasetId: String,
     fileStage: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
   },
   data: function () {
     return {
@@ -63,7 +63,7 @@ export default {
           this.removeUrlState('ingest-job-id');
         }
       };
-      worker.postMessage({type: 'websocket', url: url, DONE: DataManagerApi.DONE_MSG, ERR: DataManagerApi.ERR_MSG});
+      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
       this.replaceUrlState('ingest-job-id', jobId);
     },
     resumeMonitor: function() {

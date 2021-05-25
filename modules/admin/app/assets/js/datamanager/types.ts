@@ -70,6 +70,13 @@ export interface ImportDataset extends ImportDatasetInfo {
   created: string,
 }
 
+export interface RepositoryDatasets {
+  repoId: String,
+  name: String,
+  sets: ImportDataset[]
+}
+
+
 export interface FileMeta {
   classifier: string,
   key: string,

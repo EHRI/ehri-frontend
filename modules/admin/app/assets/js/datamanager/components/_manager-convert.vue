@@ -13,7 +13,7 @@ import MixinTwoPanel from './_mixin-two-panel';
 import MixinValidator from './_mixin-validator';
 import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 import _partition from 'lodash/partition';
 import _takeWhile from 'lodash/takeWhile';
@@ -46,7 +46,7 @@ export default {
     datasetId: String,
     fileStage: String,
     config: Object,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     active: Boolean,
   },
   data: function () {
@@ -127,7 +127,7 @@ export default {
           this.removeUrlState('convert-job-id');
         }
       };
-      worker.postMessage({type: 'websocket', url: url, DONE: DataManagerApi.DONE_MSG, ERR: DataManagerApi.ERR_MSG});
+      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
       this.replaceUrlState('convert-job-id', jobId);
     },
     resumeMonitor: function() {

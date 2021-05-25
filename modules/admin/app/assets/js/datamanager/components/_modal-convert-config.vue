@@ -2,14 +2,14 @@
 
 import ModalWindow from './_modal-window';
 import FilePicker from './_file-picker';
-import DataManagerApi from '../api';
+import {DatasetManagerApi} from '../api';
 
 export default {
   components: {FilePicker, ModalWindow},
   props: {
     datasetId: String,
     show: Boolean,
-    api: DataManagerApi,
+    api: DatasetManagerApi,
     config: Object,
   },
   data: function() {
