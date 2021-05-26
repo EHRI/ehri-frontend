@@ -2,13 +2,17 @@ package integration.portal
 
 import auth.HashedPassword
 import auth.oauth2.providers.GoogleOAuth2Provider
-import helpers.IntegrationTestRunner
-import models.SignupData
-import play.api.i18n.MessagesApi
-import play.api.cache.SyncCacheApi
-import play.api.test.{FakeRequest, Injecting, WithApplication}
+import auth.sso.DiscourseSSO
 import forms.HoneyPotForm._
 import forms.TimeCheckForm._
+import helpers.IntegrationTestRunner
+import mockdata.unprivilegedUser
+import models.SignupData
+import play.api.cache.SyncCacheApi
+import play.api.i18n.MessagesApi
+import play.api.test.{FakeRequest, Injecting, WithApplication}
+
+import java.util.UUID
 
 
 class AccountsSpec extends IntegrationTestRunner {
@@ -135,6 +139,66 @@ class AccountsSpec extends IntegrationTestRunner {
     "error with bad provider" in new ITestApp {
       val login = FakeRequest(accountRoutes.oauth2Register("no-provider")).call()
       status(login) must equalTo(NOT_FOUND)
+    }
+  }
+
+  "Discourse SSO" should {
+
+    val CLIENT = "forums"
+    val KEY = "DISCOURSE_TEST_SECRET"
+    val URL = "https://discuss.ehri-project.eu"
+
+    "deny access to unverified users" in new ITestApp {
+      await(mockAccounts.update(unprivilegedUser.copy(verified = false)))
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, "foo", "bar"))
+        .withUser(unprivilegedUser)
+        .call()
+      status(ssoLogin) must_== UNAUTHORIZED
+    }
+
+    "give a bad request when SSO not configured" in new ITestApp {
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, "foo", "bar"))
+        .withUser(unprivilegedUser)
+        .call()
+      status(ssoLogin) must_== BAD_REQUEST
+    }
+
+    "correctly parse data" in new ITestApp(specificConfig = Map(
+      s"sso.$CLIENT.discourse_connect_secret" -> KEY,
+      s"sso.$CLIENT.discourse_endpoint" -> URL
+    )) {
+
+      val helper = DiscourseSSO(URL, KEY)
+
+      val nonce = UUID.randomUUID().toString
+      val (payload, sig) = helper.encode(Seq("nonce" -> nonce))
+
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, payload, sig))
+        .withUser(privilegedUser)
+        .call()
+      status(ssoLogin) must_== SEE_OTHER
+      val loc = redirectLocation(ssoLogin)
+      loc must beSome.which { (s:String) =>
+        s must startWith(URL)
+
+        val qs = s.substring(s.lastIndexOf('?') + 1)
+        val data: Map[String, String] = utils.http.parseQueryString(qs).toMap
+
+        val sso = data.get("sso")
+        sso must beSome
+        val newSig = data.get("sig")
+        newSig must beSome
+
+        val outPayload = helper.decode(sso.get, newSig.get)
+        outPayload must_== Seq(
+          "nonce" -> nonce,
+          "external_id" -> privilegedUser.id,
+          "email" -> privilegedUser.email,
+          "name" -> "Mike",
+          "admin" -> "true",
+          "moderator" -> "false"
+        )
+      }
     }
   }
 }

@@ -1,17 +1,14 @@
 package controllers.portal.account
 
-import java.net.ConnectException
-import java.util.UUID
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Config, UserData}
+import auth.sso.{DiscourseSSO, DiscourseSSOError, DiscourseSSONotEnabledError}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
-import controllers.AppComponents
+import controllers.{AppComponents, renderError}
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
-
-import javax.inject.{Inject, Singleton}
 import models._
 import play.api.Logger
 import play.api.cache.SyncCacheApi
@@ -27,6 +24,9 @@ import services.RateLimitChecker
 import services.data.{AnonymousUser, AuthenticatedUser}
 import services.oauth2.OAuth2Service
 
+import java.net.ConnectException
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
@@ -350,6 +350,39 @@ case class Accounts @Inject()(
     )
   }
 
+  def sso(client: String, sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
+    def ssoError(msgKey: String) = BadRequest(
+      controllers.renderError("errors.sso", views.html.errors.genericError(msgKey)))
+
+    val user = request.user
+    val account = user.account.get
+    if (!account.verified) {
+      Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly()))
+    } else try {
+      val helper = DiscourseSSO(client, config)
+      val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
+      nonceData.fold(ifEmpty = ssoError("errors.sso.badData")) { nonce =>
+
+        val moderatorGroupIds = config.get[Seq[String]]("ehri.portal.moderators.all")
+        val payloadData: Seq[(String, String)] = Seq(
+          "nonce" -> Some(nonce),
+          "external_id" -> Some(account.id),
+          "email" -> Some(account.email),
+          "name" -> Some(user.data.name),
+          "avatar_url" -> user.data.imageUrl,
+          "bio" -> user.data.about,
+          "admin" -> Some(user.isAdmin.toString),
+          "moderator" -> Some(user.allGroups.exists(g => moderatorGroupIds.contains(g.id)).toString)
+        ).collect { case (key, Some(value)) => key -> value }
+
+        Redirect(helper.toUrl(payloadData))
+      }
+    } catch {
+      case _: DiscourseSSONotEnabledError => ssoError("errors.sso.notEnabled")
+      case _: DiscourseSSOError => ssoError("errors.sso.badData")
+    }
+  }
+
   def logout: Action[AnyContent] = Action.async { implicit authRequest =>
     gotoLogoutSucceeded(authRequest)
   }
@@ -528,7 +561,7 @@ case class Accounts @Inject()(
 
   def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     accounts.findByToken(token).map {
-      case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,
+      case Some(_) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
         .flashing("danger" -> "login.error.badResetToken")

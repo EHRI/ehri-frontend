@@ -43,8 +43,6 @@ constraints.uniqueness.failed=Es existiert bereits ein Element mit diesem Wert
 format.boolean=Ein/Aus
 errors.staffOnly=Eingeschränkt
 errors.staffOnlyMessage=Der Zugriff auf diese Seite ist momentan auf EHRI-Mitarbeiter eingeschränkt.
-errors.verifiedOnly=Eingeschränkt
-errors.verifiedOnlyMessage=Der Zugriff auf diese Seite ist momentan auf verifizierte Nutzer eingeschränkt.
 errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus.\
            Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
 errors.itemNotFound=Element nicht gefunden
