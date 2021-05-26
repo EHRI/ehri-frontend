@@ -1,17 +1,14 @@
 package controllers.portal.account
 
-import java.net.ConnectException
-import java.util.UUID
 import auth.oauth2.providers.OAuth2Provider
 import auth.oauth2.{OAuth2Config, UserData}
+import auth.sso.{DiscourseSSO, DiscourseSSOError}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
 import controllers.AppComponents
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
-
-import javax.inject.{Inject, Singleton}
 import models._
 import play.api.Logger
 import play.api.cache.SyncCacheApi
@@ -27,6 +24,9 @@ import services.RateLimitChecker
 import services.data.{AnonymousUser, AuthenticatedUser}
 import services.oauth2.OAuth2Service
 
+import java.net.ConnectException
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.concurrent.{ExecutionContext, Future}
@@ -348,6 +348,37 @@ case class Accounts @Inject()(
         }
       }
     )
+  }
+
+  def sso(sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
+    val secret = config.get[String]("sso.discourse_connect_secret")
+    val endpoint = config.get[String]("sso.discourse_endpoint")
+    val helper = DiscourseSSO(secret)
+    try {
+      val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
+
+      nonceData.fold(ifEmpty = Unauthorized("Bad SSO payload")) { nonce =>
+
+        val moderatorGroupIds = config.get[Seq[String]]("ehri.portal.moderators.all")
+        val user = request.user
+        val account = user.account.get
+        val payloadData: Seq[(String, String)] = Seq(
+          "nonce" -> Some(nonce),
+          "external_id" -> Some(account.id),
+          "email" -> Some(account.email),
+          "name" -> Some(user.data.name),
+          "username" -> Some(account.email),
+          "avatar_url" -> user.data.imageUrl,
+          "admin" -> Some(user.isAdmin.toString),
+          "moderator" -> Some(user.allGroups.exists(g => moderatorGroupIds.contains(g.id)).toString)
+        ).collect { case (key, Some(value)) => key -> value }
+
+        val (payload, newSig) = helper.encode(payloadData)
+        Redirect(s"$endpoint?" + utils.http.joinQueryString(Seq("sso" -> payload, "sig" -> newSig)))
+      }
+    } catch {
+      case _: DiscourseSSOError => Unauthorized("Unable to validate sign-on")
+    }
   }
 
   def logout: Action[AnyContent] = Action.async { implicit authRequest =>
