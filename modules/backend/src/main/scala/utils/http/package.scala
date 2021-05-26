@@ -2,6 +2,8 @@ package utils
 
 import org.apache.jena.iri.IRIFactory
 
+import java.net.URLDecoder
+
 package object http {
 
   import java.net.URLEncoder
@@ -38,4 +40,19 @@ package object http {
   def iriToUri(iri: String): String = {
     IRIFactory.iriImplementation().create(iri).toURI.toASCIIString
   }
+
+  /**
+    * Parse a query string into parameters.
+    *
+    * This only handles the &foo=bar form and should not be considered
+    * a complete implementation.
+    *
+    * @param s a query string
+    * @return a sequence of key, value pairs
+    */
+  def parseQueryString(s: String): Seq[(String, String)] = s.split('&')
+    .map(_.split('=').toList)
+    .collect { case key :: value :: Nil =>
+      URLDecoder.decode(key, "UTF-8") -> URLDecoder.decode(value, "UTF-8")
+    }.toSeq
 }

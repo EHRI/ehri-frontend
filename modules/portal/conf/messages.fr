@@ -41,10 +41,7 @@ constraints.honeypot.failed=Le formulaire de vérification des spams a échoué.
 constraints.uniqueness=Doit être unique
 constraints.uniqueness.failed=Un article avec cette valeur existe déjà
 format.boolean=Activé/désactivé
-errors.staffOnly=Restreint
 errors.staffOnlyMessage=L''accès à cette page est actuellement limité au personnel de l''EHRI.
-errors.verifiedOnly=Restreint
-errors.verifiedOnlyMessage=L''accès à cette page est actuellement limité à des utilisateurs autorisés.
 errors.readonly=Le portail de l''EHRI est pour l''instant uniquement en mode lecture, pendant que nous effectuons une opération de maintenance.\
               Un service normal reprendra en temps voulu. Merci pour votre patience.
 errors.itemNotFound=Objet non trouvé

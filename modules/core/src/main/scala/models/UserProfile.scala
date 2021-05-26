@@ -113,7 +113,7 @@ object UserProfile {
 
   def quickUnapply(up: UserProfile) = Some((up.data, up.groups, up.accessors, up.latestEvent, up.meta))
 
-  val form = Form(
+  val form: Form[UserProfileF] = Form(
     mapping(
       ISA -> ignored(EntityType.UserProfile),
       ID -> optional(nonEmptyText),

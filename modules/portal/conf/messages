@@ -61,8 +61,10 @@ format.boolean=On/Off
 
 errors.staffOnly=Restricted
 errors.staffOnlyMessage=This page is currently restricted to EHRI staff only.
-errors.verifiedOnly=Restricted
-errors.verifiedOnlyMessage=This page is currently restricted to verified users only.
+errors.verifiedOnly=Email Verification Required
+errors.verifiedOnlyMessage=Access to this resource is restricted to users with a verified email address. \
+  Click the button below to send a verification mail to your address. Be sure to check your spam folder \
+  if the email does not arrive.
 errors.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
          Normal service should be resumed in due course. Thanks for your patience.
 errors.itemNotFound=Item Not Found
@@ -95,6 +97,8 @@ errors.imageTooLarge=This image was too large. Please select one smaller than 5 
 errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 errors.invalidUrl=Web URL is invalid
+errors.sso.notEnabled=Single sign-on is not enabled on this site.
+errors.sso.badData=Unable to validate single sign-on.
 
 identifier=Identifier
 identifier.description=An item identifier that is unique with the scope of it''s parent item. \
@@ -334,6 +338,7 @@ mail.unverifiedEmailWarning=Unverified Account
 mail.unverifiedEmailWarningMessage=The email associated with your account has not yet been verified.
 mail.unverifiedEmailResend=To re-send a verification email
 mail.unverifiedEmailResendSubmit=click here
+mail.unverifiedEmailSubmit=Send Verification Email
 mail.emailConfirmationResent=We''ve sent you an email which you can use to confirm your email address.
 mail.message.subject=EHRI: Message from {0}: {1}
 mail.message.copy.subject=EHRI: Your message to {0}: {1}
