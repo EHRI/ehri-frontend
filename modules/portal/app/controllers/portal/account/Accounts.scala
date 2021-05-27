@@ -351,13 +351,14 @@ case class Accounts @Inject()(
   }
 
   def sso(sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
-    val secret = config.get[String]("sso.discourse_connect_secret")
-    val endpoint = config.get[String]("sso.discourse_endpoint")
-    val helper = DiscourseSSO(secret)
-    try {
-      val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
+    def ssoError(msgKey: String) = Unauthorized(
+      controllers.renderError("errors.sso",
+        views.html.errors.genericError(Messages(msgKey))))
 
-      nonceData.fold(ifEmpty = Unauthorized("Bad SSO payload")) { nonce =>
+    try {
+      val helper = DiscourseSSO(config)
+      val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
+      nonceData.fold(ifEmpty = ssoError("errors.sso.badData")) { nonce =>
 
         val moderatorGroupIds = config.get[Seq[String]]("ehri.portal.moderators.all")
         val user = request.user
@@ -373,11 +374,10 @@ case class Accounts @Inject()(
           "moderator" -> Some(user.allGroups.exists(g => moderatorGroupIds.contains(g.id)).toString)
         ).collect { case (key, Some(value)) => key -> value }
 
-        val (payload, newSig) = helper.encode(payloadData)
-        Redirect(s"$endpoint?" + utils.http.joinQueryString(Seq("sso" -> payload, "sig" -> newSig)))
+        Redirect(helper.toUrl(payloadData))
       }
     } catch {
-      case _: DiscourseSSOError => Unauthorized("Unable to validate sign-on")
+      case _: DiscourseSSOError => ssoError("errors.sso.badData")
     }
   }
 

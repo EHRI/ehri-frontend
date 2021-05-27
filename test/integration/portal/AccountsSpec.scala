@@ -151,7 +151,7 @@ class AccountsSpec extends IntegrationTestRunner {
       "sso.discourse_endpoint" -> URL
     )) {
 
-      val helper = DiscourseSSO(KEY)
+      val helper = DiscourseSSO(URL, KEY)
 
       val nonce = UUID.randomUUID().toString
       val (payload, sig) = helper.encode(Seq("nonce" -> nonce))

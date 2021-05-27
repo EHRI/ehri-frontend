@@ -1,19 +1,30 @@
 package auth.sso
 
 import com.google.common.hash.Hashing
+import play.api.Configuration
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
 case class DiscourseSSOError(msg: String) extends Exception(msg)
+case class DiscourseSSONotEnabledError() extends Exception("Discourse SSO not enabled")
 
-case class DiscourseSSO(secret: String) {
+object DiscourseSSO {
+  @throws[DiscourseSSONotEnabledError]
+  def apply(config: Configuration): DiscourseSSO = {
+    (for {
+      secret <- config.getOptional[String]("sso.discourse_connect_secret")
+      endpoint <- config.getOptional[String]("sso.discourse_endpoint")
+    } yield DiscourseSSO(endpoint, secret)).getOrElse {
+      throw DiscourseSSONotEnabledError()
+    }
+  }
+}
+
+case class DiscourseSSO(endpoint: String, secret: String) {
   private val utf8 = StandardCharsets.UTF_8
-
-  // NB: we use a 60-char line length encoder here to match the behaviour of the
-  // example Ruby version, but it should not affect behaviour otherwise.
-  private val base64encoder = Base64.getMimeEncoder(60, Array('\n'))
+  private val base64encoder = Base64.getMimeEncoder
   private val base64decoder = Base64.getMimeDecoder
 
   /**
@@ -26,10 +37,15 @@ case class DiscourseSSO(secret: String) {
     */
   def encode(data: Seq[(String, String)]): (String, String) = {
     val payload = utils.http.joinQueryString(data)
-    // FIXME: Ruby Base64 adds a trailing line break.
+    // NB: Ruby Base64 adds a trailing line break.
     val base64Payload = base64encoder.encodeToString(payload.getBytes(utf8)) + "\n"
     val newSig = Hashing.hmacSha256(secret.getBytes(utf8)).hashString(base64Payload, utf8).toString
     base64Payload -> newSig
+  }
+
+  def toUrl(data: Seq[(String, String)]): String = {
+    val (payload, sig) = encode(data)
+    endpoint + "?" + utils.http.joinQueryString(Seq("sso" -> payload, "sig" -> sig))
   }
 
   /**
