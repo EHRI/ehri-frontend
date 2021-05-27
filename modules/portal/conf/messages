@@ -97,8 +97,9 @@ errors.imageTooLarge=This image was too large. Please select one smaller than 5 
 errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 errors.invalidUrl=Web URL is invalid
+errors.sso=Login Error
 errors.sso.notEnabled=Single sign-on is not enabled on this site.
-errors.sso.badData=Unable to validate single sign-on.
+errors.sso.badData=Unable to validate single sign-on data.
 
 identifier=Identifier
 identifier.description=An item identifier that is unique with the scope of it''s parent item. \
