@@ -368,7 +368,6 @@ case class Accounts @Inject()(
           "external_id" -> Some(account.id),
           "email" -> Some(account.email),
           "name" -> Some(user.data.name),
-          "username" -> Some(account.email),
           "avatar_url" -> user.data.imageUrl,
           "admin" -> Some(user.isAdmin.toString),
           "moderator" -> Some(user.allGroups.exists(g => moderatorGroupIds.contains(g.id)).toString)
