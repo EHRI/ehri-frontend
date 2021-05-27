@@ -22,6 +22,4 @@ addSbtPlugin("net.ground5hark.sbt" % "sbt-concat" % "0.2.0")
 // Excluded because too slow for workable development
 //addSbtPlugin("net.ground5hark.sbt" % "sbt-css-compress" % "0.1.4")
 
-resolvers += Resolver.bintrayRepo("givers", "maven")
-
-addSbtPlugin("givers.vuefy" % "sbt-vuefy" % "6.0.0")
+addSbtPlugin("io.github.givesocialmovement" % "sbt-vuefy" % "6.0.0")
