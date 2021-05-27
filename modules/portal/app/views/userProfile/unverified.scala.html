@@ -1,4 +1,4 @@
-@()(implicit request: RequestHeader, messages: Messages)
+@()(implicit request: RequestHeader, messages: Messages, flash: Flash)
 
 <div class="alert alert-warning">
     @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost) {

@@ -43,8 +43,6 @@ constraints.uniqueness.failed=Pozycja o tej wartości już istnieje
 format.boolean=Wł./wył.
 errors.staffOnly=Dostęp ograniczony
 errors.staffOnlyMessage=Dostęp do tej strony jest obecnie ograniczony do pracowników EHRI.
-errors.verifiedOnly=Dostęp ograniczony
-errors.verifiedOnlyMessage=Dostęp do tej strony jest obecnie ograniczony do zweryfikowanych użytkowników.
 errors.readonly=Portal EHRI jest obecnie dostępny w trybie tylko do odczytu ze względu na prowadzone prace konserwacyjne.\
            Wkrótce powinno zostać wznowione normalne działanie. Dziękujemy za cierpliwość.
 errors.itemNotFound=Nie znaleziono pozycji

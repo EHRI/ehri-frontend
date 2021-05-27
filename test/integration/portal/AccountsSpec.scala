@@ -6,6 +6,7 @@ import auth.sso.DiscourseSSO
 import forms.HoneyPotForm._
 import forms.TimeCheckForm._
 import helpers.IntegrationTestRunner
+import mockdata.unprivilegedUser
 import models.SignupData
 import play.api.cache.SyncCacheApi
 import play.api.i18n.MessagesApi
@@ -146,6 +147,21 @@ class AccountsSpec extends IntegrationTestRunner {
     val KEY = "DISCOURSE_TEST_SECRET"
     val URL = "https://discuss.ehri-project.eu"
 
+    "deny access to unverified users" in new ITestApp {
+      await(mockAccounts.update(unprivilegedUser.copy(verified = false)))
+      val ssoLogin = FakeRequest(accountRoutes.sso("foo", "bar"))
+        .withUser(unprivilegedUser)
+        .call()
+      status(ssoLogin) must_== UNAUTHORIZED
+    }
+
+    "give a bad request when SSO not configured" in new ITestApp {
+      val ssoLogin = FakeRequest(accountRoutes.sso("foo", "bar"))
+        .withUser(unprivilegedUser)
+        .call()
+      status(ssoLogin) must_== BAD_REQUEST
+    }
+
     "correctly parse data" in new ITestApp(specificConfig = Map(
       "sso.discourse_connect_secret" -> KEY,
       "sso.discourse_endpoint" -> URL
@@ -178,7 +194,6 @@ class AccountsSpec extends IntegrationTestRunner {
           "external_id" -> privilegedUser.id,
           "email" -> privilegedUser.email,
           "name" -> "Mike",
-          "username" -> privilegedUser.email,
           "admin" -> "true",
           "moderator" -> "false"
         )

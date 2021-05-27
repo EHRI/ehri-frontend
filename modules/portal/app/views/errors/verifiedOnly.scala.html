@@ -1,8 +1,15 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, flash: Flash)
 
+@common.flash(flash)
 <p class="error-notice">
     @Messages("errors.verifiedOnlyMessage")
 </p>
+@helper.form(controllers.portal.account.routes.Accounts.resendVerificationPost()) {
+    <p>
+        @formHelpers.csrfToken()
+        <button class="btn btn-info" type="submit">@Messages("mail.unverifiedEmailSubmit")</button>
+    </p>
+}
 <p>
     <a href="@controllers.portal.account.routes.Accounts.logout()">@Messages("logout")</a>
 </p>

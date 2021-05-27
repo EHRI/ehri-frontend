@@ -5,7 +5,7 @@ import auth.oauth2.{OAuth2Config, UserData}
 import auth.sso.{DiscourseSSO, DiscourseSSOError}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
-import controllers.AppComponents
+import controllers.{AppComponents, renderError}
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
@@ -351,24 +351,26 @@ case class Accounts @Inject()(
   }
 
   def sso(sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
-    def ssoError(msgKey: String) = Unauthorized(
-      controllers.renderError("errors.sso",
-        views.html.errors.genericError(Messages(msgKey))))
+    def ssoError(msgKey: String) = BadRequest(
+      controllers.renderError("errors.sso", views.html.errors.genericError(msgKey)))
 
-    try {
+    val user = request.user
+    val account = user.account.get
+    if (!account.verified) {
+      Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly()))
+    } else try {
       val helper = DiscourseSSO(config)
       val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
       nonceData.fold(ifEmpty = ssoError("errors.sso.badData")) { nonce =>
 
         val moderatorGroupIds = config.get[Seq[String]]("ehri.portal.moderators.all")
-        val user = request.user
-        val account = user.account.get
         val payloadData: Seq[(String, String)] = Seq(
           "nonce" -> Some(nonce),
           "external_id" -> Some(account.id),
           "email" -> Some(account.email),
           "name" -> Some(user.data.name),
           "avatar_url" -> user.data.imageUrl,
+          "bio" -> user.data.about,
           "admin" -> Some(user.isAdmin.toString),
           "moderator" -> Some(user.allGroups.exists(g => moderatorGroupIds.contains(g.id)).toString)
         ).collect { case (key, Some(value)) => key -> value }
@@ -558,7 +560,7 @@ case class Accounts @Inject()(
 
   def resetPassword(token: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     accounts.findByToken(token).map {
-      case Some(account) => Ok(views.html.account.resetPassword(resetPasswordForm,
+      case Some(_) => Ok(views.html.account.resetPassword(resetPasswordForm,
         accountRoutes.resetPasswordPost(token)))
       case _ => Redirect(accountRoutes.forgotPassword())
         .flashing("danger" -> "login.error.badResetToken")
