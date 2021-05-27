@@ -1,5 +1,13 @@
 package auth.sso
 
+/**
+  * Implementation of Discourse Connect (previously known as Discourse SSO.)
+  *
+  * See here for how this works:
+  *
+  * https://meta.discourse.org/t/discourseconnect-official-single-sign-on-for-discourse-sso/13045
+  */
+
 import com.google.common.hash.Hashing
 import play.api.Configuration
 
@@ -11,11 +19,21 @@ case class DiscourseSSOError(msg: String) extends Exception(msg)
 case class DiscourseSSONotEnabledError() extends Exception("Discourse SSO not enabled")
 
 object DiscourseSSO {
+  /**
+    * Alternative constructor for looking up details from config
+    * based on the {client} parameter. This allows multiple sites
+    * to use SSO.
+    *
+    * @param client a config-safe key with which to look up config in the `sso` dict
+    * @param config the application config instance
+    * @throws DiscourseSSONotEnabledError if the configuration is not found
+    * @return a {DiscourseSSO} instance
+    */
   @throws[DiscourseSSONotEnabledError]
-  def apply(config: Configuration): DiscourseSSO = {
+  def apply(client: String, config: Configuration): DiscourseSSO = {
     (for {
-      secret <- config.getOptional[String]("sso.discourse_connect_secret")
-      endpoint <- config.getOptional[String]("sso.discourse_endpoint")
+      secret <- config.getOptional[String](s"sso.$client.discourse_connect_secret")
+      endpoint <- config.getOptional[String](s"sso.$client.discourse_endpoint")
     } yield DiscourseSSO(endpoint, secret)).getOrElse {
       throw DiscourseSSONotEnabledError()
     }
@@ -43,6 +61,12 @@ case class DiscourseSSO(endpoint: String, secret: String) {
     base64Payload -> newSig
   }
 
+  /**
+    * Create an URL to redirect the data back to the SSO client site.
+    *
+    * @param data the SSO data
+    * @return an URL string
+    */
   def toUrl(data: Seq[(String, String)]): String = {
     val (payload, sig) = encode(data)
     endpoint + "?" + utils.http.joinQueryString(Seq("sso" -> payload, "sig" -> sig))

@@ -144,27 +144,28 @@ class AccountsSpec extends IntegrationTestRunner {
 
   "Discourse SSO" should {
 
+    val CLIENT = "forums"
     val KEY = "DISCOURSE_TEST_SECRET"
     val URL = "https://discuss.ehri-project.eu"
 
     "deny access to unverified users" in new ITestApp {
       await(mockAccounts.update(unprivilegedUser.copy(verified = false)))
-      val ssoLogin = FakeRequest(accountRoutes.sso("foo", "bar"))
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, "foo", "bar"))
         .withUser(unprivilegedUser)
         .call()
       status(ssoLogin) must_== UNAUTHORIZED
     }
 
     "give a bad request when SSO not configured" in new ITestApp {
-      val ssoLogin = FakeRequest(accountRoutes.sso("foo", "bar"))
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, "foo", "bar"))
         .withUser(unprivilegedUser)
         .call()
       status(ssoLogin) must_== BAD_REQUEST
     }
 
     "correctly parse data" in new ITestApp(specificConfig = Map(
-      "sso.discourse_connect_secret" -> KEY,
-      "sso.discourse_endpoint" -> URL
+      s"sso.$CLIENT.discourse_connect_secret" -> KEY,
+      s"sso.$CLIENT.discourse_endpoint" -> URL
     )) {
 
       val helper = DiscourseSSO(URL, KEY)
@@ -172,7 +173,7 @@ class AccountsSpec extends IntegrationTestRunner {
       val nonce = UUID.randomUUID().toString
       val (payload, sig) = helper.encode(Seq("nonce" -> nonce))
 
-      val ssoLogin = FakeRequest(accountRoutes.sso(payload, sig))
+      val ssoLogin = FakeRequest(accountRoutes.sso(CLIENT, payload, sig))
         .withUser(privilegedUser)
         .call()
       status(ssoLogin) must_== SEE_OTHER

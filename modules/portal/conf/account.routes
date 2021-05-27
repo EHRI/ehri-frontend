@@ -7,7 +7,7 @@ GET         /authenticate/:provider         @controllers.portal.account.Accounts
 GET         /login-with/:provider           @controllers.portal.account.Accounts.oauth2Login(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /register-with/:provider        @controllers.portal.account.Accounts.oauth2Register(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /logout                         @controllers.portal.account.Accounts.logout()
-GET         /sso                            @controllers.portal.account.Accounts.sso(sso: String, sig: String)
+GET         /sso/$client<[a-z0-9]+>         @controllers.portal.account.Accounts.sso(client: String, sso: String, sig: String)
 
 GET         /signup                         @controllers.portal.account.Accounts.signup()
 POST        /signup                         @controllers.portal.account.Accounts.signupPost()

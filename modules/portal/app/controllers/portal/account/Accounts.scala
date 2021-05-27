@@ -350,7 +350,7 @@ case class Accounts @Inject()(
     )
   }
 
-  def sso(sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
+  def sso(client: String, sso: String, sig: String): Action[AnyContent] = WithUserAction { implicit request =>
     def ssoError(msgKey: String) = BadRequest(
       controllers.renderError("errors.sso", views.html.errors.genericError(msgKey)))
 
@@ -359,7 +359,7 @@ case class Accounts @Inject()(
     if (!account.verified) {
       Unauthorized(renderError("errors.verifiedOnly", views.html.errors.verifiedOnly()))
     } else try {
-      val helper = DiscourseSSO(config)
+      val helper = DiscourseSSO(client, config)
       val nonceData = helper.decode(sso, sig).find(_._1 == "nonce").map(_._2)
       nonceData.fold(ifEmpty = ssoError("errors.sso.badData")) { nonce =>
 
