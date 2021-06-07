@@ -2,6 +2,18 @@
  * These types mirror those consumed and produced by the server.
  */
 
+export type ConfigType = {
+  repoId: String;
+  versions: boolean;
+  input: string;
+  output: string;
+  config: string;
+  previewLoader: string;
+  defaultTab: string;
+  monitorUrl: (jobId: string) => string;
+  maxPreviewSize: number;
+}
+
 export interface OaiPmhConfig {
   url: string,
   format: string,
