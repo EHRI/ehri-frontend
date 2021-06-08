@@ -139,11 +139,11 @@ export default {
     },
     loadConfig: function(): Promise<void> {
       return this.api.getConvertConfig(this.datasetId)
-          .then(data => this.mappings = data.map(item => item.id))
+          .then(data => this.mappings = data.map(item => item[0].id))
           .catch(error => this.showError("Error loading convert configuration", error));
     },
     saveConfig: function() {
-      let mappings = this.enabled.map(item => item.id);
+      let mappings = this.enabled.map(item => [item.id, {}]);
       if (!_isEqual(mappings, this.mappings)) {
         console.log("saving enabled:", this.enabled)
         this.mappings = mappings;

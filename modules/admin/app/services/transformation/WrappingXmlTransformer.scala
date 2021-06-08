@@ -6,6 +6,7 @@ import akka.util.ByteString
 import models.DataTransformation
 import models.DataTransformation.TransformationType
 import play.api.cache.{NamedCache, SyncCacheApi}
+import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Logger}
 
 import javax.inject.Inject
@@ -22,10 +23,10 @@ case class WrappingXmlTransformer @Inject()(
   override protected val logger: Logger = Logger(classOf[WrappingXmlTransformer])
   private implicit val cacheTime: Duration = config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
 
-  override def transform(mapType: DataTransformation.TransformationType.Value, map: String): Flow[ByteString, ByteString, _] =
-    transform(Seq(mapType -> map))
+  override def transform(mapType: DataTransformation.TransformationType.Value, map: String, params: JsObject = Json.obj()): Flow[ByteString, ByteString, _] =
+    transform(Seq((mapType, map, params)))
 
-  override def transform(mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Flow[ByteString, ByteString, _] = {
+  override def transform(mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Flow[ByteString, ByteString, _] = {
     Flow[ByteString]
       .prefixAndTail(0)
       .map { case (_, src) =>
@@ -34,7 +35,7 @@ case class WrappingXmlTransformer @Inject()(
       .flatMapConcat(identity)
   }
 
-  private def transformXml(src: Source[ByteString, _], mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Source[ByteString, _] = {
+  private def transformXml(src: Source[ByteString, _], mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Source[ByteString, _] = {
     val dataF: Future[ByteString] = src
       .runFold(ByteString(""))(_ ++ _)
       .map(_.utf8String)
@@ -44,17 +45,17 @@ case class WrappingXmlTransformer @Inject()(
     Source.future(dataF)
   }
 
-  private def transformXml(src: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): String = {
+  private def transformXml(src: String, mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): String = {
     val md5 = utils.digest(src, mappings)
     cache.getOrElseUpdate(md5, cacheTime) {
       time(s"Transform $md5 (${mappings.size} mappings)") {
-        mappings.foldLeft(src) { case (out, (mapType, map)) =>
+        mappings.foldLeft(src) { case (out, (mapType, map, params)) =>
           logger.debug(s"Running mapType: $mapType...")
           time(s" - transform $mapType") {
             mapType match {
               case TransformationType.Xslt =>
-                xsltTransformer.transform(out, map)
-              case TransformationType.XQuery => xqueryTransformer.transform(out, map)
+                xsltTransformer.transform(out, map, params)
+              case TransformationType.XQuery => xqueryTransformer.transform(out, map, params)
             }
           }
         }

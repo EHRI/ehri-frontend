@@ -1,10 +1,11 @@
 package services.transformation
 
 import com.google.inject.ImplementedBy
+import play.api.libs.json.JsObject
 
 @ImplementedBy(classOf[SaxonXsltXmlTransformer])
 trait XsltXmlTransformer {
-  def transform(input: String, mapping: String): String
+  def transform(input: String, mapping: String, params: JsObject): String
 
   @throws[InvalidMappingError]
   def validationMapping(mapping: String): Unit = {

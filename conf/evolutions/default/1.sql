@@ -197,6 +197,7 @@ CREATE TABLE transformation_config (
     import_dataset_id      VARCHAR(50) NOT NULL,
     ordering               INTEGER NOT NULL,
     data_transformation_id CHAR(10) NOT NULL,
+    parameters jsonb NOT NULL DEFAULT '{}'::jsonb,
     PRIMARY KEY (repo_id, import_dataset_id, ordering),
     CONSTRAINT transformation_config_repo_id_import_dataset_id
         FOREIGN KEY (repo_id, import_dataset_id)

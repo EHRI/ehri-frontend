@@ -4,7 +4,7 @@ import akka.util.ByteString
 import com.google.inject.ImplementedBy
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.http.{MimeTypes, Writeable}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 
 import scala.concurrent.Future
 
@@ -86,9 +86,9 @@ trait DataTransformationService {
     *
     * @param repoId    the repository ID
     * @param datasetId the dataset ID
-    * @return the transformations in application order
+    * @return the transformations in application order, along with their parameters
     */
-  def getConfig(repoId: String, datasetId: String): Future[Seq[DataTransformation]]
+  def getConfig(repoId: String, datasetId: String): Future[Seq[(DataTransformation, JsObject)]]
 
   /**
     * Save transformations for a given repository.
@@ -98,5 +98,5 @@ trait DataTransformationService {
     * @param dtIds     an ordered sequence of transformation IDs
     * @return the number of transformations saved
     */
-  def saveConfig(repoId: String, datasetId: String, dtIds: Seq[String]): Future[Int]
+  def saveConfig(repoId: String, datasetId: String, dtIds: Seq[(String, JsObject)]): Future[Int]
 }

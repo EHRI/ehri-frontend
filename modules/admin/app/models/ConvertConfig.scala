@@ -1,6 +1,6 @@
 package models
 
-import play.api.libs.json.{Format, Json, Reads}
+import play.api.libs.json.{Format, JsObject, Json, Reads}
 
 
 
@@ -15,8 +15,8 @@ object ConvertConfig {
 }
 
 case class TransformationList(
-  mappings: Seq[String],
-  force: Boolean = false
+ mappings: Seq[(String, JsObject)],
+ force: Boolean = false
 ) extends ConvertConfig
 
 object TransformationList {
@@ -24,7 +24,7 @@ object TransformationList {
 }
 
 case class ConvertSpec(
-  mappings: Seq[(DataTransformation.TransformationType.Value, String)],
+  mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)],
   force: Boolean = false
 ) extends ConvertConfig
 
