@@ -51,27 +51,55 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
 
   "Data Transformation API" should {
 
-    "convert files" in new ITestApp {
+    "convert files with XQuery scripts" in new ITestApp {
       await(putFile())
       val map = resourceAsString("simple-mapping.tsv")
       val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map,
+          Json.obj())))))
 
       status(r) must_== OK
       contentType(r) must beSome("text/xml")
       contentAsString(r) must contain("test-id-EHRI")
     }
 
-    "convert files with correct errors" in new ITestApp {
+    "convert files with XSLT scripts" in new ITestApp {
+      await(putFile())
+      val map = resourceAsString("simple-mapping.xsl")
+      val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.Xslt, map,
+          Json.obj("test-param" -> "someattr", "test-value" -> true))))))
+
+      status(r) must_== OK
+      contentType(r) must beSome("text/xml")
+      contentAsString(r) must contain("http://www.loc.gov/ead")
+      contentAsString(r) must contain("someattr")
+    }
+
+    "report invalid parameter types" in new ITestApp {
+      await(putFile())
+      val map = resourceAsString("simple-mapping.tsv")
+      val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map,
+          Json.obj("someattr" -> Json.arr(1, 2)))))))
+
+      status(r) must_== BAD_REQUEST
+      contentAsJson(r) must_== Json.obj("error" ->
+        "Parameter key 'someattr' has an unsupported type, currently only string, number, and boolean can be used")
+    }
+
+    "report correct errors for XQuery scripts" in new ITestApp {
       await(putFile())
       val map = resourceAsString("simple-mapping.tsv") + "/ead/\t@foobar\t/blah\t&\n" // invalid junk
       val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq(TransformationType.XQuery -> map))))
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map, Json.obj())))))
 
       status(r) must_== BAD_REQUEST
-      contentAsString(r) must contain("at /ead: at /ead/eadheader: Expecting valid step.")
+      contentAsJson(r) must_== Json.obj("error" -> "at /ead: at /ead/eadheader: Expecting valid step.")
     }
   }
 }

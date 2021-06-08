@@ -1,16 +1,18 @@
 package services.transformation
 
 import java.io.{StringReader, StringWriter}
-
 import javax.xml.transform.TransformerConfigurationException
 import javax.xml.transform.stream.StreamSource
-import net.sf.saxon.s9api.{Processor, SaxonApiException, Serializer}
+import net.sf.saxon.s9api.{Processor, QName, SaxonApiException, Serializer, XdmAtomicValue}
 import org.xml.sax.SAXParseException
+import play.api.libs.json.{JsBoolean, JsNull, JsNumber, JsObject, JsString, Json}
 
 
 case class SaxonXsltXmlTransformer() extends XsltXmlTransformer {
 
-  def transform(input: String, mapping: String): String = {
+  // TODO: Cache compiled stylesheet against mapping and parameters?
+
+  def transform(input: String, mapping: String, params: JsObject = Json.obj()): String = {
     if (mapping.trim.isEmpty) input else {
       val writer: StringWriter = new StringWriter()
       val mapSource: StreamSource = new StreamSource(new StringReader(mapping))
@@ -19,6 +21,15 @@ case class SaxonXsltXmlTransformer() extends XsltXmlTransformer {
       val processor = new Processor(false)
       val compiler = processor.newXsltCompiler()
 
+      params.fields.foreach {
+        case (field, JsString(value)) => compiler.setParameter(new QName(field), new XdmAtomicValue(value))
+        case (field, JsNumber(value)) => compiler.setParameter(new QName(field), new XdmAtomicValue(value.bigDecimal))
+        case (field, JsBoolean(value)) => compiler.setParameter(new QName(field), new XdmAtomicValue(value))
+        case (_, JsNull) => // Ignore value...
+        case (field, _) => throw InvalidMappingError(s"Parameter key '$field' has an unsupported type, " +
+          s"currently only string, number, and boolean can be used")
+      }
+
       try {
         val stylesheet = compiler.compile(mapSource)
         val out = processor.newSerializer(writer)
@@ -26,6 +37,7 @@ case class SaxonXsltXmlTransformer() extends XsltXmlTransformer {
         out.setOutputProperty(Serializer.Property.INDENT, "yes")
 
         val transformer = stylesheet.load30()
+
         transformer.transform(inputSource, out)
         writer.toString
       } catch {

@@ -2,6 +2,7 @@
 export default {
   props: {
     item: Object,
+    parameters: Object,
   },
 }
 </script>

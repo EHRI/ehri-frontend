@@ -12,7 +12,7 @@ import models._
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.libs.json.JsError.toJson
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{JsObject, Json, Reads}
 import play.api.mvc._
 import services.storage.FileStorage
 import services.transformation._
@@ -57,7 +57,7 @@ case class DataTransformations @Inject()(
     dataTransformations.getConfig(id, ds).map(dts => Ok(Json.toJson(dts)))
   }
 
-  def saveConfig(id: String, ds: String): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+  def saveConfig(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(parse.json[Seq[(String, JsObject)]]) { implicit request =>
     dataTransformations.saveConfig(id, ds, request.body).map(_ => Ok(Json.toJson("ok" -> true)))
   }
 
@@ -92,12 +92,14 @@ case class DataTransformations @Inject()(
   }
 
 
-  private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String)]] = config match {
-    case TransformationList(mappings, _) => dataTransformations.get(mappings).map(_.map(dt => dt.bodyType -> dt.body))
+  private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String, JsObject)]] = config match {
+    case TransformationList(mappings, _) => dataTransformations.get(mappings.map(_._1)).map { dts =>
+      mappings.zip(dts).map { case ((_, params), dt) => (dt.bodyType, dt.body, params) }
+    }
     case ConvertSpec(mappings, _) => immediate(mappings)
   }
 
-  private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String)]): Future[String] = {
+  private def downloadAndConvertFile(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Future[String] = {
     storage.get(path).flatMap {
       case Some((_, src)) =>
         val flow = xmlTransformer.transform(mappings)

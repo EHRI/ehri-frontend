@@ -1,15 +1,16 @@
 package services.transformation
 
-import java.sql.SQLException
-
 import _root_.utils.{db => dbUtils}
 import akka.actor.ActorSystem
+import anorm.postgresql._
 import anorm.{Macro, RowParser, _}
-import javax.inject.Inject
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.Logger
 import play.api.db.Database
+import play.api.libs.json.JsObject
 
+import java.sql.SQLException
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class SqlDataTransformationService @Inject()(db: Database, actorSystem: ActorSystem) extends DataTransformationService {
@@ -31,15 +32,15 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
 
   override def get(id: String): Future[DataTransformation] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT * FROM data_transformation WHERE id = $id"
-        .as(parser.single)
+      SQL"SELECT * FROM data_transformation WHERE id = $id".as(parser.single)
     }
   }
 
   override def get(ids: Seq[String]): Future[Seq[DataTransformation]] = Future {
     if (ids.isEmpty) Seq.empty else db.withConnection { implicit conn =>
       val dts = SQL"SELECT * FROM data_transformation WHERE id IN ($ids)".as(parser.*)
-      ids.flatMap(id => dts.find(_.id == id).toSeq)
+      ids.map(id => dts.find(_.id == id)
+        .getOrElse(throw new Exception(s"Transformation cannot be found: '$id'")))
     }
   }
 
@@ -95,17 +96,19 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     ???
   }
 
-  override def getConfig(repoId: String, datasetId: String): Future[Seq[DataTransformation]] = Future {
+  override def getConfig(repoId: String, datasetId: String): Future[Seq[(DataTransformation, JsObject)]] = Future {
     db.withConnection { implicit conn =>
-      SQL"""SELECT dt.* FROM data_transformation dt
+      val jsonParser = SqlParser.get[JsObject]("parameters")
+      val tupleParser = parser ~ jsonParser map { case dt ~ params => (dt, params)}
+      SQL"""SELECT dt.*, tc.parameters FROM data_transformation dt
            LEFT JOIN transformation_config tc ON tc.data_transformation_id = dt.id
            WHERE tc.repo_id = $repoId
              AND tc.import_dataset_id = $datasetId
-           ORDER BY tc.ordering ASC""".as(parser.*)
+           ORDER BY tc.ordering ASC""".as(tupleParser.*)
     }
   }
 
-  override def saveConfig(repoId: String, datasetId: String, dtIds: Seq[String]): Future[Int] = Future {
+  override def saveConfig(repoId: String, datasetId: String, dtIds: Seq[(String, JsObject)]): Future[Int] = Future {
     db.withTransaction { implicit conn =>
       // First, delete all the existing mappings:
       SQL"""DELETE FROM transformation_config
@@ -115,17 +118,19 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
       if (dtIds.isEmpty) 0 else {
         val q =
           """INSERT INTO transformation_config
-                   VALUES({repo_id}, {import_dataset_id}, {ordering}, {data_transformation_id})
+                   VALUES({repo_id}, {import_dataset_id}, {ordering}, {data_transformation_id}, {parameters})
                    ON CONFLICT (repo_id, import_dataset_id, ordering)
-                   DO UPDATE SET data_transformation_id = {data_transformation_id}"""
+                   DO UPDATE SET data_transformation_id = {data_transformation_id}, parameters = {parameters}"""
 
-        val inserts = dtIds.zipWithIndex.map { case (dtId, i) =>
+        val inserts = dtIds.zipWithIndex.map { case ((dtId, params), i) =>
           Seq[NamedParameter](
             "repo_id" -> repoId,
             "import_dataset_id" -> datasetId,
             "ordering" -> i,
             "data_transformation_id" -> dtId,
-            "data_transformation_id" -> dtId
+            "parameters" -> params,
+            "data_transformation_id" -> dtId,
+            "parameters" -> params
           )
         }
         val batch = BatchSql(q, inserts.head, inserts.tail: _*)

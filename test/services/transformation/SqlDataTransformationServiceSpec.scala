@@ -3,13 +3,14 @@ package services.transformation
 import helpers._
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.Application
+import play.api.libs.json.Json
 
 
 class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
 
   def service(implicit app: Application) = app.injector.instanceOf[SqlDataTransformationService]
 
-  private val dsId = "default";
+  private val dsId = "default"
   private val dtId = "FG8jdRd43j" // from fixture file
 
   "Data transformation service" should {
@@ -47,17 +48,17 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
     }
 
     "save repository configs" in new DBTestApp("data-transformation-fixtures.sql") {
-      val saved = await(service.saveConfig("r2", dsId, Seq(dtId)))
+      val saved = await(service.saveConfig("r2", dsId, Seq((dtId, Json.obj()))))
       saved must_== 1
 
       val saved2 = await(service.saveConfig("r2", dsId, Seq.empty))
       saved2 must_== 0
 
-      val saved3 = await(service.saveConfig("r2", dsId, Seq(dtId)))
+      val saved3 = await(service.saveConfig("r2", dsId, Seq((dtId, Json.obj()))))
       saved3 must_== 1
 
       val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
-      val saved4 = await(service.saveConfig(repoId = "r2", dsId, Seq(dtId, dt.id)))
+      val saved4 = await(service.saveConfig(repoId = "r2", dsId, Seq((dtId, Json.obj()), (dt.id, Json.obj()))))
       saved4 must_== 2
 
       val saved5 = await(service.saveConfig("r2", dsId, Seq.empty))
@@ -66,10 +67,11 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
 
     "get repository configs" in new DBTestApp("data-transformation-fixtures.sql") {
       val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
-      await(service.saveConfig("r2", dsId, Seq(dt.id, dtId)))
+      await(service.saveConfig("r2", dsId, Seq((dt.id, Json.obj("foo" -> 1, "bar" -> 2)), (dtId, Json.obj()))))
       val configs = await(service.getConfig("r2", dsId))
       configs.size must_== 2
-      configs.head.name must_== "test2"
+      configs.head._1.name must_== "test2"
+      configs.head._2 must_== Json.obj("foo" -> 1, "bar" -> 2)
     }
   }
 }

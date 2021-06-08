@@ -6,6 +6,7 @@ import org.basex.core.Context
 import org.basex.io.IOStream
 import org.basex.query.util.UriResolver
 import org.basex.query.{QueryException, QueryProcessor}
+import play.api.libs.json.{JsBoolean, JsNull, JsNumber, JsObject, JsString, Json}
 import play.api.{Environment, Logger}
 
 import java.io.{ByteArrayOutputStream, IOException}
@@ -22,6 +23,11 @@ object BaseXXQueryXmlTransformer {
   final val uriResolver: UriResolver = (path, _, _) =>
     new IOStream(Resources.getResource(path).openStream())
 
+  val INPUT = "input"
+  val MAPPING = "mapping"
+  val NAMESPACES = "namespaces"
+  val LIB_URI = "libURI"
+  val RESERVED = Seq(INPUT, MAPPING, NAMESPACES, LIB_URI)
 }
 
 //noinspection UnstableApiUsage
@@ -40,12 +46,18 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
   protected val logger: Logger = Logger(classOf[BaseXXQueryXmlTransformer])
 
   @throws(classOf[XmlTransformationError])
-  override def transform(data: String, map: String): String = {
+  override def transform(data: String, map: String, params: JsObject = Json.obj()): String = {
+
+    // Check parameters won't overwrite reserved params
+    params.keys.foreach { key =>
+      if (RESERVED.contains(key)) {
+        throw InvalidMappingError(s"Parameter key '$key' is a reserved value")
+      }
+    }
 
     import org.basex.query.value.`type`.AtomType
     import org.basex.query.value.item.{Str => BaseXString}
     import org.basex.query.value.map.{Map => BaseXMap}
-
     try {
       logger.trace(s"Input: $data")
       time("Transformation") {
@@ -62,10 +74,20 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
               null
             )
           }
-          proc.bind("input", data, "xs:string")
-          proc.bind("mapping", map, "xs:string")
-          proc.bind("namespaces", ns, "map()")
-          proc.bind("libURI", utilLibUrl, "xs:anyURI")
+          proc.bind(INPUT, data, "xs:string")
+          proc.bind(MAPPING, map, "xs:string")
+          proc.bind(NAMESPACES, ns, "map()")
+          proc.bind(LIB_URI, utilLibUrl, "xs:anyURI")
+
+          // bind additional data from parameters.
+          params.fields.foreach {
+            case (field, JsString(value)) => proc.bind(field, value, "xs:string")
+            case (field, JsNumber(value)) => proc.bind(field, value, "xs:decimal")
+            case (field, JsBoolean(value)) => proc.bind(field, value, "xs:boolean")
+            case (_, JsNull) => // Ignore nulls
+            case (field, _) => throw InvalidMappingError(s"Parameter key '$field' has an unsupported type, " +
+              s"currently only string, number, and boolean can be used")
+          }
 
           logger.debug(s"Module URL: $utilLibUrl")
 

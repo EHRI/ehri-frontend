@@ -8,6 +8,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, Supe
 import akka.stream.Materializer
 import models.{DataTransformation, UserProfile}
 import play.api.i18n.Messages
+import play.api.libs.json.JsObject
 import services.harvesting.HarvestEventHandle
 import services.storage.FileStorage
 import services.transformation.XmlTransformer
@@ -32,7 +33,7 @@ object XmlConverterManager {
     *                     exists
     */
   case class XmlConvertData(
-    transformers: Seq[(DataTransformation.TransformationType.Value, String)],
+    transformers: Seq[(DataTransformation.TransformationType.Value, String, JsObject)],
     inPrefix: String,
     outPrefix: String,
     from: Option[Instant] = None,
