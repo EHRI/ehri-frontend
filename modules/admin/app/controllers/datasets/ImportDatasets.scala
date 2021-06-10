@@ -98,6 +98,12 @@ case class ImportDatasets @Inject()(
     }
   }
 
+  def batch(id: String): Action[Seq[ImportDatasetInfo]] = EditAction(id).async(parse.json[Seq[ImportDatasetInfo]]) { implicit request =>
+    datasets.batch(id, request.body).map { _ =>
+      Ok(Json.toJson("ok" -> true))
+    }
+  }
+
   def delete(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     // Delete all files in stages in the dataset, then the dataset itself...
     val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq

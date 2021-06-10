@@ -33,4 +33,6 @@ trait ImportDatasetService {
   def update(repoId: String, datasetId: String, info: ImportDatasetInfo): Future[ImportDataset]
 
   def delete(repoId: String, datasetId: String): Future[Boolean]
+
+  def batch(repoId: String, info: Seq[ImportDatasetInfo]): Future[Seq[Int]]
 }

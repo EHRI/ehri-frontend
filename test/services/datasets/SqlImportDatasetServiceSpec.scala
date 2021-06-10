@@ -32,6 +32,11 @@ class SqlImportDatasetServiceSpec extends IntegrationTestRunner {
       ds.name must_== "New DS"
     }
 
+    "update items" in new DBTestApp("data-transformation-fixtures.sql") {
+      val ds = await(service.update("r1", "default", ImportDatasetInfo("default", "Updated DS", ImportDataset.Src.Upload)))
+      ds.name must_== "Updated DS"
+    }
+
     "enforce id pattern" in new DBTestApp("data-transformation-fixtures.sql") {
       await(service.create("r1", ImportDatasetInfo("foo bar", "New DS", ImportDataset.Src.Upload))) must throwA[PSQLException].like {
         case e => e.getMessage must contain("import_dataset_id_pattern")
@@ -44,6 +49,15 @@ class SqlImportDatasetServiceSpec extends IntegrationTestRunner {
       }
       val ds = await(service.create("r1", ImportDatasetInfo("foo_bar", "New DS", ImportDataset.Src.Upload, fonds = Some("r1-1"))))
       ds.fonds must beSome("r1-1")
+    }
+
+    "import items" in new DBTestApp("data-transformation-fixtures.sql") {
+      val data = Seq(
+        ImportDatasetInfo("default", "Updated DS", ImportDataset.Src.Rs),
+        ImportDatasetInfo("new", "New DS", ImportDataset.Src.Upload)
+      )
+      val count = await(service.batch("r1", data))
+      count.size must_== 2
     }
   }
 }

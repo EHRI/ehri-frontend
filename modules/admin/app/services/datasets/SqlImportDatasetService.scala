@@ -1,14 +1,12 @@
 package services.datasets
 
-import java.sql.SQLException
-
 import akka.actor.ActorSystem
-import anorm.{Macro, RowParser}
-import javax.inject.Inject
+import anorm.{Macro, RowParser, _}
 import models.{ImportDataset, ImportDatasetInfo}
 import play.api.db.Database
-import anorm._
 
+import java.sql.SQLException
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSystem) extends ImportDatasetService {
@@ -80,6 +78,33 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             WHERE repo_id = $repoId
               AND id = $datasetId
         RETURNING *""".as(parser.single)
+    }
+  }(ec)
+
+  def batch(repoId: String, info: Seq[ImportDatasetInfo]): Future[Seq[Int]] = Future {
+    db.withTransaction { implicit conn =>
+      val inserts = info.map { item =>
+        Seq[NamedParameter](
+          'repo_id -> repoId,
+          'id -> item.id,
+          'name -> item.name,
+          'type -> item.src,
+          'item_id -> item.fonds.filter(_.trim.nonEmpty),
+          'sync -> item.sync,
+          'comments -> item.notes
+        )
+      }
+      val q = """INSERT INTO import_dataset (repo_id, id, name, type, item_id, sync, comments)
+                   VALUES({repo_id}, {id}, {name}, {type}, {item_id}, {sync}, {comments})
+                   ON CONFLICT (repo_id, id) DO UPDATE SET
+                      name = {name},
+                      type = {type},
+                      item_id = {item_id},
+                      sync = {sync},
+                      comments = {comments}"""
+      val batch = BatchSql(q, inserts.head, inserts.tail: _*)
+      val rows: Array[Int] = batch.execute()
+      rows.toSeq
     }
   }(ec)
 }

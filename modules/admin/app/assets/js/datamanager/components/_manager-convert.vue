@@ -3,6 +3,7 @@
 import Draggable from 'vuedraggable';
 import FilePicker from './_file-picker';
 import ModalConvertConfig from './_modal-convert-config';
+import ModalParamEditor from "./_modal-param-editor.vue";
 import TransformationEditor from './_transformation-editor';
 import TransformationItem from './_transformation-item';
 import PanelLogWindow from './_panel-log-window';
@@ -18,7 +19,9 @@ import {DatasetManagerApi} from '../api';
 import _partition from 'lodash/partition';
 import _takeWhile from 'lodash/takeWhile';
 import _isEqual from 'lodash/isEqual';
+import _fromPairs from 'lodash/fromPairs';
 import _find from 'lodash/find';
+import {DataTransformation} from "../types";
 
 
 let initialConvertState = function(config) {
@@ -34,13 +37,17 @@ let initialConvertState = function(config) {
     available: [],
     enabled: [],
     mappings: [], // IDs of enabled transformations
+    parameters: {}, // Map of transformation ID to JSON object
     editing: null,
+    editingParametersItem: null,
+    editingParameters: null,
     loading: false,
   };
 };
 
 export default {
-  components: {Draggable, FilePicker, ModalConvertConfig, PanelConvertPreview, TransformationEditor, TransformationItem, PanelLogWindow, DragHandle},
+  components: {
+    Draggable, FilePicker, ModalParamEditor, ModalConvertConfig, PanelConvertPreview, TransformationEditor, TransformationItem, PanelLogWindow, DragHandle},
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil],
   props: {
     datasetId: String,
@@ -71,7 +78,7 @@ export default {
       // pipeline to be the items ahead of this one in the enabled
       // list...
       this.previewPipeline = withPreviewPipeline
-          ? _takeWhile(this.enabled, dt => dt.id !== item.id).map(dt => [dt.bodyType, dt.body])
+          ? _takeWhile(this.enabled, dt => dt.id !== item.id).map(dt => [dt.bodyType, dt.body, this.parameters[dt.id] || {}])
           : [];
     },
     newTransformation: function() {
@@ -93,7 +100,7 @@ export default {
     },
     convert: function(file, force) {
       console.debug("Converting:", file)
-      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.mappings, force: force})
+      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.state, force: force})
           .then(data => {
             this.convertJobId = data.jobId;
             this.monitorConvert(data.url, data.jobId);
@@ -139,20 +146,43 @@ export default {
     },
     loadConfig: function(): Promise<void> {
       return this.api.getConvertConfig(this.datasetId)
-          .then(data => this.mappings = data.map(item => item[0].id))
+          .then(data => {
+            console.log("Loading...", data)
+            this.mappings = data.map(item =>  item[0].id);
+            console.log("Mappings:", this.mappings);
+            this.parameters = _fromPairs(data.map(pair => [pair[0].id, pair[1]]));
+          })
           .catch(error => this.showError("Error loading convert configuration", error));
     },
-    saveConfig: function() {
-      let mappings = this.enabled.map(item => [item.id, {}]);
-      if (!_isEqual(mappings, this.mappings)) {
+    saveConfig: function(force: boolean = false) {
+      let ids = this.enabled.map(item => item.id);
+      if (force || !_isEqual(ids, this.mappings)) {
         console.log("saving enabled:", this.enabled)
-        this.mappings = mappings;
-        this.api.saveConvertConfig(this.datasetId, this.mappings)
+        this.mappings = ids;
+        this.api.saveConvertConfig(this.datasetId, this.state)
             .catch(error => this.showError("Failed to save mapping list", error));
       }
     },
     priorConversions: function(dt) {
       return _takeWhile(this.enabled, s => s.id !== dt.id);
+    },
+    parametersFor: function(dt: DataTransformation): object {
+      return this.parameters[dt.id] ? this.parameters[dt.id] : {};
+    },
+    editParameters: function(dt: DataTransformation) {
+      this.editingParametersItem = dt;
+      this.editingParameters = this.parameters[dt.id] || {};
+    },
+    saveParameters: function(obj: object) {
+      this.parameters[this.editingParametersItem.id] = obj;
+      this.editingParametersItem = null;
+      this.editingParameters = null;
+      this.saveConfig(true);
+    }
+  },
+  computed: {
+    state: function() {
+      return this.enabled.map(item => [item.id, this.parameters[item.id] || {}]);
     }
   },
   watch: {
@@ -161,6 +191,11 @@ export default {
         this.saveConfig();
       }
     },
+    // parameters: function() {
+    //   if (!this.loading) {
+    //     this.saveConfig();
+    //   }
+    // },
     datasetId: function() {
       Object.assign(this.$data, initialConvertState(this.config));
       this.loadConfig().then(_ => {
@@ -191,6 +226,7 @@ export default {
         v-bind:dataset-id="datasetId"
         v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
+        v-bind:init-parameters="parameters[editing.id]"
         v-bind:config="config"
         v-bind:api="api"
         v-bind:input-pipeline="previewPipeline"
@@ -233,6 +269,11 @@ export default {
             v-on:convert="convert"
             v-show="showOptions" />
 
+        <modal-param-editor
+          v-if="editingParameters"
+          v-bind:obj="editingParameters"
+          v-on:saved="saveParameters" />
+
         <div id="convert-mappings">
           <div class="card">
             <h4 class="card-header">
@@ -257,6 +298,7 @@ export default {
                   v-for="(dt, i) in available"
                   v-bind:item="dt"
                   v-bind:key="i"
+                  v-bind:parameters="null"
                   v-on:edit="editTransformation(dt, false)"
               />
             </draggable>
@@ -283,8 +325,10 @@ export default {
               <transformation-item
                   v-for="(dt, i) in enabled"
                   v-bind:item="dt"
+                  v-bind:parameters="parametersFor(dt)"
                   v-bind:key="i"
                   v-on:edit="editTransformation(dt, true)"
+                  v-on:edit-params="editParameters(dt)"
               />
             </draggable>
           </div>
@@ -321,9 +365,10 @@ export default {
             <panel-convert-preview
                 v-bind:dataset-id="datasetId"
                 v-bind:file-stage="previewStage"
-                v-bind:mappings="mappings"
+                v-bind:mappings="state"
                 v-bind:trigger="JSON.stringify({
                          mappings: mappings,
+                         parameters: parameters,
                          previewing: previewing
                        })"
                 v-bind:previewing="previewing"

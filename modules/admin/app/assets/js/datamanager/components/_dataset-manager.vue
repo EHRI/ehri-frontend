@@ -1,6 +1,7 @@
 <script lang="ts">
 
-import ModalDatasetConfig from './_modal-dataset-config.vue';
+import ModalDatasetConfig from './_modal-dataset-config';
+import ModalDatasetImport from './_modal-dataset-import'
 import ManagerOaipmh from './_manager-oaipmh';
 import ManagerUpload from './_manager-upload';
 import ManagerIngest from './_manager-ingest';
@@ -14,9 +15,11 @@ import {DatasetManagerApi} from "../api";
 import _find from 'lodash/find';
 import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
+import _modalDatasetImport from "./_modal-dataset-import.vue";
 
 export default {
-  components: {ModalDatasetConfig, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
+  components: {
+    ModalDatasetConfig, ModalDatasetImport, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
   mixins: [MixinUtil],
   props: {
     config: Object,
@@ -30,7 +33,9 @@ export default {
       dataset: null,
       tab: this.initTab,
       error: null,
-      showForm: false,
+      showOptions: false,
+      showDatasetForm: false,
+      showImportForm: false,
       showSelector: false,
       stats: {},
     }
@@ -65,9 +70,6 @@ export default {
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['ds', 'tab']));
     },
-    showNewDatasetForm: function () {
-      this.showForm = true;
-    },
     loadDatasets: function() {
       this.api.datasetStats().then(stats => this.stats = stats);
       return this.api.listDatasets()
@@ -76,7 +78,11 @@ export default {
           .finally(() => this.loaded = true);
     },
     reloadDatasets: function(ds?: ImportDataset) {
-      this.loadDatasets().then(() => this.selectDataset(ds));
+      this.loadDatasets().then(() => {
+        if(ds) {
+          this.selectDataset(ds);
+        }
+      });
     },
     stageName: function(code: ImportDatasetSrc): string {
       switch (code) {
@@ -126,13 +132,19 @@ export default {
       <span class="close" v-on:click="error = null">&times;</span>
       {{error}}
     </div>
-    <modal-dataset-config v-if="showForm"
-                  v-bind:info="dataset"
+    <modal-dataset-config v-if="showDatasetForm"
+                          v-bind:info="dataset"
+                          v-bind:config="config"
+                          v-bind:api="api"
+                          v-on:close="showDatasetForm = false"
+                          v-on:saved-dataset="reloadDatasets"
+                          v-on:deleted-dataset="reloadDatasets" />
+
+    <modal-dataset-import v-if="showImportForm"
                   v-bind:config="config"
                   v-bind:api="api"
-                  v-on:close="showForm = false"
-                  v-on:saved-dataset="reloadDatasets"
-                  v-on:deleted-dataset="reloadDatasets" />
+                  v-on:close="showImportForm = false"
+                  v-on:saved="reloadDatasets(); showImportForm = false" />
 
     <div v-if="!loaded && dataset === null" class="dataset-loading-indicator">
       <h2>
@@ -150,7 +162,7 @@ export default {
         </p>
       </template>
       <template v-else>
-        <h2 v-if="datasets">Select dataset:</h2>
+        <h2 v-if="datasets">Datasets</h2>
         <div class="dataset-manager-list">
           <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" class="dataset-manager-item">
             <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
@@ -162,10 +174,25 @@ export default {
           </div>
         </div>
       </template>
-      <button v-on:click.prevent="showNewDatasetForm" class="btn btn-success">
-        <i class="fa fa-plus-circle"></i>
-        Create a new dataset...
-      </button>
+      <div class="dataset-actions">
+        <button v-on:click.prevent="showDatasetForm = true" class="btn btn-success">
+          <i class="fa fa-plus-circle"></i>
+          Create a new dataset...
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-default" v-on:click="showOptions = !showOptions">
+            <i class="fa fa-fw fa-ellipsis-v"></i>
+          </button>
+          <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
+          </div>
+          <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
+            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="btn dropdown-item">
+              <i class="fa fa-file-code-o"></i>
+              Import datasets from JSON
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <template v-else>
       <ul id="stage-tabs" class="nav nav-tabs">
@@ -209,7 +236,7 @@ export default {
             <div v-if="showSelector" class="dropdown-backdrop" v-on:click="showSelector = false">
             </div>
             <div v-if="showSelector" class="dropdown-menu dropdown-menu-right show">
-              <a v-on:click.prevent="showSelector = false; showForm = true" class="dropdown-item" href="#">
+              <a v-on:click.prevent="showSelector = false; showDatasetForm = true" class="dropdown-item" href="#">
                 <i class="fa fa-edit"></i>
                 Edit Dataset
               </a>
