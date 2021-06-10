@@ -8,6 +8,7 @@ GET         /api/list                                     @controllers.datasets.
 GET         /api/:id/datasets-stats                       @controllers.datasets.ImportDatasets.stats(id: String)
 GET         /api/:id/datasets                             @controllers.datasets.ImportDatasets.list(id: String)
 POST        /api/:id/datasets                             @controllers.datasets.ImportDatasets.create(id: String)
+PUT         /api/:id/datasets                             @controllers.datasets.ImportDatasets.batch(id: String)
 PUT         /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.update(id: String, ds: String)
 DELETE      /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.delete(id: String, ds: String)
 

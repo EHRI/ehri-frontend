@@ -54,6 +54,7 @@ export interface JobMonitor {
 export type TransformationType = 'xquery' | 'xslt';
 
 export interface DataTransformationInfo {
+  id: string,
   name: string,
   bodyType: TransformationType,
   body: string,

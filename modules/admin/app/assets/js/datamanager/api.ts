@@ -223,6 +223,10 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.ImportDatasets.update(this.repoId, ds), info);
   }
 
+  importDatasets(ds: string, info: ImportDatasetInfo[]): Promise<{ok: true}> {
+    return DatasetManagerApi.call(this.service.ImportDatasets.batch(this.repoId), info);
+  }
+
   deleteDataset(ds: string): Promise<void> {
     return DatasetManagerApi.call(this.service.ImportDatasets.delete(this.repoId, ds));
   }

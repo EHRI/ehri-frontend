@@ -1,8 +1,9 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
-import XsltEditor from './_xslt-editor';
-import XqueryEditor from './_xquery-editor';
+import EditorXslt from './_editor-xslt.vue';
+import EditorXquery from './_editor-xquery.vue';
+import EditorJson from './_editor-json.vue';
 import FilePicker from './_file-picker';
 import DragHandle from './_drag-handle';
 import PanelFilePreview from './_panel-file-preview';
@@ -16,7 +17,7 @@ import _isEqual from 'lodash/isEqual';
 
 
 export default {
-  components: {ModalWindow, XsltEditor, XqueryEditor, FilePicker, DragHandle, PanelFilePreview, PanelConvertPreview, ModalAlert},
+  components: {ModalWindow, EditorXslt, EditorXquery, EditorJson, FilePicker, DragHandle, PanelFilePreview, PanelConvertPreview, ModalAlert},
   mixins: [MixinTwoPanel],
   props: {
     id: String,
@@ -31,6 +32,10 @@ export default {
     config: Object,
     api: Object,
     inputPipeline: Array,
+    initParameters: {
+      type: Object,
+      default: () => {}
+    },
   },
   data: function () {
     return {
@@ -46,6 +51,7 @@ export default {
         body: this.body,
         comments: this.comments,
       },
+      parameters: this.initParameters,
       timestamp: (new Date()).toString(),
       inputValidationResults: {},
       outputValidationResults: {},
@@ -93,7 +99,7 @@ export default {
   },
   computed: {
     mappings: function () {
-      let stage = [[this.data.bodyType, this.data.body]];
+      let stage = [[this.data.bodyType, this.data.body, this.parameters]];
       return this.solo
           ? stage
           : _concat(this.inputPipeline, stage);
@@ -183,8 +189,11 @@ export default {
               </div>
             </div>
             <div id="transformation-editor-map-input">
-              <xquery-editor v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
-              <xslt-editor v-else v-model.lazy="data.body"></xslt-editor>
+              <editor-xquery v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
+              <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" />
+            </div>
+            <div v-if="data.bodyType === 'xslt'" id="transformation-editor-map-parameters">
+              <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />
             </div>
           </div>
           <div id="transformation-editor-preview-section" class="bottom-panel">

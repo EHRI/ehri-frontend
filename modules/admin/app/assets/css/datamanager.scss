@@ -52,6 +52,13 @@ body {
   flex: 1;
 }
 
+.dataset-actions {
+  display: flex;
+  :first-child {
+    flex-basis: 100%;
+  }
+}
+
 .dataset-manager-list {
   overflow-y: auto;
   margin-bottom: $margin-xs;
@@ -433,6 +440,12 @@ body {
   }
 }
 
+#transformation-editor-map-parameters {
+  .CodeMirror {
+    height: 100px;
+  }
+}
+
 #transformation-editor-preview-section {
 }
 
@@ -516,9 +529,11 @@ body {
 }
 
 .xslt-editor {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
+  overflow: hidden;
 
   textarea {
     flex: 1;
@@ -579,28 +594,6 @@ body {
   align-items: center;
   justify-content: center;
   opacity: .5;
-}
-
-.preview-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  .pretty-xml {
-    position: absolute;
-    right: $margin-xs;
-    font-size: $font-size-xs;
-    z-index: 100;
-    color: $text-muted;
-    &.active {
-      color: $success;
-    }
-    &:focus {
-      outline: 0;
-      box-shadow: none;
-    }
-  }
 }
 
 .file-meta {
@@ -815,8 +808,26 @@ body {
 }
 
 .preview-container {
+  position: relative;
   display: flex;
   flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+
+  .pretty-xml {
+    position: absolute;
+    right: $margin-xs;
+    font-size: $font-size-xs;
+    z-index: 100;
+    color: $text-muted;
+    &.active {
+      color: $success;
+    }
+    &:focus {
+      outline: 0;
+      box-shadow: none;
+    }
+  }
 }
 
 .preview-container .CodeMirror {
