@@ -175,7 +175,7 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.DataTransformations.cancelConvert(this.repoId, jobId));
   }
 
-  getConvertConfig(ds: string): Promise<[DataTransformation, object][]> {
+  getConvertConfig(ds: string): Promise<[string, object][]> {
     return DatasetManagerApi.call(this.service.DataTransformations.getConfig(this.repoId, ds));
   }
 

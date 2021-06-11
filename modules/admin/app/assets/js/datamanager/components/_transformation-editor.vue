@@ -26,6 +26,7 @@ export default {
     bodyType: String,
     body: String,
     comments: String,
+    hasParams: Boolean,
     datasetId: String,
     fileStage: String,
     initPreviewing: Object,
@@ -50,6 +51,7 @@ export default {
         bodyType: this.bodyType,
         body: this.body,
         comments: this.comments,
+        hasParams: this.hasParams,
       },
       parameters: this.initParameters,
       timestamp: (new Date()).toString(),
@@ -111,6 +113,7 @@ export default {
         bodyType: this.bodyType,
         body: this.body,
         comments: this.comments,
+        hasParams: this.hasParams,
       });
     },
     valid: function () {
@@ -149,6 +152,8 @@ export default {
                 <option v-bind:value="false">Repository Specific</option>
                 <option v-bind:value="true">Generic</option>
               </select>
+              <label for="transformation-has-params">Parameters</label>
+              <input type="checkbox" id="transformation-has-params" v-model="data.hasParams"/>
               <label for="transformation-comments">Description</label>
               <input v-model.trim="data.comments" id="transformation-comments" minlength="3" required
                      placeholder="(required)"/>
@@ -192,7 +197,7 @@ export default {
               <editor-xquery v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
               <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" />
             </div>
-            <div v-if="data.bodyType === 'xslt'" id="transformation-editor-map-parameters">
+            <div v-if="data.hasParams" id="transformation-editor-map-parameters">
               <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />
             </div>
           </div>

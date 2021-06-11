@@ -317,8 +317,9 @@ body {
       }
 
       display: grid;
-      grid-template-areas: "name buttons" "meta buttons";
-      grid-template-columns: auto min-content;
+      grid-gap: $margin-xs;
+      grid-template-areas: "name params edit" "meta params edit";
+      grid-template-columns: auto min-content min-content;
       grid-template-rows: auto;
 
       .transformation-item-name {
@@ -330,8 +331,12 @@ body {
       }
 
       .transformation-item-edit {
-        grid-area: buttons;
+        grid-area: edit;
         align-self: start;
+      }
+
+      .transformation-item-params {
+        grid-area: params;
       }
 
       .transformation-item-meta {
@@ -433,7 +438,6 @@ body {
   overflow-y: auto;
   flex-direction: column;
   background-color: $gray-100;
-  border-bottom: 1px solid $ehri-border-gray;
 
   textarea {
     flex: 1;
@@ -443,6 +447,7 @@ body {
 #transformation-editor-map-parameters {
   .CodeMirror {
     height: 100px;
+    box-shadow: none;
   }
 }
 
@@ -484,6 +489,7 @@ body {
   display: flex;
   flex: 1;
   flex-direction: column;
+  border: 1px solid $ehri-border-gray;
 }
 
 .xquery-editor-data {
@@ -504,6 +510,7 @@ body {
   margin-left: auto;
   font-size: $font-size-xs;
   color: $text-muted;
+  padding: $margin-xs;
 }
 
 .xquery-editor-header {

@@ -88,7 +88,7 @@ trait DataTransformationService {
     * @param datasetId the dataset ID
     * @return the transformations in application order, along with their parameters
     */
-  def getConfig(repoId: String, datasetId: String): Future[Seq[(DataTransformation, JsObject)]]
+  def getConfig(repoId: String, datasetId: String): Future[Seq[(String, JsObject)]]
 
   /**
     * Save transformations for a given repository.

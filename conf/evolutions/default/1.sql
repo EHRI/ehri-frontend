@@ -181,13 +181,14 @@ CREATE INDEX harvest_event_repo_job ON harvest_event(repo_id, job_id);
 CREATE INDEX harvest_event_user ON harvest_event(user_id);
 
 CREATE TABLE data_transformation (
-    id       CHAR(10) NOT NULL PRIMARY KEY,
-    name     VARCHAR(255) NOT NULL,
-    repo_id  VARCHAR(50) NULL,
-    type     VARCHAR(10) NOT NULL,
-    map      TEXT NOT NULL,
-    created  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    comments TEXT
+    id          CHAR(10) NOT NULL PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    repo_id     VARCHAR(50) NULL,
+    type        VARCHAR(10) NOT NULL,
+    map         TEXT NOT NULL,
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    comments    TEXT,
+    has_params  BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE UNIQUE INDEX data_transformation_name ON data_transformation (name);

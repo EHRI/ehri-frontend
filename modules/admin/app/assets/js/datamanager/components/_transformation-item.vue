@@ -18,22 +18,20 @@ export default {
       {{ props.item.name }}
       <span class="transformation-item-comments" v-bind:title="props.item.comments">{{ props.item.comments }}</span>
     </h4>
+    <div class="transformation-item-params">
+      <button v-if="props.item.hasParams && props.parameters" v-bind:class="{
+          'btn-dark': Object.keys(props.parameters).length > 0,
+          'btn-default': Object.keys(props.parameters).length === 0
+        }" class="btn btn-sm" v-on:click="listeners['edit-params']()">
+        <i class="fa fa-fw fa-gears"></i>
+      </button>
+    </div>
     <button class="transformation-item-edit btn btn-sm btn-default" v-on:click="listeners.edit()">
-      <i class="fa fa-edit"></i>
+      <i class="fa fa-fw fa-edit"></i>
     </button>
     <span class="transformation-item-meta">
       <span class="badge badge-pill" v-bind:class="'badge-' + props.item.bodyType">{{ props.item.bodyType }}</span>
       <span v-if="!props.item.repoId" class="badge badge-light">Generic</span>
-      <span
-          v-on:click="listeners['edit-params']()"
-          v-if="props.item.bodyType === 'xslt' && props.parameters"
-          v-bind:class="{
-            'badge-dark': Object.keys(props.parameters).length > 0,
-            'badge-light': Object.keys(props.parameters).length === 0
-          }"
-          class="badge">
-        <i class="fa fa-gears"></i>
-      </span>
     </span>
   </div>
 </template>

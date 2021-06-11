@@ -25,7 +25,8 @@ case class DataTransformation(
   bodyType: DataTransformation.TransformationType.Value,
   body: String,
   created: Instant,
-  comments: String
+  comments: String,
+  hasParams: Boolean = false,
 )
 
 object DataTransformationInfo {
@@ -36,5 +37,6 @@ case class DataTransformationInfo(
   name: String,
   bodyType: DataTransformation.TransformationType.Value,
   body: String,
-  comments: String
+  comments: String,
+  hasParams: Boolean = false,
 )

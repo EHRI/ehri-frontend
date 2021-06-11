@@ -147,10 +147,10 @@ export default {
     loadConfig: function(): Promise<void> {
       return this.api.getConvertConfig(this.datasetId)
           .then(data => {
-            console.log("Loading...", data)
-            this.mappings = data.map(item =>  item[0].id);
-            console.log("Mappings:", this.mappings);
-            this.parameters = _fromPairs(data.map(pair => [pair[0].id, pair[1]]));
+            console.debug("Loading...", data)
+            this.mappings = data.map(item =>  item[0]);
+            console.debug("Mappings:", this.mappings);
+            this.parameters = _fromPairs(data);
           })
           .catch(error => this.showError("Error loading convert configuration", error));
     },
@@ -178,6 +178,10 @@ export default {
       this.editingParametersItem = null;
       this.editingParameters = null;
       this.saveConfig(true);
+    },
+    cancelEditParamters: function() {
+      this.editingParametersItem = null;
+      this.editingParameters = null;
     }
   },
   computed: {
@@ -223,6 +227,7 @@ export default {
         v-bind:body-type="editing.bodyType"
         v-bind:body="editing.body"
         v-bind:comments="editing.comments"
+        v-bind:has-params="editing.hasParams"
         v-bind:dataset-id="datasetId"
         v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
@@ -272,6 +277,7 @@ export default {
         <modal-param-editor
           v-if="editingParameters"
           v-bind:obj="editingParameters"
+          v-on:close="cancelEditParamters"
           v-on:saved="saveParameters" />
 
         <div id="convert-mappings">
