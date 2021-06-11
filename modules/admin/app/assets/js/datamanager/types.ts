@@ -58,7 +58,8 @@ export interface DataTransformationInfo {
   name: string,
   bodyType: TransformationType,
   body: string,
-  comments: string
+  comments: string,
+  hasParams: boolean,
 }
 
 export interface DataTransformation extends DataTransformationInfo{

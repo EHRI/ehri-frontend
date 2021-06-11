@@ -70,7 +70,6 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
       await(service.saveConfig("r2", dsId, Seq((dt.id, Json.obj("foo" -> 1, "bar" -> 2)), (dtId, Json.obj()))))
       val configs = await(service.getConfig("r2", dsId))
       configs.size must_== 2
-      configs.head._1.name must_== "test2"
       configs.head._2 must_== Json.obj("foo" -> 1, "bar" -> 2)
     }
   }

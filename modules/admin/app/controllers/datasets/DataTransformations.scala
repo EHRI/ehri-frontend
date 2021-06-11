@@ -54,7 +54,7 @@ case class DataTransformations @Inject()(
 
 
   def getConfig(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    dataTransformations.getConfig(id, ds).map(dts => Ok(Json.toJson(dts)))
+    dataTransformations.getConfig(id, ds).map { pairs => Ok(Json.toJson(pairs))}
   }
 
   def saveConfig(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(parse.json[Seq[(String, JsObject)]]) { implicit request =>

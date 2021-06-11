@@ -22,7 +22,7 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
 
   private implicit val parser: RowParser[DataTransformation] =
     Macro.parser[DataTransformation](
-      "id", "name", "repo_id", "type", "map", "created", "comments")
+      "id", "name", "repo_id", "type", "map", "created", "comments", "has_params")
 
   override def list(): Future[Seq[DataTransformation]] = Future {
     db.withConnection { implicit conn =>
@@ -55,14 +55,15 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
       try {
         val strId = dbUtils.newObjectId(10)
         SQL"""INSERT INTO data_transformation
-                (id, repo_id, name, type, map, comments)
+                (id, repo_id, name, type, map, comments, has_params)
               VALUES (
                 $strId,
                 $repoId,
                 ${info.name},
                 ${info.bodyType},
                 ${info.body},
-                ${info.comments}
+                ${info.comments},
+                ${info.hasParams}
               )
               RETURNING *
             """.as(parser.single)
@@ -81,7 +82,8 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
               name = ${info.name},
               type = ${info.bodyType},
               map = ${info.body},
-              comments = ${info.comments}
+              comments = ${info.comments},
+              has_params = ${info.hasParams}
             WHERE id = $id
             RETURNING *
           """.as(parser.single)
@@ -96,11 +98,12 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     ???
   }
 
-  override def getConfig(repoId: String, datasetId: String): Future[Seq[(DataTransformation, JsObject)]] = Future {
+  override def getConfig(repoId: String, datasetId: String): Future[Seq[(String, JsObject)]] = Future {
     db.withConnection { implicit conn =>
-      val jsonParser = SqlParser.get[JsObject]("parameters")
-      val tupleParser = parser ~ jsonParser map { case dt ~ params => (dt, params)}
-      SQL"""SELECT dt.*, tc.parameters FROM data_transformation dt
+      val tupleParser = (SqlParser.str("id") ~ SqlParser.get[JsObject]("parameters"))
+        .map { case id ~ json => id -> json}
+
+      SQL"""SELECT dt.id, tc.parameters FROM data_transformation dt
            LEFT JOIN transformation_config tc ON tc.data_transformation_id = dt.id
            WHERE tc.repo_id = $repoId
              AND tc.import_dataset_id = $datasetId
