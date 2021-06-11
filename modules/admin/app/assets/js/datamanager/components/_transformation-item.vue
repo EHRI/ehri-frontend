@@ -7,6 +7,7 @@ export default {
       type: Object,
       default: null
     },
+    deleteable: Boolean,
   },
 }
 </script>
@@ -26,9 +27,13 @@ export default {
         <i class="fa fa-fw fa-gears"></i>
       </button>
     </div>
-    <button class="transformation-item-edit btn btn-sm btn-default" v-on:click="listeners.edit()">
+    <button v-if="props.deleteable" class="transformation-item-edit btn btn-sm btn-outline-danger" v-on:click="listeners['delete']()">
+      <i class="fa fa-fw fa-trash-o"></i>
+    </button>
+    <button v-else class="transformation-item-edit btn btn-sm btn-default" v-on:click="listeners.edit()">
       <i class="fa fa-fw fa-edit"></i>
     </button>
+
     <span class="transformation-item-meta">
       <span class="badge badge-pill" v-bind:class="'badge-' + props.item.bodyType">{{ props.item.bodyType }}</span>
       <span v-if="!props.item.repoId" class="badge badge-light">Generic</span>
