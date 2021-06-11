@@ -303,6 +303,10 @@ body {
         background-color: $white;
       }
 
+      &.muted {
+        opacity: .5;
+      }
+
       .badge {
         border-radius: $border-radius-sm;
 
@@ -318,8 +322,8 @@ body {
 
       display: grid;
       grid-gap: $margin-xs;
-      grid-template-areas: "name params edit" "meta params edit";
-      grid-template-columns: auto min-content min-content;
+      grid-template-areas: "name params mute edit" "meta params mute edit";
+      grid-template-columns: auto min-content min-content min-content;
       grid-template-rows: auto;
 
       .transformation-item-name {
@@ -337,6 +341,10 @@ body {
 
       .transformation-item-params {
         grid-area: params;
+      }
+
+      .transformation-item-mute {
+        grid-area: mute;
       }
 
       .transformation-item-meta {

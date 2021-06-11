@@ -36,7 +36,7 @@ let initialConvertState = function(config) {
     showOptions: false,
     available: [],
     parametersForEditor: {},
-    state: [], // List of [mapping, parameter] pairs
+    state: [], // List of [mapping-id, parameters, muted] pairs
     editing: null,
     editingParameters: null,
     loading: false,
@@ -103,7 +103,7 @@ export default {
     },
     convert: function(file, force) {
       console.debug("Converting:", file)
-      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.state, force: force})
+      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.convertState, force: force})
           .then(data => {
             this.convertJobId = data.jobId;
             this.monitorConvert(data.url, data.jobId);
@@ -150,12 +150,13 @@ export default {
     loadConfig: function(): Promise<void> {
       this.loading = true;
       return this.api.getConvertConfig(this.datasetId)
-          .then(data => this.state = data)
+          .then(data => this.state = data.map(([id, p]) => [id, p, false]))
           .catch(error => this.showError("Error loading convert configuration", error))
           .finally(() => this.loading = false);
     },
     saveConfig: function(force: boolean = false) {
-      this.api.saveConvertConfig(this.datasetId, this.state)
+      let config = this.state.map(([id, p, _]) => [id, p]);
+      this.api.saveConvertConfig(this.datasetId, config)
           .catch(error => this.showError("Failed to save mapping list", error));
     },
     priorConversions: function(dt) {
@@ -164,17 +165,21 @@ export default {
     removeTransformation: function(i: number) {
       this.state.splice(i, 1);
     },
+    muteTransformation: function(i: number) {
+      let [id, p, m] = this.state[i];
+      this.state.splice(i, 1, [id, p, !m]);
+    },
     addTransformation: function(data: {newIndex: number, oldIndex: number}) {
+      console.log("Add", data.newIndex, data.oldIndex)
       let id = this.transformations[data.oldIndex].id
-      this.state.splice(data.newIndex, 1, [id, {}])
+      this.state.splice(data.newIndex, 0, [id, {}, false]);
     },
     editParameters: function(i: number) {
       this.editingParameters = i;
     },
     saveParameters: function(obj: object) {
-      let pair = this.state[this.editingParameters];
-      pair[1] = obj
-      this.state.splice(this.editingParameters, 1, pair);
+      let [id, _, m] = this.state[this.editingParameters];
+      this.state.splice(this.editingParameters, 1, [id, obj, m]);
       this.editingParameters = null;
       this.saveConfig(true);
     },
@@ -183,6 +188,11 @@ export default {
     }
   },
   computed: {
+    convertState: function() {
+      return this.state
+          .filter(([id, p, m]) => !m)
+          .map(([id, p, _]) => [id, p]);
+    },
     mappings: function() {
       return this.state.map(pair => pair[0]);
     },
@@ -206,7 +216,7 @@ export default {
       set(arr: DataTransformation[]) {
         // this.mappings = arr.map(dt => dt.id);
       }
-    }
+    },
   },
   watch: {
     state: function() {
@@ -322,8 +332,10 @@ export default {
               <transformation-item
                   v-for="(dt, i) in transformations"
                   v-bind:item="dt"
+                  v-bind:muted="false"
                   v-bind:key="i"
                   v-bind:deleteable="false"
+                  v-bind:muteable="false"
                   v-bind:parameters="null"
                   v-on:edit="editTransformation(dt)"
               />
@@ -353,10 +365,13 @@ export default {
                   v-for="(dt, i) in enabled"
                   v-bind:item="dt"
                   v-bind:parameters="state[i][1]"
+                  v-bind:muted="state[i][2]"
                   v-bind:key="i"
                   v-bind:deleteable="true"
+                  v-bind:muteable="true"
                   v-on:edit="editActiveTransformation(i)"
                   v-on:delete="removeTransformation(i)"
+                  v-on:mute="muteTransformation(i)"
                   v-on:edit-params="editParameters(i)"
               />
             </draggable>
@@ -394,7 +409,7 @@ export default {
             <panel-convert-preview
                 v-bind:dataset-id="datasetId"
                 v-bind:file-stage="previewStage"
-                v-bind:mappings="state"
+                v-bind:mappings="convertState"
                 v-bind:trigger="JSON.stringify({
                          state: state,
                          previewing: previewing
