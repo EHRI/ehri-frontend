@@ -35,7 +35,7 @@ export default {
     inputPipeline: Array,
     initParameters: {
       type: Object,
-      default: () => {}
+      default: function() { return {}; }
     },
   },
   data: function () {

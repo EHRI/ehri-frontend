@@ -35,11 +35,9 @@ let initialConvertState = function(config) {
     log: [],
     showOptions: false,
     available: [],
-    enabled: [],
-    mappings: [], // IDs of enabled transformations
-    parameters: {}, // Map of transformation ID to JSON object
+    parametersForEditor: {},
+    state: [], // List of [mapping, parameter] pairs
     editing: null,
-    editingParametersItem: null,
     editingParameters: null,
     loading: false,
   };
@@ -64,22 +62,23 @@ export default {
       this.loading = true;
 
       return this.api.listDataTransformations()
-          .then(available => {
-            let each = _partition(available, item => !this.mappings.includes(item.id));
-            this.available = each[0];
-            this.enabled = this.mappings.map(id => _find(each[1], a => a.id === id));
-          })
+          .then(available => this.available = available)
           .catch(error => this.showError("Unable to load transformations", error))
           .finally(() => this.loading = false);
     },
-    editTransformation: function(item, withPreviewPipeline) {
+    editTransformation: function(item: DataTransformation) {
       this.editing = item;
-      // if editing in the context of a pipeline, set the preview
-      // pipeline to be the items ahead of this one in the enabled
-      // list...
-      this.previewPipeline = withPreviewPipeline
-          ? _takeWhile(this.enabled, dt => dt.id !== item.id).map(dt => [dt.bodyType, dt.body, this.parameters[dt.id] || {}])
-          : [];
+      this.previewPipeline = [];
+    },
+    editActiveTransformation: function(i: number) {
+      this.editing = this.enabled[i];
+      this.parametersForEditor = this.parameters[i];
+      this.previewPipeline = this.previewSettings(i);
+    },
+    previewSettings: function(i: number): [string, string, object][] {
+      return this.state
+          .map(([_, params], i) => [this.enabled[i].bodyType, this.enabled[i].body, params])
+          .slice(0, i);
     },
     newTransformation: function() {
       this.editing = {
@@ -93,10 +92,14 @@ export default {
     },
     closeEditForm: function() {
       this.editing = null;
+      this.parametersForEditor = {};
       this.loadTransformations();
     },
     saved: function(item) {
       this.editing = item;
+    },
+    transformationAt: function(i: number): DataTransformation {
+      return _find(this.available, dt => dt.id === this.mappings[i]);
     },
     convert: function(file, force) {
       console.debug("Converting:", file)
@@ -145,52 +148,68 @@ export default {
       }
     },
     loadConfig: function(): Promise<void> {
+      this.loading = true;
       return this.api.getConvertConfig(this.datasetId)
-          .then(data => {
-            console.debug("Loading...", data)
-            this.mappings = data.map(item =>  item[0]);
-            console.debug("Mappings:", this.mappings);
-            this.parameters = _fromPairs(data);
-          })
-          .catch(error => this.showError("Error loading convert configuration", error));
+          .then(data => this.state = data)
+          .catch(error => this.showError("Error loading convert configuration", error))
+          .finally(() => this.loading = false);
     },
     saveConfig: function(force: boolean = false) {
-      let ids = this.enabled.map(item => item.id);
-      if (force || !_isEqual(ids, this.mappings)) {
-        console.log("saving enabled:", this.enabled)
-        this.mappings = ids;
-        this.api.saveConvertConfig(this.datasetId, this.state)
-            .catch(error => this.showError("Failed to save mapping list", error));
-      }
+      this.api.saveConvertConfig(this.datasetId, this.state)
+          .catch(error => this.showError("Failed to save mapping list", error));
     },
     priorConversions: function(dt) {
       return _takeWhile(this.enabled, s => s.id !== dt.id);
     },
-    parametersFor: function(dt: DataTransformation): object {
-      return this.parameters[dt.id] ? this.parameters[dt.id] : {};
+    removeTransformation: function(i: number) {
+      this.state.splice(i, 1);
     },
-    editParameters: function(dt: DataTransformation) {
-      this.editingParametersItem = dt;
-      this.editingParameters = this.parameters[dt.id] || {};
+    addTransformation: function(data: {newIndex: number, oldIndex: number}) {
+      let id = this.transformations[data.oldIndex].id
+      this.state.splice(data.newIndex, 1, [id, {}])
+    },
+    editParameters: function(i: number) {
+      this.editingParameters = i;
     },
     saveParameters: function(obj: object) {
-      this.parameters[this.editingParametersItem.id] = obj;
-      this.editingParametersItem = null;
+      let pair = this.state[this.editingParameters];
+      pair[1] = obj
+      this.state.splice(this.editingParameters, 1, pair);
       this.editingParameters = null;
       this.saveConfig(true);
     },
     cancelEditParamters: function() {
-      this.editingParametersItem = null;
       this.editingParameters = null;
     }
   },
   computed: {
-    state: function() {
-      return this.enabled.map(item => [item.id, this.parameters[item.id] || {}]);
+    mappings: function() {
+      return this.state.map(pair => pair[0]);
+    },
+    parameters: function() {
+      return this.state.map(pair => pair[1]);
+    },
+    transformations: {
+      get(): DataTransformation[] {
+        return this.available;
+      },
+      set() {
+        // Read-only
+      }
+    },
+    enabled: {
+      get(): DataTransformation[] {
+        return this.available.length > 0
+          ? this.mappings.map(id => _find(this.available, dt => dt.id === id))
+          : [];
+      },
+      set(arr: DataTransformation[]) {
+        // this.mappings = arr.map(dt => dt.id);
+      }
     }
   },
   watch: {
-    enabled: function() {
+    state: function() {
       if (!this.loading) {
         this.saveConfig();
       }
@@ -231,7 +250,7 @@ export default {
         v-bind:dataset-id="datasetId"
         v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
-        v-bind:init-parameters="parameters[editing.id]"
+        v-bind:init-parameters="parametersForEditor"
         v-bind:config="config"
         v-bind:api="api"
         v-bind:input-pipeline="previewPipeline"
@@ -275,8 +294,8 @@ export default {
             v-show="showOptions" />
 
         <modal-param-editor
-          v-if="editingParameters"
-          v-bind:obj="editingParameters"
+          v-if="editingParameters !== null"
+          v-bind:obj="this.state[this.editingParameters][1]"
           v-on:close="cancelEditParamters"
           v-on:saved="saveParameters" />
 
@@ -297,15 +316,16 @@ export default {
             <draggable
                 class="list-group transformation-list"
                 draggable=".transformation-item"
-                group="transformations"
+                v-bind:group="{name: 'transformations', put: false, pull: 'clone'}"
                 v-bind:sort="false"
-                v-model="available">
+                v-model="transformations">
               <transformation-item
-                  v-for="(dt, i) in available"
+                  v-for="(dt, i) in transformations"
                   v-bind:item="dt"
                   v-bind:key="i"
+                  v-bind:deleteable="false"
                   v-bind:parameters="null"
-                  v-on:edit="editTransformation(dt, false)"
+                  v-on:edit="editTransformation(dt)"
               />
             </draggable>
           </div>
@@ -325,16 +345,19 @@ export default {
             <draggable
                 class="list-group transformation-list"
                 draggable=".transformation-item"
-                group="transformations"
+                v-bind:group="{name: 'transformations', put: true, pull: true}"
                 v-bind:sort="true"
+                v-on:add="addTransformation"
                 v-model="enabled">
               <transformation-item
                   v-for="(dt, i) in enabled"
                   v-bind:item="dt"
-                  v-bind:parameters="parametersFor(dt)"
+                  v-bind:parameters="state[i][1]"
                   v-bind:key="i"
-                  v-on:edit="editTransformation(dt, true)"
-                  v-on:edit-params="editParameters(dt)"
+                  v-bind:deleteable="true"
+                  v-on:edit="editActiveTransformation(i)"
+                  v-on:delete="removeTransformation(i)"
+                  v-on:edit-params="editParameters(i)"
               />
             </draggable>
           </div>
@@ -373,8 +396,7 @@ export default {
                 v-bind:file-stage="previewStage"
                 v-bind:mappings="state"
                 v-bind:trigger="JSON.stringify({
-                         mappings: mappings,
-                         parameters: parameters,
+                         state: state,
                          previewing: previewing
                        })"
                 v-bind:previewing="previewing"
