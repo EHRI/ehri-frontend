@@ -88,6 +88,7 @@ export default {
         bodyType: "xslt",
         body: "",
         comments: "",
+        hasParams: false,
       };
     },
     closeEditForm: function() {
