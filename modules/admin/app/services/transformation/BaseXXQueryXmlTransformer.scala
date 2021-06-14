@@ -26,8 +26,17 @@ object BaseXXQueryXmlTransformer {
   val INPUT = "input"
   val MAPPING = "mapping"
   val NAMESPACES = "namespaces"
+  val NS_STRING = "nsString"
   val LIB_URI = "libURI"
-  val RESERVED = Seq(INPUT, MAPPING, NAMESPACES, LIB_URI)
+
+  val DEFAULT_NS = Map(
+    "" -> "urn:isbn:1-931666-22-9",
+    "xlink" -> "http://www.w3.org/1999/xlink",
+    "xsi" -> "http://www.w3.org/2001/XMLSchema-instance",
+    "oai" -> "http://www.openarchives.org/OAI/2.0/",
+    "oai_dc" -> "http://www.openarchives.org/OAI/2.0/oai_dc/",
+    "dc" -> "http://purl.org/dc/elements/1.1/"
+  )
 }
 
 //noinspection UnstableApiUsage
@@ -48,35 +57,41 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
   @throws(classOf[XmlTransformationError])
   override def transform(data: String, map: String, params: JsObject = Json.obj()): String = {
 
-    // Check parameters won't overwrite reserved params
-    params.keys.foreach { key =>
-      if (RESERVED.contains(key)) {
-        throw InvalidMappingError(s"Parameter key '$key' is a reserved value")
-      }
-    }
-
     import org.basex.query.value.`type`.AtomType
     import org.basex.query.value.item.{Str => BaseXString}
     import org.basex.query.value.map.{Map => BaseXMap}
     try {
       logger.trace(s"Input: $data")
+      logger.trace(s"Mapping: $map")
+      logger.trace(s"Params: $params")
       time("Transformation") {
         using(new QueryProcessor(script, new Context()).uriResolver(uriResolver)) { proc =>
           var ns = BaseXMap.EMPTY
-          Map(
-            "" -> "urn:isbn:1-931666-22-9",
-            "xlink" -> "http://www.w3.org/1999/xlink",
-            "xsi" -> "http://www.w3.org/2001/XMLSchema-instance"
-          ).foreach { case (k, v) =>
+          DEFAULT_NS.foreach { case (k, v) =>
             ns = ns.put(
               new BaseXString(k.getBytes, AtomType.STR),
               new BaseXString(v.getBytes, AtomType.STR),
               null
             )
           }
+
+          params.fields
+            .collect { case (key, JsString(value)) => key -> value }
+            .foreach { case (k, v) =>
+              ns = ns.put(
+                new BaseXString(k.getBytes, AtomType.STR),
+                new BaseXString(v.getBytes, AtomType.STR),
+                null
+              )
+            }
+
+          val allNs = DEFAULT_NS ++ params.fields.collect { case (key, JsString(value)) => key -> value }
+          val nsString = allNs.filter(_._1.nonEmpty).map { case (k, v) => s"declare namespace $k='$v';"}.mkString("")
+
           proc.bind(INPUT, data, "xs:string")
           proc.bind(MAPPING, map, "xs:string")
           proc.bind(NAMESPACES, ns, "map()")
+          proc.bind(NS_STRING, nsString, "xs:string")
           proc.bind(LIB_URI, utilLibUrl, "xs:anyURI")
 
           // bind additional data from parameters.

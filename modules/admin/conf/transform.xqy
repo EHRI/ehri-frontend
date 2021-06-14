@@ -14,6 +14,7 @@ declare function local:make-children(
   $source-node as item(),
   $configuration as document-node(),
   $namespaces as map(xs:string, xs:string),
+  $nsString as xs:string,
   $libURI as xs:anyURI,
   $count as xs:integer
 ) as node()* {
@@ -21,10 +22,11 @@ declare function local:make-children(
   (: go through the target nodes defined for this target path in order of configuration :)
   for $configuration-record at $pos in $configuration/csv/record[target-path/text() = $target-path]
     (: go through the source nodes corresponding to each target node :)
-(:    let $f := trace($configuration-record, 'Record: '):)
+    (: let $f := trace($configuration-record, 'Record: ') :)
     for $child-source-node in local:evaluate-xquery($configuration-record/source-node/text(), $source-node, $libURI)
       let $child-value := local:evaluate-xquery($configuration-record/value/text(), $child-source-node, $libURI)
       let $child-name := $configuration-record/target-node/text()
+      (: let $f := fn:trace("Child name: "|| $child-name || ", Value: " || $child-value || ", Child source node: " || $child-source-node || ", Source node: " || $source-node) :)
       return try {
 
         (: return an attribute :)
@@ -39,7 +41,7 @@ declare function local:make-children(
         else
           let $name-prefix := fn:substring-before($child-name, ":")
           let $child-qname := fn:QName($namespaces($name-prefix), $child-name)
-          let $child-children := local:make-children(fn:concat($target-path, $child-name, "/"), $child-source-node, $configuration, $namespaces, $libURI, $count + $pos)
+          let $child-children := local:make-children(fn:concat($target-path, $child-name, "/"), $child-source-node, $configuration, $namespaces, $nsString, $libURI, $count + $pos)
           let $child := element { $child-qname } { $child-children, $child-value }
           return if ($child-children or local:ebv($child-value)) then $child else ()
       } catch * {
@@ -59,7 +61,9 @@ declare function local:evaluate-xquery(
 ) as item()* {
   if ($xquery) then
     if (fn:exists($libURI) and fn:contains($xquery, "xtra")) then
-      xquery:eval("import module namespace xtra = ""xtra"" at """ || $libURI || """;" || $xquery, map { "": $context })
+      xquery:eval("import module namespace xtra = ""xtra"" at """ || $libURI || """;" || $nsString || $xquery, map { "": $context })
+    else if (fn:contains($xquery, ":")) then
+      xquery:eval($nsString || $xquery, map {"": $context})
     else
       xquery:eval($xquery, map {"": $context})
   else ()
@@ -82,10 +86,11 @@ declare function local:transform(
   $source-document as document-node(),
   $configuration as xs:string,
   $namespaces as map(xs:string, xs:string),
+  $nsString as xs:string,
   $libURI as xs:anyURI
 ) as document-node()* {
   let $configuration := csv:parse($configuration, map { "separator": "tab", "header": "yes", "quotes": "no" })
-    for $target-root-node in local:make-children("/", $source-document, $configuration, $namespaces, $libURI, 0)
+    for $target-root-node in local:make-children("/", $source-document, $configuration, $namespaces, $nsString, $libURI, 0)
     return document { $target-root-node }
 };
 
@@ -93,9 +98,10 @@ declare function local:transform(
 declare variable $namespaces as map(xs:string, xs:string) external;
 declare variable $mapping as xs:string external;
 declare variable $input as xs:string external;
+declare variable $nsString as xs:string external;
 declare variable $libURI as xs:anyURI external;
 
 let $source-document := fn:parse-xml($input)
-for $target-document in local:transform($source-document, $mapping, $namespaces, $libURI)
+for $target-document in local:transform($source-document, $mapping, $namespaces, $nsString, $libURI)
     return $target-document
 

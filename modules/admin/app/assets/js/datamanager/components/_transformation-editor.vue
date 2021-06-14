@@ -244,7 +244,7 @@ export default {
                     v-bind:dataset-id="datasetId"
                     v-bind:file-stage="fileStage"
                     v-bind:mappings="mappings"
-                    v-bind:trigger="timestamp"
+                    v-bind:trigger="JSON.stringify(data)"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"
                     v-bind:config="config"
