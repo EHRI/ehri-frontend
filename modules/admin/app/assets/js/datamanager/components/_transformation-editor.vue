@@ -120,13 +120,16 @@ export default {
       return this.data.name.trim() !== "" && this.data.comments.trim() !== "";
     }
   },
+  mounted() {
+
+  }
 };
 </script>
 
 <template>
   <div
       v-on:keyup.esc="showOptions = false; showRemoveDialog = false"
-      v-on:keyup.ctrl.enter="triggerRefresh"
+      v-on:keyup.ctrl.enter="triggerRefresh" v-on:keyup.ctrl.prevent.83="save"
       class="modal" id="transformation-editor-modal">
     <div class="modal-dialog" id="transformation-editor-container">
       <div id="transformation-editor" class="modal-content">

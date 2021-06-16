@@ -303,8 +303,11 @@ body {
         background-color: $white;
       }
 
-      &.muted {
-        opacity: .5;
+      &.is-disabled {
+        .transformation-item-name,
+        .transformation-item-meta {
+          opacity: .5;
+        }
       }
 
       .badge {

@@ -7,30 +7,29 @@ export default {
       type: Object,
       default: null
     },
-    muted: {
+    disabled: {
       type: Boolean,
       default: false
     },
-    deleteable: Boolean,
-    muteable: Boolean,
+    active: Boolean,
   },
 }
 </script>
 
 <template functional>
   <div v-on:dblclick="listeners.edit()"
-       v-bind:class="{muted: props.muted}"
+       v-bind:class="{'is-disabled': props.disabled}"
        class="list-group-item transformation-item list-group-item-action">
     <h4 class="transformation-item-name">
       {{ props.item.name }}
       <span class="transformation-item-comments" v-bind:title="props.item.comments">{{ props.item.comments }}</span>
     </h4>
-    <div class="transformation-item-mute">
-      <button v-if="props.muteable" v-bind:class="{
-          'btn-warning': props.muted,
-          'btn-default': !props.muted
-        }" class="btn btn-sm" v-on:click="listeners['mute']()">
-        <i v-if="props.muted" class="fa fa-fw fa-eye-slash"></i>
+    <div class="transformation-item-disable">
+      <button v-if="props.active" v-bind:class="{
+          'btn-warning': props.disabled,
+          'btn-default': !props.disabled
+        }" class="btn btn-sm" v-on:click="listeners['disable']()">
+        <i v-if="props.disabled" class="fa fa-fw fa-eye-slash"></i>
         <i v-else class="fa fa-fw fa-eye"></i>
       </button>
     </div>
@@ -44,7 +43,7 @@ export default {
         <i class="fa fa-fw fa-gears"></i>
       </button>
     </div>
-    <button v-if="props.deleteable" class="transformation-item-edit btn btn-sm btn-outline-danger" v-on:click="listeners['delete']()">
+    <button v-if="props.active" class="transformation-item-edit btn btn-sm btn-outline-danger" v-on:click="listeners['delete']()">
       <i class="fa fa-fw fa-trash-o"></i>
     </button>
     <button v-else class="transformation-item-edit btn btn-sm btn-default" v-on:click="listeners.edit()">
