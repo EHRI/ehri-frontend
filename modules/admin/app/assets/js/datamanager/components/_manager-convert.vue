@@ -36,7 +36,7 @@ let initialConvertState = function(config) {
     showOptions: false,
     available: [],
     parametersForEditor: {},
-    state: [], // List of [mapping-id, parameters, muted] pairs
+    state: [], // List of [mapping-id, parameters, disabled] pairs
     editing: null,
     editingParameters: null,
     loading: false,
@@ -166,7 +166,7 @@ export default {
     removeTransformation: function(i: number) {
       this.state.splice(i, 1);
     },
-    muteTransformation: function(i: number) {
+    disableTransformation: function(i: number) {
       let [id, p, m] = this.state[i];
       this.state.splice(i, 1, [id, p, !m]);
     },
@@ -333,10 +333,9 @@ export default {
               <transformation-item
                   v-for="(dt, i) in transformations"
                   v-bind:item="dt"
-                  v-bind:muted="false"
+                  v-bind:disabled="false"
                   v-bind:key="i"
-                  v-bind:deleteable="false"
-                  v-bind:muteable="false"
+                  v-bind:active="false"
                   v-bind:parameters="null"
                   v-on:edit="editTransformation(dt)"
               />
@@ -366,13 +365,12 @@ export default {
                   v-for="(dt, i) in enabled"
                   v-bind:item="dt"
                   v-bind:parameters="state[i][1]"
-                  v-bind:muted="state[i][2]"
+                  v-bind:disabled="state[i][2]"
                   v-bind:key="i"
-                  v-bind:deleteable="true"
-                  v-bind:muteable="true"
+                  v-bind:active="true"
                   v-on:edit="editActiveTransformation(i)"
                   v-on:delete="removeTransformation(i)"
-                  v-on:mute="muteTransformation(i)"
+                  v-on:disable="disableTransformation(i)"
                   v-on:edit-params="editParameters(i)"
               />
             </draggable>
