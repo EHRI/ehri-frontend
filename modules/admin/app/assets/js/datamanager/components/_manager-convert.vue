@@ -40,6 +40,7 @@ let initialConvertState = function(config) {
     editing: null,
     editingParameters: null,
     loading: false,
+    initialised: false,
   };
 };
 
@@ -239,7 +240,7 @@ export default {
   },
   created: function () {
     this.loadConfig().then(_ => {
-      this.loadTransformations();
+      this.loadTransformations().then(_ => this.initialised = true);
     });
     this.resumeMonitor();
   },
@@ -311,69 +312,77 @@ export default {
           v-on:saved="saveParameters" />
 
         <div id="convert-mappings">
-          <div class="card">
-            <h4 class="card-header">
-              Available Transformations
-            </h4>
+          <template v-if="initialised">
+            <div  class="card">
+              <h4 class="card-header">
+                Available Transformations
+              </h4>
 
-            <div class="transformation-list-placeholder" v-if="enabled.length === 0 && available.length === 0">
-              <h3>No transformations available.</h3>
-              <p><a href="#" v-on:click.prevent="newTransformation">Create a new one now...</a></p>
-            </div>
-            <div class="transformation-list-placeholder" v-else-if="available.length === 0">
-              <p>Drag transformations into this area to deactivate them.</p>
-            </div>
+              <div class="transformation-list-placeholder" v-if="enabled.length === 0 && available.length === 0">
+                <h3>No transformations available.</h3>
+                <p><a href="#" v-on:click.prevent="newTransformation">Create a new one now...</a></p>
+              </div>
+              <div class="transformation-list-placeholder" v-else-if="available.length === 0">
+                <p>Drag transformations into this area to deactivate them.</p>
+              </div>
 
-            <draggable
-                class="list-group transformation-list"
-                draggable=".transformation-item"
-                v-bind:group="{name: 'transformations', put: false, pull: 'clone'}"
-                v-bind:sort="false"
-                v-model="transformations">
-              <transformation-item
-                  v-for="(dt, i) in transformations"
-                  v-bind:item="dt"
-                  v-bind:disabled="false"
-                  v-bind:key="i"
-                  v-bind:active="false"
-                  v-bind:parameters="null"
-                  v-on:edit="editTransformation(dt)"
-              />
-            </draggable>
-          </div>
-
-          <div class="spacer"></div>
-          <div class="card">
-            <h4 class="card-header">
-              Enabled Transformations
-            </h4>
-
-            <div class="transformation-list-placeholder" v-if="enabled.length === 0">
-              <h3>No transformations are enabled.</h3>
-              <p>Drag available transformations into this area to
-                activate them.</p>
+              <draggable
+                  class="list-group transformation-list"
+                  draggable=".transformation-item"
+                  v-bind:group="{name: 'transformations', put: false, pull: 'clone'}"
+                  v-bind:sort="false"
+                  v-model="transformations">
+                <transformation-item
+                    v-for="(dt, i) in transformations"
+                    v-bind:item="dt"
+                    v-bind:disabled="false"
+                    v-bind:key="i"
+                    v-bind:active="false"
+                    v-bind:parameters="null"
+                    v-on:edit="editTransformation(dt)"
+                />
+              </draggable>
             </div>
 
-            <draggable
-                class="list-group transformation-list"
-                draggable=".transformation-item"
-                v-bind:group="{name: 'transformations', put: true, pull: true}"
-                v-bind:sort="true"
-                v-on:add="addTransformation"
-                v-model="enabled">
-              <transformation-item
-                  v-for="(dt, i) in enabled"
-                  v-bind:item="dt"
-                  v-bind:parameters="state[i][1]"
-                  v-bind:disabled="state[i][2]"
-                  v-bind:key="i"
-                  v-bind:active="true"
-                  v-on:edit="editActiveTransformation(i)"
-                  v-on:delete="removeTransformation(i)"
-                  v-on:disable="disableTransformation(i)"
-                  v-on:edit-params="editParameters(i)"
-              />
-            </draggable>
+            <div class="spacer"></div>
+            <div class="card">
+              <h4 class="card-header">
+                Enabled Transformations
+              </h4>
+
+              <div class="transformation-list-placeholder" v-if="enabled.length === 0">
+                <h3>No transformations are enabled.</h3>
+                <p>Drag available transformations into this area to
+                  activate them.</p>
+              </div>
+
+              <draggable
+                  class="list-group transformation-list"
+                  draggable=".transformation-item"
+                  v-bind:group="{name: 'transformations', put: true, pull: true}"
+                  v-bind:sort="true"
+                  v-on:add="addTransformation"
+                  v-model="enabled">
+                <transformation-item
+                    v-for="(dt, i) in enabled"
+                    v-bind:item="dt"
+                    v-bind:parameters="state[i][1]"
+                    v-bind:disabled="state[i][2]"
+                    v-bind:key="i"
+                    v-bind:active="true"
+                    v-on:edit="editActiveTransformation(i)"
+                    v-on:delete="removeTransformation(i)"
+                    v-on:disable="disableTransformation(i)"
+                    v-on:edit-params="editParameters(i)"
+                />
+              </draggable>
+            </div>
+          </template>
+          <div v-else class="panel-placeholder">
+            <h2>
+              Loading...
+              <i class="fa fa-lg fa-spin fa-spinner"></i>
+            </h2>
           </div>
         </div>
       </div>
