@@ -4,8 +4,8 @@ import akka.stream.Materializer
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
-import models.{Model, _}
 import models.view.MessagingInfo
+import models.{Model, _}
 import net.coobird.thumbnailator.Thumbnails
 import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.Logger
@@ -324,8 +324,9 @@ case class UserProfiles @Inject()(
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
     val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
+    val stamp = FileStorage.fingerprint(file.ref.toFile)
     val extension = file.filename.substring(file.filename.lastIndexOf(".")).toLowerCase
-    val storeName = s"$instance/images/${user.isA}/${user.id}$extension"
+    val storeName = s"$instance/images/${user.isA}/${user.id}_$stamp$extension"
     val temp = File.createTempFile(user.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
     val url: Future[String] = fileStorage.putFile(storeName, temp, public = true).map(_.toString)

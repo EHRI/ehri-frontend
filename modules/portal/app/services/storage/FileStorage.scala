@@ -1,12 +1,26 @@
 package services.storage
 
 import java.net.URI
-
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.google.common.hash.Hashing
+import com.google.common.io.Files
 
 import scala.concurrent.Future
 import scala.concurrent.duration.{FiniteDuration, _}
+
+
+object FileStorage {
+  /**
+    * Create a repeatable fingerprint for a given input file.
+    * This is not intended to be secure but rather fast and straightforward.
+    *
+    * @param file the file to fingerprint
+    * @return a fingerprint string
+    */
+  def fingerprint(file: java.io.File): String =
+    Files.asByteSource(file).hash(Hashing.farmHashFingerprint64()).toString
+}
 
 trait FileStorage {
 
