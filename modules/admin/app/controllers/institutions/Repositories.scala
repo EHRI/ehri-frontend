@@ -315,7 +315,7 @@ case class Repositories @Inject()(
 
   // Body parser that'll refuse anything larger than 5MB
   private def uploadParser = parsers.maxLength(
-    config.get[Int]("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
+    config.underlying.getBytes("ehri.portal.profile.maxImageSize"), parsers.multipartFormData)
 
   def updateLogoImagePost(id: String): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = EditAction(id).async(uploadParser) { implicit request =>
 
@@ -354,8 +354,9 @@ case class Repositories @Inject()(
 
   private def convertAndUploadFile(file: FilePart[TemporaryFile], repo: Repository, request: RequestHeader): Future[String] = {
     val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
+    val stamp = FileStorage.fingerprint(file.ref.toFile)
     val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val storeName = s"$instance/images/${repo.isA}/${repo.id}$extension"
+    val storeName = s"$instance/images/${repo.isA}/${repo.id}_$stamp$extension"
     val temp = File.createTempFile(repo.id, extension)
     Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
 

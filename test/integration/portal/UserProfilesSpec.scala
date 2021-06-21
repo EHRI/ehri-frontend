@@ -1,7 +1,5 @@
 package integration.portal
 
-import java.io.File
-import java.nio.charset.StandardCharsets
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import models._
 import org.apache.commons.io.FileUtils
@@ -11,6 +9,9 @@ import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
 import services.data.AuthenticatedUser
 import services.storage.FileStorage
+
+import java.io.File
+import java.nio.charset.StandardCharsets
 
 
 
@@ -151,13 +152,15 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
 
     "allow uploading image files as profile image" in new ITestApp {
+      val file = getProfileImage
+      val stamp = FileStorage.fingerprint(file)
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
-        .withFileUpload("image", getProfileImage, "image/png")
+        .withFileUpload("image", file, "image/png")
         .withUser(privilegedUser)
         .withCsrf
         .call()
       status(result) must equalTo(SEE_OTHER)
-      val path = s"$hostInstance/images/UserProfile/${privilegedUser.id}.png"
+      val path = s"$hostInstance/images/UserProfile/${privilegedUser.id}_$stamp.png"
       await(files.get(path)) must beSome
     }
 
