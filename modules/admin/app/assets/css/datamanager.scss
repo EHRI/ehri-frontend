@@ -52,6 +52,11 @@ body {
   flex: 1;
 }
 
+#dataset-selector {
+  max-height: 40rem;
+  overflow-y: auto;
+}
+
 .dataset-actions {
   display: flex;
   :first-child {

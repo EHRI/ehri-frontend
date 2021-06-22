@@ -91,6 +91,9 @@ export default {
         .catch(error => this.showError("Error listing files", error))
         .finally(() => this.loadingMore = false);
     },
+    loadConfig: function() {
+      // Overridden
+    },
     downloadFiles: function(keys) {
       keys.forEach(key => this.$set(this.downloading, key, true));
       this.api.fileUrls(this.datasetId, this.fileStage, keys)
@@ -161,6 +164,7 @@ export default {
     datasetId: function() {
       this.reset();
       this.load();
+      this.loadConfig();
     }
   },
   created: function() {

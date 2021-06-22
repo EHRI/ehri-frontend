@@ -235,7 +235,7 @@ export default {
             </button>
             <div v-if="showSelector" class="dropdown-backdrop" v-on:click="showSelector = false">
             </div>
-            <div v-if="showSelector" class="dropdown-menu dropdown-menu-right show">
+            <div v-if="showSelector" class="dropdown-menu dropdown-menu-right show" id="dataset-selector">
               <a v-on:click.prevent="showSelector = false; showDatasetForm = true" class="dropdown-item" href="#">
                 <i class="fa fa-edit"></i>
                 Edit Dataset
