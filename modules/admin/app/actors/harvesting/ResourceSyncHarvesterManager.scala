@@ -1,6 +1,5 @@
 package actors.harvesting
 
-import actors.harvesting.OaiPmhHarvesterManager.Finalise
 import actors.harvesting.ResourceSyncHarvesterManager.{Finalise, ResourceSyncJob}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
@@ -120,12 +119,11 @@ case class ResourceSyncHarvesterManager(job: ResourceSyncJob, client: ResourceSy
 
     // The runner has completed, so we log the
     // event and shut down too
-    case Completed(count, fresh, secs) =>
+    case Completed(count, _, secs) =>
       runAndThen(handle, _.close())(Finalise(Messages(
         "harvesting.completed",
           WebsocketConstants.DONE_MESSAGE,
           count,
-          fresh,
           secs
         ))).pipeTo(self)
 
