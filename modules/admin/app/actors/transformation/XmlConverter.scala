@@ -93,21 +93,23 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
     // Fetching a file
     case Convert(file :: others, truncated, _, count, fresh) =>
+      import akka.pattern.retry
+      implicit val scheduler: Scheduler = context.system.scheduler
+
       context.become(running(msgTo, count, fresh, total, start))
       val name = basename(file.key)
       val path = job.data.outPrefix + name
 
-      // If there's an unexpected error w/ conversion we post ourselves
-      // this message to handle upstream.
-      def bail = Error(file.key, XmlConvertException(
-        s"File ${file.key} not found in storage: this shouldn't happen!"))
+      def fetchInfo(key: String): Future[FileMeta] = retry(() => storage.info(key).map {
+        case Some((fm, _)) => fm
+        case None => throw XmlConvertException(s"File ${file.key} not found in storage: this shouldn't happen!")
+      }, 2, 100.millis)
 
       // Sorry about this nested set of futures. What we want to do is create a fingerprint of
       // the current input file's eTag plus the conversions we're about to do. Then we check if
       // there's an output file of the right name, and whether it's got the same fingerprint. If
       // so we don't do any unnecessary work.
-      val r: Future[Action] = storage.info(file.key).flatMap {
-        case Some((fm, _)) =>
+      val r: Future[Action] = fetchInfo(file.key).flatMap { fm =>
           val fingerPrint: String = s"${fm.eTag.getOrElse("")}:$transformDigest"
           storage.info(path).flatMap {
             // If the out file already exists and is tagged with the same conversion fingerprint
@@ -120,9 +122,6 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
             // No matching fingerprint found: run the conversion.
             case _ =>
-              import akka.pattern.retry
-              implicit val scheduler: Scheduler = context.system.scheduler
-
               retry(() => convertFile(file, path, fingerPrint), attempts = 2, delay = 200.millis).map { _ =>
                 msgTo ! DoneFile("+ " + name)
                 log.debug(s"Finished $name")
@@ -133,8 +132,10 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
                 Convert(others, truncated, Some(file.key), count, fresh)
               }
           }
-
-        case None => immediate(bail)
+      }.recover { case e =>
+        // If there's an unexpected error w/ conversion we post ourselves
+        // this message to handle upstream.
+        Error(file.key, e)
       }
 
       r.pipeTo(self)

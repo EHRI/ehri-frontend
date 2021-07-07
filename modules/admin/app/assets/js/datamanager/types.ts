@@ -27,6 +27,7 @@ export interface ResourceSyncConfig {
 
 export interface ImportConfig {
   allowUpdates: boolean,
+  useSourceId: boolean,
   tolerant: boolean,
   properties?: string,
   defaultLang?: string,

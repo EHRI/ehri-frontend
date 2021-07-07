@@ -4,6 +4,7 @@ import play.api.libs.json.{Format, Json}
 
 case class ImportConfig(
   allowUpdates: Boolean = false,
+  useSourceId: Boolean = false,
   tolerant: Boolean = false,
   properties: Option[String] = None,
   defaultLang: Option[String] = None,

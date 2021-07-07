@@ -49,6 +49,7 @@ case class IngestParams(
   fonds: Option[String] = None,
   lang: Option[String] = None,
   allowUpdate: Boolean = false,
+  useSourceId: Boolean = false,
   tolerant: Boolean = false,
   handler: Option[String] = None,
   importer: Option[String] = None,
@@ -66,6 +67,7 @@ object IngestParams {
   val FONDS = "fonds"
   val TOLERANT = "tolerant"
   val ALLOW_UPDATE = "allow-update"
+  val USE_SOURCE_ID = "use-source-id"
   val LANG = "lang"
   val LOG = "log"
   val HANDLER = "handler"
@@ -85,6 +87,7 @@ object IngestParams {
       FONDS -> optional(nonEmptyText),
       LANG -> optional(text),
       ALLOW_UPDATE -> boolean,
+      USE_SOURCE_ID -> boolean,
       TOLERANT -> boolean,
       HANDLER -> optional(text),
       IMPORTER -> optional(text),

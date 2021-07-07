@@ -70,6 +70,7 @@ case class ImportConfigs @Inject()(
         scope = id,
         data = UrlMapPayload(urls),
         allowUpdate = request.body.config.allowUpdates,
+        useSourceId = request.body.config.useSourceId,
         log = request.body.config.logMessage,
         tolerant = request.body.config.tolerant,
         lang = request.body.config.defaultLang,
