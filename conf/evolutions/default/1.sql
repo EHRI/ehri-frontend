@@ -214,6 +214,7 @@ CREATE TABLE import_config (
     repo_id           VARCHAR(50) NOT NULL,
     import_dataset_id VARCHAR(50) NOT NULL,
     allow_updates     BOOLEAN NOT NULL DEFAULT FALSE,
+    use_source_id     BOOLEAN NOT NULL DEFAULT FALSE,
     tolerant          BOOLEAN NOT NULL DEFAULT FALSE,
     properties_file   VARCHAR(1024) NULL,
     default_lang      CHAR(3) NULL,

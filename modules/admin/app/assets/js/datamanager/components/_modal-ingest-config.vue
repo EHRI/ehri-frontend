@@ -21,6 +21,7 @@ export default {
   data: function(): object {
     return {
       allowUpdates: this.opts ? this.opts.allowUpdates : false,
+      useSourceId: this.opts ? this.opts.useSourceId : false,
       tolerant: this.opts ? this.opts.tolerant : false,
       defaultLang: this.opts ? this.opts.defaultLang : null,
       properties: this.opts ? this.opts.properties : null,
@@ -36,6 +37,7 @@ export default {
       this.api.saveImportConfig(
           this.datasetId, {
             allowUpdates: this.allowUpdates,
+            useSourceId: this.useSourceId,
             tolerant: this.tolerant,
             defaultLang: this.defaultLang,
             properties: this.properties,
@@ -102,13 +104,20 @@ export default {
       <div class="form-group form-check">
         <input v-model="allowUpdates" class="form-check-input" id="opt-allowUpdates-check" type="checkbox"/>
         <label class="form-check-label" for="opt-allowUpdates-check">
-          Allow updates: overwrite existing files
+          Allow updates: check this if it is expected that existing items will be modified
         </label>
       </div>
       <div class="form-group form-check">
         <input v-model="tolerant" class="form-check-input" id="opt-tolerant-check" type="checkbox"/>
         <label class="form-check-label" for="opt-tolerant-check">
-          Tolerant Mode: do not abort on individual file errors
+          Tolerant mode: do not abort on individual item validation errors
+        </label>
+      </div>
+      <div class="form-group form-check">
+        <input v-model="useSourceId" class="form-check-input" id="opt-useSourceId-check" type="checkbox"/>
+        <label class="form-check-label" for="opt-useSourceId-check">
+          Use source file ID as well as language code to identify descriptions (this will allow adding multiple
+          descriptions in the same language if they come from different EAD files)
         </label>
       </div>
       <div class="form-group">
@@ -149,9 +158,9 @@ export default {
         <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)"/>
       </div>
       <div class="form-group form-check">
-        <input v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
+        <input tabindex="-1" v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
         <label class="form-check-label" for="opt-commit-check">
-          Commit Ingest: make changes to database
+          Commit ingest: make changes to database
         </label>
       </div>
       <div v-if="error" class="alert alert-danger">

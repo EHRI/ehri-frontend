@@ -1,0 +1,1 @@
+ALTER TABLE import_config ADD COLUMN use_source_id BOOLEAN NOT NULL DEFAULT FALSE;

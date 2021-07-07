@@ -185,6 +185,7 @@ case class WSIngestService @Inject()(
         SCOPE -> params.scope,
         TOLERANT -> params.tolerant.toString,
         ALLOW_UPDATE -> params.allowUpdate.toString,
+        USE_SOURCE_ID -> params.useSourceId.toString,
         LOG -> params.log,
         COMMIT -> params.commit.toString) ++
         params.lang.map(LANG -> _).toSeq ++

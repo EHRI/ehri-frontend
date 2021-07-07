@@ -16,7 +16,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
 
   private implicit val parser: RowParser[ImportConfig] =
     Macro.parser[ImportConfig](
-      "allow_updates", "tolerant", "properties_file", "default_lang", "log_message", "comments")
+      "allow_updates", "use_source_id", "tolerant", "properties_file", "default_lang", "log_message", "comments")
 
   override def get(id: String, ds: String): Future[Option[ImportConfig]] = Future {
     db.withConnection { implicit conn =>
@@ -34,11 +34,12 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
   override def save(id: String, ds: String, data: ImportConfig): Future[ImportConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO import_config
-        (repo_id, import_dataset_id, allow_updates, tolerant, properties_file, default_lang, log_message, comments)
+        (repo_id, import_dataset_id, allow_updates, use_source_id, tolerant, properties_file, default_lang, log_message, comments)
         VALUES (
           $id,
           $ds,
           ${data.allowUpdates},
+          ${data.useSourceId},
           ${data.tolerant},
           ${data.properties},
           ${data.defaultLang},
@@ -47,6 +48,7 @@ case class SqlImportConfigService @Inject()(db: Database, actorSystem: ActorSyst
       ) ON CONFLICT (repo_id, import_dataset_id) DO UPDATE
         SET
           allow_updates = ${data.allowUpdates},
+          use_source_id = ${data.useSourceId},
           tolerant = ${data.tolerant},
           properties_file = ${data.properties},
           default_lang = ${data.defaultLang},
