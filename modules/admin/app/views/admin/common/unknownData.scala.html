@@ -1,13 +1,9 @@
 @(e: Entity)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 @if(e.data.nonEmpty) {
-    <div class="unknown-data-section">
-        <h5>
-            <a href="#" class="alt unknown-data-toggle collapsed" data-toggle="collapse" data-target="#@(e.id)-unknown-data">
-                @Messages("description.additionalData")
-            </a>
-        </h5>
-        <div id="@(e.id)-unknown-data" class="collapse unknown-data">
+    <details class="unknown-data-section">
+        <summary>@Messages("description.additionalData")</summary>
+        <div id="@(e.id)-unknown-data" class="unknown-data">
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
                     <tr>
@@ -25,5 +21,5 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    </details>
 }
