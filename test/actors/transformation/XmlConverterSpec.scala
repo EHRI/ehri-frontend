@@ -48,6 +48,30 @@ class XmlConverterSpec extends IntegrationTestRunner {
         expectMsgClass(classOf[Completed])
     }
 
+    "transcode input charset to UTF-8" in new ITestAppWithAkka {
+      val ds = UUID.randomUUID().toString
+      val job = XmlConvertJob("r1", ds, ds,
+        XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
+
+      val inBytes = ByteString("<xml>Über</xml>".getBytes("iso-8859-1"))
+      val outBytes = ByteString("<xml>Über</xml>".getBytes("UTF-8"))
+      // Sanity check
+      inBytes must_!= outBytes
+
+      // Upload the file with the specific non-UTF-8 charset here
+      await(damStorage.putBytes(job.data.inPrefix + "file.xml", Source.single(inBytes), contentType = Some("text/xml; charset=iso-8859-1")))
+      val converter = system.actorOf(Props(XmlConverter(job, noOpTransformer, damStorage)))
+      converter ! Initial
+      expectMsg(Starting)
+      expectMsg(Counting)
+      expectMsg(Counted(1))
+      expectMsg(DoneFile("+ file.xml"))
+      expectMsgClass(classOf[Completed])
+      await(damStorage.get(job.data.outPrefix + "file.xml")).map(_._2) must beSome.which {(s: Source[ByteString, _]) =>
+        await(s.runFold(ByteString.empty)(_ ++ _)) must_== outBytes
+      }
+    }
+
     "copy files when transformation is a no-op" in new ITestAppWithAkka {
         val ds = UUID.randomUUID().toString
         val job = XmlConvertJob("r1", ds, ds,

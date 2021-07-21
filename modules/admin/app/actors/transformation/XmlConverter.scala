@@ -3,12 +3,17 @@ package actors.transformation
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
+import akka.http.scaladsl.model.ContentType
 import akka.stream.Materializer
+import akka.stream.alpakka.text.scaladsl.TextFlow
+import akka.stream.scaladsl.Flow
+import akka.util.ByteString
 import models.UserProfile
 import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
 
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.time.{Duration, LocalDateTime}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.DurationInt
@@ -98,8 +103,10 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
       context.become(running(msgTo, count, fresh, total, start))
       val name = basename(file.key)
-      val path = job.data.outPrefix + name
+      val outPath = job.data.outPrefix + name
 
+      // Fetching info about the object also gives us the content-type, which
+      // is typically missing from a list objects request
       def fetchInfo(key: String): Future[FileMeta] = retry(() => storage.info(key).map {
         case Some((fm, _)) => fm
         case None => throw XmlConvertException(s"File ${file.key} not found in storage: this shouldn't happen!")
@@ -109,9 +116,9 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
       // the current input file's eTag plus the conversions we're about to do. Then we check if
       // there's an output file of the right name, and whether it's got the same fingerprint. If
       // so we don't do any unnecessary work.
-      val r: Future[Action] = fetchInfo(file.key).flatMap { fm =>
-          val fingerPrint: String = s"${fm.eTag.getOrElse("")}:$transformDigest"
-          storage.info(path).flatMap {
+      val r: Future[Action] = fetchInfo(file.key).flatMap { fullFileMeta =>
+          val fingerPrint: String = s"${fullFileMeta.eTag.getOrElse("")}:$transformDigest"
+          storage.info(outPath).flatMap {
             // If the out file already exists and is tagged with the same conversion fingerprint
             // skip it.
             case Some((_, userMeta)) if !job.data.force
@@ -122,7 +129,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
             // No matching fingerprint found: run the conversion.
             case _ =>
-              retry(() => convertFile(file, path, fingerPrint), attempts = 2, delay = 200.millis).map { _ =>
+              retry(() => convertFile(fullFileMeta, outPath, fingerPrint), attempts = 2, delay = 200.millis).map { _ =>
                 msgTo ! DoneFile("+ " + name)
                 log.debug(s"Finished $name")
                 Convert(others, truncated, Some(file.key), count + 1, fresh + 1)
@@ -167,19 +174,40 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] =
+  private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] = {
+    val transcode = getTranscoder(file)
+    if (transcode.isDefined) {
+      log.debug(s"Transcoding to UTF-8 from ${file.contentType}")
+    }
+
     storage.get(file.key).flatMap {
-      case Some((_, stream)) =>
-          val newStream = stream.via(transformer.transform(job.data.transformers))
+      case Some((_, inStream)) =>
+          val utf8Stream = transcode.map(f => inStream.via(f)).getOrElse(inStream)
+          val outStream = utf8Stream.via(transformer.transform(job.data.transformers))
           storage.putBytes(
             path,
-            newStream,
-            contentType = Some("text/xml"),
+            outStream,
+            contentType = Some("text/xml; charset=UTF-8"),
             meta = Map("source" -> "convert", "fingerprint" -> fingerPrint)
           )
 
       case None => Future.failed(XmlConvertException("Unable to retrieve file from storage (this shouldn't happen!)"))
     }
+  }
+
+  private def getTranscoder(file: FileMeta): Option[Flow[ByteString, ByteString, _]] = {
+    // If the file has a charset and it's not UTF-8 we need to transcode it
+    // Otherwise we have to assume it's UTF-8 already, which should be the default.
+    file.contentType.flatMap { ct =>
+      ContentType.parse(ct) match {
+        case Left(_) => None
+        case Right(contentType) =>
+          contentType.charsetOption.map(_.nioCharset()).filter(_ != StandardCharsets.UTF_8).map { charset =>
+            TextFlow.transcoding(charset, StandardCharsets.UTF_8)
+          }
+      }
+    }
+  }
 
   private def time(from: LocalDateTime): Long = Duration.between(from, LocalDateTime.now()).toMillis / 1000
 

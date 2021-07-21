@@ -1,13 +1,21 @@
 addEventListener('message', ({data}) => {
 
   let abortController = new AbortController();
-  let decoder = new TextDecoder("UTF-8");
+
+  function getDecoder(r) {
+    let contentType = r.headers.get("Content-Type");
+    let re = /charset=([^()<>@,;:"/[\]?.=\s]*)/i;
+    let charset = re.test(contentType) ? re.exec(contentType)[1] : 'utf8';
+    console.debug("Reading file with charset", charset);
+    return new TextDecoder(charset.toLowerCase());
+  }
 
   function readStream(r) {
     let init = true;
     let truncated = false;
     let read = 0;
 
+    let decoder = getDecoder(r);
     let reader = r.body.getReader();
 
     reader.read().then(function appendBody({done, value}) {
@@ -52,13 +60,13 @@ addEventListener('message', ({data}) => {
   } else if (data.type === 'convert-preview') {
     fetch(data.url, {
       method: 'POST',
-      body: JSON.stringify({mappings: data.mappings, force: false}),
       headers: {
         "ajax-ignore-csrf": true,
         "Content-Type": "application/json",
         "Accept": "application/json; charset=utf-8",
         "X-Requested-With": "XMLHttpRequest",
       },
+      body: JSON.stringify({mappings: data.mappings, force: false}),
       credentials: 'same-origin',
       signal: abortController.signal,
     }).then(r => {
