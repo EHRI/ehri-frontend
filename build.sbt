@@ -122,6 +122,7 @@ val adminDependencies = Seq(
 
   // XML parsing
   "com.lightbend.akka" %% "akka-stream-alpakka-xml" % alpakkaVersion,
+  "com.lightbend.akka" %% "akka-stream-alpakka-text" % alpakkaVersion,
 )
 
 val testDependencies = Seq(

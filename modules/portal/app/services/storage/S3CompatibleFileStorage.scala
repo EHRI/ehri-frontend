@@ -184,7 +184,7 @@ case class S3CompatibleFileStorage(
         f.size,
         // NB: S3 returns eTags wrapped in quotes, but Alpakka doesn't
         // hence for compatibility we add it here.
-        Some(f.eTag).map(f => "\"" + f + "\"")
+        Some(f.eTag).map(f => "\"" + f + "\""),
       ))
   }
 
@@ -298,7 +298,7 @@ case class S3CompatibleFileStorage(
         f.key,
         f.lastModified,
         f.size,
-        Some(f.eTag),
+        Some(f.eTag)
       )
     }.toList, resp.isTruncated)
   }
