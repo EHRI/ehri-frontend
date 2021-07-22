@@ -77,6 +77,7 @@ export interface ImportDatasetInfo {
   src: ImportDatasetSrc,
   fonds?: string,
   sync: boolean,
+  contentType?: string,
   notes?: string,
 }
 

@@ -12,6 +12,7 @@ case class ImportDataset(
   id: String,
   name: String,
   src: ImportDataset.Src.Value,
+  contentType: Option[String] = None,
   created: Instant,
   fonds: Option[String] = None,
   sync: Boolean = false,
@@ -35,9 +36,10 @@ case class ImportDatasetInfo(
   id: String,
   name: String,
   src: ImportDataset.Src.Value,
+  contentType: Option[String] = None,
   fonds: Option[String] = None,
   sync: Boolean = false,
-  notes: Option[String] = None
+  notes: Option[String] = None,
 )
 
 object ImportDatasetInfo {

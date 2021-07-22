@@ -20,6 +20,10 @@ export default {
   props: {
     api: DatasetManagerApi,
     datasetId: String,
+    contentType: {
+      type: String,
+      default: null,
+    },
     fileStage: String,
     panelSize: Number,
     previewing: Object,
@@ -160,6 +164,7 @@ export default {
           .then(data => this.worker.postMessage({
             type: 'preview',
             url: data[this.previewing.key],
+            contentType: this.contentType,
             max: this.config.maxPreviewSize,
           }))
           .catch(error => this.showError('Unable to load preview URL', error))

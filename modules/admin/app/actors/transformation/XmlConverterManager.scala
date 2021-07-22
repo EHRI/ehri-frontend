@@ -29,6 +29,7 @@ object XmlConverterManager {
     * @param outPrefix    the replacement output path prefix
     * @param only         a single key to convert. If not given the whole
     *                     classifier will be converted.
+    * @param contentType  the content-type of the input material
     * @param force        run conversion even if a matching file already
     *                     exists
     */
@@ -39,6 +40,7 @@ object XmlConverterManager {
     from: Option[Instant] = None,
     only: Option[String] = None,
     force: Boolean = false,
+    contentType: Option[String] = None,
   )
 
   /**

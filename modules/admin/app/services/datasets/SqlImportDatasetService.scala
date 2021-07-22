@@ -15,12 +15,18 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "repo_id", "id", "name", "type", "created", "item_id", "sync", "comments")
+      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "comments")
 
   override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT * FROM import_dataset ORDER BY repo_id, name ASC""".as(parser.*)
         .groupBy(_.repoId)
+    }
+  }(ec)
+
+  override def find(repoId: String, datasetId: String): Future[Option[ImportDataset]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT * FROM import_dataset WHERE repo_id = $repoId AND id = $datasetId""".as(parser.singleOpt)
     }
   }(ec)
 
@@ -48,12 +54,13 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       try {
-        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, item_id, sync, comments)
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, comments)
           VALUES (
             $repoId,
             ${info.id},
             ${info.name},
             ${info.src},
+            ${info.contentType},
             ${info.fonds.filter(_.trim.nonEmpty)},
             ${info.sync},
             ${info.notes}
@@ -72,6 +79,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             SET
               name = ${info.name},
               type = ${info.src},
+              content_type = ${info.contentType},
               item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
               comments = ${info.notes.filter(_.trim.nonEmpty)}
@@ -89,16 +97,18 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
           'id -> item.id,
           'name -> item.name,
           'type -> item.src,
+          'content_type -> item.contentType,
           'item_id -> item.fonds.filter(_.trim.nonEmpty),
           'sync -> item.sync,
           'comments -> item.notes
         )
       }
-      val q = """INSERT INTO import_dataset (repo_id, id, name, type, item_id, sync, comments)
-                   VALUES({repo_id}, {id}, {name}, {type}, {item_id}, {sync}, {comments})
+      val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, comments)
+                   VALUES({repo_id}, {id}, {name}, {type}, {content_type}, {item_id}, {sync}, {comments})
                    ON CONFLICT (repo_id, id) DO UPDATE SET
                       name = {name},
                       type = {type},
+                      content_type = {content_type},
                       item_id = {item_id},
                       sync = {sync},
                       comments = {comments}"""

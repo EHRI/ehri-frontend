@@ -37,7 +37,7 @@ case class WrappingXmlTransformer @Inject()(
 
   private def transformXml(src: Source[ByteString, _], mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Source[ByteString, _] = {
     val dataF: Future[ByteString] = src
-      .runFold(ByteString(""))(_ ++ _)
+      .runFold(ByteString.empty)(_ ++ _)
       .map(_.utf8String)
       .map { data =>
         transformXml(data, mappings)

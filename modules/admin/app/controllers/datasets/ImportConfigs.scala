@@ -91,7 +91,6 @@ case class ImportConfigs @Inject()(
       // Don't allow sync on the repository scope, because it is too dangerous.
       val idt = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
         IngestDataType.EadSync else IngestDataType.Ead
-      println(s"Type: $idt: ${dataset.sync}, ${request.body.files.isEmpty}, ${dataset.fonds}")
 
       val ingestTask = IngestData(task, idt, contentType, implicitly[ApiUser], instance)
       val job = IngestJob(jobId, ingestTask)

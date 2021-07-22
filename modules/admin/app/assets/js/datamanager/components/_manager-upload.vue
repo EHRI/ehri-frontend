@@ -67,7 +67,7 @@ export default {
   components: {FilterControl, FilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, UploadProgress},
   mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil],
   props: {
-    datasetId: String,
+    datasetContentType: String,
     fileStage: String,
     config: Object,
     api: DatasetManagerApi,
@@ -282,15 +282,16 @@ export default {
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
             <panel-file-preview v-bind:dataset-id="datasetId"
-                     v-bind:file-stage="fileStage"
-                     v-bind:previewing="previewing"
-                     v-bind:panel-size="panelSize"
-                     v-bind:config="config"
-                     v-bind:api="api"
-                     v-bind:validation-results="validationResults"
-                     v-on:validation-results="(tag, e) => this.$set(this.validationResults, tag, e)"
-                     v-on:error="showError"
-                     v-show="previewing !== null" />
+                                v-bind:content-type="datasetContentType"
+                                v-bind:file-stage="fileStage"
+                                v-bind:previewing="previewing"
+                                v-bind:panel-size="panelSize"
+                                v-bind:config="config"
+                                v-bind:api="api"
+                                v-bind:validation-results="validationResults"
+                                v-on:validation-results="(tag, e) => this.$set(this.validationResults, tag, e)"
+                                v-on:error="showError"
+                                v-show="previewing !== null" />
             <div class="panel-placeholder" v-if="previewing === null">
               No file selected.
             </div>

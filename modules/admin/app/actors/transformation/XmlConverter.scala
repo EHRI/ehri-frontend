@@ -3,17 +3,12 @@ package actors.transformation
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
-import akka.http.scaladsl.model.ContentType
 import akka.stream.Materializer
-import akka.stream.alpakka.text.scaladsl.TextFlow
-import akka.stream.scaladsl.Flow
-import akka.util.ByteString
 import models.UserProfile
 import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
 
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.time.{Duration, LocalDateTime}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.DurationInt
@@ -175,7 +170,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
   }
 
   private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] = {
-    val transcode = getTranscoder(file)
+    val transcode = services.transformation.utils.getUtf8Transcoder(job.data.contentType.orElse(file.contentType))
     if (transcode.isDefined) {
       log.debug(s"Transcoding to UTF-8 from ${file.contentType}")
     }
@@ -192,20 +187,6 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
           )
 
       case None => Future.failed(XmlConvertException("Unable to retrieve file from storage (this shouldn't happen!)"))
-    }
-  }
-
-  private def getTranscoder(file: FileMeta): Option[Flow[ByteString, ByteString, _]] = {
-    // If the file has a charset and it's not UTF-8 we need to transcode it
-    // Otherwise we have to assume it's UTF-8 already, which should be the default.
-    file.contentType.flatMap { ct =>
-      ContentType.parse(ct) match {
-        case Left(_) => None
-        case Right(contentType) =>
-          contentType.charsetOption.map(_.nioCharset()).filter(_ != StandardCharsets.UTF_8).map { charset =>
-            TextFlow.transcoding(charset, StandardCharsets.UTF_8)
-          }
-      }
     }
   }
 

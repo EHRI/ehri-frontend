@@ -24,6 +24,8 @@ trait ImportDatasetService {
 
   def listAll(): Future[Map[String, Seq[ImportDataset]]]
 
+  def find(repoId: String, datasetId: String): Future[Option[ImportDataset]]
+
   def get(repoId: String, datasetId: String): Future[ImportDataset]
 
   def list(repoId: String): Future[Seq[ImportDataset]]

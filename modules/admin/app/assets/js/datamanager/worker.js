@@ -3,7 +3,7 @@ addEventListener('message', ({data}) => {
   let abortController = new AbortController();
 
   function getDecoder(r) {
-    let contentType = r.headers.get("Content-Type");
+    let contentType = data.contentType || r.headers.get("Content-Type");
     let re = /charset=([^()<>@,;:"/[\]?.=\s]*)/i;
     let charset = re.test(contentType) ? re.exec(contentType)[1] : 'utf8';
     console.debug("Reading file with charset", charset);
