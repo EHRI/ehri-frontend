@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import DatasetManager from './components/_dataset-manager';
+import ManagerDatasets from './components/_manager-datasets';
 import MixinUtil from './components/_mixin-util';
 import {DatasetManagerApi} from "./api";
 
@@ -18,7 +18,7 @@ const CONFIG = (window as any).CONFIG as ConfigType;
 const SERVICE = (window as any).SERVICE as any;
 
 export default {
-  components: {DatasetManager},
+  components: {ManagerDatasets},
   mixins: [MixinUtil],
   data: function() {
     return {
@@ -32,7 +32,7 @@ export default {
 
 <template>
   <div id="app-container">
-    <dataset-manager
+    <manager-datasets
         v-bind:config="config"
         v-bind:init-tab="tab"
         v-bind:api="api" />

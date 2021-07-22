@@ -15,7 +15,6 @@ import {DatasetManagerApi} from "../api";
 import _find from 'lodash/find';
 import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
-import _modalDatasetImport from "./_modal-dataset-import.vue";
 
 export default {
   components: {
@@ -263,6 +262,7 @@ export default {
         <manager-oaipmh
             v-if="dataset.src === 'oaipmh'"
             v-bind:dataset-id="dataset.id"
+            v-bind:dataset-content-type="dataset.contentType"
             v-bind:fileStage="config.input"
             v-bind:config="config"
             v-bind:active="tab === 'input'"
@@ -271,6 +271,7 @@ export default {
         <manager-rs
             v-else-if="dataset.src === 'rs'"
             v-bind:dataset-id="dataset.id"
+            v-bind:dataset-content-type="dataset.contentType"
             v-bind:fileStage="config.input"
             v-bind:config="config"
             v-bind:active="tab === 'input'"
@@ -279,6 +280,7 @@ export default {
         <manager-upload
             v-else
             v-bind:dataset-id="dataset.id"
+            v-bind:dataset-content-type="dataset.contentType"
             v-bind:fileStage="config.input"
             v-bind:config="config"
             v-bind:active="tab === 'input'"
@@ -288,6 +290,7 @@ export default {
       <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
         <manager-convert
             v-bind:dataset-id="dataset.id"
+            v-bind:dataset-content-type="dataset.contentType"
             v-bind:fileStage="config.output"
             v-bind:config="config"
             v-bind:active="tab === 'convert'"

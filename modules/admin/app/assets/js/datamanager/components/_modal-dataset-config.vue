@@ -19,6 +19,7 @@ export default {
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
       sync: this.info ? this.info.sync : false,
+      contentType: this.info ? this.info.contentType : null,
       notes: this.info ? this.info.notes : null,
       error: null,
       saving: false,
@@ -37,6 +38,7 @@ export default {
         src: this.src,
         fonds: this.fonds,
         sync: this.sync,
+        contentType: this.contentType,
         notes: this.notes,
       };
 
@@ -95,6 +97,7 @@ export default {
           || this.info.src !== this.src
           || this.info.notes !== this.notes
           || this.info.fonds !== this.fonds
+          || this.info.contentType !== this.contentType
           || Boolean(this.info.sync) !== Boolean(this.sync));
     }
   },
@@ -174,6 +177,12 @@ export default {
         <label class="form-check-label" for="opt-sync">
           Synchronise fonds with dataset
         </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="dataset-content-type">
+          Content-Type Override
+        </label>
+        <input type="text" v-model="contentType" id="dataset-content-type" class="form-control" placeholder="text/xml; charset=utf-8"/>
       </div>
       <div class="form-group">
         <label class="form-label" for="dataset-notes">Notes</label>

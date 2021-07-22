@@ -114,14 +114,15 @@ CREATE TABLE cypher_queries (
 );
 
 CREATE TABLE import_dataset (
-    repo_id  VARCHAR(50) NOT NULL,
-    id       VARCHAR(50) NOT NULL,
-    name     TEXT NOT NULL,
-    type     VARCHAR(10) NOT NULL,
-    created  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    item_id  TEXT,
-    sync     BOOLEAN DEFAULT FALSE,
-    comments TEXT,
+    repo_id         VARCHAR(50) NOT NULL,
+    id              VARCHAR(50) NOT NULL,
+    name            TEXT NOT NULL,
+    type            VARCHAR(10) NOT NULL,
+    content_type    VARCHAR(50) NULL,
+    created         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    item_id         TEXT,
+    sync            BOOLEAN DEFAULT FALSE,
+    comments        TEXT,
     PRIMARY KEY (id, repo_id),
     UNIQUE (id, repo_id),
     CONSTRAINT import_dataset_id_pattern CHECK (id ~ '^[a-z0-9_]+$') ,

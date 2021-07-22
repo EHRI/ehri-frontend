@@ -26,7 +26,7 @@ declare function local:make-children(
     for $child-source-node in local:evaluate-xquery($configuration-record/source-node/text(), $source-node, $libURI)
       let $child-value := local:evaluate-xquery($configuration-record/value/text(), $child-source-node, $libURI)
       let $child-name := $configuration-record/target-node/text()
-      (: let $f := fn:trace("Child name: "|| $child-name || ", Value: " || $child-value || ", Child source node: " || $child-source-node || ", Source node: " || $source-node) :)
+(:       let $f := fn:trace("Child name: "|| $child-name || ", Value: " || $child-value || ", Child source node: " || $child-source-node || ", Source node: " || $source-node):)
       return try {
 
         (: return an attribute :)
@@ -45,7 +45,7 @@ declare function local:make-children(
           let $child := element { $child-qname } { $child-children, $child-value }
           return if ($child-children or local:ebv($child-value)) then $child else ()
       } catch * {
-        fn:error(xs:QName("mapping-error"), "at " || $target-path || $child-name || ": " || $err:description)
+        fn:error(xs:QName("mapping-error"), $err:code || " at " || $target-path || $child-name || ": " || $err:description)
       }
 };
 

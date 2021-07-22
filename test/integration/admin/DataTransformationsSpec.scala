@@ -99,7 +99,7 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
         .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map, Json.obj())))))
 
       status(r) must_== BAD_REQUEST
-      contentAsJson(r) must_== Json.obj("error" -> "at /ead: at /ead/eadheader: Expecting valid step.")
+      contentAsJson(r) must_== Json.obj("error" -> "mapping-error at /ead: err:XPST0003 at /ead/eadheader: Expecting valid step.")
     }
   }
 }
