@@ -50,6 +50,7 @@ export default {
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil],
   props: {
     datasetId: String,
+    datasetContentType: String,
     fileStage: String,
     config: Object,
     api: DatasetManagerApi,
@@ -260,6 +261,7 @@ export default {
         v-bind:comments="editing.comments"
         v-bind:has-params="editing.hasParams"
         v-bind:dataset-id="datasetId"
+        v-bind:dataset-content-type="datasetContentType"
         v-bind:file-stage="previewStage"
         v-bind:init-previewing="previewing"
         v-bind:init-parameters="parametersForEditor"
