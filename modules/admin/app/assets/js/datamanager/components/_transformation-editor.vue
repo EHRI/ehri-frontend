@@ -28,6 +28,7 @@ export default {
     comments: String,
     hasParams: Boolean,
     datasetId: String,
+    datasetContentType: String,
     fileStage: String,
     initPreviewing: Object,
     config: Object,
@@ -230,6 +231,7 @@ export default {
                 <panel-file-preview
                     v-if="previewing !== null"
                     v-bind:dataset-id="datasetId"
+                    v-bind:content-type="datasetContentType"
                     v-bind:file-stage="fileStage"
                     v-bind:previewing="previewing"
                     v-bind:panel-size="panelSize"

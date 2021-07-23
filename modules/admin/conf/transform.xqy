@@ -1,4 +1,4 @@
-xquery version "3.1";
+xquery version "3.1" encoding "UTF-8";
 
 declare namespace xquery="http://basex.org/modules/xquery";
 declare namespace csv="http://basex.org/modules/csv";

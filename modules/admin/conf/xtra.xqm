@@ -1,4 +1,4 @@
-xquery version "3.0";
+xquery version "3.1" encoding "UTF-8";
 
 (: module for additional functions to be used in mapping configurations :)
 
