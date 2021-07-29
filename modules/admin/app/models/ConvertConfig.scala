@@ -3,7 +3,6 @@ package models
 import play.api.libs.json.{Format, JsObject, Json, Reads}
 
 
-
 sealed trait ConvertConfig {
   def force: Boolean
 }
@@ -24,7 +23,7 @@ object TransformationList {
 }
 
 case class ConvertSpec(
-  mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)],
+  mappings: Seq[(TransformationType.Value, String, JsObject)],
   force: Boolean = false
 ) extends ConvertConfig
 

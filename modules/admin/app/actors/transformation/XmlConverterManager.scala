@@ -1,12 +1,11 @@
 package actors.transformation
 
-import java.time.Instant
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.stream.Materializer
-import models.{DataTransformation, UserProfile}
+import models.{TransformationType, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import services.harvesting.HarvestEventHandle
@@ -14,6 +13,7 @@ import services.storage.FileStorage
 import services.transformation.XmlTransformer
 import utils.WebsocketConstants
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 
@@ -34,7 +34,7 @@ object XmlConverterManager {
     *                     exists
     */
   case class XmlConvertData(
-    transformers: Seq[(DataTransformation.TransformationType.Value, String, JsObject)],
+    transformers: Seq[(TransformationType.Value, String, JsObject)],
     inPrefix: String,
     outPrefix: String,
     from: Option[Instant] = None,

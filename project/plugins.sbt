@@ -23,3 +23,7 @@ addSbtPlugin("net.ground5hark.sbt" % "sbt-concat" % "0.2.0")
 //addSbtPlugin("net.ground5hark.sbt" % "sbt-css-compress" % "0.1.4")
 
 addSbtPlugin("io.github.givesocialmovement" % "sbt-vuefy" % "6.0.0")
+
+// For building command line tools...
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
+

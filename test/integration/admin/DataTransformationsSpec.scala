@@ -2,8 +2,7 @@ package integration.admin
 
 import akka.util.ByteString
 import helpers._
-import models.DataTransformation.TransformationType
-import models.{FileStage, _}
+import models.{FileStage, TransformationType, _}
 import play.api.http.{ContentTypes, HeaderNames, Writeable}
 import play.api.libs.json.Json
 import play.api.mvc.{Headers, Result}

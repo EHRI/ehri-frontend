@@ -7,7 +7,7 @@ import akka.util.ByteString
 import com.google.inject.name.Names
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
-import models.{DataTransformation, UserProfile}
+import models.{TransformationType, UserProfile}
 import play.api.Application
 import play.api.inject.{BindingKey, QualifierInstance}
 import play.api.libs.json.JsObject
@@ -27,11 +27,11 @@ class XmlConverterSpec extends IntegrationTestRunner {
     BindingKey(classOf[FileStorage], Some(QualifierInstance(Names.named("dam")))))
 
   private val noOpTransformer: XmlTransformer =
-    (_: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]) =>
+    (_: Seq[(TransformationType.Value, String, JsObject)]) =>
       Flow[ByteString].map(identity)
 
   private val errorTransformer: XmlTransformer =
-    (_: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]) =>
+    (_: Seq[(TransformationType.Value, String, JsObject)]) =>
       Flow[ByteString].mapAsync(1)(_ => Future.failed(XmlConvertError("Error during transformation")))
 
 

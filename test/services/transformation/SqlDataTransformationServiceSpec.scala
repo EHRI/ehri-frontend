@@ -1,7 +1,7 @@
 package services.transformation
 
 import helpers._
-import models.{DataTransformation, DataTransformationInfo}
+import models.{DataTransformationInfo, TransformationType}
 import play.api.Application
 import play.api.libs.json.Json
 
@@ -29,16 +29,16 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
     }
 
     "create items" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
+      val dt = await(service.create(DataTransformationInfo("test2", TransformationType.Xslt, "foo", "comment"), Some("r2")))
       dt.name must_== "test2"
     }
 
     "create items enforcing unique names" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
+      val dt = await(service.create(DataTransformationInfo("test2", TransformationType.Xslt, "foo", "comment"), Some("r2")))
       dt.name must_== "test2"
 
       await(service.create(DataTransformationInfo("test2",
-        DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2"))) must throwA[DataTransformationExists]
+        TransformationType.Xslt, "foo", "comment"), Some("r2"))) must throwA[DataTransformationExists]
     }
 
     "update items" in new DBTestApp("data-transformation-fixtures.sql") {
@@ -57,7 +57,7 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
       val saved3 = await(service.saveConfig("r2", dsId, Seq((dtId, Json.obj()))))
       saved3 must_== 1
 
-      val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
+      val dt = await(service.create(DataTransformationInfo("test2", TransformationType.Xslt, "foo", "comment"), Some("r2")))
       val saved4 = await(service.saveConfig(repoId = "r2", dsId, Seq((dtId, Json.obj()), (dt.id, Json.obj()))))
       saved4 must_== 2
 
@@ -66,7 +66,7 @@ class SqlDataTransformationServiceSpec extends IntegrationTestRunner {
     }
 
     "get repository configs" in new DBTestApp("data-transformation-fixtures.sql") {
-      val dt = await(service.create(DataTransformationInfo("test2", DataTransformation.TransformationType.Xslt, "foo", "comment"), Some("r2")))
+      val dt = await(service.create(DataTransformationInfo("test2", TransformationType.Xslt, "foo", "comment"), Some("r2")))
       await(service.saveConfig("r2", dsId, Seq((dt.id, Json.obj("foo" -> 1, "bar" -> 2)), (dtId, Json.obj()))))
       val configs = await(service.getConfig("r2", dsId))
       configs.size must_== 2

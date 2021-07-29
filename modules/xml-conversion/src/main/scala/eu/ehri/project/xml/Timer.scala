@@ -1,10 +1,8 @@
-package services.transformation
+package eu.ehri.project.xml
 
-import play.api.Logger
 
 trait Timer {
-
-  protected def logger: Logger
+  def logTime(time: String): Unit
 
   protected def time[R](op: String)(block: => R): R = {
     import java.time.{Duration, Instant}
@@ -13,7 +11,7 @@ trait Timer {
     val result = block
     val t1 = Instant.now()
     val ellapsed = Duration.between(t0, t1)
-    logger.debug(s"$op: Elapsed time: ${ellapsed.toMillis} millis")
+    logTime(s"$op: Elapsed time: ${ellapsed.toMillis} millis")
     result
   }
 }
