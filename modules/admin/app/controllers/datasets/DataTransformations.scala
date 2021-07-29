@@ -10,6 +10,7 @@ import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Update
+import eu.ehri.project.xml._
 import models._
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
@@ -19,7 +20,7 @@ import play.api.mvc._
 import services.datasets.ImportDatasetService
 import services.storage.{FileMeta, FileStorage}
 import services.transformation._
-import services.transformation.utils.digest
+import services.transformation.utils.{digest, getUtf8Transcoder}
 
 import java.util.UUID
 import java.util.concurrent.CompletionException
@@ -96,16 +97,14 @@ case class DataTransformations @Inject()(
   }
 
 
-  private def configToMappings(config: ConvertConfig): Future[Seq[(DataTransformation.TransformationType.Value, String, JsObject)]] = config match {
+  private def configToMappings(config: ConvertConfig): Future[Seq[(TransformationType.Value, String, JsObject)]] = config match {
     case TransformationList(mappings, _) => dataTransformations.get(mappings.map(_._1)).map { dts =>
       mappings.zip(dts).map { case ((_, params), dt) => (dt.bodyType, dt.body, params) }
     }
     case ConvertSpec(mappings, _) => immediate(mappings)
   }
 
-  private def downloadAndConvertFile(meta: FileMeta, mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)], contentType: Option[String]): Future[String] = {
-    import services.transformation.utils.getUtf8Transcoder
-
+  private def downloadAndConvertFile(meta: FileMeta, mappings: Seq[(TransformationType.Value, String, JsObject)], contentType: Option[String]): Future[String] = {
     storage.get(meta.key).flatMap {
       case Some((_, src)) =>
         val transcoder: Option[Flow[ByteString, ByteString, NotUsed]] = getUtf8Transcoder(contentType.orElse(meta.contentType))
@@ -118,7 +117,7 @@ case class DataTransformations @Inject()(
     }
   }
 
-  private def convertFile1(path: String, mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)], dataset: Option[ImportDataset]): Future[Result] = {
+  private def convertFile1(path: String, mappings: Seq[(TransformationType.Value, String, JsObject)], dataset: Option[ImportDataset]): Future[Result] = {
     storage.info(path).flatMap {
       case Some((meta, _)) =>
         // The dataset content type overrides the file info, allowing it to be

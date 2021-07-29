@@ -110,15 +110,8 @@ val portalDependencies = Seq(
 )
 
 val adminDependencies = Seq(
-
   // EAD validation
   "org.relaxng" % "jing" % "20181222",
-
-  // EAD transformation...
-  "org.basex" % "basex" % "8.5",
-
-  // Saxon for XSLT transformation
-  "net.sf.saxon" % "Saxon-HE" % "10.2",
 
   // XML parsing
   "com.lightbend.akka" %% "akka-stream-alpakka-xml" % alpakkaVersion,
@@ -274,7 +267,7 @@ val resourceSettings = Seq(
   // is loaded dynamically by file URL from within the transform.xqy script.
   // This means we need to copy it at staging time from the admin module to the main
   // conf directory.
-  (Compile / PlayKeys.playExternalizedResources) += file("modules/admin/conf/xtra.xqm") -> "xtra.xqm",
+  (Compile / PlayKeys.playExternalizedResources) += file("modules/xml-conversion/src/main/resources/xtra.xqm") -> "xtra.xqm",
 
   // Filter out excluded resources from packaging
   Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
@@ -283,7 +276,7 @@ val resourceSettings = Seq(
 )
 
 lazy val backend = Project(appName + "-backend", file("modules/backend"))
-  .disablePlugins(PlayScala, SbtVuefy, SbtConcat)
+  .disablePlugins(PlayScala, SbtVuefy, SbtConcat, AssemblyPlugin)
   .settings(
     name := appName + "-backend",
     libraryDependencies ++= backendDependencies ++ testDependencies,
@@ -291,14 +284,14 @@ lazy val backend = Project(appName + "-backend", file("modules/backend"))
     parallelExecution := true)
 
 lazy val core = Project(appName + "-core", file("modules/core"))
-  .disablePlugins(PlayScala, SbtVuefy, SbtConcat)
+  .disablePlugins(PlayScala, SbtVuefy, SbtConcat, AssemblyPlugin)
   .settings(name := appName + "-core", libraryDependencies ++= coreDependencies)
   .settings(commonSettings: _*)
   .dependsOn(backend % "test->test;compile->compile")
 
 lazy val portal = Project(appName + "-portal", file("modules/portal"))
   .enablePlugins(PlayScala, SbtWeb)
-  .disablePlugins(SbtVuefy)
+  .disablePlugins(SbtVuefy, AssemblyPlugin)
   .settings(commonSettings ++ webAppSettings: _*)
   .settings(
     routesImport += "models.view._",
@@ -341,16 +334,56 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     )
   ).dependsOn(core % "test->test;compile->compile")
 
+lazy val xmlConversion = Project(appName + "-xml-conversion", file("modules/xml-conversion"))
+  .disablePlugins(PlayScala)
+  .settings(commonSettings: _*)
+  .settings(libraryDependencies ++= Seq(
+    "javax.inject" % "javax.inject" % "1",
+    "org.slf4j" % "slf4j-api" % "1.7.32",
+    "ch.qos.logback" % "logback-classic" % "1.2.5",
+
+    // We need JSON here...
+    "com.typesafe.play" %% "play-json" % "2.8.1",
+
+    // EAD transformation...
+    "org.basex" % "basex" % "8.5",
+
+    // Saxon for XSLT transformation
+    "net.sf.saxon" % "Saxon-HE" % "10.2",
+
+    // Command line parsing
+    "com.github.scopt" %% "scopt" % "4.0.1",
+
+    specs2 % Test,
+  ))
+  .settings(
+    assembly / assemblyJarName := "xmlmapper.jar",
+    assembly / mainClass := Some("eu.ehri.project.xml.XQueryTransformer"),
+
+    assembly / assemblyMergeStrategy := {
+      // This Java 9+ module file causes merge problems creating the Jar but can be discarded:
+      // https://stackoverflow.com/a/60114988/285374
+      case "module-info.class" => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    },
+    // We need to specify a resource to configure logging properly. This resource is not
+    // named the default 'logback.xml' to avoid being picked up by other loggers.
+    assembly / assemblyPrependShellScript := Some(AssemblyPlugin.defaultUniversalScript(
+      Seq("-Dlogback.configurationFile=cmdline-logback.xml"))),
+  )
+
 lazy val api = Project(appName + "-api", file("modules/api"))
   .enablePlugins(play.sbt.PlayScala)
-  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify, SbtSassify)
+  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify, SbtSassify, AssemblyPlugin)
   .settings(libraryDependencies += "org.everit.json" % "org.everit.json.schema" % "1.3.0")
   .settings(commonSettings ++ webAppSettings)
   .dependsOn(portal % "test->test;compile->compile")
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala)
-  .disablePlugins(SbtConcat, SbtDigest, SbtGzip, SbtUglify)
+  .disablePlugins(SbtConcat, SbtDigest, SbtGzip, SbtUglify, AssemblyPlugin)
   .settings(libraryDependencies ++= adminDependencies)
   .settings(commonSettings ++ webAppSettings)
   .settings(
@@ -362,24 +395,25 @@ lazy val admin = Project(appName + "-admin", file("modules/admin"))
     Assets / VueKeys.vuefy / VueKeys.webpackConfig := "./webpack.config.js",
   )
   .dependsOn(api % "test->test;compile->compile")
+  .dependsOn(xmlConversion)
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
   .enablePlugins(play.sbt.PlayScala)
-  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify)
+  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify, AssemblyPlugin)
   .settings(commonSettings ++ webAppSettings)
   .dependsOn(admin)
 
 // Solr search engine implementation.
 lazy val solr = Project(appName + "-solr", file("modules/solr"))
-  .disablePlugins(PlayScala)
+  .disablePlugins(PlayScala, AssemblyPlugin)
   .settings(commonSettings: _*)
   .dependsOn(core % "test->test;compile->compile")
 
 lazy val main = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala)
   .enablePlugins(LauncherJarPlugin)
-  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify)
+  .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify, AssemblyPlugin)
   .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
   .settings(commonSettings ++ webAppSettings ++ resourceSettings)
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
-  .aggregate(backend, core, admin, portal, guides, api, solr)
+  .aggregate(backend, core, admin, portal, guides, api, solr, xmlConversion)

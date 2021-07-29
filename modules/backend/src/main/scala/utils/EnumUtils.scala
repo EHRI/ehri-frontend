@@ -7,12 +7,12 @@ import play.api.libs.json._
 object EnumUtils {
 
   /**
-   * Deserializer for Enumeration types.
-   *
-   * {{{
-   * (Json \ "status").as(enum(Status))
-   * }}}
-   */
+    * Deserializer for Enumeration types.
+    *
+    * {{{
+    * (Json \ "status").as(enum(Status))
+    * }}}
+    */
   def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = Reads[E#Value] {
     case JsString(s) =>
       try {
@@ -24,26 +24,26 @@ object EnumUtils {
     case _ => JsError("String value expected")
   }
 
-  def enumWrites[E <: Enumeration]: Writes[E#Value] = Writes[E#Value]( v => JsString(v.toString) )
+  def enumWrites[E <: Enumeration]: Writes[E#Value] = Writes[E#Value](v => JsString(v.toString))
 
   def enumFormat[E <: Enumeration](enum: E): Format[E#Value] = Format(enumReads(enum), enumWrites)
 
   /**
-   * Constructs a simple mapping for a text field (mapped as `scala.Enumeration`)
-   *
-   * For example:
-   * {{{
-   *   Form("status" -> enum(Status))
-   * }}}
-   *
-   * @param enum the Enumeration#Value
-   */
+    * Constructs a simple mapping for a text field (mapped as `scala.Enumeration`)
+    *
+    * For example:
+    * {{{
+    *   Form("status" -> enum(Status))
+    * }}}
+    *
+    * @param enum the Enumeration#Value
+    */
   def enumMapping[E <: Enumeration](enum: E): Mapping[E#Value] = Forms.of(enumFormBinder(enum))
 
   /**
-   * Default formatter for `scala.Enumeration`
-   *
-   */
+    * Default formatter for `scala.Enumeration`
+    *
+    */
   private def enumFormBinder[E <: Enumeration](enum: E): Formatter[E#Value] = new Formatter[E#Value] {
     def bind(key: String, data: Map[String, String]): Either[Seq[FormError], E#Value] = {
       play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
@@ -52,14 +52,15 @@ object EnumUtils {
           .left.map(e => Seq(FormError(key, "errors.invalidValue", Nil)))
       }
     }
+
     def unbind(key: String, value: E#Value) = Map(key -> value.toString)
   }
 
   /**
-   * Tolerant form binder for a sequence of enumeration values.
-   *
-   * Takes only the valid values and ignores the rest.
-   */
+    * Tolerant form binder for a sequence of enumeration values.
+    *
+    * Takes only the valid values and ignores the rest.
+    */
   def tolerantSeq[E <: Enumeration](enum: E): Mapping[Seq[E#Value]] = Forms.seq(Forms.text).transform(
     strings => enum.values.filter(v => strings.contains(v.toString)).toSeq,
     values => values.map(_.toString)

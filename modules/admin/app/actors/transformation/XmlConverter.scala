@@ -4,6 +4,7 @@ import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
 import akka.stream.Materializer
+import services.transformation.utils.getUtf8Transcoder
 import models.UserProfile
 import services.storage.{FileMeta, FileStorage}
 import services.transformation.XmlTransformer
@@ -170,7 +171,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
   }
 
   private def convertFile(file: FileMeta, path: String, fingerPrint: String): Future[URI] = {
-    val transcode = services.transformation.utils.getUtf8Transcoder(job.data.contentType.orElse(file.contentType))
+    val transcode = getUtf8Transcoder(job.data.contentType.orElse(file.contentType))
     if (transcode.isDefined) {
       log.debug(s"Transcoding to UTF-8 from ${file.contentType}")
     }

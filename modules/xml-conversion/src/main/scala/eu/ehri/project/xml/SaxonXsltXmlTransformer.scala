@@ -1,14 +1,15 @@
-package services.transformation
+package eu.ehri.project.xml
 
-import java.io.{StringReader, StringWriter}
-import javax.xml.transform.TransformerConfigurationException
-import javax.xml.transform.stream.StreamSource
-import net.sf.saxon.s9api.{Processor, QName, SaxonApiException, Serializer, XdmAtomicValue}
+import net.sf.saxon.s9api._
 import org.xml.sax.SAXParseException
 import play.api.libs.json.{JsBoolean, JsNull, JsNumber, JsObject, JsString, Json}
 
+import java.io.{StringReader, StringWriter}
+import javax.inject.Inject
+import javax.xml.transform.TransformerConfigurationException
+import javax.xml.transform.stream.StreamSource
 
-case class SaxonXsltXmlTransformer() extends XsltXmlTransformer {
+case class SaxonXsltXmlTransformer @Inject()() extends XsltXmlTransformer {
 
   // TODO: Cache compiled stylesheet against mapping and parameters?
 

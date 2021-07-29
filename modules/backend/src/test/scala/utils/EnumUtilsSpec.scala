@@ -14,18 +14,18 @@ class EnumUtilsSpec extends Specification {
 
     "bind from map" in {
       binder.bind(Map("[0]" -> "a1", "[1]" -> "a2")) must beRight.which { seq =>
-        seq must equalTo(Seq(MyEnum.a1, MyEnum.a2))
+        seq must_== Seq(MyEnum.a1, MyEnum.a2)
       }
     }
 
     "ignore invalid values" in {
       binder.bind(Map("[0]" -> "a1", "[1]" -> "INVALID")) must beRight.which { seq =>
-        seq must equalTo(Seq(MyEnum.a1))
+        seq must_== Seq(MyEnum.a1)
       }
     }
 
     "unbind to map" in {
-      binder.unbind(Seq(MyEnum.a1, MyEnum.a2)) must equalTo(Map("[0]" -> "a1", "[1]" -> "a2"))
+      binder.unbind(Seq(MyEnum.a1, MyEnum.a2)) must_== Map("[0]" -> "a1", "[1]" -> "a2")
     }
   }
 }

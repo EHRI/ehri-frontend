@@ -6,7 +6,7 @@ trait StorableEnum {
   self: Enumeration =>
 
   implicit def rowToEnum: Column[Value] = {
-    Column.nonNull[Value] { (value, meta) =>
+    Column.nonNull[Value] { (value, _) =>
       try {
         Right(withName(value.toString))
       } catch {
@@ -16,9 +16,7 @@ trait StorableEnum {
     }
   }
 
-  implicit def enumToStatement = new ToStatement[Value] {
-    def set(s: java.sql.PreparedStatement, index: Int, value: Value): Unit =
-      s.setObject(index, value.toString)
-  }
+  implicit def enumToStatement: ToStatement[Value] =
+    (s: java.sql.PreparedStatement, index: Int, value: Value) => s.setObject(index, value.toString)
 }
 

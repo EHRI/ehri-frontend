@@ -3,11 +3,12 @@ package services.transformation
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
-import models.DataTransformation
-import models.DataTransformation.TransformationType
+import eu.ehri.project.xml.{Timer, XQueryXmlTransformer, XsltXmlTransformer}
+import models.TransformationType
 import play.api.cache.{NamedCache, SyncCacheApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Logger}
+import services.transformation.utils.digest
 
 import javax.inject.Inject
 import scala.concurrent.duration.Duration
@@ -20,13 +21,15 @@ case class WrappingXmlTransformer @Inject()(
   config: Configuration
 )(implicit ec: ExecutionContext, mat: Materializer) extends XmlTransformer with Timer {
 
-  override protected val logger: Logger = Logger(classOf[WrappingXmlTransformer])
+  protected val logger: Logger = Logger(classOf[WrappingXmlTransformer])
+  override def logTime(s: String): Unit = logger.debug(s)
+
   private implicit val cacheTime: Duration = config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
 
-  override def transform(mapType: DataTransformation.TransformationType.Value, map: String, params: JsObject = Json.obj()): Flow[ByteString, ByteString, _] =
+  override def transform(mapType: TransformationType.Value, map: String, params: JsObject = Json.obj()): Flow[ByteString, ByteString, _] =
     transform(Seq((mapType, map, params)))
 
-  override def transform(mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Flow[ByteString, ByteString, _] = {
+  override def transform(mappings: Seq[(TransformationType.Value, String, JsObject)]): Flow[ByteString, ByteString, _] = {
     Flow[ByteString]
       .prefixAndTail(0)
       .map { case (_, src) =>
@@ -35,7 +38,7 @@ case class WrappingXmlTransformer @Inject()(
       .flatMapConcat(identity)
   }
 
-  private def transformXml(src: Source[ByteString, _], mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): Source[ByteString, _] = {
+  private def transformXml(src: Source[ByteString, _], mappings: Seq[(TransformationType.Value, String, JsObject)]): Source[ByteString, _] = {
     val dataF: Future[ByteString] = src
       .runFold(ByteString.empty)(_ ++ _)
       .map(_.utf8String)
@@ -45,8 +48,8 @@ case class WrappingXmlTransformer @Inject()(
     Source.future(dataF)
   }
 
-  private def transformXml(src: String, mappings: Seq[(DataTransformation.TransformationType.Value, String, JsObject)]): String = {
-    val md5 = utils.digest(src, mappings)
+  private def transformXml(src: String, mappings: Seq[(TransformationType.Value, String, JsObject)]): String = {
+    val md5 = digest(src, mappings)
     cache.getOrElseUpdate(md5, cacheTime) {
       time(s"Transform $md5 (${mappings.size} mappings)") {
         mappings.foldLeft(src) { case (out, (mapType, map, params)) =>

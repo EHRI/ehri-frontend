@@ -1,27 +1,21 @@
-package services.transformation
+package eu.ehri.project.xml
 
-import akka.stream.Materializer
-import com.google.common.io.Resources
 import org.basex.core.Context
 import org.basex.io.IOStream
 import org.basex.query.util.UriResolver
 import org.basex.query.{QueryException, QueryProcessor}
-import play.api.libs.json.{JsBoolean, JsNull, JsNumber, JsObject, JsString, Json}
-import play.api.{Environment, Logger}
+import org.slf4j.{Logger, LoggerFactory}
+import play.api.libs.json._
 
-import java.io.{ByteArrayOutputStream, IOException}
+import java.io.ByteArrayOutputStream
 import java.net.URI
-import java.nio.charset.StandardCharsets
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
-//noinspection UnstableApiUsage
 object BaseXXQueryXmlTransformer {
   def using[T <: AutoCloseable, R](t: T)(f2: T => R): R =
     try f2(t) finally t.close()
 
   final val uriResolver: UriResolver = (path, _, _) =>
-    new IOStream(Resources.getResource(path).openStream())
+    new IOStream(getClass.getResource("/" + path).openStream())
 
   val INPUT = "input"
   val MAPPING = "mapping"
@@ -39,20 +33,16 @@ object BaseXXQueryXmlTransformer {
   )
 }
 
-//noinspection UnstableApiUsage
-case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: ExecutionContext, mat: Materializer)
-  extends XQueryXmlTransformer with Timer {
+case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: Option[URI] = None) extends XQueryXmlTransformer with Timer {
 
+  private val logger: Logger = LoggerFactory.getLogger(classOf[BaseXXQueryXmlTransformer])
+  override def logTime(s: String): Unit = logger.debug(s)
   import BaseXXQueryXmlTransformer._
 
-  val script: String = readResource("transform.xqy")
-  val utilLibUrl: URI = URI.create(Resources.getResource("xtra.xqm").toString)
-
-  def readResource(name: String): String =
-    Resources.toString(env.resource(name)
-      .getOrElse(throw new IOException(s"Missing resource: $name")), StandardCharsets.UTF_8)
-
-  protected val logger: Logger = Logger(classOf[BaseXXQueryXmlTransformer])
+  val script: String = scriptOpt.getOrElse {
+    using(scala.io.Source.fromResource("transform.xqy"))(_.mkString)
+  }
+  val utilLibUrl: URI = funcOpt.getOrElse(getClass.getResource("/xtra.xqm").toURI)
 
   @throws(classOf[XmlTransformationError])
   override def transform(data: String, map: String, params: JsObject = Json.obj()): String = {
@@ -86,6 +76,7 @@ case class BaseXXQueryXmlTransformer @Inject()(env: Environment)(implicit ec: Ex
             }
 
           val allNs = DEFAULT_NS ++ params.fields.collect { case (key, JsString(value)) => key -> value }
+          logger.debug(s"Available namespaces: ${allNs.map(f => f._1 + ":" + f._2).mkString(", ")}")
           val nsString = allNs.filter(_._1.nonEmpty).map { case (k, v) => s"declare namespace $k='$v';"}.mkString("")
 
           proc.bind(INPUT, data, "xs:string")

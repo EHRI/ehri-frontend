@@ -217,7 +217,7 @@ export default {
           : [];
       },
       set(arr: DataTransformation[]) {
-        // this.mappings = arr.map(dt => dt.id);
+        // Read-only
       }
     },
   },
@@ -227,11 +227,6 @@ export default {
         this.saveConfig();
       }
     },
-    // parameters: function() {
-    //   if (!this.loading) {
-    //     this.saveConfig();
-    //   }
-    // },
     datasetId: function() {
       Object.assign(this.$data, initialConvertState(this.config));
       this.loadConfig().then(_ => {
