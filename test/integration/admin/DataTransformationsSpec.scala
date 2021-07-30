@@ -79,10 +79,10 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
 
     "report invalid parameter types" in new ITestApp {
       await(putFile())
-      val map = resourceAsString("simple-mapping.tsv")
+      val map = resourceAsString("simple-mapping.xsl")
       val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
-        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map,
+        .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.Xslt, map,
           Json.obj("someattr" -> Json.arr(1, 2)))))))
 
       status(r) must_== BAD_REQUEST

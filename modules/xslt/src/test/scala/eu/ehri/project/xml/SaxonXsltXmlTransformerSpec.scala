@@ -1,18 +1,11 @@
 package eu.ehri.project.xml
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
 
-import scala.concurrent.ExecutionContext
 import scala.io.Source
 
 class SaxonXsltXmlTransformerSpec extends Specification {
-
-  private implicit val ctx: ExecutionContext = scala.concurrent.ExecutionContext.global
-  private implicit val as: ActorSystem = ActorSystem.create("test")
-  private implicit val mat: Materializer = Materializer(as)
 
   private val testPayload = """<ead>
       |  <eadheader>

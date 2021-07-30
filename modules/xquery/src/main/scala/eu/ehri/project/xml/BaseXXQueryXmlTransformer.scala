@@ -5,7 +5,6 @@ import org.basex.io.IOStream
 import org.basex.query.util.UriResolver
 import org.basex.query.{QueryException, QueryProcessor}
 import org.slf4j.{Logger, LoggerFactory}
-import play.api.libs.json._
 
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -44,8 +43,8 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
   }
   val utilLibUrl: URI = funcOpt.getOrElse(getClass.getResource("/xtra.xqm").toURI)
 
-  @throws(classOf[XmlTransformationError])
-  override def transform(data: String, map: String, params: JsObject = Json.obj()): String = {
+  @throws(classOf[InvalidMappingError])
+  override def transform(data: String, map: String, params: Map[String, String] = Map.empty): String = {
 
     import org.basex.query.value.`type`.AtomType
     import org.basex.query.value.item.{Str => BaseXString}
@@ -65,8 +64,7 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
             )
           }
 
-          params.fields
-            .collect { case (key, JsString(value)) => key -> value }
+          params
             .foreach { case (k, v) =>
               ns = ns.put(
                 new BaseXString(k.getBytes, AtomType.STR),
@@ -75,7 +73,7 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
               )
             }
 
-          val allNs = DEFAULT_NS ++ params.fields.collect { case (key, JsString(value)) => key -> value }
+          val allNs = DEFAULT_NS ++ params
           logger.debug(s"Available namespaces: ${allNs.map(f => f._1 + ":" + f._2).mkString(", ")}")
           val nsString = allNs.filter(_._1.nonEmpty).map { case (k, v) => s"declare namespace $k='$v';"}.mkString("")
 
@@ -84,16 +82,6 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
           proc.bind(NAMESPACES, ns, "map()")
           proc.bind(NS_STRING, nsString, "xs:string")
           proc.bind(LIB_URI, utilLibUrl, "xs:anyURI")
-
-          // bind additional data from parameters.
-          params.fields.foreach {
-            case (field, JsString(value)) => proc.bind(field, value, "xs:string")
-            case (field, JsNumber(value)) => proc.bind(field, value, "xs:decimal")
-            case (field, JsBoolean(value)) => proc.bind(field, value, "xs:boolean")
-            case (_, JsNull) => // Ignore nulls
-            case (field, _) => throw InvalidMappingError(s"Parameter key '$field' has an unsupported type, " +
-              s"currently only string, number, and boolean can be used")
-          }
 
           logger.debug(s"Module URL: $utilLibUrl")
 

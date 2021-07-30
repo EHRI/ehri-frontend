@@ -131,9 +131,6 @@ val additionalResolvers = Seq(
 
   // EHRI repositories
   "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/",
-
-  // BaseX (for XML transformations)
-  "BaseX repository" at "https://files.basex.org/maven/"
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
@@ -267,7 +264,7 @@ val resourceSettings = Seq(
   // is loaded dynamically by file URL from within the transform.xqy script.
   // This means we need to copy it at staging time from the admin module to the main
   // conf directory.
-  (Compile / PlayKeys.playExternalizedResources) += file("modules/xml-conversion/src/main/resources/xtra.xqm") -> "xtra.xqm",
+  (Compile / PlayKeys.playExternalizedResources) += file("modules/xquery/src/main/resources/xtra.xqm") -> "xtra.xqm",
 
   // Filter out excluded resources from packaging
   Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
@@ -334,22 +331,33 @@ lazy val portal = Project(appName + "-portal", file("modules/portal"))
     )
   ).dependsOn(core % "test->test;compile->compile")
 
-lazy val xmlConversion = Project(appName + "-xml-conversion", file("modules/xml-conversion"))
+lazy val xslt = Project(appName + "-xslt", file("modules/xslt"))
+  .disablePlugins(PlayScala, AssemblyPlugin)
+  .settings(commonSettings: _*)
+  .settings(libraryDependencies ++= Seq(
+    "javax.inject" % "javax.inject" % "1",
+    "org.slf4j" % "slf4j-api" % "1.7.32",
+
+    // We need JSON here...
+    "com.typesafe.play" %% "play-json" % "2.8.1",
+
+    // Saxon for XSLT transformation
+    "net.sf.saxon" % "Saxon-HE" % "10.2",
+
+    specs2 % Test,
+  ))
+
+lazy val xquery = Project(appName + "-xquery", file("modules/xquery"))
   .disablePlugins(PlayScala)
   .settings(commonSettings: _*)
+  .settings(resolvers += "BaseX repository" at "https://files.basex.org/maven/")
   .settings(libraryDependencies ++= Seq(
     "javax.inject" % "javax.inject" % "1",
     "org.slf4j" % "slf4j-api" % "1.7.32",
     "ch.qos.logback" % "logback-classic" % "1.2.5",
 
-    // We need JSON here...
-    "com.typesafe.play" %% "play-json" % "2.8.1",
-
     // EAD transformation...
     "org.basex" % "basex" % "8.5",
-
-    // Saxon for XSLT transformation
-    "net.sf.saxon" % "Saxon-HE" % "10.2",
 
     // Command line parsing
     "com.github.scopt" %% "scopt" % "4.0.1",
@@ -357,7 +365,7 @@ lazy val xmlConversion = Project(appName + "-xml-conversion", file("modules/xml-
     specs2 % Test,
   ))
   .settings(
-    assembly / assemblyJarName := "xmlmapper.jar",
+    assembly / assemblyJarName := "xmlmapper",
     assembly / mainClass := Some("eu.ehri.project.xml.XQueryTransformer"),
 
     assembly / assemblyMergeStrategy := {
@@ -395,7 +403,7 @@ lazy val admin = Project(appName + "-admin", file("modules/admin"))
     Assets / VueKeys.vuefy / VueKeys.webpackConfig := "./webpack.config.js",
   )
   .dependsOn(api % "test->test;compile->compile")
-  .dependsOn(xmlConversion)
+  .dependsOn(xquery, xslt)
 
 lazy val guides = Project(appName + "-guides", file("modules/guides"))
   .enablePlugins(play.sbt.PlayScala)
@@ -416,4 +424,4 @@ lazy val main = Project(appName, file("."))
   .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
   .settings(commonSettings ++ webAppSettings ++ resourceSettings)
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
-  .aggregate(backend, core, admin, portal, guides, api, solr, xmlConversion)
+  .aggregate(backend, core, admin, portal, guides, api, solr, xquery, xslt)

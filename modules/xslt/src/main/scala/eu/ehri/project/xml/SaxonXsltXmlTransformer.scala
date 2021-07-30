@@ -27,7 +27,7 @@ case class SaxonXsltXmlTransformer @Inject()() extends XsltXmlTransformer {
         case (field, JsNumber(value)) => compiler.setParameter(new QName(field), new XdmAtomicValue(value.bigDecimal))
         case (field, JsBoolean(value)) => compiler.setParameter(new QName(field), new XdmAtomicValue(value))
         case (_, JsNull) => // Ignore value...
-        case (field, _) => throw InvalidMappingError(s"Parameter key '$field' has an unsupported type, " +
+        case (field, _) => throw XsltConfigError(s"Parameter key '$field' has an unsupported type, " +
           s"currently only string, number, and boolean can be used")
       }
 
@@ -42,8 +42,8 @@ case class SaxonXsltXmlTransformer @Inject()() extends XsltXmlTransformer {
         transformer.transform(inputSource, out)
         writer.toString
       } catch {
-        case e: SaxonApiException => throw InvalidMappingError(e.getMessage)
-        case e: TransformerConfigurationException => throw InvalidMappingError(e.getMessage)
+        case e: SaxonApiException => throw XsltConfigError(e.getMessage)
+        case e: TransformerConfigurationException => throw XsltConfigError(e.getMessage)
         case e: SAXParseException => throw XmlTransformationError(e.getLineNumber, e.getColumnNumber, e.getMessage)
       }
     }

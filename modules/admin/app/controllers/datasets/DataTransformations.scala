@@ -15,7 +15,7 @@ import models._
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.libs.json.JsError.toJson
-import play.api.libs.json.{JsObject, Json, Reads}
+import play.api.libs.json.{JsObject, Json, Reads, Writes}
 import play.api.mvc._
 import services.datasets.ImportDatasetService
 import services.storage.{FileMeta, FileStorage}
@@ -143,9 +143,12 @@ case class DataTransformations @Inject()(
     // We need a recursive error handler here which, in the case of a
     // CompletionException thrown by the cache, attempts to handle the
     // underlying cause
+    implicit val _f: Writes[InvalidMappingError] = Json.writes[InvalidMappingError]
+
     def errorHandler: PartialFunction[Throwable, Result] = {
       case e: CompletionException => errorHandler.apply(e.getCause)
       case e: InvalidMappingError => BadRequest(Json.toJson(e))
+      case e: XsltConfigError => BadRequest(Json.toJson(e))
       case e: XmlTransformationError => BadRequest(Json.toJson(e))
     }
 
