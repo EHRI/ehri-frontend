@@ -6,7 +6,7 @@ import akka.util.ByteString
 import eu.ehri.project.xml.{Timer, XQueryXmlTransformer, XsltXmlTransformer}
 import models.TransformationType
 import play.api.cache.{NamedCache, SyncCacheApi}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsString, Json}
 import play.api.{Configuration, Logger}
 import services.transformation.utils.digest
 
@@ -58,7 +58,9 @@ case class WrappingXmlTransformer @Inject()(
             mapType match {
               case TransformationType.Xslt =>
                 xsltTransformer.transform(out, map, params)
-              case TransformationType.XQuery => xqueryTransformer.transform(out, map, params)
+              case TransformationType.XQuery =>
+                val mapParams = params.value.collect { case (key, JsString(value)) => key -> value}
+                xqueryTransformer.transform(out, map, mapParams.toMap)
             }
           }
         }

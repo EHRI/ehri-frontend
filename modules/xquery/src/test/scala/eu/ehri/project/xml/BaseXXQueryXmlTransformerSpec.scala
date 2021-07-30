@@ -7,7 +7,6 @@ import scala.io.Source
 
 class BaseXXQueryXmlTransformerSpec extends Specification {
 
-
   private val testPayload = """<ead>
       |  <eadheader>
       |    <eadid>test-id</eadid>
