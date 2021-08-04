@@ -119,21 +119,20 @@ case class ImportFiles @Inject()(
   }
 
   def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
-    def deleteBatch(batch: Seq[String]): Future[Int] = {
-      storage.deleteFiles(batch: _*).map(_.size)
-    }
+    def deleteBatch(batch: Seq[String]): Future[Int] = storage.deleteFiles(batch: _*).map(_.size)
 
     val pre = prefix(id, ds, stage)
+    asyncCache.remove(s"bucket:count:${storage.name}/$pre")
+
     val src: Source[String, _] = if (request.body.isEmpty)
       storage.streamFiles(Some(pre)).map(f => f.key)
     else Source(request.body.map(p => pre + p).toList)
 
-    val r = src
+    src
       .grouped(200)
       .mapAsync(2)(deleteBatch)
       .runWith(Sink.fold(0)(_ + _))
-
-    r.map ( num => Ok(Json.obj("deleted" -> num)))
+      .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
   def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(parse.json[Map[String, String]]) { implicit request =>

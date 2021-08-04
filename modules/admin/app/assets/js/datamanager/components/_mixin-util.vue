@@ -24,7 +24,7 @@ export default {
       let qp = this.queryParams(qs);
       return this.queryString(_set(qp, name, value));
     },
-    getQueryParam: function(qs: object, name: string): string | null {
+    getQueryParam: function(qs: string, name: string): string | null {
       let qp = this.queryParams(qs);
       return _has(qp, name) ? qp[name] : null;
     },

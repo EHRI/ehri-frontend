@@ -69,8 +69,11 @@ export default {
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['ds', 'tab']));
     },
-    loadDatasets: function() {
+    refreshStats: function() {
       this.api.datasetStats().then(stats => this.stats = stats);
+    },
+    loadDatasets: function() {
+      this.refreshStats();
       return this.api.listDatasets()
           .then(dsl => this.datasets = dsl)
           .catch(e => this.showError("Error loading datasets", e))
@@ -137,7 +140,7 @@ export default {
                           v-bind:api="api"
                           v-on:close="showDatasetForm = false"
                           v-on:saved-dataset="reloadDatasets"
-                          v-on:deleted-dataset="reloadDatasets" />
+                          v-on:deleted-dataset="dataset = null; reloadDatasets()" />
 
     <modal-dataset-import v-if="showImportForm"
                   v-bind:config="config"
@@ -267,6 +270,7 @@ export default {
             v-bind:config="config"
             v-bind:active="tab === 'input'"
             v-bind:api="api"
+            v-on:updated="refreshStats"
             v-on:error="setError"  />
         <manager-rs
             v-else-if="dataset.src === 'rs'"
@@ -276,6 +280,7 @@ export default {
             v-bind:config="config"
             v-bind:active="tab === 'input'"
             v-bind:api="api"
+            v-on:updated="refreshStats"
             v-on:error="setError"  />
         <manager-upload
             v-else
@@ -285,6 +290,7 @@ export default {
             v-bind:config="config"
             v-bind:active="tab === 'input'"
             v-bind:api="api"
+            v-on:updated="refreshStats"
             v-on:error="setError"  />
       </div>
       <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
