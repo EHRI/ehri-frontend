@@ -37,6 +37,7 @@ export default {
       showImportForm: false,
       showSelector: false,
       stats: {},
+      working: {},
     }
   },
   methods: {
@@ -71,6 +72,45 @@ export default {
     },
     refreshStats: function() {
       this.api.datasetStats().then(stats => this.stats = stats);
+    },
+    syncAll: function() {
+      let self = this;
+      function syncDataset(sets: ImportDataset[]) {
+        if (sets.length > 0) {
+          let [set, ...rest]  = sets;
+
+          console.debug("Syncing", set);
+          self.api.getSyncConfig(set.id).then(config => {
+            if (config) {
+              self.$set(self.working, set.id, true);
+              self.api.sync(set.id, config).then( ({jobId, url}) => {
+                let worker = new Worker(self.config.previewLoader);
+                worker.onmessage = msg => {
+                  if (msg.data.msg) {
+                    console.debug(msg.data.msg);
+                  }
+                  if (msg.data.done || msg.data.error) {
+                    worker.terminate();
+                    self.refreshStats();
+                    self.$delete(self.working, set.id);
+                    syncDataset(rest);
+                  }
+                };
+                worker.postMessage({
+                  type: 'websocket',
+                  url: url,
+                  DONE: DatasetManagerApi.DONE_MSG,
+                  ERR: DatasetManagerApi.ERR_MSG
+                });
+              });
+            } else {
+              syncDataset(rest);
+            }
+          })
+        }
+      }
+
+      this.api.listDatasets().then(syncDataset);
     },
     loadDatasets: function() {
       this.refreshStats();
@@ -171,7 +211,10 @@ export default {
               {{stageName(ds.src)}}
               <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
             </div>
-            <h3>{{ds.name}}</h3>
+            <h3>
+              {{ds.name}}
+              <i v-if="ds.id in working" class="fa fa-gear fa-spin fa-fw"></i>
+            </h3>
             <p v-if="ds.notes">{{ds.notes}}</p>
           </div>
         </div>
@@ -191,6 +234,10 @@ export default {
             <button v-on:click.prevent="showImportForm = true; showOptions = false" class="btn dropdown-item">
               <i class="fa fa-file-code-o"></i>
               Import datasets from JSON
+            </button>
+            <button v-on:click.prevent="showOptions = false; syncAll()" class="btn dropdown-item">
+              <i class="fa fa-refresh"></i>
+              Sync All Datasets
             </button>
           </div>
         </div>
