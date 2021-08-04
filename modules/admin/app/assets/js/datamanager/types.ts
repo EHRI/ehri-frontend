@@ -4,7 +4,7 @@
 
 export type ConfigType = {
   repoId: String;
-  versions: boolean;
+  versioned: boolean;
   input: string;
   output: string;
   config: string;

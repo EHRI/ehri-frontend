@@ -168,7 +168,7 @@ export default {
               // Delete the value of the control, if loaded
               event.target.value = null;
             }
-
+            this.$emit('updated')
             this.log.push("Uploaded: " + done + (cancelled ? (", Cancelled: " + cancelled) : ""))
           });
     },

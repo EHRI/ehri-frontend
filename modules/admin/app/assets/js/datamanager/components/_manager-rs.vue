@@ -77,6 +77,7 @@ export default {
 
           this.syncJobId = null;
           this.removeUrlState('sync-job-id');
+          this.$emit('updated')
         }
       };
       worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});

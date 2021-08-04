@@ -19,7 +19,12 @@ function humanFileSize(bytes: number, si: boolean = true): string {
 
 function prettyDate(time: string): string {
   let m = DateTime.fromISO(time);
-  return m.isValid ? m.toRelative() as string : "";
+  if (m.isValid) {
+    let duration = m.diffNow("minutes");
+    if (duration.minutes > -1) return 'Just now';
+    else return m.toRelative() as string;
+  }
+  return "";
 }
 
 export {humanFileSize, prettyDate};

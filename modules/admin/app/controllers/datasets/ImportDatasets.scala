@@ -55,7 +55,7 @@ case class ImportDatasets @Inject()(
     import scala.concurrent.duration._
     def countInDataset(ds: String): Future[(String, Int)] = {
       val pathPrefix: String = prefix(id, ds, FileStage.Input)
-      asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 1.minute) {
+      asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 10.seconds) {
         storage.count(Some(pathPrefix)).map(count => ds -> count)
       }
     }

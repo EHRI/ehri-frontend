@@ -119,6 +119,7 @@ export default {
             this.$delete(this.selected, key);
           });
           this.refresh();
+          this.$emit('updated')
         })
         .catch(error => this.showError("Error deleting files", error))
         .finally(() => this.deleting = {});

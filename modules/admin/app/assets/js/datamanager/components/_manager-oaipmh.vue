@@ -78,6 +78,7 @@ export default {
 
           this.harvestJobId = null;
           this.removeUrlState('harvest-job-id');
+          this.$emit('updated')
         }
       };
       worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
