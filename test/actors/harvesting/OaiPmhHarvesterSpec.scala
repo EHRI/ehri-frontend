@@ -1,7 +1,7 @@
 package actors.harvesting
 
 import actors.harvesting
-import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
 import config.serviceBaseUrl
 import helpers.IntegrationTestRunner
@@ -27,14 +27,14 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
     prefix = "oaipmh/r1/"
   ))
 
-  import OaiPmhHarvester._
+  import Harvester._
 
   "OAI-PMH harvest runner" should {
 
     "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
-      val runner = system.actorOf(Props(OaiPmhHarvester(job, client, storage)))
+      val runner = system.actorOf(Props(OaiPmhHarvester(client, storage)))
 
-      runner ! Initial
+      runner ! job
       expectMsg(Starting)
       expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
       expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
@@ -42,9 +42,9 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
     }
 
     "allow cancellation" in new ITestAppWithAkka {
-      val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(job, client, storage)))
+      val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(client, storage)))
 
-      runner ! Initial
+      runner ! job
       expectMsg(Starting)
       expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
       runner ! Cancel

@@ -1,6 +1,5 @@
 package actors.ingest
 
-import actors.harvesting.OaiPmhHarvester.Error
 import actors.ingest.DataImporter.{Done, Initial, Message, UnexpectedError}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
@@ -18,7 +17,7 @@ case class DataImporterManager(job: IngestJob, ingestApi: IngestService,
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
-      self ! Error(e)
+      self ! UnexpectedError(e)
       Stop
   }
   // Ready state: we've received a job but won't actually start
@@ -52,7 +51,7 @@ case class DataImporterManager(job: IngestJob, ingestApi: IngestService,
     case Message(m) =>
       msg(m, subs)
 
-    case Done(start) =>
+    case Done(_) =>
       msg(s"${WebsocketConstants.DONE_MESSAGE}", subs)
       context.stop(self)
 

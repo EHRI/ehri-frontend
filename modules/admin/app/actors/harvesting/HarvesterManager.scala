@@ -1,49 +1,29 @@
 package actors.harvesting
 
-import actors.harvesting.OaiPmhHarvesterManager.{Finalise, OaiPmhHarvestJob}
+import actors.harvesting.Harvester.HarvestJob
 import akka.actor.Status.Failure
 import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
-import models.{OaiPmhConfig, UserProfile}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, OneForOneStrategy, SupervisorStrategy, Terminated}
+import models.UserProfile
 import play.api.i18n.Messages
-import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhClient, OaiPmhError}
-import services.storage.FileStorage
+import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhError}
 import utils.WebsocketConstants
 
-import java.time.Instant
 import java.time.format.DateTimeFormatter
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 
-object OaiPmhHarvesterManager {
-
-  /**
-    * A description of an OAI-PMH harvest task.
-    *
-    * @param config     the endpoint configuration
-    * @param from       the starting date and time
-    * @param prefix     the path prefix on which to save files, after
-    *                   which the item identifier will be appended
-    */
-  case class OaiPmhHarvestData(
-    config: OaiPmhConfig,
-    prefix: String,
-    from: Option[Instant] = None,
-  )
-
-  /**
-    * A single harvest job with a unique ID.
-    */
-  case class OaiPmhHarvestJob(repoId: String, datasetId: String, jobId: String, data: OaiPmhHarvestData)
-
+object HarvesterManager {
   protected case class Finalise(s: String)
 }
 
-case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage, eventLog: HarvestEventService)(
+case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eventLog: HarvestEventService)(
   implicit userOpt: Option[UserProfile], messages: Messages, ec: ExecutionContext) extends Actor with ActorLogging {
 
+  import Harvester._
+  import HarvesterManager._
   import OaiPmhHarvester._
   import akka.pattern.pipe
 
@@ -64,9 +44,9 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
   override def receive: Receive = {
     case chan: ActorRef =>
       log.debug("Received initial subscriber, starting...")
-      val runner = context.actorOf(Props(OaiPmhHarvester(job, client, storage)))
+      val runner = init(context)
       context.become(running(runner, Set(chan), Option.empty))
-      runner ! Initial
+      runner ! job
   }
 
   /**
@@ -99,9 +79,16 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
     // Confirmation the runner has started
     case Starting =>
       msg(s"Starting harvest with job id: ${job.jobId}", subs)
-      job.data.from.fold(msg(Messages("harvesting.earliestDate"), subs)) { from =>
-        msg(Messages("harvesting.fromDate", DateTimeFormatter.ISO_INSTANT.format(from)), subs)
+      job match {
+        case OaiPmhHarvestJob(_, _, _, data) =>
+          data.from.fold(msg(Messages("harvesting.earliestDate"), subs)) { from =>
+            msg(Messages("harvesting.fromDate", DateTimeFormatter.ISO_INSTANT.format(from)), subs)
+          }
+        case _ =>
       }
+
+    case ToDo(num) =>
+      msg(Messages("harvesting.syncingFiles", num), subs)
 
     // Cancel harvest.. here we tell the runner to exit
     // and shut down on its termination signal...
@@ -120,7 +107,7 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
       msg(id, subs)
 
     // Received confirmation that the runner has shut down
-    case Cancelled(count, secs) =>
+    case Cancelled(count, _, secs) =>
       runAndThen(handle, _.cancel())(Finalise(
         Messages(
           "harvesting.cancelled",
@@ -131,7 +118,7 @@ case class OaiPmhHarvesterManager(job: OaiPmhHarvestJob, client: OaiPmhClient, s
 
     // The runner has completed, so we log the
     // event and shut down too
-    case Completed(count, secs) =>
+    case Completed(count, _, secs) =>
       runAndThen(handle, _.close())(Finalise(
         Messages(
           "harvesting.completed",

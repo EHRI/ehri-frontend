@@ -1,17 +1,18 @@
 package actors.harvesting
 
 import actors.harvesting
-import actors.harvesting.OaiPmhHarvester.Cancel
-import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import akka.actor.Props
+import actors.harvesting.Harvester.Cancel
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
+import akka.actor.{ActorContext, Props}
 import config.serviceBaseUrl
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
-import models.{HarvestEvent, OaiPmhConfig, UserProfile}
+import models.{HarvestEvent, OaiPmhConfig, ResourceSyncConfig, UserProfile}
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.{Application, Configuration}
-import services.harvesting.{MockHarvestEventService, OaiPmhClient}
+import services.harvesting.{MockHarvestEventService, OaiPmhClient, ResourceSyncClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants
 
@@ -19,9 +20,10 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 
-class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
+class HarvesterManagerSpec extends IntegrationTestRunner {
 
-  private def client(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
+  private def oaiPmhClient(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
+  private def rsClient(implicit app: Application): ResourceSyncClient = app.injector.instanceOf[ResourceSyncClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
   implicit def messagesApi(implicit app: Application): MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -32,26 +34,52 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
   private val datasetId = "default"
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
-  private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
+  private def oaiPmhJob(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
     config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
     prefix = "oaipmh/r1/"
   ))
 
+  private def rsJob(implicit app: Application): ResourceSyncJob = ResourceSyncJob("r1", datasetId, jobId, ResourceSyncData(
+    // where we're harvesting from:
+    config = ResourceSyncConfig(s"https://example.com/resourcesync/capabilitylist.xml"),
+    prefix = "r1/input/"
+  ))
+
+
   "OAI-PMH harvester" should {
     import scala.concurrent.duration._
 
-    "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint via OAI-PMH" in new ITestAppWithAkka {
+      val events = MockHarvestEventService()
+      val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
+      val harvester = system.actorOf(Props(HarvesterManager(oaiPmhJob, init, events)))
+
+      harvester ! self // initial subscriber should start harvesting
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Harvesting from earliest date")
+      expectMsgAnyOf("c4", "nl-r1-m19")
+      expectMsgAnyOf("c4", "nl-r1-m19")
+      val msg: String = receiveOne(5.seconds).asInstanceOf[String]
+      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
+      await(events.get("r1")).lift(1) must beSome[HarvestEvent]
+        .which(_.eventType must_== HarvestEventType.Completed)
+        .eventually(20, 100.millis)
+    }
+
+    "send correct messages when harvesting an endpoint via ResourceSync" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
-        val harvester = system.actorOf(Props(OaiPmhHarvesterManager(job, client, storage, events)))
+        val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
+        val harvester = system.actorOf(Props(HarvesterManager(rsJob, init, events)))
 
         harvester ! self // initial subscriber should start harvesting
         expectMsg(s"Starting harvest with job id: $jobId")
-        expectMsg(s"Harvesting from earliest date")
-        expectMsgAnyOf("c4", "nl-r1-m19")
-        expectMsgAnyOf("c4", "nl-r1-m19")
+        expectMsg(s"Syncing 3 files")
+        expectMsg("+ test1.xml")
+        expectMsg("+ test2.xml")
+        expectMsg("+ test3.xml")
         val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
+        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 3 new files")
         await(events.get("r1")).lift(1) must beSome[HarvestEvent]
           .which(_.eventType must_== HarvestEventType.Completed)
           .eventually(20, 100.millis)
@@ -59,8 +87,9 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
 
     "handle errors" in new ITestAppWithAkka {
       val events = MockHarvestEventService()
-      val harvestConf = job.copy(data = job.data.copy(config = job.data.config.copy(url = "http://example.com/oaipmh")))
-      val harvester = system.actorOf(Props(OaiPmhHarvesterManager(harvestConf, client, storage, events)))
+      val harvestConf = oaiPmhJob.copy(data = oaiPmhJob.data.copy(config = oaiPmhJob.data.config.copy(url = "http://example.com/oaipmh")))
+      val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
+      val harvester = system.actorOf(Props(HarvesterManager(harvestConf, init, events)))
 
       harvester ! self // initial subscriber should start harvesting
       expectMsg(s"Starting harvest with job id: $jobId")
@@ -74,9 +103,10 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
     "harvest selectively with `from` date" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
         val start: Instant = Instant.now()
-        val job2 = job(app)
+        val job2 = oaiPmhJob(app)
         val dateJob = job2.copy(data = job2.data.copy(from = Some(start)))
-        val harvester = system.actorOf(Props(OaiPmhHarvesterManager(dateJob, client, storage, events)))
+        val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
+        val harvester = system.actorOf(Props(HarvesterManager(dateJob, init, events)))
 
         harvester ! self // initial subscriber should start harvesting
         expectMsg(s"Starting harvest with job id: $jobId")
@@ -87,7 +117,8 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
 
     "cancel jobs" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
-        val harvester = system.actorOf(Props(harvesting.OaiPmhHarvesterManager(job, client, storage, events)))
+        val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
+        val harvester = system.actorOf(Props(harvesting.HarvesterManager(oaiPmhJob, init, events)))
 
         harvester ! self // initial subscriber should start harvesting
         expectMsg(s"Starting harvest with job id: $jobId")
@@ -101,7 +132,7 @@ class OaiPmhHarvesterManagerSpec extends IntegrationTestRunner {
         msg must startWith(s"${WebsocketConstants.ERR_MESSAGE}: cancelled after")
 
         // Wait up to a minute for the expected events to appear
-        await(events.get("r1")).find(_.eventType == HarvestEventType.Cancelled) must beSome
+        await(events.get("r1")).find(_.eventType == HarvestEventType.Cancelled) must beSome[HarvestEvent]
           .eventually(retries = 300, sleep = 200.millis)
     }
   }
