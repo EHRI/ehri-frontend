@@ -1,8 +1,8 @@
 package controllers.datasets
 
-import actors.harvesting.ResourceSyncHarvesterManager.{ResourceSyncData, ResourceSyncJob}
-import actors.harvesting.{ResourceSyncHarvester, ResourceSyncHarvesterManager}
-import akka.actor.Props
+import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
+import actors.harvesting.{Harvester, HarvesterManager, ResourceSyncHarvester}
+import akka.actor.{ActorContext, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
@@ -67,7 +67,8 @@ case class ResourceSyncConfigs @Inject()(
     val jobId = UUID.randomUUID().toString
     val data = ResourceSyncData(endpoint, prefix = prefix(id, ds, FileStage.Input))
     val job = ResourceSyncJob(id, ds, jobId, data = data)
-    mat.system.actorOf(Props(ResourceSyncHarvesterManager(job, rsClient, storage, harvestEvents)), jobId)
+    val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
+    mat.system.actorOf(Props(HarvesterManager(job, init, harvestEvents)), jobId)
 
     Ok(Json.obj(
       "url" -> controllers.admin.routes.Tasks
@@ -79,8 +80,7 @@ case class ResourceSyncConfigs @Inject()(
   def cancelSync(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
-      logger.info(s"Monitoring job: $jobId")
-      ref ! ResourceSyncHarvester.Cancel
+      ref ! Harvester.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))

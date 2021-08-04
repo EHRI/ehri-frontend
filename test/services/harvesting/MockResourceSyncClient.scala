@@ -12,7 +12,7 @@ case class MockResourceSyncClient @Inject()()(implicit ec: ExecutionContext) ext
     Seq(
       FileLink("http://www.example.com/test1.xml"),
       FileLink("http://www.example.com/test2.xml"),
-      FileLink("http://www.example.com/test2.xml")
+      FileLink("http://www.example.com/test3.xml")
     )
   }
 

@@ -1,8 +1,8 @@
 package controllers.datasets
 
-import actors.harvesting.OaiPmhHarvesterManager.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.harvesting.{OaiPmhHarvester, OaiPmhHarvesterManager}
-import akka.actor.Props
+import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.{Harvester, HarvesterManager, OaiPmhHarvester}
+import akka.actor.{ActorContext, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
@@ -74,7 +74,8 @@ case class OaiPmhConfigs @Inject()(
       val jobId = UUID.randomUUID().toString
       val data = OaiPmhHarvestData(endpoint, prefix = prefix(id, ds, FileStage.Input), from = last)
       val job = OaiPmhHarvestJob(id, ds, jobId, data = data)
-      mat.system.actorOf(Props(OaiPmhHarvesterManager(job, oaiPmhClient, storage, harvestEvents)), jobId)
+      val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
+      mat.system.actorOf(Props(HarvesterManager(job, init, harvestEvents)), jobId)
 
       Ok(Json.obj(
         "url" -> controllers.admin.routes.Tasks
@@ -87,8 +88,7 @@ case class OaiPmhConfigs @Inject()(
   def cancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._
     mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
-      logger.info(s"Monitoring job: $jobId")
-      ref ! OaiPmhHarvester.Cancel
+      ref ! Harvester.Cancel
       Ok(Json.obj("ok" -> true))
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))

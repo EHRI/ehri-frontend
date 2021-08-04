@@ -1,14 +1,14 @@
 package actors.harvesting
 
-import java.time.{Duration, LocalDateTime}
-import actors.harvesting.ResourceSyncHarvesterManager.ResourceSyncJob
+import actors.harvesting.Harvester.HarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.http.scaladsl.model.Uri
-import models.{FileLink, UserProfile}
+import models.{FileLink, ResourceSyncConfig, UserProfile}
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
+import java.time.{Duration, LocalDateTime}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,31 +16,40 @@ import scala.concurrent.{ExecutionContext, Future}
 object ResourceSyncHarvester {
 
   // Internal message we send ourselves
-  private case class Fetch(ids: List[FileLink], count: Int, fresh: Int) extends Action
+  sealed trait ResourceSyncAction
+  private case class Fetch(ids: List[FileLink], count: Int, fresh: Int) extends ResourceSyncAction
 
-  // Other messages we can handle
-  sealed trait Action
-  case class Cancelled(done: Int, fresh: Int, secs: Long) extends Action
-  case class Completed(done: Int, fresh: Int, secs: Long) extends Action
-  case class DoneFile(name: String) extends Action
-  case class Error(e: Throwable) extends Action
-  case class ToDo(num: Int) extends Action
-  case object Cancel extends Action
-  case object Initial extends Action
-  case object Starting extends Action
+  /**
+    * A description of an OAI-ResourceSync harvest task.
+    *
+    * @param config     the endpoint configuration
+    * @param prefix     the path prefix on which to save files, after
+    *                   which the item identifier will be appended
+    */
+  case class ResourceSyncData(
+    config: ResourceSyncConfig,
+    prefix: String,
+  )
+
+  /**
+    * A single harvest job with a unique ID.
+    */
+  case class ResourceSyncJob(repoId: String, datasetId: String, jobId: String, data: ResourceSyncData)
+    extends HarvestJob
 }
 
 
-case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClient, storage: FileStorage)(
+case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+  import Harvester._
   import ResourceSyncHarvester._
   import akka.pattern.pipe
 
   override def receive: Receive = {
     // Start the initial harvest
-    case Initial =>
+    case job: ResourceSyncJob =>
       val msgTo = sender()
-      context.become(running(msgTo, 0, 0, LocalDateTime.now()))
+      context.become(running(job, msgTo, 0, 0, LocalDateTime.now()))
       msgTo ! Starting
       client.list(job.data.config)
         .map {list =>
@@ -52,13 +61,13 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
 
 
   // The harvest is running
-  def running(msgTo: ActorRef, done: Int, fresh: Int, start: LocalDateTime): Receive = {
+  def running(job: ResourceSyncJob, msgTo: ActorRef, done: Int, fresh: Int, start: LocalDateTime): Receive = {
     // Harvest an individual item
     case Fetch(item :: rest, count, fresh) =>
       log.debug(s"Calling become with new total: $count")
-      context.become(running(msgTo, count, fresh, start))
+      context.become(running(job, msgTo, count, fresh, start))
 
-      copyItem(item).map { case (name, isFresh) =>
+      copyItem(job, item).map { case (name, isFresh) =>
         msgTo ! DoneFile(name)
         Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
       }.pipeTo(self)
@@ -78,7 +87,7 @@ case class ResourceSyncHarvester (job: ResourceSyncJob, client: ResourceSyncClie
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def copyItem(item: FileLink): Future[(String, Boolean)] = {
+  private def copyItem(job: ResourceSyncJob, item: FileLink): Future[(String, Boolean)] = {
     // Strip the hostname from the file URL but use the
     // rest of the path
     val name = Uri(item.loc).path.dropChars(1)

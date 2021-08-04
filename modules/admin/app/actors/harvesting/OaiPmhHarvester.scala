@@ -1,13 +1,13 @@
 package actors.harvesting
 
-import java.time.{Duration, LocalDateTime}
-import actors.harvesting.OaiPmhHarvesterManager.OaiPmhHarvestJob
+import actors.harvesting.Harvester.HarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import models.UserProfile
+import models.{OaiPmhConfig, UserProfile}
 import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 
+import java.time.{Duration, Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext
 
 
@@ -15,7 +15,6 @@ object OaiPmhHarvester {
 
   // Possible states for resumption tokens:
   sealed trait ResumptionState
-  case object Initial extends ResumptionState
   case class Next(token: String) extends ResumptionState
   case object Empty extends ResumptionState
   object ResumptionState {
@@ -25,22 +24,35 @@ object OaiPmhHarvester {
     }
   }
 
-  // Internal message we send ourselves
-  private case class Fetch(ids: List[String], next: ResumptionState, count: Int) extends Action
+  // Private messages we send ourself
+  sealed trait OaiPmhAction
+  case class Fetch(ids: List[String], next: ResumptionState, count: Int) extends OaiPmhAction
+  case class Resuming(token: String) extends OaiPmhAction
 
-  // Other messages we can handle
-  sealed trait Action
-  case class Cancelled(done: Int, secs: Long) extends Action
-  case class Completed(done: Int, secs: Long) extends Action
-  case class DoneFile(id: String) extends Action
-  case class Error(e: Throwable) extends Action
-  case class Resuming(token: String) extends Action
-  case object Cancel extends Action
-  case object Starting extends Action
+  /**
+    * A description of an OAI-PMH harvest task.
+    *
+    * @param config     the endpoint configuration
+    * @param from       the starting date and time
+    * @param prefix     the path prefix on which to save files, after
+    *                   which the item identifier will be appended
+    */
+  case class OaiPmhHarvestData(
+    config: OaiPmhConfig,
+    prefix: String,
+    from: Option[Instant] = None,
+  )
+
+  /**
+    * A single harvest job with a unique ID.
+    */
+  case class OaiPmhHarvestJob(repoId: String, datasetId: String, jobId: String, data: OaiPmhHarvestData)
+    extends HarvestJob
 }
 
-case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage: FileStorage)(
+case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+  import Harvester._
   import OaiPmhHarvester._
   import akka.pattern.pipe
 
@@ -51,9 +63,9 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
 
   override def receive: Receive = {
     // Start the initial harvest
-    case Initial =>
+    case job: OaiPmhHarvestJob =>
       val msgTo = sender()
-      context.become(running(msgTo, 0, LocalDateTime.now()))
+      context.become(running(job, msgTo, 0, LocalDateTime.now()))
       msgTo ! Starting
       client.listIdentifiers(job.data.config, from = job.data.from)
         .map { case (idents, next) =>
@@ -64,7 +76,7 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
 
 
   // The harvest is running
-  def running(msgTo: ActorRef, done: Int, start: LocalDateTime): Receive = {
+  def running(job: OaiPmhHarvestJob, msgTo: ActorRef, done: Int, start: LocalDateTime): Receive = {
 
     // Harvest a new batch via a resumptionToken
     case Next(token) =>
@@ -76,7 +88,7 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
     // Harvest an individual item
     case Fetch(id :: rest, next, count) =>
       log.debug(s"Calling become with new total: $count")
-      context.become(running(msgTo, count, start))
+      context.become(running(job, msgTo, count, start))
       val byteSrc = client.getRecord(job.data.config, id)
       storage.putBytes(
         fileName(job.data.prefix, id),
@@ -98,16 +110,16 @@ case class OaiPmhHarvester (job: OaiPmhHarvestJob, client: OaiPmhClient, storage
     // Finished a batch, start a new one
     case Fetch(Nil, next, count) =>
       log.debug(s"Calling become with new total: $count")
-      context.become(running(msgTo, count, start))
+      context.become(running(job, msgTo, count, start))
       self ! next
 
     // Finish harvesting
     case Empty =>
-      msgTo ! Completed(done, time(start))
+      msgTo ! Completed(done, done, time(start))
 
     // Cancel harvest
     case Cancel =>
-      msgTo ! Cancelled(done, time(start))
+      msgTo ! Cancelled(done, done, time(start))
 
     case Failure(e: OaiPmhError) =>
       msgTo ! e
