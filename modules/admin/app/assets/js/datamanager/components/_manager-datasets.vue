@@ -9,7 +9,7 @@ import ManagerRs from './_manager-rs';
 import ManagerConvert from './_manager-convert.vue';
 
 import MixinUtil from './_mixin-util';
-import {ImportDataset, ImportDatasetSrc} from '../types';
+import {ImportConfig, ImportDataset, ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _find from 'lodash/find';
@@ -148,6 +148,43 @@ export default {
 
       this.api.listDatasets().then(convertDataset);
     },
+    importAllDatasets: function() {
+      // This is a shortcut for running conversion on all datasets...
+      let commitCheck = prompt("Type 'yes' to commit:");
+      let commit = commitCheck === null || commitCheck.toLowerCase() === "yes";
+      let importDataset = (sets: ImportDataset[]) => {
+        if (sets.length > 0) {
+          let [set, ...rest]  = sets;
+
+          console.debug("Importing", set);
+          this.api.getImportConfig(set.id).then(config => {
+            this.$set(this.working, set.id, true);
+            this.api.ingestFiles(set.id, [], config, commit).then( ({url}) => {
+              let worker = new Worker(this.config.previewLoader);
+              worker.onmessage = msg => {
+                if (msg.data.msg) {
+                  console.debug(msg.data.msg);
+                }
+                if (msg.data.done || msg.data.error) {
+                  worker.terminate();
+                  this.refreshStats();
+                  this.$delete(this.working, set.id);
+                  importDataset(rest);
+                }
+              };
+              worker.postMessage({
+                type: 'websocket',
+                url: url,
+                DONE: DatasetManagerApi.DONE_MSG,
+                ERR: DatasetManagerApi.ERR_MSG
+              });
+            });
+          });
+        }
+      }
+
+      this.api.listDatasets().then(importDataset);
+    },
     copyConvertSettingsFrom: function() {
       // Copy convert settings from one dataset to all the others...
       let saveSettings = (sets: ImportDataset[], settings: [string, object][]) => {
@@ -163,6 +200,26 @@ export default {
       let from = prompt('Pick source dataset:');
       if (from !== null) {
         this.api.getConvertConfig(from).then(data => {
+          this.api.listDatasets()
+              .then(sets => saveSettings(sets.filter(s => s.id !== from), data));
+        })
+      }
+    },
+    copyImportSettingsFrom: function() {
+      // Copy convert settings from one dataset to all the others...
+      let saveSettings = (sets: ImportDataset[], settings: ImportConfig) => {
+        if (sets.length > 0) {
+          let [set, ...rest] = sets;
+          this.api.saveImportConfig(set.id, settings)
+              .then(() => {
+                console.debug("Saved: ", set.id);
+                saveSettings(rest, settings);
+              });
+        }
+      }
+      let from = prompt('Pick source dataset:');
+      if (from !== null) {
+        this.api.getImportConfig(from).then(data => {
           this.api.listDatasets()
               .then(sets => saveSettings(sets.filter(s => s.id !== from), data));
         })
@@ -291,17 +348,25 @@ export default {
               <i class="fa fa-file-code-o"></i>
               Import datasets from JSON
             </button>
-            <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn dropdown-item">
+            <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn btn-danger dropdown-item">
               <i class="fa fa-refresh"></i>
               Sync All Datasets
             </button>
-            <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn dropdown-item">
+            <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn btn-danger dropdown-item">
               <i class="fa fa-copy"></i>
               Sync Convert Settings
             </button>
-            <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn dropdown-item">
+            <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn btn-danger dropdown-item">
               <i class="fa fa-file-code-o"></i>
               Convert All Datasets
+            </button>
+            <button v-on:click.prevent="showOptions = false; copyImportSettingsFrom()" class="btn btn-danger dropdown-item">
+              <i class="fa fa-copy"></i>
+              Sync Import Settings
+            </button>
+            <button v-on:click.prevent="showOptions = false; importAllDatasets()" class="btn btn-danger dropdown-item">
+              <i class="fa fa-database"></i>
+              Import All Datasets
             </button>
           </div>
         </div>
