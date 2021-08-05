@@ -57,7 +57,7 @@ case class ResourceSyncConfigs @Inject()(
       else if (!r.header(HeaderNames.CONTENT_TYPE).forall(s => s == "text/xml" || s == "application/xml"))
         BadRequest(Json.obj("error" -> s"Unexpected content type"))
       else
-        Ok(Json.toJson("ok" -> true))
+        Ok(Json.obj("ok" -> true))
     }
   }
 

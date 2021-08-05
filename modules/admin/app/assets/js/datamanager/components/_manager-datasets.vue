@@ -73,26 +73,27 @@ export default {
     refreshStats: function() {
       this.api.datasetStats().then(stats => this.stats = stats);
     },
-    syncAll: function() {
-      let self = this;
-      function syncDataset(sets: ImportDataset[]) {
+    syncAllDatasets: function() {
+      // This is a shortcut for downloading ResourceSync files
+      // for all datasets... it is not really 'production ready'...
+      let syncDataset = (sets: ImportDataset[]) => {
         if (sets.length > 0) {
           let [set, ...rest]  = sets;
 
           console.debug("Syncing", set);
-          self.api.getSyncConfig(set.id).then(config => {
+          this.api.getSyncConfig(set.id).then(config => {
             if (config) {
-              self.$set(self.working, set.id, true);
-              self.api.sync(set.id, config).then( ({jobId, url}) => {
-                let worker = new Worker(self.config.previewLoader);
+              this.$set(this.working, set.id, true);
+              this.api.sync(set.id, config).then( ({url}) => {
+                let worker = new Worker(this.config.previewLoader);
                 worker.onmessage = msg => {
                   if (msg.data.msg) {
                     console.debug(msg.data.msg);
                   }
                   if (msg.data.done || msg.data.error) {
                     worker.terminate();
-                    self.refreshStats();
-                    self.$delete(self.working, set.id);
+                    this.refreshStats();
+                    this.$delete(this.working, set.id);
                     syncDataset(rest);
                   }
                 };
@@ -111,6 +112,61 @@ export default {
       }
 
       this.api.listDatasets().then(syncDataset);
+    },
+    convertAllDatasets: function() {
+      // This is a shortcut for running conversion on all datasets...
+      let convertDataset = (sets: ImportDataset[]) => {
+        if (sets.length > 0) {
+          let [set, ...rest]  = sets;
+
+          console.debug("Converting", set);
+          this.api.getConvertConfig(set.id).then(config => {
+            this.$set(this.working, set.id, true);
+            this.api.convert(set.id, null, {mappings: config, force: false}).then( ({url}) => {
+              let worker = new Worker(this.config.previewLoader);
+              worker.onmessage = msg => {
+                if (msg.data.msg) {
+                  console.debug(msg.data.msg);
+                }
+                if (msg.data.done || msg.data.error) {
+                  worker.terminate();
+                  this.refreshStats();
+                  this.$delete(this.working, set.id);
+                  convertDataset(rest);
+                }
+              };
+              worker.postMessage({
+                type: 'websocket',
+                url: url,
+                DONE: DatasetManagerApi.DONE_MSG,
+                ERR: DatasetManagerApi.ERR_MSG
+              });
+            });
+          });
+        }
+      }
+
+      this.api.listDatasets().then(convertDataset);
+    },
+    copyConvertSettingsFrom: function() {
+      // Copy convert settings from one dataset to all the others...
+      let saveSettings = (sets: ImportDataset[], settings: [string, object][]) => {
+        if (sets.length > 0) {
+          let [set, ...rest] = sets;
+          this.api.saveConvertConfig(set.id, settings)
+              .then(r => {
+                console.debug("Saved: ", set.id, r.ok);
+                saveSettings(rest, settings);
+              });
+        }
+      }
+      let from = prompt('Pick source dataset:');
+      if (from !== null) {
+        this.api.getConvertConfig(from).then(data => {
+          this.api.listDatasets()
+              .then(sets => saveSettings(sets.filter(s => s.id !== from), data));
+        })
+      }
     },
     loadDatasets: function() {
       this.refreshStats();
@@ -235,9 +291,17 @@ export default {
               <i class="fa fa-file-code-o"></i>
               Import datasets from JSON
             </button>
-            <button v-on:click.prevent="showOptions = false; syncAll()" class="btn dropdown-item">
+            <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn dropdown-item">
               <i class="fa fa-refresh"></i>
               Sync All Datasets
+            </button>
+            <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn dropdown-item">
+              <i class="fa fa-copy"></i>
+              Sync Convert Settings
+            </button>
+            <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn dropdown-item">
+              <i class="fa fa-file-code-o"></i>
+              Convert All Datasets
             </button>
           </div>
         </div>
@@ -291,13 +355,15 @@ export default {
               </a>
               <template v-if="datasets.length > 1">
                 <div class="dropdown-divider"></div>
-                <a v-for="ds in datasets" v-on:click.prevent="selectDataset(ds); showSelector = false" href="#" class="dropdown-item">
-                  <i class="fa fa-fw" v-bind:class="{'fa-asterisk': ds.id===dataset.id}"></i>
-                  {{ ds.name }}
-                  <div class="badge badge-pill" v-bind:class="'badge-' + ds.src">
-                    <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
-                  </div>
-                </a>
+                <div id="dataset-selector-list">
+                  <a v-for="ds in datasets" v-on:click.prevent="selectDataset(ds); showSelector = false" href="#" class="dropdown-item">
+                    <i class="fa fa-fw" v-bind:class="{'fa-asterisk': ds.id===dataset.id}"></i>
+                    {{ ds.name }}
+                    <div class="badge badge-pill" v-bind:class="'badge-' + ds.src">
+                      <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                    </div>
+                  </a>
+                </div>
               </template>
               <div class="dropdown-divider"></div>
               <a v-on:click.prevent="closeDataset(); showSelector = false" href="#" class="dropdown-item">
