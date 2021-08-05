@@ -188,6 +188,11 @@ export default {
     },
     cancelEditParamters: function() {
       this.editingParameters = null;
+    },
+    initialise: function() {
+      this.loadConfig().then(_ => {
+        this.loadTransformations().then(_ => this.initialised = true);
+      });
     }
   },
   computed: {
@@ -229,15 +234,11 @@ export default {
     },
     datasetId: function() {
       Object.assign(this.$data, initialConvertState(this.config));
-      this.loadConfig().then(_ => {
-        this.loadTransformations();
-      });
+      this.initialise();
     }
   },
   created: function () {
-    this.loadConfig().then(_ => {
-      this.loadTransformations().then(_ => this.initialised = true);
-    });
+    this.initialise();
     this.resumeMonitor();
   },
 };
