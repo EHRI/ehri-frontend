@@ -100,7 +100,7 @@ case class ImportDatasets @Inject()(
 
   def batch(id: String): Action[Seq[ImportDatasetInfo]] = EditAction(id).async(parse.json[Seq[ImportDatasetInfo]]) { implicit request =>
     datasets.batch(id, request.body).map { _ =>
-      Ok(Json.toJson("ok" -> true))
+      Ok(Json.obj("ok" -> true))
     }
   }
 
