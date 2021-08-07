@@ -115,6 +115,8 @@ export default {
     },
     convertAllDatasets: function() {
       // This is a shortcut for running conversion on all datasets...
+      let forceCheck = prompt("Type 'yes' to force conversions:");
+      let force = forceCheck === null || forceCheck.toLowerCase() === "yes";
       let convertDataset = (sets: ImportDataset[]) => {
         if (sets.length > 0) {
           let [set, ...rest]  = sets;
@@ -122,7 +124,7 @@ export default {
           console.debug("Converting", set);
           this.api.getConvertConfig(set.id).then(config => {
             this.$set(this.working, set.id, true);
-            this.api.convert(set.id, null, {mappings: config, force: false}).then( ({url}) => {
+            this.api.convert(set.id, null, {mappings: config, force: force}).then( ({url}) => {
               let worker = new Worker(this.config.previewLoader);
               worker.onmessage = msg => {
                 if (msg.data.msg) {
