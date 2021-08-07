@@ -20,8 +20,13 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   private implicit val parser: RowParser[ImportFileHandle] =
     Macro.parser[ImportFileHandle]("id", "repo_id", "import_dataset_id", "key", "version_id")
 
+
+
   override def getHandles(unitId: String): Future[Seq[ImportFileHandle]] = Future {
     db.withConnection { implicit conn =>
+      // NB: it doesn't matter if we select an event with type 'unchanged' here
+      // because the file will still reflect the most up-to-date info we have
+      // on the object...
       SQL"""SELECT l.id, l.repo_id, l.import_dataset_id, m.key, m.version_id
           FROM import_log l, import_file_mapping m
           WHERE l.id = m.import_log_id AND m.item_id = $unitId
@@ -74,6 +79,11 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
 
       if (log.updatedKeys.nonEmpty) {
         val params = inserts(log.updatedKeys, ImportLogOpType.Updated)
+        BatchSql(q, params.head, params.tail: _*).execute()
+      }
+
+      if (log.unchangedKeys.nonEmpty) {
+        val params = inserts(log.unchangedKeys, ImportLogOpType.Unchanged)
         BatchSql(q, params.head, params.tail: _*).execute()
       }
     }

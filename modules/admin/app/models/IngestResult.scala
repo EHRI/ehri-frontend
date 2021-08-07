@@ -1,17 +1,19 @@
 package models
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json.JsonConfiguration.Aux
 import play.api.libs.json.JsonNaming.SnakeCase
 import play.api.libs.json._
-import services.data.ValidationError
+import services.data.ErrorSet
 
 // A result from the import endpoint
 sealed trait IngestResult
 
 object IngestResult {
+
   implicit val reads: Reads[IngestResult] = Reads { json =>
-    json.validate[ValidationError]
-      .map(e => ErrorLog("Validation error", e.toString))
+    json.validate[ImportValidationError]
+      .map(e => ErrorLog(s"Validation error at ${e.context}", e.toString))
       .orElse(json.validate[ErrorLog])
       .orElse(json.validate[ImportLog])
       .orElse(json.validate[SyncLog])
@@ -23,6 +25,19 @@ object IngestResult {
   }
   implicit val format: Format[IngestResult] = Format(reads, writes)
 }
+
+case class ImportValidationError(context: String, errorSet: ErrorSet) extends RuntimeException(errorSet.toString) {
+  override def toString: String = errorSet.toString
+}
+
+object ImportValidationError {
+  implicit val _reads: Reads[ImportValidationError] = (
+    (__ \ "error").read[String] and
+    (__ \ "context").read[String] and
+    (__ \ "details").read[ErrorSet]
+  )((_, c, s) => ImportValidationError(c, s))
+}
+
 
 // The result of a regular import
 case class ImportLog(

@@ -40,8 +40,8 @@ object ValidationError {
 
   implicit val _reads: Reads[ValidationError] = (
     (__ \ "error").read[String] and
-    (__ \ "details").read[ErrorSet]
-  )((_, s) => ValidationError(s))
+      (__ \ "details").read[ErrorSet]
+    )((_, s) => ValidationError(s))
 }
 
 case class JsonError(msg: String) extends RuntimeException(msg) with DataServiceError
