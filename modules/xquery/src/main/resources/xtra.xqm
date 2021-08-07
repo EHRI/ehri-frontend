@@ -266,6 +266,8 @@ declare variable $xtra:langs := map {
   "Dzongkha": "dzo"
 };
 
-declare function xtra:language-name-to-code($name as xs:string) as xs:string? {
-    map:get($xtra:langs, $name)
+declare function xtra:language-name-to-code($name as xs:string) as xs:string {
+  if (map:contains($xtra:langs, $name))
+      then map:get($xtra:langs, $name)
+      else $name
 };
