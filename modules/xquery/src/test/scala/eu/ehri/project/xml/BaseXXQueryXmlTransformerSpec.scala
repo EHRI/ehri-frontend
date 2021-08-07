@@ -25,9 +25,17 @@ class BaseXXQueryXmlTransformerSpec extends Specification {
     "handle custom functions" in {
       val transformer = xml.BaseXXQueryXmlTransformer()
       val map = Source.fromResource("simple-mapping.tsv").mkString +
-          "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\txtra:ehri()"
+        "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\txtra:ehri()"
       val out = transformer.transform(testPayload, map)
       out must contain("EHRI_xtra_func")
+    }
+
+    "handle custom functions 2" in {
+      val transformer = xml.BaseXXQueryXmlTransformer()
+      val map = Source.fromResource("simple-mapping.tsv").mkString +
+          "\n/ead/eadheader/\teadid\t/ead/eadheader/eadid\txtra:language-name-to-code('Ukrainian')"
+      val out = transformer.transform(testPayload, map)
+      out must contain("ukr")
     }
 
     "report errors with context" in {
