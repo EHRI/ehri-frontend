@@ -252,15 +252,40 @@ CREATE TABLE import_file_mapping (
     type          VARCHAR(10) NOT NULL
 );
 
-
 CREATE INDEX import_file_mapping_import_log_id ON import_file_mapping (import_log_id);
 CREATE INDEX import_file_mapping_key ON import_file_mapping (key);
 CREATE INDEX import_file_mapping_item_id ON import_file_mapping (item_id);
 CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping(import_log_id, item_id);
 
 
+CREATE TABLE repo_snapshot(
+    id          SERIAL PRIMARY KEY,
+    repo_id     VARCHAR(50) NOT NULL,
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes       TEXT NULL
+);
+
+CREATE INDEX repo_snapshot_repo_id ON repo_snapshot(repo_id);
+
+CREATE TABLE repo_snapshot_item(
+    id                  SERIAL PRIMARY KEY,
+    repo_snapshot_id    INTEGER NOT NULL,
+    item_id             TEXT NOT NULL,
+    local_id            TEXT NOT NULL,
+    CONSTRAINT repo_snapshot_item_repo_snapshot_id
+        FOREIGN KEY (repo_snapshot_id)
+            REFERENCES repo_snapshot (id)
+            ON DELETE CASCADE
+);
+
+CREATE INDEX repo_snapshot_item_item_id ON repo_snapshot_item(item_id);
+CREATE INDEX repo_snapshot_item_local_id ON repo_snapshot_item(local_id);
+
+
  # --- !Downs
 
+DROP TABLE IF EXISTS repo_snapshot_item;
+DROP TABLE IF EXISTS repo_snapshot;
 DROP TABLE IF EXISTS import_file_mapping;
 DROP TABLE IF EXISTS import_log;
 DROP TABLE IF EXISTS import_config;

@@ -132,3 +132,13 @@ export interface ValidationResult {
   eTag?: string,
   errors: XmlValidationError[],
 }
+
+export interface Snapshot {
+  id: number,
+  created: string,
+  notes?: string,
+}
+
+export interface SnapshotInfo {
+  notes?: string,
+}

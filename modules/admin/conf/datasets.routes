@@ -53,3 +53,7 @@ GET         /api/:id/import/:ds/config                    @controllers.datasets.
 PUT         /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.save(id: String, ds: String)
 DELETE      /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.delete(id: String, ds: String)
 POST        /api/:id/import/:ds                           @controllers.datasets.ImportConfigs.ingestFiles(id: String, ds: String)
+
+GET         /api/:id/snapshots                            @controllers.datasets.ImportLogs.listSnapshots(id: String)
+PUT         /api/:id/snapshots                            controllers.datasets.ImportLogs.takeSnapshot(id: String)
+POST        /api/:id/snapshots/:sn/diff                   controllers.datasets.ImportLogs.diff(id: String, sn: Int)
