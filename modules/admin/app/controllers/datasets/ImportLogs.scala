@@ -51,7 +51,7 @@ case class ImportLogs @Inject()(
     }
   }
 
-  def diff(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
+  def diffSnapshot(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.findUntouchedItemIds(id, snapshotId).map { items =>
       Ok(Json.toJson(items))
     }

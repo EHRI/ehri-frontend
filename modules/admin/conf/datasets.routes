@@ -56,4 +56,4 @@ POST        /api/:id/import/:ds                           @controllers.datasets.
 
 GET         /api/:id/snapshots                            @controllers.datasets.ImportLogs.listSnapshots(id: String)
 PUT         /api/:id/snapshots                            controllers.datasets.ImportLogs.takeSnapshot(id: String)
-POST        /api/:id/snapshots/:sn/diff                   controllers.datasets.ImportLogs.diff(id: String, sn: Int)
+POST        /api/:id/snapshots/:sn/diff                   controllers.datasets.ImportLogs.diffSnapshot(id: String, sn: Int)

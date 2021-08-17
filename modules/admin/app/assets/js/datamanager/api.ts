@@ -231,11 +231,15 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.ImportDatasets.delete(this.repoId, ds));
   }
 
+  listSnapshots(): Promise<SnapshotInfo[]> {
+    return DatasetManagerApi.call(this.service.ImportLogs.listSnapshots(this.repoId));
+  }
+
   takeSnapshot(info: SnapshotInfo): Promise<Snapshot> {
     return DatasetManagerApi.call(this.service.ImportLogs.takeSnapshot(this.repoId), info);
   }
 
-  listSnapshots(): Promise<SnapshotInfo[]> {
-    return DatasetManagerApi.call(this.service.ImportLogs.listSnapshots(this.repoId));
+  diffSnapshot(snId: number): Promise<[string, string][]> {
+    return DatasetManagerApi.call(this.service.ImportLogs.diffSnapshot(this.repoId, snId));
   }
 }
