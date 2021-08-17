@@ -7,6 +7,7 @@ import ManagerUpload from './_manager-upload';
 import ManagerIngest from './_manager-ingest';
 import ManagerRs from './_manager-rs';
 import ManagerConvert from './_manager-convert.vue';
+import ManagerSnapshots from "./_manager-snapshots.vue";
 
 import MixinUtil from './_mixin-util';
 import {ImportConfig, ImportDataset, ImportDatasetSrc} from '../types';
@@ -17,8 +18,7 @@ import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
 
 export default {
-  components: {
-    ModalDatasetConfig, ModalDatasetImport, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
+  components: {ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
   mixins: [MixinUtil],
   props: {
     config: Object,
@@ -38,6 +38,7 @@ export default {
       showSelector: false,
       stats: {},
       working: {},
+      snapshots: false,
     }
   },
   methods: {
@@ -308,7 +309,14 @@ export default {
                   v-on:close="showImportForm = false"
                   v-on:saved="reloadDatasets(); showImportForm = false" />
 
-    <div v-if="!loaded && dataset === null" class="dataset-loading-indicator">
+    <div v-if="snapshots">
+      <button v-on:click="snapshots = false" class="btn close">&times;</button>
+      <manager-snapshots
+        v-bind:config="config"
+        v-bind:api="api"
+        />
+    </div>
+    <div v-else-if="!loaded && dataset === null" class="dataset-loading-indicator">
       <h2>
         <i class="fa fa-lg fa-spin fa-spinner"></i>
         Loading datasets...
@@ -360,6 +368,10 @@ export default {
               <button v-on:click.prevent="showOptions = false; takeSnapshot()" class="btn btn-danger dropdown-item">
                 <i class="fa fa-list"></i>
                 Snapshot repository item IDs
+              </button>
+              <button v-on:click.prevent="showOptions = false; snapshots = true" class="btn btn-danger dropdown-item">
+                <i class="fa fa-list-alt"></i>
+                Manage snapshots
               </button>
             </div>
           </div>
