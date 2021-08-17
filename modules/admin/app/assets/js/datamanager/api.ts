@@ -8,7 +8,7 @@ import {
   ImportConfig, ImportDataset, ImportDatasetInfo,
   JobMonitor,
   OaiPmhConfig, RepositoryDatasets,
-  ResourceSyncConfig, ValidationResult
+  ResourceSyncConfig, Snapshot, SnapshotInfo, ValidationResult
 } from "./types";
 
 
@@ -229,5 +229,13 @@ export class DatasetManagerApi {
 
   deleteDataset(ds: string): Promise<void> {
     return DatasetManagerApi.call(this.service.ImportDatasets.delete(this.repoId, ds));
+  }
+
+  takeSnapshot(info: SnapshotInfo): Promise<Snapshot> {
+    return DatasetManagerApi.call(this.service.ImportLogs.takeSnapshot(this.repoId), info);
+  }
+
+  listSnapshots(): Promise<SnapshotInfo[]> {
+    return DatasetManagerApi.call(this.service.ImportLogs.listSnapshots(this.repoId));
   }
 }

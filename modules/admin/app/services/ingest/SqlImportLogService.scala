@@ -1,24 +1,36 @@
 package services.ingest
 
 import akka.actor.ActorSystem
-import anorm.SqlParser.scalar
+import akka.stream.Materializer
+import akka.stream.scaladsl.{Sink, Source}
+import anorm.SqlParser._
 import anorm._
 import models.ImportLog
-
-import javax.inject.Inject
 import play.api.Logger
 import play.api.db.Database
 import services.ingest.IngestService.IngestData
 
+import java.time.Instant
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+
+
 case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem) extends ImportLogService {
   private val logger: Logger = Logger(classOf[SqlImportLogService])
 
   private implicit def executionContext: ExecutionContext =
-    actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
+    actorSystem.dispatchers.lookup("contexts.db-writes")
+
+  private implicit val mat: Materializer = Materializer(actorSystem)
 
   private implicit val parser: RowParser[ImportFileHandle] =
     Macro.parser[ImportFileHandle]("id", "repo_id", "import_dataset_id", "key", "version_id")
+
+  private val snapshotParser: RowParser[Snapshot] =
+    Macro.parser[Snapshot]("id", "created", "notes")
+
+  private val idMapParser = (str("item_id") ~ str("local_id"))
+    .map { case item ~ local => item -> local }
 
 
 
@@ -86,6 +98,62 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
         val params = inserts(log.unchangedKeys, ImportLogOpType.Unchanged)
         BatchSql(q, params.head, params.tail: _*).execute()
       }
+    }
+  }
+
+  override def snapshots(repoId: String): Future[Seq[Snapshot]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"SELECT id, created, notes FROM repo_snapshot WHERE repo_id = $repoId ORDER BY created DESC".as(snapshotParser.*)
+    }
+  }
+
+  override def snapshotIdMap(id: Int): Future[Seq[(String, String)]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT item_id, local_id
+            FROM repo_snapshot_item
+            WHERE repo_snapshot_id = $id""".as(idMapParser.*)
+    }
+  }
+
+  override def saveSnapshot(repoId: String, idMap: Source[(String, String), _], notes: Option[String] = None): Future[Snapshot] = {
+    idMap.grouped(2000).runWith(Sink.seq).map { batches =>
+      db.withTransaction { implicit conn =>
+        val snapshot: Snapshot =
+          SQL"""INSERT INTO repo_snapshot (repo_id, notes)
+                        VALUES ($repoId, $notes) RETURNING id, created, notes""".as(snapshotParser.single)
+
+        batches.foreach { idMap =>
+          if (idMap.nonEmpty) {
+            logger.debug(s"Inserting batch of ${idMap.size} snapshot items...")
+            val inserts = for ((itemId, localId) <- idMap) yield Seq[NamedParameter](
+              "repo_snapshot_id" -> snapshot.id,
+              "item_id" -> itemId,
+              "local_id" -> localId
+            )
+
+            val q =
+              """INSERT INTO repo_snapshot_item (repo_snapshot_id, item_id, local_id)
+                 VALUES ({repo_snapshot_id}, {item_id}, {local_id})"""
+
+            BatchSql(q, inserts.head, inserts.tail: _*).execute()
+          }
+        }
+        snapshot
+      }
+    }
+  }
+
+  def findUntouchedItemIds(repoId: String, snapshotId: Int): Future[Seq[(String, String)]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT si.item_id, si.local_id FROM repo_snapshot_item si
+              JOIN repo_snapshot s ON si.repo_snapshot_id = s.id
+            WHERE si.item_id NOT IN (
+              SELECT item_id FROM import_log_file_mapping m
+                JOIN import_log l ON m.import_log_id = l.id
+                WHERE l.repo_id = $repoId AND l.created > s.created
+            )
+            ORDER BY si.item_id
+            """.as(idMapParser.*)
     }
   }
 }

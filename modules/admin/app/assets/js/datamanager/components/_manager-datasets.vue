@@ -227,6 +227,11 @@ export default {
         })
       }
     },
+    takeSnapshot: function() {
+      this.api.takeSnapshot({})
+        .then(data => console.log("Snapshot created with id", data.id))
+        .catch(e => console.error("Error taking snapshot", e))
+    },
     loadDatasets: function() {
       this.refreshStats();
       return this.api.listDatasets()
@@ -319,7 +324,46 @@ export default {
         </p>
       </template>
       <template v-else>
-        <h2 v-if="datasets">Datasets</h2>
+        <div id="dataset-manager-heading">
+          <h2 v-if="datasets">Datasets</h2>
+          <div class="dropdown">
+            <button class="btn" v-on:click="showOptions = !showOptions">
+              <i class="fa fa-fw fa-ellipsis-v"></i>
+            </button>
+            <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
+            </div>
+            <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
+              <button v-on:click.prevent="showImportForm = true; showOptions = false" class="btn dropdown-item">
+                <i class="fa fa-file-code-o"></i>
+                Import datasets from JSON
+              </button>
+              <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-refresh"></i>
+                Sync All Datasets
+              </button>
+              <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-copy"></i>
+                Sync Convert Settings
+              </button>
+              <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-file-code-o"></i>
+                Convert All Datasets
+              </button>
+              <button v-on:click.prevent="showOptions = false; copyImportSettingsFrom()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-copy"></i>
+                Sync Import Settings
+              </button>
+              <button v-on:click.prevent="showOptions = false; importAllDatasets()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-database"></i>
+                Import All Datasets
+              </button>
+              <button v-on:click.prevent="showOptions = false; takeSnapshot()" class="btn btn-danger dropdown-item">
+                <i class="fa fa-list"></i>
+                Snapshot repository item IDs
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="dataset-manager-list">
           <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" class="dataset-manager-item">
             <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
@@ -339,39 +383,6 @@ export default {
           <i class="fa fa-plus-circle"></i>
           Create a new dataset...
         </button>
-        <div class="dropdown">
-          <button class="btn btn-default" v-on:click="showOptions = !showOptions">
-            <i class="fa fa-fw fa-ellipsis-v"></i>
-          </button>
-          <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
-          </div>
-          <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
-            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="btn dropdown-item">
-              <i class="fa fa-file-code-o"></i>
-              Import datasets from JSON
-            </button>
-            <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-refresh"></i>
-              Sync All Datasets
-            </button>
-            <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-copy"></i>
-              Sync Convert Settings
-            </button>
-            <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-file-code-o"></i>
-              Convert All Datasets
-            </button>
-            <button v-on:click.prevent="showOptions = false; copyImportSettingsFrom()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-copy"></i>
-              Sync Import Settings
-            </button>
-            <button v-on:click.prevent="showOptions = false; importAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-database"></i>
-              Import All Datasets
-            </button>
-          </div>
-        </div>
       </div>
     </div>
     <template v-else>

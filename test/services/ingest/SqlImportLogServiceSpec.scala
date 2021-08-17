@@ -1,6 +1,7 @@
 package services.ingest
 
 import akka.actor.ActorSystem
+import akka.stream.scaladsl.Source
 import helpers._
 import models.{ContentTypes, ImportLog, IngestParams, UrlMapPayload}
 import org.specs2.specification.AfterAll
@@ -48,6 +49,17 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       await(service.save("r1", "default", job, log))
 
       await(service.updateHandles(Seq("unit-1" -> "new-unit-1", "unit-2" -> "new-unit-2"))) must_== 2
+    }
+
+    "handle snapshots" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      val idMap = List("r1-1" -> "1", "r1-2" -> "2")
+      val s = await(service.saveSnapshot("r1", Source(idMap), Some("Testing...")))
+      val list = await(service.snapshots("r1"))
+      list.size must_== 1
+      list.head.id must_== s
+      list.head.notes must beSome("Testing...")
+
+      await(service.snapshotIdMap(s.id)) must_== idMap
     }
   }
 }

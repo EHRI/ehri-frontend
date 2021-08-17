@@ -52,6 +52,12 @@ body {
   flex: 1;
 }
 
+#dataset-manager-heading {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 #dataset-selector-list {
   max-height: 40rem;
   overflow-y: auto;

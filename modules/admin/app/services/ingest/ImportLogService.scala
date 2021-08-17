@@ -1,10 +1,13 @@
 package services.ingest
 
+import akka.stream.scaladsl.Source
 import com.google.inject.ImplementedBy
 import models.ImportLog
+import play.api.libs.json.{Json, Reads, Writes}
 import services.ingest.IngestService.IngestData
 import utils.db.StorableEnum
 
+import java.time.Instant
 import scala.concurrent.Future
 
 
@@ -21,6 +24,13 @@ case class ImportFileHandle(
   key: String,
   versionId: Option[String]
 )
+
+case class Snapshot(id: Int, created: Instant, notes: Option[String])
+object Snapshot {
+  implicit val _writes: Writes[Snapshot] = Json.format[Snapshot]
+}
+
+
 
 @ImplementedBy(classOf[SqlImportLogService])
 trait ImportLogService {
@@ -50,4 +60,42 @@ trait ImportLogService {
     * @param log       the job output data
     */
   def save(repoId: String, datasetId: String, job: IngestData, log: ImportLog): Future[Unit]
+
+
+  /**
+    * Create a snapshot of identifiers for a repository at a given time.
+    *
+    * @param repoId the repository ID
+    * @param idMap  the map of global to local identifiers for all items
+    *               in the specified repository
+    */
+  def saveSnapshot(repoId: String, idMap: Source[(String, String), _], notes: Option[String] = None): Future[Snapshot]
+
+  /**
+    * Retrieve the items associated with a given snapshot.
+    *
+    * @param id the snapshot ID
+    */
+  def snapshotIdMap(id: Int): Future[Seq[(String, String)]]
+
+  /**
+    * List snapshots for a given repository.
+    *
+    * @param repoId the repository ID
+    * @return a sequence of snapshot id, creation time and optional notes in
+    *         most-recently-created order
+    */
+  def snapshots(repoId: String): Future[Seq[Snapshot]]
+
+  /**
+    * Return a list of item IDs that have not been touched by imports
+    * since the given snapshot. This can be used to determine items that
+    * have
+    *
+    * @param repoId the repository ID
+    * @param snapshotId the snapshot ID
+    * @return a list of items that do not exist in import logs for the given repository
+    *         since the given snapshot
+    */
+  def findUntouchedItemIds(repoId: String, snapshotId: Int): Future[Seq[(String, String)]]
 }
