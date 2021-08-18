@@ -12,6 +12,7 @@ POST        /api/:id/datasets                             @controllers.datasets.
 PUT         /api/:id/datasets                             @controllers.datasets.ImportDatasets.batch(id: String)
 PUT         /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.update(id: String, ds: String)
 DELETE      /api/:id/datasets/:ds                         @controllers.datasets.ImportDatasets.delete(id: String, ds: String)
+GET         /api/:id/datasets/:ds/errors                  @controllers.datasets.ImportDatasets.errors(id: String, ds: String)
 
 GET         /api/:id/files/file/:ds/:stage                @controllers.datasets.ImportFiles.download(id: String, ds: String, stage: models.FileStage.Value, fileName: String, versionId: Option[String] ?= None)
 PUT         /api/:id/files/file/:ds/:stage                @controllers.datasets.ImportFiles.uploadStream(id: String, ds: String, stage: models.FileStage.Value, fileName: String)

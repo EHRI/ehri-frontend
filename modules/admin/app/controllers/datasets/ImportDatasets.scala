@@ -9,6 +9,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.libs.json.{Format, Json}
 import play.api.mvc._
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
+import services.ingest.ImportLogService
 import services.storage.FileStorage
 
 import javax.inject._
@@ -27,6 +28,7 @@ case class ImportDatasets @Inject()(
   @Named("dam") storage: FileStorage,
   datasets: ImportDatasetService,
   asyncCache: AsyncCacheApi,
+  importLogService: ImportLogService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
   def ui(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
@@ -108,7 +110,15 @@ case class ImportDatasets @Inject()(
     // Delete all files in stages in the dataset, then the dataset itself...
     val del: Seq[Future[Seq[String]]] = FileStage.values.toSeq
       .map(s => storage.deleteFilesWithPrefix(prefix(id, ds, s)))
-    for (_ <- Future.sequence(del); out <- datasets.delete(id, ds))
+    for (_ <- Future.sequence(del); _ <- datasets.delete(id, ds))
       yield NoContent
+  }
+
+  def errors(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.errors(id, ds).map { errs =>
+      Ok(Json.toJson(errs.map { case (key, err) =>
+        key.replace(prefix(id, ds, FileStage.Output), "") -> key
+      }))
+    }
   }
 }

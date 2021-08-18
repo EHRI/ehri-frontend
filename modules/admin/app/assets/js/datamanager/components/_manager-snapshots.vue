@@ -18,6 +18,7 @@ export default {
       diff: [],
       loading: false,
       loadingDiff: false,
+      snapshotInProgress: false,
     }
   },
   methods: {
@@ -28,6 +29,13 @@ export default {
           .then(diff => this.diff = diff)
           .catch(e => this.showError("Unable to load snapshot diff", e))
           .finally(() => this.loadingDiff = false);
+    },
+    takeSnapshot: function() {
+      this.snapshotInProgress = true;
+      this.api.takeSnapshot({})
+          .then(data => this.refresh())
+          .catch(e => console.error("Error taking snapshot", e))
+          .finally(() => this.snapshotInProgress = false);
     },
     refresh: function() {
       this.loading = true;
@@ -44,25 +52,40 @@ export default {
 </script>
 <template>
   <div id="snapshot-manager">
-    <h2>Snapshots</h2>
-    <div v-if="current">
-      Snapshot taken at: {{ current.created }}
-
-      <div v-if="loadingDiff">
-        Loading untouched files since snapshot was taken...
-      </div>
-      <div v-else>
-        <p>Untouched files since snapshot taken: {{ diff.length }}</p>
-        <ul v-if="diff">
-          <li v-for="[item, local] in diff">
-            <a target="_blank" v-bind:href="'/admin/units/' + item">{{ item }}</a> ({{ local }})
-          </li>
-        </ul>
-      </div>
+    <div id="snapshot-manager-header">
+      <h2>Snapshots</h2>
+      <button v-on:click="$emit('close')" class="btn btn-sm btn-default">
+        <i class="fa fa-arrow-left"></i>
+        Back to dataset list
+      </button>
     </div>
-    <ul v-else-if="snapshots">
-      <li v-for="snapshot in snapshots" v-on:click.prevent="load(snapshot)">
-        <a href="#">{{ snapshot.created }}</a>
+    <p>
+      Snapshots record the global and local item identifiers
+      present in a repository at a given time. This can be used
+      to remove items not present in a set of import operations
+      by creating a before/after difference.
+      <button v-on:click.prevent="showOptions = false; takeSnapshot()" class="btn btn-sm btn-success">
+        <i v-if="!snapshotInProgress" class="fa fa-fw fa-list"></i>
+        <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+        Create Snapshot
+      </button>
+    </p>
+
+    <div v-if="current" id="snapshot-manager-inspector">
+      <h4>Snapshot taken at: {{ current.created }}</h4>
+
+      <p v-if="loadingDiff">
+        Loading untouched files since snapshot was taken...
+        <i class="fa fa-spin fa-spinner"></i>
+      </p>
+      <template v-else-if="diff">
+        <p>Untouched files since snapshot taken: <strong>{{ diff.length }}</strong></p>
+        <textarea class="form-control" id="snapshot-manager-diff">{{ diff.map(([item]) => item).join("\n") }}</textarea>
+      </template>
+    </div>
+    <ul v-else-if="snapshots" class="list-group" id="snapshot-manager-snapshot-list">
+      <li v-for="snapshot in snapshots" class="list-group-item">
+        <a class="list-group-item-action" v-on:click.prevent="load(snapshot)" href="#">{{ snapshot.created }}</a>
       </li>
     </ul>
   </div>

@@ -231,6 +231,10 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.ImportDatasets.delete(this.repoId, ds));
   }
 
+  datasetErrors(ds: string): Promise<void> {
+    return DatasetManagerApi.call(this.service.ImportDatasets.errors(this.repoId, ds));
+  }
+
   listSnapshots(): Promise<SnapshotInfo[]> {
     return DatasetManagerApi.call(this.service.ImportLogs.listSnapshots(this.repoId));
   }

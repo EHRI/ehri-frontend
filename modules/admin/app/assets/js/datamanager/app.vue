@@ -1,6 +1,8 @@
 <script lang="ts">
 
-import ManagerDatasets from './components/_manager-datasets';
+import ManagerDatasetList from './components/_manager-dataset-list';
+import ManagerDataset from './components/_manager-dataset';
+import ManagerSnapshots from './components/_manager-snapshots';
 import MixinUtil from './components/_mixin-util';
 import {DatasetManagerApi} from "./api";
 
@@ -18,23 +20,42 @@ const CONFIG = (window as any).CONFIG as ConfigType;
 const SERVICE = (window as any).SERVICE as any;
 
 export default {
-  components: {ManagerDatasets},
+  components: {ManagerDatasetList},
   mixins: [MixinUtil],
   data: function() {
     return {
       config: CONFIG,
       api: new DatasetManagerApi(SERVICE, CONFIG.repoId),
       tab: 'input',
+      dataset: null,
+      snapshots: false,
+      error: null,
     }
   },
+  methods: {
+    setError: function(err: string, exc?: Error) {
+      this.error = err + (exc ? (": " + exc.message) : "");
+    },
+  },
+  created() {
+    if (!this.config.versioned) {
+      this.setError("Note: file storage does not have versioning enabled.");
+    }
+  }
 }
 </script>
 
 <template>
-  <div id="app-container">
-    <manager-datasets
+  <div id="app-container" class="container">
+    <div v-if="error" id="app-error-notice" class="alert alert-danger alert-dismissable">
+      <span class="close" v-on:click="error = null">&times;</span>
+      {{error}}
+    </div>
+    <manager-dataset-list
         v-bind:config="config"
         v-bind:init-tab="tab"
-        v-bind:api="api" />
+        v-bind:api="api"
+        v-on:error="setError"
+        />
   </div>
 </template>
