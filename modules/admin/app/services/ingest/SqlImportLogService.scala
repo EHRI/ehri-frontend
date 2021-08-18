@@ -99,6 +99,23 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
         val params = inserts(log.unchangedKeys, ImportLogOpType.Unchanged)
         BatchSql(q, params.head, params.tail: _*).execute()
       }
+
+      if (log.errors.nonEmpty) {
+        val q =
+          """INSERT INTO import_error (import_log_id, key, version_id, error_text)
+             VALUES ({import_log_id}, {key}, {version_id}, {error_text})"""
+        val inserts = (for {
+          (path, errorText) <- log.errors
+          (key, versionId) = parseKey(path)
+        } yield Seq[NamedParameter](
+          "import_log_id" -> logId,
+          "key" -> key,
+          "version_id" -> versionId,
+          "error_text" -> errorText
+        )).toSeq
+
+        BatchSql(q, inserts.head, inserts.tail: _*).execute()
+      }
     }
   }
 

@@ -259,6 +259,15 @@ CREATE INDEX import_file_mapping_key ON import_file_mapping (key);
 CREATE INDEX import_file_mapping_item_id ON import_file_mapping (item_id);
 CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping (import_log_id, item_id);
 
+CREATE TABLE import_error(
+  id                SERIAL PRIMARY KEY,
+  import_log_id     INT REFERENCES import_log (id) ON DELETE CASCADE,
+  key               TEXT NOT NULL,
+  version_id        VARCHAR(1024),
+  error_text        TEXT
+);
+
+CREATE INDEX import_error_key ON import_error (key);
 
 CREATE TABLE repo_snapshot(
     id          SERIAL PRIMARY KEY,
@@ -286,11 +295,12 @@ CREATE INDEX repo_snapshot_item_local_id ON repo_snapshot_item(local_id);
 
  # --- !Downs
 
-DROP TABLE IF EXISTS repo_snapshot_item;
-DROP TABLE IF EXISTS repo_snapshot;
-DROP TABLE IF EXISTS import_file_mapping;
-DROP TABLE IF EXISTS import_log;
-DROP TABLE IF EXISTS import_config;
+DROP TABLE IF EXISTS repo_snapshot_item CASCADE;
+DROP TABLE IF EXISTS repo_snapshot CASCADE;
+DROP TABLE IF EXISTS import_error CASCADE;
+DROP TABLE IF EXISTS import_file_mapping CASCADE;
+DROP TABLE IF EXISTS import_log CASCADE;
+DROP TABLE IF EXISTS import_config CASCADE;
 DROP TABLE IF EXISTS data_transformation CASCADE;
 DROP TABLE IF EXISTS transformation_config CASCADE;
 DROP TABLE IF EXISTS harvest_event CASCADE;
