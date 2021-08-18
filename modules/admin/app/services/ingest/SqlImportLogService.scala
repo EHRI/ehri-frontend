@@ -10,7 +10,6 @@ import play.api.Logger
 import play.api.db.Database
 import services.ingest.IngestService.IngestData
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -24,7 +23,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   private implicit val mat: Materializer = Materializer(actorSystem)
 
   private implicit val parser: RowParser[ImportFileHandle] =
-    Macro.parser[ImportFileHandle]("id", "repo_id", "import_dataset_id", "key", "version_id")
+    Macro.parser[ImportFileHandle]("event_id", "repo_id", "import_dataset_id", "key", "version_id")
 
   private val snapshotParser: RowParser[Snapshot] =
     Macro.parser[Snapshot]("id", "created", "notes")
@@ -39,10 +38,12 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
       // NB: it doesn't matter if we select an event with type 'unchanged' here
       // because the file will still reflect the most up-to-date info we have
       // on the object...
-      SQL"""SELECT l.id, l.repo_id, l.import_dataset_id, m.key, m.version_id
-          FROM import_log l, import_file_mapping m
-          WHERE l.id = m.import_log_id AND m.item_id = $unitId
-          ORDER BY l.created DESC""".as(parser.*)
+      SQL"""SELECT log.event_id, log.repo_id, log.import_dataset_id, map.key, map.version_id
+          FROM import_log log, import_file_mapping map
+          WHERE log.id = map.import_log_id
+            AND log.event_id IS NOT NULL
+            AND map.item_id = $unitId
+          ORDER BY log.created DESC""".as(parser.*)
     }
   }
 
@@ -59,9 +60,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   override def save(repoId: String, datasetId: String, job: IngestData, log: ImportLog): Future[Unit] = Future {
     db.withTransaction { implicit conn =>
 
-      val logId: String = SQL"""INSERT INTO import_log (id, repo_id, import_dataset_id)
+      val logId: Int = SQL"""INSERT INTO import_log (event_id, repo_id, import_dataset_id)
                                 VALUES (${log.event}, $repoId, $datasetId)
-                                RETURNING id""".as(scalar[String].single)
+                                RETURNING id""".as(scalar[Int].single)
 
       def parseKey(key: String): (String, Option[String]) = {
         val parts = key.split("\\?versionId=")
@@ -154,8 +155,8 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
                   JOIN import_log log ON map.import_log_id = log.id
                   WHERE log.repo_id = $repoId
                     AND map.item_id = item.item_id
-                    AND log.created < snap.created
-            )
+                    AND log.created > snap.created
+              )
             ORDER BY item.item_id
             """.as(idMapParser.*)
     }

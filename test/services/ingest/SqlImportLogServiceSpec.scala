@@ -56,10 +56,13 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       val s = await(service.saveSnapshot("r1", Source(idMap), Some("Testing...")))
       val list = await(service.snapshots("r1"))
       list.size must_== 1
-      list.head.id must_== s
-      list.head.notes must beSome("Testing...")
+      list.head must_== s
 
       await(service.snapshotIdMap(s.id)) must_== idMap
+    }
+
+    "create item diffs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      success
     }
   }
 }
