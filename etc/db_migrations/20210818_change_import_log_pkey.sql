@@ -1,5 +1,6 @@
 BEGIN TRANSACTION ;
 ALTER TABLE import_log RENAME COLUMN id TO event_id;
+ALTER TABLE import_log ALTER COLUMN event_id DROP NOT NULL;
 ALTER TABLE import_log DROP CONSTRAINT import_log_pkey CASCADE;
 ALTER TABLE import_log ADD COLUMN id SERIAL PRIMARY KEY;
 ALTER TABLE import_file_mapping RENAME COLUMN import_log_id TO import_log_event_id;
