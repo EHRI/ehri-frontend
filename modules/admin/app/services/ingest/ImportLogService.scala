@@ -3,7 +3,7 @@ package services.ingest
 import akka.stream.scaladsl.Source
 import com.google.inject.ImplementedBy
 import models.ImportLog
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.{Json, Writes}
 import services.ingest.IngestService.IngestData
 import utils.db.StorableEnum
 
@@ -29,7 +29,6 @@ case class Snapshot(id: Int, created: Instant, notes: Option[String])
 object Snapshot {
   implicit val _writes: Writes[Snapshot] = Json.format[Snapshot]
 }
-
 
 
 @ImplementedBy(classOf[SqlImportLogService])
@@ -92,10 +91,19 @@ trait ImportLogService {
     * since the given snapshot. This can be used to determine items that
     * have
     *
-    * @param repoId the repository ID
+    * @param repoId     the repository ID
     * @param snapshotId the snapshot ID
     * @return a list of items that do not exist in import logs for the given repository
     *         since the given snapshot
     */
   def findUntouchedItemIds(repoId: String, snapshotId: Int): Future[Seq[(String, String)]]
+
+  /**
+    * Fetch errors for a dataset's most-recent import.
+    *
+    * @param repoId the repository ID
+    * @param datasetId the dataset ID
+    * @return a set of key/error tuples
+    */
+  def errors(repoId: String, datasetId: String): Future[Seq[(String, String)]]
 }

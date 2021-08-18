@@ -161,7 +161,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     }
   }
 
-  def findUntouchedItemIds(repoId: String, snapshotId: Int): Future[Seq[(String, String)]] = Future {
+  override def findUntouchedItemIds(repoId: String, snapshotId: Int): Future[Seq[(String, String)]] = Future {
     db.withConnection { implicit conn =>
       SQL"""SELECT DISTINCT item.item_id, item.local_id
             FROM repo_snapshot_item item
@@ -176,6 +176,27 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
               )
             ORDER BY item.item_id
             """.as(idMapParser.*)
+    }
+  }
+
+  override def errors(repoId: String, datasetId: String): Future[Seq[(String, String)]] = Future {
+    db.withConnection { implicit conn =>
+      val pairParser = (str("key") ~ str("error_text"))
+        .map { case key ~ err => key -> err}
+
+      val latestId: Option[Int] =
+        SQL"""SELECT id
+              FROM import_log
+              WHERE repo_id = $repoId
+                AND import_dataset_id = $datasetId
+                ORDER BY created DESC
+                LIMIT 1""".as(scalar[Int].singleOpt)
+
+      latestId.fold(ifEmpty = Seq.empty[(String, String)]) { (id: Int) =>
+        SQL"""SELECT DISTINCT key, error_text
+            FROM import_error
+            WHERE import_log_id = $id""".as(pairParser.*)
+      }
     }
   }
 }

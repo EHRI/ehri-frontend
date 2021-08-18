@@ -947,3 +947,36 @@ body {
     background-color: $active-table-row;
   }
 }
+
+#snapshot-manager {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#snapshot-manager-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#snapshot-manager-inspector {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#snapshot-manager-snapshot-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#snapshot-manager-diff {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  flex-basis: 0;
+  font-size: $font-size-sm;
+}
