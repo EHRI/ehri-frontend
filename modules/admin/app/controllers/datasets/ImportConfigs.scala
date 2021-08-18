@@ -95,7 +95,7 @@ case class ImportConfigs @Inject()(
       val ingestTask = IngestData(task, idt, contentType, implicitly[DataUser], instance)
       val job = IngestJob(jobId, ingestTask)
       val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
-        if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)
+        if (job.data.params.commit) importLogService.save(id, ds, job.data, log)
         else Future.successful(())
 
       mat.system.actorOf(Props(ingest.DataImporterManager(job, ingestService, onDone)), jobId)

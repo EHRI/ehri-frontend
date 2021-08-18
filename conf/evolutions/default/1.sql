@@ -231,7 +231,8 @@ CREATE TABLE import_config (
 
 
 CREATE TABLE import_log (
-    id                CHAR(36) PRIMARY KEY,
+    id                SERIAL PRIMARY KEY,
+    event_id          CHAR(36) NULL,
     repo_id           VARCHAR(50) NOT NULL,
     import_dataset_id VARCHAR(50) NOT NULL,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -241,11 +242,12 @@ CREATE TABLE import_log (
             ON DELETE CASCADE
 );
 
-CREATE INDEX import_log_repo_dataset ON import_log(repo_id, import_dataset_id);
+CREATE INDEX import_log_repo_dataset ON import_log (repo_id, import_dataset_id);
+CREATE INDEX import_log_event_id ON import_log (event_id);
 
 CREATE TABLE import_file_mapping (
     id            SERIAL PRIMARY KEY,
-    import_log_id CHAR(36) REFERENCES import_log (id) ON DELETE CASCADE,
+    import_log_id INT REFERENCES import_log (id) ON DELETE CASCADE,
     key           TEXT NOT NULL,
     version_id    VARCHAR(1024),
     item_id       TEXT NOT NULL,
@@ -255,7 +257,7 @@ CREATE TABLE import_file_mapping (
 CREATE INDEX import_file_mapping_import_log_id ON import_file_mapping (import_log_id);
 CREATE INDEX import_file_mapping_key ON import_file_mapping (key);
 CREATE INDEX import_file_mapping_item_id ON import_file_mapping (item_id);
-CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping(import_log_id, item_id);
+CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping (import_log_id, item_id);
 
 
 CREATE TABLE repo_snapshot(
