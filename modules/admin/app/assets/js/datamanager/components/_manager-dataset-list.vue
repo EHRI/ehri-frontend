@@ -2,7 +2,8 @@
 
 import ModalDatasetConfig from './_modal-dataset-config';
 import ModalDatasetImport from './_modal-dataset-import'
-import ManagerSnapshots from "./_manager-snapshots.vue";
+import ManagerSnapshots from "./_manager-snapshots";
+import ManagerCoreference from "./_manager-coreference";
 import ManagerDataset from "./_manager-dataset";
 
 import MixinUtil from './_mixin-util';
@@ -15,7 +16,7 @@ import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
 
 export default {
-  components: {ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport},
+  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport},
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
@@ -35,6 +36,7 @@ export default {
       stats: {},
       working: {},
       snapshots: false,
+      coreference: false,
     }
   },
   methods: {
@@ -250,13 +252,34 @@ export default {
           document.title,
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['snapshots']));
+    },
+    openCoreference: function() {
+      this.coreference = true;
+      history.pushState(
+          _merge(this.queryParams(window.location.search), {'refs': true}),
+          document.title,
+          this.setQueryParam(window.location.search, 'refs', true));
+    },
+    closeCoreference: function() {
+      this.coreference = false;
+      history.pushState(
+          _omit(this.queryParams(window.location.search), 'refs'),
+          document.title,
+          window.location.pathname
+          + this.removeQueryParam(window.location.search, ['refs']));
     }
   },
   created() {
-    this.snapshots = this.getQueryParam(window.location.search, "snapshots") === "true";
+    if (this.getQueryParam(window.location.search, "snapshots") === "true") {
+      this.snapshots = true;
+    } else if (this.getQueryParam(window.location.search, "refs") === "true") {
+      this.coreference = true;
+    }
     window.onpopstate = event => {
       if (event.state && event.state.snapshots) {
         this.snapshots = true;
+      } else if (event.state && event.state.refs) {
+        this.coreference = true;
       }
       if (event.state && event.state.ds) {
         this.dataset = _find(this.datasets, d => d.id === event.state.ds);
@@ -293,10 +316,17 @@ export default {
                   v-on:saved="reloadDatasets(); showImportForm = false" />
 
     <manager-snapshots
-      v-if="snapshots"
+        v-if="snapshots"
+        v-bind:config="config"
+        v-bind:api="api"
+        v-on:close="closeSnapshots"
+    />
+
+    <manager-coreference
+      v-else-if="coreference"
       v-bind:config="config"
       v-bind:api="api"
-      v-on:close="closeSnapshots"
+      v-on:close="closeCoreference"
         />
 
     <div v-else-if="!loaded && dataset === null" class="dataset-loading-indicator">
@@ -343,6 +373,10 @@ export default {
             <button v-on:click.prevent="showOptions = false; openSnapshots()" class="btn btn-danger dropdown-item">
               <i class="fa fa-list-alt"></i>
               Manage snapshots
+            </button>
+            <button v-on:click.prevent="showOptions = false; openCoreference()" class="btn btn-danger dropdown-item">
+              <i class="fa fa-link"></i>
+              Manage Coreference Table
             </button>
           </div>
         </div>

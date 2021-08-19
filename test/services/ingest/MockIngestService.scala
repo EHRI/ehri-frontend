@@ -1,6 +1,8 @@
 package services.ingest
+
 import akka.actor.ActorRef
 import models.{ContentTypes, IngestResult}
+import services.data.DataUser
 
 import scala.concurrent.Future
 
@@ -26,4 +28,7 @@ case class MockIngestService(res: IngestResult) extends IngestService {
 
   override def clearIndex(ids: Seq[String], chan: ActorRef) =
     Future.successful(())
+
+  override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser) =
+    Future.successful(res)
 }

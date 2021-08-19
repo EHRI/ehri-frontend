@@ -18,7 +18,7 @@ export default {
       diff: [],
       loading: false,
       loadingDiff: false,
-      snapshotInProgress: false,
+      inProgress: false,
     }
   },
   methods: {
@@ -31,11 +31,11 @@ export default {
           .finally(() => this.loadingDiff = false);
     },
     takeSnapshot: function() {
-      this.snapshotInProgress = true;
+      this.inProgress = true;
       this.api.takeSnapshot({})
           .then(data => this.refresh())
           .catch(e => console.error("Error taking snapshot", e))
-          .finally(() => this.snapshotInProgress = false);
+          .finally(() => this.inProgress = false);
     },
     refresh: function() {
       this.loading = true;
@@ -64,8 +64,8 @@ export default {
       present in a repository at a given time. This can be used
       to remove items not present in a set of import operations
       by creating a before/after difference.
-      <button v-on:click.prevent="showOptions = false; takeSnapshot()" class="btn btn-sm btn-success">
-        <i v-if="!snapshotInProgress" class="fa fa-fw fa-list"></i>
+      <button v-on:click.prevent="takeSnapshot" class="btn btn-sm btn-success">
+        <i v-if="!inProgress" class="fa fa-fw fa-list"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Create Snapshot
       </button>

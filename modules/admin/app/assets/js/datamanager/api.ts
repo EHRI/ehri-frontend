@@ -2,7 +2,7 @@
 import axios from "axios";
 
 import {
-  ConvertConfig,
+  ConvertConfig, Coreference,
   DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
   ImportConfig, ImportDataset, ImportDatasetInfo,
@@ -245,5 +245,17 @@ export class DatasetManagerApi {
 
   diffSnapshot(snId: number): Promise<[string, string][]> {
     return DatasetManagerApi.call(this.service.ImportLogs.diffSnapshot(this.repoId, snId));
+  }
+
+  getCoreferenceTable(): Promise<Coreference[]> {
+    return DatasetManagerApi.call(this.service.CoreferenceTables.getTable(this.repoId));
+  }
+
+  saveCoreferenceTable(): Promise<{ok: true}> {
+    return DatasetManagerApi.call(this.service.CoreferenceTables.saveTable(this.repoId));
+  }
+
+  ingestCoreferenceTable(): Promise<object> {
+    return DatasetManagerApi.call(this.service.CoreferenceTables.ingestTable(this.repoId));
   }
 }

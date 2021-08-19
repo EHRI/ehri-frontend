@@ -980,3 +980,42 @@ body {
   flex-basis: 0;
   font-size: $font-size-sm;
 }
+
+#coreference-manager {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#coreference-manager-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#coreference-manager-coreference-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#coreference-manager-coreference-table {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  flex-basis: 0;
+  font-size: $font-size-sm;
+}
+
+#coreference-import-result {
+  margin-left: $margin-md;
+}
+
+.coreference-loading-indicator {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+}

@@ -26,8 +26,6 @@ case class ImportLogs @Inject()(
   controllerComponents: ControllerComponents,
   @Named("dam") storage: FileStorage,
   appComponents: AppComponents,
-  importConfigs: ImportConfigService,
-  datasets: ImportDatasetService,
   importLogService: ImportLogService,
   cypherServer: CypherService
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {

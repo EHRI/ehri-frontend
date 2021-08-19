@@ -142,3 +142,9 @@ export interface Snapshot {
 export interface SnapshotInfo {
   notes?: string,
 }
+
+export interface Coreference {
+  text: String,
+  targetId: String,
+  setId: String,
+}
