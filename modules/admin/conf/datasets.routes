@@ -56,5 +56,9 @@ DELETE      /api/:id/import/:ds/config                    @controllers.datasets.
 POST        /api/:id/import/:ds                           @controllers.datasets.ImportConfigs.ingestFiles(id: String, ds: String)
 
 GET         /api/:id/snapshots                            @controllers.datasets.ImportLogs.listSnapshots(id: String)
-PUT         /api/:id/snapshots                            controllers.datasets.ImportLogs.takeSnapshot(id: String)
-POST        /api/:id/snapshots/:sn/diff                   controllers.datasets.ImportLogs.diffSnapshot(id: String, sn: Int)
+PUT         /api/:id/snapshots                            @controllers.datasets.ImportLogs.takeSnapshot(id: String)
+POST        /api/:id/snapshots/:sn/diff                   @controllers.datasets.ImportLogs.diffSnapshot(id: String, sn: Int)
+
+GET         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.getTable(id: String)
+PUT         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.saveTable(id: String)
+POST        /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.ingestTable(id: String)

@@ -1,12 +1,12 @@
 package services.ingest
 
-import java.net.URI
 import akka.actor.ActorRef
 import models.{ContentTypes, IngestParams, IngestResult}
 import play.api.mvc.QueryStringBindable
 import services.data.DataUser
 import services.ingest.IngestService.IngestJob
 
+import java.net.URI
 import scala.concurrent.Future
 
 object IngestService {
@@ -42,6 +42,15 @@ trait IngestService {
     * @return an ingest result object
     */
   def importData(job: IngestJob): Future[IngestResult]
+
+  /**
+    * Import coreference data into the backend
+    *
+    * @param id the scope ID
+    * @param refs a sequence text-to-target-id pair
+    * @return an ingest result object
+    */
+  def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser): Future[IngestResult]
 
   /**
     * Relocate items which have moved after a data sync.

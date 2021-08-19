@@ -19,12 +19,12 @@ import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject
 import javax.inject.Named
-import play.api.http.HeaderNames
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
-import services.data.Constants
+import services.data.{DataUser, Constants}
 import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator}
 import services.storage.FileStorage
@@ -46,6 +46,7 @@ case class WSIngestService @Inject()(
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
 
   import services.ingest.IngestService._
+  import IngestParams._
 
   import scala.concurrent.duration._
 
@@ -180,7 +181,6 @@ case class WSIngestService @Inject()(
     }
 
     def wsParams(params: IngestParams): Seq[(String, String)] = {
-      import models.IngestParams._
       Seq(
         SCOPE -> params.scope,
         TOLERANT -> params.tolerant.toString,
@@ -227,5 +227,20 @@ case class WSIngestService @Inject()(
     }
 
     upload
+  }
+
+  override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser): Future[IngestResult] = {
+    ws.url(s"${serviceBaseUrl("ehridata", config)}/import/coreferences")
+      .withQueryStringParameters(Seq(SCOPE -> id, COMMIT -> true.toString): _*)
+      .withRequestTimeout(Duration.Inf)
+      .addHttpHeaders(user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
+      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+      .post(Json.toJson(refs))
+      .map { r =>
+        try r.json.as[IngestResult] catch {
+          case _: JsonMappingException | _: JsResultException =>
+            ErrorLog("Unexpected data received from ingest backend", r.body)
+        }
+      }
   }
 }

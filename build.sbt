@@ -19,7 +19,7 @@ val projectScalaVersion = "2.12.12"
 val appName = "docview"
 val appVersion = "2.0.0"
 
-val backendVersion = "0.14.0"
+val backendVersion = "0.14.1"
 val dataConverterVersion = "1.1.10"
 val alpakkaVersion = "2.0.2"
 
