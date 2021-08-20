@@ -33,12 +33,15 @@ services:
     entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
 
   minio:
-    image: minio/minio
+    # NB: Using old version of Minio since listing versions
+    # stopped working after this for some reason.
+    # TODO: update to a new version and fix listing version info
+    image: minio/minio:RELEASE.2021-08-05T22-01-19Z
     ports:
       - 9876:9000
     environment:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: changeme
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: changeme
     entrypoint: sh
     command: -c '/usr/bin/minio server /data{1...4}'
     restart: always
