@@ -199,4 +199,12 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
       }
     }
   }
+
+  override def deleteSnapshot(repoId: String, id: Int): Future[Int] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""DELETE FROM repo_snapshot
+            WHERE id = $id
+              AND repo_id = $repoId""".executeUpdate()
+    }
+  }
 }

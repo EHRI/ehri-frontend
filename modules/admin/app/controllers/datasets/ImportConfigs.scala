@@ -19,6 +19,7 @@ import services.storage.FileStorage
 import java.util.UUID
 import javax.inject._
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
 
 
 case class IngestPayload(
@@ -42,6 +43,8 @@ case class ImportConfigs @Inject()(
   importLogService: ImportLogService,
   ingestService: IngestService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+  private val urlExpiration: FiniteDuration = config.get[FiniteDuration](
+    "ehri.admin.dataManager.importUrlExpiration")
 
   def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     importConfigs.get(id, ds).map { opt =>
@@ -60,8 +63,6 @@ case class ImportConfigs @Inject()(
   }
 
   def ingestFiles(id: String, ds: String): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
-    import scala.concurrent.duration._
-
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
@@ -76,7 +77,7 @@ case class ImportConfigs @Inject()(
         lang = request.body.config.defaultLang,
         commit = request.body.commit,
         properties = request.body.config.properties.map(ref =>
-          PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", 2.hours).toString))
+          PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
           .getOrElse(PropertiesHandle.empty),
         fonds = dataset.fonds
       )
@@ -110,7 +111,6 @@ case class ImportConfigs @Inject()(
   private def getUrlMap(data: IngestPayload, prefix: String): Future[Map[String, java.net.URI]] = {
     // NB: Not doing this with regular Future.successful so as to
     // limit parallelism to the specified amount
-    import scala.concurrent.duration._
     val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
     else Source(data.files.map(prefix + _).toList)
 
@@ -118,7 +118,7 @@ case class ImportConfigs @Inject()(
       .mapAsync(4)(path => storage.info(path).map(info => path -> info))
       .collect { case (path, Some((meta, _))) =>
         val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
-        id -> storage.uri(meta.key, duration = 2.hours, versionId = meta.versionId)
+        id -> storage.uri(meta.key, duration = urlExpiration, versionId = meta.versionId)
       }
       .runFold(Map.empty[String, java.net.URI])(_ + _)
   }

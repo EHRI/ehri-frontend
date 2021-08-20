@@ -18,14 +18,15 @@ object ImportLogOpType extends Enumeration with StorableEnum {
 }
 
 case class ImportFileHandle(
-  eventId: String,
-  repoId: String,
-  datasetId: String,
-  key: String,
-  versionId: Option[String]
-)
+                             eventId: String,
+                             repoId: String,
+                             datasetId: String,
+                             key: String,
+                             versionId: Option[String]
+                           )
 
 case class Snapshot(id: Int, created: Instant, notes: Option[String])
+
 object Snapshot {
   implicit val _writes: Writes[Snapshot] = Json.format[Snapshot]
 }
@@ -71,6 +72,15 @@ trait ImportLogService {
   def saveSnapshot(repoId: String, idMap: Source[(String, String), _], notes: Option[String] = None): Future[Snapshot]
 
   /**
+    * Delete a snapshot for the given repository.
+    *
+    * @param repoId the repository ID
+    * @param id     the snapshot ID
+    * @return the number of items deleted
+    */
+  def deleteSnapshot(repoId: String, id: Int): Future[Int]
+
+  /**
     * Retrieve the items associated with a given snapshot.
     *
     * @param id the snapshot ID
@@ -101,7 +111,7 @@ trait ImportLogService {
   /**
     * Fetch errors for a dataset's most-recent import.
     *
-    * @param repoId the repository ID
+    * @param repoId    the repository ID
     * @param datasetId the dataset ID
     * @return a set of key/error tuples
     */
