@@ -5,6 +5,7 @@ GET         /:id                                          @controllers.datasets.
 
 # API/JSON routes
 GET         /api/list                                     @controllers.datasets.ImportDatasets.listAll()
+POST        /api/:id/toggle-versioning                    @controllers.datasets.ImportDatasets.toggleVersioning(id: String, enabled: Boolean ?= true)
 GET         /api/:id/datasets-stats                       @controllers.datasets.ImportDatasets.stats(id: String)
 GET         /api/:id/datasets                             @controllers.datasets.ImportDatasets.list(id: String)
 POST        /api/:id/datasets                             @controllers.datasets.ImportDatasets.create(id: String)

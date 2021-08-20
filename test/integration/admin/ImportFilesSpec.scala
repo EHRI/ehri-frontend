@@ -47,14 +47,14 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
-  private def putFile(name: String)(implicit app: play.api.Application): Future[Result] = {
+  private def putFile(name: String, payload: ByteString = testPayload)(implicit app: play.api.Application): Future[Result] = {
     FakeRequest(repoDataRoutes.uploadStream(repoId, datasetId, stage, name))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"
       ))
       .withUser(privilegedUser)
-      .callWith(testPayload)
+      .callWith(payload)
   }
 
   "Import Files API" should {
@@ -68,7 +68,9 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
         )))
 
       val data: Option[Map[String,String]] = contentAsJson(r).validate[Map[String,String]].asOpt
-      data must beSome.which(_.get("presignedUrl") must beSome.which(_ must startWith(testFilePath)))
+      data must beSome
+        .which((_:Map[String,String]).get("presignedUrl") must beSome
+        .which((_:String) must startWith(testFilePath)))
     }
 
     "upload via server" in new ITestApp {
