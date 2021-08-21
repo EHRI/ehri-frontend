@@ -11,7 +11,7 @@ import models.CypherQuery
 import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, CypherResult, Neo4jCypherService}
+import services.cypher.{CypherQueryService, CypherResult, WsCypherService}
 import services.data.ItemNotFound
 import services.search.SearchParams
 import utils.PageParams
@@ -21,10 +21,10 @@ import scala.util.Failure
 
 @Singleton
 case class Datasets @Inject()(
-  controllerComponents: ControllerComponents,
-  appComponents: AppComponents,
-  cypher: Neo4jCypherService,
-  cypherQueries: CypherQueryService)(
+                               controllerComponents: ControllerComponents,
+                               appComponents: AppComponents,
+                               cypher: WsCypherService,
+                               cypherQueries: CypherQueryService)(
   implicit mat: Materializer
 ) extends PortalController {
 

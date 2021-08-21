@@ -5,7 +5,7 @@ import models._
 import controllers.portal.annotate.ReverseAnnotations
 import com.google.common.net.HttpHeaders
 import play.api.test.FakeRequest
-import services.data.{ApiUser, PermissionDenied}
+import services.data.{DataUser, PermissionDenied}
 
 
 class AnnotationsSpec extends IntegrationTestRunner {
@@ -122,7 +122,7 @@ class AnnotationsSpec extends IntegrationTestRunner {
       contentAsString(doc) must not contain testBody
 
       // Get a id via faff method and promote the item...
-      implicit val apiUser = ApiUser(Some(privilegedUser.id))
+      implicit val apiUser = DataUser(Some(privilegedUser.id))
       val aid = await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
         await(dataApi.promote[Annotation](aid.id))
 

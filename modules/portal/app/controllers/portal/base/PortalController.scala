@@ -13,7 +13,7 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
-import services.data.{ApiUser, DataApi}
+import services.data.{DataUser, DataServiceBuilder}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import views.html.MarkdownRenderer
@@ -40,7 +40,7 @@ trait PortalController
   protected implicit def config: Configuration = appComponents.config
 
   protected def accounts: AccountManager = appComponents.accounts
-  protected def dataApi: DataApi = appComponents.dataApi
+  protected def dataApi: DataServiceBuilder = appComponents.dataApi
   protected def authHandler: AuthHandler = appComponents.authHandler
   protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
@@ -214,7 +214,7 @@ trait PortalController
       case Some(seq) => immediate(seq)
       case None =>
         import scala.concurrent.duration._
-        implicit val apiUser: ApiUser = ApiUser(Some(userId))
+        implicit val apiUser: DataUser = DataUser(Some(userId))
         userDataApi.watching[Model](userId, PageParams.empty.withoutLimit).map { page =>
           val seq = page.items.map(_.id)
           appComponents.cacheApi.set(userWatchCacheKey(userId), seq, 20.minutes)
@@ -224,7 +224,7 @@ trait PortalController
   }.getOrElse(Future.successful(Seq.empty))
 
   protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String], asFile: Boolean = false)(
-      implicit apiUser: ApiUser, request: RequestHeader): Future[Result] = {
+    implicit apiUser: DataUser, request: RequestHeader): Future[Result] = {
     val format: String = request.getQueryString("format")
       .filter(formats.contains).getOrElse(formats.head)
     val params = request.queryString.filterKeys(_ == "lang")
@@ -260,7 +260,7 @@ trait PortalController
     UserDetailsRequest] {
     override protected def transform[A](request: OptionalAccountRequest[A]): Future[UserDetailsRequest[A]] = {
       request.accountOpt.map { account =>
-        implicit val apiUser: ApiUser = ApiUser(Some(account.id))
+        implicit val apiUser: DataUser = DataUser(Some(account.id))
         val userF: Future[UserProfile] = userDataApi.get[UserProfile](account.id)
         val watchedF: Future[Seq[String]] = watchedItemIds(userIdOpt = Some(account.id))
         for {
@@ -287,7 +287,7 @@ trait PortalController
   /**
     * Ascertain if a user can receive messages from other users.
     */
-  protected def getMessagingInfo(senderId: String, recipientId: String)(implicit apiUser: ApiUser): Future[MessagingInfo] = {
+  protected def getMessagingInfo(senderId: String, recipientId: String)(implicit apiUser: DataUser): Future[MessagingInfo] = {
     // First, find their account. If we don't have
     // an account we don't have an email, so we can't
     // message them... Ignore accounts which have disabled

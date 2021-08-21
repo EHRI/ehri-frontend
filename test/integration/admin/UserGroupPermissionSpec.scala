@@ -4,7 +4,7 @@ import helpers._
 import models.{Account, ContentTypes, EntityType, Group, PermissionGrant, PermissionType, UserProfile}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import services.data.ApiUser
+import services.data.DataUser
 import utils.{Page, PageParams}
 
 import scala.concurrent.ExecutionContext
@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext
 class UserGroupPermissionSpec extends IntegrationTestRunner {
   import mockdata.privilegedUser
 
-  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
+  implicit val apiUser: DataUser = DataUser(Some(privilegedUser.id))
 
   private val userRoutes = controllers.users.routes.UserProfiles
   private val groupRoutes = controllers.groups.routes.Groups

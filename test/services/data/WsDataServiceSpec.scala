@@ -7,7 +7,7 @@ import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.libs.ws.WSClient
-import services.cypher.Neo4jCypherService
+import services.cypher.WsCypherService
 import utils.SystemEventParams.Aggregation
 import utils.{PageParams, RangePage, RangeParams, SystemEventParams}
 
@@ -17,15 +17,15 @@ import scala.concurrent.ExecutionContext
 /**
  * Spec for testing individual data access components work as expected.
  */
-class DataApiServiceSpec extends IntegrationTestRunner {
+class WsDataServiceSpec extends IntegrationTestRunner {
   sequential
 
   val userProfile = UserProfile(UserProfileF(id = Some("mike"), identifier = "mike", name = "Mike"))
   val entityType = EntityType.UserProfile
-  implicit val apiUser: ApiUser = AuthenticatedUser(userProfile.id)
+  implicit val apiUser: DataUser = AuthenticatedUser(userProfile.id)
 
-  def testBackend(implicit app: play.api.Application, apiUser: ApiUser, ec: ExecutionContext): DataApiHandle =
-    app.injector.instanceOf[DataApi].withContext(apiUser)
+  def testBackend(implicit app: play.api.Application, apiUser: DataUser, ec: ExecutionContext): DataService =
+    app.injector.instanceOf[DataServiceBuilder].withContext(apiUser)
 
 
   private def ws(implicit app: play.api.Application) = app.injector.instanceOf[WSClient]
@@ -552,7 +552,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
 
   "Cypher operations" should {
     "get a JsValue for a graph item" in new ITestApp {
-      val dao = Neo4jCypherService(ws, cache, config)
+      val dao = WsCypherService(ws, cache, config)
       val res = await(dao.get(
         """MATCH (n:_Entity) WHERE n.__id = {id} RETURN n.identifier, n.name""",
           Map("id" -> JsString("admin"))))
@@ -563,7 +563,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
 
   "CypherIdGenerator" should {
     "get the right next ID for repositories" in new ITestApp {
-      val idGen = CypherIdGenerator(Neo4jCypherService(ws, cache, config))
+      val idGen = CypherIdGenerator(WsCypherService(ws, cache, config))
       await(idGen.getNextNumericIdentifier(EntityType.Repository, "%06d")) must equalTo("000005")
     }
 
@@ -571,7 +571,7 @@ class DataApiServiceSpec extends IntegrationTestRunner {
       // There a 4 collections in the fixtures c1-c4
       // Sigh... - now there's also a fixture named "m19", so the next
       // numeric ID with be "20". I didn't plan this.
-      val idGen = CypherIdGenerator(Neo4jCypherService(ws, cache, config))
+      val idGen = CypherIdGenerator(WsCypherService(ws, cache, config))
       await(idGen.getNextChildNumericIdentifier("r1", EntityType.DocumentaryUnit, "c%01d")) must equalTo("c20")
     }
   }

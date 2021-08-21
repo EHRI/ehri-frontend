@@ -8,7 +8,7 @@ import config.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
 import services.RateLimitChecker
-import services.cypher.{CypherQueryService, CypherService, Neo4jCypherService, SqlCypherQueryService}
+import services.cypher.{CypherQueryService, CypherService, WsCypherService, SqlCypherQueryService}
 import services.data._
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
@@ -36,7 +36,7 @@ class AppModule extends AbstractModule {
     bind(classOf[RateLimitChecker])
     bind(classOf[EventHandler]).to(classOf[IndexingEventHandler])
     bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
-    bind(classOf[DataApi]).to(classOf[DataApiService])
+    bind(classOf[DataServiceBuilder]).to(classOf[WsDataServiceBuilder])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
     bind(classOf[IdGenerator]).to(classOf[CypherIdGenerator])
@@ -46,6 +46,6 @@ class AppModule extends AbstractModule {
     bind(classOf[HtmlPages]).to(classOf[GoogleDocsHtmlPages])
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
     bind(classOf[MarkdownRenderer]).to(classOf[SanitisingMarkdownRenderer])
-    bind(classOf[CypherService]).to(classOf[Neo4jCypherService])
+    bind(classOf[CypherService]).to(classOf[WsCypherService])
   }
 }

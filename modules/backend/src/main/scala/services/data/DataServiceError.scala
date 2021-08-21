@@ -4,14 +4,14 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
-sealed trait RestError extends RuntimeException
+sealed trait DataServiceError extends RuntimeException
 
 case class PermissionDenied(
   user: Option[String] = None,
   permission: Option[String] = None,
   item: Option[String] = None,
   scope: Option[String] = None
-) extends RuntimeException(s"Permission denied on $item for $user") with RestError
+) extends RuntimeException(s"Permission denied on $item for $user") with DataServiceError
 
 object PermissionDenied {
   private val _reads: Reads[PermissionDenied] = (
@@ -31,7 +31,7 @@ object PermissionDenied {
   implicit val _format: Format[PermissionDenied] = Format(_reads, _writes)
 }
 
-case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with RestError {
+case class ValidationError(errorSet: ErrorSet) extends RuntimeException(errorSet.toString) with DataServiceError {
   override def toString: String = errorSet.toString
 }
 
@@ -44,9 +44,9 @@ object ValidationError {
   )((_, s) => ValidationError(s))
 }
 
-case class JsonError(msg: String) extends RuntimeException(msg) with RestError
+case class JsonError(msg: String) extends RuntimeException(msg) with DataServiceError
 
-case class HierarchyError(error: String, id: String, count: Int) extends RuntimeException(error) with RestError
+case class HierarchyError(error: String, id: String, count: Int) extends RuntimeException(error) with DataServiceError
 object HierarchyError {
   implicit val _reads: Reads[HierarchyError] = (
     (__ \ "details" \ "message").read[String] and
@@ -55,32 +55,32 @@ object HierarchyError {
   )(HierarchyError.apply _)
 }
 
-case class InputDataError(error: String, details: String) extends RuntimeException(error) with RestError
+case class InputDataError(error: String, details: String) extends RuntimeException(error) with DataServiceError
 object InputDataError {
   implicit val _format: Format[InputDataError] = Json.format[InputDataError]
 }
 
-case class DeserializationError() extends RuntimeException() with RestError
+case class DeserializationError() extends RuntimeException() with DataServiceError
 
-case class IntegrityError() extends RuntimeException() with RestError
+case class IntegrityError() extends RuntimeException() with DataServiceError
 
 case class ItemNotFound(
   key: Option[String] = None,
   value: Option[String] = None,
   message: Option[String] = None
-) extends RuntimeException(message.getOrElse("No further info")) with RestError {
+) extends RuntimeException(message.getOrElse("No further info")) with DataServiceError {
   def this(id: String) = this(Some("id"), Some(id))
 }
 
-case class ServerError(error: String) extends RuntimeException(error) with RestError
+case class ServerError(error: String) extends RuntimeException(error) with DataServiceError
 
-case class CriticalError(error: String) extends RuntimeException(error) with RestError
+case class CriticalError(error: String) extends RuntimeException(error) with DataServiceError
 
 case class BadJson(
   error: Seq[(JsPath,Seq[JsonValidationError])],
   url: Option[String] = None,
   data: Option[String] = None
-) extends RuntimeException(error.toString) with RestError {
+) extends RuntimeException(error.toString) with DataServiceError {
   def prettyError: String = Json.prettyPrint(JsError.toJson(error))
   override def getMessage: String = s"""
         |Parsing error ${url.getOrElse("(no context)")}

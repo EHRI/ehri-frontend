@@ -61,7 +61,7 @@ case class ApiV1 @Inject()(
   protected implicit val cache: SyncCacheApi = appComponents.cacheApi
   protected implicit val conf: AppConfig = appComponents.conf
   protected val accounts: AccountManager = appComponents.accounts
-  protected val dataApi: DataApi = appComponents.dataApi
+  protected val dataApi: DataServiceBuilder = appComponents.dataApi
   protected val config: Configuration = appComponents.config
   protected val authHandler: AuthHandler = appComponents.authHandler
   protected val searchEngine: SearchEngine = appComponents.searchEngine
@@ -72,7 +72,7 @@ case class ApiV1 @Inject()(
 
   private val logger = Logger(ApiV1.getClass)
 
-  private implicit val apiUser: ApiUser = AnonymousUser
+  private implicit val apiUser: DataUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None
 
   private val hitsPerSecond = 1000

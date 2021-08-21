@@ -4,7 +4,7 @@ import cookies.SessionPreferences
 import helpers.IntegrationTestRunner
 import models.{EntityType, _}
 import play.api.test.FakeRequest
-import services.data.{ApiUser, AuthenticatedUser, HierarchyError}
+import services.data.{DataUser, AuthenticatedUser, HierarchyError}
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
@@ -466,7 +466,7 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "not change items when submitting an unedited form" in new ITestApp {
-      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      implicit val apiUser: DataUser = AuthenticatedUser(privilegedUser.id)
       val c1 = await(dataApi.get[DocumentaryUnit]("c1"))
       val form = FakeRequest(docRoutes.update("c1")).withUser(privilegedUser).call()
       val data = formData(contentAsString(form))

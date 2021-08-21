@@ -17,29 +17,29 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 
-private case class Neo4jCypherResultData(row: List[JsValue], meta: Seq[JsValue])
+private case class WsCypherResultData(row: List[JsValue], meta: Seq[JsValue])
 
-private object Neo4jCypherResultData {
-  implicit val reads: Reads[Neo4jCypherResultData] = (
+private object WsCypherResultData {
+  implicit val reads: Reads[WsCypherResultData] = (
     (__ \ "row").read[List[JsValue]] and
     (__ \ "meta").read[Seq[JsValue]]
-  )(Neo4jCypherResultData.apply _)
+  )(WsCypherResultData.apply _)
 }
 
-private case class Neo4jCypherResult(columns: Seq[String], data: Seq[Neo4jCypherResultData]) {
+private case class WsCypherResult(columns: Seq[String], data: Seq[WsCypherResultData]) {
   def asLegacy: CypherResult = CypherResult(columns, data.map(_.row))
 }
 
-private object Neo4jCypherResult {
-  implicit val reads: Reads[Neo4jCypherResult] = (
+private object WsCypherResult {
+  implicit val reads: Reads[WsCypherResult] = (
     (__ \ "columns").read[Seq[String]] and
-    (__ \ "data").read[Seq[Neo4jCypherResultData]]
-  )(Neo4jCypherResult.apply _)
+    (__ \ "data").read[Seq[WsCypherResultData]]
+  )(WsCypherResult.apply _)
 }
 
 
 @Singleton
-case class Neo4jCypherService @Inject ()(
+case class WsCypherService @Inject ()(
   ws: WSClient,
   cache: SyncCacheApi,
   config: play.api.Configuration)(
@@ -52,7 +52,7 @@ case class Neo4jCypherService @Inject ()(
 
   override def get(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[CypherResult] =
     raw(scriptBody, params).execute(HttpVerbs.POST)
-      .map(r => (r.json \ "results" \ 0).as[Neo4jCypherResult].asLegacy)
+      .map(r => (r.json \ "results" \ 0).as[WsCypherResult].asLegacy)
 
   override def rows(scriptBody: String, params: Map[String,JsValue] = Map.empty): Source[List[JsValue], _] = {
     scaladsl.Source.future(raw(scriptBody, params).stream().map { sr =>

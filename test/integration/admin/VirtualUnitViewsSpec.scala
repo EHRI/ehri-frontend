@@ -3,7 +3,7 @@ package integration.admin
 import helpers.IntegrationTestRunner
 import models._
 import play.api.test.FakeRequest
-import services.data.{ApiUser, AuthenticatedUser}
+import services.data.{DataUser, AuthenticatedUser}
 
 
 class VirtualUnitViewsSpec extends IntegrationTestRunner {
@@ -72,7 +72,7 @@ class VirtualUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "allow creating and deleting item references" in new ITestApp {
-      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      implicit val apiUser: DataUser = AuthenticatedUser(privilegedUser.id)
       val origIncludes = await(dataApi.get[VirtualUnit]("vc1")).includedUnits.map(_.id)
       origIncludes must not contain "c1"
       origIncludes must not contain "c4"

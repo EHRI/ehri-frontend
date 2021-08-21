@@ -20,18 +20,18 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class DataApiService @Inject()(eventHandler: EventHandler, cache: AsyncCacheApi, config: Configuration, ws: WSClient) extends DataApi {
-  override def withContext(apiUser: ApiUser)(implicit ec: ExecutionContext): DataApiServiceHandle =
-    DataApiServiceHandle(eventHandler, config, cache, ws)(apiUser, ec)
+case class WsDataServiceBuilder @Inject()(eventHandler: EventHandler, cache: AsyncCacheApi, config: Configuration, ws: WSClient) extends DataServiceBuilder {
+  override def withContext(apiUser: DataUser)(implicit ec: ExecutionContext): WsDataService =
+    WsDataService(eventHandler, config, cache, ws)(apiUser, ec)
 }
 
-case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuration, cache: AsyncCacheApi, ws: WSClient)(
-  implicit apiUser: ApiUser, ec: ExecutionContext
-) extends DataApiHandle with RestService {
+case class WsDataService(eventHandler: EventHandler, config: Configuration, cache: AsyncCacheApi, ws: WSClient)(
+  implicit apiUser: DataUser, ec: ExecutionContext
+) extends DataService with WebServiceHelpers {
 
   private val cacheTime: Duration = config.get[Duration]("ehri.backend.cacheExpiration")
 
-  override def withEventHandler(eventHandler: EventHandler): DataApiServiceHandle = this.copy(eventHandler = eventHandler)
+  override def withEventHandler(eventHandler: EventHandler): WsDataService = this.copy(eventHandler = eventHandler)
 
   override def status(): Future[String] = {
     // Using WS directly here to avoid caching and logging
@@ -815,9 +815,9 @@ case class DataApiServiceHandle(eventHandler: EventHandler, config: Configuratio
   }
 }
 
-object DataApiService {
-  def withNoopHandler(cache: AsyncCacheApi, config: play.api.Configuration, ws: WSClient): DataApi =
-    new DataApiService(new EventHandler {
+object WsDataServiceBuilder {
+  def withNoopHandler(cache: AsyncCacheApi, config: play.api.Configuration, ws: WSClient): DataServiceBuilder =
+    new WsDataServiceBuilder(new EventHandler {
       def handleCreate(ids: String*): Unit = ()
 
       def handleUpdate(ids: String*): Unit = ()

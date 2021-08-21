@@ -3,7 +3,7 @@ package integration.admin
 import helpers._
 import models.{Account, EntityType, PermissionType, UserProfile}
 import play.api.test.FakeRequest
-import services.data.ApiUser
+import services.data.DataUser
 
 /**
  * End-to-end test of the permissions system, implemented as one massive test.
@@ -19,7 +19,7 @@ import services.data.ApiUser
 class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
   import mockdata.privilegedUser
 
-  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
+  implicit val apiUser: DataUser = DataUser(Some(privilegedUser.id))
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
   private val repoRoutes = controllers.institutions.routes.Repositories
