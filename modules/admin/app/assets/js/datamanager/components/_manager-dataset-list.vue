@@ -204,14 +204,6 @@ export default {
           <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
           </div>
           <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
-            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="dropdown-item">
-              <i class="fa fa-file-code-o"></i>
-              Import datasets from JSON
-            </button>
-            <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item">
-              <i class="fa fa-warning"></i>
-              Batch Operations
-            </button>
             <button v-on:click.prevent="showOptions = false; openSnapshots()" class="dropdown-item">
               <i class="fa fa-list-alt"></i>
               Manage snapshots
@@ -219,6 +211,14 @@ export default {
             <button v-on:click.prevent="showOptions = false; openCoreference()" class="dropdown-item">
               <i class="fa fa-link"></i>
               Manage Coreference Table
+            </button>
+            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="dropdown-item">
+              <i class="fa fa-file-code-o"></i>
+              Import datasets from JSON
+            </button>
+            <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item" v-bind:disabled="datasets.length <= 1">
+              <i class="fa fa-warning"></i>
+              Batch Operations
             </button>
           </div>
         </div>
