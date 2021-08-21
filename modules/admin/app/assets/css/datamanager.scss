@@ -36,6 +36,12 @@ body {
   flex-direction: column;
 }
 
+#batch-ops-log {
+  display: flex;
+  border: 1px solid $border-color;
+  height: 10rem;
+}
+
 #dataset-manager-container {
   font-size: $font-size-sm;
   display: flex;
