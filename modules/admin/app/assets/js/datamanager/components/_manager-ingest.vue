@@ -50,7 +50,8 @@ export default {
         if (msg.data.error) {
           this.log.push(msg.data.error);
         } else if (msg.data.msg) {
-          if (this.log && _startsWith(_last(this.log), "Ingesting...") && _startsWith(msg.data.msg, "Ingesting...")) {
+          let progPrefix = "Ingesting..."
+          if (this.log && _startsWith(_last(this.log), progPrefix) && _startsWith(msg.data.msg, progPrefix)) {
             this.log.splice(this.log.length - 1, 1, msg.data.msg);
           } else {
             this.log.push(msg.data.msg);

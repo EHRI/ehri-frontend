@@ -2,13 +2,14 @@
 
 import ModalDatasetConfig from './_modal-dataset-config';
 import ModalDatasetImport from './_modal-dataset-import'
+import ModalBatchOps from './_modal-batch-ops';
 import ManagerSnapshots from "./_manager-snapshots";
 import ManagerCoreference from "./_manager-coreference";
 import ManagerDataset from "./_manager-dataset";
 
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
-import {ImportConfig, ImportDataset, ImportDatasetSrc} from '../types';
+import {ImportDataset, ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _find from 'lodash/find';
@@ -16,7 +17,7 @@ import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
 
 export default {
-  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport},
+  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport, ModalBatchOps},
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
@@ -32,6 +33,7 @@ export default {
       showOptions: false,
       showDatasetForm: false,
       showImportForm: false,
+      showBatchForm: false,
       showSelector: false,
       stats: {},
       working: {},
@@ -61,160 +63,6 @@ export default {
     },
     refreshStats: function() {
       this.api.datasetStats().then(stats => this.stats = stats);
-    },
-    syncAllDatasets: function() {
-      // This is a shortcut for downloading ResourceSync files
-      // for all datasets... it is not really 'production ready'...
-      let syncDataset = (sets: ImportDataset[]) => {
-        if (sets.length > 0) {
-          let [set, ...rest]  = sets;
-
-          console.debug("Syncing", set);
-          this.api.getSyncConfig(set.id).then(config => {
-            if (config) {
-              this.$set(this.working, set.id, true);
-              this.api.sync(set.id, config).then( ({url}) => {
-                let worker = new Worker(this.config.previewLoader);
-                worker.onmessage = msg => {
-                  if (msg.data.msg) {
-                    console.debug(msg.data.msg);
-                  }
-                  if (msg.data.done || msg.data.error) {
-                    worker.terminate();
-                    this.refreshStats();
-                    this.$delete(this.working, set.id);
-                    syncDataset(rest);
-                  }
-                };
-                worker.postMessage({
-                  type: 'websocket',
-                  url: url,
-                  DONE: DatasetManagerApi.DONE_MSG,
-                  ERR: DatasetManagerApi.ERR_MSG
-                });
-              });
-            } else {
-              syncDataset(rest);
-            }
-          })
-        }
-      }
-
-      this.api.listDatasets().then(syncDataset);
-    },
-    convertAllDatasets: function() {
-      // This is a shortcut for running conversion on all datasets...
-      let forceCheck = prompt("Type 'yes' to force conversions:");
-      let force = forceCheck === null || forceCheck.toLowerCase() === "yes";
-      let convertDataset = (sets: ImportDataset[]) => {
-        if (sets.length > 0) {
-          let [set, ...rest]  = sets;
-
-          console.debug("Converting", set);
-          this.api.getConvertConfig(set.id).then(config => {
-            this.$set(this.working, set.id, true);
-            this.api.convert(set.id, null, {mappings: config, force: force}).then( ({url}) => {
-              let worker = new Worker(this.config.previewLoader);
-              worker.onmessage = msg => {
-                if (msg.data.msg) {
-                  console.debug(msg.data.msg);
-                }
-                if (msg.data.done || msg.data.error) {
-                  worker.terminate();
-                  this.refreshStats();
-                  this.$delete(this.working, set.id);
-                  convertDataset(rest);
-                }
-              };
-              worker.postMessage({
-                type: 'websocket',
-                url: url,
-                DONE: DatasetManagerApi.DONE_MSG,
-                ERR: DatasetManagerApi.ERR_MSG
-              });
-            });
-          });
-        }
-      }
-
-      this.api.listDatasets().then(convertDataset);
-    },
-    importAllDatasets: function() {
-      // This is a shortcut for running conversion on all datasets...
-      let commitCheck = prompt("Type 'yes' to commit:");
-      let commit = commitCheck === null || commitCheck.toLowerCase() === "yes";
-      let importDataset = (sets: ImportDataset[]) => {
-        if (sets.length > 0) {
-          let [set, ...rest]  = sets;
-
-          console.debug("Importing", set);
-          this.api.getImportConfig(set.id).then(config => {
-            this.$set(this.working, set.id, true);
-            this.api.ingestFiles(set.id, [], config, commit).then( ({url}) => {
-              let worker = new Worker(this.config.previewLoader);
-              worker.onmessage = msg => {
-                if (msg.data.msg) {
-                  console.debug(msg.data.msg);
-                }
-                if (msg.data.done || msg.data.error) {
-                  worker.terminate();
-                  this.refreshStats();
-                  this.$delete(this.working, set.id);
-                  importDataset(rest);
-                }
-              };
-              worker.postMessage({
-                type: 'websocket',
-                url: url,
-                DONE: DatasetManagerApi.DONE_MSG,
-                ERR: DatasetManagerApi.ERR_MSG
-              });
-            });
-          });
-        }
-      }
-
-      this.api.listDatasets().then(importDataset);
-    },
-    copyConvertSettingsFrom: function() {
-      // Copy convert settings from one dataset to all the others...
-      let saveSettings = (sets: ImportDataset[], settings: [string, object][]) => {
-        if (sets.length > 0) {
-          let [set, ...rest] = sets;
-          this.api.saveConvertConfig(set.id, settings)
-              .then(r => {
-                console.debug("Saved: ", set.id, r.ok);
-                saveSettings(rest, settings);
-              });
-        }
-      }
-      let from = prompt('Pick source dataset:');
-      if (from !== null) {
-        this.api.getConvertConfig(from).then(data => {
-          this.api.listDatasets()
-              .then(sets => saveSettings(sets.filter(s => s.id !== from), data));
-        })
-      }
-    },
-    copyImportSettingsFrom: function() {
-      // Copy convert settings from one dataset to all the others...
-      let saveSettings = (sets: ImportDataset[], settings: ImportConfig) => {
-        if (sets.length > 0) {
-          let [set, ...rest] = sets;
-          this.api.saveImportConfig(set.id, settings)
-              .then(() => {
-                console.debug("Saved: ", set.id);
-                saveSettings(rest, settings);
-              });
-        }
-      }
-      let from = prompt('Pick source dataset:');
-      if (from !== null) {
-        this.api.getImportConfig(from).then(data => {
-          this.api.listDatasets()
-              .then(sets => saveSettings(sets.filter(s => s.id !== from), data));
-        })
-      }
     },
     loadDatasets: function() {
       this.refreshStats();
@@ -315,6 +163,16 @@ export default {
                   v-on:close="showImportForm = false"
                   v-on:saved="reloadDatasets(); showImportForm = false" />
 
+    <modal-batch-ops
+      v-if="showBatchForm"
+      v-bind:datasets="datasets"
+      v-bind:api="api"
+      v-bind:config="config"
+      v-on:close="showBatchForm = false"
+      v-on:processing="id => $set(working, id, true)"
+      v-on:processing-done="id => {$delete(working, id); refreshStats();}"
+      />
+
     <manager-snapshots
         v-if="snapshots"
         v-bind:config="config"
@@ -346,35 +204,19 @@ export default {
           <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
           </div>
           <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
-            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="btn dropdown-item">
+            <button v-on:click.prevent="showImportForm = true; showOptions = false" class="dropdown-item">
               <i class="fa fa-file-code-o"></i>
               Import datasets from JSON
             </button>
-            <button v-on:click.prevent="showOptions = false; syncAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-refresh"></i>
-              Sync All Datasets
+            <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item">
+              <i class="fa fa-warning"></i>
+              Batch Operations
             </button>
-            <button v-on:click.prevent="showOptions = false; copyConvertSettingsFrom()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-copy"></i>
-              Sync Convert Settings
-            </button>
-            <button v-on:click.prevent="showOptions = false; convertAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-file-code-o"></i>
-              Convert All Datasets
-            </button>
-            <button v-on:click.prevent="showOptions = false; copyImportSettingsFrom()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-copy"></i>
-              Sync Import Settings
-            </button>
-            <button v-on:click.prevent="showOptions = false; importAllDatasets()" class="btn btn-danger dropdown-item">
-              <i class="fa fa-database"></i>
-              Import All Datasets
-            </button>
-            <button v-on:click.prevent="showOptions = false; openSnapshots()" class="btn btn-danger dropdown-item">
+            <button v-on:click.prevent="showOptions = false; openSnapshots()" class="dropdown-item">
               <i class="fa fa-list-alt"></i>
               Manage snapshots
             </button>
-            <button v-on:click.prevent="showOptions = false; openCoreference()" class="btn btn-danger dropdown-item">
+            <button v-on:click.prevent="showOptions = false; openCoreference()" class="dropdown-item">
               <i class="fa fa-link"></i>
               Manage Coreference Table
             </button>

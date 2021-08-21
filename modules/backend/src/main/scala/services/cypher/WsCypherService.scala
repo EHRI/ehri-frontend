@@ -12,6 +12,7 @@ import play.api.http.HttpVerbs
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsValue, Json, Reads, __}
 import play.api.libs.ws.{WSClient, WSRequest}
+import services.data.Constants.STREAM_HEADER_NAME
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,7 +74,7 @@ case class WsCypherService @Inject ()(
     Source.future(
       ws.url(serviceBaseUrl("legacyCypher", config))
         .withMethod(HttpVerbs.POST)
-        .withHttpHeaders("X-Stream" -> "true")
+        .withHttpHeaders(STREAM_HEADER_NAME -> "true")
         .withBody(data)
         .stream()
         .map(_.bodyAsSource))
@@ -90,7 +91,7 @@ case class WsCypherService @Inject ()(
     logger.debug(s"Cypher: ${Json.toJson(data)}")
     ws.url(requestUrl)
       .withMethod(HttpVerbs.POST)
-      .withHttpHeaders("X-Stream" -> "true")
+      .withHttpHeaders(STREAM_HEADER_NAME -> "true")
       .withBody(data)
   }
 }
