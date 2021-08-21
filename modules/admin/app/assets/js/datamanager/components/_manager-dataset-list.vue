@@ -163,15 +163,17 @@ export default {
                   v-on:close="showImportForm = false"
                   v-on:saved="reloadDatasets(); showImportForm = false" />
 
-    <modal-batch-ops
-      v-if="showBatchForm"
-      v-bind:datasets="datasets"
-      v-bind:api="api"
-      v-bind:config="config"
-      v-on:close="showBatchForm = false"
-      v-on:processing="id => $set(working, id, true)"
-      v-on:processing-done="id => {$delete(working, id); refreshStats();}"
+    <keep-alive>
+      <modal-batch-ops
+          v-if="showBatchForm"
+          v-bind:datasets="datasets"
+          v-bind:api="api"
+          v-bind:config="config"
+          v-on:close="showBatchForm = false"
+          v-on:processing="id => $set(working, id, true)"
+          v-on:processing-done="id => {$delete(working, id); refreshStats();}"
       />
+    </keep-alive>
 
     <manager-snapshots
         v-if="snapshots"
