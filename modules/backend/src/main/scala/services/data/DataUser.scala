@@ -4,17 +4,17 @@ package services.data
  * An abstract data type representing either an authenticated user with
  * a given string ID, or an anonymous user.
  */
-object ApiUser {
+object DataUser {
   /**
-   * Construct a new `ApiUser` from an `Option[String]` which is
+   * Construct a new [[DataUser]] from an `Option[String]` which is
    * present if the user is authenticated.
    *
    * @param opt an optional ID
    */
-  def apply(opt: Option[String]): ApiUser = opt map AuthenticatedUser getOrElse AnonymousUser
+  def apply(opt: Option[String]): DataUser = opt.map(AuthenticatedUser).getOrElse(AnonymousUser)
 }
 
-sealed abstract class ApiUser extends Product with Serializable {
+sealed abstract class DataUser extends Product with Serializable {
   /**
    * Returns true if the ApiUser is anonymous
    */
@@ -41,14 +41,14 @@ sealed abstract class ApiUser extends Product with Serializable {
  *
  * @param id the user's ID
  */
-case class AuthenticatedUser(id: String) extends ApiUser {
+case class AuthenticatedUser(id: String) extends DataUser {
   def isAnonymous = false
 }
 
 /**
  * An anonymous user
  */
-case object AnonymousUser extends ApiUser {
+case object AnonymousUser extends DataUser {
   def isAnonymous = true
 }
 

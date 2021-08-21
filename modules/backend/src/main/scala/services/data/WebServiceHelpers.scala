@@ -16,7 +16,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait RestService {
+trait WebServiceHelpers {
 
   implicit def config: play.api.Configuration
   def ws: WSClient
@@ -36,7 +36,7 @@ trait RestService {
     method: String = GET,
     body: WSBody = EmptyBody,
     timeout: Option[Duration] = None
-  )(implicit apiUser: ApiUser) {
+  )(implicit apiUser: DataUser) {
 
     lazy val credentials: Option[(String, String)] = for {
       username <- config.getOptional[String]("services.ehridata.username")
@@ -149,7 +149,7 @@ trait RestService {
     *
     * @return
     */
-  private[data] def authHeaders(implicit apiUser: ApiUser): Map[String, String] = apiUser match {
+  private[data] def authHeaders(implicit apiUser: DataUser): Map[String, String] = apiUser match {
     case AuthenticatedUser(id) => headers + (AUTH_HEADER_NAME -> id)
     case AnonymousUser => headers
   }
@@ -162,7 +162,7 @@ trait RestService {
     .getOrElse(Seq.empty)
 
 
-  protected def userCall(url: String, params: Seq[(String, String)] = Seq.empty)(implicit apiUser: ApiUser): BackendRequest = {
+  protected def userCall(url: String, params: Seq[(String, String)] = Seq.empty)(implicit apiUser: DataUser): BackendRequest = {
     BackendRequest(url)
       .withHeaders(authHeaders.toSeq: _*)
       .withQueryString(params: _*)

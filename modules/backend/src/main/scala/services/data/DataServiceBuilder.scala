@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * Factory class for creating data API handles.
   */
-trait DataApi {
+trait DataServiceBuilder {
   /**
     * Get an API handle for the given user.
     *
@@ -20,14 +20,14 @@ trait DataApi {
     * @param executionContext the execution context
     * @return an API handle
     */
-  def withContext(apiUser: ApiUser)(implicit executionContext: ExecutionContext): DataApiHandle
+  def withContext(apiUser: DataUser)(implicit executionContext: ExecutionContext): DataService
 }
 
 /**
   * An API handle, which includes the user and execution
   * context.
   */
-trait DataApiHandle {
+trait DataService {
   /**
     * Get the event handler object for this API handle.
     *
@@ -41,7 +41,7 @@ trait DataApiHandle {
     * @param eventHandler an event handler
     * @return a new API handle
     */
-  def withEventHandler(eventHandler: EventHandler): DataApiHandle
+  def withEventHandler(eventHandler: EventHandler): DataService
 
   /**
     * Get a service status

@@ -8,7 +8,7 @@ import models.{Account, ContentTypes, PermissionType, UserProfile}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
 import services.accounts.AccountManager
-import services.data.{ApiUser, AuthenticatedUser, DataApi, DataApiHandle}
+import services.data.{DataUser, AuthenticatedUser, DataServiceBuilder, DataService}
 
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,7 +24,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * Inheriting controllers need to be provided/injected with
     * a dataApi implementation.
     */
-  protected def dataApi: DataApi
+  protected def dataApi: DataServiceBuilder
 
   protected def authHandler: AuthHandler
 
@@ -62,7 +62,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * @param apiUser the current user
     * @return a data api handle
     */
-  protected def userDataApi(implicit apiUser: ApiUser): DataApiHandle =
+  protected def userDataApi(implicit apiUser: DataUser): DataService =
     dataApi.withContext(apiUser)
 
   /**
@@ -200,8 +200,8 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * @param userOpt an optional profile
     * @return an API user, which may be anonymous
     */
-  protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): ApiUser =
-    ApiUser(userOpt.map(_.id))
+  protected implicit def userOpt2apiUser(implicit userOpt: Option[UserProfile]): DataUser =
+    DataUser(userOpt.map(_.id))
 
   /**
     * Implicit helper to convert an in-scope profile to an `AuthenticatedUser` instance.
@@ -229,8 +229,8 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * @param oar an optional auth request
     * @return an ApiUser, possibly anonymous
     */
-  protected implicit def optionalAuthRequest2apiUser(implicit oar: OptionalAccountRequest[_]): ApiUser =
-    ApiUser(oar.accountOpt.map(_.id))
+  protected implicit def optionalAuthRequest2apiUser(implicit oar: OptionalAccountRequest[_]): DataUser =
+    DataUser(oar.accountOpt.map(_.id))
 
   /**
     * Implicit helper to transform an in-scope `ProfileRequest` (of any type)
@@ -263,7 +263,7 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * @return an optional profile
     */
   protected def fetchProfile(account: Account): Future[Option[UserProfile]] = {
-    implicit val apiUser: ApiUser = AuthenticatedUser(account.id)
+    implicit val apiUser: DataUser = AuthenticatedUser(account.id)
     val userF = userDataApi.get[UserProfile](UserProfile.UserProfileResource, account.id)
     val globalPermsF = userDataApi.globalPermissions(account.id)
     (for {

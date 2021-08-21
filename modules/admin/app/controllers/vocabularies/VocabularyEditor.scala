@@ -8,7 +8,7 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.{ApiUser, AuthenticatedUser, IdGenerator, ValidationError}
+import services.data.{DataUser, AuthenticatedUser, IdGenerator, ValidationError}
 import services.search.{SearchConstants, SearchParams}
 import utils.PageParams
 
@@ -45,7 +45,7 @@ case class VocabularyEditor @Inject()(
     override protected def executionContext: ExecutionContext = controllerComponents.executionContext
   }
 
-  private implicit def userAction2ApiUser(implicit request: AccountRequest[_]): ApiUser =
+  private implicit def userAction2ApiUser(implicit request: AccountRequest[_]): DataUser =
     AuthenticatedUser(request.account.id)
 
   private implicit def userAction2UserOpt(implicit request: AccountRequest[_]): Option[UserProfile] =

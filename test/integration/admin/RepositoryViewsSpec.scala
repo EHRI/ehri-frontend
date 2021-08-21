@@ -3,7 +3,7 @@ package integration.admin
 import helpers._
 import models._
 import play.api.test.FakeRequest
-import services.data.{ApiUser, AuthenticatedUser}
+import services.data.{DataUser, AuthenticatedUser}
 
 
 class RepositoryViewsSpec extends IntegrationTestRunner {
@@ -152,7 +152,7 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
     }
 
     "not change items when submitting an unedited form" in new ITestApp {
-      implicit val apiUser: ApiUser = AuthenticatedUser(privilegedUser.id)
+      implicit val apiUser: DataUser = AuthenticatedUser(privilegedUser.id)
       val r1 = await(dataApi.get[Repository]("r1"))
       val form = FakeRequest(repoRoutes.update("r1")).withUser(privilegedUser).call()
       val data = formData(contentAsString(form))

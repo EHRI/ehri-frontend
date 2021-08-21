@@ -3,7 +3,7 @@ package services.search
 import models.Readable
 
 import scala.concurrent.Future
-import services.data.ApiUser
+import services.data.DataUser
 
 /**
  * Component responsible for resolving items from the
@@ -13,5 +13,5 @@ import services.data.ApiUser
  * or more optimised internal graph IDs for faster resolution.
  */
 trait SearchItemResolver {
-  def resolve[MT: Readable](results: Seq[SearchHit])(implicit apiUser: ApiUser): Future[Seq[Option[MT]]]
+  def resolve[MT: Readable](results: Seq[SearchHit])(implicit apiUser: DataUser): Future[Seq[Option[MT]]]
 }

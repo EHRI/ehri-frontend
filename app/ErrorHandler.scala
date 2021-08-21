@@ -29,7 +29,7 @@ class ErrorHandler @Inject() (
   router: Provider[Router],
   langs: Langs,
   authHandler: AuthHandler,
-  dataApi: DataApi
+  dataApi: DataServiceBuilder
 )(implicit val messagesApi: MessagesApi, conf: AppConfig, executionContext: ExecutionContext)
   extends DefaultHttpErrorHandler(env, config, sourceMapper, router)
 with I18nSupport

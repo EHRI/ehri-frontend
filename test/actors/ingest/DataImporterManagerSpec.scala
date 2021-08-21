@@ -3,7 +3,7 @@ package actors.ingest
 import akka.actor.Props
 import helpers.IntegrationTestRunner
 import models._
-import services.data.ApiUser
+import services.data.DataUser
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 import utils.WebsocketConstants
@@ -27,7 +27,7 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
       ),
       IngestService.IngestDataType.Ead,
       "application/json",
-      ApiUser(userOpt.map(_.id)),
+      DataUser(userOpt.map(_.id)),
       hostInstance,
     )
   )

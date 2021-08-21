@@ -10,7 +10,7 @@ import controllers.generic._
 import models._
 import play.api.libs.json.{Format, Json}
 import play.api.mvc._
-import services.data.ApiUser
+import services.data.DataUser
 import services.datasets.ImportDatasetService
 import services.ingest.IngestService.{IngestData, IngestDataType, IngestJob}
 import services.ingest.{ImportConfigService, ImportLogService, IngestService}
@@ -92,7 +92,7 @@ case class ImportConfigs @Inject()(
       val idt = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
         IngestDataType.EadSync else IngestDataType.Ead
 
-      val ingestTask = IngestData(task, idt, contentType, implicitly[ApiUser], instance)
+      val ingestTask = IngestData(task, idt, contentType, implicitly[DataUser], instance)
       val job = IngestJob(jobId, ingestTask)
       val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
         if (job.data.params.commit && log.event.isDefined) importLogService.save(id, ds, job.data, log)

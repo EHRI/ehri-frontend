@@ -13,7 +13,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, CypherResult, Neo4jCypherService}
+import services.cypher.{CypherQueryService, CypherResult, WsCypherService}
 import services.search.SearchParams
 import utils.PageParams
 
@@ -23,10 +23,10 @@ import scala.util.Failure
 
 @Singleton
 case class CypherQueries @Inject()(
-  controllerComponents: ControllerComponents,
-  appComponents: AppComponents,
-  cypher: Neo4jCypherService,
-  cypherQueries: CypherQueryService
+                                    controllerComponents: ControllerComponents,
+                                    appComponents: AppComponents,
+                                    cypher: WsCypherService,
+                                    cypherQueries: CypherQueryService
 ) extends AdminController {
 
   private val logger = Logger(CypherQueries.getClass)

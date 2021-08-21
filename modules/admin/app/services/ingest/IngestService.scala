@@ -4,7 +4,7 @@ import java.net.URI
 import akka.actor.ActorRef
 import models.{ContentTypes, IngestParams, IngestResult}
 import play.api.mvc.QueryStringBindable
-import services.data.ApiUser
+import services.data.DataUser
 import services.ingest.IngestService.IngestJob
 
 import scala.concurrent.Future
@@ -22,11 +22,11 @@ object IngestService {
   }
 
   case class IngestData(
-    params: IngestParams,
-    dataType: IngestDataType.Value,
-    contentType: String,
-    user: ApiUser,
-    instance: String,
+                         params: IngestParams,
+                         dataType: IngestDataType.Value,
+                         contentType: String,
+                         user: DataUser,
+                         instance: String,
   )
 
   // A job with a given ID tag

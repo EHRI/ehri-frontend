@@ -4,7 +4,7 @@ import javax.inject.Inject
 import models.{EntityType, _}
 import play.api.i18n.{Lang, LangImplicits}
 import play.api.libs.json.JsString
-import services.data.{ApiUser, DataApi, DataApiHandle}
+import services.data.{DataUser, DataServiceBuilder, DataService}
 import utils.{Page, PageParams}
 
 import scala.concurrent.ExecutionContext.Implicits._
@@ -16,8 +16,8 @@ import scala.concurrent.Future
  * whatever's in the dataApi, wrapped as a search hit...
  */
 case class MockSearchEngine @Inject()(
-  dataApi: DataApi,
-  paramLog: SearchLogger
+                                       dataApi: DataServiceBuilder,
+                                       paramLog: SearchLogger
 )(implicit val messagesApi: play.api.i18n.MessagesApi)
   extends SearchEngine with play.api.i18n.I18nSupport with LangImplicits {
 
@@ -32,8 +32,8 @@ case class MockSearchEngine @Inject()(
     EntityType.Annotation
   )
 
-  private implicit def handle(implicit userOpt: Option[UserProfile]): DataApiHandle =
-    dataApi.withContext(ApiUser(userOpt.map(_.id)))
+  private implicit def handle(implicit userOpt: Option[UserProfile]): DataService =
+    dataApi.withContext(DataUser(userOpt.map(_.id)))
 
   private def modelToFilterHit(m: Model): FilterHit =
     FilterHit(m.id, m.id, m.toStringLang, m.isA, None, -1L)

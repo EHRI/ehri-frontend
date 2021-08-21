@@ -10,7 +10,7 @@ import models.{EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.data.{ApiUser, DataHelpers, IdGenerator}
+import services.data.{DataUser, DataHelpers, IdGenerator}
 import services.geocoding.GeocodingService
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
@@ -194,7 +194,7 @@ case class Countries @Inject()(
     }
   }
 
-  case class CountryGeocoder(id: String)(implicit apiUser: ApiUser, messages: Messages) extends Actor {
+  case class CountryGeocoder(id: String)(implicit apiUser: DataUser, messages: Messages) extends Actor {
 
     private def logger = play.api.Logger(getClass)
 

@@ -8,7 +8,7 @@ import lifecycle.ItemLifecycle
 import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import services.accounts.AccountManager
-import services.data.DataApi
+import services.data.DataServiceBuilder
 import services.redirects.MovedPageLookup
 import services.search.{SearchEngine, SearchItemResolver}
 import views.html.MarkdownRenderer
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @ImplementedBy(classOf[DefaultAppComponents])
 trait AppComponents {
   def materializer: Materializer
-  def dataApi: DataApi
+  def dataApi: DataServiceBuilder
   def accounts: AccountManager
   def authHandler: AuthHandler
   def cacheApi: SyncCacheApi
@@ -36,17 +36,17 @@ trait AppComponents {
 }
 
 case class DefaultAppComponents @Inject ()(
-  accounts: AccountManager,
-  authHandler: AuthHandler,
-  cacheApi: SyncCacheApi,
-  config: Configuration,
-  dataApi: DataApi,
-  conf: AppConfig,
-  markdown: MarkdownRenderer,
-  materializer: Materializer,
-  pageRelocator: MovedPageLookup,
-  searchEngine: SearchEngine,
-  searchResolver: SearchItemResolver,
-  itemLifecycle: ItemLifecycle,
+                                            accounts: AccountManager,
+                                            authHandler: AuthHandler,
+                                            cacheApi: SyncCacheApi,
+                                            config: Configuration,
+                                            dataApi: DataServiceBuilder,
+                                            conf: AppConfig,
+                                            markdown: MarkdownRenderer,
+                                            materializer: Materializer,
+                                            pageRelocator: MovedPageLookup,
+                                            searchEngine: SearchEngine,
+                                            searchResolver: SearchItemResolver,
+                                            itemLifecycle: ItemLifecycle,
 ) extends AppComponents
 

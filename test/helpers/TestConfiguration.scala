@@ -129,8 +129,8 @@ trait TestConfiguration {
     .overrides(testSearchComponents: _*)
 
   // Might want to mock the dataApi at at some point!
-  protected def dataApi(implicit app: play.api.Application, apiUser: ApiUser, executionContext: ExecutionContext): DataApiHandle =
-    app.injector.instanceOf[DataApi].withContext(apiUser)(executionContext)
+  protected def dataApi(implicit app: play.api.Application, apiUser: DataUser, executionContext: ExecutionContext): DataService =
+    app.injector.instanceOf[DataServiceBuilder].withContext(apiUser)(executionContext)
 
   protected val AUTH_TEST_HEADER_NAME = "PLAY2_AUTH_TEST_TOKEN"
   protected val CSRF_TOKEN_NAME = "csrfToken"

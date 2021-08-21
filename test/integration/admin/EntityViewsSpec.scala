@@ -5,7 +5,7 @@ import models.{ContentTypes, Group, HistoricalAgent, PermissionType, UserProfile
 import play.api.http.HeaderNames
 import play.api.i18n.Lang
 import play.api.test.FakeRequest
-import services.data.ApiUser
+import services.data.DataUser
 
 /**
  * Spec to test various page views operate as expected.
@@ -13,7 +13,7 @@ import services.data.ApiUser
 class EntityViewsSpec extends IntegrationTestRunner {
   import mockdata.{privilegedUser, unprivilegedUser}
 
-  implicit val apiUser: ApiUser = ApiUser(Some(privilegedUser.id))
+  implicit val apiUser: DataUser = DataUser(Some(privilegedUser.id))
 
   // Common headers/strings
   val multipleItemsHeader = "Displaying items"
