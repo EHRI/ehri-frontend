@@ -47,6 +47,12 @@ export default {
             }
           })
           .finally(() => this.testing = false);
+    },
+    cleanEndpoint: function() {
+      this.api.cleanSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
+          .then(orphans => {
+            orphans.forEach(s => console.log(s))
+          });
     }
   },
   watch: {
@@ -84,6 +90,9 @@ export default {
     </div>
 
     <template v-slot:footer>
+      <button v-on:click="cleanEndpoint" type="button" class="btn btn-default">
+        Clean
+      </button>
       <button v-on:click="$emit('close')" type="button" class="btn btn-default">
         Cancel
       </button>

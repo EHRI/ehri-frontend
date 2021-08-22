@@ -3,7 +3,9 @@ package controllers.datasets
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.{Harvester, HarvesterManager, ResourceSyncHarvester}
 import akka.actor.{ActorContext, Props}
+import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
+import akka.stream.scaladsl.Sink
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Update
@@ -18,6 +20,7 @@ import services.storage.FileStorage
 
 import java.util.UUID
 import javax.inject.{Inject, Named, Singleton}
+import scala.concurrent.Future
 
 @Singleton
 case class ResourceSyncConfigs @Inject()(
@@ -48,7 +51,7 @@ case class ResourceSyncConfigs @Inject()(
     configs.delete(id, ds).map(_ => NoContent)
   }
 
-  def test(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).async(parse.json[ResourceSyncConfig]) { implicit request =>
+  def test(id: String, ds: String): Action[ResourceSyncConfig] = WithUserAction.async(parse.json[ResourceSyncConfig]) { implicit request =>
     ws.url(request.body.url).head().map { r =>
       if (r.status != 200)
         BadRequest(Json.obj("error" -> s"Unexpected status: ${r.status}"))
@@ -60,7 +63,6 @@ case class ResourceSyncConfigs @Inject()(
         Ok(Json.obj("ok" -> true))
     }
   }
-
 
   def sync(id: String, ds: String): Action[ResourceSyncConfig] = EditAction(id).apply(parse.json[ResourceSyncConfig]) { implicit request =>
     val endpoint = request.body
@@ -85,5 +87,20 @@ case class ResourceSyncConfigs @Inject()(
     }.recover {
       case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
+  }
+
+  def clean(id: String, ds: String): Action[ResourceSyncConfig] = WithUserAction.async(parse.json[ResourceSyncConfig]) { implicit request =>
+    val pre = prefix(id, ds, FileStage.Input)
+    val remoteF: Future[Set[String]] = rsClient.list(request.body).map { links =>
+      links.map(item => Uri(item.loc).path.dropChars(1).toString).toSet
+    }
+
+    val storedF: Future[Set[String]] = storage.streamFiles(Some(pre))
+      .map(fm => fm.key.replace(pre, ""))
+      .runWith(Sink.seq)
+      .map(_.toSet)
+
+    val diffF = for { stored <- storedF; remote <- remoteF} yield stored -- remote
+    diffF.map { diff => Ok(Json.toJson(diff)) }
   }
 }

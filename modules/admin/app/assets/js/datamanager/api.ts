@@ -139,6 +139,10 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.ResourceSyncConfigs.test(this.repoId, ds), config);
   }
 
+  cleanSyncConfig(ds: string, config: ResourceSyncConfig): Promise<string[]> {
+    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.clean(this.repoId, ds), config);
+  }
+
   getOaiPmhConfig(ds: string): Promise<OaiPmhConfig | null> {
     return DatasetManagerApi.call(this.service.OaiPmhConfigs.get(this.repoId, ds));
   }

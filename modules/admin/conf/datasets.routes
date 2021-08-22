@@ -47,6 +47,7 @@ GET         /api/:id/rs/:ds/config                        @controllers.datasets.
 PUT         /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.save(id: String, ds: String)
 POST        /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.test(id: String, ds: String)
 DELETE      /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.delete(id: String, ds: String)
+POST        /api/:id/rs/:ds/clean                         @controllers.datasets.ResourceSyncConfigs.clean(id: String, ds: String)
 POST        /api/:id/rs/:ds                               @controllers.datasets.ResourceSyncConfigs.sync(id: String, ds: String)
 DELETE      /api/:id/rs                                   @controllers.datasets.ResourceSyncConfigs.cancelSync(id: String, jobId: String)
 
