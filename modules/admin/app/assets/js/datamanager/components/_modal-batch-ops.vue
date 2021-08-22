@@ -11,7 +11,7 @@ import ModalWindow from './_modal-window';
 import FilePicker from './_file-picker';
 import PanelLogWindow from './_panel-log-window';
 import {DatasetManagerApi} from '../api';
-import {ImportConfig, ImportDataset} from "../types";
+import {ImportConfig, ImportDataset, ResourceSyncConfig} from "../types";
 import _startsWith from "lodash/startsWith";
 import _last from "lodash/last";
 
@@ -27,6 +27,7 @@ export default {
       tab: 'copy',
       current: null,
       inProgress: false,
+      cleanupOrphans: false,
       copyFrom: null,
       copyType: 'convert',
       forceConvert: false,
@@ -73,6 +74,26 @@ export default {
     syncAllDatasets: function() {
       // This is a shortcut for downloading ResourceSync files
       // for all datasets... it is not really 'production ready'...
+      let cleanupFiles = (set: ImportDataset, config: ResourceSyncConfig) => {
+        if (!this.cleanupOrphans) {
+          return Promise.resolve();
+        } else {
+          this.println("Checking for deleted files...")
+          return this.api.cleanSyncConfig(set.id, config)
+            .then(orphans => {
+              if (orphans.length === 0) {
+                this.println("...no deleted files found.")
+                return Promise.resolve();
+              } else {
+                this.println("Cleaning up orphans for dataset", set.name, ":");
+                orphans.forEach(path => this.println(" x ", path));
+                return this.api.deleteFiles(set.id, this.config.input, orphans)
+                    .then(() => this.api.deleteFiles(set.id, this.config.output, orphans));
+              }
+            });
+        }
+      }
+
       let syncDataset = (sets: ImportDataset[]) => {
         if (!this.cancelled && sets.length > 0) {
           this.inProgress = true;
@@ -91,9 +112,11 @@ export default {
                   }
                   if (msg.data.done || msg.data.error) {
                     worker.terminate();
-                    this.$delete(this.working, set.id);
-                    this.$emit('processing-done', set.id);
-                    syncDataset(rest);
+                    cleanupFiles(set, config).then(() => {
+                      this.$delete(this.working, set.id);
+                      this.$emit('processing-done', set.id);
+                      syncDataset(rest);
+                    })
                   }
                 };
                 this.dispatchWorker(worker, url);
@@ -294,6 +317,12 @@ export default {
     </fieldset>
 
     <fieldset v-else-if="tab === 'sync'" id="tab-sync" class="batch-op-tab options-form">
+      <div class="form-group form-check">
+        <input class="form-check-input" id="opt-clean" type="checkbox" v-model="cleanupOrphans"/>
+        <label class="form-check-label" for="opt-clean">
+          Cleanup Orphaned Files
+        </label>
+      </div>
     </fieldset>
 
     <fieldset v-else-if="tab === 'convert'" id="tab-convert" class="batch-op-tab options-form">
