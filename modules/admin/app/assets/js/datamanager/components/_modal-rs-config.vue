@@ -17,6 +17,7 @@ export default {
       filter: this.config ? this.config.filter : null,
       tested: null,
       testing: false,
+      cleaning: false,
       error: null,
     }
   },
@@ -49,10 +50,12 @@ export default {
           .finally(() => this.testing = false);
     },
     cleanEndpoint: function() {
+      this.cleaning = true;
       this.api.cleanSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
           .then(orphans => {
             orphans.forEach(s => console.log(s))
-          });
+          })
+          .finally(() => this.cleaning = false);
     }
   },
   watch: {
@@ -90,7 +93,9 @@ export default {
     </div>
 
     <template v-slot:footer>
-      <button v-on:click="cleanEndpoint" type="button" class="btn btn-default">
+      <button v-bind:disabled="cleaning" v-on:click="cleanEndpoint" type="button" class="btn btn-default">
+        <i v-if="cleaning" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+        <i v-else class="fa fa-fw fa-trash-o"></i>
         Clean
       </button>
       <button v-on:click="$emit('close')" type="button" class="btn btn-default">
