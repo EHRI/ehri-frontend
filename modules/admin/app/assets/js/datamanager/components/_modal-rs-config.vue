@@ -9,13 +9,14 @@ export default {
   props: {
     waiting: Boolean,
     datasetId: String,
-    config: Object,
+    syncConfig: Object,
     api: DatasetManagerApi,
+    config: Object,
   },
   data: function() {
     return {
-      url: this.config ? this.config.url : null,
-      filter: this.config ? this.config.filter : null,
+      url: this.syncConfig ? this.syncConfig.url : null,
+      filter: this.syncConfig ? this.syncConfig.filter : null,
       tested: null,
       testing: false,
       cleaning: false,
@@ -61,12 +62,15 @@ export default {
     deleteOrphans: function(orphans: string[]): Promise<void> {
       return this.api.deleteFiles(this.datasetId, this.config.input, orphans)
           .then(() => this.api.deleteFiles(this.datasetId, this.config.output, orphans)
-            .then(() => this.orphanCheck = null));
+            .then(() => {
+              this.$emit('deleted-orphans')
+              this.orphanCheck = null
+            }));
 
     }
   },
   watch: {
-    config: function(newValue) {
+    syncConfig: function(newValue) {
       this.url = newValue ? newValue.url : null;
       this.filter = newValue ? newValue.filter : null;
     }
@@ -84,12 +88,15 @@ export default {
       v-bind:cls="'success'"
       v-bind:cancel="null"
       v-on:accept="orphanCheck = null"
+      v-on:close="orphanCheck = null"
         />
     <modal-alert
       v-else-if="orphanCheck !== null && orphanCheck.length > 0"
       v-bind:title="'Ophaned files found: ' + orphanCheck.length"
+      v-bind:large="true"
       v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
-      v-on:accept="deleteOrphans(orphanCheck)">
+      v-on:accept="deleteOrphans(orphanCheck)"
+      v-on:close="orphanCheck = null">
       <div class="confirm-orphan-delete-list">
         <pre>{{ orphanCheck.join('\n') }}</pre>
       </div>
