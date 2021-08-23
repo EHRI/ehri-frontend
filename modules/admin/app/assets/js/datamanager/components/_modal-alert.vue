@@ -15,6 +15,11 @@ export default {
       default: "Cancel"
     }
   },
+  computed: {
+    hasDefaultSlot () {
+      return !!this.$slots.default
+    },
+  },
   mounted() {
     this.$el.querySelector("button.close").focus();
   }
@@ -31,7 +36,7 @@ export default {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div v-show="hasDefaultSlot" class="modal-body">
           <slot></slot>
         </div>
         <div class="modal-footer">

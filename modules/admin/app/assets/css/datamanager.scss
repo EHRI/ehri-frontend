@@ -1025,3 +1025,11 @@ body {
   justify-content: center;
   color: $text-muted;
 }
+
+.confirm-orphan-delete-list {
+  display: flex;
+  flex: 1;
+  flex-basis: 0;
+  overflow: auto;
+  max-height: 10rem;
+}
