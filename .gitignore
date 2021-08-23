@@ -24,6 +24,7 @@ OLD
 .idea
 .idea_modules
 node_modules
+miniodata/*
 
 # stupid Mac stuff
 .DS_Store
