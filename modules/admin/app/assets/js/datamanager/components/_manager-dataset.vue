@@ -1,7 +1,6 @@
 <script lang="ts">
 
 import ModalDatasetConfig from './_modal-dataset-config';
-import ModalDatasetImport from './_modal-dataset-import'
 import ManagerOaipmh from './_manager-oaipmh';
 import ManagerUpload from './_manager-upload';
 import ManagerIngest from './_manager-ingest';
@@ -17,7 +16,7 @@ import {DatasetManagerApi} from "../api";
 import _merge from 'lodash/merge';
 
 export default {
-  components: {ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
+  components: {ManagerSnapshots, ModalDatasetConfig, ManagerOaipmh, ManagerUpload, ManagerIngest, ManagerRs, ManagerConvert},
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,

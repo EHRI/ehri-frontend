@@ -139,10 +139,12 @@ export default {
           v-if="showOptions"
           v-bind:waiting="waiting"
           v-bind:dataset-id="datasetId"
-          v-bind:config="syncConfig"
+          v-bind:sync-config="syncConfig"
           v-bind:api="api"
+          v-bind:config="config"
           v-on:saving="waiting = true"
           v-on:saved-config="doSync"
+          v-on:deleted-orphans="refresh"
           v-on:error="showError"
           v-on:close="showOptions = false"/>
 

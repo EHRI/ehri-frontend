@@ -13,6 +13,10 @@ export default {
     cancel: {
       type: String,
       default: "Cancel"
+    },
+    large: {
+      type: Boolean,
+      default: false,
     }
   },
   computed: {
@@ -28,7 +32,7 @@ export default {
 
 <template>
   <div v-bind:class="cls" class="modal modal-alert" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog" v-bind:class="{'modal-sm': !large}" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ title }}</h5>

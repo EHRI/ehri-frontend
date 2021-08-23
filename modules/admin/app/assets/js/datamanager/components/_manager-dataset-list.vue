@@ -1,7 +1,7 @@
 <script lang="ts">
 
 import ModalDatasetConfig from './_modal-dataset-config';
-import ModalDatasetImport from './_modal-dataset-import'
+import ModalDatasetIo from './_modal-dataset-io'
 import ModalBatchOps from './_modal-batch-ops';
 import ManagerSnapshots from "./_manager-snapshots";
 import ManagerCoreference from "./_manager-coreference";
@@ -17,7 +17,7 @@ import _merge from 'lodash/merge';
 import _omit from 'lodash/omit';
 
 export default {
-  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetImport, ModalBatchOps},
+  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ModalDatasetConfig, ModalDatasetIo, ModalBatchOps},
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
@@ -157,9 +157,10 @@ export default {
                           v-on:saved-dataset="reloadDatasets"
                           v-on:deleted-dataset="dataset = null; reloadDatasets()" />
 
-    <modal-dataset-import v-if="showImportForm"
-                  v-bind:config="config"
+    <modal-dataset-io v-if="showImportForm"
+                  v-bind:datasets="datasets"
                   v-bind:api="api"
+                  v-bind:config="config"
                   v-on:close="showImportForm = false"
                   v-on:saved="reloadDatasets(); showImportForm = false" />
 
@@ -208,7 +209,7 @@ export default {
           <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
             <button v-on:click.prevent="showOptions = false; openSnapshots()" class="dropdown-item">
               <i class="fa fa-list-alt"></i>
-              Manage snapshots
+              Manage Snapshots
             </button>
             <button v-on:click.prevent="showOptions = false; openCoreference()" class="dropdown-item">
               <i class="fa fa-link"></i>
@@ -216,7 +217,7 @@ export default {
             </button>
             <button v-on:click.prevent="showImportForm = true; showOptions = false" class="dropdown-item">
               <i class="fa fa-file-code-o"></i>
-              Import datasets from JSON
+              Import/export Datasets
             </button>
             <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item" v-bind:disabled="datasets.length <= 1">
               <i class="fa fa-warning"></i>
