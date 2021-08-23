@@ -16,6 +16,14 @@ import _startsWith from "lodash/startsWith";
 import _last from "lodash/last";
 import convert from "lodash/fp/convert";
 
+class CancelledTask extends Error {
+  constructor() {
+    super("Task cancelled");
+    this.name = "TaskCancelled";
+  }
+
+}
+
 export default {
   components: {FilePicker, ModalWindow, PanelLogWindow},
   props: {
@@ -39,7 +47,24 @@ export default {
     }
   },
   methods: {
+    monitor: async function(wsUrl: string) {
+      return await new Promise(((resolve) => {
+        let worker = new Worker(this.config.previewLoader);
+        worker.onmessage = msg => {
+          if (msg.data.msg) {
+            this.println(msg.data.msg);
+          }
+          if (msg.data.done || msg.data.error) {
+            worker.terminate();
+            resolve();
+          }
+        };
+        this.dispatchWorker(worker, wsUrl);
+      })).catch(e => {throw e});
+    },
+
     println: function(...msg: string[]) {
+      //this.log = [msg.join(' ')];
       console.debug(...msg);
       let line = msg.join(' ');
       // FIXME: hack copied from ingest manager
@@ -50,8 +75,13 @@ export default {
         this.log.push(line);
       }
 
-      // Ensure log never goes longer than 1000 lines...
-      this.log.splice(0, this.log.length - 1000);
+      // Cull the list back to 1000 items every
+      // time we exceed a threshold
+      // FIXME: this is crap
+      if (this.log.length >= 2000) {
+        // this.log.shift();
+        this.log.splice(0, 1000);
+      }
     },
     dispatchWorker: function(worker: Worker, monitorUrl: string) {
       worker.postMessage({
@@ -72,220 +102,181 @@ export default {
       this.inProgress = false;
       this.cancelled = false;
     },
-    checkForOrphans: function() {
-      let checkOrphans = (sets: ImportDataset[]) => {
-        if (!this.cancelled && sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest] = sets;
+    setRunning: function() {
+      this.inProgress = true;
+    },
+    checkForOrphans: async function() {
+      let datasets: ImportDataset[] = this.datasets;
+      this.setRunning();
 
-          this.api.getSyncConfig(set.id).then(config => {
-            if (config) {
-              this.println("Checking", set.name + "...");
-              this.$set(this.working, set.id, true);
-              this.$emit('processing', set.id);
-              this.api.cleanSyncConfig(set.id, config)
-                  .then( (files) => {
-                    if (files.length === 0) {
-                      this.println("... no orphans found");
-                    } else {
-                      this.println("..." + files.length, "orphaned file(s) found");
-                      files.forEach(f => this.println(" -", f));
-                    }
-                  })
-                  .finally(() => {
-                    this.$delete(this.working, set.id);
-                    this.$emit('processing-done', set.id);
-                    checkOrphans(rest);
-                  });
-            } else {
-              this.println("No config found for", set.name);
-              checkOrphans(rest);
-            }
-          })
-        } else {
+      for (let set of datasets) {
+        if (this.cancelled) {
           this.cleanup();
+          throw new CancelledTask();
+        }
+          let config = await this.api.getSyncConfig(set.id);
+          if (config) {
+            this.println("Checking", set.name + "...");
+            this.$set(this.working, set.id, true);
+            this.$emit('processing', set.id);
+            try {
+              let files = await this.api.cleanSyncConfig(set.id, config);
+              if (files.length === 0) {
+                this.println("... no orphans found");
+              } else {
+                this.println("..." + files.length, "orphaned file(s) found");
+                files.forEach(f => this.println(" -", f));
+              }
+            } catch (e) {
+              this.println(e.message);
+            } finally {
+              this.$delete(this.working, set.id);
+              this.$emit('processing-done', set.id);
+            }
+          } else {
+            this.println("No config found for", set.name);
+          }
+      }
+    },
+    syncAllDatasets: async function() {
+      // This is a shortcut for downloading ResourceSync files
+      // for all datasets... it is not really 'production ready'...
+      let cleanupFiles = async(set: ImportDataset, config: ResourceSyncConfig) => {
+        if (this.cleanupOrphans) {
+          this.println("Checking for deleted files...")
+          let orphans = this.api.cleanSyncConfig(set.id, config)
+            if (orphans.length === 0) {
+              this.println("...no deleted files found.")
+            } else {
+              this.println("Cleaning up orphans for dataset", set.name, ":");
+              orphans.forEach(path => this.println(" x ", path));
+              await this.api.deleteFiles(set.id, this.config.input, orphans);
+              await this.api.deleteFiles(set.id, this.config.output, orphans);
+            }
         }
       };
 
-      checkOrphans(this.datasets);
-    },
-    syncAllDatasets: function() {
-      // This is a shortcut for downloading ResourceSync files
-      // for all datasets... it is not really 'production ready'...
-      let cleanupFiles = (set: ImportDataset, config: ResourceSyncConfig) => {
-        if (!this.cleanupOrphans) {
-          return Promise.resolve();
-        } else {
-          this.println("Checking for deleted files...")
-          return this.api.cleanSyncConfig(set.id, config)
-            .then(orphans => {
-              if (orphans.length === 0) {
-                this.println("...no deleted files found.")
-                return Promise.resolve();
-              } else {
-                this.println("Cleaning up orphans for dataset", set.name, ":");
-                orphans.forEach(path => this.println(" x ", path));
-                return this.api.deleteFiles(set.id, this.config.input, orphans)
-                    .then(() => this.api.deleteFiles(set.id, this.config.output, orphans));
-              }
-            });
-        }
-      }
-
-      let syncDataset = (sets: ImportDataset[]) => {
-        if (!this.cancelled && sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest]  = sets;
-
-          this.api.getSyncConfig(set.id).then(config => {
-            if (config) {
-              this.println("Syncing", set.name);
-              this.$set(this.working, set.id, true);
-              this.$emit('processing', set.id);
-              this.api.sync(set.id, config).then( ({url}) => {
-                let worker = new Worker(this.config.previewLoader);
-                worker.onmessage = msg => {
-                  if (msg.data.msg) {
-                    this.println(msg.data.msg);
-                  }
-                  if (msg.data.done || msg.data.error) {
-                    worker.terminate();
-                    cleanupFiles(set, config).then(() => {
-                      this.$delete(this.working, set.id);
-                      this.$emit('processing-done', set.id);
-                      syncDataset(rest);
-                    })
-                  }
-                };
-                this.dispatchWorker(worker, url);
-              });
-            } else {
-              this.println("No config found for", set.name);
-              syncDataset(rest);
-            }
-          })
-        } else {
+      let datasets: ImportDataset[] = this.datasets;
+      this.setRunning();
+      for (let set of datasets) {
+        if (this.cancelled) {
           this.cleanup();
+          throw new CancelledTask();
         }
-      }
-
-      syncDataset(this.datasets);
-    },
-    convertAllDatasets: function() {
-      // This is a shortcut for running conversion on all datasets...
-      let convertDataset = (sets: ImportDataset[]) => {
-        if (!this.cancelled && sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest]  = sets;
-
-          this.println("Converting", set.name);
-          this.api.getConvertConfig(set.id).then(config => {
-            this.$set(this.working, set.id, true);
-            this.$emit('processing', set.id);
-            this.api.convert(set.id, null, {mappings: config, force: this.forceConvert}).then( ({url}) => {
-              let worker = new Worker(this.config.previewLoader);
-              worker.onmessage = msg => {
-                if (msg.data.msg) {
-                  this.println(msg.data.msg);
-                }
-                if (msg.data.done || msg.data.error) {
-                  worker.terminate();
-                  this.$delete(this.working, set.id);
-                  this.$emit('processing-done', set.id);
-                  convertDataset(rest);
-                }
-              };
-              this.dispatchWorker(worker, url);
-            });
-          });
+        let config: ResourceSyncConfig|null = await this.api.getSyncConfig(set.id);
+        if (config) {
+          this.println("Syncing", set.name);
+          this.$set(this.working, set.id, true);
+          this.$emit('processing', set.id);
+          try {
+            let {url} = await this.api.sync(set.id, config);
+            await this.monitor(url);
+            await cleanupFiles(set, config);
+          } catch (e) {
+            this.println(e.message);
+          } finally {
+            this.$delete(this.working, set.id);
+            this.$emit('processing-done', set.id);
+          }
         } else {
-          this.cleanup();
+          this.println("No config found for", set.name);
         }
       }
-
-      convertDataset(this.datasets);
     },
-    importAllDatasets: function() {
+    convertAllDatasets: async function() {
+      let datasets: ImportDataset[] = this.datasets;
+      this.setRunning();
+
+      for (let set of datasets) {
+        if (this.cancelled) {
+          this.cleanup();
+          throw new CancelledTask();
+        }
+        let config = await this.api.getConvertConfig(set.id);
+        this.$set(this.working, set.id, true);
+        this.$emit('processing', set.id);
+
+        try {
+          let {url} = await this.api.convert(set.id, null, {mappings: config, force: this.forceConvert});
+          await this.monitor(url);
+        } catch (e) {
+          this.println(e.message);
+        } finally {
+          this.$delete(this.working, set.id);
+          this.$emit('processing-done', set.id);
+        }
+      }
+    },
+    importAllDatasets: async function() {
       // This is a shortcut for running conversion on all datasets...
       let commitCheck = prompt("Type 'yes' to commit:");
       let commit = commitCheck === null || commitCheck.toLowerCase() === "yes";
-      let importDataset = (sets: ImportDataset[]) => {
-        if (!this.cancelled && sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest]  = sets;
 
-          this.api.getImportConfig(set.id).then(config => {
-            if (config) {
-              this.println("Importing", set.name);
-              this.$set(this.working, set.id, true);
-              this.$emit('processing', set.id);
-              this.api.ingestFiles(set.id, [], config, commit).then(({url}) => {
-                let worker = new Worker(this.config.previewLoader);
-                worker.onmessage = msg => {
-                  if (msg.data.msg) {
-                    this.println(msg.data.msg);
-                  }
-                  if (msg.data.done || msg.data.error) {
-                    worker.terminate();
-                    this.$delete(this.working, set.id);
-                    this.$emit('processing-done', set.id);
-                    importDataset(rest);
-                  }
-                };
-                this.dispatchWorker(worker, url);
-              });
-            } else {
-              this.println("No import config found for", set.name);
-              importDataset(rest);
-            }
-          });
-        } else {
+      let datasets: ImportDataset[] = this.datasets;
+      this.setRunning();
+
+      for (let set of datasets) {
+        if (this.cancelled) {
           this.cleanup();
+          throw new CancelledTask();
+        }
+
+        let config = await this.api.getImportConfig(set.id);
+        if (config) {
+          this.println("Importing", set.name);
+          this.$set(this.working, set.id, true);
+          this.$emit('processing', set.id);
+          try {
+            let {url} = await this.api.ingestFiles(set.id, [], config, commit);
+            await this.monitor(url);
+          } catch (e) {
+            this.println(e.message);
+          } finally {
+            this.$delete(this.working, set.id);
+            this.$emit('processing-done', set.id);
+          }
+        } else {
+          this.println("No import config found for", set.name);
         }
       }
 
-      importDataset(this.datasets);
+      return true;
     },
-    copyConvertSettings: function() {
-      // Copy convert settings from one dataset to all the others...
-      let saveSettings = (sets: ImportDataset[], settings: [string, object][]) => {
-        if (sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest] = sets;
-          this.api.saveConvertConfig(set.id, settings)
-              .then(r => {
-                this.println("Copied", set.name);
-                saveSettings(rest, settings);
-              });
-        } else {
-          this.cleanup();
+    runAll: async function() {
+      try {
+        await this.syncAllDatasets();
+        await this.convertAllDatasets();
+        await this.importAllDatasets();
+      } catch (e) {
+        if (!(e instanceof CancelledTask)) {
+          throw e;
         }
       }
+    },
+    copyConvertSettings: async function() {
+      // Copy convert settings from one dataset to all the others...
       if (window.confirm(`Copy convert settings from ${this.copyFrom}?`)) {
-        this.api.getConvertConfig(this.copyFrom).then(data => {
-          saveSettings(this.datasets.filter(s => s.id !== this.copyFrom), data);
-        })
+        let config = await this.api.getConvertConfig(this.copyFrom);
+        let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
+        this.inProgress = true;
+        for (let set of others) {
+          await this.api.saveConvertConfig(set.id, config)
+          this.println("Copied", set.name);
+        }
+        this.cleanup();
       }
     },
-    copyImportSettings: function() {
+    copyImportSettings: async function() {
       // Copy convert settings from one dataset to all the others...
-      let saveSettings = (sets: ImportDataset[], settings: ImportConfig) => {
-        if (sets.length > 0) {
-          this.inProgress = true;
-          let [set, ...rest] = sets;
-          this.api.saveImportConfig(set.id, settings)
-              .then(() => {
-                this.println("Copied", set.name);
-                saveSettings(rest, settings);
-              });
-        } else {
-          this.inProgress = false;
-        }
-      }
       if (window.confirm(`Copy import settings from ${this.copyFrom}?`)) {
-        this.api.getImportConfig(this.copyFrom).then(data => {
-          saveSettings(this.datasets.filter(s => s.id !== this.copyFrom), data);
-        });
+        let config: ImportConfig = await this.api.getImportConfig(this.copyFrom);
+        let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
+        this.inProgress = true;
+        for (let set of others) {
+          await this.api.saveImportConfig(set.id, config)
+          this.println("Copied", set.name);
+        }
+        this.cleanup();
       }
     },
     copySettings: function() {
@@ -306,29 +297,34 @@ export default {
 
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a v-bind:class="{active: tab === 'copy'}" v-on:click.prevent="tab = 'copy'" href="#tab-copy" class="nav-link">
+        <a v-bind:class="{active: tab === 'copy'}" v-on:click.prevent="tab = 'copy'" href="#" class="nav-link">
           Copy Settings
         </a>
       </li>
       <li class="nav-item">
-        <a v-bind:class="{active: tab === 'sync'}" v-on:click.prevent="tab = 'sync'" href="#tab-sync" class="nav-link">
-          Synchronise All Datasets
+        <a v-bind:class="{active: tab === 'sync'}" v-on:click.prevent="tab = 'sync'" href="#" class="nav-link">
+          Synchronise
         </a>
       </li>
       <li class="nav-item">
-        <a v-bind:class="{active: tab === 'convert'}" v-on:click.prevent="tab = 'convert'" href="#tab-convert" class="nav-link">
-          Convert All Datasets
+        <a v-bind:class="{active: tab === 'convert'}" v-on:click.prevent="tab = 'convert'" href="#" class="nav-link">
+          Convert
         </a>
       </li>
       <li class="nav-item">
-        <a v-bind:class="{active: tab === 'import'}" v-on:click.prevent="tab = 'import'" href="#tab-import" class="nav-link">
-          Import All Datasets
+        <a v-bind:class="{active: tab === 'import'}" v-on:click.prevent="tab = 'import'" href="#" class="nav-link">
+          Import
+        </a>
+      </li>
+      <li class="nav-item">
+        <a v-bind:class="{active: tab === 'all'}" v-on:click.prevent="tab = 'all'" href="#" class="nav-link">
+          All
         </a>
       </li>
     </ul>
 
-    <fieldset v-if="tab === 'copy'" id="tab-copy" class="batch-op-tab options-form">
-      <div class="form-group">
+    <fieldset v-bind:disabled="inProgress" class="options-form">
+      <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="from-dataset">
           Source Dataset
           <span class="required-input">*</span>
@@ -339,7 +335,7 @@ export default {
         </select>
       </div>
 
-      <div class="form-group">
+      <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="copy-type">
           Copy Configuration
           <span class="required-input">*</span>
@@ -350,19 +346,15 @@ export default {
           <option v-bind:value="'import'">Import Settings</option>
         </select>
       </div>
-    </fieldset>
 
-    <fieldset v-else-if="tab === 'sync'" id="tab-sync" class="batch-op-tab options-form">
-      <div class="form-group form-check">
+      <div v-if="tab === 'sync' || tab === 'all'" class="form-group form-check">
         <input class="form-check-input" id="opt-clean" type="checkbox" v-model="cleanupOrphans"/>
         <label class="form-check-label" for="opt-clean">
           Cleanup Orphaned Files
         </label>
       </div>
-    </fieldset>
 
-    <fieldset v-else-if="tab === 'convert'" id="tab-convert" class="batch-op-tab options-form">
-      <div class="form-group form-check">
+      <div v-if="tab === 'convert' || tab === 'all'" class="form-group form-check">
         <input class="form-check-input" id="opt-force-check" type="checkbox" v-model="forceConvert"/>
         <label class="form-check-label" for="opt-force-check">
           Rerun existing conversions
@@ -370,8 +362,6 @@ export default {
       </div>
     </fieldset>
 
-    <fieldset v-else-if="tab === 'import'" id="tab-import" class="batch-op-tab options-form">
-    </fieldset>
     <div class="log-container" id="batch-ops-log">
       <panel-log-window v-bind:log="log" v-if="log.length > 0"/>
       <div class="panel-placeholder" v-else>
@@ -402,6 +392,9 @@ export default {
       </button>
       <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-secondary">
         Run Import
+      </button>
+      <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-secondary">
+        Synchronise, Convert &amp; Import
       </button>
     </template>
   </modal-window>

@@ -10,12 +10,11 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Update
 import models.{FileStage, Repository, ResourceSyncConfig}
-import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.harvesting.{HarvestEventService, ResourceSyncClient, ResourceSyncConfigService}
+import services.harvesting.{HarvestEventService, ResourceSyncClient, ResourceSyncConfigService, ResourceSyncError}
 import services.storage.FileStorage
 
 import java.util.UUID
@@ -32,8 +31,6 @@ case class ResourceSyncConfigs @Inject()(
   configs: ResourceSyncConfigService,
   harvestEvents: HarvestEventService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
-
-  private val logger: Logger = Logger(classOf[ResourceSyncConfigs])
 
   def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     configs.get(id, ds).map { opt =>
@@ -101,6 +98,8 @@ case class ResourceSyncConfigs @Inject()(
       .map(_.toSet)
 
     val diffF = for { stored <- storedF; remote <- remoteF} yield stored -- remote
-    diffF.map { diff => Ok(Json.toJson(diff)) }
+    diffF.map { diff => Ok(Json.toJson(diff)) }.recover {
+      case e: ResourceSyncError => BadRequest(Json.obj("error" -> e.errorMessage))
+    }
   }
 }
