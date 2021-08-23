@@ -1,10 +1,11 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
+import ModalAlert from './_modal-alert';
 import {DatasetManagerApi} from '../api';
 
 export default {
-  components: {ModalWindow},
+  components: {ModalAlert, ModalWindow},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -19,6 +20,7 @@ export default {
       testing: false,
       cleaning: false,
       error: null,
+      orphanCheck: null,
     }
   },
   computed: {
@@ -52,10 +54,15 @@ export default {
     cleanEndpoint: function() {
       this.cleaning = true;
       this.api.cleanSyncConfig(this.datasetId, {url: this.url, filter: this.filter})
-          .then(orphans => {
-            orphans.forEach(s => console.log(s))
-          })
+          .then(orphans => this.orphanCheck = orphans)
+          .catch(e => this.error = e.message)
           .finally(() => this.cleaning = false);
+    },
+    deleteOrphans: function(orphans: string[]): Promise<void> {
+      return this.api.deleteFiles(this.datasetId, this.config.input, orphans)
+          .then(() => this.api.deleteFiles(this.datasetId, this.config.output, orphans)
+            .then(() => this.orphanCheck = null));
+
     }
   },
   watch: {
@@ -70,6 +77,23 @@ export default {
 <template>
   <modal-window v-on:close="$emit('close')">
     <template v-slot:title>ResourceSync Endpoint Configuration</template>
+
+    <modal-alert
+      v-if="orphanCheck !== null && orphanCheck.length === 0"
+      v-bind:title="'No orphaned files found'"
+      v-bind:cls="'success'"
+      v-bind:cancel="null"
+      v-on:accept="orphanCheck = null"
+        />
+    <modal-alert
+      v-else-if="orphanCheck !== null && orphanCheck.length > 0"
+      v-bind:title="'Ophaned files found: ' + orphanCheck.length"
+      v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
+      v-on:accept="deleteOrphans(orphanCheck)">
+      <div class="confirm-orphan-delete-list">
+        <pre>{{ orphanCheck.join('\n') }}</pre>
+      </div>
+    </modal-alert>
 
     <div class="options-form">
       <div class="form-group">
@@ -93,13 +117,13 @@ export default {
     </div>
 
     <template v-slot:footer>
+      <button v-on:click="$emit('close')" type="button" class="btn btn-default">
+        Cancel
+      </button>
       <button v-bind:disabled="cleaning" v-on:click="cleanEndpoint" type="button" class="btn btn-default">
         <i v-if="cleaning" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         <i v-else class="fa fa-fw fa-trash-o"></i>
-        Clean
-      </button>
-      <button v-on:click="$emit('close')" type="button" class="btn btn-default">
-        Cancel
+        Remove Orphaned Files
       </button>
       <button v-bind:disabled="!isValidConfig"
               v-on:click="testEndpoint" type="button" class="btn btn-default">

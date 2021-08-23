@@ -14,6 +14,7 @@ import {DatasetManagerApi} from '../api';
 import {ImportConfig, ImportDataset, ResourceSyncConfig} from "../types";
 import _startsWith from "lodash/startsWith";
 import _last from "lodash/last";
+import convert from "lodash/fp/convert";
 
 export default {
   components: {FilePicker, ModalWindow, PanelLogWindow},
@@ -70,6 +71,43 @@ export default {
       }
       this.inProgress = false;
       this.cancelled = false;
+    },
+    checkForOrphans: function() {
+      let checkOrphans = (sets: ImportDataset[]) => {
+        if (!this.cancelled && sets.length > 0) {
+          this.inProgress = true;
+          let [set, ...rest] = sets;
+
+          this.api.getSyncConfig(set.id).then(config => {
+            if (config) {
+              this.println("Checking", set.name + "...");
+              this.$set(this.working, set.id, true);
+              this.$emit('processing', set.id);
+              this.api.cleanSyncConfig(set.id, config)
+                  .then( (files) => {
+                    if (files.length === 0) {
+                      this.println("... no orphans found");
+                    } else {
+                      this.println("..." + files.length, "orphaned file(s) found");
+                      files.forEach(f => this.println(" -", f));
+                    }
+                  })
+                  .finally(() => {
+                    this.$delete(this.working, set.id);
+                    this.$emit('processing-done', set.id);
+                    checkOrphans(rest);
+                  });
+            } else {
+              this.println("No config found for", set.name);
+              checkOrphans(rest);
+            }
+          })
+        } else {
+          this.cleanup();
+        }
+      };
+
+      checkOrphans(this.datasets);
     },
     syncAllDatasets: function() {
       // This is a shortcut for downloading ResourceSync files
@@ -131,7 +169,7 @@ export default {
         }
       }
 
-      this.api.listDatasets().then(syncDataset);
+      syncDataset(this.datasets);
     },
     convertAllDatasets: function() {
       // This is a shortcut for running conversion on all datasets...
@@ -165,7 +203,7 @@ export default {
         }
       }
 
-      this.api.listDatasets().then(convertDataset);
+      convertDataset(this.datasets);
     },
     importAllDatasets: function() {
       // This is a shortcut for running conversion on all datasets...
@@ -206,7 +244,7 @@ export default {
         }
       }
 
-      this.api.listDatasets().then(importDataset);
+      importDataset(this.datasets);
     },
     copyConvertSettings: function() {
       // Copy convert settings from one dataset to all the others...
@@ -225,8 +263,7 @@ export default {
       }
       if (window.confirm(`Copy convert settings from ${this.copyFrom}?`)) {
         this.api.getConvertConfig(this.copyFrom).then(data => {
-          this.api.listDatasets()
-              .then(sets => saveSettings(sets.filter(s => s.id !== this.copyFrom), data));
+          saveSettings(this.datasets.filter(s => s.id !== this.copyFrom), data);
         })
       }
     },
@@ -247,9 +284,8 @@ export default {
       }
       if (window.confirm(`Copy import settings from ${this.copyFrom}?`)) {
         this.api.getImportConfig(this.copyFrom).then(data => {
-          this.api.listDatasets()
-              .then(sets => saveSettings(sets.filter(s => s.id !== this.copyFrom), data));
-        })
+          saveSettings(this.datasets.filter(s => s.id !== this.copyFrom), data);
+        });
       }
     },
     copySettings: function() {
@@ -352,9 +388,15 @@ export default {
       <button v-if="tab === 'copy'" v-bind:disabled="inProgress || !(copyFrom && copyType)" v-on:click="copySettings" type="button" class="btn btn-secondary">
         Copy Settings
       </button>
-      <button v-if="tab === 'sync'" v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
-        Synchronise ResourceSync Datasets
-      </button>
+      <template v-if="tab === 'sync'">
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="checkForOrphans" type="button" class="btn btn-default">
+          <i class="fa fa-fw fa-trash-o"></i>
+          Check for Orphaned Files
+        </button>
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
+          Synchronise ResourceSync Datasets
+        </button>
+      </template>
       <button v-if="tab === 'convert'" v-bind:disabled="inProgress" v-on:click="convertAllDatasets" type="button" class="btn btn-secondary">
         Run Convert
       </button>
