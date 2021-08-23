@@ -1,13 +1,14 @@
 package services.harvesting
 
 import java.util.regex.Pattern
-
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
+
 import javax.inject.Inject
 import models._
+import org.xml.sax.SAXParseException
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,26 +35,31 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
 
   private def readUrlSet(url: String, filter: String => Boolean): Future[Seq[ResourceSyncItem]] = {
     ws.url(url).withFollowRedirects(true).get().map { r =>
-      (r.xml \ "url").flatMap { urlNode =>
-        val md = urlNode \ "md"
-        val lastMod = urlNode \ "lastmod"
-        val capability = parseAttr(md, "capability")
+      try {
+        (r.xml \ "url").flatMap { urlNode =>
+          val md = urlNode \ "md"
+          val lastMod = urlNode \ "lastmod"
+          val capability = parseAttr(md, "capability")
 
-        (urlNode \ "loc").flatMap { locNode =>
-          val loc = locNode.text
-          capability match {
-            case Some("resourcelist") => Some(ResourceList(loc))
-            case Some("capabilitylist") => Some(CapabilityList(loc))
-            case None if filter(loc) => Some(FileLink(
-              loc,
-              contentType = parseAttr(md, "type"),
-              hash = parseAttr(md, "hash"),
-              length = parseAttr(md, "length").map(_.toLong),
-              updated = lastMod.headOption.map(n => java.time.Instant.parse(n.text))
-            ))
-            case _ => None
+          (urlNode \ "loc").flatMap { locNode =>
+            val loc = locNode.text
+            capability match {
+              case Some("resourcelist") => Some(ResourceList(loc))
+              case Some("capabilitylist") => Some(CapabilityList(loc))
+              case None if filter(loc) => Some(FileLink(
+                loc,
+                contentType = parseAttr(md, "type"),
+                hash = parseAttr(md, "hash"),
+                length = parseAttr(md, "length").map(_.toLong),
+                updated = lastMod.headOption.map(n => java.time.Instant.parse(n.text))
+              ))
+              case _ => None
+            }
           }
         }
+      } catch {
+        case _: SAXParseException =>
+          throw ResourceSyncError("badFormat", url)
       }
     }
   }
