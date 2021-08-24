@@ -252,6 +252,7 @@ val excludedResources = Seq(
   "parse.conf",
   "aws.conf",
   "dos.conf",
+  "minio.conf",
   "test.conf",
   "external_pages.conf",
   "api-keys.conf",
