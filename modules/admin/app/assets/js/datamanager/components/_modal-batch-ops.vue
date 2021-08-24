@@ -40,6 +40,7 @@ export default {
       copyFrom: null,
       copyType: 'convert',
       forceConvert: false,
+      commit: false,
       log: [],
       cancelled: false,
       cancelling: false,
@@ -114,29 +115,30 @@ export default {
           this.cleanup();
           throw new CancelledTask();
         }
-          let config = await this.api.getSyncConfig(set.id);
-          if (config) {
-            this.println("Checking", set.name + "...");
-            this.$set(this.working, set.id, true);
-            this.$emit('processing', set.id);
-            try {
-              let files = await this.api.cleanSyncConfig(set.id, config);
-              if (files.length === 0) {
-                this.println("... no orphans found");
-              } else {
-                this.println("..." + files.length, "orphaned file(s) found");
-                files.forEach(f => this.println(" -", f));
-              }
-            } catch (e) {
-              this.println(e.message);
-            } finally {
-              this.$delete(this.working, set.id);
-              this.$emit('processing-done', set.id);
+        let config = await this.api.getSyncConfig(set.id);
+        if (config) {
+          this.println("Checking", set.name + "...");
+          this.$set(this.working, set.id, true);
+          this.$emit('processing', set.id);
+          try {
+            let files = await this.api.cleanSyncConfig(set.id, config);
+            if (files.length === 0) {
+              this.println("... no orphans found");
+            } else {
+              this.println("..." + files.length, "orphaned file(s) found");
+              files.forEach(f => this.println(" -", f));
             }
-          } else {
-            this.println("No config found for", set.name);
+          } catch (e) {
+            this.println(e.message);
+          } finally {
+            this.$delete(this.working, set.id);
+            this.$emit('processing-done', set.id);
           }
+        } else {
+          this.println("No config found for", set.name);
+        }
       }
+      this.cleanup();
     },
     syncAllDatasets: async function() {
       // This is a shortcut for downloading ResourceSync files
@@ -144,15 +146,15 @@ export default {
       let cleanupFiles = async(set: ImportDataset, config: ResourceSyncConfig) => {
         if (this.cleanupOrphans) {
           this.println("Checking for deleted files...")
-          let orphans = this.api.cleanSyncConfig(set.id, config)
-            if (orphans.length === 0) {
-              this.println("...no deleted files found.")
-            } else {
-              this.println("Cleaning up orphans for dataset", set.name, ":");
-              orphans.forEach(path => this.println(" x ", path));
-              await this.api.deleteFiles(set.id, this.config.input, orphans);
-              await this.api.deleteFiles(set.id, this.config.output, orphans);
-            }
+          let orphans = await this.api.cleanSyncConfig(set.id, config);
+          if (orphans.length === 0) {
+            this.println("...no deleted files found.")
+          } else {
+            this.println("Cleaning up orphans for dataset", set.name + ":");
+            orphans.forEach(f => this.println(" x ", f));
+            await this.api.deleteFiles(set.id, this.config.input, orphans);
+            await this.api.deleteFiles(set.id, this.config.output, orphans);
+          }
         }
       };
 
@@ -182,6 +184,7 @@ export default {
           this.println("No config found for", set.name);
         }
       }
+      this.cleanup();
     },
     convertAllDatasets: async function() {
       let datasets: ImportDataset[] = this.datasets;
@@ -206,11 +209,10 @@ export default {
           this.$emit('processing-done', set.id);
         }
       }
+      this.cleanup();
     },
     importAllDatasets: async function() {
       // This is a shortcut for running conversion on all datasets...
-      let commitCheck = prompt("Type 'yes' to commit:");
-      let commit = commitCheck === null || commitCheck.toLowerCase() === "yes";
 
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
@@ -227,7 +229,7 @@ export default {
           this.$set(this.working, set.id, true);
           this.$emit('processing', set.id);
           try {
-            let {url} = await this.api.ingestFiles(set.id, [], config, commit);
+            let {url} = await this.api.ingestFiles(set.id, [], config, this.commit);
             await this.monitor(url);
           } catch (e) {
             this.println(e.message);
@@ -239,8 +241,7 @@ export default {
           this.println("No import config found for", set.name);
         }
       }
-
-      return true;
+      this.cleanup();
     },
     runAll: async function() {
       try {
@@ -360,6 +361,13 @@ export default {
           Rerun existing conversions
         </label>
       </div>
+
+      <div v-if="tab === 'import' || tab === 'all'" class="form-group form-check">
+        <input class="form-check-input" id="opt-commit" type="checkbox" v-model="commit"/>
+        <label class="form-check-label" for="opt-commit">
+          Commit import
+        </label>
+      </div>
     </fieldset>
 
     <div class="log-container" id="batch-ops-log">
@@ -369,7 +377,7 @@ export default {
       </div>
     </div>
     <template v-slot:footer>
-      <button v-bind:disabled="!inProgress" v-on:click="cancelOperation" v-bind:class="{'btn-default': !inProgress, 'btn-danger': inProgress}"
+      <button v-bind:disabled="!inProgress" v-on:click="cancelOperation" v-bind:class="{'btn-default': !inProgress, 'btn-warning': inProgress}"
               type="button" class="btn">
         <i v-if="cancelled" class="fa fa-fw fa-circle-o-notch" v-bind:class="{'fa-spin': inProgress}"></i>
         <i v-else class="fa fa-fw fa-stop-circle"></i>
@@ -390,12 +398,22 @@ export default {
       <button v-if="tab === 'convert'" v-bind:disabled="inProgress" v-on:click="convertAllDatasets" type="button" class="btn btn-secondary">
         Run Convert
       </button>
-      <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-secondary">
-        Run Import
-      </button>
-      <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-secondary">
-        Synchronise, Convert &amp; Import
-      </button>
+      <template v-if="commit">
+        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-danger">
+          Run Import
+        </button>
+        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-danger">
+          Synchronise, Convert &amp; Import
+        </button>
+      </template>
+      <template v-else>
+        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-secondary">
+          Run Dry Run
+        </button>
+        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-secondary">
+          Synchronise, Convert &amp; Dry Run Import
+        </button>
+      </template>
     </template>
   </modal-window>
 </template>
