@@ -94,10 +94,6 @@ case class SqlDataTransformationService @Inject()(db: Database, actorSystem: Act
     }
   }
 
-  override def check(info: DataTransformationInfo): Future[Boolean] = {
-    ???
-  }
-
   override def getConfig(repoId: String, datasetId: String): Future[Seq[(String, JsObject)]] = Future {
     db.withConnection { implicit conn =>
       val tupleParser = (SqlParser.str("id") ~ SqlParser.get[JsObject]("parameters"))

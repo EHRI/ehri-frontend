@@ -74,14 +74,6 @@ trait DataTransformationService {
   def delete(id: String): Future[Boolean]
 
   /**
-    * Check a transformation is valid.
-    *
-    * @param info the transformation info
-    * @return a confirmation boolean
-    */
-  def check(info: DataTransformationInfo): Future[Boolean]
-
-  /**
     * Get a list of data transformations for a given repository.
     *
     * @param repoId    the repository ID

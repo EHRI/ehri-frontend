@@ -1,7 +1,7 @@
 package controllers.datasets
 
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
-import actors.harvesting.{Harvester, HarvesterManager, ResourceSyncHarvester}
+import actors.harvesting.{HarvesterManager, ResourceSyncHarvester}
 import akka.actor.{ActorContext, Props}
 import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
@@ -74,16 +74,6 @@ case class ResourceSyncConfigs @Inject()(
         .taskMonitorWS(jobId).webSocketURL(conf.https),
       "jobId" -> jobId
     ))
-  }
-
-  def cancelSync(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    import scala.concurrent.duration._
-    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
-      ref ! Harvester.Cancel
-      Ok(Json.obj("ok" -> true))
-    }.recover {
-      case e => InternalServerError(Json.obj("error" -> e.getMessage))
-    }
   }
 
   def clean(id: String, ds: String): Action[ResourceSyncConfig] = WithUserAction.async(parse.json[ResourceSyncConfig]) { implicit request =>

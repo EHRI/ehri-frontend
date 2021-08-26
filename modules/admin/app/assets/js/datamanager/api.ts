@@ -42,6 +42,10 @@ export class DatasetManagerApi {
     }).then(r => r.data);
   }
 
+  cancel(jobId: string): Promise<{ok: boolean}> {
+    return DatasetManagerApi.call(this.service.LongRunningJobs.cancel(this.repoId, jobId));
+  }
+
   listFiles(ds: string, stage: string, prefix: string, after?: string): Promise<FileList> {
     return DatasetManagerApi.call(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
   }
@@ -119,10 +123,6 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.ResourceSyncConfigs.sync(this.repoId, ds), config);
   }
 
-  cancelSync(jobId: string): Promise<{ok: boolean}> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.cancelSync(this.repoId, jobId));
-  }
-
   getSyncConfig(ds: string): Promise<ResourceSyncConfig | null> {
     return DatasetManagerApi.call(this.service.ResourceSyncConfigs.get(this.repoId, ds));
   }
@@ -163,28 +163,20 @@ export class DatasetManagerApi {
     return DatasetManagerApi.call(this.service.OaiPmhConfigs.harvest(this.repoId, ds, fromLast), config);
   }
 
-  cancelHarvest(jobId: string): Promise<{ok: boolean}> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.cancelHarvest(this.repoId, jobId));
-  }
-
-  convert(ds: string, key: string, config: ConvertConfig): Promise<JobMonitor> {
-    return DatasetManagerApi.call(this.service.DataTransformations.convert(this.repoId, ds, key), config);
+  convert(ds: string, key: string|null, config: ConvertConfig): Promise<JobMonitor> {
+    return DatasetManagerApi.call(this.service.ConvertConfigs.convert(this.repoId, ds, key), config);
   }
 
   convertFileUrl(ds: string, stage: string, key: string) {
-    return this.service.DataTransformations.convertFile(this.repoId, ds, stage, key).url;
-  }
-
-  cancelConvert(jobId: string): Promise<{ok: boolean}> {
-    return DatasetManagerApi.call(this.service.DataTransformations.cancelConvert(this.repoId, jobId));
+    return this.service.ConvertConfigs.convertFile(this.repoId, ds, stage, key).url;
   }
 
   getConvertConfig(ds: string): Promise<[string, object][]> {
-    return DatasetManagerApi.call(this.service.DataTransformations.getConfig(this.repoId, ds));
+    return DatasetManagerApi.call(this.service.ConvertConfigs.get(this.repoId, ds));
   }
 
   saveConvertConfig(ds: string, dtIds: [string, object][]): Promise<{ok: true}> {
-    return DatasetManagerApi.call(this.service.DataTransformations.saveConfig(this.repoId, ds), dtIds);
+    return DatasetManagerApi.call(this.service.ConvertConfigs.save(this.repoId, ds), dtIds);
   }
 
   listDataTransformations(): Promise<DataTransformation[]> {

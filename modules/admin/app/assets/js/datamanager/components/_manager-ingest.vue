@@ -16,98 +16,81 @@ import MixinError from './_mixin-error';
 import MixinPreview from './_mixin-preview';
 import MixinStage from './_mixin-stage';
 import MixinUtil from './_mixin-util';
+import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 
-import _startsWith from 'lodash/startsWith';
-import _last from 'lodash/last';
 import {ImportConfig} from "../types";
 
 
 export default {
   components: {FilterControl, FilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, ModalIngestConfig},
-  mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil],
+  mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetId: String,
     fileStage: String,
+    urlKey: {
+      type: String,
+      default: 'ingest-id',
+    },
     config: Object,
     api: DatasetManagerApi,
   },
   data: function () {
     return {
       waiting: false,
-      ingestJobId: null,
       showOptions: false,
       propertyConfigs: [],
       opts: null,
     }
   },
   methods: {
-    monitorIngest: function (url: string, jobId: string) {
-      this.tab = 'ingest';
-
-      let worker = new Worker(this.config.previewLoader);
-      worker.onmessage = msg => {
-        if (msg.data.error) {
-          this.log.push(msg.data.error);
-        } else if (msg.data.msg) {
-          let progPrefix = "Ingesting..."
-          if (this.log && _startsWith(_last(this.log), progPrefix) && _startsWith(msg.data.msg, progPrefix)) {
-            this.log.splice(this.log.length - 1, 1, msg.data.msg);
-          } else {
-            this.log.push(msg.data.msg);
-          }
-        }
-        if (msg.data.done || msg.data.error) {
-          worker.terminate();
-
-          this.ingestJobId = null;
-          this.removeUrlState('ingest-job-id');
-        }
-      };
-      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
-      this.replaceUrlState('ingest-job-id', jobId);
-    },
-    resumeMonitor: function() {
-      let jobId = this.getQueryParam(window.location.search, "ingest-job-id");
+    resumeMonitor: async function() {
+      let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
-        this.ingestJobId = jobId;
-        this.monitorIngest(this.config.monitorUrl(jobId), jobId, this.files.map(f => f.key));
+        try {
+          this.tab = "ingest";
+          await this.monitor(this.config.monitorUrl(jobId), jobId);
+        } finally {
+          this.removeUrlState(this.urlKey);
+        }
       }
     },
-    doIngest: function(opts: ImportConfig, commit: boolean) {
+    doIngest: async function(opts: ImportConfig, commit: boolean) {
       this.waiting = true;
 
       // Save opts for the next time we open the config UI
       this.opts = opts;
 
-      this.api.ingestFiles(this.datasetId, this.selectedKeys, opts, commit)
-          .then(data => {
-            if (data.url && data.jobId) {
-              // Switch to ingest tab...
-              this.tab = "ingest";
-              // Clear existing log...
-              this.log.length = 0;
-              this.showOptions = false;
+      try {
+        let {url, jobId} = await this.api.ingestFiles(this.datasetId, this.selectedKeys, opts, commit);
+        // Switch to ingest tab...
+        this.tab = "ingest";
+        // Clear existing log...
+        this.reset();
+        this.showOptions = false;
 
-              this.ingestJobId = data.jobId;
-              this.monitorIngest(data.url, data.jobId);
-            } else {
-              console.error("unexpected job data", data);
-            }
-          })
-          .catch(error => this.showError("Error running ingest", error))
-          .finally(() => this.waiting = false);
+        this.replaceUrlState(this.urlKey, jobId);
+        await this.monitor(url, jobId);
+      } catch (e) {
+        this.showError("Error running ingest", e);
+      } finally {
+        this.removeUrlState(this.urlKey);
+        this.waiting = false;
+      }
     },
-    loadConfig: function() {
-      this.api.getImportConfig(this.datasetId)
-          .then(data => this.opts = data);
+    loadConfig: async function() {
+      this.opts = await this.api.getImportConfig(this.datasetId);
     },
-    loadPropertyConfigs: function() {
+    loadPropertyConfigs: async function() {
       this.loading = true;
-      this.api.listFiles(this.datasetId, this.config.config)
-          .then(data => this.propertyConfigs = data.files.filter(f => f.key.endsWith(".properties")))
-          .catch(e => this.showError("Error loading files", e))
-          .finally(() => this.loading = false);
+      try {
+        let data = await this.api.listFiles(this.datasetId, this.config.config);
+        this.propertyConfigs = data.files.filter(f => f.key.endsWith(".properties"));
+      } catch (e) {
+        this.showError("Error loading files", e);
+      } finally {
+        this.loading = false;
+      }
     },
   },
   created() {
@@ -129,27 +112,27 @@ export default {
 
       <button-validate
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || ingestJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="validationRunning"
           v-on:validate="validateFiles(selectedTags)"
       />
 
       <button-delete
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || ingestJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="deleting.length > 0"
           v-on:delete="deleteFiles(selectedKeys)"
       />
 
-      <button v-bind:disabled="files.length === 0 || ingestJobId" class="btn btn-sm btn-default"
+      <button v-bind:disabled="files.length === 0 || jobId" class="btn btn-sm btn-default"
               v-on:click.prevent="showOptions = !showOptions" v-if="selectedKeys.length">
-        <i v-if="!ingestJobId" class="fa fa-fw fa-database"/>
+        <i v-if="!jobId" class="fa fa-fw fa-database"/>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Ingest Selected... ({{selectedKeys.length}})
       </button>
-      <button v-bind:disabled="files.length===0 || ingestJobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
+      <button v-bind:disabled="files.length===0 || jobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
               v-else>
-        <i v-if="!ingestJobId" class="fa fa-fw fa-database"/>
+        <i v-if="!jobId" class="fa fa-fw fa-database"/>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Ingest All...
       </button>

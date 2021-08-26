@@ -1,5 +1,6 @@
 package actors.harvesting
 
+import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
 import akka.actor.Status.Failure
 import akka.actor.{Actor, ActorLogging, ActorRef}
@@ -68,7 +69,9 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
       context.become(running(job, msgTo, count, fresh, start))
 
       copyItem(job, item).map { case (name, isFresh) =>
-        msgTo ! DoneFile(name)
+        if (isFresh) {
+          msgTo ! DoneFile(name)
+        }
         Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
       }.pipeTo(self)
 

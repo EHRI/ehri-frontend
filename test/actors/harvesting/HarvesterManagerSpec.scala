@@ -1,7 +1,7 @@
 package actors.harvesting
 
 import actors.harvesting
-import actors.harvesting.Harvester.Cancel
+import actors.LongRunningJob.Cancel
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import akka.actor.{ActorContext, Props}
@@ -61,7 +61,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
       expectMsgAnyOf("c4", "nl-r1-m19")
       expectMsgAnyOf("c4", "nl-r1-m19")
       val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 new files")
+      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 files")
       await(events.get("r1")).lift(1) must beSome[HarvestEvent]
         .which(_.eventType must_== HarvestEventType.Completed)
         .eventually(20, 100.millis)
@@ -79,7 +79,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
         expectMsg("+ test2.xml")
         expectMsg("+ test3.xml")
         val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 3 new files")
+        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 3 files")
         await(events.get("r1")).lift(1) must beSome[HarvestEvent]
           .which(_.eventType must_== HarvestEventType.Completed)
           .eventually(20, 100.millis)

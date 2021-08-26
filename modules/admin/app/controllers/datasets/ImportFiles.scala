@@ -51,7 +51,7 @@ case class ImportFiles @Inject()(
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
-      from.map(key => s"${prefix(id, ds, stage)}$key"), max = 500).map { list =>
+      from.map(key => s"${prefix(id, ds, stage)}$key"), max = 50).map { list =>
       Ok(Json.toJson(list.copy(files = list.files.map(f => f.copy(key = f.key.replace(prefix(id, ds, stage), ""))))))
     }
   }

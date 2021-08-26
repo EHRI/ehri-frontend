@@ -11,11 +11,11 @@ import play.api.test.FakeRequest
 import scala.concurrent.Future
 
 
-class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
+class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
   import mockdata.privilegedUser
 
-  private val dtRoutes = controllers.datasets.routes.DataTransformations
+  private val dtRoutes = controllers.datasets.routes.ConvertConfigs
 
   // Mock user who belongs to admin
   val userProfile = UserProfile(
@@ -48,7 +48,7 @@ class DataTransformationsSpec extends IntegrationTestRunner with ResourceUtils {
       .callWith(testPayload)
   }
 
-  "Data Transformation API" should {
+  "Conversion API" should {
 
     "convert files with XQuery scripts" in new ITestApp {
       await(putFile())

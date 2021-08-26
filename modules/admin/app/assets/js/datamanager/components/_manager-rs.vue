@@ -4,6 +4,7 @@ import FilterControl from './_filter-control';
 import ButtonValidate from './_button-validate';
 import ButtonDelete from './_button-delete';
 import FilesTable from './_files-table';
+import FastFilesTable from './_fast-files-table';
 import DragHandle from './_drag-handle';
 import PanelFilePreview from './_panel-file-preview';
 import ModalInfo from './_modal-info';
@@ -16,86 +17,65 @@ import MixinPreview from './_mixin-preview';
 import MixinError from './_mixin-error';
 import MixinStage from './_mixin-stage';
 import MixinUtil from './_mixin-util';
+import MixinTasklog from './_mixin-tasklog';
 
 import {DatasetManagerApi} from '../api';
+import {ResourceSyncConfig} from "../types";
 
 
 export default {
-  components: {FilterControl, FilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, ModalRsConfig},
-  mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil],
+  components: {FilterControl, FilesTable, FastFilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, ModalRsConfig},
+  mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetContentType: String,
     fileStage: String,
+    urlKey: {
+      type: String,
+      default: 'sync-id',
+    },
     config: Object,
     api: DatasetManagerApi,
   },
   data: function () {
     return {
-      syncJobId: null,
       showOptions: false,
       syncConfig: null,
       waiting: false,
     }
   },
   methods: {
-    doSync: function (opts) {
+    doSync: async function (opts: ResourceSyncConfig) {
+      this.tab = "sync";
       this.waiting = true;
-
       this.syncConfig = opts;
 
-      this.api.sync(this.datasetId, opts)
-          .then(data => {
-            this.showOptions = false;
-            this.syncJobId = data.jobId;
-            this.monitorSync(data.url, data.jobId);
-          })
-          .catch(error => this.showError("Error running sync", error))
-          .finally(() => this.waiting = false);
-    },
-    cancelSync: function () {
-      if (this.syncJobId) {
-        this.api.cancelSync(this.syncJobId).then(r => {
-          if (r.ok) {
-            this.syncJobId = null;
-          }
-        });
+      try {
+        let {url, jobId} = await this.api.sync(this.datasetId, opts);
+        this.showOptions = false;
+        this.replaceUrlState(this.urlKey, jobId);
+        await this.monitor(url, jobId, this.refresh);
+        this.$emit('updated');
+      } catch (e) {
+        this.showError("Error running sync", e)
+      } finally {
+        this.removeUrlState(this.urlKey);
+        this.waiting = false;
       }
     },
-    monitorSync: function (url, jobId) {
-      this.tab = 'sync';
-
-      let worker = new Worker(this.config.previewLoader);
-      worker.onmessage = msg => {
-        if (msg.data.error) {
-          this.log.push(msg.data.error);
-        } else if (msg.data.msg) {
-          this.log.push(msg.data.msg);
-          this.refresh();
-        }
-        if (msg.data.done || msg.data.error) {
-          worker.terminate();
-
-          this.syncJobId = null;
-          this.removeUrlState('sync-job-id');
-          this.$emit('updated')
-        }
-      };
-      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
-      this.replaceUrlState('sync-job-id', jobId);
-    },
-    resumeMonitor: function () {
-      let jobId = this.getQueryParam(window.location.search, "sync-job-id");
+    resumeMonitor: async function () {
+      let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
-        this.syncJobId = jobId;
-        this.monitorSync(this.config.monitorUrl(jobId), jobId);
+        try {
+          this.tab = "sync";
+          await this.monitor(this.config.monitorUrl(jobId), jobId, this.refresh);
+          this.$emit("updated");
+        } finally {
+          this.removeUrlState(this.urlKey);
+        }
       }
     },
-    loadConfig: function () {
-      this.api.getSyncConfig(this.datasetId)
-          .then(data => {
-            this.syncConfig = data;
-            console.debug("Loaded sync config", data);
-          });
+    loadConfig: async function () {
+      this.syncConfig = await this.api.getSyncConfig(this.datasetId);
     },
   },
   created: function () {
@@ -113,24 +93,24 @@ export default {
 
       <button-validate
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || syncJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="validationRunning"
           v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
       />
 
       <button-delete
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || syncJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="deleting.length > 0"
           v-on:delete="deleteFiles(selectedKeys)"
       />
 
-      <button v-if="!syncJobId" class="btn btn-sm btn-default"
+      <button v-if="!jobId" class="btn btn-sm btn-default"
               v-on:click.prevent="showOptions = !showOptions">
         <i class="fa fa-fw fa-clone"/>
         Sync Files...
       </button>
-      <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelSync">
+      <button v-else v-bind:disabled="cancelling" class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelJob">
         <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
         Cancel Sync
       </button>

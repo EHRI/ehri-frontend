@@ -1,5 +1,6 @@
 package actors.harvesting
 
+import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
 import akka.actor.Status.Failure
 import akka.actor.SupervisorStrategy.Stop

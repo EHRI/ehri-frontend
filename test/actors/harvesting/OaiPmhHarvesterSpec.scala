@@ -1,5 +1,6 @@
 package actors.harvesting
 
+import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props

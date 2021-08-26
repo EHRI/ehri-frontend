@@ -1,4 +1,5 @@
 <script lang="ts">
+
 export default {
   props: {
     log: Array,
@@ -12,4 +13,3 @@ export default {
 <template>
   <pre v-if="log.length > 0"><template v-for="msg in log"><span v-html="msg"></span><br/></template></pre>
 </template>
-

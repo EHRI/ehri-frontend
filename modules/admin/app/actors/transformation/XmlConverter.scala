@@ -1,5 +1,6 @@
 package actors.transformation
 
+import actors.LongRunningJob.Cancel
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
@@ -28,7 +29,6 @@ object XmlConverter {
   case class FetchFiles(from: Option[String] = None) extends Action
   case class Progress(done: Int, total: Int) extends Action
   case class Resuming(after: String) extends Action
-  case object Cancel extends Action
   case object Counting extends Action
   case object Initial extends Action
   case object Starting extends Action
@@ -120,7 +120,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
             case Some((_, userMeta)) if !job.data.force
                 && userMeta.contains("fingerprint")
                 && userMeta.get("fingerprint").contains(fingerPrint) =>
-              msgTo ! DoneFile("~ " + name)
+              //msgTo ! DoneFile("~ " + name)
               immediate(Convert(others, truncated, Some(file.key), count + 1, fresh))
 
             // No matching fingerprint found: run the conversion.
