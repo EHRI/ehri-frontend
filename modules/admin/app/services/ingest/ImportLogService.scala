@@ -18,17 +18,22 @@ object ImportLogOpType extends Enumeration with StorableEnum {
 }
 
 case class ImportFileHandle(
-                             eventId: String,
-                             repoId: String,
-                             datasetId: String,
-                             key: String,
-                             versionId: Option[String]
-                           )
+ eventId: String,
+ repoId: String,
+ datasetId: String,
+ key: String,
+ versionId: Option[String]
+)
 
 case class Snapshot(id: Int, created: Instant, notes: Option[String])
 
 object Snapshot {
-  implicit val _writes: Writes[Snapshot] = Json.format[Snapshot]
+  implicit val _writes: Writes[Snapshot] = Json.writes[Snapshot]
+}
+
+case class Cleanup(redirects: Seq[(String, String)], deletes: Seq[String])
+object Cleanup {
+  implicit val _writes: Writes[Cleanup] = Json.writes[Cleanup]
 }
 
 
@@ -118,4 +123,6 @@ trait ImportLogService {
   def errors(repoId: String, datasetId: String): Future[Seq[(String, String)]]
 
   def findRedirects(repoId: String, snapshotId: Int): Future[Seq[(String, String)]]
+
+  def cleanup(repoId: String, snapshotId: Int): Future[Cleanup]
 }

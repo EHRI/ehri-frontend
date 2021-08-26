@@ -978,13 +978,16 @@ body {
   flex: 1;
 }
 
-#snapshot-manager-diff {
+#snapshot-manager-diff,
+#snapshot-manager-redirects
+{
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
   flex-basis: 0;
   font-size: $font-size-sm;
+  margin-bottom: $margin-sm;
 }
 
 #coreference-manager {

@@ -139,6 +139,11 @@ export interface Snapshot {
   notes?: string,
 }
 
+export interface Cleanup {
+  redirects: string[][],
+  deletes: string[]
+}
+
 export interface SnapshotInfo {
   notes?: string,
 }
