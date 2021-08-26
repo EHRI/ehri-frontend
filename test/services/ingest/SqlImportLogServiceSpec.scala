@@ -33,7 +33,7 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
   )
   private val eventId = UUID.randomUUID().toString
   private val log: ImportLog = ImportLog(
-    createdKeys = Map(keyVersion -> Seq("unit-1", "unit-2")),
+    createdKeys = Map(keyVersion -> Seq("unit-1", "unit-2", "unit-3")),
     event = Some(eventId),
     errors = Map("bar.ead?version=1" -> "HTTP 503 Error"),
   )
@@ -68,12 +68,12 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
 
     "create item diffs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       // The log contains unit-1 and unit-2 but not unit-3
-      val idMap = List("unit-1" -> "1", "unit-2" -> "2", "unit-3" -> "3")
+      val idMap = List("unit-1" -> "1", "unit-2" -> "2", "unit-3" -> "3", "unit-4" -> "4")
       val s = await(service.saveSnapshot("r1", Source(idMap), Some("First...")))
       await(service.save("r1", "default", job, log))
 
       val diff = await(service.findUntouchedItemIds("r1", s.id))
-      diff must_== Seq("unit-3" -> "3")
+      diff must_== Seq("unit-4" -> "4")
     }
 
     "find redirects" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
@@ -83,6 +83,16 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       await(service.save("r1", "default", job, log))
       val redirs = await(service.findRedirects("r1", s.id))
       redirs must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
+    }
+
+    "calculate cleanup" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      // The log contains unit-1 and unit-2 but not unit-3
+      val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2", "todelete" -> "del")
+      val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
+      await(service.save("r1", "default", job, log))
+      val cleanup = await(service.cleanup("r1", s.id))
+      cleanup.redirects must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
+      cleanup.deletes must_== Seq("todelete")
     }
   }
 }

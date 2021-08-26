@@ -2,6 +2,7 @@
 import axios from "axios";
 
 import {
+  Cleanup,
   ConvertConfig, Coreference,
   DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
@@ -241,6 +242,10 @@ export class DatasetManagerApi {
 
   diffSnapshot(snId: number): Promise<[string, string][]> {
     return DatasetManagerApi.call(this.service.ImportLogs.diffSnapshot(this.repoId, snId));
+  }
+
+  cleanup(snId: number): Promise<Cleanup> {
+    return DatasetManagerApi.call(this.service.ImportLogs.cleanup(this.repoId, snId));
   }
 
   getCoreferenceTable(): Promise<Coreference[]> {

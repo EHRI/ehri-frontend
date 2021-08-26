@@ -54,4 +54,10 @@ case class ImportLogs @Inject()(
       Ok(Json.toJson(items))
     }
   }
+
+  def cleanup(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.cleanup(id, snapshotId).map { items =>
+      Ok(Json.toJson(items))
+    }
+  }
 }

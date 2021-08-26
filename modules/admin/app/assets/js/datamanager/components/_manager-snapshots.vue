@@ -6,7 +6,7 @@ import {DatasetManagerApi} from "../api";
 import {Snapshot} from "../types";
 
 export default {
-  mixins: {MixinUtil, MixinError},
+  mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
     api: DatasetManagerApi,
@@ -15,20 +15,26 @@ export default {
     return {
       snapshots: [],
       current: null,
-      diff: [],
+      cleanup: null,
       loading: false,
-      loadingDiff: false,
+      loadingCleanup: false,
       inProgress: false,
     }
   },
   methods: {
-    load: function(snapshot: Snapshot) {
+    loadCleanup: async function(snapshot: Snapshot) {
+      this.loadingCleanup = true;
+      try {
+        this.cleanup = await this.api.cleanup(snapshot.id);
+      } catch (e) {
+        this.showError("Unable to find redirects", e);
+      } finally {
+        this.loadingCleanup = false;
+      }
+    },
+    load: async function(snapshot: Snapshot) {
       this.current = snapshot;
-      this.loadingDiff = true;
-      this.api.diffSnapshot(snapshot.id)
-          .then(diff => this.diff = diff)
-          .catch(e => this.showError("Unable to load snapshot diff", e))
-          .finally(() => this.loadingDiff = false);
+      await this.loadCleanup(snapshot);
     },
     takeSnapshot: function() {
       this.inProgress = true;
@@ -74,14 +80,17 @@ export default {
     <div v-if="current" id="snapshot-manager-inspector">
       <h4>Snapshot taken at: {{ current.created }}</h4>
 
-      <p v-if="loadingDiff">
-        Loading untouched files since snapshot was taken...
-        <i class="fa fa-spin fa-spinner"></i>
-      </p>
-      <template v-else-if="diff">
-        <p>Untouched files since snapshot taken: <strong>{{ diff.length }}</strong></p>
-        <textarea class="form-control" id="snapshot-manager-diff">{{ diff.map(([item]) => item).join("\n") }}</textarea>
-      </template>
+        <p v-if="loadingCleanup">
+          Loading heuristic cleanup...
+          <i class="fa fa-spin fa-spinner"></i>
+        </p>
+        <template v-else-if="cleanup !== null">
+          <p>Heuristic redirects: <strong>{{ cleanup.redirects.length }}</strong></p>
+          <textarea class="form-control" id="snapshot-manager-redirects">{{ cleanup.redirects.map(([n, o]) => n + "," + o).join("\n") }}</textarea>
+          <p>Heuristic deletes: <strong>{{ cleanup.deletes.length }}</strong></p>
+          <textarea class="form-control" id="snapshot-manager-diff">{{ cleanup.deletes.join("\n") }}</textarea>
+        </template>
+
     </div>
     <ul v-else-if="snapshots" class="list-group" id="snapshot-manager-snapshot-list">
       <li v-for="snapshot in snapshots" class="list-group-item">

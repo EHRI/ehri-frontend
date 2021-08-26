@@ -164,6 +164,84 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     }
   }
 
+  override def cleanup(repoId: String, snapshotId: Int): Future[Cleanup] = Future {
+    db.withTransaction { implicit conn =>
+      // Create a temporary table containing the touched items (file mappings
+      // imported since the specified snapshot was taken) and another
+      // containing the untouched items (items in the snapshot that are not
+      // in the touched set.) Then select the untouched ID
+      // and the first touched item that has an ID whose last component
+      // matches the local identifier of an untouched item.
+      // NOTE: using the local ID component in the ID is a bit of a hack
+      // but it can't be helped since we don't have the local ID available
+      // in the import log info.
+
+      val ts = System.currentTimeMillis().toString
+
+      SQL"""CREATE TEMP TABLE touched_items_#$ts(
+              new_id VARCHAR(8000) PRIMARY KEY,
+              suffix TEXT NOT NULL
+            )""".executeUpdate()
+
+      SQL"""CREATE INDEX touched_items_#${ts}_suffix ON touched_items_#$ts(suffix)""".executeUpdate()
+
+      SQL"""INSERT INTO touched_items_#$ts
+            SELECT DISTINCT map.item_id AS new_id, reverse(split_part(reverse(map.item_id), '-', 1)) as suffix
+            FROM import_log log, import_file_mapping map, repo_snapshot snap
+            WHERE map.import_log_id = log.id
+              AND log.repo_id = $repoId
+              AND snap.id = $snapshotId
+              AND log.created > snap.created
+            """.executeUpdate()
+
+      SQL"""CREATE TEMP TABLE untouched_items_#$ts(
+              id SERIAL PRIMARY KEY,
+              old_id TEXT NOT NULL,
+              old_local TEXT NOT NULL
+            )""".executeUpdate()
+
+      SQL"""CREATE INDEX untouched_items_#${ts}_old_id ON untouched_items_#$ts(old_id)""".executeUpdate()
+      SQL"""CREATE INDEX untouched_items_#${ts}_old_local ON untouched_items_#$ts(old_local)""".executeUpdate()
+
+      SQL"""INSERT INTO untouched_items_#$ts (old_id, old_local)
+            SELECT DISTINCT item.item_id AS old_id, item.local_id AS old_local
+            FROM repo_snapshot_item item
+              JOIN repo_snapshot snap ON item.repo_snapshot_id = snap.id
+            WHERE snap.id = $snapshotId
+              AND NOT EXISTS (
+                SELECT DISTINCT new_id FROM touched_items_#$ts
+                  WHERE item.item_id = new_id
+              )
+            """.executeUpdate()
+
+      SQL"""CREATE TEMP TABLE redirecting_#$ts(
+             id SERIAL PRIMARY KEY,
+             old_id TEXT NOT NULL,
+             new_id TEXT NOT NULL
+           )""".executeUpdate()
+
+      SQL"""CREATE INDEX redirecting_#${ts}_old_id ON redirecting_#$ts(old_id)""".executeUpdate()
+
+      SQL"""INSERT INTO redirecting_#$ts (old_id, new_id)
+            SELECT DISTINCT ON (new_id) old_id, new_id
+            FROM untouched_items_#$ts, touched_items_#$ts
+              WHERE suffix = old_local"""
+        .withQueryTimeout(Some(30 * 60))
+        .executeUpdate()
+
+      val redirects = SQL"SELECT * FROM redirecting_#$ts ORDER BY old_id".as(redirectParser.*)
+      val deletes =
+        SQL"""SELECT DISTINCT ut.old_id
+              FROM untouched_items_#$ts ut
+              WHERE NOT EXISTS (
+                SELECT r.old_id FROM redirecting_#$ts r WHERE r.old_id = ut.old_id
+              )
+          """.as(str("old_id").*)
+
+      Cleanup(redirects, deletes)
+    }
+  }
+
   override def findRedirects(repoId: String, snapshotId: Int): Future[Seq[(String, String)]] = Future {
     db.withTransaction { implicit conn =>
       // Create a temporary table containing the touched items (file mappings
@@ -175,16 +253,30 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
       // NOTE: using the local ID component in the ID is a bit of a hack
       // but it can't be helped since we don't have the local ID available
       // in the import log info.
-      SQL"""SELECT DISTINCT map.item_id AS new_id
-            INTO TEMPORARY TABLE touched_items
+
+      SQL"""CREATE TEMP TABLE touched_items(
+              new_id VARCHAR(8000) PRIMARY KEY
+            )""".executeUpdate()
+
+      SQL"""INSERT INTO touched_items
+            SELECT DISTINCT map.item_id AS new_id
             FROM import_log log, import_file_mapping map, repo_snapshot snap
-              WHERE map.import_log_id = log.id
-                AND snap.id = $snapshotId
-                AND log.created > snap.created
+            WHERE map.import_log_id = log.id
+              AND snap.id = $snapshotId
+              AND log.created > snap.created
             """.executeUpdate()
 
-      SQL"""SELECT DISTINCT item.item_id AS old_id, item.local_id AS old_local
-            INTO TEMPORARY TABLE untouched_items
+      SQL"""CREATE TEMP TABLE untouched_items(
+              id SERIAL PRIMARY KEY,
+              old_id TEXT,
+              old_local TEXT
+            )""".executeUpdate()
+
+      SQL"""CREATE INDEX untouched_items_old_id ON untouched_items(old_id)""".executeUpdate()
+      SQL"""CREATE INDEX untouched_items_old_local ON untouched_items(old_local)""".executeUpdate()
+
+      SQL"""INSERT INTO untouched_items (old_id, old_local)
+            SELECT DISTINCT item.item_id AS old_id, item.local_id AS old_local
             FROM repo_snapshot_item item
               JOIN repo_snapshot snap ON item.repo_snapshot_id = snap.id
             WHERE snap.id = $snapshotId
@@ -196,7 +288,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
 
       SQL"""SELECT DISTINCT ON (new_id) old_id, new_id
             FROM untouched_items, touched_items
-              WHERE new_id LIKE CONCAT('%-', old_local)""".as(redirectParser.*)
+              WHERE new_id LIKE CONCAT('%-', old_local)"""
+        .withQueryTimeout(Some(30 * 60))
+        .as(redirectParser.*)
     }
   }
 
