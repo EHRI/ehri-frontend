@@ -1,5 +1,6 @@
 package actors.transformation
 
+import actors.LongRunningJob.Cancel
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
 import akka.actor.SupervisorStrategy.Stop
@@ -16,7 +17,6 @@ import utils.WebsocketConstants
 import java.time.Instant
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
-
 
 object XmlConverterManager {
 
@@ -112,7 +112,8 @@ case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, 
 
     // Cancel conversion... here we tell the runner to exit
     // and shut down on its termination signal...
-    case Cancel => runner ! Cancel
+    case Cancel =>
+      runner ! Cancel
 
     // A file has been converted
     case DoneFile(id) =>
@@ -122,7 +123,7 @@ case class XmlConverterManager(job: XmlConvertJob, transformer: XmlTransformer, 
       log.debug(s"Resuming from marker: $from")
 
     // Received confirmation that the runner has shut down
-    case Cancelled(count, fresh, secs) =>
+    case Cancelled(count, _, secs) =>
       msg(Messages("conversion.cancelled", WebsocketConstants.ERR_MESSAGE, count, secs), subs)
       context.stop(self)
 

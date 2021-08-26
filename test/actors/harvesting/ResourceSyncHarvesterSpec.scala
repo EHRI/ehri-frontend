@@ -1,5 +1,6 @@
 package actors.harvesting
 
+import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import akka.actor.Props
@@ -15,6 +16,7 @@ class ResourceSyncHarvesterSpec extends IntegrationTestRunner {
 
   // NB: instantiate a *mock* ResourceSync client here:
   private def client(implicit app: Application): ResourceSyncClient = app.injector.instanceOf[ResourceSyncClient]
+
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
 
   private val jobId = "test-job-id"

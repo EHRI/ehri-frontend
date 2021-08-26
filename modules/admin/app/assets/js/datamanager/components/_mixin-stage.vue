@@ -67,29 +67,33 @@ export default {
       return _debounce(func, 300)();
     },
     refresh: _debounce(function() {
-      return this.load();
+      // this.load();
     }, 500),
-    load: function (): Promise<void> {
-      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value)
-        .then(data => {
-          this.files = data.files;
-          this.truncated = data.truncated;
-        })
-        .catch(error => this.showError(`Error retrieving file list for stage ${this.fileStage}: `, error))
-        .finally(() => this.loaded = true);
+    load: async function () {
+      try {
+        let {files, truncated} = await this.api.listFiles(this.datasetId, this.fileStage, this.filter.value);
+        this.files = files;
+        this.truncated = truncated;
+      } catch (e) {
+        this.showError(`Error retrieving file list for stage ${this.fileStage}: `, e);
+      } finally {
+        this.loaded = true;
+      }
     },
-    loadMore: function(): Promise<void> {
+    loadMore: async function() {
       this.loadingMore = true;
       let from = this.files.length > 0
         ? this.files[this.files.length - 1].key
         : null;
-      return this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from)
-        .then(data => {
-          this.files.push.apply(this.files, data.files);
-          this.truncated = data.truncated;
-        })
-        .catch(error => this.showError("Error listing files", error))
-        .finally(() => this.loadingMore = false);
+      try {
+        let {files, truncated} = await this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from);
+        this.files.push.apply(this.files, files);
+        this.truncated = truncated;
+      } catch (e) {
+        this.showError("Error listing files", e);
+      } finally {
+        this.loadingMore = false;
+      }
     },
     loadConfig: function() {
       // Overridden

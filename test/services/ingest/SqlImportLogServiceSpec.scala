@@ -75,5 +75,14 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       val diff = await(service.findUntouchedItemIds("r1", s.id))
       diff must_== Seq("unit-3" -> "3")
     }
+
+    "find redirects" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      // The log contains unit-1 and unit-2 but not unit-3
+      val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2")
+      val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
+      await(service.save("r1", "default", job, log))
+      val redirs = await(service.findRedirects("r1", s.id))
+      redirs must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
+    }
   }
 }

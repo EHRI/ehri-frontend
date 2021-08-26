@@ -24,6 +24,7 @@
     "select2": "^4.0.13",
     "sortablejs": "^1.13.0",
     "vue": "^2.6.12",
+    "vue-virtual-scroller": "^1.0.10",
     "vuedraggable": "^2.24.3"
   },
   "scripts": {

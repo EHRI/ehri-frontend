@@ -14,6 +14,7 @@ import MixinTwoPanel from './_mixin-two-panel';
 import MixinValidator from './_mixin-validator';
 import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
+import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 
 import _partition from 'lodash/partition';
@@ -26,13 +27,11 @@ import {DataTransformation} from "../types";
 
 let initialConvertState = function(config) {
   return {
-    convertJobId: null,
     ingesting: {},
     previewStage: config.input,
     previewPipeline: [],
     previewing: null,
     tab: 'preview',
-    log: [],
     showOptions: false,
     available: [],
     parametersForEditor: {},
@@ -47,11 +46,15 @@ let initialConvertState = function(config) {
 export default {
   components: {
     Draggable, FilePicker, ModalParamEditor, ModalConvertConfig, PanelConvertPreview, TransformationEditor, TransformationItem, PanelLogWindow, DragHandle},
-  mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil],
+  mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetId: String,
     datasetContentType: String,
     fileStage: String,
+    urlKey: {
+      type: String,
+      default: 'convert-id',
+    },
     config: Object,
     api: DatasetManagerApi,
     active: Boolean,
@@ -60,13 +63,15 @@ export default {
     return initialConvertState(this.config);
   },
   methods: {
-    loadTransformations: function() {
+    loadTransformations: async function() {
       this.loading = true;
-
-      return this.api.listDataTransformations()
-          .then(available => this.available = available)
-          .catch(error => this.showError("Unable to load transformations", error))
-          .finally(() => this.loading = false);
+      try {
+        this.available = await this.api.listDataTransformations();
+      } catch (e) {
+        this.showError("Unable to load transformations", e);
+      } finally {
+        this.loading = false;
+      }
     },
     editTransformation: function(item: DataTransformation) {
       this.editing = item;
@@ -104,63 +109,55 @@ export default {
     transformationAt: function(i: number): DataTransformation {
       return _find(this.available, dt => dt.id === this.mappings[i]);
     },
-    convert: function(file, force) {
+    convert: async function(file, force) {
       console.debug("Converting:", file)
-      this.api.convert(this.datasetId, file ? file.key : null, {mappings: this.convertState, force: force})
-          .then(data => {
-            this.convertJobId = data.jobId;
-            this.monitorConvert(data.url, data.jobId);
-          })
-          .catch(error => this.showError("Error submitting conversion", error));
-    },
-    cancelConvert: function() {
-      if (this.convertJobId) {
-        this.api.cancelConvert(this.convertJobId).then(r => {
-          if (r.ok) {
-            this.convertJobId = null;
-          }
+      this.tab = "convert";
+      try {
+        let {url, jobId} = await this.api.convert(this.datasetId, file ? file.key : null, {
+          mappings: this.convertState,
+          force: force
         });
-      }
-    },
-    monitorConvert: function (url, jobId) {
-      this.tab = 'convert';
-
-      let worker = new Worker(this.config.previewLoader);
-      worker.onmessage = msg => {
-        if (msg.data.error) {
-          this.log.push(msg.data.error);
-        } else if (msg.data.msg) {
-          this.log.push(msg.data.msg);
+        this.replaceUrlState(this.urlKey, jobId);
+        await this.monitor(url, jobId, (m: string) => {
           this.$emit('refresh-stage', this.config.output);
-        }
-        if (msg.data.done || msg.data.error) {
-          worker.terminate();
-
-          this.convertJobId = null;
-          this.removeUrlState('convert-job-id');
-        }
-      };
-      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
-      this.replaceUrlState('convert-job-id', jobId);
-    },
-    resumeMonitor: function() {
-      let jobId = this.getQueryParam(window.location.search, "convert-job-id");
-      if (jobId) {
-        this.convertJobId = jobId;
-        this.monitorConvert(this.config.monitorUrl(jobId), jobId);
+        });
+      } catch (e) {
+        this.showError("Error submitting conversion", e);
+      } finally {
+        this.removeUrlState(this.urlKey);
       }
     },
-    loadConfig: function(): Promise<void> {
-      this.loading = true;
-      return this.api.getConvertConfig(this.datasetId)
-          .then(data => this.state = data.map(([id, p]) => [id, p, false]))
-          .catch(error => this.showError("Error loading convert configuration", error))
-          .finally(() => this.loading = false);
+    resumeMonitor: async function() {
+      let jobId = this.getQueryParam(window.location.search, this.urlKey);
+      if (jobId) {
+        try {
+          this.tab = "convert";
+          await this.monitor(this.config.monitorUrl(jobId), jobId, (m: string) => {
+            this.$emit('refresh-stage', this.config.output);
+          });
+        } finally {
+          this.removeUrlState(this.urlKey);
+        }
+      }
     },
-    saveConfig: function(force: boolean = false) {
-      let config = this.state.map(([id, p, _]) => [id, p]);
-      this.api.saveConvertConfig(this.datasetId, config)
-          .catch(error => this.showError("Failed to save mapping list", error));
+    loadConfig: async function() {
+      this.loading = true;
+      try {
+        let data = await this.api.getConvertConfig(this.datasetId);
+        this.state = data.map(([id, p]) => [id, p, false]);
+      } catch (e) {
+        this.showError("Error loading convert configuration", e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    saveConfig: async function(force: boolean = false) {
+      try {
+        let config = this.state.map(([id, p, _]) => [id, p]);
+        await this.api.saveConvertConfig(this.datasetId, config);
+      } catch (e) {
+        this.showError("Failed to save mapping list", e);
+      }
     },
     priorConversions: function(dt) {
       return _takeWhile(this.enabled, s => s.id !== dt.id);
@@ -189,10 +186,10 @@ export default {
     cancelEditParamters: function() {
       this.editingParameters = null;
     },
-    initialise: function() {
-      this.loadConfig().then(_ => {
-        this.loadTransformations().then(_ => this.initialised = true);
-      });
+    initialise: async function() {
+      await this.loadConfig();
+      await this.loadTransformations();
+      this.initialised = true;
     }
   },
   computed: {
@@ -268,7 +265,7 @@ export default {
         v-on:close="closeEditForm"/>
 
     <div class="actions-bar">
-      <file-picker v-bind:disabled="convertJobId !== null"
+      <file-picker v-bind:disabled="jobId !== null"
                    v-bind:dataset-id="datasetId"
                    v-bind:file-stage="config.input"
                    v-bind:api="api"
@@ -281,11 +278,11 @@ export default {
         New Transformation...
       </button>
 
-      <button v-if="!convertJobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = true">
+      <button v-if="!jobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = true">
         <i class="fa fa-fw fa-file-code-o"/>
         Convert Files...
       </button>
-      <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelConvert">
+      <button v-else v-bind:disabled="cancelling" class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelJob">
         <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
         Cancel Convert
       </button>

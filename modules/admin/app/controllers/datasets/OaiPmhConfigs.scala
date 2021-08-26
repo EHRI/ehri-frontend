@@ -1,7 +1,7 @@
 package controllers.datasets
 
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import actors.harvesting.{Harvester, HarvesterManager, OaiPmhHarvester}
+import actors.harvesting.{HarvesterManager, OaiPmhHarvester}
 import akka.actor.{ActorContext, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
@@ -9,7 +9,6 @@ import controllers.base.AdminController
 import controllers.generic.Update
 import models.HarvestEvent.HarvestEventType
 import models.{FileStage, OaiPmhConfig, Repository}
-import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.harvesting.{HarvestEventService, OaiPmhClient, OaiPmhConfigService, OaiPmhError}
@@ -30,9 +29,6 @@ case class OaiPmhConfigs @Inject()(
   oaiPmhClient: OaiPmhClient,
   harvestEvents: HarvestEventService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
-
-  private val logger: Logger = Logger(classOf[OaiPmhConfigs])
-
 
   def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     oaipmhConfigs.get(id, ds).map { opt =>
@@ -82,16 +78,6 @@ case class OaiPmhConfigs @Inject()(
           .taskMonitorWS(jobId).webSocketURL(conf.https),
         "jobId" -> jobId
       ))
-    }
-  }
-
-  def cancelHarvest(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    import scala.concurrent.duration._
-    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
-      ref ! Harvester.Cancel
-      Ok(Json.obj("ok" -> true))
-    }.recover {
-      case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
   }
 }

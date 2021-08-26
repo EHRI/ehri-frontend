@@ -4,6 +4,8 @@ GET         /                                             @controllers.datasets.
 GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
 
 # API/JSON routes
+DELETE      /api/:id/cancel                               @controllers.datasets.LongRunningJobs.cancel(id: String, jobId: String)
+
 GET         /api/list                                     @controllers.datasets.ImportDatasets.listAll()
 POST        /api/:id/toggle-versioning                    @controllers.datasets.ImportDatasets.toggleVersioning(id: String, enabled: Boolean ?= true)
 GET         /api/:id/datasets-stats                       @controllers.datasets.ImportDatasets.stats(id: String)
@@ -30,18 +32,16 @@ GET         /api/:id/transformations/:dt                  @controllers.datasets.
 PUT         /api/:id/transformations/:dt                  @controllers.datasets.DataTransformations.update(id: String, dt: String, generic: Boolean ?= false)
 DELETE      /api/:id/transformations/:dt                  @controllers.datasets.DataTransformations.delete(id: String, dt: String)
 
-GET         /api/:id/convert/:ds/config                   @controllers.datasets.DataTransformations.getConfig(id: String, ds: String)
-PUT         /api/:id/convert/:ds/config                   @controllers.datasets.DataTransformations.saveConfig(id: String, ds: String)
-POST        /api/:id/convert/:ds                          @controllers.datasets.DataTransformations.convert(id: String, ds: String, key: Option[String] ?= None)
-POST        /api/:id/convert/:ds/:stage                   @controllers.datasets.DataTransformations.convertFile(id: String, ds: String, stage: models.FileStage.Value, fileName: String)
-DELETE      /api/:id/convert                              @controllers.datasets.DataTransformations.cancelConvert(id: String, jobId: String)
+GET         /api/:id/convert/:ds/config                   @controllers.datasets.ConvertConfigs.get(id: String, ds: String)
+PUT         /api/:id/convert/:ds/config                   @controllers.datasets.ConvertConfigs.save(id: String, ds: String)
+POST        /api/:id/convert/:ds                          @controllers.datasets.ConvertConfigs.convert(id: String, ds: String, key: Option[String] ?= None)
+POST        /api/:id/convert/:ds/:stage                   @controllers.datasets.ConvertConfigs.convertFile(id: String, ds: String, stage: models.FileStage.Value, fileName: String)
 
 GET         /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.get(id: String, ds: String)
 PUT         /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.save(id: String, ds: String)
 POST        /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.test(id: String, ds: String)
 DELETE      /api/:id/oaipmh/:ds/config                    @controllers.datasets.OaiPmhConfigs.delete(id: String, ds: String)
 POST        /api/:id/oaipmh/:ds                           @controllers.datasets.OaiPmhConfigs.harvest(id: String, ds: String, fromLast: Boolean ?= true)
-DELETE      /api/:id/oaipmh                               @controllers.datasets.OaiPmhConfigs.cancelHarvest(id: String, jobId: String)
 
 GET         /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.get(id: String, ds: String)
 PUT         /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.save(id: String, ds: String)
@@ -49,7 +49,6 @@ POST        /api/:id/rs/:ds/config                        @controllers.datasets.
 DELETE      /api/:id/rs/:ds/config                        @controllers.datasets.ResourceSyncConfigs.delete(id: String, ds: String)
 POST        /api/:id/rs/:ds/clean                         @controllers.datasets.ResourceSyncConfigs.clean(id: String, ds: String)
 POST        /api/:id/rs/:ds                               @controllers.datasets.ResourceSyncConfigs.sync(id: String, ds: String)
-DELETE      /api/:id/rs                                   @controllers.datasets.ResourceSyncConfigs.cancelSync(id: String, jobId: String)
 
 GET         /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.get(id: String, ds: String)
 PUT         /api/:id/import/:ds/config                    @controllers.datasets.ImportConfigs.save(id: String, ds: String)

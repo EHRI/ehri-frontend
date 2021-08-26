@@ -10,22 +10,20 @@
 import ModalWindow from './_modal-window';
 import FilePicker from './_file-picker';
 import PanelLogWindow from './_panel-log-window';
+import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 import {ImportConfig, ImportDataset, ResourceSyncConfig} from "../types";
-import _startsWith from "lodash/startsWith";
-import _last from "lodash/last";
-import convert from "lodash/fp/convert";
 
 class CancelledTask extends Error {
   constructor() {
     super("Task cancelled");
     this.name = "TaskCancelled";
   }
-
 }
 
 export default {
   components: {FilePicker, ModalWindow, PanelLogWindow},
+  mixins: [MixinTasklog],
   props: {
     datasets: Array,
     api: DatasetManagerApi,
@@ -41,70 +39,48 @@ export default {
       copyType: 'convert',
       forceConvert: false,
       commit: false,
-      log: [],
       cancelled: false,
-      cancelling: false,
       working: {},
+      throwOnError: false,
     }
   },
   methods: {
-    monitor: async function(wsUrl: string) {
-      return await new Promise(((resolve) => {
-        let worker = new Worker(this.config.previewLoader);
-        worker.onmessage = msg => {
-          if (msg.data.msg) {
-            this.println(msg.data.msg);
-          }
-          if (msg.data.done || msg.data.error) {
-            worker.terminate();
-            resolve();
-          }
-        };
-        this.dispatchWorker(worker, wsUrl);
-      })).catch(e => {throw e});
-    },
-
-    println: function(...msg: string[]) {
-      //this.log = [msg.join(' ')];
-      console.debug(...msg);
-      let line = msg.join(' ');
-      // FIXME: hack copied from ingest manager
-      let progPrefix = "Ingesting..."
-      if (this.log && _startsWith(_last(this.log), progPrefix) && _startsWith(line, progPrefix)) {
-        this.log.splice(this.log.length - 1, 1, line);
-      } else {
-        this.log.push(line);
-      }
-
-      // Cull the list back to 1000 items every
-      // time we exceed a threshold
-      // FIXME: this is crap
-      if (this.log.length >= 2000) {
-        // this.log.shift();
-        this.log.splice(0, 1000);
-      }
-    },
-    dispatchWorker: function(worker: Worker, monitorUrl: string) {
-      worker.postMessage({
-        type: 'websocket',
-        url: monitorUrl,
-        DONE: DatasetManagerApi.DONE_MSG,
-        ERR: DatasetManagerApi.ERR_MSG
-      });
-    },
-    cancelOperation: function() {
+    cancelOperation: async function() {
       this.println("Cancelling...");
+      await this.cancelJob();
       this.cancelled = true;
     },
     cleanup: function() {
       if (this.cancelled) {
         this.println("Cancelled");
       }
-      this.inProgress = false;
       this.cancelled = false;
+      // this.jobId = null;
+      this.inProgress = false;
     },
     setRunning: function() {
       this.inProgress = true;
+    },
+    checkConfigs: async function() {
+      let datasets: ImportDataset[] = this.datasets;
+      for (let set of datasets) {
+        let config = await this.api.getSyncConfig(set.id);
+        if (config === null) {
+          this.println("Error: no import config found for set", set.name);
+          return false;
+        }
+      }
+      return true;
+    },
+    checkOrphansForSet: async function(set: ImportDataset, config: ResourceSyncConfig): Promise<string[]> {
+      let files = await this.api.cleanSyncConfig(set.id, config);
+      if (files.length === 0) {
+        this.println("... no orphans found");
+      } else {
+        this.println("..." + files.length, "orphaned file(s) found");
+        files.forEach(f => this.println(" -", f));
+      }
+      return files;
     },
     checkForOrphans: async function() {
       let datasets: ImportDataset[] = this.datasets;
@@ -112,8 +88,10 @@ export default {
 
       for (let set of datasets) {
         if (this.cancelled) {
-          this.cleanup();
-          throw new CancelledTask();
+          if (this.throwOnError) {
+            throw new CancelledTask();
+          }
+          break;
         }
         let config = await this.api.getSyncConfig(set.id);
         if (config) {
@@ -121,13 +99,7 @@ export default {
           this.$set(this.working, set.id, true);
           this.$emit('processing', set.id);
           try {
-            let files = await this.api.cleanSyncConfig(set.id, config);
-            if (files.length === 0) {
-              this.println("... no orphans found");
-            } else {
-              this.println("..." + files.length, "orphaned file(s) found");
-              files.forEach(f => this.println(" -", f));
-            }
+            await this.checkOrphansForSet(set, config);
           } catch (e) {
             this.println(e.message);
           } finally {
@@ -141,29 +113,14 @@ export default {
       this.cleanup();
     },
     syncAllDatasets: async function() {
-      // This is a shortcut for downloading ResourceSync files
-      // for all datasets... it is not really 'production ready'...
-      let cleanupFiles = async(set: ImportDataset, config: ResourceSyncConfig) => {
-        if (this.cleanupOrphans) {
-          this.println("Checking for deleted files...")
-          let orphans = await this.api.cleanSyncConfig(set.id, config);
-          if (orphans.length === 0) {
-            this.println("...no deleted files found.")
-          } else {
-            this.println("Cleaning up orphans for dataset", set.name + ":");
-            orphans.forEach(f => this.println(" x ", f));
-            await this.api.deleteFiles(set.id, this.config.input, orphans);
-            await this.api.deleteFiles(set.id, this.config.output, orphans);
-          }
-        }
-      };
-
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
       for (let set of datasets) {
         if (this.cancelled) {
-          this.cleanup();
-          throw new CancelledTask();
+          if (this.throwOnError) {
+            throw new CancelledTask();
+          }
+          break;
         }
         let config: ResourceSyncConfig|null = await this.api.getSyncConfig(set.id);
         if (config) {
@@ -171,9 +128,15 @@ export default {
           this.$set(this.working, set.id, true);
           this.$emit('processing', set.id);
           try {
-            let {url} = await this.api.sync(set.id, config);
-            await this.monitor(url);
-            await cleanupFiles(set, config);
+            let {url, jobId} = await this.api.sync(set.id, config);
+            await this.monitor(url, jobId);
+            if (!this.cancelled && this.cleanupOrphans) {
+              let orphans = this.checkOrphansForSet(set, config);
+              if (orphans.length > 0) {
+                await this.api.deleteFiles(set.id, this.config.input, orphans);
+                await this.api.deleteFiles(set.id, this.config.output, orphans);
+              }
+            }
           } catch (e) {
             this.println(e.message);
           } finally {
@@ -184,6 +147,9 @@ export default {
           this.println("No config found for", set.name);
         }
       }
+      if (!this.cancelled) {
+        this.println("All sets synced")
+      }
       this.cleanup();
     },
     convertAllDatasets: async function() {
@@ -192,16 +158,22 @@ export default {
 
       for (let set of datasets) {
         if (this.cancelled) {
-          this.cleanup();
-          throw new CancelledTask();
+          if (this.throwOnError) {
+            throw new CancelledTask();
+          }
+          break;
         }
+        this.println("Converting", set.name);
         let config = await this.api.getConvertConfig(set.id);
         this.$set(this.working, set.id, true);
         this.$emit('processing', set.id);
 
         try {
-          let {url} = await this.api.convert(set.id, null, {mappings: config, force: this.forceConvert});
-          await this.monitor(url);
+          let {url, jobId} = await this.api.convert(set.id, null, {
+            mappings: config,
+            force: this.forceConvert
+          });
+          await this.monitor(url, jobId);
         } catch (e) {
           this.println(e.message);
         } finally {
@@ -209,18 +181,21 @@ export default {
           this.$emit('processing-done', set.id);
         }
       }
+      if (!this.cancelled) {
+        this.println("All sets converted")
+      }
       this.cleanup();
     },
     importAllDatasets: async function() {
-      // This is a shortcut for running conversion on all datasets...
-
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
 
       for (let set of datasets) {
         if (this.cancelled) {
-          this.cleanup();
-          throw new CancelledTask();
+          if (this.throwOnError) {
+            throw new CancelledTask();
+          }
+          break;
         }
 
         let config = await this.api.getImportConfig(set.id);
@@ -229,8 +204,8 @@ export default {
           this.$set(this.working, set.id, true);
           this.$emit('processing', set.id);
           try {
-            let {url} = await this.api.ingestFiles(set.id, [], config, this.commit);
-            await this.monitor(url);
+            let {url, jobId} = await this.api.ingestFiles(set.id, [], config, this.commit);
+            await this.monitor(url, jobId);
           } catch (e) {
             this.println(e.message);
           } finally {
@@ -241,10 +216,15 @@ export default {
           this.println("No import config found for", set.name);
         }
       }
+
+      if (!this.cancelled) {
+        this.println("All sets imported")
+      }
       this.cleanup();
     },
     runAll: async function() {
       try {
+        this.throwOnError = true;
         await this.syncAllDatasets();
         await this.convertAllDatasets();
         await this.importAllDatasets();
@@ -252,6 +232,9 @@ export default {
         if (!(e instanceof CancelledTask)) {
           throw e;
         }
+      } finally {
+        this.cleanup();
+        this.throwOnError = false;
       }
     },
     copyConvertSettings: async function() {
@@ -371,8 +354,8 @@ export default {
     </fieldset>
 
     <div class="log-container" id="batch-ops-log">
-      <panel-log-window v-bind:log="log" v-if="log.length > 0"/>
-      <div class="panel-placeholder" v-else>
+      <panel-log-window v-if="log.length > 0" v-bind:log="log"/>
+      <div v-else class="panel-placeholder">
 
       </div>
     </div>

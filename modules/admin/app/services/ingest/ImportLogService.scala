@@ -116,4 +116,6 @@ trait ImportLogService {
     * @return a set of key/error tuples
     */
   def errors(repoId: String, datasetId: String): Future[Seq[(String, String)]]
+
+  def findRedirects(repoId: String, snapshotId: Int): Future[Seq[(String, String)]]
 }

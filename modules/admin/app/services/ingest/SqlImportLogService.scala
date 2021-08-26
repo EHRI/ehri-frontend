@@ -31,6 +31,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   private val idMapParser = (str("item_id") ~ str("local_id"))
     .map { case item ~ local => item -> local }
 
+  private val redirectParser = (str("old_id") ~ str("new_id"))
+    .map { case oldId ~ newId => oldId -> newId }
+
 
 
   override def getHandles(unitId: String): Future[Seq[ImportFileHandle]] = Future {
@@ -158,6 +161,42 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
         }
         snapshot
       }
+    }
+  }
+
+  override def findRedirects(repoId: String, snapshotId: Int): Future[Seq[(String, String)]] = Future {
+    db.withTransaction { implicit conn =>
+      // Create a temporary table containing the touched items (file mappings
+      // imported since the specified snapshot was taken) and another
+      // containing the untouched items (items in the snapshot that are not
+      // in the touched set.) Then select the untouched ID
+      // and the first touched item that has an ID whose last component
+      // matches the local identifier of an untouched item.
+      // NOTE: using the local ID component in the ID is a bit of a hack
+      // but it can't be helped since we don't have the local ID available
+      // in the import log info.
+      SQL"""SELECT DISTINCT map.item_id AS new_id
+            INTO TEMPORARY TABLE touched_items
+            FROM import_log log, import_file_mapping map, repo_snapshot snap
+              WHERE map.import_log_id = log.id
+                AND snap.id = $snapshotId
+                AND log.created > snap.created
+            """.executeUpdate()
+
+      SQL"""SELECT DISTINCT item.item_id AS old_id, item.local_id AS old_local
+            INTO TEMPORARY TABLE untouched_items
+            FROM repo_snapshot_item item
+              JOIN repo_snapshot snap ON item.repo_snapshot_id = snap.id
+            WHERE snap.id = $snapshotId
+              AND NOT EXISTS (
+                SELECT DISTINCT new_id FROM touched_items
+                  WHERE item.item_id = new_id
+              )
+            """.executeUpdate()
+
+      SQL"""SELECT DISTINCT ON (new_id) old_id, new_id
+            FROM untouched_items, touched_items
+              WHERE new_id LIKE CONCAT('%-', old_local)""".as(redirectParser.*)
     }
   }
 

@@ -16,84 +16,65 @@ import MixinPreview from './_mixin-preview';
 import MixinValidator from './_mixin-validator';
 import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
+import MixinTasklog from './_mixin-tasklog';
 
 import {DatasetManagerApi} from '../api';
+import {OaiPmhConfig} from "../types";
 
 
 export default {
   components: {FilterControl, FilesTable, ButtonDelete, ButtonValidate, PanelFilePreview, ModalOaipmhConfig, DragHandle, ModalInfo, PanelLogWindow},
-  mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil],
+  mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil, MixinTasklog],
   props: {
     datasetContentType: String,
     fileStage: String,
+    urlKey: {
+      type: String,
+      default: 'harvest-id',
+    },
     config: Object,
     api: DatasetManagerApi,
   },
   data: function () {
     return {
-      harvestJobId: null,
       showOptions: false,
       opts: null,
       waiting: false,
     }
   },
   methods: {
-    doHarvest: function(opts, fromLast) {
+    doHarvest: async function (opts: OaiPmhConfig, fromLast: boolean) {
       this.waiting = true;
-
-      // Save opts for the next time we open the config UI
       this.opts = opts;
 
-      this.api.harvest(this.datasetId, opts, fromLast)
-          .then(data => {
-            this.showOptions = false;
-            this.harvestJobId = data.jobId;
-            this.monitorHarvest(data.url, data.jobId);
-          })
-          .catch(error => this.showError("Error running harvest", error))
-          .finally(() => this.waiting = false);
-    },
-    cancelHarvest: function() {
-      if (this.harvestJobId) {
-        this.api.cancelHarvest(this.harvestJobId).then(r => {
-          if (r.ok) {
-            this.harvestJobId = null;
-          }
-        });
+      try {
+        let {url, jobId} = await this.api.harvest(this.datasetId, opts, fromLast);
+        this.showOptions = false;
+        this.replaceUrlState(this.urlKey, jobId);
+        this.tab = "harvest";
+        await this.monitor(url, jobId, this.refresh);
+        this.$emit('updated');
+      } catch (e) {
+        this.showError("Error running harvest", e)
+      } finally {
+        this.removeUrlState(this.urlKey);
+        this.waiting = false;
       }
     },
-    monitorHarvest: function (url, jobId) {
-      this.tab = 'harvest';
-
-      let worker = new Worker(this.config.previewLoader);
-      worker.onmessage = msg => {
-        if (msg.data.error) {
-          this.log.push(msg.data.error);
-        } else if (msg.data.msg) {
-          this.log.push(msg.data.msg);
-          this.refresh();
-        }
-        if (msg.data.done || msg.data.error) {
-          worker.terminate();
-
-          this.harvestJobId = null;
-          this.removeUrlState('harvest-job-id');
-          this.$emit('updated')
-        }
-      };
-      worker.postMessage({type: 'websocket', url: url, DONE: DatasetManagerApi.DONE_MSG, ERR: DatasetManagerApi.ERR_MSG});
-      this.replaceUrlState('harvest-job-id', jobId);
-    },
-    resumeMonitor: function() {
-      let jobId = this.getQueryParam(window.location.search, "harvest-job-id");
+    resumeMonitor: async function() {
+      let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
-        this.harvestJobId = jobId;
-        this.monitorHarvest(this.config.monitorUrl(jobId), jobId);
+        this.tab = "harvest";
+        try {
+          await this.monitor(this.config.monitorUrl(jobId), jobId, this.refresh);
+          this.$emit("updated");
+        } finally {
+          this.removeUrlState(this.urlKey);
+        }
       }
     },
-    loadConfig: function() {
-      this.api.getOaiPmhConfig(this.datasetId)
-          .then(data => this.opts = data);
+    loadConfig: async function() {
+      this.opts = await this.api.getOaiPmhConfig(this.datasetId);
     },
   },
   created: function () {
@@ -112,24 +93,24 @@ export default {
 
       <button-validate
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || harvestJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="validationRunning"
           v-on:validate="validateFiles(selectedTags)"
       />
 
       <button-delete
           v-bind:selected="selectedKeys.length"
-          v-bind:disabled="files.length === 0 || harvestJobId !== null"
+          v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="deleting.length > 0"
           v-on:delete="deleteFiles(selectedKeys)"
       />
 
-      <button v-if="!harvestJobId" class="btn btn-sm btn-default"
+      <button v-if="!jobId" class="btn btn-sm btn-default"
               v-on:click.prevent="showOptions = !showOptions">
         <i class="fa fa-fw fa-cloud-download"/>
         Harvest Files...
       </button>
-      <button v-else class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelHarvest">
+      <button v-else v-bind:disabled="cancelling" class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelJob">
         <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
         Cancel Harvest
       </button>

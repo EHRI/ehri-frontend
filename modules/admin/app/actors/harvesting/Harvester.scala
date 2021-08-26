@@ -1,10 +1,6 @@
 package actors.harvesting
 
 object Harvester {
-
-  sealed trait HarvestCommand
-  case object Cancel extends HarvestCommand
-
   sealed trait HarvestAction
   case class Cancelled(done: Int, fresh: Int, secs: Long) extends HarvestAction
   case class Completed(done: Int, fresh: Int, secs: Long) extends HarvestAction
