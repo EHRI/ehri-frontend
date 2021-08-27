@@ -1,0 +1,35 @@
+@(item: Repository, isVersioned: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@styles = {
+    <link href="@controllers.admin.routes.AdminAssets.versioned("css/datasets.css")" rel="stylesheet">
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("repository.data", item.toStringLang), styles = styles, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+    <script src="@controllers.datasets.routes.ImportDatasets.jsRoutes()"></script>
+    <script>
+            window.SERVICE = datasetApi.controllers.datasets;
+            window.CONFIG = {
+                repoId: "@item.id",
+                versioned: @isVersioned,
+                input: "@FileStage.Input",
+                output: "@FileStage.Output",
+                config: "@FileStage.Config",
+                previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datasets/worker.js")",
+                monitorUrl: jobId => datasetApi.controllers.admin.Tasks.taskMonitorWS(jobId)
+                        .absoluteURL(location.protocol === "https:")
+                        .replace(/^http/, "ws"),
+                defaultTab: "input",
+                maxPreviewSize: 1024 * 1024 * 2,
+            };
+    </script>
+} {
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/app.js")"></script>
+    <script>
+            var app = new Vue({
+                el: '#vue-app',
+                render: function(html) {
+                    return html(App.default);
+                }
+            });
+    </script>
+}

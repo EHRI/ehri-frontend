@@ -1,6 +1,7 @@
 # Data management
 
 GET         /                                             @controllers.datasets.ImportDatasets.ui()
+GET         /js                                           @controllers.datasets.ImportDatasets.jsRoutes()
 GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
 
 # API/JSON routes

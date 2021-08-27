@@ -1,4 +1,8 @@
 
+export interface ConfigType {
+  vocabId: string,
+  title: string,
+}
 
 export interface ConceptDescription {
   id: string,

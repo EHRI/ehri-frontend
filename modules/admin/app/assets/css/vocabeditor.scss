@@ -69,6 +69,12 @@ body {
 }
 
 #vocab-editor-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+#vocab-editor-panels {
   font-size: $font-size-sm;
   display: flex;
   flex-direction: row;

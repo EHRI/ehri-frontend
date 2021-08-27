@@ -1,0 +1,46 @@
+@(title: Any, elemId: String = "vue-app", breadcrumbs: Html = Html(""), styles: Html = Html(""), titleInBody: Boolean = false)(preScripts: Html)(postScripts: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
+
+<!DOCTYPE html>
+
+<html lang="@messages.lang.code">
+    <head>
+        <title>@title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
+
+        @conf.extraHeadContent.map(c => Html(c))
+        @styles
+    </head>
+    <body>
+
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2.full.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/bootstrap.bundle.js")"></script>
+        <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
+        <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
+        <script src="@controllers.portal.routes.PortalData.localeData()"></script>
+
+        @preScripts
+
+        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.js")"></script>
+
+        <div id="flex-wrapper">
+            <header id="header" class="navigation">
+                @views.html.admin.common.adminNavBar()
+            </header>
+            @views.html.admin.common.testWarning()
+            @if(breadcrumbs.body.trim.isEmpty) {
+                @views.html.admin.common.breadcrumbs()
+            } else {
+                @breadcrumbs
+            }
+            <div id="flex-content">
+                <div id="@elemId"></div>
+            </div>
+        </div>
+
+        @postScripts
+    </body>
+</html>
