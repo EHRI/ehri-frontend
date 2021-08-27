@@ -6,8 +6,10 @@ import controllers.base.AdminController
 import controllers.generic._
 import models.{FileStage, _}
 import play.api.cache.AsyncCacheApi
+import play.api.http.MimeTypes
 import play.api.libs.json.{Format, Json}
 import play.api.mvc._
+import play.api.routing.JavaScriptReverseRouter
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
@@ -31,6 +33,60 @@ case class ImportDatasets @Inject()(
   importLogService: ImportLogService,
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
+  def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
+    Ok(
+      JavaScriptReverseRouter("datasetApi")(
+        controllers.admin.routes.javascript.Tasks.taskMonitorWS,
+        controllers.datasets.routes.javascript.LongRunningJobs.cancel,
+        controllers.datasets.routes.javascript.ImportFiles.listFiles,
+        controllers.datasets.routes.javascript.ImportFiles.info,
+        controllers.datasets.routes.javascript.ImportFiles.validateFiles,
+        controllers.datasets.routes.javascript.ImportFiles.deleteFiles,
+        controllers.datasets.routes.javascript.ImportFiles.uploadHandle,
+        controllers.datasets.routes.javascript.ImportFiles.fileUrls,
+        controllers.datasets.routes.javascript.OaiPmhConfigs.harvest,
+        controllers.datasets.routes.javascript.OaiPmhConfigs.get,
+        controllers.datasets.routes.javascript.OaiPmhConfigs.save,
+        controllers.datasets.routes.javascript.OaiPmhConfigs.delete,
+        controllers.datasets.routes.javascript.OaiPmhConfigs.test,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.sync,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.get,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.save,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.delete,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.test,
+        controllers.datasets.routes.javascript.ResourceSyncConfigs.clean,
+        controllers.datasets.routes.javascript.ConvertConfigs.convertFile,
+        controllers.datasets.routes.javascript.ConvertConfigs.convert,
+        controllers.datasets.routes.javascript.ConvertConfigs.get,
+        controllers.datasets.routes.javascript.ConvertConfigs.save,
+        controllers.datasets.routes.javascript.DataTransformations.list,
+        controllers.datasets.routes.javascript.DataTransformations.get,
+        controllers.datasets.routes.javascript.DataTransformations.create,
+        controllers.datasets.routes.javascript.DataTransformations.update,
+        controllers.datasets.routes.javascript.DataTransformations.delete,
+        controllers.datasets.routes.javascript.ImportDatasets.list,
+        controllers.datasets.routes.javascript.ImportDatasets.listAll,
+        controllers.datasets.routes.javascript.ImportDatasets.stats,
+        controllers.datasets.routes.javascript.ImportDatasets.create,
+        controllers.datasets.routes.javascript.ImportDatasets.update,
+        controllers.datasets.routes.javascript.ImportDatasets.delete,
+        controllers.datasets.routes.javascript.ImportDatasets.batch,
+        controllers.datasets.routes.javascript.ImportDatasets.errors,
+        controllers.datasets.routes.javascript.ImportConfigs.ingestFiles,
+        controllers.datasets.routes.javascript.ImportConfigs.get,
+        controllers.datasets.routes.javascript.ImportConfigs.save,
+        controllers.datasets.routes.javascript.ImportConfigs.delete,
+        controllers.datasets.routes.javascript.ImportLogs.listSnapshots,
+        controllers.datasets.routes.javascript.ImportLogs.takeSnapshot,
+        controllers.datasets.routes.javascript.ImportLogs.diffSnapshot,
+        controllers.datasets.routes.javascript.ImportLogs.cleanup,
+        controllers.datasets.routes.javascript.CoreferenceTables.getTable,
+        controllers.datasets.routes.javascript.CoreferenceTables.saveTable,
+        controllers.datasets.routes.javascript.CoreferenceTables.ingestTable,
+      )
+    ).as(MimeTypes.JAVASCRIPT)
+  }
+
   def ui(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     for {
       sets <- datasets.listAll().map(_.toSeq)
@@ -43,7 +99,7 @@ case class ImportDatasets @Inject()(
 
   def manager(id: String, ds: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.isVersioned.map { versioned =>
-      Ok(views.html.admin.datasets.datamanager(request.item, versioned))
+      Ok(views.html.admin.datasets.manager(request.item, versioned))
     }
   }
 

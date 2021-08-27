@@ -1,65 +1,40 @@
 @(item: Vocabulary)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-<!DOCTYPE html>
-<html lang="@messages.lang.code">
-    <head>
-        <title>@Messages("cvocVocabulary.items.editor", item.toStringLang)</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@styles = {
+    <link href="@controllers.admin.routes.AdminAssets.versioned("css/vocabeditor.css")" rel="stylesheet">
+}
 
-        <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
-        <link href="@controllers.admin.routes.AdminAssets.versioned("css/vocabeditor.css")" rel="stylesheet">
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("cvocVocabulary.items.editor", item.toStringLang),
+        styles = styles, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+    @helper.javascriptRouter("vocabEditorRoutes")(
+        controllers.vocabularies.routes.javascript.VocabularyEditor.search,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.get,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.list,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.langs,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.broader,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.narrower,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.createItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.updateItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.nextIdentifier,
+    )
+    <script>
+            window.SERVICE = vocabEditorRoutes.controllers.vocabularies.VocabularyEditor;
+            window.CONFIG = {
+                vocabId: "@item.id",
+                title: "@Messages("cvocVocabulary.items.editor", item.toStringLang)"
+            }
+    </script>
 
-        @conf.extraHeadContent.map(c => Html(c))
-    </head>
-    <body>
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/jquery.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/select2.full.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/bootstrap.bundle.js")"></script>
-        <script src="@controllers.portal.routes.PortalAssets.versioned("js/common.js")"></script>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/admin.js")"></script>
-        <script src="@controllers.portal.routes.PortalData.jsRoutes()"></script>
-        @helper.javascriptRouter("vocabEditorRoutes")(
-            controllers.vocabularies.routes.javascript.VocabularyEditor.search,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.get,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.list,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.langs,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.broader,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.narrower,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.createItem,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.updateItem,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem,
-            controllers.vocabularies.routes.javascript.VocabularyEditor.nextIdentifier,
-        )
-
-        <script>
-                window.SERVICE = vocabEditorRoutes.controllers.vocabularies.VocabularyEditor;
-                window.CONFIG = {
-                    vocabId: "@item.id"
-                }
-        </script>
-
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.js")"></script>
-        <script src="@controllers.portal.routes.PortalData.localeData()"></script>
-
-        <div id="flex-wrapper">
-            <header id="header" class="navigation">
-                @views.html.admin.common.adminNavBar()
-            </header>
-            @views.html.admin.common.testWarning()
-            @views.html.admin.common.breadcrumbs(List(item))
-            <div id="flex-content" class="container" >
-                <h2>@Messages("cvocVocabulary.items.editor", item.toStringLang)</h2>
-                <div id="vocab-editor"></div>
-            </div>
-        </div>
-        <script src="@controllers.admin.routes.AdminAssets.versioned("js/vocabeditor/app.js")"></script>
-        <script>
+} {
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/vocabeditor/app.js")"></script>
+    <script>
             var app = new Vue({
-                el: '#vocab-editor',
+                el: '#vue-app',
                 render: function(html) {
                     return html(App.default);
                 }
             });
-        </script>
-    </body>
-</html>
+    </script>
+
+}
