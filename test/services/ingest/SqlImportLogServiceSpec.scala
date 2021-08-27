@@ -33,7 +33,8 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
   )
   private val eventId = UUID.randomUUID().toString
   private val log: ImportLog = ImportLog(
-    createdKeys = Map(keyVersion -> Seq("unit-1", "unit-2", "unit-3")),
+    createdKeys = Map(keyVersion -> Seq("unit-2", "unit-3")),
+    updatedKeys = Map(keyVersion -> Seq("unit-1")),
     event = Some(eventId),
     errors = Map("bar.ead?version=1" -> "HTTP 503 Error"),
   )
@@ -76,15 +77,6 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       diff must_== Seq("unit-4" -> "4")
     }
 
-    "find redirects" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
-      // The log contains unit-1 and unit-2 but not unit-3
-      val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2")
-      val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
-      await(service.save("r1", "default", job, log))
-      val redirs = await(service.findRedirects("r1", s.id))
-      redirs must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
-    }
-
     "calculate cleanup" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       // The log contains unit-1 and unit-2 but not unit-3
       val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2", "todelete" -> "del")
@@ -93,6 +85,15 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       val cleanup = await(service.cleanup("r1", s.id))
       cleanup.redirects must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
       cleanup.deletes must_== Seq("todelete")
+    }
+
+    "calculate stats" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      // The log contains unit-1 and unit-2 but not unit-3
+      await(service.save("r1", "default", job, log))
+      val stats: Seq[TimelineStats] = await(service.stats("r1", Some("default")))
+      stats.size must_== 1
+      stats.head.created must_== 2
+      stats.head.updated must_== 1
     }
   }
 }

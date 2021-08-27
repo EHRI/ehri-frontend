@@ -258,6 +258,7 @@ CREATE INDEX import_file_mapping_import_log_id ON import_file_mapping (import_lo
 CREATE INDEX import_file_mapping_key ON import_file_mapping (key);
 CREATE INDEX import_file_mapping_item_id ON import_file_mapping (item_id);
 CREATE INDEX import_file_mapping_import_log_id_item_id ON import_file_mapping (import_log_id, item_id);
+CREATE INDEX import_file_mapping_type ON import_file_mapping (type);
 
 CREATE TABLE import_error(
   id                SERIAL PRIMARY KEY,
