@@ -24,9 +24,9 @@ export default {
       let qp = this.queryParams(qs);
       return this.queryString(_set(qp, name, value));
     },
-    getQueryParam: function(qs: string, name: string): string | null {
+    getQueryParam: function(qs: string, name: string, fallback?: string): string | null {
       let qp = this.queryParams(qs);
-      return _has(qp, name) ? qp[name] : null;
+      return _has(qp, name) ? qp[name] : fallback;
     },
     queryParams: function(qs: string): object {
       let qsp = (qs && qs[0] === '?') ? qs.slice(1): qs;

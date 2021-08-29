@@ -7,6 +7,7 @@ export default {
   components: {ConceptDataEditor},
   props: {
     api: VocabEditorApi,
+    config: Object,
     lang: String,
     langData: Object,
     localeHelpers: Object,
@@ -48,7 +49,7 @@ export default {
 
 <template>
   <div id="concept-creator" class="form-horizontal">
-    <h3 id="concept-creator-title">New Concept</h3>
+    <h3 id="concept-creator-title">{{ config.vocabName }} | New Concept</h3>
     <concept-data-editor
         v-bind:lang="lang"
         v-bind:id="null"

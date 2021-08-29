@@ -1,4 +1,5 @@
 import {DateTime} from "luxon";
+import axios from "axios";
 
 
 function humanFileSize(bytes: number, si: boolean = true): string {
@@ -27,4 +28,21 @@ function prettyDate(time: string): string {
   return "";
 }
 
-export {humanFileSize, prettyDate};
+function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promise<T> {
+  return axios.request<T>({
+    url: endpoint.url,
+    method: endpoint.method,
+    data: data,
+    headers: {
+      "ajax-ignore-csrf": true,
+      "Content-Type": "application/json",
+      "Accept": "application/json; charset=utf-8",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    withCredentials: true,
+  }).then(r => r.data);
+}
+
+
+
+export {humanFileSize, prettyDate, apiCall};

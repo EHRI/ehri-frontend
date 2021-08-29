@@ -19,6 +19,7 @@ export default {
     dirtyRels: Boolean,
     langData: Object,
     localeHelpers: Object,
+    config: Object,
   },
   data: function () {
     return {
@@ -87,7 +88,7 @@ export default {
 
 <template>
   <div id="concept-editor" class="form-horizontal">
-    <h3 id="concept-editor-item-title">{{data|conceptTitle(lang, id)}} ({{data.identifier}})</h3>
+    <h3 id="concept-editor-item-title">{{ config.vocabName }} | {{ data|conceptTitle(lang, id)}} ({{data.identifier}})</h3>
     <small class="concept-editor-concept-meta" v-if="data.event.user">
       Last updated by {{ data.event.user.name }} {{ data.event.timestamp|formatTimestamp }}.
     </small>

@@ -367,6 +367,8 @@ export default {
         Cancel Operation
       </button>
       <button v-if="tab === 'copy'" v-bind:disabled="inProgress || !(copyFrom && copyType)" v-on:click="copySettings" type="button" class="btn btn-secondary">
+        <i v-if="!inProgress" class="fa fa-fw fa-copy"></i>
+        <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Copy Settings
       </button>
       <template v-if="tab === 'sync'">
@@ -375,25 +377,37 @@ export default {
           Check for Orphaned Files
         </button>
         <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
+          <i v-if="!inProgress" class="fa fa-fw fa-clone"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise ResourceSync Datasets
         </button>
       </template>
       <button v-if="tab === 'convert'" v-bind:disabled="inProgress" v-on:click="convertAllDatasets" type="button" class="btn btn-secondary">
+        <i v-if="!inProgress" class="fa fa-fw fa-file-code-o"></i>
+        <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Run Convert
       </button>
       <template v-if="commit">
         <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-danger">
+          <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Run Import
         </button>
         <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-danger">
+          <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise, Convert &amp; Import
         </button>
       </template>
       <template v-else>
         <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-secondary">
+          <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Run Dry Run
         </button>
         <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-secondary">
+          <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise, Convert &amp; Dry Run Import
         </button>
       </template>

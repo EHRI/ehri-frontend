@@ -60,6 +60,7 @@ export default {
 
     <template v-slot:footer>
       <button v-bind:disabled="!all && file === null" v-on:click="convert" type="button" class="btn btn-secondary">
+        <i class="fa fa-fw fa-file-code-o"></i>
         Run Conversion
       </button>
     </template>

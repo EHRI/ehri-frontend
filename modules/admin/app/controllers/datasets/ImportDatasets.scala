@@ -37,6 +37,15 @@ case class ImportDatasets @Inject()(
     Ok(
       JavaScriptReverseRouter("datasetApi")(
         controllers.admin.routes.javascript.Tasks.taskMonitorWS,
+        controllers.datasets.routes.javascript.ImportDatasets.manager,
+        controllers.datasets.routes.javascript.ImportDatasets.list,
+        controllers.datasets.routes.javascript.ImportDatasets.listAll,
+        controllers.datasets.routes.javascript.ImportDatasets.stats,
+        controllers.datasets.routes.javascript.ImportDatasets.create,
+        controllers.datasets.routes.javascript.ImportDatasets.update,
+        controllers.datasets.routes.javascript.ImportDatasets.delete,
+        controllers.datasets.routes.javascript.ImportDatasets.batch,
+        controllers.datasets.routes.javascript.ImportDatasets.errors,
         controllers.datasets.routes.javascript.LongRunningJobs.cancel,
         controllers.datasets.routes.javascript.ImportFiles.listFiles,
         controllers.datasets.routes.javascript.ImportFiles.info,
@@ -64,14 +73,6 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.DataTransformations.create,
         controllers.datasets.routes.javascript.DataTransformations.update,
         controllers.datasets.routes.javascript.DataTransformations.delete,
-        controllers.datasets.routes.javascript.ImportDatasets.list,
-        controllers.datasets.routes.javascript.ImportDatasets.listAll,
-        controllers.datasets.routes.javascript.ImportDatasets.stats,
-        controllers.datasets.routes.javascript.ImportDatasets.create,
-        controllers.datasets.routes.javascript.ImportDatasets.update,
-        controllers.datasets.routes.javascript.ImportDatasets.delete,
-        controllers.datasets.routes.javascript.ImportDatasets.batch,
-        controllers.datasets.routes.javascript.ImportDatasets.errors,
         controllers.datasets.routes.javascript.ImportConfigs.ingestFiles,
         controllers.datasets.routes.javascript.ImportConfigs.get,
         controllers.datasets.routes.javascript.ImportConfigs.save,
@@ -80,6 +81,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportLogs.takeSnapshot,
         controllers.datasets.routes.javascript.ImportLogs.diffSnapshot,
         controllers.datasets.routes.javascript.ImportLogs.cleanup,
+        controllers.datasets.routes.javascript.ImportLogs.list,
         controllers.datasets.routes.javascript.CoreferenceTables.getTable,
         controllers.datasets.routes.javascript.CoreferenceTables.saveTable,
         controllers.datasets.routes.javascript.CoreferenceTables.ingestTable,
@@ -87,14 +89,8 @@ case class ImportDatasets @Inject()(
     ).as(MimeTypes.JAVASCRIPT)
   }
 
-  def ui(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    for {
-      sets <- datasets.listAll().map(_.toSeq)
-      repos <- userDataApi.fetch[Repository](sets.map(_._1))
-      combined = sets.zip(repos).collect{ case ((id, sets), Some(r)) => (id, r.toStringLang, sets)}
-    } yield {
-      Ok(views.html.admin.datasets.datasets(combined))
-    }
+  def dashboard(): Action[AnyContent] = OptionalUserAction.apply { implicit request =>
+    Ok(views.html.admin.datasets.dashboard())
   }
 
   def manager(id: String, ds: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>

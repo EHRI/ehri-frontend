@@ -1,12 +1,13 @@
 
 import axios from "axios";
+import {apiCall} from "./common";
 
 import {
   Cleanup,
   ConvertConfig, Coreference,
   DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
-  ImportConfig, ImportDataset, ImportDatasetInfo,
+  ImportConfig, ImportDataset, ImportDatasetInfo, ImportLogSummary,
   JobMonitor,
   OaiPmhConfig, RepositoryDatasets,
   ResourceSyncConfig, Snapshot, SnapshotInfo, ValidationResult
@@ -28,39 +29,24 @@ export class DatasetManagerApi {
     this.repoId = repoId;
   }
 
-  private static call<T>(endpoint: {url: string, method: any}, data?: object): Promise<T> {
-    return axios.request<T>({
-      url: endpoint.url,
-      method: endpoint.method,
-      data: data,
-      headers: {
-        "ajax-ignore-csrf": true,
-        "Content-Type": "application/json",
-        "Accept": "application/json; charset=utf-8",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      withCredentials: true,
-    }).then(r => r.data);
-  }
-
   cancel(jobId: string): Promise<{ok: boolean}> {
-    return DatasetManagerApi.call(this.service.LongRunningJobs.cancel(this.repoId, jobId));
+    return apiCall(this.service.LongRunningJobs.cancel(this.repoId, jobId));
   }
 
   listFiles(ds: string, stage: string, prefix: string, after?: string): Promise<FileList> {
-    return DatasetManagerApi.call(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
+    return apiCall(this.service.ImportFiles.listFiles(this.repoId, ds, stage, prefix, after));
   }
 
   getImportConfig(ds: string): Promise<ImportConfig | null> {
-    return DatasetManagerApi.call(this.service.ImportConfigs.get(this.repoId, ds));
+    return apiCall(this.service.ImportConfigs.get(this.repoId, ds));
   }
 
   saveImportConfig(ds: string, config: ImportConfig): Promise<ImportConfig> {
-    return DatasetManagerApi.call(this.service.ImportConfigs.save(this.repoId, ds), config);
+    return apiCall(this.service.ImportConfigs.save(this.repoId, ds), config);
   }
 
   deleteImportConfig(ds: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.ImportConfigs.delete(this.repoId, ds));
+    return apiCall(this.service.ImportConfigs.delete(this.repoId, ds));
   }
 
   ingestFiles(ds: string, paths: string[], opts: ImportConfig, commit: boolean): Promise<JobMonitor> {
@@ -69,27 +55,27 @@ export class DatasetManagerApi {
       commit: commit,
       files: paths,
     };
-    return DatasetManagerApi.call(this.service.ImportConfigs.ingestFiles(this.repoId, ds), data);
+    return apiCall(this.service.ImportConfigs.ingestFiles(this.repoId, ds), data);
   }
 
   deleteFiles(ds: string, stage: string, paths: string[]): Promise<{deleted: number}> {
-    return DatasetManagerApi.call(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
+    return apiCall(this.service.ImportFiles.deleteFiles(this.repoId, ds, stage), paths);
   }
 
   validateFiles(ds: string, stage: string, tagToPath: object): Promise<ValidationResult[]> {
-    return DatasetManagerApi.call(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
+    return apiCall(this.service.ImportFiles.validateFiles(this.repoId, ds, stage), tagToPath);
   }
 
   info(ds: string, stage: string, key: string, versionId?: string): Promise<FileInfo> {
-    return DatasetManagerApi.call(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
+    return apiCall(this.service.ImportFiles.info(this.repoId, ds, stage, key, versionId));
   }
 
   fileUrls(ds: string, stage: string, paths: string[]): Promise<object> {
-    return DatasetManagerApi.call(this.service.ImportFiles.fileUrls(this.repoId, ds, stage), paths);
+    return apiCall(this.service.ImportFiles.fileUrls(this.repoId, ds, stage), paths);
   }
 
   uploadHandle(ds: string, stage: string, fileSpec: FileToUpload): Promise<{presignedUrl: string}> {
-    return DatasetManagerApi.call(this.service.ImportFiles.uploadHandle(this.repoId, ds, stage), fileSpec);
+    return apiCall(this.service.ImportFiles.uploadHandle(this.repoId, ds, stage), fileSpec);
   }
 
   uploadFile(url: string, file: File, progressHandler: Function) {
@@ -121,51 +107,51 @@ export class DatasetManagerApi {
   }
 
   sync(ds: string, config: ResourceSyncConfig): Promise<JobMonitor> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.sync(this.repoId, ds), config);
+    return apiCall(this.service.ResourceSyncConfigs.sync(this.repoId, ds), config);
   }
 
   getSyncConfig(ds: string): Promise<ResourceSyncConfig | null> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.get(this.repoId, ds));
+    return apiCall(this.service.ResourceSyncConfigs.get(this.repoId, ds));
   }
 
   saveSyncConfig(ds: string, config: ResourceSyncConfig): Promise<ResourceSyncConfig> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.save(this.repoId, ds), config);
+    return apiCall(this.service.ResourceSyncConfigs.save(this.repoId, ds), config);
   }
 
   deleteSyncConfig(ds: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.delete(this.repoId, ds));
+    return apiCall(this.service.ResourceSyncConfigs.delete(this.repoId, ds));
   }
 
   testSyncConfig(ds: string, config: ResourceSyncConfig): Promise<{ok: true}> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.test(this.repoId, ds), config);
+    return apiCall(this.service.ResourceSyncConfigs.test(this.repoId, ds), config);
   }
 
   cleanSyncConfig(ds: string, config: ResourceSyncConfig): Promise<string[]> {
-    return DatasetManagerApi.call(this.service.ResourceSyncConfigs.clean(this.repoId, ds), config);
+    return apiCall(this.service.ResourceSyncConfigs.clean(this.repoId, ds), config);
   }
 
   getOaiPmhConfig(ds: string): Promise<OaiPmhConfig | null> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.get(this.repoId, ds));
+    return apiCall(this.service.OaiPmhConfigs.get(this.repoId, ds));
   }
 
   saveOaiPmhConfig(ds: string, config: OaiPmhConfig): Promise<OaiPmhConfig> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.save(this.repoId, ds), config);
+    return apiCall(this.service.OaiPmhConfigs.save(this.repoId, ds), config);
   }
 
   deleteOaiPmhConfig(ds: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.delete(this.repoId, ds));
+    return apiCall(this.service.OaiPmhConfigs.delete(this.repoId, ds));
   }
 
   testOaiPmhConfig(ds: string, config: OaiPmhConfig): Promise<object> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.test(this.repoId, ds), config);
+    return apiCall(this.service.OaiPmhConfigs.test(this.repoId, ds), config);
   }
 
   harvest(ds: string, config: OaiPmhConfig, fromLast: boolean): Promise<JobMonitor> {
-    return DatasetManagerApi.call(this.service.OaiPmhConfigs.harvest(this.repoId, ds, fromLast), config);
+    return apiCall(this.service.OaiPmhConfigs.harvest(this.repoId, ds, fromLast), config);
   }
 
   convert(ds: string, key: string|null, config: ConvertConfig): Promise<JobMonitor> {
-    return DatasetManagerApi.call(this.service.ConvertConfigs.convert(this.repoId, ds, key), config);
+    return apiCall(this.service.ConvertConfigs.convert(this.repoId, ds, key), config);
   }
 
   convertFileUrl(ds: string, stage: string, key: string) {
@@ -173,90 +159,94 @@ export class DatasetManagerApi {
   }
 
   getConvertConfig(ds: string): Promise<[string, object][]> {
-    return DatasetManagerApi.call(this.service.ConvertConfigs.get(this.repoId, ds));
+    return apiCall(this.service.ConvertConfigs.get(this.repoId, ds));
   }
 
   saveConvertConfig(ds: string, dtIds: [string, object][]): Promise<{ok: true}> {
-    return DatasetManagerApi.call(this.service.ConvertConfigs.save(this.repoId, ds), dtIds);
+    return apiCall(this.service.ConvertConfigs.save(this.repoId, ds), dtIds);
   }
 
   listDataTransformations(): Promise<DataTransformation[]> {
-    return DatasetManagerApi.call(this.service.DataTransformations.list(this.repoId));
+    return apiCall(this.service.DataTransformations.list(this.repoId));
   }
 
   getDataTransformation(id: string): Promise<DataTransformation> {
-    return DatasetManagerApi.call(this.service.DataTransformations.get(this.repoId, id));
+    return apiCall(this.service.DataTransformations.get(this.repoId, id));
   }
 
   createDataTransformation(generic: boolean, data: DataTransformationInfo): Promise<DataTransformation> {
-    return DatasetManagerApi.call(this.service.DataTransformations.create(this.repoId, generic), data);
+    return apiCall(this.service.DataTransformations.create(this.repoId, generic), data);
   }
 
   updateDataTransformation(id: string, generic: boolean, data: DataTransformationInfo): Promise<DataTransformation> {
-    return DatasetManagerApi.call(this.service.DataTransformations.update(this.repoId, id, generic), data);
+    return apiCall(this.service.DataTransformations.update(this.repoId, id, generic), data);
   }
 
   deleteDataTransformation(id: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.DataTransformations.delete(this.repoId, id));
+    return apiCall(this.service.DataTransformations.delete(this.repoId, id));
   }
 
   listDatasets(): Promise<ImportDataset[]> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.list(this.repoId));
+    return apiCall(this.service.ImportDatasets.list(this.repoId));
   }
 
   listAllDatasets(): Promise<RepositoryDatasets[]> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.listAll());
+    return apiCall(this.service.ImportDatasets.listAll());
   }
 
   datasetStats(): Promise<Map<string, number>> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.stats(this.repoId));
+    return apiCall(this.service.ImportDatasets.stats(this.repoId));
   }
 
   createDataset(info: ImportDatasetInfo): Promise<ImportDataset> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.create(this.repoId), info);
+    return apiCall(this.service.ImportDatasets.create(this.repoId), info);
   }
 
   updateDataset(ds: string, info: ImportDatasetInfo): Promise<ImportDataset> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.update(this.repoId, ds), info);
+    return apiCall(this.service.ImportDatasets.update(this.repoId, ds), info);
   }
 
   importDatasets(ds: string, info: ImportDatasetInfo[]): Promise<{ok: true}> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.batch(this.repoId), info);
+    return apiCall(this.service.ImportDatasets.batch(this.repoId), info);
   }
 
   deleteDataset(ds: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.delete(this.repoId, ds));
+    return apiCall(this.service.ImportDatasets.delete(this.repoId, ds));
   }
 
   datasetErrors(ds: string): Promise<void> {
-    return DatasetManagerApi.call(this.service.ImportDatasets.errors(this.repoId, ds));
+    return apiCall(this.service.ImportDatasets.errors(this.repoId, ds));
   }
 
   listSnapshots(): Promise<SnapshotInfo[]> {
-    return DatasetManagerApi.call(this.service.ImportLogs.listSnapshots(this.repoId));
+    return apiCall(this.service.ImportLogs.listSnapshots(this.repoId));
   }
 
   takeSnapshot(info: SnapshotInfo): Promise<Snapshot> {
-    return DatasetManagerApi.call(this.service.ImportLogs.takeSnapshot(this.repoId), info);
+    return apiCall(this.service.ImportLogs.takeSnapshot(this.repoId), info);
   }
 
   diffSnapshot(snId: number): Promise<[string, string][]> {
-    return DatasetManagerApi.call(this.service.ImportLogs.diffSnapshot(this.repoId, snId));
+    return apiCall(this.service.ImportLogs.diffSnapshot(this.repoId, snId));
   }
 
   cleanup(snId: number): Promise<Cleanup> {
-    return DatasetManagerApi.call(this.service.ImportLogs.cleanup(this.repoId, snId));
+    return apiCall(this.service.ImportLogs.cleanup(this.repoId, snId));
   }
 
   getCoreferenceTable(): Promise<Coreference[]> {
-    return DatasetManagerApi.call(this.service.CoreferenceTables.getTable(this.repoId));
+    return apiCall(this.service.CoreferenceTables.getTable(this.repoId));
   }
 
   saveCoreferenceTable(): Promise<{ok: true}> {
-    return DatasetManagerApi.call(this.service.CoreferenceTables.saveTable(this.repoId));
+    return apiCall(this.service.CoreferenceTables.saveTable(this.repoId));
   }
 
   ingestCoreferenceTable(): Promise<object> {
-    return DatasetManagerApi.call(this.service.CoreferenceTables.ingestTable(this.repoId));
+    return apiCall(this.service.CoreferenceTables.ingestTable(this.repoId));
+  }
+
+  logs(dsId?: string): Promise<ImportLogSummary[]> {
+    return apiCall(this.service.ImportLogs.list(this.repoId, dsId));
   }
 }

@@ -4,28 +4,6 @@
 @import "./admin/admin";
 @import "./admin/forms";
 
-body {
-  height: 100%;
-  margin: 0;
-  width: 100%;
-}
-
-.info-bar {
-  margin-bottom: $margin-md;
-}
-
-#flex-wrapper {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-#flex-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .footer-buttons {
   margin-top: $margin-sm;
 }
@@ -79,9 +57,6 @@ body {
   display: flex;
   flex-direction: row;
   flex: 1;
-  padding: $margin-md;
-  background-color: $gray-100;
-  border: $border-width solid $border-color;
   margin-bottom: $margin-lg;
 }
 
@@ -111,13 +86,13 @@ body {
 
 .vocab-editor-list {
   font-size: $font-size-sm;
-  background-color: #fff;
   overflow: auto;
   padding: $margin-md;
   border: 1px solid #e3e3e3;
   flex: 1;
   flex-basis: 0;
   margin-bottom: $margin-md;
+  background-color: $white;
 }
 
 .vocab-editor-concept.active > .vocab-editor-concept-heading > .vocab-editor-concept-title {

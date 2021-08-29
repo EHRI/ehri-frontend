@@ -18,11 +18,11 @@ object ImportLogOpType extends Enumeration with StorableEnum {
 }
 
 case class ImportFileHandle(
- eventId: String,
- repoId: String,
- datasetId: String,
- key: String,
- versionId: Option[String]
+  eventId: String,
+  repoId: String,
+  datasetId: String,
+  key: String,
+  versionId: Option[String]
 )
 
 case class Snapshot(id: Int, created: Instant, notes: Option[String])
@@ -31,11 +31,25 @@ object Snapshot {
   implicit val _writes: Writes[Snapshot] = Json.writes[Snapshot]
 }
 
-case class Cleanup(redirects: Seq[(String, String)], deletes: Seq[String])
+case class Cleanup(redirects: Seq[(String, String)], deletions: Seq[String])
+
 object Cleanup {
   implicit val _writes: Writes[Cleanup] = Json.writes[Cleanup]
 }
 
+case class ImportLogSummary(
+  logId: Int,
+  repoId: String,
+  datasetId: String,
+  timestamp: Instant,
+  created: Int,
+  updated: Int,
+  unchanged: Int
+)
+
+object ImportLogSummary {
+  implicit val _writes: Writes[ImportLogSummary] = Json.writes[ImportLogSummary]
+}
 
 @ImplementedBy(classOf[SqlImportLogService])
 trait ImportLogService {
@@ -122,7 +136,30 @@ trait ImportLogService {
     */
   def errors(repoId: String, datasetId: String): Future[Seq[(String, String)]]
 
-  def findRedirects(repoId: String, snapshotId: Int): Future[Seq[(String, String)]]
-
+  /**
+    * Get a list of heuristically-derived redirect and deletion suggestions
+    * determined by the difference between the given snapshot and items
+    * subsequently touched by data imports.
+    *
+    * Redirects are determined by correspondence between the local identifiers
+    * of items untouched by imports since the snapshot and those that have been
+    * touched.
+    *
+    * @param repoId     the repository ID
+    * @param snapshotId the snapshot ID
+    * @return a cleanup object containing a list of ID redirect pairs
+    *         and suggested deletion IDs
+    */
   def cleanup(repoId: String, snapshotId: Int): Future[Cleanup]
+
+  /**
+    * List the created, updated, unchanged stats for imports in the
+    * given repository and dataset.
+    *
+    * @param repoId    the repository ID
+    * @param datasetId an optional dataset ID, if None all import
+    *                  operations will be listed
+    * @return a list of stat objects
+    */
+  def list(repoId: String, datasetId: Option[String]): Future[Seq[ImportLogSummary]]
 }

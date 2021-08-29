@@ -58,19 +58,12 @@ export default {
 </script>
 <template>
   <div id="snapshot-manager">
-    <div id="snapshot-manager-header">
-      <h2>Snapshots</h2>
-      <button v-on:click="$emit('close')" class="btn btn-sm btn-default">
-        <i class="fa fa-arrow-left"></i>
-        Back to dataset list
-      </button>
-    </div>
     <p>
       Snapshots record the global and local item identifiers
       present in a repository at a given time. This can be used
       to remove items not present in a set of import operations
       by creating a before/after difference.
-      <button v-on:click.prevent="takeSnapshot" class="btn btn-sm btn-success">
+      <button v-on:click.prevent="takeSnapshot" class="btn btn-sm btn-info">
         <i v-if="!inProgress" class="fa fa-fw fa-list"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Create Snapshot
@@ -87,8 +80,8 @@ export default {
         <template v-else-if="cleanup !== null">
           <p>Heuristic redirects: <strong>{{ cleanup.redirects.length }}</strong></p>
           <textarea class="form-control" id="snapshot-manager-redirects">{{ cleanup.redirects.map(([n, o]) => n + "," + o).join("\n") }}</textarea>
-          <p>Heuristic deletes: <strong>{{ cleanup.deletes.length }}</strong></p>
-          <textarea class="form-control" id="snapshot-manager-diff">{{ cleanup.deletes.join("\n") }}</textarea>
+          <p>Heuristic deletions: <strong>{{ cleanup.deletions.length }}</strong></p>
+          <textarea class="form-control" id="snapshot-manager-diff">{{ cleanup.deletions.join("\n") }}</textarea>
         </template>
 
     </div>

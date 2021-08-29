@@ -57,19 +57,12 @@ export default {
 </script>
 <template>
   <div id="coreference-manager">
-    <div id="coreference-manager-header">
-      <h2>Access Point Coreference Table</h2>
-      <button v-on:click="$emit('close')" class="btn btn-sm btn-default">
-        <i class="fa fa-arrow-left"></i>
-        Back to dataset list
-      </button>
-    </div>
     <p>
       The coreference table aligns access point labels (text strings) to vocabulary items. The
       table can be imported following a data ingest to connect newly-created items, or reconnect updated
       ones, to vocabulary items.
 
-      <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-success">
+      <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
         <i v-if="!saveInProgress" class="fa fa-fw fa-list"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Save Coreference Table

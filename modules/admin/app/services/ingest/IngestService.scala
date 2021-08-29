@@ -22,11 +22,11 @@ object IngestService {
   }
 
   case class IngestData(
-                         params: IngestParams,
-                         dataType: IngestDataType.Value,
-                         contentType: String,
-                         user: DataUser,
-                         instance: String,
+    params: IngestParams,
+    dataType: IngestDataType.Value,
+    contentType: String,
+    user: DataUser,
+    instance: String,
   )
 
   // A job with a given ID tag

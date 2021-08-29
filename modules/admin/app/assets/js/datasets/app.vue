@@ -46,7 +46,7 @@ export default {
 </script>
 
 <template>
-  <div id="app-container" class="container">
+  <div class="app-content">
     <div v-if="error" id="app-error-notice" class="alert alert-danger alert-dismissable">
       <span class="close" v-on:click="error = null">&times;</span>
       {{error}}

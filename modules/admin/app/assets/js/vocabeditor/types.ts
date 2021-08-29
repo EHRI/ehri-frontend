@@ -1,6 +1,7 @@
 
 export interface ConfigType {
   vocabId: string,
+  vocabName: string,
   title: string,
 }
 
