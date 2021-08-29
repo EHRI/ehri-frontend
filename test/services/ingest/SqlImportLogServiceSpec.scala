@@ -84,13 +84,13 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       await(service.save("r1", "default", job, log))
       val cleanup = await(service.cleanup("r1", s.id))
       cleanup.redirects must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
-      cleanup.deletes must_== Seq("todelete")
+      cleanup.deletions must_== Seq("todelete")
     }
 
     "calculate stats" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       // The log contains unit-1 and unit-2 but not unit-3
       await(service.save("r1", "default", job, log))
-      val stats: Seq[TimelineStats] = await(service.stats("r1", Some("default")))
+      val stats: Seq[ImportLogSummary] = await(service.list("r1", Some("default")))
       stats.size must_== 1
       stats.head.created must_== 2
       stats.head.updated must_== 1

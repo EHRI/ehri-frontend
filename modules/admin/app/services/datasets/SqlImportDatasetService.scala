@@ -19,7 +19,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
     db.withConnection { implicit conn =>
-      SQL"""SELECT * FROM import_dataset ORDER BY repo_id, name ASC""".as(parser.*)
+      SQL"""SELECT * FROM import_dataset ORDER BY repo_id, name""".as(parser.*)
         .groupBy(_.repoId)
     }
   }(ec)

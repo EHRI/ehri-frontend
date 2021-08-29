@@ -364,3 +364,26 @@ pre.code-format {
    }
 }
 
+// Vue Single-page applications
+body.spa-app {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+.app-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  background-color: $gray-100;
+}
+
+.app-content {
+  @extend .container;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: $margin-md;
+}
+

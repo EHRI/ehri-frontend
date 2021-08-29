@@ -9,13 +9,13 @@ import models._
 import play.api.libs.json.{JsString, Json, Reads}
 import play.api.mvc._
 import services.cypher.CypherService
-import services.datasets.ImportDatasetService
-import services.ingest.{ImportConfigService, ImportLogService}
+import services.ingest.ImportLogService
 import services.storage.FileStorage
 
 import javax.inject._
 
 case class SnapshotInfo(notes: Option[String])
+
 object SnapshotInfo {
   implicit val _reads: Reads[SnapshotInfo] = Json.format[SnapshotInfo]
 }
@@ -29,6 +29,12 @@ case class ImportLogs @Inject()(
   importLogService: ImportLogService,
   cypherServer: CypherService
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+
+  def list(id: String, dsId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.list(id, dsId).map { stats =>
+      Ok(Json.toJson(stats))
+    }
+  }
 
   def listSnapshots(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.snapshots(id).map { info =>

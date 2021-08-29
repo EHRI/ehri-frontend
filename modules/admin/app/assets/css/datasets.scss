@@ -6,36 +6,6 @@
 
 $active-table-row: #e7f1ff;
 
-body {
-  height: 100%;
-  margin: 0;
-  width: 100%;
-}
-
-.info-bar {
-  margin-bottom: $margin-md;
-}
-
-#flex-wrapper {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-
-  background-color: $gray-100;
-}
-
-#flex-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-#app-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 #batch-ops-log {
   display: flex;
   border: 1px solid $border-color;
@@ -51,21 +21,32 @@ body {
 }
 
 #dataset-manager {
-  width: 60%;
-  align-self: center;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-#dataset-manager-heading {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+#dataset-manager-tabs {
+
+  .dataset-manager-menu {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: flex-end;
+
+    .buttons {
+      display: inline-flex;
+      margin-left: $margin-sm;
+      min-width: max-content;
+      > .btn {
+        margin-right: 0;
+      }
+    }
+  }
 }
 
 #dataset-selector-list {
-  max-height: 40rem;
+  max-height: 30rem;
   overflow-y: auto;
 }
 
@@ -79,10 +60,8 @@ body {
 .dataset-manager-list {
   overflow-y: auto;
   margin-bottom: $margin-xs;
-  // FIXME: hack because I can't figure out
-  // how to make it expand but overflow: auto
-  // when the size of the parent.
-  max-height: 70vh;
+  flex: 1;
+  flex-basis: 0;
 }
 
 .dataset-manager-item {
@@ -149,7 +128,9 @@ body {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-#stage-tabs {
+#stage-tabs,
+#dataset-manager-tabs
+{
   font-size: $font-size-lg;
   margin-bottom: $margin-sm;
 }
@@ -1035,4 +1016,39 @@ body {
   flex-basis: 0;
   overflow: auto;
   max-height: 20rem;
+}
+
+/**
+ * Dashboard
+ */
+#dashboard-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+#dashboard-institution-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  flex-basis: 0;
+  overflow: auto;
+
+}
+
+// Timeline
+#timeline-manager {
+  display: flex;
+  flex: 1;
+}
+#timeline-manager-log-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+#timeline-manager-log-table {
+  flex: 1;
+  flex-basis: 0;
+  overflow: auto;
 }

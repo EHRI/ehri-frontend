@@ -1,6 +1,6 @@
 # Data management
 
-GET         /                                             @controllers.datasets.ImportDatasets.ui()
+GET         /                                             @controllers.datasets.ImportDatasets.dashboard()
 GET         /js                                           @controllers.datasets.ImportDatasets.jsRoutes()
 GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
 
@@ -60,6 +60,8 @@ GET         /api/:id/snapshots                            @controllers.datasets.
 PUT         /api/:id/snapshots                            @controllers.datasets.ImportLogs.takeSnapshot(id: String)
 POST        /api/:id/snapshots/:sn/diff                   @controllers.datasets.ImportLogs.diffSnapshot(id: String, sn: Int)
 POST        /api/:id/snapshots/:sn/cleanup                @controllers.datasets.ImportLogs.cleanup(id: String, sn: Int)
+
+GET         /api/:id/logs                                 @controllers.datasets.ImportLogs.list(id: String, dsId: Option[String] ?= None)
 
 GET         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.getTable(id: String)
 PUT         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.saveTable(id: String)

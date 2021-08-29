@@ -3,7 +3,7 @@
  */
 
 export type ConfigType = {
-  repoId: String;
+  repoId: string;
   versioned: boolean;
   input: string;
   output: string;
@@ -87,8 +87,8 @@ export interface ImportDataset extends ImportDatasetInfo {
 }
 
 export interface RepositoryDatasets {
-  repoId: String,
-  name: String,
+  repoId: string,
+  name: string,
   sets: ImportDataset[]
 }
 
@@ -141,7 +141,7 @@ export interface Snapshot {
 
 export interface Cleanup {
   redirects: string[][],
-  deletes: string[]
+  deletions: string[]
 }
 
 export interface SnapshotInfo {
@@ -149,7 +149,18 @@ export interface SnapshotInfo {
 }
 
 export interface Coreference {
-  text: String,
-  targetId: String,
-  setId: String,
+  text: string,
+  targetId: string,
+  setId: string,
 }
+
+export interface ImportLogSummary {
+  logId: number,
+  repoId: string,
+  datasetId: string,
+  timestamp: string,
+  created: number,
+  updated: number,
+  unchanged: number,
+}
+

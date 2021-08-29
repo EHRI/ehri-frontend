@@ -155,8 +155,8 @@ export default {
 </script>
 
 <template>
-  <div id="vocab-editor-container" class="container">
-    <h2>{{ config.title }}</h2>
+  <div id="vocab-editor-container" class="app-content">
+<!--    <h1>{{ config.title }}</h1>-->
     <div id="vocab-editor-panels">
       <div id="vocab-editor-listnav">
         <div class="vocab-editor-controls form-inline">
@@ -206,6 +206,7 @@ export default {
       <div id="vocab-editor-editpanel">
         <concept-editor v-if="editing != null"
                         v-bind:api="api"
+                        v-bind:config="config"
                         v-bind:lang="lang"
                         v-bind:id="editing.id"
                         v-bind:data="editBuffer"
@@ -221,6 +222,7 @@ export default {
 
         <concept-creator v-else-if="creating"
                          v-bind:api="api"
+                         v-bind:config="config"
                          v-bind:lang="lang"
                          v-bind:langData="langData"
                          v-bind:locale-helpers="localeHelpers"
