@@ -672,6 +672,17 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2))) }
   )
 
+  override def relinkTargets(mapping: Seq[(String, String)], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String, Int)]] = {
+    val url = enc(baseUrl, "tools", "relink-targets")
+    userCall(url)
+      .withQueryString("tolerant" -> tolerant.toString)
+      .withQueryString("commit" -> commit.toString)
+      .post(Json.toJson(mapping))
+      .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
+      // Hack here: we get string numbers back from the backend for the total, so convert them to ints
+      .map(_.map(r => r.copy(_3 = r._3.toInt)))
+  }
+
   override def rename(mapping: Seq[(String, String)]): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "rename")
     userCall(url)
@@ -754,10 +765,11 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .map(r => checkErrorAndParse[BatchResult](r, Some(url)))
   }
 
-  override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int] = {
+  override def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int] = {
     val url = enc(baseUrl, "batch", "delete")
     val callF = userCall(url).withQueryString(
         "version" -> version.toString,
+        "tolerant" -> tolerant.toString,
         "commit" -> commit.toString,
         "log" -> logMsg)
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)

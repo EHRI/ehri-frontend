@@ -81,6 +81,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportLogs.takeSnapshot,
         controllers.datasets.routes.javascript.ImportLogs.diffSnapshot,
         controllers.datasets.routes.javascript.ImportLogs.cleanup,
+        controllers.datasets.routes.javascript.ImportLogs.doCleanup,
         controllers.datasets.routes.javascript.ImportLogs.list,
         controllers.datasets.routes.javascript.CoreferenceTables.getTable,
         controllers.datasets.routes.javascript.CoreferenceTables.saveTable,

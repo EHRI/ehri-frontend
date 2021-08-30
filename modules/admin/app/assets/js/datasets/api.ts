@@ -3,7 +3,7 @@ import axios from "axios";
 import {apiCall} from "./common";
 
 import {
-  Cleanup,
+  Cleanup, CleanupSummary,
   ConvertConfig, Coreference,
   DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
@@ -232,6 +232,10 @@ export class DatasetManagerApi {
 
   cleanup(snId: number): Promise<Cleanup> {
     return apiCall(this.service.ImportLogs.cleanup(this.repoId, snId));
+  }
+
+  doCleanup(snId: number, confirm: object): Promise<CleanupSummary> {
+    return apiCall(this.service.ImportLogs.doCleanup(this.repoId, snId), confirm);
   }
 
   getCoreferenceTable(): Promise<Coreference[]> {

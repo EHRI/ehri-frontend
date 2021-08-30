@@ -35,7 +35,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     .map { case oldId ~ newId => oldId -> newId }
 
   private val statParser =
-    Macro.parser[ImportLogSummary]("id", "repo_id", "import_dataset_id", "timestamp", "created", "updated", "unchanged")
+    Macro.parser[ImportLogSummary]("id", "repo_id", "import_dataset_id", "event_id", "timestamp", "created", "updated", "unchanged")
 
 
   override def getHandles(unitId: String): Future[Seq[ImportFileHandle]] = Future {
@@ -172,6 +172,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
               log.id,
               log.repo_id,
               log.import_dataset_id,
+              log.event_id,
               log.created AS timestamp,
               sum(case when map.type = 'created' then 1 else 0 end) AS created,
               sum(case when map.type = 'updated' then 1 else 0 end) AS updated,
@@ -260,9 +261,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
       val deletions =
         SQL"""SELECT DISTINCT ut.old_id
               FROM untouched_items_#$ts ut
-              WHERE NOT EXISTS (
-                SELECT r.old_id FROM redirecting_#$ts r WHERE r.old_id = ut.old_id
-              )
+              ORDER BY ut.old_id DESC
           """.as(str("old_id").*)
 
       Cleanup(redirects, deletions)
