@@ -41,6 +41,7 @@ case class ImportLogSummary(
   logId: Int,
   repoId: String,
   datasetId: String,
+  eventId: Option[String],
   timestamp: Instant,
   created: Int,
   updated: Int,

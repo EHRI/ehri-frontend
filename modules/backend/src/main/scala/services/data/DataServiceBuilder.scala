@@ -80,11 +80,21 @@ trait DataService {
   def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T]
 
   /**
+    * Transfer links from one item to another.
+    *
+    * @param mapping  a mapping of source ID to target ID
+    * @param tolerant don't error if items don't exist
+    * @param commit   commit changes to the database
+    * @return the input data with a count of how many items were transferred
+    */
+  def relinkTargets(mapping: Seq[(String, String)], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String, Int)]]
+
+  /**
     * Rename an item.
     *
     * @param id    the item's id
     * @param local the item's new local identifier
-    * @param check   perform a check for ID collisions in the affected items
+    * @param check perform a check for ID collisions in the affected items
     * @tparam MT the generic type of the item
     * @return a mapping of old-ID to new-ID for this item and it's children, or,
     *         if run with check=true, a list of potential colliding IDs
@@ -161,7 +171,7 @@ trait DataService {
     * @param commit  whether to commit the changes
     * @return the number of items deleted
     */
-  def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean = false): Future[Int]
+  def batchDelete(ids: Seq[String], scope: Option[String], logMsg: String, version: Boolean, tolerant: Boolean = false, commit: Boolean = false): Future[Int]
 
   /**
     * Update a batch of items via a stream of partial JSON bundles.

@@ -158,9 +158,16 @@ export interface ImportLogSummary {
   logId: number,
   repoId: string,
   datasetId: string,
+  eventId?: string,
   timestamp: string,
   created: number,
   updated: number,
   unchanged: number,
+}
+
+export interface CleanupSummary {
+  relinks: number,
+  redirects: number,
+  deletions: number,
 }
 
