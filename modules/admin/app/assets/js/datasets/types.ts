@@ -154,6 +154,15 @@ export interface Coreference {
   setId: string,
 }
 
+export interface ImportLog {
+  created_keys: object,
+  updated_keys: object,
+  unchanged_keys: object,
+  message?: string,
+  event?: string,
+  errors: object,
+}
+
 export interface ImportLogSummary {
   logId: number,
   repoId: string,

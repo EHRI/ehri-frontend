@@ -953,10 +953,29 @@ $active-table-row: #e7f1ff;
   flex: 1;
 }
 
-#snapshot-manager-snapshot-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+.snapshot-manager-item {
+
+    display: grid;
+    grid-template-columns: 1fr 6fr 1fr;
+    //grid-template-rows: 1fr;
+    gap: 1rem 1rem;
+    grid-auto-flow: row;
+    grid-template-areas:
+    "timestamp notes";
+
+  .snapshot-timestamp {
+    grid-area: timestamp;
+  }
+  .snapshot-notes {
+    grid-area: notes;
+  }
+}
+
+.snapshot-manager-item {
+  border: 1px solid $ehri-border-gray;
+  padding: $margin-sm;
+  margin-bottom: $margin-sm;
+  background-color: $white;
 }
 
 #snapshot-manager-diff,
@@ -1002,7 +1021,13 @@ $active-table-row: #e7f1ff;
   margin-left: $margin-md;
 }
 
-.coreference-loading-indicator {
+#coreference-manager .filter-control select {
+  width: 10rem;
+}
+
+.coreference-loading-indicator,
+.snapshot-loading-indicator
+{
   display: flex;
   flex: 1;
   align-items: center;
@@ -1040,6 +1065,7 @@ $active-table-row: #e7f1ff;
 #timeline-manager {
   display: flex;
   flex: 1;
+  flex-direction: column;
 }
 #timeline-manager-log-list {
   display: flex;
@@ -1047,8 +1073,26 @@ $active-table-row: #e7f1ff;
   flex-direction: column;
 }
 
-#timeline-manager-log-table {
+#timeline-manager-log-entries {
   flex: 1;
   flex-basis: 0;
   overflow: auto;
+}
+
+.timeline-manager-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 4fr 1fr 1fr 1fr;
+  gap: 1rem 1rem;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". . . . . .";
+
+  border: 1px solid $ehri-border-gray;
+  padding: $margin-sm;
+  margin-bottom: $margin-sm;
+  background-color: $white;
+}
+
+.timeline-manager-item.noop {
+  background-color: transparent;
 }

@@ -11,11 +11,9 @@ import play.api.libs.json.{JsString, Json, Reads, Writes}
 import play.api.mvc._
 import services.cypher.CypherService
 import services.ingest.{ImportLogService, IngestService}
-import services.search.SearchIndexMediator
 import services.storage.FileStorage
 
 import javax.inject._
-import scala.concurrent.Future
 
 case class SnapshotInfo(notes: Option[String])
 
@@ -42,7 +40,6 @@ case class ImportLogs @Inject()(
   importLogService: ImportLogService,
   cypherServer: CypherService,
   importService: IngestService,
-  indexer: SearchIndexMediator
 )(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
 
   private val logger = Logger(classOf[ImportLogs])
@@ -72,6 +69,12 @@ case class ImportLogs @Inject()(
     }
   }
 
+  def deleteSnapshot(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.deleteSnapshot(id, snapshotId).map { count =>
+      Ok(Json.obj("deleted" -> count))
+    }
+  }
+
   def diffSnapshot(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.findUntouchedItemIds(id, snapshotId).map { items =>
       Ok(Json.toJson(items))
@@ -96,10 +99,6 @@ case class ImportLogs @Inject()(
       delCount <- userDataApi.batchDelete(cleanup.deletions, Some(id), logMsg = request.body.msg,
           version = true, tolerant = true, commit = true)
       _ = logger.info(s"Done deletions: $delCount")
-      _ <- Future.sequence(cleanup.deletions.grouped(200).zipWithIndex.map { case (batch, i) =>
-        logger.info(s"Deleting batch $i from search index")
-        indexer.handle.clearIds(batch: _*)
-      })
     } yield {
       val sum = CleanupSummary(
         deletions = delCount,

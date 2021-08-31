@@ -18,7 +18,7 @@ function humanFileSize(bytes: number, si: boolean = true): string {
   return `${bytes.toFixed(1)} ${units[u]}`;
 }
 
-function prettyDate(time: string): string {
+function timeToRelative(time: string): string {
   let m = DateTime.fromISO(time);
   if (m.isValid) {
     let duration = m.diffNow("minutes");
@@ -45,4 +45,4 @@ function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promis
 
 
 
-export {humanFileSize, prettyDate, apiCall};
+export {humanFileSize, timeToRelative, apiCall};
