@@ -8,12 +8,12 @@ import _toPairs from 'lodash/toPairs';
 import _omit from 'lodash/omit';
 import _set from 'lodash/set';
 
-import {prettyDate, humanFileSize} from "../common";
+import {timeToRelative, humanFileSize} from "../common";
 
 export default {
   methods: {
     decodeURI,
-    prettyDate,
+    prettyDate: timeToRelative,
     humanFileSize,
 
     removeQueryParam: function(qs: string, names: string[]): string {

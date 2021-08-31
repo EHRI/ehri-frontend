@@ -3,6 +3,8 @@
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
+import {Coreference} from "../types";
+import _includes from 'lodash/includes';
 
 export default {
   mixins: {MixinUtil, MixinError},
@@ -18,6 +20,8 @@ export default {
       loading: false,
       result: null,
       initialised: false,
+      filter: "",
+      set: null,
     }
   },
   methods: {
@@ -38,15 +42,53 @@ export default {
         .catch(e => this.showError("Error saving coreference table", e))
         .finally(() => this.saveInProgress = false);
     },
-    importCoreferenceTable: function() {
+    importCoreferenceTable: async function() {
       this.importInProgress = true;
-      this.api.ingestCoreferenceTable()
-        .then(data => {
-          this.result = data;
-          console.log(data);
-        })
-        .catch(e => this.showError("Error importing coreference table", e))
-        .finally(() => this.importInProgress = false);
+      try {
+        this.result = await this.api.ingestCoreferenceTable();
+      } catch (e) {
+        this.showError("Error importing coreference table", e);
+      } finally {
+        this.importInProgress = false;
+      }
+    },
+    countObjValues: function(obj: object, key: string): number {
+      return (obj && obj[key])
+          ? Object
+            .keys(obj[key])
+            .map(k => obj[key][k].length)
+            .reduce((a, b) => a + b, 0)
+          : 0;
+    },
+    isFiltered: function() {
+      return this.set !== null || this.filter.trim() !== "";
+    },
+  },
+  computed: {
+    created: function() {
+      return this.countObjValues(this.result, "created_keys");
+    },
+    updated: function() {
+      return this.countObjValues(this.result, "updated_keys");
+    },
+    sets: function(): string[] {
+      let out = [];
+      let refs = this.references as Coreference[];
+      for (let r of refs) {
+        if (!_includes(out, r.setId)) {
+          out.push(r.setId);
+        }
+      }
+      return out;
+    },
+    filteredRefs: function () {
+      let refs = this.references as Coreference[];
+      let trimFilter = this.filter.trim().toLowerCase();
+      let isFiltered = this.isFiltered();
+      let match = (ref: Coreference) => !isFiltered || (
+            (this.set === null || ref.setId === this.set) &&
+            (trimFilter === "" || ref.text.toLowerCase().includes(trimFilter)));
+      return this.references.filter(match);
     }
   },
   created() {
@@ -57,29 +99,36 @@ export default {
 </script>
 <template>
   <div id="coreference-manager">
-    <p>
-      The coreference table aligns access point labels (text strings) to vocabulary items. The
-      table can be imported following a data ingest to connect newly-created items, or reconnect updated
-      ones, to vocabulary items.
-
+    <div class="actions-bar">
+        <div class="filter-control">
+          <label class="sr-only">Filter references</label>
+          <input v-model="filter" v-bind:disabled="references.length===0" type="text" placeholder="Filter references..." class="filter-input form-control form-control-sm">
+          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="filter = ''" v-if="isFiltered()"/>
+          <select v-model="set" v-bind:disabled="references.length===0 || sets.length < 2" class="form-control form-control-sm">
+            <option v-bind:value="null"></option>
+            <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
+          </select>
+        </div>
       <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
-        <i v-if="!saveInProgress" class="fa fa-fw fa-list"></i>
+        <i v-if="!saveInProgress" class="fa fa-fw fa-refresh"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Save Coreference Table
       </button>
-    </p>
-
-    <h4>Import Coreference Table</h4>
-    <p>
       <button v-on:click.prevent="importCoreferenceTable" class="btn btn-sm btn-danger">
         <i v-if="!importInProgress" class="fa fa-fw fa-database"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Import Coreference Table
       </button>
-      <span v-if="result" id="coreference-import-result">
-        Created: <strong>{{ result.created_keys ? Object.keys(result.created_keys).length : 0 }}</strong>
-        Updated: <strong>{{ result.updated_keys ? Object.keys(result.updated_keys).length : 0 }}</strong>
-      </span>
+    </div>
+    <p class="admin-help-notice">
+      The coreference table aligns access point labels (text strings) to vocabulary items. The
+      table can be imported following a data ingest to connect newly-created items, or reconnect updated
+      ones, to vocabulary items.
+    </p>
+
+    <p v-if="result" class="alert alert-success">
+      Created: <strong>{{ created }}</strong>
+      Updated: <strong>{{ updated }}</strong>
     </p>
 
     <div id="coreference-manager-coreference-list" v-if="initialised">
@@ -94,8 +143,9 @@ export default {
           </tr>
           </thead>
           <tbody>
-          <tr v-for="ref in references">
-            <td>{{ ref.text }}</td>
+          <tr v-for="ref in filteredRefs">
+            <td v-if="isFiltered()"><strong>{{ ref.text }}</strong></td>
+            <td v-else>{{ ref.text }}</td>
             <td>{{ ref.targetId }}</td>
             <td>{{ ref.setId }}</td>
           </tr>
@@ -103,6 +153,9 @@ export default {
         </table>
         <p v-else class="info-message">
           No coreferences saved
+        </p>
+        <p v-if="references.length > 0 && filteredRefs.length === 0" class="info-message">
+          No matching references found
         </p>
       </div>
     </div>

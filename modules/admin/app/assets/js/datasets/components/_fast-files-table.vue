@@ -1,5 +1,5 @@
 <script lang="ts">
-import {prettyDate, humanFileSize} from "../common";
+import {timeToRelative, humanFileSize} from "../common";
 
 import Vue from 'vue';
 import { RecycleScroller } from 'vue-virtual-scroller';
@@ -65,7 +65,7 @@ export default {
     },
   },
   filters: {
-    prettyDate,
+    prettyDate: timeToRelative,
     humanFileSize,
     decodeURI,
   },

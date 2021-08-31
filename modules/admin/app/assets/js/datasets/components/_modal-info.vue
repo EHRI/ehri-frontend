@@ -1,6 +1,6 @@
 <script type="ts">
 
-import {prettyDate, humanFileSize} from "../common";
+import {timeToRelative, humanFileSize} from "../common";
 import ModalWindow from './_modal-window';
 
 export default {
@@ -8,7 +8,7 @@ export default {
   props: {
     fileInfo: Object
   },
-  methods: { prettyDate, humanFileSize, decodeURI }
+  methods: { prettyDate: timeToRelative, humanFileSize, decodeURI }
 };
 </script>
 

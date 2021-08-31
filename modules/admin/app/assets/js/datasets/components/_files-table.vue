@@ -1,5 +1,5 @@
 <script lang="ts">
-import {prettyDate, humanFileSize} from "../common";
+import {timeToRelative, humanFileSize} from "../common";
 
 function emptyObj() {
   return {};
@@ -59,7 +59,7 @@ export default {
     },
   },
   filters: {
-    prettyDate,
+    prettyDate: timeToRelative,
     humanFileSize,
     decodeURI,
   },

@@ -137,6 +137,21 @@ export default {
 <template>
   <div id="dataset-manager-container">
 
+    <modal-dataset-config v-if="showDatasetForm"
+                          v-bind:info="dataset"
+                          v-bind:config="config"
+                          v-bind:api="api"
+                          v-on:close="showDatasetForm = false"
+                          v-on:saved-dataset="reloadDatasets"
+                          v-on:deleted-dataset="dataset = null; reloadDatasets()" />
+
+    <modal-dataset-io v-if="showImportForm"
+                      v-bind:datasets="datasets"
+                      v-bind:api="api"
+                      v-bind:config="config"
+                      v-on:close="showImportForm = false"
+                      v-on:saved="reloadDatasets(); showImportForm = false" />
+
     <manager-dataset v-if="dataset"
                      v-bind:config="config"
                      v-bind:api="api"
@@ -201,21 +216,6 @@ export default {
           </div>
         </li>
       </ul>
-
-      <modal-dataset-config v-if="showDatasetForm"
-                            v-bind:info="dataset"
-                            v-bind:config="config"
-                            v-bind:api="api"
-                            v-on:close="showDatasetForm = false"
-                            v-on:saved-dataset="reloadDatasets"
-                            v-on:deleted-dataset="dataset = null; reloadDatasets()" />
-
-      <modal-dataset-io v-if="showImportForm"
-                        v-bind:datasets="datasets"
-                        v-bind:api="api"
-                        v-bind:config="config"
-                        v-on:close="showImportForm = false"
-                        v-on:saved="reloadDatasets(); showImportForm = false" />
 
       <keep-alive>
         <modal-batch-ops

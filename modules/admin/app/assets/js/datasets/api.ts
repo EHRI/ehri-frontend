@@ -7,7 +7,7 @@ import {
   ConvertConfig, Coreference,
   DataTransformation, DataTransformationInfo, FileInfo,
   FileToUpload,
-  ImportConfig, ImportDataset, ImportDatasetInfo, ImportLogSummary,
+  ImportConfig, ImportDataset, ImportDatasetInfo, ImportLog, ImportLogSummary,
   JobMonitor,
   OaiPmhConfig, RepositoryDatasets,
   ResourceSyncConfig, Snapshot, SnapshotInfo, ValidationResult
@@ -246,7 +246,7 @@ export class DatasetManagerApi {
     return apiCall(this.service.CoreferenceTables.saveTable(this.repoId));
   }
 
-  ingestCoreferenceTable(): Promise<object> {
+  ingestCoreferenceTable(): Promise<ImportLog> {
     return apiCall(this.service.CoreferenceTables.ingestTable(this.repoId));
   }
 

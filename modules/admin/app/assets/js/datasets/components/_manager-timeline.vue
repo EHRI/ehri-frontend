@@ -3,7 +3,7 @@
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
-import {prettyDate} from "../common";
+import {timeToRelative} from "../common";
 
 export default {
   mixins: {MixinUtil, MixinError},
@@ -37,7 +37,7 @@ export default {
     }
   },
   filters: {
-    prettyDate,
+    prettyDate: timeToRelative,
   },
   created() {
     this.refresh().then(() => this.initialised = true);
@@ -46,43 +46,34 @@ export default {
 </script>
 <template>
   <div id="timeline-manager">
-    <div id="timeline-manager-log-list" v-if="initialised">
+    <div class="actions-bar">
       <div class="custom-control custom-switch">
-        <input v-model="noops" type="checkbox" class="custom-control-input" id="opt-show-noops">
+        <input v-bind:disabled="logs.length === 0" v-model="noops" type="checkbox" class="custom-control-input" id="opt-show-noops">
         <label class="custom-control-label" for="opt-show-noops">Show no-op imports</label>
       </div>
-      <div id="timeline-manager-log-table">
-        <table v-if="logs.length > 0" class="table table-sm table-striped table-bordered">
-          <thead>
-          <tr>
-            <th>Dataset</th>
-            <th>Time</th>
-            <th>Created Items</th>
-            <th>Updated Items</th>
-            <th>Unchanged Items</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="event in logs" v-if="noops || (event.created > 0 && event.updated > 0) ">
-            <td v-bind:title="event.timestamp">
-              <a v-if="event.eventId" v-bind:href="'/admin/events/' + event.eventId" target="_blank">
-                {{ event.timestamp | prettyDate }}
-              </a>
-              <template v-else>
-                {{ event.timestamp | prettyDate }}
-              </template>
-            </td>
-            <td>{{ datasetName(event.datasetId) }}</td>
-            <td>{{ event.created }}</td>
-            <td>{{ event.updated }}</td>
-            <td>{{ event.unchanged }}</td>
-          </tr>
-          </tbody>
-        </table>
-        <p v-else class="info-message">
-          No import logs found
-        </p>
+    </div>
+    <div id="timeline-manager-log-list" v-if="initialised">
+      <div v-if="logs" id="timeline-manager-log-entries">
+        <div v-for="event in logs" v-if="noops || (event.created > 0 && event.updated > 0)"
+             v-bind:class="{noop: (event.created === 0 && event.updated === 0)}" class="timeline-manager-item">
+          <div v-bind:title="event.timestamp">
+            <a v-if="event.eventId" v-bind:href="'/admin/events/' + event.eventId" target="_blank">
+              {{ event.timestamp | prettyDate }}
+            </a>
+            <template v-else>
+              {{ event.timestamp | prettyDate }}
+            </template>
+          </div>
+          <h4>{{ datasetName(event.datasetId) }}</h4>
+          <div>{{ event.message }}</div>
+          <div>Created: {{ event.created }}</div>
+          <div>Updated: {{ event.updated }}</div>
+          <div>Unchanged: {{ event.unchanged }}</div>
+        </div>
       </div>
+      <p v-else class="info-message">
+        No import logs found
+      </p>
     </div>
     <div v-else class="coreference-loading-indicator">
       <h3>Loading logs...</h3>
