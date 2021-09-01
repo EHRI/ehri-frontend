@@ -81,8 +81,8 @@ export default {
         </select>
       </div>
       <div id="timeline-manager-noop-toggle" class="custom-control custom-switch">
-        <label class="custom-control-label" for="opt-show-noops">Show no-op imports</label>
         <input v-bind:disabled="logs.length === 0" v-model="noops" type="checkbox" class="custom-control-input" id="opt-show-noops">
+        <label class="custom-control-label" for="opt-show-noops">Show no-op imports</label>
       </div>
     </div>
     <div id="timeline-manager-log-list" v-if="initialised">

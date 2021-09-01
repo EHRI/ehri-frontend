@@ -186,7 +186,7 @@ export default {
         </li>
         <li class="nav-item">
           <a v-bind:class="{active: tab2 === 'logs'}" v-on:click.prevent="switchTab('logs')" href="#" class="nav-link">
-            Events
+            Import Logs
           </a>
         </li>
 
