@@ -87,6 +87,18 @@ case class ImportLogs @Inject()(
     }
   }
 
+  def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.getCleanup(id, snapshotId, cleanupId).map { items =>
+      Ok(Json.toJson(items))
+    }
+  }
+
+  def listCleanups(id: String, snapshotId: Int): Action[AnyContent] = EditAction(id).async { implicit request =>
+    importLogService.listCleanups(id, snapshotId).map { items =>
+      Ok(Json.toJson(items))
+    }
+  }
+
   def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).async(parse.json[CleanupConfirmation]) { implicit request =>
     logger.info(s"Starting cleanup for repository $id, snapshot $snapshotId")
     for {

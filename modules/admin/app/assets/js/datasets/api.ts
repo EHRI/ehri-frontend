@@ -234,6 +234,14 @@ export class DatasetManagerApi {
     return apiCall(this.service.ImportLogs.cleanup(this.repoId, snId));
   }
 
+  listCleanups(snId: number): Promise<[number, string][]> {
+    return apiCall(this.service.ImportLogs.listCleanups(this.repoId, snId));
+  }
+
+  getCleanup(snId: number, cleanupId: number): Promise<Cleanup> {
+    return apiCall(this.service.ImportLogs.getCleanup(this.repoId, snId, cleanupId));
+  }
+
   doCleanup(snId: number, confirm: object): Promise<CleanupSummary> {
     return apiCall(this.service.ImportLogs.doCleanup(this.repoId, snId), confirm);
   }

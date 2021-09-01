@@ -164,6 +164,15 @@ trait ImportLogService {
   def saveCleanup(repoId: String, snapshotId: Int, cleanup: Cleanup): Future[Int]
 
   /**
+    * Get a list of cleanup action IDs for a given snapshot.
+    *
+    * @param repoId the repository ID
+    * @param snapshotId the snapshot ID
+    * @return a list of cleanup IDs and their timestamps
+    */
+  def listCleanups(repoId: String, snapshotId: Int): Future[Seq[(Int, Instant)]]
+
+  /**
     * Retrieve a cleanup item
     *
     * @param id         the repository ID

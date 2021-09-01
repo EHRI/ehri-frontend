@@ -28,6 +28,11 @@ function timeToRelative(time: string): string {
   return "";
 }
 
+function displayDate(time: string): string {
+  let m = DateTime.fromISO(time);
+  return m.isValid ? m.toHTTP() as string : "";
+}
+
 function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promise<T> {
   return axios.request<T>({
     url: endpoint.url,
@@ -45,4 +50,4 @@ function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promis
 
 
 
-export {humanFileSize, timeToRelative, apiCall};
+export {humanFileSize, timeToRelative, displayDate, apiCall};
