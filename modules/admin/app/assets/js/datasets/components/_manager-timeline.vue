@@ -4,6 +4,8 @@ import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
 import {timeToRelative} from "../common";
+import {Coreference, ImportLogSummary} from "../types";
+import _includes from "lodash/includes";
 
 export default {
   mixins: {MixinUtil, MixinError},
@@ -18,6 +20,7 @@ export default {
       loading: false,
       initialised: false,
       noops: false,
+      set: null,
     }
   },
   methods: {
@@ -34,10 +37,34 @@ export default {
     datasetName: function(dsId: string) {
       let ds = this.datasets.find(ds => ds.id === dsId)
       return ds ? ds.name : null;
+    },
+    datasetType: function(dsId: string) {
+      let ds = this.datasets.find(ds => ds.id === dsId)
+      return ds ? ds.src : null;
+    }
+  },
+  computed: {
+    sets: function() {
+      let out = [];
+      let logs = this.logs as ImportLogSummary[];
+      for (let r of logs) {
+        if (!_includes(out, r.datasetId)) {
+          out.push(r.datasetId);
+        }
+      }
+      return out;
+    },
+    filteredLogs: function() {
+      let logs = this.logs as ImportLogSummary[];
+      let filter = (log: ImportLogSummary) => {
+        return (this.set === null || log.datasetId === this.set) &&
+            (this.noops || log.created > 0 || log.updated > 0);
+      }
+      return logs.filter(filter);
     }
   },
   filters: {
-    prettyDate: timeToRelative,
+    timeToRelative,
   },
   created() {
     this.refresh().then(() => this.initialised = true);
@@ -47,33 +74,52 @@ export default {
 <template>
   <div id="timeline-manager">
     <div class="actions-bar">
-      <div class="custom-control custom-switch">
-        <input v-bind:disabled="logs.length === 0" v-model="noops" type="checkbox" class="custom-control-input" id="opt-show-noops">
+      <div class="filter-control">
+        <select v-model="set" v-bind:disabled="logs.length===0 || sets.length < 2" class="form-control form-control-sm">
+          <option v-bind:value="null">Filter dataset</option>
+          <option v-for="setId in sets" v-bind:value="setId">{{ datasetName(setId) }}</option>
+        </select>
+      </div>
+      <div id="timeline-manager-noop-toggle" class="custom-control custom-switch">
         <label class="custom-control-label" for="opt-show-noops">Show no-op imports</label>
+        <input v-bind:disabled="logs.length === 0" v-model="noops" type="checkbox" class="custom-control-input" id="opt-show-noops">
       </div>
     </div>
     <div id="timeline-manager-log-list" v-if="initialised">
-      <div v-if="logs" id="timeline-manager-log-entries">
-        <div v-for="event in logs" v-if="noops || (event.created > 0 && event.updated > 0)"
-             v-bind:class="{noop: (event.created === 0 && event.updated === 0)}" class="timeline-manager-item">
-          <div v-bind:title="event.timestamp">
-            <a v-if="event.eventId" v-bind:href="'/admin/events/' + event.eventId" target="_blank">
-              {{ event.timestamp | prettyDate }}
-            </a>
-            <template v-else>
-              {{ event.timestamp | prettyDate }}
-            </template>
-          </div>
-          <h4>{{ datasetName(event.datasetId) }}</h4>
-          <div>{{ event.message }}</div>
-          <div>Created: {{ event.created }}</div>
-          <div>Updated: {{ event.updated }}</div>
-          <div>Unchanged: {{ event.unchanged }}</div>
-        </div>
+      <div id="timeline-manager-log-entries">
+        <table v-if="logs.length > 0" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Dataset ID</th>
+              <th>Dataset</th>
+              <th>Created Items</th>
+              <th>Updated Items</th>
+              <th>Unchanged Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="event in filteredLogs" v-bind:class="{noop: event.created === 0 && event.updated === 0}">
+              <td v-bind:title="event.timestamp">
+                <a v-if="event.eventId" v-bind:href="'/admin/events/' + event.eventId" target="_blank">
+                  {{ event.timestamp | timeToRelative }}
+                </a>
+                <template v-else>
+                  {{ event.timestamp | timeToRelative }}
+                </template>
+              </td>
+              <td><strong>{{ event.datasetId }}</strong></td>
+              <td><strong>{{ datasetName(event.datasetId) }}</strong></td>
+              <td v-bind:class="{'table-success': event.created > 0}">{{ event.created }}</td>
+              <td v-bind:class="{'table-warning': event.updated > 0}">{{ event.updated }}</td>
+              <td v-bind:class="{'table-info': event.unchanged > 0}">{{ event.unchanged }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else class="info-message">
+          No import logs found
+        </p>
       </div>
-      <p v-else class="info-message">
-        No import logs found
-      </p>
     </div>
     <div v-else class="coreference-loading-indicator">
       <h3>Loading logs...</h3>
