@@ -87,6 +87,17 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       cleanup.deletions must_== Seq("todelete")
     }
 
+    "store cleanup logs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
+      // The log contains unit-1 and unit-2 but not unit-3
+      val idMap = List("oldunit-1" -> "1", "oldunit-2" -> "2", "todelete" -> "del")
+      val s = await(service.saveSnapshot("r1", Source(idMap), Some("Test...")))
+      await(service.save("r1", "default", job, log))
+      val cleanup = await(service.cleanup("r1", s.id))
+      val cid = await(service.saveCleanup("r1", s.id, cleanup))
+      val cleanup2 = await(service.getCleanup("r1", s.id, cid))
+      cleanup must_== cleanup2
+    }
+
     "calculate stats" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
       // The log contains unit-1 and unit-2 but not unit-3
       await(service.save("r1", "default", job, log))

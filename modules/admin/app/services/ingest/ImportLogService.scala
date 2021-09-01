@@ -154,6 +154,26 @@ trait ImportLogService {
   def cleanup(repoId: String, snapshotId: Int): Future[Cleanup]
 
   /**
+    * Save actions taken as the result of a cleanup.
+    *
+    * @param repoId     the repository ID
+    * @param snapshotId the snapshot ID
+    * @param cleanup    a cleanup object
+    * @return the cleanup object's stored ID
+    */
+  def saveCleanup(repoId: String, snapshotId: Int, cleanup: Cleanup): Future[Int]
+
+  /**
+    * Retrieve a cleanup item
+    *
+    * @param id         the repository ID
+    * @param snapshotId the snapshot ID
+    * @param cleanupId  the cleanup object ID
+    * @return
+    */
+  def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Future[Cleanup]
+
+  /**
     * List the created, updated, unchanged stats for imports in the
     * given repository and dataset.
     *
