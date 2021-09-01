@@ -6,7 +6,7 @@ import ModalAlert from './_modal-alert';
 import ModalSnapshotConfig from './_modal-snapshot-config';
 import {DatasetManagerApi} from "../api";
 import {Snapshot} from "../types";
-import {timeToRelative} from "../common";
+import {timeToRelative, displayDate} from "../common";
 
 export default {
   mixins: [MixinUtil, MixinError],
@@ -20,6 +20,7 @@ export default {
       snapshots: [],
       current: null,
       cleanup: null,
+      actions: [],
       loading: false,
       loadingCleanup: false,
       inProgress: false,
@@ -34,9 +35,10 @@ export default {
     loadCleanup: async function(snapshot: Snapshot) {
       this.loadingCleanup = true;
       try {
+        this.actions = await this.api.listCleanups(snapshot.id);
         this.cleanup = await this.api.cleanup(snapshot.id);
       } catch (e) {
-        this.showError("Unable to find redirects", e);
+        this.showError("Unable to find snapshots", e);
       } finally {
         this.loadingCleanup = false;
       }
@@ -78,7 +80,7 @@ export default {
   created() {
     this.refresh();
   },
-  filters: { timeToRelative }
+  filters: { timeToRelative, displayDate }
 }
 </script>
 <template>
@@ -121,7 +123,7 @@ export default {
     <div v-if="current" id="snapshot-manager-inspector">
       <template v-if="cleanupSummary">
         <h4>Cleanup summary</h4>
-        <dl>
+        <dl class="description-attributes">
           <dd>Retargeted Links:</dd>
           <dt>{{ cleanupSummary.relinks}}</dt>
           <dd>Redirects:</dd>
@@ -132,6 +134,9 @@ export default {
       </template>
       <template v-else>
         <h4 v-bind:title="current.created">Snapshot taken: {{ current.created | timeToRelative }}</h4>
+        <div class="alert alert-info" v-for="[id, date] in actions">
+          Cleanup run on {{ date | displayDate }}.
+        </div>
         <p v-if="loadingCleanup">
           Loading heuristic cleanup...
           <i class="fa fa-spin fa-spinner"></i>

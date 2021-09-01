@@ -10,6 +10,7 @@ import play.api.Logger
 import play.api.db.Database
 import services.ingest.IngestService.IngestData
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,6 +37,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
 
   private val cleanupRedirectParser = (str("from_item_id") ~ str("to_item_id"))
     .map { case oldId ~ newId => oldId -> newId }
+
+  private val cleanupIdTimestampParser = (int("id") ~ get[Instant]("created"))
+    .map { case id ~ created => id -> created }
 
   private val statParser =
     Macro.parser[ImportLogSummary]("id", "repo_id", "import_dataset_id", "event_id", "timestamp", "created", "updated", "unchanged")
@@ -301,16 +305,25 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
     }
   }
 
+  override def listCleanups(repoId: String, snapshotId: Int): Future[Seq[(Int, Instant)]] = Future {
+    db.withConnection { implicit conn =>
+      SQL"""SELECT id, created
+            FROM cleanup_action
+            WHERE repo_snapshot_id = $snapshotId
+            ORDER BY created DESC""".as(cleanupIdTimestampParser.*)
+    }
+  }
+
   override def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Future[Cleanup] = Future {
     db.withConnection { implicit conn =>
       val deletions =
         SQL"""SELECT item_id
               FROM cleanup_action_deletion
-              WHERE cleanup_action_id = $id""".as(scalar[String].*)
+              WHERE cleanup_action_id = $cleanupId""".as(scalar[String].*)
       val redirects =
         SQL"""SELECT from_item_id, to_item_id
               FROM cleanup_action_redirect
-              WHERE cleanup_action_id = $id""".as(cleanupRedirectParser.*)
+              WHERE cleanup_action_id = $cleanupId""".as(cleanupRedirectParser.*)
       Cleanup(redirects, deletions)
     }
   }

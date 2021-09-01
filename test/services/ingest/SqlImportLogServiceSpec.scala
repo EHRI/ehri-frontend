@@ -84,7 +84,7 @@ class SqlImportLogServiceSpec extends PlaySpecification with AfterAll {
       await(service.save("r1", "default", job, log))
       val cleanup = await(service.cleanup("r1", s.id))
       cleanup.redirects must_== Seq("oldunit-1" -> "unit-1", "oldunit-2" -> "unit-2")
-      cleanup.deletions must_== Seq("todelete")
+      cleanup.deletions must_== Seq("todelete", "oldunit-2", "oldunit-1")
     }
 
     "store cleanup logs" in withDatabaseFixture("data-transformation-fixtures.sql") { implicit db =>
