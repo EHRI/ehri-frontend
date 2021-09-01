@@ -75,8 +75,8 @@ export default {
       let out = [];
       let refs = this.references as Coreference[];
       for (let r of refs) {
-        if (!_includes(out, r.setId)) {
-          out.push(r.setId);
+        if (!_includes(out, r.datasetId)) {
+          out.push(r.datasetId);
         }
       }
       return out;
@@ -86,7 +86,7 @@ export default {
       let trimFilter = this.filter.trim().toLowerCase();
       let isFiltered = this.isFiltered();
       let match = (ref: Coreference) => !isFiltered || (
-            (this.set === null || ref.setId === this.set) &&
+            (this.set === null || ref.datasetId === this.set) &&
             (trimFilter === "" || ref.text.toLowerCase().includes(trimFilter)));
       return this.references.filter(match);
     }
@@ -100,15 +100,15 @@ export default {
 <template>
   <div id="coreference-manager">
     <div class="actions-bar">
-        <div class="filter-control">
-          <label class="sr-only">Filter references</label>
-          <input v-model="filter" v-bind:disabled="references.length===0" type="text" placeholder="Filter references..." class="filter-input form-control form-control-sm">
-          <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="filter = ''" v-if="isFiltered()"/>
-          <select v-model="set" v-bind:disabled="references.length===0 || sets.length < 2" class="form-control form-control-sm">
-            <option v-bind:value="null"></option>
-            <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
-          </select>
-        </div>
+      <div class="filter-control">
+        <label class="sr-only">Filter references</label>
+        <input v-model="filter" v-bind:disabled="references.length===0" type="text" placeholder="Filter references..." class="filter-input form-control form-control-sm">
+        <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="filter = ''" v-if="isFiltered()"/>
+        <select v-model="set" v-bind:disabled="references.length===0 || sets.length < 2" class="form-control form-control-sm">
+          <option v-bind:value="null"></option>
+          <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
+        </select>
+      </div>
       <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
         <i v-if="!saveInProgress" class="fa fa-fw fa-refresh"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
