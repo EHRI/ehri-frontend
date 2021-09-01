@@ -7,7 +7,7 @@ import controllers.base.AdminController
 import controllers.generic._
 import models._
 import play.api.Logger
-import play.api.libs.json.{JsString, Json, Reads, Writes}
+import play.api.libs.json.{Format, JsString, Json, Reads}
 import play.api.mvc._
 import services.cypher.CypherService
 import services.ingest.{ImportLogService, IngestService}
@@ -23,12 +23,12 @@ object SnapshotInfo {
 
 case class CleanupConfirmation(msg: String)
 object CleanupConfirmation {
-  implicit val _reads: Reads[CleanupConfirmation] = Json.format[CleanupConfirmation]
+  implicit val _format: Format[CleanupConfirmation] = Json.format[CleanupConfirmation]
 }
 
 case class CleanupSummary(deletions: Int, relinks: Int, redirects: Int)
 object CleanupSummary {
-  implicit val _writes: Writes[CleanupSummary] = Json.writes[CleanupSummary]
+  implicit val _format: Format[CleanupSummary] = Json.format[CleanupSummary]
 }
 
 
@@ -92,13 +92,14 @@ case class ImportLogs @Inject()(
     for {
       cleanup <- importLogService.cleanup(id, snapshotId)
       _ = logger.info(s"Relink: ${cleanup.redirects.size}, deletions: ${cleanup.deletions.size}")
-      relinkCount <- userDataApi.relinkTargets(cleanup.redirects, tolerant = true, commit = true).map(_.map(_._3).sum)
+      relinkCount  <- userDataApi.relinkTargets(cleanup.redirects, tolerant = true, commit = true).map(_.map(_._3).sum)
       _ = logger.info(s"Done relinks: $relinkCount")
       redirectCount <- importService.remapMovedUnits(cleanup.redirects)
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- userDataApi.batchDelete(cleanup.deletions, Some(id), logMsg = request.body.msg,
           version = true, tolerant = true, commit = true)
       _ = logger.info(s"Done deletions: $delCount")
+      _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
     } yield {
       val sum = CleanupSummary(
         deletions = delCount,

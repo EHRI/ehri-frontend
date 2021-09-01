@@ -34,6 +34,9 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
   private val redirectParser = (str("old_id") ~ str("new_id"))
     .map { case oldId ~ newId => oldId -> newId }
 
+  private val cleanupRedirectParser = (str("from_item_id") ~ str("to_item_id"))
+    .map { case oldId ~ newId => oldId -> newId }
+
   private val statParser =
     Macro.parser[ImportLogSummary]("id", "repo_id", "import_dataset_id", "event_id", "timestamp", "created", "updated", "unchanged")
 
@@ -187,8 +190,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
             GROUP BY
               log.id, log.repo_id, log.import_dataset_id, timestamp
             ORDER BY
-              timestamp DESC
-           """.as(statParser.*)
+              timestamp DESC""".as(statParser.*)
     }
   }
 
@@ -219,8 +221,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
             WHERE map.import_log_id = log.id
               AND log.repo_id = $repoId
               AND snap.id = $snapshotId
-              AND log.created > snap.created
-            """.executeUpdate()
+              AND log.created > snap.created""".executeUpdate()
 
       SQL"""CREATE TEMP TABLE untouched_items_#$ts(
               id SERIAL PRIMARY KEY,
@@ -239,31 +240,77 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
               AND NOT EXISTS (
                 SELECT DISTINCT new_id FROM touched_items_#$ts
                   WHERE item.item_id = new_id
-              )
-            """.executeUpdate()
+              )""".executeUpdate()
 
       SQL"""CREATE TEMP TABLE redirecting_#$ts(
-             id SERIAL PRIMARY KEY,
-             old_id TEXT NOT NULL,
-             new_id TEXT NOT NULL
-           )""".executeUpdate()
+               id SERIAL PRIMARY KEY,
+               old_id TEXT NOT NULL,
+               new_id TEXT NOT NULL
+            )""".executeUpdate()
 
       SQL"""CREATE INDEX redirecting_#${ts}_old_id ON redirecting_#$ts(old_id)""".executeUpdate()
 
       SQL"""INSERT INTO redirecting_#$ts (old_id, new_id)
             SELECT DISTINCT ON (new_id) old_id, new_id
             FROM untouched_items_#$ts, touched_items_#$ts
-              WHERE suffix = old_local"""
-        .withQueryTimeout(Some(30 * 60))
-        .executeUpdate()
+              WHERE suffix = old_local""".executeUpdate()
 
       val redirects = SQL"SELECT * FROM redirecting_#$ts ORDER BY old_id".as(redirectParser.*)
       val deletions =
         SQL"""SELECT DISTINCT ut.old_id
               FROM untouched_items_#$ts ut
-              ORDER BY ut.old_id DESC
-          """.as(str("old_id").*)
+              ORDER BY ut.old_id DESC""".as(str("old_id").*)
 
+      Cleanup(redirects, deletions)
+    }
+  }
+
+  override def saveCleanup(repoId: String, snapshotId: Int, cleanup: Cleanup): Future[Int] = Future {
+    db.withTransaction { implicit conn =>
+      val id: Int = SQL"""INSERT INTO cleanup_action (repo_snapshot_id)
+          VALUES ($snapshotId)
+          RETURNING id""".as(scalar[Int].single)
+
+      if (cleanup.deletions.nonEmpty) {
+        val q = """INSERT INTO cleanup_action_deletion (cleanup_action_id, item_id)
+                   VALUES ({cleanup_action_id}, {item_id})"""
+        val batch = cleanup.deletions.map { itemId =>
+          Seq[NamedParameter](
+            "cleanup_action_id" -> id,
+            "item_id" -> itemId
+          )
+        }
+
+        BatchSql(q, batch.head, batch.tail: _*).execute()
+      }
+
+      if (cleanup.redirects.nonEmpty) {
+        val q = """INSERT INTO cleanup_action_redirect (cleanup_action_id, from_item_id, to_item_id)
+                   VALUES ({cleanup_action_id}, {from_item_id}, {to_item_id})"""
+        val batch = cleanup.redirects.map { case (fromItem, toItem) =>
+          Seq[NamedParameter](
+            "cleanup_action_id" -> id,
+            "from_item_id" -> fromItem,
+            "to_item_id" -> toItem
+          )
+        }
+
+        BatchSql(q, batch.head, batch.tail: _*).execute()
+      }
+      id
+    }
+  }
+
+  override def getCleanup(id: String, snapshotId: Int, cleanupId: Int): Future[Cleanup] = Future {
+    db.withConnection { implicit conn =>
+      val deletions =
+        SQL"""SELECT item_id
+              FROM cleanup_action_deletion
+              WHERE cleanup_action_id = $id""".as(scalar[String].*)
+      val redirects =
+        SQL"""SELECT from_item_id, to_item_id
+              FROM cleanup_action_redirect
+              WHERE cleanup_action_id = $id""".as(cleanupRedirectParser.*)
       Cleanup(redirects, deletions)
     }
   }
@@ -281,8 +328,7 @@ case class SqlImportLogService @Inject()(db: Database, actorSystem: ActorSystem)
                     AND map.item_id = item.item_id
                     AND log.created > snap.created
               )
-            ORDER BY item.item_id
-            """.as(idMapParser.*)
+            ORDER BY item.item_id""".as(idMapParser.*)
     }
   }
 
