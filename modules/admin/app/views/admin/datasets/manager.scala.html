@@ -4,7 +4,12 @@
     <link href="@controllers.admin.routes.AdminAssets.versioned("css/datasets.css")" rel="stylesheet">
 }
 
-@views.html.admin.layout.adminSinglePageAppLayout(Messages("repository.data", item.toStringLang), styles = styles, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@breadcrumbRoot = {
+    <a href="@controllers.datasets.routes.ImportDatasets.dashboard()">@Messages("ingest.datasets")</a>
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("repository.data", item.toStringLang), styles = styles,
+        breadcrumbs = views.html.admin.common.breadcrumbs(List(item), breadcrumbRoot)) {
     <script src="@controllers.datasets.routes.ImportDatasets.jsRoutes()"></script>
     <script>
             window.SERVICE = datasetApi.controllers.datasets;

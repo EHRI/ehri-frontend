@@ -42,7 +42,7 @@ export default {
 
 <template>
   <div id="dashboard-container">
-    <h1>Datasets</h1>
+    <h1>{{ config.title }}</h1>
     <div id="dashboard-institution-list" class="list-group">
       <div v-for="info in datasetInfo" class="list-group-item">
         <a v-bind:href="managerUrl(info.repoId)" class="list-group-item-action">
