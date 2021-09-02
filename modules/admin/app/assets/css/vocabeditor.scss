@@ -34,6 +34,8 @@
   right: auto;
   width: inherit;
   background-color: #fff;
+  overflow: auto;
+  max-height: 30rem;
 }
 
 .vocab-editor-autocomplete-widget-suggestion {
@@ -47,16 +49,12 @@
 }
 
 #vocab-editor-container {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
 }
 
 #vocab-editor-panels {
+  @extend %expanding-row;
   font-size: $font-size-sm;
-  display: flex;
-  flex-direction: row;
-  flex: 1;
   margin-bottom: $margin-lg;
 }
 
@@ -85,12 +83,10 @@
 }
 
 .vocab-editor-list {
+  @extend %overflow-contents;
   font-size: $font-size-sm;
-  overflow: auto;
   padding: $margin-md;
   border: 1px solid #e3e3e3;
-  flex: 1;
-  flex-basis: 0;
   margin-bottom: $margin-md;
   background-color: $white;
 }
@@ -120,16 +116,11 @@
   font-weight: bold;
 }
 
-#concept-editor, #concept-creator {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-#concept-editor-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+#concept-editor,
+#concept-creator,
+#concept-editor-body
+{
+  @extend %expanding-column;
 }
 
 #concept-editor-item-title,
@@ -154,23 +145,19 @@
   height: 95%;
 }
 
-.concept-editor-tab .concept-editor-tab-form {
+.concept-editor-tab
+.concept-editor-tab-form
+{
+  @extend %overflow-contents;
   padding: $margin-md;
-  overflow: auto;
-  flex: 1;
-  flex-basis: 0;
 }
 
 .concept-editor-broader-terms {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  @extend %expanding-column;
 }
 
 .concept-editor-broader-terms > ul {
-  flex-grow: 1;
-  flex-basis: 0;
-  overflow: auto;
+  @extend %overflow-contents;
 }
 
 .concept-editor-broader-terms .remove {

@@ -4,7 +4,7 @@ import play.api.libs.json.{Json, Writes}
 
 import scala.concurrent.Future
 
-case class Coreference(text: String, targetId: String, datasetId: String)
+case class Coreference(text: String, targetId: String, setId: String)
 object Coreference {
   implicit val _writes: Writes[Coreference] = Json.writes[Coreference]
 }
