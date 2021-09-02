@@ -13,17 +13,13 @@ $active-table-row: #e7f1ff;
 }
 
 #dataset-manager-container {
+  @extend %expanding-column;
   font-size: $font-size-sm;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
   padding-bottom: $margin-sm;
 }
 
 #dataset-manager {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
 }
 
 #dataset-manager-tabs {
@@ -58,10 +54,8 @@ $active-table-row: #e7f1ff;
 }
 
 .dataset-manager-list {
-  overflow-y: auto;
+  @extend %overflow-contents;
   margin-bottom: $margin-xs;
-  flex: 1;
-  flex-basis: 0;
 }
 
 .dataset-manager-item {
@@ -136,16 +130,12 @@ $active-table-row: #e7f1ff;
 }
 
 .stage-tab {
-  flex: 1;
-  flex-direction: column;
-  display: flex;
+  @extend %expanding-column;
 }
 
 .stage-manager-container
 {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
   margin-bottom: $margin-sm;
 }
 
@@ -235,9 +225,7 @@ $active-table-row: #e7f1ff;
 }
 
 #convert-options {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
 }
 
 #opt-convert-map {
@@ -248,12 +236,10 @@ $active-table-row: #e7f1ff;
 }
 
 #convert-mappings {
-  display: flex;
-  flex: 1;
+  @extend %expanding-row;
+  @extend %overflow-contents;
   margin-bottom: $margin-xs;
-  flex-direction: row;
-  flex-basis: 0;
-  overflow-y: auto;
+  overflow-x: unset;
 
   .card {
     flex-basis: 50%;
@@ -374,9 +360,7 @@ $active-table-row: #e7f1ff;
 }
 
 #transformation-editor {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
   border: 1px solid $ehri-border-gray;
   background-color: $gray-100;
 }
@@ -386,9 +370,7 @@ $active-table-row: #e7f1ff;
 }
 
 #transformation-editor-container {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
   padding: $margin-sm;
   max-width: 100%;
   margin-bottom: 0;
@@ -434,18 +416,14 @@ $active-table-row: #e7f1ff;
 }
 
 #transformation-editor-map {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  @extend %expanding-column;
   background-color: white;
   min-height: 10%;
 }
 
 #transformation-editor-map-input {
-  display: flex;
-  flex: 1;
+  @extend %expanding-column;
   overflow-y: auto;
-  flex-direction: column;
   background-color: $gray-100;
 
   textarea {
@@ -482,31 +460,23 @@ $active-table-row: #e7f1ff;
 }
 
 #transformation-editor-previews {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
+  @extend %expanding-row;
 }
 
 .transformation-editor-preview-window {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
   overflow-y: auto;
 }
 
 .xquery-editor {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
   border: 1px solid $ehri-border-gray;
 }
 
 .xquery-editor-data {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-  flex-basis: 0;
+  @extend %expanding-column;
+  @extend %overflow-contents;
+  overflow-x: unset;
 }
 
 .xquery-editor-toolbar {
@@ -546,9 +516,7 @@ $active-table-row: #e7f1ff;
 
 .xslt-editor {
   position: relative;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
   overflow: hidden;
 
   textarea {
@@ -562,12 +530,9 @@ $active-table-row: #e7f1ff;
 }
 
 .file-list-container {
+  @extend %expanding-column;
+  @extend %overflow-contents;
   position: relative;
-  overflow-y: auto;
-  flex: 1;
-  flex-basis: 0;
-  display: flex;
-  flex-direction: column;
   background-color: $white;
   margin-bottom: $margin-xs;
   border: 1px solid $gray-300;
@@ -680,16 +645,10 @@ $active-table-row: #e7f1ff;
   height: 100%;
 }
 
-.panel-container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.top-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+.panel-container,
+.top-panel
+{
+  @extend %expanding-column;
 }
 
 .bottom-panel {
@@ -709,21 +668,16 @@ $active-table-row: #e7f1ff;
   }
 
   .status-panels {
+    @extend %expanding-column;
     border: 1px solid $gray-300;
     border-top: 0;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
   }
 
   .status-panel {
+    @extend %expanding-column;
+    @extend %overflow-contents;
     height: 100%;
     background-color: $white;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    flex-basis: 0;
-    overflow: auto;
   }
 }
 
@@ -825,9 +779,7 @@ $active-table-row: #e7f1ff;
 
 .preview-container {
   position: relative;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
   overflow: hidden;
 
   .pretty-xml {
@@ -936,9 +888,7 @@ $active-table-row: #e7f1ff;
 }
 
 #snapshot-manager {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
 }
 
 #snapshot-manager-header {
@@ -948,9 +898,7 @@ $active-table-row: #e7f1ff;
 }
 
 #snapshot-manager-inspector {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
 }
 
 .snapshot-manager-item {
@@ -981,19 +929,14 @@ $active-table-row: #e7f1ff;
 #snapshot-manager-diff,
 #snapshot-manager-redirects
 {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-  flex-basis: 0;
+  @extend %expanding-column;
+  @extend %overflow-contents;
   font-size: $font-size-sm;
   margin-bottom: $margin-sm;
 }
 
 #coreference-manager {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
 }
 
 #coreference-manager-header {
@@ -1003,17 +946,12 @@ $active-table-row: #e7f1ff;
 }
 
 #coreference-manager-coreference-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  @extend %expanding-column;
 }
 
 #coreference-manager-coreference-table {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-  flex-basis: 0;
+  @extend %expanding-column;
+  @extend %overflow-contents;
   font-size: $font-size-sm;
 }
 
@@ -1047,25 +985,17 @@ $active-table-row: #e7f1ff;
  * Dashboard
  */
 #dashboard-container {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
 }
 
 #dashboard-institution-list {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  flex-basis: 0;
-  overflow: auto;
-
+  @extend %expanding-column;
+  @extend %overflow-contents;
 }
 
 // Timeline
 #timeline-manager {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
 }
 
 #timeline-manager-noop-toggle {
@@ -1073,15 +1003,11 @@ $active-table-row: #e7f1ff;
 }
 
 #timeline-manager-log-list {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  @extend %expanding-column;
 }
 
 #timeline-manager-log-entries {
-  flex: 1;
-  flex-basis: 0;
-  overflow: auto;
+  @extend %overflow-contents;
 
   tr {
     background-color: $white;

@@ -46,7 +46,7 @@ case class SqlCoreferenceService @Inject()(db: Database, actorSystem: ActorSyste
             "coreference_id" -> id,
             "text" -> r.text,
             "target_id" -> r.targetId,
-            "set_id" -> r.datasetId
+            "set_id" -> r.setId
           )
         }
 

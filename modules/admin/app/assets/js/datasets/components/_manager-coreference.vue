@@ -75,8 +75,8 @@ export default {
       let out = [];
       let refs = this.references as Coreference[];
       for (let r of refs) {
-        if (!_includes(out, r.datasetId)) {
-          out.push(r.datasetId);
+        if (!_includes(out, r.setId)) {
+          out.push(r.setId);
         }
       }
       return out;
@@ -86,7 +86,7 @@ export default {
       let trimFilter = this.filter.trim().toLowerCase();
       let isFiltered = this.isFiltered();
       let match = (ref: Coreference) => !isFiltered || (
-            (this.set === null || ref.datasetId === this.set) &&
+            (this.set === null || ref.setId === this.set) &&
             (trimFilter === "" || ref.text.toLowerCase().includes(trimFilter)));
       return this.references.filter(match);
     }

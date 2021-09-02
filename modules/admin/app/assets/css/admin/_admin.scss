@@ -365,6 +365,24 @@ pre.code-format {
 }
 
 // Vue Single-page applications
+%expanding-row {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+%expanding-column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+%overflow-contents {
+  flex: 1;
+  flex-basis: 0;
+  overflow: auto;
+}
+
 body.spa-app {
   height: 100%;
   width: 100%;

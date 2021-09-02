@@ -151,7 +151,7 @@ export interface SnapshotInfo {
 export interface Coreference {
   text: string,
   targetId: string,
-  datasetId: string,
+  setId: string,
 }
 
 export interface ImportLog {
