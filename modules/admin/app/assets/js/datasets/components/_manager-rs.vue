@@ -95,7 +95,7 @@ export default {
           v-bind:selected="selectedKeys.length"
           v-bind:disabled="files.length === 0 || jobId !== null"
           v-bind:active="validationRunning"
-          v-on:validate="selectedKeys.length ? validateFiles(selectedKeys) : validateAll()"
+          v-on:validate="validateFiles(selectedTags)"
       />
 
       <button-delete
