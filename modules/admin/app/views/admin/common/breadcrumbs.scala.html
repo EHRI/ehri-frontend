@@ -1,7 +1,10 @@
-@(items: Seq[Model] = Nil)(implicit messages: Messages, conf: AppConfig)
+@(items: Seq[Model] = Nil, root: Html = Html(""))(implicit messages: Messages, conf: AppConfig)
 
 @common.infobar {
     @defining(if (items.nonEmpty) 200 / items.length else 300) { truncateLength =>
+        @if(root.body.trim.nonEmpty) {
+            <li>@root</li>
+        }
         @if(items.nonEmpty) {
             @items.init.map { i =>
                 <li>

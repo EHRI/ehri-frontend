@@ -5,11 +5,16 @@
     <link href="@controllers.admin.routes.AdminAssets.versioned("css/datasets.css")" rel="stylesheet">
 }
 
-@views.html.admin.layout.adminSinglePageAppLayout(Messages("ingest.datasets"), styles = styles) {
+@breadcrumbRoot = {
+    <a href="@controllers.datasets.routes.ImportDatasets.dashboard()">@Messages("ingest.datasets")</a>
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("ingest.datasets"), styles = styles, breadcrumbs = views.html.admin.common.breadcrumbs(root = breadcrumbRoot)) {
     <script src="@controllers.datasets.routes.ImportDatasets.jsRoutes()"></script>
     <script>
             window.SERVICE = datasetApi.controllers.datasets;
             window.CONFIG = {
+              title: "@Messages("ingest.datasets")",
             };
     </script>
 } {

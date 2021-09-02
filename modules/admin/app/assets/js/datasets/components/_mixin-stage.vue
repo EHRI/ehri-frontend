@@ -67,7 +67,7 @@ export default {
       return _debounce(func, 300)();
     },
     refresh: _debounce(function() {
-      // this.load();
+      this.load();
     }, 500),
     load: async function () {
       try {
