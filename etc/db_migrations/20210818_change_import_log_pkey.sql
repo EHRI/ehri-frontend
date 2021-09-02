@@ -1,4 +1,5 @@
 BEGIN TRANSACTION ;
+ALTER TABLE import_file_mapping DROP CONSTRAINT import_file_mapping_import_log_id_fkey CASCADE;
 ALTER TABLE import_log RENAME COLUMN id TO event_id;
 ALTER TABLE import_log ALTER COLUMN event_id DROP NOT NULL;
 ALTER TABLE import_log DROP CONSTRAINT import_log_pkey CASCADE;
