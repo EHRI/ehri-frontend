@@ -1,0 +1,31 @@
+version: "3.5"
+
+services:
+
+  # PostgreSQL admin DB
+  rmdbs:
+    image: postgres:9.5
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: docview
+      POSTGRES_PASSWORD: changeme
+#    command: -c "max_connections=200" -c "shared_buffers=256MB"
+    volumes:
+    - "./DB/postgresql/data:/var/lib/postgresql/data"
+
+  # The actual Neo4j data backend
+  neo4j:
+    image: ehri/ehri-rest
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+    - "./DB/neo4j/data:/data"
+
+  solr:
+    image: ehri/ehri-search-tools
+    ports:
+      - 8983:8983
+    volumes:
+    - "./DB/solr:/var/solr"

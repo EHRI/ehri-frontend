@@ -24,6 +24,7 @@ services:
       - "./miniodata/data4:/data4"
 
 # Use a non-default network so it doesn't collide with the
+# default (test) network
 networks:
   ehri-frontend-minio_default:
     name: minio_default

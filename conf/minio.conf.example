@@ -1,0 +1,23 @@
+# This config sets both the web-app data and the import data source to be
+# an S3-compatible object store accessible locally on port 9100. See the
+# README.md and `docker-compose-minio.yml` files for getting this working
+# with MinIO. It is necessary to create two buckets:
+#   portal-data     - this should be publicly accessible for read
+#   import-data     - this bucket should have versioning enabled
+
+s3_local {
+    aws {
+        region.default-region = "eu-central-1"
+        credentials {
+            access-key-id: "docview"
+            secret-access-key: "changeme"
+        }
+    }
+    endpoint-url: "http://localhost:9100"
+}
+
+storage.dam.config = ${s3_local}
+storage.dam.classifier = import-data
+
+storage.portal.config = ${s3_local}
+storage.portal.classifier = portal-data
