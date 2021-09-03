@@ -17,6 +17,9 @@ services:
     image: ehri/ehri-rest
     ports:
       - 7575:7474
+    environment:
+      # RUNS DB initialisation on startup
+      EHRI_INIT: "true"
 
   solr:
     image: ehri/ehri-search-tools
