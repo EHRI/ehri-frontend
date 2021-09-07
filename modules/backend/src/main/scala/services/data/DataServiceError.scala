@@ -72,8 +72,6 @@ case class ItemNotFound(
   def this(id: String) = this(Some("id"), Some(id))
 }
 
-case class ServerError(error: String) extends RuntimeException(error) with DataServiceError
-
 case class CriticalError(error: String) extends RuntimeException(error) with DataServiceError
 
 case class BadJson(

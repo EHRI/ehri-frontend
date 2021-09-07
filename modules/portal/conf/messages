@@ -434,7 +434,6 @@ error.globalErrors=There were problems with that form:
 error.date=Date is incorrect or badly formatted
 error.badUrl=URL is incorrect or badly formatted. Note: for web addresses, a valid URL must be prefixed \
   be the scheme, e.g. ''http://'' or ''https://''
-
 error.required=Required
 error.emailExists=Email is either invalid or is already registered
 error.unknownUser=Unknown user

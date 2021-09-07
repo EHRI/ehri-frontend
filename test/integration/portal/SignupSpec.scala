@@ -106,6 +106,13 @@ class SignupSpec extends IntegrationTestRunner {
       }
     }
 
+    "give a 500 error if defaultGroups not present in DB" in new ITestApp(
+      specificConfig = Map("ehri.portal.defaultUserGroups" -> Seq("BAD_GROUP"))) {
+      val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
+      status(signup) must equalTo(INTERNAL_SERVER_ERROR)
+    }
+
+
     "allow log in after sign up" in new ITestApp {
       val testEmail2 = "newuser@example.com"
       val data2 = data.updated(SignupData.EMAIL, Seq(testEmail2))

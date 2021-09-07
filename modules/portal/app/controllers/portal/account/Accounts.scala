@@ -5,9 +5,9 @@ import auth.oauth2.{OAuth2Config, UserData}
 import auth.sso.{DiscourseSSO, DiscourseSSOError, DiscourseSSONotEnabledError}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
-import controllers.{AppComponents, renderError}
 import controllers.base.RecaptchaHelper
 import controllers.portal.base.PortalController
+import controllers.{AppComponents, renderError}
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
 import models._
 import play.api.Logger
@@ -21,7 +21,7 @@ import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Result, _}
 import services.RateLimitChecker
-import services.data.{AnonymousUser, AuthenticatedUser}
+import services.data.{AnonymousUser, AuthenticatedUser, ItemNotFound}
 import services.oauth2.OAuth2Service
 
 import java.net.ConnectException
@@ -151,7 +151,7 @@ case class Accounts @Inject()(
                 implicit val apiUser: AnonymousUser.type = AnonymousUser
                 val uuid = UUID.randomUUID()
                 val profileData = Map(UserProfileF.NAME -> data.name)
-                for {
+                (for {
                   profile <- userDataApi.createNewUserProfile[UserProfile](
                     data = profileData, groups = conf.defaultPortalGroups)
                   account <- accounts.create(Account(
@@ -166,6 +166,10 @@ case class Accounts @Inject()(
                 } yield {
                   sendValidationEmail(profile.data.name, data.email, uuid)
                   result
+                }).recoverWith {
+                  case e: ItemNotFound =>
+                    logger.error(s"Backend error creating user account: $e")
+                    badForm(boundForm.withGlobalError("errors.databaseError"), InternalServerError)
                 }
             }
           }
