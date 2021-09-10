@@ -6,6 +6,38 @@
 
 $active-table-row: #e7f1ff;
 
+%dataset-manager-list-item {
+  padding: $margin-sm;
+  margin-bottom: $margin-sm;
+  background-color: $white;
+  border: 1px solid $border-color;
+  box-shadow: $box-shadow-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken($white, 2%);
+  }
+
+  display: grid;
+  grid-template-areas: "icon heading badge" "icon meta meta";
+  grid-template-columns: min-content 1fr min-content;
+  grid-column-gap: $margin-sm;
+  align-items: start;
+
+  .item-icon {
+    grid-area: icon;
+  }
+  .item-meta {
+    grid-area: meta;
+  }
+  .item-heading {
+    grid-area: heading;
+  }
+  .item-badge {
+    grid-area: badge;
+  }
+}
+
 #batch-ops-log {
   display: flex;
   border: 1px solid $border-color;
@@ -15,6 +47,11 @@ $active-table-row: #e7f1ff;
 #dataset-manager-container {
   @extend %expanding-column;
   font-size: $font-size-sm;
+  padding-bottom: $margin-sm;
+}
+
+#dataset-list-container {
+  @extend %expanding-column;
   padding-bottom: $margin-sm;
 }
 
@@ -54,25 +91,16 @@ $active-table-row: #e7f1ff;
 }
 
 .dataset-manager-list {
+  @extend %expanding-column;
   @extend %overflow-contents;
-  margin-bottom: $margin-xs;
+  margin-bottom: $margin-md;
 }
 
 .dataset-manager-item {
-  padding: $margin-sm;
-  margin-bottom: $margin-sm;
-  background-color: $white;
-  border: 1px solid $border-color;
-  box-shadow: $box-shadow-sm;
-  cursor: pointer;
-
-  &:hover {
-    background-color: darken($white, 2%);
-  }
+  @extend %dataset-manager-list-item;
 
   .badge {
     border-radius: $border-radius-sm;
-    float: right;
 
     &.badge-upload {
       color: $white;
@@ -82,9 +110,13 @@ $active-table-row: #e7f1ff;
       color: $white;
       background-color: $purple;
     }
+    &.badge-rs {
+      color: $white;
+      background-color: $blue;
+    }
   }
-
 }
+
 #delete-dataset {
   margin-right: auto;
 }
@@ -902,28 +934,19 @@ $active-table-row: #e7f1ff;
 }
 
 .snapshot-manager-item {
-
-    display: grid;
-    grid-template-columns: 1fr 6fr 1fr;
-    //grid-template-rows: 1fr;
-    gap: 1rem 1rem;
-    grid-auto-flow: row;
-    grid-template-areas:
-    "timestamp notes";
-
   .snapshot-timestamp {
-    grid-area: timestamp;
-  }
-  .snapshot-notes {
-    grid-area: notes;
+    font-size: $font-size-sm;
+    white-space: nowrap;
   }
 }
 
+.snapshot-manager-snapshot-list {
+  @extend %expanding-column;
+  @extend %overflow-contents;
+}
+
 .snapshot-manager-item {
-  border: 1px solid $ehri-border-gray;
-  padding: $margin-sm;
-  margin-bottom: $margin-sm;
-  background-color: $white;
+  @extend %dataset-manager-list-item;
 }
 
 #snapshot-manager-diff,
@@ -988,9 +1011,14 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
 }
 
-#dashboard-institution-list {
+.dashboard-institution-list {
   @extend %expanding-column;
   @extend %overflow-contents;
+  margin-bottom: $margin-md;
+}
+
+.dashboard-institution-item {
+  @extend %dataset-manager-list-item;
 }
 
 // Timeline

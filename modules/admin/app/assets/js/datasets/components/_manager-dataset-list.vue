@@ -64,22 +64,22 @@ export default {
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['ds', 'tab']));
     },
-    refreshStats: function() {
-      this.api.datasetStats().then(stats => this.stats = stats);
+    refreshStats: async function() {
+      this.stats = await this.api.datasetStats();
     },
-    loadDatasets: function() {
-      this.refreshStats();
-      return this.api.listDatasets()
-          .then(dsl => this.datasets = dsl)
-          .catch(e => this.showError("Error loading datasets", e))
-          .finally(() => this.loaded = true);
+    loadDatasets: async function() {
+      try {
+        await this.refreshStats();
+        this.datasets = await this.api.listDatasets();
+      } catch (e: Error) {
+        this.showError("Error loading datasets", e);
+      } finally {
+        this.loaded = true;
+      }
     },
-    reloadDatasets: function(ds?: ImportDataset) {
-      this.loadDatasets().then(() => {
-        if(ds) {
-          this.selectDataset(ds);
-        }
-      });
+    reloadDatasets: async function(ds?: ImportDataset) {
+      await this.loadDatasets();
+      this.selectDataset(ds);
     },
     stageName: function(code: ImportDatasetSrc): string {
       switch (code) {
@@ -130,12 +130,11 @@ export default {
       }
     });
   },
-
 };
 </script>
 
 <template>
-  <div id="dataset-manager-container">
+  <div id="dataset-list-container">
 
     <modal-dataset-config v-if="showDatasetForm"
                           v-bind:info="dataset"
@@ -263,15 +262,17 @@ export default {
           <template v-else>
             <div class="dataset-manager-list">
               <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" class="dataset-manager-item">
-                <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
-                  {{stageName(ds.src)}}
-                  <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                <div class="item-meta">
+                  <p v-if="ds.notes">{{ds.notes}}</p>
                 </div>
-                <h3>
+                <h3 class="item-heading">
                   {{ds.name}}
                   <i v-if="ds.id in working" class="fa fa-gear fa-spin fa-fw"></i>
                 </h3>
-                <p v-if="ds.notes">{{ds.notes}}</p>
+                <div class="badge badge-primary item-badge" v-bind:class="'badge-' + ds.src">
+                  {{stageName(ds.src)}}
+                  <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                </div>
               </div>
             </div>
           </template>
