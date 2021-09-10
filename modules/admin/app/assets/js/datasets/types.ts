@@ -89,6 +89,7 @@ export interface ImportDataset extends ImportDatasetInfo {
 export interface RepositoryDatasets {
   repoId: string,
   name: string,
+  logoUrl: string,
   sets: ImportDataset[]
 }
 

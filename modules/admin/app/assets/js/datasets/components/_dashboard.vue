@@ -30,8 +30,8 @@ export default {
         this.loading = true;
       }
     },
-    managerUrl: function(id: string, ds?: string) {
-      return this.api.managerUrl(id, ds);
+    goTo: function(id: string, ds?: string) {
+      window.location = this.api.managerUrl(id, ds);
     }
   },
   created() {
@@ -43,14 +43,15 @@ export default {
 <template>
   <div id="dashboard-container">
     <h1>{{ config.title }}</h1>
-    <div id="dashboard-institution-list" class="list-group">
-      <div v-for="info in datasetInfo" class="list-group-item">
-        <a v-bind:href="managerUrl(info.repoId)" class="list-group-item-action">
-          <h4>{{ info.name }}</h4>
-          <div class="badge badge-success">
-            {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '')}}
-          </div>
-        </a>
+    <div id="dashboard-institution-list" class="dashboard-institution-list">
+      <div v-for="info in datasetInfo" v-on:click="goTo(info.repoId)" class="dashboard-institution-item">
+        <img v-bind:src="info.logoUrl" alt="info.name" class="item-icon" />
+        <h3 class="item-heading">{{ info.name }}</h3>
+        <div class="item-meta">
+        </div>
+        <div class="badge badge-success item-badge">
+          {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '')}}
+        </div>
       </div>
     </div>
   </div>

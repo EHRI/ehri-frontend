@@ -18,7 +18,7 @@ import javax.inject._
 import scala.concurrent.Future
 
 
-case class RepositoryDatasets(repoId: String, name: String, sets: Seq[ImportDataset])
+case class RepositoryDatasets(repoId: String, name: String, logoUrl: String, sets: Seq[ImportDataset])
 object RepositoryDatasets {
   implicit val _format: Format[RepositoryDatasets] = Json.format[RepositoryDatasets]
 }
@@ -132,11 +132,18 @@ case class ImportDatasets @Inject()(
   }
 
   def listAll(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    val defaultLogo = controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png").url
     for {
       sets <- datasets.listAll().map(_.toSeq)
       repos <- userDataApi.fetch[Repository](sets.map(_._1))
       combined = sets.zip(repos).collect {
-        case ((id, sets), Some(r)) => RepositoryDatasets(id, r.toStringLang, sets)
+        case ((id, sets), Some(r)) =>
+          RepositoryDatasets(
+          id,
+          r.toStringLang,
+          r.data.logoUrl.getOrElse(defaultLogo),
+          sets
+        )
       }
     } yield Ok(Json.toJson(combined))
   }

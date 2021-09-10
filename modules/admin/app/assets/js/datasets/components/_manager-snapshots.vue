@@ -165,13 +165,14 @@ export default {
         </template>
       </template>
     </div>
-    <div v-else-if="snapshots" class="list-group" id="snapshot-manager-snapshot-list">
+    <div v-else-if="snapshots" class="snapshot-manager-snapshot-list">
       <div v-for="snapshot in snapshots" v-if="!isFiltered() || (snapshot.notes && snapshot.notes.includes(this.filter) )"
-            v-on:click.stop.prevent="load(snapshot)" class="snapshot-manager-item" style="cursor: pointer">
-        <div v-bind:title="snapshot.created" class="snapshot-timestamp">
+            v-on:click.stop.prevent="load(snapshot)" class="snapshot-manager-item">
+        <div v-bind:title="snapshot.created" class="snapshot-timestamp item-icon">
+          <i class="fa fa-clock-o"></i>
           {{ snapshot.created | timeToRelative }}
         </div>
-        <div class="snapshot-notes">
+        <div class="snapshot-notes item-heading">
           {{ snapshot.notes }}
         </div>
       </div>
