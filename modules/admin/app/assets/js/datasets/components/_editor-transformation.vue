@@ -86,8 +86,15 @@ export default {
           })
           .finally(() => this.saving = false);
     },
-    confirmRemove: function () {
-
+    revert: function() {
+      this.data = {
+        name: this.name,
+        generic: this.generic,
+        bodyType: this.bodyType,
+        body: this.body,
+        comments: this.comments,
+        hasParams: this.hasParams,
+      };
     },
     remove: function () {
       this.api.deleteDataTransformation(this.id).then(_ => {
@@ -98,6 +105,36 @@ export default {
     },
     triggerRefresh: function () {
       this.timestamp = (new Date()).toString();
+    },
+    copyToClipboard: function() {
+      navigator.clipboard.writeText(this.data.body);
+    },
+    download: function() {
+      let text = this.data.body;
+      let ext = (this.bodyType === 'xslt' ? ".xsl" : ".tsv");
+      let filename = `${this.name}_${this.id}${ext}`;
+      let mime = this.bodyType === 'xslt' ? 'text/xml' : 'text/tab-separated-values';
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    },
+    importFromClipboard: function() {
+      if (this.data.body.trim() !== "") {
+        if (!window.confirm("Overwrite existing data?")) {
+          return;
+        }
+      }
+      navigator.clipboard.readText().then(text => {
+        console.log("Text: ", text);
+        this.$set(this.data, "body", text);
+      });
     }
   },
   computed: {
@@ -174,9 +211,31 @@ export default {
                   <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
                   </div>
                   <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; revert()" v-bind:disabled="!modified">
+                      <i class="fa fa-undo"></i>
+                      Revert Changes
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; download()">
+                      <i class="fa fa-download"></i>
+                      Download As File
+                    </button>
+                    <template v-if="data.bodyType === 'xquery'">
+                      <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; copyToClipboard()">
+                        <i class="fa fa-copy"></i>
+                        Copy To Clipboard
+                      </button>
+                      <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; importFromClipboard()">
+                        <i class="fa fa-clipboard"></i>
+                        Import From Clipboard
+                      </button>
+                      <div class="dropdown-divider"></div>
+                    </template>
                     <button class="dropdown-item btn btn-sm"
                             v-on:click="showRemoveDialog = true; showOptions = false;"
-                            v-bind:disabled="!Boolean(id)">Delete Transformation
+                            v-bind:disabled="!Boolean(id)">
+                      <i class="fa fa-trash-o"></i>
+                      Delete Transformation
                     </button>
                   </div>
                   <modal-alert v-if="showRemoveDialog"

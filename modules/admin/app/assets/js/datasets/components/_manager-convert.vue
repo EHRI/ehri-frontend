@@ -4,7 +4,7 @@ import Draggable from 'vuedraggable';
 import FilePicker from './_file-picker';
 import ModalConvertConfig from './_modal-convert-config';
 import ModalParamEditor from "./_modal-param-editor.vue";
-import TransformationEditor from './_transformation-editor';
+import EditorTransformation from './_editor-transformation';
 import TransformationItem from './_transformation-item';
 import PanelLogWindow from './_panel-log-window';
 import DragHandle from './_drag-handle';
@@ -45,7 +45,7 @@ let initialConvertState = function(config) {
 
 export default {
   components: {
-    Draggable, FilePicker, ModalParamEditor, ModalConvertConfig, PanelConvertPreview, TransformationEditor, TransformationItem, PanelLogWindow, DragHandle},
+    Draggable, FilePicker, ModalParamEditor, ModalConvertConfig, PanelConvertPreview, EditorTransformation, TransformationItem, PanelLogWindow, DragHandle},
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetId: String,
@@ -244,7 +244,7 @@ export default {
 <template>
   <div id="manager-convert-container" class="stage-manager-container">
 
-    <transformation-editor
+    <editor-transformation
         v-if="editing !== null"
         v-bind:id="editing.id"
         v-bind:name="editing.name"

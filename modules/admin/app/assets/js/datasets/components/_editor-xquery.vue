@@ -94,6 +94,11 @@ export default {
       return all.join("\n");
     },
   },
+  watch: {
+    value: function(newValue) {
+      this.mappings = this.deserialize(newValue);
+    }
+  }
 };
 </script>
 
@@ -115,8 +120,8 @@ export default {
               v-bind:key="_padStart(row, 4, 0) + '-' + col"
               v-bind:class="{'selected': selected === row}"
               v-model="mappings[row][col]"
-              @change="update"
-              @focusin="selected = row" />
+              v-on:change="update"
+              v-on:focusin="selected = row" />
         </template>
       </div>
     </div>
