@@ -23,7 +23,7 @@ export default {
   },
   data: function () {
     return {
-      tab: 'rels',
+      tab: 'data',
       loading: false,
       saving: false,
       saved: false,
@@ -98,13 +98,13 @@ export default {
     <div id="concept-editor-body" v-else>
       <ul id="concept-editor-nav-tabs" class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link" v-bind:class="{active: tab === 'rels'}" href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" v-bind:class="{active: tab === 'data', 'error': error}" href="#" v-on:click.prevent="tab = 'data'">
             Data
             <i v-if="error" class="fa fa-exclamation-circle"></i>
           </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" v-bind:class="{active: tab === 'rels'}" href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
         </li>
         <li class="nav-item delete-tab">
           <a class="nav-link" v-bind:class="{active: tab === 'delete'}" href="#" v-on:click.prevent="tab = 'delete'">Delete</a>

@@ -128,6 +128,10 @@
   margin: 0 0 $margin-sm 0;
 }
 
+.concept-editor-data-form .section-toggle {
+  cursor: pointer;
+}
+
 .concept-hierarchy {
   color: $text-muted;
   font-size: $font-size-sm;

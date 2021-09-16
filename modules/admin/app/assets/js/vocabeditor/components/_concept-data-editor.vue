@@ -26,6 +26,8 @@ export default {
       newDesc: false,
       pendingDesc: this.descTemplate(),
       currentDescIdx: -1,
+      showLinks: false,
+      showGeo: false,
     }
   },
   computed: {
@@ -118,20 +120,40 @@ export default {
             <span v-if="errors.identifier" v-for="e in errors.identifier" class="help-block">{{ e }}</span>
           </div>
         </div>
-        <div class="concept-description-item" v-bind:class="{'has-error': errors.uri}">
-          <label class="label">URI</label>
-          <div class="controls">
-            <input type="url" class="form-control" v-model.trim="state.uri"/>
-            <span v-if="errors.uri" v-for="e in errors.uri" class="help-block">{{ e }}</span>
-          </div>
-        </div>
-        <div class="concept-description-item" v-bind:class="{'has-error': errors.url}">
-          <label class="label">URL</label>
-          <div class="controls">
-            <input type="url" class="form-control" v-model.trim="state.url"/>
-            <span v-if="errors.url" v-for="e in errors.url" class="help-block">{{ e }}</span>
-          </div>
-        </div>
+        <fieldset>
+          <h4 v-on:click="showLinks = !showLinks" class="section-toggle">
+            Links
+            <i v-if="!showLinks" class="fa fa-fw fa-caret-right"></i>
+            <i v-else class="fa fa-fw fa-caret-down"></i>
+          </h4>
+          <template v-if="showLinks">
+            <div v-for="(label, key) in {uri: 'URI', url: 'URL'}"
+                 class="concept-description-item" v-bind:class="{'has-error': errors[key]}">
+              <label class="label">{{ label }}</label>
+              <div class="controls">
+                <input type="url" class="form-control" v-model.trim="state[key]"/>
+                <span v-if="errors[key]" v-for="e in errors[key]" class="help-block">{{ e }}</span>
+              </div>
+            </div>
+          </template>
+        </fieldset>
+        <fieldset>
+          <h4 v-on:click="showGeo = !showGeo" class="section-toggle">
+            Geo
+            <i v-if="!showGeo" class="fa fa-fw fa-caret-right"></i>
+            <i v-else class="fa fa-fw fa-caret-down"></i>
+          </h4>
+          <template v-if="showGeo">
+            <div v-for="(label, key) in {longitude: 'Longitude', latitude: 'Latitude'}"
+                  class="concept-description-item" v-bind:class="{'has-error': errors[key]}">
+              <label class="label">{{ label }}</label>
+              <div class="controls">
+                <input type="number" step="any" class="form-control" v-model.trim="state[key]"/>
+                <span v-if="errors[key]" v-for="e in errors[key]" class="help-block">{{ e }}</span>
+              </div>
+            </div>
+          </template>
+        </fieldset>
         <div id="concept-editor-descriptions">
           <header>
             <div class="concept-editor-description-controls pull-right">
