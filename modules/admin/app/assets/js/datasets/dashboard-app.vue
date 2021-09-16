@@ -2,7 +2,6 @@
 
 import Dashboard from './components/_dashboard';
 import MixinUtil from './components/_mixin-util';
-import {DatasetManagerApi} from "./api";
 
 import {ConfigType} from "./types";
 import {DashboardApi} from "./dashboard-api";
