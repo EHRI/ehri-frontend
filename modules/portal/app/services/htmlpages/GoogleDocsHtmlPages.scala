@@ -48,6 +48,7 @@ case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configu
       // - remove these.
       body.select("style").remove()
       body.select("div#header").remove()
+      body.select("div#banners").remove()
       body.select("div#footer").remove()
 
       Html("") -> Html(body.outerHtml())
