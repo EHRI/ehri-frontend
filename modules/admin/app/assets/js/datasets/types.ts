@@ -71,12 +71,15 @@ export interface DataTransformation extends DataTransformationInfo{
 
 export type ImportDatasetSrc = 'oaipmh' | 'rs' | 'upload';
 
+export type ImportDatasetStatus = 'active|onhold|inactive';
+
 export interface ImportDatasetInfo {
   id: string,
   name: string,
   src: ImportDatasetSrc,
   fonds?: string,
   sync: boolean,
+  status: ImportDatasetStatus,
   contentType?: string,
   notes?: string,
 }

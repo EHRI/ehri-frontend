@@ -16,6 +16,7 @@ case class ImportDataset(
   created: Instant,
   fonds: Option[String] = None,
   sync: Boolean = false,
+  status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )
 
@@ -26,6 +27,14 @@ object ImportDataset {
     val Rs = Value("rs")
 
     implicit val _format: Format[ImportDataset.Src.Value] = EnumUtils.enumFormat(ImportDataset.Src)
+  }
+
+  object Status extends Enumeration with StorableEnum {
+    val Active = Value("active")
+    val OnHold = Value("onhold")
+    val Inactive = Value("inactive")
+
+    implicit val _format: Format[ImportDataset.Status.Value] = EnumUtils.enumFormat(ImportDataset.Status)
   }
 
   private implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(optionHandlers = OptionHandlers.WritesNull)
@@ -39,6 +48,7 @@ case class ImportDatasetInfo(
   contentType: Option[String] = None,
   fonds: Option[String] = None,
   sync: Boolean = false,
+  status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )
 

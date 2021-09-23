@@ -28,6 +28,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "fonds" -> None,
         "notes" -> None,
         "sync" -> false,
+        "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.create("r1")).withUser(privilegedUser).callWith(data)
       status(r) must_== CREATED
@@ -42,6 +43,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "fonds" -> None,
         "notes" -> None,
         "sync" -> true,
+        "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.update("r1", "default")).withUser(privilegedUser).callWith(data)
       status(r) must_== OK

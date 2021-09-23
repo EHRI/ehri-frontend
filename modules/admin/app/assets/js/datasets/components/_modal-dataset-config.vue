@@ -19,6 +19,7 @@ export default {
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
       sync: this.info ? this.info.sync : false,
+      status: this.info ? this.info.status : "active",
       contentType: this.info ? this.info.contentType : null,
       notes: this.info ? this.info.notes : null,
       error: null,
@@ -38,6 +39,7 @@ export default {
         src: this.src,
         fonds: this.fonds,
         sync: this.sync,
+        status: this.status,
         contentType: this.contentType,
         notes: this.notes,
       };
@@ -98,7 +100,8 @@ export default {
           || this.info.notes !== this.notes
           || this.info.fonds !== this.fonds
           || this.info.contentType !== this.contentType
-          || Boolean(this.info.sync) !== Boolean(this.sync));
+          || Boolean(this.info.sync) !== Boolean(this.sync))
+          || this.info.status !== this.status;
     }
   },
 
@@ -183,6 +186,16 @@ export default {
           Content-Type Override
         </label>
         <input type="text" v-model="contentType" id="dataset-content-type" class="form-control" placeholder="text/xml; charset=utf-8"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="dataset-status">
+          Status
+        </label>
+        <select v-model="status" class="form-control" id="dataset-status">
+          <option v-bind:value="'active'">Active</option>
+          <option v-bind:value="'onhold'">On Hold</option>
+          <option v-bind:value="'inactive'">Inactive</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label" for="dataset-notes">Notes</label>
