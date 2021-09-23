@@ -10,7 +10,7 @@ import ManagerDataset from "./_manager-dataset";
 
 import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
-import {ImportDataset, ImportDatasetSrc} from '../types';
+import {ImportDataset, ImportDatasetSrc, ImportDatasetStatus} from '../types';
 import {DatasetManagerApi} from "../api";
 
 import _find from 'lodash/find';
@@ -31,6 +31,7 @@ export default {
       loaded: false,
       datasets: [],
       dataset: null,
+      editing: null,
       tab: this.initTab,
       showOptions: false,
       showDatasetForm: false,
@@ -79,13 +80,23 @@ export default {
     },
     reloadDatasets: async function(ds?: ImportDataset) {
       await this.loadDatasets();
-      this.selectDataset(ds);
+      if (ds && this.editing && this.editing.id === ds.id) {
+        this.editing = ds;
+      }
     },
     stageName: function(code: ImportDatasetSrc): string {
       switch (code) {
         case "oaipmh": return "Harvesting";
         case "upload": return "Uploads";
         case "rs": return "ResourceSync";
+        default: return code;
+      }
+    },
+    statusName: function(code: ImportDatasetStatus): string {
+      switch (code) {
+        case "active": return "Active";
+        case "onhold": return "On Hold";
+        case "inactive": return "Inactive";
         default: return code;
       }
     },
@@ -137,12 +148,12 @@ export default {
   <div id="dataset-list-container">
 
     <modal-dataset-config v-if="showDatasetForm"
-                          v-bind:info="dataset"
+                          v-bind:info="editing"
                           v-bind:config="config"
                           v-bind:api="api"
-                          v-on:close="showDatasetForm = false"
+                          v-on:close="editing = null; showDatasetForm = false"
                           v-on:saved-dataset="reloadDatasets"
-                          v-on:deleted-dataset="dataset = null; reloadDatasets()" />
+                          v-on:deleted-dataset="dataset = null; editing = null; reloadDatasets()" />
 
     <modal-dataset-io v-if="showImportForm"
                       v-bind:datasets="datasets"
@@ -159,7 +170,7 @@ export default {
                      v-bind:datasets="datasets"
                      v-bind:stats="stats"
                      v-on:error="showError"
-                     v-on:edit-dataset="showDatasetForm = true"
+                     v-on:edit-dataset="editing = dataset; showDatasetForm = true"
                      v-on:close-dataset="closeDataset"
                      v-on:select-dataset="selectDataset"
                      v-on:refresh-stats="refreshStats"
@@ -261,7 +272,7 @@ export default {
           </template>
           <template v-else>
             <div class="dataset-manager-list">
-              <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" class="dataset-manager-item">
+              <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" v-bind:class="ds.status" class="dataset-manager-item">
                 <div class="item-meta">
                   <p v-if="ds.notes">{{ds.notes}}</p>
                 </div>
@@ -269,9 +280,21 @@ export default {
                   {{ds.name}}
                   <i v-if="ds.id in working" class="fa fa-gear fa-spin fa-fw"></i>
                 </h3>
-                <div class="badge badge-primary item-badge" v-bind:class="'badge-' + ds.src">
-                  {{stageName(ds.src)}}
-                  <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                <div class="item-badge">
+                  <div class="badge badge-light">
+                    <template v-if="ds.id in stats">{{ stats[ds.id] }} File{{ stats[ds.id] === 1 ? '' : 's'}}</template>
+                  </div>
+                  <div class="badge badge-primary" v-bind:class="'badge-' + ds.status">
+                    {{ statusName(ds.status) }}
+                  </div>
+                  <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
+                    {{stageName(ds.src)}}
+                  </div>
+                </div>
+                <div class="item-controls">
+                  <button v-on:click.prevent.stop="editing = ds; showDatasetForm = true" class="btn btn-sm btn-default">
+                    <i class="fa fa-edit"></i>
+                  </button>
                 </div>
               </div>
             </div>

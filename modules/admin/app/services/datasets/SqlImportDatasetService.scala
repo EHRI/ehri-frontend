@@ -15,7 +15,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "comments")
+      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "status", "comments")
 
   override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
     db.withConnection { implicit conn =>
@@ -54,7 +54,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       try {
-        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, comments)
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, status, comments)
           VALUES (
             $repoId,
             ${info.id},
@@ -63,6 +63,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             ${info.contentType},
             ${info.fonds.filter(_.trim.nonEmpty)},
             ${info.sync},
+            ${info.status},
             ${info.notes}
           )
           RETURNING *""".as(parser.single)
@@ -82,6 +83,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
               content_type = ${info.contentType},
               item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
+              status = ${info.status},
               comments = ${info.notes.filter(_.trim.nonEmpty)}
             WHERE repo_id = $repoId
               AND id = $datasetId
@@ -100,17 +102,19 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
           'content_type -> item.contentType,
           'item_id -> item.fonds.filter(_.trim.nonEmpty),
           'sync -> item.sync,
+          'status -> item.status,
           'comments -> item.notes
         )
       }
-      val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, comments)
-                   VALUES({repo_id}, {id}, {name}, {type}, {content_type}, {item_id}, {sync}, {comments})
+      val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, status, comments)
+                   VALUES({repo_id}, {id}, {name}, {type}, {content_type}, {item_id}, {sync}, {status}, {comments})
                    ON CONFLICT (repo_id, id) DO UPDATE SET
                       name = {name},
                       type = {type},
                       content_type = {content_type},
                       item_id = {item_id},
                       sync = {sync},
+                      status = {status},
                       comments = {comments}"""
       val batch = BatchSql(q, inserts.head, inserts.tail: _*)
       val rows: Array[Int] = batch.execute()

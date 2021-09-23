@@ -18,8 +18,12 @@ $active-table-row: #e7f1ff;
     background-color: darken($white, 2%);
   }
 
+  &.inactive {
+    background-color: darken($white, 2%);
+  }
+
   display: grid;
-  grid-template-areas: "icon heading badge" "icon meta meta";
+  grid-template-areas: "icon heading badge" "icon meta controls";
   grid-template-columns: min-content 1fr min-content;
   grid-column-gap: $margin-sm;
   align-items: start;
@@ -29,12 +33,23 @@ $active-table-row: #e7f1ff;
   }
   .item-meta {
     grid-area: meta;
+    @extend %small-muted;
   }
   .item-heading {
     grid-area: heading;
   }
   .item-badge {
     grid-area: badge;
+    display: grid;
+    grid-gap: $margin-xs;
+    grid-auto-flow: column;
+    margin-left: auto;
+  }
+  .item-controls {
+    grid-area: controls;
+    grid-gap: $margin-xs;
+    grid-auto-flow: column;
+    margin-left: auto;
   }
 }
 
@@ -113,6 +128,17 @@ $active-table-row: #e7f1ff;
     &.badge-rs {
       color: $white;
       background-color: $blue;
+    }
+    &.badge-active {
+      @extend .badge-info;
+    }
+    &.badge-onhold {
+      color: $white;
+      background-color: $gray-600;
+    }
+    &.badge-inactive {
+      color: $white;
+      background-color: $black;
     }
   }
 }
