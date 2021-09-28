@@ -333,6 +333,13 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
       status(del) must equalTo(SEE_OTHER)
     }
 
+    "give a 410 error fetching a deleted item" in new ITestApp {
+      FakeRequest(docRoutes.deletePost("c4"))
+        .withUser(privilegedUser).call()
+      val show = FakeRequest(docRoutes.get("c4")).withUser(privilegedUser).call()
+      status(show) must_== GONE
+    }
+
     "error deleting contents without confirmation" in new ITestApp {
       val data = Map(
         DeleteChildrenOptions.ALL -> Seq("true"),

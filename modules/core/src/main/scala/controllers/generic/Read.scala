@@ -96,7 +96,8 @@ trait Read[MT] extends CoreActionBuilders {
 
       override protected def refine[A](request: OptionalUserRequest[A]): Future[Either[Result, ItemPermissionRequest[A]]] = {
         transform(request).map(r => Right(r)).recoverWith {
-          case _: ItemNotFound => notFoundError(request, msg = Some(itemId)).map(r => Left(r))
+          case ItemNotFound(_, Some(id), _, Some(since)) => goneError(request, id, since).map(r => Left(r))
+          case e@ItemNotFound(_, id, _, _) => notFoundError(request, msg = id).map(r => Left(r))
         }
       }
     }

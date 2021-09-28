@@ -13,13 +13,14 @@ import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Result, _}
 import play.api.{Configuration, Logger}
 import services.accounts.AccountManager
-import services.data.{DataUser, DataServiceBuilder}
+import services.data.{DataServiceBuilder, DataUser}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import views.html.MarkdownRenderer
-import views.html.errors.{itemNotFound, maintenance, pageNotFound}
+import views.html.errors.{itemNotFound, maintenance, pageNotFound, gone}
 
 import java.nio.charset.StandardCharsets
+import java.time.ZonedDateTime
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -130,23 +131,16 @@ trait PortalController
     }
   }
 
-  override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
-    val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
+  override def goneError(request: RequestHeader, id: String, since: ZonedDateTime): Future[Result] = {
     implicit val r: RequestHeader = request
-    fetchProfile(request).flatMap { implicit userOpt =>
-      val notFoundResponse = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
-      if (!doMoveCheck) immediate(notFoundResponse)
-      else for {
-        maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
-      } yield maybeMoved match {
-        case Some(path) => MovedPermanently(utils.http.iriToUri(path))
-        case None =>
-          logger.warn(s"404 at ${request.path}. " +
-            s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
-            s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
-          notFoundResponse
-      }
-    }
+    val response = Gone(renderError("errors.gone", gone(id, since)))
+    handleMissing(response)
+  }
+
+  override def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result] = {
+    implicit val r: RequestHeader = request
+    val response = NotFound(renderError("errors.itemNotFound", itemNotFound(msg)))
+    handleMissing(response)
   }
 
   override def downForMaintenance(request: RequestHeader): Future[Result] = {
@@ -300,6 +294,23 @@ trait PortalController
           .map(blocking => !blocking)
           .map(canMessage => info.copy(canMessage = canMessage))
       case _ => immediate(info)
+    }
+  }
+
+  private def handleMissing(response: Result)(implicit request: RequestHeader) = {
+    val doMoveCheck: Boolean = config.getOptional[Boolean]("ehri.handlePageMoved").getOrElse(false)
+    fetchProfile(request).flatMap { implicit userOpt =>
+      if (!doMoveCheck) immediate(response)
+      else for {
+        maybeMoved <- appComponents.pageRelocator.hasMovedTo(request.path)
+      } yield maybeMoved match {
+        case Some(path) => MovedPermanently(utils.http.iriToUri(path))
+        case None =>
+          logger.warn(s"${response.header.status} at ${request.path}. " +
+            s"Referer: ${request.headers.get(HeaderNames.REFERER)}, " +
+            s"UserAgent: ${request.headers.get(HeaderNames.USER_AGENT)}")
+          response
+      }
     }
   }
 }

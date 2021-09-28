@@ -82,7 +82,13 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
         }
         // Deserialize it now...
         jsonF.map(json => jsonReadToRestError(json, resource.restReads, context = Some(url)))
-      } else Future.failed(new ItemNotFound())
+      } else {
+        // If we fail to get an OK response run the request as normal
+        // to get the correct error response from the server
+        userCall(url, resource.defaultParams).get().map { r =>
+          checkErrorAndParse(r)(resource.restReads)
+        }
+      }
     }
   }
 

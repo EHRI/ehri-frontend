@@ -25,6 +25,7 @@ import services.search._
 import utils.{FieldFilter, Page, PageParams}
 import views.Helpers
 
+import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -396,6 +397,9 @@ case class ApiV1 @Inject()(
 
   override protected def notFoundError(request: RequestHeader, msg: Option[String]): Future[Result] =
     immediate(error(NOT_FOUND, msg)(request))
+
+  override protected def goneError(request: RequestHeader, id: String, since: ZonedDateTime): Future[Result] =
+    immediate(error(GONE, Some(s"$id deleted since $since"))(request))
 
   override def staffOnlyError(request: RequestHeader): Future[Result] =
     immediate(error(FORBIDDEN)(request))

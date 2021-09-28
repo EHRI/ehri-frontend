@@ -85,8 +85,12 @@ with SessionPreferences[SessionPrefs] {
       exception match {
         case e: PermissionDenied => immediate(Unauthorized(
           renderError("errors.permissionDenied", permissionDenied(Some(e)))))
-        case e: ItemNotFound => immediate(NotFound(
-          renderError("errors.itemNotFound", itemNotFound(e.value))))
+        case ItemNotFound(_, Some(id), _, Some(since)) =>
+          immediate(Gone(
+            renderError("errors.gone", gone(id, since))))
+        case e: ItemNotFound =>
+          immediate(NotFound(
+            renderError("errors.itemNotFound", itemNotFound(e.value))))
         case e: services.search.SearchEngineOffline => immediate(InternalServerError(
           renderError("errors.searchEngineError", searchEngineError())))
         case e: ServiceOffline => immediate(InternalServerError(
