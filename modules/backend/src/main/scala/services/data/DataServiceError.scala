@@ -4,6 +4,9 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 sealed trait DataServiceError extends RuntimeException
 
 case class PermissionDenied(
@@ -40,8 +43,8 @@ object ValidationError {
 
   implicit val _reads: Reads[ValidationError] = (
     (__ \ "error").read[String] and
-      (__ \ "details").read[ErrorSet]
-    )((_, s) => ValidationError(s))
+    (__ \ "details").read[ErrorSet]
+  )((_, s) => ValidationError(s))
 }
 
 case class JsonError(msg: String) extends RuntimeException(msg) with DataServiceError
@@ -67,9 +70,12 @@ case class IntegrityError() extends RuntimeException() with DataServiceError
 case class ItemNotFound(
   key: Option[String] = None,
   value: Option[String] = None,
-  message: Option[String] = None
+  message: Option[String] = None,
+  since: Option[ZonedDateTime] = None,
 ) extends RuntimeException(message.getOrElse("No further info")) with DataServiceError {
   def this(id: String) = this(Some("id"), Some(id))
+
+  override def toString: String = s"Not found: $value, $message (since? $since)"
 }
 
 case class CriticalError(error: String) extends RuntimeException(error) with DataServiceError
@@ -100,13 +106,15 @@ object ItemNotFound {
   private val _reads: Reads[ItemNotFound] = (
     (__ \ "details" \ "key").readNullable[String] and
     (__ \ "details" \ "value").readNullable[String] and
-    (__ \ "details" \ "message").readNullable[String]
+    (__ \ "details" \ "message").readNullable[String] and
+    (__ \ "details" \ "since").readNullable[String].map(_.map(ZonedDateTime.parse))
   )(ItemNotFound.apply _)
 
   private val _writes: Writes[ItemNotFound] = (
     (__ \ "key").writeNullable[String] and
     (__ \ "value").writeNullable[String] and
-    (__ \ "message").writeNullable[String]
+    (__ \ "message").writeNullable[String] and
+    (__ \ "since").writeNullable[ZonedDateTime]
   )(unlift(ItemNotFound.unapply))
 
   implicit val _format: Format[ItemNotFound] = Format(_reads, _writes)

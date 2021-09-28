@@ -67,10 +67,13 @@ errors.verifiedOnlyMessage=Access to this resource is restricted to users with a
   if the email does not arrive.
 errors.readonly=The EHRI portal is currently in read-only mode while we conduct maintenance.\
          Normal service should be resumed in due course. Thanks for your patience.
-errors.itemNotFound=Item Not Found
-errors.itemNotFound.explanation=That item couldn''t be found in the database.
-errors.pageNotFound=404 Page Not Found
-errors.pageNotFound.explanation=The page at this location either doesn''t exist or has moved.
+errors.itemNotFound=404 Not Found
+errors.itemNotFound.explanation=A page could not be found at this address.
+errors.gone=410 No Longer Available
+errors.gone.explanation=This page was removed on {0,date}. This can happen because a data provider removed \
+ a source record from their own database, or for other maintenance reasons.
+errors.pageNotFound=404 Not Found
+errors.pageNotFound.explanation=The page at this address either doesn''t exist or has moved.
 errors.pageNotFound.search=Try a search for a specific item:
 errors.pageNotFound.links=...or these links for help:
 errors.clientError=There was a problem

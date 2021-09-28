@@ -8,8 +8,9 @@ import models.{Account, ContentTypes, PermissionType, UserProfile}
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
 import services.accounts.AccountManager
-import services.data.{DataUser, AuthenticatedUser, DataServiceBuilder, DataService}
+import services.data.{AuthenticatedUser, DataService, DataServiceBuilder, DataUser}
 
+import java.time.ZonedDateTime
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -97,6 +98,11 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
     * A dataApi resource was not found
     */
   protected def notFoundError(request: RequestHeader, msg: Option[String] = None): Future[Result]
+
+  /**
+    * A dataApi resource was deleted
+    */
+  protected def goneError(request: RequestHeader, id: String, since: ZonedDateTime): Future[Result]
 
   /**
     * The user didn't have the required permissions

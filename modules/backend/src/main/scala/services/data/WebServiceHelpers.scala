@@ -223,7 +223,7 @@ trait WebServiceHelpers {
               // Temporary approach to handling random Deserialization errors.
               // In practice this should happen
               if ((response.json \ "error").asOpt[String].contains("DeserializationError")) {
-                logger.error(s"Derialization error! : ${response.json}")
+                logger.error(s"Deserialization error! : ${response.json}")
                 throw DeserializationError()
               } else {
                 logger.error("Bad request: " + response.body)
@@ -239,14 +239,14 @@ trait WebServiceHelpers {
         case _: JsonParseException =>
           throw JsonError(response.body)
       }
-      case NOT_FOUND => try {
+      case NOT_FOUND | GONE => try {
         response.json.validate[ItemNotFound].fold(
           _ => throw new ItemNotFound(),
           err => throw err
         )
       } catch {
         case e@(_: JsonParseException | _: JsonMappingException) =>
-          sys.error(s"Backend 404 at $context: ${e.getMessage}: '${response.body}")
+          sys.error(s"Backend ${response.status} at $context: ${e.getMessage}: '${response.body}")
       }
       case _ =>
         val err = s"Unexpected response at ${context.getOrElse("(?)")}: ${response.status}: '${response.body}'"

@@ -1,0 +1,8 @@
+@(id: String, since: java.time.ZonedDateTime, msg: Option[String] = None)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
+
+
+<p class="minor-notice">
+    @Messages("errors.gone.explanation", java.util.Date.from(since.toInstant))
+</p>
+
+@views.html.common.optionsOnError(Some(id))
