@@ -99,8 +99,8 @@ class ApiSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
       headers(c).get(CONTENT_LENGTH) must beNone
-      contentType(c) must equalTo(Some("application/json"))
-      headers(c).get(TRANSFER_ENCODING) must beSome.which { e =>
+      contentType(c) must beSome("application/json")
+      headers(c).get(TRANSFER_ENCODING) must beSome.which { (e: String) =>
         e must_== "chunked"
       }
     }
@@ -110,8 +110,8 @@ class ApiSpec extends IntegrationTestRunner {
         .forward(s"classes/${EntityType.DocumentaryUnit}/c1"))
         .withUser(privilegedUser).call()
       status(c) must equalTo(OK)
-      contentType(c) must equalTo(Some("application/json"))
-      headers(c).get(CONTENT_LENGTH) must beSome.which { l =>
+      contentType(c) must beSome("application/json")
+      headers(c).get(CONTENT_LENGTH) must beSome.which { (l: String) =>
         l.toInt must beGreaterThan(0)
       }
       headers(c).get(TRANSFER_ENCODING) must beNone
@@ -123,7 +123,7 @@ class ApiSpec extends IntegrationTestRunner {
         .withUser(privilegedUser).call()
       contentAsString(c) must contain(EntityType.DocumentaryUnit.toString)
       status(c) must equalTo(OK)
-      contentType(c) must equalTo(Some("text/turtle"))
+      contentType(c) must beSome("text/turtle")
     }
   }
 }

@@ -14,7 +14,7 @@ services:
 
   # The actual Neo4j data backend
   neo4j:
-    image: ehri/ehri-rest
+    image: ehri/ehri-rest:latest
     ports:
       - 7575:7474
     environment:
