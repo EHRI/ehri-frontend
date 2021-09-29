@@ -28,7 +28,7 @@ services:
 
   # This simply allows us to send mails from CI environments
   smtp:
-    image: python
+    image: python:3.9.7-slim
     ports:
       - 2500:2500
     environment:
