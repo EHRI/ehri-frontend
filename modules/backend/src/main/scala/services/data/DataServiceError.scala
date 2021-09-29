@@ -5,7 +5,6 @@ import play.api.libs.json._
 import play.api.mvc.RequestHeader
 
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 sealed trait DataServiceError extends RuntimeException
 

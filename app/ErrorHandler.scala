@@ -91,11 +91,11 @@ with SessionPreferences[SessionPrefs] {
         case e: ItemNotFound =>
           immediate(NotFound(
             renderError("errors.itemNotFound", itemNotFound(e.value))))
-        case e: services.search.SearchEngineOffline => immediate(InternalServerError(
+        case _: services.search.SearchEngineOffline => immediate(InternalServerError(
           renderError("errors.searchEngineError", searchEngineError())))
-        case e: ServiceOffline => immediate(InternalServerError(
+        case _: ServiceOffline => immediate(InternalServerError(
           renderError("errors.databaseError", serverTimeout())))
-        case e => super.onServerError(request, exception)
+        case _ => super.onServerError(request, exception)
       }
     }
   }

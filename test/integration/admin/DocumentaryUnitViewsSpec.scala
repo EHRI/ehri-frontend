@@ -4,7 +4,7 @@ import cookies.SessionPreferences
 import helpers.IntegrationTestRunner
 import models.{EntityType, _}
 import play.api.test.FakeRequest
-import services.data.{DataUser, AuthenticatedUser, HierarchyError}
+import services.data.{AuthenticatedUser, DataUser, HierarchyError}
 
 
 class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
@@ -334,8 +334,9 @@ class DocumentaryUnitViewsSpec extends IntegrationTestRunner {
     }
 
     "give a 410 error fetching a deleted item" in new ITestApp {
-      FakeRequest(docRoutes.deletePost("c4"))
-        .withUser(privilegedUser).call()
+      await(FakeRequest(docRoutes.deletePost("c4"))
+        .withUser(privilegedUser).call())
+
       val show = FakeRequest(docRoutes.get("c4")).withUser(privilegedUser).call()
       status(show) must_== GONE
     }

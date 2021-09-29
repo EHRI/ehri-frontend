@@ -46,14 +46,14 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val repoCreatePost = FakeRequest(controllers.countries.routes.Countries.createRepositoryPost(countryId))
         .withUser(privilegedUser).withCsrf.callWith(repoData)
-      status(repoCreatePost) must equalTo(SEE_OTHER)
+      status(repoCreatePost) must_== SEE_OTHER
 
       // Test we can read the new repository
       val repoId = idFromUrl(redirectLocation(repoCreatePost).get)
 
       val repoRead = FakeRequest(controllers.institutions.routes.Repositories.get(repoId))
         .withUser(privilegedUser).call()
-      status(repoRead) must equalTo(OK)
+      status(repoRead) must_== OK
       contentAsString(repoRead) must contain("A Test Repository")
 
       // Create a new group to represent the *head archivist role*
@@ -65,7 +65,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val headArchivistsGroupCreatePost = FakeRequest(groupRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(headArchivistsGroupData)
-      status(headArchivistsGroupCreatePost) must equalTo(SEE_OTHER)
+      status(headArchivistsGroupCreatePost) must_== SEE_OTHER
 
       val archivistsGroupId = "archivists"
       val archivistsGroupData = Map(
@@ -75,14 +75,14 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val archivistsGroupCreatePost = FakeRequest(groupRoutes.createPost())
         .withUser(privilegedUser).withCsrf.callWith(archivistsGroupData)
-      status(archivistsGroupCreatePost) must equalTo(SEE_OTHER)
+      status(archivistsGroupCreatePost) must_== SEE_OTHER
 
       // Check we can read both groups
       val groupRead1 = FakeRequest(groupRoutes.get(headArchivistsGroupId)).withUser(privilegedUser).call()
-      status(groupRead1) must equalTo(OK)
+      status(groupRead1) must_== OK
 
       val groupRead2 = FakeRequest(groupRoutes.get(archivistsGroupId)).withUser(privilegedUser).call()
-      status(groupRead2) must equalTo(OK)
+      status(groupRead2) must_== OK
 
       // Grant scoped permissions for the head archivists to create, update, and delete
       // documentary units with repository repoId
@@ -94,7 +94,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val haPermSetPost = FakeRequest(repoRoutes.setScopedPermissionsPost(repoId, EntityType.Group, headArchivistsGroupId))
         .withUser(privilegedUser).withCsrf.callWith(haPermData)
-      status(haPermSetPost) must equalTo(SEE_OTHER)
+      status(haPermSetPost) must_== SEE_OTHER
 
       // Grant scoped permissions for the archivists to create and delete
       // documentary units with repository repoId (NOT update or delete -
@@ -107,7 +107,7 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val aPermSetPost = FakeRequest(controllers.institutions.routes.Repositories.setScopedPermissionsPost(repoId, EntityType.Group, archivistsGroupId))
         .withUser(privilegedUser).withCsrf.callWith(aPermData)
-      status(aPermSetPost) must equalTo(SEE_OTHER)
+      status(aPermSetPost) must_== SEE_OTHER
 
 
       // Okay, now create a new user and add them to the head-archivists group. Do this
@@ -123,12 +123,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val haUserCreatePost = FakeRequest(controllers.users.routes.UserProfiles.createUserPost())
         .withUser(privilegedUser).withCsrf.callWith(haUserData)
-      status(haUserCreatePost) must equalTo(SEE_OTHER)
+      status(haUserCreatePost) must_== SEE_OTHER
 
       // Check we can read the user's page
       val haUserRead =  FakeRequest(controllers.users.routes.UserProfiles.get(headArchivistUserId))
         .withUser(privilegedUser).call()
-      status(haUserRead) must equalTo(OK)
+      status(haUserRead) must_== OK
 
       // Fetch the user's profile to perform subsequent logins
       val headArchivistProfile = await(dataApi.get[UserProfile](headArchivistUserId))
@@ -152,12 +152,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       )
       val aUserCreatePost = FakeRequest(controllers.users.routes.UserProfiles.createUserPost())
         .withUser(privilegedUser).withCsrf.callWith(aUserData)
-      status(aUserCreatePost) must equalTo(SEE_OTHER)
+      status(aUserCreatePost) must_== SEE_OTHER
 
       // Check we can read the user's page
       val aUserRead =  FakeRequest(controllers.users.routes.UserProfiles.get(archivistUserId))
         .withUser(privilegedUser).call()
-      status(aUserRead) must equalTo(OK)
+      status(aUserRead) must_== OK
 
       // Fetch the user's profile to perform subsequent logins
       val archivistProfile = await(dataApi.get[UserProfile](archivistUserId))
@@ -171,11 +171,11 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       // Check each user can read their profile as themselves...
       val haUserReadAsSelf =  FakeRequest(controllers.users.routes.UserProfiles.get(headArchivistUserId))
         .withUser(haAccount).call()
-      status(haUserReadAsSelf) must equalTo(OK)
+      status(haUserReadAsSelf) must_== OK
 
       val aUserReadAsSelf =  FakeRequest(controllers.users.routes.UserProfiles.get(archivistUserId))
         .withUser(aAccount).call()
-      status(aUserReadAsSelf) must equalTo(OK)
+      status(aUserReadAsSelf) must_== OK
 
       // Test the Head Archivist can Create, Update, and Delete documentary units within repoId
       // Now create a documentary unit...
@@ -188,12 +188,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val createDoc1Post = FakeRequest(controllers.institutions.routes.Repositories.createDocPost(repoId))
         .withUser(haAccount).withCsrf.callWith(doc1Data)
-      status(createDoc1Post) must equalTo(SEE_OTHER)
+      status(createDoc1Post) must_== SEE_OTHER
 
       // Test we can read the new repository
       val doc1Id = idFromUrl(redirectLocation(createDoc1Post).get)
       val doc1Read = FakeRequest(docRoutes.get(doc1Id)).withUser(haAccount).call()
-      status(doc1Read) must equalTo(OK)
+      status(doc1Read) must_== OK
       contentAsString(doc1Read) must contain("A new document")
       contentAsString(doc1Read) must contain(controllers.units
         .routes.DocumentaryUnits.createDoc(doc1Id).url)
@@ -207,18 +207,18 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val updateDoc1Post = FakeRequest(docRoutes.updatePost(doc1Id))
         .withUser(haAccount).withCsrf.callWith(doc1UpdateData)
-      status(updateDoc1Post) must equalTo(SEE_OTHER)
+      status(updateDoc1Post) must_== SEE_OTHER
 
       // Test the update doc contains the new info...
       val doc1UpdateRead = FakeRequest(docRoutes.get(doc1Id)).withUser(haAccount).call()
-      status(doc1UpdateRead) must equalTo(OK)
+      status(doc1UpdateRead) must_== OK
       contentAsString(doc1UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
       val doc1DeleteRead = FakeRequest(docRoutes.deletePost(doc1Id)).withUser(haAccount).call()
-      status(doc1DeleteRead) must equalTo(SEE_OTHER)
+      status(doc1DeleteRead) must_== SEE_OTHER
       val doc1CheckDeleteRead = FakeRequest(docRoutes.get(doc1Id)).withUser(haAccount).call()
-      status(doc1CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc1CheckDeleteRead) must_== GONE
 
       // ---------------------------------------------
       //
@@ -233,12 +233,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val createDoc2Post = FakeRequest(controllers.institutions.routes.Repositories.createDocPost(repoId))
         .withUser(aAccount).withCsrf.callWith(doc2Data)
-      status(createDoc2Post) must equalTo(SEE_OTHER)
+      status(createDoc2Post) must_== SEE_OTHER
 
       // Test we can read the new repository
       val doc2Id = idFromUrl(redirectLocation(createDoc2Post).get)
       val doc2Read = FakeRequest(docRoutes.get(doc2Id)).withUser(aAccount).call()
-      status(doc2Read) must equalTo(OK)
+      status(doc2Read) must_== OK
       contentAsString(doc2Read) must contain("A new document")
       contentAsString(doc2Read) must contain(docRoutes.createDoc(doc2Id).url)
 
@@ -251,18 +251,18 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val updateDoc2Post = FakeRequest(docRoutes.updatePost(doc2Id))
         .withUser(aAccount).withCsrf.callWith(doc2UpdateData)
-      status(updateDoc2Post) must equalTo(SEE_OTHER)
+      status(updateDoc2Post) must_== SEE_OTHER
 
       // Test the update doc contains the new info...
       val doc2UpdateRead = FakeRequest(docRoutes.get(doc2Id)).withUser(aAccount).call()
-      status(doc2UpdateRead) must equalTo(OK)
+      status(doc2UpdateRead) must_== OK
       contentAsString(doc2UpdateRead) must contain("A different name")
 
       // Test we can delete the new document...
       val doc2DeleteRead = FakeRequest(docRoutes.deletePost(doc2Id)).withUser(aAccount).call()
-      status(doc2DeleteRead) must equalTo(SEE_OTHER)
+      status(doc2DeleteRead) must_== SEE_OTHER
       val doc2CheckDeleteRead = FakeRequest(docRoutes.get(doc2Id)).withUser(aAccount).call()
-      status(doc2CheckDeleteRead) must equalTo(NOT_FOUND)
+      status(doc2CheckDeleteRead) must_== GONE
 
       // HOORAY! Basic stuff seems to work - now onto the difficult things...
       // Create a doc as the head archivist, then check it can't be deleted
@@ -279,12 +279,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val createDoc3Post = FakeRequest(controllers.institutions.routes.Repositories.createDocPost(repoId))
         .withUser(haAccount).withCsrf.callWith(doc3Data)
-      status(createDoc3Post) must equalTo(SEE_OTHER)
+      status(createDoc3Post) must_== SEE_OTHER
 
       // Test we can read the new doc...
       val doc3Id = idFromUrl(redirectLocation(createDoc3Post).get)
       val doc3Read = FakeRequest(docRoutes.get(doc3Id)).withUser(haAccount).call()
-      status(doc3Read) must equalTo(OK)
+      status(doc3Read) must_== OK
       contentAsString(doc3Read) must contain("Another new document")
       contentAsString(doc3Read) must contain(controllers.units
         .routes.DocumentaryUnits.createDoc(doc3Id).url)
@@ -300,11 +300,11 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       // Now ensure the ordinary archivist cannot update it!
       val doc3UpdateRead = FakeRequest(docRoutes.updatePost(doc3Id))
         .withUser(aAccount).withCsrf.callWith(doc3Data.updated("descriptions[0].identityArea.name", Seq("Foobar")))
-      status(doc3UpdateRead) must equalTo(FORBIDDEN)
+      status(doc3UpdateRead) must_== FORBIDDEN
 
       // Now ensure the ordinary archivist cannot delete it!
       val doc3DeleteRead = FakeRequest(docRoutes.deletePost(doc3Id)).withUser(aAccount).call()
-      status(doc3UpdateRead) must equalTo(FORBIDDEN)
+      status(doc3UpdateRead) must_== FORBIDDEN
 
       // Test the ordinary archivist can Create a documentary units within repoId
       // and the head archivist CAN delete it...
@@ -317,12 +317,12 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
 
       val createDoc4Post = FakeRequest(controllers.institutions.routes.Repositories.createDocPost(repoId))
         .withUser(aAccount).withCsrf.callWith(doc4Data)
-      status(createDoc4Post) must equalTo(SEE_OTHER)
+      status(createDoc4Post) must_== SEE_OTHER
 
       // Test we can read the new repository
       val doc4Id = idFromUrl(redirectLocation(createDoc4Post).get)
       val doc4Read = FakeRequest(docRoutes.get(doc4Id)).withUser(aAccount).call()
-      status(doc4Read) must equalTo(OK)
+      status(doc4Read) must_== OK
       contentAsString(doc4Read) must contain("Another new document")
       contentAsString(doc4Read) must contain(docRoutes.createDoc(doc4Id).url)
 
@@ -330,11 +330,11 @@ class SupervisorWorkerIntegrationSpec extends IntegrationTestRunner {
       val doc4UpdateRead = FakeRequest(docRoutes.updatePost(doc4Id))
         .withUser(haAccount).withCsrf
         .callWith(doc4Data.updated("descriptions[0].identityArea.name", Seq("A different name")))
-      status(doc4UpdateRead) must equalTo(SEE_OTHER)
+      status(doc4UpdateRead) must_== SEE_OTHER
 
      // Now ensure the head archivist CAN delete it!
       val doc4DeleteRead = FakeRequest(docRoutes.deletePost(doc4Id)).withUser(haAccount).call()
-      status(doc4DeleteRead) must equalTo(SEE_OTHER)
+      status(doc4DeleteRead) must_== SEE_OTHER
     }
   }
 }

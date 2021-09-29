@@ -145,6 +145,13 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       ids.foreach(id => cache.get(s"item:$id") must beNone)
     }
 
+    "give a 410 error fetching a deleted item" in new ITestApp {
+      await(testBackend.delete[DocumentaryUnit]("c4"))
+      await(testBackend.get[DocumentaryUnit]("c4")) must throwA[ItemNotFound].like {
+        case e: ItemNotFound => e.since must beSome
+      }
+    }
+
     "update an item by id" in new ITestApp {
       val user = UserProfileF(id = None, identifier = "foobar", name = "Foobar")
       val entity = await(testBackend.create[UserProfile,UserProfileF](user))

@@ -242,7 +242,11 @@ trait WebServiceHelpers {
       case NOT_FOUND | GONE => try {
         response.json.validate[ItemNotFound].fold(
           _ => throw new ItemNotFound(),
-          err => throw err
+          err => {
+            logger.debug(s"Backend ${response.status} response at ${context.getOrElse("(?)")}: '${response.json}'")
+
+            throw err
+          }
         )
       } catch {
         case e@(_: JsonParseException | _: JsonMappingException) =>
