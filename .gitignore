@@ -26,6 +26,7 @@ DB
 .idea_modules
 node_modules
 miniodata/*
+.bsp*
 
 # stupid Mac stuff
 .DS_Store
