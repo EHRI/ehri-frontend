@@ -57,9 +57,7 @@
             <li class="@views.Helpers.maybeActive("/api")">
                 <a href="/api">API</a>
             </li>
-            <li>
-                <a href="@controllers.portal.routes.Portal.externalPage("faq")">@Messages("help.faq")</a>
-            </li>
+            @footerLink(controllers.portal.routes.Portal.externalPage("faq"), "Frequently Asked Questions")
         </ul>
     </div>
 </footer>
