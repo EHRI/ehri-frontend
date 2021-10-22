@@ -2,7 +2,7 @@ package services.data
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import play.api.Logger
 import play.api.http._
 import play.api.libs.json._
@@ -38,11 +38,6 @@ trait WebServiceHelpers {
     timeout: Option[Duration] = None
   )(implicit apiUser: DataUser) {
 
-    lazy val credentials: Option[(String, String)] = for {
-      username <- config.getOptional[String]("services.ehridata.username")
-      password <- config.getOptional[String]("services.ehridata.password")
-    } yield (username, password)
-
     private def fullUrl: String =
       if (queryString.nonEmpty) s"$url?${utils.http.joinQueryString(queryString)}" else url
 
@@ -51,7 +46,7 @@ trait WebServiceHelpers {
         .addQueryStringParameters(queryString: _*)
         .addHttpHeaders(headers: _*)
         .withBody(body)
-      val hc = credentials.fold(holder) { case (un, pw) =>
+      val hc = serviceAuth("ehridata", config).fold(holder) { case (un, pw) =>
         holder.withAuth(un, pw, WSAuthScheme.BASIC)
       }
       timeout.fold(hc)(t => hc.withRequestTimeout(t))

@@ -1,13 +1,14 @@
 package controllers.api.oaipmh
 
-import config.serviceBaseUrl
 import akka.util.ByteString
+import config.{serviceAuthHeaders, serviceBaseUrl}
 import controllers.AppComponents
 import controllers.portal.base.PortalController
-import javax.inject.{Inject, Singleton}
 import play.api.http.{ContentTypes, HttpVerbs}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+
+import javax.inject.{Inject, Singleton}
 
 
 @Singleton
@@ -27,7 +28,9 @@ case class OaiPmhHome @Inject()(
     */
   def query: Action[RawBuffer] = OptionalUserAction.async(parsers.raw) { implicit request =>
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
-    ws.url(s"${serviceBaseUrl("ehridata", config)}/oaipmh?" + request.rawQueryString)
+    val name = "ehridata"
+    ws.url(s"${serviceBaseUrl(name, config)}/oaipmh?" + request.rawQueryString)
+      .withHttpHeaders(serviceAuthHeaders(name, config): _*)
       .withMethod(HttpVerbs.GET)
       .withBody(bytes)
       .stream().map { r =>

@@ -6,7 +6,7 @@ import play.api.data.Forms._
 case class OaiPmhConfig(
   url: String,
   format: String,
-  set: Option[String] = None
+  set: Option[String] = None,
 )
 
 object OaiPmhConfig {
@@ -28,6 +28,6 @@ object OaiPmhConfig {
   val form: Form[OaiPmhConfig] = Form(mapping(
     URL -> nonEmptyText.verifying("errors.invalidUrl", forms.isValidUrl),
     METADATA_FORMAT -> nonEmptyText,
-    SET -> optional(text).transform[Option[String]](_.filterNot(_.trim.isEmpty), identity)
+    SET -> optional(text).transform[Option[String]](_.filterNot(_.trim.isEmpty), identity),
   )(OaiPmhConfig.apply)(OaiPmhConfig.unapply))
 }

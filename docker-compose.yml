@@ -17,7 +17,9 @@ services:
     image: ehri/ehri-rest:latest
     ports:
       - 7575:7474
+      - 7686:7687
     environment:
+      NEO4J_AUTH: neo4j/changeme
       # RUNS DB initialisation on startup
       EHRI_INIT: "true"
 

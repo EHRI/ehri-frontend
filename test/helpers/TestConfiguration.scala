@@ -7,7 +7,7 @@ import akka.util.Timeout
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import cookies.SessionPreferences
 import lifecycle.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
@@ -19,7 +19,7 @@ import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceApplicationLoader, GuiceableModule}
 import play.api.libs.json.{Json, Writes}
 import play.api.libs.mailer.{Email, MailerClient}
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSAuthScheme, WSClient}
 import play.api.mvc.request.{Cell, RequestAttrKey}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
@@ -159,7 +159,10 @@ trait TestConfiguration {
     import org.specs2.execute.{Error, Failure}
     // Integration tests assume a server running locally. We then use the
     // initialise endpoint to clean it before each individual test.
-    ws.url(url).post(fixtures).map(_.status).map {
+    val r = ws.url(url)
+    serviceAuth("ehridata", config).fold(r) { case (un, pw) =>
+      r.withAuth(un, pw, WSAuthScheme.BASIC)
+    }.post(fixtures).map(_.status).map {
         case Status.NO_CONTENT => try f() catch { case e: Throwable => Error(e) }
         case s => Failure(s"Unable to initialise test DB, got a status of: $s")
       } recover {
