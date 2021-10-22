@@ -1,4 +1,7 @@
 import play.api.Configuration
+import play.api.http.HeaderNames
+
+import java.util.Base64
 
 package object config {
 
@@ -20,4 +23,21 @@ package object config {
     val mountPoint = config.get[String](s"services.$name.mountPoint")
     serviceHost(name, config) + "/" + mountPoint
   }
+
+  /**
+    * Get a service's authentication parameters.
+    */
+  def serviceAuth(name: String, config: play.api.Configuration): Option[(String, String)] = for {
+    username <- config.getOptional[String](s"services.$name.username")
+    password <- config.getOptional[String](s"services.$name.password")
+  } yield (username, password)
+
+  /**
+    * Get a service's authentication headers.
+    */
+  def serviceAuthHeaders(name: String, config: play.api.Configuration): Seq[(String, String)] =
+    serviceAuth(name, config).toSeq.map { case (username, password) =>
+      val credentials = Base64.getEncoder.encodeToString(s"$username:$password".getBytes)
+      HeaderNames.AUTHORIZATION -> s"Basic $credentials"
+    }
 }

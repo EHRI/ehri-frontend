@@ -59,10 +59,8 @@ case class SearchToolsIndexMediatorHandle(
 
   private def indexHelper(specs: String*): Pipeline[JsonNode, JsonNode] = {
     val builder = new Builder[JsonNode, JsonNode]
-      .addSink(new IndexJsonSink(index, new IndexJsonSink.EventHandler {
-        override def handleEvent(event: Any): Unit = {
-          chan.foreach(_ ! processFunc(event.toString))
-        }
+      .addSink(new IndexJsonSink(index, (event: Any) => {
+        chan.foreach(_ ! processFunc(event.toString))
       }))
       .addConverter(new JsonConverter)
       .addSink(new CallbackSink[JsonNode](new CallbackSink.Callback[JsonNode]() {

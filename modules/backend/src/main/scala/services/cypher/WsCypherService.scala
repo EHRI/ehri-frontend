@@ -5,7 +5,7 @@ import akka.stream.alpakka.json.scaladsl.JsonReader
 import akka.stream.scaladsl.Source
 import akka.stream.{Materializer, scaladsl}
 import akka.util.ByteString
-import config.serviceBaseUrl
+import config.{serviceAuthHeaders, serviceBaseUrl}
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
@@ -49,8 +49,6 @@ case class WsCypherService @Inject ()(
 
   val logger: Logger = play.api.Logger(getClass)
 
-  private val requestUrl = serviceBaseUrl("cypher", config)
-
   override def get(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[CypherResult] =
     raw(scriptBody, params).execute(HttpVerbs.POST)
       .map(r => (r.json \ "results" \ 0).as[WsCypherResult].asLegacy)
@@ -71,10 +69,9 @@ case class WsCypherService @Inject ()(
       "params" -> params
     )
     logger.debug(s"Legacy Cypher: ${Json.toJson(data)}")
+
     Source.future(
-      ws.url(serviceBaseUrl("legacyCypher", config))
-        .withMethod(HttpVerbs.POST)
-        .withHttpHeaders(STREAM_HEADER_NAME -> "true")
+      request("legacyCypher")
         .withBody(data)
         .stream()
         .map(_.bodyAsSource))
@@ -89,9 +86,11 @@ case class WsCypherService @Inject ()(
         )
     ))
     logger.debug(s"Cypher: ${Json.toJson(data)}")
-    ws.url(requestUrl)
-      .withMethod(HttpVerbs.POST)
-      .withHttpHeaders(STREAM_HEADER_NAME -> "true")
-      .withBody(data)
+    request("cypher").withBody(data)
   }
+
+  private def request(name: String) = ws.url(serviceBaseUrl(name, config))
+    .addHttpHeaders(serviceAuthHeaders(name, config): _*)
+    .addHttpHeaders(STREAM_HEADER_NAME -> "true")
+    .withMethod(HttpVerbs.POST)
 }

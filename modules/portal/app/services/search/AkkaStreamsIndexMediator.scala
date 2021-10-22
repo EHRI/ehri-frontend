@@ -6,19 +6,19 @@ import akka.http.scaladsl.Http.HostConnectionPool
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, RawHeader}
 import akka.http.scaladsl.settings.{ClientConnectionSettings, ConnectionPoolSettings}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import models.EntityType
 import play.api.libs.json.Json
 import play.api.{Configuration, Logger}
 import services.data.Constants.{AUTH_HEADER_NAME, STREAM_HEADER_NAME}
-import services.search.SearchConstants.{ID, ITEM_ID, TYPE}
+import services.search.SearchConstants.{ITEM_ID, TYPE}
 
 import java.io.StringWriter
 import java.time
@@ -50,6 +50,8 @@ case class AkkaStreamsIndexMediatorHandle(
   private val logger = Logger(classOf[AkkaStreamsIndexMediator])
 
   private val dataBaseUrl: Uri = serviceBaseUrl("ehridata", config)
+  private val dataAuth: Option[Authorization] = serviceAuth("ehridata", config)
+    .map { case (un, pw) => headers.Authorization(BasicHttpCredentials(un, pw))}
   private val solrBaseUrl: Uri = serviceBaseUrl("solr", config) + "/update"
   private val jsonSupport = EntityStreamingSupport.json(Integer.MAX_VALUE)
   private val jsonConverter = new JsonConverter
@@ -117,9 +119,9 @@ case class AkkaStreamsIndexMediatorHandle(
       .withQuery(Query("limit" -> "-1", "all" -> "true"))))
   }
 
-  private def urisToRequests(uris: List[HttpRequest]): List[(HttpRequest, Uri)] = uris.map { r =>
-    val req = r
-      .withHeaders(RawHeader(STREAM_HEADER_NAME, "true"), RawHeader(AUTH_HEADER_NAME, "admin"))
+  private def setCommonHeaders(reqs: List[HttpRequest]): List[(HttpRequest, Uri)] = reqs.map { r =>
+    val headers = Seq(RawHeader(STREAM_HEADER_NAME, "true"), RawHeader(AUTH_HEADER_NAME, "admin")) ++ dataAuth.toSeq
+    val req = r.withHeaders(headers: _*)
     req -> r.uri
   }
 
@@ -140,7 +142,7 @@ case class AkkaStreamsIndexMediatorHandle(
     val init = java.time.Instant.now()
     var count = 0
 
-    val bytesFlow = Source(urisToRequests(requests))
+    val bytesFlow = Source(setCommonHeaders(requests))
       .map { case (r, uri) =>
         // TBD: mapAsync(1) doesn't work here, resulting in errors like
         // "Response entity was not subscribed after 1 second..."
