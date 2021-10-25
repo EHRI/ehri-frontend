@@ -1,22 +1,22 @@
 package services.harvesting
 
-import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
-
 import akka.NotUsed
 import akka.stream.Materializer
 import akka.stream.alpakka.xml.ParseEvent
 import akka.stream.alpakka.xml.scaladsl.{XmlParsing, XmlWriting}
 import akka.stream.scaladsl.{Flow, Keep, Source}
 import akka.util.ByteString
-import javax.inject.Inject
 import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.Logger
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.http.HeaderNames
+import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import services.ingest.XmlFormatter
 
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.SAXParseException
 
@@ -28,7 +28,9 @@ sealed trait TokenState {
 }
 
 case object Initial extends TokenState
+
 case class Resume(token: String) extends TokenState
+
 case object Final extends TokenState
 
 
@@ -56,7 +58,7 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
 
         val allParams = params ++ otherParams
 
-        ws.url(endpoint.url)
+        newRequest(endpoint)
           .withQueryStringParameters(allParams: _*)
           .stream().map { response =>
 
@@ -77,6 +79,10 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
     }.flatMapConcat(f => f)
   }
 
+  private def newRequest(endpoint: OaiPmhConfig): WSRequest = ws
+    .url(endpoint.url)
+    .withHttpHeaders(endpoint.auth.toSeq.map(s => HeaderNames.AUTHORIZATION -> s"Basic ${s.encodeBase64}"): _*)
+
   private def getFormattedTime(endpoint: OaiPmhConfig, time: Option[Instant]): Future[Option[String]] = {
     time.fold(Future.successful(Option.empty[String])) { fromTime =>
       val fmtF = identify(endpoint).map(_.granularity).map {
@@ -93,9 +99,9 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
   // `from` parameter and we're not resuming we have to run `identify` prior
   // to the List* commands
   private def getListParams(verb: String,
-                            endpoint: OaiPmhConfig,
-                            from: Option[Instant],
-                            resume: Option[String]): Future[Seq[(String, String)]] = {
+    endpoint: OaiPmhConfig,
+    from: Option[Instant],
+    resume: Option[String]): Future[Seq[(String, String)]] = {
     resume.fold(
       ifEmpty = getFormattedTime(endpoint, from).map { timeOpt =>
         logger.debug(s"Harvesting with `from` time: $timeOpt")
@@ -109,7 +115,7 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
 
   override def identify(endpoint: OaiPmhConfig): Future[OaiPmhIdentity] = {
     val verb = "Identify"
-    ws.url(endpoint.url)
+    newRequest(endpoint)
       .withQueryStringParameters("verb" -> verb)
       .get()
       .map { r =>
@@ -147,7 +153,7 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
     val paramsF = getListParams(verb, endpoint, from, resume)
 
     paramsF.flatMap { params =>
-      ws.url(endpoint.url)
+      newRequest(endpoint)
         .withQueryStringParameters(params: _*)
         .get()
         .map { r =>
@@ -185,15 +191,15 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
       "identifier" -> id,
       "metadataPrefix" -> endpoint.format
     )
-    val f = ws.url(endpoint.url)
+    val f = newRequest(endpoint)
       .withQueryStringParameters(params: _*)
-      .stream().map { response =>
-      response.bodyAsSource
-        .via(XmlParsing.parser)
-        .via(XmlParsing
-          .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata")))
-        .via(XmlFormatter.format)
-        .via(XmlWriting.writer)
+      .stream()
+      .map { _.bodyAsSource
+          .via(XmlParsing.parser)
+          .via(XmlParsing
+            .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata")))
+          .via(XmlFormatter.format)
+          .via(XmlWriting.writer)
     }
     Source.future(f).flatMapConcat(r => r)
   }

@@ -19,6 +19,9 @@ export default {
       tested: null,
       testing: false,
       error: null,
+      authParams: false,
+      authUser: "",
+      authPass: "",
       noResume: false,
     }
   },
@@ -27,19 +30,27 @@ export default {
       return this.url
           && this.url.trim() !== ""
           && this.format
-          && this.format.trim() !== "";
+          && this.format.trim() !== ""
+          && (!this.authParams || (this.authParams && this.authUser !== "" && this.authPass !== ""));
     },
+    auth: function() {
+      return this.authParams ? {
+        username: this.authUser,
+        password: this.authPass
+      } : null;
+    }
   },
   methods: {
     save: function() {
       this.$emit("saving");
-      this.api.saveOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
-          .then(data => this.$emit("saved-config", data, !this.noResume))
+      // auth data is not saved on the server, so don't send it...
+      this.api.saveOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: null})
+          .then(data => this.$emit("saved-config", {...data, auth: this.auth}, !this.noResume))
           .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set})
+      this.api.testOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: this.auth})
           .then( r => {
             this.tested = !!r.name;
             this.error = null;
@@ -59,6 +70,12 @@ export default {
       this.url = newValue ? newValue.url : null;
       this.format = newValue ? newValue.format : null;
       this.set = newValue ? newValue.set : null;
+      this.auth = newValue ? newValue.auth : null;
+    },
+    authParams: function(newValue) {
+      if (!newValue) {
+        this.authUser = this.authPass = "";
+      }
     }
   },
 };
@@ -68,7 +85,7 @@ export default {
   <modal-window v-on:close="$emit('close')">
     <template v-slot:title>OAI-PMH Endpoint Configuration</template>
 
-    <div class="options-form">
+    <form class="options-form">
       <div class="form-group">
         <label class="form-label" for="opt-endpoint-url">
           OAI-PMH endpoint URL
@@ -89,6 +106,28 @@ export default {
       </div>
       <div class="form-group">
         <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="opt-auth" v-model="authParams"/>
+          <label class="form-check-label" for="opt-auth">
+            HTTP Basic Authentication
+          </label>
+        </div>
+      </div>
+      <fieldset v-if="authParams">
+        <div class="form-group">
+          <label class="form-label" for="opt-auth-username">
+            Username
+          </label>
+          <input v-model="authUser" class="form-control" id="opt-auth-username" type="text" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opt-auth-password">
+            Password
+          </label>
+          <input v-model="authPass" class="form-control" id="opt-auth-password" type="password" autocomplete="off"/>
+        </div>
+      </fieldset>
+      <div class="form-group">
+        <div class="form-check">
           <input type="checkbox" class="form-check-input" id="opt-no-resume" v-model="noResume"/>
           <label class="form-check-label" for="opt-no-resume">
             <strong>Do not</strong> resume from last harvest timestamp
@@ -101,7 +140,7 @@ export default {
         <span v-else-if="error" class="text-danger">{{error}}</span>
         <span v-else class="text-danger">Test unsuccessful</span>
       </div>
-    </div>
+    </form>
 
     <template v-slot:footer>
       <button v-on:click="$emit('close')" type="button" class="btn btn-default">
