@@ -2,7 +2,7 @@ package services.search
 
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import models.EntityType
 import play.api.{Configuration, Logger}
 import services.data.Constants
@@ -84,7 +84,8 @@ case class CmdlineIndexMediatorHandle(
     "-H", Constants.AUTH_HEADER_NAME + "=admin",
     "-H", Constants.STREAM_HEADER_NAME + "=true",
     "--verbose" // print one line of output per item
-  )
+  ) ++ serviceAuth("ehridata", config).toSeq
+    .flatMap { case (user, pass) => Seq("--username", user, "--password", pass)}
 
   private def runProcess(cmd: Seq[String]) = Future {
     logger.debug(s"Index: ${cmd.mkString(" ")}")
