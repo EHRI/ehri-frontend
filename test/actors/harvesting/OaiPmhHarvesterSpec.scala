@@ -4,10 +4,10 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
-import models.{OaiPmhConfig, UserProfile}
+import models.{OaiPmhConfig, OaiPmhConfigAuth, UserProfile}
 import play.api.{Application, Configuration}
 import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
@@ -24,7 +24,8 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
 
   private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
-    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
+    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1"),
+      serviceAuth("ehridata", config).map { case (username, password) => OaiPmhConfigAuth(username, password)}),
     prefix = "oaipmh/r1/"
   ))
 

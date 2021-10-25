@@ -5,11 +5,11 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import akka.actor.{ActorContext, Props}
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
-import models.{HarvestEvent, OaiPmhConfig, ResourceSyncConfig, UserProfile}
+import models.{HarvestEvent, OaiPmhConfig, OaiPmhConfigAuth, ResourceSyncConfig, UserProfile}
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient, ResourceSyncClient}
@@ -36,7 +36,8 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
 
   private def oaiPmhJob(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
     // where we're harvesting from:
-    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1")),
+    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1"),
+      serviceAuth("ehridata", config).map { case (username, password) => OaiPmhConfigAuth(username, password)} ),
     prefix = "oaipmh/r1/"
   ))
 

@@ -1,13 +1,12 @@
 package services.harvesting
 
 import java.io.StringWriter
-
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
-import config.serviceBaseUrl
+import config.{serviceAuth, serviceBaseUrl}
 import helpers.TestConfiguration
 import models.OaiPmhIdentity.Granularity
-import models.{OaiPmhConfig, OaiPmhIdentity}
+import models.{OaiPmhConfig, OaiPmhConfigAuth, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.test.PlaySpecification
 import play.api.{Application, Configuration}
@@ -31,7 +30,9 @@ class WSOaiPmhClientSpec extends PlaySpecification with TestConfiguration {
 
   private def endpoint(implicit app: Application) = {
     val config = app.injector.instanceOf[Configuration]
-    OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead")
+    val auth = serviceAuth("ehridata", config)
+      .map { case (username, password) => OaiPmhConfigAuth(username, password)}
+    OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", auth =  auth)
   }
 
   "OAI PMH client service" should {

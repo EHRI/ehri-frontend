@@ -14,10 +14,16 @@ export type ConfigType = {
   maxPreviewSize: number;
 }
 
+export interface OaiPmhConfigAuth {
+  username: string,
+  password: string,
+}
+
 export interface OaiPmhConfig {
   url: string,
   format: string,
   set?: string,
+  auth?: OaiPmhConfigAuth
 }
 
 export interface ResourceSyncConfig {

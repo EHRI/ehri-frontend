@@ -1,11 +1,11 @@
 package services.harvesting
 
 import akka.actor.ActorSystem
-import anorm.{Macro, RowParser, _}
-import javax.inject.{Inject, Singleton}
+import anorm.{RowParser, SqlParser, _}
 import models.OaiPmhConfig
 import play.api.db.Database
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -14,9 +14,14 @@ case class SqlOaiPmhConfigService @Inject()(db: Database, actorSystem: ActorSyst
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  private implicit val parser: RowParser[OaiPmhConfig] =
-    Macro.parser[OaiPmhConfig](
-      "endpoint_url", "metadata_prefix", "set_spec")
+  // NB: this row parser deliberately does not populate the `auth` parameter
+  private implicit val parser: RowParser[OaiPmhConfig] = {
+    SqlParser.str("endpoint_url") ~
+      SqlParser.str("metadata_prefix") ~
+      SqlParser.get[Option[String]]("set_spec")
+    }.map {
+      case url ~ prefix ~ spec => OaiPmhConfig(url, prefix, spec)
+    }
 
   override def get(id: String, ds: String): Future[Option[OaiPmhConfig]] = Future {
     db.withConnection { implicit conn =>
