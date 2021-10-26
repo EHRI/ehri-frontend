@@ -66,12 +66,5 @@
     }
 
 } {
-    @views.html.admin.common.sidebarActions { user =>
-        @views.html.admin.common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.cypher.routes.CypherQueries.createQuery()">@Messages("cypherQuery.create")</a>
-        }
-        @views.html.admin.common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.cypher.routes.CypherQueries.cypherForm()">@Messages("cypherQuery.console")</a>
-        }
-    }
+    @views.html.admin.cypherQueries.adminActions()
 }

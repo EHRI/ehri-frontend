@@ -17,7 +17,6 @@ import services.data.Constants.STREAM_HEADER_NAME
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 private case class WsCypherResultData(row: List[JsValue], meta: Seq[JsValue])
 
 private object WsCypherResultData {
@@ -77,6 +76,9 @@ case class WsCypherService @Inject ()(
         .map(_.bodyAsSource))
     .flatMapConcat(identity)
   }
+
+  override def explain(scriptBody: String, params: Map[String,JsValue] = Map.empty): Future[CypherExplain] =
+    raw(s"EXPLAIN $scriptBody", params).execute().map(r => CypherExplain(r.json))
 
   private def raw(scriptBody: String, params: Map[String,JsValue] = Map.empty): WSRequest = {
     val data = Json.obj("statements" -> Json.arr(

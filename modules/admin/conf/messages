@@ -212,6 +212,8 @@ cypherQuery.sort.created=Created
 cypherQuery.sort.created.title=Display results order of creation
 cypherQuery.sort.updated=Updated
 cypherQuery.sort.updated.title=Display results most recently updated first
+cypherQuery.checkAll=Query Validation
+cypherQuery.check.details=Details
 download.format.html=View as HTML
 
 # Provenance
