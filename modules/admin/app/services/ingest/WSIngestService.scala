@@ -1,6 +1,6 @@
 package services.ingest
 
-import config.{serviceAuthHeaders, serviceBaseUrl}
+import config.ServiceConfig
 
 import java.io.PrintWriter
 import java.net.URI
@@ -52,7 +52,7 @@ case class WSIngestService @Inject()(
 
   private implicit val ec: ExecutionContext = mat.executionContext
   private val logger = Logger(getClass)
-  private val serviceName = "ehridata"
+  private val serviceConfig = ServiceConfig("ehridata", config)
 
   // Actor that just prints out a progress indicator
   object Ticker {
@@ -135,7 +135,7 @@ case class WSIngestService @Inject()(
   }
 
   override def clearIndex(ids: Seq[String], chan: ActorRef): Future[Unit] = {
-    def uri(id: String): String =  s"${serviceBaseUrl(serviceName, config)}/classes/${EntityType.DocumentaryUnit}/$id"
+    def uri(id: String): String =  s"${serviceConfig.baseUrl}/classes/${EntityType.DocumentaryUnit}/$id"
     val cacheF = Future.sequence(ids.map(id => cache.remove(uri(id))))
     val indexF = indexer(chan).clearIds(ids: _*)
     for (_ <-  cacheF; r <- indexF) yield r
@@ -200,9 +200,9 @@ case class WSIngestService @Inject()(
       BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
 
     logger.info(s"Dispatching ingest: ${job.data.params}")
-    val upload = ws.url(s"${serviceBaseUrl(serviceName, config)}/import/${job.data.dataType}")
+    val upload = ws.url(s"${serviceConfig.baseUrl}/import/${job.data.dataType}")
       .withRequestTimeout(Duration.Inf)
-      .addHttpHeaders(serviceAuthHeaders(serviceName, config): _*)
+      .addHttpHeaders(serviceConfig.authHeaders: _*)
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
       .addQueryStringParameters(wsParams(job.data.params): _*)
@@ -231,9 +231,9 @@ case class WSIngestService @Inject()(
   }
 
   override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser): Future[IngestResult] = {
-    ws.url(s"${serviceBaseUrl(serviceName, config)}/import/coreferences")
+    ws.url(s"${serviceConfig.baseUrl}/import/coreferences")
       .withRequestTimeout(Duration.Inf)
-      .addHttpHeaders(serviceAuthHeaders(serviceName, config): _*)
+      .addHttpHeaders(serviceConfig.authHeaders: _*)
       .addHttpHeaders(user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
       .withQueryStringParameters(Seq(SCOPE -> id, COMMIT -> true.toString): _*)

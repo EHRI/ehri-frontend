@@ -1,7 +1,7 @@
 package controllers.api.graphql
 
 import akka.util.ByteString
-import config.{serviceAuthHeaders, serviceBaseUrl}
+import config.ServiceConfig
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HeaderNames, HttpVerbs}
@@ -42,10 +42,10 @@ case class GraphQL @Inject()(
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
     val ct = request.contentType.getOrElse(ContentTypes.BINARY)
     val streamHeader: Option[String] = request.headers.get(Constants.STREAM_HEADER_NAME)
-    val serviceName = "ehridata"
-    ws.url(s"${serviceBaseUrl(serviceName, config)}/graphql")
+    val serviceConfig = ServiceConfig("ehridata", config)
+    ws.url(s"${serviceConfig.baseUrl}/graphql")
       .withMethod(HttpVerbs.POST)
-      .addHttpHeaders(serviceAuthHeaders(serviceName, config): _*)
+      .addHttpHeaders(serviceConfig.authHeaders: _*)
       .addHttpHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)
       .addHttpHeaders(HeaderNames.CONTENT_TYPE -> ct)

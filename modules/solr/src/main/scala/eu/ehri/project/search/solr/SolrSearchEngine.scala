@@ -1,7 +1,6 @@
 package eu.ehri.project.search.solr
 
-import config.serviceHost
-import config.serviceBaseUrl
+import config.ServiceConfig
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
@@ -29,9 +28,9 @@ case class SolrSearchEngine @Inject()(
 
   private val logger: Logger = Logger(this.getClass)
 
-  private lazy val solrPath = serviceBaseUrl("solr", config)
 
-  private def solrSelectUrl = solrPath + "/select"
+  private val serviceConfig = ServiceConfig("solr", config)
+  private def solrSelectUrl = serviceConfig.baseUrl + "/select"
 
   private def paramsToForm(seq: Seq[(String, String)]): Map[String, Seq[String]] =
     seq.foldLeft(Map.empty[String,Seq[String]]) { case (m, (key, vals)) =>
@@ -50,7 +49,7 @@ case class SolrSearchEngine @Inject()(
   }
 
   override def status(): Future[String] = {
-    val host = serviceHost("solr", config)
+    val host = serviceConfig.hostUrl
     val url = s"$host/solr/admin/cores"
     val params = Seq("action" -> "STATUS", "wt" -> "json", "core" -> "portal")
 

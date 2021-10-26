@@ -12,7 +12,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import config.{serviceAuth, serviceBaseUrl}
+import config.ServiceConfig
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import models.EntityType
 import play.api.libs.json.Json
@@ -49,10 +49,13 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private val logger = Logger(classOf[AkkaStreamsIndexMediator])
 
-  private val dataBaseUrl: Uri = serviceBaseUrl("ehridata", config)
-  private val dataAuth: Option[Authorization] = serviceAuth("ehridata", config)
-    .map { case (un, pw) => headers.Authorization(BasicHttpCredentials(un, pw))}
-  private val solrBaseUrl: Uri = serviceBaseUrl("solr", config) + "/update"
+  private val dataServiceConfig = ServiceConfig("ehridata", config)
+  private val dataBaseUrl: Uri = dataServiceConfig.baseUrl
+  private val dataAuth: Option[Authorization] = dataServiceConfig.credentials
+    .map { case (u, pw) => headers.Authorization(BasicHttpCredentials(u, pw))}
+
+  private val solrServiceConfig = ServiceConfig("solr", config)
+  private val solrBaseUrl: Uri = solrServiceConfig.baseUrl + "/update"
   private val jsonSupport = EntityStreamingSupport.json(Integer.MAX_VALUE)
   private val jsonConverter = new JsonConverter
   private val mapper = new ObjectMapper

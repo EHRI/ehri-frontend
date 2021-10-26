@@ -1,15 +1,15 @@
 package actors.harvesting
 
-import actors.harvesting
 import actors.LongRunningJob.Cancel
+import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import akka.actor.{ActorContext, Props}
-import config.{serviceAuth, serviceBaseUrl}
+import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
-import models.{HarvestEvent, OaiPmhConfig, OaiPmhConfigAuth, ResourceSyncConfig, UserProfile}
+import models._
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient, ResourceSyncClient}
@@ -34,12 +34,15 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
   private val datasetId = "default"
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
-  private def oaiPmhJob(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
-    // where we're harvesting from:
-    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1"),
-      serviceAuth("ehridata", config).map { case (username, password) => OaiPmhConfigAuth(username, password)} ),
-    prefix = "oaipmh/r1/"
-  ))
+  private def oaiPmhJob(implicit app: Application) = {
+    val serviceConfig = ServiceConfig("ehridata", config)
+    OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
+      // where we're harvesting from:
+      config = OaiPmhConfig(s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
+        serviceConfig.credentials.map { case (u, pw) => OaiPmhConfigAuth(u, pw)} ),
+      prefix = "oaipmh/r1/"
+    ))
+  }
 
   private def rsJob(implicit app: Application): ResourceSyncJob = ResourceSyncJob("r1", datasetId, jobId, ResourceSyncData(
     // where we're harvesting from:

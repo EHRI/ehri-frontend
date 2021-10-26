@@ -2,7 +2,7 @@ package services.data
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
-import config.{serviceAuth, serviceBaseUrl}
+import config.ServiceConfig
 import play.api.Logger
 import play.api.http._
 import play.api.libs.json._
@@ -42,13 +42,10 @@ trait WebServiceHelpers {
       if (queryString.nonEmpty) s"$url?${utils.http.joinQueryString(queryString)}" else url
 
     private def holderWithAuth: WSRequest = {
-      val holder = ws.url(url)
+      val hc = ws.url(url)
         .addQueryStringParameters(queryString: _*)
         .addHttpHeaders(headers: _*)
         .withBody(body)
-      val hc = serviceAuth("ehridata", config).fold(holder) { case (un, pw) =>
-        holder.withAuth(un, pw, WSAuthScheme.BASIC)
-      }
       timeout.fold(hc)(t => hc.withRequestTimeout(t))
     }
 
@@ -145,8 +142,8 @@ trait WebServiceHelpers {
     * @return
     */
   private[data] def authHeaders(implicit apiUser: DataUser): Map[String, String] = apiUser match {
-    case AuthenticatedUser(id) => headers + (AUTH_HEADER_NAME -> id)
-    case AnonymousUser => headers
+    case AuthenticatedUser(id) => (headers + (AUTH_HEADER_NAME -> id)) ++ serviceConfig.authHeaders
+    case AnonymousUser => headers ++ serviceConfig.authHeaders
   }
 
   /**
@@ -194,7 +191,8 @@ trait WebServiceHelpers {
     uri.toString
   }
 
-  protected def baseUrl: String = serviceBaseUrl("ehridata", config)
+  private val serviceConfig = ServiceConfig("ehridata", config)
+  protected def baseUrl: String = serviceConfig.baseUrl
 
   protected def typeBaseUrl: String = enc(baseUrl, "classes")
 

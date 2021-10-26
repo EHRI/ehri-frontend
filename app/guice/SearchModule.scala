@@ -1,7 +1,7 @@
 package guice
 
 import com.google.inject.AbstractModule
-import config.serviceBaseUrl
+import config.ServiceConfig
 import eu.ehri.project.indexing.index.Index
 import eu.ehri.project.indexing.index.impl.SolrIndex
 import eu.ehri.project.search.solr._
@@ -10,7 +10,7 @@ import services.search._
 import javax.inject.{Inject, Provider}
 
 private class SolrIndexProvider @Inject()(config: play.api.Configuration) extends Provider[Index] {
-  override def get(): Index = new SolrIndex(serviceBaseUrl("solr", config))
+  override def get(): Index = new SolrIndex(ServiceConfig("solr", config).baseUrl)
 }
 
 
