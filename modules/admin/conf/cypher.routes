@@ -10,3 +10,4 @@ POST        /update/:id         @controllers.cypher.CypherQueries.updateQueryPos
 GET         /delete/:id         @controllers.cypher.CypherQueries.deleteQuery(id: String)
 POST        /delete/:id         @controllers.cypher.CypherQueries.deleteQueryPost(id: String)
 GET         /execute/:id        @controllers.cypher.CypherQueries.executeQuery(id: String, format: controllers.DataFormat.Value ?= controllers.DataFormat.Json)
+GET         /check              @controllers.cypher.CypherQueries.checkQueries()

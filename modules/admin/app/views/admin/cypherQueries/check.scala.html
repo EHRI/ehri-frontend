@@ -1,0 +1,36 @@
+@(results: Seq[(CypherQuery, services.cypher.CypherExplain)])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@extraStyles = {
+    <style>
+        table.raw-data td.explain {
+            font-size: .8em;
+            white-space: nowrap;
+            overflow: auto;
+            max-height: 160rem;
+            max-width: 30rem;
+        }
+    </style>
+}
+
+@views.html.admin.layout.rightSidebar(Messages("cypherQuery.checkAll"), styles = extraStyles) {
+    <table class="raw-data table table-striped table-bordered">
+        @results.map { case (query, explain) =>
+            <tr>
+                <td>
+                    <a class="@(if(explain.isValid) "text-success" else "text-danger") @(if(explain.hasErrors) "text-danger") @(if(explain.hasNotifications) "text-warning")"
+                        href="@controllers.cypher.routes.CypherQueries.updateQuery(query.objectId.getOrElse(""))">@query.name</a>
+                </td>
+                <td class="explain">
+                    @if(explain.hasErrors || explain.hasNotifications) {
+                        <details>
+                            <summary>@Messages("cypherQuery.check.details")</summary>
+                            <pre>@play.api.libs.json.Json.prettyPrint(explain.data)</pre>
+                        </details>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+} {
+    @views.html.admin.cypherQueries.adminActions()
+}

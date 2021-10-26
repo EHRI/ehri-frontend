@@ -2,6 +2,7 @@ package controllers.cypher
 
 
 import akka.stream.alpakka.csv.scaladsl.CsvFormatting
+
 import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
@@ -12,11 +13,13 @@ import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
+import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.cypher.{CypherQueryService, CypherResult, WsCypherService}
+import services.cypher.{CypherExplain, CypherQueryService, CypherResult, WsCypherService}
 import services.search.SearchParams
 import utils.PageParams
 
+import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.util.Failure
 
@@ -65,7 +68,7 @@ case class CypherQueries @Inject()(
     }
   }
 
-  def createQuery = AdminAction { implicit request =>
+  def createQuery: Action[AnyContent] = AdminAction { implicit request =>
     Ok(views.html.admin.cypherQueries.form(None, CypherQuery.form,
       controllers.cypher.routes.CypherQueries.createQueryPost()))
   }
@@ -114,6 +117,17 @@ case class CypherQueries @Inject()(
     cypherQueries.delete(id).map { _ =>
       Redirect(controllers.cypher.routes.CypherQueries.listQueries())
         .flashing("success" -> "item.delete.confirmation")
+    }
+  }
+
+  def checkQueries(): Action[AnyContent] = AdminAction.async { implicit request =>
+    cypherQueries.list(PageParams.empty.withoutLimit).flatMap { page =>
+      val seq: Seq[Future[(CypherQuery, CypherExplain)]] = page.items.map { q =>
+        cypher.explain(q.query, Map.empty).map(exp => q -> exp)
+      }
+      Future.sequence(seq).map { results =>
+        Ok(views.html.admin.cypherQueries.check(results))
+      }
     }
   }
 
