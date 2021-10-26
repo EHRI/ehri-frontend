@@ -4,7 +4,7 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
-import config.{serviceAuth, serviceBaseUrl}
+import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{OaiPmhConfig, OaiPmhConfigAuth, UserProfile}
@@ -22,12 +22,15 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
   private val datasetId = "default"
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
-  private def job(implicit app: Application) = OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
-    // where we're harvesting from:
-    config = OaiPmhConfig(s"${serviceBaseUrl("ehridata", config)}/oaipmh", "ead", Some("nl:r1"),
-      serviceAuth("ehridata", config).map { case (username, password) => OaiPmhConfigAuth(username, password)}),
-    prefix = "oaipmh/r1/"
-  ))
+  private def job(implicit app: Application) = {
+    val serviceConfig = ServiceConfig("ehridata", config)
+    OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
+      // where we're harvesting from:
+      config = OaiPmhConfig(s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
+        serviceConfig.credentials.map { case (u, pw) => OaiPmhConfigAuth(u, pw)}),
+      prefix = "oaipmh/r1/"
+    ))
+  }
 
   import Harvester._
 

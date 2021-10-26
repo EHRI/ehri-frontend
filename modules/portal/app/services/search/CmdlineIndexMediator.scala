@@ -2,7 +2,7 @@ package services.search
 
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
-import config.{serviceAuth, serviceBaseUrl}
+import config.ServiceConfig
 import models.EntityType
 import play.api.{Configuration, Logger}
 import services.data.Constants
@@ -69,9 +69,11 @@ case class CmdlineIndexMediatorHandle(
   private def jar = config.getOptional[String]("solr.indexer.jar")
     .getOrElse(sys.error("No indexer jar configured for solr.indexer.jar"))
 
-  private val restUrl = serviceBaseUrl("ehridata", config)
+  private val dataServiceConfig = ServiceConfig("ehridata", config)
+  private val restUrl = dataServiceConfig.baseUrl
 
-  private val solrUrl = serviceBaseUrl("solr", config)
+  private val solrServiceConfig = ServiceConfig("solr", config)
+  private val solrUrl = solrServiceConfig.baseUrl
 
   private val clearArgs = binary ++ Seq(
     "--solr", solrUrl
@@ -84,8 +86,9 @@ case class CmdlineIndexMediatorHandle(
     "-H", Constants.AUTH_HEADER_NAME + "=admin",
     "-H", Constants.STREAM_HEADER_NAME + "=true",
     "--verbose" // print one line of output per item
-  ) ++ serviceAuth("ehridata", config).toSeq
-    .flatMap { case (user, pass) => Seq("--username", user, "--password", pass)}
+  ) ++ dataServiceConfig.credentials.toSeq.flatMap { case (u, pw) =>
+    Seq("--username", u, "--password", pw)
+  }
 
   private def runProcess(cmd: Seq[String]) = Future {
     logger.debug(s"Index: ${cmd.mkString(" ")}")

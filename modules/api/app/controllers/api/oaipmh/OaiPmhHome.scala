@@ -1,7 +1,7 @@
 package controllers.api.oaipmh
 
 import akka.util.ByteString
-import config.{serviceAuthHeaders, serviceBaseUrl}
+import config.ServiceConfig
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HttpVerbs}
@@ -28,9 +28,9 @@ case class OaiPmhHome @Inject()(
     */
   def query: Action[RawBuffer] = OptionalUserAction.async(parsers.raw) { implicit request =>
     val bytes = request.body.asBytes().getOrElse(ByteString.empty).toArray
-    val name = "ehridata"
-    ws.url(s"${serviceBaseUrl(name, config)}/oaipmh?" + request.rawQueryString)
-      .withHttpHeaders(serviceAuthHeaders(name, config): _*)
+    val serviceConfig = ServiceConfig("ehridata", config)
+    ws.url(s"${serviceConfig.baseUrl}/oaipmh?" + request.rawQueryString)
+      .withHttpHeaders(serviceConfig.authHeaders: _*)
       .withMethod(HttpVerbs.GET)
       .withBody(bytes)
       .stream().map { r =>

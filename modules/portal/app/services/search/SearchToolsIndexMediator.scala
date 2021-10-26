@@ -2,7 +2,7 @@ package services.search
 
 import akka.actor.{ActorRef, ActorSystem}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
-import config.{serviceAuthHeaders, serviceBaseUrl}
+import config.ServiceConfig
 import eu.ehri.project.indexing.Pipeline.Builder
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import eu.ehri.project.indexing.index.Index
@@ -44,8 +44,7 @@ case class SearchToolsIndexMediatorHandle(
 
   private val logger  = Logger(this.getClass)
 
-  private val serviceName = "ehridata"
-  val dataBaseUrl: String = serviceBaseUrl(serviceName, config)
+  private val serviceConfig = ServiceConfig("ehridata", config)
 
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean): SearchToolsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)(index, config)
@@ -54,8 +53,7 @@ case class SearchToolsIndexMediatorHandle(
     val props = new Properties()
     props.put(Constants.STREAM_HEADER_NAME, true.toString)
     props.put(Constants.AUTH_HEADER_NAME, "admin")
-    serviceAuthHeaders(serviceName, config)
-      .foreach { case (name, value) => props.put(name, value)}
+    serviceConfig.authHeaders.foreach { case (name, value) => props.put(name, value)}
     extra.foreach { case (k, v) => props.put(k, v.toString)}
     props
   }
@@ -83,7 +81,7 @@ case class SearchToolsIndexMediatorHandle(
          }
        }))
 
-    IndexHelper.urlsFromSpecs(dataBaseUrl, specs: _*).asScala.foreach { url =>
+    IndexHelper.urlsFromSpecs(serviceConfig.baseUrl, specs: _*).asScala.foreach { url =>
       builder.addSource(new WebJsonSource(url, indexProperties()))
     }
     builder.build()

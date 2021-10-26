@@ -5,7 +5,7 @@ import akka.stream.alpakka.json.scaladsl.JsonReader
 import akka.stream.scaladsl.Source
 import akka.stream.{Materializer, scaladsl}
 import akka.util.ByteString
-import config.{serviceAuthHeaders, serviceBaseUrl}
+import config.ServiceConfig
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
@@ -89,8 +89,11 @@ case class WsCypherService @Inject ()(
     request("cypher").withBody(data)
   }
 
-  private def request(name: String) = ws.url(serviceBaseUrl(name, config))
-    .addHttpHeaders(serviceAuthHeaders(name, config): _*)
-    .addHttpHeaders(STREAM_HEADER_NAME -> "true")
-    .withMethod(HttpVerbs.POST)
+  private def request(name: String) = {
+    val serviceConfig = ServiceConfig(name, config)
+    ws.url(serviceConfig.baseUrl)
+      .addHttpHeaders(serviceConfig.authHeaders: _*)
+      .addHttpHeaders(STREAM_HEADER_NAME -> "true")
+      .withMethod(HttpVerbs.POST)
+  }
 }
