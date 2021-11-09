@@ -220,17 +220,15 @@ export default {
                       <i class="fa fa-download"></i>
                       Download As File
                     </button>
-                    <template v-if="data.bodyType === 'xquery'">
-                      <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; copyToClipboard()">
-                        <i class="fa fa-copy"></i>
-                        Copy To Clipboard
-                      </button>
-                      <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; importFromClipboard()">
-                        <i class="fa fa-clipboard"></i>
-                        Import From Clipboard
-                      </button>
-                      <div class="dropdown-divider"></div>
-                    </template>
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; copyToClipboard()">
+                      <i class="fa fa-copy"></i>
+                      Copy To Clipboard
+                    </button>
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; importFromClipboard()">
+                      <i class="fa fa-clipboard"></i>
+                      Import From Clipboard
+                    </button>
+                    <div class="dropdown-divider"></div>
                     <button class="dropdown-item btn btn-sm"
                             v-on:click="showRemoveDialog = true; showOptions = false;"
                             v-bind:disabled="!Boolean(id)">
