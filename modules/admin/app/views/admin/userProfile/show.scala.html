@@ -3,6 +3,12 @@
 @views.html.admin.userProfile.itemPage(item) {
 
     <dl class="description">
+        @if(userOpt.exists(_.isAdmin)) {
+            @item.account.map { account =>
+                <dt>@Messages("userProfile.email")</dt>
+                <dd>@account.email</dd>
+            }
+        }
         @item.data.location.map { loc =>
             <dt>@Messages("userProfile.location")</dt>
             <dd>@loc</dd>
