@@ -1,4 +1,35 @@
-@(item: Group, page: utils.Page[Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Group, page: _root_.utils.Page[Accessor], params: utils.PageParams, annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@name(acc: Accessor) = {
+    @acc match {
+        case user: UserProfile if !user.data.active => {
+            @user.toStringLang (@Messages("userProfile.active.false"))
+        }
+        case _ => {
+            @acc.toStringLang
+        }
+    }
+}
+
+@cls(acc: Accessor) = {
+    @acc match {
+        case user: UserProfile if !user.data.active => {
+            text-muted
+        }
+        case _ => {
+        }
+    }
+}
+
+@badges(acc: Accessor) = {
+    @acc match {
+        case user: UserProfile => {
+            @views.html.admin.userProfile.statusBadges(user)
+        }
+        case _ => {
+        }
+    }
+}
 
 @removeLink(acc: Accessor) = {
     @if(acc.isA == EntityType.Group) {
@@ -29,8 +60,11 @@
     @views.html.admin.common.filterableList("group.membersPageHeader", page, params) {
         <ul>
             @page.items.map { member =>
-                <h4><a href="@views.admin.Helpers.linkTo(member)">@member.toStringLang</a></h4>
-                @removeLink(member)
+                <h4>
+                    <a class="@cls(member)" href="@views.admin.Helpers.linkTo(member)">@name(member)</a>
+                    @badges(member)
+                </h4>
+                    @removeLink(member)
                 <hr />
             }
         </ul>

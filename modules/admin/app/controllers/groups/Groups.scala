@@ -31,7 +31,7 @@ case class Groups @Inject()(
 
   def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     for {
-      page <- userDataApi.children[Group,Accessor](id, paging)
+      page <- userDataApi.children[Group, Accessor](id, paging)
       accs <- accounts.findAllById(ids = page.items.collect { case up: UserProfile => up.id })
     } yield {
       val pageWithAccounts = page.copy(items = page.items.map {
