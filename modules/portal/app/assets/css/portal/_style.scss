@@ -1041,22 +1041,33 @@ ul.pagination {
 
   .user-grid-item {
     margin-bottom: $list-margin-bottom;
+    align-content: center;
 
   }
 
   .user-info {
     .img-container {
-      width: 6rem;
-      height: 6rem;
-      overflow: hidden;
+      img {
+        border-radius: 50%;
+        width: 8rem;
+        height: 8rem;
+        overflow: hidden;
+        object-fit: cover;
+      }
+    }
+    text-align: center;
+    h3 {
+      margin-top: $margin-sm;
     }
   }
 }
 
 .user-info-details {
-  margin-left: $margin-md;
   font-size: $font-size-sm;
   color: $text-muted;
+  .institution {
+    font-style: italic;
+  }
 }
 
 .user-img-full {

@@ -16,18 +16,23 @@
                 <ul class="user-grid">
                     @result.page.map { case (user, hit) =>
                         <li class="user-grid-item user-info">
-                            <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
-                                <span class="helper"></span>
-                                <img alt="Image" width="100%" height="auto" src="@views.Helpers.gravitar(user.data.imageUrl)" />
-                            </a>
                             <div class="user-info-details">
+                                <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
+                                    <span class="helper"></span>
+                                    <img alt="Image" width="100%" height="auto" src="@views.Helpers.gravitar(user.data.imageUrl)" />
+                                </a>
                                 <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
                                 @userInfo {
-                                    @user.data.institution.map { inst =>
-                                        <li>@inst</li>
+                                    @user.data.role.map { role =>
+                                    <li>@role</li>
                                     }
-                                    @user.data.location.map { loc =>
-                                        <li>@loc</li>
+                                    @user.data.institution.map { inst =>
+                                        <li class="institution">@inst</li>
+                                    }
+                                    @user.data.url.map { url =>
+                                        <a href=@url target="_blank">
+                                            <i class="fa fa-link" aria-hidden="true"></i>
+                                        </a>
                                     }
                                 }
                             </div>
