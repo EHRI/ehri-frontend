@@ -4,7 +4,10 @@ import Vue from 'vue';
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
-import _concat from 'lodash/concat';
+
+/**
+ * FIXME: massive duplication with the tabular XQuery editor here
+ */
 
 export default {
   props: {
@@ -36,7 +39,7 @@ export default {
       let point = this.selected === -1
           ? this.mappings.length
           : this.selected + 1;
-      this.mappings.splice(point, 0, ["", "", "", ""])
+      this.mappings.splice(point, 0, ["", ""])
       this.selected = point;
       this.update()
           .then(() => this.focus(this.selected, 0));
@@ -52,47 +55,35 @@ export default {
       this.selected = Math.min(i, this.mappings.length - 1);
       this.update();
     },
-    moveUp: function(i): void {
-      if (i > 0) {
-        let m = this.mappings.splice(i, 1)[0];
-        this.mappings.splice(i - 1, 0, m);
-        this.selected = i - 1;
-        this.update();
-      }
-    },
-    moveDown: function(i): void {
-      if (i < this.mappings.length - 1) {
-        let m = this.mappings.splice(i, 1)[0];
-        this.mappings.splice(i + 1, 0, m);
-        this.selected = i + 1;
-        this.update();
-      }
-    },
-    deserialize: function(str): string[] {
+    deserialize: function(str): string[][] {
       if (str !== "") {
-        // Ignore the header row here...
         return str
             .split("\n")
-            .slice(1)
             .map (m => {
               let parts = m.split("\t");
               return [
                 parts[0] ? parts[0] : "",
                 parts[1] ? parts[1] : "",
-                parts[2] ? parts[2] : "",
-                parts[3] ? parts[3] : "",
               ];
             });
       } else {
         return [];
       }
     },
-    serialize: function(mappings): string {
-      let header = ["target-path\ttarget-node\tsource-node\tvalue"]
-      let rows = mappings.map(m => m.join("\t"))
-      let all = _concat(header, rows)
-      return all.join("\n");
+    serialize: function(mappings: string[][]): string {
+      return mappings.map(m => m.join("\t")).join("\n");
     },
+    importFromClipboard: function() {
+      if (this.mappings && this.mappings.length > 0) {
+        if (!window.confirm("Overwrite existing data?")) {
+          return;
+        }
+      }
+      navigator.clipboard.readText().then(text => {
+        this.mappings = this.deserialize(text.trim());
+        this.update();
+      });
+    }
   },
   watch: {
     value: function(newValue) {
@@ -103,18 +94,16 @@ export default {
 </script>
 
 <template>
-  <div class="xquery-editor tabular-editor">
+  <div class="urlset-editor tabular-editor">
     <div class="tabular-editor-data" v-on:keyup.esc="selected = -1">
       <div class="tabular-editor-header">
-        <input readonly disabled type="text" value="target-path" @click="selected = -1"/>
-        <input readonly disabled type="text" value="target-node" @click="selected = -1"/>
-        <input readonly disabled type="text" value="source-node" @click="selected = -1"/>
-        <input readonly disabled type="text" value="value" @click="selected = -1"/>
+        <input readonly disabled type="text" value="url" @click="selected = -1"/>
+        <input readonly disabled type="text" value="target-filename" @click="selected = -1"/>
       </div>
       <div class="tabular-editor-mappings">
         <template v-for="(mapping, row) in mappings">
           <input
-              v-for="col in [0, 1, 2, 3]"
+              v-for="col in [0, 1]"
               type="text"
               v-bind:ref="_padStart(row, 4, 0) + '-' + col"
               v-bind:key="_padStart(row, 4, 0) + '-' + col"
@@ -125,29 +114,25 @@ export default {
         </template>
       </div>
     </div>
-    <div class="tabular-editor-toolbar ">
+    <div class="tabular-editor-toolbar">
       <button class="btn btn-default btn-sm" v-on:click="add">
         <i class="fa fa-plus"></i>
-        Add Mapping
+        Add URL/name
       </button>
       <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0" v-on:click="duplicate(selected)">
         <i class="fa fa-copy"></i>
-        Duplicate Mapping
+        Duplicate
       </button>
       <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0" v-on:click="remove(selected)">
         <i class="fa fa-trash-o"></i>
-        Delete Mapping
+        Delete URL/name
       </button>
-      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === 0" v-on:click="moveUp(selected)">
-        <i class="fa fa-caret-up"></i>
-        Move Up
-      </button>
-      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === mappings.length - 1" v-on:click="moveDown(selected)">
-        <i class="fa fa-caret-down"></i>
-        Move Down
+      <button class="btn btn-default btn-sm" v-on:click="importFromClipboard">
+        <i class="fa fa-clipboard"></i>
+        Import TSV From Clipboard
       </button>
       <div class="tabular-editor-toolbar-info">
-        Data mappings: {{mappings.length}}
+        URLs: {{mappings.length}}
       </div>
     </div>
   </div>

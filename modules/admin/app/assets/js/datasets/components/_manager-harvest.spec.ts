@@ -1,12 +1,12 @@
 import {shallowMount} from '@vue/test-utils';
-import ManagerRs from './_manager-rs.vue';
+import ManagerHarvest from './_manager-harvest.vue';
 import {DatasetManagerApi} from "../api";
 
 jest.mock('../api');
 
-describe('ManagerRs component', () => {
+describe('ManagerHarvest component', () => {
   let api = new DatasetManagerApi({}, 'r1');
-  const wrapper = shallowMount(ManagerRs, {
+  const wrapper = shallowMount(ManagerHarvest, {
     propsData: {
       fileStage: 'input',
       config: {},
@@ -16,6 +16,6 @@ describe('ManagerRs component', () => {
 
   test('mounting', () => {
     expect(wrapper.isVisible()).toBeTruthy();
-    expect(wrapper.find("#rs-panel-container .panel-placeholder").exists()).toBe(true);
+    expect(wrapper.find("#harvest-panel-container .panel-placeholder").exists()).toBe(true);
   });
 })

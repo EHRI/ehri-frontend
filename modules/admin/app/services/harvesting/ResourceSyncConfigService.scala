@@ -6,7 +6,7 @@ import models.ResourceSyncConfig
 import scala.concurrent.Future
 
 /**
- * Data access object trait for managing OAI-PMH
+ * Data access object trait for managing ResourceSync
   * configurations.
  */
 @ImplementedBy(classOf[SqlResourceSyncConfigService])

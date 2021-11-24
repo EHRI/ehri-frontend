@@ -1,4 +1,4 @@
-import {ResourceSyncConfig, FileList} from "../types";
+import {FileList, HarvestConfig} from "../types";
 
 export class DatasetManagerApi {
   constructor(service: object, repoId: string) {
@@ -26,7 +26,7 @@ export class DatasetManagerApi {
     )
   }
 
-  getSyncConfig(ds: string): Promise<ResourceSyncConfig | null> {
+  getHarvestConfig(ds: string): Promise<HarvestConfig | null> {
     return Promise.resolve(null);
   }
 }

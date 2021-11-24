@@ -2,56 +2,59 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting
-import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
+import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
 import akka.actor.Props
 import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
-import models.{OaiPmhConfig, BasicAuthConfig, UserProfile}
+import models.{BasicAuthConfig, UrlSetConfig, UserProfile}
+import play.api.libs.ws.WSClient
 import play.api.{Application, Configuration}
-import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
 
-class OaiPmhHarvesterSpec extends IntegrationTestRunner {
+class UrlSetHarvesterSpec extends IntegrationTestRunner {
 
-  private def client(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
+  private def client(implicit app: Application): WSClient = app.injector.instanceOf[WSClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
 
   private val jobId = "test-job-id"
   private val datasetId = "default"
+  private val itemIds = Seq("c4", "nl-r1-m19")
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
   private def job(implicit app: Application) = {
     val serviceConfig = ServiceConfig("ehridata", config)
-    OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
-      // where we're harvesting from:
-      config = OaiPmhConfig(s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
-        serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)}),
-      prefix = "oaipmh/r1/"
+    val urls = itemIds.map(id => s"${serviceConfig.baseUrl}/classes/DocumentaryUnit/$id/ead" -> s"$id.xml")
+    UrlSetHarvesterJob("r1", datasetId, jobId, UrlSetHarvesterData(
+      // the URLs we're harvesting and the server auth
+      config = UrlSetConfig(urls, serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)}),
+      prefix = "urlset/r1/"
     ))
   }
 
   import Harvester._
 
-  "OAI-PMH harvest runner" should {
+  "URL set harvest runner" should {
 
     "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
-      val runner = system.actorOf(Props(OaiPmhHarvester(client, storage)))
+      val runner = system.actorOf(Props(UrlSetHarvester(client, storage)))
 
       runner ! job
       expectMsg(Starting)
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+      expectMsg(ToDo(2))
+      expectMsg(DoneFile("+ c4.xml"))
+      expectMsg(DoneFile("+ nl-r1-m19.xml"))
       expectMsgClass(classOf[Completed])
     }
 
     "allow cancellation" in new ITestAppWithAkka {
-      val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(client, storage)))
+      val runner = system.actorOf(Props(harvesting.UrlSetHarvester(client, storage)))
 
       runner ! job
       expectMsg(Starting)
-      expectMsgAnyOf(DoneFile("c4"), DoneFile("nl-r1-m19"))
+      expectMsg(ToDo(2))
+      expectMsg(DoneFile("+ c4.xml"))
       runner ! Cancel
       expectMsgClass(classOf[Cancelled])
     }

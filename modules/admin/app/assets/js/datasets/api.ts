@@ -1,16 +1,26 @@
-
 import axios from "axios";
 import {apiCall} from "./common";
 
 import {
-  Cleanup, CleanupSummary,
-  ConvertConfig, Coreference,
-  DataTransformation, DataTransformationInfo, FileInfo,
+  Cleanup,
+  CleanupSummary,
+  ConvertConfig,
+  Coreference,
+  DataTransformation,
+  DataTransformationInfo,
+  FileInfo,
   FileToUpload,
-  ImportConfig, ImportDataset, ImportDatasetInfo, ImportLog, ImportLogSummary,
+  HarvestConfig,
+  ImportConfig,
+  ImportDataset,
+  ImportDatasetInfo,
+  ImportLog,
+  ImportLogSummary,
   JobMonitor,
-  OaiPmhConfig, RepositoryDatasets,
-  ResourceSyncConfig, Snapshot, SnapshotInfo, ValidationResult
+  RepositoryDatasets,
+  Snapshot,
+  SnapshotInfo,
+  ValidationResult
 } from "./types";
 
 
@@ -106,48 +116,28 @@ export class DatasetManagerApi {
       });
   }
 
-  sync(ds: string, config: ResourceSyncConfig): Promise<JobMonitor> {
-    return apiCall(this.service.ResourceSyncConfigs.sync(this.repoId, ds), config);
+  harvest(ds: string, config: HarvestConfig, fromLast?: boolean): Promise<JobMonitor> {
+    return apiCall(this.service.HarvestConfigs.harvest(this.repoId, ds, fromLast), config);
   }
 
-  getSyncConfig(ds: string): Promise<ResourceSyncConfig | null> {
-    return apiCall(this.service.ResourceSyncConfigs.get(this.repoId, ds));
+  getHarvestConfig(ds: string): Promise<HarvestConfig | null> {
+    return apiCall(this.service.HarvestConfigs.get(this.repoId, ds));
   }
 
-  saveSyncConfig(ds: string, config: ResourceSyncConfig): Promise<ResourceSyncConfig> {
-    return apiCall(this.service.ResourceSyncConfigs.save(this.repoId, ds), config);
+  saveHarvestConfig(ds: string, config: HarvestConfig): Promise<HarvestConfig> {
+    return apiCall(this.service.HarvestConfigs.save(this.repoId, ds), config);
   }
 
-  deleteSyncConfig(ds: string): Promise<void> {
-    return apiCall(this.service.ResourceSyncConfigs.delete(this.repoId, ds));
+  deleteHarvestConfig(ds: string): Promise<void> {
+    return apiCall(this.service.HarvestConfigs.delete(this.repoId, ds));
   }
 
-  testSyncConfig(ds: string, config: ResourceSyncConfig): Promise<{ok: true}> {
-    return apiCall(this.service.ResourceSyncConfigs.test(this.repoId, ds), config);
+  testHarvestConfig(ds: string, config: HarvestConfig): Promise<{ok: true}> {
+    return apiCall(this.service.HarvestConfigs.test(this.repoId, ds), config);
   }
 
-  cleanSyncConfig(ds: string, config: ResourceSyncConfig): Promise<string[]> {
-    return apiCall(this.service.ResourceSyncConfigs.clean(this.repoId, ds), config);
-  }
-
-  getOaiPmhConfig(ds: string): Promise<OaiPmhConfig | null> {
-    return apiCall(this.service.OaiPmhConfigs.get(this.repoId, ds));
-  }
-
-  saveOaiPmhConfig(ds: string, config: OaiPmhConfig): Promise<OaiPmhConfig> {
-    return apiCall(this.service.OaiPmhConfigs.save(this.repoId, ds), config);
-  }
-
-  deleteOaiPmhConfig(ds: string): Promise<void> {
-    return apiCall(this.service.OaiPmhConfigs.delete(this.repoId, ds));
-  }
-
-  testOaiPmhConfig(ds: string, config: OaiPmhConfig): Promise<object> {
-    return apiCall(this.service.OaiPmhConfigs.test(this.repoId, ds), config);
-  }
-
-  harvest(ds: string, config: OaiPmhConfig, fromLast: boolean): Promise<JobMonitor> {
-    return apiCall(this.service.OaiPmhConfigs.harvest(this.repoId, ds, fromLast), config);
+  cleanHarvestConfig(ds: string, config: HarvestConfig): Promise<string[]> {
+    return apiCall(this.service.HarvestConfigs.clean(this.repoId, ds), config);
   }
 
   convert(ds: string, key: string|null, config: ConvertConfig): Promise<JobMonitor> {

@@ -9,7 +9,7 @@ import akka.util.ByteString
 import javax.inject.Inject
 import models._
 import org.xml.sax.SAXParseException
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.Future.{successful => immediate}
@@ -33,8 +33,12 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
   private def parseAttr(node: Node, key: String): Option[String] =
     node.attribute(key).flatMap(_.headOption.map(_.text))
 
-  private def readUrlSet(url: String, filter: String => Boolean): Future[Seq[ResourceSyncItem]] = {
-    ws.url(url).withFollowRedirects(true).get().map { r =>
+  private def wsReq(config: ResourceSyncConfig, url: String): WSRequest = config.auth.fold(ws.url(url)) { case BasicAuthConfig(username, password) =>
+    ws.url(url).withAuth(username, password, WSAuthScheme.BASIC).withFollowRedirects(true)
+  }
+
+  private def readUrlSet(config: ResourceSyncConfig, filter: String => Boolean): Future[Seq[ResourceSyncItem]] = {
+    wsReq(config, config.url).get().map { r =>
       try {
         (r.xml \ "url").flatMap { urlNode =>
           val md = urlNode \ "md"
@@ -59,7 +63,7 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
         }
       } catch {
         case _: SAXParseException =>
-          throw ResourceSyncError("badFormat", url)
+          throw ResourceSyncError("badFormat", config.url)
       }
     }
   }
@@ -69,12 +73,12 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
     val test: String => Boolean = config.filter.fold(ifEmpty = (_: String) => true)(
       s => t => Pattern.compile(s).matcher(t).find())
 
-    readUrlSet(config.url, test).flatMap { list =>
+    readUrlSet(config, test).flatMap { list =>
 
       val s: Source[FileLink, NotUsed] = Source(list.toList)
         .mapAsync(1) {
           case item: FileLink => immediate(Seq(item))
-          case ResourceList(loc) => readUrlSet(loc, test)
+          case ResourceList(loc) => readUrlSet(config.copy(url = loc), test)
           // TODO: other states...
           case _ => immediate(Seq.empty)
         }
@@ -85,8 +89,8 @@ case class WSResourceSyncClient @Inject()(ws: WSClient)(implicit mat: Materializ
     }
   }
 
-  override def get(link: FileLink): Source[ByteString, _] =
-    Source.future(ws.url(link.loc).withFollowRedirects(true).get().map { r =>
+  override def get(config: ResourceSyncConfig, link: FileLink): Source[ByteString, _] =
+    Source.future(wsReq(config, link.loc).get().map { r =>
       if (r.status == 404) {
         Source.failed(ResourceSyncError("notFound", link.loc))
       } else if (r.status != 200) {

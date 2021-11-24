@@ -14,7 +14,7 @@ export type ConfigType = {
   maxPreviewSize: number;
 }
 
-export interface OaiPmhConfigAuth {
+export interface BasicAuthConfig {
   username: string,
   password: string,
 }
@@ -23,13 +23,21 @@ export interface OaiPmhConfig {
   url: string,
   format: string,
   set?: string,
-  auth?: OaiPmhConfigAuth
+  auth?: BasicAuthConfig
 }
 
 export interface ResourceSyncConfig {
   url: string,
   filter?: string,
+  auth?: BasicAuthConfig
 }
+
+export interface UrlSetConfig {
+  urlMap: string[][],
+  auth?: BasicAuthConfig
+}
+
+export type HarvestConfig = OaiPmhConfig | ResourceSyncConfig | UrlSetConfig
 
 export interface ImportConfig {
   allowUpdates: boolean,
@@ -53,6 +61,7 @@ export interface ConvertSpec {
 
 export type ConvertConfig = TransformationList | ConvertSpec;
 
+
 export interface JobMonitor {
   jobId: string,
   url: string,
@@ -75,7 +84,7 @@ export interface DataTransformation extends DataTransformationInfo{
   created: string,
 }
 
-export type ImportDatasetSrc = 'oaipmh' | 'rs' | 'upload';
+export type ImportDatasetSrc = 'oaipmh' | 'rs' | 'upload' | 'urlset';
 
 export type ImportDatasetStatus = 'active|onhold|inactive';
 
