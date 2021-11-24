@@ -16,6 +16,6 @@ case class MockResourceSyncClient @Inject()()(implicit ec: ExecutionContext) ext
     )
   }
 
-  override def get(link: FileLink): Source[ByteString, _] =
+  override def get(config: ResourceSyncConfig, link: FileLink): Source[ByteString, _] =
     Source.single(ByteString.fromString("""<ead></ead>"""))
 }

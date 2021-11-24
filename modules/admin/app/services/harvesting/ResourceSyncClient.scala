@@ -27,7 +27,7 @@ trait ResourceSyncClient {
     * Given a config, which consists of a capabilitylist URL and
     * a regex filter, fetch a list of file URLs.
     *
-    * @param config an RS config
+    * @param config an RS config object
     * @return a list of files in linked resourcelists
     */
   def list(config: ResourceSyncConfig): Future[Seq[FileLink]]
@@ -38,9 +38,10 @@ trait ResourceSyncClient {
     * @throws ResourceSyncError if attempting to fetch the
     *                           file's data does not return
     *                           the correct HTTP status code
+    * @param config an RS config object
     * @param link a [[FileLink]] item
     * @return the source of bytes
     */
   @throws[ResourceSyncError]
-  def get(link: FileLink): Source[ByteString, _]
+  def get(config: ResourceSyncConfig, link: FileLink): Source[ByteString, _]
 }

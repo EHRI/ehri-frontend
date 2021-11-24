@@ -2,11 +2,12 @@
 
 import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
-import FormHttpBasicAuth from './_form-http-basic-auth';
 import {DatasetManagerApi} from '../api';
+import EditorUrlset from "./_editor-urlset.vue";
+import FormHttpBasicAuth from "./_form-http-basic-auth";
 
 export default {
-  components: {FormHttpBasicAuth, ModalAlert, ModalWindow},
+  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -16,7 +17,7 @@ export default {
   },
   data: function() {
     return {
-      url: this.opts ? this.opts.url : null,
+      urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
       auth: this.opts.auth ? this.opts.auth : null,
       tested: null,
@@ -24,24 +25,38 @@ export default {
       cleaning: false,
       error: null,
       orphanCheck: null,
+      tab: 'urls',
     }
   },
   computed: {
     isValidConfig: function() {
-      return this.url && this.url.trim() !== ""
+      return this.urlMap !== null
+          && this.urlMap.length > 0
           && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""));
     },
+    urlMapText: {
+      get: function(): string {
+        return this.urlMap
+            ? this.urlMap.map(pairs => pairs.join('\t')).join('\n')
+            : '';
+      },
+      set: function(urlMapText: string): void {
+        this.urlMap = urlMapText
+            ? urlMapText.split('\n').map(p => p.split('\t'))
+            : [];
+      }
+    }
   },
   methods: {
     save: function() {
       this.$emit("saving");
-      this.api.saveHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: null})
+      this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
           .then(data => this.$emit("saved-config", {...data, auth: this.auth}))
-          .catch(error => this.$emit("error", "Error saving RS config", error));
+          .catch(error => this.$emit("error", "Error saving URL set config", error));
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: this.auth})
+      this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth})
           .then(() => {
             this.tested = true;
             this.error = null;
@@ -57,7 +72,7 @@ export default {
     },
     cleanEndpoint: function() {
       this.cleaning = true;
-      this.api.cleanHarvestConfig(this.datasetId, {url: this.url, filter: this.filter})
+      this.api.cleanHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
           .then(orphans => this.orphanCheck = orphans)
           .catch(e => this.error = e.message)
           .finally(() => this.cleaning = false);
@@ -74,16 +89,15 @@ export default {
   },
   watch: {
     opts: function(newValue) {
-      this.url = newValue ? newValue.url : null;
-      this.filter = newValue ? newValue.filter : null;
+      this.urlMap = newValue ? newValue.urlMap : null;
     }
   },
 }
 </script>
 
 <template>
-  <modal-window v-on:close="$emit('close')">
-    <template v-slot:title>ResourceSync Endpoint Configuration</template>
+  <modal-window v-bind:resizable="true" v-on:close="$emit('close')">
+    <template v-slot:title>URL Set Configuration</template>
 
     <modal-alert
       v-if="orphanCheck !== null && orphanCheck.length === 0"
@@ -105,28 +119,26 @@ export default {
       </div>
     </modal-alert>
 
-    <div class="options-form">
-      <div class="form-group">
-        <label class="form-label" for="opt-endpoint-url">
-          ResourceSync capability list endpoint URL
-        </label>
-        <input class="form-control" id="opt-endpoint-url" type="url" v-model.trim="url" placeholder="(required)"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="opt-filter">
-          ResourceSync path filter RegEx
-        </label>
-        <input class="form-control" id="opt-filter" type="text" v-model.trim="filter" placeholder="(optional)"/>
-      </div>
+    <ul id="urlset-options" class="nav nav-tabs">
+      <li class="nav-item">
+        <a v-on:click.prevent="tab = 'urls'" v-bind:class="{active: tab === 'urls'}" class="nav-link" href="#">URLs</a>
+      </li>
+      <li class="nav-item">
+        <a v-on:click.prevent="tab = 'options'" v-bind:class="{active: tab === 'options'}" class="nav-link" href="#">Options</a>
+      </li>
+    </ul>
 
+    <div v-if="tab === 'urls'" class="urlset-editor-input">
+      <editor-urlset v-model.lazy="urlMapText"/>
+    </div>
+    <div v-else class="options-form">
       <form-http-basic-auth v-model="auth"/>
-
-      <div id="endpoint-errors">
-        <span v-if="tested === null">&nbsp;</span>
-        <span v-else-if="tested" class="text-success">No errors detected</span>
-        <span v-else-if="error" class="text-danger">{{error}}</span>
-        <span v-else class="text-danger">Test unsuccessful</span>
-      </div>
+    </div>
+    <div id="endpoint-errors">
+      <span v-if="tested === null">&nbsp;</span>
+      <span v-else-if="tested" class="text-success">No errors detected</span>
+      <span v-else-if="error" class="text-danger">{{error}}</span>
+      <span v-else class="text-danger">Test unsuccessful</span>
     </div>
 
     <template v-slot:footer>
@@ -149,7 +161,7 @@ export default {
       <button v-bind:disabled="!isValidConfig"
               v-on:click="save" type="button" class="btn btn-secondary">
         <i v-bind:class="{'fa-clone': !waiting, 'fa-circle-o-notch fa-spin': waiting}" class="fa fa-fw"></i>
-        Sync Endpoint
+        Sync Downloads
       </button>
     </template>
   </modal-window>

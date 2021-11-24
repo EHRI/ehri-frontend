@@ -180,6 +180,41 @@ $active-table-row: #e7f1ff;
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+.modal-content.resizable {
+  min-height: 30rem;
+}
+
+.modal-content.resizable > .modal-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.modal-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: inline;
+  width: 1rem;
+  height: 1rem;
+  cursor: nwse-resize;
+}
+
+.modal-resize-handle:after {
+  content:'';
+  display:block;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid $ehri-border-gray;
+  width: 2px;
+  height: 5px;
+  position: absolute;
+  pointer-events: none;
+  right: -1px;
+  bottom: 1px;
+  transform: rotate(135deg);
+}
+
 #stage-tabs,
 #dataset-manager-tabs
 {
@@ -531,18 +566,18 @@ $active-table-row: #e7f1ff;
   border: 1px solid $ehri-border-gray;
 }
 
-.xquery-editor-data {
+.tabular-editor-data {
   @extend %expanding-column;
   @extend %overflow-contents;
   overflow-x: unset;
 }
 
-.xquery-editor-toolbar {
+.tabular-editor-toolbar {
   display: flex;
   justify-content: right;
 }
 
-.xquery-editor-toolbar-info {
+.tabular-editor-toolbar-info {
   align-self: center;
   margin-left: auto;
   font-size: $font-size-xs;
@@ -550,7 +585,7 @@ $active-table-row: #e7f1ff;
   padding: $margin-xs;
 }
 
-.xquery-editor-header {
+.tabular-editor-header {
   position: sticky;
   top: 0;
   background-color: $white;
@@ -560,16 +595,41 @@ $active-table-row: #e7f1ff;
   }
 }
 
-.xquery-editor-header,
-.xquery-editor-mappings {
+.tabular-editor-header,
+.tabular-editor-mappings
+{
   font-size: $font-size-xs;
-
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
 
   .selected {
     background-color: lighten($blue, 60%);
   }
+}
+
+.xquery-editor .tabular-editor-header,
+.xquery-editor .tabular-editor-mappings {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+
+.urlset-editor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.urlset-editor-input {
+  display: flex;
+  flex: 1;
+  background-color: $gray-100;
+  margin-bottom: $margin-sm;
+}
+
+
+.urlset-editor .tabular-editor-header,
+.urlset-editor .tabular-editor-mappings {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
 }
 
 .xslt-editor {
@@ -881,6 +941,10 @@ $active-table-row: #e7f1ff;
 
 .options-form {
   padding: $margin-md;
+}
+
+.resizable .options-form {
+  flex: 1;
 }
 
 .options-form .small.form-text {

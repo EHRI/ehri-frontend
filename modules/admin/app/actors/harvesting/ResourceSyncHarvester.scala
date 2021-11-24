@@ -114,7 +114,7 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
       // Either the hash doesn't match or the file's not there yet
       // so upload it now...
       case _ =>
-        val bytes = client.get(item)
+        val bytes = client.get(job.data.config, item)
         storage.putBytes(
           path,
           bytes,

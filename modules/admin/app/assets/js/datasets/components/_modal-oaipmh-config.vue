@@ -1,27 +1,27 @@
 <script lang="ts">
 
 import ModalWindow from './_modal-window';
+import FormHttpBasicAuth from './_form-http-basic-auth';
 import {DatasetManagerApi} from '../api';
 
 export default {
-  components: {ModalWindow},
+  components: {FormHttpBasicAuth, ModalWindow},
   props: {
     waiting: Boolean,
     datasetId: String,
-    config: Object,
+    opts: Object,
     api: DatasetManagerApi,
+    config: Object,
   },
   data: function() {
     return {
-      url: this.config ? this.config.url : null,
-      format: this.config ? this.config.format : null,
-      set: this.config ? this.config.set : null,
+      url: this.opts ? this.opts.url : null,
+      format: this.opts ? this.opts.format : null,
+      set: this.opts ? this.opts.set : null,
+      auth: this.opts.auth ? this.opts.auth : null,
       tested: null,
       testing: false,
       error: null,
-      authParams: false,
-      authUser: "",
-      authPass: "",
       noResume: false,
     }
   },
@@ -31,26 +31,20 @@ export default {
           && this.url.trim() !== ""
           && this.format
           && this.format.trim() !== ""
-          && (!this.authParams || (this.authParams && this.authUser !== "" && this.authPass !== ""));
+          && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""));
     },
-    auth: function() {
-      return this.authParams ? {
-        username: this.authUser,
-        password: this.authPass
-      } : null;
-    }
   },
   methods: {
     save: function() {
       this.$emit("saving");
       // auth data is not saved on the server, so don't send it...
-      this.api.saveOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: null})
+      this.api.saveHarvestConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: null})
           .then(data => this.$emit("saved-config", {...data, auth: this.auth}, !this.noResume))
           .catch(error => this.$emit("error", "Error saving OAI-PMH config", error));
     },
     testEndpoint: function() {
       this.testing = true;
-      this.api.testOaiPmhConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: this.auth})
+      this.api.testHarvestConfig(this.datasetId, {url: this.url, format: this.format, set: this.set, auth: this.auth})
           .then( r => {
             this.tested = !!r.name;
             this.error = null;
@@ -66,17 +60,12 @@ export default {
     }
   },
   watch: {
-    config: function(newValue) {
+    opts: function(newValue) {
       this.url = newValue ? newValue.url : null;
       this.format = newValue ? newValue.format : null;
       this.set = newValue ? newValue.set : null;
       this.auth = newValue ? newValue.auth : null;
     },
-    authParams: function(newValue) {
-      if (!newValue) {
-        this.authUser = this.authPass = "";
-      }
-    }
   },
 };
 </script>
@@ -104,28 +93,9 @@ export default {
         </label>
         <input class="form-control" id="opt-set" type="text" v-model.trim="set"/>
       </div>
-      <div class="form-group">
-        <div class="form-check">
-          <input type="checkbox" class="form-check-input" id="opt-auth" v-model="authParams"/>
-          <label class="form-check-label" for="opt-auth">
-            HTTP Basic Authentication
-          </label>
-        </div>
-      </div>
-      <fieldset v-if="authParams">
-        <div class="form-group">
-          <label class="form-label" for="opt-auth-username">
-            Username
-          </label>
-          <input v-model="authUser" class="form-control" id="opt-auth-username" type="text" autocomplete="off"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="opt-auth-password">
-            Password
-          </label>
-          <input v-model="authPass" class="form-control" id="opt-auth-password" type="password" autocomplete="off"/>
-        </div>
-      </fieldset>
+
+      <form-http-basic-auth v-model="auth"/>
+
       <div class="form-group">
         <div class="form-check">
           <input type="checkbox" class="form-check-input" id="opt-no-resume" v-model="noResume"/>

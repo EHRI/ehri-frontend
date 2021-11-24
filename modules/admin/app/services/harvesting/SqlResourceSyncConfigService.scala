@@ -1,11 +1,11 @@
 package services.harvesting
 
 import akka.actor.ActorSystem
-import anorm.{Macro, RowParser, _}
-import javax.inject.{Inject, Singleton}
+import anorm.{RowParser, _}
 import models.ResourceSyncConfig
 import play.api.db.Database
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -14,8 +14,12 @@ case class SqlResourceSyncConfigService @Inject()(db: Database, actorSystem: Act
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  private implicit val parser: RowParser[ResourceSyncConfig] =
-    Macro.parser[ResourceSyncConfig]("endpoint_url", "filter_spec")
+  private implicit val parser: RowParser[ResourceSyncConfig] = {
+    SqlParser.str("endpoint_url") ~
+      SqlParser.get[Option[String]]("filter_spec")
+  }.map {
+    case url ~ spec => ResourceSyncConfig(url, spec)
+  }
 
   override def get(id: String, ds: String): Future[Option[ResourceSyncConfig]] = Future {
     db.withConnection { implicit conn =>

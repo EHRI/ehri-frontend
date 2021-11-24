@@ -4,6 +4,7 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
+import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
 import akka.actor.{ActorContext, Props}
 import config.ServiceConfig
 import helpers.IntegrationTestRunner
@@ -11,6 +12,7 @@ import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
 import models._
 import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.libs.ws.WSClient
 import play.api.{Application, Configuration}
 import services.harvesting.{MockHarvestEventService, OaiPmhClient, ResourceSyncClient}
 import services.storage.FileStorage
@@ -24,6 +26,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
 
   private def oaiPmhClient(implicit app: Application): OaiPmhClient = app.injector.instanceOf[OaiPmhClient]
   private def rsClient(implicit app: Application): ResourceSyncClient = app.injector.instanceOf[ResourceSyncClient]
+  private def wsClient(implicit app: Application): WSClient = app.injector.instanceOf[WSClient]
   private def storage(implicit app: Application): FileStorage = app.injector.instanceOf[FileStorage]
   private def config(implicit app: Application): Configuration = app.injector.instanceOf[Configuration]
   implicit def messagesApi(implicit app: Application): MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -32,6 +35,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
 
   private val jobId = "test-job-id"
   private val datasetId = "default"
+  private val itemIds = Seq("c4", "nl-r1-m19")
   private implicit val userOpt: Option[UserProfile] = Some(adminUserProfile)
 
   private def oaiPmhJob(implicit app: Application) = {
@@ -39,7 +43,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
     OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
       // where we're harvesting from:
       config = OaiPmhConfig(s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
-        serviceConfig.credentials.map { case (u, pw) => OaiPmhConfigAuth(u, pw)} ),
+        serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)} ),
       prefix = "oaipmh/r1/"
     ))
   }
@@ -50,8 +54,17 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
     prefix = "r1/input/"
   ))
 
+  private def urlSetJob(implicit app: Application) = {
+    val serviceConfig = ServiceConfig("ehridata", config)
+    val urls = itemIds.map(id => s"${serviceConfig.baseUrl}/classes/DocumentaryUnit/$id/ead" -> s"$id.xml")
+    UrlSetHarvesterJob("r1", datasetId, jobId, UrlSetHarvesterData(
+      // the URLs we're harvesting and the server auth
+      config = UrlSetConfig(urls, serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)}),
+      prefix = "urlset/r1/"
+    ))
+  }
 
-  "OAI-PMH harvester" should {
+  "Harvester Manager" should {
     import scala.concurrent.duration._
 
     "send correct messages when harvesting an endpoint via OAI-PMH" in new ITestAppWithAkka {
@@ -72,18 +85,35 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
     }
 
     "send correct messages when harvesting an endpoint via ResourceSync" in new ITestAppWithAkka {
+      val events = MockHarvestEventService()
+      val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
+      val harvester = system.actorOf(Props(HarvesterManager(rsJob, init, events)))
+
+      harvester ! self // initial subscriber should start harvesting
+      expectMsg(s"Starting harvest with job id: $jobId")
+      expectMsg(s"Syncing 3 files")
+      expectMsg("+ test1.xml")
+      expectMsg("+ test2.xml")
+      expectMsg("+ test3.xml")
+      val msg: String = receiveOne(5.seconds).asInstanceOf[String]
+      msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 3 files")
+      await(events.get("r1")).lift(1) must beSome[HarvestEvent]
+        .which(_.eventType must_== HarvestEventType.Completed)
+        .eventually(20, 100.millis)
+    }
+
+    "send correct messages when harvesting an endpoint via an URL set" in new ITestAppWithAkka {
         val events = MockHarvestEventService()
-        val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
-        val harvester = system.actorOf(Props(HarvesterManager(rsJob, init, events)))
+        val init = (context: ActorContext) => context.actorOf(Props(UrlSetHarvester(wsClient, storage)))
+        val harvester = system.actorOf(Props(HarvesterManager(urlSetJob, init, events)))
 
         harvester ! self // initial subscriber should start harvesting
         expectMsg(s"Starting harvest with job id: $jobId")
-        expectMsg(s"Syncing 3 files")
-        expectMsg("+ test1.xml")
-        expectMsg("+ test2.xml")
-        expectMsg("+ test3.xml")
+        expectMsg(s"Syncing 2 files")
+        expectMsg("+ c4.xml")
+        expectMsg("+ nl-r1-m19.xml")
         val msg: String = receiveOne(5.seconds).asInstanceOf[String]
-        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 3 files")
+        msg must startWith(s"${WebsocketConstants.DONE_MESSAGE}: synced 2 files")
         await(events.get("r1")).lift(1) must beSome[HarvestEvent]
           .which(_.eventType must_== HarvestEventType.Completed)
           .eventually(20, 100.millis)

@@ -5,7 +5,7 @@ import akka.util.ByteString
 import config.ServiceConfig
 import helpers.TestConfiguration
 import models.OaiPmhIdentity.Granularity
-import models.{OaiPmhConfig, OaiPmhConfigAuth, OaiPmhIdentity}
+import models.{OaiPmhConfig, BasicAuthConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.test.PlaySpecification
 import play.api.{Application, Configuration}
@@ -35,7 +35,7 @@ class WSOaiPmhClientSpec extends PlaySpecification with TestConfiguration {
       s"${serviceConfig.baseUrl}/oaipmh",
       "ead",
       auth = serviceConfig.credentials
-        .map { case (u, pw) => OaiPmhConfigAuth(u, pw) }
+        .map { case (u, pw) => BasicAuthConfig(u, pw) }
     )
   }
 

@@ -13,6 +13,7 @@ import services.data.{AuthenticatedUser, DataService, DataServiceBuilder, DataUs
 import java.time.ZonedDateTime
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.higherKinds
 
 
 /**

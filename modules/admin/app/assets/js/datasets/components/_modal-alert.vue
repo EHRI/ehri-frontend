@@ -32,7 +32,7 @@ export default {
 
 <template>
   <div v-bind:class="cls" class="modal modal-alert" tabindex="-1" role="dialog">
-    <div class="modal-dialog" v-bind:class="{'modal-sm': !large}" role="document">
+    <div class="modal-dialog modal-dialog-centered" v-bind:class="{'modal-sm': !large}" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ title }}</h5>

@@ -4,6 +4,8 @@ import FilterControl from './_filter-control';
 import ButtonValidate from './_button-validate';
 import ButtonDelete from './_button-delete';
 import ModalOaipmhConfig from './_modal-oaipmh-config';
+import ModalRsConfig from './_modal-rs-config';
+import ModalUrlsetConfig from './_modal-urlset-config';
 import PanelFilePreview from './_panel-file-preview';
 import FilesTable from './_files-table';
 import DragHandle from './_drag-handle';
@@ -19,13 +21,14 @@ import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog';
 
 import {DatasetManagerApi} from '../api';
-import {OaiPmhConfig} from "../types";
+import {HarvestConfig} from "../types";
 
 
 export default {
-  components: {FilterControl, FilesTable, ButtonDelete, ButtonValidate, PanelFilePreview, ModalOaipmhConfig, DragHandle, ModalInfo, PanelLogWindow},
+  components: {FilterControl, FilesTable, ButtonDelete, ButtonValidate, PanelFilePreview, ModalOaipmhConfig, ModalRsConfig, ModalUrlsetConfig, DragHandle, ModalInfo, PanelLogWindow},
   mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil, MixinTasklog],
   props: {
+    datasetType: String,
     datasetContentType: String,
     fileStage: String,
     urlKey: {
@@ -43,7 +46,7 @@ export default {
     }
   },
   methods: {
-    doHarvest: async function (opts: OaiPmhConfig, fromLast: boolean) {
+    doHarvest: async function (opts: HarvestConfig, fromLast?: boolean) {
       this.waiting = true;
       this.opts = opts;
 
@@ -55,7 +58,7 @@ export default {
         await this.monitor(url, jobId, this.refresh);
         this.$emit('updated');
       } catch (e) {
-        this.showError("Error running harvest", e)
+        this.showError("Error running sync", e)
       } finally {
         this.removeUrlState(this.urlKey);
         this.waiting = false;
@@ -74,7 +77,7 @@ export default {
       }
     },
     loadConfig: async function() {
-      this.opts = await this.api.getOaiPmhConfig(this.datasetId);
+      this.opts = await this.api.getHarvestConfig(this.datasetId);
     },
   },
   created: function () {
@@ -85,7 +88,7 @@ export default {
 </script>
 
 <template>
-  <div id="oaipmh-manager-container" class="stage-manager-container">
+  <div id="harvest-manager-container" class="stage-manager-container">
     <div class="actions-bar">
       <filter-control v-bind:filter="filter"
                       v-on:filter="filterFiles"
@@ -108,28 +111,54 @@ export default {
       <button v-if="!jobId" class="btn btn-sm btn-default"
               v-on:click.prevent="showOptions = !showOptions">
         <i class="fa fa-fw fa-cloud-download"/>
-        Harvest Files...
+        Sync Files...
       </button>
       <button v-else v-bind:disabled="cancelling" class="btn btn-sm btn-outline-danger" v-on:click.prevent="cancelJob">
         <i class="fa fa-fw fa-spin fa-circle-o-notch"></i>
-        Cancel Harvest
+        Cancel Sync
       </button>
+      <modal-info v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
+    </div>
 
+    <template v-if="showOptions">
       <modal-oaipmh-config
-          v-if="showOptions"
+          v-if="datasetType === 'oaipmh'"
           v-bind:waiting="waiting"
           v-bind:dataset-id="datasetId"
-          v-bind:config="opts"
+          v-bind:opts="opts"
           v-bind:api="api"
+          v-bind:config="config"
           v-on:saving="waiting = true"
           v-on:saved-config="doHarvest"
           v-on:error="showError"
           v-on:close="showOptions = false"/>
+      <modal-rs-config
+          v-else-if="datasetType === 'rs'"
+          v-bind:waiting="waiting"
+          v-bind:dataset-id="datasetId"
+          v-bind:opts="opts"
+          v-bind:api="api"
+          v-bind:config="config"
+          v-on:saving="waiting = true"
+          v-on:saved-config="doHarvest"
+          v-on:deleted-orphans="refresh"
+          v-on:error="showError"
+          v-on:close="showOptions = false"/>
+      <modal-urlset-config
+          v-else-if="datasetType === 'urlset'"
+          v-bind:waiting="waiting"
+          v-bind:dataset-id="datasetId"
+          v-bind:opts="opts"
+          v-bind:api="api"
+          v-bind:config="config"
+          v-on:saving="waiting = true"
+          v-on:saved-config="doHarvest"
+          v-on:deleted-orphans="refresh"
+          v-on:error="showError"
+          v-on:close="showOptions = false"/>
+    </template>
 
-      <modal-info v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
-    </div>
-
-    <div id="oaipmh-panel-container" class="panel-container">
+    <div id="harvest-panel-container" class="panel-container">
       <div class="top-panel">
         <files-table
             v-bind:fileStage="fileStage"
@@ -160,7 +189,7 @@ export default {
         />
       </div>
 
-      <div id="oaipmh-status-panels" class="bottom-panel">
+      <div id="harvest-status-panels" class="bottom-panel">
         <ul class="status-panel-tabs nav nav-tabs">
           <li class="nav-item">
             <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
@@ -178,14 +207,14 @@ export default {
           <li class="nav-item">
             <a href="#" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
                v-on:click.prevent="tab = 'harvest'">
-              Harvest Log
+              Sync Log
             </a>
           </li>
           <li>
             <drag-handle
                 v-bind:ns="fileStage"
-                v-bind:p2="() => $root.$el.querySelector('#oaipmh-status-panels')"
-                v-bind:container="() => $root.$el.querySelector('#oaipmh-panel-container')"
+                v-bind:p2="() => $root.$el.querySelector('#harvest-status-panels')"
+                v-bind:container="() => $root.$el.querySelector('#harvest-panel-container')"
                 v-on:resize="setPanelSize"
             />
           </li>

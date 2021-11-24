@@ -2,18 +2,18 @@ package models
 
 import java.util.regex.{Pattern, PatternSyntaxException}
 
-import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, optional}
-
 case class ResourceSyncConfig(
   url: String,
-  filter: Option[String] = None
-)
-
+  filter: Option[String] = None,
+  auth: Option[BasicAuthConfig] = None
+) extends HarvestConfig {
+  override val src: ImportDataset.Src.Value = ImportDataset.Src.Rs
+}
 
 object ResourceSyncConfig {
   final val URL = "url"
   final val FILTER = "filter"
+  final val AUTH = "auth"
 
   private val isValidRegex: (String => Boolean) = s => try {
     Pattern.compile(s);
@@ -26,14 +26,10 @@ object ResourceSyncConfig {
   import play.api.libs.json._
   implicit val _reads: Reads[ResourceSyncConfig] = (
     (__ \ URL).read(Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl)) and
-    (__ \ FILTER).readNullable[String](Reads.filter(JsonValidationError("errors.badRegexPattern"))(isValidRegex))
+    (__ \ FILTER).readNullable[String](Reads.filter(JsonValidationError("errors.badRegexPattern"))(isValidRegex)) and
+    (__ \ AUTH).readNullable[BasicAuthConfig]
   )(ResourceSyncConfig.apply _)
 
   implicit val _writes: Writes[ResourceSyncConfig] = Json.writes[ResourceSyncConfig]
   implicit val _format: Format[ResourceSyncConfig] = Format(_reads, _writes)
-
-  val form: Form[ResourceSyncConfig] = Form(mapping(
-    URL -> nonEmptyText.verifying("errors.invalidUrl", forms.isValidUrl),
-    FILTER -> optional(nonEmptyText.verifying("errors.badRegexPattern", isValidRegex))
-  )(ResourceSyncConfig.apply)(ResourceSyncConfig.unapply))
 }

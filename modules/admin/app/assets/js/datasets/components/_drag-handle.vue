@@ -13,7 +13,8 @@ export default {
   },
 
   methods: {
-    move: function (evt) {
+    move: function (evt: MouseEvent) {
+      evt.preventDefault();
       // Calculate the height of the topmost panel in percent.
       let container = this.container(),
           p2 = this.p2();
@@ -29,7 +30,8 @@ export default {
       let perc = 100 - percentHeight;
       p2.style.flexBasis = perc + "%";
     },
-    startDrag: function (evt) {
+    startDrag: function (evt: MouseEvent) {
+      evt.preventDefault();
       // Calculate the height of the topmost panel in percent.
       let container = this.container(),
           p2 = this.p2();
@@ -40,13 +42,15 @@ export default {
       container.addEventListener("mousemove", this.move);
       container.style.userSelect = "none";
       container.style.cursor = "ns-resize";
-      window.addEventListener("mouseup", () => {
-        console.debug("Stop resize");
-        this.offset = 0;
-        this.$emit("resize", p2.clientHeight);
-        container.style.userSelect = us;
-        container.style.cursor = cursor;
-        container.removeEventListener("mousemove", this.move);
+      window.addEventListener("mouseup", (evt: MouseEvent) => {
+        if (evt.button === 0) {
+          console.debug("Stop resize");
+          this.offset = 0;
+          this.$emit("resize", p2.clientHeight);
+          container.style.userSelect = us;
+          container.style.cursor = cursor;
+          container.removeEventListener("mousemove", this.move);
+        }
       }, {once: true});
     },
   },
@@ -54,6 +58,6 @@ export default {
 </script>
 
 <template>
-  <div v-bind:id="ns + '-drag-handle'" class="drag-handle" v-on:mousedown="startDrag"></div>
+  <div v-bind:id="ns + '-drag-handle'" class="drag-handle" v-on:mousedown.left="startDrag"></div>
 </template>
 

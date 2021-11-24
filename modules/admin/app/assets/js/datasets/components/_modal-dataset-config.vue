@@ -167,6 +167,7 @@ export default {
           <option value="upload">Uploads</option>
           <option value="oaipmh">OAI-PMH Harvesting</option>
           <option value="rs">ResourceSync</option>
+          <option value="urlset">URL Set</option>
         </select>
       </div>
       <div class="form-group">
