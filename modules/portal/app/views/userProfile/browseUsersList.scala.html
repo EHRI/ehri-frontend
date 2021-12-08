@@ -1,53 +1,52 @@
-@(them: UserProfile, users: Seq[UserProfile], following: Seq[UserProfile] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+@(result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
+@import services.data.Constants.PAGE_PARAM
 
-@isCurrentUser(user: UserProfile) = @{
-    userOpt.exists(_.id == user.id)
-}
-
-@userListInfo(data: Html) = {
-    @if(data.body.trim.nonEmpty) {
-        @data
+@userInfo(html: Html) = {
+    @if(html.body.trim.nonEmpty) {
+        <ul>@html</ul>
     }
 }
 
-@textSection(data: Option[String]) = {
-    @data.map { text =>
-        <li>@text</li>
-    }
-}
 
-@if(users.nonEmpty) {
-    <ul class="user-list">
-    @users.map { other =>
-        <li class="user-info @{if(isCurrentUser(other)) "current"}">
-            <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
-                <img class="user-thumbnail" alt="Image"
-                    height="auto"
-                    width="auto" src="@views.Helpers.gravitar(other.data.imageUrl)" />
-            </a>
-            <div class="user-info-details">
-                <h3 class="search-item-heading type-highlight UserProfile">
-                    <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
-                </h3>
-                <div class="search-item-body">
-                    @userListInfo {
-                        <ul class="search-item-details user-list-info">
-                            @textSection(other.data.role)
-                            @textSection(other.data.institution)
-                            @textSection(other.data.location)
-                        </ul>
+<div class="people-page">
+    <ul class="user-grid inline-load-list">
+        @result.page.map { case (user, hit) =>
+            <li class="user-grid-item user-info">
+                <div class="user-info-details">
+                    <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
+                        <span class="helper"></span>
+                        <div class="user-avatar">
+                            <img alt="Image" width="100%" height="auto" src="@views.Helpers.gravitar(user.data.imageUrl)"/>
+                        </div>
+                    </a>
+                    <h3>
+                        <a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a>
+                    </h3>
+                    @userInfo {
+                        @user.data.role.map { role =>
+                        <li class="role">@role</li>
+                        }
+                        @user.data.institution.map { inst =>
+                            <li class="institution">@inst</li>
+                        }
+                        @user.data.url.map { url =>
+                            <li class="url">
+                                <a href="@url" target="_blank"><i class="fa fa-link" aria-hidden="true"></i></a>
+                            </li>
+                        }
                     }
                 </div>
-            </div>
-            @if(!isCurrentUser(other)) {
-                @defining(following.exists(_.id == other.id)) { follows =>
-                    <div class="follow-controls">
-                        @views.html.userProfile.followingButtons(other, follows)
-                    </div>
-                }
-            }
-        </li>
-    }
+            </li>
+        }
     </ul>
-}
+    @if(result.page.hasMore) {
+        <a class="inline-load-more btn-progress"
+        data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
+        href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
+                .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+            <span class="load-prompt">@Messages("activity.fetchMore")</span>
+            <span class="loading-indicator spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+        </a>
+    }
+</div>
