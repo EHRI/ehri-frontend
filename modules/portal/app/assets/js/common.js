@@ -157,17 +157,17 @@ jQuery(function($) {
   });
 
   // load more content in a long list
-  $(document).on("click", "a.child-items-inline-list-more", function(e) {
+  $(document).on("click", "a.inline-load-more", function(e) {
     e.preventDefault();
     var $self = $(this),
       url = this.href;
     $self.addClass("loading").removeAttr("href");
     $.get(url, function(data, _, res) {
       var more = res.getResponseHeader("more") === true.toString();
-      var $items = $(".child-items-inline-list > li", $.parseHTML(data, false));
+      var $items = $(".inline-load-list > li", $.parseHTML(data, false));
       addInlineLoadLinks($items);
       $self.removeClass("loading").attr("href", url);
-      $self.parent().find("> .child-items-inline-list").append($items);
+      $self.parent().find("> .inline-load-list").append($items);
       $self.attr("href", url.replace(/(page=)(-?\d+)/, function(match, param, val) {
         return param + (parseInt(val) +  1);
       }));

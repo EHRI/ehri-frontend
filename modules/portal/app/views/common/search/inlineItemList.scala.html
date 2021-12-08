@@ -3,9 +3,9 @@
 @import services.data.Constants.PAGE_PARAM
 
 <div class="child-items-inline">
-    <ol class="child-items-inline-list">
+    <ol class="inline-load-list">
     @result.page.map { case (child, hit) =>
-        <li class="child-items-inline-item @itemClass">
+        <li class="@itemClass">
             @child match {
                 case r: Repository => {
                     @views.html.repository.inlineListItem(r, hit)
@@ -32,7 +32,7 @@
     </ol>
 
     @if(result.page.hasMore) {
-        <a class="child-items-inline-list-more btn-progress"
+        <a class="inline-load-more btn-progress"
             data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
             href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
                     .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">

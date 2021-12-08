@@ -1,10 +1,4 @@
-@(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
-
-@userInfo(html: Html) = {
-    @if(html.body.trim.nonEmpty) {
-        <ul>@html</ul>
-    }
-}
+@(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 @views.html.layout.portalLayout(Messages("social.browseUsers"), cls = them.data.isA.toString) {
     @views.html.common.mainContent {
@@ -12,37 +6,7 @@
         @if(result.params.isFiltered || result.nonEmpty) {
             @helper.form(action = searchAction, 'role -> "form") {
                 @views.html.common.search.searchBar(result.params, tips = false)
-                <div class="people-page">
-                    <ul class="user-grid">
-                        @result.page.map { case (user, hit) =>
-                        <li class="user-grid-item user-info">
-                            <div class="user-info-details">
-                                <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
-                                    <span class="helper"></span>
-                                    <div class="user-avatar">
-                                        <img alt="Image" width="100%" height="auto" src="@views.Helpers.gravitar(user.data.imageUrl)" />
-                                    </div>
-                                </a>
-                                <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
-                                @userInfo {
-                                    @user.data.role.map { role =>
-                                    <li>@role</li>
-                                    }
-                                    @user.data.institution.map { inst =>
-                                        <li class="institution">@inst</li>
-                                    }
-                                    @user.data.url.map { url =>
-                                        <a href=@url target="_blank">
-                                            <i class="fa fa-link" aria-hidden="true"></i>
-                                        </a>
-                                    }
-                                }
-                            </div>
-                        </li>
-                        }
-                    </ul>
-                    @common.pagination(result.page)
-                </div>
+                @views.html.userProfile.browseUsersList(result, searchAction, following)
             }
         }
     }

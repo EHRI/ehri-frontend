@@ -1,7 +1,7 @@
 @(them: UserProfile, users: utils.AbstractPage[UserProfile], params: utils.PageParams, following: Seq[UserProfile] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
 
 @if(users.nonEmpty) {
-    @userProfile.browseUsersList(them, users, following)
+    @views.html.userProfile.userList(them, users, following)
     @common.pagination(users)
 } else {
     <p class="minor-notice">

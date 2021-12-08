@@ -1309,7 +1309,7 @@ ul.list-export-options {
     }
   }
 
-  .child-items-inline-list-more {
+  .inline-load-more {
     margin-left: $margin-lg;
   }
 }
@@ -1751,8 +1751,9 @@ button.submit-annotation {
 // are on the timeline and the item search page with
 // details collapsed.
 .timeline-fetch-more,
-.child-items-inline-list-more,
-.content-load-toggle {
+.inline-load-more,
+.content-load-toggle
+{
   @extend .btn;
   border: $border-width solid $border-color;
   background-color: $gray-200;

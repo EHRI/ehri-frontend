@@ -1,0 +1,53 @@
+@(them: UserProfile, users: Seq[UserProfile], following: Seq[UserProfile] = Nil)(implicit userOpt: Option[UserProfile], req: RequestHeader, messages: Messages)
+
+
+@isCurrentUser(user: UserProfile) = @{
+    userOpt.exists(_.id == user.id)
+}
+
+@userListInfo(data: Html) = {
+    @if(data.body.trim.nonEmpty) {
+        @data
+    }
+}
+
+@textSection(data: Option[String]) = {
+    @data.map { text =>
+        <li>@text</li>
+    }
+}
+
+@if(users.nonEmpty) {
+    <ul class="user-list">
+    @users.map { other =>
+        <li class="user-info @{if(isCurrentUser(other)) "current"}">
+            <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
+                <img class="user-thumbnail" alt="Image"
+                    height="auto"
+                    width="auto" src="@views.Helpers.gravitar(other.data.imageUrl)" />
+            </a>
+            <div class="user-info-details">
+                <h3 class="search-item-heading type-highlight UserProfile">
+                    <a class="name" href="@controllers.portal.social.routes.Social.userProfile(other.id)">@other.data.name</a>
+                </h3>
+                <div class="search-item-body">
+                    @userListInfo {
+                        <ul class="search-item-details user-list-info">
+                            @textSection(other.data.role)
+                            @textSection(other.data.institution)
+                            @textSection(other.data.location)
+                        </ul>
+                    }
+                </div>
+            </div>
+            @if(!isCurrentUser(other)) {
+                @defining(following.exists(_.id == other.id)) { follows =>
+                    <div class="follow-controls">
+                        @views.html.userProfile.followingButtons(other, follows)
+                    </div>
+                }
+            }
+        </li>
+    }
+    </ul>
+}

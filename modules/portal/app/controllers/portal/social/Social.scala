@@ -49,15 +49,20 @@ case class Social @Inject()(
     // we can mark who's following and who isn't
     for {
       following <- userDataApi.following[UserProfile](request.user.id, PageParams.empty)
-      blocked <- userDataApi.blocked[UserProfile](request.user.id, PageParams.empty)
+      _ <- userDataApi.blocked[UserProfile](request.user.id, PageParams.empty)
       result <- findType[UserProfile](params, paging.copy(limit = usersPerPage),
         filters = Map(SearchConstants.ACTIVE -> true.toString))
-    } yield Ok(views.html.userProfile.browseUsers(
+    } yield {
+      if (isAjax) Ok(views.html.userProfile.browseUsersList(
+        result,
+        controllers.portal.social.routes.Social.browseUsers(),
+        following)).withHeaders("more" -> result.page.hasMore.toString)
+      else Ok(views.html.userProfile.browseUsers(
         request.user,
         result,
         controllers.portal.social.routes.Social.browseUsers(),
-        following
-    ))
+        following))
+    }
   }
 
   def userActivity(userId: String, params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
