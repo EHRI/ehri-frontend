@@ -1,6 +1,28 @@
 @(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
-@views.html.layout.portalLayout(Messages("social.browseUsers"), cls = them.data.isA.toString) {
+@scripts = {
+    <script>
+        jQuery(function($) {
+            // Implement infinite scrolling...
+            if ('IntersectionObserver' in window) {
+                var element = document.getElementById('people-page-next');
+                if (element) {
+                    var observer = new IntersectionObserver(function () {
+                        if (!element.classList.contains("loading")) {
+                            element.click();
+                        }
+                    }, {
+                        // Load before the item comes into view...
+                        rootMargin: "0px 0px 100px 0px"
+                    });
+                    observer.observe(element);
+                }
+            }
+        });
+    </script>
+}
+
+@views.html.layout.portalLayout(Messages("social.browseUsers"), cls = them.data.isA.toString, scripts = scripts) {
     @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("social.browseUsers"))
         @if(result.params.isFiltered || result.nonEmpty) {

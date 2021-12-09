@@ -25,7 +25,7 @@
                     </h3>
                     @userInfo {
                         @user.data.role.map { role =>
-                        <li class="role">@role</li>
+                            <li class="role">@role</li>
                         }
                         @user.data.institution.map { inst =>
                             <li class="institution">@inst</li>
@@ -41,7 +41,7 @@
         }
     </ul>
     @if(result.page.hasMore) {
-        <a class="inline-load-more btn-progress"
+        <a id="people-page-next" class="inline-load-more btn-progress"
         data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
         href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
                 .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
