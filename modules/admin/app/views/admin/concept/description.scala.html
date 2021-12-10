@@ -25,11 +25,17 @@
                 [@views.Helpers.languageCodeToName(desc.languageCode)]
             </em>
         </dd>
-        @Map(ALTLABEL -> desc.altLabels, HIDDENLABEL -> desc.hiddenLabels,
-                SCOPENOTE -> desc.scopeNote, DEFINITION -> desc.definition).map { case (key, list) =>
-            @if(list.nonEmpty) {
-                @listItem(list, key)
-            }
+        @Seq(
+            ALTLABEL -> desc.altLabels,
+            HIDDENLABEL -> desc.hiddenLabels,
+            NOTE -> desc.note,
+            CHANGENOTE -> desc.changeNote,
+            EDITORIALNOTE -> desc.editorialNote,
+            HISTORYNOTE -> desc.historyNote,
+            SCOPENOTE -> desc.scopeNote,
+            DEFINITION -> desc.definition
+        ).filter(_._2.nonEmpty).map { case (key, items) =>
+            @listItem(items, key)
         }
         @item.data.uri.map { uri =>
             <dt>@Messages(prefix + "." + URI)</dt>

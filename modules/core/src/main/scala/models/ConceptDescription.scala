@@ -25,6 +25,10 @@ object ConceptDescriptionF {
     (__ \ DATA \ ALTLABEL).formatSeqOrSingle[String] and
     (__ \ DATA \ HIDDENLABEL).formatSeqOrSingle[String] and
     (__ \ DATA \ DEFINITION).formatSeqOrSingle[String] and
+    (__ \ DATA \ NOTE).formatSeqOrSingle[String] and
+    (__ \ DATA \ CHANGENOTE).formatSeqOrSingle[String] and
+    (__ \ DATA \ EDITORIALNOTE).formatSeqOrSingle[String] and
+    (__ \ DATA \ HISTORYNOTE).formatSeqOrSingle[String] and
     (__ \ DATA \ SCOPENOTE).formatSeqOrSingle[String] and
     (__ \ DATA \ CREATION_PROCESS).formatWithDefault(CreationProcess.Manual) and
     (__ \ RELATIONSHIPS \ Ontology.HAS_ACCESS_POINT).formatSeqOrEmpty[AccessPointF] and
@@ -46,6 +50,10 @@ case class ConceptDescriptionF(
   altLabels: Seq[String] = Nil,
   hiddenLabels: Seq[String] = Nil,
   definition: Seq[String] = Nil,
+  note: Seq[String] = Nil,
+  changeNote: Seq[String] = Nil,
+  editorialNote: Seq[String] = Nil,
+  historyNote: Seq[String] = Nil,
   scopeNote: Seq[String] = Nil,
   creationProcess: Description.CreationProcess.Value = Description.CreationProcess.Manual,
   @models.relation(Ontology.HAS_ACCESS_POINT)
@@ -57,7 +65,7 @@ case class ConceptDescriptionF(
 ) extends ModelData with Persistable with Description {
 
   override def displayText: Option[String] =
-    scopeNote.headOption orElse definition.headOption
+    definition.headOption orElse scopeNote.headOption
 }
 
 object ConceptDescription {
@@ -66,7 +74,7 @@ object ConceptDescription {
   import Entity._
   import utils.EnumUtils.enumMapping
 
-  val form = Form(mapping(
+  val form: Form[ConceptDescriptionF] = Form(mapping(
     ISA -> ignored(EntityType.ConceptDescription),
     ID -> optional(nonEmptyText),
     LANG_CODE -> nonEmptyText,
@@ -75,6 +83,10 @@ object ConceptDescription {
     ALTLABEL -> seq(nonEmptyText),
     HIDDENLABEL -> seq(nonEmptyText),
     DEFINITION -> seq(nonEmptyText),
+    NOTE -> seq(nonEmptyText),
+    CHANGENOTE -> seq(nonEmptyText),
+    EDITORIALNOTE -> seq(nonEmptyText),
+    HISTORYNOTE -> seq(nonEmptyText),
     SCOPENOTE -> seq(nonEmptyText),
     CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
     ACCESS_POINTS -> seq(AccessPoint.form.mapping),

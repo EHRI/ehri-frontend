@@ -1403,6 +1403,10 @@ cvocConcept.altLabel.description=Acronyms, abbreviations, spelling variants, and
   Mis-spelled terms are normally included as hidden labels (see skos:hiddenLabel).
 cvocConcept.hiddenLabel.description=A lexical label for a resource that should be hidden when generating visual displays of the resource,\
   but should still be accessible to free text search operations.
+cvocConcept.note.description=A general note, for any purpose.
+cvocConcept.changeNote.description=A note about a modification to a concept.
+cvocConcept.editorialNote.description=A note for an editor, translator or maintainer of the vocabulary.
+cvocConcept.historyNote.description=A note about the past state/use/meaning of a concept.
 cvocConcept.scopeNote.description=A note that helps to clarify the meaning and/or the use of a concept.
 cvocConcept.definition.description=A statement or formal explanation of the meaning of a concept.
 

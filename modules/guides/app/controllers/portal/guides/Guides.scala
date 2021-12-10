@@ -187,6 +187,10 @@ case class Guides @Inject()(
           "descriptions" -> Json.toJson(it.descriptions.map { desc =>
             Json.toJson(Map(
               ConceptF.DEFINITION -> Json.toJson(desc.definition),
+              ConceptF.NOTE -> Json.toJson(desc.note),
+              ConceptF.CHANGENOTE -> Json.toJson(desc.changeNote),
+              ConceptF.EDITORIALNOTE -> Json.toJson(desc.editorialNote),
+              ConceptF.HISTORYNOTE -> Json.toJson(desc.historyNote),
               ConceptF.SCOPENOTE -> Json.toJson(desc.scopeNote),
               ConceptF.LONGITUDE -> Json.toJson(it.data.longitude),
               ConceptF.LATITUDE -> Json.toJson(it.data.latitude)
