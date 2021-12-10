@@ -1,4 +1,4 @@
-@(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
+@(them: UserProfile, result: services.search.SearchResult[(UserProfile,services.search.SearchHit)], searchAction: Call, following: Seq[UserProfile], messagingInfo: Seq[models.view.MessagingInfo])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 @userInfo(html: Html) = {
     @if(html.body.trim.nonEmpty) {
@@ -14,7 +14,7 @@
                 @views.html.common.search.searchBar(result.params, tips = false)
                 <div class="people-page">
                     <ul class="user-grid">
-                        @result.page.map { case (user, hit) =>
+                        @result.page.zip(messagingInfo).map { case ((user, hit), info) =>
                         <li class="user-grid-item user-info">
                             <div class="user-info-details">
                                 <a href="@controllers.portal.social.routes.Social.userProfile(user.id)" class="gravitar img-container">
@@ -26,15 +26,27 @@
                                 <h3><a class="name" href="@controllers.portal.social.routes.Social.userProfile(user.id)">@user.toStringLang</a></h3>
                                 @userInfo {
                                     @user.data.role.map { role =>
-                                    <li>@role</li>
+                                        <li>@role</li>
                                     }
                                     @user.data.institution.map { inst =>
                                         <li class="institution">@inst</li>
                                     }
                                     @user.data.url.map { url =>
-                                        <a href=@url target="_blank">
+                                        <a href="@url" target="_blank">
                                             <i class="fa fa-link" aria-hidden="true"></i>
                                         </a>
+                                    }
+                                    @if(info.canMessage) {
+                                        <a class="message-user" data-toggle="modal" data-target="#message-modal" role="button" href="@controllers.portal.social.routes.Social.sendMessage(user.id)">
+                                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                                        </a>
+                                        <div class="modal fade" id="message-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                @views.html.userProfile.messageForm(user, info)
+                                                </div>
+                                            </div>
+                                        </div>
                                     }
                                 }
                             </div>
