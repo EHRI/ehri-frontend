@@ -39,14 +39,14 @@ case class Vocabularies @Inject()(
     // This is a bit confusing: if there's not query we just list the promoted vocabularies.
     // If there is a query we have to fetch the promoted vocabularies and then run the search
     // of items *held by* those vocabs.
-    params.query.map { q =>
+    if (hasActiveQuery(request)) {
       for {
         // FIXME: more efficient ways of fetching promoted vocabularies?
         parents <- findType[Vocabulary](SearchParams.empty, PageParams.empty.withoutLimit, extra = promotedFilter)
         filter = Map("fq" -> s"$HOLDER_ID:(${parents.mapItems(_._2.id).page.mkString(" ")})")
         result <- findType[Concept](params = params, paging = paging, extra = filter)
       } yield Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
-    }.getOrElse {
+    } else {
       findType[Vocabulary](params = params, paging = paging, extra = promotedFilter, sort = SearchSort.Name).map { result =>
         Ok(views.html.vocabulary.list(result, portalVocabRoutes.searchAll(), request.watched))
       }

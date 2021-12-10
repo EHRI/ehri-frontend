@@ -13,6 +13,10 @@
             @views.html.common.otherNameList(desc.altLabels)
 
             @listField(item, descId, DEFINITION, desc.definition)
+            @listField(item, descId, NOTE, desc.note)
+            @listField(item, descId, CHANGENOTE, desc.changeNote)
+            @listField(item, descId, EDITORIALNOTE, desc.editorialNote)
+            @listField(item, descId, HISTORYNOTE, desc.historyNote)
             @listField(item, descId, SCOPENOTE, desc.scopeNote)
             @listField(item, descId, SEEALSO, item.data.seeAlso)
         }

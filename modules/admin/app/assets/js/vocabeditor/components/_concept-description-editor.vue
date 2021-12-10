@@ -55,6 +55,18 @@ export default {
         v-bind:label="'Definition(s)'"
         v-bind:data="state.definition"/>
     <concept-description-multi-item
+        v-bind:label="'Note(s)'"
+        v-bind:data="state.note"/>
+    <concept-description-multi-item
+        v-bind:label="'Change Note(s)'"
+        v-bind:data="state.changeNote"/>
+    <concept-description-multi-item
+        v-bind:label="'Editorial Note(s)'"
+        v-bind:data="state.editorialNote"/>
+    <concept-description-multi-item
+        v-bind:label="'History Note(s)'"
+        v-bind:data="state.historyNote"/>
+    <concept-description-multi-item
         v-bind:label="'Scope Note(s)'"
         v-bind:data="state.scopeNote"/>
   </div>

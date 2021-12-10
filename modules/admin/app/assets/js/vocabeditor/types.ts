@@ -11,6 +11,10 @@ export interface ConceptDescription {
   languageCode: string,
   altLabel?: string[],
   hiddenLabel?: string[],
+  note?: string[],
+  changeNote?: string[],
+  editorialNote?: string[],
+  historyNote?: string[],
   scopeNote?: string[],
 }
 
