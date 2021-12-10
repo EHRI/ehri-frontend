@@ -47,16 +47,25 @@ case class Social @Inject()(
     // This is a bit gnarly because we want to get a searchable list
     // of users and combine it with a list of existing followers so
     // we can mark who's following and who isn't
+
+    // Look up info for each of the users in our result page and combine it into one sequence...
+    def userMessaging(ids: Seq[String]): Future[Seq[MessagingInfo]] = {
+      val results: Seq[Future[MessagingInfo]] = ids.map(userId => getMessagingInfo(request.user.id, userId))
+      Future.sequence(results)
+    }
+
     for {
       following <- userDataApi.following[UserProfile](request.user.id, PageParams.empty)
-      blocked <- userDataApi.blocked[UserProfile](request.user.id, PageParams.empty)
+      _ <- userDataApi.blocked[UserProfile](request.user.id, PageParams.empty)
       result <- findType[UserProfile](params, paging.copy(limit = usersPerPage),
         filters = Map(SearchConstants.ACTIVE -> true.toString))
+      messagingInfo <- userMessaging(result.page.map(_._1.id))
     } yield Ok(views.html.userProfile.browseUsers(
         request.user,
         result,
         controllers.portal.social.routes.Social.browseUsers(),
-        following
+        following,
+        messagingInfo
     ))
   }
 
