@@ -88,10 +88,13 @@ case class UserProfiles @Inject()(
    * admin only function and should be removed eventually.
    */
   def createUser: Action[AnyContent] = WithContentPermissionAction(PermissionType.Create, ContentTypes.UserProfile).async { implicit request =>
-      dataHelpers.getGroupList.map { groups =>
-        Ok(views.html.admin.userProfile.create(userPasswordForm, groupMembershipForm, groups,
-          userRoutes.createUserPost()))
-      }
+    val form = if (config.get[Boolean]("ehri.signup.disabled"))
+        userPasswordForm.withGlobalError("signup.disabled")
+      else userPasswordForm
+    dataHelpers.getGroupList.map { groups =>
+      Ok(views.html.admin.userProfile.create(form, groupMembershipForm, groups,
+        userRoutes.createUserPost()))
+    }
   }
 
   /**

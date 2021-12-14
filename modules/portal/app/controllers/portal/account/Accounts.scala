@@ -130,6 +130,9 @@ case class Accounts @Inject()(
         badForm(boundForm.withGlobalError("error.badRecaptcha"))
       case true if !rateLimits.checkHits(rateLimitHitsPerSec, rateLimitDuration)(request) =>
         badForm(boundForm.withGlobalError(rateLimitError), TooManyRequests)
+      case true if config.get[Boolean]("ehri.signup.disabled") =>
+        logger.error("User attempted to sign up but signup is disabled")
+        badForm(boundForm.withGlobalError("signup.disabled"), Forbidden)
       case true =>
         boundForm.fold(
           errForm => {
@@ -208,10 +211,20 @@ case class Accounts @Inject()(
             .getOrElse(sys.error("Unable to retrieve name info via OpenID")))
 
           accounts.findByEmail(email).flatMap {
+            // We already have an account...
             case Some(account) =>
               logger.info(s"User '${account.id}' created OpenID association")
               accounts.openId.addAssociation(account.id, info.id)
               doLogin(account)
+            // We don't have an account and signup is disabled...
+            case None if config.get[Boolean]("ehri.signup.disabled") =>
+              immediate(Forbidden(views.html.account.login(
+                passwordLoginForm,
+                recaptchaKey,
+                openidForm.withGlobalError("signup.disabled"),
+                oauth2Providers
+              )))
+            // We don't have an account: create the user...
             case None =>
               implicit val apiUser: AnonymousUser.type = AnonymousUser
               for {
@@ -244,6 +257,9 @@ case class Accounts @Inject()(
     logger.debug(s"Signup, session is ${request.session.data}")
     implicit val userOpt: Option[UserProfile] = None
     request.accountOpt match {
+      case _ if config.get[Boolean]("ehri.signup.disabled") => Redirect(portalRoutes.index())
+        .removingFromSession(ACCESS_URI)
+        .flashing("warning" -> Messages("signup.disabled"))
       case Some(user) => Redirect(portalRoutes.index())
         .removingFromSession(ACCESS_URI)
         .flashing("warning" -> Messages("login.alreadyLoggedIn", user.email))
@@ -259,7 +275,6 @@ case class Accounts @Inject()(
         )
     }
   }
-
 
   def login: Action[AnyContent] = (NotReadOnlyAction andThen OptionalAccountAction).apply { implicit request =>
     logger.debug(s"Login, session is ${request.session.data}")
@@ -441,6 +456,12 @@ case class Accounts @Inject()(
                 Redirect(url)
                   .removingFromSession(sessionKey)
                   .flashing("danger" -> Messages("login.error.oauth2.info", provider.name.capitalize))
+              case SignupDisabled() =>
+                logger.error("User attempted to sign up but signup is disabled")
+                val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
+                Redirect(url)
+                  .removingFromSession(sessionKey)
+                  .flashing("danger" -> Messages("signup.disabled"))
             }
           } else authenticationFailed(request)
             .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize)))
@@ -615,6 +636,8 @@ case class Accounts @Inject()(
   // Helpers
   //
 
+  private case class SignupDisabled() extends Exception("Signup disabled")
+
   private def extractOpenIDEmail(attrs: Map[String, String]): Option[String] =
     attrs.get("email").orElse(attrs.get("axemail"))
 
@@ -674,6 +697,9 @@ case class Accounts @Inject()(
               _ <- updateUserInfo(updated, userData)
             } yield updated
           } getOrElse {
+            if (config.get[Boolean]("ehri.signup.disabled")) {
+              throw SignupDisabled();
+            }
             logger.info(s"Creating new account for ${userData.name} -> ${provider.name}")
             for {
               newAccount <- createNewProfile(userData)
