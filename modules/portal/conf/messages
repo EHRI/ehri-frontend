@@ -327,6 +327,8 @@ signup.confirmation=Thanks for signing up! We''ve sent you an email which you ca
   your email address.
 signup.validation.badToken=Confirmation URL is invalid or has expired.
 signup.validation.confirmation=Your account has been validated.
+signup.disabled=Signup is disabled on this site. If you are using a staging instance sign up on the production \
+  site and wait for periodic account synchronisation to occur.
 
 #
 # Mail stuff

@@ -65,6 +65,12 @@ class SignupSpec extends IntegrationTestRunner {
       contentAsString(signup) must contain(message("signup.badPasswords"))
     }
 
+    "prevent signup when signup is disabled" in new ITestApp(specificConfig = Map("ehri.signup.disabled" -> true)) {
+      val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
+      status(signup) must_== FORBIDDEN
+      contentAsString(signup) must contain(message("signup.disabled"))
+    }
+
     "prevent signup with invalid time diff" in new ITestApp(specificConfig = Map("ehri.signup.timeCheckSeconds" -> 5)) {
       val badData = data
         .updated(TimeCheckForm.TIMESTAMP, Seq(java.time.ZonedDateTime.now.toString))
