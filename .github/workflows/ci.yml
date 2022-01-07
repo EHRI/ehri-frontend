@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v2
       with:
-        node-version: '10'
+        node-version: '16.13.1'
 
     - name: Setup Scala
       uses: olafurpg/setup-scala@v10
