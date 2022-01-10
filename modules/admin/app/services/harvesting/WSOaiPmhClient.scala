@@ -164,7 +164,7 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
             val name = (node \ "identifier").text
             name -> del
           }
-          val next = (xml \ verb \ "resumptionToken").headOption.map(_.text)
+          val next = (xml \ verb \ "resumptionToken").headOption.map(_.text).filter(_.trim.nonEmpty)
 
           idents -> next
         }
