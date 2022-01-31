@@ -65,6 +65,12 @@ module.exports = function (grunt) {
           },
           {
             expand: true,
+            cwd: 'node_modules/material-design-icons/iconfont',
+            src: '**/*.{ttf,woff,woff2,eot,svg}',
+            dest: paths.portalFonts
+          },
+          {
+            expand: true,
             cwd: 'node_modules/font-awesome/fonts',
             src: '**/*.{ttf,woff,woff2,eot,svg}',
             dest: paths.portalFonts
