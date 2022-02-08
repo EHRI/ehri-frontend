@@ -18,7 +18,7 @@ export default {
     return {
       url: this.opts ? this.opts.url : null,
       filter: this.opts ? this.opts.filter : null,
-      auth: this.opts.auth ? this.opts.auth : null,
+      auth: this.opts ? this.opts.auth : null,
       tested: null,
       testing: false,
       cleaning: false,
