@@ -18,7 +18,7 @@ export default {
       url: this.opts ? this.opts.url : null,
       format: this.opts ? this.opts.format : null,
       set: this.opts ? this.opts.set : null,
-      auth: this.opts.auth ? this.opts.auth : null,
+      auth: this.opts ? this.opts.auth : null,
       tested: null,
       testing: false,
       error: null,

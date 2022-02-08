@@ -19,7 +19,7 @@ export default {
     return {
       urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
-      auth: this.opts.auth ? this.opts.auth : null,
+      auth: this.opts ? this.opts.auth : null,
       tested: null,
       testing: false,
       cleaning: false,
