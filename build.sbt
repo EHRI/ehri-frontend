@@ -69,7 +69,7 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
 
   // PostgreSQL
-  "org.postgresql" % "postgresql" % "42.2.18",
+  "org.postgresql" % "postgresql" % "42.3.2",
 
   // Markdown rendering
   "com.vladsch.flexmark" % "flexmark-all" % "0.28.10",

@@ -4,7 +4,7 @@ services:
 
   # PostgreSQL admin DB
   rmdbs:
-    image: postgres:9.5
+    image: postgres:14
     ports:
       - 5432:5432
     environment:
