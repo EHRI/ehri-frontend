@@ -1,24 +1,22 @@
 @(guide: Guide, page: GuidePage, allPages: Seq[GuidePage])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @styles = {
-    <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/css/timeline.css">
+    <link title="timeline-styles" rel="stylesheet"  href="https://cdn.knightlab.com/libs/timeline3/3.8.19/css/timeline.css">
+    <style>
+        #my-timeline {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
 }
 @js = {
-    <script type="text/javascript" src="https://s3.amazonaws.com/cdn.knightlab.com/libs/timeline/latest/js/storyjs-embed.js"></script>
+    <script type="text/javascript" src="https://cdn.knightlab.com/libs/timeline3/3.8.19/js/timeline-min.js"></script>
     <script>
-        $(document).ready(function() {
-            createStoryJS({
-                type:       'timeline',
-                width:      '750',
-                height:     '600',
-                source:     '@page.content.trim',
-                embed_id:   'my-timeline'
-            });
-        });
+        timeline = new TL.Timeline('my-timeline', '@page.content.trim');
     </script>
 }
 
-@views.html.layout.guideLayout(guide, page, allPages, scripts = js, optionalContent = page.description.map(d => Html(md.renderTrustedMarkdown(d)))) {
+@views.html.layout.guideLayout(guide, page, allPages, styles = styles, scripts = js, optionalContent = page.description.map(d => Html(md.renderTrustedMarkdown(d)))) {
     <article>
         <header>
             <h1>@page.name</h1>
