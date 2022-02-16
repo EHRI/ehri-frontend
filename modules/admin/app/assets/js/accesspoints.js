@@ -338,7 +338,9 @@ Vue.component("access-point", {
   },
   computed: {
     targetUrl: function () {
-      return SERVICE.getItem(this.target.type, this.target.id).url;
+      return this.target
+        ? SERVICE.getItem(this.target.type, this.target.id).url
+        : null;
     }
   },
   methods: {
