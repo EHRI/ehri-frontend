@@ -45,10 +45,10 @@ case class ApiV1Home @Inject()(
               "fetch" -> apiRoutes.fetch("ITEM-ID").absoluteURL(),
               "search-in" -> (apiRoutes.searchIn("ITEM-ID").absoluteURL() + "?[q=Text Query]")
             ),
-            "status" -> "ALPHA: Do not use for production"
+            "status" -> config.get[String]("ehri.api.v1.status")
           ),
           "jsonapi" -> Json.obj(
-            "version" -> "1.0"
+            "version" -> config.get[String]("ehri.api.v1.version")
           )
         )
       ).as(JSONAPI_MIMETYPE)
