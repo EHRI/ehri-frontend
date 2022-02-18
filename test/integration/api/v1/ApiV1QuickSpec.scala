@@ -14,14 +14,22 @@ class ApiV1QuickSpec extends PlaySpecification with TestConfiguration {
       val docs = FakeRequest(apiHomeRoutes.index())
           .withHeaders(ACCEPT -> ContentTypes.HTML).call()
       contentAsString(docs) must contain(message("api.v1.header"))
-      contentType(docs) must_== Some("text/html")
+      contentType(docs) must beSome("text/html")
     }
 
     "give Json-API schema version on index" in new ITestApp {
       val idx = FakeRequest(apiHomeRoutes.index())
           .withHeaders(ACCEPT -> ContentTypes.JSON).call()
       status(idx) must_== OK
-      contentAsJson(idx) \ "jsonapi" \ "version" must_== JsDefined(JsString("1.0"))
+      contentAsJson(idx) \ "jsonapi" \ "version" must_== JsDefined(
+        JsString(app.configuration.get[String]("ehri.api.v1.version")))
+    }
+
+    "report status" in new ITestApp {
+      val idx = FakeRequest(apiHomeRoutes.index())
+        .withHeaders(ACCEPT -> ContentTypes.JSON).call()
+      contentAsJson(idx) \ "meta" \ "status" must_== JsDefined(
+        JsString(app.configuration.get[String]("ehri.api.v1.status")))
     }
   }
 }
