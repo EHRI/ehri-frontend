@@ -1,7 +1,7 @@
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.gzip.Import._
 import com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys
-import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
+import com.typesafe.sbt.packager.SettingsHelper._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import net.ground5hark.sbt.concat.Import._
@@ -9,18 +9,19 @@ import play.core.PlayVersion.{akkaHttpVersion, akkaVersion}
 import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
-import sbt.Keys.{compile, mappings, resourceDirectory}
+import sbt.Credentials
+import sbt.Keys.{compile, credentials, mappings, publishConfiguration, publishLocalConfiguration, resourceDirectory}
 
 
 logBuffered := false
 logLevel := Level.Info
+ThisBuild / organization := "eu.ehri-project"
 
 val projectScalaVersion = "2.12.12"
 val appName = "docview"
-val appVersion = "2.0.0"
 
-val backendVersion = "0.15.0"
-val dataConverterVersion = "1.1.10"
+val backendVersion = "0.15.1"
+val dataConverterVersion = "1.1.12"
 val alpakkaVersion = "2.0.2"
 
 val backendDependencies = Seq(
@@ -41,7 +42,7 @@ val backendDependencies = Seq(
   "org.apache.jena" % "jena-iri" % "3.9.0",
 
   // Ontology
-  "ehri-project" % "ehri-definitions" % backendVersion
+  "eu.ehri-project" % "ehri-definitions" % backendVersion
 )
 
 val coreDependencies = backendDependencies ++ Seq(
@@ -100,7 +101,7 @@ val portalDependencies = Seq(
   "net.coobird" % "thumbnailator" % "[0.4, 0.5)",
 
   // EHRI indexing tools
-  "ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
+  "eu.ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
   "com.lightbend.akka" %% "akka-stream-alpakka-s3" % alpakkaVersion,
@@ -130,14 +131,12 @@ val additionalResolvers = Seq(
   Resolver.sonatypeRepo("releases"),
 
   // EHRI repositories
-  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release/",
+  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release-local",
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
 
-val commonSettings = Seq(
-
-  version := appVersion,
+lazy val commonSettings = Seq(
 
   ThisBuild / scalaVersion := projectScalaVersion,
 
@@ -162,9 +161,12 @@ val commonSettings = Seq(
 
   resolvers ++= additionalResolvers,
 
+  skip in publish := true,
+
   // Disable documentation generation
-  Compile /  doc / sources := Seq.empty,
-  Compile /  packageDoc / publishArtifact := false
+  sources in (Compile, doc) := Seq.empty,
+
+  publishArtifact in (Compile, packageDoc) := false
 )
 
 val webAppSettings = Seq(
@@ -189,7 +191,6 @@ val webAppSettings = Seq(
       import java.io.FileInputStream
       import java.text.MessageFormat
       import java.util.Properties
-
       import scala.collection.JavaConverters._
       val properties: Properties = new Properties()
       val fis = new FileInputStream(messageFile)
@@ -268,13 +269,19 @@ val resourceSettings = Seq(
   (Compile / PlayKeys.playExternalizedResources) += file("modules/xquery/src/main/resources/xtra.xqm") -> "xtra.xqm",
 
   // Filter out excluded resources from packaging
-  Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
+  mappings in Universal := (mappings in Universal).value.filterNot { case (f, s) =>
+    excludedResources contains f.getName
+  },
+
+  // Filter out excluded resources from jar generation (even though not used)
+  mappings in (Compile, packageBin) := (mappings in (Compile, packageBin)).value.filterNot { case (f, s) =>
     excludedResources contains f.getName
   },
 )
 
 lazy val backend = Project(appName + "-backend", file("modules/backend"))
   .disablePlugins(PlayScala, SbtVuefy, SbtConcat, AssemblyPlugin)
+  .settings(commonSettings: _*)
   .settings(
     name := appName + "-backend",
     libraryDependencies ++= backendDependencies ++ testDependencies,
@@ -421,8 +428,34 @@ lazy val solr = Project(appName + "-solr", file("modules/solr"))
 lazy val main = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala)
   .enablePlugins(LauncherJarPlugin)
+  .enablePlugins(UniversalDeployPlugin)
   .disablePlugins(SbtVuefy, SbtConcat, SbtDigest, SbtGzip, SbtUglify, AssemblyPlugin)
   .settings(libraryDependencies ++= coreDependencies ++ testDependencies)
   .settings(commonSettings ++ webAppSettings ++ resourceSettings)
+  .settings(
+    skip in publish := false,
+
+    // Tell sbt that we only want a tgz, not a zip
+    makeDeploymentSettings(Universal, packageBin in Universal, "tgz"),
+
+    // Remove top-level directory from package zip
+    topLevelDirectory := None,
+
+    // Allow overwriting
+    publishConfiguration := publishConfiguration.value.withOverwrite(true),
+    publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
+
+    // Publishing
+    publishTo := {
+      val repo = "https://dev.ehri-project.eu/artifactory/"
+      if (isSnapshot.value)
+        Some("EHRI Snapshots" at repo + "libs-snapshot-local")
+      else
+        Some("EHRI Releases"  at repo + "libs-release-local")
+    },
+    // If publication fails, check release credentials in ~/.sbt/.credentials
+    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
+  )
   .dependsOn(portal % "test->test;compile->compile", admin, guides, api, solr)
   .aggregate(backend, core, admin, portal, guides, api, solr, xquery, xslt)
+
