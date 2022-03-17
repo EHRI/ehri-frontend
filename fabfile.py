@@ -2,114 +2,84 @@
 Fabric deployment script for EHRI front-end webapp.
 """
 
-from __future__ import with_statement
-
 import os
-import datetime
-import subprocess
 from datetime import datetime
 
-from fabric.api import *
-from fabric.contrib.console import confirm
-from fabric.contrib.project import upload_project
-from fabric.contrib.files import exists
-from contextlib import contextmanager as _contextmanager
+from fabric import task
+from invoke import run as local
+from patchwork import files
 
-# globals
-env.play_bin = 'sbt'
-env.project_name = 'docview'
-env.prod = False
-env.use_ssh_config = True
-env.path = '/opt/webapps/' + env.project_name
-env.user = os.getenv("USER")
-env.java_version = 8
+deploys_dir = "/opt/docview/deploys"
+target_link = "/opt/docview/target"
 
-TIMESTAMP_FORMAT = "%Y%m%d%H%M%S"
 
-# environments
-def test():
-    "Use the remote testing server"
-    env.hosts = ['ehri-test-01']
+@task
+def deploy(ctx, clean=False):
+    """Build (optionally with clean) and deploy the distribution"""
+    version = get_version_stamp(ctx)
+    build_cmd = "sbt dist" if not clean else "sbt clean dist"
+    local(build_cmd)
+    file = local("ls -1t target/universal/docview-*.zip").stdout.strip()
+    base = os.path.basename(file)
+    if not file or file == "":
+        raise Exception("Cannot find latest build zip in target/universal!")
+    version_dir = f"{deploys_dir}/{version}"
 
-def stage():
-    "Use the remote staging server"
-    env.hosts = ['ehri-stage-01']
+    ctx.put(file, remote="/tmp")
+    ctx.run(f"mkdir -p {version_dir}")
+    ctx.run(f"unzip /tmp/{base} -d {version_dir}")
+    symlink_target(ctx, version_dir, target_link)
+    restart(ctx)
 
-def prod():
-    "Use the remote virtual server"
-    env.hosts = ['ehri-portal-01']
-    env.prod = True
 
-def deploy():
-    """
-    Deploy the latest version of the site to the servers, install any
-    required third party modules, and then restart the webserver
-    """
-    with settings(version = get_version_stamp()):
-        copy_to_server()
-        set_permissions()
-        symlink_current()
-        restart()
+@task
+def rollback(ctx):
+    """Set the current version to the previous version directory"""
+    output = ctx.run(f"ls -1rt {deploys_dir} | tail -n 2 | head -n 1").stdout.strip()
+    if output == "":
+        raise Exception("Unable to get previous version for rollback!")
+    symlink_target(ctx, f"{deploys_dir}/{output}", target_link)
+    restart(ctx)
 
-def clean_deploy():
-    """Build a clean version and deploy."""
-    check_java_version()
-    local("%(play_bin)s clean stage" % env)
-    deploy()
 
-def get_version_stamp():
-    "Get a dated and revision stamped version string"
-    rev = subprocess.check_output(["git","rev-parse", "--short", "HEAD"]).strip()
-    timestamp = datetime.now().strftime(TIMESTAMP_FORMAT)    
-    return "%s_%s" % (timestamp, rev)
+@task
+def latest(ctx):
+    """Set the current version to the latest version directory"""
+    output = ctx.run(f"ls -1rt {deploys_dir} | tail -n 1").stdout.strip()
+    if output == "":
+        raise Exception("Unable to get previous version for rollback!")
+    symlink_target(ctx, f"{deploys_dir}/{output}", target_link)
+    restart(ctx)
 
-def copy_to_server():
-    "Upload the app to a versioned path."
-    # Ensure the deployment directory is there...
-    with cd(env.path):
-        run("mkdir -p deploys/%(version)s" % env)
-    upload_project(local_dir="./target", remote_dir="%(path)s/deploys/%(version)s" % env)
 
-def symlink_current():
-    with cd(env.path):
-        run("ln --force --no-dereference --symbolic deploys/%(version)s/target target" % env)
+@task
+def symlink_target(ctx, version_dir, target):
+    """Symlink a version directory"""
+    ctx.run(f"ln --force --no-dereference --symbolic {version_dir} {target}")
+    ctx.run(f"chgrp -R webadm {target_link}")
 
-def set_permissions():
-    with cd(env.path):
-        run("chown -R %(user)s.webadm deploys/%(version)s/target/universal/stage" % env)
-        run("chmod g+x deploys/%(version)s/target/universal/stage/bin/%(project_name)s" % env)
 
-def start():
-    "Start docview"
-    # NB: This doesn't use sudo() directly because it insists on asking
-    # for a password, even though we should have NOPASSWD in visudo.
-    run('sudo service %(project_name)s start' % env, pty=False, shell=False)
+@task
+def restart(ctx):
+    """Restart the docview process"""
+    ctx.run("sudo service docview restart")
 
-def stop():
-    "Stop docview"
-    # NB: This doesn't use sudo() directly because it insists on asking
-    # for a password, even though we should have NOPASSWD in visudo.
-    run('sudo service %(project_name)s stop' % env, pty=False, shell=False)
 
-def message(msg=None):
-    "Toggle the global message (with the given message), or remove it."
-    filename = os.path.join(env.path, "MESSAGE")
-    if msg is None:
-        if exists(filename):
-            run("rm " + filename)
-            print("MESSAGE mode is OFF")
-        else:
-            print("No message given, and no message file present. Nothing to do...")
-    else:
-        run("echo '" + msg + "' > " + filename)
-        print("MESSAGE is ON")
+@task
+def get_version_stamp(ctx):
+    """Get the tag for a version, consisting of the current time and git revision"""
+    res = local("git rev-parse --short HEAD").stdout.strip()
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return f"{timestamp}_{res}"
 
-def whitelist(ip=None):
-    "Toggle the IP whitelist"
-    filename = os.path.join(env.path, "IP_WHITELIST")
+
+@task
+def whitelist(ctx, ip=None):
+    """Toggle the IP whitelist"""
+    filename = "/opt/docview/IP_WHITELIST"
     if ip is None:
-        if exists(filename):
-            run("rm " + filename)
+        if files.exists(ctx, filename):
+            ctx.run(f"rm -f {filename}")
             print("IP_WHITELIST mode is OFF")
         else:
             print("No IP given, and no whitelist file present. Nothing to do...")
@@ -118,81 +88,41 @@ def whitelist(ip=None):
         import re
         m = re.match(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$", ip)
         if not m:
-            abort("This doesn't look like a single IP(?): " + ip)
+            raise Exception(f"This doesn't look like a single IP(?): {ip}")
         else:
-            run("echo '" + ip + "' > " + filename)
-            print("IP_WHITELIST is ON for " + ip)
+            ctx.run(f"echo '{ip}' > {filename}")
+            print(f"IP_WHITELIST is ON for {ip}")
 
-def maintenance():
-    "Toggle maintenance mode."
-    filename = os.path.join(env.path, "MAINTENANCE")
-    if exists(filename):
-        run("rm " + filename)
-        print("MAINTENANCE mode is OFF")
+
+@task
+def message(ctx, msg=None):
+    """Toggle the global message (with the given message), or remove it."""
+    filename = "/opt/docview/MESSAGE"
+    if msg is not None:
+        ctx.run(f"echo '{msg}' > {filename}")
+        print("MESSAGE mode is ON")
     else:
-        run("touch " + filename)
-        print("MAINTENANCE mode is ON")
+        ctx.run(f"rm {filename}")
+        print("MESSAGE mode is OFF")
 
-def readonly():
-    "Toggle readonly mode."
-    filename = os.path.join(env.path, "READONLY")
-    if exists(filename):
-        run("rm " + filename)
-        print("READONLY mode is OFF")
+
+@task
+def readonly(ctx):
+    """Toggle read-only mode"""
+    toggle_mode(ctx, "READONLY")
+
+
+@task
+def maintenance(ctx):
+    """Toggle maintenance mode"""
+    toggle_mode(ctx, "MAINTENANCE")
+
+
+def toggle_mode(ctx, mode):
+    filename = f"/opt/docview/{mode}"
+    if files.exists(ctx, filename):
+        ctx.run(f"rm {filename}")
+        print(f"{mode} mode is OFF")
     else:
-        run("touch " + filename)
-        print("READONLY mode is ON")
-
-def restart():
-    "Restart docview"
-    # NB: This doesn't use sudo() directly because it insists on asking
-    # for a password, even though we should have NOPASSWD in visudo.
-    run('sudo service %(project_name)s restart' % env, pty=False, shell=False)
-
-def rollback():
-    "Rollback to the last versioned dir and restart"
-    with cd(env.path):
-        output = run("ls -1rt deploys | tail -n 2 | head -n 1").strip()
-        if output == "":
-            raise Exception("Unable to get previous version for rollback!")
-        with settings(version=output):
-            symlink_current()
-            restart()
-
-def latest():
-    "Point symlink at latest version"
-    with cd(env.path):
-        output = run("ls -1rt deploys | tail -n 1").strip()
-        if output == "":
-            raise Exception("Unable to get latest version for rollback!")
-        with settings(version=output):
-            symlink_current()
-            restart()
-
-def current_version():
-    "Show the current date/revision"
-    with cd(env.path):
-        path = run("readlink -f target")
-        deploy = os.path.split(path)
-        if deploy[-1] != "target":
-            abort("Unexpected path for deploy directory: " + path)
-        timestamp, revision = os.path.basename(deploy[-2]).split("_")        
-        date = datetime.strptime(timestamp, TIMESTAMP_FORMAT)
-        print("Timestamp: %s, revision: %s" % (date, revision))
-        return date, revision
-
-def current_version_log():
-    "Output git log between HEAD and the current deployed version."
-    _, revision = current_version()
-    local("git log %s..HEAD" % revision)
-
-def check_java_version():
-    "Ensure we're building with the right java version"
-    version_string = local("java -version 2>&1", capture=True)
-    if version_string.find("version \"1.%d" % env.java_version) == -1:
-        abort("Incorrect java version: should be 1.%d" % env.java_version)
-
-    "Ensure we're building with the right javac version"
-    version_string = local("javac -version 2>&1", capture=True)
-    if version_string.find("javac 1.%d" % env.java_version) == -1:
-        abort("Incorrect javac version: should be 1.%d" % env.java_version)
+        ctx.run(f"touch {filename}")
+        print(f"{mode} mode is ON")
