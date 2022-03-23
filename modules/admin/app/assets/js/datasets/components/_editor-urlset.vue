@@ -17,6 +17,8 @@ export default {
     return {
       mappings: this.deserialize(this.value),
       selected: -1,
+      pasteHelper: false,
+      pasteText: "",
     }
   },
   methods: {
@@ -73,16 +75,38 @@ export default {
     serialize: function(mappings: string[][]): string {
       return mappings.map(m => m.join("\t")).join("\n");
     },
-    importFromClipboard: function() {
-      if (this.mappings && this.mappings.length > 0) {
-        if (!window.confirm("Overwrite existing data?")) {
-          return;
-        }
-      }
-      navigator.clipboard.readText().then(text => {
-        this.mappings = this.deserialize(text.trim());
+    acceptPasteInput: function() {
+      // Hack around Firefox not having clipboard import
+      if (this.pasteHelper) {
+        this.mappings = this.deserialize(this.pasteText.trim());
         this.update();
-      });
+        this.pasteHelper = false;
+        this.pasteText = "";
+      }
+    },
+    importFromClipboard: function() {
+      if (typeof navigator.clipboard.readText === 'function') {
+        if (this.mappings && this.mappings.length > 0) {
+          if (!window.confirm("Overwrite existing data?")) {
+            return;
+          }
+        }
+        navigator.clipboard.readText().then(text => {
+          this.mappings = this.deserialize(text.trim());
+          this.update();
+        });
+      } else {
+        // If we have no readText function we show a textarea the user can paste into:
+        this.pasteHelper = true;
+        this.pasteText = this.value;
+        Vue.nextTick().then(() =>{
+          let el = this.$el.querySelector("textarea");
+          if (el) {
+            el.focus();
+            el.select();
+          }
+        })
+      }
     }
   },
   watch: {
@@ -100,7 +124,8 @@ export default {
         <input readonly disabled type="text" value="url" @click="selected = -1"/>
         <input readonly disabled type="text" value="target-filename" @click="selected = -1"/>
       </div>
-      <div class="tabular-editor-mappings">
+      <textarea v-if="pasteHelper" placeholder="Paste TSV here..." class="textarea-paste-helper" v-model="pasteText"></textarea>
+      <div v-else class="tabular-editor-mappings">
         <template v-for="(mapping, row) in mappings">
           <input
               v-for="col in [0, 1]"
@@ -127,7 +152,11 @@ export default {
         <i class="fa fa-trash-o"></i>
         Delete URL/name
       </button>
-      <button class="btn btn-default btn-sm" v-on:click="importFromClipboard">
+      <button v-if="pasteHelper" class="btn btn-default btn-sm" v-on:click.prevent.stop="acceptPasteInput">
+        <i class="fa fa-check text-success"></i>
+        Accept TSV Input...
+      </button>
+      <button v-else class="btn btn-default btn-sm" v-on:click.prevent.stop="importFromClipboard">
         <i class="fa fa-clipboard"></i>
         Import TSV From Clipboard
       </button>

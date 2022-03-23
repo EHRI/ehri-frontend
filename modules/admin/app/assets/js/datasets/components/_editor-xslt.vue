@@ -12,10 +12,15 @@ export default {
       // it does not reflect the actual value of the panel
       type: Number,
     },
+    timestamp: String,
   },
   watch: {
     resize: function() {
       this.editor.refresh();
+    },
+    timestamp: function() {
+      console.debug("XSLT editor value updated...")
+      this.editor.setValue(this.value);
     }
   },
   mounted: function () {
