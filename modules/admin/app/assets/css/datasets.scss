@@ -572,6 +572,12 @@ $active-table-row: #e7f1ff;
   overflow-x: unset;
 }
 
+.textarea-paste-helper {
+  @extend %expanding-column;
+  @extend %overflow-contents;
+  border: 1px solid $ehri-border-gray;
+}
+
 .tabular-editor-toolbar {
   display: flex;
   justify-content: right;

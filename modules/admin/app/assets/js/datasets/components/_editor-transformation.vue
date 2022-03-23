@@ -1,5 +1,7 @@
 <script lang="ts">
 
+import Vue from 'vue';
+
 import ModalWindow from './_modal-window';
 import EditorXslt from './_editor-xslt.vue';
 import EditorXquery from './_editor-xquery.vue';
@@ -62,6 +64,8 @@ export default {
       loadingIn: false,
       loadingOut: false,
       showRemoveDialog: false,
+      pasteHelper: false,
+      pasteText: "",
       error: null,
     }
   },
@@ -125,16 +129,33 @@ export default {
 
       document.body.removeChild(element);
     },
+    acceptPasteInput: function() {
+      this.$set(this.data, "body", this.pasteText);
+      this.pasteHelper = false;
+      this.pasteText = "";
+      this.triggerRefresh();
+    },
     importFromClipboard: function() {
-      if (this.data.body.trim() !== "") {
-        if (!window.confirm("Overwrite existing data?")) {
-          return;
+      if (typeof navigator.clipboard.readText === 'function') {
+        if (this.data.body.trim() !== "") {
+          if (!window.confirm("Overwrite existing data?")) {
+            return;
+          }
         }
+        navigator.clipboard.readText().then(text => {
+          console.log("Text: ", text);
+          this.$set(this.data, "body", text);
+          this.triggerRefresh();
+        });
+      } else {
+        this.pasteHelper = true;
+        this.pasteText = this.data.body;
+        Vue.nextTick(() => {
+          let el = this.$el.querySelector(".textarea-paste-helper");
+          el.focus();
+          el.select();
+        });
       }
-      navigator.clipboard.readText().then(text => {
-        console.log("Text: ", text);
-        this.$set(this.data, "body", text);
-      });
     }
   },
   computed: {
@@ -177,6 +198,18 @@ export default {
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
+
+        <modal-window v-if="pasteHelper" v-bind:resizable="true" v-on:keyup.esc="pasteHelper = false" v-on:close="pasteHelper = false; pasteText = ''">
+          <template v-slot:title>Paste input...</template>
+          <textarea v-if="pasteHelper" placeholder="Paste TSV here..." class="textarea-paste-helper" v-model="pasteText"></textarea>
+          <template v-slot:footer>
+            <button v-if="pasteHelper" class="btn btn-default btn-sm" v-on:click.prevent.stop="acceptPasteInput">
+              <i class="fa fa-check text-success"></i>
+              Accept TSV Input...
+            </button>
+          </template>
+        </modal-window>
+
         <div id="transformation-editor-panes" class="panel-container modal-body">
           <div id="transformation-editor-map" class="top-panel">
             <div id="transformation-editor-controls" class="controls">
@@ -256,7 +289,7 @@ export default {
             </div>
             <div id="transformation-editor-map-input">
               <editor-xquery v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
-              <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" />
+              <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">
               <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />
