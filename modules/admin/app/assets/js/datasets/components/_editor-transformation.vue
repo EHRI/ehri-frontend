@@ -66,6 +66,7 @@ export default {
       showRemoveDialog: false,
       pasteHelper: false,
       pasteText: "",
+      confirmPaste: false,
       error: null,
     }
   },
@@ -137,16 +138,19 @@ export default {
     },
     importFromClipboard: function() {
       if (typeof navigator.clipboard.readText === 'function') {
-        if (this.data.body.trim() !== "") {
-          if (!window.confirm("Overwrite existing data?")) {
-            return;
-          }
-        }
         navigator.clipboard.readText().then(text => {
-          console.log("Text: ", text);
           this.$set(this.data, "body", text);
           this.triggerRefresh();
         });
+      }
+    },
+    confirmImportFromClipboard: function() {
+      if (typeof navigator.clipboard.readText === 'function') {
+        if (this.data.body.trim() !== "") {
+          this.confirmPaste = true;
+        } else {
+          this.importFromClipboard();
+        }
       } else {
         this.pasteHelper = true;
         this.pasteText = this.data.body;
@@ -210,6 +214,14 @@ export default {
           </template>
         </modal-window>
 
+        <modal-alert
+            v-if="confirmPaste"
+            v-bind:title="'Overwrite existing contents?'"
+            v-bind:accept="'Yes, overwrite'"
+            v-on:accept="importFromClipboard(); confirmPaste = false"
+            v-on:close="confirmPaste = false"
+            />
+
         <div id="transformation-editor-panes" class="panel-container modal-body">
           <div id="transformation-editor-map" class="top-panel">
             <div id="transformation-editor-controls" class="controls">
@@ -257,7 +269,7 @@ export default {
                       <i class="fa fa-copy"></i>
                       Copy To Clipboard
                     </button>
-                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; importFromClipboard()">
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; confirmImportFromClipboard()">
                       <i class="fa fa-clipboard"></i>
                       Import From Clipboard
                     </button>
