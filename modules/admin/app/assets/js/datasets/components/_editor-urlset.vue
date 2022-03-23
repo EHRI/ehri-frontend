@@ -4,12 +4,14 @@ import Vue from 'vue';
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
+import ModalAlert from './_modal-alert';
 
 /**
  * FIXME: massive duplication with the tabular XQuery editor here
  */
 
 export default {
+  components: {ModalAlert},
   props: {
     value: String,
   },
@@ -19,6 +21,7 @@ export default {
       selected: -1,
       pasteHelper: false,
       pasteText: "",
+      confirmPaste: false,
     }
   },
   methods: {
@@ -86,15 +89,19 @@ export default {
     },
     importFromClipboard: function() {
       if (typeof navigator.clipboard.readText === 'function') {
-        if (this.mappings && this.mappings.length > 0) {
-          if (!window.confirm("Overwrite existing data?")) {
-            return;
-          }
-        }
         navigator.clipboard.readText().then(text => {
           this.mappings = this.deserialize(text.trim());
           this.update();
         });
+      }
+    },
+    confirmImportFromClipboard: function() {
+      if (typeof navigator.clipboard.readText === 'function') {
+        if (this.mappings && this.mappings.length > 0) {
+          this.confirmPaste = true;
+        } else {
+          this.importFromClipboard();
+        }
       } else {
         // If we have no readText function we show a textarea the user can paste into:
         this.pasteHelper = true;
@@ -124,6 +131,15 @@ export default {
         <input readonly disabled type="text" value="url" @click="selected = -1"/>
         <input readonly disabled type="text" value="target-filename" @click="selected = -1"/>
       </div>
+
+      <modal-alert
+          v-if="confirmPaste"
+          v-bind:title="'Overwrite existing contents?'"
+          v-bind:accept="'Yes, overwrite'"
+          v-on:accept="importFromClipboard(); confirmPaste = false"
+          v-on:close="confirmPaste = false"
+      />
+
       <textarea v-if="pasteHelper" placeholder="Paste TSV here..." class="textarea-paste-helper" v-model="pasteText"></textarea>
       <div v-else class="tabular-editor-mappings">
         <template v-for="(mapping, row) in mappings">
@@ -156,7 +172,7 @@ export default {
         <i class="fa fa-check text-success"></i>
         Accept TSV Input...
       </button>
-      <button v-else class="btn btn-default btn-sm" v-on:click.prevent.stop="importFromClipboard">
+      <button v-else class="btn btn-default btn-sm" v-on:click.prevent.stop="confirmImportFromClipboard">
         <i class="fa fa-clipboard"></i>
         Import TSV From Clipboard
       </button>
