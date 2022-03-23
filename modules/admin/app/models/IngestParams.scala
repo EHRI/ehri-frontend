@@ -92,7 +92,7 @@ object IngestParams {
       HANDLER -> optional(text),
       IMPORTER -> optional(text),
       EXCLUDES -> optional(text).transform[Seq[String]](
-        _.map(_.split("\n").map(_.trim).toSeq).toSeq.flatten,
+        _.map(_.split("\r?\n").map(_.trim).toSeq).toSeq.flatten,
         s => if(s.isEmpty) None else Some(s.mkString("\n"))),
       BASE_URI -> optional(text),
       SUFFIX -> optional(text),

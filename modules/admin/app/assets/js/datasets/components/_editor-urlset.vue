@@ -63,7 +63,7 @@ export default {
     deserialize: function(str): string[][] {
       if (str !== "") {
         return str
-            .split("\n")
+            .split(/\r?\n/)
             .map (m => {
               let parts = m.split("\t");
               return [

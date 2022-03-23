@@ -72,7 +72,7 @@ export default {
       if (str !== "") {
         // Ignore the header row here...
         return str
-            .split("\n")
+            .split(/\r?\n/)
             .slice(1)
             .map (m => {
               let parts = m.split("\t");

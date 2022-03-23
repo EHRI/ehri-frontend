@@ -25,7 +25,7 @@ object BatchDeleteTask {
       VERSION -> boolean,
       COMMIT -> boolean,
       LOG_MSG -> nonEmptyText,
-      IDS -> nonEmptyText.transform[Seq[String]](_.split("\n").map(_.trim).toSeq, _.mkString("\n"))
+      IDS -> nonEmptyText.transform[Seq[String]](_.split("\r?\n").map(_.trim).toSeq, _.mkString("\n"))
     )(BatchDeleteTask.apply)(BatchDeleteTask.unapply)
   )
 }
