@@ -11,7 +11,7 @@ export default {
   },
   data: function() {
     return {
-      minWidth: 720,
+      minWidth: 800,
       minHeight: 300,
     }
   },

@@ -40,7 +40,7 @@ case class ImportLogs @Inject()(
   importLogService: ImportLogService,
   cypherServer: CypherService,
   importService: IngestService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   private val logger = Logger(classOf[ImportLogs])
 
@@ -56,7 +56,7 @@ case class ImportLogs @Inject()(
     }
   }
 
-  def takeSnapshot(id: String): Action[SnapshotInfo] = EditAction(id).async(parse.json[SnapshotInfo]) { implicit request =>
+  def takeSnapshot(id: String): Action[SnapshotInfo] = EditAction(id).async(apiJson[SnapshotInfo]) { implicit request =>
     val src: Source[(String, String), _] = cypherServer.rows(
       """MATCH (r: Repository {__id: $id})<-[:heldBy|childOf*]-(d:DocumentaryUnit)
          RETURN DISTINCT d.__id as id, d.identifier as local""", Map("id" -> JsString(id)))
@@ -99,7 +99,7 @@ case class ImportLogs @Inject()(
     }
   }
 
-  def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).async(parse.json[CleanupConfirmation]) { implicit request =>
+  def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).async(apiJson[CleanupConfirmation]) { implicit request =>
     logger.info(s"Starting cleanup for repository $id, snapshot $snapshotId")
     for {
       cleanup <- importLogService.cleanup(id, snapshotId)

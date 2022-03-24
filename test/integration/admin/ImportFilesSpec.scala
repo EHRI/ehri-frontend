@@ -114,9 +114,6 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       await(putFile(testFileName))
       await(putFile(testFileName + "2"))
       val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, stage))
-        .withHeaders(Headers(
-          HeaderNames.HOST -> "localhost"
-        ))
         .withUser(privilegedUser)
         .callWith(Json.arr(testFileName))
 
@@ -127,9 +124,6 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       await(putFile(testFileName))
       await(putFile(testFileName + "2"))
       val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, stage))
-        .withHeaders(Headers(
-          HeaderNames.HOST -> "localhost"
-        ))
         .withUser(privilegedUser)
         .callWith(Json.arr())
 
@@ -140,9 +134,6 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       await(putFile(testFileName))
       val tag = DigestUtils.md5Hex(testPayload.utf8String)
       val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
-        .withHeaders(Headers(
-          HeaderNames.HOST -> "localhost"
-        ))
         .withUser(privilegedUser)
         .callWith(Json.obj(tag -> testFileName))
 
@@ -159,6 +150,15 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
            }]
           }]"""
       )
+    }
+
+    "give JSON errors for invalid payloads" in new ITestApp {
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
+        .withUser(privilegedUser)
+        .callWith(Json.arr("not", "an", "object"))
+
+      status(r) must_== BAD_REQUEST
+      contentAsJson(r) must_== Json.parse("{\"error\":\"invalid\",\"details\":{\"obj\":[{\"msg\":[\"error.expected.jsobject\"],\"args\":[]}]}}")
     }
   }
 }

@@ -31,7 +31,7 @@ case class ImportDatasets @Inject()(
   datasets: ImportDatasetService,
   asyncCache: AsyncCacheApi,
   importLogService: ImportLogService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
     Ok(
@@ -143,7 +143,7 @@ case class ImportDatasets @Inject()(
     } yield Ok(Json.toJson(combined))
   }
 
-  def create(id: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
+  def create(id: String): Action[ImportDatasetInfo] = EditAction(id).async(apiJson[ImportDatasetInfo]) { implicit request =>
     datasets.create(id, request.body).map { ds =>
       Created(Json.toJson(ds))
     }.recover {
@@ -151,13 +151,13 @@ case class ImportDatasets @Inject()(
     }
   }
 
-  def update(id: String, ds: String): Action[ImportDatasetInfo] = EditAction(id).async(parse.json[ImportDatasetInfo]) { implicit request =>
+  def update(id: String, ds: String): Action[ImportDatasetInfo] = EditAction(id).async(apiJson[ImportDatasetInfo]) { implicit request =>
     datasets.update(id, ds, request.body).map { ds =>
       Ok(Json.toJson(ds))
     }
   }
 
-  def batch(id: String): Action[Seq[ImportDatasetInfo]] = EditAction(id).async(parse.json[Seq[ImportDatasetInfo]]) { implicit request =>
+  def batch(id: String): Action[Seq[ImportDatasetInfo]] = EditAction(id).async(apiJson[Seq[ImportDatasetInfo]]) { implicit request =>
     datasets.batch(id, request.body).map { _ =>
       Ok(Json.obj("ok" -> true))
     }

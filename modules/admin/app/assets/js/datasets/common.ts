@@ -1,6 +1,6 @@
 import {DateTime} from "luxon";
 import axios from "axios";
-
+import Papa, {ParseConfig, UnparseConfig} from "papaparse";
 
 function humanFileSize(bytes: number, si: boolean = true): string {
   let thresh = si ? 1000 : 1024;
@@ -48,6 +48,19 @@ function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promis
   }).then(r => r.data);
 }
 
+let tsvOpts = {
+  delimiter: "\t",
+  header: false,
+  skipEmptyLines: true
+};
 
+function decodeTsv(tsv: string, expectedColumns: number): string[][] {
+  return Papa.parse<string[]>(tsv, tsvOpts as ParseConfig)
+      .data;
+}
 
-export {humanFileSize, timeToRelative, displayDate, apiCall};
+function encodeTsv(data: string[][], expectedColumns: number): string {
+  return Papa.unparse(data, {...tsvOpts, newline: "\n"} as UnparseConfig);
+}
+
+export {humanFileSize, timeToRelative, displayDate, apiCall, decodeTsv, encodeTsv};

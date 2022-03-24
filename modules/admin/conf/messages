@@ -1539,6 +1539,8 @@ harvesting.nothingToDo={0}: nothing new to sync
 harvesting.earliestDate=Harvesting from earliest date
 harvesting.fromDate=Harvesting from {0}
 harvesting.error={0}: harvesting error: {1}
+harvesting.error.invalidUrl=Invalid harvest URL
+harvesting.error.invalidFileName=Invalid file name
 
 #
 # Conversion
