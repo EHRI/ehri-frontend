@@ -5,6 +5,7 @@ import Vue from 'vue';
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
 import ModalAlert from './_modal-alert';
+import {decodeTsv, encodeTsv} from "../common";
 
 /**
  * FIXME: massive duplication with the tabular XQuery editor here
@@ -61,22 +62,10 @@ export default {
       this.update();
     },
     deserialize: function(str): string[][] {
-      if (str !== "") {
-        return str
-            .split(/\r?\n/)
-            .map (m => {
-              let parts = m.split("\t");
-              return [
-                parts[0] ? parts[0] : "",
-                parts[1] ? parts[1] : "",
-              ];
-            });
-      } else {
-        return [];
-      }
+      return str ? decodeTsv(str, 2) : [];
     },
     serialize: function(mappings: string[][]): string {
-      return mappings.map(m => m.join("\t")).join("\n");
+      return mappings ? encodeTsv(mappings, 2) : "";
     },
     acceptPasteInput: function() {
       // Hack around Firefox not having clipboard import
@@ -86,6 +75,9 @@ export default {
         this.pasteHelper = false;
         this.pasteText = "";
       }
+    },
+    copyToClipboard: function() {
+      navigator.clipboard.writeText(this.serialize(this.mappings));
     },
     importFromClipboard: function() {
       if (typeof navigator.clipboard.readText === 'function') {
@@ -175,6 +167,9 @@ export default {
       <button v-else class="btn btn-default btn-sm" v-on:click.prevent.stop="confirmImportFromClipboard">
         <i class="fa fa-clipboard"></i>
         Import TSV From Clipboard
+      </button>
+      <button class="btn btn-default btn-sm" v-on:click.prevent.stop="copyToClipboard" title="Copy to Clipboard">
+        <i class="fa fa-copy"></i>
       </button>
       <div class="tabular-editor-toolbar-info">
         URLs: {{mappings.length}}

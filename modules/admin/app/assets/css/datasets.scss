@@ -59,6 +59,16 @@ $active-table-row: #e7f1ff;
   height: 10rem;
 }
 
+.flash-notice {
+  animation: highlight 1000ms ease-out;
+}
+
+@keyframes highlight {
+  from {
+    background-color: lightyellow;
+  }
+}
+
 #dataset-manager-container {
   @extend %expanding-column;
   font-size: $font-size-sm;
@@ -1140,3 +1150,4 @@ $active-table-row: #e7f1ff;
     background-color: transparent;
   }
 }
+

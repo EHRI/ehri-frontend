@@ -5,6 +5,7 @@ import Vue from 'vue';
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
 import _concat from 'lodash/concat';
+import {decodeTsv, encodeTsv} from "../common";
 
 export default {
   props: {
@@ -68,30 +69,14 @@ export default {
         this.update();
       }
     },
-    deserialize: function(str): string[] {
-      if (str !== "") {
-        // Ignore the header row here...
-        return str
-            .split(/\r?\n/)
-            .slice(1)
-            .map (m => {
-              let parts = m.split("\t");
-              return [
-                parts[0] ? parts[0] : "",
-                parts[1] ? parts[1] : "",
-                parts[2] ? parts[2] : "",
-                parts[3] ? parts[3] : "",
-              ];
-            });
-      } else {
-        return [];
-      }
+    deserialize: function(str): string[][] {
+      // Skip header row...
+      return decodeTsv(str, 4).splice(1);
     },
     serialize: function(mappings): string {
-      let header = ["target-path\ttarget-node\tsource-node\tvalue"]
-      let rows = mappings.map(m => m.join("\t"))
-      let all = _concat(header, rows)
-      return all.join("\n");
+      let header = ["target-path", "target-node", "source-node", "value"]
+      let all = _concat([header], mappings);
+      return encodeTsv(all, 4);
     },
   },
   watch: {

@@ -37,6 +37,12 @@ class HarvestConfigsSpec extends IntegrationTestRunner with ResourceUtils {
       contentAsJson(r) must_== Json.toJson(c)
     }
 
+    "error when saving invalid urlset configs" in new DBTestApp("import-dataset-fixtures.sql") {
+      val c = UrlSetConfig(Seq("https://foo.bar/baz" -> "foo.xml\r")) // devious LF
+      val r = FakeRequest(hcRoutes.save("r1", "urlset_test")).withUser(privilegedUser).callWith(Json.toJson(c))
+      contentAsJson(r) must_== Json.parse("{\"error\":\"invalid\",\"details\":{\"obj.urlMap[0]\":[{\"msg\":[\"harvesting.error.invalidFileName\"],\"args\":[]}]}}")
+    }
+
     "error when saving configs to datasets with a different type" in new DBTestApp("import-dataset-fixtures.sql") {
       val c = OaiPmhConfig("https://foo.bar/baz", "oai_ead", Some("test"))
       val r = FakeRequest(hcRoutes.save("r1", "default")).withUser(privilegedUser).callWith(Json.toJson(c))

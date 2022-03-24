@@ -5,6 +5,7 @@ import ModalAlert from './_modal-alert';
 import {DatasetManagerApi} from '../api';
 import EditorUrlset from "./_editor-urlset.vue";
 import FormHttpBasicAuth from "./_form-http-basic-auth";
+import {decodeTsv, encodeTsv} from "../common";
 
 export default {
   components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth},
@@ -24,8 +25,10 @@ export default {
       testing: false,
       cleaning: false,
       error: null,
+      inputError: null,
       orphanCheck: null,
       tab: 'urls',
+      flash: false,
     }
   },
   computed: {
@@ -36,61 +39,101 @@ export default {
     },
     urlMapText: {
       get: function(): string {
-        return this.urlMap
-            ? this.urlMap.map(pairs => pairs.join('\t')).join('\n')
-            : '';
+        return this.urlMap ? encodeTsv(this.urlMap, 2) : "";
       },
-      set: function(urlMapText: string): void {
-        this.urlMap = urlMapText
-            ? urlMapText.split('\n').map(p => p.split('\t'))
-            : [];
+      set: function(urlMapText: string) {
+        this.urlMap = urlMapText ? decodeTsv(urlMapText, 2) : [];
       }
     }
   },
   methods: {
-    save: function() {
+    save: async function() {
+      if (!this.validate()) {
+        this.flashNotice();
+        return;
+      }
       this.$emit("saving");
-      this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
-          .then(data => this.$emit("saved-config", {...data, auth: this.auth}))
-          .catch(error => this.$emit("error", "Error saving URL set config", error));
+      try {
+        let data = await this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null});
+        this.$emit("saved-config", {...data, auth: this.auth});
+      } catch (e) {
+        this.$emit("error", "Error saving URL set config", e?.response?.data?.error);
+      }
     },
-    testEndpoint: function() {
+    testEndpoint: async function() {
+      if (!this.validate()) {
+        this.flashNotice();
+        return;
+      }
       this.testing = true;
-      this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth})
-          .then(() => {
-            this.tested = true;
-            this.error = null;
-          })
-          .catch(e => {
-            this.tested = false;
-            let err = e.response.data;
-            if (err.error) {
-              this.error = err.error;
-            }
-          })
-          .finally(() => this.testing = false);
+      this.error = null;
+      try {
+        await this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth});
+        this.tested = true;
+      } catch (e) {
+        this.tested = false;
+        let err = e?.response?.data?.error;
+        if (err) {
+          this.error = err;
+        }
+      } finally {
+        this.testing = false;
+      }
     },
-    cleanEndpoint: function() {
+    cleanEndpoint: async function() {
       this.cleaning = true;
-      this.api.cleanHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
-          .then(orphans => this.orphanCheck = orphans)
-          .catch(e => this.error = e.message)
-          .finally(() => this.cleaning = false);
+      try {
+        this.orphanCheck = await this.api.cleanHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
+      } catch(e) {
+        this.error = e.message;
+      } finally {
+        this.cleaning = false;
+      }
     },
-    deleteOrphans: function(orphans: string[]): Promise<void> {
-      return this.api.deleteFiles(this.datasetId, this.config.input, orphans)
-          .then(() => this.api.deleteFiles(this.datasetId, this.config.output, orphans)
-            .then(() => {
-              this.$emit('deleted-orphans')
-              this.orphanCheck = null
-            }));
-
+    deleteOrphans: async function(orphans: string[]): Promise<void> {
+      await this.api.deleteFiles(this.datasetId, this.config.input, orphans)
+      await this.api.deleteFiles(this.datasetId, this.config.output, orphans)
+      this.$emit('deleted-orphans')
+      this.orphanCheck = null
+    },
+    isValidHttpUrl: function(s: string): boolean {
+      let url;
+      try {
+        url = new URL(s);
+      } catch (_) {
+        return false;
+      }
+      return url.protocol === "http:" || url.protocol === "https:";
+    },
+    flashNotice: function() {
+      this.flash = true;
+      setTimeout(() => {this.flash = false}, 1000);
+    },
+    validate: function(): boolean {
+      let value = this.urlMap;
+      this.tested = null;
+      if (!value) {
+        return true;
+      }
+      for (let i = 0; i < value.length; i++) {
+        let [url, name] = value[i];
+        if (!(url && this.isValidHttpUrl(url))) {
+          this.inputError = "Invalid URL at row " + (i + 1);
+          return false;
+        }
+        if (!(name && name.match(/^[\w.-_]*\w$/))) {
+          this.inputError = "Invalid filename at row " + (i + 1);
+          return false;
+        }
+      }
+      this.inputError = null;
+      return true;
     }
   },
   watch: {
     opts: function(newValue) {
       this.urlMap = newValue ? newValue.urlMap : null;
-    }
+    },
   },
 }
 </script>
@@ -134,8 +177,10 @@ export default {
     <div v-else class="options-form">
       <form-http-basic-auth v-model="auth"/>
     </div>
+    
     <div id="endpoint-errors">
-      <span v-if="tested === null">&nbsp;</span>
+      <span v-if="inputError" v-bind:class="{'flash-notice': flash}" class="text-danger">{{ inputError }}</span>
+      <span v-else-if="tested === null">&nbsp;</span>
       <span v-else-if="tested" class="text-success">No errors detected</span>
       <span v-else-if="error" class="text-danger">{{error}}</span>
       <span v-else class="text-danger">Test unsuccessful</span>
@@ -158,8 +203,7 @@ export default {
         <i v-else class="fa fa-fw fa-close text-danger"/>
         Test Endpoint
       </button>
-      <button v-bind:disabled="!isValidConfig"
-              v-on:click="save" type="button" class="btn btn-secondary">
+      <button v-bind:disabled="!isValidConfig" v-on:click="save" type="button" class="btn btn-secondary">
         <i v-bind:class="{'fa-clone': !waiting, 'fa-circle-o-notch fa-spin': waiting}" class="fa fa-fw"></i>
         Sync Downloads
       </button>
