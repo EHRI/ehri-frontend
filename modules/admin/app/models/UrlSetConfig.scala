@@ -1,5 +1,7 @@
 package models
 
+import play.api.libs.json.Reads
+
 case class UrlNameMap(url: String, name: String)
 
 case class UrlSetConfig(
@@ -27,9 +29,11 @@ object UrlSetConfig {
   import play.api.libs.json._
 
   implicit val _reads: Reads[UrlSetConfig] = (
-    (__ \ URLS).read[Seq[(String, String)]] and
-      (__ \ AUTH).readNullable[BasicAuthConfig]
-    ) (UrlSetConfig.apply _)
+    (__ \ URLS).read[Seq[(String, String)]](Reads.seq(Reads.Tuple2R[String, String](
+      Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl),
+      Reads.pattern("^[\\w.-_]+$".r, "harvesting.error.invalidFileName")))) and
+    (__ \ AUTH).readNullable[BasicAuthConfig]
+  ) (UrlSetConfig.apply _)
 
   implicit val _writes: Writes[UrlSetConfig] = Json.writes[UrlSetConfig]
   implicit val _format: Format[UrlSetConfig] = Format(_reads, _writes)

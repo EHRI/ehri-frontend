@@ -12,7 +12,7 @@ import FilePicker from './_file-picker';
 import PanelLogWindow from './_panel-log-window';
 import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
-import {ImportConfig, ImportDataset, ResourceSyncConfig} from "../types";
+import {HarvestConfig, ImportConfig, ImportDataset} from "../types";
 
 class CancelledTask extends Error {
   constructor() {
@@ -42,6 +42,7 @@ export default {
       cancelled: false,
       working: {},
       throwOnError: false,
+      timestamp: (new Date()).getTime(),
     }
   },
   methods: {
@@ -64,7 +65,7 @@ export default {
     checkConfigs: async function() {
       let datasets: ImportDataset[] = this.datasets;
       for (let set of datasets) {
-        let config = await this.api.getSyncConfig(set.id);
+        let config = await this.api.getHarvestConfig(set.id);
         if (config === null) {
           this.println("Error: no import config found for set", set.name);
           return false;
@@ -72,8 +73,8 @@ export default {
       }
       return true;
     },
-    checkOrphansForSet: async function(set: ImportDataset, config: ResourceSyncConfig): Promise<string[]> {
-      let files = await this.api.cleanSyncConfig(set.id, config);
+    checkOrphansForSet: async function(set: ImportDataset, config: HarvestConfig): Promise<string[]> {
+      let files = await this.api.cleanHarvestConfig(set.id, config);
       if (files.length === 0) {
         this.println("... no orphans found");
       } else {
@@ -93,7 +94,7 @@ export default {
           }
           break;
         }
-        let config = await this.api.getSyncConfig(set.id);
+        let config = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Checking", set.name + "...");
           this.$set(this.working, set.id, true);
@@ -122,13 +123,13 @@ export default {
           }
           break;
         }
-        let config: ResourceSyncConfig|null = await this.api.getSyncConfig(set.id);
+        let config: HarvestConfig|null = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Syncing", set.name);
           this.$set(this.working, set.id, true);
           this.$emit('processing', set.id);
           try {
-            let {url, jobId} = await this.api.sync(set.id, config);
+            let {url, jobId} = await this.api.harvest(set.id, config);
             await this.monitor(url, jobId);
             if (!this.cancelled && this.cleanupOrphans) {
               let orphans = this.checkOrphansForSet(set, config);
@@ -269,13 +270,16 @@ export default {
       } else if (this.copyType === 'convert') {
         this.copyConvertSettings();
       }
+    },
+    resize: function() {
+      this.timestamp = (new Date()).getTime();
     }
   },
 }
 </script>
 
 <template>
-  <modal-window v-on:close="$emit('close')">
+  <modal-window v-bind:resizable="true" v-on:close="$emit('close')" v-on:move="resize">
     <template v-slot:title><i class="fa fa-warning"></i> Batch Operations</template>
 
 
@@ -354,10 +358,7 @@ export default {
     </fieldset>
 
     <div class="log-container" id="batch-ops-log">
-      <panel-log-window v-if="log.length > 0" v-bind:log="log"/>
-      <div v-else class="panel-placeholder">
-
-      </div>
+      <panel-log-window v-bind:log="log" v-bind:resize="timestamp" v-bind:visible="true" />
     </div>
     <template v-slot:footer>
       <button v-bind:disabled="!inProgress" v-on:click="cancelOperation" v-bind:class="{'btn-default': !inProgress, 'btn-warning': inProgress}"

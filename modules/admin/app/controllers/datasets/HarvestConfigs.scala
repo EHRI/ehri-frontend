@@ -42,7 +42,7 @@ case class HarvestConfigs @Inject()(
   urlSetConfigs: UrlSetConfigService,
   ws: WSClient,
   harvestEvents: HarvestEventService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   private val allowedTypes = config.get[Seq[String]]("ehri.admin.dataManager.inputTypes")
 
@@ -79,7 +79,7 @@ case class HarvestConfigs @Inject()(
     configF.map(r => Ok(Json.toJson(r)))
   }
 
-  def save(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(parse.json[HarvestConfig]) { implicit request =>
+  def save(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => oaipmhConfigs.save(id, ds, c).map(r => Ok(Json.toJson(r)))
       case c: ResourceSyncConfig => rsConfigs.save(id, ds, c).map(r => Ok(Json.toJson(r)))
@@ -97,7 +97,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def clean(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(parse.json[HarvestConfig]) { implicit request =>
+  def clean(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: ResourceSyncConfig => cleanRs(id, ds, c)
       case c: UrlSetConfig => cleanUrlSet(id, ds, c)
@@ -105,7 +105,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def test(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(parse.json[HarvestConfig]) { implicit request =>
+  def test(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => testOaiPmh(c)
       case c: ResourceSyncConfig => testRs(c)
@@ -114,7 +114,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def harvest(id: String, ds: String, fromLast: Boolean): Action[HarvestConfig] = DatasetAction(id, ds).async(parse.json[HarvestConfig]) { implicit request =>
+  def harvest(id: String, ds: String, fromLast: Boolean): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => harvestOaiPmh(id, ds, c, fromLast)
       case c: ResourceSyncConfig => harvestRs(id, ds, c)

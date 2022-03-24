@@ -69,9 +69,7 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
       context.become(running(job, msgTo, count, fresh, start))
 
       copyItem(job, item).map { case (name, isFresh) =>
-        if (isFresh) {
-          msgTo ! DoneFile(name)
-        }
+        msgTo ! DoneFile(name)
         Fetch(rest, count + 1, if (isFresh) fresh + 1 else fresh)
       }.pipeTo(self)
 

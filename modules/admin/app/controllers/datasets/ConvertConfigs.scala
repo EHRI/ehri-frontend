@@ -14,8 +14,7 @@ import eu.ehri.project.xml._
 import models._
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
-import play.api.libs.json.JsError.toJson
-import play.api.libs.json.{JsObject, Json, Reads, Writes}
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc._
 import services.datasets.ImportDatasetService
 import services.storage.{FileMeta, FileStorage}
@@ -38,31 +37,16 @@ case class ConvertConfigs @Inject()(
   xmlTransformer: XmlTransformer,
   @NamedCache("transformer-cache") transformCache: AsyncCacheApi,
   datasetApi: ImportDatasetService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   private val logger: Logger = Logger(classOf[ConvertConfigs])
   private val cacheTime: Duration = appComponents.config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
-
-  // To override the max request size we unfortunately need to define our own body parser here:
-  // The max value is drawn from config:
-  private def json[A](implicit reader: Reads[A]): BodyParser[A] = BodyParser { request =>
-    val max = config.get[Long]("ehri.admin.dataManager.maxTransformationSize")
-    parse.json(max)(request).map {
-      case Left(simpleResult) => Left(simpleResult)
-      case Right(jsValue) =>
-        jsValue.validate(reader).map { a =>
-          Right(a)
-        } recoverTotal { jsError =>
-          Left(BadRequest(Json.obj("error" -> "invalid", "details" -> toJson(jsError))))
-        }
-    }
-  }
 
   def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     dataTransformations.getConfig(id, ds).map { pairs => Ok(Json.toJson(pairs))}
   }
 
-  def save(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(parse.json[Seq[(String, JsObject)]]) { implicit request =>
+  def save(id: String, ds: String): Action[Seq[(String, JsObject)]] = EditAction(id).async(apiJson[Seq[(String, JsObject)]]) { implicit request =>
     dataTransformations.saveConfig(id, ds, request.body).map(_ => Ok(Json.obj("ok" -> true)))
   }
 
@@ -108,7 +92,7 @@ case class ConvertConfigs @Inject()(
     }
   }
 
-  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(json[ConvertConfig]) { implicit request =>
+  def convertFile(id: String, ds: String, stage: FileStage.Value, fileName: String): Action[ConvertConfig] = Action.async(apiJson[ConvertConfig]) { implicit request =>
     // We need a recursive error handler here which, in the case of a
     // CompletionException thrown by the cache, attempts to handle the
     // underlying cause
@@ -129,7 +113,7 @@ case class ConvertConfigs @Inject()(
     } yield result
   }
 
-  def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(json[ConvertConfig]) { implicit request =>
+  def convert(id: String, ds: String, key: Option[String]): Action[ConvertConfig] = EditAction(id).async(apiJson[ConvertConfig]) { implicit request =>
     val config = request.body
     for (ts <- configToMappings(config); datasetOpt <- datasetApi.find(id, ds)) yield {
       val jobId = UUID.randomUUID().toString

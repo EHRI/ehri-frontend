@@ -59,6 +59,16 @@ $active-table-row: #e7f1ff;
   height: 10rem;
 }
 
+.flash-notice {
+  animation: highlight 1000ms ease-out;
+}
+
+@keyframes highlight {
+  from {
+    background-color: lightyellow;
+  }
+}
+
 #dataset-manager-container {
   @extend %expanding-column;
   font-size: $font-size-sm;
@@ -805,6 +815,10 @@ $active-table-row: #e7f1ff;
   }
 }
 
+.bottom-panel .status-panels .log-container {
+  overflow: hidden !important;
+}
+
 .log-container pre {
   padding: $margin-xs;
   margin: 0;
@@ -1140,3 +1154,10 @@ $active-table-row: #e7f1ff;
     background-color: transparent;
   }
 }
+
+.xterm {
+  width: 100%;
+  height: 100%;
+  padding: $margin-xxs;
+}
+

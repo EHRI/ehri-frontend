@@ -11,7 +11,7 @@ export default {
   },
   data: function() {
     return {
-      minWidth: 720,
+      minWidth: 800,
       minHeight: 300,
     }
   },
@@ -27,6 +27,7 @@ export default {
 
       parent.style.maxWidth = Math.max(this.minWidth, ((posX - (width / 2)) * 2)) + "px";
       content.style.height = Math.max(this.minHeight, (posY - (height / 2)) * 2) + "px";
+      this.$emit("move");
     },
 
     resize: function(evt: MouseEvent) {
@@ -37,6 +38,7 @@ export default {
       window.addEventListener("mouseup", (evt: MouseEvent) => {
         if (evt.button === 0) {
           console.debug("Stop resize");
+          this.$emit("resize");
           window.removeEventListener("mousemove", this.move);
         }
       }, {once: true});

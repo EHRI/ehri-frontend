@@ -47,7 +47,7 @@ case class ImportFiles @Inject()(
   importLogService: ImportLogService,
   asyncCache: AsyncCacheApi,
   datasets: ImportDatasetService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
@@ -67,7 +67,7 @@ case class ImportFiles @Inject()(
     }.map(Ok(_))
   }
 
-  def fileUrls(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(parse.json[Seq[String]]) { implicit request =>
+  def fileUrls(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).apply(apiJson[Seq[String]]) { implicit request =>
     val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
     val result: Map[String, URI] = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(key)).toMap
     Ok(Json.toJson(result))
@@ -112,13 +112,13 @@ case class ImportFiles @Inject()(
     ))
   }
 
-  def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(parse.json[FileToUpload]) { implicit request =>
+  def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(apiJson[FileToUpload]) { implicit request =>
     val path = s"${prefix(id, ds, stage)}${request.body.name}"
     val url = storage.uri(path, contentType = Some(request.body.`type`))
     Ok(Json.obj("presignedUrl" -> url))
   }
 
-  def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(parse.json[Seq[String]]) { implicit request =>
+  def deleteFiles(id: String, ds: String, stage: FileStage.Value): Action[Seq[String]] = EditAction(id).async(apiJson[Seq[String]]) { implicit request =>
     def deleteBatch(batch: Seq[String]): Future[Int] = storage.deleteFiles(batch: _*).map(_.size)
 
     val pre = prefix(id, ds, stage)
@@ -135,7 +135,7 @@ case class ImportFiles @Inject()(
       .map ( num => Ok(Json.obj("deleted" -> num)))
   }
 
-  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(parse.json[Map[String, String]]) { implicit request =>
+  def validateFiles(id: String, ds: String, stage: FileStage.Value): Action[Map[String, String]] = Action.async(apiJson[Map[String, String]]) { implicit request =>
     // Input is a map of eTag -> key
     // Convert the map to a sequence and reverse key/value
     val pre = prefix(id, ds, stage)

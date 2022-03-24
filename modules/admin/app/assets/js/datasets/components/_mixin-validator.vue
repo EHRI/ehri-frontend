@@ -6,6 +6,7 @@ import _isEmpty from 'lodash/isEmpty';
 import _keys from 'lodash/keys';
 import _find from 'lodash/find';
 import {ValidationResult} from "../types";
+import {red, green} from "../termcolors";
 
 export default {
   props: {
@@ -18,7 +19,6 @@ export default {
       validating: {},
       validationRunning: false,
       validationResults: {},
-      validationLog: [],
     }
   },
   methods: {
@@ -28,22 +28,22 @@ export default {
         this.$delete(this.validating, res.eTag);
       });
       if (_isUndefined(_find(errs, (err) => err.errors.length > 0))) {
-        this.validationLog.push('<span class="text-success">No errors found ✓</span>');
+        this.log.writeln(green("No errors found 😀"));
       } else {
         errs.forEach(res => {
           if (res.errors.length > 0) {
-            this.validationLog.push('<span class="text-danger">' + decodeURI(res.key) + ':</span>')
+            this.log.writeln(red(decodeURI(res.key)));
             res.errors.forEach(err => {
-              this.validationLog.push("    " + err.line + "/" + err.pos + " - " + err.error);
+              this.log.writeln("    " + err.line + "/" + err.pos + " - " + err.error);
             })
           }
         });
       }
     },
     validateFiles: function (tagToKey: object) {
-      this.tab = 'validation';
+      this.tab = 'info';
       this.validationRunning = true;
-      this.validationLog = [];
+      // this.log.clear();
       let allTags = _isEmpty(tagToKey) ? this.files.map(f => f.eTag) : _keys(tagToKey);
       _forEach(allTags, tag => this.$set(this.validating, tag, true));
 

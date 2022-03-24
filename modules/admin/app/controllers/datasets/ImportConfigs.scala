@@ -42,7 +42,7 @@ case class ImportConfigs @Inject()(
   datasets: ImportDatasetService,
   importLogService: ImportLogService,
   ingestService: IngestService,
-)(implicit mat: Materializer) extends AdminController with StorageHelpers with Update[Repository] {
+)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
   private val urlExpiration: FiniteDuration = config.get[FiniteDuration](
     "ehri.admin.dataManager.importUrlExpiration")
 
@@ -52,7 +52,7 @@ case class ImportConfigs @Inject()(
     }
   }
 
-  def save(id: String, ds: String): Action[ImportConfig] = EditAction(id).async(parse.json[ImportConfig]) { implicit request =>
+  def save(id: String, ds: String): Action[ImportConfig] = EditAction(id).async(apiJson[ImportConfig]) { implicit request =>
     importConfigs.save(id, ds, request.body).map { r =>
       Ok(Json.toJson(r))
     }
@@ -62,7 +62,7 @@ case class ImportConfigs @Inject()(
     importConfigs.delete(id, ds).map(_ => NoContent)
   }
 
-  def ingestFiles(id: String, ds: String): Action[IngestPayload] = EditAction(id).async(parse.json[IngestPayload]) { implicit request =>
+  def ingestFiles(id: String, ds: String): Action[IngestPayload] = EditAction(id).async(apiJson[IngestPayload]) { implicit request =>
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 

@@ -121,7 +121,7 @@ export default {
             })
                 .then(() => {
                   this.finishUpload(file);
-                  this.log.push(file.name);
+                  this.log = file.name;
                   this.$delete(this.validationResults, file.name);
                   this.refresh();
                   return file;
@@ -131,7 +131,7 @@ export default {
     },
     uploadFiles: function (event) {
       this.dragLeave(event);
-      this.tab = 'upload';
+      this.tab = 'info';
       let self = this;
 
       let fileList = event.dataTransfer
@@ -169,7 +169,7 @@ export default {
               event.target.value = null;
             }
             this.$emit('updated')
-            this.log.push("Uploaded: " + done + (cancelled ? (", Cancelled: " + cancelled) : ""))
+            this.log = "Uploaded: " + done + (cancelled ? (", Cancelled: " + cancelled) : "");
           });
     },
   },
@@ -258,15 +258,9 @@ export default {
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
-               v-on:click.prevent="tab = 'validation'">
-              Validation Log
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'upload'}"
-               v-on:click.prevent="tab = 'upload'">
-              Upload Log
+            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'info'}"
+               v-on:click.prevent="tab = 'info'">
+              Info
             </a>
           </li>
           <li>
@@ -296,21 +290,11 @@ export default {
               No file selected.
             </div>
           </div>
-          <div class="status-panel log-container" v-show="tab === 'validation'">
-            <panel-log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
-            <div id="validation-placeholder" class="panel-placeholder" v-else>
-              Validation log output will show here.
-            </div>
-          </div>
-          <div class="status-panel log-container" v-show="tab === 'upload'">
-            <panel-log-window v-bind:log="log" v-if="log.length > 0"/>
-            <div class="panel-placeholder" v-else>
-              Upload log output will show here.
-            </div>
+          <div class="status-panel log-container" v-if="tab === 'info'">
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
           </div>
         </div>
       </div>
-
     </div>
 
     <upload-progress

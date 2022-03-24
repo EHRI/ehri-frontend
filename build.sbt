@@ -145,7 +145,6 @@ lazy val commonSettings = Seq(
   // tests. Additionally, set the path to the test config
   // file as an env var.
   Test / javaOptions ++= Seq(
-    "-Xmx1G",
     "-XX:+CMSClassUnloadingEnabled",
     s"-Dconfig.file=${(LocalRootProject / baseDirectory).value / "conf" / "test.conf"}",
     s"-Dlogger.file=${(LocalRootProject / baseDirectory).value / "conf" / "logback-play-dev.xml"}"

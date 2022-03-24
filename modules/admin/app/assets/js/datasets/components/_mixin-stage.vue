@@ -9,7 +9,6 @@ import _isEmpty from 'lodash/isEmpty';
 import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";
 
-
 let initialStageState = function(): object {
   return {
     loaded: false,
@@ -26,7 +25,6 @@ let initialStageState = function(): object {
       active: false
     },
     files: [],
-    log: [],
     fileInfo: null,
   };
 };
