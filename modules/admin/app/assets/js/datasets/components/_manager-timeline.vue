@@ -5,7 +5,7 @@ import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
 import {timeToRelative} from "../common";
 import {Coreference, ImportLogSummary} from "../types";
-import _includes from "lodash/includes";
+import _includes from 'lodash/includes';
 
 export default {
   mixins: {MixinUtil, MixinError},

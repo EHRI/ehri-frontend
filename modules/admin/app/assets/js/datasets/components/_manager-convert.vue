@@ -16,13 +16,11 @@ import MixinError from './_mixin-error';
 import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
-
-import _partition from 'lodash/partition';
 import _takeWhile from 'lodash/takeWhile';
-import _isEqual from 'lodash/isEqual';
-import _fromPairs from 'lodash/fromPairs';
 import _find from 'lodash/find';
 import {DataTransformation} from "../types";
+import {Terminal} from "xterm";
+import termopts from "../termopts";
 
 
 let initialConvertState = function(config) {
@@ -111,7 +109,7 @@ export default {
     },
     convert: async function(file, force) {
       console.debug("Converting:", file)
-      this.tab = "convert";
+      this.tab = "info";
       try {
         let {url, jobId} = await this.api.convert(this.datasetId, file ? file.key : null, {
           mappings: this.convertState,
@@ -131,7 +129,7 @@ export default {
       let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
         try {
-          this.tab = "convert";
+          this.tab = "info";
           await this.monitor(this.config.monitorUrl(jobId), jobId, (m: string) => {
             this.$emit('refresh-stage', this.config.output);
           });
@@ -392,9 +390,9 @@ export default {
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'convert'}"
-               v-on:click.prevent="tab = 'convert'">
-              Convert Log
+            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'info'}"
+               v-on:click.prevent="tab = 'info'">
+              Info
             </a>
           </li>
           <li>
@@ -427,11 +425,8 @@ export default {
               No file selected.
             </div>
           </div>
-          <div class="status-panel log-container" v-show="tab === 'convert'">
-            <panel-log-window v-bind:log="log" v-if="log.length > 0"/>
-            <div class="panel-placeholder" v-else>
-              Convert log output will show here.
-            </div>
+          <div class="status-panel log-container" v-if="tab === 'info'">
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
           </div>
         </div>
       </div>

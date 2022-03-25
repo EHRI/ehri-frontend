@@ -14,8 +14,7 @@ import eu.ehri.project.xml._
 import models._
 import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
-import play.api.libs.json.JsError.toJson
-import play.api.libs.json.{JsObject, Json, Reads, Writes}
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc._
 import services.datasets.ImportDatasetService
 import services.storage.{FileMeta, FileStorage}

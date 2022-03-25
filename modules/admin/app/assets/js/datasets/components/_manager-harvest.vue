@@ -54,7 +54,7 @@ export default {
         let {url, jobId} = await this.api.harvest(this.datasetId, opts, fromLast);
         this.showOptions = false;
         this.replaceUrlState(this.urlKey, jobId);
-        this.tab = "harvest";
+        this.tab = "info";
         await this.monitor(url, jobId, this.refresh);
         this.$emit('updated');
       } catch (e) {
@@ -67,7 +67,7 @@ export default {
     resumeMonitor: async function() {
       let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
-        this.tab = "harvest";
+        this.tab = "info";
         try {
           await this.monitor(this.config.monitorUrl(jobId), jobId, this.refresh);
           this.$emit("updated");
@@ -199,15 +199,9 @@ export default {
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'validation'}"
-               v-on:click.prevent="tab = 'validation'">
-              Validation Log
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'harvest'}"
-               v-on:click.prevent="tab = 'harvest'">
-              Sync Log
+            <a href="#" class="nav-link" v-bind:class="{'active': tab === 'info'}"
+               v-on:click.prevent="tab = 'info'">
+              Info
             </a>
           </li>
           <li>
@@ -237,17 +231,8 @@ export default {
               No file selected.
             </div>
           </div>
-          <div class="status-panel log-container" v-show="tab === 'validation'">
-            <panel-log-window v-bind:log="validationLog" v-if="validationLog.length > 0"/>
-            <div class="panel-placeholder" v-else>
-              Validation log output will show here.
-            </div>
-          </div>
-          <div class="status-panel log-container" v-show="tab === 'harvest'">
-            <panel-log-window v-bind:log="log" v-if="log.length > 0"/>
-            <div class="panel-placeholder" v-else>
-              Harvest log output will show here.
-            </div>
+          <div class="status-panel log-container" v-if="tab === 'info'">
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
           </div>
         </div>
       </div>
