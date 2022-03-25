@@ -2,16 +2,17 @@
 
 
 import {DatasetManagerApi} from "../api";
-import _startsWith from "lodash/startsWith";
-import _last from "lodash/last";
-import Vue from 'vue';
+import _startsWith from 'lodash/startsWith';
+import {Terminal} from "xterm";
+import termopts from "../termopts";
 
 
 let initialLogState = function(): object {
   return {
-    log: [],
+    log: new Terminal(termopts),
     jobId: null,
     cancelling: false,
+    overwrite: false,
   };
 };
 
@@ -25,27 +26,18 @@ export default {
   },
   methods: {
     reset: function() {
-      this.log.length = 0;
+      this.log.clear();
     },
 
     println: function(...msg: string[]) {
       console.debug(...msg);
-      let line = msg.join(' ');
-      // FIXME: hack workaround for ingest manager progress...
       let progPrefix = "Ingesting..."
-      if (this.log && _startsWith(_last(this.log), progPrefix) && _startsWith(line, progPrefix)) {
-        this.log.splice(this.log.length - 1, 1, line);
-      } else {
-        this.log.push(line);
+      let line = msg.join(' ');
+      if (this.overwrite) {
+        this.log.write("\x1b[F");
       }
-
-      // Cull the list back to 1000 items every
-      // time we exceed a threshold
-      // FIXME: this is crap
-      if (this.log.length >= 2000) {
-        // this.log.shift();
-        this.log.splice(0, 1000);
-      }
+      this.log.writeln(line);
+      this.overwrite = _startsWith(line, progPrefix);
     },
 
     monitor: async function(url: string, jobId: string, onMsg: (s: string) => any = function () {}) {
