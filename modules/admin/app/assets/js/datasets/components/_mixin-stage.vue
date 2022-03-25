@@ -1,10 +1,10 @@
 <script lang="ts">
 
 
-import _debounce from 'lodash/debounce';
-import _forIn from 'lodash/forIn';
-import _fromPairs from 'lodash/fromPairs';
-import _isEmpty from 'lodash/isEmpty';
+import _debounce from 'lodash-es/debounce';
+import _forIn from 'lodash-es/forIn';
+import _fromPairs from 'lodash-es/fromPairs';
+import _isEmpty from 'lodash-es/isEmpty';
 
 import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";

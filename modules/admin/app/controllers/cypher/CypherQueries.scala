@@ -2,23 +2,21 @@ package controllers.cypher
 
 
 import akka.stream.alpakka.csv.scaladsl.CsvFormatting
-
-import javax.inject.{Inject, Singleton}
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
-import controllers.{AppComponents, DataFormat}
 import controllers.base.AdminController
+import controllers.{AppComponents, DataFormat}
 import models.CypherQuery
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
-import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.cypher.{CypherExplain, CypherQueryService, CypherResult, WsCypherService}
 import services.search.SearchParams
 import utils.PageParams
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 import scala.util.Failure

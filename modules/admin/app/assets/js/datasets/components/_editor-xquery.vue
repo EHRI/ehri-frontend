@@ -2,9 +2,9 @@
 
 import Vue from 'vue';
 
-import _padStart from 'lodash/padStart';
-import _clone from 'lodash/clone';
-import _concat from 'lodash/concat';
+import _padStart from 'lodash-es/padStart';
+import _clone from 'lodash-es/clone';
+import _concat from 'lodash-es/concat';
 import {decodeTsv, encodeTsv} from "../common";
 
 export default {

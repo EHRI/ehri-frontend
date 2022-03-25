@@ -8,11 +8,11 @@ import ConceptCreator from './components/_concept-creator';
 
 import VocabEditorApi from "./api";
 
-import _difference from 'lodash/difference';
-import _omit from 'lodash/omit';
-import _pick from 'lodash/pick';
-import _intersection from 'lodash/intersection';
-import _union from 'lodash/union';
+import _difference from 'lodash-es/difference';
+import _omit from 'lodash-es/omit';
+import _pick from 'lodash-es/pick';
+import _intersection from 'lodash-es/intersection';
+import _union from 'lodash-es/union';
 import {ConfigType} from "./types";
 
 // These variables are expected to be in the window global scope

@@ -12,7 +12,7 @@ import MixinError from './_mixin-error';
 import {ImportDatasetSrc} from '../types';
 import {DatasetManagerApi} from "../api";
 
-import _merge from 'lodash/merge';
+import _merge from 'lodash-es/merge';
 
 export default {
   components: {ManagerSnapshots, ModalDatasetConfig, ManagerHarvest, ManagerUpload, ManagerIngest, ManagerConvert},

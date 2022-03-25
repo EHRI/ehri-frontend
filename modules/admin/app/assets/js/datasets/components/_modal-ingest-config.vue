@@ -4,8 +4,8 @@ import ModalWindow from './_modal-window';
 import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";
 
-import _pick from 'lodash/pick';
-import _size from 'lodash/size';
+import _pick from 'lodash-es/pick';
+import _size from 'lodash-es/size';
 
 
 export default {

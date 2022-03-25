@@ -14,8 +14,8 @@ import ModalAlert from './_modal-alert';
 
 import MixinTwoPanel from './_mixin-two-panel';
 
-import _concat from 'lodash/concat';
-import _isEqual from 'lodash/isEqual';
+import _concat from 'lodash-es/concat';
+import _isEqual from 'lodash-es/isEqual';
 
 
 export default {

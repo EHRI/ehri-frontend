@@ -2,7 +2,7 @@
 
 import FilePickerSuggestion from './_file-picker-suggestion';
 
-import _debounce from 'lodash/debounce';
+import _debounce from 'lodash-es/debounce';
 import {DatasetManagerApi} from '../api';
 
 export default {

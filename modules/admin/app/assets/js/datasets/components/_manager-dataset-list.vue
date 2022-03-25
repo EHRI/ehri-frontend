@@ -13,10 +13,10 @@ import MixinError from './_mixin-error';
 import {ImportDataset, ImportDatasetSrc, ImportDatasetStatus} from '../types';
 import {DatasetManagerApi} from "../api";
 
-import _find from 'lodash/find';
-import _merge from 'lodash/merge';
-import _omit from 'lodash/omit';
-import _includes from 'lodash/includes';
+import _find from 'lodash-es/find';
+import _merge from 'lodash-es/merge';
+import _omit from 'lodash-es/omit';
+import _includes from 'lodash-es/includes';
 
 export default {
   components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ManagerTimeline, ModalDatasetConfig, ModalDatasetIo, ModalBatchOps},

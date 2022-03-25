@@ -2,8 +2,8 @@
 
 import Vue from 'vue';
 
-import _padStart from 'lodash/padStart';
-import _clone from 'lodash/clone';
+import _padStart from 'lodash-es/padStart';
+import _clone from 'lodash-es/clone';
 import ModalAlert from './_modal-alert';
 import {decodeTsv, encodeTsv} from "../common";
 

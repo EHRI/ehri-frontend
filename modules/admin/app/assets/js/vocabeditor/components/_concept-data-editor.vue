@@ -2,7 +2,7 @@
 
 import ConceptDescriptionEditor from './_concept-description-editor';
 
-import _findIndex from 'lodash/findIndex';
+import _findIndex from 'lodash-es/findIndex';
 
 export default {
   components: {ConceptDescriptionEditor},

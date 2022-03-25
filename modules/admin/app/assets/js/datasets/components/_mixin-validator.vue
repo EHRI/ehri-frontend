@@ -1,10 +1,10 @@
 <script lang="ts">
 
-import _forEach from 'lodash/forEach';
-import _isUndefined from 'lodash/isUndefined';
-import _isEmpty from 'lodash/isEmpty';
-import _keys from 'lodash/keys';
-import _find from 'lodash/find';
+import _forEach from 'lodash-es/forEach';
+import _isUndefined from 'lodash-es/isUndefined';
+import _isEmpty from 'lodash-es/isEmpty';
+import _keys from 'lodash-es/keys';
+import _find from 'lodash-es/find';
 import {ValidationResult} from "../types";
 
 export default {

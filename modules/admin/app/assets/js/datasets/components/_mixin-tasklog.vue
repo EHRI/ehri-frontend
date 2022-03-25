@@ -2,8 +2,8 @@
 
 
 import {DatasetManagerApi} from "../api";
-import _startsWith from "lodash/startsWith";
-import _last from "lodash/last";
+import _startsWith from 'lodash-es/startsWith';
+import _last from 'lodash-es/last';
 import Vue from 'vue';
 
 

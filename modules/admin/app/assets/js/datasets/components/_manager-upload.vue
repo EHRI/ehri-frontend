@@ -18,8 +18,8 @@ import MixinUtil from './_mixin-util';
 
 import {DatasetManagerApi} from '../api';
 
-import _findIndex from 'lodash/findIndex';
-import _pick from 'lodash/pick';
+import _findIndex from 'lodash-es/findIndex';
+import _pick from 'lodash-es/pick';
 
 /**
  * Custom Error class

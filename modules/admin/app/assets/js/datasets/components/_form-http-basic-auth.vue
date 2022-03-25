@@ -1,6 +1,6 @@
 <script>
 
-import _isObject from 'lodash/isObject';
+import _isObject from 'lodash-es/isObject';
 
 export default {
   props: {

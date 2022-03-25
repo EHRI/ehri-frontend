@@ -4,7 +4,7 @@ import MixinUtil from './_mixin-util';
 import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
 import {Coreference} from "../types";
-import _includes from 'lodash/includes';
+import _includes from 'lodash-es/includes';
 
 export default {
   mixins: {MixinUtil, MixinError},

@@ -5,7 +5,7 @@ import ConceptHierarchy from './_concept-hierarchy';
 import VocabEditorApi from "../api";
 import {conceptTitle, sortByTitle} from "../common";
 
-import _findIndex from 'lodash/findIndex';
+import _findIndex from 'lodash-es/findIndex';
 
 export default {
   components: {AutocompleteInput, ConceptHierarchy},

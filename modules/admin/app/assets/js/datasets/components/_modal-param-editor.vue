@@ -3,7 +3,7 @@
 import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
 
-import _isObject from 'lodash/isObject';
+import _isObject from 'lodash-es/isObject';
 
 export default {
   components: {ModalWindow, ModalAlert},

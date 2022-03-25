@@ -7,10 +7,10 @@ import 'codemirror/mode/xml/xml';
 
 import Vue from 'vue';
 
-import _find from 'lodash/find';
-import _isEqual from 'lodash/isEqual';
-import _isArray from 'lodash/isArray';
-import _fromPairs from 'lodash/fromPairs';
+import _find from 'lodash-es/find';
+import _isEqual from 'lodash-es/isEqual';
+import _isArray from 'lodash-es/isArray';
+import _fromPairs from 'lodash-es/fromPairs';
 import {FileMeta, XmlValidationError} from "../types";
 import {DatasetManagerApi} from "../api";
 

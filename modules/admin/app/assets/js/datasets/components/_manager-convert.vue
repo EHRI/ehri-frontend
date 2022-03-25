@@ -17,11 +17,11 @@ import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog';
 import {DatasetManagerApi} from '../api';
 
-import _partition from 'lodash/partition';
-import _takeWhile from 'lodash/takeWhile';
-import _isEqual from 'lodash/isEqual';
-import _fromPairs from 'lodash/fromPairs';
-import _find from 'lodash/find';
+import _partition from 'lodash-es/partition';
+import _takeWhile from 'lodash-es/takeWhile';
+import _isEqual from 'lodash-es/isEqual';
+import _fromPairs from 'lodash-es/fromPairs';
+import _find from 'lodash-es/find';
 import {DataTransformation} from "../types";
 
 

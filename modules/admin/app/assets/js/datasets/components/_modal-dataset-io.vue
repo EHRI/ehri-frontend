@@ -4,7 +4,7 @@ import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
 
 import {DatasetManagerApi} from '../api';
-import _pick from 'lodash/pick';
+import _pick from 'lodash-es/pick';
 import {ImportDataset, ImportDatasetInfo} from "../types";
 
 

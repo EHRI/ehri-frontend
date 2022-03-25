@@ -1,12 +1,12 @@
 <script lang="ts">
 
-import _extend from 'lodash/extend';
-import _isEmpty from 'lodash/isEmpty';
-import _has from 'lodash/has';
-import _fromPairs from 'lodash/fromPairs';
-import _toPairs from 'lodash/toPairs';
-import _omit from 'lodash/omit';
-import _set from 'lodash/set';
+import _extend from 'lodash-es/extend';
+import _isEmpty from 'lodash-es/isEmpty';
+import _has from 'lodash-es/has';
+import _fromPairs from 'lodash-es/fromPairs';
+import _toPairs from 'lodash-es/toPairs';
+import _omit from 'lodash-es/omit';
+import _set from 'lodash-es/set';
 
 import {timeToRelative, humanFileSize} from "../common";
 
