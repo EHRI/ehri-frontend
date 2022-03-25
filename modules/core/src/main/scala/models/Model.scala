@@ -38,22 +38,22 @@ trait Model extends WithId {
 object Model {
 
   val readMap: PartialFunction[EntityType.Value, Reads[Model]] = {
-    case EntityType.Repository => Repository.RepositoryResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Country => Country.CountryResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.DocumentaryUnit => DocumentaryUnit.DocumentaryUnitResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Vocabulary => Vocabulary.VocabularyResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Concept => Concept.ConceptResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.HistoricalAgent => HistoricalAgent.HistoricalAgentResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.AuthoritativeSet => AuthoritativeSet.AuthoritativeSetResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.SystemEvent => SystemEvent.SystemEventResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Group => Group.GroupResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.UserProfile => UserProfile.UserProfileResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Link => Link.LinkResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.Annotation => Annotation.AnnotationResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.ContentType => DataContentType.Converter.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.AccessPoint => AccessPoint.Converter.restReads.asInstanceOf[Reads[Model]]
-    case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource.restReads.asInstanceOf[Reads[Model]]
+    case EntityType.Repository => Repository.RepositoryResource.restReads.widen[Model]
+    case EntityType.Country => Country.CountryResource.restReads.widen[Model]
+    case EntityType.DocumentaryUnit => DocumentaryUnit.DocumentaryUnitResource.restReads.widen[Model]
+    case EntityType.Vocabulary => Vocabulary.VocabularyResource.restReads.widen[Model]
+    case EntityType.Concept => Concept.ConceptResource.restReads.widen[Model]
+    case EntityType.HistoricalAgent => HistoricalAgent.HistoricalAgentResource.restReads.widen[Model]
+    case EntityType.AuthoritativeSet => AuthoritativeSet.AuthoritativeSetResource.restReads.widen[Model]
+    case EntityType.SystemEvent => SystemEvent.SystemEventResource.restReads.widen[Model]
+    case EntityType.Group => Group.GroupResource.restReads.widen[Model]
+    case EntityType.UserProfile => UserProfile.UserProfileResource.restReads.widen[Model]
+    case EntityType.Link => Link.LinkResource.restReads.widen[Model]
+    case EntityType.Annotation => Annotation.AnnotationResource.restReads.widen[Model]
+    case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource.restReads.widen[Model]
+    case EntityType.ContentType => DataContentType.Converter.restReads.widen[Model]
+    case EntityType.AccessPoint => AccessPoint.Converter.restReads.widen[Model]
+    case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource.restReads.widen[Model]
   }
 
   implicit object Converter extends Readable[Model] {
