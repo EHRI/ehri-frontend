@@ -21,8 +21,8 @@ val projectScalaVersion = "2.12.12"
 val appName = "docview"
 
 val backendVersion = "0.15.1"
-val dataConverterVersion = "1.1.12"
-val alpakkaVersion = "2.0.2"
+val dataConverterVersion = "1.1.13"
+val alpakkaVersion = "3.0.4"
 
 val backendDependencies = Seq(
   // Play stuff
