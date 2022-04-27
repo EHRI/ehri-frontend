@@ -21,6 +21,7 @@ sealed trait Facet {
   def name: Option[String]
   def applied: Boolean
   def count: Int
+  def withName(n: String): Facet
 }
 
 case class FieldFacet(
@@ -28,7 +29,9 @@ case class FieldFacet(
   name: Option[String] = None,
   count: Int = 0,
   applied: Boolean = false
-) extends Facet
+) extends Facet {
+  override def withName(n: String): Facet = copy(name = Some(n))
+}
 
 case class QueryFacet(
   value: String,
@@ -36,7 +39,9 @@ case class QueryFacet(
   count: Int = 0,
   range: QueryPoint,
   applied: Boolean = false
-) extends Facet
+) extends Facet{
+  override def withName(n: String): Facet = copy(name = Some(n))
+}
 
 object Facet {
   implicit def facetWrites: Writes[Facet] = Writes[Facet] { f =>
