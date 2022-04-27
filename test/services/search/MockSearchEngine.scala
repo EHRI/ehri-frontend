@@ -96,12 +96,17 @@ case class MockSearchEngine @Inject()(
     lookupItems(query.params.entities, query.user).map { items =>
       val hits = items.map(modelToSearchHit)
       val withIds = hits.filter(h => query.withinIds.isEmpty || query.withinIds.toSeq.flatten.contains(h.itemId))
-      SearchResult(Page(
-        offset = query.paging.offset,
-        limit = query.paging.limit,
-        total = withIds.size,
-        items = withIds
-      ), query.params)
+      SearchResult(
+        page = Page(
+          offset = query.paging.offset,
+          limit = query.paging.limit,
+          total = withIds.size,
+          items = withIds,
+        ),
+        params = query.params,
+        facets = query.appliedFacets,
+        facetClasses = query.facetClasses
+      )
     }
   }
 }

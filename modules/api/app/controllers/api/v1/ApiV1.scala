@@ -6,9 +6,9 @@ import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
 import controllers.generic.Search
 import lifecycle.ItemLifecycle
-import models.api.v1.ApiEntity
+import models._
 import models.api.v1.JsonApiV1._
-import models.{EntityType, Model, _}
+import models.api.v1.{ApiEntity, ApiFacet, ApiFacets}
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
@@ -80,18 +80,35 @@ case class ApiV1 @Inject()(
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = 1.second
 
-  // Available facets, currently just language
-  private val apiSearchFacets: FacetBuilder = { implicit request =>
-    List(
-      FieldFacetClass(
+
+
+  // Available facets, defined in `ApiFacet`
+  private def apiSearchFacets(facets: Seq[String] = Seq.empty): FacetBuilder = { implicit request =>
+    facets.map(ApiFacet.fromString).collect {
+      case Some(ApiFacet.Type) => FieldFacetClass(
+        key = TYPE,
+        name = Messages("facet.type"),
+        param = ApiFacet.Type.toString,
+        render = s => Messages("contentTypes." + s)
+      )
+      case Some(ApiFacet.Holder) => FieldFacetClass(
+        key = HOLDER_NAME,
+        name = Messages("facet.holder"),
+        param = ApiFacet.Holder.toString,
+      )
+      case Some(ApiFacet.Country) => FieldFacetClass(
+        key = COUNTRY_CODE,
+        name = Messages("facet.country"),
+        param = ApiFacet.Country.toString,
+        render = (s: String) => Helpers.countryCodeToName(s)
+      )
+      case Some(ApiFacet.Lang) => FieldFacetClass(
         key = LANGUAGE_CODE,
         name = Messages("facet.lang"),
-        param = "lang",
+        param = ApiFacet.Lang.toString,
         render = (s: String) => Helpers.languageCodeToName(s),
-        display = FacetDisplay.Choice,
-        sort = FacetSort.Name
       )
-    )
+    }
   }
 
 
@@ -317,7 +334,7 @@ case class ApiV1 @Inject()(
   /**
     * Paginated response data.
     */
-  private def pageData[T <: Model](page: Page[T], urlFunc: Int => String, included: Option[Seq[Model]] = None)(implicit w: Writes[Model]): JsonApiListResponse =
+  private def pageData[T <: Model](page: Page[T], urlFunc: Int => String, facets: Option[Seq[FacetClass[Facet]]] = None, included: Option[Seq[Model]] = None)(implicit w: Writes[Model]): JsonApiListResponse =
     JsonApiListResponse(
       data = page.items,
       links = PaginationLinks(
@@ -329,24 +346,26 @@ case class ApiV1 @Inject()(
       included = included,
       meta = Some(Json.obj(
         "total" -> page.total,
-        "pages" -> page.numPages
+        "pages" -> page.numPages,
+        "facets" -> facets,
       ))
     )
 
 
-  def search(`type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
+  def search(`type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter], facets: ApiFacets): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)
       find[Model](
         params = params,
         paging = paging,
         entities = entityTypes(`type`),
-        facetBuilder = apiSearchFacets
+        facetBuilder = apiSearchFacets(params.facets)
       ).map { r =>
         Ok(Json.toJson(
           pageData(
             r.mapItems(_._1).page,
-            p => apiRoutes.search(`type`, params, paging.copy(page = p), fields).absoluteURL(conf.https)
+            p => apiRoutes.search(`type`, params, paging.copy(page = p), fields, facets).absoluteURL(conf.https),
+            if (params.facets.nonEmpty) Some(r.facetClasses) else None
           )
         )).as(JSONAPI_MIMETYPE)
       } recoverWith errorHandler
@@ -367,7 +386,7 @@ case class ApiV1 @Inject()(
       } recoverWith errorHandler
     }
 
-  def searchIn(id: String, `type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter]): Action[AnyContent] =
+  def searchIn(id: String, `type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter], facets: ApiFacets): Action[AnyContent] =
     JsonApiAction.async { implicit request =>
       implicit val writer: Writes[Model] = modelWriter(fields)
       userDataApi.getAny[Model](id).flatMap { item =>
@@ -378,10 +397,14 @@ case class ApiV1 @Inject()(
             params = params,
             paging = paging,
             entities = entityTypes(`type`),
-            facetBuilder = apiSearchFacets
+            facetBuilder = apiSearchFacets(params.facets)
           )
-        } yield Ok(Json.toJson(pageData(result.mapItems(_._1).page,
-          p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p), fields).absoluteURL(conf.https), Some(Seq(item))))
+        } yield Ok(Json.toJson(
+          pageData(
+            result.mapItems(_._1).page,
+            p => apiRoutes.searchIn(id, `type`, params, paging.copy(page = p), fields, facets).absoluteURL(conf.https),
+            if (params.facets.nonEmpty) Some(result.facetClasses) else None,
+            Some(Seq(item))))
         ).as(JSONAPI_MIMETYPE)
       } recoverWith errorHandler
     }

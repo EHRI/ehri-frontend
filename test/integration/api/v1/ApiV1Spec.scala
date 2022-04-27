@@ -9,6 +9,7 @@ import org.json.{JSONObject, JSONTokener}
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json._
 import play.api.test.FakeRequest
+import services.search.SearchParams
 import utils.FieldFilter
 
 
@@ -126,6 +127,13 @@ class ApiV1Spec extends IntegrationTestRunner {
       status(search) must_== OK
       validateJson(contentAsJson(search))
       contentAsJson(search) \ "included" \ 0 \ "id" must_== JsDefined(JsString("r1"))
+    }
+
+    "include facet metadata when facet param is given" in new ITestApp {
+      val search = FakeRequest(apiRoutes.search(params = SearchParams(facets = Seq("lang")))).call()
+      status(search) must_== OK
+      validateJson(contentAsJson(search))
+      contentAsJson(search) \ "meta" \ "facets" \ 0 \ "param" must_== JsDefined(JsString("lang"))
     }
   }
 }

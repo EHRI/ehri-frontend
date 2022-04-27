@@ -1,6 +1,6 @@
 package services.search
 
-import play.api.libs.json.{JsNumber, Json, Writes}
+import play.api.libs.json.{Json, Writes}
 
 sealed trait FacetClass[+T <: Facet] {
   def key: String
@@ -36,6 +36,8 @@ sealed trait FacetClass[+T <: Facet] {
    * Facets that do not trigger filtering on item counts in the same class.
    */
   def multiSelect: Boolean = display == FacetDisplay.Choice || display == FacetDisplay.DropDown
+
+  def renderedFacets: Seq[Facet] = facets.map(f => f.withName(f.name.getOrElse(render(f.value))))
 }
 
 /**
@@ -85,7 +87,7 @@ case class QueryFacetClass(
   key: String,
   name: String,
   param: String,
-  override val render: (String) => String = s=>s,
+  override val render: String => String = s => s,
   override val facets: Seq[QueryFacet],
   override val display: FacetDisplay.Value = FacetDisplay.List,
   override val displayLimit: Int = 20,
@@ -98,11 +100,11 @@ case class QueryFacetClass(
 object FacetClass {
   implicit def facetClassWrites: Writes[FacetClass[Facet]] = Writes[FacetClass[Facet]] { fc =>
     Json.obj(
-      "count" -> JsNumber(fc.facets.size),
-      "param" -> Json.toJson(fc.param),
-      "name" -> Json.toJson(fc.name),
-      "key" -> Json.toJson(fc.key),
-      "facets" -> Json.toJson(fc.facets)
+      "count" -> fc.facets.size,
+      "param" -> fc.param,
+      "name" -> fc.name,
+      "key" -> fc.key,
+      "facets" -> fc.renderedFacets
     )
   }
 }
