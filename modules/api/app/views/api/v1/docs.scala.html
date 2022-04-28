@@ -9,6 +9,8 @@
         <dt><code>type</code></dt><dd>One of the available data types. Can be used multiple times.</dd>
         <dt><code>page</code></dt><dd>Since results are paginated, this number selects the desired page.</dd>
         <dt><code>limit</code></dt><dd>The number of results to fetch per page, up to a maximum of 100.</dd>
+        <dt><code>facet</code></dt><dd>Enables faceting statistics for one or more of the available facet types: @Html(models.api.v1.ApiFacet.values.toSeq.sorted.map { t => s"<code>$t</code>" }.mkString(", ")).
+        Like <code>type</code> these values can also be used as <i>parameters</i> to filter the search results using the available facet values.</dd>
     </dl>
 }
 
@@ -32,6 +34,15 @@
         <select class="input-sm form-control" id="@prefix-type" name="type">
             <option value="">All</option>
             @for(t <- models.api.v1.ApiEntity.values) {
+                <option value="@t">@t</option>
+            }
+        </select>
+    </div>
+    <div class="form-field">
+        <label class="form-label" for="@prefix-facet">Facet</label>
+        <select class="input-sm form-control" id="@prefix-facet" name="facet">
+            <option value="">---</option>
+            @for(t <- models.api.v1.ApiFacet.values) {
                 <option value="@t">@t</option>
             }
         </select>
@@ -115,7 +126,7 @@
             <h3 id="global-search">Global Search</h3>
             <p>
                 The Global search action (<code>/search</code>) allows you to search all available item types.
-                Four parameters are currently supported:
+                Five parameters are currently supported:
             </p>
 
             @searchParams
@@ -125,8 +136,8 @@
 
                 <div class="api-example-form-controls">
                     @searchForm("api-example-search")
-                    @submitButton
                 </div>
+                @submitButton
 
                 <label for="api-example-search" class="">Global Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-search"></textarea>
@@ -152,8 +163,8 @@
 
                 <div class="api-example-form-controls">
                     @itemIdField("api-example-fetch")
-                    @submitButton
                 </div>
+                @submitButton
 
                 <label for="api-example-fetch" class="">Retrieve Item Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
@@ -173,7 +184,7 @@
                 The item search action (<code>/{ID}/search</code>) allows you to search <i>within an individual
                 item</i>, for example: searching the archival descriptions within a particular repository.
 
-                The same four parameters as the <a href="#global-search">Global Search</a> action are supported
+                The same five parameters as the <a href="#global-search">Global Search</a> action are supported
             </p>
 
             @searchParams
@@ -183,8 +194,8 @@
                 @itemIdField("api-example-item-search")
                 <div class="api-example-form-controls">
                     @searchForm("api-example-item-search")
-                    @submitButton
                 </div>
+                @submitButton
 
                 <label for="api-example-item-search" class="">Item Search Example Results</label>
                 <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
