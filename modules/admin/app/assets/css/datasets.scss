@@ -848,6 +848,20 @@ $active-table-row: #e7f1ff;
   }
 }
 
+.import-coreferences-tsv {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: $margin-xs;
+
+  button {
+    margin-top: $margin-xs;
+  }
+
+  textarea {
+    min-height: 8rem;
+  }
+}
+
 .file-upload-button {
   position: relative;
 

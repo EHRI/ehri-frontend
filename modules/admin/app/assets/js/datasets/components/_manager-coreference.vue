@@ -5,6 +5,7 @@ import MixinError from './_mixin-error';
 import {DatasetManagerApi} from "../api";
 import {Coreference} from "../types";
 import _includes from 'lodash/includes';
+import {decodeTsv} from "../common";
 
 export default {
   mixins: {MixinUtil, MixinError},
@@ -15,9 +16,11 @@ export default {
   data: function() {
     return {
       references: [],
+      pasteText: "",
       saveInProgress: false,
       importInProgress: false,
       loading: false,
+      fromTsv: false,
       result: null,
       initialised: false,
       filter: "",
@@ -26,6 +29,8 @@ export default {
   },
   methods: {
     refresh: function() {
+      this.fromTsv = false;
+      this.pasteText = "";
       this.loading = true;
       return this.api.getCoreferenceTable()
         .then(refs => this.references = refs)
@@ -34,8 +39,8 @@ export default {
     },
     saveCoreferenceTable: function() {
       this.saveInProgress = true;
-      this.api.saveCoreferenceTable()
-        .then(r => {
+      let promise = this.fromTsv ? this.api.saveCoreferenceTable(this.references) : this.api.saveCoreferenceTable();
+      promise.then(r => {
           this.refresh();
           console.log("Done!", r);
         })
@@ -51,6 +56,18 @@ export default {
       } finally {
         this.importInProgress = false;
       }
+    },
+    importCoreferenceTableFromTSV: function() {
+      let parsedTsv = decodeTsv(this.pasteText, 3);
+      this.references = parsedTsv.map(function(val, index) {
+        let coreferenceObject: Coreference = {
+          text: val[0],
+          targetId: val[1],
+          setId: val[2],
+        };
+        return coreferenceObject;
+      });
+      this.fromTsv = true;
     },
     countObjValues: function(obj: object, key: string): number {
       return (obj && obj[key])
@@ -125,6 +142,14 @@ export default {
       table can be imported following a data ingest to connect newly-created items, or reconnect updated
       ones, to vocabulary items.
     </p>
+
+    <div class="import-coreferences-tsv">
+      <textarea placeholder="Paste TSV here..." v-model="pasteText"></textarea>
+      <button v-on:click.prevent="importCoreferenceTableFromTSV" class="btn btn-sm btn-success">
+        <i class="fa fa-fw fa-files-o"></i>
+         Copy from TSV
+      </button>
+    </div>
 
     <p v-if="result" class="alert alert-success">
       Created: <strong>{{ created }}</strong>
