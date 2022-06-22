@@ -240,8 +240,8 @@ export class DatasetManagerApi {
     return apiCall(this.service.CoreferenceTables.getTable(this.repoId));
   }
 
-  saveCoreferenceTable(): Promise<{ok: true}> {
-    return apiCall(this.service.CoreferenceTables.saveTable(this.repoId));
+  saveCoreferenceTable(coreferences: Coreference[]): Promise<{ok: true}> {
+    return apiCall(this.service.CoreferenceTables.saveTable(this.repoId), coreferences);
   }
 
   ingestCoreferenceTable(): Promise<ImportLog> {

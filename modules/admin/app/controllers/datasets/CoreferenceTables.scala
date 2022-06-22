@@ -32,21 +32,26 @@ case class CoreferenceTables @Inject()(
   }
 
   def saveTable(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
-    val q =
-      """
+    request.body.asJson.map(Json.fromJson[Seq[Coreference]]).flatMap(_.asOpt) match {
+      case Some(rows) => for {
+        _ <- coreferenceService.save(id, rows)
+      } yield Ok(Json.obj("ok" -> true))
+      case None => val q =
+        """
          MATCH (:Repository {__id:$scope})
             <-[:heldBy|childOf*]-(:DocumentaryUnit)
             <-[:describes]-(:DocumentaryUnitDescription)-[:relatesTo]->(ap:AccessPoint)
             <-[:hasLinkBody]-(:Link)-[:hasLinkTarget]->(c:CvocConcept)-[:inAuthoritativeSet]->(s:CvocVocabulary)
          RETURN DISTINCT ap.name as text, c.__id as target, s.__id as set
         """
-    for {
-      rows <- cypherServer
-        .rows(q, Map("scope" -> JsString(id)))
-        .collect { case JsString(t) :: JsString(c) :: JsString(s) :: Nil => Coreference(t, c, s) }
-        .runWith(Sink.seq)
-      _ <- coreferenceService.save(id, rows)
-    } yield Ok(Json.obj("ok" -> true))
+        for {
+          rows <- cypherServer
+            .rows(q, Map("scope" -> JsString(id)))
+            .collect { case JsString(t) :: JsString(c) :: JsString(s) :: Nil => Coreference(t, c, s) }
+            .runWith(Sink.seq)
+          _ <- coreferenceService.save(id, rows)
+        } yield Ok(Json.obj("ok" -> true))
+    }
   }
 
   def ingestTable(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
