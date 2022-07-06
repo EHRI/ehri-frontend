@@ -1,8 +1,6 @@
 package integration.portal
 
-import java.util.zip.{ZipEntry, ZipInputStream}
 import akka.util.ByteString
-import controllers.portal.ReversePortal
 import cookies.{SessionPreferences, SessionPrefs}
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json
@@ -10,12 +8,14 @@ import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 import services.search.SearchParams
 
+import java.util.zip.{ZipEntry, ZipInputStream}
+
 
 class PortalSpec extends IntegrationTestRunner {
 
   import mockdata.privilegedUser
 
-  private val portalRoutes: ReversePortal = controllers.portal.routes.Portal
+  private val portalRoutes = controllers.portal.routes.Portal
 
   override def getConfig = Map("recaptcha.skip" -> true)
 
@@ -132,7 +132,6 @@ class PortalSpec extends IntegrationTestRunner {
       // NB: we need to be a privileges user here since connected items are restricted
       val doc = FakeRequest(controllers.portal.routes.HistoricalAgents.browse("a1")).withUser(privilegedUser).call()
       contentAsString(doc) must contain(controllers.portal.routes.DocumentaryUnits.browse("c1").url)
-      contentAsString(doc) must contain(controllers.portal.routes.DocumentaryUnits.browse("c3").url)
     }
 
     "export historical agents as EAC" in new ITestApp {

@@ -1,9 +1,10 @@
 package controllers.api.v1
 
+import akka.stream.Materializer
 import auth.handler.AuthHandler
 import config.AppConfig
 import controllers.AppComponents
-import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchVC}
+import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchRelated, SearchVC}
 import controllers.generic.Search
 import lifecycle.ItemLifecycle
 import models._
@@ -53,11 +54,13 @@ case class ApiV1 @Inject()(
   appComponents: AppComponents,
   ws: WSClient,
   cypher: CypherService,
-  rateLimits: RateLimitChecker
+  rateLimits: RateLimitChecker,
+  mat: Materializer
 ) extends CoreActionBuilders
   with ControllerHelpers
   with Search
-  with SearchVC {
+  with SearchVC
+  with SearchRelated {
 
   protected implicit val cache: SyncCacheApi = appComponents.cacheApi
   protected implicit val conf: AppConfig = appComponents.conf
@@ -274,8 +277,11 @@ case class ApiV1 @Inject()(
         `type` = agent.isA.toString,
         attributes = Json.toJson(HistoricalAgentAttrs(agent)),
         links = Some(
-          Json.obj(
-            "self" -> apiRoutes.fetch(agent.id).absoluteURL(conf.https)
+          Json.toJson(
+            HistoricalAgentLinks(
+              self = apiRoutes.fetch(agent.id).absoluteURL(conf.https),
+              related = apiRoutes.related(agent.id).absoluteURL(conf.https)
+            )
           )
         ),
         meta = Some(meta(agent))
@@ -295,6 +301,23 @@ case class ApiV1 @Inject()(
           )
         ),
         meta = Some(meta(country).deepMerge(holderMeta(country)))
+      )
+    )
+    case concept: Concept => Json.toJson(
+      JsonApiResponseData(
+        id = concept.id,
+        `type` = concept.isA.toString,
+        attributes = Json.toJson(ConceptAttrs(concept)),
+        links = Some(
+          Json.toJson(
+            ConceptLinks(
+              self = apiRoutes.fetch(concept.id).absoluteURL(conf.https),
+              search = apiRoutes.searchIn(concept.id).absoluteURL(conf.https),
+              related = apiRoutes.related(concept.id).absoluteURL(conf.https),
+              parent = concept.parent.map(p => apiRoutes.fetch(p.id).absoluteURL(conf.https))
+            )
+          )
+        )
       )
     )
     case _ => throw new ItemNotFound()
@@ -408,6 +431,30 @@ case class ApiV1 @Inject()(
         ).as(JSONAPI_MIMETYPE)
       } recoverWith errorHandler
     }
+
+  def related(id: String, `type`: Seq[ApiEntity.Value], params: SearchParams, paging: PageParams, fields: Seq[FieldFilter], facets: ApiFacets): Action[AnyContent] = {
+    JsonApiAction.async { implicit request =>
+      implicit val writer: Writes[Model] = modelWriter(fields)
+      userDataApi.getAny[Model](id).flatMap { item =>
+        for {
+          ids <- relatedItems(id)
+          result <- find[Model](
+            params = params,
+            paging = paging,
+            idFilters = Some(ids),
+            entities = entityTypes(`type`),
+            facetBuilder = apiSearchFacets(params.facets)
+          )
+        } yield Ok(Json.toJson(
+          pageData(
+            result.mapItems(_._1).page,
+            p => apiRoutes.related(id, `type`, params, paging.copy(page = p), fields, facets).absoluteURL(conf.https),
+            if (params.facets.nonEmpty) Some(result.facetClasses) else None,
+            Some(Seq(item))))
+        ).as(JSONAPI_MIMETYPE)
+      } recoverWith errorHandler
+    }
+  }
 
   override def authenticationFailed(request: RequestHeader): Future[Result] =
     immediate(error(UNAUTHORIZED)(request))

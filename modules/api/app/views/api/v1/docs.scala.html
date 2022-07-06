@@ -80,13 +80,15 @@
         </p>
 
         <p>
-            At present, information is only available for four types of item:
+            At present, information is only available for the following types of item:
         </p>
         <ol>
             <li>Countries (type: <code>Country</code>)
             <li>Institutions (type: <code>Repository</code>)
             <li>Archival descriptions (type: <code>DocumentaryUnit</code>)
+            <li>Virtual archival descriptions (type: <code>VirtualUnit</code>)
             <li>Authorities (also known as Historical Agents, type: <code>HistoricalAgent</code>)
+            <li>Keywords (also know as Controlled Vocabulary Concepts, type: <code>CvocConcept</code>)
         </ol>
 
         <p>
@@ -97,7 +99,7 @@
     <section id="api-actions">
         <h2>Actions</h2>
         <p>
-            Three &quot;actions&quot; are currently available:
+            Four &quot;actions&quot; are currently available:
         </p>
 
         <ol>
@@ -110,6 +112,9 @@
 
             <li>Item-scoped search at <code>/{ID}/search</code>
                 : Intended for searching via simple text query within the "scope" of a particular item, retrieving matching child items. For example, a country can be searched for specific repositories, and repositories and archival descriptions for, respectively, top-level and sub-level descriptions.</li>
+
+            <li>Related item search at <code>/{ID}/related</code>
+                : Intended for searching via simple text query within the set of items related to a given item. For example, archival descriptions which are related to a particular authority or keyword.</li>
         </ol>
 
         <p>
@@ -193,7 +198,7 @@
             @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), 'class -> "api-example-form") {
                 @itemIdField("api-example-item-search")
                 <div class="api-example-form-controls">
-                    @searchForm("api-example-item-search")
+                @searchForm("api-example-item-search")
                 </div>
                 @submitButton
 
@@ -205,6 +210,37 @@
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("item-search-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(conf.https)"
+            }
+            <hr/>
+        </div>
+
+        <div class="example">
+            <h3 id="item-related">Related item Search</h3>
+            <p>
+                The related item search action (<code>/{ID}/related</code>) allows you to search items related to a given
+                item, for example: searching the archival descriptions related to a particular authority or keyword.
+
+                The same five parameters as the <a href="#global-search">Global Search</a> action are supported
+            </p>
+
+            @searchParams
+
+            <h4>Test it!</h4>
+            @helper.form(controllers.api.v1.routes.ApiV1.related("{id}"), 'class -> "api-example-form") {
+                @itemIdField("api-example-item-related")
+                <div class="api-example-form-controls">
+                    @searchForm("api-example-item-related")
+                </div>
+                @submitButton
+
+                <label for="api-example-item-related" class="">Item Search Example Results</label>
+                <textarea rows="8" class="api-example" id="api-example-item-related"></textarea>
+            }
+
+            <br/>
+            <p>Run it as a curl command:</p>
+            @views.html.api.helpers.curlField("item-related-curl") {
+                curl "@controllers.api.v1.routes.ApiV1.related("us-005578").absoluteURL(conf.https)"
             }
             <hr/>
         </div>
@@ -275,7 +311,7 @@
             <dt><code>updated</code></dt>
             <dd>Orders most recently updated/modified items first.</dd>
             <dt><code>location</code></dt>
-            <dd>In combination with the <code>latlon</code> parameter (see below_), orders items
+            <dd>In combination with the <code>latlon</code> parameter (see below), orders items
             with location information by proximity to a given point.</dd>
         </dl>
 
@@ -380,6 +416,7 @@
             <li class="nav-item" role="presentation"><a class="nav-link" href="#global-search">Global Search</a></li>
             <li class="nav-item" role="presentation"><a class="nav-link" href="#retrieve-item">Retrieve Items</a></li>
             <li class="nav-item" role="presentation"><a class="nav-link" href="#item-search">Item Search</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link" href="#item-related">Related Item Search</a></li>
         </ul>
     </li>
     <li class="nav-item" role="presentation">

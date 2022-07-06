@@ -122,6 +122,13 @@ class ApiV1Spec extends IntegrationTestRunner {
       validateJson(contentAsJson(search))
     }
 
+    "allow searching related items" in new ITestApp {
+      val search = FakeRequest(apiRoutes.related("c4")).call()
+      status(search) must_== OK
+      validateJson(contentAsJson(search))
+      contentAsJson(search) \ "data" \ 0 \ "id" must_== JsDefined(JsString("r4"))
+    }
+
     "include context when search in items" in new ITestApp {
       val search = FakeRequest(GET, apiRoutes.searchIn("r1") + "?limit=1&page=2").call()
       status(search) must_== OK
