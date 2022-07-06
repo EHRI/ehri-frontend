@@ -1,10 +1,9 @@
 package controllers.portal.base
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import controllers.generic.Read
+import controllers.base.SearchRelated
+import controllers.generic.{Read, Search}
 import models.{Annotation, ContentType, UserProfile}
-import play.api.libs.json.JsString
 import play.api.mvc._
 import services.cypher.CypherService
 import utils.Page
@@ -12,21 +11,11 @@ import utils.Page
 import scala.concurrent.Future
 
 
-trait Related[MT] extends Read[MT] {
-  this: PortalController =>
+trait Related[MT] extends SearchRelated with Read[MT] {
+  this: PortalController with Search =>
 
   def cypher: CypherService
   implicit def mat: Materializer
-
-  private def relatedItems(id: String)(implicit ct: ContentType[MT]): Future[Seq[String]] = cypher.rows(
-    """
-      |MATCH (m:_Entity {__id:$id})
-      |     <-[:hasLinkTarget]-(link:Link)
-      |     -[:hasLinkTarget]->(t)
-      |WHERE m <> t
-      |RETURN DISTINCT(t.__id)
-    """.stripMargin, params = Map("id" -> JsString(id))
-  ).collect { case JsString(related) :: Nil => related }.runWith(Sink.seq)
 
   case class ItemRelatedRequest[A](
     item: MT,

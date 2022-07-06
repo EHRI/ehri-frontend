@@ -76,7 +76,9 @@
     belongsTo:
       - admin
       - kcl
-    hasAnnotation: ann1
+    hasAnnotation:
+      - ann1
+      - ann8
 
 # Reto is a member of the KCL group
 # separately
@@ -335,6 +337,14 @@
                 type: creation
                 startDate: !!str 1939-01-01
                 endDate: !!str 1945-01-01
+          relatesTo:
+            - id: ur3
+              type: AccessPoint
+              data:
+                name: Person Access 2
+                type: person
+                description: test description
+                category: associative
     childOf: c2
     hasPermissionScope: c2    
     access:
@@ -362,6 +372,12 @@
                 type: creation
                 startDate: !!str 1939-01-01
                 endDate: !!str 1945-01-01
+          relatesTo:
+            - id: ur4
+              type: AccessPoint
+              data:
+                name: Disconnected Access 1
+                type: subject
           hasUnknownProperty:
             - id: c4-unp1
               type: UnknownProperty
@@ -420,6 +436,14 @@
               this is some
               test text
           languageCode: eng
+        relationships:
+          hasDate:
+            - id: a1-dp1
+              type: DatePeriod
+              data:
+                type: existence
+                startDate: !!str 1900-01-01
+                endDate: !!str 1980-01-01
     inAuthoritativeSet: auths
     hasPermissionScope: auths
 
@@ -447,7 +471,6 @@
     body: Test Annotation
     isPromotable: !!bool true
   relationships:
-    hasAnnotator: mike
     hasAnnotationTarget: c1
     hasAnnotationTargetPart: cd1
     
@@ -532,13 +555,28 @@
       - mike
       - moderators
 
+- id: ann8
+  type: Annotation
+  data:
+    identifier: ann8
+    body: Note on scope content
+    field: scopeAndContent
+  relationships:
+    hasAnnotationTarget: c3
+
 --- # Links
 - id: link1
   type: Link
   data:
     type: associative
-    body: Test link
+    description: Test link
   relationships:
+    hasDate:
+      id: link1-dp1
+      type: DatePeriod
+      date:
+        startDate: !!str 1920-01-01
+        endDate: !!str 1950-01-01
     hasLinkTarget:
      - c1
      - c4
@@ -548,7 +586,7 @@
   type: Link
   data:
     type: associative
-    body: Test access point link
+    description: Test access point link
   relationships:
     hasLinkTarget:
      - c1
@@ -560,13 +598,24 @@
   type: Link
   data:
     type: associative
-    body: Test access point link
+    description: Test access point link
   relationships:
     hasLinkTarget:
      - c3
-     - a1
-    hasLinkBody: ur1
+     - a2
+    hasLinkBody: ur3
     hasLinker: mike
+
+- id: link4
+  type: Link
+  data:
+    type: copy
+    description: A link indicated that r4 is the original location of c4
+  relationships:
+    hasLinkTarget:
+      - c4
+      - r4
+    hasLinkSource: c4
 
 --- # Permission grants
 
@@ -649,6 +698,7 @@
           altLabel: Another Name for Concept 1
     narrower: cvocc2
     inAuthoritativeSet: cvoc1
+    hasPermissionScope: cvoc1
 
 - id: cvocc2
   type: CvocConcept
@@ -664,6 +714,7 @@
           altLabel: Another Name for Concept 2
     related: cvocc1
     inAuthoritativeSet: cvoc1
+    hasPermissionScope: cvoc1
 
 --- # Virtual Units
 

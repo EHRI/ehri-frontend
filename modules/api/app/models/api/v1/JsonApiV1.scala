@@ -228,6 +228,15 @@ object JsonApiV1 {
     }
   }
 
+  case class HistoricalAgentLinks(
+    self: String,
+    related: String
+  )
+
+  object HistoricalAgentLinks {
+    implicit val writes: Writes[HistoricalAgentLinks] = Json.writes[HistoricalAgentLinks]
+  }
+
   case class RepositoryLinks(
     self: String,
     search: String,
@@ -278,6 +287,67 @@ object JsonApiV1 {
 
   object CountryLinks {
     implicit val writes: Writes[CountryLinks] = Json.writes[CountryLinks]
+  }
+
+  case class ConceptDescriptionAttrs(
+    languageCode: String,
+    languageTag: String,
+    language: String,
+    prefLabel: String,
+    definition: Option[Seq[String]] = None,
+    altLabels: Option[Seq[String]] = None,
+    note: Option[Seq[String]] = None,
+    scopeNote: Option[Seq[String]] = None,
+    editorialNote: Option[Seq[String]] = None,
+  )
+
+  object ConceptDescriptionAttrs {
+    implicit val writes: Writes[ConceptDescriptionAttrs] = Json.writes[ConceptDescriptionAttrs]
+
+    def apply(d: ConceptDescriptionF)(implicit messages: Messages): ConceptDescriptionAttrs = new ConceptDescriptionAttrs(
+      languageCode = d.languageCode,
+      languageTag = d.languageCode2,
+      language = i18n.languageCodeToName(d.languageCode),
+      prefLabel = d.name,
+      altLabels = if (d.altLabels.isEmpty) None else Some(d.altLabels),
+      definition = if(d.definition.isEmpty) None else Some(d.definition),
+      note = if (d.note.isEmpty) None else Some(d.note),
+      scopeNote = if (d.scopeNote.isEmpty) None else Some(d.scopeNote),
+      editorialNote = if (d.editorialNote.isEmpty) None else Some(d.editorialNote)
+    )
+  }
+
+  case class ConceptAttrs(
+    localId: String,
+    descriptions: Seq[ConceptDescriptionAttrs],
+    seeAlso: Option[Seq[String]] = None,
+    uri: Option[String] = None,
+    geo: Option[GeoPoint] = None
+  )
+
+  object ConceptAttrs {
+    implicit val writes: Writes[ConceptAttrs] = Json.writes[ConceptAttrs]
+
+    def apply(c: Concept)(implicit requestHeader: RequestHeader, messages: Messages): ConceptAttrs =
+      new ConceptAttrs(
+        c.data.identifier,
+        descriptions = c.data.currentLangFirstDescriptions.map(d => ConceptDescriptionAttrs(d)),
+        seeAlso = if(c.data.seeAlso.isEmpty) None else Some(c.data.seeAlso),
+        uri = c.data.uri,
+        geo = for(lat <- c.data.latitude; lon <- c.data.longitude)
+          yield GeoPoint(lat, lon)
+      )
+  }
+
+  case class ConceptLinks(
+    self: String,
+    search: String,
+    related: String,
+    parent: Option[String] = None,
+  )
+
+  object ConceptLinks {
+    implicit val writes: Writes[ConceptLinks] = Json.writes[ConceptLinks]
   }
 
   case class JsonApiResponse(

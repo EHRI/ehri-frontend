@@ -2,7 +2,7 @@ package services.data
 
 import akka.stream.scaladsl.Source
 import helpers.IntegrationTestRunner
-import models.{EntityType, Model, _}
+import models._
 import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
@@ -277,7 +277,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       val links = await(testBackend.userLinks[Link]("mike"))
       links.size must_== 3
       val notes = await(testBackend.userAnnotations[Annotation]("mike"))
-      notes.size must_== 1
+      notes.size must_== 2
       val vus = await(testBackend.userBookmarks[VirtualUnit]("linda"))
       vus.size must_== 1
     }

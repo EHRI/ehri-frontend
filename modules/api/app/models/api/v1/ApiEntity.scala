@@ -10,6 +10,7 @@ object ApiEntity extends Enumeration {
   val Repository = Value(EntityType.Repository.toString)
   val HistoricalAgent = Value(EntityType.HistoricalAgent.toString)
   val Country = Value(EntityType.Country.toString)
+  val CvocConcept = Value(EntityType.Concept.toString)
 
   def asEntityTypes: Seq[EntityType.Value] = values.toSeq.map(toEntityType)
   def toEntityType(e: ApiEntity.Value): EntityType.Value = EntityType.withName(e.toString)

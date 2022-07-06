@@ -43,7 +43,7 @@ class VocabularyEditorSpec extends IntegrationTestRunner {
 
     "get next numeric identifier" in new ITestApp {
       val ident = FakeRequest(veRoutes.nextIdentifier("cvoc1")).withUser(privilegedUser).call()
-      contentAsJson(ident) must_== JsString("1")
+      contentAsJson(ident) must_== JsString("3")
     }
 
     "create new items" in new ITestApp {
