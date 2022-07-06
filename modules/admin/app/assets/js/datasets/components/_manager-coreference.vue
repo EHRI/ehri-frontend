@@ -19,6 +19,7 @@ export default {
       pasteText: "",
       saveInProgress: false,
       importInProgress: false,
+      importFromTSVHidden: true,
       loading: false,
       fromTsv: false,
       result: null,
@@ -29,8 +30,6 @@ export default {
   },
   methods: {
     refresh: function() {
-      this.fromTsv = false;
-      this.pasteText = "";
       this.loading = true;
       return this.api.getCoreferenceTable()
         .then(refs => this.references = refs)
@@ -38,14 +37,25 @@ export default {
         .finally(() => this.loading = false);
     },
     saveCoreferenceTable: function() {
+      this.importFromTSVHidden = true;
       this.saveInProgress = true;
-      let promise = this.fromTsv ? this.api.saveCoreferenceTable(this.references) : this.api.saveCoreferenceTable();
-      promise.then(r => {
+      this.api.saveCoreferenceTable().then(r => {
           this.refresh();
           console.log("Done!", r);
         })
         .catch(e => this.showError("Error saving coreference table", e))
         .finally(() => this.saveInProgress = false);
+    },
+    saveImportedCoreferenceTable: function() {
+      this.fromTsv = false;
+      this.pasteText = "";
+      this.api.saveCoreferenceTable(this.references).then(r => {
+          this.refresh();
+          this.fromTSV = false;
+          console.log("Done!", r);
+        })
+        .catch(e => this.showError("Error saving imported coreference table", e))
+        .finally(() => this.importFromTSVHidden = true);
     },
     importCoreferenceTable: async function() {
       this.importInProgress = true;
@@ -126,10 +136,14 @@ export default {
           <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
         </select>
       </div>
+      <button @click="importFromTSVHidden = !importFromTSVHidden" v-if="importFromTSVHidden" class="btn btn-sm btn-success">
+        <i class="fa fa-cloud-upload"></i>
+        Copy from TSV
+      </button>
       <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
         <i v-if="!saveInProgress" class="fa fa-fw fa-refresh"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-        Save Coreference Table
+        Build from existing terms
       </button>
       <button v-on:click.prevent="importCoreferenceTable" class="btn btn-sm btn-danger">
         <i v-if="!importInProgress" class="fa fa-fw fa-database"></i>
@@ -143,12 +157,18 @@ export default {
       ones, to vocabulary items.
     </p>
 
-    <div class="import-coreferences-tsv">
+    <div class="import-coreferences-tsv" v-if="!importFromTSVHidden">
       <textarea placeholder="Paste TSV here..." v-model="pasteText"></textarea>
-      <button v-on:click.prevent="importCoreferenceTableFromTSV" class="btn btn-sm btn-success">
-        <i class="fa fa-fw fa-files-o"></i>
-         Copy from TSV
-      </button>
+      <div class="import-coreferences-tsv-action-buttons">
+        <button v-on:click.prevent="importCoreferenceTableFromTSV" class="btn btn-sm btn-info">
+          <i class="fa fa-fw fa-files-o"></i>
+           Copy from TSV
+        </button>
+        <button v-on:click.prevent="saveImportedCoreferenceTable" class="btn btn-sm btn-danger">
+          <i class="fa fa-fw fa-floppy-o"></i>
+           Save copied coreferences
+        </button>
+      </div>
     </div>
 
     <p v-if="result" class="alert alert-success">

@@ -848,6 +848,15 @@ $active-table-row: #e7f1ff;
   }
 }
 
+.import-coreferences-tsv-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    flex-grow: 1;
+  }
+}
+
 .import-coreferences-tsv {
   display: flex;
   flex-direction: column;
