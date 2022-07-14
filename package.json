@@ -18,7 +18,7 @@
     "jquery-flot": "^0.8.3",
     "jquery-hoverintent": "^1.10.1",
     "jquery-placeholder": "^2.3.1",
-    "jquery-validation": "^1.19.3",
+    "jquery-validation": "^1.19.5",
     "js-cookie": "^2.2.1",
     "leaflet": "^1.7.1",
     "leaflet-curve": "^1.0.0",
