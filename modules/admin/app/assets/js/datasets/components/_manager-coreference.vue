@@ -19,9 +19,10 @@ export default {
       pasteText: "",
       saveInProgress: false,
       importInProgress: false,
-      importFromTSVHidden: true,
+      importFromTSV: false,
+      validationErrors: false,
+      validationMessages: "",
       loading: false,
-      fromTsv: false,
       result: null,
       initialised: false,
       filter: "",
@@ -30,6 +31,8 @@ export default {
   },
   methods: {
     refresh: function() {
+      this.validationErrors = false;
+      this.validationMessages = "";
       this.loading = true;
       return this.api.getCoreferenceTable()
         .then(refs => this.references = refs)
@@ -37,7 +40,7 @@ export default {
         .finally(() => this.loading = false);
     },
     saveCoreferenceTable: function() {
-      this.importFromTSVHidden = true;
+      this.importFromTSV = false;
       this.saveInProgress = true;
       this.api.saveCoreferenceTable().then(r => {
           this.refresh();
@@ -47,15 +50,17 @@ export default {
         .finally(() => this.saveInProgress = false);
     },
     saveImportedCoreferenceTable: function() {
-      this.fromTsv = false;
-      this.pasteText = "";
-      this.api.saveCoreferenceTable(this.references).then(r => {
-          this.refresh();
-          this.fromTSV = false;
-          console.log("Done!", r);
-        })
-        .catch(e => this.showError("Error saving imported coreference table", e))
-        .finally(() => this.importFromTSVHidden = true);
+      if(this.importedCoreferencesValid()) {
+        this.pasteText = "";
+        this.api.saveCoreferenceTable(this.references).then(r => {
+            this.refresh();
+            console.log("Done!", r);
+          })
+          .catch(e => this.showError("Error saving imported coreference table", e));
+      } else {
+        this.validationErrors = true;
+        this.validationMessages = "Invalid format for the imported coreferences, please check them!";
+      }
     },
     importCoreferenceTable: async function() {
       this.importInProgress = true;
@@ -77,7 +82,13 @@ export default {
         };
         return coreferenceObject;
       });
-      this.fromTsv = true;
+    },
+    importedCoreferencesValid: function() {
+      try {
+        return this.references.every(r => r.text.length !== 0 && r.targetId.length !== 0 && r.setId.length !== 0);
+      } catch(e) {
+        return false;
+      }
     },
     countObjValues: function(obj: object, key: string): number {
       return (obj && obj[key])
@@ -89,6 +100,12 @@ export default {
     },
     isFiltered: function() {
       return this.set !== null || this.filter.trim() !== "";
+    },
+    updateOnTSVImport: function(value) {
+      this.validationErrors = false;
+      this.validationMessages = "";
+      this.pasteText = value;
+      this.importCoreferenceTableFromTSV();
     },
   },
   computed: {
@@ -136,9 +153,9 @@ export default {
           <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
         </select>
       </div>
-      <button @click="importFromTSVHidden = !importFromTSVHidden" v-if="importFromTSVHidden" class="btn btn-sm btn-success">
+      <button @click="importFromTSV = !importFromTSV" v-if="!importFromTSV" class="btn btn-sm btn-default">
         <i class="fa fa-cloud-upload"></i>
-        Copy from TSV
+        Import from TSV
       </button>
       <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
         <i v-if="!saveInProgress" class="fa fa-fw fa-refresh"></i>
@@ -157,12 +174,14 @@ export default {
       ones, to vocabulary items.
     </p>
 
-    <div class="import-coreferences-tsv" v-if="!importFromTSVHidden">
-      <textarea placeholder="Paste TSV here..." v-model="pasteText"></textarea>
+    <div class="import-coreferences-tsv" v-if="importFromTSV">
+      <textarea :value="pasteText"
+                @input="updateOnTSVImport($event.target.value)"
+                placeholder="Paste TSV here..."></textarea>
       <div class="import-coreferences-tsv-action-buttons">
-        <button v-on:click.prevent="importCoreferenceTableFromTSV" class="btn btn-sm btn-info">
-          <i class="fa fa-fw fa-files-o"></i>
-           Copy from TSV
+        <button @click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
+          <i class="fa fa-times"></i>
+           Cancel
         </button>
         <button v-on:click.prevent="saveImportedCoreferenceTable" class="btn btn-sm btn-danger">
           <i class="fa fa-fw fa-floppy-o"></i>
@@ -174,6 +193,10 @@ export default {
     <p v-if="result" class="alert alert-success">
       Created: <strong>{{ created }}</strong>
       Updated: <strong>{{ updated }}</strong>
+    </p>
+
+    <p v-if="validationErrors" class="alert alert-danger">
+      {{ this.validationMessages }}
     </p>
 
     <div id="coreference-manager-coreference-list" v-if="initialised">
