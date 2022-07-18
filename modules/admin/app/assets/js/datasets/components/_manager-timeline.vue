@@ -8,7 +8,7 @@ import {Coreference, ImportLogSummary} from "../types";
 import _includes from 'lodash/includes';
 
 export default {
-  mixins: {MixinUtil, MixinError},
+  mixins: [MixinUtil, MixinError],
   props: {
     datasets: Array,
     config: Object,

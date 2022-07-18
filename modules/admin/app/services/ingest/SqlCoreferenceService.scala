@@ -27,7 +27,7 @@ case class SqlCoreferenceService @Inject()(db: Database, actorSystem: ActorSyste
     }
   }
 
-  override def save(repoId: String, refs: Seq[Coreference]): Future[Unit] = Future {
+  override def save(repoId: String, refs: Seq[Coreference]): Future[Int] = Future {
     db.withTransaction { implicit conn =>
       val id: Int = SQL"""INSERT INTO coreference (repo_id, updated)
            VALUES ($repoId, NOW())
@@ -50,18 +50,32 @@ case class SqlCoreferenceService @Inject()(db: Database, actorSystem: ActorSyste
           )
         }
 
-        BatchSql(q, inserts.head, inserts.tail: _*).execute()
-      }
+        BatchSql(q, inserts.head, inserts.tail: _*).execute().sum
+      } else 0
     }
   }
 
-  override def delete(repoId: String, cid: Int): Future[Int] = Future {
+  override def delete(repoId: String, refs: Seq[Coreference]): Future[Int] = Future {
     db.withConnection { implicit conn =>
-      SQL"""DELETE FROM coreference_value r
+      val q = """DELETE FROM coreference_value r
             USING coreference c
             WHERE c.id = r.coreference_id
-              AND c.repo_id = $repoId
-              AND r.id = $cid""".executeUpdate()
+              AND c.repo_id = {repo_id}
+              AND r.text = {text}
+              AND r.target_id = {target_id}
+              AND r.set_id = {set_id}"""
+      if (refs.nonEmpty) {
+        val deletes = refs.map { r =>
+          Seq[NamedParameter](
+            "text" -> r.text,
+            "target_id" -> r.targetId,
+            "set_id" -> r.setId,
+            "repo_id" -> repoId
+          )
+        }
+
+        BatchSql(q, deletes.head, deletes.tail: _*).execute().sum
+      } else 0
     }
   }
 }

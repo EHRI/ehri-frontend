@@ -236,16 +236,24 @@ export class DatasetManagerApi {
     return apiCall(this.service.ImportLogs.doCleanup(this.repoId, snId), confirm);
   }
 
-  getCoreferenceTable(): Promise<Coreference[]> {
+  getCoreferences(): Promise<Coreference[]> {
     return apiCall(this.service.CoreferenceTables.getTable(this.repoId));
   }
 
-  saveCoreferenceTable(coreferences: Coreference[]): Promise<{ok: true}> {
-    return apiCall(this.service.CoreferenceTables.saveTable(this.repoId), coreferences);
+  importCoreferences(coreferences: Coreference[]): Promise<{imported: number}> {
+    return apiCall(this.service.CoreferenceTables.importTable(this.repoId), coreferences);
   }
 
-  ingestCoreferenceTable(): Promise<ImportLog> {
-    return apiCall(this.service.CoreferenceTables.ingestTable(this.repoId));
+  extractCoreferences(): Promise<{imported: number}> {
+    return apiCall(this.service.CoreferenceTables.extractTable(this.repoId));
+  }
+
+  applyCoreferences(): Promise<ImportLog> {
+    return apiCall(this.service.CoreferenceTables.applyTable(this.repoId));
+  }
+
+  deleteCoreferences(coreferences: Coreference[]): Promise<{deleted: number}> {
+    return apiCall(this.service.CoreferenceTables.deleteTable(this.repoId), coreferences);
   }
 
   logs(dsId?: string): Promise<ImportLogSummary[]> {

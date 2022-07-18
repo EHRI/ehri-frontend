@@ -24,19 +24,39 @@ class CoreferenceTablesSpec extends IntegrationTestRunner with ResourceUtils {
       ))
     }
 
-    "save tables" in new DBTestApp("coreference-fixtures.sql") {
-      val r = FakeRequest(routes.saveTable("r1"))
+    "import tables" in new DBTestApp("coreference-fixtures.sql") {
+      val r = FakeRequest(routes.importTable("r1"))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(Seq(
+          Coreference("Person 1", "a2", "auths")
+        )))
+      contentAsJson(r) must_== Json.obj("imported" -> 1)
+    }
+
+    "extract tables" in new DBTestApp("coreference-fixtures.sql") {
+      // FIXME: current Neo4j fixtures don't exercise this test!
+      val r = FakeRequest(routes.extractTable("r1"))
         .withUser(privilegedUser)
         .call()
-      contentAsJson(r) must_== Json.obj("ok" -> true)
+      contentAsJson(r) must_== Json.obj("imported" -> 0)
     }
 
     "ingest tables" in new DBTestApp("coreference-fixtures.sql") {
-      val r = FakeRequest(routes.ingestTable("r1"))
+      val r = FakeRequest(routes.applyTable("r1"))
         .withUser(privilegedUser)
         .call()
       // Nothing is updated here, hence an empty log...
       contentAsJson(r) must_== Json.toJson(ImportLog())
+    }
+
+    "delete table values" in new DBTestApp("coreference-fixtures.sql") {
+      val r = FakeRequest(routes.deleteTable("r1"))
+        .withUser(privilegedUser)
+        .callWith(Json.toJson(Seq(
+          Coreference("Person 1", "a1", "auths"),
+          Coreference("Person 2", "a2", "auths")
+        )))
+      contentAsJson(r) must_== Json.obj("deleted"-> 2)
     }
   }
 }

@@ -36,7 +36,10 @@ class SqlCoreferenceServiceSpec extends PlaySpecification with AfterAll {
     }
 
     "delete coreferences" in withDatabaseFixture("coreference-fixtures.sql") { implicit db =>
-      await(service.delete("r1", 9998)) must_== 1
+      val auths = Seq(
+        Coreference("Person 1", "a1", "auths"),
+        Coreference("Person 2", "a2", "auths"))
+      await(service.delete("r1", auths)) must_== 2
     }
   }
 }
