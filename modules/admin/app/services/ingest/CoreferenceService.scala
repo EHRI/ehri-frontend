@@ -1,14 +1,12 @@
 package services.ingest
 
-import play.api.libs.json.{Json, Reads, Writes}
-import play.api.mvc.PathBindable
+import play.api.libs.json.{Format, Json}
 
 import scala.concurrent.Future
 
 case class Coreference(text: String, targetId: String, setId: String)
 object Coreference {
-  implicit val _writes: Writes[Coreference] = Json.writes[Coreference]
-  implicit val _reads: Reads[Coreference] = Json.reads[Coreference]
+  implicit val _format: Format[Coreference] = Json.format[Coreference]
 }
 
 trait CoreferenceService {
@@ -25,15 +23,16 @@ trait CoreferenceService {
     * Save a coreference table for the given repository.
     *
     * @param id the repository ID
+    * @return the number of items inserted
     */
-  def save(id: String, refs: Seq[Coreference]): Future[Unit]
+  def save(id: String, refs: Seq[Coreference]): Future[Int]
 
   /**
     * Delete a reference.
     *
     * @param repoId the repository ID
-    * @param cid the coreference value ID
+    * @param refs the coreference values
     * @return the number of items deleted
     */
-  def delete(repoId: String, cid: Int): Future[Int]
+  def delete(repoId: String, refs: Seq[Coreference]): Future[Int]
 }

@@ -62,5 +62,7 @@ POST        /api/:id/snapshots/:sn/do-cleanup             @controllers.datasets.
 GET         /api/:id/logs                                 @controllers.datasets.ImportLogs.list(id: String, dsId: Option[String] ?= None)
 
 GET         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.getTable(id: String)
-PUT         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.saveTable(id: String)
-POST        /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.ingestTable(id: String)
+PUT         /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.importTable(id: String)
+DELETE      /api/:id/coreferences                         @controllers.datasets.CoreferenceTables.deleteTable(id: String)
+POST        /api/:id/coreferences/extract                 @controllers.datasets.CoreferenceTables.extractTable(id: String)
+POST        /api/:id/coreferences/apply                   @controllers.datasets.CoreferenceTables.applyTable(id: String)

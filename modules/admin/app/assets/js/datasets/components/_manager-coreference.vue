@@ -6,9 +6,10 @@ import {DatasetManagerApi} from "../api";
 import {Coreference} from "../types";
 import _includes from 'lodash/includes';
 import {decodeTsv} from "../common";
+import _fromPairs from "lodash/fromPairs";
 
 export default {
-  mixins: {MixinUtil, MixinError},
+  mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
     api: DatasetManagerApi,
@@ -16,9 +17,11 @@ export default {
   data: function() {
     return {
       references: [],
+      selected: [],
       pasteText: "",
-      saveInProgress: false,
-      importInProgress: false,
+      extractInProgress: false,
+      applyInProgress: false,
+      deleteInProgress: false,
       importFromTSV: false,
       validationErrors: false,
       validationMessages: "",
@@ -30,57 +33,71 @@ export default {
     }
   },
   methods: {
-    refresh: function() {
+    refresh: async function() {
       this.validationErrors = false;
       this.validationMessages = "";
-      this.loading = true;
-      return this.api.getCoreferenceTable()
-        .then(refs => this.references = refs)
-        .catch(e => this.showError("Error loading coreference data", e))
-        .finally(() => this.loading = false);
-    },
-    saveCoreferenceTable: function() {
-      this.importFromTSV = false;
-      this.saveInProgress = true;
-      this.api.saveCoreferenceTable().then(r => {
-          this.refresh();
-          console.log("Done!", r);
+      try {
+        this.loading = true;
+        this.references = await this.api.getCoreferences();
+        let refKeys = this.references.map(r => this.refKey(r));
+        Object.keys(this.selected).forEach(key => {
+          if (!refKeys.includes(key)) {
+            this.$delete(this.selected, key);
+          }
         })
-        .catch(e => this.showError("Error saving coreference table", e))
-        .finally(() => this.saveInProgress = false);
+      } catch (e) {
+        this.showError("Error loading coreference data", e)
+      } finally {
+        this.loading = false;
+      }
     },
-    saveImportedCoreferenceTable: function() {
+    extractCoreferences: async function() {
+      this.importFromTSV = false;
+      this.extractInProgress = true;
+      try {
+        let r = await this.api.extractCoreferences();
+        console.log("Extracted: ", r.imported);
+        await this.refresh()
+      } catch (e) {
+        this.showError("Error extracting coreference table", e);
+      } finally {
+        this.extractInProgress = false;
+      }
+    },
+    importCoreferences: async function() {
       if(this.importedCoreferencesValid()) {
         this.pasteText = "";
-        this.api.saveCoreferenceTable(this.references).then(r => {
-            this.refresh();
-            console.log("Done!", r);
-          })
-          .catch(e => this.showError("Error saving imported coreference table", e));
+        try {
+          let r = await this.api.importCoreferences(this.references);
+          console.log("Imported: ", r.imported);
+          await this.refresh();
+        } catch (e) {
+          this.showError("Error saving imported coreference table", e)
+        }
       } else {
         this.validationErrors = true;
         this.validationMessages = "Invalid format for the imported coreferences, please check them!";
       }
     },
-    importCoreferenceTable: async function() {
-      this.importInProgress = true;
+    applyCoreferences: async function() {
+      this.applyInProgress = true;
       try {
-        this.result = await this.api.ingestCoreferenceTable();
+        this.result = await this.api.applyCoreferences();
       } catch (e) {
         this.showError("Error importing coreference table", e);
       } finally {
-        this.importInProgress = false;
+        this.applyInProgress = false;
       }
     },
-    importCoreferenceTableFromTSV: function() {
+    setCoreferencesFromTsv: function() {
       let parsedTsv = decodeTsv(this.pasteText, 3);
-      this.references = parsedTsv.map(function(val, index) {
-        let coreferenceObject: Coreference = {
-          text: val[0],
-          targetId: val[1],
-          setId: val[2],
+      this.references = parsedTsv.map(function(value) {
+        let ref: Coreference = {
+          text: value[0],
+          targetId: value[1],
+          setId: value[2],
         };
-        return coreferenceObject;
+        return ref;
       });
     },
     importedCoreferencesValid: function() {
@@ -88,6 +105,18 @@ export default {
         return this.references.every(r => r.text.length !== 0 && r.targetId.length !== 0 && r.setId.length !== 0);
       } catch(e) {
         return false;
+      }
+    },
+    deleteCoreferences: async function() {
+      try {
+        this.deleteInProgress = true;
+        let r = await this.api.deleteCoreferences(Object.values(this.selected));
+        console.log("Deleted", r.deleted);
+        await this.refresh();
+      } catch (e) {
+        this.showError("Error deleted selected values", e);
+      } finally {
+        this.deleteInProgress = false;
       }
     },
     countObjValues: function(obj: object, key: string): number {
@@ -101,12 +130,29 @@ export default {
     isFiltered: function() {
       return this.set !== null || this.filter.trim() !== "";
     },
-    updateOnTSVImport: function(value) {
+    updateOnTsvImport: function(value) {
       this.validationErrors = false;
       this.validationMessages = "";
       this.pasteText = value;
-      this.importCoreferenceTableFromTSV();
+      this.setCoreferencesFromTsv();
     },
+    toggleAll: function() {
+      if (this.references.length === Object.keys(this.selected).length) {
+        this.selected = {};
+      } else {
+        this.selected = _fromPairs(this.references.map(r => [this.refKey(r), r]));
+      }
+    },
+    toggleRef: function(ref: Coreference) {
+      if (this.selected[this.refKey(ref)]) {
+        this.$delete(this.selected, this.refKey(ref));
+      } else {
+        this.$set(this.selected, this.refKey(ref), ref);
+      }
+    },
+    refKey: function(ref: Coreference): string {
+      return [ref.text, ref.targetId, ref.setId].join('-');
+    }
   },
   computed: {
     created: function() {
@@ -126,7 +172,6 @@ export default {
       return out;
     },
     filteredRefs: function () {
-      let refs = this.references as Coreference[];
       let trimFilter = this.filter.trim().toLowerCase();
       let isFiltered = this.isFiltered();
       let match = (ref: Coreference) => !isFiltered || (
@@ -153,19 +198,19 @@ export default {
           <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
         </select>
       </div>
-      <button @click="importFromTSV = !importFromTSV" v-if="!importFromTSV" class="btn btn-sm btn-default">
+      <button @click="importFromTSV = !importFromTSV" v-bind:disabled="importFromTSV" class="btn btn-sm btn-default">
         <i class="fa fa-cloud-upload"></i>
         Import from TSV
       </button>
-      <button v-on:click.prevent="saveCoreferenceTable" class="btn btn-sm btn-info">
-        <i v-if="!saveInProgress" class="fa fa-fw fa-refresh"></i>
+      <button v-on:click.prevent="extractCoreferences" class="btn btn-sm btn-info" title="Build from existing terms">
+        <i v-if="!extractInProgress" class="fa fa-fw fa-refresh"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-        Build from existing terms
+        Extract From Data
       </button>
-      <button v-on:click.prevent="importCoreferenceTable" class="btn btn-sm btn-danger">
-        <i v-if="!importInProgress" class="fa fa-fw fa-database"></i>
+      <button v-on:click.prevent="applyCoreferences" class="btn btn-sm btn-danger" v-bind:disabled="references.length === 0" >
+        <i v-if="!applyInProgress" class="fa fa-fw fa-database"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-        Import Coreference Table
+        Apply to Data
       </button>
     </div>
     <p class="admin-help-notice">
@@ -175,15 +220,16 @@ export default {
     </p>
 
     <div class="import-coreferences-tsv" v-if="importFromTSV">
+      <label for="opt-import-coreference-tsv" class="sr-only">Paste TSV here</label>
       <textarea :value="pasteText"
-                @input="updateOnTSVImport($event.target.value)"
-                placeholder="Paste TSV here..."></textarea>
+                @input="updateOnTsvImport($event.target.value)"
+                class="form-control" id="opt-import-coreference-tsv" placeholder="Paste TSV here..."></textarea>
       <div class="import-coreferences-tsv-action-buttons">
         <button @click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
           <i class="fa fa-times"></i>
            Cancel
         </button>
-        <button v-on:click.prevent="saveImportedCoreferenceTable" class="btn btn-sm btn-danger">
+        <button v-on:click.prevent="importCoreferences" v-bind:disabled="pasteText === ''" class="btn btn-sm btn-danger">
           <i class="fa fa-fw fa-floppy-o"></i>
            Save copied coreferences
         </button>
@@ -200,11 +246,22 @@ export default {
     </p>
 
     <div id="coreference-manager-coreference-list" v-if="initialised">
-      <h4>Coreferences: {{ references.length }}</h4>
+      <h4>Coreferences: {{ references.length }}
+        <a href="" @click.prevent="deleteCoreferences" v-if="Object.keys(selected).length > 0" class="text-danger pull-right">
+          <i v-if="!deleteInProgress" class="fa fa-fw fa-trash-o"></i>
+          <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+          Remove Selected Coreferences
+        </a>
+      </h4>
       <div id="coreference-manager-coreference-table">
         <table v-if="references.length > 0" class="table table-sm table-striped table-bordered">
           <thead>
           <tr>
+            <th><input type="checkbox"
+                       v-bind:id="'coreference-manager-coreference-table-checkall'"
+                       v-bind:checked="Object.keys(selected).length === references.length"
+                       v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < references.length"
+                       v-on:change="toggleAll" /></th>
             <th>Text</th>
             <th>Target ID</th>
             <th>Set ID</th>
@@ -212,6 +269,11 @@ export default {
           </thead>
           <tbody>
           <tr v-for="ref in filteredRefs">
+            <td v-on:click.stop.prevent="toggleRef(ref)">
+              <input type="checkbox"
+                     v-bind:checked="Boolean(selected[refKey(ref)])"
+                     v-on:input.stop.prevent.self="toggleRef(ref)"
+                     v-on:click="$event.stopPropagation()">
             <td v-if="isFiltered()"><strong>{{ ref.text }}</strong></td>
             <td v-else>{{ ref.text }}</td>
             <td>{{ ref.targetId }}</td>

@@ -243,12 +243,14 @@ export default {
           v-if="tab2 === 'snapshots'"
           v-bind:config="config"
           v-bind:api="api"
+          v-on:error="showError"
       />
 
       <manager-coreference
           v-else-if="tab2 === 'refs'"
           v-bind:config="config"
           v-bind:api="api"
+          v-on:error="showError"
       />
 
       <manager-timeline
@@ -256,6 +258,7 @@ export default {
           v-bind:datasets="datasets"
           v-bind:config="config"
           v-bind:api="api"
+          v-on:error="showError"
       />
 
       <template v-if="tab2 === 'datasets'">
