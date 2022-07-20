@@ -3,7 +3,7 @@
 <head>
     <title>EHRI - @title</title>
 
-    <link rel="shortcut icon" type="image/png" href="@controllers.portal.routes.PortalAssets.versioned("img/favicon.png")">
+    @views.html.common.favicons()
     <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("css/portal.css")">
 
     @if(messages.lang.code.startsWith("he")) {
