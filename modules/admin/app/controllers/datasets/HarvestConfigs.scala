@@ -16,7 +16,7 @@ import models.HarvestEvent.HarvestEventType
 import models._
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, JsObject, JsSuccess, Json}
 import play.api.libs.ws.{WSAuthScheme, WSClient, WSRequest}
 import play.api.mvc._
 import services.datasets.ImportDatasetService
@@ -64,9 +64,32 @@ case class HarvestConfigs @Inject()(
       }
     }
 
-  private def withCheckedPayload(config: HarvestConfig, dataset: ImportDataset)(f: HarvestConfig => Future[Result]): Future[Result] = {
-    if (dataset.src == config.src) f(config)
-    else immediate(BadRequest(Json.obj("error" -> s"body does not match dataset source type: ${dataset.src}")))
+  private def prettyJsonErrors(e: JsError)(implicit req: RequestHeader): String = e.errors.map { case (path, errors) =>
+    s"${path.path.headOption.map(_.toString).getOrElse("?")}: ${errors.headOption.map(v => Messages(v.message)).getOrElse("")}"
+  }.mkString("; ")
+
+  private def dataError(dataset: ImportDataset): Future[Result] =
+    immediate(BadRequest(Json.obj("error" -> s"unsupported config type or data for ${dataset.src}")))
+
+  private def jsonError(dataset: ImportDataset, e: JsError)(implicit req: RequestHeader): Future[Result] =
+    immediate(BadRequest(Json.obj("error" -> s"unable to parse config for type '${dataset.src}' ${prettyJsonErrors(e)}")))
+
+  private def withCheckedPayload(config: JsObject, dataset: ImportDataset)(f: HarvestConfig => Future[Result])(implicit req: RequestHeader): Future[Result] = {
+    dataset.src match {
+      case ImportDataset.Src.OaiPmh => config.validate[OaiPmhConfig] match {
+        case JsSuccess(oaiPmhConfig: OaiPmhConfig, _) => f(oaiPmhConfig)
+        case e@JsError(_) => jsonError(dataset, e)
+      }
+      case ImportDataset.Src.Rs => config.validate[ResourceSyncConfig] match {
+        case JsSuccess(rsConfig: ResourceSyncConfig, _) => f(rsConfig)
+        case e@JsError(_) => jsonError(dataset, e)
+      }
+      case ImportDataset.Src.UrlSet => config.validate[UrlSetConfig] match {
+        case JsSuccess(urlSetConfig: UrlSetConfig, _) => f(urlSetConfig)
+        case e@JsError(_) => jsonError(dataset, e)
+      }
+      case _ => immediate(BadRequest(Json.obj("error" -> "unsupported dataset type")))
+    }
   }
 
   def get(id: String, ds: String): Action[AnyContent] = DatasetAction(id, ds).async { implicit request =>
@@ -79,12 +102,12 @@ case class HarvestConfigs @Inject()(
     configF.map(r => Ok(Json.toJson(r)))
   }
 
-  def save(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
+  def save(id: String, ds: String): Action[JsObject] = DatasetAction(id, ds).async(apiJson[JsObject]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => oaipmhConfigs.save(id, ds, c).map(r => Ok(Json.toJson(r)))
       case c: ResourceSyncConfig => rsConfigs.save(id, ds, c).map(r => Ok(Json.toJson(r)))
       case c: UrlSetConfig => urlSetConfigs.save(id, ds, c).map(r => Ok(Json.toJson(r)))
-      case _ => immediate(BadRequest(Json.obj("error" -> "unsupported config type: ")))
+      case _ => dataError(request.dataset)
     }
   }
 
@@ -93,33 +116,33 @@ case class HarvestConfigs @Inject()(
       case ImportDataset.Src.OaiPmh => oaipmhConfigs.delete(id, ds).map(_ => NoContent)
       case ImportDataset.Src.Rs => rsConfigs.delete(id, ds).map(_ => NoContent)
       case ImportDataset.Src.UrlSet => urlSetConfigs.delete(id, ds).map(_ => NoContent)
-      case _ => immediate(BadRequest(Json.obj("error" -> s"unsupported config type: ${request.dataset.src}")))
+      case _ => dataError(request.dataset)
     }
   }
 
-  def clean(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
+  def clean(id: String, ds: String): Action[JsObject] = DatasetAction(id, ds).async(apiJson[JsObject]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: ResourceSyncConfig => cleanRs(id, ds, c)
       case c: UrlSetConfig => cleanUrlSet(id, ds, c)
-      case _ => immediate(BadRequest(Json.obj("error" -> s"unsupported config type: ${request.body.src}")))
+      case _ => dataError(request.dataset)
     }
   }
 
-  def test(id: String, ds: String): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
+  def test(id: String, ds: String): Action[JsObject] = DatasetAction(id, ds).async(apiJson[JsObject]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => testOaiPmh(c)
       case c: ResourceSyncConfig => testRs(c)
       case c: UrlSetConfig => testUrlSet(c)
-      case _ => immediate(BadRequest(Json.obj("error" -> s"unsupported config type: ${request.body.src}")))
+      case _ => dataError(request.dataset)
     }
   }
 
-  def harvest(id: String, ds: String, fromLast: Boolean): Action[HarvestConfig] = DatasetAction(id, ds).async(apiJson[HarvestConfig]) { implicit request =>
+  def harvest(id: String, ds: String, fromLast: Boolean): Action[JsObject] = DatasetAction(id, ds).async(apiJson[JsObject]) { implicit request =>
     withCheckedPayload(request.body, request.dataset) {
       case c: OaiPmhConfig => harvestOaiPmh(id, ds, c, fromLast)
       case c: ResourceSyncConfig => harvestRs(id, ds, c)
       case c: UrlSetConfig => harvestUrlSet(id, ds, c)
-      case _ => immediate(BadRequest(Json.obj("error" -> s"unsupported config type: ${request.body.src}")))
+      case _ => dataError(request.dataset)
     }
   }
 
@@ -129,11 +152,14 @@ case class HarvestConfigs @Inject()(
     (for (ident <- getIdentF; _ <- listIdentF)
       yield Ok(Json.toJson(ident))).recover {
       case e: OaiPmhError => BadRequest(Json.obj("error" -> e.errorMessage))
-      case e => InternalServerError(Json.obj("error" -> e.getMessage))
+      case e =>
+        e.printStackTrace()
+        InternalServerError(Json.obj("error" -> e.getMessage))
+
     }
   }
 
-  def testRs(config: ResourceSyncConfig): Future[Result] = {
+  private def testRs(config: ResourceSyncConfig): Future[Result] = {
     authReq(config.url, config.auth).head().map { r =>
       checkRemoteFile(r).fold(Ok(Json.obj("ok" -> true))) { err =>
         BadRequest(Json.obj("error" -> err))
@@ -141,7 +167,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def testUrlSet(config: UrlSetConfig): Future[Result] = {
+  private def testUrlSet(config: UrlSetConfig): Future[Result] = {
     // First, check for duplicate file names...
     if (config.duplicates.nonEmpty) {
       val seq = config.duplicates.map(p => s"(${p._1+1}, ${p._2+1})").mkString(", ")
@@ -172,7 +198,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def cleanRs(id: String, ds: String, config: ResourceSyncConfig)(implicit req: RequestHeader): Future[Result] = {
+  private def cleanRs(id: String, ds: String, config: ResourceSyncConfig)(implicit req: RequestHeader): Future[Result] = {
     val pre = prefix(id, ds, FileStage.Input)
     val remoteF: Future[Set[String]] = rsClient.list(config).map { links =>
       links.map(item => Uri(item.loc).path.dropChars(1).toString).toSet
@@ -183,7 +209,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def cleanUrlSet(id: String, ds: String, config: UrlSetConfig)(implicit req: RequestHeader): Future[Result] = {
+  private def cleanUrlSet(id: String, ds: String, config: UrlSetConfig)(implicit req: RequestHeader): Future[Result] = {
     val pre = prefix(id, ds, FileStage.Input)
     val remoteF: Future[Set[String]] = immediate(config.urls.map(_.name).toSet)
 
@@ -192,7 +218,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def harvestRs(id: String, ds: String, endpoint: ResourceSyncConfig)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = immediate {
+  private def harvestRs(id: String, ds: String, endpoint: ResourceSyncConfig)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = immediate {
     val jobId = UUID.randomUUID().toString
     val data = ResourceSyncData(endpoint, prefix = prefix(id, ds, FileStage.Input))
     val job = ResourceSyncJob(id, ds, jobId, data = data)
@@ -200,7 +226,7 @@ case class HarvestConfigs @Inject()(
     submitJob(jobId, job, init)
   }
 
-  def harvestOaiPmh(id: String, ds: String, config: OaiPmhConfig, fromLast: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = {
+  private def harvestOaiPmh(id: String, ds: String, config: OaiPmhConfig, fromLast: Boolean)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = {
     val lastHarvest: Future[Option[Instant]] =
       if (fromLast) harvestEvents.get(id, Some(ds)).map(events =>
         events
@@ -218,7 +244,7 @@ case class HarvestConfigs @Inject()(
     }
   }
 
-  def harvestUrlSet(id: String, ds: String, config: UrlSetConfig)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = immediate {
+  private def harvestUrlSet(id: String, ds: String, config: UrlSetConfig)(implicit req: RequestHeader, userOpt: Option[UserProfile]): Future[Result] = immediate {
     val jobId = UUID.randomUUID().toString
     val data = UrlSetHarvesterData(config, prefix = prefix(id, ds, FileStage.Input))
     val job = UrlSetHarvesterJob(id, ds, jobId, data = data)

@@ -984,6 +984,9 @@ $active-table-row: #e7f1ff;
 
 .options-form {
   padding: $margin-md;
+  input:invalid {
+    background-color: lighten($danger, 40%);
+  }
 }
 
 .resizable .options-form {

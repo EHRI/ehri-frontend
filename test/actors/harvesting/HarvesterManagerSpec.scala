@@ -42,8 +42,9 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
     val serviceConfig = ServiceConfig("ehridata", config)
     OaiPmhHarvestJob("r1", datasetId, jobId, OaiPmhHarvestData(
       // where we're harvesting from:
-      config = OaiPmhConfig(s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
-        serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)} ),
+      config = OaiPmhConfig(
+        s"${serviceConfig.baseUrl}/oaipmh", "ead", Some("nl:r1"),
+          auth = serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)} ),
       prefix = "oaipmh/r1/"
     ))
   }

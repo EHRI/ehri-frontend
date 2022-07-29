@@ -82,8 +82,11 @@ case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eve
       msg(s"Starting harvest with job id: ${job.jobId}", subs)
       job match {
         case OaiPmhHarvestJob(_, _, _, data) =>
-          data.from.fold(msg(Messages("harvesting.earliestDate"), subs)) { from =>
+          data.config.from.orElse(data.from).fold(ifEmpty = msg(Messages("harvesting.earliestDate"), subs)) { from =>
             msg(Messages("harvesting.fromDate", DateTimeFormatter.ISO_INSTANT.format(from)), subs)
+          }
+          data.config.until.map { until =>
+            msg(Messages("harvesting.untilDate", DateTimeFormatter.ISO_INSTANT.format(until)), subs)
           }
         case _ =>
       }
@@ -137,7 +140,7 @@ case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eve
     case e: OaiPmhError =>
       runAndThen(handle, _.error(e)) (
           Finalise(
-            s"${WebsocketConstants.ERR_MESSAGE}: ${Messages("oaipmh.error." + e.getMessage)}"))
+            s"${WebsocketConstants.ERR_MESSAGE}: ${e.errorMessage}"))
         .pipeTo(self)
 
     // The runner has thrown an unexpected error. Log the event

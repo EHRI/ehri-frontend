@@ -136,6 +136,8 @@ CREATE TABLE oaipmh_config (
     endpoint_url      VARCHAR(512) NOT NULL,
     metadata_prefix   VARCHAR(255) NOT NULL,
     set_spec          VARCHAR(255),
+    from_time         TIMESTAMP,
+    until_time        TIMESTAMP,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT,
     PRIMARY KEY (repo_id, import_dataset_id),
