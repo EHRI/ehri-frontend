@@ -10,13 +10,16 @@ import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.Logger
+import play.api.cache.AsyncCacheApi
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
 import services.ingest.XmlFormatter
 
+import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.SAXParseException
 
@@ -34,7 +37,7 @@ case class Resume(token: String) extends TokenState
 case object Final extends TokenState
 
 
-case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
+case class WSOaiPmhClient @Inject()(ws: WSClient, cache: AsyncCacheApi)(implicit ec: ExecutionContext, mat: Materializer) extends OaiPmhClient {
 
   private val logger = Logger(classOf[WSOaiPmhClient])
 
@@ -52,21 +55,29 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
       tokenF.flatMap { token =>
         // NB: resumptionToken is exclusive, so if we have it we shouldn't
         // use the other control params except for the verb
-        val otherParams: Seq[(String, String)] =
-          if (token.asOption.isDefined) token.asOption.map(t => "resumptionToken" -> t).toSeq
-          else Seq("metadataPrefix" -> endpoint.format) ++ endpoint.set.map(s => "set" -> s)
+        val otherParamsF: Future[Seq[(String, String)]] = {
+          if (token.asOption.isDefined) Future.successful(token.asOption.map(t => "resumptionToken" -> t).toSeq)
+          else getGranularity(endpoint).map { granularity =>
+            Seq("metadataPrefix" -> endpoint.format) ++
+              endpoint.set.map(s => "set" -> s) ++
+              endpoint.from.map(f => "from" -> formatTime(granularity, f)) ++
+              endpoint.until.map(u => "until" -> formatTime(granularity, u))
+          }
+        }
 
-        val allParams = params ++ otherParams
+        otherParamsF.flatMap { otherParams =>
+          val allParams = params ++ otherParams
+          val req = newRequest(endpoint).withQueryStringParameters(allParams: _*)
+          logger.debug(s"Request: ${req.method} ${req.url}?${utils.http.joinQueryString(req.queryString)}")
+          req
+            .stream().map { response =>
 
-        newRequest(endpoint)
-          .withQueryStringParameters(allParams: _*)
-          .stream().map { response =>
-
-          response.bodyAsSource
-            .via(XmlParsing.parser)
-            .viaMat(OaiPmhTokenParser.parser)(Keep.right)
-            .viaMat(transform)(Keep.left)
-            .preMaterialize()
+            response.bodyAsSource
+              .via(XmlParsing.parser)
+              .viaMat(OaiPmhTokenParser.parser)(Keep.right)
+              .viaMat(transform)(Keep.left)
+              .preMaterialize()
+          }
         }
       }
     }
@@ -83,40 +94,48 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
     .url(endpoint.url)
     .withHttpHeaders(endpoint.auth.toSeq.map(s => HeaderNames.AUTHORIZATION -> s"Basic ${s.encodeBase64}"): _*)
 
-  private def getFormattedTime(endpoint: OaiPmhConfig, time: Option[Instant]): Future[Option[String]] = {
-    time.fold(Future.successful(Option.empty[String])) { fromTime =>
-      val fmtF = identify(endpoint).map(_.granularity).map {
-        case Granularity.Second => DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss'Z'")
-        case _ => DateTimeFormatter.ISO_DATE
-      }
-      fmtF.map(fmt => Some(fmt.format(fromTime.atOffset(ZoneOffset.UTC))))
+  private def getGranularity(endpoint: OaiPmhConfig): Future[OaiPmhIdentity.Granularity.Value] = {
+    cache.getOrElseUpdate(s"oaipmh-granularity:${endpoint.url}", 1.hour) {
+      identify(endpoint).map(_.granularity)
     }
   }
 
-  // In cases where we have `from` or `to` parameters the only way to properly
+  private def formatTime(granularity: Granularity.Value, time: Instant): String = granularity match {
+    case Granularity.Second => time.truncatedTo(ChronoUnit.SECONDS).toString
+    case _ => DateTimeFormatter.ISO_DATE.format(time)
+  }
+
+  // In cases where we have `from` or `until` parameters the only way to properly
   // format the date - with either day or second granularity - depends on the
   // endpoint itself and the result of the `identify` verb. So if we have a
   // `from` parameter and we're not resuming we have to run `identify` prior
   // to the List* commands
   private def getListParams(verb: String,
     endpoint: OaiPmhConfig,
-    from: Option[Instant],
+    resumeFrom: Option[Instant],
     resume: Option[String]): Future[Seq[(String, String)]] = {
+
     resume.fold(
-      ifEmpty = getFormattedTime(endpoint, from).map { timeOpt =>
+      ifEmpty = getGranularity(endpoint).map { granularity =>
+        // If a `from` param is given, this overrides the resume time
+        val timeOpt = endpoint.from.orElse(resumeFrom).map(f => formatTime(granularity, f))
         logger.debug(s"Harvesting with `from` time: $timeOpt")
         Seq(
           "verb" -> verb,
           "metadataPrefix" -> endpoint.format
-        ) ++ endpoint.set.map("set" -> _) ++ timeOpt.map("from" -> _)
+        ) ++
+          endpoint.set.map("set" -> _) ++
+          timeOpt.map("from" -> _) ++
+          endpoint.until.map(t => "until" -> formatTime(granularity, t))
       }
     )(token => Future.successful(Seq("verb" -> verb, "resumptionToken" -> token)))
   }
 
   override def identify(endpoint: OaiPmhConfig): Future[OaiPmhIdentity] = {
     val verb = "Identify"
-    newRequest(endpoint)
-      .withQueryStringParameters("verb" -> verb)
+    val req = newRequest(endpoint).withQueryStringParameters("verb" -> verb)
+    logger.debug(s"Request: ${req.method} ${req.url}?${utils.http.joinQueryString(req.queryString)}")
+    req
       .get()
       .map { r =>
         checkError(r)
@@ -194,13 +213,14 @@ case class WSOaiPmhClient @Inject()(ws: WSClient)(implicit ec: ExecutionContext,
     val f = newRequest(endpoint)
       .withQueryStringParameters(params: _*)
       .stream()
-      .map { _.bodyAsSource
+      .map {
+        _.bodyAsSource
           .via(XmlParsing.parser)
           .via(XmlParsing
             .subslice(collection.immutable.Seq("OAI-PMH", "GetRecord", "record", "metadata")))
           .via(XmlFormatter.format)
           .via(XmlWriting.writer)
-    }
+      }
     Source.future(f).flatMapConcat(r => r)
   }
 }
