@@ -398,10 +398,14 @@ lazy val api = Project(appName + "-api", file("modules/api"))
 
 lazy val admin = Project(appName + "-admin", file("modules/admin"))
   .enablePlugins(play.sbt.PlayScala)
-  .disablePlugins(SbtConcat, SbtDigest, SbtGzip, SbtUglify, AssemblyPlugin)
+  .disablePlugins(SbtUglify, AssemblyPlugin)
   .settings(libraryDependencies ++= adminDependencies)
   .settings(commonSettings ++ webAppSettings)
   .settings(
+    // NB: using GZIP here gives issues with duplicate mappings I have yet to figure out...
+    // We can't use uglify because it doesn't handle ES6 Javascript
+    // Finally, concat is not necessary because there's only one main admin.js
+    Assets / pipelineStages := Seq(digest),
     // The commands that triggers production build (as in `webpack -p`)
     Assets / VueKeys.vuefy / VueKeys.prodCommands := Set("stage"),
     // The location of the webpack binary.
