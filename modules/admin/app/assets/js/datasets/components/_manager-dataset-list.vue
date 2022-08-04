@@ -65,13 +65,16 @@ export default {
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['ds', 'tab']));
     },
-    refreshStats: async function() {
-      this.stats = await this.api.datasetStats();
+    loadStats: function() {
+      // NB: this function is not async because we want it to run in parallel
+      for (let ds of this.datasets) {
+        this.api.fileCount(ds.id).then(count => this.$set(this.stats, ds.id, count));
+      }
     },
     loadDatasets: async function() {
       try {
-        await this.refreshStats();
         this.datasets = await this.api.listDatasets();
+        this.loadStats();
       } catch (e: Error) {
         this.showError("Error loading datasets", e);
       } finally {
@@ -173,7 +176,7 @@ export default {
                      v-on:edit-dataset="editing = dataset; showDatasetForm = true"
                      v-on:close-dataset="closeDataset"
                      v-on:select-dataset="selectDataset"
-                     v-on:refresh-stats="refreshStats"
+                     v-on:refresh-stats="loadStats"
     />
 
 
@@ -235,7 +238,7 @@ export default {
             v-bind:config="config"
             v-on:close="showBatchForm = false"
             v-on:processing="id => $set(working, id, true)"
-            v-on:processing-done="id => {$delete(working, id); refreshStats();}"
+            v-on:processing-done="id => {$delete(working, id); loadStats();}"
         />
       </keep-alive>
 
@@ -286,6 +289,7 @@ export default {
                 <div class="item-badge">
                   <div class="badge badge-light">
                     <template v-if="ds.id in stats">{{ stats[ds.id] }} File{{ stats[ds.id] === 1 ? '' : 's'}}</template>
+                    <i v-else class="fa fa-fw fa-spinner fa-spin"></i>
                   </div>
                   <div class="badge badge-primary" v-bind:class="'badge-' + ds.status">
                     {{ statusName(ds.status) }}

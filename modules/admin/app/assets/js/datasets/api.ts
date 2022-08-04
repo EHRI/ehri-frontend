@@ -200,6 +200,10 @@ export class DatasetManagerApi {
     return apiCall(this.service.ImportDatasets.batch(this.repoId), info);
   }
 
+  fileCount(ds: string): Promise<number> {
+    return apiCall(this.service.ImportDatasets.fileCount(this.repoId, ds));
+  }
+
   deleteDataset(ds: string): Promise<void> {
     return apiCall(this.service.ImportDatasets.delete(this.repoId, ds));
   }

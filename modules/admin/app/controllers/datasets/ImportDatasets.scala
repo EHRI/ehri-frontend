@@ -45,6 +45,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportDatasets.update,
         controllers.datasets.routes.javascript.ImportDatasets.delete,
         controllers.datasets.routes.javascript.ImportDatasets.batch,
+        controllers.datasets.routes.javascript.ImportDatasets.fileCount,
         controllers.datasets.routes.javascript.ImportDatasets.errors,
         controllers.datasets.routes.javascript.LongRunningJobs.cancel,
         controllers.datasets.routes.javascript.ImportFiles.listFiles,
@@ -105,18 +106,22 @@ case class ImportDatasets @Inject()(
     }
   }
 
-  def stats(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+  private def countInDataset(id: String, ds: String)(implicit req: RequestHeader): Future[(String, Int)] = {
     import scala.concurrent.duration._
-    def countInDataset(ds: String): Future[(String, Int)] = {
-      val pathPrefix: String = prefix(id, ds, FileStage.Input)
-      asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 10.seconds) {
-        storage.count(Some(pathPrefix)).map(count => ds -> count)
-      }
+    val pathPrefix: String = prefix(id, ds, FileStage.Input)
+    asyncCache.getOrElseUpdate(s"bucket:count:${storage.name}/$pathPrefix", 10.seconds) {
+      storage.count(Some(pathPrefix)).map(count => ds -> count)
     }
+  }
 
+  def fileCount(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    countInDataset(id, ds).map { case (_, count) => Ok(Json.toJson(count))}
+  }
+
+  def stats(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     for {
       dsl <- datasets.list(id)
-      idToCount <- Future.sequence(dsl.map(ds => countInDataset(ds.id)))
+      idToCount <- Future.sequence(dsl.map(ds => countInDataset(id, ds.id)))
     } yield Ok(Json.toJson(idToCount.toMap))
   }
 
@@ -176,7 +181,7 @@ case class ImportDatasets @Inject()(
   def errors(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.errors(id, ds).map { errs =>
       Ok(Json.toJson(errs.map { case (key, err) =>
-        key.replace(prefix(id, ds, FileStage.Output), "") -> key
+        key.replace(prefix(id, ds, FileStage.Output), "") -> err
       }))
     }
   }
