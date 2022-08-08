@@ -23,6 +23,10 @@
         <li>@Messages("login.benefits.2")</li>
         <li>@Messages("login.benefits.3")</li>
     </ol>
+
+    <p>@Html(Messages("login.login.prompt",
+        Html(s"<a href='${controllers.portal.account.routes.Accounts.login()}'>${Messages("login.login.prompt.text")}</a>")))</p>
+
     <div id="register">
         @views.html.account.oauth2Form(
             openIdForm,

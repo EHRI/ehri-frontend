@@ -5,31 +5,33 @@
     @formHelpers.globalErrors(openIdForm)
 
     @defining(if (isLogin) "login.loginWith" else "login.signupWith") { messagePrefix =>
-        <div class="oauth-providers form-field">
-            @oauth2Config.providers.map { provider =>
-                <a href="@oauth2Call(provider.name)" class="btn btn-@provider.name"
-                    title="@Html(Messages(messagePrefix, provider.name.capitalize))">
-                    @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name.replace("microsoft", "windows")}'></i>")))
+        @defining(if (isLogin) conf.oauth2LoginProviders else conf.oauth2RegistrationProviders) { enabledProviders =>
+            <div class="oauth-providers form-field">
+                @oauth2Config.providers.filter(p => enabledProviders.contains(p.name)).map { provider =>
+                    <a href="@oauth2Call(provider.name)" class="btn btn-@provider.name"
+                        title="@Html(Messages(messagePrefix, provider.name.capitalize))">
+                        @Html(Messages(messagePrefix, Html(s"<i class='fa fa-fw fa-${provider.name.replace("microsoft", "windows")}'></i>")))
+                    </a>
+                }
+                <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
+                    @Html(Messages(messagePrefix, Html("<i class='fa fa-fw fa-openid'></i>")))
                 </a>
-            }
-            <a href="#" class="btn btn-openid show-more" title="@Messages(messagePrefix, "OpenID")">
-                @Html(Messages(messagePrefix, Html("<i class='fa fa-fw fa-openid'></i>")))
-            </a>
-        </div>
-
-        <div class="more-login-options @(if(openIdForm.hasErrors) "errors")">
-            <div class="form-field">
-            @helper.inputText(
-                openIdForm("openid_identifier"),
-                'id -> s"${if(isLogin) "login" else "signup"}_openid_identifier",
-                'placeholder -> Messages("login.openid.urlPlaceholder"),
-                'type -> "url"
-            )
             </div>
 
-            <div class="form-field">
-                <input type="submit" class="btn btn-post login-button openid" value="@Messages(messagePrefix, "OpenID")" />
+            <div class="more-login-options @(if(openIdForm.hasErrors) "errors")">
+                <div class="form-field">
+                @helper.inputText(
+                    openIdForm("openid_identifier"),
+                    'id -> s"${if(isLogin) "login" else "signup"}_openid_identifier",
+                    'placeholder -> Messages("login.openid.urlPlaceholder"),
+                    'type -> "url"
+                )
+                </div>
+
+                <div class="form-field">
+                    <input type="submit" class="btn btn-post login-button openid" value="@Messages(messagePrefix, "OpenID")" />
+                </div>
             </div>
-        </div>
+        }
     }
 }

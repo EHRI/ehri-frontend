@@ -61,6 +61,12 @@ case class AppConfig @Inject()(configuration: play.api.Configuration) {
   lazy val showFeedback: Boolean =
     configuration.getOptional[Boolean]("ehri.portal.feedback.enabled").getOrElse(false)
 
+  lazy val oauth2RegistrationProviders: Seq[String] =
+    configuration.get[Seq[String]]("ehri.oauth2.providers.register")
+
+  lazy val oauth2LoginProviders: Seq[String] =
+    configuration.get[Seq[String]]("ehri.oauth2.providers.login")
+
   def protocol(implicit req: RequestHeader): String =
     "http" + (if (req.secure) "s" else "") + "://"
 
