@@ -4,6 +4,13 @@
 @import "lib/docview-portal/css/portal.scss";
 
 body.guides {
+
+  .container {
+    // Backwards compatibility
+    @include make-container();
+    @include make-container-max-widths();
+  }
+
   header#top {
     background-color: $black;
     color: $white;

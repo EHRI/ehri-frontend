@@ -3,8 +3,6 @@
 @flash.data.map { case (key, msg) =>
     <div class="flash alert alert-@{key}">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <div class="container">
-            <span class="flash-content">@Messages(msg)</span>
-        </div>
+        <div class="flash-content">@Messages(msg)</div>
     </div>
 }

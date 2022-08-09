@@ -9,6 +9,12 @@ body {
   min-height: 100vh;
 }
 
+
+.main-content {
+  @include make-container();
+  @include make-container-max-widths();
+}
+
 // Main page right sidebar layouts
 .double {
   @include media-breakpoint-up(lg) {
@@ -17,7 +23,9 @@ body {
 
     > aside {
       // Place sidebar on the right...
+      // Margin prevents a re-layout due to sidebar loading first
       order: 1;
+      margin-left: auto;
       @include make-col-ready();
       @include make-col(3);
     }
@@ -37,7 +45,10 @@ body {
 
     > aside {
       // Place sidebar on the right...
+      // Margin prevents a re-layout due to sidebar loading first
       order: 1;
+      margin-left: auto;
+
       @include make-col-ready();
       @include make-col(3);
     }
@@ -71,7 +82,9 @@ body {
 .info-bar {
   > ul,
   > ol {
-    @extend .container, .breadcrumb;
+    @extend .breadcrumb;
+    @include make-container();
+    @include make-container-max-widths();
     > li {
       @extend .breadcrumb-item;
     }
@@ -80,7 +93,8 @@ body {
 
 // Homepage
 #welcome-container {
-  @extend .container;
+  @include make-container();
+  @include make-container-max-widths();
 }
 
 // Navbar
@@ -100,7 +114,8 @@ ul.dropdown-menu {
   margin-top: auto;
 
   #footer-content {
-    @extend .container;
+    @include make-container();
+    @include make-container-max-widths();
   }
 }
 

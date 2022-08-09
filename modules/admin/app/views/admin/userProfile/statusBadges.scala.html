@@ -6,6 +6,9 @@
     } else {
         <span class="inactive">@Messages("userProfile.active.false")</span>
     }
+    @if(user.data.staff) {
+        <span class="staff">@Messages("userProfile.staff")</span>
+    }
 
     @user.account.map { account =>
         @if(!account.verified) {

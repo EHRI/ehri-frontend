@@ -2,14 +2,14 @@
 
 @if(conf.isStageMode) {
     <div class="testing-banner alert alert-info">
-        <div class="container">
+        <div class="testing-banner-content">
             STAGING <span class="info"><strong>Warning</strong>: Data is for staging purposes only.</span>
         </div>
     </div>
 } else {
     @if(conf.isTestMode) {
         <div class="testing-banner alert alert-danger">
-            <div class="container">
+            <div class="testing-banner-content">
                 TESTING <span class="info"><strong>Warning</strong>: Data is for test purposes only.</span>
             </div>
         </div>
