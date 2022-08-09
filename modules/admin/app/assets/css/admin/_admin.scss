@@ -5,6 +5,11 @@ legend {
 
 .testing-banner {
   margin-bottom: 0;
+
+  .testing-banner-content {
+    @include make-container();
+    @include make-container-max-widths();
+  }
 }
 
 body > .admin-content > .flash {
@@ -236,6 +241,9 @@ pre.code-format {
   .no-account {
     @extend .badge, .badge-dark;
   }
+  .staff {
+    @extend .badge, .badge-success;
+  }
 }
 
 // Concept forms
@@ -398,7 +406,8 @@ body.spa-app {
 }
 
 .app-content {
-  @extend .container;
+  @include make-container();
+  @include make-container-max-widths();
   flex: 1;
   display: flex;
   flex-direction: column;

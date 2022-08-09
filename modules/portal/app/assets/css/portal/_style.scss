@@ -121,7 +121,9 @@ figure {
 // Both navbars are dark expanding  containers
 #navbar-top,
 #navbar-primary {
-  @extend .container, .navbar, .navbar-dark;
+  @extend .navbar, .navbar-dark;
+  @include make-container();
+  @include make-container-max-widths;
 }
 
 #navbar-top {
@@ -1382,6 +1384,12 @@ ul.list-export-options {
   }
 }
 
+@include media-breakpoint-down(md) {
+  .search-facets-heading {
+    cursor: pointer;
+  }
+}
+
 // Affix the table of contents when scrolling
 .sidepanel-toc {
   position: sticky;
@@ -2029,4 +2037,9 @@ section:last-child {
       margin-left: $margin-md;
     }
   }
+}
+
+.flash .flash-content {
+  @include make-container();
+  @include make-container-max-widths();
 }
