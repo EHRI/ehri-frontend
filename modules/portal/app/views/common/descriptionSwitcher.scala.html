@@ -24,9 +24,9 @@
                 </div>
             </div>
         } else {
-            <p class="multiple-description-help">
+            <div class="multiple-description-help">
                 @Messages("description.multiple.text")
-            </p>
+            </div>
             <ul class="description-list" aria-labelledby="description-switcher-toggle">
                 @descriptions.map { case (desc, selected) =>
                     <li class="description-list-item">

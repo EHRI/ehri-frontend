@@ -28,13 +28,11 @@
                     @if(apLinks.nonEmpty) {
                         <div class="item-text-field">
                             <h4 class="item-text-field-header">@Messages("accessPoint.type." + accessPointType)</h4>
-                            <div class="item-text-field-value">
-                                <ul class="list-unstyled item-access-point-links">
-                                    @apLinks.map { accessPoint =>
-                                        @accessPointLink(item, accessPoint, links)
-                                    }
-                                </ul>
-                            </div>
+                            <ul class="item-text-field-value access-point-links">
+                                @apLinks.map { accessPoint =>
+                                    @accessPointLink(item, accessPoint, links)
+                                }
+                            </ul>
                         </div>
                     }
                 }

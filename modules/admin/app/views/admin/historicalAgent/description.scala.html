@@ -2,6 +2,7 @@
 
 @import Isaar._
 @import views.html.admin.common.descriptionSection
+@import views.html.admin.common.{textValue, textListValue, listValue}
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions) {
     @views.html.common.itemHeader(desc.name)
@@ -9,34 +10,36 @@
     @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 
     @descriptionSection(IDENTITY_AREA) {
-        @views.html.admin.common.textValue(ENTITY_TYPE, Some(desc.entityType.toString))
-        @views.html.admin.common.textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
-        @views.html.admin.common.listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
-        @views.html.admin.common.listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
+        @textValue(ENTITY_TYPE, Some(desc.entityType.toString))
+        @textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
+        @listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
+        @listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
-        @views.html.admin.common.textValue(DATES_OF_EXISTENCE, desc.details.datesOfExistence)
-        @views.html.admin.common.textValue(HISTORY, desc.details.history)
-        @views.html.admin.common.listValue(PLACES, desc.details.places)
-        @views.html.admin.common.listValue(LEGAL_STATUS, desc.details.legalStatus)
-        @views.html.admin.common.listValue(FUNCTIONS, desc.details.functions)
-        @views.html.admin.common.listValue(MANDATES, desc.details.mandates)
+        @textValue(DATES_OF_EXISTENCE, desc.details.datesOfExistence)
+        @textValue(HISTORY, desc.details.history)
+        @textListValue(PLACES, desc.details.places)
+        @textListValue(LEGAL_STATUS, desc.details.legalStatus)
+        @textListValue(FUNCTIONS, desc.details.functions)
+        @textListValue(MANDATES, desc.details.mandates)
         @views.html.admin.common.textValue(INTERNAL_STRUCTURE, desc.details.internalStructure)
         @views.html.admin.common.textValue(GENERAL_CONTEXT, desc.details.generalContext)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @views.html.admin.common.textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
-        @views.html.admin.common.textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
-        @views.html.admin.common.textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
-        @views.html.admin.common.textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
-        @views.html.admin.common.textValue(DATES_CVD, desc.control.datesCDR)
-        @views.html.admin.common.listValue(SOURCES, desc.control.sources)
-        @views.html.admin.common.textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
+        @textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
+        @textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
+        @textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
+        @textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
+        @textValue(DATES_CVD, desc.control.datesCDR)
+        @textListValue(SOURCES, desc.control.sources)
+        @textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
     }
 
-    @views.html.admin.link.accessPointLinks(item, desc, links)
+    @descriptionSection(ACCESS_POINTS) {
+        @views.html.admin.link.accessPointLinks(item, desc, links)
+    }
 
     @desc.unknownProperties.map { e =>
         @views.html.admin.common.unknownData(e)

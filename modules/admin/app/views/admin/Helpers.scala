@@ -44,31 +44,33 @@ object Helpers {
     ("admin.utils.validate",        controllers.tools.routes.Tools.validateEad().url),
   )
 
-  def linkTo(isA: EntityType.Value, id: String): Call = {
+  def linkToOpt(isA: EntityType.Value, id: String): Option[Call] = {
     import models.EntityType._
     isA match {
-      case SystemEvent => controllers.events.routes.SystemEvents.get(id)
-      case DocumentaryUnit => controllers.units.routes.DocumentaryUnits.get(id)
-      case HistoricalAgent => controllers.authorities.routes.HistoricalAgents.get(id)
-      case Repository => controllers.institutions.routes.Repositories.get(id)
-      case Group => controllers.groups.routes.Groups.get(id)
-      case UserProfile => controllers.users.routes.UserProfiles.get(id)
-      case Annotation => controllers.annotation.routes.Annotations.get(id)
-      case Link => controllers.links.routes.Links.get(id)
-      case Vocabulary => controllers.vocabularies.routes.Vocabularies.get(id)
-      case AuthoritativeSet => controllers.sets.routes.AuthoritativeSets.get(id)
-      case Concept => controllers.keywords.routes.Concepts.get(id)
-      case Country => controllers.countries.routes.Countries.get(id)
-      case VirtualUnit => controllers.virtual.routes.VirtualUnits.get(id)
-      case _ => throw new IllegalArgumentException(s"Link to unexpected item: $id $isA")
+      case SystemEvent => Some(controllers.events.routes.SystemEvents.get(id))
+      case DocumentaryUnit => Some(controllers.units.routes.DocumentaryUnits.get(id))
+      case HistoricalAgent => Some(controllers.authorities.routes.HistoricalAgents.get(id))
+      case Repository => Some(controllers.institutions.routes.Repositories.get(id))
+      case Group => Some(controllers.groups.routes.Groups.get(id))
+      case UserProfile => Some(controllers.users.routes.UserProfiles.get(id))
+      case Annotation => Some(controllers.annotation.routes.Annotations.get(id))
+      case Link => Some(controllers.links.routes.Links.get(id))
+      case Vocabulary => Some(controllers.vocabularies.routes.Vocabularies.get(id))
+      case AuthoritativeSet => Some(controllers.sets.routes.AuthoritativeSets.get(id))
+      case Concept => Some(controllers.keywords.routes.Concepts.get(id))
+      case Country => Some(controllers.countries.routes.Countries.get(id))
+      case VirtualUnit => Some(controllers.virtual.routes.VirtualUnits.get(id))
+      case _ => None
     }
   }
 
-  def linkToOpt(isA: EntityType.Value, id: String): Option[Call] =
-    catching(classOf[IllegalArgumentException]).opt(linkTo(isA, id))
+  def linkTo(isA: EntityType.Value, id: String): Call =
+    linkToOpt(isA, id).getOrElse(throw new IllegalArgumentException(s"Link to unexpected item: $id $isA"))
 
   def linkTo(item: Model): Call = linkTo(item.isA, item.id)
 
-  def linkToOpt(item: Model): Option[Call] =
-    catching(classOf[IllegalArgumentException]).opt(linkTo(item))
+  def linkToOpt(item: Model): Option[Call] = linkToOpt(item.isA, item.id)
+
+  def publicLinkTo(isA: EntityType.Value, id: String): Option[Call] =
+    linkToOpt(isA, id).map(call => Call(call.method, call.url.replaceAll("^/admin", ""), call.fragment))
 }

@@ -510,6 +510,9 @@ scope.high=High
 scope.medium=Medium
 scope.low=Low
 
+archiveType.archiveType=Archive Type
+archiveType.micro=Micro Archive
+
 #
 # Permission Grants
 #
@@ -864,7 +867,6 @@ documentaryUnit.accessPoints=Access Points
 # isad(g) dates
 documentaryUnit.startDate=Start Date
 documentaryUnit.endDate=End Date
-
 
 #
 # ISDIAH Field definitions

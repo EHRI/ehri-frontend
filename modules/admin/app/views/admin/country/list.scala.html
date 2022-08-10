@@ -19,7 +19,10 @@
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Create)) {
-            <a href="@controllers.countries.routes.Countries.create">@Messages("country.create")</a>
+            <a href="@controllers.countries.routes.Countries.create">
+				<i class="fa fa-fw fa-plus-square-o"></i>
+				@Messages("country.create")
+			</a>
         }
     }
 }

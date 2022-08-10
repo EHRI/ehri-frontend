@@ -33,15 +33,26 @@
     </div>
 
 } {
+    @views.html.common.sidebarSection(Messages("admin.home"), cls = "type-heading") {
+    }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin) {
-            <a href="@controllers.admin.routes.Home.metrics()">@Messages("admin.metrics.show")</a>
+            <a href="@controllers.admin.routes.Home.metrics()">
+                <i class="fa fa-fw fa-pie-chart"></i>
+                @Messages("admin.metrics.show")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.events.routes.SystemEvents.list()">@Messages("systemEvent.list")</a>
+            <a href="@controllers.events.routes.SystemEvents.list()">
+                <i class="fa fa-fw fa-clock-o"></i>
+                @Messages("systemEvent.list")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.cypher.routes.CypherQueries.listQueries()">@Messages("cypherQuery.list")</a>
+            <a href="@controllers.cypher.routes.CypherQueries.listQueries()">
+                <i class="fa fa-fw fa-database"></i>
+                @Messages("cypherQuery.list")
+            </a>
         }
     }
 }

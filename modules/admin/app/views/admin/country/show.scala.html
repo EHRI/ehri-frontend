@@ -1,16 +1,17 @@
 @(item: Country, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import CountryF._
+@import views.html.admin.common.textValue
 
-@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("country") { implicit fieldPrefix =>
-            @views.html.admin.common.textValue(ABSTRACT, item.data.abs)
-            @views.html.admin.common.textValue(HISTORY, item.data.history)
-            @views.html.admin.common.textValue(SITUATION, item.data.situation)
-            @views.html.admin.common.textValue(DATA_SUMMARY, item.data.summary)
-            @views.html.admin.common.textValue(DATA_EXTENSIVE, item.data.extensive)
+            @textValue(ABSTRACT, item.data.abs)
+            @textValue(HISTORY, item.data.history)
+            @textValue(SITUATION, item.data.situation)
+            @textValue(DATA_SUMMARY, item.data.summary)
+            @textValue(DATA_EXTENSIVE, item.data.extensive)
         }
     }
 
@@ -22,6 +23,9 @@
         }
     }
 } {
+    @common.typeLabel(item.isA) {
+        @views.html.admin.common.publicButton(item)
+    }
     @views.html.common.childItemSidebar(item, EntityType.Repository)
     @views.html.admin.common.visibility(item, controllers.countries.routes.Countries.visibility(item.id), ContentTypes.Country)
     @views.html.admin.common.latestAction(item, controllers.countries.routes.Countries.history(item.id))

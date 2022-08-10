@@ -2,38 +2,61 @@
 
 @views.html.admin.common.sidebarActions { user =>
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Create)) {
-        <a href="@controllers.vocabularies.routes.Vocabularies.createConcept(item.id)">@Messages("cvocConcept.topLevel.create")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
-        <a href="@controllers.vocabularies.routes.Vocabularies.update(item.id)">@Messages("item.update")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Delete)) {
-        <a href="@controllers.vocabularies.routes.Vocabularies.delete(item.id)">@Messages("item.delete")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
-        <a href="@controllers.vocabularies.routes.Vocabularies.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.vocabularies.routes.Vocabularies.createConcept(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("cvocConcept.topLevel.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Concept, PermissionType.Update)) {
-        <a href="@controllers.vocabularies.routes.VocabularyEditor.editor(item.id)">@Messages("cvocVocabulary.items.edit")</a>
+        <a href="@controllers.vocabularies.routes.VocabularyEditor.editor(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("cvocVocabulary.items.edit")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Update)) {
+        <a href="@controllers.vocabularies.routes.Vocabularies.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Grant)) {
+        <a href="@controllers.vocabularies.routes.Vocabularies.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.isAdmin) {
-        <a href="@controllers.vocabularies.routes.Vocabularies.updateIndex(item.id)">@Messages("search.index.update")</a>
+        <a href="@controllers.vocabularies.routes.Vocabularies.updateIndex(item.id)">
+            <i class="fa fa-fw fa-cogs"></i>
+            @Messages("search.index.update")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Delete), danger = true) {
+        <a href="@controllers.vocabularies.routes.Vocabularies.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
-@views.html.common.sidebarSection(Messages("export")) {
+    @views.html.common.sidebarSection(Messages("export")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.json")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("TTL"))">
-            @Messages("export.format.ttl")
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.ttl")
             </a>
         }
         @views.html.admin.common.sidebarAction() {
             <a href="@controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML"))">
-            @Messages("export.format.rdf_xml")
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.rdf_xml")
             </a>
         }
     }

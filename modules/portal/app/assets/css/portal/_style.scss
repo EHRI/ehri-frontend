@@ -53,14 +53,6 @@ h6 {
   color: $gray-500;
 }
 
-aside.sidebar {
-  @include media-breakpoint-up(lg) {
-    // FIXME: should have important here
-    // really...
-    padding-left: 2rem;
-  }
-}
-
 // Hack for Bootstrap tooltips flickering
 .tooltip {
   pointer-events: none;
@@ -1562,6 +1554,12 @@ ul.list-export-options {
   @extend %small-muted;
 }
 
+.multiple-description-help {
+  color: $text-darkened;
+  background-color: $gray-100;
+  padding: $margin-xs $margin-sm;
+}
+
 .description-switcher {
 
   #description-switcher-toggle {
@@ -1570,11 +1568,8 @@ ul.list-export-options {
 
   .sidebar-section-body {
 
-    .multiple-description-help {
-      color: $text-darkened;
-    }
-
     .description-list-item {
+      background-color: $white;
       margin-bottom: 0;
 
       > a {

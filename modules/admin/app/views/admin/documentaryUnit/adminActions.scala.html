@@ -1,39 +1,63 @@
 @(item: DocumentaryUnit)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.admin.common.sidebarActions { user =>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
+        <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            @Messages("link.create")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
+        <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.Repository)">
+            <i class="fa fa-fw fa-building-o"></i>
+            @Messages("link.create.to.Repository")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
+        <a href="@controllers.units.routes.DocumentaryUnits.createDescription(item.id)">
+            <i class="fa fa-fw fa-pencil"></i>
+            @Messages("describedEntity.createDescription")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
+        <a href="@controllers.units.routes.DocumentaryUnits.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
+    }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.createDoc(item.id)">@Messages("documentaryUnit.child.create")</a>
+        <a href="@controllers.units.routes.DocumentaryUnits.createDoc(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("documentaryUnit.child.create")
+        </a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Annotate)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.linkAnnotateSelect(item.id, EntityType.Repository)">@Messages("link.create.to.Repository")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.createDescription(item.id)">@Messages("describedEntity.createDescription")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.update(item.id)">@Messages("item.update")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Update)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.visibility(item.id)">@Messages("visibility.update")</a>
-        }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Delete)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.delete(item.id)">@Messages("item.delete")</a>
-        }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Grant)) {
-        <a href="@controllers.units.routes.DocumentaryUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.units.routes.DocumentaryUnits.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Delete), danger = true) {
+        <a href="@controllers.units.routes.DocumentaryUnits.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
 @views.html.common.sidebarSection(Messages("export")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.json")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id)">@Messages("export.format.ead")</a>
+            <a href="@controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.ead")
+            </a>
         }
     }
 }
@@ -41,7 +65,10 @@
 @views.html.common.sidebarSection(Messages("ingest")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
-            <a href="@controllers.units.routes.DocumentaryUnits.ingest(item.id)">@Messages("ingest.format.ead-sync")</a>
+            <a href="@controllers.units.routes.DocumentaryUnits.ingest(item.id)">
+                <i class="fa fa-fw fa-upload"></i>
+                @Messages("ingest.format.ead-sync")
+            </a>
         }
     }
 }

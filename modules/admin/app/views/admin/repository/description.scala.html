@@ -2,14 +2,15 @@
 
 @import Isdiah._
 @import views.html.admin.common.descriptionSection
+@import views.html.admin.common.{textValue, textListValue, listValue}
 
 @views.html.admin.common.descriptionOutline(item, desc) {
     @views.html.common.itemHeader(desc.name)
 
     @descriptionSection(IDENTITY_AREA) {
-        @views.html.admin.common.textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
-        @views.html.admin.common.listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
-        @views.html.admin.common.listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
+        @textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))
+        @listValue(PARALLEL_FORMS_OF_NAME, desc.parallelFormsOfName)
+        @listValue(OTHER_FORMS_OF_NAME, desc.otherFormsOfName)
     }
 
     @descriptionSection(ADDRESS_AREA) {
@@ -61,39 +62,37 @@
     }
 
     @descriptionSection(DESCRIPTION_AREA) {
-        @views.html.admin.common.textValue(HISTORY, desc.details.history)
-        @views.html.admin.common.textValue(GEOCULTURAL_CONTEXT, desc.details.generalContext)
-        @views.html.admin.common.textValue(MANDATES, desc.details.mandates)
-        @views.html.admin.common.textValue(ADMINISTRATIVE_STRUCTURE, desc.details.administrativeStructure)
-        @views.html.admin.common.textValue(RECORDS, desc.details.records)
-        @views.html.admin.common.textValue(BUILDINGS, desc.details.buildings)
-        @views.html.admin.common.textValue(HOLDINGS, desc.details.holdings)
-        @views.html.admin.common.textValue(FINDING_AIDS, desc.details.findingAids)
+        @textValue(HISTORY, desc.details.history)
+        @textValue(GEOCULTURAL_CONTEXT, desc.details.generalContext)
+        @textValue(MANDATES, desc.details.mandates)
+        @textValue(ADMINISTRATIVE_STRUCTURE, desc.details.administrativeStructure)
+        @textValue(RECORDS, desc.details.records)
+        @textValue(BUILDINGS, desc.details.buildings)
+        @textValue(HOLDINGS, desc.details.holdings)
+        @textValue(FINDING_AIDS, desc.details.findingAids)
     }
 
     @descriptionSection(ACCESS_AREA) {
-        @views.html.admin.common.textValue(OPENING_TIMES, desc.access.openingTimes)
-        @views.html.admin.common.textValue(CONDITIONS, desc.access.conditions)
-        @views.html.admin.common.textValue(ACCESSIBILITY, desc.access.accessibility)
+        @textValue(OPENING_TIMES, desc.access.openingTimes)
+        @textValue(CONDITIONS, desc.access.conditions)
+        @textValue(ACCESSIBILITY, desc.access.accessibility)
     }
 
     @descriptionSection(SERVICES_AREA) {
-        @views.html.admin.common.textValue(RESEARCH_SERVICES, desc.services.researchServices)
-        @views.html.admin.common.textValue(REPROD_SERVICES, desc.services.reproductionServices)
-        @views.html.admin.common.textValue(PUBLIC_AREAS, desc.services.publicAreas)
+        @textValue(RESEARCH_SERVICES, desc.services.researchServices)
+        @textValue(REPROD_SERVICES, desc.services.reproductionServices)
+        @textValue(PUBLIC_AREAS, desc.services.publicAreas)
     }
 
     @descriptionSection(CONTROL_AREA) {
-        @views.html.admin.common.textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
-        @views.html.admin.common.textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
-        @views.html.admin.common.textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
-        @views.html.admin.common.textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
-        @views.html.admin.common.textValue(DATES_CVD, desc.control.datesCDR)
-        @views.html.admin.common.listValue(SOURCES, desc.control.sources)
-        @views.html.admin.common.textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
+        @textValue(DESCRIPTION_IDENTIFIER, desc.control.descriptionIdentifier)
+        @textValue(INSTITUTION_IDENTIFIER, desc.control.institutionIdentifier)
+        @textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
+        @textValue(LEVEL_OF_DETAIL, desc.control.levelOfDetail)
+        @textValue(DATES_CVD, desc.control.datesCDR)
+        @textListValue(SOURCES, desc.control.sources)
+        @textValue(MAINTENANCE_NOTES, desc.control.maintenanceNotes)
     }
-
-    @views.html.admin.link.accessPointLinks(item, desc, links)
 
     @desc.unknownProperties.map { e =>
         @views.html.admin.common.unknownData(e)

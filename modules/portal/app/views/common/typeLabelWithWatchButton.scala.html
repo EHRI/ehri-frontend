@@ -2,8 +2,13 @@
 
 @views.html.common.typeLabel(item.isA)  {
     @priorContent
-    @userOpt.map { _ =>
+    @userOpt.map { user =>
         <ul class="item-sidebar-actions">
+            @if(user.account.exists(_.staff)) {
+                <li role="listitem">
+                    @views.html.common.adminButton(item)
+                </li>
+            }
           <li role="listitem">
             @views.html.common.watchButtons(item, watched)
           </li>

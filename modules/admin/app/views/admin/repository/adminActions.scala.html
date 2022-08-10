@@ -1,41 +1,70 @@
 @(item: Repository)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.admin.common.sidebarActions { user =>
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
-        <a href="@controllers.institutions.routes.Repositories.createDoc(item.id)">@Messages("documentaryUnit.create")</a>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
+        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.Repository)">
+            <i class="fa fa-fw fa-building-o"></i>
+            @Messages("link.create.to.Repository")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
-        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.Repository)">@Messages("link.create.to.Repository")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Annotate)) {
-        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">@Messages("link.create.to.DocumentaryUnit")</a>
+        <a href="@controllers.institutions.routes.Repositories.linkAnnotateSelect(item.id, EntityType.DocumentaryUnit)">
+            <i class="fa fa-fw fa-file-text-o"></i>
+            @Messages("link.create.to.DocumentaryUnit")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-        <a href="@controllers.institutions.routes.Repositories.update(item.id)">@Messages("item.update")</a>
+        <a href="@controllers.institutions.routes.Repositories.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Delete)) {
-        <a href="@controllers.institutions.routes.Repositories.delete(item.id)">@Messages("item.delete")</a>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.DocumentaryUnit, PermissionType.Create)) {
+        <a href="@controllers.institutions.routes.Repositories.createDoc(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("documentaryUnit.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Grant)) {
-        <a href="@controllers.institutions.routes.Repositories.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.institutions.routes.Repositories.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.isAdmin) {
-        <a href="@controllers.institutions.routes.Repositories.updateIndex(item.id)">@Messages("search.index.update")</a>
+        <a href="@controllers.institutions.routes.Repositories.updateIndex(item.id)">
+            <i class="fa fa-fw fa-cogs"></i>
+            @Messages("search.index.update")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Delete), danger = true) {
+        <a href="@controllers.institutions.routes.Repositories.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
-@views.html.common.sidebarSection(Messages("export")) {
+    @views.html.common.sidebarSection(Messages("export")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.json")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.Repositories.export(item.id)">@Messages("export.format.eag")
+            <a href="@controllers.portal.routes.Repositories.export(item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.eag")
             </a>
         }
         @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">@Messages("export.format.ead")</a>
+                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">
+                    <i class="fa fa-fw fa-file-code-o"></i>
+                    @Messages("export.format.ead")
+                </a>
             }
         }
     }
@@ -45,10 +74,16 @@
     @views.html.common.sidebarSection(Messages("ingest")) {
         @views.html.admin.common.sidebarActionGroup {
             @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Update)) {
-                <a href="@controllers.datasets.routes.ImportDatasets.manager(item.id)">@Messages("repository.data.manage")</a>
+                <a href="@controllers.datasets.routes.ImportDatasets.manager(item.id)">
+                    <i class="fa fa-fw fa-cloud-download"></i>
+                    @Messages("repository.data.manage")
+                </a>
             }
             @views.html.admin.common.sidebarAction(userOpt.forall(_.isAdmin)) {
-                <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">@Messages("ingest.format.ead-sync")</a>
+                <a href="@controllers.institutions.routes.Repositories.ingest(item.id, sync = true)">
+                    <i class="fa fa-fw fa-upload"></i>
+                    @Messages("ingest.format.ead-sync")
+                </a>
             }
         }
     }

@@ -30,8 +30,20 @@ body > .admin-content > .flash {
 }
 
 .form-actions {
-  padding: $margin-md;
-  background-color: $gray-200;
+  padding: $margin-sm $margin-md;
+  border: $border-width solid $ehri-border-gray;
+  background-color: $gray-100;
+  box-shadow: $box-shadow-sm;
+
+  &.sticky {
+    border: none;
+    border-top: $border-width solid $ehri-border-gray;
+    box-shadow: $box-shadow-lg;
+  }
+}
+
+.empty-attribute {
+  color: $text-muted;
 }
 
 #update-progress {
@@ -129,8 +141,16 @@ body > .admin-content > .flash {
   padding-top: $margin-md;
 }
 
-.description-section .no-info {
-  @extend %small-muted;
+.description-section {
+  .no-info {
+    @extend %small-muted;
+  }
+
+  border-bottom: 1px dotted $ehri-border-gray;
+
+  @include media-breakpoint-up(lg) {
+    padding-right: $margin-md;
+  }
 }
 
 .help-block {
@@ -140,9 +160,40 @@ body > .admin-content > .flash {
   }
 }
 
+aside.sidebar {
+  border: 1px solid $ehri-border-gray;
+  box-shadow: $box-shadow-sm;
+  background-color: $gray-100;
+  margin-bottom: $margin-md;
+
+  // Since we've outlined and shaded it we need
+  // to add padding in collapsed mode.
+  @include media-breakpoint-down(md) {
+    padding: $margin-xs $margin-sm;
+  }
+
+  .multiple-description-help {
+    padding: $margin-xs 0;
+  }
+}
+
+aside.sidebar .sidebar-section {
+  @include media-breakpoint-down(md) {
+    margin-bottom: $margin-xs;
+  }
+}
+
+
 // Type headings
 .type-heading {
   > header.sidebar-section-heading {
+
+    @include media-breakpoint-up(lg) {
+      // This makes the colour fill its surround
+      margin-left: -($grid-gutter-width / 2);
+      margin-right: -($grid-gutter-width / 2);
+    }
+
     background-color: $secondary;
     color: $white;
 
@@ -173,6 +224,13 @@ body > .admin-content > .flash {
 
   &.country > .sidebar-section-heading {
     background-color: $country-color;
+  }
+}
+
+// Sidebar action groups
+.action-group {
+  .danger a {
+    @extend .text-danger;
   }
 }
 
@@ -414,3 +472,7 @@ body.spa-app {
   margin-top: $margin-md;
 }
 
+.priority-badge {
+  display: block;
+  font-size: $font-size-base;
+}

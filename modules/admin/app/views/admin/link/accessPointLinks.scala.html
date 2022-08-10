@@ -1,28 +1,31 @@
 @(item: DescribedModel, desc: Description, links: Seq[Link])(implicit prefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @if(desc.accessPoints.nonEmpty) {
-    <h3>@Messages(prefix + ".accessPoints")</h3>
     @AccessPointF.AccessPointType.values.toList.map { apt =>
         @defining(desc.accessPoints.filter(_.accessPointType == apt)) { linksOfType =>
-            <h4>@Messages("accessPoint.type." + apt.toString)</h4>
-            @if(linksOfType.nonEmpty) {
-                <ul class="access-point-links">
-                    @linksOfType.map { ap =>
-                        @ap.target(item, links).map { case (link, other) =>
-                            <li class="access-point-link resolved-access-point" data-apid="@ap.id">
+            <div class="item-text-field">
+                <h4 class="item-text-field-header">@Messages("accessPoint.type." + apt.toString)</h4>
+                    @if(linksOfType.nonEmpty) {
+                        <ul class="item-text-field-value item-text-field-list access-point-links">
+                            @linksOfType.map { ap =>
+                                @ap.target(item, links).map { case (link, other) =>
+                                <li class="access-point-link resolved-access-point" data-apid="@ap.id">
                                 @itemLink(link, other, Some(item), text = Some(ap.name))
-                            </li>
-                        }.getOrElse {
-                            <li class="access-point">
-                                @ap.name
-                                @ap.description.map { desc =>
-                                    <p class="link-description">@desc</p>
+                                </li>
+                                }.getOrElse {
+                                    <li class="access-point">
+                                        @ap.name
+                                        @ap.description.map { desc =>
+                                            <p class="link-description">@desc</p>
+                                        }
+                                    </li>
                                 }
-                            </li>
-                        }
+                            }
+                        </ul>
+                    } else {
+                        <div class="item-text-field-value empty-attribute">---</div>
                     }
-                </ul>
-            }
+            </div>
         }
     }
 }

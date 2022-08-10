@@ -206,21 +206,31 @@ object Helpers {
 
   def linkTo(item: Model): Call = linkTo(item.isA, item.id)
 
-  def linkTo(isA: EntityType.Value, id: String): Call = isA match {
-    case EntityType.Country => controllers.portal.routes.Countries.browse(id)
-    case EntityType.Concept => controllers.portal.routes.Concepts.browse(id)
-    case EntityType.DocumentaryUnit => controllers.portal.routes.DocumentaryUnits.browse(id)
-    case EntityType.Repository => controllers.portal.routes.Repositories.browse(id)
-    case EntityType.HistoricalAgent => controllers.portal.routes.HistoricalAgents.browse(id)
-    case EntityType.UserProfile => controllers.portal.social.routes.Social.userProfile(id)
-    case EntityType.Group => controllers.portal.routes.Groups.browse(id)
-    case EntityType.Link => controllers.portal.routes.Links.browse(id)
-    case EntityType.Annotation => controllers.portal.annotate.routes.Annotations.browse(id)
-    case EntityType.Vocabulary => controllers.portal.routes.Vocabularies.browse(id)
-    case EntityType.AuthoritativeSet => controllers.portal.routes.AuthoritativeSets.browse(id)
-    case EntityType.VirtualUnit => controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)
-    case _ => Call("GET", "#")
+  def linkTo(isA: EntityType.Value, id: String): Call = linkToOpt(isA, id).getOrElse(Call("GET", "#"))
+
+  def linkToOpt(isA: EntityType.Value, id: String): Option[Call] = isA match {
+    case EntityType.Country => Some(controllers.portal.routes.Countries.browse(id))
+    case EntityType.Concept => Some(controllers.portal.routes.Concepts.browse(id))
+    case EntityType.DocumentaryUnit => Some(controllers.portal.routes.DocumentaryUnits.browse(id))
+    case EntityType.Repository => Some(controllers.portal.routes.Repositories.browse(id))
+    case EntityType.HistoricalAgent => Some(controllers.portal.routes.HistoricalAgents.browse(id))
+    case EntityType.UserProfile => Some(controllers.portal.social.routes.Social.userProfile(id))
+    case EntityType.Group => Some(controllers.portal.routes.Groups.browse(id))
+    case EntityType.Link => Some(controllers.portal.routes.Links.browse(id))
+    case EntityType.Annotation => Some(controllers.portal.annotate.routes.Annotations.browse(id))
+    case EntityType.Vocabulary => Some(controllers.portal.routes.Vocabularies.browse(id))
+    case EntityType.AuthoritativeSet => Some(controllers.portal.routes.AuthoritativeSets.browse(id))
+    case EntityType.VirtualUnit => Some(controllers.portal.routes.VirtualUnits.browseVirtualCollection(id))
+    case _ => None
   }
+
+  /**
+    * Try and resolve an admin link. Since the portal module doesn't 'know' about the existence
+    * of the admin module or its routes this depends on the assumption that you can get to an
+    * item by putting '/admin/' after the host name :|
+    */
+  def adminLinkTo(isA: EntityType.Value, id: String): Option[Call] = linkToOpt(isA, id)
+    .map(call => Call(call.method, "/admin" + call.url, call.fragment))
 
   /**
     * Fetch a gravitar URL for the user, defaulting to the stock picture.

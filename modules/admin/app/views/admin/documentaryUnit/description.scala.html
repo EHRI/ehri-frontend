@@ -1,8 +1,8 @@
 @(item: DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
+@import Description.SOURCE_FILE_ID
 @import IsadG._
-@import Description._
-@import views.html.admin.common.{descriptionSection,listValue,textValue,dateSet}
+@import views.html.admin.common.{descriptionSection,listValue,textValue,textListValue,dateSet}
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions, visible) {
     @views.html.common.itemHeader(desc.name)
@@ -14,7 +14,7 @@
         @dateSet(desc, DATES)
         @listValue(UNIT_DATES, desc.identity.unitDates)
         @textValue(LEVEL_OF_DESCRIPTION, desc.identity.levelOfDescription)
-        @listValue(PHYSICAL_LOCATION, desc.identity.physicalLocation)
+        @textListValue(PHYSICAL_LOCATION, desc.identity.physicalLocation)
         @textValue(EXTENT_MEDIUM, desc.identity.extentAndMedium)
     }
 
@@ -38,14 +38,14 @@
         @listValue(LANG_MATERIALS, desc.conditions.languageOfMaterials, transformFunc = s => views.Helpers.languageCodeToName(s))
         @listValue(SCRIPT_MATERIALS, desc.conditions.scriptOfMaterials, transformFunc = s => views.Helpers.scriptCodeToName(s))
         @textValue(PHYSICAL_CHARS, desc.conditions.physicalCharacteristics)
-        @listValue(FINDING_AIDS, desc.conditions.findingAids)
+        @textListValue(FINDING_AIDS, desc.conditions.findingAids)
     }
 
     @descriptionSection(MATERIALS_AREA) {
-        @listValue(LOCATION_ORIGINALS, desc.materials.locationOfOriginals)
-        @listValue(LOCATION_COPIES, desc.materials.locationOfCopies)
-        @listValue(RELATED_UNITS, desc.materials.relatedUnitsOfDescription)
-        @listValue(SEPARATED_UNITS, desc.materials.separatedUnitsOfDescription)
+        @textListValue(LOCATION_ORIGINALS, desc.materials.locationOfOriginals)
+        @textListValue(LOCATION_COPIES, desc.materials.locationOfCopies)
+        @textListValue(RELATED_UNITS, desc.materials.relatedUnitsOfDescription)
+        @textListValue(SEPARATED_UNITS, desc.materials.separatedUnitsOfDescription)
         @textValue(PUBLICATION_NOTE, desc.materials.publicationNote)
     }
 
@@ -55,13 +55,15 @@
 
     @descriptionSection(CONTROL_AREA) {
         @textValue(ARCHIVIST_NOTE, desc.control.archivistNote)
-        @listValue(SOURCES, desc.control.sources)
+        @textListValue(SOURCES, desc.control.sources)
         @textValue(RULES_CONVENTIONS, desc.control.rulesAndConventions)
         @textValue(DATES_DESCRIPTIONS, desc.control.datesOfDescriptions)
-        @listValue(PROCESS_INFO, desc.control.processInfo)
+        @textListValue(PROCESS_INFO, desc.control.processInfo)
     }
 
-    @views.html.admin.link.accessPointLinks(item, desc, links)
+    @descriptionSection(ACCESS_POINTS) {
+        @views.html.admin.link.accessPointLinks(item, desc, links)
+    }
 
     @desc.unknownProperties.map { e =>
         @views.html.admin.common.unknownData(e)
