@@ -1,27 +1,45 @@
 @(item: HistoricalAgent)(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 
 @views.html.admin.common.sidebarActions { user =>
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
-        <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">@Messages("item.update")</a>
-    }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Annotate)) {
-        <a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, EntityType.HistoricalAgent)">@Messages("link.create")</a>
+        <a href="@controllers.authorities.routes.HistoricalAgents.linkAnnotateSelect(item.id, EntityType.HistoricalAgent)">
+            <i class="fa fa-fw fa-chain"></i>
+            @Messages("link.create")
+        </a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete)) {
-        <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">@Messages("item.delete")</a>
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Update)) {
+        <a href="@controllers.authorities.routes.HistoricalAgents.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Grant)) {
-        <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.authorities.routes.HistoricalAgents.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.HistoricalAgent, PermissionType.Delete), danger = true) {
+        <a href="@controllers.authorities.routes.HistoricalAgents.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
 @views.html.common.sidebarSection(Messages("export")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.json")
+            </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">@Messages("export.format.eac")</a>
+            <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.eac")
+            </a>
         }
     }
 }

@@ -1,8 +1,10 @@
 @(title: Any, entityType: EntityType.Value, scripts: Html = Html(""), styles: Html = Html(""), breadcrumbs: Html = Html(""), footer: Html = Html(""))(content: Html)(sidebar: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
 @views.html.admin.layout.rightSidebar(title, scripts, styles, breadcrumbs, footer)(content) {
-    @common.typeLabel(entityType) {
+    @if(sidebar.body.trim.nonEmpty) {
+        @common.typeLabel(entityType) {
+        }
+        @sidebar
     }
-    @sidebar
 }
 

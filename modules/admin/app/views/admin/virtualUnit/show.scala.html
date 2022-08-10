@@ -23,6 +23,7 @@
                         @views.html.admin.link.externalLinks(item, links)
                     } {
                         @common.typeLabel(item.isA) {
+                            @views.html.admin.common.publicButton(item)
                         }
                     } {
                         @views.html.admin.common.latestAction(item, controllers.virtual.routes.VirtualUnits.history(item.id))

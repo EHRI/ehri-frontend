@@ -5,6 +5,9 @@
         <strong title="@common.eventTitle(ev)">@views.Helpers.relativeDate(ev.data.timestamp)</strong>
         <div class="event-label">@ev.toStringLang</div>
     } {
-        <a href="@historyUrl">@Messages("item.history")</a>
+        <a href="@historyUrl">
+            <i class="fa fa-fw fa-clock-o"></i>
+            @Messages("item.history")
+        </a>
     }
 }

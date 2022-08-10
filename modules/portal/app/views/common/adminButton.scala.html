@@ -1,0 +1,11 @@
+@(item: Model)(implicit userOpt: Option[UserProfile], messages: Messages)
+
+@views.Helpers.adminLinkTo(item.isA, item.id).map { call =>
+    <a data-item="@item.id"
+       class="btn btn-sm btn-info btn-block"
+       role="button"
+       href="@call">
+        <i class="fa fa-fw fa-arrow-right"></i>
+        <span class="legend">@Messages("item.adminPage")</span>
+    </a>
+}

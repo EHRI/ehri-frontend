@@ -17,6 +17,7 @@
 
                     } {
                         @common.typeLabel(item.isA) {
+                            @views.html.admin.common.publicButton(item)
                         }
                     } {
                         @views.html.admin.common.latestAction(item, controllers.authorities.routes.HistoricalAgents.history(item.id))

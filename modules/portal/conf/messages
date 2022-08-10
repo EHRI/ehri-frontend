@@ -1026,6 +1026,8 @@ item.linked=Other Connected Items
 item.copies=Copies
 item.showChildItems=Child Items
 item.showItems={0,choice,0#{0} Items|1#1 Item|1<{0,number,integer} Items}
+item.adminPage=Admin Page
+item.publicPage=Public Page
 
 #
 # Repositories

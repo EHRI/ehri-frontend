@@ -2,25 +2,22 @@
 
 @views.html.common.sidebarSectionWithFooter(Messages("visibility")) {
     @if(item.accessors.nonEmpty) {
-        <h4>
-            <i class="fa fa-eye-slash" aria-hidden="true"></i>
-            @Messages("visibility.visibilityRestrictedTo")
-        </h4>
+        <h4>@Messages("visibility.visibilityRestrictedTo")</h4>
         <ul>
         @item.accessors.map { acc =>
             <li><a href="@views.admin.Helpers.linkTo(acc)">@acc.toStringLang</a></li>
         }
         </ul>
     } else {
-        <h4>
-            <i class="fa fa-eye" aria-hidden="true"></i>
-            @Messages("visibility.visibleToEveryone")
-        </h4>
+        <h4>@Messages("visibility.visibleToEveryone")</h4>
     }
 } {
     @userOpt.map { user =>
         @if(user.hasPermission(contentType, PermissionType.Update)) {
-            <a href="@url">@Messages("visibility.update")</a>
+            <a href="@url">
+                <i class="fa fa-fw fa-eye"></i>
+                @Messages("visibility.update")
+            </a>
         }
     }
 }

@@ -8,9 +8,9 @@
     }
     @common.mainContent {
         <section class="double">
-            <aside class="sidebar">
-                @sidebar
-            </aside>
+            @if(sidebar.body.trim.nonEmpty) {
+                <aside class="sidebar">@sidebar</aside>
+            }
             <article class="main">
                 @views.html.common.itemHeader(title.toString, extra = extraTitle)
                 @content

@@ -3,14 +3,14 @@
 @if(userOpt.isDefined) {
     <div class="watch-controls">
         <a data-item="@item.id"
-           class=" btn btn-sm btn-danger unwatch"
+           class=" btn btn-sm btn-danger unwatch btn-block"
            role="button"
            style="@(if(!watching) "display: none;")" title="@Messages("profile.unwatch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.unwatchItem(item.id)">
             <span class="fa fa-fw fa-star"></span>
             <span class="legend">@Messages("profile.unwatch")</span>
         </a>
         <a data-item="@item.id"
-           class=" btn btn-sm btn-danger watch"
+           class=" btn btn-sm btn-danger btn-block watch"
            role="button"
            style="@(if(watching) "display: none")" title="@Messages("profile.watch.tooltip")" href="@controllers.portal.users.routes.UserProfiles.watchItem(item.id)">
             <span class="fa fa-fw fa-star-o"></span>

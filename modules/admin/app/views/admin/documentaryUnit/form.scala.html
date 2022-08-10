@@ -1,7 +1,7 @@
 @(f: play.api.data.Form[DocumentaryUnitF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import IsadG._
-    @import DocumentaryUnitF._
+@import DocumentaryUnitF._
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -16,13 +16,13 @@
 
         @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
             @defining(PUB_STATUS) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus)
+                @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus, '_blank -> true)
             }
             @defining(COPYRIGHT) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus)
+                @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus, '_blank -> true)
             }
             @defining(SCOPE) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), SCOPE, Scope)
+                @formHelpers.enumChoiceInput(f(""), SCOPE, Scope, '_blank -> true)
             }
         }
     }

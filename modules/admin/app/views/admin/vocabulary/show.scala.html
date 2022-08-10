@@ -1,6 +1,6 @@
 @(item: Vocabulary, result: services.search.SearchResult[(Concept, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
 
     @views.html.admin.common.annotated(item, annotations) {
         @defining("cvocVocabulary") { implicit  prefix =>
@@ -16,6 +16,9 @@
         }
     }
 } {
+    @common.typeLabel(item.isA) {
+        @views.html.admin.common.publicButton(item)
+    }
     @views.html.admin.common.promotion(item, controllers.vocabularies.routes.Vocabularies.promote(item.id), controllers.vocabularies.routes.Vocabularies.demote(item.id), ContentTypes.Vocabulary)
     @views.html.admin.common.visibility(item, controllers.vocabularies.routes.Vocabularies.visibility(item.id), ContentTypes.Vocabulary)
     @views.html.admin.common.latestAction(item, controllers.vocabularies.routes.Vocabularies.history(item.id))

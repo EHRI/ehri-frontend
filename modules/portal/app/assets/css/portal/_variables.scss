@@ -55,15 +55,21 @@ $h6-font-size: $font-size-base;
 $border-color: $ehri-border-gray;
 $border-width: 1px;
 
-$border-radius:               .05rem !default;
-$border-radius-lg:            .1.5rem !default;
-$border-radius-sm:            .05rem !default;
+$grid-breakpoints: (
+        xs: 0,
+        sm: 576px,
+        md: 768px,
+        lg: 992px,
+        xl: 1200px,
+        xxl: 1400px,
+) !default;
 
 $container-max-widths: (
         sm: 540px,
         md: 720px,
         lg: 960px,
-        xl: 1140px
+        xl: 1140px,
+        xxl: 1320px,
 ) !default;
 
 // golden ratio margins...
@@ -74,6 +80,14 @@ $margin-md: 1.309rem;	// 1.5rem
 $margin-lg: 2.118rem;	// 3rem
 $margin-xl: 3.4270510rem; // 6rem
 
+// borders
+$border-radius:               .05rem !default;
+$border-radius-lg:            .1.5rem !default;
+$border-radius-sm:            .05rem !default;
+
+
+// Grid spacing
+$grid-gutter-width: $margin-lg;
 
 $list-margin-bottom: $margin-md;
 

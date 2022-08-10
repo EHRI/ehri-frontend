@@ -1,0 +1,14 @@
+@(key: String, value: Option[Enumeration#Value])(implicit messages: Messages)
+
+<div class="item-text-field" id="@key">
+    <h4 class="item-text-field-header">
+        @Messages(s"$key.$key")
+    </h4>
+    <div class="item-text-field-value">
+    @value.map(_.toString).map { str =>
+        @Messages(s"$key.$str")
+    }.getOrElse {
+        <span class="empty-attribute">---</span>
+    }
+    </div>
+</div>

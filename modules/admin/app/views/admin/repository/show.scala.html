@@ -5,21 +5,6 @@
     @common.mainContent {
         @common.itemDetails {
             @defining("repository") { implicit fieldPrefix =>
-                @item.data.identifier
-                @item.data.priority.map { p =>
-                    <span class="badge badge-info priority@p">
-                    @Messages("repository.priority"):
-                    @p match {
-                        case p if p == 0 =>  { @Messages("repository.priority.zero") }
-                        case p if p == 1 =>  { @Messages("repository.priority.one") }
-                        case p if p == 2 =>  { @Messages("repository.priority.two") }
-                        case p if p == 3 =>  { @Messages("repository.priority.three") }
-                        case p if p == 4 =>  { @Messages("repository.priority.four") }
-                        case p if p == 5 =>  { @Messages("repository.priority.five") }
-                        case p if p == -1 => { @Messages("repository.priority.reject") }
-                    }
-                    </span>
-                }
                 @defining(item.data.descriptionsWithSelected()) { descriptions =>
                     @common.descriptionContainer(descriptions) {
                         @descriptions.map { case (desc, _) =>
@@ -30,15 +15,49 @@
                         @views.html.admin.link.externalLinks(item, links)
                     } {
                         @common.typeLabel(item.isA) {
-                            @views.html.admin.repository.logo(item)
-                            <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
-                                <i class="fa fa-institution" aria-hidden="true"></i>
-                                @Messages("repository.logo.edit")
-                            </a>
+                            @views.html.admin.common.publicButton(item)
+                        }
+                        @item.data.priority.map { p =>
+                            @views.html.common.sidebarSection("") {
+                                <div class="badge badge-info priority@p priority-badge">
+                                    @Messages("repository.priority"):
+                                    @p match {
+                                        case p if p == 0 => {
+                                            @Messages("repository.priority.zero")
+                                        }
+                                        case p if p == 1 => {
+                                            @Messages("repository.priority.one")
+                                        }
+                                        case p if p == 2 => {
+                                            @Messages("repository.priority.two")
+                                        }
+                                        case p if p == 3 => {
+                                            @Messages("repository.priority.three")
+                                        }
+                                        case p if p == 4 => {
+                                            @Messages("repository.priority.four")
+                                        }
+                                        case p if p == 5 => {
+                                            @Messages("repository.priority.five")
+                                        }
+                                        case p if p == -1 => {
+                                            @Messages("repository.priority.reject")
+                                        }
+                                    }
+                                </div>
 
+                            }
                         }
                         @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     } {
+                        @views.html.admin.common.identifiers(item.data.identifier)
+                        @views.html.common.sidebarSection(Messages("repository.logo")) {
+                            @views.html.admin.repository.logo(item)
+                            <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
+                                <i class="fa fa-image" aria-hidden="true"></i>
+                                @Messages("repository.logo.edit")
+                            </a>
+                        }
                         @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
                         @adminActions(item)

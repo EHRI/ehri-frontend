@@ -2,27 +2,45 @@
 
 @views.html.admin.common.sidebarActions { user =>
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Repository, PermissionType.Create)) {
-        <a href="@controllers.countries.routes.Countries.createRepository(item.id)">@Messages("repository.create")</a>
+        <a href="@controllers.countries.routes.Countries.createRepository(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("repository.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Update)) {
-        <a href="@controllers.countries.routes.Countries.update(item.id)">@Messages("item.update")</a>
-    }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Delete)) {
-        <a href="@controllers.countries.routes.Countries.delete(item.id)">@Messages("item.delete")</a>
+        <a href="@controllers.countries.routes.Countries.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Grant)) {
-        <a href="@controllers.countries.routes.Countries.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.countries.routes.Countries.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Country, PermissionType.Delete), danger = true) {
+        <a href="@controllers.countries.routes.Countries.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
-@views.html.common.sidebarSection(Messages("export")) {
+    @views.html.common.sidebarSection(Messages("export")) {
     @views.html.admin.common.sidebarActionGroup {
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+            <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.json")
+            </a>
         }
         @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.portal.routes.Countries.export(item.id)?format=eag">@Messages("export.format.eag")</a>
+                <a href="@controllers.portal.routes.Countries.export(item.id)?format=eag">
+                    <i class="fa fa-fw fa-file-code-o"></i>
+                    @Messages("export.format.eag")
+                </a>
             }
         }
     }

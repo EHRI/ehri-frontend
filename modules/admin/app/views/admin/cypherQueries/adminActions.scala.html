@@ -2,12 +2,21 @@
 
 @views.html.admin.common.sidebarActions { user =>
     @views.html.admin.common.sidebarAction(user.isAdmin) {
-        <a href="@controllers.cypher.routes.CypherQueries.createQuery()">@Messages("cypherQuery.create")</a>
+        <a href="@controllers.cypher.routes.CypherQueries.createQuery()">
+            <i class="fa fa-fw fa-pencil"></i>
+            @Messages("cypherQuery.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.isAdmin) {
-        <a href="@controllers.cypher.routes.CypherQueries.cypherForm()">@Messages("cypherQuery.console")</a>
+        <a href="@controllers.cypher.routes.CypherQueries.cypherForm()">
+            <i class="fa fa-fw fa-terminal"></i>
+            @Messages("cypherQuery.console")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.isAdmin) {
-        <a href="@controllers.cypher.routes.CypherQueries.checkQueries()">@Messages("cypherQuery.checkAll")</a>
+        <a href="@controllers.cypher.routes.CypherQueries.checkQueries()">
+            <i class="fa fa-fw fa-check-circle-o"></i>
+            @Messages("cypherQuery.checkAll")
+        </a>
     }
 }

@@ -2,35 +2,56 @@
 
 @views.html.admin.common.sidebarActions { user =>
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Create)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.createChild(item.id)">@Messages("virtualUnit.child.create")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.createChild(item.id)">
+            <i class="fa fa-fw fa-tasks"></i>
+            @Messages("virtualUnit.child.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.createChildRef(item.id)">@Messages("virtualUnit.createRef")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.createChildRef(item.id)">
+            <i class="fa fa-fw fa-plus"></i>
+            @Messages("virtualUnit.createRef")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.deleteChildRef(item.id)">@Messages("virtualUnit.deleteRef")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.deleteChildRef(item.id)">
+            <i class="fa fa-fw fa-eraser"></i>
+            @Messages("virtualUnit.deleteRef")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Annotate)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">@Messages("link.create")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.linkAnnotateSelect(item.id, EntityType.VirtualUnit)">
+            <i class="fa fa-fw fa-chain"></i>
+            @Messages("link.create")
+        </a>
     }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.update(item.id)">@Messages("item.update")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.update(item.id)">
+            <i class="fa fa-fw fa-edit"></i>
+            @Messages("item.update")
+        </a>
     }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Update)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.visibility(item.id)">@Messages("visibility.update")</a>
-        }
-    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Delete)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.delete(item.id)">@Messages("item.delete")</a>
-        }
     @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Grant)) {
-        <a href="@controllers.virtual.routes.VirtualUnits.managePermissions(item.id)">@Messages("permissions.manage")</a>
+        <a href="@controllers.virtual.routes.VirtualUnits.managePermissions(item.id)">
+            <i class="fa fa-fw fa-user-o"></i>
+            @Messages("permissions.manage")
+        </a>
+    }
+    @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.VirtualUnit, PermissionType.Delete), danger = true) {
+        <a href="@controllers.virtual.routes.VirtualUnits.delete(item.id)">
+            <i class="fa fa-fw fa-trash-o"></i>
+            @Messages("item.delete")
+        </a>
     }
 }
 
     @views.html.common.sidebarSection(Messages("export")) {
         @views.html.admin.common.sidebarActionGroup {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">@Messages("export.format.json")</a>
+                <a href="@controllers.admin.routes.Data.getItemRawJson(item.isA, item.id)">
+                    <i class="fa fa-fw fa-file-code-o"></i>
+                    @Messages("export.format.json")
+                </a>
             }
         }
     }
