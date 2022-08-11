@@ -1510,8 +1510,11 @@ ul.list-export-options {
   }
 }
 
-.import-disclaimer {
-  @extend %small-muted;
+.info-disclaimer {
+  color: $text-darkened;
+  font-size: $font-size-sm;
+  font-style: italic;
+  margin-bottom: $margin-sm;
 }
 
 .link-section > ul {
@@ -1625,6 +1628,7 @@ ul.list-export-options {
 .annotate-item,
 .annotate-field {
   font-size: $font-size-xs;
+  margin: $margin-xs 0;
 
   &:hover {
 
@@ -1796,7 +1800,7 @@ button.submit-annotation {
       display: none;
     }
     @include list-unstyled();
-    margin-bottom: 0;
+    margin-bottom: $margin-sm;
 
     > li + li {
       margin-top: $margin-sm;
@@ -1821,6 +1825,10 @@ button.submit-annotation {
       a {
         font-size: $font-size-xs;
         @extend %small-muted;
+      }
+      a:hover {
+        text-decoration: none;
+        color: $text-darkened;
       }
 
       &:before {
