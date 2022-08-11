@@ -2,6 +2,7 @@
 
 @import IsadG._
 @import views.html.common.{descriptionSection, textField, listField}
+@import Description.CreationProcess
 
 @views.html.common.descriptionOutline(item, desc, annotations, selected) {
     @defining(Annotation.fieldAnnotations(desc.id, annotations)) { implicit fieldAnnotations =>
@@ -62,5 +63,11 @@
                 @views.html.common.accessPointLinks(item, desc, links, AccessPointF.AccessPointType.exceptCreator.toList)
             }
         }
+    }
+
+    @if(desc.creationProcess == CreationProcess.Import) {
+        <div class="info-disclaimer">
+            @Messages("documentaryUnit.creationProcess.IMPORT.disclaimer")
+        </div>
     }
 }

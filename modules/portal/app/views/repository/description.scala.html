@@ -112,4 +112,10 @@
             }
         }
     }
+
+    <div class="info-disclaimer">
+        @defining(conf.configuration.get[String]("ehri.portal.emails.feedback")) { mail =>
+            @Html(Messages("repository.info.disclaimer", s"<a href='mailto:$mail'>$mail</a>"))
+        }
+    </div>
 }

@@ -1087,6 +1087,7 @@ repository.languages=Languages Used
 repository.scripts=Scripts Used
 repository.sources=Sources
 repository.maintenanceNotes=Maintenance Notes
+repository.info.disclaimer=If you can help improve this information please contact us at {0}.
 
 #
 # Documentary units

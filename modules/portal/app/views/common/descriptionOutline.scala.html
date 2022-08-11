@@ -1,17 +1,10 @@
 @(item: DescribedModel, desc: Description, annotations: Seq[Annotation], visible: Boolean = true, showAnnotations: Boolean = true)(html: Html)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-@import Description.CreationProcess
-
 <div class="description-holder @{if(!visible) "inactive"}" id="desc-@desc.localId" lang="@desc.languageCode2">
     <div class="description @desc.isA" id="@desc.id">
         @html
 
         <footer class="description-footer">
-            @if(desc.creationProcess == CreationProcess.Import) {
-                <div class="import-disclaimer">
-                @Messages("documentaryUnit.creationProcess.IMPORT.disclaimer")
-                </div>
-            }
             @if(showAnnotations) {
                 @views.html.common.descriptionAnnotations(item, desc, Annotation.itemAnnotations(desc.id, annotations))
             }
