@@ -1,14 +1,8 @@
 {
-  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users/$entity",
-  "displayName": "Joe Blogs",
-  "surname": "Blogs",
-  "givenName": "Joe",
-  "id": "123456789",
-  "userPrincipalName": "example2@example.com",
-  "businessPhones": [],
-  "jobTitle": null,
-  "mail": null,
-  "mobilePhone": null,
-  "officeLocation": null,
-  "preferredLanguage": null
+  "sub": "123456789",
+  "name": "Joe Blogs",
+  "family_name": "Blogs",
+  "given_name": "Joe",
+  "picture": "https://graph.microsoft.com/v1.0/me/photo/$value",
+  "email": "example2@example.com"
 }
