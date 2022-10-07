@@ -13,7 +13,7 @@ class ImageSnifferSpec extends PlaySpecification with ResourceUtils {
       jpgPixels must_== 26*23
     }
     "throw an error with a non-image type" in {
-      ImageSniffer.getTotalPixels(resourcePath("non-image.txt").toFile) must throwA[ImageSniffer.UnsupportedImageTypeException]
+      ImageSniffer.getTotalPixels(resourcePath("non-image.txt").toFile) must throwA[UnsupportedOperationException]
     }
   }
 }

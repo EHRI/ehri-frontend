@@ -8,8 +8,6 @@ import play.api.mvc.Call
  */
 object Helpers {
 
-  import scala.util.control.Exception.catching
-
   val mainMenu = Seq(
     ("contentTypes.Country",          controllers.countries.routes.Countries.search().url),
     ("contentTypes.Repository",       controllers.institutions.routes.Repositories.search().url),

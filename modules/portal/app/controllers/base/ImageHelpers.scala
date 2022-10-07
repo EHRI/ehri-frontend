@@ -29,7 +29,7 @@ trait ImageHelpers {
     else if (pixels > config.get[Long]("ehri.portal.profile.maxImagePixels"))
       throw ResolutionTooHigh()
   } catch {
-    case _: ImageSniffer.UnsupportedImageTypeException => throw UnrecognizedType()
+    case _: UnsupportedOperationException => throw UnrecognizedType()
   }
 
   /**
