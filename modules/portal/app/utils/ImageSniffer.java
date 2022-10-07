@@ -17,16 +17,28 @@ import java.util.Iterator;
  */
 public class ImageSniffer {
 
-    public static class UnsupportedImageTypeException extends Exception {
-        public UnsupportedImageTypeException(String msg) {
-            super(msg);
-        }
-    }
-
-    public static long getTotalPixels(File file) throws IOException, UnsupportedImageTypeException {
+    /**
+     * Get the total number of image pixels, e.g. the product of the width and height.
+     *
+     * @param file an image file object
+     * @return the pixel count
+     * @throws IOException if an error occurs reading the image
+     * @throws UnsupportedOperationException if a reader cannot be found for the image type
+     */
+    public static long getTotalPixels(File file) throws IOException {
         return getTotalPixels(file, file.getName());
     }
-    public static long getTotalPixels(File file, String name) throws IOException, UnsupportedImageTypeException {
+
+    /**
+     * Get the total number of image pixels, e.g. the product of the width and height.
+     *
+     * @param file an image file object
+     * @param name the image file name, for determining the file type
+     * @return the pixel count
+     * @throws IOException if an error occurs reading the image
+     * @throws UnsupportedOperationException if a reader cannot be found for the image type
+     */
+    public static long getTotalPixels(File file, String name) throws IOException {
         final String extension = FilenameUtils.getExtension(name);
         final Iterator<ImageReader> readers = ImageIO.getImageReadersBySuffix(extension);
         if (readers.hasNext()) {
@@ -40,7 +52,7 @@ public class ImageSniffer {
                 reader.dispose();
             }
         }
-        throw new UnsupportedImageTypeException(
+        throw new UnsupportedOperationException(
                 String.format("Unable to find a reader for image type: '%s'", extension));
     }
 }
