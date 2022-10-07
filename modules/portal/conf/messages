@@ -97,6 +97,7 @@ errors.permissionDenied.explanation=It looks like you can''t do whatever it is y
 errors.errorDetails=Details
 errors.noFurtherInfo=No additional information is available.
 errors.imageTooLarge=This image was too large. Please select one smaller than 5 megabytes in size.
+errors.imageResolutionTooLarge=This image was too large. Please select one with fewer total pixels.
 errors.badFileType=The uploaded file was not a supported image type.
 errors.noFileGiven=No image file was selected.
 errors.invalidUrl=Web URL is invalid

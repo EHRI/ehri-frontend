@@ -8,7 +8,7 @@ import play.api.mvc.{BaseController, Request}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait RecaptchaHelper {
+trait RecaptchaHelpers {
   self: BaseController with ControllerHelpers =>
 
   private def logger = Logger(getClass)

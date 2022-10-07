@@ -1,26 +1,23 @@
 package controllers.portal.users
 
 import akka.stream.Materializer
+import controllers.base.{ImageHelpers, ResolutionTooHigh, UnrecognizedType}
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
 import models.view.MessagingInfo
 import models.{Model, _}
-import net.coobird.thumbnailator.Thumbnails
-import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.Logger
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.libs.mailer.MailerClient
-import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{MaxSizeExceeded, _}
 import services.search._
 import services.storage.FileStorage
 import utils._
 
-import java.io.File
 import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -34,7 +31,8 @@ case class UserProfiles @Inject()(
   fileStorage: FileStorage
 ) extends PortalController
   with Search
-  with CsvHelpers {
+  with CsvHelpers
+  with ImageHelpers {
 
   private implicit val mat: Materializer = appComponents.materializer
   private val logger = Logger(classOf[UserProfiles])
@@ -292,45 +290,23 @@ case class UserProfiles @Inject()(
   def updateProfileImagePost(): Action[Either[MaxSizeExceeded, MultipartFormData[TemporaryFile]]] = WithUserAction.async(uploadParser) { implicit request =>
 
     def onError(err: String, status: Status = BadRequest): Future[Result] = immediate(
-        status(views.html.userProfile.editProfile(profileDataForm,
-          imageForm.withGlobalError(err), accountPrefsForm)))
+      status(views.html.userProfile.editProfile(profileDataForm,
+        imageForm.withGlobalError(err), accountPrefsForm)))
 
     request.body match {
       case Left(MaxSizeExceeded(size)) =>
         logger.debug(s"Profile image upload size too large: $size")
         onError("errors.imageTooLarge", EntityTooLarge)
-      case Right(multipartForm) => multipartForm.file("image").map { file =>
-        if (isValidContentType(file)) {
-          try {
-            for {
-              url <- convertAndUploadFile(file, request.user, request)
-              _ <- userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
-            } yield Redirect(profileRoutes.profile())
-                  .flashing("success" -> "profile.update.confirmation")
-          } catch {
-            case _: UnsupportedFormatException => onError("errors.badFileType")
-          }
-        } else {
-          onError("errors.badFileType")
+      case Right(multipartForm) =>
+        (for {
+          url <- convertAndUploadFile(multipartForm.file("image"), request.user)
+          _ <- userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.IMAGE_URL -> url))
+        } yield Redirect(profileRoutes.profile())
+          .flashing("success" -> "profile.update.confirmation")
+          ).recoverWith {
+          case _: UnrecognizedType => onError("errors.badFileType")
+          case _: ResolutionTooHigh => onError("errors.imageResolutionTooLarge")
         }
-      }.getOrElse {
-        onError("errors.noFileGiven")
-      }
     }
-  }
-
-  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean =
-    file.contentType.exists(_.toLowerCase.startsWith("image/"))
-
-  private def convertAndUploadFile(file: FilePart[TemporaryFile], user: UserProfile, request: RequestHeader): Future[String] = {
-    val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
-    val stamp = FileStorage.fingerprint(file.ref.toFile)
-    val extension = file.filename.substring(file.filename.lastIndexOf(".")).toLowerCase
-    val storeName = s"$instance/images/${user.isA}/${user.id}_$stamp$extension"
-    val temp = File.createTempFile(user.id, extension)
-    Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
-    val url: Future[String] = fileStorage.putFile(storeName, temp, public = true).map(_.toString)
-    url.onComplete { _ => temp.delete() }
-    url
   }
 }

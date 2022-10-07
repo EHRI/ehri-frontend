@@ -1,7 +1,7 @@
 package controllers.portal.social
 
 import controllers.AppComponents
-import controllers.base.RecaptchaHelper
+import controllers.base.RecaptchaHelpers
 import controllers.generic.Search
 import controllers.portal.base.PortalController
 
@@ -28,7 +28,7 @@ case class Social @Inject()(
   ws: WSClient,
   cypher: CypherService
 ) extends PortalController
-  with RecaptchaHelper
+  with RecaptchaHelpers
   with Search {
 
   // NB: Things like watching and following items could
