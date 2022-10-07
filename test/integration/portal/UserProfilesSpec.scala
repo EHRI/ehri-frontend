@@ -165,7 +165,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "prevent uploading files that are too large" in new ITestApp(
-        Map("ehri.portal.profile.maxImageSize" -> 10)) {
+      Map("ehri.portal.profile.maxImageSize" -> 10)) {
       val result = FakeRequest(profileRoutes.updateProfileImagePost())
         .withFileUpload("image", getProfileImage, "image/png")
         .withUser(privilegedUser)
@@ -173,6 +173,27 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
         .call()
       status(result) must equalTo(REQUEST_ENTITY_TOO_LARGE)
       contentAsString(result) must contain(message("errors.imageTooLarge"))
+    }
+
+    "prevent uploading files that have too many pixels" in new ITestApp(
+      Map("ehri.portal.profile.maxImagePixels" -> 10)) {
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        .withFileUpload("image", getProfileImage, "image/png")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must equalTo(BAD_REQUEST)
+      contentAsString(result) must contain(message("errors.imageResolutionTooLarge"))
+    }
+
+    "upload no file to reset the profile image" in new ITestApp {
+      val result = FakeRequest(profileRoutes.updateProfileImagePost())
+        // faking a multi-part upload with the `image` field empty
+        .withFileUpload("dummy", getProfileImage, "image/png")
+        .withUser(privilegedUser)
+        .withCsrf
+        .call()
+      status(result) must equalTo(SEE_OTHER)
     }
 
     "allow deleting profile with correct confirmation" in new ITestApp {

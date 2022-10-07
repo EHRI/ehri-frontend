@@ -5,7 +5,7 @@ import auth.oauth2.{OAuth2Config, UserData}
 import auth.sso.{DiscourseSSO, DiscourseSSOError, DiscourseSSONotEnabledError}
 import auth.{AuthenticationError, HashedPassword}
 import com.google.common.net.HttpHeaders
-import controllers.base.RecaptchaHelper
+import controllers.base.RecaptchaHelpers
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, renderError}
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
@@ -44,7 +44,7 @@ case class Accounts @Inject()(
   accountForms: AccountForms,
   rateLimits: RateLimitChecker,
   cache: SyncCacheApi,
-) extends PortalController with RecaptchaHelper {
+) extends PortalController with RecaptchaHelpers {
 
   import accountForms._
 

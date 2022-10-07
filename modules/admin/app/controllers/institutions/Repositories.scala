@@ -2,16 +2,13 @@ package controllers.institutions
 
 import akka.stream.Materializer
 import controllers.AppComponents
-import controllers.base.AdminController
+import controllers.base.{AdminController, ImageHelpers, ResolutionTooHigh, UnrecognizedType}
 import controllers.generic._
 import forms._
 import models.{EntityType, _}
-import net.coobird.thumbnailator.Thumbnails
-import net.coobird.thumbnailator.tasks.UnsupportedFormatException
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
-import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc._
 import services.data.DataHelpers
 import services.ingest.{EadValidator, IngestService}
@@ -20,7 +17,6 @@ import services.storage.FileStorage
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
-import java.io.File
 import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
@@ -47,7 +43,8 @@ case class Repositories @Inject()(
   with Annotate[Repository]
   with Linking[Repository]
   with SearchType[Repository]
-  with Search {
+  with Search
+  with ImageHelpers {
 
   // Documentary unit facets
   private val repositoryFacets: FacetBuilder = { implicit request =>
@@ -324,44 +321,17 @@ case class Repositories @Inject()(
         repositoryRoutes.updateLogoImagePost(id))))
 
     request.body match {
-      case Left(MaxSizeExceeded(length)) => onError("errors.imageTooLarge", EntityTooLarge)
-      case Right(multipartForm) => multipartForm.file("image").map { file =>
-        if (isValidContentType(file)) {
-          try {
-            for {
-              url <- convertAndUploadFile(file, request.item, request)
-              _ <- userDataApi.patch[Repository](
-                request.item.id,
-                Json.obj(RepositoryF.LOGO_URL -> url),
-                logMsg = getLogMessage
-              )
-            } yield Redirect(repositoryRoutes.get(id))
-              .flashing("success" -> "item.update.confirmation")
-          } catch {
-            case e: UnsupportedFormatException => onError("errors.badFileType")
-          }
-        } else {
-          onError("errors.badFileType")
+      case Left(MaxSizeExceeded(_)) => onError("errors.imageTooLarge", EntityTooLarge)
+      case Right(multipartForm) =>
+        (for {
+          url <- convertAndUploadFile(multipartForm.file("image"), request.item)
+          _ <- userDataApi.patch[Repository](request.item.id, Json.obj(RepositoryF.LOGO_URL -> url), logMsg = getLogMessage)
+        } yield Redirect(repositoryRoutes.get(id))
+          .flashing("success" -> "item.update.confirmation")
+          ).recoverWith {
+          case _: UnrecognizedType => onError("errors.badFileType")
+          case _: ResolutionTooHigh => onError("errors.imageResolutionTooLarge")
         }
-      }.getOrElse {
-        onError("errors.noFileGiven")
-      }
     }
-  }
-
-  private def isValidContentType(file: FilePart[TemporaryFile]): Boolean =
-    file.contentType.exists(_.toLowerCase.startsWith("image/"))
-
-  private def convertAndUploadFile(file: FilePart[TemporaryFile], repo: Repository, request: RequestHeader): Future[String] = {
-    val instance = config.getOptional[String]("storage.instance").getOrElse(request.host)
-    val stamp = FileStorage.fingerprint(file.ref.toFile)
-    val extension = file.filename.substring(file.filename.lastIndexOf("."))
-    val storeName = s"$instance/images/${repo.isA}/${repo.id}_$stamp$extension"
-    val temp = File.createTempFile(repo.id, extension)
-    Thumbnails.of(file.ref.path.toFile).size(200, 200).toFile(temp)
-
-    val url: Future[String] = fileStorage.putFile(storeName, temp, public = true).map(_.toString)
-    url.onComplete { _ => temp.delete() }
-    url
   }
 }
