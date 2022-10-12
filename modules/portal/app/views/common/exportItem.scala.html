@@ -1,4 +1,4 @@
-@(fmts: Map[String, Call])(implicit request: RequestHeader, messages: Messages)
+@(fmts: Seq[(String, Call)])(implicit request: RequestHeader, messages: Messages)
 
 @if(fmts.nonEmpty) {
     @views.html.common.sidebarSection(Messages("export.metadata"), cls = "export") {
@@ -7,7 +7,9 @@
             <li class="export-format-item">
                 <a rel="nofollow" href="@url">
                     <i class="fa fa-download" aria-hidden="true"></i>
-                    @Messages(s"export.format.$fmt")
+                    @defining(s"export.format.$fmt") { key =>
+                        @(if(Messages(key) == key) fmt else Messages(key))
+                    }
                 </a>
             </li>
         }

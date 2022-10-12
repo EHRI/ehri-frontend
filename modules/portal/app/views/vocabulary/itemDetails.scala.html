@@ -1,4 +1,4 @@
-@(item: Vocabulary, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: Vocabulary, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: cookies.SessionPrefs, conf: config.AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @views.html.common.rightSidebar {
@@ -10,10 +10,10 @@
         @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id), views.html.vocabulary.introNotice())
         @views.html.common.childItemSidebar(item, EntityType.Concept)
         @views.html.common.exportItem(
-            Map(
+            Seq(
                 "ttl" -> controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("TTL")),
                 "rdf_xml" -> controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML")),
-            )
+            ) ++ conf.exportProxies(item.isA, item.id)
         )
         @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
     }

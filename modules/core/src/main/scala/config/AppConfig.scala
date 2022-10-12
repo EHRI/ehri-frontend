@@ -1,8 +1,12 @@
 package config
 
+import models.EntityType
+import play.api.Configuration
+import play.api.http.HttpVerbs
+import play.api.mvc.{Call, RequestHeader}
+
 import java.io.File
 import javax.inject.{Inject, Singleton}
-import play.api.mvc.RequestHeader
 
 @Singleton
 case class AppConfig @Inject()(configuration: play.api.Configuration) {
@@ -26,10 +30,10 @@ case class AppConfig @Inject()(configuration: play.api.Configuration) {
     .getOrElse(6)
 
   /**
-   * Flag to indicate whether we're running a testing config or not.
-   * This is different from the usual dev/prod run configuration because
-   * we might be running experimental stuff on a real life server.
-   */
+    * Flag to indicate whether we're running a testing config or not.
+    * This is different from the usual dev/prod run configuration because
+    * we might be running experimental stuff on a real life server.
+    */
   def isTestMode: Boolean = configuration.getOptional[Boolean]("ehri.testing").getOrElse(true)
 
   def isStageMode: Boolean = configuration.getOptional[Boolean]("ehri.staging").getOrElse(false)
@@ -116,5 +120,14 @@ case class AppConfig @Inject()(configuration: play.api.Configuration) {
         else Some(ips)
       } else None
     }
+  }
+
+  def exportProxies(isA: EntityType.Value, id: String): Seq[(String, Call)] = {
+    for {
+      config <- configuration.getOptional[Seq[Configuration]](s"ehri.exportProxies.$isA").toSeq
+      proxy <- config
+      name <- proxy.getOptional[String]("name")
+      url <- proxy.getOptional[String]("url")
+    } yield (name, Call(HttpVerbs.GET, url.replace("ITEM_ID", id)))
   }
 }
