@@ -153,6 +153,16 @@ class PortalSpec extends IntegrationTestRunner {
       contentAsString(skos) must contain("<http://data.ehri-project.eu/vocabularies/cvoc1>")
     }
 
+    "show export proxy URLs when configured" in new ITestApp(
+      Map("ehri.exportProxies.Repository" -> Seq(Map("name" -> "BLAH TTL", "url" -> "http://blah.example.com/r1/export-foo")))
+    ) {
+      val show = FakeRequest(controllers.portal.routes.Repositories.browse("r1"))
+        .withUser(privilegedUser).call()
+      status(show) must equalTo(OK)
+      contentAsString(show) must contain("BLAH TTL")
+      contentAsString(show) must contain("http://blah.example.com/r1/export-foo")
+    }
+
     "view item history" in new ITestApp {
       val history = FakeRequest(portalRoutes.itemHistory("c4")).call()
       status(history) must equalTo(OK)
