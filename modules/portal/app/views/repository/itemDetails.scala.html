@@ -16,7 +16,12 @@
                 @views.html.common.sidepanelToc {
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Map("eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true)))
+                        Map("eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true),
+                            "ttl" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf"),
+                            "json_ld" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf?format=JSON-LD"),
+                            "rdf_xml" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf?format=RDF/XML")
+                        )
+                    )
                     @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
                 }
             }

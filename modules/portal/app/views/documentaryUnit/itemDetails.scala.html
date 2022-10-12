@@ -17,7 +17,13 @@
                     @views.html.documentaryUnit.archivalContext(item)
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Map("ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true)))
+                        Map(
+                            "ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true),
+                            "ttl" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf"),
+                            "json_ld" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf?format=JSON-LD"),
+                            "rdf_xml" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf?format=RDF/XML")
+                        )
+                    )
                     @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
                 }
             }
