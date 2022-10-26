@@ -19,7 +19,7 @@
                     @views.html.common.exportItem(
                         Map(
                             "ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true),
-                            "ttl" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf"),
+                            "ttl" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf?format=Turtle"),
                             "json_ld" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf?format=JSON-LD"),
                             "rdf_xml" -> Call("GET", controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id).url + "-rdf?format=RDF/XML")
                         )
