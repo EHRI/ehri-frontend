@@ -8,14 +8,14 @@
 @views.html.admin.layout.guidesAdminLayout("Guide", guides, Some(g  -> pages), breadcrumbs) {
 	<h3>@g.name - <a href="@controllers.guides.routes.Guides.edit(g.path)">@Messages("guide.update")</a></h3>
 	<h4>@Messages("guidePage.list")</h4>
-	<ul class="nav nav-pills nav-stacked">
+	<ul class="nav nav-pills flex-column">
 		@for(pa <- pages) {
-			<li>
-				<a href="@controllers.guides.routes.GuidePages.edit(g.path, pa.path)">@pa.name <span class="badge">@Messages(GuidePage.PREFIX + "." + pa.layout)</span></a>
+			<li class="nav-item">
+				<a class="nav-link" href="@controllers.guides.routes.GuidePages.edit(g.path, pa.path)">@pa.name <span class="badge">@Messages(GuidePage.PREFIX + "." + pa.layout)</span></a>
 			</li>
 		}
-		<li>
-			<a href="@controllers.guides.routes.GuidePages.create(g.path)"><span class="fa fa-plus-circle"></span> @Messages("guidePage.create")</a>
+		<li class="nav-item">
+			<a class="nav-link" href="@controllers.guides.routes.GuidePages.create(g.path)"><span class="fa fa-plus-circle"></span> @Messages("guidePage.create")</a>
 		</li>
 	</ul>
 }

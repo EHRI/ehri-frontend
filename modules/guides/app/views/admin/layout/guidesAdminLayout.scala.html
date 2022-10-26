@@ -3,33 +3,39 @@
 @views.html.admin.layout.rightSidebar(title, breadcrumbs = views.html.common.infobar(breadcrumbs)) {
     @content
 } {
-	<h4>@Messages("guide.list")</h4>
-	<ul class="nav nav-pills nav-stacked">
-		@for(guide <- guides) {
-			<li>
-				<a href="@controllers.guides.routes.Guides.show(guide.path)">@guide.name</a>
-			</li>
-		}
-		<li>
-			<a href="@controllers.guides.routes.Guides.create()"><span class="fa fa-plus-circle"></span>
-                @Messages("guide.create")
-            </a>
-		</li>
-	</ul>
-	@layouts.map { case (guide, pages) =>
-		<h4>@Messages("guidePage.list")</h4>
-		<ul class="nav nav-pills nav-stacked">
-			@for(otherPage <- pages) {
-				<li>
-					<a href="@controllers.guides.routes.GuidePages.edit(guide.path, otherPage.path)">@otherPage.name</a>
-				</li>
+	@views.html.common.sidebarSection(Messages("guides"), cls = "type-heading") {
+	}
+	@views.html.common.sidebarSection(Messages("guide.list")) {
+		@views.html.admin.common.sidebarActionGroup {
+			@for(guide <- guides) {
+				@views.html.admin.common.sidebarAction() {
+					<a href="@controllers.guides.routes.Guides.show(guide.path)">@guide.name</a>
+				}
 			}
-			<li>
-				<a href="@controllers.guides.routes.GuidePages.create(guide.path)">
-                    <span class="fa fa-plus-circle"></span> @Messages("guidePage.create")
-                </a>
-			</li>
-		</ul>
+			@views.html.admin.common.sidebarAction() {
+				<a href="@controllers.guides.routes.Guides.create()">
+					<i class="fa fa-plus-circle"></i>
+					@Messages("guide.create")
+				</a>
+			}
+		}
+	}
+	@layouts.map { case (guide, pages) =>
+		@views.html.common.sidebarSection(Messages("guidePage.list")) {
+			@views.html.admin.common.sidebarActionGroup {
+				@for(otherPage <- pages) {
+					@views.html.admin.common.sidebarAction() {
+						<a href="@controllers.guides.routes.GuidePages.edit(guide.path, otherPage.path)">@otherPage.name</a>
+					}
+				}
+				@views.html.admin.common.sidebarAction() {
+					<a href="@controllers.guides.routes.GuidePages.create(guide.path)">
+						<i class="fa fa-plus-circle"></i>
+						@Messages("guidePage.create")
+					</a>
+				}
+			}
+		}
 	}
 	@sideBar
 }
