@@ -2,6 +2,7 @@ package config
 
 import models.EntityType
 import play.api.Configuration
+import play.api.http.HttpVerbs
 import play.api.mvc.{Call, RequestHeader}
 
 import java.io.File
@@ -123,10 +124,10 @@ case class AppConfig @Inject()(configuration: play.api.Configuration) {
 
   def exportProxies(isA: EntityType.Value, id: String): Seq[(String, Call)] = {
     for {
-      config <- configuration.getOptional[Configuration](s"ehri.exportProxies.$isA").toSeq
-      proxy <- config.subKeys.toSeq
-      name <- config.getOptional[String](s"$proxy.name")
-      url <- config.getOptional[String](s"$proxy.url")
-    } yield (name, Call("GET", url.replace("ITEM_ID", id)))
+      config <- configuration.getOptional[Seq[Configuration]](s"ehri.exportProxies.$isA").toSeq
+      proxy <- config
+      name <- proxy.getOptional[String]("name")
+      url <- proxy.getOptional[String]("url")
+    } yield (name, Call(HttpVerbs.GET, url.replace("ITEM_ID", id)))
   }
 }

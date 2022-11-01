@@ -154,8 +154,7 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "show export proxy URLs when configured" in new ITestApp(
-      Map("ehri.exportProxies.Repository.blah_ttl.name" -> "BLAH TTL",
-        "ehri.exportProxies.Repository.blah_ttl.url" -> "http://blah.example.com/r1/export-foo")
+      Map("ehri.exportProxies.Repository" -> Seq(Map("name" -> "BLAH TTL", "url" -> "http://blah.example.com/r1/export-foo")))
     ) {
       val show = FakeRequest(controllers.portal.routes.Repositories.browse("r1"))
         .withUser(privilegedUser).call()
