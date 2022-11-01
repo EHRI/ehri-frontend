@@ -16,7 +16,7 @@
                 @views.html.common.sidepanelToc {
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Map(
+                        Seq(
                             "eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true)
                         ) ++ conf.exportProxies(item.isA, item.id)
                     )

@@ -1,4 +1,4 @@
-@(fmts: Map[String, Call])(implicit request: RequestHeader, messages: Messages)
+@(fmts: Seq[(String, Call)])(implicit request: RequestHeader, messages: Messages)
 
 @if(fmts.nonEmpty) {
     @views.html.common.sidebarSection(Messages("export.metadata"), cls = "export") {

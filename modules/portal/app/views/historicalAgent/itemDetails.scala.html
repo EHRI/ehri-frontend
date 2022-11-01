@@ -11,7 +11,7 @@
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
                 @views.html.common.exportItem(
-                    Map(
+                    Seq(
                         "eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)
                     ) ++ conf.exportProxies(item.isA, item.id)
                 )

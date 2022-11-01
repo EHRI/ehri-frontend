@@ -17,7 +17,7 @@
                     @views.html.documentaryUnit.archivalContext(item)
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Map(
+                        Seq(
                             "ead" -> controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id, asFile = true)
                         ) ++ conf.exportProxies(item.isA, item.id)
                     )

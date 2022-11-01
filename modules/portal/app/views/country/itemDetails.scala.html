@@ -54,7 +54,7 @@
                     }
                 </ul>
             }
-            @views.html.common.exportItem(conf.exportProxies(item.isA, item.id).toMap)
+            @views.html.common.exportItem(conf.exportProxies(item.isA, item.id))
             @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
         }
     }
