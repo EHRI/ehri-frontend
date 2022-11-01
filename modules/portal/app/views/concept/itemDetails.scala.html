@@ -1,4 +1,4 @@
-@(item: Concept, annotations: Seq[Annotation], result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: Concept, annotations: Seq[Annotation], result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: cookies.SessionPrefs, conf: config.AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("cvocConcept") { implicit fieldPrefix =>
@@ -21,6 +21,7 @@
             } {
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
+                @views.html.common.exportItem(conf.exportProxies(item.isA, item.id).toMap)
                 @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
         }

@@ -1,4 +1,4 @@
-@(item: Repository, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: Repository, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, prefs: cookies.SessionPrefs, conf: config.AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @views.html.common.itemDetails {
     @defining("repository") { implicit fieldPrefix =>
@@ -16,11 +16,9 @@
                 @views.html.common.sidepanelToc {
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Map("eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true),
-                            "ttl" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf?format=Turtle"),
-                            "json_ld" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf?format=JSON-LD"),
-                            "rdf_xml" -> Call("GET", controllers.portal.routes.Repositories.export(item.id).url + "-rdf?format=RDF/XML")
-                        )
+                        Map(
+                            "eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true)
+                        ) ++ conf.exportProxies(item.isA, item.id)
                     )
                     @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
                 }
