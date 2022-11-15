@@ -10,6 +10,7 @@ import forms.FormConfigBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.search.SearchConstants.RESTRICTED_FIELD
 import services.search._
 import utils.{PageParams, RangeParams}
 
@@ -47,7 +48,15 @@ case class HistoricalAgents @Inject()(
         name = Messages("historicalAgent.authoritativeSet"),
         param = "set",
         sort = FacetSort.Name
-      )
+      ),
+      FieldFacetClass(
+        key = RESTRICTED_FIELD,
+        name = Messages("facet.restricted"),
+        param = "restricted",
+        render = s => Messages("facet.restricted." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
     )
   }
 

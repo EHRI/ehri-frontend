@@ -10,9 +10,9 @@ import models.{EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.data.{DataUser, DataHelpers, IdGenerator}
+import services.data.{DataHelpers, DataUser, IdGenerator}
 import services.geocoding.GeocodingService
-import services.search.{SearchConstants, SearchIndexMediator, SearchParams}
+import services.search.{FacetBuilder, FacetDisplay, FacetSort, FieldFacetClass, SearchConstants, SearchIndexMediator, SearchParams}
 import utils.{PageParams, RangeParams}
 
 import java.util.UUID
@@ -36,6 +36,20 @@ case class Countries @Inject()(
   with Annotate[Country]
   with SearchType[Country]
   with Search {
+
+  private val countryFacets: FacetBuilder = { implicit request =>
+    import SearchConstants._
+    List(
+      FieldFacetClass(
+        key = RESTRICTED_FIELD,
+        name = Messages("facet.restricted"),
+        param = "restricted",
+        render = s => Messages("facet.restricted." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
+    )
+  }
 
   /**
     * Content types that relate to this controller.
@@ -64,7 +78,7 @@ case class Countries @Inject()(
   }
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
-    SearchTypeAction(params, paging).apply { implicit request =>
+    SearchTypeAction(params, paging, facetBuilder = countryFacets).apply { implicit request =>
       Ok(views.html.admin.country.search(request.result, countryRoutes.search()))
     }
 

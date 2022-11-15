@@ -84,7 +84,15 @@ case class Repositories @Inject()(
           case s if s == "-1" => Messages("repository.priority.reject")
           case _ => Messages("repository.priority.unknown")
         }
-      )
+      ),
+      FieldFacetClass(
+        key = RESTRICTED_FIELD,
+        name = Messages("facet.restricted"),
+        param = "restricted",
+        render = s => Messages("facet.restricted." + s),
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.List
+      ),
     )
   }
 
