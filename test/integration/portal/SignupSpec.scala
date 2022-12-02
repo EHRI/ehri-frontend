@@ -1,18 +1,16 @@
 package integration.portal
 
 import java.time.ZonedDateTime
-
 import helpers.IntegrationTestRunner
 import forms.{HoneyPotForm, TimeCheckForm}
 import models._
+import play.api.mvc.Cookie.SameSite
 import play.api.test.FakeRequest
 
 
 class SignupSpec extends IntegrationTestRunner {
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
-
-  val COOKIE_NAME: String = "PLAY2AUTH_SESS_ID"
 
   override def getConfig = Map(
     "recaptcha.skip" -> true,
@@ -100,10 +98,19 @@ class SignupSpec extends IntegrationTestRunner {
       contentAsString(signup) must contain(message("signup.agreeTerms"))
     }
 
+    "allow sign up" in new ITestApp {
+      val cookieName = app.configuration.get[String]("auth.session.cookieName")
+      val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
+      status(signup) must_== SEE_OTHER
+      cookies(signup).get(cookieName) must beSome.which { c =>
+        c.sameSite must_== Some(SameSite.Lax)
+      }
+    }
+
     "allow unverified user to log in" in new ITestApp {
       val signup = FakeRequest(accountRoutes.signupPost()).withCsrf.callWith(data)
       status(signup) must_== SEE_OTHER
-      mockdata.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(uid, u) =>
+      mockdata.accountFixtures.find(_._2.email == testEmail) must beSome.which { case(_, u) =>
         // Ensure we can log in and view our profile
         val index = FakeRequest(controllers.portal.users.routes.UserProfiles.profile())
           .withUser(u).call()

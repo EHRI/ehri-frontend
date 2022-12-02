@@ -5,6 +5,7 @@ import auth.handler.TokenAccessor
 import config.AppConfig
 import play.api.Configuration
 import play.api.libs.crypto.CookieSigner
+import play.api.mvc.Cookie.SameSite
 import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader, Result}
 
 /**
@@ -19,16 +20,21 @@ import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader, Result}
 case class CookieTokenAccessor @Inject()()(val signer: CookieSigner,
                                            config: Configuration, conf: AppConfig) extends TokenAccessor {
 
-  val cookieName: String = config.getOptional[String]("auth.session.cookieName").getOrElse("PLAY2AUTH_SESS_ID")
+  val cookieName: String = config.get[String]("auth.session.cookieName")
   val cookieSecureOption: Boolean = conf.https
   val cookieHttpOnlyOption: Boolean = true
   val cookieDomainOption: Option[String] = None
   val cookiePathOption: String = "/"
   val cookieMaxAge: Option[Int] = None
+  val cookieSameSite: SameSite = config.getOptional[String]("auth.session.cookieSameSite") match {
+    case Some("lax") => SameSite.Lax
+    case Some("strict") => SameSite.Strict
+    case _ => SameSite.None
+  }
 
   override def put(token: String)(result: Result)(implicit request: RequestHeader): Result = {
     val c = Cookie(cookieName, sign(token), cookieMaxAge, cookiePathOption,
-      cookieDomainOption, cookieSecureOption, cookieHttpOnlyOption)
+      cookieDomainOption, cookieSecureOption, cookieHttpOnlyOption, Some(cookieSameSite))
     result.withCookies(c)
   }
 
