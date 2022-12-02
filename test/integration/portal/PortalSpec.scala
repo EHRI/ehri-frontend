@@ -27,7 +27,7 @@ class PortalSpec extends IntegrationTestRunner {
 
     "show index page in other languages" in new ITestApp {
       val doc = FakeRequest(portalRoutes.index())
-        .withCookies(Cookie("PLAY_LANG", "fr", sameSite = Some(Cookie.SameSite.Lax)))
+        .withCookies(Cookie("PLAY_LANG", "fr"))
         .call()
       contentAsString(doc) must contain("Bienvenue sur")
     }
