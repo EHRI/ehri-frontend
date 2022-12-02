@@ -1,5 +1,6 @@
-// Allows Typescript to import Vue components without issues
-declare module "*.vue" {
-  import Vue from "vue";
-  export default Vue;
+// Typescript Vue shims
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
 }

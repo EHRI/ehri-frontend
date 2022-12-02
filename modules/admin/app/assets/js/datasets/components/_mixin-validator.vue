@@ -26,8 +26,8 @@ export default {
   methods: {
     handleValidationResults: function (errs: ValidationResult[]) {
       _forEach(errs, res => {
-        this.$set(this.validationResults, res.eTag, res.errors)
-        this.$delete(this.validating, res.eTag);
+        this.validationResults[res.eTag] = res.errors;
+        delete this.validating[res.eTag];
       });
       if (_isUndefined(_find(errs, (err) => err.errors.length > 0))) {
         this.println(green("No errors found 😀"));
@@ -47,7 +47,7 @@ export default {
       this.validationRunning = true;
       // this.log.clear();
       let allTags = _isEmpty(tagToKey) ? this.files.map(f => f.eTag) : _keys(tagToKey);
-      _forEach(allTags, tag => this.$set(this.validating, tag, true));
+      _forEach(allTags, tag => this.validating[tag] = true);
 
       this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
         .then(errs => this.handleValidationResults(errs))

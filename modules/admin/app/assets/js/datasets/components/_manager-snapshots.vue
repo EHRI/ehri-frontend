@@ -75,12 +75,13 @@ export default {
     },
     isFiltered: function() {
       return this.filter.trim() !== "";
-    }
+    },
+    timeToRelative,
+    displayDate
   },
   created() {
     this.refresh();
-  },
-  filters: { timeToRelative, displayDate }
+  }
 }
 </script>
 <template>
@@ -133,9 +134,9 @@ export default {
         </dl>
       </template>
       <template v-else>
-        <h4 v-bind:title="current.created">Snapshot taken: {{ current.created | timeToRelative }}</h4>
+        <h4 v-bind:title="current.created">Snapshot taken: {{ timeToRelative(current.created) }}</h4>
         <div class="alert alert-info" v-for="[id, date] in actions">
-          Cleanup run on {{ date | displayDate }}.
+          Cleanup run on {{ displayDate(date) }}.
         </div>
         <p v-if="loadingCleanup">
           Loading heuristic cleanup...
@@ -170,7 +171,7 @@ export default {
             v-on:click.stop.prevent="load(snapshot)" class="snapshot-manager-item">
         <div v-bind:title="snapshot.created" class="snapshot-timestamp item-icon">
           <i class="fa fa-clock-o"></i>
-          {{ snapshot.created | timeToRelative }}
+          {{ timeToRelative(snapshot.created) }}
         </div>
         <div class="snapshot-notes item-heading">
           {{ snapshot.notes }}

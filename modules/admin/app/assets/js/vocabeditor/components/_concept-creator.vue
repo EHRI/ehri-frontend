@@ -63,6 +63,7 @@ export default {
         v-bind:saved="saved"
         v-bind:error="error"
         v-bind:errors="errors"
+        v-on:updated="error = false"
         v-on:item-data-saved="createItem"
         v-on:cancel-create="$emit('cancel-create')"
     />

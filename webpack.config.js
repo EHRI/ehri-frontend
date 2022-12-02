@@ -1,7 +1,7 @@
 "use strict";
 
 let path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const {VueLoaderPlugin} = require('vue-loader');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 module.exports = (env, argv) => {

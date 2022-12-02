@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import Vue from 'vue';
+import {nextTick} from "vue";
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
@@ -14,11 +14,11 @@ import {decodeTsv, encodeTsv} from "../common";
 export default {
   components: {ModalAlert},
   props: {
-    value: String,
+    modelValue: String,
   },
   data: function(): Object {
     return {
-      mappings: this.deserialize(this.value),
+      mappings: this.deserialize(this.modelValue),
       selected: -1,
       pasteHelper: false,
       pasteText: "",
@@ -29,9 +29,9 @@ export default {
     _padStart,
 
     update: function(): Promise<void> {
-      this.$emit('input', this.serialize(this.mappings));
+      this.$emit('update:modelValue', this.serialize(this.mappings));
       // Return a promise when the DOM is ready...
-      return Vue.nextTick();
+      return nextTick();
     },
     focus: function(row, col): void {
       let elem = this.$refs[_padStart(row, 4, '0') + '-' + col];
@@ -97,8 +97,8 @@ export default {
       } else {
         // If we have no readText function we show a textarea the user can paste into:
         this.pasteHelper = true;
-        this.pasteText = this.value;
-        Vue.nextTick().then(() =>{
+        this.pasteText = this.modelValue;
+        nextTick().then(() =>{
           let el = this.$el.querySelector("textarea");
           if (el) {
             el.focus();
@@ -109,7 +109,7 @@ export default {
     }
   },
   watch: {
-    value: function(newValue) {
+    modelValue: function(newValue) {
       this.mappings = this.deserialize(newValue);
     }
   }

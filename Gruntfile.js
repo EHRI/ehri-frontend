@@ -200,19 +200,10 @@ module.exports = function (grunt) {
           {
             expand: true,
             cwd: 'node_modules/vue/dist',
-            src: 'vue.js',
-            dest: paths.adminJsLib
-          },
-          {
-            expand: true,
-            cwd: 'node_modules/sortablejs',
-            src: 'Sortable.js',
-            dest: paths.adminJsLib
-          },
-          {
-            expand: true,
-            cwd: 'node_modules/vuedraggable/dist',
-            src: 'vuedraggable.umd.js',
+            src: [
+              'vue.global.js',
+              'vue.runtime.global.js'
+            ],
             dest: paths.adminJsLib
           },
         ],

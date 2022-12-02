@@ -97,14 +97,14 @@ export default {
         let config = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Checking", set.name + "...");
-          this.$set(this.working, set.id, true);
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             await this.checkOrphansForSet(set, config);
           } catch (e) {
             this.println(e.message);
           } finally {
-            this.$delete(this.working, set.id);
+            delete this.working[set.id];
             this.$emit('processing-done', set.id);
           }
         } else {
@@ -126,7 +126,7 @@ export default {
         let config: HarvestConfig|null = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Syncing", set.name);
-          this.$set(this.working, set.id, true);
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             let {url, jobId} = await this.api.harvest(set.id, config);
@@ -141,7 +141,7 @@ export default {
           } catch (e) {
             this.println(e.message);
           } finally {
-            this.$delete(this.working, set.id);
+            delete this.working[set.id];
             this.$emit('processing-done', set.id);
           }
         } else {
@@ -166,7 +166,7 @@ export default {
         }
         this.println("Converting", set.name);
         let config = await this.api.getConvertConfig(set.id);
-        this.$set(this.working, set.id, true);
+        this.working[set.id] = true;
         this.$emit('processing', set.id);
 
         try {
@@ -178,7 +178,7 @@ export default {
         } catch (e) {
           this.println(e.message);
         } finally {
-          this.$delete(this.working, set.id);
+          delete this.working[set.id];
           this.$emit('processing-done', set.id);
         }
       }
@@ -202,7 +202,7 @@ export default {
         let config = await this.api.getImportConfig(set.id);
         if (config) {
           this.println("Importing", set.name);
-          this.$set(this.working, set.id, true);
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             let {url, jobId} = await this.api.ingestFiles(set.id, [], config, this.commit);
@@ -210,7 +210,7 @@ export default {
           } catch (e) {
             this.println(e.message);
           } finally {
-            this.$delete(this.working, set.id);
+            delete this.working[set.id];
             this.$emit('processing-done', set.id);
           }
         } else {

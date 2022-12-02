@@ -8,7 +8,6 @@ export default {
   components: {FilePicker, ModalWindow},
   props: {
     datasetId: String,
-    show: Boolean,
     api: DatasetManagerApi,
     config: Object,
   },
