@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import Vue from 'vue';
+import {nextTick} from 'vue';
 
 import ModalWindow from './_modal-window';
 import EditorXslt from './_editor-xslt.vue';
@@ -131,7 +131,7 @@ export default {
       document.body.removeChild(element);
     },
     acceptPasteInput: function() {
-      this.$set(this.data, "body", this.pasteText);
+      this.data["body"] = this.pasteText;
       this.pasteHelper = false;
       this.pasteText = "";
       this.triggerRefresh();
@@ -139,7 +139,7 @@ export default {
     importFromClipboard: function() {
       if (typeof navigator.clipboard.readText === 'function') {
         navigator.clipboard.readText().then(text => {
-          this.$set(this.data, "body", text);
+          this.data["body"] = text;
           this.triggerRefresh();
         });
       }
@@ -154,7 +154,7 @@ export default {
       } else {
         this.pasteHelper = true;
         this.pasteText = this.data.body;
-        Vue.nextTick(() => {
+        nextTick(() => {
           let el = this.$el.querySelector(".textarea-paste-helper");
           el.focus();
           el.select();
@@ -300,8 +300,8 @@ export default {
               </div>
             </div>
             <div id="transformation-editor-map-input">
-              <editor-xquery v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
-              <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
+              <editor-xquery v-if="data.bodyType === 'xquery'" v-model="data.body"/>
+              <editor-xslt v-else v-model="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">
               <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />

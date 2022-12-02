@@ -22,8 +22,10 @@ export default {
       this.worker.postMessage({
         type: 'convert-preview',
         url: this.api.convertFileUrl(this.datasetId, this.fileStage, this.previewing.key),
-        mappings: this.mappings,
         max: this.config.maxPreviewSize,
+        // FIXME: JSON needed here because Vue reactive proxies cannot be serialised to a worker
+        // TODO: Find a nicer way to do this.
+        mappings: JSON.parse(JSON.stringify(this.mappings)),
       });
     }
   },

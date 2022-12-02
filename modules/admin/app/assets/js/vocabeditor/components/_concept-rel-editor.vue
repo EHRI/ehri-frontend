@@ -46,14 +46,14 @@ export default {
     },
     removeBroader: function (item) {
       this.state.splice(_findIndex(this.state, c => c.id === item.id), 1);
-    }
+    },
+    conceptTitle,
   },
   watch: {
     data: function (newData) {
       this.state = newData;
     }
   },
-  filters: {conceptTitle},
 }
 </script>
 
@@ -72,7 +72,7 @@ export default {
           v-on:item-accepted="addBroader" />
       <ul v-if="state.length > 0">
         <li v-for="broader in sorted">
-          {{broader|conceptTitle(lang, id)}}
+          {{ conceptTitle(broader, lang, id) }}
           <span title="Remove Broader Term" class="remove" v-on:click="removeBroader(broader)">
               <i class="fa fa-remove"></i>
             </span>

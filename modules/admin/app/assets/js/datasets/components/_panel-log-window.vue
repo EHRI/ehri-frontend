@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import Vue from 'vue';
+import {nextTick} from 'vue';
 import {ITerminalAddon, Terminal} from 'xterm';
 import {FitAddon} from 'xterm-addon-fit';
 import {WebLinksAddon} from 'xterm-addon-web-links';
@@ -18,7 +18,7 @@ export default {
   methods: {
     fit () {
       let parent = this.$el.parentNode;
-      Vue.nextTick(() => {
+      nextTick(() => {
         let width = parent.offsetWidth - this.$el.offsetLeft + parent.offsetLeft;
         let height = parent.offsetHeight - this.$el.offsetTop + parent.offsetTop;
         if (width && height) {

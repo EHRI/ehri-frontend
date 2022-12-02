@@ -140,7 +140,8 @@ let DAO = {
   }
 };
 
-Vue.component("access-point-autocomplete-suggestion", {
+const AccessPointAutocompleteSuggestion = {
+  name: "access-point-autocomplete-suggestion",
   props: {selected: Boolean, item: Object,},
   template: `
     <div @click="$emit('selected', item)" class="ap-editor-autocomplete-widget-suggestion">
@@ -149,9 +150,11 @@ Vue.component("access-point-autocomplete-suggestion", {
         <span v-if="selected"> *</span> 
     </div>
   `
-});
+};
 
-Vue.component("access-point-autocomplete-input", {
+const AccessPointAutocompleteInput = {
+  name: "access-point-autocomplete-input",
+  components: {AccessPointAutocompleteSuggestion},
   props: {type: String, disabled: Boolean},
   data: function () {
     return {
@@ -253,9 +256,11 @@ Vue.component("access-point-autocomplete-input", {
         </div>
     </div>
   `
-});
+};
 
-Vue.component("access-point-add-form", {
+const AccessPointAddForm = {
+  name: "access-point-add-form",
+  components: {AccessPointAutocompleteInput},
   props: {type: String},
   data: function () {
     return {
@@ -326,9 +331,10 @@ Vue.component("access-point-add-form", {
       </div>
     </div>
   `
-});
+};
 
-Vue.component("access-point", {
+const AccessPoint = {
+  name: "access-point",
   props: {accessPoint: Object, link: Object, target: Object},
   data: function () {
     return {
@@ -357,35 +363,37 @@ Vue.component("access-point", {
     }
   },
   template: `
-        <li class="ap-editor-access-point">
-            <a v-if="link" v-bind:href="targetUrl">{{accessPoint.name}}</a>
-            <span v-else>{{accessPoint.name}}</span>
-            <span class="controls">
-              <span v-if="!confirm" title="Remove Access Point" 
-                class="ap-editor-remove-access-point fa fa-remove" 
-                v-on:click="confirm = true">
-              </span>
-              <span v-else class="remove-confirm" v-on:blur="confirm = false">
-                  <button data-apply="confirmation" class="btn btn-xs btn-danger" 
-                    v-on:click.prevent="deleteAccessPoint" 
-                    v-bind:disabled="loading">
-                      <i class="fa fa-check"></i>
-                      Delete
-                  </button>
-                  <button data-dismiss="confirmation" class="btn btn-xs btn-default" 
-                    v-on:click.prevent="confirm = false" 
-                    v-bind:disabled="loading">Cancel</button>
-              </span>
-            </span>
-            <span v-if="loading" class="loading-spinner">Deleting...</span>
-            <p class="ap-editor-access-point-description" v-if="accessPoint.description">
-                {{ accessPoint.description }}
-            </p>
-        </li>
+    <li class="ap-editor-access-point">
+        <a v-if="link" v-bind:href="targetUrl">{{accessPoint.name}}</a>
+        <span v-else>{{accessPoint.name}}</span>
+        <span class="controls">
+          <span v-if="!confirm" title="Remove Access Point" 
+            class="ap-editor-remove-access-point fa fa-remove" 
+            v-on:click="confirm = true">
+          </span>
+          <span v-else class="remove-confirm" v-on:blur="confirm = false">
+              <button data-apply="confirmation" class="btn btn-xs btn-danger" 
+                v-on:click.prevent="deleteAccessPoint" 
+                v-bind:disabled="loading">
+                  <i class="fa fa-check"></i>
+                  Delete
+              </button>
+              <button data-dismiss="confirmation" class="btn btn-xs btn-default" 
+                v-on:click.prevent="confirm = false" 
+                v-bind:disabled="loading">Cancel</button>
+          </span>
+        </span>
+        <span v-if="loading" class="loading-spinner">Deleting...</span>
+        <p class="ap-editor-access-point-description" v-if="accessPoint.description">
+            {{ accessPoint.description }}
+        </p>
+    </li>
     `
-});
+};
 
-Vue.component("access-point-type", {
+const AccessPointType = {
+  name: "access-point-type",
+  components: {AccessPoint, AccessPointAddForm},
   props: {type: String, accessPoints: Array},
   data: function () {
     return {
@@ -404,37 +412,39 @@ Vue.component("access-point-type", {
     }
   },
   template: `
-        <li class="ap-editor-type">
-          <h3>{{ title }}</h3>
-          <ul class="ap-editor-access-points">
-              <access-point 
-                  v-for="ap in accessPoints" 
-                  v-bind:key="ap.accessPoint.id"
-                  v-bind:access-point="ap.accessPoint"
-                  v-bind:link="ap.link"
-                  v-bind:target="ap.target"
-                  v-on:deleted="$emit('deleted')">
-              </access-point>
-          </ul>
-          <a v-if="!adding" class="ap-editor-add-toggle" v-on:click.prevent="adding = !adding" href="#">
-            <i class="glyphicon" v-bind:class="adding ? 'glyphicon-minus-sign' : 'glyphicon-plus-sign'"></i>
-            Add New
-          </a>
-          <access-point-add-form v-if="adding" 
-            v-bind:type="type" 
-            v-on:added="added"
-            v-on:cancel-add="adding = false">            
-          </access-point-add-form>
-          <hr/>
-        </li>
+    <li class="ap-editor-type">
+      <h3>{{ title }}</h3>
+      <ul class="ap-editor-access-points">
+          <access-point 
+              v-for="ap in accessPoints" 
+              v-bind:key="ap.accessPoint.id"
+              v-bind:access-point="ap.accessPoint"
+              v-bind:link="ap.link"
+              v-bind:target="ap.target"
+              v-on:deleted="$emit('deleted')">
+          </access-point>
+      </ul>
+      <a v-if="!adding" class="ap-editor-add-toggle" v-on:click.prevent="adding = !adding" href="#">
+        <i class="glyphicon" v-bind:class="adding ? 'glyphicon-minus-sign' : 'glyphicon-plus-sign'"></i>
+        Add New
+      </a>
+      <access-point-add-form v-if="adding" 
+        v-bind:type="type" 
+        v-on:added="added"
+        v-on:cancel-add="adding = false">            
+      </access-point-add-form>
+      <hr/>
+    </li>
     `
-});
+};
 
-var app = new Vue({
-  el: '#ap-editor',
-  data: {
-    loading: true,
-    types: []
+const app = Vue.createApp({
+  components: {AccessPointType},
+  data() {
+    return {
+      loading: true,
+      types: []
+    }
   },
   methods: {
     reload: function () {
@@ -463,4 +473,4 @@ var app = new Vue({
       </ul>
     </div>
   `
-});
+}).mount("#ap-editor");

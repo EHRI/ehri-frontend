@@ -1,5 +1,6 @@
 <script lang="ts">
 
+import {nextTick} from 'vue';
 import FilePickerSuggestion from './_file-picker-suggestion';
 
 import _debounce from 'lodash/debounce';
@@ -10,7 +11,7 @@ export default {
   props: {
     datasetId: String,
     fileStage: String,
-    value: Object,
+    modelValue: Object,
     disabled: Boolean,
     api: DatasetManagerApi,
     config: Object,
@@ -48,7 +49,7 @@ export default {
       this.selectedIdx = Math.min(this.suggestions.length, this.selectedIdx + 1);
     },
     setAndChooseItem: function (item) {
-      this.$emit("input", item);
+      this.$emit("update:modelValue", item);
       this.cancelComplete();
       this.text = null;
     },
@@ -62,7 +63,7 @@ export default {
       }
     },
     cancelComplete: function () {
-      this.$nextTick(() => {
+      nextTick(() => {
         this.suggestions = [];
         this.selectedIdx = -1;
         this.showSuggestions = false;
@@ -79,7 +80,7 @@ export default {
       <label class="control-label sr-only">File:</label>
       <input class="file-picker-input form-control form-control-sm" type="text" v-bind:placeholder="placeholder"
              v-bind:disabled="disabled"
-             v-bind:value="text !== null ? text : (value ? value.key : '')"
+             v-bind:value="text !== null ? text : (modelValue ? modelValue.key : '')"
              v-on:focus="search"
              v-on:input="text = $event.target.value; search()"
              v-on:keydown.up="selectPrev"

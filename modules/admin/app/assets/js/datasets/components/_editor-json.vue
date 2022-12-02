@@ -6,7 +6,7 @@ import 'codemirror/mode/javascript/javascript';
 
 export default {
   props: {
-    value: Object,
+    modelValue: Object,
     resize: {
       // this value provides a trigger to refresh the editor when size changes
       // it does not reflect the actual value of the panel
@@ -40,7 +40,7 @@ export default {
       readOnly: false,
     });
     this.editor.on("change", () => {
-      this.$emit('input', this.fromString(this.editor.getValue()));
+      this.$emit('update:modelValue', this.fromString(this.editor.getValue()));
     });
   },
   beforeDestroy: function () {
@@ -53,7 +53,7 @@ export default {
 
 <template>
   <div v-bind:class="{'has-error': error}" class="json-editor">
-    <textarea>{{ toString(value) }}</textarea>
+    <textarea>{{ toString(modelValue) }}</textarea>
   </div>
 </template>
 

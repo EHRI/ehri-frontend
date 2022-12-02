@@ -1,6 +1,5 @@
 <script lang="ts">
 
-import Vue from 'vue';
 import VocabEditorApi from "../api";
 
 export default {
@@ -12,7 +11,7 @@ export default {
     name: String,
     childCount: Number,
     selectedId: String,
-    eventBus: Vue,
+    eventBus: Object,
     isSearch: Boolean
   },
   data: function () {

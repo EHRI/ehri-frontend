@@ -1,11 +1,10 @@
 <script lang="ts">
 
+import {nextTick} from "vue";
 import MixinError from './_mixin-error';
 import CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/xml/xml';
-
-import Vue from 'vue';
 
 import _find from 'lodash/find';
 import _isEqual from 'lodash/isEqual';
@@ -79,7 +78,7 @@ export default {
     makePretty: function () {
       this.prettifying = true;
       this.previewData = this.prettifyXml(this.previewData);
-      Vue.nextTick(() => {
+      nextTick(() => {
         this.prettified = true
         this.prettifying = false;
       });
