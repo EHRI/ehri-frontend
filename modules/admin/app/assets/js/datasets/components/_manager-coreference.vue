@@ -42,7 +42,7 @@ export default {
         let refKeys = this.references.map(r => this.refKey(r));
         Object.keys(this.selected).forEach(key => {
           if (!refKeys.includes(key)) {
-            this.$delete(this.selected, key);
+            delete this.selected[key];
           }
         })
       } catch (e) {
@@ -145,9 +145,9 @@ export default {
     },
     toggleRef: function(ref: Coreference) {
       if (this.selected[this.refKey(ref)]) {
-        this.$delete(this.selected, this.refKey(ref));
+        delete this.selected[this.refKey(ref)];
       } else {
-        this.$set(this.selected, this.refKey(ref), ref);
+        this.selected[this.refKey(ref)] = ref;
       }
     },
     refKey: function(ref: Coreference): string {

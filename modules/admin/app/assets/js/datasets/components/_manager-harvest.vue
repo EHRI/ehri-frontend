@@ -224,7 +224,7 @@ export default {
                                 v-bind:config="config"
                                 v-bind:api="api"
                                 v-bind:validation-results="validationResults"
-                                v-on:validation-results="(tag, e) => this.$set(this.validationResults, tag, e)"
+                                v-on:validation-results="(tag, e) => {this.validationResults[tag] = e}"
                                 v-on:error="showError"
                                 v-show="previewing !== null"/>
             <div class="panel-placeholder" v-if="previewing === null">

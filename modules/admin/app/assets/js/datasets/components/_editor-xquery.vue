@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import Vue from 'vue';
+import {nextTick} from 'vue';
 
 import _padStart from 'lodash/padStart';
 import _clone from 'lodash/clone';
@@ -23,7 +23,7 @@ export default {
     update: function(): Promise<void> {
       this.$emit('input', this.serialize(this.mappings));
       // Return a promise when the DOM is ready...
-      return Vue.nextTick();
+      return nextTick();
     },
     focus: function(row, col): void {
       let elem = this.$refs[_padStart(row, 4, '0') + '-' + col];

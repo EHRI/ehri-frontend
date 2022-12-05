@@ -72,6 +72,7 @@ export default {
       }
     },
     editTransformation: function(item: DataTransformation) {
+      console.log("Editing", item)
       this.editing = item;
       this.previewPipeline = [];
     },
@@ -290,13 +291,12 @@ export default {
       <div class="top-panel">
 
         <modal-convert-config
-            v-bind:show="showOptions"
             v-bind:config="config"
             v-bind:api="api"
             v-bind:dataset-id="datasetId"
             v-on:close="showOptions = false"
             v-on:convert="convert"
-            v-show="showOptions" />
+            v-if="showOptions" />
 
         <modal-param-editor
           v-if="editingParameters !== null"
@@ -324,16 +324,18 @@ export default {
                   draggable=".transformation-item"
                   v-bind:group="{name: 'transformations', put: false, pull: 'clone'}"
                   v-bind:sort="false"
-                  v-model="transformations">
-                <transformation-item
-                    v-for="(dt, i) in transformations"
-                    v-bind:item="dt"
-                    v-bind:disabled="false"
-                    v-bind:key="i"
-                    v-bind:active="false"
-                    v-bind:parameters="null"
-                    v-on:edit="editTransformation(dt)"
-                />
+                  v-model="transformations"
+                  item-key="id">
+                  <template v-slot:item="{element, index}">
+                    <transformation-item
+                        v-bind:item="element"
+                        v-bind:disabled="false"
+                        v-bind:key="index"
+                        v-bind:active="false"
+                        v-bind:parameters="null"
+                        v-on:edit="editTransformation(element)"
+                    />
+                  </template>
               </draggable>
             </div>
 
@@ -355,19 +357,21 @@ export default {
                   v-bind:group="{name: 'transformations', put: true, pull: true}"
                   v-bind:sort="true"
                   v-on:add="addTransformation"
-                  v-model="enabled">
-                <transformation-item
-                    v-for="(dt, i) in enabled"
-                    v-bind:item="dt"
-                    v-bind:parameters="state[i][1]"
-                    v-bind:disabled="state[i][2]"
-                    v-bind:key="i"
+                  v-model="enabled"
+                  item-key="id">
+                <template v-slot:item="{element, index}">
+                  <transformation-item
+                    v-bind:item="element"
+                    v-bind:parameters="state[index][1]"
+                    v-bind:disabled="state[index][2]"
+                    v-bind:key="index"
                     v-bind:active="true"
-                    v-on:edit="editActiveTransformation(i)"
-                    v-on:delete="removeTransformation(i)"
-                    v-on:disable="disableTransformation(i)"
-                    v-on:edit-params="editParameters(i)"
-                />
+                    v-on:edit="editActiveTransformation(index)"
+                    v-on:delete="removeTransformation(index)"
+                    v-on:disable="disableTransformation(index)"
+                    v-on:edit-params="editParameters(index)"
+                  />
+                </template>
               </draggable>
             </div>
           </template>

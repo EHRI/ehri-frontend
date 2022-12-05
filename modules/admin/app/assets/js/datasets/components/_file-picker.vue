@@ -1,5 +1,6 @@
 <script lang="ts">
 
+import {nextTick} from 'vue';
 import FilePickerSuggestion from './_file-picker-suggestion';
 
 import _debounce from 'lodash/debounce';
@@ -62,7 +63,7 @@ export default {
       }
     },
     cancelComplete: function () {
-      this.$nextTick(() => {
+      nextTick(() => {
         this.suggestions = [];
         this.selectedIdx = -1;
         this.showSuggestions = false;
