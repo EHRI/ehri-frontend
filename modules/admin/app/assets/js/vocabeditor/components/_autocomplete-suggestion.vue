@@ -7,10 +7,9 @@ export default {
 }
 </script>
 
-<template functional>
-  <div @click="listeners['selected'](props.item)" class="vocab-editor-autocomplete-widget-suggestion">
-    {{ props.item.name }}
-    <span v-if="props.selected"> *</span>
+<template>
+  <div @click="$emit('selected', item)" class="vocab-editor-autocomplete-widget-suggestion">
+    {{ item.name }}
+    <span v-if="selected"> *</span>
   </div>
-
 </template>

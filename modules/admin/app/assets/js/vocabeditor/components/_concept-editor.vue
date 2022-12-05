@@ -9,7 +9,6 @@ import VocabEditorApi from "../api";
 
 export default {
   components: {ConceptRelEditor, ConceptDataEditor, ConceptDeleter},
-  filters: {conceptTitle, formatTimestamp},
   props: {
     api: VocabEditorApi,
     lang: String,
@@ -73,7 +72,9 @@ export default {
       this.deleted = true;
       this.deleting = false;
       this.$emit("item-deleted", data);
-    }
+    },
+    conceptTitle,
+    formatTimestamp,
   },
   watch: {
     id: function (newId, oldId) {
@@ -88,9 +89,9 @@ export default {
 
 <template>
   <div id="concept-editor" class="form-horizontal">
-    <h3 id="concept-editor-item-title">{{ config.vocabName }} | {{ data|conceptTitle(lang, id)}} ({{data.identifier}})</h3>
+    <h3 id="concept-editor-item-title">{{ config.vocabName }} | {{ conceptTitle(data, lang, id) }} ({{data.identifier}})</h3>
     <small class="concept-editor-concept-meta" v-if="data.event.user">
-      Last updated by {{ data.event.user.name }} {{ data.event.timestamp|formatTimestamp }}.
+      Last updated by {{ data.event.user.name }} {{ formatTimestamp(data.event.timestamp) }}.
     </small>
     <div id="concept-editor-item-deleted" v-if="deleted">
       <p class="alert alert-danger">Item deleted</p>

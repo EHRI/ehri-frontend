@@ -20,11 +20,10 @@
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/dashboard-app.js")"></script>
     <script>
-            var app = new Vue({
-                el: '#vue-app',
-                render: function(html) {
-                    return html(DashboardApp.default);
+            Vue.createApp({
+                render: function() {
+                    return Vue.h(DashboardApp.default);
                 }
-            });
+            }).mount("#vue-app");
     </script>
 }

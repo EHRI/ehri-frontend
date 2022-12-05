@@ -20,10 +20,11 @@ describe('FilesTable component', () => {
     }
   ];
 
-  const wrapper = shallowMount(FilesTable, {
+  const wrapper = shallowMount(FilesTable as any, {
     propsData: {
       fileStage: 'input',
       files: testFiles,
+      loaded: false,
       selected: {"hello.xml": testFiles[0]},
       loadingInfo: {"hello.xml": testFiles[0]}
     }

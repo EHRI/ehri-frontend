@@ -31,11 +31,10 @@
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/datasets/app.js")"></script>
     <script>
-            var app = new Vue({
-                el: '#vue-app',
-                render: function(html) {
-                    return html(App.default);
-                }
-            });
+            Vue.createApp({
+                render: function() {
+                    return Vue.h(App.default);
+                },
+            }).mount("#vue-app");
     </script>
 }

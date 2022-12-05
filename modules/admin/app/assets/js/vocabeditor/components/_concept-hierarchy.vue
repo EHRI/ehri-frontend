@@ -9,16 +9,16 @@ export default {
     data: Array,
     lang: String
   },
-  filters: {conceptTitle},
+  methods: {conceptTitle},
 }
 </script>
 
-<template functional>
-  <ul class="concept-hierarchy" v-if="props.data">
-    <li v-for="parent in props.data">{{parent|conceptTitle(lang, id)}}
+<template>
+  <ul class="concept-hierarchy" v-if="data">
+    <li v-for="parent in data">{{ conceptTitle(parent, lang, id) }}
       <concept-hierarchy
           v-bind:data="parent.broaderTerms || []"
-          v-bind:lang="props.lang"
+          v-bind:lang="lang"
           v-bind:id="parent.id"/>
     </li>
   </ul>

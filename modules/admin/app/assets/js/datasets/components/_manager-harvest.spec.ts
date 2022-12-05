@@ -4,9 +4,12 @@ import {DatasetManagerApi} from "../api";
 
 jest.mock('../api');
 
+/**
+ * @jest-environment jsdom
+ */
 describe('ManagerHarvest component', () => {
   let api = new DatasetManagerApi({}, 'r1');
-  const wrapper = shallowMount(ManagerHarvest, {
+  const wrapper = shallowMount(ManagerHarvest as any, {
     propsData: {
       fileStage: 'input',
       config: {},

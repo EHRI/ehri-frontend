@@ -12,7 +12,7 @@ export default {
     name: String,
     childCount: Number,
     selectedId: String,
-    eventBus: Vue,
+    eventBus: Object,
     isSearch: Boolean
   },
   data: function () {

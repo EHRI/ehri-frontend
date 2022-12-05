@@ -8,11 +8,11 @@ export default {
 };
 </script>
 
-<template functional>
-  <button v-bind:disabled="props.disabled" v-on:click.prevent="listeners['validate']()" class="btn btn-sm btn-default">
-    <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !props.active, 'fa-circle-o-notch fa-spin': props.active}"/>
-    <template v-if="props.selected > 0">
-      Validate Selected ({{ props.selected }})
+<template>
+  <button v-bind:disabled="disabled" v-on:click.prevent="$emit('validate')" class="btn btn-sm btn-default">
+    <i class="fa fa-fw" v-bind:class="{'fa-flag-o': !active, 'fa-circle-o-notch fa-spin': active}"/>
+    <template v-if="selected > 0">
+      Validate Selected ({{ selected }})
     </template>
     <template v-else>
       Validate All

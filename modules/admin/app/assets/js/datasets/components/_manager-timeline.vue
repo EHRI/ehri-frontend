@@ -41,7 +41,8 @@ export default {
     datasetType: function(dsId: string) {
       let ds = this.datasets.find(ds => ds.id === dsId)
       return ds ? ds.src : null;
-    }
+    },
+    timeToRelative,
   },
   computed: {
     sets: function() {
@@ -62,9 +63,6 @@ export default {
       }
       return logs.filter(filter);
     }
-  },
-  filters: {
-    timeToRelative,
   },
   created() {
     this.refresh().then(() => this.initialised = true);
@@ -102,10 +100,10 @@ export default {
             <tr v-for="event in filteredLogs" v-bind:class="{noop: event.created === 0 && event.updated === 0}">
               <td v-bind:title="event.timestamp">
                 <a v-if="event.eventId" v-bind:href="'/admin/events/' + event.eventId" target="_blank">
-                  {{ event.timestamp | timeToRelative }}
+                  {{ timeToRelative(event.timestamp) }}
                 </a>
                 <template v-else>
-                  {{ event.timestamp | timeToRelative }}
+                  {{ timeToRelative(event.timestamp) }}
                 </template>
               </td>
               <td><strong>{{ event.datasetId }}</strong></td>

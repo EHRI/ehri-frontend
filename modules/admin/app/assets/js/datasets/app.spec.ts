@@ -12,7 +12,7 @@ describe('App', () => {
 });
 
 describe('Mounted App', () => {
-  const wrapper = shallowMount(App);
+  const wrapper = shallowMount(App as any);
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()

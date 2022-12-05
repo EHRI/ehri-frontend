@@ -274,6 +274,7 @@ export default {
                      v-bind:checked="Boolean(selected[refKey(ref)])"
                      v-on:input.stop.prevent.self="toggleRef(ref)"
                      v-on:click="$event.stopPropagation()">
+            </td>
             <td v-if="isFiltered()"><strong>{{ ref.text }}</strong></td>
             <td v-else>{{ ref.text }}</td>
             <td>{{ ref.targetId }}</td>
