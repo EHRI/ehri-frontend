@@ -131,7 +131,7 @@ export default {
       document.body.removeChild(element);
     },
     acceptPasteInput: function() {
-      this.data["body"] = this.pasteText;;
+      this.data["body"] = this.pasteText;
       this.pasteHelper = false;
       this.pasteText = "";
       this.triggerRefresh();
@@ -139,7 +139,7 @@ export default {
     importFromClipboard: function() {
       if (typeof navigator.clipboard.readText === 'function') {
         navigator.clipboard.readText().then(text => {
-          this.data["body"] = text;;
+          this.data["body"] = text;
           this.triggerRefresh();
         });
       }
@@ -300,8 +300,8 @@ export default {
               </div>
             </div>
             <div id="transformation-editor-map-input">
-              <editor-xquery v-if="data.bodyType === 'xquery'" v-model.lazy="data.body"/>
-              <editor-xslt v-else v-model.lazy="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
+              <editor-xquery v-if="data.bodyType === 'xquery'" v-model="data.body"/>
+              <editor-xslt v-else v-model="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">
               <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />

@@ -4,19 +4,19 @@ import _isObject from 'lodash/isObject';
 
 export default {
   props: {
-    value: Object,
+    modelValue: Object,
   },
   data: function() {
     return {
-      show: _isObject(this.value),
-      username: this.value ? this.value.username : "",
-      password: this.value ? this.value.password : "",
+      show: _isObject(this.modelValue),
+      username: this.modelValue ? this.modelValue.username : "",
+      password: this.modelValue ? this.modelValue.password : "",
 
     }
   },
   methods: {
     update: function() {
-      this.$emit("input", this.auth)
+      this.$emit("update:modelValue", this.auth)
     }
   },
   computed: {

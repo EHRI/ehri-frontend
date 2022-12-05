@@ -9,11 +9,11 @@ import {decodeTsv, encodeTsv} from "../common";
 
 export default {
   props: {
-    value: String,
+    modelValue: String,
   },
   data: function(): Object {
     return {
-      mappings: this.deserialize(this.value),
+      mappings: this.deserialize(this.modelValue),
       selected: -1,
     }
   },
@@ -21,7 +21,7 @@ export default {
     _padStart,
 
     update: function(): Promise<void> {
-      this.$emit('input', this.serialize(this.mappings));
+      this.$emit('update:modelValue', this.serialize(this.mappings));
       // Return a promise when the DOM is ready...
       return nextTick();
     },
@@ -71,7 +71,7 @@ export default {
     },
     deserialize: function(str): string[][] {
       // Skip header row...
-      return decodeTsv(str, 4).splice(1);
+      return str ? decodeTsv(str, 4).splice(1) : [];
     },
     serialize: function(mappings): string {
       let header = ["target-path", "target-node", "source-node", "value"]
@@ -80,7 +80,7 @@ export default {
     },
   },
   watch: {
-    value: function(newValue) {
+    modelValue: function(newValue) {
       this.mappings = this.deserialize(newValue);
     }
   }

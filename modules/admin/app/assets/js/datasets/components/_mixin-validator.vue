@@ -47,7 +47,7 @@ export default {
       this.validationRunning = true;
       // this.log.clear();
       let allTags = _isEmpty(tagToKey) ? this.files.map(f => f.eTag) : _keys(tagToKey);
-      _forEach(allTags, tag => this.validating[tag] = true);;
+      _forEach(allTags, tag => this.validating[tag] = true);
 
       this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
         .then(errs => this.handleValidationResults(errs))

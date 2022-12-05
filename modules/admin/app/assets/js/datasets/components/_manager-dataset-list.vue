@@ -68,7 +68,7 @@ export default {
     loadStats: function() {
       // NB: this function is not async because we want it to run in parallel
       for (let ds of this.datasets) {
-        this.api.fileCount(ds.id).then(count => this.stats[ds.id] = count);;
+        this.api.fileCount(ds.id).then(count => this.stats[ds.id] = count);
       }
     },
     loadDatasets: async function() {

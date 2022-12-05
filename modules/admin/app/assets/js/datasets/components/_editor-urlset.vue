@@ -14,11 +14,11 @@ import {decodeTsv, encodeTsv} from "../common";
 export default {
   components: {ModalAlert},
   props: {
-    value: String,
+    modelValue: String,
   },
   data: function(): Object {
     return {
-      mappings: this.deserialize(this.value),
+      mappings: this.deserialize(this.modelValue),
       selected: -1,
       pasteHelper: false,
       pasteText: "",
@@ -29,7 +29,7 @@ export default {
     _padStart,
 
     update: function(): Promise<void> {
-      this.$emit('input', this.serialize(this.mappings));
+      this.$emit('update:modelValue', this.serialize(this.mappings));
       // Return a promise when the DOM is ready...
       return nextTick();
     },
@@ -97,7 +97,7 @@ export default {
       } else {
         // If we have no readText function we show a textarea the user can paste into:
         this.pasteHelper = true;
-        this.pasteText = this.value;
+        this.pasteText = this.modelValue;
         nextTick().then(() =>{
           let el = this.$el.querySelector("textarea");
           if (el) {
@@ -109,7 +109,7 @@ export default {
     }
   },
   watch: {
-    value: function(newValue) {
+    modelValue: function(newValue) {
       this.mappings = this.deserialize(newValue);
     }
   }

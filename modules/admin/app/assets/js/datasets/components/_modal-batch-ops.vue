@@ -97,7 +97,7 @@ export default {
         let config = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Checking", set.name + "...");
-          this.working[set.id] = true;;
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             await this.checkOrphansForSet(set, config);
@@ -126,7 +126,7 @@ export default {
         let config: HarvestConfig|null = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Syncing", set.name);
-          this.working[set.id] = true;;
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             let {url, jobId} = await this.api.harvest(set.id, config);
@@ -166,7 +166,7 @@ export default {
         }
         this.println("Converting", set.name);
         let config = await this.api.getConvertConfig(set.id);
-        this.working[set.id] = true;;
+        this.working[set.id] = true;
         this.$emit('processing', set.id);
 
         try {
@@ -202,7 +202,7 @@ export default {
         let config = await this.api.getImportConfig(set.id);
         if (config) {
           this.println("Importing", set.name);
-          this.working[set.id] = true;;
+          this.working[set.id] = true;
           this.$emit('processing', set.id);
           try {
             let {url, jobId} = await this.api.ingestFiles(set.id, [], config, this.commit);

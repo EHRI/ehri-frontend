@@ -97,7 +97,7 @@ export default {
       // Overridden
     },
     downloadFiles: function(keys) {
-      keys.forEach(key => this.downloading[key] = true);;
+      keys.forEach(key => this.downloading[key] = true);
       this.api.fileUrls(this.datasetId, this.fileStage, keys)
         .then(urls => {
           _forIn(urls, (url, fileName) => {
@@ -113,7 +113,7 @@ export default {
         this.previewing = null;
       }
       let dkeys = _isEmpty(keys) ? this.files.map(f => f.key) : keys;
-      dkeys.forEach(key => this.deleting[key] = true);;
+      dkeys.forEach(key => this.deleting[key] = true);
       this.api.deleteFiles(this.datasetId, this.fileStage, keys)
         .then(() => {
           dkeys.forEach(key => {
@@ -127,14 +127,14 @@ export default {
         .finally(() => this.deleting = {});
     },
     info: function(key) {
-      this.loadingInfo[key] = true;;
+      this.loadingInfo[key] = true;
       return this.api.info(this.datasetId, this.fileStage, key)
         .then(r => this.fileInfo = r)
         .catch(error => this.showError("Error fetching file info", error))
         .finally(() => this.loadingInfo = {});
     },
     selectItem: function(file) {
-      this.selected[file.key] = file;;
+      this.selected[file.key] = file;
     },
     deselectItem: function(file) {
       delete this.selected[file.key];
