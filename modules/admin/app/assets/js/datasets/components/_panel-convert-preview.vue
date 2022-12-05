@@ -22,7 +22,8 @@ export default {
       this.worker.postMessage({
         type: 'convert-preview',
         url: this.api.convertFileUrl(this.datasetId, this.fileStage, this.previewing.key),
-        mappings: this.mappings,
+        // FIXME: Vue3 - serialization of mappings Proxy
+        mappings: JSON.parse(JSON.stringify(this.mappings)),
         max: this.config.maxPreviewSize,
       });
     }
