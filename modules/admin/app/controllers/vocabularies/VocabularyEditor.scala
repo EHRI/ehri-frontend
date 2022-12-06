@@ -25,7 +25,7 @@ case class VocabularyEditor @Inject()(
   cypher: CypherService
 ) extends AdminController with Read[Vocabulary] with Search {
 
-  private val maxSize = 1024 * 1024
+  private val maxSize = config.underlying.getBytes("ehri.admin.vocabEditor.maxPayloadSize")
   private val clientFormFormat = client.json.conceptJson.fFormat
   private val clientFormat = client.json.conceptJson.clientFormat
 
@@ -38,7 +38,7 @@ case class VocabularyEditor @Inject()(
       })(controllerComponents.executionContext).flatMap({
         case (Some(acc), cookieUpdater) => block(AccountRequest[A](acc, request))
           .map(cookieUpdater)(controllerComponents.executionContext)
-        case (None, cookieUpdater) => Future.successful(Forbidden)
+        case (None, _) => Future.successful(Forbidden)
       })(controllerComponents.executionContext)
     }
 
