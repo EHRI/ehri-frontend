@@ -6,8 +6,8 @@ jest.mock('../api');
 
 describe('ManagerUpload component', () => {
   let api = new DatasetManagerApi({}, 'r1');
-  const wrapper = shallowMount(ManagerUpload as any, {
-    propsData: {
+  const wrapper = shallowMount(ManagerUpload, {
+    props: {
       fileStage: 'input',
       config: {},
       api: api,

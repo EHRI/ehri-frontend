@@ -1,6 +1,4 @@
-
-
-import { shallowMount } from '@vue/test-utils';
+import {mount} from '@vue/test-utils';
 import App from './app.vue';
 
 
@@ -12,7 +10,7 @@ describe('App', () => {
 });
 
 describe('Mounted App', () => {
-  const wrapper = shallowMount(App as any);
+  const wrapper = mount(App);
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()

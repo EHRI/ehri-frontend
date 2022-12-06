@@ -15,7 +15,7 @@ describe('Mounted App', () => {
   // NB: note full mount here instead of shallowMount. This is because
   // we have mocked the whole data API so it should load all
   // components.
-  const wrapper = mount(App as any);
+  const wrapper = mount(App);
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()
