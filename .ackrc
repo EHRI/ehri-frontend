@@ -1,5 +1,7 @@
 # Stuff for ack to ignore/include
 --ignore-dir=target
+--ignore-dir=miniodata
+--ignore-dir=DB
 
 # Add a type for messages, messages.en etc files
 --type-set=messages:match:/messages(\.[a-z]{2})?/
