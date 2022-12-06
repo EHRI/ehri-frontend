@@ -1,6 +1,4 @@
-
-
-import { shallowMount } from '@vue/test-utils';
+import {mount} from '@vue/test-utils';
 import FilesTable from './_files-table.vue';
 
 
@@ -20,8 +18,8 @@ describe('FilesTable component', () => {
     }
   ];
 
-  const wrapper = shallowMount(FilesTable as any, {
-    propsData: {
+  const wrapper = mount(FilesTable, {
+    props: {
       fileStage: 'input',
       files: testFiles,
       loaded: false,

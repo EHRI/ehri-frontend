@@ -107,7 +107,7 @@ export default {
   watch: {
     data: function (newData) {
       this.state = newData;
-      this.error = false;
+      this.$emit("updated")
     }
   },
 }

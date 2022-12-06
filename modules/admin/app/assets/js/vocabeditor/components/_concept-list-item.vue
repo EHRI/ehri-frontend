@@ -1,6 +1,5 @@
 <script lang="ts">
 
-import Vue from 'vue';
 import VocabEditorApi from "../api";
 
 export default {
