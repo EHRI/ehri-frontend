@@ -95,7 +95,7 @@ object AccessPoint {
   def linksOfType(links: Seq[Link], `type`: AccessPointF.AccessPointType.Value): Seq[Link]
       = links.filter(_.bodies.exists(body => body.data.accessPointType == `type`))
 
-  val form = Form(mapping(
+  val form: Form[AccessPointF] = Form(mapping(
     ISA -> ignored(EntityType.AccessPoint),
     ID -> optional(nonEmptyText),
     ETYPE -> enumMapping(AccessPointType),

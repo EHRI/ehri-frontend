@@ -192,7 +192,7 @@ export default {
 <template>
   <div
       v-on:keyup.esc="showOptions = false; showRemoveDialog = false"
-      v-on:keyup.ctrl.enter="triggerRefresh" v-on:keyup.ctrl.prevent.83="save"
+      v-on:keyup.ctrl.enter="triggerRefresh" v-on:keyup.ctrl.prevent.s="save"
       class="modal" id="transformation-editor-modal">
     <div class="modal-dialog" id="transformation-editor-container">
       <div id="transformation-editor" class="modal-content">

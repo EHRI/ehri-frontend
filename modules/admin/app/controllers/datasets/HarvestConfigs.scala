@@ -10,7 +10,7 @@ import akka.http.scaladsl.model.Uri
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import controllers.AppComponents
-import controllers.base.AdminController
+import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update
 import models.HarvestEvent.HarvestEventType
 import models._

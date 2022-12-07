@@ -1,21 +1,42 @@
 package controllers.generic
 
-import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF, Resource}
-import play.api.libs.json.Json
+import models.AccessPointF.AccessPointType
+import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF, Model, Resource}
+import play.api.libs.json.{Format, Json, OFormat}
 import play.api.mvc.{Action, AnyContent}
 
 
 trait AccessPoints[MT <: DescribedModel] extends Read[MT] {
 
-  // NB: This doesn't work when placed within the function scope
-  // should probably check if a bug has been reported.
-  case class Target(id: String, `type`: EntityType.Value)
+  case class Target(
+    id: String,
+    `type`: EntityType.Value
+  )
 
-  case class LinkItem(accessPoint: AccessPointF, link: Option[LinkF], target: Option[Target])
+  case class LinkItem(
+    accessPoint: AccessPointF,
+    link: Option[LinkF],
+    target: Option[Target]
+  )
+
+  case class AccessPointTypeData(
+    `type`: AccessPointType.Value,
+    data: Seq[LinkItem]
+  )
+
+  case class ItemAccessPoints(
+    id: Option[String],
+    data: Seq[AccessPointTypeData]
+  )
+
+  private implicit val accessPointFormat: Format[AccessPointF] = Json.format[AccessPointF]
+  private implicit val linkFormat: Format[LinkF] = Json.format[LinkF]
+  private implicit val targetWrites: Format[Target] = Json.format[Target]
+  private implicit val itemWrites: Format[LinkItem] = Json.format[LinkItem]
+  private implicit val accessPointTypeDataFormat: Format[AccessPointTypeData] = Json.format[AccessPointTypeData]
+  private implicit val itemAccessPointsFormat: Format[ItemAccessPoints] = Json.format[ItemAccessPoints]
 
   /**
-    * FIXME: Address this festering sore!
-    *
     * Translate an item's access points and accompanying links into a more
     * easily consumable format. We start out with a list of links belonging
     * to the item. Then, for each description we check if that link's body is
@@ -71,27 +92,23 @@ trait AccessPoints[MT <: DescribedModel] extends Read[MT] {
     */
   def getAccessPointsJson(id: String)(implicit rs: Resource[MT]): Action[AnyContent] =
     OptionalUserAction.async { implicit request =>
-      for (item <- userDataApi.get(id); links <- userDataApi.links[Link](id)) yield {
-        implicit val accessPointFormat = Json.format[AccessPointF]
-        implicit val linkFormat = Json.format[LinkF]
-        implicit val targetWrites = Json.format[Target]
-        implicit val itemWrites = Json.format[LinkItem]
 
-        val list = item.data.descriptions.map { desc =>
-          val accessPointTypes = AccessPointF.AccessPointType.values.toList.map { apt =>
-            val apTypes = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
-              val linkOpt = links.find(_.bodies.exists(b => b.data.id == ap.id))
+      for (item <- userDataApi.get(id); links <- userDataApi.links[Link](id)) yield {
+        val itemAccessPoints: Seq[ItemAccessPoints] = item.data.descriptions.map { desc =>
+          val accessPointTypes: Seq[AccessPointTypeData] = AccessPointF.AccessPointType.values.toList.map { apt =>
+            val apTypes: Seq[LinkItem] = desc.accessPoints.filter(_.accessPointType == apt).map { ap =>
+              val linkOpt: Option[(Link, Model)] = ap.target(item, links)
               LinkItem(
                 ap,
-                linkOpt.map(_.data),
-                linkOpt.flatMap(l => l.opposingTarget(item).map(t => Target(t.id, t.isA)))
+                linkOpt.map(_._1.data),
+                linkOpt.map { case (_, m) => Target(m.id, m.isA) }
               )
             }
-            Map("type" -> Json.toJson(apt.toString), "data" -> Json.toJson(apTypes))
+            AccessPointTypeData(apt, apTypes)
           }
-          Map("id" -> Json.toJson(desc.id), "data" -> Json.toJson(accessPointTypes))
+          ItemAccessPoints(desc.id, accessPointTypes)
         }
-        Ok(Json.toJson(list))
+        Ok(Json.toJson(itemAccessPoints))
       }
     }
 }

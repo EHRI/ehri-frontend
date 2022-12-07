@@ -3,7 +3,7 @@
 <script>
     window.CONFIG = {
         id: "@item.id",
-        descId: "@desc.id",
+        did: "@desc.id",
         holderIds: [@Html(holderIds.map(id => "\"" + id + "\"").mkString(", "))],
         linkType: "@LinkF.LinkType.Associative",
         typeFilters: {
@@ -15,6 +15,10 @@
             subject: ["@EntityType.Concept"],
             genre: ["@EntityType.Concept"]
 
+        },
+        labels: {
+            @AccessPointF.AccessPointType.values.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
+            }
         }
     };
     window.LABELS = {
@@ -26,6 +30,13 @@
 <i>@Messages("accessPoint.editing", desc.name)</i>
 <div id="ap-editor"></div>
 
-<script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.global.js")"></script>
-<script src="@controllers.admin.routes.AdminAssets.versioned("js/accesspoints.js")"></script>
+<script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/vue.runtime.global.js")"></script>
+<script src="@controllers.admin.routes.AdminAssets.versioned("js/apeditor/app.js")"></script>
+<script>
+            Vue.createApp({
+                render: function() {
+                    return Vue.h(App.default);
+                },
+            }).mount("#ap-editor");
+    </script>
 

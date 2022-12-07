@@ -54,7 +54,7 @@ class ApiSpec extends IntegrationTestRunner {
         val del = FakeRequest(docRoutes.deleteLinkAndAccessPoint("c1", "cd1", "ur1", id))
           .withUser(privilegedUser).withCsrf.call()
         status(del) must equalTo(OK)
-        contentAsJson(del) must equalTo(JsBoolean(value = true))
+        contentAsJson(del) must equalTo(Json.obj("ok" -> true))
       }
     }
 

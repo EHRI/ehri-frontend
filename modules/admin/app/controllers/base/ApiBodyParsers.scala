@@ -1,6 +1,5 @@
-package controllers.datasets
+package controllers.base
 
-import controllers.base.AdminController
 import play.api.libs.json.JsError.toJson
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc.BodyParser
