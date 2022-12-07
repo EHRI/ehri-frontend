@@ -3,7 +3,7 @@ package controllers.datasets
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import controllers.AppComponents
-import controllers.base.AdminController
+import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models._
 import play.api.libs.json.{JsString, Json}

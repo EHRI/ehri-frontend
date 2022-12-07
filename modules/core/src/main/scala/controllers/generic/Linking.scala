@@ -15,7 +15,7 @@ import scala.concurrent.Future.{successful => immediate}
   *
   * @param target      id of the destination item
   * @param `type`      type field, i.e. associative
-  * @param description descrioption of link
+  * @param description description of link
   */
 case class AccessPointLink(
   target: String,
@@ -33,7 +33,7 @@ object AccessPointLink {
 
 
 /**
-  * Trait for setting visibility on any AccessibleEntity.
+  * Trait providing functionality for managing an item type's links.
   *
   * @tparam MT the entity's build class
   */
@@ -41,6 +41,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
 
   // This is used to send the link data back to JSON endpoints...
   private implicit val linkFormatForClient: Format[LinkF] = Json.format[LinkF]
+  private implicit val accessPointFormatForClient: Format[AccessPointF] = Json.format[AccessPointF]
 
   case class LinkSelectRequest[A](
     item: MT,
@@ -119,10 +120,10 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
     WithItemPermissionAction(id, PermissionType.Annotate).async(parsers.json) { implicit request =>
       request.body.validate[AccessPointLink].fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
-        ann => {
-          val link = new LinkF(id = None, linkType = LinkF.LinkType.Associative, description = ann.description)
-          userDataApi.linkItems[MT, Link, LinkF](id, ann.target, link, Some(apid)).map { ann =>
-            Created(Json.toJson(ann.data))
+        apLink => {
+          val link = LinkF(id = None, linkType = LinkF.LinkType.Associative, description = apLink.description)
+          userDataApi.linkItems[MT, Link, LinkF](id, apLink.target, link, Some(apid)).map { link =>
+            Created(Json.toJson(link.data))
           }
         }
       )
@@ -136,7 +137,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
       request.body.validate[AccessPointF](AccessPointLink.accessPointFormat).fold(
         errors => immediate(BadRequest(JsError.toJson(errors))),
         ap => userDataApi.createAccessPoint(id, did, ap).map { ann =>
-          Created(Json.toJson(ann)(Json.format[AccessPointF]))
+          Created(Json.toJson(ann))
         }
       )
     }
@@ -150,7 +151,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
       val res = for {
         link <- linkOpt
         target <- link.opposingTarget(id)
-      } yield new AccessPointLink(
+      } yield AccessPointLink(
         target = target.id,
         `type` = Some(link.data.linkType),
         description = link.data.description
@@ -164,8 +165,8 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
     */
   def deleteAccessPoint(id: String, did: String, accessPointId: String)(implicit ct: ContentType[MT]): Action[AnyContent] =
     WithItemPermissionAction(id, PermissionType.Update).async { implicit request =>
-      userDataApi.deleteAccessPoint(id, did, accessPointId).map { ok =>
-        Ok(Json.toJson(true))
+      userDataApi.deleteAccessPoint(id, did, accessPointId).map { _ =>
+        Ok(Json.obj("ok" -> true))
       }
     }
 
@@ -174,8 +175,8 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
     */
   def deleteLink(id: String, linkId: String)(implicit ct: ContentType[MT]): Action[AnyContent] =
     WithItemPermissionAction(id, PermissionType.Annotate).async { implicit request =>
-      userDataApi.delete[Link](linkId).map { ok =>
-        Ok(Json.toJson(true))
+      userDataApi.delete[Link](linkId).map { _ =>
+        Ok(Json.obj("ok" -> true))
       }
     }
 
@@ -188,7 +189,7 @@ trait Linking[MT <: Model] extends Read[MT] with Search {
       for {
         _ <- userDataApi.delete[Link](linkId)
         _ <- userDataApi.deleteAccessPoint(id, did, accessPointId)
-      } yield Ok(Json.toJson(true))
+      } yield Ok(Json.obj("ok" -> true))
     }
 }
 
