@@ -8,7 +8,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Source}
 import akka.util.ByteString
 import controllers.AppComponents
-import controllers.base.AdminController
+import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update
 import eu.ehri.project.xml._
 import models._

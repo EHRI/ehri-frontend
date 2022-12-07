@@ -2,7 +2,7 @@ package controllers.datasets
 
 import akka.stream.Materializer
 import controllers.AppComponents
-import controllers.base.AdminController
+import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update
 import models._
 import play.api.libs.json.Json

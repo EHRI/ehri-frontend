@@ -12,6 +12,7 @@
   "exclude": ["node_modules"],
   "include": [
     "modules/admin/app/assets/js/datasets",
-    "modules/admin/app/assets/js/vocabeditor"
+    "modules/admin/app/assets/js/vocabeditor",
+    "modules/admin/app/assets/js/apeditor"
   ]
 }

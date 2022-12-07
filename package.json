@@ -105,7 +105,8 @@
     "collectCoverage": false,
     "roots": [
       "<rootDir>/modules/admin/app/assets/js/datasets",
-      "<rootDir>/modules/admin/app/assets/js/vocabeditor"
+      "<rootDir>/modules/admin/app/assets/js/vocabeditor",
+      "<rootDir>/modules/admin/app/assets/js/apeditor"
     ],
     "moduleFileExtensions": [
       "js",
