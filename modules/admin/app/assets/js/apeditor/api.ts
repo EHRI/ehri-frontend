@@ -38,6 +38,10 @@ export default class AccessPointEditorApi {
     }).then(r => r.data);
   }
 
+  label(type: AccessPointType): string {
+    return this.config.labels[type];
+  }
+
   search(type: AccessPointType, text: string, limit: number = 10): Promise<FilterHit[]> {
     let params = {
       limit: limit,

@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     title: function () {
-      return this.config.labels[this.type];
+      return this.api.label(this.type);
     }
   },
   methods: {
