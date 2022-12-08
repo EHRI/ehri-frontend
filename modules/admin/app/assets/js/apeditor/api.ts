@@ -53,7 +53,7 @@ export default class AccessPointEditorApi {
         .then(r => r.items)
   }
 
-  async createAccessPoints(id: string, descId: string, type: AccessPointType, data: CreationData[]): Promise<void> {
+  async createAccessPoints(id: string, descId: string, type: AccessPointType, data: CreationData[]): Promise<Ok> {
     for (let item of data) {
       let ap = await this.createAccessPoint(id, descId, {
         name: item.text,
@@ -69,6 +69,7 @@ export default class AccessPointEditorApi {
         });
       }
     }
+    return {ok: true};
   }
 
   createLink(id: string, apId: string, data: object): Promise<Link> {

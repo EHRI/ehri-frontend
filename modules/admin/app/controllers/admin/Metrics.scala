@@ -15,6 +15,9 @@ import utils.{Page, PageParams}
 import views.Helpers
 
 
+/**
+  * TODO: Reimplement this using the public API where possible.
+  */
 @Singleton
 case class Metrics @Inject()(
   controllerComponents: ControllerComponents,

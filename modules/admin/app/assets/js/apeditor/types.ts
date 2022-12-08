@@ -9,6 +9,7 @@ export type LinkType = "identity" | "associative" | "family" | "hierarchical" | 
 
 export interface Link {
   id: string
+  isA: string
   linkType: LinkType
   linkField?: string
   description?: string
@@ -18,6 +19,7 @@ export type AccessPointType = "creator" | "person" | "family" | "corporateBody" 
 
 export interface AccessPoint {
   id: string
+  isA: string
   accessPointType: AccessPointType
   name: string
   description?: string
