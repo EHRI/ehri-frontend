@@ -1,6 +1,6 @@
 import {mount} from '@vue/test-utils';
 import App from './app.vue';
-import AccessPoint from './components/_access-point';
+import AccessPoint from './components/_access-point.vue';
 import AccessPointEditorApi from "./__mocks__/api";
 import {ConfigType} from "./types";
 
