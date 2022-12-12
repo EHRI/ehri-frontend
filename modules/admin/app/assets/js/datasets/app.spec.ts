@@ -10,7 +10,13 @@ describe('App', () => {
 });
 
 describe('Mounted App', () => {
-  const wrapper = mount(App);
+  const wrapper = mount(App, {
+    props: {
+      service: {}, config: {
+        repoId: "foo"
+      }
+    }
+  });
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()

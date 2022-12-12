@@ -4,11 +4,13 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import models.{EntityType, _}
+import play.api.http.MimeTypes
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import play.api.routing.JavaScriptReverseRouter
 import services.cypher.CypherService
-import services.data.{DataUser, AuthenticatedUser, IdGenerator, ValidationError}
+import services.data.{AuthenticatedUser, DataUser, IdGenerator, ValidationError}
 import services.search.{SearchConstants, SearchParams}
 import utils.PageParams
 
@@ -50,6 +52,23 @@ case class VocabularyEditor @Inject()(
 
   private implicit def userAction2UserOpt(implicit request: AccountRequest[_]): Option[UserProfile] =
     Some(UserProfile(UserProfileF(id = Some(request.account.id), identifier = request.account.id, name = "")))
+
+  def jsRoutes(id: String): Action[AnyContent] = Action.apply { implicit request =>
+    Ok(
+      JavaScriptReverseRouter("vocabEditorRoutes")(
+        controllers.vocabularies.routes.javascript.VocabularyEditor.search,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.get,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.list,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.langs,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.broader,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.narrower,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.createItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.updateItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem,
+        controllers.vocabularies.routes.javascript.VocabularyEditor.nextIdentifier
+      )
+    ).as(MimeTypes.JAVASCRIPT)
+  }
 
   def editor(id: String): Action[AnyContent] = WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
     Ok(views.html.admin.vocabulary.vocabeditor(request.item))

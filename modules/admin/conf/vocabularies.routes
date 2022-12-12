@@ -30,6 +30,7 @@ GET         /:id/reindex                              @controllers.vocabularies.
 GET         /:id/ingest                               @controllers.vocabularies.Vocabularies.ingest(id: String)
 
 GET         /:id/editor                               @controllers.vocabularies.VocabularyEditor.editor(id: String)
+GET         /:id/editor/routes                        @controllers.vocabularies.VocabularyEditor.jsRoutes(id: String)
 GET         /:id/editor/search                        @controllers.vocabularies.VocabularyEditor.search(id: String, params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /:id/editor/list                          @controllers.vocabularies.VocabularyEditor.list(id: String, q: Option[String] ?= None, lang: String ?= "eng")
 GET         /:id/editor/langs                         @controllers.vocabularies.VocabularyEditor.langs(id: String)

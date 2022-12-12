@@ -57,6 +57,10 @@ export default {
       type: String,
       default: ""
     },
+    dropping: {
+      type: Boolean,
+      default: false,
+    }
   },
   methods: {
     prettyDate: timeToRelative,
@@ -67,7 +71,7 @@ export default {
 </script>
 
 <template>
-  <div v-bind:class="{'loading': !loaded}"
+  <div v-bind:class="{'loading': !loaded, 'dropping': dropping}"
        v-on:keyup.down="$emit('select-next')"
        v-on:keyup.up="$emit('select-prev')"
        v-on:click.self.stop="$emit('deselect-all')"

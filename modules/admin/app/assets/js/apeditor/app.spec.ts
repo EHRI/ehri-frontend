@@ -6,6 +6,13 @@ import {ConfigType} from "./types";
 
 jest.mock('./api');
 
+const config = {id: "a", did: "b"} as ConfigType;
+const defaultInit = {
+  props: {
+    config: config
+  }
+}
+
 describe('App', () => {
   // Inspect the raw component options
   it('has data', () => {
@@ -14,7 +21,7 @@ describe('App', () => {
 });
 
 describe('Mounted App', () => {
-  const wrapper = mount(App);
+  const wrapper = mount(App, defaultInit);
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()
@@ -24,7 +31,7 @@ describe('Mounted App', () => {
 });
 
 test('opening the AP form', async () => {
-  const wrapper = mount(App);
+  const wrapper = mount(App, defaultInit);
 
   // Need to to load the API data...
   await wrapper.isVisible();
@@ -38,7 +45,6 @@ test('opening the AP form', async () => {
 });
 
 test('deleting an AP', async () => {
-  const config = {id: "a", did: "b"} as ConfigType;
   const wrapper = mount(AccessPoint, {
     props: {
       accessPoint: {

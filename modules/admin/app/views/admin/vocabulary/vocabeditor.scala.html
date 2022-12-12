@@ -6,33 +6,22 @@
 
 @views.html.admin.layout.adminSinglePageAppLayout(Messages("cvocVocabulary.items.editor", item.toStringLang),
         styles = styles, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @helper.javascriptRouter("vocabEditorRoutes")(
-        controllers.vocabularies.routes.javascript.VocabularyEditor.search,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.get,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.list,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.langs,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.broader,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.narrower,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.createItem,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.updateItem,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.deleteItem,
-        controllers.vocabularies.routes.javascript.VocabularyEditor.nextIdentifier,
-    )
-    <script>
-            window.SERVICE = vocabEditorRoutes.controllers.vocabularies.VocabularyEditor;
-            window.CONFIG = {
-                vocabId: "@item.id",
-                vocabName: "@item.toStringLang",
-                title: "@Messages("cvocVocabulary.items.editor", item.toStringLang)"
-            }
-    </script>
-
+    <script src="@controllers.vocabularies.routes.VocabularyEditor.jsRoutes("@item.id")"></script>
 } {
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/vocabeditor/app.js")"></script>
     <script>
             Vue.createApp({
                 render: function() {
-                    return Vue.h(App.default);
+                    return Vue.h(App.default, {
+                        service: vocabEditorRoutes.controllers.vocabularies.VocabularyEditor,
+                        config: {
+                            vocabId: "@item.id",
+                            vocabName: "@item.toStringLang",
+                            title: "@Messages("cvocVocabulary.items.editor", item.toStringLang)"
+                        },
+                        langData: window.__languageData,
+                        localeHelpers: window.LocaleData
+                    });
                 }
             }).mount("#vue-app");
     </script>
