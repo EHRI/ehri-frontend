@@ -1,32 +1,5 @@
 @(item: Model, desc: Description, holderIds: Seq[String] = Seq.empty)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
-<script>
-    window.CONFIG = {
-        id: "@item.id",
-        did: "@desc.id",
-        holderIds: [@Html(holderIds.map(id => "\"" + id + "\"").mkString(", "))],
-        linkType: "@LinkF.LinkType.Associative",
-        typeFilters: {
-            creator: ["@EntityType.HistoricalAgent"],
-            person: ["@EntityType.HistoricalAgent"],
-            family: ["@EntityType.HistoricalAgent"],
-            corporateBody: ["@EntityType.HistoricalAgent"],
-            place: ["@EntityType.Concept"],
-            subject: ["@EntityType.Concept"],
-            genre: ["@EntityType.Concept"]
-
-        },
-        labels: {
-            @AccessPointF.AccessPointType.values.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
-            }
-        }
-    };
-    window.LABELS = {
-    @AccessPointF.AccessPointType.values.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
-    }
-    };
-</script>
-
 <i>@Messages("accessPoint.editing", desc.name)</i>
 <div id="ap-editor"></div>
 
@@ -35,7 +8,29 @@
 <script>
             Vue.createApp({
                 render: function() {
-                    return Vue.h(App.default);
+                    return Vue.h(App.default, {
+                        service: window.SERVICE, // FIXME: move inline?
+                        config: {
+                            id: "@item.id",
+                            did: "@desc.id",
+                            holderIds: [@Html(holderIds.map(id => "\"" + id + "\"").mkString(", "))],
+                            linkType: "@LinkF.LinkType.Associative",
+                            typeFilters: {
+                                creator: ["@EntityType.HistoricalAgent"],
+                                person: ["@EntityType.HistoricalAgent"],
+                                family: ["@EntityType.HistoricalAgent"],
+                                corporateBody: ["@EntityType.HistoricalAgent"],
+                                place: ["@EntityType.Concept"],
+                                subject: ["@EntityType.Concept"],
+                                genre: ["@EntityType.Concept"]
+
+                            },
+                            labels: {
+                                @AccessPointF.AccessPointType.values.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
+                                }
+                            }
+                        }
+                    });
                 },
             }).mount("#ap-editor");
     </script>

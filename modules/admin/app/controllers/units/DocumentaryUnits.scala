@@ -405,5 +405,3 @@ case class DocumentaryUnits @Inject()(
     }.getOrElse(InternalServerError(views.html.errors.fatalError()))
   }
 }
-
-
