@@ -2,12 +2,16 @@ package services.search
 
 import akka.actor.ActorRef
 import play.api.Logger
+import services.data.EventForwarder.{Create, Update, Delete}
 import services.data.EventHandler
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class IndexingEventHandler @Inject()(searchIndexer: SearchIndexMediator, @Named("event-forwarder") forwarder: ActorRef)(implicit ec: ExecutionContext) extends EventHandler {
+case class IndexingEventHandler @Inject()(
+  searchIndexer: SearchIndexMediator,
+  @Named("event-forwarder") forwarder: ActorRef
+)(implicit ec: ExecutionContext) extends EventHandler {
 
   private val logger = Logger(getClass)
 
@@ -18,19 +22,17 @@ case class IndexingEventHandler @Inject()(searchIndexer: SearchIndexMediator, @N
   import java.util.concurrent.TimeUnit
   import scala.concurrent.duration.Duration
 
-  private def join(ids: Seq[String]): String = ids.mkString(" ")
-
   private def logFailure(ids: Seq[String], func: Seq[String] => Future[Unit]): Unit = func(ids).failed.foreach {
     t => logger.error(s"Indexing error", t)
   }
 
   def handleCreate(ids: String*): Unit = {
-    forwarder ! s"create ${join(ids)}"
+    forwarder ! Create(ids)
     logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
   }
 
   def handleUpdate(ids: String*): Unit = {
-    forwarder ! s"update ${join(ids)}"
+    forwarder ! Update(ids)
     logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
   }
 
@@ -38,7 +40,7 @@ case class IndexingEventHandler @Inject()(searchIndexer: SearchIndexMediator, @N
   // after redirects because the item is still in the search index but not in
   // the database.
   def handleDelete(ids: String*): Unit = logFailure(ids, ids => Future.successful[Unit] {
-    forwarder ! s"delete ${join(ids)}"
+    forwarder ! Delete(ids)
     concurrent.Await.result(searchIndexer.handle.clearIds(ids: _*), Duration(1, TimeUnit.MINUTES))
   })
 }

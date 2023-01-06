@@ -43,7 +43,7 @@ case class Utils @Inject()(
     case Done => CompletionStrategy.immediately
   }
 
-  private val (ref: ActorRef, source: Source[String, NotUsed]) = Source.actorRef[String](
+  private val (ref: ActorRef, source: Source[EventForwarder.Action, NotUsed]) = Source.actorRef[EventForwarder.Action](
     completionMatcher = completionMatcher,
     failureMatcher = PartialFunction.empty[Any, Throwable], // Never fail this stream
     bufferSize = 100,
@@ -53,6 +53,18 @@ case class Utils @Inject()(
 
   // Subscribe to events...
   forwarder ! EventForwarder.Subscribe(ref)
+
+  /**
+    * Add a Server-Send event feed of items created, updated or deleted
+    */
+  def sse: Action[AnyContent] = Action { implicit request =>
+    import services.data.EventForwarder._
+    Ok.chunked(source.map {
+      case Create(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("create-event"), id = None)
+      case Update(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("update-event"), id = None)
+      case Delete(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("delete-event"), id = None)
+    }).as(MimeTypes.EVENT_STREAM)
+  }
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -90,9 +102,5 @@ case class Utils @Inject()(
       }
       Ok(out)
     }
-  }
-
-  def sse: Action[AnyContent] = Action { implicit request =>
-    Ok.chunked(source.via(EventSource.flow)).as(MimeTypes.EVENT_STREAM)
   }
 }
