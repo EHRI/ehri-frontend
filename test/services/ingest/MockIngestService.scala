@@ -31,4 +31,6 @@ case class MockIngestService(res: IngestResult) extends IngestService {
 
   override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser) =
     Future.successful(res)
+
+  override def emitEvents(res: IngestResult): Unit = ()
 }

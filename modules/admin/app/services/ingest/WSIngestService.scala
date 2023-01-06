@@ -14,7 +14,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
-import models.{ContentTypes, EntityType, ErrorLog, FilePayload, FileProperties, IngestParams, IngestResult, UrlMapPayload, UrlProperties}
+import models.{ContentTypes, EntityType, ErrorLog, FilePayload, FileProperties, IngestParams, IngestResult, ImportLog, SyncLog, UrlMapPayload, UrlProperties}
 import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject
@@ -24,6 +24,7 @@ import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
+import services.data.EventForwarder.Delete
 import services.data.{Constants, DataUser}
 import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator}
@@ -43,6 +44,7 @@ case class WSIngestService @Inject()(
   pageRelocator: MovedPageLookup,
   cache: AsyncCacheApi,
   @Named("dam") fileStorage: FileStorage,
+  @Named("event-forwarder") eventForwarder: ActorRef
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
 
   import services.ingest.IngestService._
@@ -141,6 +143,20 @@ case class WSIngestService @Inject()(
     for (_ <-  cacheF; r <- indexF) yield r
   }
 
+  override def emitEvents(res: IngestResult): Unit = {
+    import services.data.EventForwarder._
+    res match {
+      case SyncLog(deleted, created, moved, log) =>
+        eventForwarder ! Delete(deleted)
+        eventForwarder ! Create(created)
+        eventForwarder ! Update(moved.values.toSeq)
+      case ImportLog(createdKeys, updatedKeys, unchangedKeys, message, event, errors) =>
+        eventForwarder ! Create(createdKeys.values.toSeq.flatten)
+        eventForwarder ! Update(updatedKeys.values.toSeq.flatten)
+      case _ =>
+    }
+  }
+
   // Run the actual data ingest on the backend
   override def importData(job: IngestJob): Future[IngestResult] = {
     import scala.concurrent.duration._
@@ -200,7 +216,7 @@ case class WSIngestService @Inject()(
       BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
 
     logger.info(s"Dispatching ingest: ${job.data.params}")
-    val upload = ws.url(s"${serviceConfig.baseUrl}/import/${job.data.dataType}")
+    val ingestResult = ws.url(s"${serviceConfig.baseUrl}/import/${job.data.dataType}")
       .withRequestTimeout(Duration.Inf)
       .addHttpHeaders(serviceConfig.authHeaders: _*)
       .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
@@ -222,12 +238,12 @@ case class WSIngestService @Inject()(
         ErrorLog(s"Unexpected error running ingest", e.getMessage)
     }
 
-    upload.onComplete { _ =>
+    ingestResult.onComplete { _ =>
       // Delete properties temp file...
       propFile.foreach(f => f.toFile.delete())
     }
 
-    upload
+    ingestResult
   }
 
   override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser): Future[IngestResult] = {

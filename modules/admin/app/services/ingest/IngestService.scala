@@ -46,7 +46,7 @@ trait IngestService {
   /**
     * Import coreference data into the backend
     *
-    * @param id the scope ID
+    * @param id   the scope ID
     * @param refs a sequence text-to-target-id pair
     * @return an ingest result object
     */
@@ -89,4 +89,9 @@ trait IngestService {
     * @param chan a channel to forward progress messages
     */
   def clearIndex(ids: Seq[String], chan: ActorRef): Future[Unit]
+
+  /**
+    * Emit lifecycle events associated with the ingest operation.
+    */
+  def emitEvents(res: IngestResult): Unit
 }
