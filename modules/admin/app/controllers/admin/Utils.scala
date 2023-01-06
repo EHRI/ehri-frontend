@@ -1,19 +1,24 @@
 package controllers.admin
 
-import akka.stream.Materializer
+import akka.{Done, NotUsed}
+import akka.actor.ActorRef
+import akka.stream.scaladsl.{BroadcastHub, Keep, Source}
+import akka.stream.{CompletionStrategy, Materializer, OverflowStrategy}
 import controllers.AppComponents
 import controllers.base.AdminController
-import javax.inject._
+import play.api.http.MimeTypes
+import play.api.libs.EventSource
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.AuthenticatedUser
+import services.data.{AuthenticatedUser, EventForwarder}
 import services.ingest.EadValidator
 import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
 
+import javax.inject._
 import scala.concurrent.Future
 
 
@@ -29,9 +34,25 @@ case class Utils @Inject()(
   eadValidator: EadValidator,
   cypher: CypherService,
   @Named("dam") storage: FileStorage,
+  @Named("event-forwarder") forwarder: ActorRef
 )(implicit mat: Materializer) extends AdminController {
 
   override val staffOnly = false
+
+  private val completionMatcher: PartialFunction[Any, CompletionStrategy] = {
+    case Done => CompletionStrategy.immediately
+  }
+
+  private val (ref: ActorRef, source: Source[String, NotUsed]) = Source.actorRef[String](
+    completionMatcher = completionMatcher,
+    failureMatcher = PartialFunction.empty[Any, Throwable], // Never fail this stream
+    bufferSize = 100,
+    overflowStrategy = OverflowStrategy.dropTail)
+    .toMat(BroadcastHub.sink)(Keep.both)
+    .run()
+
+  // Subscribe to events...
+  forwarder ! EventForwarder.Subscribe(ref)
 
   /** Check the database is up by trying to load the admin account.
     */
@@ -69,5 +90,9 @@ case class Utils @Inject()(
       }
       Ok(out)
     }
+  }
+
+  def sse: Action[AnyContent] = Action { implicit request =>
+    Ok.chunked(source.via(EventSource.flow)).as(MimeTypes.EVENT_STREAM)
   }
 }
