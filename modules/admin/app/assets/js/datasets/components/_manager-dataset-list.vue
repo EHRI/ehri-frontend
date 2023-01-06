@@ -237,8 +237,8 @@ export default {
             v-bind:api="api"
             v-bind:config="config"
             v-on:close="showBatchForm = false"
-            v-on:processing="id => $set(working, id, true)"
-            v-on:processing-done="id => {$delete(working, id); loadStats();}"
+            v-on:processing="id => {working[id] = true}"
+            v-on:processing-done="id => {delete working[id]; loadStats();}"
         />
       </keep-alive>
 
