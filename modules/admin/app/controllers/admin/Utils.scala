@@ -18,6 +18,8 @@ import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
 
+import java.time.Instant
+import java.util.UUID
 import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
@@ -62,11 +64,17 @@ case class Utils @Inject()(
     import services.data.EventForwarder._
     val keepAlivePeriod = config.get[FiniteDuration]("ehri.eventStream.keepAlive")
 
+    def toPayload(ids: Seq[String], name: String): EventSource.Event =
+      EventSource.Event(Json.stringify(
+        Json.obj("datetime" -> Instant.now(), "ids" -> ids)),
+        name = Some(name),
+        id = Some(UUID.randomUUID().toString))
+
     val events = eventSource.collect {
-      case Create(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("create-event"), id = None)
-      case Update(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("update-event"), id = None)
-      case Delete(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("delete-event"), id = None)
-    }.keepAlive(keepAlivePeriod, () => EventSource.Event(": keep-alive"))
+      case Create(ids) if ids.nonEmpty => toPayload(ids, "create-event")
+      case Update(ids) if ids.nonEmpty => toPayload(ids, "update-event")
+      case Delete(ids) if ids.nonEmpty => toPayload(ids, "delete-event")
+    }.keepAlive(keepAlivePeriod, () => EventSource.Event(""))
 
     Ok.chunked(events).as(MimeTypes.EVENT_STREAM)
   }
