@@ -7,6 +7,11 @@ import javax.inject.Inject
 object EventForwarder {
   case class Subscribe(actorRef: ActorRef)
   case class Unsubscribe(actorRef: ActorRef)
+
+  sealed trait Action
+  case class Create(ids: Seq[String]) extends Action
+  case class Update(ids: Seq[String]) extends Action
+  case class Delete(ids: Seq[String]) extends Action
 }
 
 class EventForwarder @Inject() () extends Actor with ActorLogging {
