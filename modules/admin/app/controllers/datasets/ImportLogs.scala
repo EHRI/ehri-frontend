@@ -1,5 +1,6 @@
 package controllers.datasets
 
+import akka.actor.ActorRef
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import controllers.AppComponents
@@ -10,6 +11,7 @@ import play.api.Logger
 import play.api.libs.json.{Format, JsString, Json, Reads}
 import play.api.mvc._
 import services.cypher.CypherService
+import services.data.EventForwarder
 import services.ingest.{ImportLogService, IngestService}
 import services.storage.FileStorage
 
@@ -36,6 +38,7 @@ object CleanupSummary {
 case class ImportLogs @Inject()(
   controllerComponents: ControllerComponents,
   @Named("dam") storage: FileStorage,
+  @Named("event-forwarder") eventForwarder: ActorRef,
   appComponents: AppComponents,
   importLogService: ImportLogService,
   cypherServer: CypherService,
@@ -110,6 +113,7 @@ case class ImportLogs @Inject()(
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- userDataApi.batchDelete(cleanup.deletions, Some(id), logMsg = request.body.msg,
           version = true, tolerant = true, commit = true)
+      _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions)
       _ = logger.info(s"Done deletions: $delCount")
       _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
     } yield {

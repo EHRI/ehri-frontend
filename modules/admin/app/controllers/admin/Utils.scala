@@ -1,9 +1,9 @@
 package controllers.admin
 
-import akka.{Done, NotUsed}
 import akka.actor.ActorRef
 import akka.stream.scaladsl.{BroadcastHub, Keep, Source}
 import akka.stream.{CompletionStrategy, Materializer, OverflowStrategy}
+import akka.{Done, NotUsed}
 import controllers.AppComponents
 import controllers.base.AdminController
 import play.api.http.MimeTypes
@@ -20,6 +20,7 @@ import utils.PageParams
 
 import javax.inject._
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
 
 
 /**
@@ -43,7 +44,7 @@ case class Utils @Inject()(
     case Done => CompletionStrategy.immediately
   }
 
-  private val (ref: ActorRef, source: Source[EventForwarder.Action, NotUsed]) = Source.actorRef[EventForwarder.Action](
+  private val (handler: ActorRef, eventSource: Source[EventForwarder.Action, NotUsed]) = Source.actorRef[EventForwarder.Action](
     completionMatcher = completionMatcher,
     failureMatcher = PartialFunction.empty[Any, Throwable], // Never fail this stream
     bufferSize = 100,
@@ -52,18 +53,22 @@ case class Utils @Inject()(
     .run()
 
   // Subscribe to events...
-  forwarder ! EventForwarder.Subscribe(ref)
+  forwarder ! EventForwarder.Subscribe(handler)
 
   /**
     * Add a Server-Send event feed of items created, updated or deleted
     */
   def sse: Action[AnyContent] = Action { implicit request =>
     import services.data.EventForwarder._
-    Ok.chunked(source.map {
-      case Create(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("create-event"), id = None)
-      case Update(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("update-event"), id = None)
-      case Delete(ids) => EventSource.Event(Json.stringify(Json.arr(ids)), name = Some("delete-event"), id = None)
-    }).as(MimeTypes.EVENT_STREAM)
+    val keepAlivePeriod = config.get[FiniteDuration]("ehri.eventStream.keepAlive")
+
+    val events = eventSource.collect {
+      case Create(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("create-event"), id = None)
+      case Update(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("update-event"), id = None)
+      case Delete(ids) if ids.nonEmpty => EventSource.Event(Json.stringify(Json.toJson(ids)), name = Some("delete-event"), id = None)
+    }.keepAlive(keepAlivePeriod, () => EventSource.Event(": keep-alive"))
+
+    Ok.chunked(events).as(MimeTypes.EVENT_STREAM)
   }
 
   /** Check the database is up by trying to load the admin account.

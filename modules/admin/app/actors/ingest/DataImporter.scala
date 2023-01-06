@@ -102,6 +102,7 @@ case class DataImporter(job: IngestJob, ingestApi: IngestService, onDone: (Inges
           .flatMap(done => {
             ingestApi.clearIndex(sync.deleted ++ sync.moved.keys.toSeq, forwarder).map { _ =>
               msgTo ! Message(s"Remapped $done item(s)")
+              ingestApi.emitEvents(sync)
               sync.log
             }
           })
@@ -122,6 +123,7 @@ case class DataImporter(job: IngestJob, ingestApi: IngestService, onDone: (Inges
           val updated: Seq[String] = job.data.params.scope +: (
             log.createdKeys.values.flatten.toSeq ++ log.updatedKeys.values.flatten.toSeq)
           msgTo ! Message("Reindexing...")
+          ingestApi.emitEvents(log)
           ingestApi.reindex(updated, forwarder).map(_ => self ! SaveLog(log))
         } else {
           msgTo ! Message("No reindexing necessary")
