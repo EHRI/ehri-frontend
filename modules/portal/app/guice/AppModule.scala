@@ -7,8 +7,9 @@ import com.google.inject.name.Names
 import config.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
+import play.api.libs.concurrent.AkkaGuiceSupport
 import services.RateLimitChecker
-import services.cypher.{CypherQueryService, CypherService, WsCypherService, SqlCypherQueryService}
+import services.cypher.{CypherQueryService, CypherService, SqlCypherQueryService, WsCypherService}
 import services.data._
 import services.feedback.{FeedbackService, SqlFeedbackService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
@@ -30,7 +31,7 @@ private class DamStorageProvider @Inject()(config: play.api.Configuration)(impli
     S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("storage.dam"))
 }
 
-class AppModule extends AbstractModule {
+class AppModule extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
     bind(classOf[AppConfig])
     bind(classOf[RateLimitChecker])
@@ -47,5 +48,6 @@ class AppModule extends AbstractModule {
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
     bind(classOf[MarkdownRenderer]).to(classOf[SanitisingMarkdownRenderer])
     bind(classOf[CypherService]).to(classOf[WsCypherService])
+    bindActor[EventForwarder]("event-forwarder")
   }
 }
