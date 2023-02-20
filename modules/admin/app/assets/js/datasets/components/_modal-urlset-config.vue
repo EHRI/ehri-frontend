@@ -5,10 +5,11 @@ import ModalAlert from './_modal-alert';
 import {DatasetManagerApi} from '../api';
 import EditorUrlset from "./_editor-urlset.vue";
 import FormHttpBasicAuth from "./_form-http-basic-auth";
+import FormHttpHeader from "./_form-http-header";
 import {decodeTsv, encodeTsv} from "../common";
 
 export default {
-  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth},
+  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth, FormHttpHeader},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -21,6 +22,7 @@ export default {
       urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
       auth: this.opts ? this.opts.auth : null,
+      headerOpt: this.opts ? this.opts.headerOpt : null,
       tested: null,
       testing: false,
       cleaning: false,
@@ -35,7 +37,8 @@ export default {
     isValidConfig: function() {
       return this.urlMap !== null
           && this.urlMap.length > 0
-          && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""));
+          && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""))
+          && (!this.headerOpt || this.headerOpt.header.indexOf(":") > 0);
     },
     urlMapText: {
       get: function(): string {
@@ -54,8 +57,8 @@ export default {
       }
       this.$emit("saving");
       try {
-        let data = await this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null});
-        this.$emit("saved-config", {...data, auth: this.auth});
+        let data = await this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null, headerOpt: null});
+        this.$emit("saved-config", {...data, auth: this.auth, headerOpt: this.headerOpt});
       } catch (e) {
         this.$emit("error", "Error saving URL set config", e?.response?.data?.error);
       }
@@ -68,7 +71,7 @@ export default {
       this.testing = true;
       this.error = null;
       try {
-        await this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth});
+        await this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth, headerOpt: this.headerOpt});
         this.tested = true;
       } catch (e) {
         this.tested = false;
@@ -176,6 +179,7 @@ export default {
     </div>
     <div v-else class="options-form">
       <form-http-basic-auth v-model="auth"/>
+      <form-http-header v-model="headerOpt"/>
     </div>
     
     <div id="endpoint-errors">
