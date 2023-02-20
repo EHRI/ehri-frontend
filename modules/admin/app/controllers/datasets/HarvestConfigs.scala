@@ -175,7 +175,7 @@ case class HarvestConfigs @Inject()(
     } else {
       // Check all rows response to a HEAD request with the right info...
       def req(url: String): Future[Option[(String, String)]] = try {
-        authReq(url, config.auth).head().map { r =>
+        authReq(url, config.auth, config.headerOpt).head().map { r =>
           checkRemoteFile(r).map(err => url -> err)
         }
       } catch {
@@ -272,10 +272,15 @@ case class HarvestConfigs @Inject()(
       yield stored -- remote
   }
 
-  private def authReq(url: String, auth: Option[BasicAuthConfig]): WSRequest =
-    auth.fold(ws.url(url)) { case BasicAuthConfig(username, password) =>
-      ws.url(url).withAuth(username, password, WSAuthScheme.BASIC)
+  private def authReq(url: String, auth: Option[BasicAuthConfig], headerOpt: Option[List[Tuple2[String, String]]] = None): WSRequest = {
+    val withHeader = headerOpt.fold(ws.url(url)) {
+      case headerValue: List[Map[String, String]] => 
+        ws.url(url).withHttpHeaders(headerValue:_*)
     }
+    auth.fold(withHeader) { 
+        case BasicAuthConfig(username, password) => withHeader.withAuth(username, password, WSAuthScheme.BASIC) }
+  }
+    
 
   private def checkRemoteFile(r: WSRequest#Response): Option[String] = {
     if (r.status != 200)

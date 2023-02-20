@@ -7,6 +7,7 @@ case class UrlNameMap(url: String, name: String)
 case class UrlSetConfig(
   urlMap: Seq[(String, String)],
   auth: Option[BasicAuthConfig] = None,
+  headerOpt: Option[List[Tuple2[String, String]]] = None,
 ) extends HarvestConfig {
   override def src: ImportDataset.Src.Value = ImportDataset.Src.UrlSet
 
@@ -24,6 +25,7 @@ case class UrlSetConfig(
 object UrlSetConfig {
   val URLS = "urlMap"
   val AUTH = "auth"
+  val HEADEROPT = "headerOpt"
 
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
@@ -32,7 +34,8 @@ object UrlSetConfig {
     (__ \ URLS).read[Seq[(String, String)]](Reads.seq(Reads.Tuple2R[String, String](
       Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl),
       Reads.pattern("^[\\w.-_]+$".r, "harvesting.error.invalidFileName")))) and
-    (__ \ AUTH).readNullable[BasicAuthConfig]
+    (__ \ AUTH).readNullable[BasicAuthConfig] and
+    (__ \ HEADEROPT \ "header").readNullable[String].map(_.map(_.split("(: ?)| ").grouped(2).map { case Array(k, v) => k -> v }.toList))
   ) (UrlSetConfig.apply _)
 
   implicit val _writes: Writes[UrlSetConfig] = Json.writes[UrlSetConfig]
