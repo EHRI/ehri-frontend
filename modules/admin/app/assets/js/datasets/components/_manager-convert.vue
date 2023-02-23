@@ -149,7 +149,7 @@ export default {
         this.loading = false;
       }
     },
-    saveConfig: async function(force: boolean = false) {
+    saveConfig: async function() {
       try {
         let config = this.state.map(([id, p, _]) => [id, p]);
         await this.api.saveConvertConfig(this.datasetId, config);
@@ -179,7 +179,7 @@ export default {
       let [id, _, m] = this.state[this.editingParameters];
       this.state.splice(this.editingParameters, 1, [id, obj, m]);
       this.editingParameters = null;
-      this.saveConfig(true);
+      this.saveConfig();
     },
     cancelEditParamters: function() {
       this.editingParameters = null;
@@ -222,10 +222,13 @@ export default {
     },
   },
   watch: {
-    state: function() {
-      if (!this.loading) {
-        this.saveConfig();
-      }
+    state: {
+      handler: function() {
+        if (!this.loading) {
+          this.saveConfig();
+        }
+      },
+      deep: true
     },
     datasetId: function() {
       Object.assign(this.$data, initialConvertState(this.config));
