@@ -16,7 +16,7 @@ case class SqlResourceSyncConfigService @Inject()(db: Database, actorSystem: Act
 
   private implicit val parser: RowParser[ResourceSyncConfig] = {
     SqlParser.str("endpoint_url") ~
-      SqlParser.get[Option[String]]("filter_spec")
+    SqlParser.get[Option[String]]("filter_spec")
   }.map {
     case url ~ spec => ResourceSyncConfig(url, spec)
   }

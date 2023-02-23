@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import _isObject from 'lodash/isObject';
 
@@ -11,7 +11,6 @@ export default {
       show: _isObject(this.modelValue),
       username: this.modelValue ? this.modelValue.username : "",
       password: this.modelValue ? this.modelValue.password : "",
-
     }
   },
   methods: {

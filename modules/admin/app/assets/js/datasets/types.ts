@@ -3,15 +3,15 @@
  */
 
 export type ConfigType = {
-  repoId: string;
-  versioned: boolean;
-  input: string;
-  output: string;
-  config: string;
-  previewLoader: string;
-  defaultTab: string;
-  monitorUrl: (jobId: string) => string;
-  maxPreviewSize: number;
+  repoId: string,
+  versioned: boolean,
+  input: string,
+  output: string,
+  config: string,
+  previewLoader: string,
+  defaultTab: string,
+  monitorUrl: (jobId: string) => string,
+  maxPreviewSize: number,
 }
 
 export interface BasicAuthConfig {
@@ -23,21 +23,22 @@ export interface OaiPmhConfig {
   url: string,
   format: string,
   set?: string,
-  auth?: BasicAuthConfig
+  auth?: BasicAuthConfig,
 }
 
 export interface ResourceSyncConfig {
   url: string,
   filter?: string,
-  auth?: BasicAuthConfig
+  auth?: BasicAuthConfig,
 }
 
 export interface UrlSetConfig {
   urlMap: string[][],
-  auth?: BasicAuthConfig
+  auth?: BasicAuthConfig,
+  headers: [string, string][],
 }
 
-export type HarvestConfig = OaiPmhConfig | ResourceSyncConfig | UrlSetConfig
+export type HarvestConfig = OaiPmhConfig | ResourceSyncConfig | UrlSetConfig;
 
 export interface ImportConfig {
   allowUpdates: boolean,
@@ -78,7 +79,7 @@ export interface DataTransformationInfo {
   hasParams: boolean,
 }
 
-export interface DataTransformation extends DataTransformationInfo{
+export interface DataTransformation extends DataTransformationInfo {
   id: string,
   repoId?: string,
   created: string,
@@ -108,7 +109,7 @@ export interface RepositoryDatasets {
   repoId: string,
   name: string,
   logoUrl: string,
-  sets: ImportDataset[]
+  sets: ImportDataset[],
 }
 
 
@@ -160,7 +161,7 @@ export interface Snapshot {
 
 export interface Cleanup {
   redirects: string[][],
-  deletions: string[]
+  deletions: string[],
 }
 
 export interface SnapshotInfo {
