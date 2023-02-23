@@ -16,34 +16,43 @@ case class SqlUrlSetConfigService @Inject()(db: Database, actorSystem: ActorSyst
   private implicit def executionContext: ExecutionContext =
     actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  private implicit val parser: RowParser[UrlSetConfig] = SqlParser.scalar(fromJson[Seq[(String, String)]])
-    .map(m => UrlSetConfig(m))
+  private implicit val parser: RowParser[UrlSetConfig] = {
+    SqlParser.get("url_map")(fromJson[Seq[(String, String)]]) ~
+    SqlParser.get("headers")(fromJson[Seq[(String, String)]]).?
+  }.map { case m ~ h => UrlSetConfig(m, headers = h)}
 
   override def get(id: String, ds: String): Future[Option[UrlSetConfig]] = Future {
     db.withConnection { implicit conn =>
-      SQL"SELECT url_map FROM import_url_set_config WHERE repo_id = $id AND import_dataset_id = $ds"
+      SQL"""SELECT url_map, headers
+           FROM import_url_set_config
+           WHERE repo_id = $id
+            AND import_dataset_id = $ds"""
         .as(parser.singleOpt)
     }
   }
 
   override def delete(id: String, ds: String): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
-      SQL"DELETE FROM import_url_set_config WHERE repo_id = $id AND import_dataset_id = $ds".executeUpdate() == 1
+      SQL"""DELETE FROM import_url_set_config
+           WHERE repo_id = $id
+             AND import_dataset_id = $ds""".executeUpdate() == 1
     }
   }
 
   override def save(id: String, ds: String, data: UrlSetConfig): Future[UrlSetConfig] = Future {
     db.withTransaction { implicit conn =>
       SQL"""INSERT INTO import_url_set_config
-        (repo_id, import_dataset_id, url_map)
+        (repo_id, import_dataset_id, url_map, headers)
         VALUES (
           $id,
           $ds,
-          ${Json.toJson(data.urlMap)}
+          ${asJson(data.urlMap)},
+          ${data.headers.map(kv => Json.toJson(kv))}
       ) ON CONFLICT (repo_id, import_dataset_id) DO UPDATE
         SET
-          url_map = ${Json.toJson(data.urlMap)}
-        RETURNING url_map
+          url_map = ${asJson(data.urlMap)},
+          headers = ${data.headers.map(kv => Json.toJson(kv))}
+        RETURNING url_map, headers
       """.executeInsert(parser.single)
     }
   }

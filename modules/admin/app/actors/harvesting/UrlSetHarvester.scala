@@ -91,12 +91,11 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
     val name = item.name
     val path = job.data.prefix + name
 
-    val withHeader = job.data.config.headerOpt.fold(client.url(item.url)) {
-      case headerValue: List[Tuple2[String, String]] => 
-        client.url(item.url).withHttpHeaders(headerValue:_*)
+    val withHeaders = job.data.config.headers.fold(client.url(item.url)) { headers =>
+        client.url(item.url).withHttpHeaders(headers: _*)
     }
-    val req = job.data.config.auth.fold(withHeader) { case BasicAuthConfig(username, password) =>
-      withHeader.withAuth(username, password, WSAuthScheme.BASIC)
+    val req = job.data.config.auth.fold(withHeaders) { case BasicAuthConfig(username, password) =>
+      withHeaders.withAuth(username, password, WSAuthScheme.BASIC)
     }
 
     req.head().flatMap { headReq =>
