@@ -118,11 +118,11 @@
 @facetDate(fc: FacetClass[Facet]) = {
     <li class="facet-class facet-date @{if(fc.isActive) "active"}">
         <h4 class="facet-label">
-            @Messages(fc.name)
+            @facetLabel(fc)
             @if(fc.facets.isEmpty) {
                 <a rel="nofollow" href="#" class="date-submit">
                     <i class="fa fa-check-circle-o" aria-hidden="true"></i>
-                    <span class="sr-only">@Messages("facet.date")</span>
+                    <span class="sr-only">@Messages("facet.dates")</span>
                 </a>
             }
         </h4>

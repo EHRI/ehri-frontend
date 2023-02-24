@@ -116,6 +116,11 @@ object SearchConstants {
   final val LANGUAGE_CODE = "languageCode"
 
   /**
+    * Date range
+    */
+  final val DATE_RANGE = "dateRange"
+
+  /**
    * Default limit, if none is set
    */
   final val DEFAULT_SEARCH_LIMIT = 20

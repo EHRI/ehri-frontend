@@ -15,6 +15,7 @@ class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSuppor
   "date utils" should {
     "format correctly as Solr" in {
       dateFacetUtils.formatAsQuery("1940-1980") must equalTo(Val(startDate(1940)) to Val(endDate(1980)))
+      dateFacetUtils.formatAsQuery("1940") must equalTo(Val(1940))
       dateFacetUtils.formatAsQuery("1940-") must equalTo(Val(startDate(1940)) to End)
       dateFacetUtils.formatAsQuery("1940-1940") must equalTo(Val(startDate(1940)) to Val(endDate(1940)))
       dateFacetUtils.formatAsQuery("-1980") must equalTo(Start to Val(endDate(1980)))
@@ -27,12 +28,13 @@ class DateFacetUtilsSpec extends PlaySpecification with play.api.i18n.I18nSuppor
       // NB: We need a request in scope for i18n, but since there's
       // no application (and therefore messages files) we don't
       // actually get a language-aware string out
-      dateFacetUtils.formatReadable("1940-1980") must equalTo(Some(messagesApi(DATE_PARAM + ".between", 1940, 1980)))
-      dateFacetUtils.formatReadable("1980-1940") must equalTo(Some(messagesApi(DATE_PARAM + ".between", 1940, 1980)))
-      dateFacetUtils.formatReadable("1940-") must equalTo(Some(messagesApi(DATE_PARAM + ".after", 1940)))
-      dateFacetUtils.formatReadable("-1980") must equalTo(Some(messagesApi(DATE_PARAM + ".before", 1980)))
-      dateFacetUtils.formatReadable("1940-1940") must equalTo(Some(messagesApi(DATE_PARAM + ".exact", 1940, 1980)))
-      dateFacetUtils.formatReadable("-") must equalTo(Some(messagesApi(DATE_PARAM + ".all")))
+      dateFacetUtils.formatReadable("1940-1980") must beSome(messagesApi(DATE_PARAM + ".between", 1940, 1980))
+      dateFacetUtils.formatReadable("1980-1940") must beSome(messagesApi(DATE_PARAM + ".between", 1940, 1980))
+      dateFacetUtils.formatReadable("1940-") must beSome(messagesApi(DATE_PARAM + ".after", 1940))
+      dateFacetUtils.formatReadable("-1980") must beSome(messagesApi(DATE_PARAM + ".before", 1980))
+      dateFacetUtils.formatReadable("1940-1940") must beSome(messagesApi(DATE_PARAM + ".exact", 1940))
+      dateFacetUtils.formatReadable("1940") must beSome(messagesApi(DATE_PARAM + ".exact", 1940))
+      dateFacetUtils.formatReadable("-") must beSome(messagesApi(DATE_PARAM + ".all"))
     }
   }
 }

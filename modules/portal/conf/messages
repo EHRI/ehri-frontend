@@ -245,7 +245,7 @@ dates.start.year=Start Year
 dates.end.year=End Year
 dates.exact={0,number,#}
 dates.before=Before {0,number,#}
-dates.between=Between {0,number,#} and {1,number,#}
+dates.between={0,number,#} to {1,number,#}
 dates.after=After {0,number,#}
 dates.all=All
 
@@ -571,7 +571,8 @@ facet.restricted=Visibility
 facet.restricted.tooltip=Whether or not an item is accessible only to certain users or groups.
 facet.restricted.true=Restricted
 facet.restricted.false=Unrestricted
-facet.date=Date Range
+facet.dates=Dates
+facet.dates.tooltip=An inclusive date or date range covered by the material, if provided.
 
 
 

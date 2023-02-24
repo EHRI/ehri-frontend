@@ -23,7 +23,7 @@ import services.cypher.CypherService
 import services.data._
 import services.search.SearchConstants._
 import services.search._
-import utils.{FieldFilter, Page, PageParams}
+import utils.{DateFacetUtils, FieldFilter, Page, PageParams}
 import views.Helpers
 
 import java.time.ZonedDateTime
@@ -55,7 +55,8 @@ case class ApiV1 @Inject()(
   ws: WSClient,
   cypher: CypherService,
   rateLimits: RateLimitChecker,
-  mat: Materializer
+  mat: Materializer,
+  dfu: DateFacetUtils
 ) extends CoreActionBuilders
   with ControllerHelpers
   with Search
@@ -70,6 +71,7 @@ case class ApiV1 @Inject()(
   protected val authHandler: AuthHandler = appComponents.authHandler
   protected val searchEngine: SearchEngine = appComponents.searchEngine
   protected val searchResolver: SearchItemResolver = appComponents.searchResolver
+
   protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
   import ApiV1._
@@ -82,8 +84,6 @@ case class ApiV1 @Inject()(
   private val hitsPerSecond = 1000
   // basically, no limit at the moment
   private val rateLimitTimeoutDuration: FiniteDuration = 1.second
-
-
 
   // Available facets, defined in `ApiFacet`
   private def apiSearchFacets(facets: Seq[String] = Seq.empty): FacetBuilder = { implicit request =>
@@ -110,6 +110,14 @@ case class ApiV1 @Inject()(
         name = Messages("facet.lang"),
         param = ApiFacet.Lang.toString,
         render = (s: String) => Helpers.languageCodeToName(s),
+      )
+      case Some(ApiFacet.Date) => QueryFacetClass(
+        key = DATE_RANGE,
+        name = Messages("facet.dates"),
+        param = ApiFacet.Date.toString,
+        sort = FacetSort.Fixed,
+        facets = for (value <- config.get[Seq[String]]("search.dateFacetRanges"))
+          yield QueryFacet(value, dfu.formatReadable(value), range = dfu.formatAsQuery(value))
       )
     }
   }
@@ -173,14 +181,14 @@ case class ApiV1 @Inject()(
     */
   private def filterAttributes(js: JsValue, fields: Seq[FieldFilter]): JsValue = {
     def filterObject(js: JsObject, keys: Seq[String]): JsObject =
-    JsObject(js.fields.filter { case (k, v) => keys.contains(k) })
+      JsObject(js.fields.filter { case (k, v) => keys.contains(k) })
 
     def filterType(js: JsObject, filter: FieldFilter): JsObject =
-    (for {
-      tp <- js.value.get("type") if tp == JsString(filter.et.toString)
-      attrs <- js.value.get("attributes").flatMap(_.asOpt[JsObject])
-    } yield JsObject(js.value.updated("attributes", filterObject(attrs, filter.fields)).toSeq))
-      .getOrElse(js)
+      (for {
+        tp <- js.value.get("type") if tp == JsString(filter.et.toString)
+        attrs <- js.value.get("attributes").flatMap(_.asOpt[JsObject])
+      } yield JsObject(js.value.updated("attributes", filterObject(attrs, filter.fields)).toSeq))
+        .getOrElse(js)
 
     fields.foldLeft(js.as[JsObject])(filterType)
   }
