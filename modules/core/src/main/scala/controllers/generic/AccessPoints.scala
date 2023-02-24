@@ -1,8 +1,8 @@
 package controllers.generic
 
 import models.AccessPointF.AccessPointType
-import models.{AccessPointF, DescribedModel, EntityType, Link, LinkF, Model, Resource}
-import play.api.libs.json.{Format, Json, OFormat}
+import models._
+import play.api.libs.json.{Format, Json}
 import play.api.mvc.{Action, AnyContent}
 
 

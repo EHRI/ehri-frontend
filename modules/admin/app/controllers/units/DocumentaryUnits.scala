@@ -13,7 +13,8 @@ import services.data.DataHelpers
 import services.ingest.{ImportLogService, IngestService}
 import services.search._
 import services.storage.FileStorage
-import utils.{PageParams, RangeParams}
+import utils.DateFacetUtils.DATE_PARAM
+import utils.{DateFacetUtils, PageParams, RangeParams}
 import views.Helpers
 
 import javax.inject._
@@ -28,6 +29,7 @@ case class DocumentaryUnits @Inject()(
   dataHelpers: DataHelpers,
   importLogs: ImportLogService,
   @Named("dam") damStorage: FileStorage,
+  dfu: DateFacetUtils,
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -55,6 +57,15 @@ case class DocumentaryUnits @Inject()(
         render = s => Messages("facet.parent." + s),
         sort = FacetSort.Fixed,
         display = FacetDisplay.List
+      ),
+      QueryFacetClass(
+        key = DATE_RANGE,
+        name = Messages("facet.dates"),
+        param = DATE_PARAM,
+        sort = FacetSort.Fixed,
+        display = FacetDisplay.Date,
+        facets = for (value <- config.get[Seq[String]]("search.dateFacetRanges"))
+          yield QueryFacet(value, dfu.formatReadable(value), range = dfu.formatAsQuery(value))
       ),
       FieldFacetClass(
         key = LANGUAGE_CODE,

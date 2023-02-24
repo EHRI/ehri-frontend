@@ -7,6 +7,7 @@ object ApiFacet extends Enumeration {
   val Lang = Value("lang")
   val Country = Value("country")
   val Holder = Value("holder")
+  val Date = Value("dates")
 
   def fromString(s: String): Option[ApiFacet.Value] = values.find(_.toString == s)
 }
