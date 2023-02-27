@@ -31,12 +31,14 @@ class UtilsSpec extends IntegrationTestRunner with FakeMultipartUpload {
     "check event stream connects and sends keep-alive events" in new ITestApp(
         specificConfig = Map("ehri.eventStream.keepAlive" -> "100 millis")) {
       val stream = FakeRequest(controllers.admin.routes.Utils.sse()).call()
+
       val timeout: Timeout = Timeout(150, TimeUnit.MILLISECONDS)
       val mat = app.materializer
       // FIXME: can't currently work out how to test a stream that never finishes.
       // For the moment we're just testing it triggers a timeout exception, but
       // cannot test the sent contents...
       contentAsString(stream)(timeout, mat) must throwA[TimeoutException]
+      status(stream) must_== OK
     }
   }
 }

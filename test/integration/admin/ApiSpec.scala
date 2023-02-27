@@ -4,7 +4,7 @@ import controllers.generic.AccessPointLink
 import helpers._
 import models.LinkF.LinkType
 import models.{AccessPointF, AnnotationF, EntityType}
-import play.api.libs.json.{JsBoolean, Json}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.data.Constants
 
