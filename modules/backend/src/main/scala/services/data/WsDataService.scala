@@ -166,6 +166,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def deleteChildren[MT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]] = {
     val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "list"))
       .withQueryString("all" -> all.toString)
+      .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
       .delete()
     for {
       response <- callF
@@ -707,14 +708,16 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-type", ct)
     userCall(url).withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
-      .withTimeout(20.minutes).post()
+      .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
+      .post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
   override def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]] = {
     val url = enc(baseUrl, "tools", "regenerate-ids-for-scope", scope)
     userCall(url).withQueryString("tolerant" -> tolerant.toString, "commit" -> commit.toString)
-      .withTimeout(20.minutes).post()
+      .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
+      .post()
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
