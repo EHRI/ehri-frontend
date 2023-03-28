@@ -53,10 +53,12 @@
                         @views.html.admin.common.identifiers(item.data.identifier)
                         @views.html.common.sidebarSection(Messages("repository.logo")) {
                             @views.html.admin.repository.logo(item)
-                            <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
-                                <i class="fa fa-image" aria-hidden="true"></i>
-                                @Messages("repository.logo.edit")
-                            </a>
+                            @if(userOpt.exists(_.hasPermission(ContentTypes.Repository, PermissionType.Update))) {
+                                <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
+                                    <i class="fa fa-image" aria-hidden="true"></i>
+                                    @Messages("repository.logo.edit")
+                                </a>
+                            }
                         }
                         @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))
                         @views.html.admin.common.visibility(item, controllers.institutions.routes.Repositories.visibility(item.id), ContentTypes.Repository)
