@@ -50,6 +50,8 @@ function apiCall<T>(endpoint: {url: string, method: any}, data?: object): Promis
 
 let tsvOpts = {
   delimiter: "\t",
+  quoteChar: '',
+  escapeChar: '',
   header: false,
   skipEmptyLines: true
 };
