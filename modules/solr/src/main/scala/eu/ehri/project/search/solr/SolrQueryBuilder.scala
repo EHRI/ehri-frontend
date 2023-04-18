@@ -140,7 +140,7 @@ private[solr] object SolrQueryBuilder {
     filters.map { case (key, value) =>
       val filter = value match {
         // Have to quote strings
-        case s: String => key + ":\"" + value + "\""
+        case s: String => key + ":\"" + s + "\""
         // not value means the key is a query!
         case () => key
         case _ => s"$key:$value"
@@ -205,11 +205,13 @@ private[solr] object SolrQueryBuilder {
     val basic = if (fields.nonEmpty) {
       Seq("qf" -> fields.mkString(" "))
     } else {
-      val qfFields: String = boost.map { case (key, boostOpt) =>
+      val boostFields: Seq[String] = boost.map { case (key, boostOpt) =>
         boostOpt.map(b => s"$key^$b").getOrElse(key)
-      }.mkString(" ")
+      }
+      val others = config.getOptional[Seq[String]]("search.extraFields").getOrElse(Seq.empty)
+      val qfFields = boostFields ++ others
       logger.trace(s"Query fields: $qfFields")
-      Seq("qf" -> qfFields)
+      Seq("qf" -> qfFields.mkString(" "))
     }
 
     // Set field aliases
@@ -231,7 +233,7 @@ private[solr] object SolrQueryBuilder {
 
   def sortParams(sort: Option[SearchSort.Value]): Seq[(String, String)] =
     sort.flatMap(sortMap.get)
-      .map { sort => "sort" -> sort.toString.split("""\.""").mkString(" ") }.toSeq
+      .map { sort => "sort" -> sort.split("""\.""").mkString(" ") }.toSeq
 
   def filterParams(filters: Seq[String]): Seq[(String, String)] =
     filters.filter(_.contains(":")).map(f => "fq" -> f)
@@ -257,12 +259,13 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
   private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
   private val enableDebug = config.getOptional[Boolean]("search.debugTiming").getOrElse(false)
 
+  private lazy val queryFields: Seq[String] = config.get[Seq[String]]("search.fields")
+
   /**
     * Look up boost values from configuration for default query fields.
     */
-  private lazy val queryFieldsWithBoost: Seq[(String, Option[Double])] = Seq(
-    ITEM_ID, IDENTIFIER, OTHER_IDENTIFIERS, NAME_EXACT, NAME_MATCH, OTHER_NAMES, PARALLEL_NAMES, ALT_NAMES, NAME_SORT, TEXT
-  ).map(f => f -> config.getOptional[Double](s"search.boost.$f"))
+  private lazy val queryFieldsWithBoost: Seq[(String, Option[Double])] = queryFields
+    .map(f => f -> config.getOptional[Double](s"search.boost.$f"))
 
   private lazy val spellcheckConfig: Seq[(String, Option[String])] = Seq(
     "count", "onlyMorePopular", "extendedResults", "accuracy",
