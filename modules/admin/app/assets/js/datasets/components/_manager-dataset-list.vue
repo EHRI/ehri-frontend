@@ -220,7 +220,7 @@ export default {
                   <i class="fa fa-file-code-o"></i>
                   Import/export Datasets
                 </button>
-                <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item" v-bind:disabled="datasets.length <= 1">
+                <button v-on:click.prevent="showOptions = false; showBatchForm = true" class="dropdown-item">
                   <i class="fa fa-warning"></i>
                   Batch Operations
                 </button>
