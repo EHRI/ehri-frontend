@@ -33,39 +33,28 @@
 
     <h3>@Messages("privacy.cookies.header")</h3>
     <p>@Messages("privacy.cookies.1")</p>
-    <p>@Html(Messages(
-        "privacy.cookies.2",
-        """<a class="external" target="_blank" rel="noopener" href="https://www.ehri-project.eu">https://www.ehri-project.eu</a>""",
-        """<a class="external" target="_blank" rel="noopener" href="https://training.ehri-project.eu">https://training.ehri-project.eu</a>"""
-    ))</p>
-    <ol class="cookie-usage">
-        <li>@Messages("privacy.cookies.3.a")</li>
-        <li>@Messages("privacy.cookies.3.b")</li>
-    </ol>
     @defining(controllers.portal.routes.Portal.index().absoluteURL(conf.https)) { siteUrl =>
         <p>@Html(Messages(
             "privacy.cookies.4",
             s"<a href='$siteUrl'>$siteUrl</a>"
         ))</p>
     }
-    <ol class="cookie-usage">
+    <ul class="cookie-usage">
         <li>@Messages("privacy.cookies.5.a")</li>
         <li>@Messages("privacy.cookies.5.b")</li>
         <li>@Messages("privacy.cookies.5.c")</li>
-        <li>@Messages("privacy.cookies.5.d")</li>
-    </ol>
+    </ul>
     <p>@Html(Messages(
         "privacy.cookies.6",
         """<a class="external" target="_blank" rel="noopener" href="https://blog.ehri-project.eu">https://blog.ehri-project.eu</a>"""
     ))</p>
-    <ol class="cookie-usage">
+    <ul class="cookie-usage">
         <li>@Messages("privacy.cookies.6.a")</li>
-    </ol>
+    </ul>
     <p>@Messages("privacy.cookies.7")</p>
-    <ol class="cookie-usage">
+    <ul class="cookie-usage">
         <li>@Messages("privacy.cookies.7.a")</li>
-        <li>@Messages("privacy.cookies.7.b")</li>
-    </ol>
+    </ul>
 
     <h2>@Messages("privacy.rights.header")</h2>
     <h3>@Messages("privacy.rights.header.2")</h3>
