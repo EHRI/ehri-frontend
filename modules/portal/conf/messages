@@ -875,21 +875,18 @@ dataPolicy.data.5=If you consider you have well-founded grounds - based on the G
   with an answer within a reasonable space of time.
 
 privacy.cookies.header=Cookies
-privacy.cookies.1=EHRI uses the following cookies:
-privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
-privacy.cookies.3.a=a) The JS Cookie enabling the website to understand Javascript.
-privacy.cookies.3.b=b) Google analytics cookies: four cookies used to collect information on how users use the site. \
-  These cookies are needed to compile reports on site usage.
+privacy.cookies.1=EHRI does not use cookies for tracking purposes but to enable website functionality the following \
+  cookies are used:
+#privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
+#privacy.cookies.3.a=The JS Cookie enabling the website to understand Javascript.
 privacy.cookies.4=On the EHRI portal ({0}):
-privacy.cookies.5.a=a) The session cookie.
-privacy.cookies.5.b=b) User display preferences.
-privacy.cookies.5.c=c) Disclaimer cookie - reminds users that they said "yes" to the legal disclaimer banner.
-privacy.cookies.5.d=d) Google analytics cookies (see above).
+privacy.cookies.5.a=A session cookie.
+privacy.cookies.5.b=A cookie preserving user preferences between visits.
+privacy.cookies.5.c=A cookie recording the user''s acceptance of the EHRI data policy where applicable.
 privacy.cookies.6=On the EHRI Document Blog ({0}):
-privacy.cookies.6.a=a) Google analytics cookies (see above).
+privacy.cookies.6.a=A cookie preserving language preferences.
 privacy.cookies.7=On the EHRI Digital Edition sites:
-privacy.cookies.7.a=a) Session cookie for display preferences
-privacy.cookies.7.b=b) Google analytics cookies (see above).
+privacy.cookies.7.a=A session cookie.
 
 privacy.rights.header=Exercising Rights
 privacy.rights.header.2=Exercising your privacy rights and complaints procedure
