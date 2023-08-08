@@ -12,6 +12,18 @@
         <loc>https://portal.ehri-project.eu/units</loc>
     </url>
     <url>
+        <loc>https://portal.ehri-project.eu/sets</loc>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://portal.ehri-project.eu/vocabularies</loc>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://portal.ehri-project.eu/api</loc>
+        <priority>0.5</priority>
+    </url>
+    <url>
         <loc>https://portal.ehri-project.eu/about</loc>
         <priority>0.5</priority>
     </url>
