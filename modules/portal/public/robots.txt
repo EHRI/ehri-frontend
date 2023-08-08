@@ -12,3 +12,6 @@ Disallow: /activity
 Disallow: /api/datasets
 Disallow: /guides
 Disallow: */export
+
+User-agent: GPTBot
+Disallow: /
