@@ -17,7 +17,7 @@ logBuffered := false
 logLevel := Level.Info
 ThisBuild / organization := "eu.ehri-project"
 
-val projectScalaVersion = "2.13.4"
+val projectScalaVersion = "2.13.11"
 val appName = "docview"
 
 val backendVersion = "0.15.1"
@@ -356,7 +356,7 @@ lazy val xquery = Project(appName + "-xquery", file("modules/xquery"))
     "org.basex" % "basex" % "8.5",
 
     // Command line parsing
-    "com.github.scopt" %% "scopt" % "4.0.1",
+    "com.github.scopt" %% "scopt" % "4.1.0",
 
     specs2 % Test,
   ))
