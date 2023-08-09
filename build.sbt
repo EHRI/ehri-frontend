@@ -133,8 +133,6 @@ val additionalResolvers = Seq(
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
 
 val commonSettings = Seq(
-  version := appVersion,
-
   ThisBuild / scalaVersion := projectScalaVersion,
 
   // Increase the JVM heap to avoid running

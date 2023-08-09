@@ -44,7 +44,7 @@
         <a id="people-page-next" class="inline-load-more btn-progress"
         data-limit="@result.page.limit" data-page="@(result.page.page + 1)"
         href="@utils.http.joinPath(req.path, req.queryString.filterKeys(_ != "modal")
-                .updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
+                .toMap.updated(PAGE_PARAM, Seq((result.page.page + 1).toString)))">
             <span class="load-prompt">@Messages("activity.fetchMore")</span>
             <span class="loading-indicator spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
         </a>
