@@ -36,7 +36,7 @@
             </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.HistoricalAgents.export(item.id)">
+            <a href="@controllers.portal.routes.HistoricalAgents.render(item.id, format = Some("eac"))">
                 <i class="fa fa-fw fa-file-code-o"></i>
                 @Messages("export.format.eac")
             </a>

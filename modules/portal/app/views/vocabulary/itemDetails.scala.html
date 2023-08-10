@@ -11,8 +11,8 @@
         @views.html.common.childItemSidebar(item, EntityType.Concept)
         @views.html.common.exportItem(
             Seq(
-                "ttl" -> controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("TTL")),
-                "rdf_xml" -> controllers.portal.routes.Vocabularies.exportSkos(item.id, format = Some("RDF/XML")),
+                "ttl" -> controllers.portal.routes.Vocabularies.render(item.id, format = Some("TTL")),
+                "rdf_xml" -> controllers.portal.routes.Vocabularies.render(item.id, format = Some("RDF/XML")),
             ) ++ conf.exportProxies(item.isA, item.id)
         )
         @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))

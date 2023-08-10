@@ -54,9 +54,15 @@
             </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.DocumentaryUnits.export(item.topLevel.id)">
+            <a href="@controllers.portal.routes.DocumentaryUnits.render(item.topLevel.id, format = Some("ead"))">
                 <i class="fa fa-fw fa-file-code-o"></i>
                 @Messages("export.format.ead")
+            </a>
+        }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.portal.routes.DocumentaryUnits.render(item.topLevel.id, format = Some("ead3"))">
+                <i class="fa fa-fw fa-file-code-o"></i>
+                @Messages("export.format.ead3")
             </a>
         }
     }

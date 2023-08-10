@@ -79,12 +79,17 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "export docs as EAD" in new ITestApp {
-      val ead = FakeRequest(controllers.portal.routes.DocumentaryUnits.export("c4")).call()
+      val ead = FakeRequest(controllers.portal.routes.DocumentaryUnits.render("c4")).call()
       status(ead) must equalTo(OK)
-      contentType(ead) must beSome.which { ct =>
-        ct must equalTo("text/xml")
-      }
-      contentAsString(ead) must contain("<ead")
+      contentType(ead) must beSome("text/xml")
+      contentAsString(ead) must contain("<ead xmlns=\"urn:isbn:1-931666-22-9\"")
+    }
+
+    "export docs as EAD-3" in new ITestApp {
+      val ead = FakeRequest(controllers.portal.routes.DocumentaryUnits.render("c4", format = Some("ead3"))).call()
+      status(ead) must equalTo(OK)
+      contentType(ead) must beSome("text/xml")
+      contentAsString(ead) must contain("<ead xmlns=\"http://ead3.archivists.org/schema/\"")
     }
 
     "view repositories" in new ITestApp {
@@ -93,33 +98,25 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "export country contents as EAG zip" in new ITestApp {
-      val zip = FakeRequest("GET",
-        controllers.portal.routes.Countries.export("nl").url + "?format=eag").call()
+      val zip = FakeRequest(controllers.portal.routes.Countries.render("nl", format = Some("eag"))).call()
       val bytes = contentAsBytes(zip)
       status(zip) must equalTo(OK)
-      contentType(zip) must beSome.which { ct =>
-        ct must equalTo("application/zip")
-      }
+      contentType(zip) must beSome("application/zip")
       zipEntries(bytes).size must_== 2
     }
 
     "export repositories as EAG" in new ITestApp {
-      val eag = FakeRequest(controllers.portal.routes.Repositories.export("r1")).call()
+      val eag = FakeRequest(controllers.portal.routes.Repositories.render("r1")).call()
       status(eag) must equalTo(OK)
-      contentType(eag) must beSome.which { ct =>
-        ct must equalTo("text/xml")
-      }
+      contentType(eag) must beSome("text/xml")
       contentAsString(eag) must contain("<eag")
     }
 
     "export repository contents as EAD zip" in new ITestApp {
-      val zip = FakeRequest("GET",
-        controllers.portal.routes.Repositories.export("r1").url + "?format=ead").call()
+      val zip = FakeRequest(controllers.portal.routes.Repositories.render("r1", format = Some("ead"))).call()
       val bytes = contentAsBytes(zip)
       status(zip) must equalTo(OK)
-      contentType(zip) must beSome.which { ct =>
-        ct must equalTo("application/zip")
-      }
+      contentType(zip) must beSome("application/zip")
       zipEntries(bytes).size must_== 3
     }
 
@@ -135,21 +132,17 @@ class PortalSpec extends IntegrationTestRunner {
     }
 
     "export historical agents as EAC" in new ITestApp {
-      val eac = FakeRequest(controllers.portal.routes.HistoricalAgents.export("a1")).call()
+      val eac = FakeRequest(controllers.portal.routes.HistoricalAgents.render("a1", format = Some("eac"))).call()
       status(eac) must equalTo(OK)
-      contentType(eac) must beSome.which { ct =>
-        ct must equalTo("text/xml")
-      }
+      contentType(eac) must beSome("text/xml")
       contentAsString(eac) must contain("<eac-cpf")
     }
 
     "allow exporting as SKOS" in new ITestApp {
-      val skos = FakeRequest(controllers.portal.routes.Vocabularies.exportSkos("cvoc1"))
+      val skos = FakeRequest(controllers.portal.routes.Vocabularies.render("cvoc1"))
         .withUser(privilegedUser).call()
       status(skos) must equalTo(OK)
-      contentType(skos) must beSome.which { ct =>
-        ct must equalTo("text/turtle")
-      }
+      contentType(skos) must beSome("text/turtle")
       contentAsString(skos) must contain("<http://data.ehri-project.eu/vocabularies/cvoc1>")
     }
 

@@ -16,9 +16,8 @@
                 @views.html.common.sidepanelToc {
                     @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
                     @views.html.common.exportItem(
-                        Seq(
-                            "eag" -> controllers.portal.routes.Repositories.export(item.id, asFile = true)
-                        ) ++ conf.exportProxies(item.isA, item.id)
+                        Seq("eag").map(format => format -> controllers.portal.routes.Repositories.render(item.id, format = Some(format), asFile = true))
+                         ++ conf.exportProxies(item.isA, item.id)
                     )
                     @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
                 }

@@ -41,7 +41,7 @@ case class HistoricalAgents @Inject()(
     }
   }
 
-  def export(id: String, asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    exportXml(EntityType.HistoricalAgent, id, Seq("eac"), asFile)
+  def render(id: String, format: Option[String], asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    renderItem(EntityType.HistoricalAgent, id, format, Seq("eac"), asFile)
   }
 }

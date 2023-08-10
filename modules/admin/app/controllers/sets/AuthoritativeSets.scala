@@ -233,8 +233,8 @@ AuthoritativeSets @Inject()(
           action = controllers.admin.routes.Indexing.indexer()))
   }
 
-  def export(id: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    exportXml(EntityType.AuthoritativeSet, id, Seq("eac"))
+  def render(id: String, format: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    renderItem(EntityType.AuthoritativeSet, id, format, Seq("eac"))
   }
 
   def ingest(id: String): Action[AnyContent] = (AdminAction andThen ItemPermissionAction(id)).apply { implicit request =>

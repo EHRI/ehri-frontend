@@ -74,7 +74,7 @@ case class Vocabularies @Inject()(
     }
   }
 
-  def exportSkos(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+  def render(id: String, format: Option[String], baseUri: Option[String]): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     val uri = baseUri.orElse(config.getOptional[String](s"ehri.lod.${EntityType.Vocabulary}.baseUri"))
     val params: Map[String, Seq[String]] = (format.toSeq.map(f => "format" -> Seq(f)) ++
       uri.toSeq.map(url => "baseUri" -> Seq(url))).toMap
