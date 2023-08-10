@@ -13,13 +13,11 @@ object EnumUtils {
     * (Json \ "status").as(enum(Status))
     * }}}
     */
-  def enumReads[E <: Enumeration](enum: E): Reads[E#Value] = Reads[E#Value] {
+  def enumReads[E <: Enumeration](e: E): Reads[E#Value] = Reads[E#Value] {
     case JsString(s) =>
-      try {
-        JsSuccess(enum.withName(s))
-      } catch {
+      try JsSuccess(e.withName(s)) catch {
         case _: NoSuchElementException =>
-          JsError(s"Enumeration expected of type: '${enum.getClass}', but it does not appear to contain the value: '$s'")
+          JsError(s"Enumeration expected of type: '${e.getClass}', but it does not appear to contain the value: '$s'")
       }
     case _ => JsError("String value expected")
   }
@@ -44,11 +42,11 @@ object EnumUtils {
     * Default formatter for `scala.Enumeration`
     *
     */
-  private def enumFormBinder[E <: Enumeration](enum: E): Formatter[E#Value] = new Formatter[E#Value] {
+  private def enumFormBinder[E <: Enumeration](e: E): Formatter[E#Value] = new Formatter[E#Value] {
     def bind(key: String, data: Map[String, String]): Either[Seq[FormError], E#Value] = {
       play.api.data.format.Formats.stringFormat.bind(key, data).right.flatMap { s =>
         scala.util.control.Exception.allCatch[E#Value]
-          .either(enum.withName(s))
+          .either(e.withName(s))
           .left.map(e => Seq(FormError(key, "errors.invalidValue", Nil)))
       }
     }
@@ -61,8 +59,8 @@ object EnumUtils {
     *
     * Takes only the valid values and ignores the rest.
     */
-  def tolerantSeq[E <: Enumeration](enum: E): Mapping[Seq[E#Value]] = Forms.seq(Forms.text).transform(
-    strings => enum.values.filter(v => strings.contains(v.toString)).toSeq,
+  def tolerantSeq[E <: Enumeration](e: E): Mapping[Seq[E#Value]] = Forms.seq(Forms.text).transform(
+    strings => e.values.filter(v => strings.contains(v.toString)).toSeq,
     values => values.map(_.toString)
   )
 }
