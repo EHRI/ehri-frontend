@@ -25,5 +25,5 @@ POST        /:id/promote                              @controllers.sets.Authorit
 GET         /:id/demote                               @controllers.sets.AuthoritativeSets.demote(id: String)
 POST        /:id/demote                               @controllers.sets.AuthoritativeSets.demotePost(id: String)
 GET         /:id/reindex                              @controllers.sets.AuthoritativeSets.updateIndex(id: String)
-GET         /:id/export                               @controllers.sets.AuthoritativeSets.export(id: String)
+GET         /:id/export                               @controllers.sets.AuthoritativeSets.render(id: String, format: Option[String])
 GET         /:id/ingest                               @controllers.sets.AuthoritativeSets.ingest(id: String)

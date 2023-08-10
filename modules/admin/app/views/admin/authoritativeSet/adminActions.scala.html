@@ -43,7 +43,7 @@
         }
         @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.sets.routes.AuthoritativeSets.export(item.id)?format=eac">
+                <a href="@controllers.sets.routes.AuthoritativeSets.render(item.id, format = Some("eac"))">
                     <i class="fa fa-fw fa-file-code-o"></i>
                     @Messages("export.format.eac")
                 </a>

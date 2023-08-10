@@ -147,6 +147,7 @@ export.metadata=Export Metadata
 export.format.json=JSON
 export.format.eag=EAG 2012 XML
 export.format.ead=EAD 2002 XML
+export.format.ead3=EAD-3 XML
 export.format.eac=EAC 2010 XML
 export.format.ttl=TTL
 export.format.rdf_xml=RDF/XML

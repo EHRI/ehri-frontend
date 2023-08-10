@@ -217,21 +217,20 @@ trait PortalController
     }
   }.getOrElse(Future.successful(Seq.empty))
 
-  protected def exportXml(entityType: EntityType.Value, id: String, formats: Seq[String], asFile: Boolean = false)(
+  protected def renderItem(entityType: EntityType.Value, id: String, format: Option[String], supportedFormats: Seq[String], asFile: Boolean = false)(
     implicit apiUser: DataUser, request: RequestHeader): Future[Result] = {
-    val format: String = request.getQueryString("format")
-      .filter(formats.contains).getOrElse(formats.head)
+    val fmt: String = format.filter(supportedFormats.contains).getOrElse(supportedFormats.head)
     val params = request.queryString.filterKeys(_ == "lang")
-    userDataApi.stream(s"classes/$entityType/$id/$format", params = params,
+    userDataApi.stream(s"classes/$entityType/$id/$fmt", params = params,
       headers = Headers(HeaderNames.ACCEPT -> "text/xml,application/zip")).map { sr =>
       val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
 
       val encodedId = java.net.URLEncoder.encode(id, StandardCharsets.UTF_8.name())
       val disp = if (ct.contains("zip"))
-        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$format.zip" + "\""))
+        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$fmt.zip" + "\""))
       else if (asFile)
-        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$format.xml" + "\""))
+        Seq("Content-Disposition" -> ("attachment; filename=\"" + s"$encodedId-$fmt.xml" + "\""))
       else Seq.empty
 
       // If we're streaming a zip file, send it as an attachment

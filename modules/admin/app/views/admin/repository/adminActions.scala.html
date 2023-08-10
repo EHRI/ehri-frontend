@@ -54,14 +54,14 @@
             </a>
         }
         @views.html.admin.common.sidebarAction() {
-            <a href="@controllers.portal.routes.Repositories.export(item.id)">
+            <a href="@controllers.portal.routes.Repositories.render(item.id, format = Some("eag"))">
                 <i class="fa fa-fw fa-file-code-o"></i>
                 @Messages("export.format.eag")
             </a>
         }
         @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.portal.routes.Repositories.export(item.id)?format=ead">
+                <a href="@controllers.portal.routes.Repositories.render(item.id, format = Some("ead"))">
                     <i class="fa fa-fw fa-file-code-o"></i>
                     @Messages("export.format.ead")
                 </a>

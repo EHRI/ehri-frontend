@@ -37,7 +37,7 @@
         }
         @if(item.hasChildren) {
             @views.html.admin.common.sidebarAction() {
-                <a href="@controllers.portal.routes.Countries.export(item.id)?format=eag">
+                <a href="@controllers.portal.routes.Countries.render(item.id, format = Some("eag"))">
                     <i class="fa fa-fw fa-file-code-o"></i>
                     @Messages("export.format.eag")
                 </a>

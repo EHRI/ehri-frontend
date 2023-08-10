@@ -11,9 +11,8 @@
                 @views.html.common.typeLabelWithWatchButton(item, watched.contains(item.id))
             } {
                 @views.html.common.exportItem(
-                    Seq(
-                        "eac" -> controllers.portal.routes.HistoricalAgents.export(item.id, asFile = true)
-                    ) ++ conf.exportProxies(item.isA, item.id)
+                    Seq("eac").map(format => format -> controllers.portal.routes.HistoricalAgents.render(item.id, format = Some(format), asFile = true))
+                     ++ conf.exportProxies(item.isA, item.id)
                 )
                 @views.html.common.latestAction(item, controllers.portal.routes.Portal.itemHistory(item.id, modal = true))
             }
