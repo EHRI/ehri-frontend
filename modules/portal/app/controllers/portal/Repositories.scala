@@ -71,6 +71,6 @@ case class Repositories @Inject()(
   }
 
   def render(id: String, format: Option[String], asFile: Boolean): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    renderItem(EntityType.Repository, id, format, Seq("eag", "ead"), asFile)
+    renderItem(EntityType.Repository, id, format, Seq("eag", "ead", "ead3"), asFile)
   }
 }
