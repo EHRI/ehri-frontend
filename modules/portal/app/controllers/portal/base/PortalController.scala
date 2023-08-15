@@ -17,12 +17,13 @@ import services.data.{DataServiceBuilder, DataUser}
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import views.html.MarkdownRenderer
-import views.html.errors.{itemNotFound, maintenance, pageNotFound, gone}
+import views.html.errors.{gone, itemNotFound, maintenance, pageNotFound}
 
 import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
+import scala.concurrent.duration.{Duration, DurationInt}
 
 
 trait PortalController
@@ -221,8 +222,10 @@ trait PortalController
     implicit apiUser: DataUser, request: RequestHeader): Future[Result] = {
     val fmt: String = format.filter(supportedFormats.contains).getOrElse(supportedFormats.head)
     val params = request.queryString.filterKeys(_ == "lang")
+    // since rendering EAD can take a long time, override the default timeout
+    val timeout: Option[Duration] = config.getOptional[Duration]("ehri.backend.streamingTimeout")
     userDataApi.stream(s"classes/$entityType/$id/$fmt", params = params,
-      headers = Headers(HeaderNames.ACCEPT -> "text/xml,application/zip")).map { sr =>
+      headers = Headers(HeaderNames.ACCEPT -> "text/xml,application/zip"), timeout = timeout).map { sr =>
       val ct = sr.headers.get(HeaderNames.CONTENT_TYPE)
         .flatMap(_.headOption).getOrElse(ContentTypes.XML)
 
