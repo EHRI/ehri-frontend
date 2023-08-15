@@ -48,9 +48,11 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
       .withHeaders(headers.headers: _*).get()
 
-  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty): Future[WSResponse] =
-    userCall(enc(baseUrl, urlPart) + (if(params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
-      .withHeaders(headers.headers: _*).withMethod(HttpVerbs.GET).stream()
+  override def stream(urlPart: String, headers: Headers = Headers(), params: Map[String,Seq[String]] = Map.empty, timeout: Option[Duration] = None): Future[WSResponse] = {
+    val request = userCall(enc(baseUrl, urlPart) + (if (params.nonEmpty) "?" + utils.http.joinQueryString(params) else ""))
+    val timeoutRequest = timeout.fold(request)(t => request.withTimeout(t))
+    timeoutRequest.withHeaders(headers.headers: _*).withMethod(HttpVerbs.GET).stream()
+  }
 
   override def createNewUserProfile[T <: WithId : Readable](data: Map[String, String] = Map.empty, groups: Seq[String] = Seq.empty): Future[T] = {
     userCall(enc(baseUrl, "admin", "create-default-user-profile"))

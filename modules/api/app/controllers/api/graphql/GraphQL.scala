@@ -10,6 +10,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, RawBuffer}
 import services.data.Constants
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.Duration
 
 
 @Singleton
@@ -45,6 +46,7 @@ case class GraphQL @Inject()(
     val serviceConfig = ServiceConfig("ehridata", config)
     ws.url(s"${serviceConfig.baseUrl}/graphql")
       .withMethod(HttpVerbs.POST)
+      .withRequestTimeout(config.get[Duration]("ehri.backend.streamingTimeout"))
       .addHttpHeaders(serviceConfig.authHeaders: _*)
       .addHttpHeaders(streamHeader.map(Constants.STREAM_HEADER_NAME -> _).toSeq: _*)
       .addHttpHeaders(request.userOpt.map(u => Constants.AUTH_HEADER_NAME -> u.id).toSeq: _*)

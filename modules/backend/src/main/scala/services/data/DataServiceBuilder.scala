@@ -7,6 +7,7 @@ import play.api.libs.ws.WSResponse
 import play.api.mvc.Headers
 import utils._
 
+import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -66,9 +67,10 @@ trait DataService {
     * @param urlPart the URL backend path
     * @param headers the required headers
     * @param params  additional parameters
+    * @param timeout an optional timeout for the request
     * @return a web response
     */
-  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty): Future[WSResponse]
+  def stream(urlPart: String, headers: Headers = Headers(), params: Map[String, Seq[String]] = Map.empty, timeout: Option[Duration] = None): Future[WSResponse]
 
   /**
     * Create a new user profile.
