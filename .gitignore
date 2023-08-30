@@ -14,6 +14,7 @@ tmp
 dist
 *.sublime-workspace
 OLD
+JUNK
 DB
 *.pyc
 *.jar
@@ -38,3 +39,4 @@ conf/external_pages.conf
 conf/dos.conf*
 conf/minio.conf*
 conf/api-keys.conf*
+solr*

@@ -179,9 +179,11 @@ private[solr] object SolrQueryBuilder {
     } else Seq.empty
   }
 
-  def basicParams(queryString: String, paging: PageParams, debug: Boolean): Seq[(String, String)] = Seq(
+  def basicParams(queryString: String, paging: PageParams, debug: Boolean, df: String): Seq[(String, String)] = Seq(
     "q" -> queryString,
+    "q.op" -> "or",
     "wt" -> "json",
+    "df" -> df,
     "start" -> paging.offset.toString,
     "rows" -> paging.limit.toString,
     "debugQuery" -> debug.toString,
@@ -258,7 +260,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
 
   private val jsonFacets = config.getOptional[Boolean]("search.jsonFacets").getOrElse(false)
   private val enableDebug = config.getOptional[Boolean]("search.debugTiming").getOrElse(false)
-
+  private val defaultField = config.get[String]("search.defaultField")
   private lazy val queryFields: Seq[String] = config.get[Seq[String]]("search.fields")
 
   /**
@@ -284,7 +286,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     val queryString = localParam + query.params.query.getOrElse("*").trim
 
     Seq(
-      basicParams(queryString, query.paging, enableDebug),
+      basicParams(queryString, query.paging, enableDebug, defaultField),
       entityFilterParams(query.params.entities),
       bboxParams(query.params.bbox),
       latLngParams(query.params.latLng),
@@ -318,7 +320,7 @@ case class SolrQueryBuilder @Inject()(config: Configuration) extends QueryBuilde
     val queryString = localParam + query.params.query.getOrElse(defaultQuery).trim
 
     Seq(
-      basicParams(queryString, query.paging, enableDebug),
+      basicParams(queryString, query.paging, enableDebug, defaultField),
       groupParams(query.lang),
       fieldParams(query.params.fields, queryFieldsWithBoost, config),
       sortParams(query.params.sort),
