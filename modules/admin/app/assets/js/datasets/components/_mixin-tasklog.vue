@@ -13,6 +13,7 @@ let initialLogState = function(): object {
     jobId: null,
     cancelling: false,
     overwrite: false,
+    logDeleteLinePrefix: "Ingesting..."
   };
 };
 
@@ -31,16 +32,15 @@ export default {
 
     println: function(...msg: string[]) {
       console.debug(...msg);
-      let progPrefix = "Ingesting..."
       let line = msg.join(' ');
       if (this.overwrite) {
         this.log.write("\x1b[F");
       }
       this.log.writeln(line);
-      this.overwrite = _startsWith(line, progPrefix);
+      this.overwrite = _startsWith(line, this.logDeleteLinePrefix);
     },
 
-    monitor: async function(url: string, jobId: string, onMsg: (s: string) => any = function () {}) {
+    monitor: async function(url: string, jobId: string, onMsg: (s: string) => any = function () {}, clear: boolean = false) {
       this.jobId = jobId;
       return await new Promise(((resolve) => {
         let worker = new Worker(this.config.previewLoader);

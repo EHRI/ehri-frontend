@@ -1555,3 +1555,15 @@ conversion.cancelled={0}: cancelled after {1,choice,0#0 files|1#1 file|1<after {
 conversion.completed={0}: converted {1,choice,0#0 files|1#1 file ({2,number,integer} fresh)|1<{1,number,integer} files ({2,number,integer} fresh)} in {3,choice,0#0 seconds|1#1 second|1<{3,number,integer} seconds}
 conversion.error={0}: conversion error: {1}
 conversion.unrecoverableError={0}: unexpected conversion error: {1}
+
+#
+# Cleanup
+#
+cleanup.starting=Starting cleanup with job id: {0}
+cleanup.toMove={0,choice,0#0 items|1#1 item|1<{0,number,integer} items} to move
+cleanup.toDelete={0,choice,0#0 items|1#1 item|1<{0,number,integer} items} to delete
+cleanup.cancelled=Cancelled
+cleanup.relinked=Updated links and annotations
+cleanup.redirected=Redirected {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
+cleanup.deleted=Deleted {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
+cleanup.done=Cleanup complete

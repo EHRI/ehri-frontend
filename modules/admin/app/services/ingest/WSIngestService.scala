@@ -1,6 +1,22 @@
 package services.ingest
 
+import akka.actor.ActorRef
+import akka.stream.Materializer
+import akka.stream.scaladsl.{FileIO, Source}
+import akka.util.ByteString
+import com.fasterxml.jackson.databind.JsonMappingException
 import config.ServiceConfig
+import models._
+import play.api.cache.AsyncCacheApi
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.libs.Files.SingletonTemporaryFileCreator
+import play.api.libs.json._
+import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
+import play.api.{Configuration, Logger}
+import services.data.{Constants, DataUser}
+import services.redirects.MovedPageLookup
+import services.search.{SearchConstants, SearchIndexMediator, SearchIndexMediatorHandle}
+import services.storage.FileStorage
 
 import java.io.PrintWriter
 import java.net.URI
@@ -9,27 +25,7 @@ import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.{Files, Path}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import akka.actor.{Actor, ActorRef, ActorSystem, Cancellable, Props}
-import akka.stream.Materializer
-import akka.stream.scaladsl.{FileIO, Source}
-import akka.util.ByteString
-import com.fasterxml.jackson.databind.JsonMappingException
-import models.{ContentTypes, EntityType, ErrorLog, FilePayload, FileProperties, IngestParams, IngestResult, ImportLog, SyncLog, UrlMapPayload, UrlProperties}
-import play.api.cache.AsyncCacheApi
-
-import javax.inject.Inject
-import javax.inject.Named
-import play.api.http.{HeaderNames, MimeTypes}
-import play.api.libs.Files.SingletonTemporaryFileCreator
-import play.api.libs.json._
-import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
-import play.api.{Configuration, Logger}
-import services.data.EventForwarder.Delete
-import services.data.{Constants, DataUser}
-import services.redirects.MovedPageLookup
-import services.search.{SearchConstants, SearchIndexMediator}
-import services.storage.FileStorage
-
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -45,10 +41,10 @@ case class WSIngestService @Inject()(
   cache: AsyncCacheApi,
   @Named("dam") fileStorage: FileStorage,
   @Named("event-forwarder") eventForwarder: ActorRef
-)(implicit actorSystem: ActorSystem, mat: Materializer) extends IngestService {
+)(implicit mat: Materializer) extends IngestService {
 
-  import services.ingest.IngestService._
   import IngestParams._
+  import services.ingest.IngestService._
 
   import scala.concurrent.duration._
 
@@ -56,34 +52,8 @@ case class WSIngestService @Inject()(
   private val logger = Logger(getClass)
   private val serviceConfig = ServiceConfig("ehridata", config)
 
-  // Actor that just prints out a progress indicator
-  object Ticker {
-    def props: Props = Props(new Ticker())
-    case object Stop
-    case object Run
-  }
-
-  case class Ticker() extends Actor {
-    private val states = Vector("|", "/", "-", "\\")
-
-    override def receive: Receive = init
-
-    def init: Receive = {
-      case (actorRef: ActorRef, msg: String) =>
-        val cancellable = context.system.scheduler.scheduleAtFixedRate(500.millis, 1000.millis, self, Ticker.Run)
-        context.become(tick(actorRef, msg, 0, cancellable))
-    }
-
-    def tick(actorRef: ActorRef, msg: String, state: Int, cancellable: Cancellable): Receive = {
-      case Ticker.Run =>
-        actorRef ! s"$msg... ${states(state)}"
-        context.become(tick(actorRef, msg, if (state < 3) state + 1 else 0, cancellable))
-      case Ticker.Stop => cancellable.cancel()
-    }
-  }
-
   // Get an indexer handle with our our channel and filtered output
-  private def indexer(chan: ActorRef) =
+  private def indexer(chan: ActorRef): SearchIndexMediatorHandle =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
   override def storeManifestAndLog(job: IngestJob, res: IngestResult): Future[URI] = {
@@ -102,7 +72,7 @@ case class WSIngestService @Inject()(
     val time = ZonedDateTime.now()
     val now = time.format(DateTimeFormatter.ofPattern("uMMddHHmmss"))
     val dry = if (!job.data.params.commit) "-dryrun" else ""
-    val path = s"${job.data.instance}/ingest-logs/ingest${dry}-$now-${job.id}.json"
+    val path = s"${job.data.instance}/ingest-logs/ingest$dry-$now-${job.id}.json"
     fileStorage.putBytes(path, bytes, public = true)
   }
 
@@ -146,11 +116,11 @@ case class WSIngestService @Inject()(
   override def emitEvents(res: IngestResult): Unit = {
     import services.data.EventForwarder._
     res match {
-      case SyncLog(deleted, created, moved, log) =>
+      case SyncLog(deleted, created, moved, _) =>
         eventForwarder ! Delete(deleted)
         eventForwarder ! Create(created)
         eventForwarder ! Update(moved.values.toSeq)
-      case ImportLog(createdKeys, updatedKeys, unchangedKeys, message, event, errors) =>
+      case ImportLog(createdKeys, updatedKeys, _, _, _, _) =>
         eventForwarder ! Create(createdKeys.values.toSeq.flatten)
         eventForwarder ! Update(updatedKeys.values.toSeq.flatten)
       case _ =>

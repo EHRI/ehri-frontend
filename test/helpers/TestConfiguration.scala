@@ -241,6 +241,9 @@ trait TestConfiguration {
       super.around(withDatabaseFixture(db, resource)(implicit db => AsResult.effectively(t)))
   }
 
+  protected abstract class DBTestAppWithAkka(resource: String = "", specificConfig: Map[String,Any] = Map.empty)
+    extends DBTestApp(resource, specificConfig) with TestKitBase with ImplicitSender
+
   /**
    * Run a spec after loading the given resource name as SQL fixtures.
    */

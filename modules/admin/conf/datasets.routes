@@ -59,6 +59,7 @@ GET         /api/:id/snapshots/:sn/cleanup                @controllers.datasets.
 POST        /api/:id/snapshots/:sn/cleanup                @controllers.datasets.ImportLogs.cleanup(id: String, sn: Int)
 GET         /api/:id/snapshots/:sn/cleanup/:cid           @controllers.datasets.ImportLogs.getCleanup(id: String, sn: Int, cid: Int)
 POST        /api/:id/snapshots/:sn/do-cleanup             @controllers.datasets.ImportLogs.doCleanup(id: String, sn: Int)
+POST        /api/:id/snapshots/:sn/do-cleanup-async       @controllers.datasets.ImportLogs.doCleanupAsync(id: String, sn: Int)
 
 GET         /api/:id/logs                                 @controllers.datasets.ImportLogs.list(id: String, dsId: Option[String] ?= None)
 

@@ -1,45 +1,16 @@
 package actors.ingest
 
-import java.time.LocalDateTime
+import actors.Ticker
 import actors.ingest.DataImporter._
-import akka.actor.{Actor, ActorLogging, ActorRef, Cancellable, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern._
-import models.{ErrorLog, ImportLog, IngestResult, SyncLog, UserProfile}
+import models._
 import services.ingest.IngestService.IngestJob
 import services.ingest._
 
-import scala.concurrent.duration._
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
-
-// Actor that just prints out a progress indicator
-object Ticker {
-  case object Run
-  case class Tick(tock: String)
-  case object Stop
-}
-
-case class Ticker()(implicit ec: ExecutionContext) extends Actor {
-  private val states = Vector("|", "/", "-", "\\")
-
-  override def receive: Receive = init
-
-  def init: Receive = {
-    case (actorRef: ActorRef, msg: String) =>
-      val cancellable = context.system.scheduler
-        .scheduleAtFixedRate(500.millis, 1000.millis, self, Ticker.Run)
-      context.become(tick(actorRef, msg, 0, cancellable))
-  }
-
-  def tick(actorRef: ActorRef, msg: String, state: Int, cancellable: Cancellable): Receive = {
-    case Ticker.Run =>
-      actorRef ! Message(s"$msg... ${states(state)}")
-      context.become(tick(actorRef, msg, if (state < 3) state + 1 else 0, cancellable))
-
-    case Ticker.Stop =>
-      cancellable.cancel()
-  }
-}
 
 object DataImporter {
   sealed trait State
@@ -50,9 +21,16 @@ object DataImporter {
   case class UnexpectedError(throwable: Throwable) extends State
 }
 
-case class DataImporter(job: IngestJob, ingestApi: IngestService, onDone: (IngestJob, ImportLog) => Future[Unit])(
-  implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
+case class DataImporter(
+  job: IngestJob,
+  ingestApi: IngestService,
+  onDone: (IngestJob, ImportLog) => Future[Unit]
+)(implicit ec: ExecutionContext) extends Actor with ActorLogging {
 
+  // Helper actor to wrap strings in a Message object
+  // and forward them to this actor's manager/parent. This
+  // is useful when an existing API expects an ActorRef to
+  // receive plain strings to log somewhere.
   case class Forwarder(to: ActorRef) extends Actor {
     override def receive: Receive = {
       case s: String => to ! Message(s)
@@ -72,6 +50,7 @@ case class DataImporter(job: IngestJob, ingestApi: IngestService, onDone: (Inges
       // Importer initializing...
       context.become(running(msgTo, LocalDateTime.now()))
       msgTo ! Message(s"Initialising ingest for job: ${job.id}...")
+
       ingestApi
         .importData(job)
         .pipeTo(self)

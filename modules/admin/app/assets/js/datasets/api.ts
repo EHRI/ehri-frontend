@@ -240,6 +240,10 @@ export class DatasetManagerApi {
     return apiCall(this.service.ImportLogs.doCleanup(this.repoId, snId), confirm);
   }
 
+  doCleanupAsync(snId: number, confirm: object): Promise<JobMonitor> {
+    return apiCall(this.service.ImportLogs.doCleanupAsync(this.repoId, snId), confirm);
+  }
+
   getCoreferences(): Promise<Coreference[]> {
     return apiCall(this.service.CoreferenceTables.getTable(this.repoId));
   }

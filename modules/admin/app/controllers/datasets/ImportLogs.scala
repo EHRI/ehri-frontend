@@ -1,6 +1,8 @@
 package controllers.datasets
 
-import akka.actor.ActorRef
+import actors.cleanup.CleanupRunner.CleanupJob
+import actors.cleanup.{CleanupRunner, CleanupRunnerManager}
+import akka.actor.{ActorContext, ActorRef, Props}
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 import controllers.AppComponents
@@ -15,7 +17,9 @@ import services.data.EventForwarder
 import services.ingest.{ImportLogService, IngestService}
 import services.storage.FileStorage
 
+import java.util.UUID
 import javax.inject._
+import scala.concurrent.Future
 
 case class SnapshotInfo(notes: Option[String])
 
@@ -104,6 +108,19 @@ case class ImportLogs @Inject()(
 
   def doCleanup(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).async(apiJson[CleanupConfirmation]) { implicit request =>
     logger.info(s"Starting cleanup for repository $id, snapshot $snapshotId")
+
+    // Function to recursively perform a large batch deletion if over a particular threshold. This avoids
+    // overloading the backend.
+    val maxDeletions = config.get[Int]("ehri.admin.bulkOperations.maxDeletions")
+    def deleteBatches(ids: Seq[String]): Future[Int] = {
+      val (batch, rest) = ids.splitAt(maxDeletions)
+      userDataApi.batchDelete(batch, Some(id), logMsg = request.body.msg,
+          version = true, tolerant = true, commit = true).flatMap { count =>
+        if (rest.isEmpty) Future.successful(count)
+        else deleteBatches(rest).map(_ + count)
+      }
+    }
+
     for {
       cleanup <- importLogService.cleanup(id, snapshotId)
       _ = logger.info(s"Relink: ${cleanup.redirects.size}, deletions: ${cleanup.deletions.size}")
@@ -111,8 +128,7 @@ case class ImportLogs @Inject()(
       _ = logger.info(s"Done relinks: $relinkCount")
       redirectCount <- importService.remapMovedUnits(cleanup.redirects)
       _ = logger.info(s"Done redirects: $redirectCount")
-      delCount <- userDataApi.batchDelete(cleanup.deletions, Some(id), logMsg = request.body.msg,
-          version = true, tolerant = true, commit = true)
+      delCount <- deleteBatches(cleanup.deletions)
       _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions)
       _ = logger.info(s"Done deletions: $delCount")
       _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
@@ -124,5 +140,18 @@ case class ImportLogs @Inject()(
       )
       Ok(Json.toJson(sum))
     }
+  }
+
+  def doCleanupAsync(id: String, snapshotId: Int): Action[CleanupConfirmation] = EditAction(id).apply(apiJson[CleanupConfirmation]) { implicit request =>
+    logger.info(s"Starting async cleanup for repository $id, snapshot $snapshotId")
+    val jobId = UUID.randomUUID().toString
+    val job = CleanupJob(id, snapshotId, jobId, request.body.msg)
+    val init = (context: ActorContext) => context.actorOf(Props(CleanupRunner(userDataApi, importLogService, importService, eventForwarder)))
+    mat.system.actorOf(Props(CleanupRunnerManager(job, init)), jobId)
+
+    Ok(Json.obj(
+      "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(conf.https),
+      "jobId" -> jobId
+    ))
   }
 }

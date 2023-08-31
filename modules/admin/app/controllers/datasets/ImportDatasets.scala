@@ -80,6 +80,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportLogs.listCleanups,
         controllers.datasets.routes.javascript.ImportLogs.getCleanup,
         controllers.datasets.routes.javascript.ImportLogs.doCleanup,
+        controllers.datasets.routes.javascript.ImportLogs.doCleanupAsync,
         controllers.datasets.routes.javascript.ImportLogs.list,
         controllers.datasets.routes.javascript.CoreferenceTables.getTable,
         controllers.datasets.routes.javascript.CoreferenceTables.importTable,
