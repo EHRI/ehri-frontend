@@ -783,6 +783,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
         "tolerant" -> tolerant.toString,
         "commit" -> commit.toString,
         "log" -> logMsg)
+      .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
       .withQueryString(scope.toSeq.map(s => "scope" -> s): _*)
       .post(Json.toJson(ids.map(id => Seq(id))))
       .map(r => checkErrorAndParse[Int](r, Some(url)))
