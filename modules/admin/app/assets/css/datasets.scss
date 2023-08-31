@@ -53,12 +53,6 @@ $active-table-row: #e7f1ff;
   }
 }
 
-#batch-ops-log {
-  display: flex;
-  border: 1px solid $border-color;
-  height: 10rem;
-}
-
 .flash-notice {
   animation: highlight 1000ms ease-out;
 }
@@ -817,6 +811,12 @@ $active-table-row: #e7f1ff;
 
 .bottom-panel .status-panels .log-container {
   overflow: hidden !important;
+}
+
+.modal-body .log-container {
+  display: flex;
+  border: 1px solid $border-color;
+  height: 10rem;
 }
 
 .log-container pre {

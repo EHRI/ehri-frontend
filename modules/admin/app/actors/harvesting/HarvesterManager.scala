@@ -30,7 +30,7 @@ case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eve
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>
-      log.error("Received a supervising error from a child", e)
+      log.error("Received a supervising error from a child")
       self ! Error(e)
       Stop
   }
