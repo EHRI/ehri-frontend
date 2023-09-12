@@ -82,7 +82,7 @@ export default {
         <th><input type="checkbox"
                    v-bind:id="fileStage + '-checkall'"
                    v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < files.length"
-                   v-on:change="$emit('toggle-all')" /></th>
+                   v-on:change="e => $emit('toggle-all', e.target.checked)" /></th>
         <th>Name</th>
         <th>Last Modified</th>
         <th>Size</th>
