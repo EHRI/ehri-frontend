@@ -136,8 +136,8 @@ export default {
       this.pasteText = value;
       this.setCoreferencesFromTsv();
     },
-    toggleAll: function() {
-      if (this.references.length === Object.keys(this.selected).length) {
+    toggleAll: function(toggle: boolean) {
+      if (!toggle) {
         this.selected = {};
       } else {
         this.selected = _fromPairs(this.references.map(r => [this.refKey(r), r]));

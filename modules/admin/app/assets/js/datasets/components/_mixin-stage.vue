@@ -149,8 +149,8 @@ export default {
         this.selectItem(file);
       }
     },
-    toggleAll: function() {
-      if (this.selectedKeys.length === this.files.length) {
+    toggleAll: function(toggle: boolean) {
+      if (!toggle) {
         this.selected = {};
       } else {
         this.selected = _fromPairs(this.files.map(f => [f.key, f]));

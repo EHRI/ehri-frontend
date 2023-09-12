@@ -670,19 +670,22 @@ $active-table-row: #e7f1ff;
   }
 
   table {
-    border-collapse: collapse;
     position: relative;
+    // The below is needed to make the table headers
+    // and the table body scroll separately without
+    // strange gaps.
+    border-collapse: separate;
+    border-spacing: 0;
   }
 
-  // Experimental sticky header. Unfortunately the
-  // row and its borders scrolls behind, which looks
-  // a bit weird.
-  //thead th {
-  //  position: sticky;
-  //  top: 0;
-  //  background-color: $white;
-  //  border: 1px solid $gray-300;
-  //}
+  // Sticky headers. Note: applying `position: sticky` to `thead`
+  // or `tr` does not work.
+  thead th {
+    position: sticky;
+    top: 0;
+    background-color: $white;
+    border: 1px solid $gray-300;
+  }
 
   tbody tr {
     cursor: pointer;
