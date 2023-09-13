@@ -1,5 +1,5 @@
 <script lang="ts">
-import {timeToRelative, humanFileSize} from "../common";
+import {humanFileSize, timeToRelative} from "../common";
 
 function emptyObj() {
   return {};
@@ -82,7 +82,7 @@ export default {
         <th><input type="checkbox"
                    v-bind:id="fileStage + '-checkall'"
                    v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < files.length"
-                   v-on:change="e => $emit('toggle-all', e.target.checked)" /></th>
+                   v-on:change="e => $emit('toggle-all', e.target.checked)"/></th>
         <th>Name</th>
         <th>Last Modified</th>
         <th>Size</th>
@@ -117,7 +117,7 @@ export default {
           </a>
         </td>
         <td v-if="validating !== null">
-            <a href="#" v-on:click.prevent.stop="$emit('validate-files', {[file.eTag]: file.key})">
+          <a href="#" v-on:click.prevent.stop="$emit('validate-files', {[file.eTag]: file.key})">
             <i v-if="validating[file.eTag]" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
             <i v-else-if="validationResults && validationResults[file.eTag]" class="fa fa-fw" v-bind:class="{
                     'fa-check text-success': validationResults[file.eTag].length === 0,

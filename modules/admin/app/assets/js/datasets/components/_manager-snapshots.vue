@@ -7,7 +7,7 @@ import ModalSnapshotConfig from './_modal-snapshot-config';
 import ModalCleanupConfig from './_modal-cleanup-config.vue';
 import {DatasetManagerApi} from "../api";
 import {Snapshot} from "../types";
-import {timeToRelative, displayDate} from "../common";
+import {displayDate, timeToRelative} from "../common";
 
 export default {
   mixins: [MixinUtil, MixinError],

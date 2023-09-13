@@ -15,10 +15,10 @@ export default {
     timestamp: String,
   },
   watch: {
-    resize: function() {
+    resize: function () {
       this.editor.refresh();
     },
-    timestamp: function() {
+    timestamp: function () {
       console.debug("XSLT editor value updated...")
       this.editor.setValue(this.modelValue);
     }

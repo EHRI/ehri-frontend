@@ -8,7 +8,7 @@ import _isEmpty from 'lodash/isEmpty';
 import _keys from 'lodash/keys';
 import _find from 'lodash/find';
 import {ValidationResult} from "../types";
-import {red, green} from "../termcolors";
+import {green, red} from "../termcolors";
 
 export default {
   props: {
@@ -50,12 +50,12 @@ export default {
       _forEach(allTags, tag => this.validating[tag] = true);
 
       this.api.validateFiles(this.datasetId, this.fileStage, tagToKey)
-        .then(errs => this.handleValidationResults(errs))
-        .catch(error => this.showError("Error attempting validation", error))
-        .finally(() => {
-          this.validating = {};
-          this.validationRunning = false;
-        });
+          .then(errs => this.handleValidationResults(errs))
+          .catch(error => this.showError("Error attempting validation", error))
+          .finally(() => {
+            this.validating = {};
+            this.validationRunning = false;
+          });
     },
   }
 }

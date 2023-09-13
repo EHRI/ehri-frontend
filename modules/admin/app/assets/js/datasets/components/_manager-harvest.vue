@@ -25,7 +25,19 @@ import {HarvestConfig} from "../types";
 
 
 export default {
-  components: {FilterControl, FilesTable, ButtonDelete, ButtonValidate, PanelFilePreview, ModalOaipmhConfig, ModalRsConfig, ModalUrlsetConfig, DragHandle, ModalInfo, PanelLogWindow},
+  components: {
+    FilterControl,
+    FilesTable,
+    ButtonDelete,
+    ButtonValidate,
+    PanelFilePreview,
+    ModalOaipmhConfig,
+    ModalRsConfig,
+    ModalUrlsetConfig,
+    DragHandle,
+    ModalInfo,
+    PanelLogWindow
+  },
   mixins: [MixinStage, MixinTwoPanel, MixinValidator, MixinError, MixinPreview, MixinUtil, MixinTasklog],
   props: {
     datasetType: String,
@@ -64,7 +76,7 @@ export default {
         this.waiting = false;
       }
     },
-    resumeMonitor: async function() {
+    resumeMonitor: async function () {
       let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
         this.tab = "info";
@@ -76,7 +88,7 @@ export default {
         }
       }
     },
-    loadConfig: async function() {
+    loadConfig: async function () {
       this.opts = await this.api.getHarvestConfig(this.datasetId);
     },
   },
@@ -232,7 +244,7 @@ export default {
             </div>
           </div>
           <div class="status-panel log-container" v-if="tab === 'info'">
-            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'"/>
           </div>
         </div>
       </div>

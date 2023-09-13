@@ -25,7 +25,7 @@ export default {
     datasets: Array,
     stats: Object,
   },
-  data: function() {
+  data: function () {
     return {
       loaded: false,
       tab: this.initTab,
@@ -33,20 +33,25 @@ export default {
     }
   },
   methods: {
-    switchTab: function(tab: string) {
+    switchTab: function (tab: string) {
       this.tab = tab;
       history.pushState(
           _merge(this.queryParams(window.location.search), {'tab': tab}),
           document.title,
           this.setQueryParam(window.location.search, 'tab', tab));
     },
-    stageName: function(code: ImportDatasetSrc): string {
+    stageName: function (code: ImportDatasetSrc): string {
       switch (code) {
-        case "oaipmh": return "Harvesting";
-        case "upload": return "Uploads";
-        case "rs": return "ResourceSync";
-        case "urlset": return "URL Set";
-        default: return code;
+        case "oaipmh":
+          return "Harvesting";
+        case "upload":
+          return "Uploads";
+        case "rs":
+          return "ResourceSync";
+        case "urlset":
+          return "URL Set";
+        default:
+          return code;
       }
     },
   },
@@ -111,7 +116,7 @@ export default {
         <div class="dropdown">
           <button class="btn btn-info" v-on:click="showSelector = !showSelector">
             <i class="fa fa-lg fa-caret-down"></i>
-            Dataset: {{dataset.name}}
+            Dataset: {{ dataset.name }}
           </button>
           <template v-if="showSelector">
             <div class="dropdown-backdrop" v-on:click="showSelector = false"></div>
@@ -123,11 +128,12 @@ export default {
               <template v-if="datasets.length > 1">
                 <div class="dropdown-divider"></div>
                 <div id="dataset-selector-list">
-                  <a v-for="ds in datasets" v-on:click.prevent="$emit('select-dataset', ds); showSelector = false" href="#" class="dropdown-item">
+                  <a v-for="ds in datasets" v-on:click.prevent="$emit('select-dataset', ds); showSelector = false"
+                     href="#" class="dropdown-item">
                     <i class="fa fa-fw" v-bind:class="{'fa-asterisk': ds.id===dataset.id}"></i>
                     {{ ds.name }}
                     <div class="badge badge-pill" v-bind:class="'badge-' + ds.src">
-                      <span v-if="ds.id in stats">({{stats[ds.id]}})</span>
+                      <span v-if="ds.id in stats">({{ stats[ds.id] }})</span>
                     </div>
                   </a>
                 </div>
@@ -164,7 +170,7 @@ export default {
           v-bind:active="tab === 'input'"
           v-bind:api="api"
           v-on:updated="$emit('refresh-stats')"
-          v-on:error="showError"  />
+          v-on:error="showError"/>
     </div>
     <div id="tab-convert" class="stage-tab" v-show="tab === 'convert'">
       <manager-convert
@@ -174,7 +180,7 @@ export default {
           v-bind:config="config"
           v-bind:active="tab === 'convert'"
           v-bind:api="api"
-          v-on:error="showError" />
+          v-on:error="showError"/>
     </div>
     <div id="tab-ingest" class="stage-tab" v-show="tab === 'ingest'">
       <manager-ingest
@@ -183,7 +189,7 @@ export default {
           v-bind:config="config"
           v-bind:active="tab === 'ingest'"
           v-bind:api="api"
-          v-on:error="showError"  />
+          v-on:error="showError"/>
     </div>
   </div>
 </template>

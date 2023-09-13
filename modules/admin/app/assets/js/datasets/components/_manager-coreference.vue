@@ -14,7 +14,7 @@ export default {
     config: Object,
     api: DatasetManagerApi,
   },
-  data: function() {
+  data: function () {
     return {
       references: [],
       selected: [],
@@ -33,7 +33,7 @@ export default {
     }
   },
   methods: {
-    refresh: async function() {
+    refresh: async function () {
       this.validationErrors = false;
       this.validationMessages = "";
       try {
@@ -51,7 +51,7 @@ export default {
         this.loading = false;
       }
     },
-    extractCoreferences: async function() {
+    extractCoreferences: async function () {
       this.importFromTSV = false;
       this.extractInProgress = true;
       try {
@@ -64,8 +64,8 @@ export default {
         this.extractInProgress = false;
       }
     },
-    importCoreferences: async function() {
-      if(this.importedCoreferencesValid()) {
+    importCoreferences: async function () {
+      if (this.importedCoreferencesValid()) {
         this.pasteText = "";
         try {
           let r = await this.api.importCoreferences(this.references);
@@ -79,7 +79,7 @@ export default {
         this.validationMessages = "Invalid format for the imported coreferences, please check them!";
       }
     },
-    applyCoreferences: async function() {
+    applyCoreferences: async function () {
       this.applyInProgress = true;
       try {
         this.result = await this.api.applyCoreferences();
@@ -89,9 +89,9 @@ export default {
         this.applyInProgress = false;
       }
     },
-    setCoreferencesFromTsv: function() {
+    setCoreferencesFromTsv: function () {
       let parsedTsv = decodeTsv(this.pasteText, 3);
-      this.references = parsedTsv.map(function(value) {
+      this.references = parsedTsv.map(function (value) {
         let ref: Coreference = {
           text: value[0],
           targetId: value[1],
@@ -100,14 +100,14 @@ export default {
         return ref;
       });
     },
-    importedCoreferencesValid: function() {
+    importedCoreferencesValid: function () {
       try {
         return this.references.every(r => r.text.length !== 0 && r.targetId.length !== 0 && r.setId.length !== 0);
-      } catch(e) {
+      } catch (e) {
         return false;
       }
     },
-    deleteCoreferences: async function() {
+    deleteCoreferences: async function () {
       try {
         this.deleteInProgress = true;
         let r = await this.api.deleteCoreferences(Object.values(this.selected));
@@ -119,49 +119,49 @@ export default {
         this.deleteInProgress = false;
       }
     },
-    countObjValues: function(obj: object, key: string): number {
+    countObjValues: function (obj: object, key: string): number {
       return (obj && obj[key])
           ? Object
-            .keys(obj[key])
-            .map(k => obj[key][k].length)
-            .reduce((a, b) => a + b, 0)
+              .keys(obj[key])
+              .map(k => obj[key][k].length)
+              .reduce((a, b) => a + b, 0)
           : 0;
     },
-    isFiltered: function() {
+    isFiltered: function () {
       return this.set !== null || this.filter.trim() !== "";
     },
-    updateOnTsvImport: function(value) {
+    updateOnTsvImport: function (value) {
       this.validationErrors = false;
       this.validationMessages = "";
       this.pasteText = value;
       this.setCoreferencesFromTsv();
     },
-    toggleAll: function(toggle: boolean) {
+    toggleAll: function (toggle: boolean) {
       if (!toggle) {
         this.selected = {};
       } else {
         this.selected = _fromPairs(this.references.map(r => [this.refKey(r), r]));
       }
     },
-    toggleRef: function(ref: Coreference) {
+    toggleRef: function (ref: Coreference) {
       if (this.selected[this.refKey(ref)]) {
         delete this.selected[this.refKey(ref)];
       } else {
         this.selected[this.refKey(ref)] = ref;
       }
     },
-    refKey: function(ref: Coreference): string {
+    refKey: function (ref: Coreference): string {
       return [ref.text, ref.targetId, ref.setId].join('-');
     }
   },
   computed: {
-    created: function() {
+    created: function () {
       return this.countObjValues(this.result, "created_keys");
     },
-    updated: function() {
+    updated: function () {
       return this.countObjValues(this.result, "updated_keys");
     },
-    sets: function(): string[] {
+    sets: function (): string[] {
       let out = [];
       let refs = this.references as Coreference[];
       for (let r of refs) {
@@ -175,14 +175,14 @@ export default {
       let trimFilter = this.filter.trim().toLowerCase();
       let isFiltered = this.isFiltered();
       let match = (ref: Coreference) => !isFiltered || (
-            (this.set === null || ref.setId === this.set) &&
-            (trimFilter === "" || ref.text.toLowerCase().includes(trimFilter)));
+          (this.set === null || ref.setId === this.set) &&
+          (trimFilter === "" || ref.text.toLowerCase().includes(trimFilter)));
       return this.references.filter(match);
     }
   },
   created() {
     this.refresh()
-      .then(() => this.initialised = true);
+        .then(() => this.initialised = true);
   }
 }
 </script>
@@ -191,9 +191,12 @@ export default {
     <div class="actions-bar">
       <div class="filter-control">
         <label class="sr-only">Filter references</label>
-        <input v-model="filter" v-bind:disabled="references.length===0" type="text" placeholder="Filter references..." class="filter-input form-control form-control-sm">
-        <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="filter = ''" v-if="isFiltered()"/>
-        <select v-model="set" v-bind:disabled="references.length===0 || sets.length < 2" class="form-control form-control-sm">
+        <input v-model="filter" v-bind:disabled="references.length===0" type="text" placeholder="Filter references..."
+               class="filter-input form-control form-control-sm">
+        <i class="filtering-indicator fa fa-close fa-fw" style="cursor: pointer" v-on:click="filter = ''"
+           v-if="isFiltered()"/>
+        <select v-model="set" v-bind:disabled="references.length===0 || sets.length < 2"
+                class="form-control form-control-sm">
           <option v-bind:value="null"></option>
           <option v-for="setId in sets" v-bind:value="setId">{{ setId }}</option>
         </select>
@@ -207,7 +210,8 @@ export default {
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Extract From Data
       </button>
-      <button v-on:click.prevent="applyCoreferences" class="btn btn-sm btn-danger" v-bind:disabled="references.length === 0" >
+      <button v-on:click.prevent="applyCoreferences" class="btn btn-sm btn-danger"
+              v-bind:disabled="references.length === 0">
         <i v-if="!applyInProgress" class="fa fa-fw fa-database"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Apply to Data
@@ -227,11 +231,12 @@ export default {
       <div class="import-coreferences-tsv-action-buttons">
         <button @click="importFromTSV = !importFromTSV; refresh()" class="btn btn-sm btn-default">
           <i class="fa fa-times"></i>
-           Cancel
+          Cancel
         </button>
-        <button v-on:click.prevent="importCoreferences" v-bind:disabled="pasteText === ''" class="btn btn-sm btn-danger">
+        <button v-on:click.prevent="importCoreferences" v-bind:disabled="pasteText === ''"
+                class="btn btn-sm btn-danger">
           <i class="fa fa-fw fa-floppy-o"></i>
-           Save copied coreferences
+          Save copied coreferences
         </button>
       </div>
     </div>
@@ -247,7 +252,8 @@ export default {
 
     <div id="coreference-manager-coreference-list" v-if="initialised">
       <h4>Coreferences: {{ references.length }}
-        <a href="" @click.prevent="deleteCoreferences" v-if="Object.keys(selected).length > 0" class="text-danger pull-right">
+        <a href="" @click.prevent="deleteCoreferences" v-if="Object.keys(selected).length > 0"
+           class="text-danger pull-right">
           <i v-if="!deleteInProgress" class="fa fa-fw fa-trash-o"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Remove Selected Coreferences
@@ -261,7 +267,7 @@ export default {
                        v-bind:id="'coreference-manager-coreference-table-checkall'"
                        v-bind:checked="Object.keys(selected).length === references.length"
                        v-bind:indeterminate.prop="Object.keys(selected).length > 0 && Object.keys(selected).length < references.length"
-                       v-on:change="toggleAll" /></th>
+                       v-on:change="toggleAll"/></th>
             <th>Text</th>
             <th>Target ID</th>
             <th>Set ID</th>

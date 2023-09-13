@@ -7,7 +7,7 @@ import {Terminal} from "xterm";
 import termopts from "../termopts";
 
 
-let initialLogState = function(): object {
+let initialLogState = function (): object {
   return {
     log: new Terminal(termopts),
     jobId: null,
@@ -22,15 +22,15 @@ export default {
     api: DatasetManagerApi,
     config: Object,
   },
-  data: function(): object {
+  data: function (): object {
     return initialLogState();
   },
   methods: {
-    reset: function() {
+    reset: function () {
       this.log.clear();
     },
 
-    println: function(...msg: string[]) {
+    println: function (...msg: string[]) {
       console.debug(...msg);
       let line = msg.join(' ');
       if (this.overwrite) {
@@ -40,7 +40,8 @@ export default {
       this.overwrite = _startsWith(line, this.logDeleteLinePrefix);
     },
 
-    monitor: async function(url: string, jobId: string, onMsg: (s: string) => any = function () {}, clear: boolean = false) {
+    monitor: async function (url: string, jobId: string, onMsg: (s: string) => any = function () {
+    }, clear: boolean = false) {
       this.jobId = jobId;
       return await new Promise(((resolve) => {
         let worker = new Worker(this.config.previewLoader);
@@ -63,10 +64,12 @@ export default {
           DONE: DatasetManagerApi.DONE_MSG,
           ERR: DatasetManagerApi.ERR_MSG
         });
-      })).catch(e => {throw e});
+      })).catch(e => {
+        throw e
+      });
     },
 
-    cancelJob: async function() {
+    cancelJob: async function () {
       if (this.jobId) {
         this.cancelling = true;
         try {

@@ -11,7 +11,7 @@ export default {
     config: Object,
     api: DashboardApi,
   },
-  data: function() {
+  data: function () {
     return {
       loaded: false,
       loading: false,
@@ -19,7 +19,7 @@ export default {
     }
   },
   methods: {
-    loadDatasetInfo: async function() {
+    loadDatasetInfo: async function () {
       this.loading = true;
       try {
         this.datasetInfo = await this.api.listAllDatasets()
@@ -30,7 +30,7 @@ export default {
         this.loading = true;
       }
     },
-    goTo: function(id: string, ds?: string) {
+    goTo: function (id: string, ds?: string) {
       window.location = this.api.managerUrl(id, ds);
     }
   },
@@ -45,12 +45,12 @@ export default {
     <h1>{{ config.title }}</h1>
     <div id="dashboard-institution-list" class="dashboard-institution-list">
       <div v-for="info in datasetInfo" v-on:click="goTo(info.repoId)" class="dashboard-institution-item">
-        <img v-bind:src="info.logoUrl" alt="info.name" class="item-icon" />
+        <img v-bind:src="info.logoUrl" alt="info.name" class="item-icon"/>
         <h3 class="item-heading">{{ info.name }}</h3>
         <div class="item-meta">
         </div>
         <div class="badge badge-success item-badge">
-          {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '')}}
+          {{ info.sets.length + " Dataset" + (info.sets.length > 1 ? 's' : '') }}
         </div>
       </div>
     </div>

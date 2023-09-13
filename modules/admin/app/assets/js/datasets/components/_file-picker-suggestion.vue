@@ -5,7 +5,7 @@ export default {
     selected: Boolean,
     item: Object,
   },
-  methods: { decodeURI }
+  methods: {decodeURI}
 };
 </script>
 

@@ -10,10 +10,10 @@ export default {
     api: Object,
   },
   methods: {
-    validate: function() {
+    validate: function () {
       // FIXME: not yet supported
     },
-    load: function() {
+    load: function () {
       if (this.previewing === null) {
         return;
       }
@@ -30,10 +30,10 @@ export default {
     }
   },
   watch: {
-    trigger: function() {
+    trigger: function () {
       this.load();
     },
-    config: function(newConfig, oldConfig) {
+    config: function (newConfig, oldConfig) {
       if (newConfig !== oldConfig && newConfig !== null) {
         console.log("Refresh convert preview...");
         this.load();

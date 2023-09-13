@@ -49,23 +49,33 @@ function sequentialUpload(uploadFunc, argArray, index, {done, cancelled}) {
   return index >= argArray.length
       ? Promise.resolve({done, cancelled})
       : uploadFunc(argArray[index])
-        .then(() => sequentialUpload(uploadFunc, argArray, index + 1, {
-          done: done + 1, cancelled
-        }))
-        .catch(e => {
-          if (e instanceof UploadCancelled) {
-            return Promise.resolve(sequentialUpload(uploadFunc, argArray, index + 1, {
-              done,
-              cancelled: cancelled + 1
-            }));
-          } else {
-            throw e;
-          }
-        });
+          .then(() => sequentialUpload(uploadFunc, argArray, index + 1, {
+            done: done + 1, cancelled
+          }))
+          .catch(e => {
+            if (e instanceof UploadCancelled) {
+              return Promise.resolve(sequentialUpload(uploadFunc, argArray, index + 1, {
+                done,
+                cancelled: cancelled + 1
+              }));
+            } else {
+              throw e;
+            }
+          });
 }
 
 export default {
-  components: {FilterControl, FilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, UploadProgress},
+  components: {
+    FilterControl,
+    FilesTable,
+    PanelLogWindow,
+    DragHandle,
+    ModalInfo,
+    PanelFilePreview,
+    ButtonValidate,
+    ButtonDelete,
+    UploadProgress
+  },
   mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetContentType: String,
@@ -96,7 +106,7 @@ export default {
       }
       return false;
     },
-    finishAllUploads: function() {
+    finishAllUploads: function () {
       this.uploading = [];
     },
     dragOver: function () {
@@ -286,13 +296,13 @@ export default {
                                 v-bind:validation-results="validationResults"
                                 v-on:validation-results="(tag, e) => {this.validationResults[tag] = e}"
                                 v-on:error="showError"
-                                v-show="previewing !== null" />
+                                v-show="previewing !== null"/>
             <div class="panel-placeholder" v-if="previewing === null">
               No file selected.
             </div>
           </div>
           <div class="status-panel log-container" v-if="tab === 'info'">
-            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'"/>
           </div>
         </div>
       </div>
@@ -301,7 +311,7 @@ export default {
     <upload-progress
         v-bind:uploading="uploading"
         v-on:finish-item="finishUpload"
-        v-on:cancel-upload="finishAllUploads" />
+        v-on:cancel-upload="finishAllUploads"/>
   </div>
 </template>
 

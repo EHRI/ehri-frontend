@@ -3,7 +3,7 @@ export default {
   props: {
     uploading: Array,
   },
-  data: function() {
+  data: function () {
     return {
       showProgress: true,
     };
@@ -27,7 +27,7 @@ export default {
                v-bind:aria-valuemin="0"
                v-bind:aria-valuenow="job.progress"
                v-bind:style="'width: ' + job.progress + '%'">
-            {{ job.spec.name}}
+            {{ job.spec.name }}
           </div>
         </div>
         <button class="btn btn-sm btn-default cancel-button" v-on:click.prevent="$emit('finish-item', job.spec)">

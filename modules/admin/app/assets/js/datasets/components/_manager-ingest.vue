@@ -23,7 +23,17 @@ import {ImportConfig} from "../types";
 
 
 export default {
-  components: {FilterControl, FilesTable, PanelLogWindow, DragHandle, ModalInfo, PanelFilePreview, ButtonValidate, ButtonDelete, ModalIngestConfig},
+  components: {
+    FilterControl,
+    FilesTable,
+    PanelLogWindow,
+    DragHandle,
+    ModalInfo,
+    PanelFilePreview,
+    ButtonValidate,
+    ButtonDelete,
+    ModalIngestConfig
+  },
   mixins: [MixinStage, MixinTwoPanel, MixinPreview, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetId: String,
@@ -44,7 +54,7 @@ export default {
     }
   },
   methods: {
-    resumeMonitor: async function() {
+    resumeMonitor: async function () {
       let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
         try {
@@ -55,7 +65,7 @@ export default {
         }
       }
     },
-    doIngest: async function(opts: ImportConfig, commit: boolean) {
+    doIngest: async function (opts: ImportConfig, commit: boolean) {
       this.waiting = true;
 
       // Save opts for the next time we open the config UI
@@ -78,10 +88,10 @@ export default {
         this.waiting = false;
       }
     },
-    loadConfig: async function() {
+    loadConfig: async function () {
       this.opts = await this.api.getImportConfig(this.datasetId);
     },
-    loadPropertyConfigs: async function() {
+    loadPropertyConfigs: async function () {
       this.loading = true;
       try {
         let data = await this.api.listFiles(this.datasetId, this.config.config);
@@ -108,7 +118,7 @@ export default {
           v-bind:filter="filter"
           v-on:filter="filterFiles"
           v-on:clear="clearFilter"
-          v-on:refresh="load" />
+          v-on:refresh="load"/>
 
       <button-validate
           v-bind:selected="selectedKeys.length"
@@ -128,9 +138,10 @@ export default {
               v-on:click.prevent="showOptions = !showOptions" v-if="selectedKeys.length">
         <i v-if="!jobId" class="fa fa-fw fa-database"/>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
-        Ingest Selected... ({{selectedKeys.length}})
+        Ingest Selected... ({{ selectedKeys.length }})
       </button>
-      <button v-bind:disabled="files.length===0 || jobId" class="btn btn-sm btn-default" v-on:click.prevent="showOptions = !showOptions"
+      <button v-bind:disabled="files.length===0 || jobId" class="btn btn-sm btn-default"
+              v-on:click.prevent="showOptions = !showOptions"
               v-else>
         <i v-if="!jobId" class="fa fa-fw fa-database"/>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
@@ -148,7 +159,7 @@ export default {
           v-on:saving="waiting = true"
           v-on:saved-config="doIngest"
           v-on:update="loadPropertyConfigs"
-          v-on:close="showOptions = false" />
+          v-on:close="showOptions = false"/>
 
       <modal-info v-if="fileInfo !== null" v-bind:file-info="fileInfo" v-on:close="fileInfo = null"/>
     </div>
@@ -212,21 +223,21 @@ export default {
         <div class="status-panels">
           <div class="status-panel" v-show="tab === 'preview'">
             <panel-file-preview v-bind:dataset-id="datasetId"
-                     v-bind:file-stage="fileStage"
-                     v-bind:previewing="previewing"
-                     v-bind:panel-size="panelSize"
-                     v-bind:config="config"
-                     v-bind:api="api"
-                     v-bind:validation-results="validationResults"
-                     v-on:validation-results="(tag, e) => {this.validationResults[tag] = e}"
-                     v-on:error="showError"
-                     v-show="previewing !== null"/>
+                                v-bind:file-stage="fileStage"
+                                v-bind:previewing="previewing"
+                                v-bind:panel-size="panelSize"
+                                v-bind:config="config"
+                                v-bind:api="api"
+                                v-bind:validation-results="validationResults"
+                                v-on:validation-results="(tag, e) => {this.validationResults[tag] = e}"
+                                v-on:error="showError"
+                                v-show="previewing !== null"/>
             <div class="panel-placeholder" v-if="previewing === null">
               No file selected.
             </div>
           </div>
           <div class="status-panel log-container" v-if="tab === 'info'">
-            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'"/>
           </div>
         </div>
       </div>

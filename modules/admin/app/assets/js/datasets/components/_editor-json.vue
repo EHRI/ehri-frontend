@@ -13,13 +13,13 @@ export default {
       type: Number,
     },
   },
-  data: function() {
+  data: function () {
     return {
       error: false,
     }
   },
   methods: {
-    fromString: function(s: string): object {
+    fromString: function (s: string): object {
       try {
         let value = JSON.parse(s);
         this.error = false;
@@ -29,7 +29,7 @@ export default {
         return {};
       }
     },
-    toString: function(obj: object): string {
+    toString: function (obj: object): string {
       return JSON.stringify(obj, null, 2);
     }
   },

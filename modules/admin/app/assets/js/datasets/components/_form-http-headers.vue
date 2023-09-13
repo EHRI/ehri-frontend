@@ -6,39 +6,39 @@ export default {
   props: {
     modelValue: Array,
   },
-  data: function() {
+  data: function () {
     return {
       show: _isArray(this.modelValue),
       str: this.modelValue ? this.serialize(this.modelValue) : "",
     }
   },
   methods: {
-    update: function() {
+    update: function () {
       this.$emit("update:modelValue", this.headers);
     },
-    deserialize: function(s: string): [string, string][] {
+    deserialize: function (s: string): [string, string][] {
       if (s && s.trim()) {
         return s.split(/\s*\n\r?\s*/).map(s => s.split(/\s*:\s*/).slice(0, 2));
       } else {
         return [];
       }
     },
-    serialize: function(value: [string, string][]) {
+    serialize: function (value: [string, string][]) {
       return value.map(([k, v]) => k + ": " + v).join("\n");
     },
   },
   computed: {
-    headers: function() {
+    headers: function () {
       return this.show
           ? this.deserialize(this.str)
           : null;
     },
   },
   watch: {
-    show: function() {
+    show: function () {
       this.update();
     },
-    str: function() {
+    str: function () {
       this.update();
     }
   }
@@ -60,7 +60,8 @@ export default {
         <label class="form-label" for="header-values">
           HTTP Headers
         </label>
-        <textarea rows="3" v-model="str" class="form-control" id="header-values" type="text" autocomplete="off"></textarea>
+        <textarea rows="3" v-model="str" class="form-control" id="header-values" type="text"
+                  autocomplete="off"></textarea>
       </div>
     </fieldset>
   </div>

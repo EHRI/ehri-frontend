@@ -16,7 +16,7 @@ export default {
     resize: Number, // not a usable value, just a watch trigger
   },
   methods: {
-    fit () {
+    fit() {
       let parent = this.$el.parentNode;
       nextTick(() => {
         let width = parent.offsetWidth - this.$el.offsetLeft + parent.offsetLeft;
@@ -30,11 +30,17 @@ export default {
     },
   },
   watch: {
-    panelSize: function() { this.fit(); },
-    visible: function() { this.fit(); },
-    resize: function() { this.fit(); },
+    panelSize: function () {
+      this.fit();
+    },
+    visible: function () {
+      this.fit();
+    },
+    resize: function () {
+      this.fit();
+    },
   },
-  mounted () {
+  mounted() {
     this.$fitAddon = new FitAddon() as ITerminalAddon;
     this.log.loadAddon(this.$fitAddon);
 
