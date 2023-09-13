@@ -12,7 +12,7 @@ export default {
     config: Object,
     info: Object,
   },
-  data: function() {
+  data: function () {
     return {
       id: this.info ? this.info.id : null,
       name: this.info ? this.info.name : null,
@@ -30,7 +30,7 @@ export default {
     }
   },
   methods: {
-    save: function(): void {
+    save: function (): void {
       this.saving = true;
 
       let data = {
@@ -59,7 +59,7 @@ export default {
         }
       }).finally(() => this.saving = false);
     },
-    remove: function(): void {
+    remove: function (): void {
       this.deleting = true;
       this.showRemoveDialog = false;
       this.api.deleteDataset(this.id)
@@ -73,7 +73,7 @@ export default {
     },
   },
   watch: {
-    fonds: function(newValue) {
+    fonds: function (newValue) {
       if (!newValue) {
         this.fonds = null;
         this.sync = false;
@@ -81,26 +81,26 @@ export default {
     }
   },
   computed: {
-    isValidConfig: function(): boolean {
+    isValidConfig: function (): boolean {
       return this.src !== null
           && this.name !== null
           && this.id !== null
           && this.isValidFonds;
     },
-    isValidIdentifier: function(): boolean {
+    isValidIdentifier: function (): boolean {
       return !this.id || (this.id.match(/^[a-z0-9_]+$/) !== null && this.id.length <= 50);
     },
-    isValidFonds: function(): boolean {
+    isValidFonds: function (): boolean {
       return !this.fonds || this.fonds.match("^" + this.config.repoId + "-.+");
     },
-    hasChanged: function(): boolean {
+    hasChanged: function (): boolean {
       return this.info === null || (
-          this.info.name !== this.name
-          || this.info.src !== this.src
-          || this.info.notes !== this.notes
-          || this.info.fonds !== this.fonds
-          || this.info.contentType !== this.contentType
-          || Boolean(this.info.sync) !== Boolean(this.sync))
+              this.info.name !== this.name
+              || this.info.src !== this.src
+              || this.info.notes !== this.notes
+              || this.info.fonds !== this.fonds
+              || this.info.contentType !== this.contentType
+              || Boolean(this.info.sync) !== Boolean(this.sync))
           || this.info.status !== this.status;
     }
   },
@@ -111,7 +111,7 @@ export default {
 <template>
   <modal-window v-on:close="$emit('close')">
     <template v-if="info === null" v-slot:title>Create New Dataset...</template>
-    <template v-else v-slot:title>Update Dataset: {{info.name}}</template>
+    <template v-else v-slot:title>Update Dataset: {{ info.name }}</template>
 
     <modal-alert v-if="showRemoveDialog"
                  v-on:accept="remove"
@@ -127,7 +127,7 @@ export default {
                  v-bind:cancel="null"
                  v-bind:title="'Error saving dataset...'"
                  v-bind:cls="'warning'">
-      <p>{{error}}</p>
+      <p>{{ error }}</p>
     </modal-alert>
     <fieldset v-bind:disabled="deleting" class="options-form">
       <div class="form-group" v-if="info === null">
@@ -144,7 +144,7 @@ export default {
                class="form-control"
                autofocus="autofocus"
                autocomplete="off"
-               placeholder="(required)" />
+               placeholder="(required)"/>
         <div class="small form-text">
           Dataset identifiers must be at least 6 characters in length
           and can only contain lower case letters, numbers and underscores.
@@ -177,7 +177,8 @@ export default {
         <input type="text" v-model="fonds" id="dataset-fonds" class="form-control" placeholder="(optional)"/>
       </div>
       <div class="form-group form-check">
-        <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="sync" class="form-check-input" id="opt-sync" type="checkbox"/>
+        <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="sync" class="form-check-input"
+               id="opt-sync" type="checkbox"/>
         <label class="form-check-label" for="opt-sync">
           Synchronise fonds with dataset
         </label>
@@ -186,7 +187,8 @@ export default {
         <label class="form-label" for="dataset-content-type">
           Content-Type Override
         </label>
-        <input type="text" v-model="contentType" id="dataset-content-type" class="form-control" placeholder="text/xml; charset=utf-8"/>
+        <input type="text" v-model="contentType" id="dataset-content-type" class="form-control"
+               placeholder="text/xml; charset=utf-8"/>
       </div>
       <div class="form-group">
         <label class="form-label" for="dataset-status">

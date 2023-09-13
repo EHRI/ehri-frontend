@@ -35,8 +35,8 @@ export default {
     </div>
     <div class="transformation-item-params">
       <button v-if="item.hasParams && parameters"
-          v-bind:title="JSON.stringify(parameters, null, 2)"
-          v-bind:class="{
+              v-bind:title="JSON.stringify(parameters, null, 2)"
+              v-bind:class="{
           'btn-dark': Object.keys(parameters).length > 0,
           'btn-default': Object.keys(parameters).length === 0
         }" class="btn btn-sm" v-on:click="$emit('edit-params')">

@@ -17,7 +17,7 @@ export default {
     api: DatasetManagerApi,
     config: Object,
   },
-  data: function() {
+  data: function () {
     return {
       urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
@@ -34,36 +34,40 @@ export default {
     }
   },
   computed: {
-    isValidConfig: function() {
+    isValidConfig: function () {
       return this.urlMap !== null
           && this.urlMap.length > 0
           && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""))
           && (!this.headers || (this.headers.length > 0));
     },
     urlMapText: {
-      get: function(): string {
+      get: function (): string {
         return this.urlMap ? encodeTsv(this.urlMap, 2) : "";
       },
-      set: function(urlMapText: string) {
+      set: function (urlMapText: string) {
         this.urlMap = urlMapText ? decodeTsv(urlMapText, 2) : [];
       }
     }
   },
   methods: {
-    save: async function() {
+    save: async function () {
       if (!this.validate()) {
         this.flashNotice();
         return;
       }
       this.$emit("saving");
       try {
-        let data = await this.api.saveHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null, headers: this.headers});
+        let data = await this.api.saveHarvestConfig(this.datasetId, {
+          urlMap: this.urlMap,
+          auth: null,
+          headers: this.headers
+        });
         this.$emit("saved-config", {...data, auth: this.auth});
       } catch (e) {
         this.$emit("error", "Error saving URL set config", e?.response?.data?.error);
       }
     },
-    testEndpoint: async function() {
+    testEndpoint: async function () {
       if (!this.validate()) {
         this.flashNotice();
         return;
@@ -83,23 +87,23 @@ export default {
         this.testing = false;
       }
     },
-    cleanEndpoint: async function() {
+    cleanEndpoint: async function () {
       this.cleaning = true;
       try {
         this.orphanCheck = await this.api.cleanHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
-      } catch(e) {
+      } catch (e) {
         this.error = e.message;
       } finally {
         this.cleaning = false;
       }
     },
-    deleteOrphans: async function(orphans: string[]): Promise<void> {
+    deleteOrphans: async function (orphans: string[]): Promise<void> {
       await this.api.deleteFiles(this.datasetId, this.config.input, orphans)
       await this.api.deleteFiles(this.datasetId, this.config.output, orphans)
       this.$emit('deleted-orphans')
       this.orphanCheck = null
     },
-    isValidHttpUrl: function(s: string): boolean {
+    isValidHttpUrl: function (s: string): boolean {
       let url;
       try {
         url = new URL(s);
@@ -108,11 +112,13 @@ export default {
       }
       return url.protocol === "http:" || url.protocol === "https:";
     },
-    flashNotice: function() {
+    flashNotice: function () {
       this.flash = true;
-      setTimeout(() => {this.flash = false}, 1000);
+      setTimeout(() => {
+        this.flash = false
+      }, 1000);
     },
-    validate: function(): boolean {
+    validate: function (): boolean {
       let value = this.urlMap;
       this.tested = null;
       if (!value) {
@@ -134,7 +140,7 @@ export default {
     }
   },
   watch: {
-    opts: function(newValue) {
+    opts: function (newValue) {
       this.urlMap = newValue ? newValue.urlMap : null;
     },
   },
@@ -146,20 +152,20 @@ export default {
     <template v-slot:title>URL Set Configuration</template>
 
     <modal-alert
-      v-if="orphanCheck !== null && orphanCheck.length === 0"
-      v-bind:title="'No orphaned files found'"
-      v-bind:cls="'success'"
-      v-bind:cancel="null"
-      v-on:accept="orphanCheck = null"
-      v-on:close="orphanCheck = null"
-        />
+        v-if="orphanCheck !== null && orphanCheck.length === 0"
+        v-bind:title="'No orphaned files found'"
+        v-bind:cls="'success'"
+        v-bind:cancel="null"
+        v-on:accept="orphanCheck = null"
+        v-on:close="orphanCheck = null"
+    />
     <modal-alert
-      v-else-if="orphanCheck !== null && orphanCheck.length > 0"
-      v-bind:title="'Ophaned files found: ' + orphanCheck.length"
-      v-bind:large="true"
-      v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
-      v-on:accept="deleteOrphans(orphanCheck)"
-      v-on:close="orphanCheck = null">
+        v-else-if="orphanCheck !== null && orphanCheck.length > 0"
+        v-bind:title="'Ophaned files found: ' + orphanCheck.length"
+        v-bind:large="true"
+        v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
+        v-on:accept="deleteOrphans(orphanCheck)"
+        v-on:close="orphanCheck = null">
       <div class="confirm-orphan-delete-list">
         <pre>{{ orphanCheck.join('\n') }}</pre>
       </div>
@@ -181,12 +187,12 @@ export default {
       <form-http-basic-auth v-model="auth"/>
       <form-http-headers v-model="headers"/>
     </div>
-    
+
     <div id="endpoint-errors">
       <span v-if="inputError" v-bind:class="{'flash-notice': flash}" class="text-danger">{{ inputError }}</span>
       <span v-else-if="tested === null">&nbsp;</span>
       <span v-else-if="tested" class="text-success">No errors detected</span>
-      <span v-else-if="error" class="text-danger">{{error}}</span>
+      <span v-else-if="error" class="text-danger">{{ error }}</span>
       <span v-else class="text-danger">Test unsuccessful</span>
     </div>
 

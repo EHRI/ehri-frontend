@@ -3,7 +3,7 @@
 import {FileMeta} from '../types';
 
 export default {
-  data: function() {
+  data: function () {
     return {
       tab: 'preview'
     }

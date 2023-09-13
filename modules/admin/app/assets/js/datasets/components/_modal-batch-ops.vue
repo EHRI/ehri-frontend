@@ -29,7 +29,7 @@ export default {
     api: DatasetManagerApi,
     config: Object,
   },
-  data: function() {
+  data: function () {
     return {
       tab: 'copy',
       current: null,
@@ -46,12 +46,12 @@ export default {
     }
   },
   methods: {
-    cancelOperation: async function() {
+    cancelOperation: async function () {
       this.println("Cancelling...");
       await this.cancelJob();
       this.cancelled = true;
     },
-    cleanup: function() {
+    cleanup: function () {
       if (this.cancelled) {
         this.println("Cancelled");
       }
@@ -59,10 +59,10 @@ export default {
       // this.jobId = null;
       this.inProgress = false;
     },
-    setRunning: function() {
+    setRunning: function () {
       this.inProgress = true;
     },
-    checkConfigs: async function() {
+    checkConfigs: async function () {
       let datasets: ImportDataset[] = this.datasets;
       for (let set of datasets) {
         let config = await this.api.getHarvestConfig(set.id);
@@ -73,7 +73,7 @@ export default {
       }
       return true;
     },
-    checkOrphansForSet: async function(set: ImportDataset, config: HarvestConfig): Promise<string[]> {
+    checkOrphansForSet: async function (set: ImportDataset, config: HarvestConfig): Promise<string[]> {
       let files = await this.api.cleanHarvestConfig(set.id, config);
       if (files.length === 0) {
         this.println("... no orphans found");
@@ -83,7 +83,7 @@ export default {
       }
       return files;
     },
-    checkForOrphans: async function() {
+    checkForOrphans: async function () {
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
 
@@ -113,7 +113,7 @@ export default {
       }
       this.cleanup();
     },
-    syncAllDatasets: async function() {
+    syncAllDatasets: async function () {
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
       for (let set of datasets) {
@@ -123,7 +123,7 @@ export default {
           }
           break;
         }
-        let config: HarvestConfig|null = await this.api.getHarvestConfig(set.id);
+        let config: HarvestConfig | null = await this.api.getHarvestConfig(set.id);
         if (config) {
           this.println("Syncing", set.name);
           this.working[set.id] = true;
@@ -153,7 +153,7 @@ export default {
       }
       this.cleanup();
     },
-    convertAllDatasets: async function() {
+    convertAllDatasets: async function () {
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
 
@@ -187,7 +187,7 @@ export default {
       }
       this.cleanup();
     },
-    importAllDatasets: async function() {
+    importAllDatasets: async function () {
       let datasets: ImportDataset[] = this.datasets;
       this.setRunning();
 
@@ -223,7 +223,7 @@ export default {
       }
       this.cleanup();
     },
-    runAll: async function() {
+    runAll: async function () {
       try {
         this.throwOnError = true;
         await this.syncAllDatasets();
@@ -238,7 +238,7 @@ export default {
         this.throwOnError = false;
       }
     },
-    copyConvertSettings: async function() {
+    copyConvertSettings: async function () {
       // Copy convert settings from one dataset to all the others...
       if (window.confirm(`Copy convert settings from ${this.copyFrom}?`)) {
         let config = await this.api.getConvertConfig(this.copyFrom);
@@ -251,7 +251,7 @@ export default {
         this.cleanup();
       }
     },
-    copyImportSettings: async function() {
+    copyImportSettings: async function () {
       // Copy convert settings from one dataset to all the others...
       if (window.confirm(`Copy import settings from ${this.copyFrom}?`)) {
         let config: ImportConfig = await this.api.getImportConfig(this.copyFrom);
@@ -264,14 +264,14 @@ export default {
         this.cleanup();
       }
     },
-    copySettings: function() {
+    copySettings: function () {
       if (this.copyType === 'import') {
         this.copyImportSettings();
       } else if (this.copyType === 'convert') {
         this.copyConvertSettings();
       }
     },
-    resize: function() {
+    resize: function () {
       this.timestamp = (new Date()).getTime();
     }
   },
@@ -358,55 +358,64 @@ export default {
     </fieldset>
 
     <div class="log-container" id="batch-ops-log">
-      <panel-log-window v-bind:log="log" v-bind:resize="timestamp" v-bind:visible="true" />
+      <panel-log-window v-bind:log="log" v-bind:resize="timestamp" v-bind:visible="true"/>
     </div>
     <template v-slot:footer>
-      <button v-bind:disabled="!inProgress" v-on:click="cancelOperation" v-bind:class="{'btn-default': !inProgress, 'btn-warning': inProgress}"
+      <button v-bind:disabled="!inProgress" v-on:click="cancelOperation"
+              v-bind:class="{'btn-default': !inProgress, 'btn-warning': inProgress}"
               type="button" class="btn">
         <i v-if="cancelled" class="fa fa-fw fa-circle-o-notch" v-bind:class="{'fa-spin': inProgress}"></i>
         <i v-else class="fa fa-fw fa-stop-circle"></i>
         Cancel Operation
       </button>
-      <button v-if="tab === 'copy'" v-bind:disabled="inProgress || !(copyFrom && copyType)" v-on:click="copySettings" type="button" class="btn btn-secondary">
+      <button v-if="tab === 'copy'" v-bind:disabled="inProgress || !(copyFrom && copyType)" v-on:click="copySettings"
+              type="button" class="btn btn-secondary">
         <i v-if="!inProgress" class="fa fa-fw fa-copy"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Copy Settings
       </button>
       <template v-if="tab === 'sync'">
-        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="checkForOrphans" type="button" class="btn btn-default">
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined"
+                v-on:click="checkForOrphans" type="button" class="btn btn-default">
           <i class="fa fa-fw fa-trash-o"></i>
           Check for Orphaned Files
         </button>
-        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined" v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
+        <button v-bind:disabled="inProgress || datasets.find(d => d.src = 'rs') === undefined"
+                v-on:click="syncAllDatasets" type="button" class="btn btn-secondary">
           <i v-if="!inProgress" class="fa fa-fw fa-clone"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise ResourceSync Datasets
         </button>
       </template>
-      <button v-if="tab === 'convert'" v-bind:disabled="inProgress" v-on:click="convertAllDatasets" type="button" class="btn btn-secondary">
+      <button v-if="tab === 'convert'" v-bind:disabled="inProgress" v-on:click="convertAllDatasets" type="button"
+              class="btn btn-secondary">
         <i v-if="!inProgress" class="fa fa-fw fa-file-code-o"></i>
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Run Convert
       </button>
       <template v-if="commit">
-        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-danger">
+        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button"
+                class="btn btn-danger">
           <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Run Import
         </button>
-        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-danger">
+        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button"
+                class="btn btn-danger">
           <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise, Convert &amp; Import
         </button>
       </template>
       <template v-else>
-        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button" class="btn btn-secondary">
+        <button v-if="tab === 'import'" v-bind:disabled="inProgress" v-on:click="importAllDatasets" type="button"
+                class="btn btn-secondary">
           <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Run Dry Run
         </button>
-        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button" class="btn btn-secondary">
+        <button v-if="tab === 'all'" v-bind:disabled="inProgress" v-on:click="runAll" type="button"
+                class="btn btn-secondary">
           <i v-if="!inProgress" class="fa fa-fw fa-database"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Synchronise, Convert &amp; Dry Run Import

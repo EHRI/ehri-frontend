@@ -19,14 +19,22 @@ import _omit from 'lodash/omit';
 import _includes from 'lodash/includes';
 
 export default {
-  components: {ManagerCoreference, ManagerDataset, ManagerSnapshots, ManagerTimeline, ModalDatasetConfig, ModalDatasetIo, ModalBatchOps},
+  components: {
+    ManagerCoreference,
+    ManagerDataset,
+    ManagerSnapshots,
+    ManagerTimeline,
+    ModalDatasetConfig,
+    ModalDatasetIo,
+    ModalBatchOps
+  },
   mixins: [MixinUtil, MixinError],
   props: {
     config: Object,
     api: DatasetManagerApi,
     initTab: String,
   },
-  data: function() {
+  data: function () {
     return {
       loaded: false,
       datasets: [],
@@ -46,7 +54,7 @@ export default {
     }
   },
   methods: {
-    selectDataset: function(ds?: ImportDataset) {
+    selectDataset: function (ds?: ImportDataset) {
       if (!ds) {
         this.dataset = null;
         return;
@@ -57,7 +65,7 @@ export default {
           document.title,
           this.setQueryParam(window.location.search, 'ds', ds.id));
     },
-    closeDataset: function() {
+    closeDataset: function () {
       this.dataset = null;
       history.pushState(
           _omit(this.queryParams(window.location.search), 'ds', 'tab'),
@@ -65,13 +73,13 @@ export default {
           window.location.pathname
           + this.removeQueryParam(window.location.search, ['ds', 'tab']));
     },
-    loadStats: function() {
+    loadStats: function () {
       // NB: this function is not async because we want it to run in parallel
       for (let ds of this.datasets) {
         this.api.fileCount(ds.id).then(count => this.stats[ds.id] = count);
       }
     },
-    loadDatasets: async function() {
+    loadDatasets: async function () {
       try {
         this.datasets = await this.api.listDatasets();
         this.loadStats();
@@ -81,33 +89,41 @@ export default {
         this.loaded = true;
       }
     },
-    reloadDatasets: async function(ds?: ImportDataset) {
+    reloadDatasets: async function (ds?: ImportDataset) {
       await this.loadDatasets();
       if (ds && this.editing && this.editing.id === ds.id) {
         this.editing = ds;
       }
     },
-    stageName: function(code: ImportDatasetSrc): string {
+    stageName: function (code: ImportDatasetSrc): string {
       switch (code) {
-        case "oaipmh": return "Harvesting";
-        case "upload": return "Uploads";
-        case "rs": return "ResourceSync";
-        default: return code;
+        case "oaipmh":
+          return "Harvesting";
+        case "upload":
+          return "Uploads";
+        case "rs":
+          return "ResourceSync";
+        default:
+          return code;
       }
     },
-    statusName: function(code: ImportDatasetStatus): string {
+    statusName: function (code: ImportDatasetStatus): string {
       switch (code) {
-        case "active": return "Active";
-        case "onhold": return "On Hold";
-        case "inactive": return "Inactive";
-        default: return code;
+        case "active":
+          return "Active";
+        case "onhold":
+          return "On Hold";
+        case "inactive":
+          return "Inactive";
+        default:
+          return code;
       }
     },
-    switchTab: function(tab: string) {
+    switchTab: function (tab: string) {
       this.tab2 = tab;
       if (tab !== 'datasets') {
         history.pushState(
-            _merge(this.queryParams(window.location.search), { tab: tab}),
+            _merge(this.queryParams(window.location.search), {tab: tab}),
             document.title,
             this.setQueryParam(window.location.search, "tab", tab));
       } else {
@@ -156,14 +172,14 @@ export default {
                           v-bind:api="api"
                           v-on:close="editing = null; showDatasetForm = false"
                           v-on:saved-dataset="reloadDatasets"
-                          v-on:deleted-dataset="dataset = null; editing = null; reloadDatasets()" />
+                          v-on:deleted-dataset="dataset = null; editing = null; reloadDatasets()"/>
 
     <modal-dataset-io v-if="showImportForm"
                       v-bind:datasets="datasets"
                       v-bind:api="api"
                       v-bind:config="config"
                       v-on:close="showImportForm = false"
-                      v-on:saved="reloadDatasets(); showImportForm = false" />
+                      v-on:saved="reloadDatasets(); showImportForm = false"/>
 
     <manager-dataset v-if="dataset"
                      v-bind:config="config"
@@ -183,12 +199,14 @@ export default {
     <template v-else-if="loaded">
       <ul id="dataset-manager-tabs" class="nav nav-tabs">
         <li class="nav-item">
-          <a v-bind:class="{active: tab2 === 'datasets'}" v-on:click.prevent="switchTab('datasets')" href="#" class="nav-link">
+          <a v-bind:class="{active: tab2 === 'datasets'}" v-on:click.prevent="switchTab('datasets')" href="#"
+             class="nav-link">
             Datasets
           </a>
         </li>
         <li class="nav-item">
-          <a v-bind:class="{active: tab2 === 'snapshots'}" v-on:click.prevent="switchTab('snapshots')" href="#" class="nav-link">
+          <a v-bind:class="{active: tab2 === 'snapshots'}" v-on:click.prevent="switchTab('snapshots')" href="#"
+             class="nav-link">
             Content Snapshots
           </a>
         </li>
@@ -278,24 +296,26 @@ export default {
           </template>
           <template v-else>
             <div class="dataset-manager-list">
-              <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" v-bind:class="ds.status" class="dataset-manager-item">
+              <div v-for="ds in datasets" v-on:click.prevent="selectDataset(ds)" v-bind:class="ds.status"
+                   class="dataset-manager-item">
                 <div class="item-meta">
-                  <p v-if="ds.notes">{{ds.notes}}</p>
+                  <p v-if="ds.notes">{{ ds.notes }}</p>
                 </div>
                 <h3 class="item-heading">
-                  {{ds.name}}
+                  {{ ds.name }}
                   <i v-if="ds.id in working" class="fa fa-gear fa-spin fa-fw"></i>
                 </h3>
                 <div class="item-badge">
                   <div class="badge badge-light">
-                    <template v-if="ds.id in stats">{{ stats[ds.id] }} File{{ stats[ds.id] === 1 ? '' : 's'}}</template>
+                    <template v-if="ds.id in stats">{{ stats[ds.id] }} File{{ stats[ds.id] === 1 ? '' : 's' }}
+                    </template>
                     <i v-else class="fa fa-fw fa-spinner fa-spin"></i>
                   </div>
                   <div class="badge badge-primary" v-bind:class="'badge-' + ds.status">
                     {{ statusName(ds.status) }}
                   </div>
                   <div class="badge badge-primary" v-bind:class="'badge-' + ds.src">
-                    {{stageName(ds.src)}}
+                    {{ stageName(ds.src) }}
                   </div>
                 </div>
                 <div class="item-controls">

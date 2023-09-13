@@ -9,7 +9,7 @@ import _isEmpty from 'lodash/isEmpty';
 import {FileMeta} from '../types';
 import {DatasetManagerApi} from "../api";
 
-let initialStageState = function(): object {
+let initialStageState = function (): object {
   return {
     loaded: false,
     loadingMore: false,
@@ -35,19 +35,19 @@ export default {
     active: Boolean,
     api: DatasetManagerApi,
   },
-  data: function(): object {
+  data: function (): object {
     return initialStageState();
   },
   computed: {
     selectedKeys: function (): string[] {
       return Object.keys(this.selected);
     },
-    selectedTags: function(): object {
+    selectedTags: function (): object {
       return _fromPairs(Object.values(this.selected).map((f: FileMeta) => [f.eTag, f.key]));
     }
   },
   methods: {
-    reset: function() {
+    reset: function () {
       Object.assign(this.$data, initialStageState());
     },
     clearFilter: function (): Promise<void> {
@@ -64,7 +64,7 @@ export default {
       };
       return _debounce(func, 300)();
     },
-    refresh: _debounce(function() {
+    refresh: _debounce(function () {
       this.load();
     }, 500),
     load: async function () {
@@ -78,11 +78,11 @@ export default {
         this.loaded = true;
       }
     },
-    loadMore: async function() {
+    loadMore: async function () {
       this.loadingMore = true;
       let from = this.files.length > 0
-        ? this.files[this.files.length - 1].key
-        : null;
+          ? this.files[this.files.length - 1].key
+          : null;
       try {
         let {files, truncated} = await this.api.listFiles(this.datasetId, this.fileStage, this.filter.value, from);
         this.files.push.apply(this.files, files);
@@ -93,20 +93,20 @@ export default {
         this.loadingMore = false;
       }
     },
-    loadConfig: function() {
+    loadConfig: function () {
       // Overridden
     },
-    downloadFiles: function(keys) {
+    downloadFiles: function (keys) {
       keys.forEach(key => this.downloading[key] = true);
       this.api.fileUrls(this.datasetId, this.fileStage, keys)
-        .then(urls => {
-          _forIn(urls, (url, fileName) => {
-            window.open(url, '_blank');
-            delete this.downloading[fileName];
-          });
-        })
-        .catch(error => this.showError("Error fetching download URLs", error))
-        .finally(() => this.downloading = {});
+          .then(urls => {
+            _forIn(urls, (url, fileName) => {
+              window.open(url, '_blank');
+              delete this.downloading[fileName];
+            });
+          })
+          .catch(error => this.showError("Error fetching download URLs", error))
+          .finally(() => this.downloading = {});
     },
     deleteFiles: function (keys) {
       if (_isEmpty(keys) || keys.includes(this.previewing)) {
@@ -115,62 +115,63 @@ export default {
       let dkeys = _isEmpty(keys) ? this.files.map(f => f.key) : keys;
       dkeys.forEach(key => this.deleting[key] = true);
       this.api.deleteFiles(this.datasetId, this.fileStage, keys)
-        .then(() => {
-          dkeys.forEach(key => {
-            delete this.deleting[key];
-            delete this.selected[key];
-          });
-          this.refresh();
-          this.$emit('updated')
-        })
-        .catch(error => this.showError("Error deleting files", error))
-        .finally(() => this.deleting = {});
+          .then(() => {
+            dkeys.forEach(key => {
+              delete this.deleting[key];
+              delete this.selected[key];
+            });
+            this.refresh();
+            this.$emit('updated')
+          })
+          .catch(error => this.showError("Error deleting files", error))
+          .finally(() => this.deleting = {});
     },
-    info: function(key) {
+    info: function (key) {
       this.loadingInfo[key] = true;
       return this.api.info(this.datasetId, this.fileStage, key)
-        .then(r => this.fileInfo = r)
-        .catch(error => this.showError("Error fetching file info", error))
-        .finally(() => this.loadingInfo = {});
+          .then(r => this.fileInfo = r)
+          .catch(error => this.showError("Error fetching file info", error))
+          .finally(() => this.loadingInfo = {});
     },
-    selectItem: function(file) {
+    selectItem: function (file) {
       this.selected[file.key] = file;
     },
-    deselectItem: function(file) {
+    deselectItem: function (file) {
       delete this.selected[file.key];
     },
-    deselect: function() {
+    deselect: function () {
       this.previewing = null;
     },
-    toggleFile: function(file) {
+    toggleFile: function (file) {
       if (this.selected[file.key]) {
         this.deselectItem(file);
       } else {
         this.selectItem(file);
       }
     },
-    toggleAll: function(toggle: boolean) {
+    toggleAll: function (toggle: boolean) {
       if (!toggle) {
         this.selected = {};
       } else {
         this.selected = _fromPairs(this.files.map(f => [f.key, f]));
       }
     },
-    showError: function(msg: string, exp?: object) {}, // Overridden by inheritors
+    showError: function (msg: string, exp?: object) {
+    }, // Overridden by inheritors
   },
   watch: {
-    active: function(newValue) {
+    active: function (newValue) {
       if (newValue) {
         this.load();
       }
     },
-    datasetId: function() {
+    datasetId: function () {
       this.reset();
       this.load();
       this.loadConfig();
     }
   },
-  created: function() {
+  created: function () {
     this.load();
   }
 }

@@ -1,6 +1,6 @@
 <script type="ts">
 
-import {timeToRelative, humanFileSize} from "../common";
+import {humanFileSize, timeToRelative} from "../common";
 import ModalWindow from './_modal-window';
 
 export default {
@@ -8,7 +8,7 @@ export default {
   props: {
     fileInfo: Object
   },
-  methods: { prettyDate: timeToRelative, humanFileSize, decodeURI }
+  methods: {prettyDate: timeToRelative, humanFileSize, decodeURI}
 };
 </script>
 
@@ -28,7 +28,7 @@ export default {
         </tr>
         <tr>
           <td>E-Tag:</td>
-          <td v-bind:title="fileInfo.meta.eTag">{{fileInfo.meta.eTag}}</td>
+          <td v-bind:title="fileInfo.meta.eTag">{{ fileInfo.meta.eTag }}</td>
         </tr>
       </table>
     </div>
@@ -50,7 +50,7 @@ export default {
           <th>Size</th>
         </tr>
         <tr v-for="version in fileInfo.versions">
-          <td>{{version.versionId}}</td>
+          <td>{{ version.versionId }}</td>
           <td v-bind:title="version.lastModified">{{ prettyDate(version.lastModified) }}</td>
           <td>{{ humanFileSize(version.size) }}</td>
         </tr>

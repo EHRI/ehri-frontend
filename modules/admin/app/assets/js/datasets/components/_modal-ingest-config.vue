@@ -18,7 +18,7 @@ export default {
     waiting: Boolean,
     props: Array,
   },
-  data: function(): object {
+  data: function (): object {
     return {
       allowUpdates: this.opts ? this.opts.allowUpdates : false,
       useSourceId: this.opts ? this.opts.useSourceId : false,
@@ -32,7 +32,7 @@ export default {
     }
   },
   methods: {
-    submit: function() {
+    submit: function () {
       this.$emit("saving");
       this.api.saveImportConfig(
           this.datasetId, {
@@ -46,7 +46,7 @@ export default {
           .then(data => this.$emit("saved-config", data, this.commit))
           .catch(error => this.$emit("error", "Error saving import config", error));
     },
-    uploadProperties: function(event: Event | DragEvent) {
+    uploadProperties: function (event: Event | DragEvent) {
       this.loading = true;
       let fileList = event.dataTransfer
           ? event.dataTransfer.files
@@ -72,7 +72,7 @@ export default {
             .finally(() => this.loading = false);
       }
     },
-    deleteProperties: function(file: FileMeta) {
+    deleteProperties: function (file: FileMeta) {
       this.loading = true;
       if (file.key === this.properties) {
         this.properties = null;
@@ -81,15 +81,15 @@ export default {
           .then(() => this.$emit("update"))
           .finally(() => this.loading = false);
     },
-    selectPropFile: function(file: FileMeta) {
+    selectPropFile: function (file: FileMeta) {
       this.properties = this.properties === file.key ? null : file.key;
     }
   },
   computed: {
-    isValidConfig: function() {
+    isValidConfig: function () {
       return this.logMessage && this.logMessage.trim() !== "";
     },
-    hasProps: function() {
+    hasProps: function () {
       return _size(this.props) > 0;
     }
   },
@@ -139,7 +139,7 @@ export default {
                   'fa-minus': f.key!==properties,
                   'text-muted': f.key!==properties,
                 }" class="fa fa-fw"></i></td>
-              <td>{{f.key}}</td>
+              <td>{{ f.key }}</td>
               <td v-on:click.stop.prevent="deleteProperties(f)"><i class="fa fa-trash-o"></i></td>
             </tr>
           </table>
@@ -164,7 +164,7 @@ export default {
         </label>
       </div>
       <div v-if="error" class="alert alert-danger">
-        {{error}}
+        {{ error }}
       </div>
     </fieldset>
 

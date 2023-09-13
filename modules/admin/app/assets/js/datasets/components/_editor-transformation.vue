@@ -19,7 +19,17 @@ import _isEqual from 'lodash/isEqual';
 
 
 export default {
-  components: {ModalWindow, EditorXslt, EditorXquery, EditorJson, FilePicker, DragHandle, PanelFilePreview, PanelConvertPreview, ModalAlert},
+  components: {
+    ModalWindow,
+    EditorXslt,
+    EditorXquery,
+    EditorJson,
+    FilePicker,
+    DragHandle,
+    PanelFilePreview,
+    PanelConvertPreview,
+    ModalAlert
+  },
   mixins: [MixinTwoPanel],
   props: {
     id: String,
@@ -38,7 +48,9 @@ export default {
     inputPipeline: Array,
     initParameters: {
       type: Object,
-      default: function() { return {}; }
+      default: function () {
+        return {};
+      }
     },
   },
   data: function () {
@@ -91,7 +103,7 @@ export default {
           })
           .finally(() => this.saving = false);
     },
-    revert: function() {
+    revert: function () {
       this.data = {
         name: this.name,
         generic: this.generic,
@@ -111,10 +123,10 @@ export default {
     triggerRefresh: function () {
       this.timestamp = (new Date()).toString();
     },
-    copyToClipboard: function() {
+    copyToClipboard: function () {
       navigator.clipboard.writeText(this.data.body);
     },
-    download: function() {
+    download: function () {
       let text = this.data.body;
       let ext = (this.bodyType === 'xslt' ? ".xsl" : ".tsv");
       let filename = `${this.name}_${this.id}${ext}`;
@@ -130,13 +142,13 @@ export default {
 
       document.body.removeChild(element);
     },
-    acceptPasteInput: function() {
+    acceptPasteInput: function () {
       this.data["body"] = this.pasteText;
       this.pasteHelper = false;
       this.pasteText = "";
       this.triggerRefresh();
     },
-    importFromClipboard: function() {
+    importFromClipboard: function () {
       if (typeof navigator.clipboard.readText === 'function') {
         navigator.clipboard.readText().then(text => {
           this.data["body"] = text;
@@ -144,7 +156,7 @@ export default {
         });
       }
     },
-    confirmImportFromClipboard: function() {
+    confirmImportFromClipboard: function () {
       if (typeof navigator.clipboard.readText === 'function') {
         if (this.data.body.trim() !== "") {
           this.confirmPaste = true;
@@ -203,9 +215,11 @@ export default {
           </button>
         </div>
 
-        <modal-window v-if="pasteHelper" v-bind:resizable="true" v-on:keyup.esc="pasteHelper = false" v-on:close="pasteHelper = false; pasteText = ''">
+        <modal-window v-if="pasteHelper" v-bind:resizable="true" v-on:keyup.esc="pasteHelper = false"
+                      v-on:close="pasteHelper = false; pasteText = ''">
           <template v-slot:title>Paste input...</template>
-          <textarea v-if="pasteHelper" placeholder="Paste TSV here..." class="textarea-paste-helper" v-model="pasteText"></textarea>
+          <textarea v-if="pasteHelper" placeholder="Paste TSV here..." class="textarea-paste-helper"
+                    v-model="pasteText"></textarea>
           <template v-slot:footer>
             <button v-if="pasteHelper" class="btn btn-default btn-sm" v-on:click.prevent.stop="acceptPasteInput">
               <i class="fa fa-check text-success"></i>
@@ -220,7 +234,7 @@ export default {
             v-bind:accept="'Yes, overwrite'"
             v-on:accept="importFromClipboard(); confirmPaste = false"
             v-on:close="confirmPaste = false"
-            />
+        />
 
         <div id="transformation-editor-panes" class="panel-container modal-body">
           <div id="transformation-editor-map" class="top-panel">
@@ -256,7 +270,8 @@ export default {
                   <div v-if="showOptions" class="dropdown-backdrop" v-on:click="showOptions = false">
                   </div>
                   <div v-if="showOptions" class="dropdown-menu dropdown-menu-right show">
-                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; revert()" v-bind:disabled="!modified">
+                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; revert()"
+                            v-bind:disabled="!modified">
                       <i class="fa fa-undo"></i>
                       Revert Changes
                     </button>
@@ -269,7 +284,8 @@ export default {
                       <i class="fa fa-copy"></i>
                       Copy To Clipboard
                     </button>
-                    <button class="dropdown-item btn btn-sm" v-on:click="showOptions = false; confirmImportFromClipboard()">
+                    <button class="dropdown-item btn btn-sm"
+                            v-on:click="showOptions = false; confirmImportFromClipboard()">
                       <i class="fa fa-clipboard"></i>
                       Import From Clipboard
                     </button>
@@ -301,10 +317,10 @@ export default {
             </div>
             <div id="transformation-editor-map-input">
               <editor-xquery v-if="data.bodyType === 'xquery'" v-model="data.body"/>
-              <editor-xslt v-else v-model="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp" />
+              <editor-xslt v-else v-model="data.body" v-bind:resize="panelSize" v-bind:timestamp="timestamp"/>
             </div>
             <div v-if="data.hasParams" id="transformation-editor-map-parameters">
-              <editor-json v-model.lazy="parameters" v-bind:resize="panelSize" />
+              <editor-json v-model.lazy="parameters" v-bind:resize="panelSize"/>
             </div>
           </div>
           <div id="transformation-editor-preview-section" class="bottom-panel">

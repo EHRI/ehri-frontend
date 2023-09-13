@@ -19,11 +19,9 @@ import {DatasetManagerApi} from '../api';
 import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
 import {DataTransformation} from "../types";
-import {Terminal} from "xterm";
-import termopts from "../termopts";
 
 
-let initialConvertState = function(config) {
+let initialConvertState = function (config) {
   return {
     ingesting: {},
     previewStage: config.input,
@@ -43,7 +41,16 @@ let initialConvertState = function(config) {
 
 export default {
   components: {
-    Draggable, FilePicker, ModalParamEditor, ModalConvertConfig, PanelConvertPreview, EditorTransformation, TransformationItem, PanelLogWindow, DragHandle},
+    Draggable,
+    FilePicker,
+    ModalParamEditor,
+    ModalConvertConfig,
+    PanelConvertPreview,
+    EditorTransformation,
+    TransformationItem,
+    PanelLogWindow,
+    DragHandle
+  },
   mixins: [MixinTwoPanel, MixinValidator, MixinError, MixinUtil, MixinTasklog],
   props: {
     datasetId: String,
@@ -61,7 +68,7 @@ export default {
     return initialConvertState(this.config);
   },
   methods: {
-    loadTransformations: async function() {
+    loadTransformations: async function () {
       this.loading = true;
       try {
         this.available = await this.api.listDataTransformations();
@@ -71,21 +78,21 @@ export default {
         this.loading = false;
       }
     },
-    editTransformation: function(item: DataTransformation) {
+    editTransformation: function (item: DataTransformation) {
       this.editing = item;
       this.previewPipeline = [];
     },
-    editActiveTransformation: function(i: number) {
+    editActiveTransformation: function (i: number) {
       this.editing = this.enabled[i];
       this.parametersForEditor = this.parameters[i];
       this.previewPipeline = this.previewSettings(i);
     },
-    previewSettings: function(i: number): [string, string, object][] {
+    previewSettings: function (i: number): [string, string, object][] {
       return this.state
           .map(([_, params], i) => [this.enabled[i].bodyType, this.enabled[i].body, params])
           .slice(0, i);
     },
-    newTransformation: function() {
+    newTransformation: function () {
       this.editing = {
         id: null,
         repoId: this.config.repoId,
@@ -96,18 +103,18 @@ export default {
         hasParams: false,
       };
     },
-    closeEditForm: function() {
+    closeEditForm: function () {
       this.editing = null;
       this.parametersForEditor = {};
       this.loadTransformations();
     },
-    saved: function(item) {
+    saved: function (item) {
       this.editing = item;
     },
-    transformationAt: function(i: number): DataTransformation {
+    transformationAt: function (i: number): DataTransformation {
       return _find(this.available, dt => dt.id === this.mappings[i]);
     },
-    convert: async function(file, force) {
+    convert: async function (file, force) {
       console.debug("Converting:", file)
       this.tab = "info";
       try {
@@ -125,7 +132,7 @@ export default {
         this.removeUrlState(this.urlKey);
       }
     },
-    resumeMonitor: async function() {
+    resumeMonitor: async function () {
       let jobId = this.getQueryParam(window.location.search, this.urlKey);
       if (jobId) {
         try {
@@ -138,7 +145,7 @@ export default {
         }
       }
     },
-    loadConfig: async function() {
+    loadConfig: async function () {
       this.loading = true;
       try {
         let data = await this.api.getConvertConfig(this.datasetId);
@@ -149,7 +156,7 @@ export default {
         this.loading = false;
       }
     },
-    saveConfig: async function() {
+    saveConfig: async function () {
       try {
         let config = this.state.map(([id, p, _]) => [id, p]);
         await this.api.saveConvertConfig(this.datasetId, config);
@@ -157,49 +164,49 @@ export default {
         this.showError("Failed to save mapping list", e);
       }
     },
-    priorConversions: function(dt) {
+    priorConversions: function (dt) {
       return _takeWhile(this.enabled, s => s.id !== dt.id);
     },
-    removeTransformation: function(i: number) {
+    removeTransformation: function (i: number) {
       this.state.splice(i, 1);
     },
-    disableTransformation: function(i: number) {
+    disableTransformation: function (i: number) {
       let [id, p, m] = this.state[i];
       this.state.splice(i, 1, [id, p, !m]);
     },
-    addTransformation: function(data: {newIndex: number, oldIndex: number}) {
+    addTransformation: function (data: { newIndex: number, oldIndex: number }) {
       console.log("Add", data.newIndex, data.oldIndex)
       let id = this.transformations[data.oldIndex].id
       this.state.splice(data.newIndex, 0, [id, {}, false]);
     },
-    editParameters: function(i: number) {
+    editParameters: function (i: number) {
       this.editingParameters = i;
     },
-    saveParameters: function(obj: object) {
+    saveParameters: function (obj: object) {
       let [id, _, m] = this.state[this.editingParameters];
       this.state.splice(this.editingParameters, 1, [id, obj, m]);
       this.editingParameters = null;
       this.saveConfig();
     },
-    cancelEditParamters: function() {
+    cancelEditParamters: function () {
       this.editingParameters = null;
     },
-    initialise: async function() {
+    initialise: async function () {
       await this.loadConfig();
       await this.loadTransformations();
       this.initialised = true;
     }
   },
   computed: {
-    convertState: function() {
+    convertState: function () {
       return this.state
           .filter(([id, p, m]) => !m)
           .map(([id, p, _]) => [id, p]);
     },
-    mappings: function() {
+    mappings: function () {
       return this.state.map(pair => pair[0]);
     },
-    parameters: function() {
+    parameters: function () {
       return this.state.map(pair => pair[1]);
     },
     transformations: {
@@ -213,8 +220,8 @@ export default {
     enabled: {
       get(): DataTransformation[] {
         return this.available.length > 0
-          ? this.mappings.map(id => _find(this.available, dt => dt.id === id))
-          : [];
+            ? this.mappings.map(id => _find(this.available, dt => dt.id === id))
+            : [];
       },
       set(arr: DataTransformation[]) {
         // Read-only
@@ -223,14 +230,14 @@ export default {
   },
   watch: {
     state: {
-      handler: function() {
+      handler: function () {
         if (!this.loading) {
           this.saveConfig();
         }
       },
       deep: true
     },
-    datasetId: function() {
+    datasetId: function () {
       Object.assign(this.$data, initialConvertState(this.config));
       this.initialise();
     }
@@ -272,7 +279,7 @@ export default {
                    v-bind:api="api"
                    v-bind:config="config"
                    v-bind:placeholder="'Select file to preview...'"
-                   v-model="previewing" />
+                   v-model="previewing"/>
 
       <button class="btn btn-sm btn-default" v-on:click.prevent="newTransformation">
         <i class="fa fa-file-o"></i>
@@ -298,17 +305,17 @@ export default {
             v-bind:dataset-id="datasetId"
             v-on:close="showOptions = false"
             v-on:convert="convert"
-            v-if="showOptions" />
+            v-if="showOptions"/>
 
         <modal-param-editor
-          v-if="editingParameters !== null"
-          v-bind:obj="this.state[this.editingParameters][1]"
-          v-on:close="cancelEditParamters"
-          v-on:saved="saveParameters" />
+            v-if="editingParameters !== null"
+            v-bind:obj="this.state[this.editingParameters][1]"
+            v-on:close="cancelEditParamters"
+            v-on:saved="saveParameters"/>
 
         <div id="convert-mappings">
           <template v-if="initialised">
-            <div  class="card">
+            <div class="card">
               <h4 class="card-header">
                 Available Transformations
               </h4>
@@ -328,16 +335,16 @@ export default {
                   v-bind:sort="false"
                   v-model="transformations"
                   item-key="id">
-                  <template v-slot:item="{element, index}">
-                    <transformation-item
-                        v-bind:item="element"
-                        v-bind:disabled="false"
-                        v-bind:key="index"
-                        v-bind:active="false"
-                        v-bind:parameters="null"
-                        v-on:edit="editTransformation(element)"
-                    />
-                  </template>
+                <template v-slot:item="{element, index}">
+                  <transformation-item
+                      v-bind:item="element"
+                      v-bind:disabled="false"
+                      v-bind:key="index"
+                      v-bind:active="false"
+                      v-bind:parameters="null"
+                      v-on:edit="editTransformation(element)"
+                  />
+                </template>
               </draggable>
             </div>
 
@@ -363,15 +370,15 @@ export default {
                   item-key="id">
                 <template v-slot:item="{element, index}">
                   <transformation-item
-                    v-bind:item="element"
-                    v-bind:parameters="state[index][1]"
-                    v-bind:disabled="state[index][2]"
-                    v-bind:key="index"
-                    v-bind:active="true"
-                    v-on:edit="editActiveTransformation(index)"
-                    v-on:delete="removeTransformation(index)"
-                    v-on:disable="disableTransformation(index)"
-                    v-on:edit-params="editParameters(index)"
+                      v-bind:item="element"
+                      v-bind:parameters="state[index][1]"
+                      v-bind:disabled="state[index][2]"
+                      v-bind:key="index"
+                      v-bind:active="true"
+                      v-on:edit="editActiveTransformation(index)"
+                      v-on:delete="removeTransformation(index)"
+                      v-on:disable="disableTransformation(index)"
+                      v-on:edit-params="editParameters(index)"
                   />
                 </template>
               </draggable>
@@ -392,7 +399,7 @@ export default {
             <a href="#" class="nav-link" v-bind:class="{'active': tab === 'preview'}"
                v-on:click.prevent="tab = 'preview'">
               File Preview
-              <template v-if="previewing"> - {{previewing.key}}</template>
+              <template v-if="previewing"> - {{ previewing.key }}</template>
             </a>
           </li>
           <li class="nav-item">
@@ -432,7 +439,7 @@ export default {
             </div>
           </div>
           <div class="status-panel log-container" v-if="tab === 'info'">
-            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'" />
+            <panel-log-window v-bind:log="log" v-bind:panel-size="panelSize" v-bind:visible="tab === 'info'"/>
           </div>
         </div>
       </div>

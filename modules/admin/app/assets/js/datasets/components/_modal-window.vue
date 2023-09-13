@@ -1,7 +1,6 @@
 <script lang="ts">
 
 
-
 export default {
   props: {
     resizable: {
@@ -9,14 +8,14 @@ export default {
       default: false,
     }
   },
-  data: function() {
+  data: function () {
     return {
       minWidth: 800,
       minHeight: 300,
     }
   },
   methods: {
-    move: function(evt: MouseEvent) {
+    move: function (evt: MouseEvent) {
       evt.preventDefault();
       let parent = this.$el.querySelector(".modal-dialog-centered"),
           content = this.$el.querySelector(".modal-content"),
@@ -30,7 +29,7 @@ export default {
       this.$emit("move");
     },
 
-    resize: function(evt: MouseEvent) {
+    resize: function (evt: MouseEvent) {
       evt.preventDefault();
 
       window.addEventListener("mousemove", this.move);

@@ -11,7 +11,7 @@ export default {
     api: DatasetManagerApi,
     config: Object,
   },
-  data: function() {
+  data: function () {
     return {
       all: true,
       file: null,
@@ -19,7 +19,7 @@ export default {
     }
   },
   methods: {
-    convert: function(): void {
+    convert: function (): void {
       this.$emit("convert", this.all ? null : this.file, this.force);
       this.$emit("close");
     },
@@ -54,7 +54,7 @@ export default {
           v-bind:dataset-id="datasetId"
           v-bind:file-stage="config.input"
           v-bind:placeholder="'Select file to convert...'"
-          v-model="file" />
+          v-model="file"/>
     </fieldset>
 
     <template v-slot:footer>

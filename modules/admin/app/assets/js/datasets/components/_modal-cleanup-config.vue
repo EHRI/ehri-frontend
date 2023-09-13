@@ -7,7 +7,6 @@ import MixinUtil from './_mixin-util';
 import MixinTasklog from './_mixin-tasklog'
 import PanelLogWindow from './_panel-log-window';
 import {DatasetManagerApi} from "../api";
-import {nextTick} from "vue";
 
 export default {
   mixins: [MixinUtil, MixinError, MixinTasklog],

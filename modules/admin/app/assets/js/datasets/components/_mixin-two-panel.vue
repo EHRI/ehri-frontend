@@ -1,7 +1,7 @@
 <script lang="ts">
 
 export default {
-    data: function(): object {
+  data: function (): object {
     return {
       panelSize: null,
     }

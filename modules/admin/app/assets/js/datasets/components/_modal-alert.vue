@@ -20,7 +20,7 @@ export default {
     }
   },
   computed: {
-    hasDefaultSlot () {
+    hasDefaultSlot() {
       return !!this.$slots.default
     },
   },

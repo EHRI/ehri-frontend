@@ -11,7 +11,7 @@ export default {
   props: {
     modelValue: String,
   },
-  data: function(): Object {
+  data: function (): Object {
     return {
       mappings: this.deserialize(this.modelValue),
       selected: -1,
@@ -20,18 +20,18 @@ export default {
   methods: {
     _padStart,
 
-    update: function(): Promise<void> {
+    update: function (): Promise<void> {
       this.$emit('update:modelValue', this.serialize(this.mappings));
       // Return a promise when the DOM is ready...
       return nextTick();
     },
-    focus: function(row, col): void {
+    focus: function (row, col): void {
       let elem = this.$refs[_padStart(row, 4, '0') + '-' + col];
       if (elem && elem[0]) {
         elem[0].focus();
       }
     },
-    add: function(): void {
+    add: function (): void {
       // Insert a new item below the current selection, or
       // at the end if nothing is selected.
       let point = this.selected === -1
@@ -42,18 +42,18 @@ export default {
       this.update()
           .then(() => this.focus(this.selected, 0));
     },
-    duplicate: function(i): void {
+    duplicate: function (i): void {
       let m = _clone(this.mappings[i]);
       this.selected = i + 1;
       this.mappings.splice(this.selected, 0, m);
       this.update();
     },
-    remove: function(i): void {
+    remove: function (i): void {
       this.mappings.splice(i, 1);
       this.selected = Math.min(i, this.mappings.length - 1);
       this.update();
     },
-    moveUp: function(i): void {
+    moveUp: function (i): void {
       if (i > 0) {
         let m = this.mappings.splice(i, 1)[0];
         this.mappings.splice(i - 1, 0, m);
@@ -61,7 +61,7 @@ export default {
         this.update();
       }
     },
-    moveDown: function(i): void {
+    moveDown: function (i): void {
       if (i < this.mappings.length - 1) {
         let m = this.mappings.splice(i, 1)[0];
         this.mappings.splice(i + 1, 0, m);
@@ -69,18 +69,18 @@ export default {
         this.update();
       }
     },
-    deserialize: function(str): string[][] {
+    deserialize: function (str): string[][] {
       // Skip header row...
       return str ? decodeTsv(str, 4).splice(1) : [];
     },
-    serialize: function(mappings): string {
+    serialize: function (mappings): string {
       let header = ["target-path", "target-node", "source-node", "value"]
       let all = _concat([header], mappings);
       return encodeTsv(all, 4);
     },
   },
   watch: {
-    modelValue: function(newValue) {
+    modelValue: function (newValue) {
       this.mappings = this.deserialize(newValue);
     }
   }
@@ -106,7 +106,7 @@ export default {
               v-bind:class="{'selected': selected === row}"
               v-model="mappings[row][col]"
               v-on:change="update"
-              v-on:focusin="selected = row" />
+              v-on:focusin="selected = row"/>
         </template>
       </div>
     </div>
@@ -123,16 +123,18 @@ export default {
         <i class="fa fa-trash-o"></i>
         Delete Mapping
       </button>
-      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === 0" v-on:click="moveUp(selected)">
+      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === 0"
+              v-on:click="moveUp(selected)">
         <i class="fa fa-caret-up"></i>
         Move Up
       </button>
-      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === mappings.length - 1" v-on:click="moveDown(selected)">
+      <button class="btn btn-default btn-sm" v-bind:disabled="selected < 0 || selected === mappings.length - 1"
+              v-on:click="moveDown(selected)">
         <i class="fa fa-caret-down"></i>
         Move Down
       </button>
       <div class="tabular-editor-toolbar-info">
-        Data mappings: {{mappings.length}}
+        Data mappings: {{ mappings.length }}
       </div>
     </div>
   </div>

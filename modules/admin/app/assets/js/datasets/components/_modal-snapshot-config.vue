@@ -3,19 +3,16 @@
 import ModalWindow from './_modal-window';
 import ModalAlert from './_modal-alert';
 
-import _isObject from 'lodash/isObject';
-
 export default {
   components: {ModalWindow, ModalAlert},
-  props: {
-  },
-  data: function() {
+  props: {},
+  data: function () {
     return {
       data: "",
     }
   },
   computed: {
-    isValid: function(): boolean {
+    isValid: function (): boolean {
       return this.data.trim() !== "";
     }
   }

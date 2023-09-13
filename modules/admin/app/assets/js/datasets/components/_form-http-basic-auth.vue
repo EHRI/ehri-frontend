@@ -6,7 +6,7 @@ export default {
   props: {
     modelValue: Object,
   },
-  data: function() {
+  data: function () {
     return {
       show: _isObject(this.modelValue),
       username: this.modelValue ? this.modelValue.username : "",
@@ -14,12 +14,12 @@ export default {
     }
   },
   methods: {
-    update: function() {
+    update: function () {
       this.$emit("update:modelValue", this.auth)
     }
   },
   computed: {
-    auth: function() {
+    auth: function () {
       return this.show ? {
         username: this.username,
         password: this.password
@@ -27,7 +27,7 @@ export default {
     },
   },
   watch: {
-    show: function() {
+    show: function () {
       this.update();
     }
   }
@@ -49,13 +49,15 @@ export default {
         <label class="form-label" for="opt-auth-username">
           Username
         </label>
-        <input v-model="username" v-on:change="update" class="form-control" id="opt-auth-username" type="text" autocomplete="off"/>
+        <input v-model="username" v-on:change="update" class="form-control" id="opt-auth-username" type="text"
+               autocomplete="off"/>
       </div>
       <div class="form-group">
         <label class="form-label" for="opt-auth-password">
           Password
         </label>
-        <input v-model="password" v-on:change="update" class="form-control" id="opt-auth-password" type="password" autocomplete="off"/>
+        <input v-model="password" v-on:change="update" class="form-control" id="opt-auth-password" type="password"
+               autocomplete="off"/>
       </div>
     </fieldset>
   </div>

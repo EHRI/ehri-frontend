@@ -14,7 +14,7 @@ export default {
     api: DatasetManagerApi,
     config: Object,
   },
-  data: function() {
+  data: function () {
     return {
       url: this.opts ? this.opts.url : null,
       filter: this.opts ? this.opts.filter : null,
@@ -27,19 +27,19 @@ export default {
     }
   },
   computed: {
-    isValidConfig: function() {
+    isValidConfig: function () {
       return this.url && this.url.trim() !== ""
           && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""));
     },
   },
   methods: {
-    save: function() {
+    save: function () {
       this.$emit("saving");
       this.api.saveHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: null})
           .then(data => this.$emit("saved-config", {...data, auth: this.auth}))
           .catch(error => this.$emit("error", "Error saving RS config", error));
     },
-    testEndpoint: function() {
+    testEndpoint: function () {
       this.testing = true;
       this.api.testHarvestConfig(this.datasetId, {url: this.url, filter: this.filter, auth: this.auth})
           .then(() => {
@@ -55,25 +55,25 @@ export default {
           })
           .finally(() => this.testing = false);
     },
-    cleanEndpoint: function() {
+    cleanEndpoint: function () {
       this.cleaning = true;
       this.api.cleanHarvestConfig(this.datasetId, {url: this.url, filter: this.filter})
           .then(orphans => this.orphanCheck = orphans)
           .catch(e => this.error = e.message)
           .finally(() => this.cleaning = false);
     },
-    deleteOrphans: function(orphans: string[]): Promise<void> {
+    deleteOrphans: function (orphans: string[]): Promise<void> {
       return this.api.deleteFiles(this.datasetId, this.config.input, orphans)
           .then(() => this.api.deleteFiles(this.datasetId, this.config.output, orphans)
-            .then(() => {
-              this.$emit('deleted-orphans')
-              this.orphanCheck = null
-            }));
+              .then(() => {
+                this.$emit('deleted-orphans')
+                this.orphanCheck = null
+              }));
 
     }
   },
   watch: {
-    opts: function(newValue) {
+    opts: function (newValue) {
       this.url = newValue ? newValue.url : null;
       this.filter = newValue ? newValue.filter : null;
     }
@@ -86,20 +86,20 @@ export default {
     <template v-slot:title>ResourceSync Endpoint Configuration</template>
 
     <modal-alert
-      v-if="orphanCheck !== null && orphanCheck.length === 0"
-      v-bind:title="'No orphaned files found'"
-      v-bind:cls="'success'"
-      v-bind:cancel="null"
-      v-on:accept="orphanCheck = null"
-      v-on:close="orphanCheck = null"
-        />
+        v-if="orphanCheck !== null && orphanCheck.length === 0"
+        v-bind:title="'No orphaned files found'"
+        v-bind:cls="'success'"
+        v-bind:cancel="null"
+        v-on:accept="orphanCheck = null"
+        v-on:close="orphanCheck = null"
+    />
     <modal-alert
-      v-else-if="orphanCheck !== null && orphanCheck.length > 0"
-      v-bind:title="'Ophaned files found: ' + orphanCheck.length"
-      v-bind:large="true"
-      v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
-      v-on:accept="deleteOrphans(orphanCheck)"
-      v-on:close="orphanCheck = null">
+        v-else-if="orphanCheck !== null && orphanCheck.length > 0"
+        v-bind:title="'Ophaned files found: ' + orphanCheck.length"
+        v-bind:large="true"
+        v-bind:accept="'Delete ' + orphanCheck.length + ' file(s)?'"
+        v-on:accept="deleteOrphans(orphanCheck)"
+        v-on:close="orphanCheck = null">
       <div class="confirm-orphan-delete-list">
         <pre>{{ orphanCheck.join('\n') }}</pre>
       </div>
@@ -124,7 +124,7 @@ export default {
       <div id="endpoint-errors">
         <span v-if="tested === null">&nbsp;</span>
         <span v-else-if="tested" class="text-success">No errors detected</span>
-        <span v-else-if="error" class="text-danger">{{error}}</span>
+        <span v-else-if="error" class="text-danger">{{ error }}</span>
         <span v-else class="text-danger">Test unsuccessful</span>
       </div>
     </div>
