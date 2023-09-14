@@ -237,6 +237,7 @@ CREATE TABLE import_config (
     properties_file   VARCHAR(1024) NULL,
     default_lang      CHAR(3) NULL,
     log_message       TEXT,
+    batch_size        INTEGER NULL,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT NULL,
     PRIMARY KEY (repo_id, import_dataset_id),

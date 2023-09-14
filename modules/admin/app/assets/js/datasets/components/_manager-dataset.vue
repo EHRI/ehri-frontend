@@ -77,6 +77,12 @@ export default {
   <div id="dataset-manager-container">
     <ul id="stage-tabs" class="nav nav-tabs">
       <li class="nav-item">
+          <a v-on:click.prevent="$emit('close-dataset')" href="#" class="nav-link" title="Close Dataset">
+              <i class="fa fa-chevron-left"></i>
+              <div class="sr-only">Close Dataset</div>
+          </a>
+      </li>
+      <li class="nav-item">
         <a v-if="dataset.src === 'oaipmh'" href="#tab-input" class="nav-link" v-bind:class="{active: tab === 'input'}"
            v-on:click.prevent="switchTab('input')">
           <i class="fa fw-fw fa-cloud-download"></i>

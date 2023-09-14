@@ -44,9 +44,6 @@ export default {
     resize: function () {
       this.timestamp = (new Date()).getTime();
     },
-    formatNumber: function (num: Number): string {
-      return new Intl.NumberFormat()
-    }
   },
   computed: {
     isValid: function (): boolean {
@@ -72,7 +69,7 @@ export default {
       </div>
     </fieldset>
     <div class="log-container">
-      <panel-log-window v-bind:log="log" v-bind:resize="timestamp" v-bind:visible="visible"/>
+      <panel-log-window v-bind:log="log" v-bind:resize="timestamp" v-bind:visible="visible" v-bind:disabled="!cleanupRunning"/>
     </div>
     <template v-slot:footer>
       <button v-bind:disabled="!isValid || cleanupRunning" v-on:click="doCleanup()" type="button"

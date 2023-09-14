@@ -56,30 +56,31 @@ case class WSIngestService @Inject()(
   private def indexer(chan: ActorRef): SearchIndexMediatorHandle =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
-  override def storeManifestAndLog(job: IngestJob, res: IngestResult): Future[URI] = {
+  override def storeManifestAndLog(jobId: String, data: IngestData, res: IngestResult): Future[URI] = {
     import play.api.libs.json._
 
-    val data = Json.obj(
-      "id" -> job.id,
-      "type" -> job.data.dataType,
-      "user" -> job.data.user.toOption,
-      "params" -> job.data.params,
+    val logData = Json.obj(
+      "id" -> jobId,
+      "type" -> data.dataType,
+      "user" -> data.user.toOption,
+      "params" -> data.params,
       "stats" -> res,
     )
 
     val bytes = Source.single(ByteString.fromArray(
-      Json.prettyPrint(data).getBytes(StandardCharsets.UTF_8)))
+      Json.prettyPrint(logData).getBytes(StandardCharsets.UTF_8)))
     val time = ZonedDateTime.now()
     val now = time.format(DateTimeFormatter.ofPattern("uMMddHHmmss"))
-    val dry = if (!job.data.params.commit) "-dryrun" else ""
-    val path = s"${job.data.instance}/ingest-logs/ingest$dry-$now-${job.id}.json"
+    val dry = if (!data.params.commit) "-dryrun" else ""
+    val batchTag = data.batch.map(b => f"-$b%04d").getOrElse("")
+    val path = s"${data.instance}/ingest-logs/ingest$dry-$now-$jobId$batchTag.json"
     fileStorage.putBytes(path, bytes, public = true)
   }
 
   // Create 301 redirects for items that have moved URLs
   override def remapMovedUnits(movedIds: Seq[(String, String)]): Future[Int] = {
     def remapUrlsFromPrefixes(items: Seq[(String, String)], prefixes: Seq[String]): Seq[(String, String)] = {
-      def enc(s: String) = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+      def enc(s: String): String = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.name())
       items.flatMap { case (from, to) =>
         prefixes.map(p => s"$p${enc(from)}" -> s"$p${enc(to)}")
       }
@@ -128,14 +129,14 @@ case class WSIngestService @Inject()(
   }
 
   // Run the actual data ingest on the backend
-  override def importData(job: IngestJob): Future[IngestResult] = {
+  override def importData(data: IngestData): Future[IngestResult] = {
     import scala.concurrent.duration._
 
     // We need to pass the server a reference of the properties file
     // which it can read, which involves copying it.
     // NB: Hack that assumes the server is on the same
     // host and we really shouldn't do this!
-    val propFile: Option[Path] = job.data.params.properties match {
+    val propFile: Option[Path] = data.params.properties match {
       case FileProperties(f) => f.map { propTmp =>
         import scala.collection.JavaConverters._
         val readTmp = Files.createTempFile(s"ingest", ".properties")
@@ -151,12 +152,12 @@ case class WSIngestService @Inject()(
       case UrlProperties(_) => None
     }
 
-    val propStr: Option[String] = job.data.params.properties match {
+    val propStr: Option[String] = data.params.properties match {
       case FileProperties(_) => propFile.map(_.toAbsolutePath.toString)
       case UrlProperties(url) => Some(url)
     }
 
-    val dataFile: Option[Path] = job.data.params.data match {
+    val dataFile: Option[Path] = data.params.data match {
       case FilePayload(f) => f.map(_.toAbsolutePath)
       case UrlMapPayload(urls) =>
         val temp = SingletonTemporaryFileCreator.create("ingest", ".json")
@@ -183,15 +184,15 @@ case class WSIngestService @Inject()(
     }
 
     val bodyWritable: BodyWritable[Path] =
-      BodyWritable(file => SourceBody(FileIO.fromPath(file)), job.data.contentType)
+      BodyWritable(file => SourceBody(FileIO.fromPath(file)), data.contentType)
 
-    logger.info(s"Dispatching ingest: ${job.data.params}")
-    val ingestResult = ws.url(s"${serviceConfig.baseUrl}/import/${job.data.dataType}")
+    logger.info(s"Dispatching ingest: ${data.params}")
+    val ingestResult = ws.url(s"${serviceConfig.baseUrl}/import/${data.dataType}")
       .withRequestTimeout(Duration.Inf)
       .addHttpHeaders(serviceConfig.authHeaders: _*)
-      .addHttpHeaders(job.data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
-      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> job.data.contentType)
-      .addQueryStringParameters(wsParams(job.data.params): _*)
+      .addHttpHeaders(data.user.toOption.map(Constants.AUTH_HEADER_NAME -> _).toSeq: _*)
+      .addHttpHeaders(HeaderNames.CONTENT_TYPE -> data.contentType)
+      .addQueryStringParameters(wsParams(data.params): _*)
       // FIXME: make a BodyWritable that can serialize the URL map without a temp file
       .post(dataFile.getOrElse(sys.error("Unexpectedly empty ingest data!")))(bodyWritable)
       .map { r =>

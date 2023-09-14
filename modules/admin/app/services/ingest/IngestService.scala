@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import models.{ContentTypes, IngestParams, IngestResult}
 import play.api.mvc.QueryStringBindable
 import services.data.DataUser
-import services.ingest.IngestService.IngestJob
+import services.ingest.IngestService.IngestData
 
 import java.net.URI
 import scala.concurrent.Future
@@ -27,21 +27,21 @@ object IngestService {
     contentType: String,
     user: DataUser,
     instance: String,
+    batch: Option[Int] = None,
   )
 
   // A job with a given ID tag
-  case class IngestJob(id: String, data: IngestData)
-
+  case class IngestJob(jobId: String, data: List[IngestData], batchSize: Option[Int] = None)
 }
 
 trait IngestService {
   /**
     * Import data into the backend.
     *
-    * @param job the job parameters
+    * @param data the job data parameters
     * @return an ingest result object
     */
-  def importData(job: IngestJob): Future[IngestResult]
+  def importData(data: IngestData): Future[IngestResult]
 
   /**
     * Import coreference data into the backend
@@ -76,11 +76,12 @@ trait IngestService {
   /**
     * Save a job and the result to file storage.
     *
-    * @param job the ingest job
+    * @param jobId the ingest job ID
+    * @param data the ingest data
     * @param res the ingest result
     * @return an URL to the stored file
     */
-  def storeManifestAndLog(job: IngestJob, res: IngestResult): Future[URI]
+  def storeManifestAndLog(jobId: String, data: IngestService.IngestData, res: IngestResult): Future[URI]
 
   /**
     * Remove IDs from the index.

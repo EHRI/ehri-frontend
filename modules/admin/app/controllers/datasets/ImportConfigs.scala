@@ -66,21 +66,25 @@ case class ImportConfigs @Inject()(
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
-      val task = IngestParams(
-        scopeType = models.ContentTypes.Repository,
-        scope = id,
-        data = UrlMapPayload(urls),
-        allowUpdate = request.body.config.allowUpdates,
-        useSourceId = request.body.config.useSourceId,
-        log = request.body.config.logMessage,
-        tolerant = request.body.config.tolerant,
-        lang = request.body.config.defaultLang,
-        commit = request.body.commit,
-        properties = request.body.config.properties.map(ref =>
-          PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
-          .getOrElse(PropertiesHandle.empty),
-        fonds = dataset.fonds
-      )
+      // In the normal case this will be a list of one item, but
+      // if batchSize is set, it will be a list of batches.
+      val params: List[IngestParams] = urls.map { urlBatch =>
+        IngestParams(
+          scopeType = models.ContentTypes.Repository,
+          scope = id,
+          data = UrlMapPayload(urlBatch),
+          allowUpdate = request.body.config.allowUpdates,
+          useSourceId = request.body.config.useSourceId,
+          log = request.body.config.logMessage,
+          tolerant = request.body.config.tolerant,
+          lang = request.body.config.defaultLang,
+          commit = request.body.commit,
+          properties = request.body.config.properties.map(ref =>
+              PropertiesHandle(storage.uri(s"${prefix(id, ds, FileStage.Config)}$ref", urlExpiration).toString))
+            .getOrElse(PropertiesHandle.empty),
+          fonds = dataset.fonds
+        )
+      }
       // Tag this task with a unique ID...
       val jobId = UUID.randomUUID().toString
 
@@ -90,14 +94,17 @@ case class ImportConfigs @Inject()(
       // Use the sync endpoint if this fonds is synced and we a) are doing the complete
       // set and b) have a fonds.
       // Don't allow sync on the repository scope, because it is too dangerous.
-      val idt = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
+      val taskType = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
         IngestDataType.EadSync else IngestDataType.Ead
 
-      val ingestTask = IngestData(task, idt, contentType, implicitly[DataUser], instance)
-      val job = IngestJob(jobId, ingestTask)
-      val onDone: (IngestJob, ImportLog) => Future[Unit] = (job, log) =>
-        if (job.data.params.commit) {
-          importLogService.save(id, ds, job.data, log)
+      val ingestTasks = params.zipWithIndex.map { case (batchParams, i) =>
+        val batchNum = if (params.size > 1) Some(i + 1) else None
+        IngestData(batchParams, taskType, contentType, implicitly[DataUser], instance, batchNum)
+      }
+      val job = IngestJob(jobId, ingestTasks, batchSize = request.body.config.batchSize)
+      val onDone: (IngestData, ImportLog) => Future[Unit] = (data, log) =>
+        if (data.params.commit) {
+          importLogService.save(id, ds, data, log)
         }
         else Future.successful(())
 
@@ -110,18 +117,22 @@ case class ImportConfigs @Inject()(
     }
   }
 
-  private def getUrlMap(data: IngestPayload, prefix: String): Future[Map[String, java.net.URI]] = {
+  private def getUrlMap(data: IngestPayload, prefix: String): Future[List[Map[String, java.net.URI]]] = {
     // NB: Not doing this with regular Future.successful so as to
     // limit parallelism to the specified amount
     val keys = if (data.files.isEmpty) storage.streamFiles(Some(prefix)).map(_.key)
     else Source(data.files.map(prefix + _).toList)
 
-    keys
+    val files: Future[Map[String, java.net.URI]] = keys
       .mapAsync(4)(path => storage.info(path).map(info => path -> info))
       .collect { case (path, Some((meta, _))) =>
         val id = meta.versionId.map(vid => s"$path?versionId=$vid").getOrElse(path)
         id -> storage.uri(meta.key, duration = urlExpiration, versionId = meta.versionId)
       }
       .runFold(Map.empty[String, java.net.URI])(_ + _)
+
+    data.config.batchSize.map { size =>
+      files.map(_.toSeq.sorted.grouped(size).toList.map(_.toMap))
+    }.getOrElse(files.map(List(_)))
   }
 }

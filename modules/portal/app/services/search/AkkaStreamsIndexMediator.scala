@@ -25,6 +25,7 @@ import java.time
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+import org.apache.commons.lang3.time.DurationFormatUtils.formatDurationWords
 
 
 case class AkkaStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, config: Configuration, executionContext: ExecutionContext) extends
@@ -128,13 +129,6 @@ case class AkkaStreamsIndexMediatorHandle(
     req -> r.uri
   }
 
-  private def humanReadableFormat(duration: java.time.Duration): String =
-    duration
-      .toString
-      .substring(2)
-      .replaceAll("(\\d[HMS])(?!$)", "$1 ")
-      .toLowerCase
-
   private def index(requests: List[HttpRequest]): Future[Unit] = {
     // NB: ideally we would do this using a flow which takes a
     // stream of HttpRequest objects, i.e. the newHostConnectionPool(...)
@@ -177,7 +171,8 @@ case class AkkaStreamsIndexMediatorHandle(
     logger.debug(s"Running SOLR uri: $solrUri")
     bytesFlow.runWith(sinkFlow(solrUri)).map { _ =>
       val interval = time.Duration.between(init, java.time.Instant.now())
-      val msg = s"Total items processed: $count in ${humanReadableFormat(interval)}"
+      val timeStr = formatDurationWords(interval.toMillis, true, true)
+      val msg = s"Total items processed: $count in $timeStr"
       logger.debug(msg)
       chan.foreach(_ ! processFunc(msg))
     }
