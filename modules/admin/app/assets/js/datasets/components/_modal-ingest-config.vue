@@ -26,6 +26,7 @@ export default {
       defaultLang: this.opts ? this.opts.defaultLang : null,
       properties: this.opts ? this.opts.properties : null,
       logMessage: this.opts ? this.opts.logMessage : "",
+      batchSize: this.opts ? this.opts.batchSize : null,
       loading: false,
       commit: false,
       error: null,
@@ -42,6 +43,7 @@ export default {
             defaultLang: this.defaultLang,
             properties: this.properties,
             logMessage: this.logMessage,
+            batchSize: this.batchSize || null,
           })
           .then(data => this.$emit("saved-config", data, this.commit))
           .catch(error => this.$emit("error", "Error saving import config", error));
@@ -157,12 +159,19 @@ export default {
         <label class="form-label" for="opt-log-message">Log Message</label>
         <input v-model="logMessage" class="form-control form-control-sm" id="opt-log-message" placeholder="(required)"/>
       </div>
+
+      <hr class="form-group" />
+
       <div class="form-group form-check">
         <input tabindex="-1" v-model="commit" class="form-check-input" id="opt-commit-check" type="checkbox"/>
         <label class="form-check-label" for="opt-commit-check">
           Commit ingest: make changes to database
         </label>
       </div>
+        <div class="form-group">
+            <label class="form-check-label" for="opt-batch-size">Import Batch Size</label>
+            <input v-model.number.trim="batchSize" class="form-control form-control-sm" id="opt-batch-size" type="number" min="50"/>
+        </div>
       <div v-if="error" class="alert alert-danger">
         {{ error }}
       </div>

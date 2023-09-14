@@ -9,6 +9,7 @@ case class ImportConfig(
   properties: Option[String] = None,
   defaultLang: Option[String] = None,
   logMessage: String,
+  batchSize: Option[Int] = None,
   comments: Option[String] = None,
 )
 

@@ -74,9 +74,9 @@ case class Ingest @Inject()(
                 .map(_.ref)
 
             val task = ingestTask.copy(properties = FileProperties(props), data = FilePayload(Some(data.ref)))
-            val ingest = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id), instance)
+            val ingestData = IngestData(task, dataType, contentType, AuthenticatedUser(request.user.id), instance)
 
-            mat.system.actorOf(Props(DataImporterManager(IngestJob(jobId, ingest), ingestApi)), jobId)
+            mat.system.actorOf(Props(DataImporterManager(IngestJob(jobId, List(ingestData)), ingestApi)), jobId)
             logger.info(s"Submitted ingest job: $jobId")
 
             immediate {

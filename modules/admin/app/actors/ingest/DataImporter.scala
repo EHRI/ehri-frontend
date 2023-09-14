@@ -5,7 +5,7 @@ import actors.ingest.DataImporter._
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern._
 import models._
-import services.ingest.IngestService.IngestJob
+import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 
 import java.time.LocalDateTime
@@ -14,7 +14,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object DataImporter {
   sealed trait State
-  case object Initial extends State
+  case object Start extends State
+  case object ImportBatch extends State
   case class SaveLog(log: ImportLog) extends State
   case class Done(start: LocalDateTime) extends State
   case class Message(msg: String) extends State
@@ -24,7 +25,7 @@ object DataImporter {
 case class DataImporter(
   job: IngestJob,
   ingestApi: IngestService,
-  onDone: (IngestJob, ImportLog) => Future[Unit]
+  onDone: (IngestData, ImportLog) => Future[Unit]
 )(implicit ec: ExecutionContext) extends Actor with ActorLogging {
 
   // Helper actor to wrap strings in a Message object
@@ -38,43 +39,46 @@ case class DataImporter(
   }
 
   override def receive: Receive = {
-    case Initial =>
+    case Start =>
       val msgTo = sender()
+      msgTo ! Message(s"Initialising ingest for job: ${job.jobId}...")
+      job.batchSize.foreach { batchSize =>
+        msgTo ! Message(s"Splitting job into ${job.data.size} batches of $batchSize")
+      }
 
+      // Importer initializing...
+      val msgForwarder = context.actorOf(Props(Forwarder(msgTo)))
+      context.become(running(msgTo, job.data.head, job.data.tail, msgForwarder, LocalDateTime.now()))
+      self ! ImportBatch
+  }
+
+  def running(msgTo: ActorRef, data: IngestData, todo: Seq[IngestData], forwarder: ActorRef, start: LocalDateTime): Receive = {
+    case ImportBatch =>
+      context.become(running(msgTo, data, todo, forwarder, start))
+
+      data.batch.foreach { idx =>
+        msgTo ! Message(s"Starting batch $idx")
+      }
       // Start a ticker to show progress during the import...
       // This just sends a heartbeat whilst the import future
       // is running.
       val ticker: ActorRef = context.actorOf(Props(Ticker()))
       ticker ! (msgTo -> "Ingesting")
-
-      // Importer initializing...
-      context.become(running(msgTo, LocalDateTime.now()))
-      msgTo ! Message(s"Initialising ingest for job: ${job.id}...")
-
       ingestApi
-        .importData(job)
+        .importData(data)
         .pipeTo(self)
         .recover { case e =>
-            e.printStackTrace()
-            msgTo ! UnexpectedError(e)
+          e.printStackTrace()
+          msgTo ! UnexpectedError(e)
         }
         .onComplete { _ => ticker ! Ticker.Stop }
-  }
 
-  def running(msgTo: ActorRef, start: LocalDateTime): Receive = {
-    case result: IngestResult =>
-      val forwarder = context.actorOf(Props(Forwarder(msgTo)))
-      context.become(finalise(msgTo, forwarder, start))
-      self ! result
-  }
-
-  def finalise(msgTo: ActorRef, forwarder: ActorRef, start: LocalDateTime): Receive = {
     case sync: SyncLog =>
       msgTo ! Message(s"Sync: moved: ${sync.moved.size}, " +
         s"new: ${sync.created.size}, " +
         s"deleted: ${sync.deleted.size}")
 
-      if (job.data.params.commit) {
+      if (data.params.commit) {
         msgTo ! Message("Creating redirects...")
         ingestApi
           .remapMovedUnits(sync.moved.toSeq)
@@ -97,9 +101,9 @@ case class DataImporter(
         s"errors: ${log.errors.size}")
       log.event.foreach(e => msgTo ! Message(s"Event ID: $e"))
 
-      if (job.data.params.commit) {
+      if (data.params.commit) {
         if (log.hasDoneWork) {
-          val updated: Seq[String] = job.data.params.scope +: (
+          val updated: Seq[String] = data.params.scope +: (
             log.createdKeys.values.flatten.toSeq ++ log.updatedKeys.values.flatten.toSeq)
           msgTo ! Message("Reindexing...")
           ingestApi.emitEvents(log)
@@ -116,11 +120,17 @@ case class DataImporter(
     case SaveLog(log) =>
       msgTo ! Message("Uploading log...")
 
-      ingestApi.storeManifestAndLog(job, log).flatMap { url =>
-        val finish = onDone(job, log)
+      ingestApi.storeManifestAndLog(job.jobId, data, log).flatMap { url =>
+        val finish = onDone(data, log)
         finish.map { _ =>
           msgTo ! Message(s"Log stored at $url")
-          msgTo ! Done(start)
+
+          if (todo.isEmpty) {
+            msgTo ! Done(start)
+          } else {
+            context.become(running(msgTo, todo.head, todo.tail, forwarder, start))
+            self ! ImportBatch
+          }
         }
       }.recover { case e =>
         e.printStackTrace()

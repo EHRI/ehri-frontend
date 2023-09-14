@@ -18,7 +18,7 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
   private val datasetId = "default"
   private val keyVersion = "foo.ead?versionId=1"
   private val job: IngestJob = IngestJob(jobId,
-    IngestData(
+    List(IngestData(
       IngestParams(
         ContentTypes.Repository,
         scope = "r1",
@@ -30,7 +30,7 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
       DataUser(userOpt.map(_.id)),
       hostInstance,
     )
-  )
+  ))
 
 
   "Data Import manager" should {

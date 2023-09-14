@@ -82,10 +82,6 @@ export default {
 </script>
 <template>
   <div id="snapshot-manager">
-    <modal-snapshot-config v-if="showCreateDialog"
-                           v-on:create="takeSnapshot"
-                           v-on:close="showCreateDialog = false"/>
-
     <div class="actions-bar">
       <div class="filter-control">
         <label class="sr-only">Filter Snapshots</label>
@@ -106,6 +102,10 @@ export default {
         <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
         Create Snapshot
       </button>
+
+      <modal-snapshot-config v-if="showCreateDialog"
+                             v-on:create="takeSnapshot"
+                             v-on:close="showCreateDialog = false"/>
     </div>
     <p class="admin-help-notice">
       Snapshots record the global and local item identifiers

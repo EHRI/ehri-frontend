@@ -1,7 +1,6 @@
 package actors.cleanup
 
 import actors.Ticker
-import actors.Ticker.Tick
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import play.api.Configuration
 import services.data.{DataService, EventForwarder}
@@ -10,16 +9,20 @@ import services.ingest.{Cleanup, ImportLogService, IngestService}
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 
 object CleanupRunner {
   case class Status(relinkCount: Int = 0, redirectCount: Int = 0, deleteCount: Int = 0)
 
   sealed trait CleanupState
+
   case class Relinked(cleanup: Cleanup, status: Status) extends CleanupState
+
   case class Redirected(cleanup: Cleanup, status: Status) extends CleanupState
+
   case class DeleteBatch(cleanup: Cleanup, todo: Seq[String], status: Status) extends CleanupState
+
   case class Done(secs: Duration) extends CleanupState
 
 

@@ -47,6 +47,7 @@ export interface ImportConfig {
   properties?: string,
   defaultLang?: string,
   logMessage: string,
+  batchSize: number,
   comments?: string,
 }
 

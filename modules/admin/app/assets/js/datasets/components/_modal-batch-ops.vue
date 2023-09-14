@@ -258,7 +258,9 @@ export default {
         let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
         this.inProgress = true;
         for (let set of others) {
-          await this.api.saveImportConfig(set.id, config)
+          let existing = await this.api.getImportConfig(set.id);
+          let newConfig = {...config, batchSize: existing?.batchSize} as ImportConfig;
+          await this.api.saveImportConfig(set.id, newConfig);
           this.println("Copied", set.name);
         }
         this.cleanup();
@@ -314,7 +316,7 @@ export default {
     <fieldset v-bind:disabled="inProgress" class="options-form">
       <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="from-dataset">
-          Source Dataset
+          Source dataset
           <span class="required-input">*</span>
         </label>
         <select v-model="copyFrom" class="form-control" id="from-dataset">
@@ -325,20 +327,20 @@ export default {
 
       <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="copy-type">
-          Copy Configuration
+          Copy configuration
           <span class="required-input">*</span>
         </label>
         <select v-model="copyType" class="form-control" id="copy-type">
           <option v-bind:value="null" disabled>(required)</option>
-          <option v-bind:value="'convert'">Convert Settings</option>
-          <option v-bind:value="'import'">Import Settings</option>
+          <option v-bind:value="'convert'">Convert settings</option>
+          <option v-bind:value="'import'">Import settings</option>
         </select>
       </div>
 
       <div v-if="tab === 'sync' || tab === 'all'" class="form-group form-check">
         <input class="form-check-input" id="opt-clean" type="checkbox" v-model="cleanupOrphans"/>
         <label class="form-check-label" for="opt-clean">
-          Cleanup Orphaned Files
+          Cleanup orphaned files during synchronisation
         </label>
       </div>
 

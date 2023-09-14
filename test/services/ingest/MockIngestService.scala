@@ -11,7 +11,7 @@ import scala.concurrent.Future
   * plus side has no dependencies.
   */
 case class MockIngestService(res: IngestResult) extends IngestService {
-  override def importData(job: IngestService.IngestJob) =
+  override def importData(data: IngestService.IngestData) =
     Future.successful(res)
 
   override def remapMovedUnits(movedIds: Seq[(String, String)]) =
@@ -23,7 +23,7 @@ case class MockIngestService(res: IngestResult) extends IngestService {
   override def reindex(ids: Seq[String], chan: ActorRef) =
     Future.successful(())
 
-  override def storeManifestAndLog(job: IngestService.IngestJob, res: IngestResult) =
+  override def storeManifestAndLog(jobId: String, data: IngestService.IngestData, res: IngestResult) =
     Future.successful(java.net.URI.create("http://example.com/log"))
 
   override def clearIndex(ids: Seq[String], chan: ActorRef) =

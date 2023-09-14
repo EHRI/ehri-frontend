@@ -1,10 +1,11 @@
 package actors.ingest
 
-import actors.ingest.DataImporter.{Done, Initial, Message, UnexpectedError}
+import actors.Ticker.Tick
+import actors.ingest.DataImporter.{Done, Start, Message, UnexpectedError}
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{ErrorLog, ImportLog}
-import services.ingest.IngestService.IngestJob
+import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 import utils.WebsocketConstants
 
@@ -14,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class DataImporterManager(
   job: IngestJob,
   ingestApi: IngestService,
-  onDone: (IngestJob, ImportLog) => Future[Unit] = (_, _) => Future.successful(())
+  onDone: (IngestData, ImportLog) => Future[Unit] = (_, _) => Future.successful(())
 )(implicit ec: ExecutionContext) extends Actor with ActorLogging {
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
@@ -29,7 +30,7 @@ case class DataImporterManager(
       log.debug("Received initial subscriber, starting...")
       val runner = context.actorOf(Props(DataImporter(job, ingestApi, onDone)))
       context.become(running(runner, Set(chan)))
-      runner ! Initial
+      runner ! Start
   }
 
   def running(runner: ActorRef, subs: Set[ActorRef]): Receive = {
@@ -52,6 +53,9 @@ case class DataImporterManager(
 
     case Message(m) =>
       msg(m, subs)
+
+    case Tick(s) =>
+      msg(s, subs)
 
     case Done(_) =>
       msg(s"${WebsocketConstants.DONE_MESSAGE}", subs)
