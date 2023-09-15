@@ -25,7 +25,6 @@ import scala.concurrent.duration.FiniteDuration
 case class IngestPayload(
   config: ImportConfig,
   commit: Boolean = false,
-  batch: Int = 0,
   files: Seq[String] = Seq.empty
 )
 
