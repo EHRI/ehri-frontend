@@ -5,7 +5,7 @@
         @parent.map { p =>
             @wrapParent(doc, p.parent)
             <li>
-              @views.html.helpers.linkTo(p, content = Html(highlighter.highlight(p.toStringLang)), Seq(Symbol("class") -> "search-item-parent-name"))
+              @views.html.helpers.linkTo(p, htmlContent = highlighter.highlightText(p.toStringLang), attributes = Seq(Symbol("class") -> "search-item-parent-name"))
             </li>
         }
     }
@@ -19,7 +19,7 @@
             </div>
             <h3 class="search-item-heading type-highlight @item.isA.toString" dir="@dir">
                 @defining(if (item.descriptions.size > 1) desc.localId else None) { localDescId =>
-                    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(desc.name)),
+                    @views.html.helpers.linkTo(item, htmlContent = highlighter.highlightText(desc.name),
                         call = Some(controllers.portal.routes.DocumentaryUnits.browse(item.id, localDescId)))
                 }
             </h3>

@@ -1,5 +1,5 @@
-@(item: Model, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
+@(item: Model, htmlContent: Html = Html(""), textContent: Option[String] = None, attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
 
 @* This just delegates to the anchored link (which no fragment)
    because we can't use a default argument with a varargs method. *@
-@views.html.helpers.linkToWithFragment(item, fragment="", content=content, attributes=attributes, call = call)
+@views.html.helpers.linkToWithFragment(item, fragment="", htmlContent=htmlContent, textContent=textContent, attributes=attributes, call = call)

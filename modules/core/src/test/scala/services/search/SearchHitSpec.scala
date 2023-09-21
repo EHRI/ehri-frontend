@@ -61,5 +61,11 @@ class SearchHitSpec extends PlaySpecification {
       hl must contain("<em>Demandes</em>")
       hl must not contain("<em>lu-006007-lu-11-iv-3-286</em>")
     }
+
+    "prevent XSS attacks" in {
+      val hl = testHit.highlightText("some text<script>alert('hello');</script>")
+      hl.body must not contain "<script>"
+      hl.body must not contain "alert"
+    }
   }
 }

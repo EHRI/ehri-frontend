@@ -116,7 +116,7 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       val script = "<script>alert(\"Hello...\");</script>"
       val testInstitution = "Nefarious"
       val data = Map(
-        UserProfileF.NAME -> Seq(testName),
+        UserProfileF.NAME -> Seq(testName + script),
         UserProfileF.INSTITUTION -> Seq(testInstitution + script)
       )
       val update = FakeRequest(profileRoutes.updateProfilePost())
@@ -149,7 +149,6 @@ class UserProfilesSpec extends IntegrationTestRunner with FakeMultipartUpload {
       status(result) must equalTo(BAD_REQUEST)
       contentAsString(result) must contain(message("errors.badFileType"))
     }
-
 
     "allow uploading image files as profile image" in new ITestApp {
       val file = getProfileImage

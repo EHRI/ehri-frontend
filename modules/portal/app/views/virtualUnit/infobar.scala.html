@@ -1,7 +1,7 @@
 @(item: Model, path: Seq[Model], watched: Boolean)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 @linkVc(item: Model, path: Seq[Model]) = {
-    <li>@views.html.helpers.linkTo(item, call = Some(views.Helpers.virtualUnitUrl(path, item.id)), content = Html(item.toStringAbbr))</li>
+    <li>@views.html.helpers.linkTo(item, call = Some(views.Helpers.virtualUnitUrl(path, item.id)), textContent = Some(item.toStringAbbr))</li>
 }
 
 @common.infobar {

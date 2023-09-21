@@ -9,7 +9,7 @@
             </div>
         }
         @annotation.target.map { src =>
-            @views.html.helpers.linkToWithFragment(src, "#" + annotation.id, content = Html(highlighter.highlight(src.toStringLang)))
+            @views.html.helpers.linkToWithFragment(src, "#" + annotation.id, htmlContent = highlighter.highlightText(src.toStringLang))
             @annotation.data.field.map { field =>
             - <strong>@Messages(views.Helpers.prefixFor(src.isA) + "." + field)</strong>
             }

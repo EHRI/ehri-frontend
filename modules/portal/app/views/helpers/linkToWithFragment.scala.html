@@ -1,3 +1,5 @@
-@(item: Model, fragment: String, content: Html = Html(""), attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
+@(item: Model, fragment: String, htmlContent: Html = Html(""), textContent: Option[String] = None, attributes: Seq[(Symbol,String)] = Seq.empty, call: Option[Call] = None)(implicit conf: AppConfig, req: RequestHeader, messages: Messages)
 
-<a @{if(conf.isEmbedMode) "target=\"_top\""} href="@call.getOrElse(views.Helpers.linkTo(item))@fragment" class="@{if(conf.isEmbedMode) "external "}@("type-highlight " + item.isA)" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >@{if(content.body.trim.isEmpty) Html(item.toStringLang) else content}</a>
+<a @{if(conf.isEmbedMode) "target=\"_top\""} href="@call.getOrElse(views.Helpers.linkTo(item))@fragment" class="@{if(conf.isEmbedMode) "external "}@("type-highlight " + item.isA)" @play.api.templates.PlayMagic.toHtmlArgs(attributes.toMap) >
+    @{if(htmlContent.body.trim.isEmpty) textContent.getOrElse(item.toStringLang) else htmlContent}
+</a>

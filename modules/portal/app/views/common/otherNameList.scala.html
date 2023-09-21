@@ -4,7 +4,7 @@
     @if(ofn.nonEmpty) {
         <ul class="other-name-list">
             @ofn.map { on =>
-                <li>@Html(highlighter.highlight(on))</li>
+                <li>@highlighter.highlightText(on)</li>
             }
             @if(rest.nonEmpty) {
                 <li title="@rest.mkString(", ")">@Messages("truncated")</li>
