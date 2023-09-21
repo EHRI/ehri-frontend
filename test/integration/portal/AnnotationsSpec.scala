@@ -34,7 +34,6 @@ class AnnotationsSpec extends IntegrationTestRunner {
         .withUser(unprivilegedUser).withCsrf.call()
       status(doc) must equalTo(OK)
       contentAsString(doc) must not contain testAnnotationBody
-
     }
 
     "allow annotating fields with correct visibility" in new ITestApp {

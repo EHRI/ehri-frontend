@@ -6,7 +6,7 @@
             @wrapParent(doc, path.dropRight(1))
             <li>
                 @views.html.helpers.link(views.Helpers.virtualUnitUrl(path, item.id), Symbol("class") -> s"search-item-parent-name type-highlight ${p.isA}") {
-                    @Html(highlighter.highlight(p.toStringLang))
+                    @highlighter.highlightText(p.toStringLang)
                 }
             </li>
         }
@@ -19,7 +19,7 @@
             @wrapParent2(doc, p.parent)
         <li>
             @views.html.helpers.link(views.Helpers.virtualUnitUrl(path, item.id), Symbol("class") -> s"search-item-parent-name type-highlight ${p.isA}") {
-              @Html(highlighter.highlight(p.toStringLang))
+              @highlighter.highlightText(p.toStringLang)
             }
         </li>
         }
@@ -31,7 +31,7 @@
         @views.html.common.watchButtonsSmall(item, watched)
     </div>
     <h3 class="search-item-heading type-highlight @item.isA.toString">
-        <a class="@item.isA" href="@views.Helpers.virtualUnitUrl(path, item.id)">@Html(highlighter.highlight(item.toStringLang))</a>
+        <a class="@item.isA" href="@views.Helpers.virtualUnitUrl(path, item.id)">@highlighter.highlightText(item.toStringLang)</a>
     </h3>
     <div class="search-item-body">
         @views.html.virtualUnit.ifVirtual(item) { v =>

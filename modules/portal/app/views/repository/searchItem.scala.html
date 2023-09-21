@@ -4,8 +4,8 @@
     <img alt="Institution Logo" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))"/>
 }
 
-@views.html.common.searchItemOutline(item, watched, image = views.html.helpers.linkTo(item, content = image)) {
-  @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
+@views.html.common.searchItemOutline(item, watched, image = views.html.helpers.linkTo(item, htmlContent = image)) {
+  @views.html.helpers.linkTo(item, htmlContent = highlighter.highlightText(item.toStringLang))
 } {
     @listItemBody(item, showCountry, highlighter = highlighter)
 }

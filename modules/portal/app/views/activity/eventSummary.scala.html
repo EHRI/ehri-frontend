@@ -29,7 +29,7 @@
             <dd>
                 <ul class="timeline-summary-subjects">
                     @for(s <- subjects.toSeq.sortBy(_.isA)) {
-                        <li>@views.html.helpers.linkTo(s, content = Html(s.toStringAbbr))</li>
+                        <li>@views.html.helpers.linkTo(s, textContent = Some(s.toStringAbbr))</li>
                     }
                 </ul>
             </dd>

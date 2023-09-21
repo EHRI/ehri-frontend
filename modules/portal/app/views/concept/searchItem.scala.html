@@ -3,7 +3,7 @@
 @views.html.common.searchItemOutline(item, watched) {
     @item.data.primaryDescription(descriptionId).map { desc =>
         @defining(if (item.descriptions.size > 1) desc.localId else None) { localDescId =>
-            @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)),
+            @views.html.helpers.linkTo(item, htmlContent = highlighter.highlightText(item.toStringLang),
                     call = Some(controllers.portal.routes.Concepts.browse(item.id, localDescId)))
         }
     }

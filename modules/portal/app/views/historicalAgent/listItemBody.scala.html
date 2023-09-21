@@ -6,7 +6,7 @@
         @item.set.map { set =>
             <li>
                 @views.html.helpers.link(views.Helpers.linkTo(set), Symbol("class") -> "alt") {
-                    @Html(highlighter.highlight(set.toStringLang))
+                    @highlighter.highlightText(set.toStringLang)
                 }
             </li>
         }

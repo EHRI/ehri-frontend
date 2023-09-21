@@ -4,8 +4,8 @@
     <img alt="Country Flag" width="48" height="48" src="https://ehri-portal.s3.eu-central-1.amazonaws.com/portal/images/Country/@{item.id.toLowerCase}.png"/>
 }
 
-@views.html.common.searchItemOutline(item, watched, views.html.helpers.linkTo(item, content = image)) {
-    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
+@views.html.common.searchItemOutline(item, watched, views.html.helpers.linkTo(item, htmlContent = image)) {
+    @views.html.helpers.linkTo(item, htmlContent = highlighter.highlightText(item.toStringLang))
 } {
     @listItemBody(item)
 }

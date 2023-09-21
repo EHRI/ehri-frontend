@@ -4,7 +4,9 @@ import scala.annotation.tailrec
 import SearchConstants._
 import models.EntityType
 import play.api.libs.json.JsValue
-import play.twirl.api.HtmlFormat
+import play.twirl.api.{Html,HtmlFormat}
+import org.jsoup.Jsoup
+import org.jsoup.safety.Whitelist
 
 /**
  * Class representing a search engine hit
@@ -42,18 +44,20 @@ case class SearchHit(
   private lazy val highlightFields: List[String] = filteredHighlights.values.flatten.toList
 
   /**
-   * Try and highlight some text according to the highlights.
+   * Try and highlight some text according to the highlights. The input text is
+    * assumed to already contain HTML.
+    *
    * @param text Some input text
-   * @return  The text and a boolean indicating if highlighting was successful
+   * @return  The text, with highlights inserted
    */
   def highlight(text: String): String = {
-    def canHighlightWith(raw: String, text: String): Either[String,String] = {
+    def canHighlightWith(rawHighlight: String, text: String): Either[String,String] = {
       // NB: We have to escape the input string using HtmlFormat because it's
       // specialised to avoid XSS. This assumes that the highlight material coming
       // back from Solr doesn't itself contain XSS attacks... what are the chances
       // this will come back to bite me?
-      val stripped = HtmlFormat.escape(stripTags(raw)).body
-      if (text.contains(stripped)) Right(text.replace(stripped, raw))
+      val stripped = HtmlFormat.escape(stripTags(rawHighlight)).body
+      if (text.contains(stripped)) Right(text.replace(stripped, rawHighlight))
       else Left(text)
     }
     @tailrec def tryHighlight(texts: Seq[String], input: String, ok: Boolean): String = {
@@ -68,4 +72,12 @@ case class SearchHit(
 
     tryHighlight(highlightFields, text, ok = false)
   }
+
+  /**
+    * Try and highlight some text which we know should not contain HTML.
+    *
+    * @param text Some input text
+    * @return The text, with highlights inserted
+    */
+  def highlightText(text: String): Html = Html(highlight(Jsoup.clean(text, Whitelist.none())))
 }

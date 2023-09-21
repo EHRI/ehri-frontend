@@ -4,14 +4,14 @@
     @item.country.map { ct =>
         <li>
             @views.html.helpers.link(views.Helpers.linkTo(ct), Symbol("class") -> "alt") {
-                @Html(highlighter.highlight(ct.toStringLang))
+                @highlighter.highlightText(ct.toStringLang)
             }
         </li>
 
     }
 }
 @desc.addresses.headOption.map(_.concise).filterNot(_.isEmpty).map { conciseAddress =>
-    <li>@Html(highlighter.highlight(conciseAddress))</li>
+    <li>@highlighter.highlightText(conciseAddress)</li>
 }
 @item.latestEvent.map { event =>
     <li title="@common.eventTitle(event)">

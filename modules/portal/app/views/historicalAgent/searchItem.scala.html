@@ -1,7 +1,7 @@
 @(item: HistoricalAgent, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, descriptionId: Option[String] = None)
 
 @views.html.common.searchItemOutline(item, watched) {
-    @views.html.helpers.linkTo(item, content = Html(highlighter.highlight(item.toStringLang)))
+    @views.html.helpers.linkTo(item, htmlContent = highlighter.highlightText(item.toStringLang))
 } {
     @listItemBody(item, highlighter = highlighter)
 }

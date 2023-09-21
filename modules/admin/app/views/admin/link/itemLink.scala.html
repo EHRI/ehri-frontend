@@ -1,6 +1,6 @@
 @(link: Link, item: Model, src: Option[Model], text: Option[String] = None)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@views.html.admin.helpers.linkTo(item, content = Html(text.getOrElse(item.toStringLang)))
+@views.html.admin.helpers.linkTo(item, textContent = Some(text.getOrElse(item.toStringLang)))
 <small>
     <span class="badge badge-dark">@Messages("link." + link.data.linkType.toString)</span>
 </small>

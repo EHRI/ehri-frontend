@@ -5,10 +5,10 @@
         <li>@views.html.helpers.linkTo(country)</li>
     }
     @item.holder.map { repo =>
-        <li>@views.html.helpers.linkTo(repo, Html(views.Helpers.ellipsize(repo.toStringLang, 100)))</li>
+        <li>@views.html.helpers.linkTo(repo, textContent = Some(views.Helpers.ellipsize(repo.toStringLang, 100)))</li>
     }
     @item.ancestors.reverse.map { ann =>
-        <li>@views.html.helpers.linkTo(ann, Html(views.Helpers.ellipsize(ann.toStringLang, 100)))</li>
+        <li>@views.html.helpers.linkTo(ann, textContent = Some(views.Helpers.ellipsize(ann.toStringLang, 100)))</li>
     }
 }
 
