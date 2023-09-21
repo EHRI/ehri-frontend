@@ -1,6 +1,8 @@
 package services.search
 
 import akka.actor.ActorRef
+import akka.stream.Materializer
+import akka.stream.scaladsl.Source
 import play.api.{Configuration, Logger}
 import services.data.EventForwarder.{Create, Delete, Update}
 import services.data.EventHandler
@@ -13,7 +15,7 @@ case class IndexingEventHandler @Inject()(
   searchIndexer: SearchIndexMediator,
   config: Configuration,
   @Named("event-forwarder") forwarder: ActorRef
-)(implicit ec: ExecutionContext) extends EventHandler {
+)(implicit ec: ExecutionContext, mat: Materializer) extends EventHandler {
 
   private val logger = Logger(getClass)
 
@@ -46,9 +48,16 @@ case class IndexingEventHandler @Inject()(
   // after redirects because the item is still in the search index but not in
   // the database.
   def handleDelete(ids: String*): Unit = logFailure(ids, ids => Future.successful[Unit] {
-    ids.grouped(threshold * 2).map { group =>
+    val deletes = ids.toSeq.grouped(threshold * 2).map { group =>
+      logger.debug(s"Deleting ID group: ${group.mkString(", ")}")
       forwarder ! Delete(group)
-      concurrent.Await.result(searchIndexer.handle.clearIds(group: _*), timeoutMinutes(ids.size))
+      searchIndexer.handle.clearIds(group: _*)
     }
+    // This runs all deletes in a synchronous sequence, as opposed to in parallel
+    val allDone: Future[akka.Done] = Source.fromIterator(() => deletes)
+      .mapAsync(parallelism = 1)(identity)
+      .runForeach(identity)
+
+    concurrent.Await.result(allDone, timeoutMinutes(ids.size))
   })
 }
