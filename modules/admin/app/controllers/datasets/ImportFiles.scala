@@ -7,11 +7,12 @@ import akka.util.ByteString
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
-import models.{FileStage, _}
+import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.{Format, Json, Writes}
 import play.api.libs.streams.Accumulator
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.data.DataHelpers
 import services.datasets.ImportDatasetService
@@ -20,8 +21,8 @@ import services.storage.FileStorage
 
 import java.net.URI
 import javax.inject._
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 
 case class FileToUpload(name: String, `type`: String, size: Long)
@@ -47,7 +48,8 @@ case class ImportFiles @Inject()(
   importLogService: ImportLogService,
   asyncCache: AsyncCacheApi,
   datasets: ImportDatasetService,
-)(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
+  ws: WSClient
+)(implicit mat: Materializer, executionContext: ExecutionContext) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
   def listFiles(id: String, ds: String, stage: FileStage.Value, path: Option[String], from: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     storage.listFiles(prefix = Some(prefix(id, ds, stage) + path.getOrElse("")),
@@ -71,6 +73,36 @@ case class ImportFiles @Inject()(
     val keys = request.body.map(path => s"${prefix(id, ds, stage)}$path")
     val result: Map[String, URI] = keys.map(key => key.replace(prefix(id, ds, stage), "") -> storage.uri(key)).toMap
     Ok(Json.toJson(result))
+  }
+
+  def copyFile(id: String, ds: String, stage: FileStage.Value, fileName: String, toDs: String, toName: Option[String], versionId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
+    val fromPrefix = prefix(id, ds, stage)
+    val toPrefix = prefix(id, toDs, stage)
+    val toFileName = toName.getOrElse(fileName)
+    val fromPath = fromPrefix + fileName
+    val toPath = toPrefix + toFileName
+
+    storage.info(fromPath, versionId).flatMap {
+      case Some((srcMeta, _)) =>
+        storage.info(toPath).flatMap {
+          case Some((dstMeta, _)) =>
+            if (srcMeta.eTag.isDefined && srcMeta.eTag == dstMeta.eTag) {
+              // Files are the same, no need to copy
+              Future.successful(Ok(Json.obj(
+                "message" -> "File with identical contents already exists",
+                "uri" -> storage.uri(dstMeta.key, contentType = dstMeta.contentType, duration = 2.hours))))
+            } else {
+              // Copy the file...
+              storage.copyFile(fromPath, toPath)
+                .map(uri => Ok(Json.obj("message" -> "File updated", "uri" -> uri)))
+            }
+          case _ =>
+            storage.copyFile(fromPath, toPath)
+              .map(uri => Created(Json.obj("message" -> "File copied", "uri" -> uri)))
+        }
+
+      case _ => Future.successful(NotFound)
+    }
   }
 
   private def streamToStorage(id: String, ds: String, stage: FileStage.Value, fileName: String): BodyParser[Source[ByteString, _]] = BodyParser { implicit r =>

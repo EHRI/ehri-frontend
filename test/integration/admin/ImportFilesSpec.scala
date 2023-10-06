@@ -7,6 +7,7 @@ import models.{FileStage, _}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.http.{ContentTypes, HeaderNames, MimeTypes, Writeable}
 import play.api.libs.json.Json
+import play.api.libs.ws.WSResponse
 import play.api.mvc.{Headers, Result}
 import play.api.test.FakeRequest
 import services.storage.{FileList, FileMeta}
@@ -35,20 +36,22 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       |""".stripMargin)
   private val repoId = "r1"
   private val datasetId = "default"
-  private val stage = FileStage.Input
+  private val fileStage = FileStage.Input
   private val testFileName = "test.xml"
 
   private def testFilePath(implicit app: play.api.Application): String = {
     val bucket = app.configuration.get[String]("storage.dam.classifier")
     val host = app.configuration.get[String]("storage.dam.config.endpoint-url")
-    val testPrefix = s"$host/$bucket/$hostInstance/ingest-data/$repoId/$datasetId/$stage/"
+    val testPrefix = s"$host/$bucket/$hostInstance/ingest-data/$repoId/$datasetId/$fileStage/"
     testPrefix + testFileName
   }
 
   private implicit val writeBytes: Writeable[ByteString] = new Writeable[ByteString](s => s, Some(ContentTypes.XML))
 
-  private def putFile(name: String, payload: ByteString = testPayload)(implicit app: play.api.Application): Future[Result] = {
-    FakeRequest(repoDataRoutes.uploadStream(repoId, datasetId, stage, name))
+  private def putFile(name: String, payload: ByteString = testPayload, ds: String = datasetId, stage: FileStage.Value = fileStage)(
+    implicit app: play.api.Application): Future[Result] = {
+
+    FakeRequest(repoDataRoutes.uploadStream(repoId, ds, stage, name))
       .withHeaders(Headers(
         HeaderNames.CONTENT_TYPE -> ContentTypes.XML,
         HeaderNames.HOST -> "localhost"
@@ -57,10 +60,26 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
       .callWith(payload)
   }
 
+  private def putFileNoMultiPart(name: String, payload: ByteString = testPayload, ds: String = datasetId, stage: FileStage.Value = fileStage)(
+      implicit app: play.api.Application): Future[WSResponse] = {
+    val ws = app.injector.instanceOf[play.api.libs.ws.WSClient]
+
+    val r = FakeRequest(repoDataRoutes.uploadHandle(repoId, ds, stage))
+      .withUser(privilegedUser)
+      .callWith(Json.toJson(FileToUpload(
+        name = name,
+        `type` = ContentTypes.XML,
+        size = payload.size
+      )))
+    val data = contentAsJson(r).as[Map[String, String]]
+    val uri = data("presignedUrl")
+    ws.url(uri).withHttpHeaders(CONTENT_TYPE -> ContentTypes.XML).put(payload)
+  }
+
   "Import Files API" should {
 
     "provide PUT urls" in new ITestApp {
-      val r = FakeRequest(repoDataRoutes.uploadHandle(repoId, datasetId, stage)).withUser(privilegedUser).callWith(
+      val r = FakeRequest(repoDataRoutes.uploadHandle(repoId, datasetId, fileStage)).withUser(privilegedUser).callWith(
         Json.toJson(FileToUpload(
           name = testFileName,
           `type` = ContentTypes.XML,
@@ -80,7 +99,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
     "fetch data" in new ITestApp {
       await(putFile(testFileName))
-      val r = FakeRequest(repoDataRoutes.download(repoId, datasetId, stage, testFileName))
+      val r = FakeRequest(repoDataRoutes.download(repoId, datasetId, fileStage, testFileName))
         .withUser(privilegedUser)
         .call()
 
@@ -90,7 +109,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
     "list files" in new ITestApp {
       await(putFile(testFileName))
-      val r = FakeRequest(repoDataRoutes.listFiles(repoId, datasetId, stage))
+      val r = FakeRequest(repoDataRoutes.listFiles(repoId, datasetId, fileStage))
         .withUser(privilegedUser)
         .call()
 
@@ -101,7 +120,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
 
     "get file info" in new ITestApp {
       await(putFile(testFileName))
-      val r = FakeRequest(repoDataRoutes.info(repoId, datasetId, stage, testFileName))
+      val r = FakeRequest(repoDataRoutes.info(repoId, datasetId, fileStage, testFileName))
         .withUser(privilegedUser)
         .call()
 
@@ -113,7 +132,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
     "delete files" in new ITestApp {
       await(putFile(testFileName))
       await(putFile(testFileName + "2"))
-      val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, stage))
+      val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, fileStage))
         .withUser(privilegedUser)
         .callWith(Json.arr(testFileName))
 
@@ -123,17 +142,34 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
     "delete all files" in new ITestApp {
       await(putFile(testFileName))
       await(putFile(testFileName + "2"))
-      val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, stage))
+      val r = FakeRequest(repoDataRoutes.deleteFiles(repoId, datasetId, fileStage))
         .withUser(privilegedUser)
         .callWith(Json.arr())
 
       contentAsJson(r) must_== Json.obj("deleted" -> 2)
     }
 
+    "copy files in an idempotent manner" in new ITestApp {
+      await(putFileNoMultiPart(testFileName, ds = "ds1", stage = FileStage.Config))
+      val r = FakeRequest(repoDataRoutes.copyFile(repoId, "ds1", FileStage.Config, fileName = testFileName, toDs = "ds2"))
+        .withUser(privilegedUser)
+        .callWith(Json.arr(testFileName))
+      status(r) must_== CREATED
+      val data = contentAsJson(r).as[Map[String, String]]
+      data.get("message") must beSome("File copied")
+
+      val r2 = FakeRequest(repoDataRoutes.copyFile(repoId, "ds1", FileStage.Config, fileName = testFileName, toDs = "ds2"))
+        .withUser(privilegedUser)
+        .callWith(Json.arr(testFileName))
+      status(r2) must_== OK
+      val data2 = contentAsJson(r2).as[Map[String, String]]
+      data2.get("message") must beSome("File with identical contents already exists")
+    }
+
     "validate files" in new ITestApp {
       await(putFile(testFileName))
       val tag = DigestUtils.md5Hex(testPayload.utf8String)
-      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, fileStage))
         .withUser(privilegedUser)
         .callWith(Json.obj(tag -> testFileName))
 
@@ -153,7 +189,7 @@ class ImportFilesSpec extends IntegrationTestRunner with ResourceUtils {
     }
 
     "give JSON errors for invalid payloads" in new ITestApp {
-      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, stage))
+      val r = FakeRequest(repoDataRoutes.validateFiles(repoId, datasetId, fileStage))
         .withUser(privilegedUser)
         .callWith(Json.arr("not", "an", "object"))
 

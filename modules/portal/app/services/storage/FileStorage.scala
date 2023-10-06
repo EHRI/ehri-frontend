@@ -168,4 +168,13 @@ trait FileStorage {
     * @return an optional pair of metadata and a byte source
     */
   def fromUri(uri: URI): Future[Option[(FileMeta, Source[ByteString, _])]]
+
+  /**
+    * Copy a file from one location to another.
+    *
+    * @param path   the path of the file to copy
+    * @param toPath the path to copy the file to
+    * @return the URI of the copied file
+    */
+  def copyFile(path: String, toPath: String): Future[URI]
 }

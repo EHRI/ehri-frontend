@@ -27,6 +27,7 @@ DELETE      /api/:id/files/delete/:ds/:stage              @controllers.datasets.
 POST        /api/:id/files/upload/:ds/:stage              @controllers.datasets.ImportFiles.uploadHandle(id: String, ds: String, stage: models.FileStage.Value)
 POST        /api/:id/files/validate/:ds/:stage            @controllers.datasets.ImportFiles.validateFiles(id: String, ds: String, stage: models.FileStage.Value)
 POST        /api/:id/files/urls/:ds/:stage                @controllers.datasets.ImportFiles.fileUrls(id: String, ds: String, stage: models.FileStage.Value)
+POST        /api/:id/files/copy/:ds/:stage                @controllers.datasets.ImportFiles.copyFile(id: String, ds: String, stage: models.FileStage.Value, fileName: String, toDs: String, toName: Option[String] ?= None, versionId: Option[String] ?= None)
 
 GET         /api/:id/transformations                      @controllers.datasets.DataTransformations.list(id: String)
 POST        /api/:id/transformations                      @controllers.datasets.DataTransformations.create(id: String, generic: Boolean ?= false)

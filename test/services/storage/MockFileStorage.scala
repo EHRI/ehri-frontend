@@ -144,4 +144,9 @@ case class MockFileStorage(name: String, db: collection.mutable.Map[String, Seq[
   override def setVersioned(enabled: Boolean) = Future.successful(())
 
   override def isVersioned = Future.successful(true)
+
+  override def copyFile(path: String, toPath: String): Future[URI] = {
+    val bytes = getF(path).collect { case Version(_, _, bytes) => bytes }
+    bytes.map(b => putBytes(toPath, Source.single(b), None, meta = Map.empty)).getOrElse(Future.failed(new Exception("File not found")))
+  }
 }

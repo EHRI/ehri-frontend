@@ -54,6 +54,7 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportFiles.deleteFiles,
         controllers.datasets.routes.javascript.ImportFiles.uploadHandle,
         controllers.datasets.routes.javascript.ImportFiles.fileUrls,
+        controllers.datasets.routes.javascript.ImportFiles.copyFile,
         controllers.datasets.routes.javascript.HarvestConfigs.harvest,
         controllers.datasets.routes.javascript.HarvestConfigs.get,
         controllers.datasets.routes.javascript.HarvestConfigs.save,

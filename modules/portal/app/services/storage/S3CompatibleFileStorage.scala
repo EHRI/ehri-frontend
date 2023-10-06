@@ -220,12 +220,22 @@ case class S3CompatibleFileStorage(
     else Future.successful(Option.empty)
   }
 
+  override def copyFile(path: String, toPath: String): Future[URI] = {
+    val request = CopyObjectRequest.builder()
+      .copySource(s"$name/$path")
+      .destinationBucket(name)
+      .destinationKey(toPath)
+      .build()
+    client.copyObject(request)
+    Future.successful(uri(toPath))
+  }
+
   private def infoToMeta(path: String, meta: ObjectMetadata): FileMeta = FileMeta(
     name,
     path,
     java.time.Instant.ofEpochMilli(meta.lastModified.clicks),
     meta.getContentLength,
-    meta.eTag,
+    meta.eTag, // NB: the eTag does NOT have quotes!
     meta.contentType,
     meta.versionId
   )
