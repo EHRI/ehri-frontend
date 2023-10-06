@@ -26,6 +26,7 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
 
   def putTestItems: (FileStorage, Seq[String]) = {
     val storage = S3CompatibleFileStorage(config.get[Config]("storage.test"))
+    await(storage.deleteFilesWithPrefix(""))
     await(storage.setVersioned(enabled = true))
     val urls = paths.map { path =>
       await(storage.putBytes(path, bytes, public = true)).toString
@@ -120,6 +121,13 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
 
       val versions = await(storage.listVersions("baz"))
       versions.files.size must beGreaterThan(2)
+    }
+
+    "copy items" in {
+      val storage = putTestItems._1
+      await(storage.copyFile("baz", "baz2"))
+      val items = await(storage.listFiles())
+      items.files.map(_.key).sorted must_== Seq("bar", "baz", "baz2", "eggs", "spam")
     }
   }
 }

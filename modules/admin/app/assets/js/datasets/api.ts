@@ -4,7 +4,7 @@ import {apiCall} from "./common";
 import {
   Cleanup,
   CleanupSummary,
-  ConvertConfig,
+  ConvertConfig, CopyResult,
   Coreference,
   DataTransformation,
   DataTransformationInfo,
@@ -82,6 +82,10 @@ export class DatasetManagerApi {
 
   fileUrls(ds: string, stage: string, paths: string[]): Promise<object> {
     return apiCall(this.service.ImportFiles.fileUrls(this.repoId, ds, stage), paths);
+  }
+
+  copyFile(ds: string, stage: string, key: string, toDs: string, toName?: string, versionId?: string): Promise<CopyResult> {
+    return apiCall(this.service.ImportFiles.copyFile(this.repoId, ds, stage, key, toDs, toName, versionId));
   }
 
   uploadHandle(ds: string, stage: string, fileSpec: FileToUpload): Promise<{presignedUrl: string}> {

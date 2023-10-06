@@ -245,7 +245,13 @@ export default {
         let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
         this.inProgress = true;
         for (let set of others) {
-          await this.api.saveConvertConfig(set.id, config)
+          if (this.cancelled) {
+            if (this.throwOnError) {
+              throw new CancelledTask();
+            }
+            break;
+          }
+          await this.api.saveConvertConfig(set.id, config);
           this.println("Copied", set.name);
         }
         this.cleanup();
@@ -258,9 +264,27 @@ export default {
         let others: ImportDataset[] = this.datasets.filter(s => s.id !== this.copyFrom);
         this.inProgress = true;
         for (let set of others) {
+          if (this.cancelled) {
+            if (this.throwOnError) {
+              throw new CancelledTask();
+            }
+            break;
+          }
           let existing = await this.api.getImportConfig(set.id);
           let newConfig = {...config, batchSize: existing?.batchSize} as ImportConfig;
           await this.api.saveImportConfig(set.id, newConfig);
+          if (config.properties) {
+            // We need to copy the properties file
+            this.println("Copying properties file to", set.name + "...")
+            let copyRes = await this.api.copyFile(this.copyFrom, this.config.config, config.properties, set.id);
+            if (!copyRes.message) {
+              this.println("Error copying properties file to", set.name);
+            } else {
+              this.println("...", copyRes.message);
+            }
+          } else {
+            this.println("No properties file to copy for", config);
+          }
           this.println("Copied", set.name);
         }
         this.cleanup();

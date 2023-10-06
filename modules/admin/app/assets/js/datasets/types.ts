@@ -142,6 +142,11 @@ export interface FileInfo {
   versions: FileList,
 }
 
+export interface CopyResult {
+  message: string,
+  url: string
+}
+
 export interface XmlValidationError {
   line: number,
   pos: number,
