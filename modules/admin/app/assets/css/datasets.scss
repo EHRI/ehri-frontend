@@ -1025,11 +1025,12 @@ $active-table-row: #e7f1ff;
 }
 
 .ingest-options-properties-container {
-  height: 6rem;
+  height: 8rem;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   width: 100%;
+  font-size: $font-size-sm;
   background-color: $gray-100;
 
   .panel-placeholder {
@@ -1049,6 +1050,12 @@ $active-table-row: #e7f1ff;
   left: 0;
   right: 0;
   cursor: pointer;
+}
+
+.ingest-options-properties th {
+  position: sticky;
+  top: 0;
+  background-color: $gray-200;
 }
 
 .ingest-options-properties tr {
