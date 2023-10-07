@@ -6,6 +6,8 @@ import {DatasetManagerApi} from "../api";
 
 import _pick from 'lodash/pick';
 import _size from 'lodash/size';
+import {timeToRelative} from "../common";
+import _forIn from "lodash/forIn";
 
 
 export default {
@@ -48,44 +50,58 @@ export default {
           .then(data => this.$emit("saved-config", data, this.commit))
           .catch(error => this.$emit("error", "Error saving import config", error));
     },
-    uploadProperties: function (event: Event | DragEvent) {
-      this.loading = true;
-      let fileList = event.dataTransfer
-          ? event.dataTransfer.files
-          : event.target.files;
+    uploadProperties: async function (event: Event | DragEvent) {
+      let fileList = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+      if (fileList.length == 0) {
+        return;
+      }
+      let file = fileList[0];
 
-      if (fileList.length > 0) {
-        let file = fileList[0];
-
-        // NB: the fileStage arg here is 'config', since we are uploading a config file, rather then
-        // the stage of the ingest manager ('output').
-        this.api.uploadHandle(this.datasetId, this.config.config, _pick(file, ['name', 'type', 'size']))
-            .then(data => this.api
-                .uploadFile(data.presignedUrl, file, () => true)
-                .then(() => {
-                  this.$emit("update");
-                  this.properties = file.name;
-                  if (event.target.files) {
-                    event.target.files = null;
-                  }
-                })
-            )
-            .catch(e => this.error = "Error uploading properties: " + e)
-            .finally(() => this.loading = false);
+      // NB: the fileStage arg here is 'config', since we are uploading a config file, rather then
+      // the stage of the ingest manager ('output').
+      try {
+        this.loading = true;
+        let data = await this.api.uploadHandle(this.datasetId, this.config.config, _pick(file, ['name', 'type', 'size']))
+        await this.api.uploadFile(data.presignedUrl, file, () => true);
+        this.$emit("update");
+        this.properties = file.name;
+        if (event.target.files) {
+          event.target.files = null;
+        }
+      } catch (e) {
+        this.error = "Error uploading properties: " + e;
+      } finally {
+        this.loading = false;
       }
     },
-    deleteProperties: function (file: FileMeta) {
+    downloadProperties: async function (key) {
+      this.loading = true;
+      this.$emit("update");
+      try {
+        let urls = await this.api.fileUrls(this.datasetId, this.config.config, [key]);
+        _forIn(urls, (url, fileName) => window.open(url, key));
+      } catch (e) {
+        this.error = "Error fetching download URLs" + e;
+      } finally {
+        this.loading = false;
+      }
+    },
+    deleteProperties: async function (file: FileMeta) {
       this.loading = true;
       if (file.key === this.properties) {
         this.properties = null;
       }
-      this.api.deleteFiles(this.datasetId, this.config.config, [file.key])
-          .then(() => this.$emit("update"))
-          .finally(() => this.loading = false);
+      try {
+        await this.api.deleteFiles(this.datasetId, this.config.config, [file.key]);
+        this.$emit("update");
+      } finally {
+        this.loading = false;
+      }
     },
     selectPropFile: function (file: FileMeta) {
       this.properties = this.properties === file.key ? null : file.key;
-    }
+    },
+    prettyDate: timeToRelative,
   },
   computed: {
     isValidConfig: function () {
@@ -127,6 +143,7 @@ export default {
           Properties File
           <span class="text-success" title="Upload Properties File" id="opt-new-props">
               <i class="fa fa-plus-circle"></i>
+              &nbsp;
               <label class="sr-only" for="opt-new-props-input">Upload Properties File...</label>
               <input v-on:change.prevent="uploadProperties" id="opt-new-props-input"
                      type="file" pattern=".*.properties$"/>
@@ -134,6 +151,13 @@ export default {
         </label>
         <div class="ingest-options-properties-container">
           <table v-if="hasProps" class="ingest-options-properties table table-bordered table-sm table-striped">
+              <tr>
+                  <th></th>
+                  <th>File</th>
+                  <th>Last Modified</th>
+                  <th></th>
+                  <th></th>
+              </tr>
             <tr v-for="f in props" v-on:click="selectPropFile(f)" v-bind:class="{'active': f.key===properties}">
               <td><i v-bind:class="{
                   'fa-check': f.key===properties,
@@ -142,7 +166,9 @@ export default {
                   'text-muted': f.key!==properties,
                 }" class="fa fa-fw"></i></td>
               <td>{{ f.key }}</td>
-              <td v-on:click.stop.prevent="deleteProperties(f)"><i class="fa fa-trash-o"></i></td>
+              <td v-bind:title="f.lastModified">{{ prettyDate(f.lastModified) }}</td>
+              <td title="Download properties file" v-on:click.stop.prevent="downloadProperties(f.key)"><i class="fa fa-download"></i></td>
+              <td title="Delete properties file" v-on:click.stop.prevent="deleteProperties(f)"><i class="fa fa-trash-o"></i></td>
             </tr>
           </table>
           <div v-else-if="loading" class="panel-placeholder">
