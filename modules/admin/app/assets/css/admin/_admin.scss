@@ -39,6 +39,7 @@ body > .admin-content > .flash {
     border: none;
     border-top: $border-width solid $ehri-border-gray;
     box-shadow: $box-shadow-lg;
+    z-index: 1000;
   }
 }
 
