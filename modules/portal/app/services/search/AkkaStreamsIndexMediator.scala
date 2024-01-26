@@ -58,7 +58,6 @@ case class AkkaStreamsIndexMediatorHandle(
   private val solrServiceConfig = ServiceConfig("solr", config)
   private val solrBaseUrl: Uri = solrServiceConfig.baseUrl + "/update"
   private val jsonSupport = EntityStreamingSupport.json(Integer.MAX_VALUE)
-  private val jsonConverter = new JsonConverter
   private val mapper = new ObjectMapper
   private val writer = mapper.writer().withDefaultPrettyPrinter()
 
@@ -97,7 +96,7 @@ case class AkkaStreamsIndexMediatorHandle(
     .map(node => ByteString.fromArray(writer.writeValueAsBytes(node)))
     .named("json-node-to-bytes")
 
-  private val jsonNodeToDoc: Flow[JsonNode, JsonNode, akka.NotUsed] = Flow[JsonNode]
+  private def jsonNodeToDoc(jsonConverter: JsonConverter): Flow[JsonNode, JsonNode, akka.NotUsed] = Flow[JsonNode]
     .mapConcat[JsonNode](n => jsonConverter.convert(n).asScala.toVector)
     .named("json-node-to-solr-doc")
 
@@ -138,6 +137,7 @@ case class AkkaStreamsIndexMediatorHandle(
 
     val init = java.time.Instant.now()
     var count = 0
+    val jsonConverter = new JsonConverter
 
     val bytesFlow = Source(setCommonHeaders(requests))
       .map { case (r, uri) =>
@@ -156,7 +156,7 @@ case class AkkaStreamsIndexMediatorHandle(
         Source.future(s).flatMapConcat(n => n)
       }
       .flatMapConcat(n => n) // flatten the streams of JsonNodes into one stream
-      .via(jsonNodeToDoc)
+      .via(jsonNodeToDoc(jsonConverter))
       .map { node =>
         logger.trace(writer.writeValueAsString(node))
         count = count + 1
