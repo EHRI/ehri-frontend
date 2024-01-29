@@ -46,12 +46,12 @@ export default {
 </script>
 
 <template>
-  <div class="http-header-params">
+  <div class="http-headers">
     <div class="form-group">
       <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="opt-header" v-model="show"/>
-        <label class="form-check-label" for="opt-header">
-          HTTP Header
+        <input type="checkbox" class="form-check-input" id="opt-http-headers" v-model="show"/>
+        <label class="form-check-label" for="opt-http-headers">
+          HTTP Headers
         </label>
       </div>
     </div>

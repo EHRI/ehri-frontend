@@ -60,7 +60,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
     val urls = itemIds.map(id => s"${serviceConfig.baseUrl}/classes/DocumentaryUnit/$id/ead" -> s"$id.xml")
     UrlSetHarvesterJob("r1", datasetId, jobId, UrlSetHarvesterData(
       // the URLs we're harvesting and the server auth
-      config = UrlSetConfig(urls, serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)}),
+      config = UrlSetConfig(urls, auth = serviceConfig.credentials.map { case (u, pw) => BasicAuthConfig(u, pw)}),
       prefix = "urlset/r1/"
     ))
   }

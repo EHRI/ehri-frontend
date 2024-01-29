@@ -30,12 +30,6 @@ class HarvestConfigsSpec extends IntegrationTestRunner with ResourceUtils {
   }
 
 
-  // Mock user who belongs to admin
-  private val userProfile = UserProfile(
-    data = UserProfileF(id = Some(privilegedUser.id), identifier = "test", name = "test user"),
-    groups = List(Group(GroupF(id = Some("admin"), identifier = "admin", name = "Administrators")))
-  )
-
   "HarvestConfigs API" should {
     "save oaipmh configs" in new DBTestApp("import-dataset-fixtures.sql") {
       val c = OaiPmhConfig("https://foo.bar/baz", "oai_ead", Some("test"), from = Some(Instant.now().minusSeconds(3600)))

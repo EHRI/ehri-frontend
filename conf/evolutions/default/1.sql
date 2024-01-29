@@ -165,6 +165,7 @@ CREATE TABLE import_url_set_config (
     repo_id           VARCHAR(50) NOT NULL,
     import_dataset_id VARCHAR(50) NOT NULL,
     url_map           JSONB NOT NULL,
+    method            VARCHAR(10) NOT NULL DEFAULT 'GET',
     headers           JSONB,
     created           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comments          TEXT,

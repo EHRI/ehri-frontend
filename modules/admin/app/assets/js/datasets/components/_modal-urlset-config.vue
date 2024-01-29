@@ -5,11 +5,12 @@ import ModalAlert from './_modal-alert';
 import {DatasetManagerApi} from '../api';
 import EditorUrlset from "./_editor-urlset.vue";
 import FormHttpBasicAuth from "./_form-http-basic-auth";
+import FormHttpMethod from "./_form-http-method";
 import FormHttpHeaders from "./_form-http-headers";
 import {decodeTsv, encodeTsv} from "../common";
 
 export default {
-  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth, FormHttpHeaders},
+  components: {EditorUrlset, ModalAlert, ModalWindow, FormHttpBasicAuth, FormHttpHeaders, FormHttpMethod},
   props: {
     waiting: Boolean,
     datasetId: String,
@@ -21,6 +22,7 @@ export default {
     return {
       urlMap: this.opts ? this.opts.urlMap : null,
       filter: this.opts ? this.opts.filter : null,
+      method: this.opts ? this.opts.method : null,
       auth: this.opts ? this.opts.auth : null,
       headers: this.opts ? this.opts.headers : null,
       tested: null,
@@ -37,6 +39,7 @@ export default {
     isValidConfig: function () {
       return this.urlMap !== null
           && this.urlMap.length > 0
+          && (!this.method || this.method === "GET" || this.method === "POST")
           && (!this.auth || (this.auth.username !== "" && this.auth.password !== ""))
           && (!this.headers || (this.headers.length > 0));
     },
@@ -59,6 +62,7 @@ export default {
       try {
         let data = await this.api.saveHarvestConfig(this.datasetId, {
           urlMap: this.urlMap,
+          method: this.method,
           auth: null,
           headers: this.headers
         });
@@ -75,7 +79,12 @@ export default {
       this.testing = true;
       this.error = null;
       try {
-        await this.api.testHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: this.auth, headers: this.headers});
+        await this.api.testHarvestConfig(this.datasetId, {
+            urlMap: this.urlMap,
+            method: this.method,
+            auth: this.auth,
+            headers: this.headers
+        });
         this.tested = true;
       } catch (e) {
         this.tested = false;
@@ -90,7 +99,11 @@ export default {
     cleanEndpoint: async function () {
       this.cleaning = true;
       try {
-        this.orphanCheck = await this.api.cleanHarvestConfig(this.datasetId, {urlMap: this.urlMap, auth: null})
+        this.orphanCheck = await this.api.cleanHarvestConfig(this.datasetId, {
+            urlMap: this.urlMap,
+            method: this.method,
+            auth: null
+        })
       } catch (e) {
         this.error = e.message;
       } finally {
@@ -184,6 +197,7 @@ export default {
       <editor-urlset v-model.lazy="urlMapText"/>
     </div>
     <div v-else class="options-form">
+      <form-http-method v-model="method"/>
       <form-http-basic-auth v-model="auth"/>
       <form-http-headers v-model="headers"/>
     </div>
