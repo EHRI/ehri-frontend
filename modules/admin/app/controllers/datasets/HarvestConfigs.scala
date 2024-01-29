@@ -175,7 +175,7 @@ case class HarvestConfigs @Inject()(
     } else {
       // Check all rows response to a HEAD request with the right info...
       def req(url: String): Future[Option[(String, String)]] = try {
-        authReq(url, config.auth, config.headers).head().map { r =>
+        authReq(url, auth = config.auth, headers = config.headers).head().map { r =>
           checkRemoteFile(r).map(err => url -> err)
         }
       } catch {

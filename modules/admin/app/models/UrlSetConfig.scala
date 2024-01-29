@@ -1,11 +1,12 @@
 package models
 
-import play.api.libs.json.Reads
+import akka.http.scaladsl.model.HttpMethods
 
 case class UrlNameMap(url: String, name: String)
 
 case class UrlSetConfig(
   urlMap: Seq[(String, String)],
+  method: String = HttpMethods.GET.value,
   auth: Option[BasicAuthConfig] = None,
   headers: Option[Seq[(String, String)]] = None,
 ) extends HarvestConfig {
@@ -24,6 +25,7 @@ case class UrlSetConfig(
 
 object UrlSetConfig {
   val URLS = "urlMap"
+  val METHOD = "method"
   val AUTH = "auth"
   val HEADERS = "headers"
 
@@ -34,6 +36,7 @@ object UrlSetConfig {
     (__ \ URLS).read[Seq[(String, String)]](Reads.seq(Reads.Tuple2R[String, String](
       Reads.filter(JsonValidationError("errors.invalidUrl"))(forms.isValidUrl),
       Reads.pattern("^[\\w.\\-_]+$".r, "harvesting.error.invalidFileName")))) and
+    (__ \ METHOD).readNullable[String].map(_.getOrElse(HttpMethods.GET.value)) and
     (__ \ AUTH).readNullable[BasicAuthConfig] and
     (__ \ HEADERS).readNullable[Seq[(String, String)]]
   ) (UrlSetConfig.apply _)

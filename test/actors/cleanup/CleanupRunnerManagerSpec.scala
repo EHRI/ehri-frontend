@@ -4,7 +4,7 @@ import actors.LongRunningJob
 import actors.cleanup.CleanupRunner.CleanupJob
 import akka.actor.{ActorContext, ActorRef, Props}
 import com.google.inject.name.Names
-import controllers.datasets.{CleanupConfirmation, LongRunningJobs}
+import controllers.datasets.CleanupConfirmation
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models._

@@ -91,8 +91,9 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
     val name = item.name
     val path = job.data.prefix + name
 
-    val withHeaders = job.data.config.headers.fold(client.url(item.url)) { headers =>
-        client.url(item.url).withHttpHeaders(headers: _*)
+    val withMethod = client.url(item.url).withMethod(job.data.config.method)
+    val withHeaders = job.data.config.headers.fold(withMethod) { headers =>
+        withMethod.withHttpHeaders(headers: _*)
     }
     val req = job.data.config.auth.fold(withHeaders) { case BasicAuthConfig(username, password) =>
       withHeaders.withAuth(username, password, WSAuthScheme.BASIC)
@@ -120,7 +121,7 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
         // Either the hash doesn't match or the file's not there yet
         // so upload it now...
         case _ =>
-          val bytes: Future[Source[ByteString, _]] = req.get().map(r => r.bodyAsSource)
+          val bytes: Future[Source[ByteString, _]] = req.execute().map(r => r.bodyAsSource)
           bytes.flatMap { src =>
             storage.putBytes(
               path,
