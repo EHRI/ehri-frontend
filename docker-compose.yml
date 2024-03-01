@@ -38,15 +38,14 @@ services:
     entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2023-06-02T23-17-26Z
+    image: quay.io/minio/minio:RELEASE.2024-02-26T09-33-48Z
     ports:
       - 9876:9000
       - 9875:9001
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: changeme
-    entrypoint: sh
-    command: -c '/opt/bin/minio server --console-address ":9001" /data'
+    command: server --console-address ":9001" /data
     restart: always
 
   # Use the mc client to create an ehri-test bucket in minio
