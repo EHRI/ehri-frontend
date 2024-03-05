@@ -60,6 +60,7 @@
   <!-- Uncomment to see how indexed entities are converted to Solr docs.
        Don't leave this on in production. -->
   <!-- <logger name="services.search" level="TRACE" /> -->
+  <logger name="services.geocoding" level="DEBUG" />
 
   <!-- Uncomment to see Solr requests -->
   <!-- <logger name="eu.ehri.project.search.solr" level="DEBUG" /> -->
