@@ -29,6 +29,7 @@ import services.accounts.{AccountManager, MockAccountManager}
 import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data._
 import services.feedback.{FeedbackService, MockFeedbackService}
+import services.geocoding.{GeocodingService, NoopGeocodingService}
 import services.harvesting.{MockResourceSyncClient, ResourceSyncClient}
 import services.htmlpages.{HtmlPages, MockHtmlPages}
 import services.ingest.{EadValidator, MockEadValidatorService}
@@ -118,7 +119,7 @@ trait TestConfiguration {
 
       bind[EventHandler].toInstance(testEventHandler),
       bind[HtmlPages].toInstance(mockHtmlPages),
-      bind[ItemLifecycle].to[NoopItemLifecycle],
+      bind[GeocodingService].to[NoopGeocodingService],
       bind[EadValidator].to[MockEadValidatorService],
       bind[ResourceSyncClient].to[MockResourceSyncClient],
       // NB: Graph IDs are not stable during testing due to

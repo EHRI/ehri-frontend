@@ -12,6 +12,7 @@ import services.RateLimitChecker
 import services.cypher.{CypherQueryService, CypherService, SqlCypherQueryService, WsCypherService}
 import services.data._
 import services.feedback.{FeedbackService, SqlFeedbackService}
+import services.geocoding.{AwsGeocodingService, GeocodingService}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search._
@@ -31,12 +32,15 @@ private class DamStorageProvider @Inject()(config: play.api.Configuration)(impli
     S3CompatibleFileStorage(config.get[com.typesafe.config.Config]("storage.dam"))
 }
 
+private class AwsGeocodingServiceProvider @Inject()(config: play.api.Configuration, ec: ExecutionContext) extends Provider[GeocodingService] {
+  override def get(): GeocodingService = AwsGeocodingService(config.get[com.typesafe.config.Config]("services.geocoding"))(ec)
+}
+
 class AppModule extends AbstractModule with AkkaGuiceSupport {
   override def configure(): Unit = {
     bind(classOf[AppConfig])
     bind(classOf[RateLimitChecker])
     bind(classOf[EventHandler]).to(classOf[IndexingEventHandler])
-    bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
     bind(classOf[DataServiceBuilder]).to(classOf[WsDataServiceBuilder])
     bind(classOf[FeedbackService]).to(classOf[SqlFeedbackService])
     bind(classOf[CypherQueryService]).to(classOf[SqlCypherQueryService])
@@ -48,6 +52,8 @@ class AppModule extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[RawMarkdownRenderer]).to(classOf[CommonmarkMarkdownRenderer])
     bind(classOf[MarkdownRenderer]).to(classOf[SanitisingMarkdownRenderer])
     bind(classOf[CypherService]).to(classOf[WsCypherService])
+    bind(classOf[ItemLifecycle]).to(classOf[GeocodingItemLifecycle])
+    bind(classOf[GeocodingService]).toProvider(classOf[AwsGeocodingServiceProvider])
     bindActor[EventForwarder]("event-forwarder")
   }
 }
