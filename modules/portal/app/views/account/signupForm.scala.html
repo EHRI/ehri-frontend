@@ -12,6 +12,7 @@
         form(NAME),
         'autocomplete -> "name",
         'required -> "required",
+        'class -> "form-control form-control-lg",
         'placeholder -> Messages("profile.name"),
         '_label -> Messages("profile.name")
     )
@@ -19,6 +20,7 @@
         form(EMAIL),
         'id -> "login_email",
         'autocomplete -> "email",
+        'class -> "form-control form-control-lg",
         'placeholder -> Messages("login.email"),
         '_label -> Messages("login.email"),
         'type -> "email",
@@ -27,6 +29,7 @@
     @helper.inputPassword(
         form(PASSWORD),
         'id -> "signup_password",
+        'class -> "form-control form-control-lg",
         'autocomplete -> "new-password",
         'placeholder -> Messages("login.password"),
         '_label -> Messages("login.password")
@@ -34,6 +37,7 @@
     @helper.inputPassword(
         form(CONFIRM),
         'autocomplete -> "new-password",
+        'class -> "form-control form-control-lg",
         'placeholder -> Messages("login.password.confirm"),
         '_label -> Messages("login.password.confirm")
     )
@@ -51,6 +55,6 @@
     </div>
 
     <div class="form-field">
-        <input type="submit" class="btn btn-post" value="@Messages("login.signup.submit")" />
+        <input type="submit" class="login-button btn btn-lg btn-post" value="@Messages("login.signup.submit")" />
     </div>
 }

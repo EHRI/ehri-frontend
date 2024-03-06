@@ -28,13 +28,16 @@
         Html(s"<a href='${controllers.portal.account.routes.Accounts.login()}'>${Messages("login.login.prompt.text")}</a>")))</p>
 
     <div id="register">
+        @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)
+
+        <h4 class="or-oauth"><span>Or</span></h4>
+
         @views.html.account.oauth2Form(
             openIdForm,
             oauthConfig,
             isLogin = false,
             oauth2Call = name => controllers.portal.account.routes.Accounts.oauth2Register(name)
         )
-        @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)
     </div>
 }
 

@@ -20,13 +20,16 @@
         Html(s"<a href='${controllers.portal.account.routes.Accounts.signup()}'>${Messages("login.signup.prompt.text")}</a>")))</p>
 
     <div id="login">
+        @views.html.account.loginForm(pwForm)
+
+        <h4 class="or-oauth"><span>Or</span></h4>
+
         @views.html.account.oauth2Form(
             openIdForm,
             oauthConfig,
             isLogin = true,
             oauth2Call = name => controllers.portal.account.routes.Accounts.oauth2Login(name)
         )
-        @views.html.account.loginForm(pwForm)
     </div>
 }
 

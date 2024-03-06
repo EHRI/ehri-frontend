@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   aria-label="Yahoo!"
+   role="img"
+   viewBox="0 0 512 512"
+   fill="#ffffff"
+   version="1.1"
+   id="svg2018"
+   sodipodi:docname="yahoo-signin-icon.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2022" />
+  <sodipodi:namedview
+     id="namedview2020"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     showgrid="false"
+     inkscape:zoom="1.7050781"
+     inkscape:cx="178.58419"
+     inkscape:cy="256"
+     inkscape:window-width="3840"
+     inkscape:window-height="2089"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2018" />
+  <g
+     fill="#ffffff"
+     id="g2016"
+     style="fill:#5f01d1;fill-opacity:1">
+    <path
+       d="M 203,404 H 141 L 166,345 97,180 h 63 l 37,95 37,-95 h 62 m 58,76 h -69 l 62,-148 h 69"
+       id="path2012"
+       style="fill:#5f01d1;fill-opacity:1" />
+    <circle
+       cx="303"
+       cy="308"
+       r="38"
+       id="circle2014"
+       style="fill:#5f01d1;fill-opacity:1" />
+  </g>
+</svg>

@@ -953,25 +953,70 @@ lock.errors,
   @extend .fa-spin;
 }
 
+%button-signin {
+  text-align: start;
+  background-position: 1rem center;
+  background-repeat: no-repeat;
+  padding-inline-start: 3.5rem;
+}
+
 // Login / Register social buttons
-.btn-facebook {
-  @include button-variant(#354E84, #354E84);
+.btn-signin-facebook {
+  //@include button-variant(#1877F2, #1877F2);
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/facebook-signin-icon.svg);
+  background-size: 1.5rem;
 }
 
-.btn-google {
-  @include button-variant(#DD4B39, #DD4B39);
+.btn-signin-google {
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/google-signin-icon.svg);
+  background-position: 0.4rem center;
 }
 
-.btn-microsoft {
-  @include button-variant(#00A4EF, #00A4EF);
+.btn-signin-microsoft {
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/microsoft-signin-icon.svg);
 }
 
-.btn-yahoo {
-  @include button-variant(#7B0099, #7B0099);
+.btn-signin-yahoo {
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/yahoo-signin-icon.svg);
+  background-position: 0.5rem center;
 }
 
-.btn-openid {
-  @include button-variant(#949494, #949494);
+.btn-signin-openid {
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/openid-signin-icon.svg);
+  background-size: 1.7rem;
+  background-position: 1rem 0.5rem;
+}
+
+.oauth-providers {
+  display: flex;
+  flex-direction: column;
+  row-gap: $margin-sm;
+}
+
+.or-oauth {
+  color: $text-muted;
+  font-style: italic;
+  font-weight: normal;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid lighten($text-muted, 20%);
+  line-height: 0.1em;
+  margin: $margin-lg 0;
+
+  span {
+    background:#fff;
+    padding: 0 $margin-sm;
+  }
 }
 
 .more-login-options {
@@ -980,6 +1025,10 @@ lock.errors,
   &.errors {
     display: block;
   }
+}
+
+.login-button {
+  width: 100%;
 }
 
 .login-disclaimer {
