@@ -7,7 +7,7 @@
     @helper.inputText(
         pwForm("email"),
         'id -> "login_email",
-        'class -> "form-control",
+        'class -> "form-control form-control-lg",
         'autocomplete -> "email",
         'autofocus -> "autofocus",
         'placeholder -> Messages("login.email"),
@@ -18,7 +18,7 @@
     @helper.inputPassword(
         pwForm("password"),
         'id -> "login_password",
-        'class -> "form-control",
+        'class -> "form-control form-control-lg",
         'autocomplete -> "current-password",
         'placeholder -> Messages("login.password"),
         '_label -> Messages("login.password"),
@@ -36,6 +36,6 @@
             Html(s"<a target='_blank' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions").toLowerCase(messages.lang.toLocale)}</a>")
         ))</p>
 
-        <input type="submit" class="login-button btn btn-post" value="@Messages("login.password.submit")" />
+        <input type="submit" class="login-button btn btn-lg btn-post" value="@Messages("login.password.submit")" />
     </div>
 }

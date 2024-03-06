@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="openid-signin-icon.svg"
+   version="1.0"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title2910">facebook web</title>
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 128 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="256 : 128 : 1"
+       inkscape:persp3d-origin="128 : 85.333333 : 1"
+       id="perspective17" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.979899"
+     inkscape:cx="14.89975"
+     inkscape:cy="105.05587"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="2548"
+     inkscape:window-height="1178"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     showgrid="false"
+     inkscape:window-maximized="0"
+     inkscape:pagecheckerboard="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>facebook web</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>User:ZyMOS</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag />
+        </dc:subject>
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:description />
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:contributor>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Open Icon Library</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-373.642,-318.344)">
+    <path
+       style="fill:#ff8e00;fill-opacity:1;stroke:none"
+       d="m 488.0825,538.40564 26.93006,-19.41471 -1.2525,-154.06511 -25.67756,20.04099 z"
+       id="path25468" />
+    <path
+       style="fill:#626262;fill-opacity:1;stroke:none"
+       d="M 488.39564,538.40564 C 387.66591,522.39153 384.79535,434.69468 487.76935,415.65457 l 0.31315,18.16215 c -73.04418,12.17854 -63.78999,77.70661 0,87.36619 z"
+       id="path25470"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:#626262;fill-opacity:1;stroke:none"
+       d="m 514.69946,433.19044 c 12.45669,0.0847 23.30841,5.78683 34.13233,11.58619 l -15.97017,11.89934 h 51.04191 l 0.3131,-34.75859 -15.97018,11.89934 c -16.16175,-8.16308 -31.01691,-17.95941 -53.54699,-18.16215 z"
+       id="path25472"
+       sodipodi:nodetypes="cccccccc" />
+  </g>
+</svg>

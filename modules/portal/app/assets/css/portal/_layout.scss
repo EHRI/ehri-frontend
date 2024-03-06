@@ -126,8 +126,8 @@ ul.dropdown-menu {
 
     .login-or-signup {
       @include make-col-ready();
-      @include make-col(8);
-      @include make-col-offset(2);
+      @include make-col(6);
+      @include make-col-offset(3);
     }
   }
 }
