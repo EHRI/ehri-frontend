@@ -236,14 +236,7 @@ object Helpers {
     * Fetch a gravitar URL for the user, defaulting to the stock picture.
     */
   def gravitar(img: Option[String]): String =
-    img.map(_.replaceFirst("https?://", "//"))
-      .getOrElse(controllers.portal.routes.PortalAssets.at("img/default-gravitar.png").url)
-
-  def remoteGravitar(userId: String): String = {
-    val hash = DigestUtils.md5Hex(s"$userId@ehri-project.eu")
-    s"https://secure.gravatar.com/avatar/$hash?d=identicon"
-  }
-
+    img.getOrElse(controllers.portal.routes.PortalAssets.at("img/default-gravitar.png").url)
 
   def virtualUnitUrl(path: Seq[Model], id: String): Call = {
     if (path.isEmpty) controllers.portal.routes.VirtualUnits.browseVirtualCollection(id)

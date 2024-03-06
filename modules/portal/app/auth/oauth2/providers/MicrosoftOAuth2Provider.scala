@@ -23,12 +23,13 @@ case class MicrosoftOAuth2Provider(config: play.api.Configuration) extends OAuth
         guid <- (json \ "sub").asOpt[String]
         email <- (json \ "email").asOpt[String]
         name <- (json \ "name").asOpt[String]
-        picture = (json \ "picture").asOpt[String]
+        // NB: picture is not an image URL but requires authorization to fetch further data
+        // For the time being ignore this field
       } yield UserData(
         providerId = guid,
         email = email,
         name = name,
-        imageUrl = picture
+        imageUrl = None
       )
     } catch {
       case e: JsonParseException =>
