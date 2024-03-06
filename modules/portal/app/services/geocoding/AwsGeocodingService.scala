@@ -17,7 +17,6 @@ object AwsGeocodingService {
 
     val credentials = StaticCredentialsProvider.create(new AwsCredentials {
       override def accessKeyId(): String = config.getString("config.aws.credentials.access-key-id")
-
       override def secretAccessKey(): String = config.getString("config.aws.credentials.secret-access-key")
     })
     val region: AwsRegionProvider = new AwsRegionProvider {
@@ -36,7 +35,19 @@ case class AwsGeocodingService @Inject()(credentials: AwsCredentialsProvider, re
 
   private val logger = play.api.Logger(classOf[AwsGeocodingService])
 
-  override def geocode(address: AddressF): Future[Option[Point]] = {
+  override def geocode(address: AddressF): Future[Option[Point]] = Future {
+    if (address.postalAddress.trim.nonEmpty && address.countryCode3.nonEmpty) {
+      try runLocationGeocode(address) catch {
+        case e: Exception =>
+          logger.error(s"Error geocoding address: $address", e)
+          None
+      }
+    } else {
+      None
+    }
+  }
+
+  private def runLocationGeocode(address: AddressF): Option[Point] = {
     val client: LocationClient = LocationClient
       .builder()
       .credentialsProvider(credentials)
@@ -50,19 +61,17 @@ case class AwsGeocodingService @Inject()(credentials: AwsCredentialsProvider, re
       .maxResults(1)
       .build()
 
-    Future {
-      client.searchPlaceIndexForText(request)
-        .results()
-        .asScala
-        .headOption
-        .map { result =>
-          logger.debug(s"Geocoding result: $result, point: ${result.place().geometry().point()}")
-          val lonLat = result.place().geometry().point()
-          Point(
-            BigDecimal(lonLat.get(1)),
-            BigDecimal(lonLat.get(0))
-          )
-        }
-    }
+    client.searchPlaceIndexForText(request)
+      .results()
+      .asScala
+      .headOption
+      .map { result =>
+        logger.debug(s"Geocoding result: $result, point: ${result.place().geometry().point()}")
+        val lonLat = result.place().geometry().point()
+        Point(
+          BigDecimal(lonLat.get(1)),
+          BigDecimal(lonLat.get(0))
+        )
+      }
   }
 }
