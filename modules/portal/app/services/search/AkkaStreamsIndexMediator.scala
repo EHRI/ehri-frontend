@@ -124,7 +124,7 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private def setCommonHeaders(reqs: List[HttpRequest]): List[(HttpRequest, Uri)] = reqs.map { r =>
     val headers = Seq(RawHeader(STREAM_HEADER_NAME, "true"), RawHeader(AUTH_HEADER_NAME, "admin")) ++ dataAuth.toSeq
-    val req = r.withHeaders(headers: _*)
+    val req = r.withHeaders(headers)
     req -> r.uri
   }
 

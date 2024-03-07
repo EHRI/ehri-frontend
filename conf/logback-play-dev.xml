@@ -3,8 +3,6 @@
   -->
 <configuration>
 
-  <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
-
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
      <file>${application.home}/logs/application.log</file>
      <encoder>
@@ -23,7 +21,7 @@
     </filter>
 
     <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
+      <pattern>%highlight(%-5level) %logger{15} - %message%n%xException{5}</pattern>
     </encoder>
   </appender>
 
@@ -51,6 +49,7 @@
   <!-- Turn down the default level of some classes that log with each
        application restart -->
   <logger name="com.zaxxer.hikari" level="ERROR" />
+  <logger name="play.api.http.HttpErrorHandlerExceptions" level="WARN" />
   <logger name="play.api.db.HikariCPConnectionPool" level="WARN" />
   <logger name="play.api.libs.concurrent.ActorSystemProvider" level="ERROR" />
 
