@@ -1,3 +1,5 @@
+api.error.301=Moved Permanently
+api.error.302=Found
 api.error.400=Bad Request
 api.error.401=Not Authenticated
 api.error.403=Forbidden

@@ -21,6 +21,7 @@ import services.RateLimitChecker
 import services.accounts.AccountManager
 import services.cypher.CypherService
 import services.data._
+import services.redirects.MovedPageLookup
 import services.search.SearchConstants._
 import services.search._
 import utils.{DateFacetUtils, FieldFilter, Page, PageParams}
@@ -55,6 +56,7 @@ case class ApiV1 @Inject()(
   ws: WSClient,
   cypher: CypherService,
   rateLimits: RateLimitChecker,
+  pageRelocator: MovedPageLookup,
   mat: Materializer,
   dfu: DateFacetUtils
 ) extends CoreActionBuilders
@@ -495,7 +497,21 @@ case class ApiV1 @Inject()(
     immediate(Redirect(controllers.api.routes.ApiHome.index()))
 
   private def errorHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
-    case e: ItemNotFound => immediate(error(NOT_FOUND, e.message))
+    case e: ItemNotFound =>
+      // FIXME:
+      // This is a hack because we store moved items by the hash of their page URL so we can't
+      // easily determine if an item has moved when the API location isn't stored. Here is
+      // a heuristic to check if a Documentary Unit has been moved, via the hard-coded /units URL.
+      // Unlikely this ever changes now but if it does this will break.
+      // If/when the redirect DB is updated to store item IDs this can be reworked.
+      val unitPrefix = "/units"
+      val unitPath = request.path.replace(routes.ApiV1Home.index().url, unitPrefix)
+      pageRelocator.hasMovedTo(unitPath).map {
+        case Some(newPath) =>
+          val newApiPath = newPath.replace(unitPrefix, routes.ApiV1Home.index().url)
+          error(MOVED_PERMANENTLY, Some(newApiPath)).withHeaders(HeaderNames.LOCATION -> newApiPath)
+        case None =>  error(NOT_FOUND, e.message)
+      }
     case e: PermissionDenied => immediate(error(FORBIDDEN))
     case _ => immediate(error(INTERNAL_SERVER_ERROR))
   }
