@@ -22,7 +22,6 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
   }
 
   override def oAuth2: OAuth2AssociationManager = new OAuth2AssociationManager {
-    protected implicit def executionContext: ExecutionContext = self.executionContext
 
     def addAssociation(id: String, providerId: String, provider: String): Future[Option[OAuth2Association]] =
       immediate {
@@ -44,7 +43,6 @@ case class MockAccountManager @Inject()(executionContext: ExecutionContext) exte
   }
 
   override def openId: OpenIdAssociationManager = new OpenIdAssociationManager {
-    protected implicit def executionContext: ExecutionContext = self.executionContext
 
     def addAssociation(id: String, assoc: String): Future[Option[OpenIDAssociation]] =
       immediate {

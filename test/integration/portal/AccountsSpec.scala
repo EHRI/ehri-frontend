@@ -6,8 +6,8 @@ import auth.sso.DiscourseSSO
 import forms.HoneyPotForm._
 import forms.TimeCheckForm._
 import helpers.IntegrationTestRunner
-import mockdata.unprivilegedUser
-import models.SignupData
+import mockdata.{unprivilegedUser, unverifiedUser}
+import models.{Account, SignupData}
 import play.api.cache.SyncCacheApi
 import play.api.i18n.MessagesApi
 import play.api.test.{FakeRequest, Injecting, WithApplication}
@@ -103,6 +103,50 @@ class AccountsSpec extends IntegrationTestRunner {
         controllers.portal.users.routes.UserProfiles.updateProfile().url)
 
       await(mockAccounts.authenticateById(privilegedUser.id, "newp4sswd")) must beSome
+    }
+
+    "allow users to confirm their email addresses via form" in new ITestApp {
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = true))
+      val r = FakeRequest(accountRoutes.confirmEmail(uuid.toString))
+        .call()
+      status(r) must equalTo(OK)
+    }
+
+    "allow users to confirm their email addresses via form POST" in new ITestApp {
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(unverifiedUser.id, uuid, isSignUp = true))
+      val r = FakeRequest(accountRoutes.confirmEmailPost())
+        .withFormUrlEncodedBody("token" -> uuid.toString)
+        .call()
+      status(r) must equalTo(SEE_OTHER)
+      await(mockAccounts.findById(mockdata.unprivilegedUser.id)) must beSome.which { check: Account =>
+        check.verified must beTrue
+      }
+    }
+
+    "redirect already-validated users" in new ITestApp {
+      val uuid = UUID.randomUUID()
+      await(mockAccounts.createToken(privilegedUser.id, uuid, isSignUp = true))
+      val r = FakeRequest(accountRoutes.confirmEmail(uuid.toString))
+        .withUser(privilegedUser)
+        .call()
+      status(r) must equalTo(SEE_OTHER)
+      flash(r).get("success") must beSome("signup.validation.alreadyValidated")
+    }
+
+    "show an error with an invalid token" in new ITestApp {
+      val r = FakeRequest(accountRoutes.confirmEmail("bjsaljlj3ijvkshskjhnkvn kj"))
+        .call()
+      status(r) must equalTo(BAD_REQUEST)
+    }
+
+    "show an error with an invalid token via POST" in new ITestApp {
+      val r = FakeRequest(accountRoutes.confirmEmailPost())
+        .withFormUrlEncodedBody("token" -> "bjsaljlj3ijvkshskjhnkvn kj")
+        .call()
+      status(r) must equalTo(BAD_REQUEST)
+      contentAsString(r) must contain(message("signup.validation.badToken"))
     }
   }
 

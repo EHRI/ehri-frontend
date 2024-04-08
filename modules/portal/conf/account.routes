@@ -11,6 +11,7 @@ GET         /sso/$client<[a-z0-9]+>         @controllers.portal.account.Accounts
 
 GET         /signup                         @controllers.portal.account.Accounts.signup()
 POST        /signup                         @controllers.portal.account.Accounts.signupPost()
+POST        /confirmEmail                   @controllers.portal.account.Accounts.confirmEmailPost()
 GET         /confirmEmail/:token            @controllers.portal.account.Accounts.confirmEmail(token: String)
 GET         /change-email                   @controllers.portal.account.Accounts.changeEmail()
 POST        /change-email                   @controllers.portal.account.Accounts.changeEmailPost()

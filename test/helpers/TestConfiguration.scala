@@ -9,7 +9,6 @@ import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
 import config.ServiceConfig
 import cookies.SessionPreferences
-import lifecycle.{ItemLifecycle, NoopItemLifecycle}
 import models.{Account, CypherQuery, Feedback}
 import org.jsoup.Jsoup
 import org.specs2.execute.{AsResult, Result}
