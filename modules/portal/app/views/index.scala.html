@@ -134,16 +134,6 @@
                         <a class="signup" href="@controllers.portal.account.routes.Accounts.signup()">@Messages("login.signup")</a>
                         <h2>@Messages("login")</h2>
 
-                        <div class="oauth-providers form-field">
-                            @accountForms.oAuth2Config.providers.map { provider =>
-                                <a href="@controllers.portal.account.routes.Accounts.oauth2Login(provider.name)" class="btn btn-@provider.name"
-                                title="@Html(Messages("login.loginWith", provider.name.capitalize))"
-                                aria-label="@Html(Messages("login.loginWith", provider.name.capitalize))">
-                                    <i class="fa fa-fw fa-@provider.name.replace("microsoft", "windows")" aria-hidden="true"></i>
-                                </a>
-                            }
-                        </div>
-
                         @helper.form(action = controllers.portal.account.routes.Accounts.passwordLoginPost()) {
                             @formHelpers.csrfToken()
                             @helper.inputText(
@@ -173,6 +163,21 @@
                                 <button type="submit" class="btn btn-primary">@Messages("login")</button>
                             </div>
                         }
+
+                        <hr/>
+                        <div class="oauth-providers form-field">
+                        @accountForms.oAuth2Config.providers.map { provider =>
+                            <a href="@controllers.portal.account.routes.Accounts.oauth2Login(provider.name)" class="btn btn-signin-@provider.name"
+                            title="@Html(Messages("login.loginWith", provider.name.capitalize))"
+                            aria-label="@Html(Messages("login.loginWith", provider.name.capitalize))">
+                                <span class="sr-only">
+                                @Messages("login.loginWith", provider.name.capitalize)
+                                </span>
+                            </a>
+                        }
+                        </div>
+
+
                     }
                 </div>
             </section>

@@ -479,17 +479,30 @@ body.home {
     input::placeholder {
       font-size: $font-size-sm;
     }
+
+    .oauth-providers {
+      flex-direction: row;
+      justify-content: start;
+      column-gap: $margin-sm;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+      .btn {
+        background-position: center;
+        padding-inline-start: $margin-lg;
+        min-height: 2.2rem;
+      }
+      .btn:not(:hover) {
+        background-color: inherit;
+      }
+    }
   }
 
   @include media-breakpoint-up(md) {
     #portal-sections {
       display: grid;
-      grid-template-areas: ". . ." ". . .";
-      grid-template-columns: 1fr 1fr 1fr;
-      // FIXME: this makes the cells look a bit big. Better
-      // to somehow size them *all* by the height of the largest
-      // cell (not largest cell per row).
-      grid-template-rows: repeat(2, minmax(250px, auto));
+      grid-template-areas: ". . " " . ." ". .";
+      grid-auto-rows: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-column-gap: $margin-lg;
       grid-row-gap: $margin-lg;
 
@@ -504,13 +517,27 @@ body.home {
   @include media-breakpoint-up(md) {
     #portal-info {
       display: grid;
-      grid-template-areas: "video video .";
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas: "video .";
+      grid-template-columns: repeat(2, minmax(250px, 1fr));
       grid-column-gap: $margin-lg;
 
       #intro-video {
         grid-area: video;
       }
+    }
+  }
+
+  @include media-breakpoint-up(lg) {
+    #portal-sections {
+      grid-template-areas: ". . ." ". . .";
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @include media-breakpoint-up(lg) {
+    #portal-info {
+      grid-template-areas: "video video .";
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 
