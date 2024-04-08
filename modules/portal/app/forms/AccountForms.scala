@@ -44,6 +44,8 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
 
   val forgotPasswordForm: Form[String] = Form(Forms.single("email" -> email))
 
+  val confirmEmailForm: Form[String] = Form(Forms.single("token" -> nonEmptyText))
+
   val changeEmailForm: Form[(String, String)] = Form(
     tuple(
       "email" -> email,

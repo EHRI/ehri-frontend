@@ -180,18 +180,48 @@ case class Accounts @Inject()(
     }
   }
 
-  def confirmEmail(token: String): Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
-    accounts.findByToken(token, isSignUp = true).flatMap {
-      case Some(account) => for {
-        _ <- accounts.verify(account, token)
-        result <- doLogin(account)
-          .map(_.flashing("success" -> "signup.validation.confirmation"))
-      } yield result
-      case None =>
-        immediate(BadRequest(
-          controllers.renderError("errors.clientError",
-            views.html.errors.genericError(Messages("signup.validation.badToken")))))
+  def confirmEmail(token: String): Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+    if (request.userOpt.exists(_.account.exists(_.verified))) {
+        immediate(Redirect(portalRoutes.index())
+          .flashing("success" -> "signup.validation.alreadyValidated"))
+    } else {
+      accounts.findByToken(token, isSignUp = true).map {
+        case Some(_) =>
+          Ok(views.html.account.confirmEmail(
+            confirmEmailForm.fill(token),
+            recaptchaKey,
+            accountRoutes.confirmEmailPost())
+          )
+        case None =>
+          BadRequest(
+            controllers.renderError("errors.clientError",
+              views.html.errors.genericError(Messages("signup.validation.badToken"))))
+      }
     }
+  }
+
+  def confirmEmailPost(): Action[AnyContent] = (NotReadOnlyAction andThen OptionalUserAction).async { implicit request =>
+    confirmEmailForm.bindFromRequest().fold(
+      errForm => immediate(BadRequest(views.html.account.confirmEmail(
+        errForm,
+        recaptchaKey,
+        accountRoutes.confirmEmailPost()))
+      ),
+      token =>
+        accounts.findByToken(token, isSignUp = true).flatMap {
+          case Some(account) => for {
+            _ <- accounts.verify(account, token)
+            result <- doLogin(account)
+              .map(_.flashing("success" -> "signup.validation.confirmation"))
+          } yield result
+          case None =>
+            immediate(BadRequest(views.html.account.confirmEmail(
+              confirmEmailForm.withGlobalError("signup.validation.badToken"),
+              recaptchaKey,
+              accountRoutes.confirmEmailPost()))
+            )
+        }
+    )
   }
 
   def openIDCallback: Action[AnyContent] = NotReadOnlyAction.async { implicit request =>
@@ -730,7 +760,7 @@ case class Accounts @Inject()(
     }
   }
 
-  private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+  private def sendResetEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): Unit = {
     val email = Email(
       subject = "EHRI Password Reset",
       to = Seq(emailAddress),
@@ -740,7 +770,7 @@ case class Accounts @Inject()(
     mailer.send(email)
   }
 
-  private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader) {
+  private def sendValidationEmail(name: String, emailAddress: String, uuid: UUID)(implicit request: RequestHeader): Unit = {
     val email = Email(
       subject = "Please confirm your EHRI Account Email",
       from = s"EHRI Email Validation <${config.get[String]("ehri.portal.emails.help")}>",

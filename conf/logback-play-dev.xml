@@ -69,7 +69,10 @@
   <!-- <logger name="eu.ehri.project.core.impl" level="TRACE" /> -->
 
   <!-- Uncomment to see misc controller logging -->
-  <logger name="controllers" level="INFO" />
+    <logger name="controllers" level="INFO" />
+
+  <!-- Uncomment to see mailer debug, when play.mailer.debug=yes in configuration -->
+  <!--  <logger name="play.mailer" level="DEBUG" />-->
   
   <!--<logger name="akka.stream" level="TRACE" />-->
 
