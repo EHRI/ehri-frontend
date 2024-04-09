@@ -19,6 +19,7 @@ export default {
       src: this.info ? this.info.src : null,
       fonds: this.info ? this.info.fonds : null,
       sync: this.info ? this.info.sync : false,
+      nest: this.info ? this.info.nest : false,
       status: this.info ? this.info.status : "active",
       contentType: this.info ? this.info.contentType : null,
       notes: this.info ? this.info.notes : null,
@@ -39,6 +40,7 @@ export default {
         src: this.src,
         fonds: this.fonds,
         sync: this.sync,
+        nest: this.nest,
         status: this.status,
         contentType: this.contentType,
         notes: this.notes,
@@ -77,6 +79,7 @@ export default {
       if (!newValue) {
         this.fonds = null;
         this.sync = false;
+        this.nest = false;
       }
     }
   },
@@ -100,7 +103,8 @@ export default {
               || this.info.notes !== this.notes
               || this.info.fonds !== this.fonds
               || this.info.contentType !== this.contentType
-              || Boolean(this.info.sync) !== Boolean(this.sync))
+              || Boolean(this.info.sync) !== Boolean(this.sync)
+              || Boolean(this.info.nest) !== Boolean(this.nest))
           || this.info.status !== this.status;
     }
   },
@@ -177,10 +181,18 @@ export default {
         <input type="text" v-model="fonds" id="dataset-fonds" class="form-control" placeholder="(optional)"/>
       </div>
       <div class="form-group form-check">
-        <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="sync" class="form-check-input"
-               id="opt-sync" type="checkbox"/>
-        <label class="form-check-label" for="opt-sync">
-          Synchronise fonds with dataset
+          <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="sync" class="form-check-input"
+                 id="opt-sync" type="checkbox"/>
+          <label class="form-check-label" for="opt-sync" data-toggle="tooltip" title="Move or remove existing data to match EAD structure.">
+              Synchronise fonds with dataset
+          </label>
+      </div>
+      <div class="form-group form-check">
+        <input v-bind:disabled="!(this.fonds && this.isValidFonds)" v-model="nest" class="form-check-input"
+               id="opt-nest" type="checkbox"/>
+        <label class="form-check-label" for="opt-nest" data-toggle="tooltip"
+               title="Default (non-nested) behavior assumes EAD includes the specified fonds and imports at repository level.">
+            Nest items beneath specified fonds
         </label>
       </div>
       <div class="form-group">

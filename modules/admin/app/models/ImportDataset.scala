@@ -16,6 +16,7 @@ case class ImportDataset(
   created: Instant,
   fonds: Option[String] = None,
   sync: Boolean = false,
+  nest: Boolean = false,
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )
@@ -49,6 +50,7 @@ case class ImportDatasetInfo(
   contentType: Option[String] = None,
   fonds: Option[String] = None,
   sync: Boolean = false,
+  nest: Boolean = false,
   status: ImportDataset.Status.Value = ImportDataset.Status.Active,
   notes: Option[String] = None,
 )

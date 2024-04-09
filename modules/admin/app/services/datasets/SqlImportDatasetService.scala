@@ -15,7 +15,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
 
   private implicit val parser: RowParser[ImportDataset] =
     Macro.parser[ImportDataset](
-      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "status", "comments")
+      "repo_id", "id", "name", "type", "content_type", "created", "item_id", "sync", "nest", "status", "comments")
 
   override def listAll(): Future[Map[String, Seq[ImportDataset]]] = Future {
     db.withConnection { implicit conn =>
@@ -54,7 +54,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
   override def create(repoId: String, info: ImportDatasetInfo): Future[ImportDataset] = Future {
     db.withConnection { implicit conn =>
       try {
-        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, status, comments)
+        SQL"""INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, nest, status, comments)
           VALUES (
             $repoId,
             ${info.id},
@@ -63,6 +63,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
             ${info.contentType},
             ${info.fonds.filter(_.trim.nonEmpty)},
             ${info.sync},
+            ${info.nest},
             ${info.status},
             ${info.notes}
           )
@@ -83,6 +84,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
               content_type = ${info.contentType},
               item_id = ${info.fonds.filter(_.trim.nonEmpty)},
               sync = ${info.sync},
+              nest = ${info.nest},
               status = ${info.status},
               comments = ${info.notes.filter(_.trim.nonEmpty)}
             WHERE repo_id = $repoId
@@ -101,6 +103,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
           'type -> item.src,
           'content_type -> item.contentType,
           'item_id -> item.fonds.filter(_.trim.nonEmpty),
+          'nest -> item.nest,
           'sync -> item.sync,
           'status -> item.status,
           'comments -> item.notes
@@ -114,6 +117,7 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
                       content_type = {content_type},
                       item_id = {item_id},
                       sync = {sync},
+                      nest = {nest},
                       status = {status},
                       comments = {comments}"""
       val batch = BatchSql(q, inserts.head, inserts.tail: _*)

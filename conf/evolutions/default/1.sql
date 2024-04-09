@@ -122,12 +122,12 @@ CREATE TABLE import_dataset (
     created         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     item_id         TEXT,
     sync            BOOLEAN DEFAULT FALSE,
+    nest            BOOLEAN DEFAULT FALSE,
     status          VARCHAR(10) NOT NULL DEFAULT 'active',
     comments        TEXT,
     PRIMARY KEY (id, repo_id),
     UNIQUE (id, repo_id),
-    CONSTRAINT import_dataset_id_pattern CHECK (id ~ '^[a-z0-9_]+$') ,
-    CONSTRAINT import_dataset_item_id_pattern CHECK(item_id IS NULL OR item_id ~ concat('^', repo_id, '\-.+') )
+    CONSTRAINT import_dataset_id_pattern CHECK (id ~ '^[a-z0-9_]+$')
 );
 
 CREATE TABLE oaipmh_config (

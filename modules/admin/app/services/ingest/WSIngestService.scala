@@ -128,7 +128,6 @@ case class WSIngestService @Inject()(
     }
   }
 
-  // Run the actual data ingest on the backend
   override def importData(data: IngestData): Future[IngestResult] = {
     import scala.concurrent.duration._
 

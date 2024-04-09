@@ -66,12 +66,18 @@ case class ImportConfigs @Inject()(
     val urlsF = getUrlMap(request.body, prefix(id, ds, FileStage.Output))
     for (urls <- urlsF; dataset <- datasets.get(id, ds)) yield {
 
+      val scopeType = if (dataset.fonds.isDefined && dataset.nest)
+        models.ContentTypes.DocumentaryUnit else models.ContentTypes.Repository
+
+      val scopeId = if (dataset.fonds.isDefined && dataset.nest)
+        dataset.fonds.get else id
+
       // In the normal case this will be a list of one item, but
       // if batchSize is set, it will be a list of batches.
       val params: List[IngestParams] = urls.map { urlBatch =>
         IngestParams(
-          scopeType = models.ContentTypes.Repository,
-          scope = id,
+          scopeType = scopeType,
+          scope = scopeId,
           data = UrlMapPayload(urlBatch),
           allowUpdate = request.body.config.allowUpdates,
           useSourceId = request.body.config.useSourceId,
@@ -94,7 +100,7 @@ case class ImportConfigs @Inject()(
       // Use the sync endpoint if this fonds is synced and we a) are doing the complete
       // set and b) have a fonds.
       // Don't allow sync on the repository scope, because it is too dangerous.
-      val taskType = if (dataset.sync && request.body.files.isEmpty && dataset.fonds.isDefined)
+      val taskType = if (dataset.fonds.isDefined && request.body.files.isEmpty && dataset.sync)
         IngestDataType.EadSync else IngestDataType.Ead
 
       val ingestTasks = params.zipWithIndex.map { case (batchParams, i) =>
