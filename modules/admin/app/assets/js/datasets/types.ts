@@ -96,6 +96,7 @@ export interface ImportDatasetInfo {
   src: ImportDatasetSrc,
   fonds?: string,
   sync: boolean,
+  nest: boolean,
   status: ImportDatasetStatus,
   contentType?: string,
   notes?: string,

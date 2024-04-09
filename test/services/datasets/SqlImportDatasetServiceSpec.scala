@@ -43,14 +43,6 @@ class SqlImportDatasetServiceSpec extends IntegrationTestRunner {
       }
     }
 
-    "enforce item_id pattern" in new DBTestApp("data-transformation-fixtures.sql") {
-      await(service.create("r1", ImportDatasetInfo("foo_bar", "New DS", ImportDataset.Src.Upload, fonds = Some("nope")))) must throwA[PSQLException].like {
-        case e => e.getMessage must contain("import_dataset_item_id_pattern")
-      }
-      val ds = await(service.create("r1", ImportDatasetInfo("foo_bar", "New DS", ImportDataset.Src.Upload, fonds = Some("r1-1"))))
-      ds.fonds must beSome("r1-1")
-    }
-
     "import items" in new DBTestApp("data-transformation-fixtures.sql") {
       val data = Seq(
         ImportDatasetInfo("default", "Updated DS", ImportDataset.Src.Rs),

@@ -94,6 +94,9 @@ export default {
       if (ds && this.editing && this.editing.id === ds.id) {
         this.editing = ds;
       }
+      if (ds && this.dataset && this.dataset.id === ds.id) {
+        this.dataset = ds;
+      }
     },
     stageName: function (code: ImportDatasetSrc): string {
       switch (code) {

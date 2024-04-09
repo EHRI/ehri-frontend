@@ -28,6 +28,7 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "fonds" -> None,
         "notes" -> None,
         "sync" -> false,
+        "nest" -> false,
         "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.create("r1")).withUser(privilegedUser).callWith(data)
@@ -43,11 +44,28 @@ class ImportDatasetsSpec extends IntegrationTestRunner with ResourceUtils {
         "fonds" -> None,
         "notes" -> None,
         "sync" -> true,
+        "nest" -> false,
         "status" -> ImportDataset.Status.Active,
       )
       val r = FakeRequest(routes.update("r1", "default")).withUser(privilegedUser).callWith(data)
       status(r) must_== OK
       contentAsJson(r).apply("sync") must_== JsBoolean(true)
+    }
+
+    "prevent using invalid fonds id" in new DBTestApp("import-dataset-fixtures.sql") {
+      val data = Json.obj(
+        "id" -> "default",
+        "src" -> ImportDataset.Src.Upload,
+        "name" -> "Test",
+        "fonds" -> "nope",
+        "notes" -> None,
+        "sync" -> false,
+        "nest" -> false,
+        "status" -> ImportDataset.Status.Active,
+      )
+      val r = FakeRequest(routes.update("r1", "default")).withUser(privilegedUser).callWith(data)
+      status(r) must_== BAD_REQUEST
+      contentAsJson(r) must_== Json.obj("error" -> "Fonds 'nope' not found")
     }
 
     "delete items" in new DBTestApp("import-dataset-fixtures.sql") {

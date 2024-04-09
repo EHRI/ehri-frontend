@@ -5,11 +5,13 @@ import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models.{FileStage, _}
+import play.api.Logger
 import play.api.cache.AsyncCacheApi
 import play.api.http.MimeTypes
 import play.api.libs.json.{Format, Json}
 import play.api.mvc._
 import play.api.routing.JavaScriptReverseRouter
+import services.data.ItemNotFound
 import services.datasets.{ImportDatasetExists, ImportDatasetService}
 import services.ingest.ImportLogService
 import services.storage.FileStorage
@@ -32,6 +34,8 @@ case class ImportDatasets @Inject()(
   asyncCache: AsyncCacheApi,
   importLogService: ImportLogService,
 )(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
+
+  private val logger: Logger = Logger(this.getClass)
 
   def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
     Ok(
@@ -127,10 +131,6 @@ case class ImportDatasets @Inject()(
     } yield Ok(Json.toJson(idToCount.toMap))
   }
 
-  def checkAll(): Action[AnyContent] = Action.async { implicit request =>
-    ???
-  }
-
   def list(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     datasets.list(id).map(dsl => Ok(Json.toJson(dsl)))
   }
@@ -153,22 +153,26 @@ case class ImportDatasets @Inject()(
   }
 
   def create(id: String): Action[ImportDatasetInfo] = EditAction(id).async(apiJson[ImportDatasetInfo]) { implicit request =>
-    datasets.create(id, request.body).map { ds =>
-      Created(Json.toJson(ds))
-    }.recover {
-      case e: ImportDatasetExists => BadRequest(e)
+    checkFondsId(id, request.body) { data =>
+      datasets.create(id, data).map { ds =>
+        Created(Json.toJson(ds))
+      }.recover {
+        case e: ImportDatasetExists => BadRequest(e)
+      }
     }
   }
 
   def update(id: String, ds: String): Action[ImportDatasetInfo] = EditAction(id).async(apiJson[ImportDatasetInfo]) { implicit request =>
-    datasets.update(id, ds, request.body).map { ds =>
-      Ok(Json.toJson(ds))
+    checkFondsId(id, request.body) { data =>
+      datasets.update(id, ds, data).map { ds =>
+        Ok(Json.toJson(ds))
+      }
     }
   }
 
   def batch(id: String): Action[Seq[ImportDatasetInfo]] = EditAction(id).async(apiJson[Seq[ImportDatasetInfo]]) { implicit request =>
-    datasets.batch(id, request.body).map { _ =>
-      Ok(Json.obj("ok" -> true))
+    datasets.batch(id, request.body).map { ds =>
+      Ok(Json.toJson(ds))
     }
   }
 
@@ -185,6 +189,23 @@ case class ImportDatasets @Inject()(
       Ok(Json.toJson(errs.map { case (key, err) =>
         key.replace(prefix(id, ds, FileStage.Output), "") -> err
       }))
+    }
+  }
+
+  private def checkFondsId(id: String, dataset: ImportDatasetInfo)(andThen: ImportDatasetInfo => Future[Result])(implicit userOpt: Option[UserProfile]): Future[Result] = {
+    dataset.fonds.map { fondsId =>
+      userDataApi.get[DocumentaryUnit](fondsId).flatMap { unit =>
+        if (unit.holder.exists(_.id == id)) {
+          andThen.apply(dataset)
+        } else Future.successful {
+          BadRequest(Json.obj("error" -> s"Fonds '$fondsId' not found in repository: $id"))
+        }
+      }.recover {
+        case _: ItemNotFound =>
+          BadRequest(Json.obj("error" -> s"Fonds '$fondsId' not found"))
+      }
+    } getOrElse {
+      andThen.apply(dataset)
     }
   }
 }
