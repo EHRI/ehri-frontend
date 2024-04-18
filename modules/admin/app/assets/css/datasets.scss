@@ -1161,6 +1161,17 @@ $active-table-row: #e7f1ff;
   @extend %expanding-column;
   @extend %overflow-contents;
   margin-bottom: $margin-md;
+
+  .panel-placeholder {
+    margin-top: $margin-lg;
+    align-items: flex-start;
+  }
+}
+
+#dashboard-institution-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dashboard-institution-item {

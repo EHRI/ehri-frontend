@@ -15,6 +15,7 @@ export default {
     return {
       loaded: false,
       loading: false,
+      filter: "",
       datasetInfo: [],
     }
   },
@@ -34,6 +35,17 @@ export default {
       window.location = this.api.managerUrl(id, ds);
     }
   },
+  computed: {
+    filteredInfo: function() {
+      let f = this.filter.toLowerCase();
+      function filter(info) {
+        return !f || (info.name.toLowerCase().includes(f)
+            || info.repoId.includes(f)
+            || info.altNames.toLowerCase().includes(f));
+      }
+      return this.datasetInfo.filter(filter);
+    }
+  },
   created() {
     this.loadDatasetInfo();
   },
@@ -42,10 +54,23 @@ export default {
 
 <template>
   <div id="dashboard-container">
-    <h1>{{ config.title }}</h1>
+      <header id="dashboard-institution-header">
+          <h1>{{ config.title }}</h1>
+          <div class="dashboard-institution-filter">
+                  <label class="sr-only" for="opt-filter">Filter</label>
+                   <input v-model="filter" id="opt-filter" class="filter-input form-control form-control-sm" placeholder="Filter..."/>
+          </div>
+      </header>
     <div id="dashboard-institution-list" class="dashboard-institution-list">
-      <div v-for="info in datasetInfo" v-on:click="goTo(info.repoId)" class="dashboard-institution-item">
-        <img v-bind:src="info.logoUrl" alt="info.name" class="item-icon"/>
+      <div class="panel-placeholder" v-if="loaded && filter && filteredInfo.length === 0">
+          No institutions found containing with &quot;<code>{{ filter }}</code>&quot;...
+      </div>
+      <div v-else
+           v-for="info in filteredInfo"
+           v-bind:key="info.repoId"
+           v-on:click="goTo(info.repoId)"
+           class="dashboard-institution-item" v-bind:id="'repo-id-' + info.repoId">
+        <img v-bind:src="info.logoUrl" v-bind:alt="info.name" class="item-icon"/>
         <h3 class="item-heading">{{ info.name }}</h3>
         <div class="item-meta">
         </div>
