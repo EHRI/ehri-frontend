@@ -20,7 +20,7 @@ import javax.inject._
 import scala.concurrent.Future
 
 
-case class RepositoryDatasets(repoId: String, name: String, logoUrl: String, sets: Seq[ImportDataset])
+case class RepositoryDatasets(repoId: String, name: String, altNames: String, logoUrl: String, sets: Seq[ImportDataset])
 object RepositoryDatasets {
   implicit val _format: Format[RepositoryDatasets] = Json.format[RepositoryDatasets]
 }
@@ -145,10 +145,11 @@ case class ImportDatasets @Inject()(
           RepositoryDatasets(
           id,
           r.toStringLang,
+          r.allNames.mkString(", "),
           r.data.logoUrl.getOrElse(defaultLogo),
           sets
         )
-      }
+      }.sortBy(_.repoId)
     } yield Ok(Json.toJson(combined))
   }
 
