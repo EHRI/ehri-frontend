@@ -6,8 +6,8 @@ import controllers.generic._
 import forms._
 
 import javax.inject._
-import models.{EntityType, _}
-import forms.FormConfigBuilder
+import models._
+import forms.ConfigFormFieldHintsBuilder
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -79,7 +79,7 @@ case class VirtualUnits @Inject()(
   }
 
   override protected val targetContentTypes = Seq(ContentTypes.VirtualUnit)
-  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
+  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.DocumentaryUnit, config)
   private val form: Form[VirtualUnitF] = models.VirtualUnit.form
   private val childForm: Form[VirtualUnitF] = models.VirtualUnit.form
 

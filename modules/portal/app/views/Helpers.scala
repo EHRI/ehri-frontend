@@ -1,7 +1,7 @@
 package views
 
 import java.net.{MalformedURLException, URL}
-import models.{Annotation, Description, Entity, EntityType, Model, PermissionType, UserProfile}
+import models.{Annotation, Description, Entity, EntityType, FieldMetadata, Model, PermissionType, UserProfile}
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
 import org.jsoup.Jsoup
@@ -57,10 +57,12 @@ object Helpers {
   def argsWithDefaults(args: Seq[(Symbol,Any)], defaults: (Symbol, Any)*): Seq[(Symbol, Any)] =
     args ++ defaults.filterNot(v => args.exists(a => a._1 == v._1))
 
-  def argsWithConfig(fieldName: String, args: Seq[(Symbol,Any)])(implicit config: Option[forms.FormConfig], messages: Messages): Seq[(Symbol,Any)] = {
+  def argsWithConfig(fieldName: String, args: Seq[(Symbol,Any)])(implicit config: Option[forms.FormFieldHints], messages: Messages): Seq[(Symbol,Any)] = {
     (args
-      ++ config.flatMap(_.hint(fieldName)).map('_hint -> _).toSeq
-      ++ config.flatMap(_.required(fieldName)).map(_ => '_help -> Messages("constraint.required")))
+      ++ config.flatMap(_.hint(fieldName)).map(Symbol("_hint") -> _).toSeq
+      ++ config.flatMap(_.required(fieldName)).filter(_ == true).map(_ => Symbol("_help") -> Messages("constraints.mandatory"))
+      ++ config.flatMap(_.usage(fieldName)).filter(_ == FieldMetadata.Usage.Desirable).map(_ => Symbol("_help") -> Messages("constraints.desirable"))
+      )
   }
 
   /*

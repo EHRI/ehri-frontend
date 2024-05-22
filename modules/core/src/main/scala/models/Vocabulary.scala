@@ -18,6 +18,8 @@ object VocabularyF {
   val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
   val DESCRIPTION = "description"
 
+  val FIELDS: Seq[(String, Seq[String])] = Seq("_" -> Seq(NAME, DESCRIPTION))
+
   import Entity._
 
   implicit val vocabularyFormat: Format[VocabularyF] = (

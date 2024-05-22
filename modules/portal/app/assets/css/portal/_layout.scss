@@ -289,3 +289,8 @@ ul.pagination {
 }
 
 // `control-elements`
+.control-elements {
+  // this is set so hints labels (such as mandatory/desirable) can
+  // be positions absolutely relative to the control input
+  position: relative;
+}

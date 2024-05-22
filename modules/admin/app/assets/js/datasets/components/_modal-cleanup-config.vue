@@ -62,7 +62,7 @@ export default {
       <div class="form-group">
         <label class="form-label" for="opt-cleanup-msg">
           Cleanup log message
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <input v-bind:disabled="cleanupRunning" type="text" v-model="data"
                id="opt-cleanup-msg" class="form-control" placeholder="Heuristic cleanup for update on..."/>

@@ -1,14 +1,14 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
+@(field: Field, key: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
-@views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
+@views.html.formHelpers.configuredField(field, key, config) { field =>
     @helper.textarea(
         field = field,
-        args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+        args = views.Helpers.argsWithConfig(key, views.Helpers.argsWithDefaults(
             args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
-            'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
+            '_label -> config.flatMap(_.name(key)).getOrElse(Messages(if(prefix.isEmpty) key else s"$prefix.$key")),
+            'title -> md.renderMarkdown(config.flatMap(_.description(key)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + key + ".description"))),
             'class -> "form-control",
-            'rows -> config.flatMap(_.rows(fieldName)).getOrElse(4)
+            'rows -> config.flatMap(_.rows(key)).getOrElse(4)
         )): _*
     )
 }

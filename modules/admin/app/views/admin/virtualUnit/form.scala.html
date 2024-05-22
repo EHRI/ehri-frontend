@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[VirtualUnitF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Form[VirtualUnitF], config: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

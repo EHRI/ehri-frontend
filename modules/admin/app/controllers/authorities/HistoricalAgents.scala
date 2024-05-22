@@ -5,8 +5,8 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{EntityType, _}
-import forms.FormConfigBuilder
+import models._
+import forms.ConfigFormFieldHintsBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -60,7 +60,7 @@ case class HistoricalAgents @Inject()(
     )
   }
 
-  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.HistoricalAgent, config)
+  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.HistoricalAgent, config)
 
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
     SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>

@@ -137,7 +137,7 @@ export default {
       <div class="form-group" v-if="info === null">
         <label class="form-label" for="dataset-id">
           Identifier
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <input v-model="id"
                v-bind:class="{'is-invalid': !isValidIdentifier}"
@@ -157,14 +157,14 @@ export default {
       <div class="form-group">
         <label class="form-label" for="dataset-name">
           Name
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <input type="text" v-model="name" id="dataset-name" class="form-control" placeholder="(required)"/>
       </div>
       <div class="form-group">
         <label class="form-label" for="dataset-src">
           Type
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <select v-model="src" class="form-control" id="dataset-src">
           <option v-bind:value="null" disabled selected hidden>(required)</option>

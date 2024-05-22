@@ -1,7 +1,7 @@
-@(desc: play.api.data.Field, fieldName: String, config: Option[forms.FormConfig])(html: play.api.data.Field => Html)
+@(desc: play.api.data.Field, fieldName: String, config: Option[forms.FormFieldHints])(html: play.api.data.Field => Html)
 
 @defining(desc(fieldName)) { field =>
-    @defining(field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName))))) { fieldWithDefault =>
+    @defining(field.copy(value = field.value.orElse(config.flatMap(_.default(fieldName))))) { fieldWithDefault =>
         @if(config.exists(_.hidden(fieldName))) {
             @formHelpers.hiddenInput(fieldWithDefault)
         } else {

@@ -6,8 +6,8 @@ import controllers.generic._
 import forms._
 
 import javax.inject._
-import forms.FormConfigBuilder
-import models.{Entity, EntityType, _}
+import forms.ConfigFormFieldHintsBuilder
+import models._
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -36,7 +36,7 @@ AuthoritativeSets @Inject()(
   with Promotion[AuthoritativeSet]
   with Search {
 
-  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.HistoricalAgent, config)
+  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.HistoricalAgent, config)
 
   val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form

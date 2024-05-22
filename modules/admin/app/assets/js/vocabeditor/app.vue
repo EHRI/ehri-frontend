@@ -162,7 +162,7 @@ export default {
 </script>
 
 <template>
-  <div id="vocab-editor-container" class="app-content">
+  <div id="vocab-editor-container" class="app-content-inner">
 <!--    <h1>{{ config.title }}</h1>-->
     <div id="vocab-editor-panels">
       <div id="vocab-editor-listnav">

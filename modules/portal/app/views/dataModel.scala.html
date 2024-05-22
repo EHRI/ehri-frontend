@@ -1,0 +1,99 @@
+@(entityTypeMetadata: Map[models.EntityType.Value, models.EntityTypeMetadata], fieldMetadata: Map[models.EntityType.Value, models.FieldMetadataSet], templates: Map[models.EntityType.Value, Map[String, Seq[String]]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
+
+@extraStyles = {
+    <style>
+        .data-model-category {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .data-model-see-also a {
+            display: inline-block;
+        }
+        .data-model-entity-type {
+            margin-bottom: 2rem;
+        }
+        .data-model-usage {
+            white-space: nowrap;
+        }
+        .badge-mandatory {
+            background-color: #fba8a6;
+        }
+        .badge-desirable {
+            background-color: #f8dab1;
+        }
+        .badge-optional {
+            background-color: #f5f5f5;
+        }
+    </style>
+}
+
+@views.html.layout.textLayout(Messages("dataModel"), styles = extraStyles) {
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2>@Messages("dataModel")</h2>
+            <p>@Messages("dataModel.description")</p>
+        </div>
+    </div>
+
+    @for((entityType, fieldSet) <- fieldMetadata) {
+        <div class="row data-model-entity-type">
+            <div class="col-md-12">
+                <h3>@entityTypeMetadata.get(entityType).map(_.name).getOrElse(Messages(s"type.$entityType"))</h3>
+                @entityTypeMetadata.get(entityType).flatMap(_.description).map { desc =>
+                    @Markdown(desc)
+                }
+
+                <table class="table table-bordered table-condensed">
+                    <thead>
+                        <tr>
+                            <th>@Messages("dataModel.field.name")</th>
+                            <th>@Messages("dataModel.field.usage")</th>
+                            <th>@Messages("dataModel.field.description")</th>
+                            <th>@Messages("dataModel.field.seeAlso")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @fieldSet.grouped.map { case (category, catFields) =>
+                        @category.map { cat =>
+                            <tr>
+                                <td colspan="4" class="data-model-category"><strong>@Messages(s"dataModel.$entityType.$cat")</strong></td>
+                            </tr>
+                        }
+
+                        @for(field <- catFields) {
+                            <tr class="data-model-field @field.usage.map(_.toString).getOrElse("")">
+                                <td class="data-model-name">
+                                    <div>@field.name</div>
+                                </td>
+                                <td class="data-model-usage">
+                                    @field.usage.map { usage =>
+                                        <span class="badge badge-@usage">@Messages(s"dataModel.field.usage.$usage")</span>
+                                    }.getOrElse {
+                                        <span class="badge badge-optional">@Messages("dataModel.field.usage.optional")</span>
+                                    }
+                                </td>
+                                <td class="data-model-description">
+                                    @field.description.map { desc =>
+                                        @Markdown(desc)
+                                    }
+                                </td>
+                                <td class="data-model-see-also">
+                                    @field.seeAlso.map { sa =>
+                                        <a href="@sa" target="_blank">@sa</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <script>
+        // Enable hiding fields based on usage
+
+    </script>
+}

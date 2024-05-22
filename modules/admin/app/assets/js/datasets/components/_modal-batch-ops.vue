@@ -341,7 +341,7 @@ export default {
       <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="from-dataset">
           Source dataset
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <select v-model="copyFrom" class="form-control" id="from-dataset">
           <option v-bind:value="null" disabled selected hidden>(required)</option>
@@ -352,7 +352,7 @@ export default {
       <div v-if="tab === 'copy'" class="form-group">
         <label class="form-label" for="copy-type">
           Copy configuration
-          <span class="required-input">*</span>
+          <span class="input-mandatory">*</span>
         </label>
         <select v-model="copyType" class="form-control" id="copy-type">
           <option v-bind:value="null" disabled>(required)</option>

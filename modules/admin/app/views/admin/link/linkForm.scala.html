@@ -12,24 +12,7 @@
             @formHelpers.textInput(desc, DESCRIPTION)
             @formHelpers.enumChoiceInput(desc, LINK_TYPE, LinkType, '_blank -> true)
             @formHelpers.enumChoiceInput(desc, LINK_FIELD, LinkField, '_blank -> true)
-
-            <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-                <!-- Template for adding inline date forms via JS -->
-                <label class="control-label">
-                    @Messages(fieldPrefix + "." + DATES)
-                    <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                    </a>
-                </label>
-                <div class="inline-element-template form-template">
-                    @formHelpers.inlineDateSet(desc(DATES + "[IDX]"))
-                </div>
-                <div class="inline-element-list">
-                    @helper.repeat(desc(DATES), min = 0) { desc =>
-                        @formHelpers.inlineDateSet(desc)
-                    }
-                </div>
-            </div>
+            @formHelpers.inlineDateSet(desc, DATES)
         }
     }
 </fieldset>

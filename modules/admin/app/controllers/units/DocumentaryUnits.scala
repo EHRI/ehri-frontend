@@ -4,12 +4,13 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{EntityType, _}
+import models.{ContentTypes, EntityType, _}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
+import services.datamodel.EntityTypeMetadataService
 import services.ingest.{ImportLogService, IngestService}
 import services.search._
 import services.storage.FileStorage
@@ -18,7 +19,8 @@ import utils.{DateFacetUtils, PageParams, RangeParams}
 import views.Helpers
 
 import javax.inject._
-import scala.concurrent.Future
+import scala.collection.immutable.ListMap
+import scala.concurrent.{Await, Future}
 
 
 
@@ -30,6 +32,7 @@ case class DocumentaryUnits @Inject()(
   importLogs: ImportLogService,
   @Named("dam") damStorage: FileStorage,
   dfu: DateFacetUtils,
+  entityTypeMetadata: EntityTypeMetadataService
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -47,7 +50,7 @@ case class DocumentaryUnits @Inject()(
   // Documentary unit facets
   import SearchConstants._
 
-  override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
+  override protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.DocumentaryUnit)
   private val entityFacets: FacetBuilder = { implicit request =>
     List(
       FieldFacetClass(
@@ -104,10 +107,11 @@ case class DocumentaryUnits @Inject()(
       ),
     )
   }
-  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
+
+//  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.DocumentaryUnit, config)
+  private val formConfig: FieldMetaFormFieldHintsBuilder = FieldMetaFormFieldHintsBuilder(EntityType.DocumentaryUnit, entityTypeMetadata, config)
   private val form = models.DocumentaryUnit.form
   private val childForm = models.DocumentaryUnit.form
-  private val descriptionForm = models.DocumentaryUnitDescription.form
 
   private val docRoutes = controllers.units.routes.DocumentaryUnits
   private val renameForm = Form(single(IDENTIFIER -> nonEmptyText))

@@ -1,0 +1,14 @@
+@import "apps";
+
+$active-table-row: #e7f1ff;
+
+.app-wrapper {
+  background-color: $white;
+}
+
+// Make content area scrollable, this prevents
+// weird behaviour with modal popups
+.app-content {
+  overflow: auto;
+  flex-basis: 0;
+}

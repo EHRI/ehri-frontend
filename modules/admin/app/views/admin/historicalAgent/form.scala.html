@@ -1,4 +1,4 @@
-@(f: Form[HistoricalAgentF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(f: Form[HistoricalAgentF], config: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import Isaar._
 @import views.html.formHelpers._

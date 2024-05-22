@@ -31,6 +31,8 @@ object Helpers {
   val adminMenu = Seq(
     ("s3", "-"),
     ("ingest.datasets",             controllers.datasets.routes.ImportDatasets.dashboard().url),
+    ("s4", "-"),
+    ("dataModel",                   controllers.datamodel.routes.EntityTypeMetadata.editor().url),
     ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
     ("admin.utils.findReplace",     controllers.tools.routes.Tools.findReplace().url),
     ("admin.utils.regenerateIds",   controllers.tools.routes.Tools.regenerateIds().url),

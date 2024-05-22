@@ -1,0 +1,74 @@
+@(dateField: Field, key: String)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints] = None, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+
+@import DatePeriodF._
+
+<div class="inline-element">
+    <div class="form-group">
+        <div class="inline-control">
+            @formHelpers.hiddenInput(dateField(Entity.ID))
+            @formHelpers.hiddenInput(dateField(DESCRIPTION))
+            <table class="table-condensed" id="@dateField.id">
+                <tr>
+                    <td>
+                    @defining(dateField(TYPE).value.toSet) { values =>
+                        <label for="@dateField(TYPE).id" class="sr-only">@Messages("datePeriod.type")</label>
+                        <select class="form-control" name="@dateField(TYPE).name" id="@dateField(TYPE).id">
+                            <option>@Messages("datePeriod.type")</option>
+                            @DatePeriodType.values.toList.sortBy(_.id).map { v =>
+                                <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.type." + v)</option>
+                            }
+                        </select>
+                    }
+                    </td>
+                    <td>
+                    @defining(dateField(PRECISION).value.toSet) { values =>
+                        <label for="@dateField(PRECISION).id" class="sr-only">@Messages("datePeriod.precision")</label>
+                        <select class="form-control precision" name="@dateField(PRECISION).name" id="@dateField(PRECISION).id">
+                            <option>@Messages("datePeriod.precision")</option>
+                            @DatePeriodPrecision.values.toList.sortBy(_.id).map { v =>
+                                <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.precision." + v)</option>
+                            }
+                        </select>
+                    }
+                    </td>
+                    @Seq(START_DATE, END_DATE).map { fname =>
+                        @defining(dateField(fname)) { field =>
+                            <td class="@{if(field.hasErrors) "has-error"}">
+                                <label for="@field.id" class="sr-only">@Messages(fieldPrefix + "." + fname)</label>
+                                <div class="input-group date">
+                                    <input
+                                        class="form-control datepicker"
+                                        data-date-format="mm-dd-yyyy"
+                                        type="text"
+                                        name="@field.name"
+                                        id="@field.id" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" />
+                                    <div class="input-group-append datepicker-activation" data-target="#@field.id">
+                                        <div class="btn btn-default">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        }
+                    }
+                </tr>
+                <tr>
+                    @Seq(TYPE, PRECISION, START_DATE, END_DATE).map { fname =>
+                        @defining(dateField(fname)) { field =>
+                            <td class="@(if(field.hasErrors) "has-error")">
+                                @if(field.hasErrors) {
+                                    <small class="text-danger">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</small>
+                                }
+                            </td>
+                        }
+                    }
+                </tr>
+            </table>
+        </div>
+        <div class="inline-remove">
+            <a class="remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
+        </div>
+    </div>
+</div>
+
+

@@ -88,67 +88,71 @@ export default {
 </script>
 
 <template>
-  <div id="concept-editor" class="form-horizontal">
-    <h3 id="concept-editor-item-title">{{ config.vocabName }} | {{ conceptTitle(data, lang, id) }} ({{data.identifier}})</h3>
-    <small class="concept-editor-concept-meta" v-if="data.event.user">
-      Last updated by {{ data.event.user.name }} {{ formatTimestamp(data.event.timestamp) }}.
-    </small>
-    <div id="concept-editor-item-deleted" v-if="deleted">
-      <p class="alert alert-danger">Item deleted</p>
+    <div id="concept-editor" class="form-horizontal">
+        <h3 id="concept-editor-item-title">{{ config.vocabName }} | {{ conceptTitle(data, lang, id) }}
+            ({{ data.identifier }})</h3>
+        <small class="concept-editor-concept-meta" v-if="data.event.user">
+            Last updated by {{ data.event.user.name }} {{ formatTimestamp(data.event.timestamp) }}.
+        </small>
+        <div id="concept-editor-item-deleted" v-if="deleted">
+            <p class="alert alert-danger">Item deleted</p>
+        </div>
+        <div id="concept-editor-body" v-else>
+            <ul id="concept-editor-nav-tabs" class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" v-bind:class="{active: tab === 'data', 'error': error}" href="#"
+                       v-on:click.prevent="tab = 'data'">
+                        Data
+                        <i v-if="error" class="fa fa-exclamation-circle"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" v-bind:class="{active: tab === 'rels'}" href="#"
+                       v-on:click.prevent="tab = 'rels'">Relationships</a>
+                </li>
+                <li class="nav-item delete-tab">
+                    <a class="nav-link" v-bind:class="{active: tab === 'delete'}" href="#"
+                       v-on:click.prevent="tab = 'delete'">Delete</a>
+                </li>
+            </ul>
+            <concept-rel-editor
+                    v-if="tab === 'rels'"
+                    v-bind:api="api"
+                    v-bind:lang="lang"
+                    v-bind:id="id"
+                    v-bind:data="data.broaderTerms"
+                    v-bind:langData="langData"
+                    v-bind:dirty="dirtyRels"
+                    v-on:item-rels-saved="updateRels"
+                    v-on:item-rels-reset="$emit('item-rels-reset')"
+            />
+            <concept-data-editor
+                    v-else-if="tab === 'data'"
+                    v-bind:lang="lang"
+                    v-bind:id="id"
+                    v-bind:create="false"
+                    v-bind:data="data"
+                    v-bind:langData="langData"
+                    v-bind:locale-helpers="localeHelpers"
+                    v-bind:dirty="dirtyData"
+                    v-bind:loading="loading"
+                    v-bind:saving="saving"
+                    v-bind:saved="saved"
+                    v-bind:error="error"
+                    v-bind:errors="errors"
+                    v-on:updated="error = false"
+                    v-on:item-data-saved="updateItem"
+                    v-on:item-data-reset="$emit('item-data-reset')"
+            />
+            <concept-deleter
+                    v-if="tab === 'delete'"
+                    v-bind:api="api"
+                    v-bind:id="id"
+                    v-bind:data="data"
+                    v-bind:lang="lang"
+                    v-on:delete-cancel="deleting = false"
+                    v-on:deleted-item="deletedItem"
+            />
+        </div>
     </div>
-    <div id="concept-editor-body" v-else>
-      <ul id="concept-editor-nav-tabs" class="nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link" v-bind:class="{active: tab === 'data', 'error': error}" href="#" v-on:click.prevent="tab = 'data'">
-            Data
-            <i v-if="error" class="fa fa-exclamation-circle"></i>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" v-bind:class="{active: tab === 'rels'}" href="#" v-on:click.prevent="tab = 'rels'">Relationships</a>
-        </li>
-        <li class="nav-item delete-tab">
-          <a class="nav-link" v-bind:class="{active: tab === 'delete'}" href="#" v-on:click.prevent="tab = 'delete'">Delete</a>
-        </li>
-      </ul>
-      <concept-rel-editor
-          v-if="tab === 'rels'"
-          v-bind:api="api"
-          v-bind:lang="lang"
-          v-bind:id="id"
-          v-bind:data="data.broaderTerms"
-          v-bind:langData="langData"
-          v-bind:dirty="dirtyRels"
-          v-on:item-rels-saved="updateRels"
-          v-on:item-rels-reset="$emit('item-rels-reset')"
-      />
-      <concept-data-editor
-          v-else-if="tab === 'data'"
-          v-bind:lang="lang"
-          v-bind:id="id"
-          v-bind:create="false"
-          v-bind:data="data"
-          v-bind:langData="langData"
-          v-bind:locale-helpers="localeHelpers"
-          v-bind:dirty="dirtyData"
-          v-bind:loading="loading"
-          v-bind:saving="saving"
-          v-bind:saved="saved"
-          v-bind:error="error"
-          v-bind:errors="errors"
-          v-on:updated="error = false"
-          v-on:item-data-saved="updateItem"
-          v-on:item-data-reset="$emit('item-data-reset')"
-      />
-      <concept-deleter
-          v-if="tab === 'delete'"
-          v-bind:api="api"
-          v-bind:id="id"
-          v-bind:data="data"
-          v-bind:lang="lang"
-          v-on:delete-cancel="deleting = false"
-          v-on:deleted-item="deletedItem"
-      />
-    </div>
-  </div>
 </template>

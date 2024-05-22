@@ -1,8 +1,4 @@
-@import "lib/docview-portal/css/portal.scss";
-
-//Admin
-@import "./admin/admin";
-@import "./admin/forms";
+@import "apps";
 
 $active-table-row: #e7f1ff;
 
@@ -165,60 +161,6 @@ $active-table-row: #e7f1ff;
   flex: 1;
   justify-content: flex-end;
 }
-
-#app-error-notice {
-  position: absolute;
-  bottom: $margin-sm;
-  right: $margin-sm;
-  padding: $margin-xs $margin-sm;
-  z-index: 100;
-
-  .close {
-    margin-left: $margin-xs;
-    margin-top: -3px;
-    cursor: pointer;
-  }
-}
-
-.modal {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.modal-content.resizable {
-  min-height: 30rem;
-}
-
-.modal-content.resizable > .modal-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.modal-resize-handle {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  display: inline;
-  width: 1rem;
-  height: 1rem;
-  cursor: nwse-resize;
-}
-
-.modal-resize-handle:after {
-  content:'';
-  display:block;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid $ehri-border-gray;
-  width: 2px;
-  height: 5px;
-  position: absolute;
-  pointer-events: none;
-  right: -1px;
-  bottom: 1px;
-  transform: rotate(135deg);
-}
-
 #stage-tabs,
 #dataset-manager-tabs
 {
@@ -234,15 +176,6 @@ $active-table-row: #e7f1ff;
 {
   @extend %expanding-column;
   margin-bottom: $margin-sm;
-}
-
-.modal-alert {
-  z-index: 1000;
-  display: flex !important;
-
-  .modal-content {
-    box-shadow: $box-shadow-lg;
-  }
 }
 
 .file-picker {
@@ -676,6 +609,7 @@ $active-table-row: #e7f1ff;
     // strange gaps.
     border-collapse: separate;
     border-spacing: 0;
+    border: none; // table doesn't need a double border, however cells do have one
   }
 
   // Sticky headers. Note: applying `position: sticky` to `thead`
@@ -983,21 +917,6 @@ $active-table-row: #e7f1ff;
 
 .preview-container .CodeMirror-gutters {
   background-color: $gray-100;
-}
-
-.options-form {
-  padding: $margin-md;
-  input:invalid {
-    background-color: lighten($danger, 40%);
-  }
-}
-
-.resizable .options-form {
-  flex: 1;
-}
-
-.options-form .small.form-text {
-  color: $text-muted;
 }
 
 .data-manager-form-item {

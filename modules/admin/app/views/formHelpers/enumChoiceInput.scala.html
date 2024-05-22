@@ -1,4 +1,4 @@
-@(f: play.api.data.Field, fieldName: String, enum: Enumeration, args: (Symbol,Any)*)(implicit fieldPrefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Field, fieldName: String, enum: Enumeration, args: (Symbol,Any)*)(implicit fieldPrefix: String = "", config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @formHelpers.choiceInput(
   f,

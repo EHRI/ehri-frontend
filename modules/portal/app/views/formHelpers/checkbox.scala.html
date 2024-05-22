@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.checkbox(

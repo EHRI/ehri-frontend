@@ -16,6 +16,8 @@ object AuthoritativeSetF {
   val DESCRIPTION = "description"
   val ALLOW_PUBLIC = Ontology.IS_PROMOTABLE
 
+  val FIELDS: Seq[(String, Seq[String])] = Seq("_" -> Seq(NAME, DESCRIPTION))
+
   import Entity._
 
   implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = (
