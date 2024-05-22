@@ -359,8 +359,26 @@ CREATE INDEX coreference_value_target_id ON coreference_value(target_id);
 CREATE INDEX coreference_value_set_id ON coreference_value(set_id);
 
 
+CREATE TABLE field_meta(
+    entity_type VARCHAR(50) NOT NULL,
+    id          VARCHAR(50) NOT NULL,
+    name        VARCHAR(100) NOT NULL,
+    description TEXT,
+    usage       VARCHAR(50),
+    category    VARCHAR(50),
+    see_other   TEXT[],
+    created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated     TIMESTAMP,
+    PRIMARY KEY (entity_type, id)
+);
+
+CREATE INDEX field_meta_entity_type ON field_meta(entity_type);
+CREATE INDEX field_meta_id ON field_meta(id);
+
+
  # --- !Downs
 
+DROP TABLE IF EXISTS field_meta CASCADE;
 DROP TABLE IF EXISTS coreference CASCADE;
 DROP TABLE IF EXISTS coreference_value CASCADE;
 DROP TABLE IF EXISTS cleanup_action_redirect CASCADE;
