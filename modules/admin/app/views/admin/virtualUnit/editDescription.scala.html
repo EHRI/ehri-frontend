@@ -1,4 +1,4 @@
-@(item: VirtualUnit, f: Form[VirtualUnitF], config: forms.FormConfig, did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: VirtualUnit, f: Form[VirtualUnitF], config: forms.FormFieldHints, did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

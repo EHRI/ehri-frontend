@@ -1,4 +1,4 @@
-@(desc: Field)(implicit fieldPrefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(desc: Field)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints], userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import IsadG._
 @import Entity._
@@ -22,23 +22,7 @@
 
             @lineInput(desc, REF)
 
-            <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-                @* Template for adding inline date forms via JS *@
-                <label class="control-label">
-                    @Messages(fieldPrefix + "." + DATES)
-                    <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                    </a>
-                </label>
-                <div class="inline-element-template form-template">
-                    @inlineDateSet(desc(DATES + "[IDX]"))
-                </div>
-                <div class="inline-element-list">
-                    @helper.repeat(desc(DATES), min = 0) { desc =>
-                        @inlineDateSet(desc)
-                    }
-                </div>
-            </div>
+            @inlineDateSet(desc, DATES)
             @hiddenInputSet(desc(UNIT_DATES))
             @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, '_blank -> true)
             @hiddenInputSet(desc(PHYSICAL_LOCATION))

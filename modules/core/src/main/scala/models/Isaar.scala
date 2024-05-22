@@ -1,11 +1,12 @@
 package models
 
+import models.Description.LANG_CODE
 import play.api.libs.json.Format
 import utils.EnumUtils
 
 /**
- * ISAAR Field definitions
- */
+  * ISAAR Field definitions
+  */
 case object Isaar {
 
   object HistoricalAgentType extends Enumeration {
@@ -56,5 +57,41 @@ case object Isaar {
   val MAINTENANCE_NOTES = "maintenanceNotes"
 
   val ACCESS_POINTS = "accessPoints"
+
+  val FIELDS: Seq[(String, Seq[String])] = List(
+    "_" -> Seq(
+      IDENTIFIER,
+      LANG_CODE,
+    ),
+    IDENTITY_AREA -> List(
+      AUTHORIZED_FORM_OF_NAME,
+      ENTITY_TYPE,
+      OTHER_FORMS_OF_NAME,
+      PARALLEL_FORMS_OF_NAME
+    ),
+    DESCRIPTION_AREA -> List(
+      DATES,
+      DATES_OF_EXISTENCE,
+      HISTORY,
+      PLACES,
+      LEGAL_STATUS,
+      FUNCTIONS,
+      MANDATES,
+      INTERNAL_STRUCTURE,
+      GENERAL_CONTEXT
+    ),
+    CONTROL_AREA -> List(
+      DESCRIPTION_IDENTIFIER,
+      INSTITUTION_IDENTIFIER,
+      RULES_CONVENTIONS,
+      STATUS,
+      LEVEL_OF_DETAIL,
+      DATES_CVD,
+      LANGUAGES_USED,
+      SCRIPTS_USED,
+      SOURCES,
+      MAINTENANCE_NOTES
+    )
+  )
 }
 

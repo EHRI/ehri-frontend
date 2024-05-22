@@ -201,7 +201,6 @@ module.exports = function (grunt) {
             expand: true,
             cwd: 'node_modules/vue/dist',
             src: [
-              'vue.global.js',
               'vue.runtime.global.js'
             ],
             dest: paths.adminJsLib

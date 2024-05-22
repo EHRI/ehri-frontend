@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet, f: Form[HistoricalAgentF], config: forms.FormConfig, vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: AuthoritativeSet, f: Form[HistoricalAgentF], config: forms.FormFieldHints, vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 

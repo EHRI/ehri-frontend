@@ -1,12 +1,12 @@
-@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
+@(desc: play.api.data.Field, fieldName: String, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.inputFile(
-        field = field.copy(value = field.value.orElse(config.flatMap(_.default[String](fieldName)))),
+        field = field.copy(value = field.value.orElse(config.flatMap(_.default(fieldName)))),
         args = views.Helpers.argsWithDefaults(
             args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            '_label -> Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
-            'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
+            '_label -> config.flatMap(_.name(fieldName)).getOrElse(Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName")),
+            'title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description"))),
             'class -> "form-control"
         ): _*
     )

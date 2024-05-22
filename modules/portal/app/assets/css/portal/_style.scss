@@ -907,12 +907,30 @@ body.home {
 }
 
 // General form styling
-.control-label .required-input,
-.form-label .required-input,
-.control-elements .help-b
-lock.errors,
+.control-elements .help-block.errors,
 .control-elements .help-inline.errors {
   @include color-var(color, 'danger');
+}
+
+.input-mandatory,
+.input-desirable
+{
+  @extend .badge;
+  color: $black;
+  font-size: $font-size-xs;
+  border-radius: .5rem;
+  position: absolute;
+  top: -.75rem;
+  left: 0;
+  z-index: 100;
+}
+
+.input-mandatory {
+  background-color: #fba8a6;
+}
+
+.input-desirable {
+  background-color: #f8dab1;
 }
 
 .form-field.has-error,

@@ -49,7 +49,8 @@ landingBlurb.CvocVocabulary=Explorar términos y lugares.
 #
 # Form constraints, errors, and formats
 #
-constraint.required=*
+constraints.mandatory=Mandatory
+constraints.desirable=Desirable
 constraints.timeCheckSeconds=Marca de tiempo
 constraints.timeCheckSeconds.failed=El formulario fue enviado muy rápido. Por favor, inténtelo de nuevo.
 constraints.honeypot=Carta blanca

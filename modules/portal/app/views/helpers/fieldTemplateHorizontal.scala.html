@@ -12,11 +12,11 @@
     </div>
 } else {
     <div class="form-group @if(elements.hasErrors) {has-error}">
-        @defining(Messages("constraint.required")(elements.p)) { required =>
+        @defining(Messages("constraints.mandatory")(elements.p)) { required =>
             <label for="@elements.id" class="control-label">
                 @elements.label
                 @if(elements.infos.contains(required)) {
-                    <span class="required-input">@required</span>
+                    <span class="input-mandatory">@required</span>
                 }
             </label>
             <div class="control-elements">

@@ -1,4 +1,4 @@
-@(f: Form[RepositoryF], config: forms.FormConfig)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(f: Form[RepositoryF], config: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import Isdiah._
 @import RepositoryF._

@@ -5,12 +5,13 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import cookies.SessionPrefs
 import forms.AccountForms
-import models.{EntityType, Model, _}
+import models._
 import play.api.cache.{AsyncCacheApi, Cached}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import services.datamodel.EntityTypeMetadataService
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._
@@ -32,6 +33,7 @@ case class Portal @Inject()(
   accountForms: AccountForms,
   asyncCache: AsyncCacheApi,
   statusCache: Cached,
+  entityTypeMetadataService: EntityTypeMetadataService,
 ) extends PortalController
   with Search {
 
@@ -155,6 +157,16 @@ case class Portal @Inject()(
 
   def contact: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
     Ok(views.html.contact())
+  }
+
+  def dataModel(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    for {
+      ets <- entityTypeMetadataService.list()
+      fields <- entityTypeMetadataService.listFields()
+      tmpl <- entityTypeMetadataService.templates()
+    } yield {
+      Ok(views.html.dataModel(ets, fields, tmpl))
+    }
   }
 
   def externalFeed(key: String): EssentialAction = statusCache.status((_: RequestHeader) => s"pages.$key", OK, 60.minutes) {

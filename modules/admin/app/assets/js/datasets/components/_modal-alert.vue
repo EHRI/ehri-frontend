@@ -44,8 +44,8 @@ export default {
           <slot></slot>
         </div>
         <div class="modal-footer">
-          <button v-if="cancel" type="button" class="btn" v-on:click="$emit('close')" autofocus>{{ cancel }}</button>
-          <button v-if="accept" type="button" class="btn" v-bind:class="'btn-' + cls" v-on:click="$emit('accept')">
+          <button v-if="cancel" type="button" class="btn cancel" v-on:click="$emit('close')" autofocus>{{ cancel }}</button>
+          <button v-if="accept" type="button" class="btn accept" v-bind:class="'btn-' + cls" v-on:click="$emit('accept')">
             {{ accept }}
           </button>
         </div>

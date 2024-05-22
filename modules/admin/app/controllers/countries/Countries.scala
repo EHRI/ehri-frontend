@@ -5,8 +5,8 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
-import forms.{FormConfigBuilder, _}
-import models.{EntityType, _}
+import forms._
+import models._
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -56,7 +56,7 @@ case class Countries @Inject()(
     */
   override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
 
-  private val childFormConfig: FormConfigBuilder = FormConfigBuilder(EntityType.Repository, config)
+  private val childFormConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.Repository, config)
   private val form = models.Country.form
   private val childForm = models.Repository.form
 

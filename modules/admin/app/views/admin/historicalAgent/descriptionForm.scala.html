@@ -1,8 +1,6 @@
-@(desc: Field)(implicit fieldPrefix: String, config: Option[forms.FormConfig], userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(desc: Field)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints], userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import Isaar._
-@import HistoricalAgentF._
-@import DatePeriodF._
 @import views.html.formHelpers._
 @import Description._
 
@@ -20,24 +18,7 @@
 
     @descriptionFormSection(DESCRIPTION_AREA) {
 
-        <div class="inline-formset form-group clearfix" data-prefix="@DATES">
-                <!-- Template for adding inline date forms via JS -->
-            <label class="control-label">
-                @Messages(fieldPrefix + "." + DATES)
-                <a href="#" class="add-inline-element" aria-label="@Messages("")">
-                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                </a>
-            </label>
-            <div class="inline-element-template form-template">
-            @inlineDateSet(desc(DATES + "[IDX]"))
-            </div>
-            <div class="inline-element-list">
-            @helper.repeat(desc(DATES), min = 0) { desc =>
-                @inlineDateSet(desc)
-            }
-            </div>
-        </div>
-
+        @inlineDateSet(desc, DATES)
 
         @defining(desc(DESCRIPTION_AREA)) { desc =>
             @textInput(desc, DATES_OF_EXISTENCE)

@@ -27,6 +27,19 @@ object ConceptF {
   val LATITUDE = "latitude"
   val ACCESS_POINTS = "accessPoints"
 
+  // Defines the sections on the form, with an empty string for the default section
+  val FIELDS: Seq[(String, Seq[String])] = Seq("_" -> Seq(
+    PREFLABEL,
+    ALTLABEL,
+    HIDDENLABEL,
+    DEFINITION,
+    NOTE,
+    CHANGENOTE,
+    EDITORIALNOTE,
+    HISTORYNOTE,
+    SCOPENOTE,
+  ))
+
   // NB: Type is currently unused...
   object ConceptType extends Enumeration {
     type Type = Value

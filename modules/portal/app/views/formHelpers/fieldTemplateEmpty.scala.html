@@ -1,7 +1,7 @@
 @(elements: helper.FieldElements)
 
 <div class="@if(elements.hasErrors) {has-error}">
-@defining(Messages("constraint.required")(elements.p)) { required =>
+@defining(Messages("constraints.mandatory")(elements.p)) { required =>
     @elements.input
     @if(elements.hasErrors) {
         <span class="help-block">@elements.errors</span>

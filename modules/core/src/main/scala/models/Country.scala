@@ -17,6 +17,9 @@ object CountryF {
   val DATA_SUMMARY = "dataSummary"
   val DATA_EXTENSIVE = "dataExtensive"
 
+  // Defines the sections on the form, with an empty string for the default section
+  val FIELDS: Seq[(String, Seq[String])] = Seq("_" -> Seq(ABSTRACT, HISTORY, SITUATION, DATA_SUMMARY, DATA_EXTENSIVE))
+
   import Entity._
 
   lazy implicit val countryFormat: Format[CountryF] = (

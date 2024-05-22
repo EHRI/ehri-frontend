@@ -1,74 +1,26 @@
-@(desc: play.api.data.Field)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
+@(field: play.api.data.Field, key: String)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints] = None, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
-@import DatePeriodF._
-
-<div class="inline-element">
-    <div class="form-group">
-        <div class="inline-control">
-            @formHelpers.hiddenInput(desc(Entity.ID))
-            @formHelpers.hiddenInput(desc(DESCRIPTION))
-            <table class="table-condensed" id="@desc.id">
-                <tr>
-                    <td>
-                    @defining(desc(TYPE).value.toSet) { values =>
-                        <label for="@desc(TYPE).id" class="sr-only">@Messages("datePeriod.type")</label>
-                        <select class="form-control" name="@desc(TYPE).name" id="@desc(TYPE).id">
-                            <option>@Messages("datePeriod.type")</option>
-                            @DatePeriodType.values.toList.sortBy(_.id).map { v =>
-                                <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.type." + v)</option>
-                            }
-                        </select>
-                    }
-                    </td>
-                    <td>
-                    @defining(desc(PRECISION).value.toSet) { values =>
-                        <label for="@desc(PRECISION).id" class="sr-only">@Messages("datePeriod.precision")</label>
-                        <select class="form-control precision" name="@desc(PRECISION).name" id="@desc(PRECISION).id">
-                            <option>@Messages("datePeriod.precision")</option>
-                            @DatePeriodPrecision.values.toList.sortBy(_.id).map { v =>
-                                <option @if(values.contains(v.toString)){selected} value="@v.toString">@Messages("datePeriod.precision." + v)</option>
-                            }
-                        </select>
-                    }
-                    </td>
-                    @Seq(START_DATE, END_DATE).map { fname =>
-                        @defining(desc(fname)) { field =>
-                            <td class="@{if(field.hasErrors) "has-error"}">
-                                <label for="@field.id" class="sr-only">@Messages(fieldPrefix + "." + fname)</label>
-                                <div class="input-group date">
-                                    <input
-                                        class="form-control datepicker"
-                                        data-date-format="mm-dd-yyyy"
-                                        type="text"
-                                        name="@field.name"
-                                        id="@field.id" value="@field.value" placeholder="@Messages(fieldPrefix + "." + fname)" />
-                                    <div class="input-group-append datepicker-activation" data-target="#@field.id">
-                                        <div class="btn btn-default">
-                                            <i class="fa fa-calendar" aria-hidden="true"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        }
-                    }
-                </tr>
-                <tr>
-                    @Seq(TYPE, PRECISION, START_DATE, END_DATE).map { fname =>
-                        @defining(desc(fname)) { field =>
-                            <td class="@(if(field.hasErrors) "has-error")">
-                                @if(field.hasErrors) {
-                                    <small class="text-danger">@field.errors.map(e => Messages(e.message, e.key)).mkString("; ")</small>
-                                }
-                            </td>
-                        }
-                    }
-                </tr>
-            </table>
-        </div>
-        <div class="inline-remove">
-            <a class="remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
-        </div>
+<div class="inline-formset form-group clearfix" data-prefix="@key">
+    @* Template for adding inline date forms via JS *@
+    <label class="control-label">
+        @Messages(fieldPrefix + "." + key)
+        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        </a>
+    </label>
+    <div class="inline-element-template form-template">
+        @formHelpers.inlineDate(field(key + "[IDX]"), key)
+    </div>
+    <div class="inline-element-list control-elements">
+        @* NB: we render the usage label here differently to the translated way used when using the fieldTemplate
+        * because the usage label is not translated in the same way as the field label.
+        *@
+        @config.flatMap(_.usage(key)).map { usage =>
+            <span class="input-@usage">@usage.toString.capitalize</span>
+        }
+        @helper.repeat(field(key), min = 0) { nfield =>
+            @formHelpers.inlineDate(nfield, key)
+        }
     </div>
 </div>
-
 

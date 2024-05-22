@@ -1,4 +1,4 @@
-@(item: Model, f: Form[DocumentaryUnitF], config: forms.FormConfig, vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Model, f: Form[DocumentaryUnitF], config: forms.FormFieldHints, vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f)}
 
@@ -22,7 +22,9 @@
 
     @helper.form(action = action) {
         @formHelpers.csrfToken()
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
+        @defining(Some(config)) { implicit implicitConfig =>
+            @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
+        }
         @views.html.admin.documentaryUnit.form(f, config)
 
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

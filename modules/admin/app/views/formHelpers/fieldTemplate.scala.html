@@ -1,15 +1,18 @@
 @(elements: helper.FieldElements)
 
 <div class="form-group @if(elements.hasErrors) {has-error}">
-@defining(Messages("constraint.required")(elements.p)) { required =>
+@defining(List(Messages("constraints.mandatory")(elements.p), Messages("constraints.desirable")(elements.p))) { usage =>
     <label class="control-label" for="@elements.id">
         @elements.label
-        @if(elements.infos.contains(required)) {
-            <span class="required-input">@required</span>
-        }
     </label>
     <div class="control-elements">
         @elements.input
+        @if(elements.infos.contains(usage.head)) {
+            <span class="input-mandatory">@usage.head</span>
+        }
+        @if(elements.infos.contains(usage.last)) {
+            <span class="input-desirable">@usage.last</span>
+        }
         @if(elements.hasErrors) {
             <span class="help-block invalid-feedback">@elements.errors.mkString(" / ")</span>
         } else {
@@ -19,7 +22,7 @@
                 </span>
             }
             <span class="help-block">
-                @elements.infos.filter(_ != required).map(i => Messages(i.toString)(elements.p)).mkString(", ")
+                @elements.infos.filter(i => !usage.contains(i)).map(i => Messages(i.toString)(elements.p)).mkString(", ")
             </span>
         }
     </div>

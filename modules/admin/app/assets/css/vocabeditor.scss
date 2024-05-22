@@ -3,6 +3,7 @@
 //Admin
 @import "./admin/admin";
 @import "./admin/forms";
+//@import "apps"; // import this after compat check
 
 .footer-buttons {
   margin-top: $margin-sm;

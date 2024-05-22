@@ -47,7 +47,8 @@ landingBlurb.CvocVocabulary=Procházet předmětová hesla a místa.
 #
 # Form constraints, errors, and formats
 #
-constraint.required=*
+constraints.mandatory=Mandatory
+constraints.desirable=Desirable
 constraints.timeCheckSeconds=Časové razítko
 constraints.timeCheckSeconds.failed=Formulář byl odeslán příliš rychle. Prosím, zkuste to znovu.
 constraints.honeypot=Blank Check

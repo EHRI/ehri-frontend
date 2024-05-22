@@ -11,6 +11,7 @@ import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.data.DataHelpers
+import services.datamodel.EntityTypeMetadataService
 import services.ingest.{EadValidator, IngestService}
 import services.search._
 import services.storage.FileStorage
@@ -29,7 +30,8 @@ case class Repositories @Inject()(
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
   fileStorage: FileStorage,
-  eadValidator: EadValidator
+  eadValidator: EadValidator,
+  entityTypeMetadata: EntityTypeMetadataService
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -98,9 +100,9 @@ case class Repositories @Inject()(
 
   override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
 
-  private val formConfig: FormConfigBuilder = FormConfigBuilder(EntityType.Repository, config)
+  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.Repository, config)
   private val form = models.Repository.form
-  private val childFormDefaults: FormConfigBuilder = FormConfigBuilder(EntityType.DocumentaryUnit, config)
+  private val childFormDefaults: FieldMetaFormFieldHintsBuilder = FieldMetaFormFieldHintsBuilder(EntityType.DocumentaryUnit, entityTypeMetadata, config)
   private val childForm = models.DocumentaryUnit.form
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 

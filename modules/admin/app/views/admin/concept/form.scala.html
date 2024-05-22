@@ -8,7 +8,7 @@
 @lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
 
 @defining("cvocConcept") { implicit prefix =>
-    @defining(Option.empty[forms.FormConfig]) { implicit implicitConfig =>
+    @defining(Option.empty[forms.FormFieldHints]) { implicit implicitConfig =>
         @lineInput(f(""), URI)
         @lineInput(f(""), URL)
         @lineInput(f(""), LONGITUDE)

@@ -49,7 +49,8 @@ landingBlurb.CvocVocabulary=Browse terms and places.
 #
 # Form constraints, errors, and formats
 #
-constraint.required=*
+constraints.mandatory=Mandatory
+constraints.desirable=Desirable
 constraints.timeCheckSeconds=Timestamp
 constraints.timeCheckSeconds.failed=The form was submitted too quickly. Please try again.
 constraints.honeypot=Blank Check
@@ -217,17 +218,21 @@ profile.unwatch.title=Remove item from your watch list
 #
 type=Item type
 type.Repository=Archival Institutions
+type.RepositoryDescription=Archival Institutions
 type.Repository.description=An inventory of archival institutions that \
   hold Holocaust-related material.
 type.DocumentaryUnit=Archival Descriptions
+type.DocumentaryUnitDescription=Archival Descriptions
 type.DocumentaryUnit.description=Electronic descriptions and finding aids of Holocaust-related archival material.
 type.HistoricalAgent=Authorities
+type.HistoricalAgentDescription=Authorities
 type.HistoricalAgent.description=People, families, and corporate bodies related to EHRI archival descriptions.
 type.Country=Countries
 type.Country.description=EHRI national reports provide an overview of \
   the Second World War and Holocaust history as well as of the archival situation \
   in the covered countries.
 type.CvocConcept=Keywords
+type.CvocConceptDescription=Keywords
 type.CvocConcept.description=Subject terms related to EHRI archival descriptions.
 type.UserProfile=People on EHRI
 type.Group=Groups
@@ -1284,3 +1289,34 @@ authoritativeSet.childItems=Authorities
 authoritativeSet.searchItems=Search authorities in {0}...
 authoritativeSet.childCount={0,choice,0#No authorities|1#1 authority|1<{0,number,integer} authorities}
 authoritativeSet.childItems.search={0,choice,0#No authorities|1#1 authority|1<{0,number,integer} authorities}
+
+#
+# Data Model
+#
+dataModel=EHRI Data Model
+dataModel.description=The EHRI Data Model is a conceptual model that describes the structure of the data \
+  in the EHRI portal. The model is based on the International Council on Archives (ICA) \
+  standards for archival description.
+dataModel.field.name=Field Name
+dataModel.field.description=Description
+dataModel.field.usage=Usage
+dataModel.field.usage.mandatory=Mandatory
+dataModel.field.usage.desirable=Desirable
+dataModel.field.usage.optional=Optional
+dataModel.field.seeAlso=See Also
+dataModel.DocumentaryUnit.identityArea=Identity Area
+dataModel.DocumentaryUnit.contextArea=Context Area
+dataModel.DocumentaryUnit.contentArea=Content Area
+dataModel.DocumentaryUnit.conditionsArea=Conditions Area
+dataModel.DocumentaryUnit.materialsArea=Materials Area
+dataModel.DocumentaryUnit.notesArea=Notes Area
+dataModel.DocumentaryUnit.controlArea=Control Area
+dataModel.Repository.identityArea=Identity Area
+dataModel.Repository.addressArea=Address Area
+dataModel.Repository.descriptionArea=Description Area
+dataModel.Repository.accessArea=Access Area
+dataModel.Repository.servicesArea=Services Area
+dataModel.Repository.controlArea=Control Area
+dataModel.HistoricalAgent.identityArea=Identity Area
+dataModel.HistoricalAgent.descriptionArea=Description Area
+dataModel.HistoricalAgent.controlArea=Control Area

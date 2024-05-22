@@ -1,4 +1,4 @@
-@(desc: play.api.data.Field, fieldName: String, options: List[(String,String)], args: (Symbol, Any)*)(implicit prefix: String = "", config: Option[forms.FormConfig] = None, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
+@(desc: play.api.data.Field, fieldName: String, options: List[(String,String)], args: (Symbol, Any)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
 @views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.select(

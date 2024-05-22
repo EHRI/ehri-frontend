@@ -1211,6 +1211,8 @@ historicalAgent.identityArea=Identity Area
 historicalAgent.dates=Dates
 historicalAgent.creation=Creation
 historicalAgent.existence=Existence
+historicalAgent.startDate=Start Date
+historicalAgent.endDate=End Date
 
 historicalAgent.identifier.description=To identify the authority record uniquely within the\
   context in which it will be used. (5.4.1)
@@ -1567,3 +1569,8 @@ cleanup.relinked=Updated links and annotations
 cleanup.redirected=Redirected {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
 cleanup.deleted=Deleted {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
 cleanup.done=Cleanup complete
+
+#
+# Data Model
+#
+dataModel=Data Model
