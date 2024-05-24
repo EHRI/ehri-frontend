@@ -38,6 +38,10 @@ case class FieldMetadata @Inject()(
     ).as(MimeTypes.JAVASCRIPT)
   }
 
+  def editor(): Action[AnyContent] = WithUserAction { implicit request =>
+    Ok(views.html.admin.fieldmeta.editor())
+  }
+
   def list(entityType: Option[EntityType.Value]): Action[AnyContent] = WithUserAction.async { implicit request =>
     fieldMetaService.list(entityType).map { items =>
       Ok(Json.toJson(items))

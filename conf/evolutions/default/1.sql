@@ -366,7 +366,7 @@ CREATE TABLE field_meta(
     description TEXT,
     usage       VARCHAR(50),
     category    VARCHAR(50),
-    see_other   TEXT[],
+    see_also    TEXT[],
     created     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated     TIMESTAMP,
     PRIMARY KEY (entity_type, id)

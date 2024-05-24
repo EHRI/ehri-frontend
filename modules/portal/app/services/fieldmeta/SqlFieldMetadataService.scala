@@ -50,7 +50,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
     "description",
     "usage",
     "category",
-    "see_other",
+    "see_also",
     "created",
     "updated"
   )
@@ -62,6 +62,9 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
             SELECT * FROM field_meta
             WHERE COALESCE($entityType, '') = ''
             OR entity_type = ${entityType.map(_.toString)}
+            ORDER BY
+              entity_type,
+              category
            """.as(fieldMetaParser.*)
     }
   }(ec)
@@ -79,7 +82,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
   def create(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-            INSERT INTO field_meta(entity_type, id, name, description, usage, category, see_other)
+            INSERT INTO field_meta(entity_type, id, name, description, usage, category, see_also)
             VALUES (
               $entityType,
               $id,
@@ -87,13 +90,13 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               ${fieldMeta.description},
               ${fieldMeta.usage},
               ${fieldMeta.category},
-              ${fieldMeta.seeOther}
+              ${fieldMeta.seeAlso}
             ) ON CONFLICT (entity_type, id) DO UPDATE SET
               name = ${fieldMeta.name},
               description = ${fieldMeta.description},
               usage = ${fieldMeta.usage},
               category = ${fieldMeta.category},
-              see_other = ${fieldMeta.seeOther}
+              see_also = ${fieldMeta.seeAlso}
             RETURNING *
            """.as(fieldMetaParser.single)
     }
@@ -108,7 +111,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               name = ${fieldMeta.name},
               description = ${fieldMeta.description},
               usage = ${fieldMeta.usage},
-              see_other = ${fieldMeta.seeOther},
+              see_also = ${fieldMeta.seeAlso},
               updated = NOW()
             WHERE entity_type = $entityType
             AND id = $id

@@ -35,7 +35,7 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
         Seq("New Field See Other"),
       )))
       ds.name must_== "New Field"
-      ds.seeOther must_== Seq("New Field See Other")
+      ds.seeAlso must_== Seq("New Field See Other")
       ds.usage must beSome(FieldMetadata.Usage.Mandatory)
       ds.created must beSome
       ds.updated must beNone
@@ -50,7 +50,7 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
         Seq("Updated Field See Other")
       )))
       ds.name must_== "Updated Field"
-      ds.seeOther must_== Seq("Updated Field See Other")
+      ds.seeAlso must_== Seq("Updated Field See Other")
       ds.usage must beSome(FieldMetadata.Usage.Desirable)
       ds.created must beSome
       ds.updated must beSome

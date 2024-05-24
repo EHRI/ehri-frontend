@@ -24,7 +24,7 @@ import utils.db.StorableEnum
   * @param usage whether the field is mandatory or desirable
   * @param category an optional string denoting the category of the field in
   *                 a large form, e.g. "Identity", "Access", "Description"
-  * @param seeOther a list of URLs for further information about the field or
+  * @param seeAlso a list of URLs for further information about the field or
   *                 related documentation
   */
 case class FieldMetadata(
@@ -34,7 +34,7 @@ case class FieldMetadata(
   description: Option[String] = None,
   usage: Option[FieldMetadata.Usage.Value] = None,
   category: Option[String] = None,
-  seeOther: Seq[String] = Nil,
+  seeAlso: Seq[String] = Nil,
   created: Option[Instant] = None,
   updated: Option[Instant] = None
 )
@@ -60,7 +60,7 @@ case class FieldMetadataInfo(
   description: Option[String] = None,
   usage: Option[FieldMetadata.Usage.Value] = None,
   category: Option[String] = None,
-  seeOther: Seq[String] = Nil,
+  seeAlso: Seq[String] = Nil,
   created: Option[Instant] = None,
   updated: Option[Instant] = None
 )

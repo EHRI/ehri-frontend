@@ -44,7 +44,7 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         "name" -> "General Context",
         "description" -> "Testing testing... 1, 2, 3...",
         "usage" -> FieldMetadata.Usage.Mandatory.toString,
-        "seeOther" -> Seq("https://example.com/new-field"),
+        "seeAlso" -> Seq("https://example.com/new-field"),
       )
       val r = FakeRequest(fieldMetadataRoutes.create(EntityType.RepositoryDescription, Isdiah.GEOCULTURAL_CONTEXT))
         .withUser(privilegedUser)
@@ -60,7 +60,7 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         "name" -> "History",
         "description" -> "The history of the repository",
         "usage" -> FieldMetadata.Usage.Desirable.toString,
-        "seeOther" -> Seq("https://example.com/history"),
+        "seeAlso" -> Seq("https://example.com/history"),
       )
       val r = FakeRequest(fieldMetadataRoutes.update(EntityType.RepositoryDescription, Isdiah.HISTORY))
         .withUser(privilegedUser)

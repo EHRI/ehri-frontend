@@ -1,0 +1,51 @@
+import axios from "axios";
+import {
+  FieldMetadata,
+  FieldMetadataInfo,
+} from "./types";
+
+export default class FieldMetadataEditorApi {
+
+  service: any;
+
+  constructor(service: object) {
+    this.service = service;
+  }
+
+  private static call<T>(endpoint: {url: string, method: any}, data?: object, params?: object): Promise<T> {
+    return axios.request<T>({
+      url: endpoint.url,
+      method: endpoint.method,
+      data,
+      params,
+      headers: {
+        "ajax-ignore-csrf": true,
+        "Content-Type": "application/json",
+        "Accept": "application/json; charset=utf-8",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      withCredentials: true,
+    }).then(r => r.data);
+  }
+
+  list(entityType?: string): Promise<FieldMetadata[]> {
+    let params = entityType ? {entityType} : {};
+    return FieldMetadataEditorApi.call<FieldMetadata[]>(this.service.list(), {}, params)
+  }
+
+  get(entityType: string, id: string): Promise<FieldMetadata | null> {
+    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.get(entityType, id));
+  }
+
+  create(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
+    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.create(entityType, id), data);
+  }
+
+  update(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
+    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.update(entityType, id), data);
+  }
+
+  delete(entityType: string, id: string): Promise<boolean> {
+    return FieldMetadataEditorApi.call<boolean>(this.service.delete(entityType, id));
+  }
+}

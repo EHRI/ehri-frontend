@@ -1,0 +1,40 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@styles = {
+    <link href="@controllers.admin.routes.AdminAssets.versioned("css/datasets.css")" rel="stylesheet">
+}
+
+@breadcrumbRoot = {
+    <a href="@controllers.fieldmeta.routes.FieldMetadata.editor()">@Messages("fieldmeta")</a>
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("fieldmeta"), styles = styles,
+    breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
+    <script src="@controllers.fieldmeta.routes.FieldMetadata.jsRoutes()"></script>
+} {
+    @helper.javascriptRouter("fieldmetaApi")(
+        controllers.fieldmeta.routes.javascript.FieldMetadata.list,
+        controllers.fieldmeta.routes.javascript.FieldMetadata.get,
+        controllers.fieldmeta.routes.javascript.FieldMetadata.create,
+        controllers.fieldmeta.routes.javascript.FieldMetadata.update,
+        controllers.fieldmeta.routes.javascript.FieldMetadata.delete
+    )
+
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/fmeditor/app.js")"></script>
+    <script>
+            window.SERVICE = {
+                list: fieldmetaApi.controllers.fieldmeta.FieldMetadata.list,
+                get: fieldmetaApi.controllers.fieldmeta.FieldMetadata.get,
+                create: fieldmetaApi.controllers.fieldmeta.FieldMetadata.create,
+                update: fieldmetaApi.controllers.fieldmeta.FieldMetadata.update,
+                delete: fieldmetaApi.controllers.fieldmeta.FieldMetadata.delete
+            }
+            Vue.createApp({
+                render: function() {
+                    return Vue.h(App.default, {
+                        service: window.SERVICE
+                    });
+                },
+            }).mount("#vue-app");
+    </script>
+}
