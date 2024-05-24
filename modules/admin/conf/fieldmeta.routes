@@ -1,7 +1,7 @@
 # Routes for fieldmeta API
 
-GET           /                       @controllers.fieldmeta.FieldMetadata.list(entityType: Option[models.EntityType.Value] ?= None)
 GET           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.get(entityType: models.EntityType.Value, id: String)
-POST          /                       @controllers.fieldmeta.FieldMetadata.create()
-PUT           /                       @controllers.fieldmeta.FieldMetadata.update()
+POST          /:entityType/:id        @controllers.fieldmeta.FieldMetadata.create(entityType: models.EntityType.Value, id: String)
+PUT           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.update(entityType: models.EntityType.Value, id: String)
 DELETE        /:entityType/:id        @controllers.fieldmeta.FieldMetadata.delete(entityType: models.EntityType.Value, id: String)
+GET           /                       @controllers.fieldmeta.FieldMetadata.list(entityType: Option[models.EntityType.Value] ?= None)

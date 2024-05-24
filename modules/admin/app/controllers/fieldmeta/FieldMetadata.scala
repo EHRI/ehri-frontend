@@ -5,7 +5,7 @@ import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._
 import play.api.http.MimeTypes
-import play.api.libs.json.Json
+import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.routing.JavaScriptReverseRouter
@@ -47,18 +47,18 @@ case class FieldMetadata @Inject()(
   def get(entityType: EntityType.Value, id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
     fieldMetaService.get(entityType, id).map {
       case Some(item) => Ok(Json.toJson(item))
-      case None => NotFound
+      case None => NotFound(JsNull)
     }
   }
 
-  def create(): Action[models.FieldMetadata] = WithUserAction.async(parse.json[models.FieldMetadata]) { implicit request =>
-    fieldMetaService.create(request.body).map { item =>
+  def create(entityType: EntityType.Value, id: String): Action[models.FieldMetadataInfo] = WithUserAction.async(parse.json[models.FieldMetadataInfo]) { implicit request =>
+    fieldMetaService.create(entityType, id, request.body).map { item =>
       Created(Json.toJson(item))
     }
   }
 
-  def update(): Action[models.FieldMetadata] = WithUserAction.async(parse.json[models.FieldMetadata]) { implicit request =>
-    fieldMetaService.update(request.body).map { item =>
+  def update(entityType: EntityType.Value, id: String): Action[models.FieldMetadataInfo] = WithUserAction.async(parse.json[models.FieldMetadataInfo]) { implicit request =>
+    fieldMetaService.update(entityType, id, request.body).map { item =>
       Ok(Json.toJson(item))
     }
   }

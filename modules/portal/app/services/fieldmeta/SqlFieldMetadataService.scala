@@ -2,7 +2,7 @@ package services.fieldmeta
 
 import akka.actor.ActorSystem
 import anorm.{Column, SqlStringInterpolation, ToStatement, TypeDoesNotMatch}
-import models.{EntityType, FieldMetadata}
+import models.{EntityType, FieldMetadata, FieldMetadataInfo}
 import org.postgresql.jdbc.PgArray
 import play.api.db.Database
 
@@ -76,30 +76,30 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
     }
   }(ec)
 
-  def create(fieldMeta: FieldMetadata): Future[FieldMetadata] = Future {
+  def create(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
-            INSERT INTO field_meta(entity_type, category, id, name, description, usage, see_other)
+            INSERT INTO field_meta(entity_type, id, name, description, usage, category, see_other)
             VALUES (
-              ${fieldMeta.entityType},
-              ${fieldMeta.category},
-              ${fieldMeta.id},
+              $entityType,
+              $id,
               ${fieldMeta.name},
               ${fieldMeta.description},
               ${fieldMeta.usage},
+              ${fieldMeta.category},
               ${fieldMeta.seeOther}
             ) ON CONFLICT (entity_type, id) DO UPDATE SET
-              category = ${fieldMeta.category},
               name = ${fieldMeta.name},
               description = ${fieldMeta.description},
               usage = ${fieldMeta.usage},
+              category = ${fieldMeta.category},
               see_other = ${fieldMeta.seeOther}
             RETURNING *
            """.as(fieldMetaParser.single)
     }
   }(ec)
 
-  def update(fieldMeta: FieldMetadata): Future[FieldMetadata] = Future {
+  def update(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             UPDATE field_meta
@@ -110,8 +110,8 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               usage = ${fieldMeta.usage},
               see_other = ${fieldMeta.seeOther},
               updated = NOW()
-            WHERE entity_type = ${fieldMeta.entityType}
-            AND id = ${fieldMeta.id}
+            WHERE entity_type = $entityType
+            AND id = $id
             RETURNING *
            """.as(fieldMetaParser.single)
     }

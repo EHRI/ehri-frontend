@@ -2,7 +2,7 @@ package services.fieldmeta
 
 import anorm.AnormException
 import helpers.IntegrationTestRunner
-import models.{EntityType, FieldMetadata}
+import models.{EntityType, FieldMetadata, FieldMetadataInfo}
 import play.api.Application
 
 
@@ -21,10 +21,13 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
       ds.size must_== 1
     }
 
+    "get items" in new DBTestApp("field-metadata-fixtures.sql") {
+      val ds = await(service.get(EntityType.RepositoryDescription, "history"))
+      ds must beSome.which {_.name must_== "History"}
+    }
+
     "create items" in new DBTestApp("field-metadata-fixtures.sql") {
-      val ds = await(service.create(FieldMetadata(
-        EntityType.RepositoryDescription,
-        "new",
+      val ds = await(service.create(EntityType.RepositoryDescription, "new", FieldMetadataInfo(
         "New Field",
         Some("New Field Description"),
         Some(FieldMetadata.Usage.Mandatory),
@@ -39,14 +42,12 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
     }
 
     "update items" in new DBTestApp("field-metadata-fixtures.sql") {
-      val ds = await(service.update(FieldMetadata(
-        EntityType.RepositoryDescription,
-        "history",
+      val ds = await(service.update(EntityType.RepositoryDescription, "history", FieldMetadataInfo(
         "Updated Field",
         Some("Updated Field Description"),
         Some(FieldMetadata.Usage.Desirable),
         Some("Updated Field Category"),
-        Seq("Updated Field See Other"),
+        Seq("Updated Field See Other")
       )))
       ds.name must_== "Updated Field"
       ds.seeOther must_== Seq("Updated Field See Other")
@@ -56,9 +57,7 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
     }
 
     "update non-existing items" in new DBTestApp("field-metadata-fixtures.sql") {
-      await(service.update(FieldMetadata(
-        EntityType.RepositoryDescription,
-        "non-existing",
+      await(service.update(EntityType.RepositoryDescription, "non-existing", FieldMetadataInfo(
         "Updated Field",
         Some("Updated Field Description"),
         Some(FieldMetadata.Usage.Desirable),

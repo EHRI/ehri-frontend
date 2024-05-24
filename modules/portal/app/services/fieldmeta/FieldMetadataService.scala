@@ -1,7 +1,7 @@
 package services.fieldmeta
 
 import com.google.inject.ImplementedBy
-import models.{EntityType, FieldMetadata}
+import models.{EntityType, FieldMetadata, FieldMetadataInfo}
 
 import scala.concurrent.Future
 
@@ -12,9 +12,9 @@ trait FieldMetadataService {
 
   def get(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]]
 
-  def create(fieldMeta: FieldMetadata): Future[FieldMetadata]
+  def create(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata]
 
-  def update(fieldMeta: FieldMetadata): Future[FieldMetadata]
+  def update(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata]
 
   def delete(entityType: EntityType.Value, id: String): Future[Boolean]
 }

@@ -1,6 +1,6 @@
 package models
 
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, Reads}
 import utils.EnumUtils.enumFormat
 
 import java.time.Instant
@@ -50,5 +50,19 @@ object FieldMetadata {
 
   implicit val _format: Format[FieldMetadata] = play.api.libs.json.Json.format[FieldMetadata]
 }
+
+object FieldMetadataInfo {
+  implicit val _reads: Reads[FieldMetadataInfo] = play.api.libs.json.Json.reads[FieldMetadataInfo]
+}
+
+case class FieldMetadataInfo(
+  name: String,
+  description: Option[String] = None,
+  usage: Option[FieldMetadata.Usage.Value] = None,
+  category: Option[String] = None,
+  seeOther: Seq[String] = Nil,
+  created: Option[Instant] = None,
+  updated: Option[Instant] = None
+)
 
 
