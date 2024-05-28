@@ -2,6 +2,7 @@
 
 GET           /routes                 @controllers.fieldmeta.FieldMetadata.jsRoutes()
 GET           /editor                 @controllers.fieldmeta.FieldMetadata.editor()
+GET           /templates              @controllers.fieldmeta.FieldMetadata.templates()
 GET           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.get(entityType: models.EntityType.Value, id: String)
 POST          /:entityType/:id        @controllers.fieldmeta.FieldMetadata.create(entityType: models.EntityType.Value, id: String)
 PUT           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.update(entityType: models.EntityType.Value, id: String)

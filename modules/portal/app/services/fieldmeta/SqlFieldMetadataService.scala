@@ -56,7 +56,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
   )
 
 
-  def list(entityType: Option[EntityType.Value] = None): Future[Seq[FieldMetadata]] = Future {
+  def list(entityType: Option[EntityType.Value] = None): Future[Seq[(EntityType.Value, Seq[FieldMetadata])]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             SELECT * FROM field_meta
@@ -66,6 +66,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               entity_type,
               category
            """.as(fieldMetaParser.*)
+        .groupBy(_.entityType).toSeq
     }
   }(ec)
 

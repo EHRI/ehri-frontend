@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
-  FieldMetadata,
-  FieldMetadataInfo,
+  FieldMetadata, FieldMetadataEntityTypeTemplate,
+  FieldMetadataInfo, FieldMetadataTemplates,
 } from "./types";
 
 export default class FieldMetadataEditorApi {
@@ -28,9 +28,9 @@ export default class FieldMetadataEditorApi {
     }).then(r => r.data);
   }
 
-  list(entityType?: string): Promise<FieldMetadata[]> {
+  list(entityType?: string): Promise<[string, FieldMetadata[]][]> {
     let params = entityType ? {entityType} : {};
-    return FieldMetadataEditorApi.call<FieldMetadata[]>(this.service.list(), {}, params)
+    return FieldMetadataEditorApi.call<[string, FieldMetadata[]][]>(this.service.list(), {}, params)
   }
 
   get(entityType: string, id: string): Promise<FieldMetadata | null> {
@@ -47,5 +47,9 @@ export default class FieldMetadataEditorApi {
 
   delete(entityType: string, id: string): Promise<boolean> {
     return FieldMetadataEditorApi.call<boolean>(this.service.delete(entityType, id));
+  }
+
+  templates(): Promise<FieldMetadataTemplates> {
+    return FieldMetadataEditorApi.call<object>(this.service.templates());
   }
 }

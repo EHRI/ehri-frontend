@@ -5,6 +5,7 @@ import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._
 import play.api.http.MimeTypes
+import play.api.i18n.Messages
 import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
@@ -71,5 +72,23 @@ case class FieldMetadata @Inject()(
     fieldMetaService.delete(entityType, id).map { success =>
       if (success) NoContent else NotFound
     }
+  }
+
+  def templates(): Action[AnyContent] = WithUserAction { implicit request =>
+    val data = Json.obj(
+      EntityType.RepositoryDescription.toString -> Map(
+        "sections" -> Isdiah.SECTIONS.map(section => section -> Messages("repository." + section)),
+        "fields" -> Isdiah.FIELDS.map(field => field -> Messages("repository." + field))
+      ),
+      EntityType.DocumentaryUnitDescription.toString -> Map(
+        "sections" -> IsadG.SECTIONS.map(section => section -> Messages("documentaryUnit." + section)),
+        "fields" -> IsadG.FIELDS.map(field => field -> Messages("documentaryUnit." + field))
+      ),
+      EntityType.HistoricalAgentDescription.toString -> Map(
+        "sections" -> Isaar.SECTIONS.map(section => section -> Messages("historicalAgent." + section)),
+        "fields" -> Isaar.FIELDS.map(field => field -> Messages("historicalAgent." + field))
+      )
+    )
+    Ok(data)
   }
 }

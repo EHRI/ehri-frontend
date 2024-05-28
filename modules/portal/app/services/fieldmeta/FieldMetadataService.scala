@@ -8,7 +8,7 @@ import scala.concurrent.Future
 @ImplementedBy(classOf[SqlFieldMetadataService])
 trait FieldMetadataService {
 
-  def list(entityType: Option[EntityType.Value] = None): Future[Seq[FieldMetadata]]
+  def list(entityType: Option[EntityType.Value] = None): Future[Seq[(EntityType.Value, Seq[FieldMetadata])]]
 
   def get(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]]
 

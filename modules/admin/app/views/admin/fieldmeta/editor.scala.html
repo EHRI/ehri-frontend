@@ -17,7 +17,8 @@
         controllers.fieldmeta.routes.javascript.FieldMetadata.get,
         controllers.fieldmeta.routes.javascript.FieldMetadata.create,
         controllers.fieldmeta.routes.javascript.FieldMetadata.update,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.delete
+        controllers.fieldmeta.routes.javascript.FieldMetadata.delete,
+        controllers.fieldmeta.routes.javascript.FieldMetadata.templates,
     )
 
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/fmeditor/app.js")"></script>
@@ -27,7 +28,8 @@
                 get: fieldmetaApi.controllers.fieldmeta.FieldMetadata.get,
                 create: fieldmetaApi.controllers.fieldmeta.FieldMetadata.create,
                 update: fieldmetaApi.controllers.fieldmeta.FieldMetadata.update,
-                delete: fieldmetaApi.controllers.fieldmeta.FieldMetadata.delete
+                delete: fieldmetaApi.controllers.fieldmeta.FieldMetadata.delete,
+                templates: fieldmetaApi.controllers.fieldmeta.FieldMetadata.templates,
             }
             Vue.createApp({
                 render: function() {

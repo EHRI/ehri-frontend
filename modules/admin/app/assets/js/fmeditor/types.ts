@@ -4,6 +4,7 @@
 
 export type Ok = {ok: true}
 
+export type EntityType = "RepositoryDescription" | "HistoricalAgentDescription" | "DocumentaryUnitDescription";
 export type Usage = "mandatory" | "desirable";
 
 export interface FieldMetadataInfo {
@@ -17,6 +18,17 @@ export interface FieldMetadataInfo {
 }
 
 export interface FieldMetadata extends FieldMetadataInfo {
-  entityType: string
+  entityType: EntityType
   id: string
 }
+
+export interface FieldMetadataTemplateInfo {
+  [key: string]: string
+}
+
+export interface FieldMetadataEntityTypeTemplate {
+  fields: FieldMetadataTemplateInfo,
+  sections: FieldMetadataTemplateInfo
+}
+
+export type FieldMetadataTemplates = Record<EntityType, FieldMetadataEntityTypeTemplate>;

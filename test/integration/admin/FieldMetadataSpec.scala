@@ -2,7 +2,7 @@ package integration.admin
 
 import helpers._
 import mockdata.privilegedUser
-import models.{EntityType, FieldMetadata, ImportConfig, Isdiah}
+import models.{EntityType, FieldMetadata, Isdiah}
 import play.api.libs.json.{JsNull, Json}
 import play.api.test.FakeRequest
 
@@ -18,7 +18,7 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .call()
       status(r) must_== OK
-      contentAsJson(r).as[Seq[FieldMetadata]].length must_== 2
+      contentAsJson(r).as[Seq[(EntityType.Value, Seq[FieldMetadata])]].length must_== 2
     }
 
     "get field metadata with no data" in new DBTestApp("field-metadata-fixtures.sql") {
@@ -76,6 +76,14 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .call()
       status(r) must_== NO_CONTENT
+    }
+
+    "provide template info" in new ITestApp {
+      val r = FakeRequest(fieldMetadataRoutes.templates())
+        .withUser(privilegedUser)
+        .call()
+      status(r) must_== OK
+      println(contentAsString(r))
     }
   }
 }
