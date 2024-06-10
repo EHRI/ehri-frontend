@@ -17,7 +17,7 @@ logBuffered := false
 logLevel := Level.Info
 ThisBuild / organization := "eu.ehri-project"
 
-val projectScalaVersion = "2.13.13"
+val projectScalaVersion = "2.13.14"
 val appName = "docview"
 
 val backendVersion = "0.15.1"
