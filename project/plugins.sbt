@@ -1,5 +1,5 @@
 // Comment to get more information during initialization
-logLevel := Level.Warn
+//logLevel := Level.Warn
 
 // The Typesafe repository 
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
@@ -10,6 +10,7 @@ resolvers += Resolver.bintrayRepo("givers", "maven")
 ThisBuild / libraryDependencySchemes ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
+
 
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
