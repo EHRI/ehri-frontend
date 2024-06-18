@@ -121,8 +121,8 @@ class AnnotationsSpec extends IntegrationTestRunner {
       contentAsString(doc) must not contain testBody
 
       // Get a id via faff method and promote the item...
-      implicit val apiUser = DataUser(Some(privilegedUser.id))
-      val aid = await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
+      implicit val apiUser: DataUser = DataUser(Some(privilegedUser.id))
+      await(dataApi.annotations[Annotation]("c4")).headOption must beSome.which { aid =>
         await(dataApi.promote[Annotation](aid.id))
 
         // Ensure the unprivileged user CAN now see the annotation...
