@@ -15,7 +15,7 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 //resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 // Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.3")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.4")
 
 addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.5.2")
 
@@ -34,7 +34,4 @@ addSbtPlugin("io.github.givesocialmovement" % "sbt-vuefy" % "6.0.0")
 
 // For building command line tools...
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
-
-// Can be removed when Play 2.9.4/3.0.4 is released
-libraryDependencies += "org.webjars" % "webjars-locator-core" % "0.59"
 
