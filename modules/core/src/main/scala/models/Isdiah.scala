@@ -1,8 +1,8 @@
 package models
 
 /**
- * ISDIAH Field definitions
- */
+  * ISDIAH Field definitions
+  */
 case object Isdiah {
 
   object RepositoryType extends Enumeration {
@@ -70,56 +70,59 @@ case object Isdiah {
 
   val ACCESS_POINTS = "accessPoints"
 
-  val SECTIONS = List(
-    IDENTITY_AREA,
-    ADDRESS_AREA,
-    DESCRIPTION_AREA,
-    ACCESS_AREA,
-    SERVICES_AREA,
-    CONTROL_AREA
-  )
-
-  val FIELDS = List(
-    IDENTIFIER,
-    AUTHORIZED_FORM_OF_NAME,
-    OTHER_FORMS_OF_NAME,
-    PARALLEL_FORMS_OF_NAME,
-    INSTITUTION_TYPE,
-    ADDRESS_NAME,
-    CONTACT_PERSON,
-    STREET_ADDRESS,
-    CITY,
-    REGION,
-    COUNTRY_CODE,
-    POSTAL_CODE,
-    EMAIL,
-    TELEPHONE,
-    FAX,
-    URL,
-    HISTORY,
-    GEOCULTURAL_CONTEXT,
-    MANDATES,
-    ADMINISTRATIVE_STRUCTURE,
-    RECORDS,
-    BUILDINGS,
-    HOLDINGS,
-    FINDING_AIDS,
-    OPENING_TIMES,
-    CONDITIONS,
-    ACCESSIBILITY,
-    RESEARCH_SERVICES,
-    REPROD_SERVICES,
-    PUBLIC_AREAS,
-    DESCRIPTION_IDENTIFIER,
-    INSTITUTION_IDENTIFIER,
-    RULES_CONVENTIONS,
-    STATUS,
-    LEVEL_OF_DETAIL,
-    DATES_CVD,
-    LANGUAGES_USED,
-    SCRIPTS_USED,
-    SOURCES,
-    MAINTENANCE_NOTES
+  val FIELDS: Seq[(String, Seq[String])] = List(
+    IDENTITY_AREA -> Seq(
+      IDENTIFIER,
+      AUTHORIZED_FORM_OF_NAME,
+      OTHER_FORMS_OF_NAME,
+      PARALLEL_FORMS_OF_NAME,
+      INSTITUTION_TYPE
+    ),
+    ADDRESS_AREA -> List(
+      ADDRESS_NAME,
+      CONTACT_PERSON,
+      STREET_ADDRESS,
+      CITY,
+      REGION,
+      COUNTRY_CODE,
+      POSTAL_CODE,
+      EMAIL,
+      TELEPHONE,
+      FAX,
+      URL
+    ),
+    DESCRIPTION_AREA -> List(
+      HISTORY,
+      GEOCULTURAL_CONTEXT,
+      MANDATES,
+      ADMINISTRATIVE_STRUCTURE,
+      RECORDS,
+      BUILDINGS,
+      HOLDINGS,
+      FINDING_AIDS,
+    ),
+    ACCESS_AREA -> List(
+      OPENING_TIMES,
+      CONDITIONS,
+      ACCESSIBILITY,
+    ),
+    SERVICES_AREA -> List(
+      RESEARCH_SERVICES,
+      REPROD_SERVICES,
+      PUBLIC_AREAS,
+    ),
+    CONTROL_AREA -> List(
+      DESCRIPTION_IDENTIFIER,
+      INSTITUTION_IDENTIFIER,
+      RULES_CONVENTIONS,
+      STATUS,
+      LEVEL_OF_DETAIL,
+      DATES_CVD,
+      LANGUAGES_USED,
+      SCRIPTS_USED,
+      SOURCES,
+      MAINTENANCE_NOTES
+    )
   )
 }
 

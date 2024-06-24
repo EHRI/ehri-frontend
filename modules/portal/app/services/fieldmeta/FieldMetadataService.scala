@@ -12,9 +12,7 @@ trait FieldMetadataService {
 
   def get(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]]
 
-  def create(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata]
-
-  def update(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata]
+  def save(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata]
 
   def delete(entityType: EntityType.Value, id: String): Future[Boolean]
 }

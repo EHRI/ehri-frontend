@@ -26,8 +26,8 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
       ds must beSome.which {_.name must_== "History"}
     }
 
-    "create items" in new DBTestApp("field-metadata-fixtures.sql") {
-      val ds = await(service.create(EntityType.RepositoryDescription, "new", FieldMetadataInfo(
+    "save items" in new DBTestApp("field-metadata-fixtures.sql") {
+      val ds = await(service.save(EntityType.RepositoryDescription, "new", FieldMetadataInfo(
         "New Field",
         Some("New Field Description"),
         Some(FieldMetadata.Usage.Mandatory),
@@ -41,8 +41,8 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
       ds.updated must beNone
     }
 
-    "update items" in new DBTestApp("field-metadata-fixtures.sql") {
-      val ds = await(service.update(EntityType.RepositoryDescription, "history", FieldMetadataInfo(
+    "save existing items" in new DBTestApp("field-metadata-fixtures.sql") {
+      val ds = await(service.save(EntityType.RepositoryDescription, "history", FieldMetadataInfo(
         "Updated Field",
         Some("Updated Field Description"),
         Some(FieldMetadata.Usage.Desirable),
@@ -54,18 +54,6 @@ class SqlFieldMetadataServiceSpec extends IntegrationTestRunner {
       ds.usage must beSome(FieldMetadata.Usage.Desirable)
       ds.created must beSome
       ds.updated must beSome
-    }
-
-    "update non-existing items" in new DBTestApp("field-metadata-fixtures.sql") {
-      await(service.update(EntityType.RepositoryDescription, "non-existing", FieldMetadataInfo(
-        "Updated Field",
-        Some("Updated Field Description"),
-        Some(FieldMetadata.Usage.Desirable),
-        Some("Updated Field Category"),
-        Seq("Updated Field See Other"),
-      ))) must throwA[AnormException].like {
-        case e => e.getMessage must contain("No rows when expecting a single one")
-      }
     }
 
     "delete items" in new DBTestApp("field-metadata-fixtures.sql") {

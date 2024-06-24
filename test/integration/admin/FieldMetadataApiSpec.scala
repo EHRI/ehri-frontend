@@ -7,11 +7,11 @@ import play.api.libs.json.{JsNull, Json}
 import play.api.test.FakeRequest
 
 
-class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
+class FieldMetadataApiSpec extends IntegrationTestRunner with ResourceUtils {
 
-  private val fieldMetadataRoutes = controllers.fieldmeta.routes.FieldMetadata
+  private val fieldMetadataRoutes = controllers.fieldmeta.routes.FieldMetadataApi
 
-  "Field Metadata" should {
+  "Field Metadata API" should {
 
     "list field metadata" in new DBTestApp("field-metadata-fixtures.sql") {
       val r = FakeRequest(fieldMetadataRoutes.list())
@@ -46,10 +46,10 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         "usage" -> FieldMetadata.Usage.Mandatory.toString,
         "seeAlso" -> Seq("https://example.com/new-field"),
       )
-      val r = FakeRequest(fieldMetadataRoutes.create(EntityType.RepositoryDescription, Isdiah.GEOCULTURAL_CONTEXT))
+      val r = FakeRequest(fieldMetadataRoutes.save(EntityType.RepositoryDescription, Isdiah.GEOCULTURAL_CONTEXT))
         .withUser(privilegedUser)
         .callWith(data)
-      status(r) must_== CREATED
+      status(r) must_== OK // we don't distinguish between created and updated here
       contentAsJson(r).asOpt[FieldMetadata] must beSome.which { c: FieldMetadata =>
         c.description must beSome("Testing testing... 1, 2, 3...")
       }
@@ -62,7 +62,7 @@ class FieldMetadataSpec extends IntegrationTestRunner with ResourceUtils {
         "usage" -> FieldMetadata.Usage.Desirable.toString,
         "seeAlso" -> Seq("https://example.com/history"),
       )
-      val r = FakeRequest(fieldMetadataRoutes.update(EntityType.RepositoryDescription, Isdiah.HISTORY))
+      val r = FakeRequest(fieldMetadataRoutes.save(EntityType.RepositoryDescription, Isdiah.HISTORY))
         .withUser(privilegedUser)
         .callWith(data)
       status(r) must_== OK

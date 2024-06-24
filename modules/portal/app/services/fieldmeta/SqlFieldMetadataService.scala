@@ -80,7 +80,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
     }
   }(ec)
 
-  def create(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
+  def save(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             INSERT INTO field_meta(entity_type, id, name, description, usage, category, see_also)
@@ -97,25 +97,8 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               description = ${fieldMeta.description},
               usage = ${fieldMeta.usage},
               category = ${fieldMeta.category},
-              see_also = ${fieldMeta.seeAlso}
-            RETURNING *
-           """.as(fieldMetaParser.single)
-    }
-  }(ec)
-
-  def update(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
-    db.withConnection { implicit conn =>
-      SQL"""
-            UPDATE field_meta
-            SET
-              category = ${fieldMeta.category},
-              name = ${fieldMeta.name},
-              description = ${fieldMeta.description},
-              usage = ${fieldMeta.usage},
               see_also = ${fieldMeta.seeAlso},
               updated = NOW()
-            WHERE entity_type = $entityType
-            AND id = $id
             RETURNING *
            """.as(fieldMetaParser.single)
     }

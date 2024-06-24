@@ -37,12 +37,8 @@ export default class FieldMetadataEditorApi {
     return FieldMetadataEditorApi.call<FieldMetadata>(this.service.get(entityType, id));
   }
 
-  create(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
-    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.create(entityType, id), data);
-  }
-
-  update(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
-    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.update(entityType, id), data);
+  save(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
+    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.save(entityType, id), data);
   }
 
   delete(entityType: string, id: string): Promise<boolean> {

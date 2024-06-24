@@ -1,10 +1,10 @@
 # Routes for fieldmeta API
 
+GET           /                       @controllers.fieldmeta.FieldMetadata.editor()
 GET           /routes                 @controllers.fieldmeta.FieldMetadata.jsRoutes()
-GET           /editor                 @controllers.fieldmeta.FieldMetadata.editor()
-GET           /templates              @controllers.fieldmeta.FieldMetadata.templates()
-GET           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.get(entityType: models.EntityType.Value, id: String)
-POST          /:entityType/:id        @controllers.fieldmeta.FieldMetadata.create(entityType: models.EntityType.Value, id: String)
-PUT           /:entityType/:id        @controllers.fieldmeta.FieldMetadata.update(entityType: models.EntityType.Value, id: String)
-DELETE        /:entityType/:id        @controllers.fieldmeta.FieldMetadata.delete(entityType: models.EntityType.Value, id: String)
-GET           /                       @controllers.fieldmeta.FieldMetadata.list(entityType: Option[models.EntityType.Value] ?= None)
+GET           /templates              @controllers.fieldmeta.FieldMetadataApi.templates()
+GET           /i18n                   @controllers.fieldmeta.FieldMetadataApi.i18n()
+GET           /api/:entityType/:id    @controllers.fieldmeta.FieldMetadataApi.get(entityType: models.EntityType.Value, id: String)
+POST          /api/:entityType/:id    @controllers.fieldmeta.FieldMetadataApi.save(entityType: models.EntityType.Value, id: String)
+DELETE        /api/:entityType/:id    @controllers.fieldmeta.FieldMetadataApi.delete(entityType: models.EntityType.Value, id: String)
+GET           /api/                   @controllers.fieldmeta.FieldMetadataApi.list(entityType: Option[models.EntityType.Value] ?= None)

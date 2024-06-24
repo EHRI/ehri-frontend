@@ -12,24 +12,21 @@
     breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
     <script src="@controllers.fieldmeta.routes.FieldMetadata.jsRoutes()"></script>
 } {
-    @helper.javascriptRouter("fieldmetaApi")(
-        controllers.fieldmeta.routes.javascript.FieldMetadata.list,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.get,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.create,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.update,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.delete,
-        controllers.fieldmeta.routes.javascript.FieldMetadata.templates,
+    @helper.javascriptRouter("fieldMetadataApi")(
+        controllers.fieldmeta.routes.javascript.FieldMetadataApi.list,
+        controllers.fieldmeta.routes.javascript.FieldMetadataApi.get,
+        controllers.fieldmeta.routes.javascript.FieldMetadataApi.save,
+        controllers.fieldmeta.routes.javascript.FieldMetadataApi.delete,
+        controllers.fieldmeta.routes.javascript.FieldMetadataApi.templates,
     )
 
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/fmeditor/app.js")"></script>
     <script>
             window.SERVICE = {
-                list: fieldmetaApi.controllers.fieldmeta.FieldMetadata.list,
-                get: fieldmetaApi.controllers.fieldmeta.FieldMetadata.get,
-                create: fieldmetaApi.controllers.fieldmeta.FieldMetadata.create,
-                update: fieldmetaApi.controllers.fieldmeta.FieldMetadata.update,
-                delete: fieldmetaApi.controllers.fieldmeta.FieldMetadata.delete,
-                templates: fieldmetaApi.controllers.fieldmeta.FieldMetadata.templates,
+                list: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.list,
+                get: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.get,
+                save: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.save,
+                templates: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.templates,
             }
             Vue.createApp({
                 render: function() {
