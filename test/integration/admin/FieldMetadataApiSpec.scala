@@ -18,7 +18,7 @@ class FieldMetadataApiSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .call()
       status(r) must_== OK
-      contentAsJson(r).as[Seq[(EntityType.Value, Seq[FieldMetadata])]].length must_== 2
+      contentAsJson(r).as[Map[String, Seq[FieldMetadata]]].size must_== 2
     }
 
     "get field metadata with no data" in new DBTestApp("field-metadata-fixtures.sql") {

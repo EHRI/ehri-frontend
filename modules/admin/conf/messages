@@ -1567,3 +1567,8 @@ cleanup.relinked=Updated links and annotations
 cleanup.redirected=Redirected {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
 cleanup.deleted=Deleted {0,choice,0#0 items|1#1 item|1<{0,number,integer} items}
 cleanup.done=Cleanup complete
+
+#
+# Field Metadata / Data Model
+#
+fieldmeta=Field Metadata

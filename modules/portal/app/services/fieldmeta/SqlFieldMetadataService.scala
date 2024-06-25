@@ -39,9 +39,6 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
 
   private implicit def usageOptionToStatement: ToStatement[Option[FieldMetadata.Usage.Value]] =
     (s: java.sql.PreparedStatement, index: Int, value: Option[FieldMetadata.Usage.Value]) => s.setObject(index, value.map(_.toString).orNull)
-//
-  private implicit def stringSeqToStatement: ToStatement[Seq[String]] =
-    (s: java.sql.PreparedStatement, index: Int, value: Seq[String]) => s.setArray(index, s.getConnection.createArrayOf("text", value.toArray))
 
   private implicit val fieldMetaParser: anorm.RowParser[FieldMetadata] = anorm.Macro.parser[FieldMetadata](
     "entity_type",
@@ -91,13 +88,14 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
               ${fieldMeta.description},
               ${fieldMeta.usage},
               ${fieldMeta.category},
-              ${fieldMeta.seeAlso}
-            ) ON CONFLICT (entity_type, id) DO UPDATE SET
+              ARRAY[${fieldMeta.seeAlso}]::text[]
+            )
+            ON CONFLICT (entity_type, id) DO UPDATE SET
               name = ${fieldMeta.name},
               description = ${fieldMeta.description},
               usage = ${fieldMeta.usage},
               category = ${fieldMeta.category},
-              see_also = ${fieldMeta.seeAlso},
+              see_also = ARRAY[${fieldMeta.seeAlso}]::text[],
               updated = NOW()
             RETURNING *
            """.as(fieldMetaParser.single)

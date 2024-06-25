@@ -1,6 +1,6 @@
 import axios from "axios";
 import {
-  FieldMetadata, FieldMetadataEntityTypeTemplate,
+  FieldMetadata,
   FieldMetadataInfo, FieldMetadataTemplates,
 } from "./types";
 
@@ -28,9 +28,9 @@ export default class FieldMetadataEditorApi {
     }).then(r => r.data);
   }
 
-  list(entityType?: string): Promise<[string, FieldMetadata[]][]> {
+  list(entityType?: string): Promise<Record<string, FieldMetadata[]>> {
     let params = entityType ? {entityType} : {};
-    return FieldMetadataEditorApi.call<[string, FieldMetadata[]][]>(this.service.list(), {}, params)
+    return FieldMetadataEditorApi.call<Record<string, FieldMetadata[]>>(this.service.list(), {}, params)
   }
 
   get(entityType: string, id: string): Promise<FieldMetadata | null> {

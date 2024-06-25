@@ -28,7 +28,7 @@ case class FieldMetadataApi @Inject()(
 
   def list(entityType: Option[EntityType.Value]): Action[AnyContent] = WithUserAction.async { implicit request =>
     fieldMetaService.list(entityType).map { items =>
-      Ok(Json.toJson(items.toMap))
+      Ok(Json.toJson(items.map(p => p._1.toString -> p._2).toMap))
     }
   }
 

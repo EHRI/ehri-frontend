@@ -4,7 +4,7 @@
 
 export type Ok = {ok: true}
 
-export type EntityType = "RepositoryDescription" | "HistoricalAgentDescription" | "DocumentaryUnitDescription";
+export type EntityType = "Country" | "RepositoryDescription" | "HistoricalAgentDescription" | "DocumentaryUnitDescription";
 export type Usage = "mandatory" | "desirable";
 
 export interface FieldMetadataInfo {
@@ -22,13 +22,6 @@ export interface FieldMetadata extends FieldMetadataInfo {
   id: string
 }
 
-export interface FieldMetadataTemplateInfo {
-  [key: string]: string
-}
+export type FieldMetadataCategory = Array<[string, string[]]>
 
-export interface FieldMetadataEntityTypeTemplate {
-  fields: FieldMetadataTemplateInfo,
-  sections: FieldMetadataTemplateInfo
-}
-
-export type FieldMetadataTemplates = Record<EntityType, FieldMetadataEntityTypeTemplate>;
+export type FieldMetadataTemplates = Record<EntityType, FieldMetadataCategory[]>;
