@@ -1,6 +1,23 @@
-@(fieldMetadata: Seq[(models.EntityType.Value, Seq[models.FieldMetadata])])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages)
+@(fieldMetadata: Map[models.EntityType.Value, Seq[models.FieldMetadata]], templates: Map[models.EntityType.Value, Seq[(String, Seq[String])]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
 
-@views.html.layout.textLayout(Messages("dataModel")) {
+@import utils.collections.GroupByOrderedImplicitImpl
+
+@extraStyles = {
+    <style>
+        .data-model-category {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .data-model-see-also a + a {
+            margin-left: 1em;
+        }
+        .data-model-entity-type {
+            margin-bottom: 2rem;
+        }
+    </style>
+}
+
+@views.html.layout.textLayout(Messages("dataModel"), styles = extraStyles) {
 
     <div class="row">
         <div class="col-md-12">
@@ -10,35 +27,50 @@
     </div>
 
     @for((entityType, fields) <- fieldMetadata) {
-        <div class="row">
+        <div class="row data-model-entity-type">
             <div class="col-md-12">
                 <h3>@Messages(s"type.$entityType")</h3>
-                <table class="table table-striped table-bordered table-condensed">
+
+                <table class="table table-bordered table-condensed">
                     <thead>
                         <tr>
                             <th>@Messages("dataModel.field.name")</th>
-                            <th>@Messages("dataModel.field.usage")</th>
                             <th>@Messages("dataModel.field.description")</th>
+                            <th>@Messages("dataModel.field.usage")</th>
+                            <th>@Messages("dataModel.field.seeAlso")</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for((category, catFields) <- fields.groupBy(_.category)) {
-                            @category.map { cat =>
-                                <tr>
-                                    <td colspan="3"><strong>@Messages(s"dataModel.$entityType.$cat")</strong></td>
-                                </tr>
-                            }
-                            @for(field <- catFields) {
-                                <tr>
-                                    <td>@field.name</td>
-                                    <td>@field.usage</td>
-                                    <td>@field.description</td>
-                                </tr>
-                            }
+                    @fields.groupByOrdered(_.category).map { case (category, catFields) =>
+                        @category.map { cat =>
+                            <tr>
+                                <td colspan="4" class="data-model-category"><strong>@Messages(s"dataModel.$entityType.$cat")</strong></td>
+                            </tr>
                         }
+
+                        @for(field <- catFields) {
+                            <tr>
+                                <td class="data-model-name">@field.name</td>
+                                <td class="data-model-description">
+                                    @field.description.map { desc =>
+                                        @Markdown(desc)
+                                    }
+                                </td>
+                                <td class="data-model-usage">@field.usage</td>
+                                <td class="data-model-see-also">
+                                    @field.seeAlso.map { sa =>
+                                        <a href="@sa" target="_blank">@sa</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
                     </tbody>
                 </table>
             </div>
         </div>
+    }
+
+    @for((entityType, fields) <- fieldMetadata) {
     }
 }

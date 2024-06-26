@@ -1299,6 +1299,7 @@ dataModel.description=The EHRI Data Model is a conceptual model that describes t
 dataModel.field.name=Field Name
 dataModel.field.description=Description
 dataModel.field.usage=Usage
+dataModel.field.seeAlso=See Also
 dataModel.DocumentaryUnitDescription.identityArea=Identity Area
 dataModel.DocumentaryUnitDescription.contextArea=Context Area
 dataModel.DocumentaryUnitDescription.contentArea=Content Area

@@ -4,12 +4,9 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._
-import play.api.http.MimeTypes
-import play.api.i18n.Messages
 import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import play.api.routing.JavaScriptReverseRouter
 import services.data.DataHelpers
 import services.fieldmeta.FieldMetadataService
 
@@ -28,7 +25,7 @@ case class FieldMetadataApi @Inject()(
 
   def list(entityType: Option[EntityType.Value]): Action[AnyContent] = WithUserAction.async { implicit request =>
     fieldMetaService.list(entityType).map { items =>
-      Ok(Json.toJson(items.map(p => p._1.toString -> p._2).toMap))
+      Ok(Json.toJson(items.map(p => p._1.toString -> p._2)))
     }
   }
 
@@ -55,13 +52,9 @@ case class FieldMetadataApi @Inject()(
     Ok(Json.toJson(messagesApi.messages))
   }
 
-  def templates(): Action[AnyContent] = WithUserAction { implicit request =>
-    val data = Json.obj(
-      EntityType.Country.toString -> Seq("" -> Seq("report", "situation", "summary", "extensive")),
-      EntityType.RepositoryDescription.toString -> Isdiah.FIELDS,
-      EntityType.DocumentaryUnitDescription.toString -> IsadG.FIELDS,
-      EntityType.HistoricalAgentDescription.toString -> Isaar.FIELDS
-    )
-    Ok(data)
+  def templates(): Action[AnyContent] = WithUserAction.async { implicit request =>
+    fieldMetaService.templates().map { tpl =>
+      Ok(Json.toJson(tpl.map(p => p._1.toString -> p._2)))
+    }
   }
 }

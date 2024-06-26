@@ -160,8 +160,8 @@ case class Portal @Inject()(
   }
 
   def dataModel(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    fieldMetadataService.list().map { items =>
-      Ok(views.html.dataModel(items))
+    for (items <- fieldMetadataService.list(); tmpl <- fieldMetadataService.templates()) yield {
+      Ok(views.html.dataModel(items, tmpl))
     }
   }
 

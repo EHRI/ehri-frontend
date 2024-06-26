@@ -53,19 +53,25 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
   )
 
 
-  def list(entityType: Option[EntityType.Value] = None): Future[Seq[(EntityType.Value, Seq[FieldMetadata])]] = Future {
-    db.withConnection { implicit conn =>
-      SQL"""
-            SELECT * FROM field_meta
-            WHERE COALESCE($entityType, '') = ''
-            OR entity_type = ${entityType.map(_.toString)}
-            ORDER BY
-              entity_type,
-              category
-           """.as(fieldMetaParser.*)
-        .groupBy(_.entityType).toSeq
+  def list(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, Seq[FieldMetadata]]] = Future {
+    templates().map { tmpl =>
+      val unordered = db.withConnection { implicit conn =>
+        SQL"""
+        SELECT * FROM field_meta
+        WHERE COALESCE($entityType, '') = ''
+        OR entity_type = ${entityType.map(_.toString)}
+        ORDER BY
+          entity_type,
+          category
+       """.as(fieldMetaParser.*)
+      }.groupBy(_.entityType)
+      (for ((entityType, sections) <- tmpl) yield {
+        entityType -> sections.flatMap { case (_, fieldIds) =>
+          fieldIds.flatMap(id => unordered.getOrElse(entityType, Seq.empty).find(_.id == id))
+        }
+      }).filter(_._2.nonEmpty)
     }
-  }(ec)
+  }(ec).flatten
 
   def get(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]] = Future {
     db.withConnection { implicit conn =>
@@ -77,25 +83,25 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
     }
   }(ec)
 
-  def save(entityType: EntityType.Value, id: String, fieldMeta: FieldMetadataInfo): Future[FieldMetadata] = Future {
+  def save(entityType: EntityType.Value, id: String, info: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             INSERT INTO field_meta(entity_type, id, name, description, usage, category, see_also)
             VALUES (
               $entityType,
               $id,
-              ${fieldMeta.name},
-              ${fieldMeta.description},
-              ${fieldMeta.usage},
-              ${fieldMeta.category},
-              ARRAY[${fieldMeta.seeAlso}]::text[]
+              ${info.name},
+              ${info.description},
+              ${info.usage},
+              ${info.category},
+              ARRAY[${info.seeAlso}]::text[]
             )
             ON CONFLICT (entity_type, id) DO UPDATE SET
-              name = ${fieldMeta.name},
-              description = ${fieldMeta.description},
-              usage = ${fieldMeta.usage},
-              category = ${fieldMeta.category},
-              see_also = ARRAY[${fieldMeta.seeAlso}]::text[],
+              name = ${info.name},
+              description = ${info.description},
+              usage = ${info.usage},
+              category = ${info.category},
+              see_also = ARRAY[${info.seeAlso}]::text[],
               updated = NOW()
             RETURNING *
            """.as(fieldMetaParser.single)
