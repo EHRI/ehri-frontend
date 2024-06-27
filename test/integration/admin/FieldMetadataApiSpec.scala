@@ -83,7 +83,6 @@ class FieldMetadataApiSpec extends IntegrationTestRunner with ResourceUtils {
         .withUser(privilegedUser)
         .call()
       status(r) must_== OK
-      println(contentAsString(r))
     }
   }
 }

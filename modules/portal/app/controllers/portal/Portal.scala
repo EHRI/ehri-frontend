@@ -11,7 +11,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.fieldmeta.FieldMetadataService
+import services.fieldmeta.{EntityTypeMetadataService, FieldMetadataService}
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._
@@ -33,6 +33,7 @@ case class Portal @Inject()(
   accountForms: AccountForms,
   asyncCache: AsyncCacheApi,
   statusCache: Cached,
+  entityTypeMetadataService: EntityTypeMetadataService,
   fieldMetadataService: FieldMetadataService
 ) extends PortalController
   with Search {
@@ -160,8 +161,12 @@ case class Portal @Inject()(
   }
 
   def dataModel(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
-    for (items <- fieldMetadataService.list(); tmpl <- fieldMetadataService.templates()) yield {
-      Ok(views.html.dataModel(items, tmpl))
+    for {
+      ets <- entityTypeMetadataService.list()
+      items <- fieldMetadataService.list()
+      tmpl <- fieldMetadataService.templates()
+    } yield {
+      Ok(views.html.dataModel(ets, items, tmpl))
     }
   }
 

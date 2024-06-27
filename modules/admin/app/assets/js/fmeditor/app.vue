@@ -1,11 +1,12 @@
 <script lang="ts">
 
 import FileMetadataEditorApi from "./api";
-import ModalEditor from "./components/_modal-editor";
-import {FieldMetadata} from "./types";
+import ModalFmEditor from "./components/_modal-fm-editor.vue";
+import ModalEtEditor from "./components/_modal-et-editor.vue";
+import {EntityTypeMetadata, FieldMetadata} from "./types";
 
 export default {
-  components: {ModalEditor},
+  components: {ModalFmEditor, ModalEtEditor},
   props: {
     service: Object,
   },
@@ -13,8 +14,10 @@ export default {
     return {
       api: new FileMetadataEditorApi(this.service),
       loading: true,
+      entityTypeMetadata: Object as Record<string, EntityTypeMetadata>,
       fieldMetadata: Object as Record<string, FieldMetadata[]>,
       templates: null,
+      editET: null,
       addNew: null,
       addNewEntityType: null,
     }
@@ -23,6 +26,11 @@ export default {
     reload: async function () {
       try {
         this.loading = true;
+
+        let et = await this.api.listET();
+        console.log(et);
+        this.entityTypeMetadata = et;
+
         let fm = await this.api.list();
         console.log(fm);
         this.fieldMetadata = fm;
@@ -72,7 +80,13 @@ export default {
     <div id="field-metadata-editor" class="fm-editor">
         <span v-if="loading">Loading...</span>
         <div class="fm-editor-list" v-for="(catFields, entityType) in templates">
-            <h3>{{ entityType }}</h3>
+            <h3>
+                {{ entityTypeMetadata[entityType] ? entityTypeMetadata[entityType].name : entityType }}
+                <a v-if="entityTypeMetadata[entityType]" v-on:click.prevent="editET = entityTypeMetadata[entityType]" href="#">
+                    <i class="fa fa-pencil"></i>
+                </a>
+            </h3>
+            <p v-if="entityTypeMetadata[entityType]">{{ entityTypeMetadata[entityType].description }}</p>
 
             <table v-if="fieldMetadata" class="table table-bordered fm-list">
                 <thead>
@@ -115,13 +129,19 @@ export default {
 
             <hr/>
         </div>
-        <modal-editor v-if="addNew !== null"
+        <modal-fm-editor v-if="addNew !== null"
                       v-bind:api="api"
                       v-bind:item="addNew"
                       v-bind:templates="templates"
                       v-bind:field-metadata="fieldMetadata"
                       v-on:saved="addNew = null; reload()"
                       v-on:close="addNew = null"/>
+        <modal-et-editor v-if="editET !== null"
+                        v-bind:api="api"
+                        v-bind:item="editET"
+                        v-bind:entityTypeMetadata="entityTypeMetadata"
+                        v-on:saved="editET = null; reload()"
+                        v-on:close="editET = null"/>
     </div>
 </template>
 

@@ -10,7 +10,6 @@
 
 @views.html.admin.layout.adminSinglePageAppLayout(Messages("fieldmeta"), styles = styles,
     breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
-    <script src="@controllers.fieldmeta.routes.FieldMetadata.jsRoutes()"></script>
 } {
     @helper.javascriptRouter("fieldMetadataApi")(
         controllers.fieldmeta.routes.javascript.FieldMetadataApi.list,
@@ -18,6 +17,9 @@
         controllers.fieldmeta.routes.javascript.FieldMetadataApi.save,
         controllers.fieldmeta.routes.javascript.FieldMetadataApi.delete,
         controllers.fieldmeta.routes.javascript.FieldMetadataApi.templates,
+        controllers.fieldmeta.routes.javascript.EntityTypeMetadataApi.list,
+        controllers.fieldmeta.routes.javascript.EntityTypeMetadataApi.save,
+        controllers.fieldmeta.routes.javascript.EntityTypeMetadataApi.delete
     )
 
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/fmeditor/app.js")"></script>
@@ -26,7 +28,11 @@
                 list: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.list,
                 get: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.get,
                 save: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.save,
+                delete: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.delete,
                 templates: fieldMetadataApi.controllers.fieldmeta.FieldMetadataApi.templates,
+                listET: fieldMetadataApi.controllers.fieldmeta.EntityTypeMetadataApi.list,
+                saveET: fieldMetadataApi.controllers.fieldmeta.EntityTypeMetadataApi.save,
+                deleteET: fieldMetadataApi.controllers.fieldmeta.EntityTypeMetadataApi.delete
             }
             Vue.createApp({
                 render: function() {

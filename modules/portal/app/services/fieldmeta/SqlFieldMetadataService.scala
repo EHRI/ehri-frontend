@@ -1,44 +1,19 @@
 package services.fieldmeta
 
 import akka.actor.ActorSystem
-import anorm.{Column, SqlStringInterpolation, ToStatement, TypeDoesNotMatch}
-import models.{EntityType, FieldMetadata, FieldMetadataInfo}
-import org.postgresql.jdbc.PgArray
+import anorm.SqlStringInterpolation
+import models.{EntityType, FieldMetadata, FieldMetadataInfo, FieldMetadataSet}
 import play.api.db.Database
 
 import javax.inject.Inject
+import scala.collection.immutable.ListMap
 import scala.concurrent.{ExecutionContext, Future}
 
 case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSystem) extends FieldMetadataService {
+  import Implicits._
 
   private implicit def ec: ExecutionContext = actorSystem.dispatchers.lookup("contexts.simple-db-lookups")
 
-  private implicit def entityTypeRowToEnum: Column[EntityType.Value] = {
-    Column.nonNull[EntityType.Value] { (value, _) =>
-      try Right(EntityType.withName(value.toString)) catch {
-        case _: Throwable => Left(TypeDoesNotMatch(
-          s"Cannot convert $value: ${value.asInstanceOf[AnyRef].getClass} to ${getClass.getName}"))
-      }
-    }
-  }
-
-  private implicit def entityTypeToStatement: ToStatement[EntityType.Value] =
-    (s: java.sql.PreparedStatement, index: Int, value: EntityType.Value) => s.setObject(index, value.toString)
-
-  private implicit def entityTypeOptionToStatement: ToStatement[Option[EntityType.Value]] =
-    (s: java.sql.PreparedStatement, index: Int, value: Option[EntityType.Value]) => s.setObject(index, value.map(_.toString).orNull)
-
-  private implicit def stringSeqRowToSeq: Column[Seq[String]] = {
-    Column.nonNull[Seq[String]] { (value, _) =>
-      try Right(value.asInstanceOf[PgArray].getArray.asInstanceOf[Array[String]].toSeq) catch {
-        case _: Throwable => Left(TypeDoesNotMatch(
-          s"Cannot convert $value: ${value.asInstanceOf[AnyRef].getClass} to ${getClass.getName}"))
-      }
-    }
-  }
-
-  private implicit def usageOptionToStatement: ToStatement[Option[FieldMetadata.Usage.Value]] =
-    (s: java.sql.PreparedStatement, index: Int, value: Option[FieldMetadata.Usage.Value]) => s.setObject(index, value.map(_.toString).orNull)
 
   private implicit val fieldMetaParser: anorm.RowParser[FieldMetadata] = anorm.Macro.parser[FieldMetadata](
     "entity_type",
@@ -53,7 +28,7 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
   )
 
 
-  def list(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, Seq[FieldMetadata]]] = Future {
+  def list(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, FieldMetadataSet]] = Future {
     templates().map { tmpl =>
       val unordered = db.withConnection { implicit conn =>
         SQL"""
@@ -66,9 +41,10 @@ case class SqlFieldMetadataService @Inject ()(db: Database, actorSystem: ActorSy
        """.as(fieldMetaParser.*)
       }.groupBy(_.entityType)
       (for ((entityType, sections) <- tmpl) yield {
-        entityType -> sections.flatMap { case (_, fieldIds) =>
+        val fms = sections.flatMap { case (_, fieldIds) =>
           fieldIds.flatMap(id => unordered.getOrElse(entityType, Seq.empty).find(_.id == id))
         }
+        entityType -> FieldMetadataSet(ListMap(fms.map(fm => fm.id -> fm): _*))
       }).filter(_._2.nonEmpty)
     }
   }(ec).flatten

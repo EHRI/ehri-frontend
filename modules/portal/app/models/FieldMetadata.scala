@@ -60,9 +60,7 @@ case class FieldMetadataInfo(
   description: Option[String] = None,
   usage: Option[FieldMetadata.Usage.Value] = None,
   category: Option[String] = None,
-  seeAlso: Seq[String] = Nil,
-  created: Option[Instant] = None,
-  updated: Option[Instant] = None
+  seeAlso: Seq[String] = Nil
 )
 
 

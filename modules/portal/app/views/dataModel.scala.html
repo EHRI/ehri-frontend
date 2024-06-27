@@ -1,6 +1,4 @@
-@(fieldMetadata: Map[models.EntityType.Value, Seq[models.FieldMetadata]], templates: Map[models.EntityType.Value, Seq[(String, Seq[String])]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
-
-@import utils.collections.GroupByOrderedImplicitImpl
+@(entityTypeMetadata: Map[models.EntityType.Value, models.EntityTypeMetadata], fieldMetadata: Map[models.EntityType.Value, models.FieldMetadataSet], templates: Map[models.EntityType.Value, Seq[(String, Seq[String])]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
 
 @extraStyles = {
     <style>
@@ -26,10 +24,13 @@
         </div>
     </div>
 
-    @for((entityType, fields) <- fieldMetadata) {
+    @for((entityType, fieldSet) <- fieldMetadata) {
         <div class="row data-model-entity-type">
             <div class="col-md-12">
-                <h3>@Messages(s"type.$entityType")</h3>
+                <h3>@entityTypeMetadata.get(entityType).map(_.name).getOrElse(Messages(s"type.$entityType"))</h3>
+                @entityTypeMetadata.get(entityType).flatMap(_.description).map { desc =>
+                    @Markdown(desc)
+                }
 
                 <table class="table table-bordered table-condensed">
                     <thead>
@@ -41,7 +42,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @fields.groupByOrdered(_.category).map { case (category, catFields) =>
+                    @fieldSet.grouped.map { case (category, catFields) =>
                         @category.map { cat =>
                             <tr>
                                 <td colspan="4" class="data-model-category"><strong>@Messages(s"dataModel.$entityType.$cat")</strong></td>

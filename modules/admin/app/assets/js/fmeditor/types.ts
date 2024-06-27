@@ -22,6 +22,17 @@ export interface FieldMetadata extends FieldMetadataInfo {
   id: string
 }
 
+export interface EntityTypeMetadataInfo {
+  name: string
+  description?: string
+  created: string
+  updated?: string
+}
+
+export interface EntityTypeMetadata extends EntityTypeMetadataInfo {
+  entityType: EntityType
+}
+
 export type FieldMetadataCategory = Array<[string, string[]]>
 
 export type FieldMetadataTemplates = Record<EntityType, FieldMetadataCategory[]>;

@@ -16,7 +16,7 @@ trait FieldMetadataService {
     * @return A map of entity type and field metadata entries, ordered according
     *         to the templates
     */
-  def list(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, Seq[FieldMetadata]]]
+  def list(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, FieldMetadataSet]]
 
   /**
     * Retrieves a field metadata entry.
