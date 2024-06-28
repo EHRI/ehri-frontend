@@ -1,5 +1,5 @@
 <script lang="ts">
-import FieldMetadataEditorApi from "../api";
+import EntityTypeMetadataApi from "../api";
 import {FieldMetadata, FieldMetadataTemplates} from "../types";
 import ModalWindow from "./_modal-window";
 import MultiItem from "./_multi-item";
@@ -7,7 +7,7 @@ import MultiItem from "./_multi-item";
 export default {
   components: {ModalWindow, MultiItem},
   props: {
-    api: Object as FieldMetadataEditorApi,
+    api: Object as EntityTypeMetadataApi,
     item: Object as FieldMetadata,
     fieldMetadata: Object as Record<string, FieldMetadata[]>,
     templates: Object as FieldMetadataTemplates,
@@ -25,10 +25,10 @@ export default {
     }
   },
   methods: {
-    save: async function () {
+    saveField: async function () {
       this.saving = true;
       try {
-        await this.api.save(this.et, this.id, {
+        await this.api.saveField(this.et, this.id, {
           name: this.name,
           description: this.description,
           usage: this.usage,
@@ -147,7 +147,7 @@ export default {
             <multi-item v-bind:label="'See Also'" v-model="seeAlso" v-bind:type="'url'" />
         </fieldset>
         <template v-slot:footer>
-            <button class="btn btn-primary" v-on:click="save">Save</button>
+            <button class="btn btn-primary" v-on:click="saveField">Save Field</button>
         </template>
     </modal-window>
 </template>

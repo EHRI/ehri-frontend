@@ -3,10 +3,11 @@
 import FileMetadataEditorApi from "./api";
 import ModalFmEditor from "./components/_modal-fm-editor.vue";
 import ModalEtEditor from "./components/_modal-et-editor.vue";
-import {EntityTypeMetadata, FieldMetadata} from "./types";
+import {EntityType, EntityTypeMetadata, FieldMetadata} from "./types";
+import ModalAlert from "../datasets/components/_modal-alert";
 
 export default {
-  components: {ModalFmEditor, ModalEtEditor},
+  components: {ModalFmEditor, ModalEtEditor, ModalAlert},
   props: {
     service: Object,
   },
@@ -17,9 +18,11 @@ export default {
       entityTypeMetadata: Object as Record<string, EntityTypeMetadata>,
       fieldMetadata: Object as Record<string, FieldMetadata[]>,
       templates: null,
-      editET: null,
-      addNew: null,
-      addNewEntityType: null,
+      editET: null as EntityTypeMetadata | null,
+      addNew: null as FieldMetadata | null,
+      addNewEntityType: null as Record<string, string> | null,
+      confirmDelete: null as {entityType: EntityType, id: string} | null,
+      deleting: null as {entityType: EntityType, id: string} | null,
     }
   },
   methods: {
@@ -27,11 +30,11 @@ export default {
       try {
         this.loading = true;
 
-        let et = await this.api.listET();
+        let et = await this.api.list();
         console.log(et);
         this.entityTypeMetadata = et;
 
-        let fm = await this.api.list();
+        let fm = await this.api.listFields();
         console.log(fm);
         this.fieldMetadata = fm;
 
@@ -50,7 +53,16 @@ export default {
     updateFieldMetadata: function (entityType, id) {
       this.$emit('update-field-metadata', entityType, id);
     },
-    deleteFieldMetadata: function (entityType, id) {
+    deleteFieldMetadata: async function (entityType: EntityType, id: string) {
+      this.deleting = {entityType, id};
+      try {
+        await this.api.deleteField(entityType, id);
+        await this.reload();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.deleting = null;
+      }
       this.$emit('delete-field-metadata', entityType, id);
     },
     editFieldMetadata: function (fm: FieldMetadata) {
@@ -117,8 +129,9 @@ export default {
                             <a v-on:click="editFieldMetadata(fm)" href="#">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            <a v-on:click="deleteFieldMetadata(fm.entityType, fm.id)" href="#">
-                                <i class="fa fa-trash"></i>
+                            <a v-on:click="confirmDelete = {entityType: fm.entityType, id: fm.id}" href="#">
+                                <i v-if="deleting && deleting.entityType === fm.entityType && deleting.id === fm.id" class="fa fa-spinner fa-spin"></i>
+                                <i v-else class="fa fa-trash"></i>
                             </a>
                         </td>
                     </tr>
@@ -142,6 +155,15 @@ export default {
                         v-bind:entityTypeMetadata="entityTypeMetadata"
                         v-on:saved="editET = null; reload()"
                         v-on:close="editET = null"/>
+        <modal-alert v-if="confirmDelete !== null"
+                     title="Delete Field Metadata"
+                     cls="danger"
+                     accept="Delete"
+                     cancel="Cancel"
+                     v-on:accept="deleteFieldMetadata(confirmDelete.entityType, confirmDelete.id); confirmDelete = null"
+                     v-on:close="confirmDelete = null">
+            <p>Are you sure you want to delete this field?</p>
+        </modal-alert>
     </div>
 </template>
 

@@ -5,13 +5,13 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import cookies.SessionPrefs
 import forms.AccountForms
-import models.{EntityType, Model, _}
+import models._
 import play.api.cache.{AsyncCacheApi, Cached}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.fieldmeta.{EntityTypeMetadataService, FieldMetadataService}
+import services.fieldmeta.EntityTypeMetadataService
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._
@@ -34,7 +34,6 @@ case class Portal @Inject()(
   asyncCache: AsyncCacheApi,
   statusCache: Cached,
   entityTypeMetadataService: EntityTypeMetadataService,
-  fieldMetadataService: FieldMetadataService
 ) extends PortalController
   with Search {
 
@@ -163,10 +162,10 @@ case class Portal @Inject()(
   def dataModel(): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     for {
       ets <- entityTypeMetadataService.list()
-      items <- fieldMetadataService.list()
-      tmpl <- fieldMetadataService.templates()
+      fields <- entityTypeMetadataService.listFields()
+      tmpl <- entityTypeMetadataService.templates()
     } yield {
-      Ok(views.html.dataModel(ets, items, tmpl))
+      Ok(views.html.dataModel(ets, fields, tmpl))
     }
   }
 

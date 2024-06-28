@@ -11,7 +11,7 @@ import javax.inject._
 
 
 @Singleton
-case class FieldMetadata @Inject()(
+case class EntityTypeMetadata @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents
 ) extends AdminController with ApiBodyParsers {

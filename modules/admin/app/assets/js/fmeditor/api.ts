@@ -5,7 +5,7 @@ import {
   FieldMetadataInfo, FieldMetadataTemplates,
 } from "./types";
 
-export default class FieldMetadataEditorApi {
+export default class EntityTypeMetadataApi {
 
   service: any;
 
@@ -28,38 +28,40 @@ export default class FieldMetadataEditorApi {
       withCredentials: true,
     }).then(r => r.data);
   }
+  list(): Promise<Record<string, EntityTypeMetadata>> {
+    return EntityTypeMetadataApi.call<Record<string, EntityTypeMetadata>>(this.service.list(), {});
+  }
 
-  list(entityType?: string): Promise<Record<string, FieldMetadata[]>> {
+  get(entityType: string): Promise<Record<string, EntityTypeMetadata>> {
+    return EntityTypeMetadataApi.call<Record<string, EntityTypeMetadata>>(this.service.list(), {}, {entityType});
+  }
+
+  save(entityType: string, data: EntityTypeMetadataInfo): Promise<EntityTypeMetadata> {
+    return EntityTypeMetadataApi.call<EntityTypeMetadata>(this.service.save(entityType), data);
+  }
+
+  delete(entityType: string): Promise<boolean> {
+    return EntityTypeMetadataApi.call<boolean>(this.service.delete(entityType));
+  }
+
+  listFields(entityType?: string): Promise<Record<string, FieldMetadata[]>> {
     let params = entityType ? {entityType} : {};
-    return FieldMetadataEditorApi.call<Record<string, FieldMetadata[]>>(this.service.list(), {}, params)
+    return EntityTypeMetadataApi.call<Record<string, FieldMetadata[]>>(this.service.listFields(), {}, params)
   }
 
-  get(entityType: string, id: string): Promise<FieldMetadata | null> {
-    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.get(entityType, id));
+  getField(entityType: string, id: string): Promise<FieldMetadata | null> {
+    return EntityTypeMetadataApi.call<FieldMetadata>(this.service.getField(entityType, id));
   }
 
-  save(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
-    return FieldMetadataEditorApi.call<FieldMetadata>(this.service.save(entityType, id), data);
+  saveField(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
+    return EntityTypeMetadataApi.call<FieldMetadata>(this.service.saveField(entityType, id), data);
   }
 
-  delete(entityType: string, id: string): Promise<boolean> {
-    return FieldMetadataEditorApi.call<boolean>(this.service.delete(entityType, id));
+  deleteField(entityType: string, id: string): Promise<boolean> {
+    return EntityTypeMetadataApi.call<boolean>(this.service.deleteField(entityType, id));
   }
 
   templates(): Promise<FieldMetadataTemplates> {
-    return FieldMetadataEditorApi.call<object>(this.service.templates());
-  }
-
-  listET(entityType?: string): Promise<Record<string, EntityTypeMetadata>> {
-    let params = entityType ? {entityType} : {};
-    return FieldMetadataEditorApi.call<Record<string, EntityTypeMetadata>>(this.service.listET(), {}, params);
-  }
-
-  saveET(entityType: string, data: EntityTypeMetadataInfo): Promise<EntityTypeMetadata> {
-    return FieldMetadataEditorApi.call<EntityTypeMetadata>(this.service.saveET(entityType), data);
-  }
-
-  deleteET(entityType: string): Promise<boolean> {
-    return FieldMetadataEditorApi.call<boolean>(this.service.deleteET(entityType));
+    return EntityTypeMetadataApi.call<object>(this.service.templates());
   }
 }

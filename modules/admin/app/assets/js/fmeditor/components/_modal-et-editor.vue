@@ -1,5 +1,5 @@
 <script lang="ts">
-import FieldMetadataEditorApi from "../api";
+import EntityTypeMetadataApi from "../api";
 import {EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "../types";
 import ModalWindow from "./_modal-window";
 import MultiItem from "./_multi-item";
@@ -7,7 +7,7 @@ import MultiItem from "./_multi-item";
 export default {
   components: {ModalWindow},
   props: {
-    api: Object as FieldMetadataEditorApi,
+    api: Object as EntityTypeMetadataApi,
     item: Object as EntityTypeMetadata,
     entityTypeMetadata: Object as Record<string, EntityTypeMetadata>
   },
@@ -22,7 +22,7 @@ export default {
     save: async function () {
       this.saving = true;
       try {
-        await this.api.saveET(this.item.entityType, {
+        await this.api.save(this.item.entityType, {
           name: this.name,
           description: this.description,
         });
