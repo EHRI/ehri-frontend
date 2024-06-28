@@ -5,9 +5,10 @@ import ModalFmEditor from "./components/_modal-fm-editor.vue";
 import ModalEtEditor from "./components/_modal-et-editor.vue";
 import {EntityType, EntityTypeMetadata, FieldMetadata} from "./types";
 import ModalAlert from "../datasets/components/_modal-alert";
+import Markdown from './components/_markdown';
 
 export default {
-  components: {ModalFmEditor, ModalEtEditor, ModalAlert},
+  components: {ModalFmEditor, ModalEtEditor, ModalAlert, Markdown},
   props: {
     service: Object,
   },
@@ -98,7 +99,7 @@ export default {
                     <i class="fa fa-pencil"></i>
                 </a>
             </h3>
-            <p v-if="entityTypeMetadata[entityType]">{{ entityTypeMetadata[entityType].description }}</p>
+            <markdown v-if="entityTypeMetadata[entityType]" v-bind:content="entityTypeMetadata[entityType].description" />
 
             <table v-if="fieldMetadata" class="table table-bordered fm-list">
                 <thead>
@@ -120,7 +121,9 @@ export default {
 
                     <tr v-for="fm in fieldMetadataFor(entityType, cat)" v-bind:id="'fm-' + entityType + '-' + fm.id">
                         <td class="fm-name">{{ fm.name }}</td>
-                        <td class="fm-description">{{ fm.description }}</td>
+                        <td class="fm-description">
+                            <markdown v-bind:content="fm.description" />
+                        </td>
                         <td class="fm-usage">{{ fm.usage }}</td>
                         <td class="fm-see-also">
                             <a v-for="sa in fm.seeAlso" v-bind:href="sa">{{ sa }}</a>
