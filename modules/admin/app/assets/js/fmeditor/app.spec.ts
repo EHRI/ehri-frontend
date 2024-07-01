@@ -1,13 +1,12 @@
 import {mount} from '@vue/test-utils';
-import App from './app.vue';
-import AccessPoint from './components/_access-point.vue';
-import AccessPointEditorApi from "./__mocks__/api";
+import App from './app';
+import ListEt from './components/_list-et';
+import EntityTypeMetadataApi from "./api";
 
 jest.mock('./api');
 
 const defaultInit = {
   props: {
-    config: config
   }
 }
 
@@ -23,42 +22,26 @@ describe('Mounted App', () => {
 
   test('is a Vue instance', () => {
     expect(wrapper.isVisible()).toBeTruthy()
-    expect(wrapper.find("#access-point-editor").exists()).toBe(true);
-    expect(wrapper.html()).toContain("Test Subject")
+    expect(wrapper.find("#entity-type-metadata-editor").exists()).toBe(true);
+    expect(wrapper.html()).toContain("Country")
   });
 });
 
-test('opening the AP form', async () => {
+test('opening the ET form', async () => {
   const wrapper = mount(App, defaultInit);
 
   // Need to to load the API data...
   await wrapper.isVisible();
 
-  expect(wrapper.find(".ap-editor-new-access-point").exists()).toBe(false);
-  expect(wrapper.find(".ap-editor-add-toggle").exists()).toBe(true);
-
-  await wrapper.find(".ap-editor-add-toggle").trigger("click");
-
-  expect(wrapper.find(".ap-editor-new-access-point").exists()).toBe(true);
+  expect(wrapper.find(".fm-editor").exists()).toBe(true);
 });
 
-test('deleting an AP', async () => {
-  const wrapper = mount(AccessPoint, {
+test('deleting a field', async () => {
+  const wrapper = mount(ListEt, {
     props: {
-      accessPoint: {
-        id: "test-ap",
-        isA: "AccessPoint",
-        name: "Test"
-      },
-      api: new AccessPointEditorApi({}, config),
-      config,
+      api: new EntityTypeMetadataApi({}),
     }
   });
 
   await wrapper.isVisible();
-
-  await wrapper.find(".ap-editor-remove-access-point").trigger("click");
-  expect(wrapper.find(".remove-confirm button[data-apply='confirmation']").exists()).toBe(true);
-  await wrapper.find(".remove-confirm button[data-apply='confirmation']").trigger("click");
-  expect(wrapper.emitted()).toHaveProperty('deleted')
 })

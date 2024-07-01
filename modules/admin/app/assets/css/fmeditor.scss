@@ -1,0 +1,24 @@
+@import "lib/docview-portal/css/portal.scss";
+
+//Admin
+@import "./admin/admin";
+@import "./admin/forms";
+
+$active-table-row: #e7f1ff;
+
+.app-wrapper {
+  background-color: $white;
+}
+// TODO: de-dup from dataset manager
+.options-form {
+  padding: $margin-md;
+  input:invalid {
+    background-color: lighten($danger, 40%);
+  }
+}
+
+.resizable .options-form {
+  flex: 1;
+}
+
+

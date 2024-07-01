@@ -107,7 +107,8 @@
     "roots": [
       "<rootDir>/modules/admin/app/assets/js/datasets",
       "<rootDir>/modules/admin/app/assets/js/vocabeditor",
-      "<rootDir>/modules/admin/app/assets/js/apeditor"
+      "<rootDir>/modules/admin/app/assets/js/apeditor",
+      "<rootDir>/modules/admin/app/assets/js/fmeditor"
     ],
     "moduleFileExtensions": [
       "js",

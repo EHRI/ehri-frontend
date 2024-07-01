@@ -43,7 +43,7 @@ export default {
       }
     },
     categoryFor: function (entityType, id) {
-      for (let [category, fields] in this.templates[entityType]) {
+      for (let [category, fields] of Object.entries(this.templates[entityType])) {
         if (fields.includes(id)) {
           return category;
         }
@@ -52,7 +52,7 @@ export default {
     },
     unusedIds: function (entityType) {
       let used = new Set();
-      let items = this.fieldMetadata[entityType];
+      let items = this.fieldMetadata[entityType] as FieldMetadata[];
       for (let fm of items) {
         if (fm.entityType === entityType) {
           used.add(fm.id);
@@ -60,7 +60,7 @@ export default {
       }
 
       let all = new Set();
-      for (let [_, fields] in this.templates[entityType]) {
+      for (let [_, fields] of Object.entries(this.templates[entityType])) {
         for (let id in fields) {
           all.add(id);
         }
@@ -111,7 +111,7 @@ export default {
             <div class="form-group" v-if="hasCategories">
                 <label for="fm-category">Section</label>
                 <select id="fm-category" v-model="category" class="form-control">
-                    <option v-for="[category, _] in templates[et]">{{ category }}</option>
+                    <option v-for="(_, category) in templates[et]">{{ category }}</option>
                 </select>
             </div>
 
@@ -120,10 +120,7 @@ export default {
                 <select id="fm-id" v-model="id" class="form-control"
                         v-bind:readonly="!Boolean(et) || (hasCategories && !Boolean(category))">
                     <template v-if="et" v-for="([cat, fields], idx) in templates[et]">
-                        <option v-if="!hasCategories || category === cat " v-for="field in fields" v-bind:value="field">{{
-                                field
-                            }}
-                        </option>
+                        <option v-if="!hasCategories || category === cat " v-for="field in fields" v-bind:value="field">{{ field }}</option>
                     </template>
                 </select>
             </div>
