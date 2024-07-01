@@ -3,7 +3,7 @@
 import FileMetadataEditorApi from "./api";
 import ModalFmEditor from "./components/_modal-fm-editor.vue";
 import ModalEtEditor from "./components/_modal-et-editor.vue";
-import {EntityType, EntityTypeMetadata, FieldMetadata} from "./types";
+import {EntityType, EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "./types";
 import ModalAlert from "../datasets/components/_modal-alert";
 import Markdown from './components/_markdown';
 
@@ -18,7 +18,7 @@ export default {
       loading: true,
       entityTypeMetadata: Object as Record<string, EntityTypeMetadata>,
       fieldMetadata: Object as Record<string, FieldMetadata[]>,
-      templates: null,
+      templates: null as FieldMetadataTemplates | null,
       editET: null as EntityTypeMetadata | null,
       addNew: null as FieldMetadata | null,
       addNewEntityType: null as Record<string, string> | null,
@@ -82,6 +82,9 @@ export default {
       }
       return items;
     },
+    fieldRowId: function (entityType: string, id: string) {
+      return `fm-${entityType}-${id}`;
+    },
   },
   created: function () {
     this.reload();
@@ -112,14 +115,15 @@ export default {
                 </tr>
                 </thead>
                 <tbody>
-                <template v-for="([cat, fields], idx) in catFields">
-                    <tr v-if="cat && fieldMetadataFor(entityType, cat).length > 0" v-bind:id="'fm-' + entityType + '-' + cat">
-                        <td colspan="5" class="category">
+                <template v-for="(catFields, cat) in catFields">
+
+                    <tr v-if="cat && fieldMetadataFor(entityType, cat).length > 0" v-bind:id="fieldRowId(entityType, cat)">
+                        <td colspan="5" class="section">
                             <h4>{{ cat }}</h4>
                         </td>
                     </tr>
 
-                    <tr v-for="fm in fieldMetadataFor(entityType, cat)" v-bind:id="'fm-' + entityType + '-' + fm.id">
+                    <tr v-for="fm in fieldMetadataFor(entityType, cat)" v-bind:id="fieldRowId(entityType, fm.id)">
                         <td class="fm-name">{{ fm.name }}</td>
                         <td class="fm-description">
                             <markdown v-bind:content="fm.description" />
@@ -171,7 +175,7 @@ export default {
 </template>
 
 <style scoped>
-.category {
+.section {
     background-color: #dfdfdf;
     font-weight: bold;
 }

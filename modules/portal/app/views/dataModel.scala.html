@@ -1,4 +1,4 @@
-@(entityTypeMetadata: Map[models.EntityType.Value, models.EntityTypeMetadata], fieldMetadata: Map[models.EntityType.Value, models.FieldMetadataSet], templates: Map[models.EntityType.Value, Seq[(String, Seq[String])]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
+@(entityTypeMetadata: Map[models.EntityType.Value, models.EntityTypeMetadata], fieldMetadata: Map[models.EntityType.Value, models.FieldMetadataSet], templates: Map[models.EntityType.Value, Map[String, Seq[String]]])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, sessionPrefs: SessionPrefs, flash: Flash, messages: Messages, md: MarkdownRenderer)
 
 @extraStyles = {
     <style>

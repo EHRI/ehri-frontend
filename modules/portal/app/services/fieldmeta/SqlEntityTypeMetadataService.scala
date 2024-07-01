@@ -121,7 +121,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
        """.as(fieldMetaParser.*)
       }.groupBy(_.entityType)
       (for ((entityType, sections) <- tmpl) yield {
-        val fms = sections.flatMap { case (_, fieldIds) =>
+        val fms = sections.toSeq.flatMap { case (_, fieldIds) =>
           fieldIds.flatMap(id => unordered.getOrElse(entityType, Seq.empty).find(_.id == id))
         }
         entityType -> FieldMetadataSet(ListMap(fms.map(fm => fm.id -> fm): _*))

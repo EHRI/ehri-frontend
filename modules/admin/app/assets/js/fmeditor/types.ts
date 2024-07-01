@@ -33,6 +33,5 @@ export interface EntityTypeMetadata extends EntityTypeMetadataInfo {
   entityType: EntityType
 }
 
-export type FieldMetadataCategory = Array<[string, string[]]>
 
-export type FieldMetadataTemplates = Record<EntityType, FieldMetadataCategory[]>;
+export type FieldMetadataTemplates = Record<EntityType, Record<string, string[]>>;

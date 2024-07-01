@@ -115,6 +115,7 @@ class EntityTypeMetadataApiSpec extends IntegrationTestRunner with ResourceUtils
         .withUser(privilegedUser)
         .call()
       status(r) must_== OK
+      contentAsJson(r).as[Map[String, Map[String, Seq[String]]]].size must_== 4
     }
   }
 }

@@ -80,11 +80,11 @@ trait EntityTypeMetadataService {
     * Returns an ordered map of the available fields, group by section,
     * for each supported entity type.
     */
-  def templates(): Future[ListMap[EntityType.Value, Seq[(String, Seq[String])]]] = Future.successful(ListMap(
+  def templates(): Future[ListMap[EntityType.Value, ListMap[String, Seq[String]]]] = Future.successful(ListMap(
     // NB: Currently hard-coded, but could be loaded from the database
-    EntityType.Country -> CountryF.FIELDS,
-    EntityType.RepositoryDescription -> Isdiah.FIELDS,
-    EntityType.DocumentaryUnitDescription -> IsadG.FIELDS,
-    EntityType.HistoricalAgentDescription -> Isaar.FIELDS
+    EntityType.Country -> ListMap(CountryF.FIELDS: _*),
+    EntityType.RepositoryDescription -> ListMap(Isdiah.FIELDS: _*),
+    EntityType.DocumentaryUnitDescription -> ListMap(IsadG.FIELDS: _*),
+    EntityType.HistoricalAgentDescription -> ListMap(Isaar.FIELDS: _*)
   ))
 }
