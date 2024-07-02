@@ -1,8 +1,8 @@
 <script lang="ts">
 import EntityTypeMetadataApi from "../api";
 import {EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "../types";
-import ModalWindow from "./_modal-window";
-import MultiItem from "./_multi-item";
+import ModalWindow from "./_modal-window.vue";
+import MultiItem from "./_multi-item.vue";
 
 export default {
   components: {ModalWindow},
@@ -28,7 +28,7 @@ export default {
         });
         this.$emit('saved');
       } catch (e) {
-        console.error(e);
+        this.$emit('error', "Error saving entity type metadata", e);
       } finally {
         this.saving = false;
       }

@@ -1,4 +1,4 @@
-package services.fieldmeta
+package services.datamodel
 
 import com.google.inject.ImplementedBy
 import models._

@@ -1,11 +1,11 @@
 <script lang="ts">
 
 import FileMetadataEditorApi from "../api";
-import ModalFmEditor from "./_modal-fm-editor";
-import ModalEtEditor from "./_modal-et-editor";
+import ModalFmEditor from "./_modal-fm-editor.vue";
+import ModalEtEditor from "./_modal-et-editor.vue";
 import {EntityType, EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "../types";
 import ModalAlert from "../../datasets/components/_modal-alert";
-import Markdown from './_markdown';
+import Markdown from './_markdown.vue';
 
 export default {
   components: {ModalFmEditor, ModalEtEditor, ModalAlert, Markdown},
@@ -42,7 +42,7 @@ export default {
         console.log("Templates", td);
         this.templates = td;
       } catch (e) {
-        console.error(e);
+        this.$emit('error', "Error fetching data model info from API", e);
       } finally {
         this.loading = false;
       }
@@ -59,7 +59,7 @@ export default {
         await this.api.deleteField(entityType, id);
         await this.reload();
       } catch (e) {
-        console.error(e);
+        this.$emit('error', "Error deleting field metadata", e);
       } finally {
         this.deleting = null;
       }
@@ -74,7 +74,6 @@ export default {
       if (fieldMetaForType) {
         for (let fm of fieldMetaForType) {
           if (!fm.category || fm.category === cat) {
-            console.log("FM", fm, cat, fm.category, fm.category === cat)
             items.push(fm);
           }
         }
@@ -85,8 +84,8 @@ export default {
       return `fm-${entityType}-${id}`;
     },
   },
-  created: function () {
-    this.reload();
+  created: async function () {
+    await this.reload();
   },
 }
 </script>
@@ -94,7 +93,7 @@ export default {
 <template>
     <div id="entity-type-metadata-editor" class="fm-editor">
         <span v-if="loading && !fieldMetadata">Loading...</span>
-        <div class="fm-editor-list" v-for="(catFields, entityType) in templates">
+        <div v-if="templates" class="fm-editor-list" v-for="(catFields, entityType) in templates">
             <h3>
                 {{ entityTypeMetadata[entityType] ? entityTypeMetadata[entityType].name : entityType }}
                 <a v-if="entityTypeMetadata[entityType]" v-on:click.prevent="editET = entityTypeMetadata[entityType]" href="#">
@@ -132,10 +131,10 @@ export default {
                             <a v-for="sa in fm.seeAlso" v-bind:href="sa">{{ sa }}</a>
                         </td>
                         <td class="fm-actions">
-                            <a v-on:click="editFieldMetadata(fm)" href="#">
+                            <a class="fm-edit" v-on:click="editFieldMetadata(fm)" href="#">
                                 <i class="fa fa-pencil"></i>
                             </a>
-                            <a v-on:click="confirmDelete = {entityType: fm.entityType, id: fm.id}" href="#">
+                            <a class="fm-delete" v-on:click="confirmDelete = {entityType: fm.entityType, id: fm.id}" href="#">
                                 <i v-if="deleting && deleting.entityType === fm.entityType && deleting.id === fm.id" class="fa fa-spinner fa-spin"></i>
                                 <i v-else class="fa fa-trash"></i>
                             </a>
@@ -154,16 +153,20 @@ export default {
                          v-bind:templates="templates"
                          v-bind:field-metadata="fieldMetadata"
                          v-on:saved="addNew = null; reload()"
-                         v-on:close="addNew = null"/>
+                         v-on:close="addNew = null"
+                         v-on:error="(...args) => $emit('error', ...args)">
+        </modal-fm-editor>
         <modal-et-editor v-if="editET !== null"
                          v-bind:api="api"
                          v-bind:item="editET"
                          v-bind:entityTypeMetadata="entityTypeMetadata"
                          v-on:saved="editET = null; reload()"
-                         v-on:close="editET = null"/>
+                         v-on:close="editET = null"
+                         v-on:error="(...args) => $emit('error', ...args)">
+        </modal-et-editor>
         <modal-alert v-if="confirmDelete !== null"
                      title="Delete Field Metadata"
-                     cls="danger"
+                     cls="confirm-delete-field-metadata"
                      accept="Delete"
                      cancel="Cancel"
                      v-on:accept="deleteFieldMetadata(confirmDelete.entityType, confirmDelete.id); confirmDelete = null"

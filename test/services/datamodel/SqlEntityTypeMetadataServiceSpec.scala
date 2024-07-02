@@ -1,4 +1,4 @@
-package services.fieldmeta
+package services.datamodel
 
 import helpers.IntegrationTestRunner
 import models.{EntityType, EntityTypeMetadata, EntityTypeMetadataInfo, FieldMetadata, FieldMetadataInfo}

@@ -21,4 +21,19 @@ $active-table-row: #e7f1ff;
   flex: 1;
 }
 
+// TODO: de-dup from dataset manager
+#app-error-notice {
+  position: absolute;
+  bottom: $margin-sm;
+  right: $margin-sm;
+  padding: $margin-xs $margin-sm;
+  z-index: 100;
+
+  .close {
+    margin-left: $margin-xs;
+    margin-top: -3px;
+    cursor: pointer;
+  }
+}
+
 

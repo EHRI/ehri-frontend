@@ -11,7 +11,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.fieldmeta.EntityTypeMetadataService
+import services.datamodel.EntityTypeMetadataService
 import services.htmlpages.HtmlPages
 import services.search._
 import utils._

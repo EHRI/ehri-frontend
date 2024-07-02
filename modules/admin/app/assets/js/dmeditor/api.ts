@@ -8,9 +8,11 @@ import {
 export default class EntityTypeMetadataApi {
 
   service: any;
+  config: object;
 
-  constructor(service: object) {
+  constructor(service: object, config: object) {
     this.service = service;
+    this.config = config;
   }
 
   private static call<T>(endpoint: {url: string, method: any}, data?: object, params?: object): Promise<T> {

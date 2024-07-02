@@ -1,4 +1,4 @@
-package controllers.fieldmeta
+package controllers.datamodel
 
 import akka.stream.Materializer
 import controllers.AppComponents
@@ -8,7 +8,7 @@ import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.data.DataHelpers
-import services.fieldmeta.EntityTypeMetadataService
+import services.datamodel.EntityTypeMetadataService
 
 import javax.inject._
 import scala.concurrent.ExecutionContext

@@ -63,7 +63,7 @@ GET         /item/:entityType/:id/json          @controllers.admin.Data.getItemR
 
 ->          /tools                              tools.Routes
 ->          /datasets                           datasets.Routes
-->          /fieldmeta                          fieldmeta.Routes
+->          /datamodel                          datamodel.Routes
 
 # Managing Cypher queries
 ->          /cypher                             cypher.Routes

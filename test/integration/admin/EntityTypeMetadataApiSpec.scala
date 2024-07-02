@@ -9,7 +9,7 @@ import play.api.test.FakeRequest
 
 class EntityTypeMetadataApiSpec extends IntegrationTestRunner with ResourceUtils {
 
-  private val entityTypeMetadataRoutes = controllers.fieldmeta.routes.EntityTypeMetadataApi
+  private val entityTypeMetadataRoutes = controllers.datamodel.routes.EntityTypeMetadataApi
 
   "EntityTypeMetadataApi" should {
 

@@ -1,4 +1,4 @@
-package services.fieldmeta
+package services.datamodel
 
 import akka.actor.ActorSystem
 import anorm.{Column, SqlStringInterpolation, ToStatement, TypeDoesNotMatch}
