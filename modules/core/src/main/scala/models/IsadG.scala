@@ -76,4 +76,54 @@ case object IsadG {
   val SOURCES ="sources"
 
   val ACCESS_POINTS = "accessPoints"
+
+  val FIELDS: Seq[(String, Seq[String])] = List(
+    IDENTITY_AREA -> List(
+      TITLE,
+      PARALLEL_FORMS_OF_NAME,
+      REF,
+      ABSTRACT,
+      DATES,
+      UNIT_DATES,
+      LEVEL_OF_DESCRIPTION,
+      PHYSICAL_LOCATION,
+      EXTENT_MEDIUM,
+    ),
+    CONTEXT_AREA -> List(
+      ADMIN_BIOG,
+      ARCH_HIST,
+      ACQUISITION
+    ),
+    CONTENT_AREA -> List(
+      SCOPE_CONTENT,
+      APPRAISAL,
+      ACCRUALS,
+      SYS_ARR
+    ),
+    CONDITIONS_AREA -> List(
+      ACCESS_COND,
+      REPROD_COND,
+      LANG_MATERIALS,
+      SCRIPT_MATERIALS,
+      PHYSICAL_CHARS,
+      FINDING_AIDS
+    ),
+    MATERIALS_AREA -> List(
+      LOCATION_ORIGINALS,
+      LOCATION_COPIES,
+      RELATED_UNITS,
+      SEPARATED_UNITS,
+      PUBLICATION_NOTE
+    ),
+    NOTES_AREA -> List(
+      NOTES
+    ),
+    CONTROL_AREA -> List(
+      ARCHIVIST_NOTE,
+      RULES_CONVENTIONS,
+      DATES_DESCRIPTIONS,
+      PROCESS_INFO,
+      SOURCES
+    )
+  )
 }

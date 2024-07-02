@@ -57,8 +57,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "com.typesafe.akka" %% "akka-http-xml"   % akkaHttpVersion,
 
   // Anorm DB lib
-  "org.playframework.anorm" %% "anorm" % "2.6.10",
-  "org.playframework.anorm" %% "anorm-postgres" % "2.6.10",
+  "org.playframework.anorm" %% "anorm" % "2.7.0",
+  "org.playframework.anorm" %% "anorm-postgres" % "2.7.0",
 
   // Commons IO
   "commons-io" % "commons-io" % "2.5",

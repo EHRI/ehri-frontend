@@ -1,0 +1,45 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@styles = {
+    <link href="@controllers.admin.routes.AdminAssets.versioned("css/dmeditor.css")" rel="stylesheet">
+}
+
+@breadcrumbRoot = {
+    <a href="@controllers.datamodel.routes.EntityTypeMetadata.editor()">@Messages("datamodel")</a>
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("datamodel"), styles = styles,
+    breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
+} {
+    @helper.javascriptRouter("fieldMetadataApi")(
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.list,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.save,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.delete,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.getField,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.listFields,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.saveField,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.deleteField,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.templates
+    )
+
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/dmeditor/app.js")"></script>
+    <script>
+            window.SERVICE = {
+                list: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.list,
+                save: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.save,
+                delete: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.delete,
+                listFields: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.listFields,
+                getField: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.getField,
+                saveField: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.saveField,
+                deleteField: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.deleteField,
+                templates: fieldMetadataApi.controllers.datamodel.EntityTypeMetadataApi.templates,
+            }
+            Vue.createApp({
+                render: function() {
+                    return Vue.h(App.default, {
+                        service: window.SERVICE
+                    });
+                },
+            }).mount("#vue-app");
+    </script>
+}
