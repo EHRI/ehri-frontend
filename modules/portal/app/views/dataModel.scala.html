@@ -6,11 +6,23 @@
             background-color: #f5f5f5;
             font-weight: bold;
         }
-        .data-model-see-also a + a {
-            margin-left: 1em;
+        .data-model-see-also a {
+            display: inline-block;
         }
         .data-model-entity-type {
             margin-bottom: 2rem;
+        }
+        .data-model-usage {
+            white-space: nowrap;
+        }
+        .badge-mandatory {
+            background-color: #fba8a6;
+        }
+        .badge-desirable {
+            background-color: #f8dab1;
+        }
+        .badge-optional {
+            background-color: #f5f5f5;
         }
     </style>
 }
@@ -36,8 +48,8 @@
                     <thead>
                         <tr>
                             <th>@Messages("dataModel.field.name")</th>
-                            <th>@Messages("dataModel.field.description")</th>
                             <th>@Messages("dataModel.field.usage")</th>
+                            <th>@Messages("dataModel.field.description")</th>
                             <th>@Messages("dataModel.field.seeAlso")</th>
                         </tr>
                     </thead>
@@ -51,13 +63,21 @@
 
                         @for(field <- catFields) {
                             <tr class="data-model-field @field.usage.map(_.toString).getOrElse("")">
-                                <td class="data-model-name">@field.name</td>
+                                <td class="data-model-name">
+                                    <div>@field.name</div>
+                                </td>
+                                <td class="data-model-usage">
+                                    @field.usage.map { usage =>
+                                        <span class="badge badge-@usage">@Messages(s"dataModel.field.usage.$usage")</span>
+                                    }.getOrElse {
+                                        <span class="badge badge-optional">@Messages("dataModel.field.usage.optional")</span>
+                                    }
+                                </td>
                                 <td class="data-model-description">
                                     @field.description.map { desc =>
                                         @Markdown(desc)
                                     }
                                 </td>
-                                <td class="data-model-usage">@field.usage</td>
                                 <td class="data-model-see-also">
                                     @field.seeAlso.map { sa =>
                                         <a href="@sa" target="_blank">@sa</a>

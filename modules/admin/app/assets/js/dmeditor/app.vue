@@ -1,5 +1,5 @@
 <script lang="ts">
-import ListEt from "./components/_list-et.vue";
+import ListEt from "./components/_list-et";
 import EntityTypeMetadataApi from "./api";
 
 export default {

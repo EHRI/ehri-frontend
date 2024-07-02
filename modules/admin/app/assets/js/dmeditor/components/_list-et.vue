@@ -106,8 +106,8 @@ export default {
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Description</th>
                     <th>Usage</th>
+                    <th>Description</th>
                     <th>See Also</th>
                     <th></th>
                 </tr>
@@ -123,10 +123,13 @@ export default {
 
                     <tr v-for="fm in fieldMetadataFor(entityType, cat)" v-bind:id="fieldRowId(entityType, fm.id)">
                         <td class="fm-name">{{ fm.name }}</td>
+                        <td class="fm-usage" v-bind:class="fm.usage">
+                            <div v-if="fm.usage" v-bind:class="'badge badge-'+ fm.usage">{{ fm.usage }}</div>
+                            <div v-else class="badge badge-optional">optional</div>
+                        </td>
                         <td class="fm-description">
                             <markdown v-bind:content="fm.description" />
                         </td>
-                        <td class="fm-usage">{{ fm.usage }}</td>
                         <td class="fm-see-also">
                             <a v-for="sa in fm.seeAlso" v-bind:href="sa">{{ sa }}</a>
                         </td>
@@ -187,10 +190,24 @@ export default {
 }
 
 .fm-see-also a + a {
-    margin-left: .5rem;
+    display: inline-block;
+}
+
+.fm-usage {
+    white-space: nowrap;
+
 }
 
 .fm-list td:last-child a {
     margin-left: .5rem;
+}
+.badge-mandatory {
+    background-color: #fba8a6;
+}
+.badge-desirable {
+    background-color: #f8dab1;
+}
+.badge-optional {
+    background-color: #f5f5f5;
 }
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
+
 import EntityTypeMetadataApi from "../api";
-import {EntityTypeMetadata, FieldMetadata, FieldMetadataTemplates} from "../types";
-import ModalWindow from "./_modal-window.vue";
-import MultiItem from "./_multi-item.vue";
+import {EntityTypeMetadata} from "../types";
+import ModalWindow from "../../datasets/components/_modal-window";
 
 export default {
   components: {ModalWindow},
