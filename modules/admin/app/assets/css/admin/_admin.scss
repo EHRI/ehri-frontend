@@ -87,6 +87,11 @@ body > .admin-content > .flash {
   }
 }
 
+.inline-remove > a:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .address-form,
 .concept-description-form {
   background-color: $gray-100;

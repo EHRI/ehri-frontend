@@ -2,19 +2,22 @@
 
 @import Isdiah._
 @import views.html.formHelpers._
+@import views.html.admin.repository.inlineGeoname
 
 <div class="address-form inline-element">
-    @formHelpers.hiddenInput(field(Entity.ID))
     <a class="close remove-inline-element" title="@Messages("item.field.remove")" aria-label="@Messages("item.field.remove")" tabindex="-1" href="#">&times;</a>
-    @formHelpers.lineInput(field, ADDRESS_NAME)
-    @formHelpers.lineInput(field, CONTACT_PERSON)
-    @inlineGeoname(field, CITY, "city")
-    @formHelpers.choiceInput(field, COUNTRY_CODE, views.Helpers.countryPairList, '_blank -> true)
-    @inlineGeoname(field, REGION, "region")
-    @inlineGeoname(field, POSTAL_CODE, "postal")
-    @inlineGeoname(field, STREET_ADDRESS, "address")
-    @inlineNameSet(field, EMAIL)
-    @inlineNameSet(field, TELEPHONE)
-    @inlineNameSet(field, FAX)
-    @inlineNameSet(field, URL)
+    <div class="address-form-elements">
+        @formHelpers.hiddenInput(field(Entity.ID))
+        @formHelpers.lineInput(field, ADDRESS_NAME)
+        @formHelpers.lineInput(field, CONTACT_PERSON)
+        @inlineGeoname(field, CITY, "city")
+        @formHelpers.choiceInput(field, COUNTRY_CODE, views.Helpers.countryPairList, '_blank -> true)
+        @inlineGeoname(field, REGION, "region")
+        @inlineGeoname(field, POSTAL_CODE, "postal")
+        @inlineGeoname(field, STREET_ADDRESS, "address")
+        @inlineNameSet(field, EMAIL)
+        @inlineNameSet(field, TELEPHONE)
+        @inlineNameSet(field, FAX)
+        @inlineNameSet(field, URL)
+    </div>
 </div>
