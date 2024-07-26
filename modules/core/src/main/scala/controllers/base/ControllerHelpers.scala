@@ -1,5 +1,6 @@
 package controllers.base
 
+import play.api.Logger
 import play.api.mvc._
 
 
@@ -7,6 +8,11 @@ trait ControllerHelpers extends play.api.i18n.I18nSupport {
 
 
   protected implicit def config: play.api.Configuration
+
+  /**
+    * Logger instance.
+    */
+  protected val logger: Logger = play.api.Logger(getClass)
 
   /**
     * Session key for last page prior to login

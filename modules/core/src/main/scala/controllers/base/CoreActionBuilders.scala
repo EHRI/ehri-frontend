@@ -9,6 +9,7 @@ import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Result, _}
 import services.accounts.AccountManager
 import services.data.{AuthenticatedUser, DataService, DataServiceBuilder, DataUser}
+import services.datamodel.EntityTypeMetadataService
 
 import java.time.ZonedDateTime
 import scala.concurrent.Future.{successful => immediate}
@@ -33,6 +34,8 @@ trait CoreActionBuilders extends BaseController with ControllerHelpers {
   protected def accounts: AccountManager
 
   protected def itemLifecycle: ItemLifecycle
+
+  protected def entityTypeMetadata: EntityTypeMetadataService
 
   protected def conf: AppConfig
 

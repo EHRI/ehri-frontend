@@ -1,16 +1,16 @@
-@(f: Form[VocabularyF], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(f: Form[VocabularyF], vf: Form[Seq[String]], fieldHints: forms.FormFieldHints, usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.create"), EntityType.Vocabulary) {
-	@helper.form(action = action) {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
-        @views.html.admin.vocabulary.form(None, f)
+        @views.html.admin.vocabulary.form(None, f, fieldHints)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocVocabulary.create.submit"))
-	}
+    }
 } {
-
+    @views.html.formHelpers.formNavigation("cvocVocabulary")
 }

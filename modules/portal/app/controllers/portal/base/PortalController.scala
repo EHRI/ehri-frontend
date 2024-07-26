@@ -7,13 +7,14 @@ import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
 import cookies.{SessionPreferences, SessionPrefs}
 import lifecycle.ItemLifecycle
-import models.{EntityType, EventType, Model, UserProfile}
 import models.view.{MessagingInfo, UserDetails}
+import models.{EntityType, EventType, Model, UserProfile}
+import play.api.Configuration
 import play.api.http.{ContentTypes, HeaderNames}
-import play.api.mvc.{Result, _}
-import play.api.{Configuration, Logger}
+import play.api.mvc._
 import services.accounts.AccountManager
 import services.data.{DataServiceBuilder, DataUser}
+import services.datamodel.EntityTypeMetadataService
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
 import views.html.MarkdownRenderer
@@ -23,15 +24,13 @@ import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
-import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.duration.Duration
 
 
 trait PortalController
   extends CoreActionBuilders
   with ControllerHelpers
   with SessionPreferences[SessionPrefs] {
-
-  private def logger = Logger(getClass)
 
   // Abstract controller components, injected into super classes
   def appComponents: AppComponents
@@ -45,6 +44,7 @@ trait PortalController
   protected def dataApi: DataServiceBuilder = appComponents.dataApi
   protected def authHandler: AuthHandler = appComponents.authHandler
   protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
+  protected def entityTypeMetadata: EntityTypeMetadataService = appComponents.entityTypeMetadata
 
   protected def searchEngine: SearchEngine = appComponents.searchEngine
   protected def searchResolver: SearchItemResolver = appComponents.searchResolver

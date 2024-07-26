@@ -12,7 +12,6 @@ import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update
 import eu.ehri.project.xml._
 import models._
-import play.api.Logger
 import play.api.cache.{AsyncCacheApi, NamedCache}
 import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc._
@@ -39,7 +38,6 @@ case class ConvertConfigs @Inject()(
   datasetApi: ImportDatasetService,
 )(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
 
-  private val logger: Logger = Logger(classOf[ConvertConfigs])
   private val cacheTime: Duration = appComponents.config.get[Duration]("ehri.admin.dataManager.cacheExpiration")
 
   def get(id: String, ds: String): Action[AnyContent] = EditAction(id).async { implicit request =>

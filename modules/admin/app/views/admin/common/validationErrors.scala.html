@@ -1,0 +1,34 @@
+@(validation: Seq[ValidationError], fieldPrefix: String, show: Boolean = true)(implicit userOpt: Option[UserProfile], messages: Messages)
+
+@if(show && validation.nonEmpty) {
+    <details class="metadata-validation">
+        <summary>@Messages("dataModel.advisories", validation.size)</summary>
+
+        <div class="metadata-validation-details">
+
+        @defining(validation.collect { case e@MissingMandatoryField(_) => e }, validation.collect { case e@MissingDesirableField(_) => e }) { case (mandatory, desirable) =>
+            @if(mandatory.nonEmpty) {
+                <div class="validation-errors">
+                    <header>@Messages("dataModel.missingMandatoryFields", mandatory.size)</header>
+                    <ul>
+                    @mandatory.map { e =>
+                        <li>@Messages(fieldPrefix + "." + e.id)</li>
+                    }
+                    </ul>
+                </div>
+            }
+            @if(desirable.nonEmpty) {
+
+                <div class="validation-warnings">
+                    <header>@Messages("dataModel.missingDesirableFields", desirable.size)</header>
+                    <ul>
+                    @desirable.map { e =>
+                        <li>@Messages(fieldPrefix + "." + e.id)</li>
+                    }
+                    </ul>
+                </div>
+            }
+        }
+        </div>
+    </details>
+}

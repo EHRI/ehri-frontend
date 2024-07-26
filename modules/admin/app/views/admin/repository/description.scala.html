@@ -1,4 +1,4 @@
-@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, fieldPrefix: String)
+@(item: Repository, desc: RepositoryDescriptionF, links: Seq[Link], annotations: Seq[Annotation], advisories: Html = Html(""))(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, fieldPrefix: String)
 
 @import Isdiah._
 @import views.html.admin.common.descriptionSection
@@ -6,6 +6,7 @@
 
 @views.html.admin.common.descriptionOutline(item, desc) {
     @views.html.common.itemHeader(desc.name)
+    @advisories
 
     @descriptionSection(IDENTITY_AREA) {
         @textValue(AUTHORIZED_FORM_OF_NAME, Some(desc.name))

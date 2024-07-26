@@ -10,7 +10,6 @@ import controllers.portal.base.PortalController
 import controllers.{AppComponents, renderError}
 import forms.{AccountForms, HoneyPotForm, TimeCheckForm}
 import models._
-import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.http.{HeaderNames, HttpVerbs}
@@ -19,7 +18,7 @@ import play.api.libs.json.{JsObject, JsString}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Result, _}
+import play.api.mvc._
 import services.RateLimitChecker
 import services.data.{AnonymousUser, AuthenticatedUser, ItemNotFound}
 import services.oauth2.OAuth2Service
@@ -47,8 +46,6 @@ case class Accounts @Inject()(
 ) extends PortalController with RecaptchaHelpers {
 
   import accountForms._
-
-  private val logger = Logger(getClass)
 
   private val portalRoutes = controllers.portal.routes.Portal
   private val accountRoutes = controllers.portal.account.routes.Accounts

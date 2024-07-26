@@ -7,6 +7,7 @@ import eu.ehri.project.definitions.Ontology
 import play.api.data.Form
 import play.api.data.Forms._
 import Description._
+import forms.mappings._
 
 
 case class IsaarDetail(
@@ -143,7 +144,7 @@ object HistoricalAgentDescription {
       CREATION_PROCESS -> default(enumMapping(CreationProcess), CreationProcess.Manual),
       ACCESS_POINTS -> seq(AccessPoint.form.mapping),
       MAINTENANCE_EVENTS -> seq(MaintenanceEventF.form.mapping),
-      UNKNOWN_DATA -> seq(forms.entityForm)
+      UNKNOWN_DATA -> seq(entityForm)
     )(HistoricalAgentDescriptionF.apply)(HistoricalAgentDescriptionF.unapply)
   )
 }

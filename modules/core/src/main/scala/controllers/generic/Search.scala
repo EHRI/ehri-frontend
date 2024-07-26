@@ -2,7 +2,6 @@ package controllers.generic
 
 import controllers.base.CoreActionBuilders
 import models.{ContentType, EntityType, Readable, UserProfile, WithId}
-import play.api.Logger
 import play.api.mvc._
 import services.search._
 import utils.{Page, PageParams}
@@ -14,8 +13,6 @@ import scala.concurrent.Future
   * Helpers for using the search engine from controllers.
   */
 trait Search extends CoreActionBuilders {
-
-  private def logger = Logger(getClass)
 
   protected def searchEngine: services.search.SearchEngine
 

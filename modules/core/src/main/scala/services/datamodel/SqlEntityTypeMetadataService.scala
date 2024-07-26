@@ -64,7 +64,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
   )
 
 
-  def list(): Future[Map[EntityType.Value, EntityTypeMetadata]] = Future {
+  override def list(): Future[Map[EntityType.Value, EntityTypeMetadata]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
       SELECT * FROM entity_type_meta
@@ -73,7 +73,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def get(entityType: EntityType.Value): Future[Option[EntityTypeMetadata]] = Future {
+  override def get(entityType: EntityType.Value): Future[Option[EntityTypeMetadata]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
         SELECT * FROM entity_type_meta
@@ -82,7 +82,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def save(entityType: EntityType.Value, info: EntityTypeMetadataInfo): Future[EntityTypeMetadata] = Future {
+  override def save(entityType: EntityType.Value, info: EntityTypeMetadataInfo): Future[EntityTypeMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             INSERT INTO entity_type_meta(entity_type, name, description)
@@ -100,7 +100,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def delete(entityType: EntityType.Value): Future[Boolean] = Future {
+  override def delete(entityType: EntityType.Value): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             DELETE FROM entity_type_meta
@@ -109,7 +109,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def listFields(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, FieldMetadataSet]] = Future {
+  override def listFields(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, FieldMetadataSet]] = Future {
     templates().map { tmpl =>
       val unordered = db.withConnection { implicit conn =>
         SQL"""
@@ -130,7 +130,10 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec).flatten
 
-  def getField(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]] = Future {
+  override def listEntityTypeFields(entityType: EntityType.Value): Future[FieldMetadataSet] =
+    listFields(Some(entityType)).map(_.getOrElse(entityType, FieldMetadataSet(ListMap.empty)))
+
+  override def getField(entityType: EntityType.Value, id: String): Future[Option[FieldMetadata]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             SELECT * FROM field_meta
@@ -140,7 +143,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def saveField(entityType: EntityType.Value, id: String, info: FieldMetadataInfo): Future[FieldMetadata] = Future {
+  override def saveField(entityType: EntityType.Value, id: String, info: FieldMetadataInfo): Future[FieldMetadata] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             INSERT INTO field_meta(entity_type, id, name, description, usage, category, default_val, see_also)
@@ -167,7 +170,7 @@ case class SqlEntityTypeMetadataService @Inject()(db: Database, actorSystem: Act
     }
   }(ec)
 
-  def deleteField(entityType: EntityType.Value, id: String): Future[Boolean] = Future {
+  override def deleteField(entityType: EntityType.Value, id: String): Future[Boolean] = Future {
     db.withConnection { implicit conn =>
       SQL"""
             DELETE FROM field_meta

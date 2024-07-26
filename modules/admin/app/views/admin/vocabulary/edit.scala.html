@@ -1,15 +1,15 @@
-@(item: Vocabulary, f: play.api.data.Form[VocabularyF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Vocabulary, f: play.api.data.Form[VocabularyF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebarWithType(Messages("cvocVocabulary.update"), EntityType.Vocabulary, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-	@helper.form(action = action) {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-        @views.html.admin.vocabulary.form(Some(item), f)
+        @views.html.admin.vocabulary.form(Some(item), f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocVocabulary.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
-	}
+    }
 } {
-
+    @views.html.formHelpers.formNavigation("cvocVocabulary")
 }

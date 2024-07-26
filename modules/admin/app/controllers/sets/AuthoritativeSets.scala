@@ -4,9 +4,6 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-
-import javax.inject._
-import forms.ConfigFormFieldHintsBuilder
 import models._
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
@@ -15,6 +12,8 @@ import services.data.{DataHelpers, IdGenerator}
 import services.ingest.IngestService
 import services.search.{SearchConstants, SearchIndexMediator, SearchParams, SearchSort}
 import utils.{PageParams, RangeParams}
+
+import javax.inject._
 
 
 @Singleton
@@ -25,7 +24,7 @@ AuthoritativeSets @Inject()(
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator,
-  ws: WSClient
+  ws: WSClient,
 ) extends AdminController
   with CRUD[AuthoritativeSet]
   with DeleteChildren[HistoricalAgent, AuthoritativeSet]
@@ -36,9 +35,7 @@ AuthoritativeSets @Inject()(
   with Promotion[AuthoritativeSet]
   with Search {
 
-  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.HistoricalAgent, config)
-
-  val targetContentTypes = Seq(ContentTypes.HistoricalAgent)
+  protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.HistoricalAgent)
   private val form = models.AuthoritativeSet.form
   private val childForm = models.HistoricalAgent.form
   private val setRoutes = controllers.sets.routes.AuthoritativeSets
@@ -63,13 +60,13 @@ AuthoritativeSets @Inject()(
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.create(form, visibilityForm,
-      request.usersAndGroups, setRoutes.createPost()))
+      request.fieldHints, request.usersAndGroups, setRoutes.createPost()))
   }
 
   def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
-        BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm,
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
+        BadRequest(views.html.admin.authoritativeSet.create(errorForm, accForm, fieldHints,
           usersAndGroups, setRoutes.createPost()))
       case Right(item) => Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
@@ -78,23 +75,25 @@ AuthoritativeSets @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.authoritativeSet.edit(
-      request.item, form.fill(request.item.data),setRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, setRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.authoritativeSet.edit(
-        request.item, errorForm, setRoutes.updatePost(id)))
+        request.item, errorForm, request.fieldHints, setRoutes.updatePost(id)))
       case Right(item) => Redirect(setRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
   def createHistoricalAgent(id: String): Action[AnyContent] = NewChildAction(id).async { implicit request =>
-    idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent, "%06d").map { newid =>
+    for {
+      newId <- idGenerator.getNextChildNumericIdentifier(id, EntityType.HistoricalAgent, "%06d")
+    } yield {
       Ok(views.html.admin.historicalAgent.create(
-        request.item, childForm.bind(Map(Entity.IDENTIFIER -> newid)),
-        formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
+        request.item, childForm.bind(Map(Entity.IDENTIFIER -> newId)),
+        visibilityForm.fill(request.item.accessors.map(_.id)), request.fieldHints,
         request.usersAndGroups,
           setRoutes.createHistoricalAgentPost(id)))
     }
@@ -102,9 +101,9 @@ AuthoritativeSets @Inject()(
 
   def createHistoricalAgentPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.historicalAgent.create(request.item,
-          errorForm, formConfig.forCreate, accForm, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
+          errorForm, accForm, fieldHints, usersAndGroups, setRoutes.createHistoricalAgentPost(id)))
       case Right(citem) => Redirect(controllers.authorities.routes.HistoricalAgents.get(citem.id))
         .flashing("success" -> "item.create.confirmation")
     }

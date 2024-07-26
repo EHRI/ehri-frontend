@@ -7,7 +7,6 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic.Update
 import models._
-import play.api.Logger
 import play.api.libs.json.{JsNull, Json}
 import play.api.mvc._
 
@@ -18,8 +17,6 @@ case class LongRunningJobs @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
 )(implicit mat: Materializer) extends AdminController with Update[Repository] {
-
-  private val logger = Logger(this.getClass)
 
   def cancel(id: String, jobId: String): Action[AnyContent] = EditAction(id).async { implicit request =>
     import scala.concurrent.duration._

@@ -1,11 +1,11 @@
-@(item: DocumentaryUnit, f: Form[DocumentaryUnitF], config: forms.FormFieldHints, did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: Form[DocumentaryUnitF], fieldHints: forms.FormFieldHints, did: String, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.updateDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.updateDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.formJs(f)) {
 
     @defining("documentaryUnit") { implicit fieldPrefix =>
-        @defining(Some(config)) { implicit implicitConfig =>
+        @defining(Some(fieldHints)) { implicit implicitFieldHints =>
             @helper.form(action = action) {
                 @formHelpers.csrfToken()
 
@@ -27,5 +27,5 @@
         }
     }
 } {
-   @formNav()
+   @formNavigation()
 }

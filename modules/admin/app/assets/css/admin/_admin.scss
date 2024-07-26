@@ -80,16 +80,34 @@ body > .admin-content > .flash {
       background-color: $gray-100;
     }
   }
+}
 
-  .markdown-helper {
-    font-style: italic;
-    cursor: help;
-  }
+.markdown-helper {
+  font-style: italic;
+  cursor: pointer;
 }
 
 .inline-remove > a:hover {
   text-decoration: none;
   cursor: pointer;
+}
+
+.form-legend {
+  font-size: $font-size-base;
+
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+
+    dt {
+      @include make-col(3);
+      font-weight: bold;
+    }
+
+    dd {
+      @include make-col(9);
+    }
+  }
 }
 
 .address-form,
@@ -127,8 +145,11 @@ body > .admin-content > .flash {
   padding-top: $margin-md;
 }
 
-.add-address {
+.add-address,
+.add-concept
+{
   float: right;
+  margin-bottom: $margin-md;
 }
 
 .admin-help-notice {
@@ -315,12 +336,18 @@ pre.code-format {
   margin-bottom: $margin-md;
 }
 
-.add-description {
-  margin-bottom: $margin-md;
-  @include clearfix();
-  a {
-    float: right;
+.control-elements {
+  .add-inline-element:not(.btn) {
+    display: block;
+    background-color: $gray-100;
+    border-bottom: 1px solid darken($gray-100, 5%);
+    padding: 0 $margin-xs;
+    color: $gray-700;
   }
+  .add-inline-element:hover:not(.btn) {
+    background-color: darken($gray-100, 5%);
+  }
+
 }
 
 .inline-element-block-controls {
@@ -434,6 +461,20 @@ pre.code-format {
      overflow: auto;
      max-height: 16rem;
    }
+}
+
+// Metadata validation
+.metadata-validation {
+  summary {
+    font-size: $font-size-lg;
+    @extend .alert, .alert-warning;
+  }
+  .validation-errors {
+    @extend .alert, .alert-danger;
+  }
+  .validation-warnings {
+    @extend .alert, .alert-warning;
+  }
 }
 
 // Vue Single-page applications

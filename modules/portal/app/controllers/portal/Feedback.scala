@@ -1,16 +1,16 @@
 package controllers.portal
 
-import javax.inject._
-import services.cypher.CypherService
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import forms.{HoneyPotForm, TimeCheckForm}
-import play.api.{Application, Logger}
+import play.api.Application
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.mvc._
+import services.cypher.CypherService
 import services.feedback.FeedbackService
 import utils.PageParams
 
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -24,12 +24,10 @@ case class Feedback @Inject()(
   cypher: CypherService
 ) extends PortalController {
 
-  val logger = Logger(classOf[Feedback])
-
-  import play.api.data.Form
-  import play.api.data.Forms._
   import forms.HoneyPotForm._
   import forms.TimeCheckForm._
+  import play.api.data.Form
+  import play.api.data.Forms._
 
   case class CheckFeedbackData(
     timestamp: String,

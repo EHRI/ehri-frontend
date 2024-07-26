@@ -2,9 +2,9 @@ package models
 
 import play.api.libs.json.{Format, Reads}
 import utils.EnumUtils.enumFormat
+import utils.db.StorableEnum
 
 import java.time.Instant
-import utils.db.StorableEnum
 
 /**
   * This class contains information about fields in the database. The entity type
@@ -34,7 +34,7 @@ case class FieldMetadata(
   description: Option[String] = None,
   usage: Option[FieldMetadata.Usage.Value] = None,
   category: Option[String] = None,
-  default: Option[String] = None,
+  defaultVal: Option[String] = None,
   seeAlso: Seq[String] = Nil,
   created: Option[Instant] = None,
   updated: Option[Instant] = None

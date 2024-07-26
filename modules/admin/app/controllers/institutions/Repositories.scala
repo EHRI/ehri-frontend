@@ -5,13 +5,12 @@ import controllers.AppComponents
 import controllers.base.{AdminController, ImageHelpers, ResolutionTooHigh, UnrecognizedType}
 import controllers.generic._
 import forms._
-import models.{EntityType, _}
+import models.{ContentTypes, EntityType, _}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.mvc._
 import services.data.DataHelpers
-import services.datamodel.EntityTypeMetadataService
 import services.ingest.{EadValidator, IngestService}
 import services.search._
 import services.storage.FileStorage
@@ -31,7 +30,6 @@ case class Repositories @Inject()(
   searchIndexer: SearchIndexMediator,
   fileStorage: FileStorage,
   eadValidator: EadValidator,
-  entityTypeMetadata: EntityTypeMetadataService
 )(
   implicit mat: Materializer
 ) extends AdminController
@@ -98,11 +96,8 @@ case class Repositories @Inject()(
     )
   }
 
-  override protected val targetContentTypes = Seq(ContentTypes.DocumentaryUnit)
-
-  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.Repository, config)
+  override protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.DocumentaryUnit)
   private val form = models.Repository.form
-  private val childFormDefaults: FieldMetaFormFieldHintsBuilder = FieldMetaFormFieldHintsBuilder(EntityType.DocumentaryUnit, entityTypeMetadata, config)
   private val childForm = models.DocumentaryUnit.form
   private val repositoryRoutes = controllers.institutions.routes.Repositories
 
@@ -119,12 +114,20 @@ case class Repositories @Inject()(
     val filters = (if (!hasActiveQuery(request)) Map(SearchConstants.TOP_LEVEL -> true) else Map.empty[String,Any]) ++
         Map(SearchConstants.HOLDER_ID -> request.item.id)
 
-    findType[DocumentaryUnit](params, paging, filters = filters,
-      facetBuilder = repositoryFacets, sort = SearchSort.Id).map { result =>
+    for {
+      result <- findType[DocumentaryUnit](
+        params,
+        paging,
+        filters = filters,
+        facetBuilder = repositoryFacets,
+        sort = SearchSort.Id)
+      fieldMetadata <- entityTypeMetadata.listEntityTypeFields(EntityType.Repository)
+       advisories = fieldMetadata.validate(request.item.data)
+    } yield {
       if(isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
         .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.admin.repository.show(request.item, result,
-        repositoryRoutes.get(id), request.annotations, request.links))
+        repositoryRoutes.get(id), request.annotations, request.links, advisories))
         .withPreferences(preferences.withRecentItem(id))
     }
   }
@@ -139,30 +142,30 @@ case class Repositories @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.repository.edit(request.item,
-      form.fill(request.item.data), formConfig.forUpdate, repositoryRoutes.updatePost(id)))
+      form.fill(request.item.data), request.fieldHints, repositoryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.repository.edit(
-          request.item, errorForm, formConfig.forUpdate, repositoryRoutes.updatePost(id)))
+          request.item, errorForm, request.fieldHints, repositoryRoutes.updatePost(id)))
       case Right(doc) => Redirect(repositoryRoutes.get(doc.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
-    Ok(views.html.admin.documentaryUnit.create(request.item, childForm, childFormDefaults.forCreate,
-      visibilityForm.fill(request.item.accessors.map(_.id)),
+    Ok(views.html.admin.documentaryUnit.create(request.item, childForm,
+      visibilityForm.fill(request.item.accessors.map(_.id)), request.fieldHints,
       request.usersAndGroups, repositoryRoutes.createDocPost(id)))
   }
 
   def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm,accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
-          errorForm, childFormDefaults.forCreate, accForm,
+          errorForm, accForm, fieldHints,
           usersAndGroups, repositoryRoutes.createDocPost(id)))
       case Right(citem) => Redirect(controllers.units.routes.DocumentaryUnits.get(citem.id))
         .flashing("success" -> "item.create.confirmation")

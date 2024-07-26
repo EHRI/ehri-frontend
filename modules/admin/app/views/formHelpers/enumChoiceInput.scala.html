@@ -1,9 +1,15 @@
-@(f: play.api.data.Field, fieldName: String, enum: Enumeration, args: (Symbol,Any)*)(implicit fieldPrefix: String = "", config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Field, fieldName: String, enum: Enumeration, args: (Symbol,Any)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
-@formHelpers.choiceInput(
-  f,
-  fieldName,
-  enum.values.toList.sortBy(_.id).map(m => (m.toString,
-        Messages(if (fieldPrefix.isEmpty) m.toString else fieldPrefix + "." + m.toString))),
-  args: _*
-)
+@views.html.formHelpers.configuredField(f, fieldName, config) { field =>
+    @formHelpers.choiceInput(
+        f,
+        fieldName,
+        enum.values.toList.sortBy(_.id).map(m => (m.toString, Messages(if(prefix.isEmpty) m.toString else prefix + "." + m.toString))),
+        args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
+            '_label -> config.flatMap(_.name(fieldName)).getOrElse(Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName")),
+            'title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description"))),
+            'class -> "form-control"
+        )): _*
+    )
+}

@@ -24,7 +24,8 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
     * @param request        the underlying request
     * @tparam A the type of the underlying request
     */
-  case class UserGroupsRequest[A](
+  case class NewItemRequest[A](
+    fieldHints: FormFieldHints,
     usersAndGroups: UsersAndGroups,
     user: UserProfile,
     request: Request[A]
@@ -32,18 +33,20 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
     with WithUser
 
   case class CreateRequest[A](
-    formOrItem: Either[(Form[MT#T], Form[Seq[String]], UsersAndGroups), MT],
+    formOrItem: Either[(Form[MT#T], Form[Seq[String]], FormFieldHints, UsersAndGroups), MT],
     user: UserProfile,
     request: Request[A]
   ) extends WrappedRequest[A](request)
     with WithUser
 
-  protected def NewItemAction(implicit ct: ContentType[MT]): ActionBuilder[UserGroupsRequest, AnyContent] =
-    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new CoreActionTransformer[WithUserRequest, UserGroupsRequest] {
-      override protected def transform[A](request: WithUserRequest[A]): Future[UserGroupsRequest[A]] = {
-        dataHelpers.getUserAndGroupList.map { usersAndGroups =>
-          UserGroupsRequest(usersAndGroups, request.user, request)
-        }
+  protected def NewItemAction(implicit ct: ContentType[MT]): ActionBuilder[NewItemRequest, AnyContent] =
+    WithContentPermissionAction(PermissionType.Create, ct.contentType) andThen new CoreActionTransformer[WithUserRequest, NewItemRequest] {
+      override protected def transform[A](request: WithUserRequest[A]): Future[NewItemRequest[A]] = {
+        val formConfig = FieldMetaFormFieldHintsBuilder(ct.entityType, entityTypeMetadata, config)
+        for {
+          fieldHints <- formConfig.forCreate
+          usersAndGroups <- dataHelpers.getUserAndGroupList
+        } yield NewItemRequest(fieldHints, usersAndGroups, request.user, request)
       }
     }
 
@@ -53,10 +56,13 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
       def transform[A](request: WithUserRequest[A]): Future[CreateRequest[A]] = {
         implicit val req: WithUserRequest[A] = request
         val visForm = visibilityForm.bindFromRequest()
+        val formConfig = FieldMetaFormFieldHintsBuilder(ct.entityType, entityTypeMetadata, config)
         form.bindFromRequest().fold(
-          errorForm => dataHelpers.getUserAndGroupList.map { usersAndGroups =>
-            CreateRequest(Left((errorForm, visForm, usersAndGroups)), request.user, request.request)
-          },
+          errorForm => for {
+            fieldHints <- formConfig.forCreate
+            usersAndGroups <- dataHelpers.getUserAndGroupList
+            _ = logger.debug(s"CreateItemAction: form binding failed: ${errorForm.errors}")
+          } yield CreateRequest(Left((errorForm, visForm, fieldHints, usersAndGroups)), request.user, request.request),
           doc => {
             val accessors = visForm.value.getOrElse(Nil)
             (for {
@@ -69,9 +75,10 @@ trait Create[MT <: Model{type T <: ModelData with Persistable}] extends Read[MT]
               // and redisplay it...
               case ValidationError(errorSet) =>
                 val filledForm = doc.getFormErrors(errorSet, form.fill(doc))
-                dataHelpers.getUserAndGroupList.map { usersAndGroups =>
-                  CreateRequest(Left((filledForm, visForm, usersAndGroups)), request.user, request)
-                }
+                for {
+                  fieldHints <- formConfig.forCreate
+                  usersAndGroups <- dataHelpers.getUserAndGroupList
+                } yield CreateRequest(Left((filledForm, visForm, fieldHints, usersAndGroups)), request.user, request)
             }
           }
         )

@@ -1,12 +1,13 @@
 package models
 
+import forms.mappings.optionalText
 import models.json._
-import play.api.i18n.Messages
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.JsObject
+import play.api.data.validation.Constraints
+import play.api.i18n.Messages
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 
 object CountryF {
@@ -54,9 +55,9 @@ case class CountryF(
 
 
 object Country {
-  import eu.ehri.project.definitions.Ontology._
-  import Entity._
   import CountryF._
+  import Entity._
+  import eu.ehri.project.definitions.Ontology._
 
   implicit val metaReads: Reads[Country] = (
     __.read[CountryF](countryFormat) and
@@ -72,16 +73,16 @@ object Country {
     val restReads: Reads[Country] = metaReads
   }
 
-  val form = Form(
+  val form: Form[CountryF] = Form(
     mapping(
       ISA -> ignored(EntityType.Country),
       ID -> optional(nonEmptyText),
-      IDENTIFIER -> nonEmptyText(minLength=2,maxLength=2), // ISO 2-letter field
-      ABSTRACT -> optional(nonEmptyText),
-      HISTORY -> optional(nonEmptyText),
-      SITUATION -> optional(nonEmptyText),
-      DATA_SUMMARY -> optional(nonEmptyText),
-      DATA_EXTENSIVE -> optional(nonEmptyText)
+      IDENTIFIER -> text(minLength=2,maxLength=2).verifying(Constraints.nonEmpty(errorMessage="constraints.mandatory")), // ISO 2-letter field
+      ABSTRACT -> optionalText,
+      HISTORY -> optionalText,
+      SITUATION -> optionalText,
+      DATA_SUMMARY -> optionalText,
+      DATA_EXTENSIVE -> optionalText
     )(CountryF.apply)(CountryF.unapply)
   )
 }

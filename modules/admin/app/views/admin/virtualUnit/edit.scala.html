@@ -1,12 +1,13 @@
-@(item: VirtualUnit, f: play.api.data.Form[VirtualUnitF], config: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: VirtualUnit, f: Form[VirtualUnitF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.update"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("virtualUnit.update"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.formJs(f)) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-		@form(f, config)
+		@form(f, fieldHints)
         @formHelpers.submitButtonWithLogMessageInput(Messages("virtualUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
+    @views.html.admin.documentaryUnit.formNavigation()
 }

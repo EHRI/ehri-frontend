@@ -188,7 +188,7 @@ jQuery(function ($) {
       event.preventDefault();
 
       var container = $(event.target).closest(".inline-formset");
-      var set = container.children(".inline-element-list");
+      var set = container.children(".control-elements").children(".inline-element-list").first();
       var prefix = container.data("prefix");
       if (!prefix) {
         throw "No prefix found for formset";
@@ -212,6 +212,10 @@ jQuery(function ($) {
 
       // And a help popover
       addPopover($elem.find("textarea,input"));
+
+      // Focus the first input
+      $elem.find("input,textarea").first().focus();
+
     }).on("click", ".remove-inline-element", function (event) {
       event.preventDefault();
       $(this)

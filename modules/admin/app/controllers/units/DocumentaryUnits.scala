@@ -4,13 +4,12 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{ContentTypes, EntityType, _}
+import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
-import services.datamodel.EntityTypeMetadataService
 import services.ingest.{ImportLogService, IngestService}
 import services.search._
 import services.storage.FileStorage
@@ -19,8 +18,7 @@ import utils.{DateFacetUtils, PageParams, RangeParams}
 import views.Helpers
 
 import javax.inject._
-import scala.collection.immutable.ListMap
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 
 
@@ -32,7 +30,6 @@ case class DocumentaryUnits @Inject()(
   importLogs: ImportLogService,
   @Named("dam") damStorage: FileStorage,
   dfu: DateFacetUtils,
-  entityTypeMetadata: EntityTypeMetadataService
 ) extends AdminController
   with Read[DocumentaryUnit]
   with Visibility[DocumentaryUnit]
@@ -108,8 +105,6 @@ case class DocumentaryUnits @Inject()(
     )
   }
 
-//  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.DocumentaryUnit, config)
-  private val formConfig: FieldMetaFormFieldHintsBuilder = FieldMetaFormFieldHintsBuilder(EntityType.DocumentaryUnit, entityTypeMetadata, config)
   private val form = models.DocumentaryUnit.form
   private val childForm = models.DocumentaryUnit.form
 
@@ -131,12 +126,20 @@ case class DocumentaryUnits @Inject()(
   }
 
   def get(id: String, dlid: Option[String], params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[DocumentaryUnit](params, paging, filters = Map(SearchConstants.PARENT_ID -> request.item.id),
-      facetBuilder = entityFacets, sort = SearchSort.Id).map { result =>
-      if (isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
-        .withHeaders("more" -> result.page.hasMore.toString)
-      else Ok(views.html.admin.documentaryUnit.show(request.item, result,
-        docRoutes.get(id), request.annotations, request.links, dlid))
+    for {
+      children <- findType[DocumentaryUnit](
+        params,
+        paging,
+        filters = Map(SearchConstants.PARENT_ID -> request.item.id),
+        facetBuilder = entityFacets,
+        sort = SearchSort.Id)
+      fieldMetadata <- entityTypeMetadata.listEntityTypeFields(EntityType.DocumentaryUnit)
+      errors = fieldMetadata.validate(request.item.data)
+    } yield {
+      if (isAjax) Ok(views.html.admin.search.inlineItemList(result = children))
+        .withHeaders("more" -> children.page.hasMore.toString)
+      else Ok(views.html.admin.documentaryUnit.show(request.item, children,
+        docRoutes.get(id), request.annotations, request.links, dlid, errors))
           .withPreferences(preferences.withRecentItem(id))
     }
   }
@@ -158,15 +161,15 @@ case class DocumentaryUnits @Inject()(
   }
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.documentaryUnit.edit(
-      request.item, form.fill(request.item.data), formConfig.forUpdate, docRoutes.updatePost(id)))
+      Ok(views.html.admin.documentaryUnit.edit(
+        request.item, form.fill(request.item.data), request.fieldHints, docRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.documentaryUnit.edit(request.item,
-          errorForm, formConfig.forUpdate, docRoutes.updatePost(id)))
+          errorForm, request.fieldHints, docRoutes.updatePost(id)))
       case Right(item) => Redirect(docRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -208,32 +211,31 @@ case class DocumentaryUnits @Inject()(
 
   def createDoc(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.create(
-      request.item, childForm, formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
+      request.item, childForm, visibilityForm.fill(request.item.accessors.map(_.id)), request.fieldHints,
       request.usersAndGroups, docRoutes.createDocPost(id)))
   }
 
   def createDocPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.documentaryUnit.create(request.item,
-          errorForm, formConfig.forCreate, accForm, usersAndGroups,
+          errorForm, accForm, fieldHints, usersAndGroups,
           docRoutes.createDocPost(id)))
       case Right(doc) => Redirect(docRoutes.get(doc.id))
         .flashing("success" -> "item.create.confirmation")
     }
   }
 
-  def createDescription(id: String): Action[AnyContent] =
-    WithItemPermissionAction(id, PermissionType.Update).apply { implicit request =>
+  def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
       Ok(views.html.admin.documentaryUnit.createDescription(request.item,
-        form.fill(request.item.data), formConfig.forCreate, docRoutes.createDescriptionPost(id)))
-    }
+        form.fill(request.item.data), request.fieldHints, docRoutes.createDescriptionPost(id)))
+  }
 
   def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.documentaryUnit.createDescription(request.item,
-          errorForm, formConfig.forCreate, docRoutes.createDescriptionPost(id)))
+          errorForm, request.fieldHints, docRoutes.createDescriptionPost(id)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }
@@ -241,14 +243,14 @@ case class DocumentaryUnits @Inject()(
 
   def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.documentaryUnit.editDescription(request.item,
-      form.fill(request.item.data), formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
+      form.fill(request.item.data), request.fieldHints, did, docRoutes.updateDescriptionPost(id, did)))
   }
 
   def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.documentaryUnit.editDescription(request.item,
-          errorForm, formConfig.forUpdate, did, docRoutes.updateDescriptionPost(id, did)))
+          errorForm, request.fieldHints, did, docRoutes.updateDescriptionPost(id, did)))
       case Right(_) => Redirect(docRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
     }

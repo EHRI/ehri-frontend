@@ -4,10 +4,7 @@ import controllers.AppComponents
 import controllers.base.{AdminController, SearchVC}
 import controllers.generic._
 import forms._
-
-import javax.inject._
 import models._
-import forms.ConfigFormFieldHintsBuilder
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -18,6 +15,7 @@ import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
+import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -28,7 +26,7 @@ case class VirtualUnits @Inject()(
   appComponents: AppComponents,
   dataHelpers: DataHelpers,
   idGenerator: IdGenerator,
-  cypher: CypherService
+  cypher: CypherService,
 ) extends AdminController
   with Read[VirtualUnit]
   with Visibility[VirtualUnit]
@@ -78,8 +76,8 @@ case class VirtualUnits @Inject()(
     )
   }
 
-  override protected val targetContentTypes = Seq(ContentTypes.VirtualUnit)
-  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.DocumentaryUnit, config)
+  override protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.VirtualUnit)
+  private val formConfig: FieldMetaFormFieldHintsBuilder = FieldMetaFormFieldHintsBuilder(EntityType.DocumentaryUnit, entityTypeMetadata, config)
   private val form: Form[VirtualUnitF] = models.VirtualUnit.form
   private val childForm: Form[VirtualUnitF] = models.VirtualUnit.form
 
@@ -144,29 +142,30 @@ case class VirtualUnits @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.edit(
-      request.item, form.fill(request.item.data),formConfig.forUpdate, vuRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, vuRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.virtualUnit.edit(
-        request.item, errorForm, formConfig.forUpdate, vuRoutes.updatePost(id)))
+        request.item, errorForm, request.fieldHints, vuRoutes.updatePost(id)))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
   def create: Action[AnyContent] = NewItemAction.async { implicit request =>
-    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
-      Ok(views.html.admin.virtualUnit.create(None, form.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        formConfig.forCreate, visibilityForm, request.usersAndGroups, vuRoutes.createPost()))
-    }
+    for {
+      newId <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d")
+      fieldHints <- formConfig.forCreate
+    } yield Ok (views.html.admin.virtualUnit.create (None, form.bind (Map (Entity.IDENTIFIER -> makeId (newId))),
+      visibilityForm, fieldHints, request.usersAndGroups, vuRoutes.createPost ()))
   }
 
   def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
-        BadRequest(views.html.admin.virtualUnit.create(None, errorForm, formConfig.forCreate, accForm,
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
+        BadRequest(views.html.admin.virtualUnit.create(None, errorForm, accForm, fieldHints,
           usersAndGroups, vuRoutes.createPost()))
       case Right(item) => Redirect(vuRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
@@ -174,19 +173,19 @@ case class VirtualUnits @Inject()(
   }
 
   def createChild(id: String): Action[AnyContent] = NewChildAction(id).async { implicit request =>
-    idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d").map { newId =>
-      Ok(views.html.admin.virtualUnit.create(
+    for {
+      newId <- idGenerator.getNextNumericIdentifier(EntityType.VirtualUnit, "%06d")
+    } yield Ok(views.html.admin.virtualUnit.create(
         Some(request.item), childForm.bind(Map(Entity.IDENTIFIER -> makeId(newId))),
-        formConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
+        visibilityForm.fill(request.item.accessors.map(_.id)), request.fieldHints,
         request.usersAndGroups, vuRoutes.createChildPost(id)))
-    }
   }
 
   def createChildPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.virtualUnit.create(Some(request.item),
-          errorForm, formConfig.forCreate, accForm, usersAndGroups,
+          errorForm, accForm, fieldHints, usersAndGroups,
           vuRoutes.createChildPost(id)))
       case Right(doc) => Redirect(vuRoutes.getInVc(id, doc.id))
         .flashing("success" -> "item.create.confirmation")
@@ -274,31 +273,36 @@ case class VirtualUnits @Inject()(
       .flashing("success" -> "item.delete.confirmation")
   }
 
-  def createDescription(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
-    Ok(views.html.admin.virtualUnit.createDescription(request.item,
-      form.fill(request.item.data), formConfig.forCreate, vuRoutes.createDescriptionPost(id)))
+  def createDescription(id: String): Action[AnyContent] = EditAction(id).async { implicit request =>
+    formConfig.forCreate.map { fieldHints =>
+      Ok(views.html.admin.virtualUnit.createDescription(request.item,
+        form.fill(request.item.data), fieldHints, vuRoutes.createDescriptionPost(id)))
+    }
   }
 
-  def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
-    request.formOrItem match {
-      case Left(errorForm) =>
-        Ok(views.html.admin.virtualUnit.createDescription(request.item,
-          errorForm, formConfig.forCreate, vuRoutes.createDescriptionPost(id)))
-      case Right(updated) => Redirect(vuRoutes.get(id))
-        .flashing("success" -> "item.create.confirmation")
+  def createDescriptionPost(id: String): Action[AnyContent] = UpdateAction(id, form).async { implicit request =>
+    formConfig.forCreate.map { fieldHints =>
+      request.formOrItem match {
+        case Left(errorForm) =>
+          Ok(views.html.admin.virtualUnit.createDescription(request.item,
+            errorForm, fieldHints, vuRoutes.createDescriptionPost(id)))
+        case Right(updated) => Redirect(vuRoutes.get(id))
+          .flashing("success" -> "item.create.confirmation")
+      }
     }
   }
 
   def updateDescription(id: String, did: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.virtualUnit.editDescription(request.item,
-      form.fill(request.item.data), formConfig.forUpdate, did, vuRoutes.updateDescriptionPost(id, did)))
+      form.fill(request.item.data), request.fieldHints, did, vuRoutes.updateDescriptionPost(id, did))
+    )
   }
 
   def updateDescriptionPost(id: String, did: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         Ok(views.html.admin.virtualUnit.editDescription(request.item,
-          errorForm, formConfig.forUpdate, did, vuRoutes.updateDescriptionPost(id, did)))
+          errorForm, request.fieldHints, did, vuRoutes.updateDescriptionPost(id, did)))
       case Right(updated) => Redirect(vuRoutes.get(id))
         .flashing("success" -> "item.update.confirmation")
     }

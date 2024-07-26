@@ -1,0 +1,28 @@
+@(elements: helper.FieldElements)(implicit config: Option[forms.FormFieldHints])
+
+<div class="form-group @if(elements.hasErrors) {has-error} @config.flatMap(_.usage(elements.id)).map(_.toString).getOrElse("")">
+    @defining(Messages("error.required")(elements.p)) { requiredText =>
+        <label class="control-label" for="@elements.id">@elements.label</label>
+        <div class="control-elements">
+            @elements.input
+            @if(config.flatMap(_.usage(elements.id)).contains(FieldMetadata.Usage.Mandatory) || elements.infos.contains(requiredText)) {
+                <span class="input-mandatory">@Messages("constraints.mandatory")(elements.p)</span>
+            }
+            @if(config.flatMap(_.usage(elements.id)).contains(FieldMetadata.Usage.Desirable)) {
+                <span class="input-desirable">@Messages("constraints.desirable")(elements.p)</span>
+            }
+            @if(elements.hasErrors) {
+                <span class="help-block invalid-feedback">@elements.errors.mkString(" / ")</span>
+            } else {
+                @elements.args.get('_hint).map { hint =>
+                    <span class="help-block info">
+                        @hint
+                    </span>
+                }
+                <span class="help-block">
+                    @elements.infos.filterNot(_ == requiredText).map(i => Messages(i.toString)(elements.p)).mkString(", ")
+                </span>
+            }
+        </div>
+    }
+</div>

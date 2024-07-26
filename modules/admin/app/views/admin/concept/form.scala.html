@@ -1,4 +1,4 @@
-@(f: play.api.data.Form[ConceptF])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Form[ConceptF], fieldHints: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import ConceptF._
 @import views.html.formHelpers._
@@ -8,7 +8,7 @@
 @lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
 
 @defining("cvocConcept") { implicit prefix =>
-    @defining(Option.empty[forms.FormFieldHints]) { implicit implicitConfig =>
+    @defining(Some(fieldHints)) { implicit implicitFieldHints =>
         @lineInput(f(""), URI)
         @lineInput(f(""), URL)
         @lineInput(f(""), LONGITUDE)
@@ -21,17 +21,17 @@
                 <div class="inline-element-template form-template">
                     @descriptionForm(f("descriptions[IDX]"))
                 </div>
-                <div class="inline-element-list inline-element-block">
-                    @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
-                        @descriptionForm(desc)
-                    }
+                <div class="control-elements">
+                    <div class="inline-element-list inline-element-block">
+                        @helper.repeat(f("descriptions"), min=math.max(f("descriptions").indexes.length, 1)) { desc =>
+                            @descriptionForm(desc)
+                        }
+                    </div>
                 </div>
-                <div class="add-description">
-                    <a class="add-inline-element btn btn-success btn-xs" tabindex="-1" href="#">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        @Messages("cvocConcept.createDescription")
-                    </a>
-                </div>
+                <a class="add-inline-element add-concept btn btn-success btn-xs" tabindex="-1" href="#">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    @Messages("cvocConcept.createDescription")
+                </a>
             </div>
         </fieldset>
     }

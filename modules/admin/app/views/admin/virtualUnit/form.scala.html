@@ -1,9 +1,9 @@
-@(f: play.api.data.Form[VirtualUnitF], config: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(f: play.api.data.Form[VirtualUnitF], fieldHints: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @defining("virtualUnit") { implicit fieldPrefix =>
-    @defining(Some(config)) { implicit implicitConfig =>
+    @defining(Some(fieldHints)) { implicit implicitFieldHints =>
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
 
         @helper.repeat(f("descriptions"), min = math.max(f("descriptions").indexes.length, 1)) { desc =>

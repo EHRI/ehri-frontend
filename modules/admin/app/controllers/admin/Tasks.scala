@@ -4,14 +4,13 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
-import javax.inject.{Inject, Singleton}
-import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import utils.WebsocketConstants
 
+import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success}
 
 
@@ -21,7 +20,6 @@ case class Tasks @Inject()(
   appComponents: AppComponents
 )(implicit system: ActorSystem, mat: Materializer) extends AdminController {
 
-  private def logger = Logger(this.getClass)
   import scala.concurrent.duration._
 
   object MessageHandler {

@@ -4,8 +4,7 @@ import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
-import models.{FileStage, _}
-import play.api.Logger
+import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.MimeTypes
 import play.api.libs.json.{Format, Json}
@@ -34,8 +33,6 @@ case class ImportDatasets @Inject()(
   asyncCache: AsyncCacheApi,
   importLogService: ImportLogService,
 )(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
-
-  private val logger: Logger = Logger(this.getClass)
 
   def jsRoutes(): Action[AnyContent] = Action.apply { implicit request =>
     Ok(

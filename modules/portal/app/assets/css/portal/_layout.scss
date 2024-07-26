@@ -265,8 +265,7 @@ ul.pagination {
       @include make-col(3);
     }
 
-    > .control-elements,
-    .inline-element-list {
+    > .control-elements {
       @include make-col-ready();
       @include make-col(9);
     }

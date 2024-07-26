@@ -1,4 +1,6 @@
-@(item: Repository, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Repository, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], advisories: Seq[ValidationError])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@import views.html.admin.common.validationErrors
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
@@ -8,7 +10,13 @@
                 @defining(item.data.descriptionsWithSelected()) { descriptions =>
                     @common.descriptionContainer(descriptions) {
                         @descriptions.map { case (desc, _) =>
-                            @description(item, desc, links, annotations)
+                            @description(
+                                item,
+                                desc,
+                                links,
+                                annotations,
+                                validationErrors(advisories, fieldPrefix)
+                            )
                         }
 
                         @views.html.admin.link.annotationLinks(item, links)

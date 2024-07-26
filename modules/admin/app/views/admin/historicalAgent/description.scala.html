@@ -1,4 +1,4 @@
-@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
+@(item: HistoricalAgent, desc: HistoricalAgentDescriptionF, links: Seq[Link], annotations: Seq[Annotation], advisories: Html = Html(""), actions: Html = Html(""))(implicit fieldPrefix: String, userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, md: MarkdownRenderer, conf: AppConfig)
 
 @import Isaar._
 @import views.html.admin.common.descriptionSection
@@ -6,6 +6,7 @@
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions) {
     @views.html.common.itemHeader(desc.name)
+    @advisories
 
     @views.html.admin.common.dateSet(desc, DATES_OF_EXISTENCE)
 

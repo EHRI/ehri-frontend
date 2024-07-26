@@ -1,15 +1,15 @@
-@(item: Repository, f: play.api.data.Form[RepositoryF], config: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Repository, f: play.api.data.Form[RepositoryF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("repository.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("repository.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(f)) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-        @views.html.admin.repository.form(f, config)
+        @views.html.admin.repository.form(f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {
-	@views.html.admin.repository.formNav()
+	@views.html.admin.repository.formNavigation()
 }

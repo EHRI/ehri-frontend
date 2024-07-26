@@ -1,14 +1,16 @@
-@(desc: play.api.data.Field, fieldName: String, geonameRemote: String = "")(implicit prefix: String = "", defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
-
+@(desc: play.api.data.Field, fieldName: String, geonameRemote: String, args: (Symbol, String)*)(implicit prefix: String = "", config: Option[forms.FormFieldHints] = None, defaults: Option[play.api.Configuration] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 @*
- *	For convenience, this field take a data-remote parameter for GeoName remote plugin configured in `app/admin/views/repository/edit.scala.html
- *
- *
+* For convenience, this field take a data-remote parameter for GeoName remote plugin configured in `app/admin/views/repository/edit.scala.html
 *@
-@defining(desc(fieldName)) { field =>
+@views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.inputText(
-        field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
-        'title -> md.renderMarkdown(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description")),
-        'class -> "form-control typeahead", Symbol("data-remote") -> geonameRemote,
-        '_label -> Messages(if (prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)))
+        field = field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
+        args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
+            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
+            'title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description"))),
+            '_label -> Messages(if(prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)),
+            'class -> "form-control typeahead",
+            Symbol("data-remote") -> geonameRemote
+        )): _*
+    )
 }

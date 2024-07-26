@@ -1,4 +1,4 @@
-@(f: Form[RepositoryF], config: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(f: Form[RepositoryF], fieldHints: forms.FormFieldHints)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import Isdiah._
 @import RepositoryF._
@@ -10,7 +10,7 @@
 <script type="text/javascript" src="@controllers.portal.routes.PortalAssets.versioned("js/address.js")"></script>
 
 @defining("repository") { implicit fieldPrefix =>
-    @defining(Some(config)) { implicit implicitConfig =>
+    @defining(Some(fieldHints)) { implicit implicitFieldHints =>
         @helper.repeat(f("descriptions"), min = math.max(f("descriptions").indexes.length, 1)) { desc =>
             @descriptionForm(desc)
         }

@@ -1,26 +1,28 @@
 @(field: play.api.data.Field, key: String)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints] = None, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
-<div class="inline-formset form-group clearfix" data-prefix="@key">
+<div class="inline-formset form-group date-set" data-prefix="@key">
     @* Template for adding inline date forms via JS *@
     <label class="control-label">
         @Messages(fieldPrefix + "." + key)
-        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
-            <i class="fa fa-plus-circle" aria-hidden="true"></i>
-        </a>
     </label>
     <div class="inline-element-template form-template">
         @formHelpers.inlineDate(field(key + "[IDX]"), key)
     </div>
-    <div class="inline-element-list control-elements">
+    <div class="control-elements">
         @* NB: we render the usage label here differently to the translated way used when using the fieldTemplate
         * because the usage label is not translated in the same way as the field label.
         *@
         @config.flatMap(_.usage(key)).map { usage =>
             <span class="input-@usage">@usage.toString.capitalize</span>
         }
-        @helper.repeat(field(key), min = 0) { nfield =>
-            @formHelpers.inlineDate(nfield, key)
-        }
+        <div class="inline-element-list">
+            @helper.repeat(field(key), min = 0) { nfield =>
+                @formHelpers.inlineDate(nfield, key)
+            }
+        </div>
+        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        </a>
     </div>
 </div>
 

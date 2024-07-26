@@ -1,12 +1,10 @@
 package controllers.authorities
 
-import javax.inject._
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
 import models._
-import forms.ConfigFormFieldHintsBuilder
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.DataHelpers
@@ -14,12 +12,14 @@ import services.search.SearchConstants.RESTRICTED_FIELD
 import services.search._
 import utils.{PageParams, RangeParams}
 
+import javax.inject._
+
 
 @Singleton
 case class HistoricalAgents @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
-  dataHelpers: DataHelpers
+  dataHelpers: DataHelpers,
 ) extends AdminController
   with CRUD[HistoricalAgent]
   with Visibility[HistoricalAgent]
@@ -60,16 +60,16 @@ case class HistoricalAgents @Inject()(
     )
   }
 
-  private val formConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.HistoricalAgent, config)
-
   def search(params: SearchParams, paging: PageParams): Action[AnyContent] =
     SearchTypeAction(params, paging, facetBuilder = entityFacets).apply { implicit request =>
       Ok(views.html.admin.historicalAgent.search(request.result, histRoutes.search()))
     }
 
-  def get(id: String): Action[AnyContent] = ItemMetaAction(id).apply { implicit request =>
-    Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links))
-      .withPreferences(preferences.withRecentItem(id))
+  def get(id: String): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
+    entityTypeMetadata.listEntityTypeFields(EntityType.HistoricalAgent).map { fields =>
+      Ok(views.html.admin.historicalAgent.show(request.item, request.annotations, request.links, fields.validate(request.item.data)))
+        .withPreferences(preferences.withRecentItem(id))
+    }
   }
 
   def history(id: String, range: RangeParams): Action[AnyContent] = ItemHistoryAction(id, range).apply { implicit request =>
@@ -82,14 +82,14 @@ case class HistoricalAgents @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.historicalAgent.edit(
-      request.item, form.fill(request.item.data), formConfig.forUpdate, histRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, histRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) =>
         BadRequest(views.html.admin.historicalAgent
-          .edit(request.item, errorForm, formConfig.forUpdate, histRoutes.updatePost(id)))
+          .edit(request.item, errorForm, request.fieldHints, histRoutes.updatePost(id)))
       case Right(updated) => Redirect(histRoutes.get(updated.id))
         .flashing("success" -> "item.update.confirmation")
     }

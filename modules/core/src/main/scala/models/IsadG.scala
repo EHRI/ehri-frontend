@@ -1,5 +1,8 @@
 package models
 
+import models.Description.LANG_CODE
+import models.DocumentaryUnitF.{COPYRIGHT, SCOPE}
+import models.Entity.IDENTIFIER
 import play.api.libs.json.Format
 import utils.EnumUtils
 
@@ -78,6 +81,10 @@ case object IsadG {
   val ACCESS_POINTS = "accessPoints"
 
   val FIELDS: Seq[(String, Seq[String])] = List(
+    "_" -> List(
+      IDENTIFIER,
+      LANG_CODE
+    ),
     IDENTITY_AREA -> List(
       TITLE,
       PARALLEL_FORMS_OF_NAME,
@@ -124,6 +131,11 @@ case object IsadG {
       DATES_DESCRIPTIONS,
       PROCESS_INFO,
       SOURCES
+    ),
+    ADMINISTRATION_AREA -> List(
+      PUB_STATUS,
+      COPYRIGHT,
+      SCOPE
     )
   )
 }

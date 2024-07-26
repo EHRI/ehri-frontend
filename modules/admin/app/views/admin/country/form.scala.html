@@ -1,11 +1,13 @@
-@(item: Option[Country], f: Form[CountryF])(implicit messages: Messages, md: MarkdownRenderer)
+@(item: Option[Country], f: Form[CountryF], fieldHints: forms.FormFieldHints)(implicit messages: Messages, md: MarkdownRenderer)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@defining("country") { implicit fieldPrefix =>
-    @formHelpers.textInput(f(""), CountryF.ABSTRACT)
-    @formHelpers.textInput(f(""), CountryF.HISTORY)
-    @formHelpers.textInput(f(""), CountryF.SITUATION)
-    @formHelpers.textInput(f(""), CountryF.DATA_SUMMARY)
-    @formHelpers.textInput(f(""), CountryF.DATA_EXTENSIVE)
+@defining(Some(fieldHints)) { implicit implicitFieldHints =>
+    @defining("country") { implicit fieldPrefix =>
+        @formHelpers.textInput(f(""), CountryF.ABSTRACT)
+        @formHelpers.textInput(f(""), CountryF.HISTORY)
+        @formHelpers.textInput(f(""), CountryF.SITUATION)
+        @formHelpers.textInput(f(""), CountryF.DATA_SUMMARY)
+        @formHelpers.textInput(f(""), CountryF.DATA_EXTENSIVE)
+    }
 }

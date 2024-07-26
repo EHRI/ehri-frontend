@@ -1,10 +1,9 @@
 package controllers.base
 
-import services.cypher.{CypherResult, CypherService}
 import controllers.generic.Search
 import models.{Model, VirtualUnit}
-import play.api.Logger
 import play.api.mvc.RequestHeader
+import services.cypher.{CypherResult, CypherService}
 import services.search.SearchConstants._
 
 import scala.concurrent.Future
@@ -18,8 +17,6 @@ trait SearchVC {
   this: Search =>
 
   protected def cypher: CypherService
-
-  private def logger = Logger(getClass)
 
   /**
     * Filters for searching a virtual collection, depending on

@@ -55,9 +55,9 @@ case class HarvestConfigs @Inject()(
     with WithOptionalUser
 
   private def DatasetAction(id: String, ds: String): ActionBuilder[DatasetRequest, AnyContent] =
-    EditAction(id) andThen new CoreActionTransformer[ItemPermissionRequest, DatasetRequest] {
-      override protected def transform[A](request: ItemPermissionRequest[A]): Future[DatasetRequest[A]] = {
-        implicit val req: ItemPermissionRequest[A] = request
+    EditAction(id) andThen new CoreActionTransformer[EditRequest, DatasetRequest] {
+      override protected def transform[A](request: EditRequest[A]): Future[DatasetRequest[A]] = {
+        implicit val req: EditRequest[A] = request
         datasets.get(id, ds).map { dataset =>
           DatasetRequest(req.item, req.userOpt, dataset, req)
         }

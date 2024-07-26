@@ -1,4 +1,5 @@
 import {
+  EntityType,
   EntityTypeMetadata,
   EntityTypeMetadataInfo,
   FieldMetadata,
@@ -17,9 +18,9 @@ export default class EntityTypeMetadataApi {
     this.etData = {
       Country: {
         entityType: "Country",
-            name: "Country",
-            description: "Country description",
-            created: "2021-06-01"
+        name: "Country",
+        description: "Country description",
+        created: "2021-06-01"
       }
     };
 
@@ -31,6 +32,7 @@ export default class EntityTypeMetadataApi {
           name: "History",
           description: "Test",
           usage: "mandatory",
+          defaultVal: null,
           seeAlso: ["seeAlso"],
           created: "2021-06-01"
         }
@@ -39,34 +41,34 @@ export default class EntityTypeMetadataApi {
 
   }
 
-  list(): Promise<Record<string, EntityTypeMetadata>> {
+  list(): Promise<Record<EntityType, EntityTypeMetadata>> {
     return Promise.resolve(this.etData);
   }
 
-  get(entityType: string): Promise<EntityTypeMetadata | null> {
+  get(entityType: EntityType): Promise<EntityTypeMetadata | null> {
     return Promise.resolve(this.etData[entityType] || null);
   }
 
-  save(entityType: string, data: EntityTypeMetadataInfo): Promise<EntityTypeMetadata> {
+  save(entityType: EntityType, data: EntityTypeMetadataInfo): Promise<EntityTypeMetadata> {
     return Promise.resolve({
       entityType,
       ...data
     } as EntityTypeMetadata);
   }
 
-  delete(entityType: string): Promise<boolean> {
+  delete(entityType: EntityType): Promise<boolean> {
     return Promise.resolve(true);
   }
 
-  listFields(entityType?: string): Promise<Record<string, FieldMetadata[]>> {
+  listFields(entityType?: EntityType): Promise<Record<EntityType, FieldMetadata[]>> {
     return Promise.resolve(this.fData);
   }
 
-  getField(entityType: string, id: string): Promise<FieldMetadata | null> {
+  getField(entityType: EntityType, id: string): Promise<FieldMetadata | null> {
     return Promise.resolve(this.fData[entityType].find(f => f.id === id) || null);
   }
 
-  saveField(entityType: string, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
+  saveField(entityType: EntityType, id: string, data: FieldMetadataInfo): Promise<FieldMetadata> {
     return Promise.resolve({
       entityType,
       id,
@@ -74,7 +76,7 @@ export default class EntityTypeMetadataApi {
     } as FieldMetadata);
   }
 
-  deleteField(entityType: string, id: string): Promise<boolean> {
+  deleteField(entityType: EntityType, id: string): Promise<boolean> {
     // remove the item from fData:
     this.fData[entityType] = this.fData[entityType].filter(f => f.id !== id);
     return Promise.resolve(true);
@@ -83,7 +85,7 @@ export default class EntityTypeMetadataApi {
   templates(): Promise<FieldMetadataTemplates> {
     return Promise.resolve({
       Country: {
-        "" : ["history"]
+        "_" : ["history"]
       }
     } as FieldMetadataTemplates);
   }

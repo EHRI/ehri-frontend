@@ -1,16 +1,16 @@
-@(f: Form[CountryF], vf: Form[Seq[String]], usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(f: Form[CountryF], vf: Form[Seq[String]], fieldHints: forms.FormFieldHints, usersAndGroups: UsersAndGroups, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
+@implicitField = @{views.admin.Helpers.fieldConstructorWithHints(Some(fieldHints))}
 
-@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country) {
-	@helper.form(action = action) {
+@views.html.admin.layout.rightSidebarWithType(Messages("country.create"), EntityType.Country, scripts = formHelpers.formJs(f)) {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
-        @views.html.admin.country.form(None, f)
+        @views.html.admin.country.form(None, f, fieldHints)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("country.create.submit"))
-	}
+    }
 } {
-
+    @views.html.formHelpers.formNavigation("country")
 }

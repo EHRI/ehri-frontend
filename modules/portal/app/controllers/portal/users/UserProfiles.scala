@@ -6,14 +6,13 @@ import controllers.generic.Search
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
 import models.view.MessagingInfo
-import models.{Model, _}
-import play.api.Logger
+import models._
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.libs.mailer.MailerClient
-import play.api.mvc.{MaxSizeExceeded, _}
+import play.api.mvc._
 import services.search._
 import services.storage.FileStorage
 import utils._
@@ -35,7 +34,6 @@ case class UserProfiles @Inject()(
   with ImageHelpers {
 
   private implicit val mat: Materializer = appComponents.materializer
-  private val logger = Logger(classOf[UserProfiles])
 
   private val profileRoutes = controllers.portal.users.routes.UserProfiles
 

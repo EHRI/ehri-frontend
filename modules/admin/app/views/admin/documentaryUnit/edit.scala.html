@@ -1,9 +1,9 @@
-@(item: DocumentaryUnit, f: play.api.data.Form[DocumentaryUnitF], config: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, f: play.api.data.Form[DocumentaryUnitF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.update"), item.isA, breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item), scripts = formHelpers.dateJs()) {
-		
+@views.html.admin.layout.rightSidebarWithType(Messages("documentaryUnit.update"), item.isA, breadcrumbs = views.html.admin.documentaryUnit.breadcrumbs(item), scripts = formHelpers.formJs(f)) {
+
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
 
@@ -11,9 +11,9 @@
         <p>@Messages("item.identifier"): <strong>@item.data.identifier</strong> [
             <a href="@controllers.units.routes.DocumentaryUnits.rename(item.id)">@Messages("item.rename.title")</a>]</p>
 
-        @views.html.admin.documentaryUnit.form(f, config)
+        @views.html.admin.documentaryUnit.form(f, fieldHints)
         @formHelpers.submitButtonWithLogMessageInput(Messages("documentaryUnit.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-    @views.html.admin.documentaryUnit.formNav()
+    @views.html.admin.documentaryUnit.formNavigation()
 }

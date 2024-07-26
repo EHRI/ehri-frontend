@@ -2,6 +2,7 @@ package views.admin
 
 import models.{EntityType, Model}
 import play.api.mvc.Call
+import views.html.helper.{FieldConstructor, FieldElements}
 
 /**
  * Admin view helpers.
@@ -73,4 +74,8 @@ object Helpers {
 
   def publicLinkTo(isA: EntityType.Value, id: String): Option[Call] =
     linkToOpt(isA, id).map(call => Call(call.method, call.url.replaceAll("^/admin", ""), call.fragment))
+
+  implicit def fieldConstructorWithHints(implicit config: Option[forms.FormFieldHints]): FieldConstructor = {
+    FieldConstructor((elts: FieldElements) => views.html.formHelpers.fieldTemplateWithHints(elts)(config))
+  }
 }

@@ -1,6 +1,9 @@
 <script lang="ts">
 import ListEt from "./components/_list-et";
 import EntityTypeMetadataApi from "./api";
+import {VueI18n} from "vue-i18n";
+import Vue from "vue";
+
 
 export default {
   components: {ListEt},

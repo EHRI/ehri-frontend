@@ -4,14 +4,14 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-
-import javax.inject._
 import models.{Accessor, EntityType, Group, UserProfile}
 import play.api.data.{Form, Forms}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.data.{Constants, DataHelpers}
 import services.search.SearchParams
 import utils.{PageParams, RangeParams}
+
+import javax.inject._
 
 
 case class Groups @Inject()(
@@ -68,7 +68,7 @@ case class Groups @Inject()(
 
   def createPost: Action[AnyContent] = CreateItemAction(form, memberExtractor).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, _, usersAndGroups)) =>
         BadRequest(views.html.admin.group.create(
           errorForm, accForm, usersAndGroups, groupRoutes.createPost()))
       case Right(item) => Redirect(groupRoutes.get(item.id))

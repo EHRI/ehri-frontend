@@ -30,6 +30,7 @@ help=Help
 help.manual=Online Manual
 help.faq=Frequently Asked Questions
 help.contact=Contact EHRI
+help.dataModel=Data Model
 
 #
 # Landing page: https://portal.ehri-project.eu
@@ -1016,7 +1017,7 @@ markdown.cheatsheet.italic=Italic
 markdown.cheatsheet.ordered=Ordered list
 markdown.cheatsheet.ordered.item1=First ordered list item
 markdown.cheatsheet.ordered.item2=Another item
-markdown.cheatsheet.unordered=Ordered list
+markdown.cheatsheet.unordered=Unordered list
 markdown.cheatsheet.unordered.item1=Item
 markdown.cheatsheet.unordered.item2=Another item
 markdown.cheatsheet.more=Source
@@ -1294,6 +1295,8 @@ authoritativeSet.childItems.search={0,choice,0#No authorities|1#1 authority|1<{0
 # Data Model
 #
 dataModel=EHRI Data Model
+dataModel.legend=Legend
+dataModel.reference=See the {0} for more information.
 dataModel.description=The EHRI Data Model is a conceptual model that describes the structure of the data \
   in the EHRI portal. The model is based on the International Council on Archives (ICA) \
   standards for archival description.
@@ -1301,8 +1304,11 @@ dataModel.field.name=Field Name
 dataModel.field.description=Description
 dataModel.field.usage=Usage
 dataModel.field.usage.mandatory=Mandatory
+dataModel.field.usage.mandatory.description=This field must be filled in.
 dataModel.field.usage.desirable=Desirable
+dataModel.field.usage.desirable.description=This field is recommended but not required.
 dataModel.field.usage.optional=Optional
+dataModel.field.usage.optional.description=This field is optional.
 dataModel.field.seeAlso=See Also
 dataModel.DocumentaryUnit.identityArea=Identity Area
 dataModel.DocumentaryUnit.contextArea=Context Area
@@ -1311,6 +1317,7 @@ dataModel.DocumentaryUnit.conditionsArea=Conditions Area
 dataModel.DocumentaryUnit.materialsArea=Materials Area
 dataModel.DocumentaryUnit.notesArea=Notes Area
 dataModel.DocumentaryUnit.controlArea=Control Area
+dataModel.DocumentaryUnit.administrationArea=Administration Area
 dataModel.Repository.identityArea=Identity Area
 dataModel.Repository.addressArea=Address Area
 dataModel.Repository.descriptionArea=Description Area
