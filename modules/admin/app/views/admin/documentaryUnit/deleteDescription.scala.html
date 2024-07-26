@@ -2,7 +2,7 @@
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.deleteDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.dateJs()) {
+@views.html.admin.layout.rightSidebarWithType(Messages("describedEntity.deleteDescription"), item.isA, breadcrumbs = breadcrumbs(item), scripts = formHelpers.formJs(f)) {
 
     @if(item.descriptions.size > 1) {
         <p>@Messages("describedEntity.deleteDescription.info", did)</p>

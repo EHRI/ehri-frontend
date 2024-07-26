@@ -7,7 +7,6 @@ import akka.util.ByteString
 import controllers.base.AdminController
 import controllers.{AppComponents, DataFormat}
 import models.CypherQuery
-import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.http._
@@ -29,8 +28,6 @@ case class CypherQueries @Inject()(
                                     cypher: WsCypherService,
                                     cypherQueries: CypherQueryService
 ) extends AdminController {
-
-  private val logger = Logger(CypherQueries.getClass)
 
   private val queryForm = Form(
     single("q" -> nonEmptyText.verifying(CypherQuery.isReadOnly))

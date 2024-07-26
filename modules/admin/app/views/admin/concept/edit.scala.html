@@ -1,16 +1,16 @@
-@(item: Concept, f: play.api.data.Form[ConceptF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Concept, f: play.api.data.Form[ConceptF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
  
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebar(Messages("cvocConcept.update"), breadcrumbs = breadcrumbs(item)) {
+@views.html.admin.layout.rightSidebar(Messages("cvocConcept.update"), breadcrumbs = breadcrumbs(item), scripts = formHelpers.formJs(f)) {
 		
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-		@form(f)
+		@form(f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("cvocConcept.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-
+    @views.html.formHelpers.formNavigation("cvocConcept")
 }
 `

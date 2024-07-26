@@ -1,5 +1,7 @@
-@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: HistoricalAgent, annotations: Seq[Annotation], links: Seq[Link], advisories: Seq[ValidationError])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
+@import views.html.admin.common.validationErrors
+@import views.html.admin.historicalAgent._
 
 @views.html.admin.layout.adminLayout(item.toStringLang) {
     @breadcrumbs(item)
@@ -9,7 +11,14 @@
                 @defining(item.data.descriptionsWithSelected()) { descriptions =>
                     @common.descriptionContainer(descriptions) {
                         @descriptions.map { case (desc, _) =>
-                            @description(item, desc, links, annotations, actions = descriptionActions(item, desc))
+                            @description(
+                                item,
+                                desc,
+                                links,
+                                annotations,
+                                validationErrors(advisories, fieldPrefix),
+                                descriptionActions(item, desc)
+                            )
                         }
 
                         @views.html.admin.link.annotationLinks(item, links)

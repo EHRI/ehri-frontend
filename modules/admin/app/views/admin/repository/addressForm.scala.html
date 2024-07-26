@@ -1,4 +1,4 @@
-@(field: play.api.data.Field)(implicit fieldPrefix: String, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
+@(field: play.api.data.Field)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints] = None, fieldConstructor: views.html.helper.FieldConstructor, messages: Messages, md: MarkdownRenderer)
 
 @import Isdiah._
 @import views.html.formHelpers._

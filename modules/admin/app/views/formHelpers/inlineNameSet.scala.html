@@ -1,25 +1,27 @@
 @(field: play.api.data.Field, key: String)(implicit fieldPrefix: String, config: Option[forms.FormFieldHints] = None, messages: Messages, md: MarkdownRenderer, fieldConstructor: views.html.helper.FieldConstructor)
 
-<div class="inline-formset form-group clearfix @{if(field(key).hasErrors) "has-error"}" data-prefix="@key">
+<div class="inline-formset form-group @{if(field(key).hasErrors) "has-error"}" data-prefix="@key">
     <label class="control-label">
         @config.flatMap(_.name(key)).getOrElse(Messages(fieldPrefix + "." + key))
-        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
-            <i class="fa fa-plus-circle" aria-hidden="true"></i>
-        </a>
     </label>
 
     <div class="inline-element-template form-template">
         @formHelpers.inlineName(field(key + "[IDX]"), key)
     </div>
-    <div class="inline-element-list control-elements">
+    <div class="control-elements">
         @* NB: we render the usage label here differently to the translated way used when using the fieldTemplate
         * because the usage label is not translated in the same way as the field label.
         *@
         @config.flatMap(_.usage(key)).map { usage =>
             <span class="input-@usage">@usage.toString.capitalize</span>
         }
-        @helper.repeat(field(key), min = 0) { f =>
-            @formHelpers.inlineName(f, key)
-        }
+        <div class="inline-element-list">
+            @helper.repeat(field(key), min = 0) { f =>
+                @formHelpers.inlineName(f, key)
+            }
+        </div>
+        <a href="#" class="add-inline-element" title="@Messages("item.field.add")" aria-label="@Messages("item.field.add")">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+        </a>
     </div>
 </div>

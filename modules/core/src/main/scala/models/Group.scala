@@ -7,6 +7,7 @@ import play.api.libs.functional.syntax._
 import play.api.data.Form
 import play.api.data.Forms._
 import eu.ehri.project.definitions.Ontology
+import forms.mappings.optionalText
 import play.api.libs.json.JsObject
 
 
@@ -65,7 +66,7 @@ object Group {
       ID -> optional(text),
       IDENTIFIER -> nonEmptyText,
       NAME -> nonEmptyText,
-      DESCRIPTION -> optional(nonEmptyText)
+      DESCRIPTION -> optionalText
     )(GroupF.apply)(GroupF.unapply)
   )
 }

@@ -4,9 +4,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-
-import javax.inject._
-import models.{EntityType, _}
+import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -16,6 +14,7 @@ import services.search._
 import utils.{PageParams, RangeParams}
 import views.Helpers
 
+import javax.inject._
 import scala.concurrent.Future.{successful => immediate}
 
 
@@ -58,7 +57,6 @@ case class Concepts @Inject()(
     )
   }
 
-
   def get(id: String, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
     userDataApi.children[Concept, Concept](id, paging).map { page =>
       Ok(views.html.admin.concept.show(request.item, page, paging, request.links, request.annotations))
@@ -80,13 +78,13 @@ case class Concepts @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.edit(
-      request.item, form.fill(request.item.data), conceptRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, conceptRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.concept.edit(
-        request.item, errorForm, conceptRoutes.updatePost(id)))
+        request.item, errorForm, request.fieldHints, conceptRoutes.updatePost(id)))
       case Right(item) => Redirect(conceptRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -94,15 +92,15 @@ case class Concepts @Inject()(
 
   def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
-      request.item, childForm, visibilityForm,
+      request.item, childForm, visibilityForm, request.fieldHints,
       request.usersAndGroups, conceptRoutes.createConceptPost(id)))
   }
 
   def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.concept.create(request.item,
-          errorForm, accForm, usersAndGroups, conceptRoutes.createConceptPost(id)))
+          errorForm, accForm, fieldHints, usersAndGroups, conceptRoutes.createConceptPost(id)))
       case Right(citem) => Redirect(conceptRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }

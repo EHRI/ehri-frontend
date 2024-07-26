@@ -12,3 +12,30 @@ $active-table-row: #e7f1ff;
   overflow: auto;
   flex-basis: 0;
 }
+
+.section {
+  background-color: $gray-100;
+  font-weight: bold;
+}
+
+.fm-list td.fm-actions {
+  width: 5rem;
+}
+
+.fm-see-also a + a {
+  display: inline-block;
+}
+
+.fm-usage {
+  white-space: nowrap;
+
+}
+
+.fm-list td:last-child a {
+  margin-left: $margin-xs;
+}
+
+#delete-metadata {
+  margin-right: auto;
+}
+

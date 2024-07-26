@@ -916,17 +916,22 @@ body.home {
 .input-desirable
 {
   @extend .badge;
-  color: $black;
-  font-size: $font-size-xs;
+  color: $gray-700;
   border-radius: .5rem;
-  position: absolute;
-  top: -.75rem;
-  left: 0;
-  z-index: 100;
 }
 
 .input-mandatory {
   background-color: #fba8a6;
+}
+
+.control-elements .input-mandatory,
+.control-elements .input-desirable
+{
+  font-size: .6rem;
+  position: absolute;
+  top: -.5rem;
+  left: .5rem;
+  z-index: 100;
 }
 
 .input-desirable {
@@ -1092,6 +1097,18 @@ body.home {
 
 .badge-historical-agent {
   @include badge-variant($historical-agent-color);
+}
+
+.badge-mandatory {
+  @include badge-variant(#fba8a6);
+}
+
+.badge-desirable {
+  @include badge-variant(#f8dab1);
+}
+
+.badge-optional {
+  @include badge-variant(#f5f5f5);
 }
 
 // Pagination

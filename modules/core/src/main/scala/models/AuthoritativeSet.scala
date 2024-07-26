@@ -1,6 +1,7 @@
 package models
 
 import eu.ehri.project.definitions.Ontology
+import forms.mappings.optionalText
 import models.json._
 import play.api.i18n.Messages
 import play.api.libs.json._
@@ -73,7 +74,7 @@ object AuthoritativeSet {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> optional(nonEmptyText),
-      DESCRIPTION -> optional(nonEmptyText),
+      DESCRIPTION -> optionalText,
       ALLOW_PUBLIC -> default(boolean, true)
     )(AuthoritativeSetF.apply)(AuthoritativeSetF.unapply)
   )

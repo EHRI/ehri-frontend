@@ -41,7 +41,7 @@ case class EntityTypeMetadataApi @Inject()(
     }
   }
 
-  def delete(entityType: EntityType.Value, id: String): Action[AnyContent] = WithUserAction.async { implicit request =>
+  def delete(entityType: EntityType.Value): Action[AnyContent] = WithUserAction.async { implicit request =>
     entityTypeMetaService.delete(entityType).map { success =>
       if (success) NoContent else NotFound
     }

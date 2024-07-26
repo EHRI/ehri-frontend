@@ -205,6 +205,15 @@ module.exports = function (grunt) {
             ],
             dest: paths.adminJsLib
           },
+          {
+            expand: true,
+            cwd: 'node_modules/vue-i18n/dist',
+            src: [
+              // not using runtime 'cos we need the messages compiler
+              'vue-i18n.global.js' 
+            ],
+            dest: paths.adminJsLib
+          },
         ],
       },
     },

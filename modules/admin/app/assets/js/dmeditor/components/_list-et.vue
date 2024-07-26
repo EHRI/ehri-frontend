@@ -19,10 +19,9 @@ export default {
       fieldMetadata: Object as Record<string, FieldMetadata[]>,
       templates: null as FieldMetadataTemplates | null,
       editET: null as EntityTypeMetadata | null,
-      addNew: null as FieldMetadata | null,
+      addFieldMeta: null as FieldMetadata | null,
+      editFieldMeta: null as FieldMetadata | null,
       addNewEntityType: null as Record<string, string> | null,
-      confirmDelete: null as { entityType: EntityType, id: string } | null,
-      deleting: null as { entityType: EntityType, id: string } | null,
     }
   },
   methods: {
@@ -38,49 +37,45 @@ export default {
         console.log(fm);
         this.fieldMetadata = fm;
 
-        let td = await this.api.templates();
-        console.log("Templates", td);
-        this.templates = td;
+        this.templates = await this.api.templates();
       } catch (e) {
         this.$emit('error', "Error fetching data model info from API", e);
       } finally {
         this.loading = false;
       }
     },
-    addNewFieldMetadata: function (entityType) {
-      this.addNew = {entityType};
-    },
     updateFieldMetadata: function (entityType, id) {
       this.$emit('update-field-metadata', entityType, id);
     },
-    deleteFieldMetadata: async function (entityType: EntityType, id: string) {
-      this.deleting = {entityType, id};
-      try {
-        await this.api.deleteField(entityType, id);
-        await this.reload();
-      } catch (e) {
-        this.$emit('error', "Error deleting field metadata", e);
-      } finally {
-        this.deleting = null;
-      }
-      this.$emit('delete-field-metadata', entityType, id);
+    addNewFieldMetadata: function (entityType) {
+      this.addFieldMeta = {entityType};
     },
     editFieldMetadata: function (fm: FieldMetadata) {
-      this.addNew = fm;
+      this.editFieldMeta = fm;
     },
-    fieldMetadataFor: function (entityType: string, cat: string) {
+    addEntityTypeMetadata: function (entityType: EntityType) {
+      this.editET = {
+        entityType,
+        name: this.$t(`contentTypes.${entityType}`),
+        description: ''
+      };
+    },
+    editEntityTypeMetadata: function (et: EntityTypeMetadata) {
+      this.editET = et;
+    },
+    fieldMetadataFor: function (entityType: string, cat: string): FieldMetadata[] {
       let items = []
       let fieldMetaForType = this.fieldMetadata[entityType];
       if (fieldMetaForType) {
         for (let fm of fieldMetaForType) {
-          if (!fm.category || fm.category === cat) {
+          if ((!fm.category && cat === '_') || fm.category === cat) {
             items.push(fm);
           }
         }
       }
       return items;
     },
-    fieldRowId: function (entityType: string, id: string) {
+    fieldRowId: function (entityType: string, id: string): string {
       return `fm-${entityType}-${id}`;
     },
   },
@@ -106,7 +101,7 @@ export default {
                 <h3>
                     {{ entityTypeMetadata[entityType].name ? entityTypeMetadata[entityType].name : entityType }}
                     <a v-if="entityTypeMetadata[entityType]"
-                       v-on:click.prevent="editET = entityTypeMetadata[entityType]" href="#">
+                       v-on:click.prevent="editEntityTypeMetadata(entityTypeMetadata[entityType])" href="#">
                         <i class="fa fa-pencil"></i>
                     </a>
                 </h3>
@@ -129,31 +124,26 @@ export default {
                         <tr v-if="cat !== '_' && fieldMetadataFor(entityType, cat).length > 0"
                             v-bind:id="fieldRowId(entityType, cat)">
                             <td colspan="5" class="section">
-                                <h4>{{ cat }}</h4>
+                                <h4>{{ $t(`dataModel.${entityType}.${cat}`) }}</h4>
                             </td>
                         </tr>
 
                         <tr v-for="fm in fieldMetadataFor(entityType, cat)" v-bind:id="fieldRowId(entityType, fm.id)">
                             <td class="fm-name">{{ fm.name }}</td>
                             <td class="fm-usage" v-bind:class="fm.usage">
-                                <div v-if="fm.usage" v-bind:class="'badge badge-'+ fm.usage">{{ fm.usage }}</div>
-                                <div v-else class="badge badge-optional">optional</div>
+                                <div v-if="fm.usage" v-bind:class="'badge badge-'+ fm.usage">{{ $t(`dataModel.field.usage.${fm.usage}`) }}</div>
+                                <div v-else class="badge badge-optional">{{ $t(`dataModel.field.usage.optional`) }}</div>
                             </td>
                             <td class="fm-description">
                                 <markdown v-bind:content="fm.description"/>
+                                <p v-if="fm.defaultVal"><strong>Default Value:</strong> <q>{{ fm.defaultVal }}</q></p>
                             </td>
                             <td class="fm-see-also">
                                 <a v-for="sa in fm.seeAlso" v-bind:href="sa">{{ sa }}</a>
                             </td>
                             <td class="fm-actions">
-                                <a class="fm-edit" v-on:click="editFieldMetadata(fm)" href="#">
+                                <a class="fm-edit" v-on:click.prevent="editFieldMetadata(fm)" href="#">
                                     <i class="fa fa-pencil"></i>
-                                </a>
-                                <a class="fm-delete" v-on:click="confirmDelete = {entityType: fm.entityType, id: fm.id}"
-                                   href="#">
-                                    <i v-if="deleting && deleting.entityType === fm.entityType && deleting.id === fm.id"
-                                       class="fa fa-spinner fa-spin"></i>
-                                    <i v-else class="fa fa-trash"></i>
                                 </a>
                             </td>
                         </tr>
@@ -161,23 +151,36 @@ export default {
                     </tbody>
                 </table>
                 <button class="btn btn-default" v-bind:id="'fm-editor-add-field-' + entityType"
-                        v-on:click="addNewFieldMetadata(entityType)">Add new field metadata
+                        v-on:click.prevent="addNewFieldMetadata(entityType)">Add new field metadata
                 </button>
 
                 <hr/>
             </template>
         </div>
         <template v-if="missingEntityTypes.length > 0" v-for="et in missingEntityTypes">
-            <button class="btn btn-default btn-lg" v-on:click="editET = {entityType: et, name: '', description: ''}">Add metadata for {{ et }}</button>
+            <button class="btn btn-default btn-lg" v-on:click.prevent="addEntityTypeMetadata(et)">Add metadata for {{ $t(`contentTypes.${et}`) }}</button>
             <hr/>
         </template>
-        <modal-fm-editor v-if="addNew !== null"
+        <modal-fm-editor v-if="addFieldMeta !== null"
                          v-bind:api="api"
-                         v-bind:item="addNew"
+                         v-bind:item="addFieldMeta"
                          v-bind:templates="templates"
                          v-bind:field-metadata="fieldMetadata"
-                         v-on:saved="addNew = null; reload()"
-                         v-on:close="addNew = null"
+                         v-bind:editing="false"
+                         v-on:saved="addFieldMeta = null; reload()"
+                         v-on:deleted="reload"
+                         v-on:close="addFieldMeta = null"
+                         v-on:error="(...args) => $emit('error', ...args)">
+        </modal-fm-editor>
+        <modal-fm-editor v-if="editFieldMeta !== null"
+                         v-bind:api="api"
+                         v-bind:item="editFieldMeta"
+                         v-bind:templates="templates"
+                         v-bind:field-metadata="fieldMetadata"
+                         v-bind:editing="true"
+                         v-on:saved="editFieldMeta = null; reload()"
+                         v-on:deleted="reload"
+                         v-on:close="editFieldMeta = null"
                          v-on:error="(...args) => $emit('error', ...args)">
         </modal-fm-editor>
         <modal-et-editor v-if="editET !== null"
@@ -185,53 +188,9 @@ export default {
                          v-bind:item="editET"
                          v-bind:entityTypeMetadata="entityTypeMetadata"
                          v-on:saved="editET = null; reload()"
+                         v-on:deleted="reload"
                          v-on:close="editET = null"
                          v-on:error="(...args) => $emit('error', ...args)">
         </modal-et-editor>
-        <modal-alert v-if="confirmDelete !== null"
-                     v-bind:title="'Delete Field Metadata'"
-                     v-bind:cls="'danger confirm-delete-field-metadata'"
-                     v-bind:accept="'Delete'"
-                     v-bind:cancel="'Cancel'"
-                     v-on:accept="deleteFieldMetadata(confirmDelete.entityType, confirmDelete.id); confirmDelete = null"
-                     v-on:close="confirmDelete = null">
-            <p>Are you sure you want to delete this field?</p>
-        </modal-alert>
     </div>
 </template>
-
-<style scoped>
-.section {
-    background-color: #dfdfdf;
-    font-weight: bold;
-}
-
-.fm-list td.fm-actions {
-    width: 5rem;
-}
-
-.fm-see-also a + a {
-    display: inline-block;
-}
-
-.fm-usage {
-    white-space: nowrap;
-
-}
-
-.fm-list td:last-child a {
-    margin-left: .5rem;
-}
-
-.badge-mandatory {
-    background-color: #fba8a6;
-}
-
-.badge-desirable {
-    background-color: #f8dab1;
-}
-
-.badge-optional {
-    background-color: #f5f5f5;
-}
-</style>

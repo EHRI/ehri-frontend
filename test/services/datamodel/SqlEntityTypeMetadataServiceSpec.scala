@@ -46,8 +46,11 @@ class SqlEntityTypeMetadataServiceSpec extends IntegrationTestRunner {
     }
 
     "locate fields by entity type" in new DBTestApp("entity-type-metadata-fixtures.sql") {
-      val ds = await(service.listFields(Some(EntityType.Repository)))
-      ds.size must_== 1
+      val ds = await(service.listEntityTypeFields(EntityType.Repository))
+      ds.fieldMetadata.size must_== 1
+      ds.fieldMetadata.get("history") must beSome.which { (d:FieldMetadata) =>
+        d.name must_== "History"
+      }
     }
 
     "get fields" in new DBTestApp("entity-type-metadata-fixtures.sql") {

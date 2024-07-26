@@ -1,4 +1,4 @@
-@(item: DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
+@(item: DescribedModel, desc: DocumentaryUnitDescriptionF, links: Seq[Link], annotations: Seq[Annotation], advisories: Html = Html(""), actions: Html = Html(""), visible: Boolean)(implicit fieldPrefix: String, userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @import Description.SOURCE_FILE_ID
 @import IsadG._
@@ -6,6 +6,7 @@
 
 @views.html.admin.common.descriptionOutline(item, desc, actions = actions, visible) {
     @views.html.common.itemHeader(desc.name)
+    @advisories
     @textValue(SOURCE_FILE_ID, desc.sourceFileId)
     @descriptionSection(IDENTITY_AREA) {
         @listValue(PARALLEL_FORMS_OF_NAME, desc.identity.parallelFormsOfName)

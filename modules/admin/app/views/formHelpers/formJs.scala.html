@@ -1,0 +1,24 @@
+@(f: Form[_])(implicit messages: Messages)
+
+<script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/bootstrap-datepicker.js")" type="text/javascript"></script>
+<script src="@controllers.admin.routes.AdminAssets.versioned("js/lib/luxon.js")" type="text/javascript"></script>
+<script src="@controllers.admin.routes.AdminAssets.versioned("js/datepicker-extensions.js")" type="text/javascript"></script>
+@if(f.hasErrors) {
+    <script>
+            let errors = @Html(play.api.libs.json.Json.prettyPrint(f.errorsAsJson));
+
+            function getErroredFormElements(keys) {
+                const selector = keys.map(e => `[name="${e}"]`).join(',');
+                // NB: should return elements in DOM order
+                return document.querySelectorAll(selector);
+            }
+
+            window.addEventListener('load', function() {
+                const fields = getErroredFormElements(Object.keys(errors));
+                if (fields) {
+                    fields[0].focus();
+                    fields[0].scrollIntoView();
+                }
+            });
+    </script>
+}

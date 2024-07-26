@@ -4,9 +4,13 @@ import models.{EntityType, FieldMetadata, FieldMetadataSet}
 import play.api.Configuration
 import services.datamodel.EntityTypeMetadataService
 
-import scala.collection.immutable.ListMap
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * This trait provides a set of hints for form fields, including
+  * whether they should be hidden, have a default value, hint, description,
+  * number of rows, and whether they are required.
+  */
 trait FormFieldHints {
   def name(field: String): Option[String] = None
 
@@ -53,10 +57,13 @@ case class ConfigFormFieldHints(private val config: Option[Configuration], updat
 
 case class ConfigFormFieldHintsBuilder(et: EntityType.Value, config: Configuration) {
   private val path = s"formConfig.$et"
-  def forUpdate: FormFieldHints = ConfigFormFieldHints(config.getOptional[Configuration](path), update = true)
-  def forCreate: FormFieldHints = ConfigFormFieldHints(config.getOptional[Configuration](path), update = false)
+  def forUpdate: Future[FormFieldHints] = Future.successful(ConfigFormFieldHints(config.getOptional[Configuration](path), update = true))
+  def forCreate: Future[FormFieldHints] = Future.successful(ConfigFormFieldHints(config.getOptional[Configuration](path), update = false))
 }
 
+/**
+  * Field hints that are based on the field metadata, with configuration as a fallback.
+  */
 case class FieldMetaFormFieldHints(base: FormFieldHints, meta: FieldMetadataSet, update: Boolean) extends FormFieldHints {
 
   override def name(field: String): Option[String] = meta
@@ -68,7 +75,7 @@ case class FieldMetaFormFieldHints(base: FormFieldHints, meta: FieldMetadataSet,
 
   override def default(field: String): Option[String] = if (update) None else meta
     .get(field)
-    .flatMap(_.default)
+    .flatMap(_.defaultVal)
     .orElse(base.default(field))
 
   override def hint(field: String): Option[String] = base.hint(field)
@@ -92,13 +99,15 @@ case class FieldMetaFormFieldHints(base: FormFieldHints, meta: FieldMetadataSet,
 }
 
 case class FieldMetaFormFieldHintsBuilder(et: EntityType.Value, ets: EntityTypeMetadataService, config: Configuration)(implicit ec: ExecutionContext) {
-  import scala.concurrent.duration._
-  private def getData = Await.result(ets.listFields(Some(et))
-    .map(_.getOrElse(et, FieldMetadataSet(ListMap.empty[String, FieldMetadata]))), 2.seconds)
-
   // Legacy config fallback...
   private val baseBuilder = ConfigFormFieldHintsBuilder(et, config)
 
-  def forUpdate: FormFieldHints = FieldMetaFormFieldHints(baseBuilder.forUpdate, getData, update = true)
-  def forCreate: FormFieldHints = FieldMetaFormFieldHints(baseBuilder.forCreate, getData, update = false)
+  def forUpdate: Future[FormFieldHints] = for {
+    meta <- ets.listEntityTypeFields(et)
+    base <- baseBuilder.forUpdate} yield FieldMetaFormFieldHints(base, meta, update = true)
+
+  def forCreate: Future[FormFieldHints] = for {
+    meta <- ets.listEntityTypeFields(et)
+    base <- baseBuilder.forCreate
+  } yield FieldMetaFormFieldHints(base, meta, update = false)
 }

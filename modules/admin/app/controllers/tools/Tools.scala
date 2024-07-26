@@ -1,14 +1,11 @@
 package controllers.tools
 
-import java.nio.charset.StandardCharsets
 import akka.stream.Materializer
 import akka.stream.alpakka.csv.scaladsl.CsvParsing
 import akka.stream.scaladsl.{FileIO, Flow, Sink, Source}
 import akka.util.ByteString
 import controllers.base.AdminController
 import controllers.{AppComponents, Execution}
-
-import javax.inject.{Inject, Singleton}
 import models.{BatchDeleteTask, ContentTypes}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -24,6 +21,8 @@ import services.ingest.{EadValidator, XmlValidationError}
 import services.search.SearchIndexMediator
 import utils.EnumUtils
 
+import java.nio.charset.StandardCharsets
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -41,8 +40,6 @@ case class Tools @Inject()(
 )(implicit mat: Materializer) extends AdminController {
 
   import models.FindReplaceTask
-
-  private def logger = play.api.Logger(classOf[Tools])
 
   private val toolRoutes = controllers.tools.routes.Tools
 

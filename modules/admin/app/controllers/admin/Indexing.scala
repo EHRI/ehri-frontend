@@ -1,19 +1,18 @@
 package controllers.admin
 
-import javax.inject._
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import controllers.AppComponents
 import controllers.base.AdminController
 import models.EntityType
-import utils.EnumUtils._
-import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
 import services.search._
+import utils.EnumUtils._
 import utils.WebsocketConstants
 
+import javax.inject._
 import scala.concurrent.Future
 
 
@@ -67,8 +66,6 @@ case class Indexing @Inject()(
   actorSystem: ActorSystem,
   searchIndexer: SearchIndexMediator
 ) extends AdminController {
-
-  private def logger = Logger(this.getClass)
 
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]

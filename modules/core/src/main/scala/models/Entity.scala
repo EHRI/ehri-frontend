@@ -4,7 +4,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import utils.EnumUtils
 
-
 object Entity {
 
   val ID = "id"
@@ -23,7 +22,7 @@ object Entity {
     (__ \ ID).read[String] and
     (__ \ TYPE).read[EntityType.Type](EnumUtils.enumReads(EntityType)) and
     (__ \ DATA).lazyRead(Reads.map[JsValue]) and
-    (__ \ RELATIONSHIPS).lazyRead(Reads.map[Seq[Entity]](Reads.seq(entityReads)))
+    (__ \ RELATIONSHIPS).lazyReadNullable(Reads.map[Seq[Entity]]).map(_.getOrElse(Map.empty)) // can be missing
   )(Entity.apply _)
 
   /**

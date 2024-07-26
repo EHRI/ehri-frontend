@@ -4,7 +4,7 @@ import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._
 import forms._
-import models.{EntityType, _}
+import models._
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.ws.WSClient
@@ -34,7 +34,7 @@ case class Vocabularies @Inject()(
   with Promotion[Vocabulary]
   with Search {
 
-  override protected val targetContentTypes = Seq(ContentTypes.Concept)
+  override protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.Concept)
   private val form: Form[VocabularyF] = models.Vocabulary.form
   private val childForm: Form[ConceptF] = models.Concept.form
 
@@ -59,14 +59,14 @@ case class Vocabularies @Inject()(
   }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.vocabulary.create(form, visibilityForm,
+    Ok(views.html.admin.vocabulary.create(form, visibilityForm, request.fieldHints,
       request.usersAndGroups, vocabRoutes.createPost()))
   }
 
   def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
-        BadRequest(views.html.admin.vocabulary.create(errorForm, accForm,
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
+        BadRequest(views.html.admin.vocabulary.create(errorForm, accForm, fieldHints,
           usersAndGroups, vocabRoutes.createPost()))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
@@ -75,13 +75,13 @@ case class Vocabularies @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.vocabulary.edit(
-      request.item, form.fill(request.item.data), vocabRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, vocabRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.vocabulary.edit(
-        request.item, errorForm, vocabRoutes.updatePost(id)))
+        request.item, errorForm, request.fieldHints, vocabRoutes.updatePost(id)))
       case Right(item) => Redirect(vocabRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
@@ -90,14 +90,14 @@ case class Vocabularies @Inject()(
   def createConcept(id: String): Action[AnyContent] = NewChildAction(id).apply { implicit request =>
     Ok(views.html.admin.concept.create(
       request.item, childForm, visibilityForm.fill(request.item.accessors.map(_.id)),
-      request.usersAndGroups, vocabRoutes.createConceptPost(id)))
+      request.fieldHints, request.usersAndGroups, vocabRoutes.createConceptPost(id)))
   }
 
   def createConceptPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.concept.create(request.item,
-          errorForm, accForm, usersAndGroups, vocabRoutes.createConceptPost(id)))
+          errorForm, accForm, fieldHints, usersAndGroups, vocabRoutes.createConceptPost(id)))
       case Right(_) => Redirect(vocabRoutes.get(id))
         .flashing("success" -> "item.create.confirmation")
     }

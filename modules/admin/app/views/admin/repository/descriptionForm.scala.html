@@ -18,17 +18,19 @@
     @descriptionFormSection(ADDRESS_AREA) {
         <div class="inline-formset" data-prefix="@ADDRESS_AREA">
             <script type="application/x-js-template" class="inline-element-template">
-            @addressForm(desc(ADDRESS_AREA + "[IDX]"))
+                @addressForm(desc(ADDRESS_AREA + "[IDX]"))
             </script>
-            <div class="inline-element-list">
-            @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
-                @addressForm(desc)
-            }
+            <div class="control-elements">
+                <div class="inline-element-list">
+                @helper.repeat(desc(ADDRESS_AREA), min = 0) { desc =>
+                    @addressForm(desc)
+                }
+                </div>
+                <a href="#" class="add-inline-element add-address btn btn-success">
+                    @Messages(fieldPrefix + ".addresses.create")
+                    <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                </a>
             </div>
-            <a href="#" class="add-inline-element add-address btn btn-success">
-                @Messages(fieldPrefix + ".addresses.create")
-                <i class="fa fa-plus-circle" aria-hidden="true"></i>
-            </a>
         </div>
     }
 

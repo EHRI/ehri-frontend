@@ -1,12 +1,12 @@
-@(item: Country, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Country, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], validation: Seq[ValidationError])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @import CountryF._
 @import views.html.admin.common.textValue
 
 @views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-
-    @views.html.admin.common.annotated(item, annotations) {
-        @defining("country") { implicit fieldPrefix =>
+    @defining("country") { implicit fieldPrefix =>
+        @views.html.admin.common.validationErrors(validation, fieldPrefix)
+        @views.html.admin.common.annotated(item, annotations) {
             @textValue(ABSTRACT, item.data.abs)
             @textValue(HISTORY, item.data.history)
             @textValue(SITUATION, item.data.situation)

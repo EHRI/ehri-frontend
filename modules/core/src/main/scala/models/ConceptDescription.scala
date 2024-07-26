@@ -5,7 +5,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.data.Form
 import play.api.data.Forms._
-import forms._
+import forms.mappings._
 import eu.ehri.project.definitions.Ontology
 import Description._
 

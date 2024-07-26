@@ -1,9 +1,13 @@
-import {mount, flushPromises} from '@vue/test-utils';
+import {mount, flushPromises,config} from '@vue/test-utils';
 import App from './app.vue';
 import ListEt from './components/_list-et.vue';
 import EntityTypeMetadataApi from "./api";
 
 jest.mock('./api');
+
+config.global.mocks = {
+  '$t': (msg) => msg, // return i18n key
+}
 
 const defaultInit = {
   props: {
@@ -55,7 +59,9 @@ test('deleting a field', async () => {
   expect(wrapper.find(".fm-list").exists()).toBe(true);
   expect(wrapper.find("#fm-Country-history").exists()).toBe(true);
 
-  await wrapper.find("#fm-Country-history .fm-delete").trigger("click");
+  await wrapper.find("#fm-Country-history .fm-edit").trigger("click");
+  expect(wrapper.find("#delete-metadata").exists()).toBe(true);
+  await wrapper.find("#delete-metadata").trigger("click");
   expect(wrapper.find(".confirm-delete-field-metadata").exists()).toBe(true);
   await wrapper.find(".confirm-delete-field-metadata button.accept").trigger("click");
   await flushPromises();

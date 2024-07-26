@@ -12,7 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.data.{DataHelpers, DataUser, IdGenerator}
 import services.geocoding.GeocodingService
-import services.search.{FacetBuilder, FacetDisplay, FacetSort, FieldFacetClass, SearchConstants, SearchIndexMediator, SearchParams}
+import services.search._
 import utils.{PageParams, RangeParams}
 
 import java.util.UUID
@@ -27,7 +27,7 @@ case class Countries @Inject()(
   dataHelpers: DataHelpers,
   searchIndexer: SearchIndexMediator,
   idGenerator: IdGenerator,
-  geocoder: GeocodingService
+  geocoder: GeocodingService,
 )(implicit actorSystem: ActorSystem, mat: Materializer) extends AdminController
   with CRUD[Country]
   with Creator[Repository, Country]
@@ -54,9 +54,7 @@ case class Countries @Inject()(
   /**
     * Content types that relate to this controller.
     */
-  override protected val targetContentTypes = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
-
-  private val childFormConfig: ConfigFormFieldHintsBuilder = ConfigFormFieldHintsBuilder(EntityType.Repository, config)
+  override protected val targetContentTypes: Seq[ContentTypes.Value] = Seq(ContentTypes.Repository, ContentTypes.DocumentaryUnit)
   private val form = models.Country.form
   private val childForm = models.Repository.form
 
@@ -64,11 +62,15 @@ case class Countries @Inject()(
 
 
   def get(id: String, params: SearchParams, paging: PageParams): Action[AnyContent] = ItemMetaAction(id).async { implicit request =>
-    findType[Repository](params, paging, filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id)).map { result =>
+    for {
+      result <- findType[Repository](params, paging, filters = Map(SearchConstants.COUNTRY_CODE -> request.item.id))
+      fieldMetadata <- entityTypeMetadata.listEntityTypeFields(EntityType.Country)
+      validation = fieldMetadata.validate(request.item.data)
+    } yield {
       if(isAjax) Ok(views.html.admin.search.inlineItemList(result = result))
         .withHeaders("more" -> result.page.hasMore.toString)
       else Ok(views.html.admin.country.show(request.item, result,
-        countryRoutes.get(id), request.annotations, request.links))
+        countryRoutes.get(id), request.annotations, request.links, validation))
         .withPreferences(preferences.withRecentItem(id))
     }
   }
@@ -83,15 +85,15 @@ case class Countries @Inject()(
     }
 
   def create: Action[AnyContent] = NewItemAction.apply { implicit request =>
-    Ok(views.html.admin.country.create(form, visibilityForm,
+    Ok(views.html.admin.country.create(form, visibilityForm, request.fieldHints,
       request.usersAndGroups, countryRoutes.createPost()))
   }
 
   def createPost: Action[AnyContent] = CreateItemAction(form).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.country.create(
-          errorForm, accForm, usersAndGroups, countryRoutes.createPost()))
+          errorForm, accForm, fieldHints, usersAndGroups, countryRoutes.createPost()))
       case Right(item) => Redirect(countryRoutes.get(item.id))
         .flashing("success" -> "item.create.confirmation")
     }
@@ -99,37 +101,36 @@ case class Countries @Inject()(
 
   def update(id: String): Action[AnyContent] = EditAction(id).apply { implicit request =>
     Ok(views.html.admin.country.edit(
-      request.item, form.fill(request.item.data), countryRoutes.updatePost(id)))
+      request.item, form.fill(request.item.data), request.fieldHints, countryRoutes.updatePost(id)))
   }
 
   def updatePost(id: String): Action[AnyContent] = UpdateAction(id, form).apply { implicit request =>
     request.formOrItem match {
       case Left(errorForm) => BadRequest(views.html.admin.country.edit(
-        request.item, errorForm, countryRoutes.updatePost(id)))
+        request.item, errorForm, request.fieldHints, countryRoutes.updatePost(id)))
       case Right(item) => Redirect(countryRoutes.get(item.id))
         .flashing("success" -> "item.update.confirmation")
     }
   }
 
   def createRepository(id: String): Action[AnyContent] = NewChildAction(id).async { implicit request =>
-
     // Beware! This is dubious because there could easily be contention
     // if two repositories get created at the same time.
     // Currently there is not way to notify the user that they should just
     // reset the form or increment the ID manually.
-    idGenerator.getNextNumericIdentifier(EntityType.Repository, "%06d").map { newid =>
-      val form = childForm.bind(Map(Entity.IDENTIFIER -> newid))
+    for {newId <- idGenerator.getNextNumericIdentifier(EntityType.Repository, "%06d")} yield {
+      val form = childForm.bind(Map(Entity.IDENTIFIER -> newId))
       Ok(views.html.admin.repository.create(
-        request.item, form, childFormConfig.forCreate, visibilityForm.fill(request.item.accessors.map(_.id)),
+        request.item, form, visibilityForm.fill(request.item.accessors.map(_.id)), request.fieldHints,
         request.usersAndGroups, countryRoutes.createRepositoryPost(id)))
     }
   }
 
   def createRepositoryPost(id: String): Action[AnyContent] = CreateChildAction(id, childForm).apply { implicit request =>
     request.formOrItem match {
-      case Left((errorForm, accForm, usersAndGroups)) =>
+      case Left((errorForm, accForm, fieldHints, usersAndGroups)) =>
         BadRequest(views.html.admin.repository.create(request.item,
-          errorForm, childFormConfig.forCreate, accForm, usersAndGroups, countryRoutes.createRepositoryPost(id)))
+          errorForm, accForm, fieldHints, usersAndGroups, countryRoutes.createRepositoryPost(id)))
       case Right(citem) => Redirect(controllers.institutions.routes.Repositories.get(citem.id))
         .flashing("success" -> "item.create.confirmation")
     }

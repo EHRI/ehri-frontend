@@ -19,10 +19,12 @@
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.listFields,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.saveField,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.deleteField,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.i18n,
         controllers.datamodel.routes.javascript.EntityTypeMetadataApi.templates
     )
 
     <script src="@controllers.admin.routes.AdminAssets.versioned("js/dmeditor/app.js")"></script>
+
     <script>
             window.SERVICE = {
                 list: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.list,
@@ -32,14 +34,26 @@
                 getField: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.getField,
                 saveField: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.saveField,
                 deleteField: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.deleteField,
+                i18n: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.i18n,
                 templates: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.templates,
             }
-            Vue.createApp({
-                render: function() {
-                    return Vue.h(App.default, {
-                        service: window.SERVICE
+            fetch(dataModelApi.controllers.datamodel.EntityTypeMetadataApi.i18n().url)
+                .then(response => response.json())
+                .then(data => {
+                    let messages = data;
+                    messages['en'] = messages['default'];
+                    delete messages['default'];
+                    let i18n = VueI18n.createI18n({
+                        locale: 'en',
+                        messages
                     });
-                },
-            }).mount("#vue-app");
+                    Vue.createApp({
+                        render: function() {
+                            return Vue.h(App.default, {
+                                service: window.SERVICE
+                            });
+                        },
+                    }).use(i18n).mount("#vue-app");
+                });
     </script>
 }

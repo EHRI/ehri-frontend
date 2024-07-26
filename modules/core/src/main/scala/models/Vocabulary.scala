@@ -1,6 +1,7 @@
 package models
 
 import eu.ehri.project.definitions.Ontology
+import forms.mappings.optionalText
 import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -75,7 +76,7 @@ object Vocabulary {
       ID -> optional(nonEmptyText),
       IDENTIFIER -> nonEmptyText(minLength=3),
       NAME -> optional(nonEmptyText),
-      DESCRIPTION -> optional(nonEmptyText),
+      DESCRIPTION -> optionalText,
       ALLOW_PUBLIC -> default(boolean, true)
     )(VocabularyF.apply)(VocabularyF.unapply)
   )

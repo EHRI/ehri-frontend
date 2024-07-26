@@ -4,6 +4,7 @@ import models.json._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import models.Description.CreationProcess
 
 import java.net.URL
 import play.api.data.Form
@@ -145,4 +146,6 @@ case class DocumentaryUnit(
     desc <- descriptions
     url <- desc.externalLink(this)
   } yield new URL(url)).headOption
+
+  def createdManually: Boolean = descriptions.exists(_.creationProcess == CreationProcess.Manual)
 }

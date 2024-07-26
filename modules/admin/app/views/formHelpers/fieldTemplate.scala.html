@@ -1,13 +1,17 @@
 @(elements: helper.FieldElements)
 
+@** TODO: convert to fieldTemplateWithHints, which has the hints parameter available **@
 <div class="form-group @if(elements.hasErrors) {has-error}">
-@defining(List(Messages("constraints.mandatory")(elements.p), Messages("constraints.desirable")(elements.p))) { usage =>
+@defining(List(Messages("constraints.mandatory")(elements.p), Messages("error.required")(elements.p), Messages("constraints.desirable")(elements.p))) { usage =>
     <label class="control-label" for="@elements.id">
         @elements.label
     </label>
     <div class="control-elements">
         @elements.input
         @if(elements.infos.contains(usage.head)) {
+            <span class="input-mandatory">@usage.head</span>
+        }
+        @if(elements.infos.contains(usage(1))) {
             <span class="input-mandatory">@usage.head</span>
         }
         @if(elements.infos.contains(usage.last)) {

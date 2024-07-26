@@ -1,4 +1,4 @@
-@(item: AuthoritativeSet, f: play.api.data.Form[AuthoritativeSetF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: AuthoritativeSet, f: play.api.data.Form[AuthoritativeSetF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
@@ -6,10 +6,10 @@
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-        @views.html.admin.authoritativeSet.form(Some(item), f)
+        @views.html.admin.authoritativeSet.form(Some(item), f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("authoritativeSet.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}
 } {
-
+    @views.html.formHelpers.formNavigation("authoritativeSet")
 }

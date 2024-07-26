@@ -6,9 +6,7 @@ import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
-import javax.inject.{Inject, Singleton}
 import models.CypherQuery
-import play.api.Logger
 import play.api.http.{ContentTypes, HeaderNames}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.cypher.{CypherQueryService, CypherResult, WsCypherService}
@@ -16,6 +14,7 @@ import services.data.ItemNotFound
 import services.search.SearchParams
 import utils.PageParams
 
+import javax.inject.{Inject, Singleton}
 import scala.util.Failure
 
 
@@ -27,8 +26,6 @@ case class Datasets @Inject()(
                                cypherQueries: CypherQueryService)(
   implicit mat: Materializer
 ) extends PortalController {
-
-  private val logger = Logger(Datasets.getClass)
 
   import play.api.libs.json._
   private implicit val cypherQueryWrites: Writes[CypherQuery] = Writes { query =>

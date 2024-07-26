@@ -1,5 +1,7 @@
 package models
 
+import models.Description.LANG_CODE
+
 /**
   * ISDIAH Field definitions
   */
@@ -71,8 +73,11 @@ case object Isdiah {
   val ACCESS_POINTS = "accessPoints"
 
   val FIELDS: Seq[(String, Seq[String])] = List(
-    IDENTITY_AREA -> Seq(
+    "_" -> Seq(
       IDENTIFIER,
+      LANG_CODE,
+    ),
+    IDENTITY_AREA -> Seq(
       AUTHORIZED_FORM_OF_NAME,
       OTHER_FORMS_OF_NAME,
       PARALLEL_FORMS_OF_NAME,

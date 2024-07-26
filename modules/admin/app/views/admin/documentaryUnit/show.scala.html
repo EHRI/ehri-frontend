@@ -1,60 +1,70 @@
-@(item: DocumentaryUnit, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], dlid: Option[String])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: DocumentaryUnit, result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, annotations: Seq[Annotation], links: Seq[Link], dlid: Option[String], validation: Seq[ValidationError])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@import IsadG._
-@import DocumentaryUnitF._
-@import views.html.admin.common.{descriptionSection, enumValue}
+    @import IsadG._
+    @import DocumentaryUnitF._
+    @import views.html.admin.common.{descriptionSection, enumValue, validationErrors}
 
-@views.html.admin.layout.adminLayout(item.toStringLang) {
-    @breadcrumbs(item)
-    @common.mainContent {
-        @common.itemDetails {
-            <div class="header-actions clearfix">
-                @item.holder.map { holder =>
-                <h4>@Messages("documentaryUnit.heldBy"):
-                    <a href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringLang</a>
-                </h4>
-                }
-                @item.parent.map { parent =>
-                    <h4>@Messages("documentaryUnit.parentItem"):
-                        <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang</a>
-                    </h4>
-                }
-            </div>
-            @defining("documentaryUnit") { implicit fieldPrefix =>
-                @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
-                    @common.descriptionContainer(descriptions) {
-                        @descriptions.map { case (desc, selected) =>
-                            @description(item, desc, links, annotations, actions = descriptionActions(item, desc), visible = selected)
-                        }
-                        @descriptionSection(ADMINISTRATION_AREA) {
-                            @enumValue(PUB_STATUS, item.data.publicationStatus)
-                            @enumValue(COPYRIGHT, item.data.copyrightStatus)
-                            @enumValue(SCOPE, item.data.scope)
-                        }
+    @views.html.admin.layout.adminLayout(item.toStringLang) {
+        @breadcrumbs(item)
+        @common.mainContent {
+            @common.itemDetails {
+                <div class="header-actions clearfix">
+                    @item.holder.map { holder =>
+                        <h4>@Messages("documentaryUnit.heldBy"):
+                        <a href="@controllers.institutions.routes.Repositories.get(holder.id)">@holder.toStringLang
+                        </a>
+                        </h4>
+                    }
+                    @item.parent.map { parent =>
+                        <h4>@Messages("documentaryUnit.parentItem"):
+                        <a href="@controllers.units.routes.DocumentaryUnits.get(parent.id)">@parent.toStringLang
+                        </a>
+                        </h4>
+                    }
+                </div>
+                @defining("documentaryUnit") { implicit fieldPrefix =>
+                    @defining(item.data.descriptionsWithSelected(dlid)) { descriptions =>
+                        @common.descriptionContainer(descriptions) {
+                            @descriptions.map { case (desc, selected) =>
+                                @description(
+                                    item,
+                                    desc,
+                                    links,
+                                    annotations,
+                                    advisories = validationErrors(validation, fieldPrefix, item.createdManually),
+                                    actions = descriptionActions(item, desc),
+                                    visible = selected
+                                )
+                            }
+                            @descriptionSection(ADMINISTRATION_AREA) {
+                                @enumValue(PUB_STATUS, item.data.publicationStatus)
+                                @enumValue(COPYRIGHT, item.data.copyrightStatus)
+                                @enumValue(SCOPE, item.data.scope)
+                            }
 
-                        @views.html.admin.link.annotationLinks(item, links)
-                        @views.html.admin.link.externalLinks(item, links)
-                    } {
-                        @common.typeLabel(item.isA) {
-                            @views.html.admin.common.publicButton(item)
+                            @views.html.admin.link.annotationLinks(item, links)
+                            @views.html.admin.link.externalLinks(item, links)
+                        } {
+                            @common.typeLabel(item.isA) {
+                                @views.html.admin.common.publicButton(item)
+                            }
+                            @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
+                        } {
+                            @views.html.admin.common.identifiers(item.data.identifier, item.data.otherIdentifiers)
+                            @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
+                            @views.html.admin.common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
+                            @adminActions(item)
                         }
-                        @views.html.common.childItemSidebar(item, EntityType.DocumentaryUnit)
-                    } {
-                        @views.html.admin.common.identifiers(item.data.identifier, item.data.otherIdentifiers)
-                        @views.html.admin.common.latestAction(item, controllers.units.routes.DocumentaryUnits.history(item.id))
-                        @views.html.admin.common.visibility(item, controllers.units.routes.DocumentaryUnits.visibility(item.id), ContentTypes.DocumentaryUnit)
-                        @adminActions(item)
                     }
                 }
-            }
 
-            @views.html.admin.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {
-                @views.html.common.search.searchForm(result, action, autofocus = false) {
-                    @views.html.admin.search.searchItemList(result)
-                } {
+                @views.html.admin.search.searchSection(item, Messages("documentaryUnit.childItems", item.toStringAbbr(messages)), result) {
+                    @views.html.common.search.searchForm(result, action, autofocus = false) {
+                        @views.html.admin.search.searchItemList(result)
+                    } {
 
+                    }
                 }
             }
         }
     }
-}

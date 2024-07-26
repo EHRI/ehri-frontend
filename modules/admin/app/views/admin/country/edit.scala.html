@@ -1,13 +1,13 @@
-@(item: Country, f: play.api.data.Form[CountryF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+@(item: Country, f: play.api.data.Form[CountryF], fieldHints: forms.FormFieldHints, action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(Messages("country.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-	@helper.form(action = action) {
+@views.html.admin.layout.rightSidebarWithType(Messages("country.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(f)) {
+    @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
-        @views.html.admin.country.form(Some(item), f)
+        @views.html.admin.country.form(Some(item), f, fieldHints)
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("country.update.submit"), cancel = views.admin.Helpers.linkToOpt(item))
-	}
+    }
 } {
-
+    @views.html.formHelpers.formNavigation("country")
 }

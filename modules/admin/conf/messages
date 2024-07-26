@@ -680,6 +680,8 @@ A specific local reference code, control number, or other unique identifier with
 NB: Contra ISAD(G) 3.1.1 do not include the country and repository\
   code here.
 documentaryUnit.otherIdentifiers=Other Ref. Codes
+documentaryUnit.otherIdentifiers.description=Additional reference codes used by the holding institution, such \
+  as accession numbers or other internal identifiers. (ISAD(G) 3.1.1)
 
 documentaryUnit.dates=Dates
 documentaryUnit.dates.description=To identify and record the date(s) of the unit of description.\n\n\
@@ -1573,4 +1575,6 @@ cleanup.done=Cleanup complete
 #
 # Data Model
 #
-dataModel=Data Model
+dataModel.advisories={0,choice,0#No advisories|1#1 Metadata quality advisory|1<{0,number,integer} Metadata quality advisories}
+dataModel.missingMandatoryFields={0,choice,0#No missing mandatory fields|1#1 missing mandatory field|1<{0,number,integer} missing mandatory fields}
+dataModel.missingDesirableFields={0,choice,0#No missing desirable fields|1#1 missing desirable field|1<{0,number,integer} missing desirable fields}

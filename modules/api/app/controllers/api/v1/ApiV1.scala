@@ -10,17 +10,18 @@ import lifecycle.ItemLifecycle
 import models._
 import models.api.v1.JsonApiV1._
 import models.api.v1.{ApiEntity, ApiFacet, ApiFacets}
+import play.api.Configuration
 import play.api.cache.SyncCacheApi
 import play.api.http.HeaderNames
 import play.api.i18n.Messages
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import play.api.{Configuration, Logger}
 import services.RateLimitChecker
 import services.accounts.AccountManager
 import services.cypher.CypherService
 import services.data._
+import services.datamodel.EntityTypeMetadataService
 import services.redirects.MovedPageLookup
 import services.search.SearchConstants._
 import services.search._
@@ -73,12 +74,11 @@ case class ApiV1 @Inject()(
   protected val authHandler: AuthHandler = appComponents.authHandler
   protected val searchEngine: SearchEngine = appComponents.searchEngine
   protected val searchResolver: SearchItemResolver = appComponents.searchResolver
+  protected val entityTypeMetadata: EntityTypeMetadataService = appComponents.entityTypeMetadata
 
   protected def itemLifecycle: ItemLifecycle = appComponents.itemLifecycle
 
   import ApiV1._
-
-  private val logger = Logger(ApiV1.getClass)
 
   private implicit val apiUser: DataUser = AnonymousUser
   private implicit val userOpt: Option[UserProfile] = None

@@ -1,16 +1,12 @@
 package controllers.admin
 
-import java.util.UUID
 import actors.ingest.DataImporterManager
 import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.datasets.StorageHelpers
-import models.{ContentTypes, FilePayload, FileProperties, IngestParams, Model}
-
-import javax.inject.{Inject, Singleton}
-import play.api.Logger
+import models._
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.libs.Files.TemporaryFile
@@ -19,9 +15,11 @@ import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
 import services.data.AuthenticatedUser
 import services.datasets.ImportDatasetService
-import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest.IngestService
+import services.ingest.IngestService.{IngestData, IngestJob}
 
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 import scala.concurrent.Future.{successful => immediate}
 
@@ -33,8 +31,6 @@ case class Ingest @Inject()(
   ingestApi: IngestService,
   datasetApi: ImportDatasetService
 )(implicit mat: Materializer) extends AdminController with StorageHelpers {
-
-  private def logger = Logger(this.getClass)
 
   private implicit val messageTransformer: MessageFlowTransformer[JsValue, String] =
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]

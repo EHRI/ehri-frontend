@@ -20,7 +20,6 @@ import _takeWhile from 'lodash/takeWhile';
 import _find from 'lodash/find';
 import {DataTransformation} from "../types";
 
-
 let initialConvertState = function (config) {
   return {
     ingesting: {},

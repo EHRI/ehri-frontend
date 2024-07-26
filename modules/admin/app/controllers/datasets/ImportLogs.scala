@@ -9,7 +9,6 @@ import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._
 import models._
-import play.api.Logger
 import play.api.libs.json.{Format, JsString, Json, Reads}
 import play.api.mvc._
 import services.cypher.CypherService
@@ -48,8 +47,6 @@ case class ImportLogs @Inject()(
   cypherServer: CypherService,
   importService: IngestService,
 )(implicit mat: Materializer) extends AdminController with ApiBodyParsers with StorageHelpers with Update[Repository] {
-
-  private val logger = Logger(classOf[ImportLogs])
 
   def list(id: String, dsId: Option[String]): Action[AnyContent] = EditAction(id).async { implicit request =>
     importLogService.list(id, dsId).map { stats =>

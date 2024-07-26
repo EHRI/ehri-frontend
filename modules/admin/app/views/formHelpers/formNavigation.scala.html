@@ -1,18 +1,33 @@
 @(fieldPrefix: String, targets: String*)(implicit messages: Messages)
 
 <div id="form-nav-sidebar">
-    <ul class="nav form-navigation">
+    @if(targets.nonEmpty) {
+        <ul class="nav form-navigation">
         @targets.map { s =>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" href="#@{s}">@Messages(fieldPrefix + "." + s)</a>
+                <a class="nav-link" href="#@{
+                    s
+                }">@Messages(fieldPrefix + "." + s)</a>
             </li>
         }
-        <li class="nav-item">
-            <a class="nav-link markdown-helper" title="@Messages("markdown.cheatsheet.title")">
-                @Messages("markdown.cheatsheet.title")
-                <i class="fa fa-question-circle" aria-hidden="true"></i>
-            </a>
-            @common.markdownCheatsheet()
-        </li>
-    </ul>
+        </ul>
+        <hr/>
+    }
+    <a class="markdown-helper" title="@Messages("markdown.cheatsheet.title")">
+        @Messages("markdown.cheatsheet.title")
+    <i class="fa fa-question-circle" aria-hidden="true"></i>
+    </a>
+    @common.markdownCheatsheet()
+    <hr/>
+    <div class="form-legend">
+        <dl>
+            <dt><span class="input-mandatory">@Messages("dataModel.field.usage.mandatory")</span></dt>
+            <dd>@Messages("dataModel.field.usage.mandatory.description")</dd>
+            <dt><span class="input-desirable">@Messages("dataModel.field.usage.desirable")</span></dt>
+            <dd>@Messages("dataModel.field.usage.desirable.description")</dd>
+        </dl>
+        <p class="small">
+        @Html(Messages("dataModel.reference", s"<a href='${controllers.portal.routes.Portal.dataModel()}' target='_blank'>${Messages("dataModel")}</a>"))
+        </p>
+    </div>
 </div>

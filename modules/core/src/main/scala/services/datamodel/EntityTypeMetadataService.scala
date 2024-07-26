@@ -50,6 +50,11 @@ trait EntityTypeMetadataService {
   def listFields(entityType: Option[EntityType.Value] = None): Future[Map[EntityType.Value, FieldMetadataSet]]
 
   /**
+    * List field metadata for a specific entity type.
+    */
+  def listEntityTypeFields(entityType: EntityType.Value): Future[FieldMetadataSet]
+
+  /**
     * Retrieves a field metadata entry.
     *
     * @param entityType The entity type
