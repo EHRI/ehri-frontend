@@ -23,8 +23,8 @@ jobs:
       with:
         java-version: "adopt@1.11"
 
-    - name: Build the docker-compose stack
-      run: docker-compose up -d
+    - name: Build the docker compose stack
+      run: docker compose up -d
 
     - name: Cache node modules
       uses: actions/cache@v2
