@@ -114,7 +114,6 @@ export default {
                         <th>Name</th>
                         <th>Usage</th>
                         <th>Description</th>
-                        <th>See Also</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -137,9 +136,10 @@ export default {
                             <td class="fm-description">
                                 <markdown v-bind:content="fm.description"/>
                                 <p v-if="fm.defaultVal"><strong>Default Value:</strong> <q>{{ fm.defaultVal }}</q></p>
-                            </td>
-                            <td class="fm-see-also">
-                                <a v-for="sa in fm.seeAlso" v-bind:href="sa">{{ sa }}</a>
+                                <div class="fm-see-also" v-if="fm.seeAlso && fm.seeAlso.length > 0">
+                                    <strong>See Also:</strong>
+                                    <a v-for="sa in fm.seeAlso" v-bind:href="sa" target="_blank">{{ sa }}</a>
+                                </div>
                             </td>
                             <td class="fm-actions">
                                 <a class="fm-edit" v-on:click.prevent="editFieldMetadata(fm)" href="#">

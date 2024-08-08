@@ -7,16 +7,38 @@
                 font-weight: bold;
             }
 
-            .data-model-see-also a {
-                display: inline-block;
-            }
-
             .data-model-entity-type {
                 margin-bottom: 2rem;
             }
 
             .data-model-usage {
                 white-space: nowrap;
+            }
+
+            .data-model-see-also a + a {
+                display: inline-block;
+            }
+
+            .data-model-see-also a + a:before {
+                content: ", ";
+            }
+
+            #data-model-nav {
+                position: sticky;
+                top: 1rem;
+            }
+
+            #data-model-nav ul {
+                flex-direction: column;
+            }
+
+            #data-model-nav ul li ul {
+                padding-left: 1rem;
+                font-size: 0.9rem;
+            }
+            #data-model-nav ul li ul li a {
+                display: block;
+                padding: 0.5rem 1rem;
             }
     </style>
 }
@@ -37,17 +59,23 @@
         @field.description.map { desc =>
             @Markdown(desc)
         }
-        </td>
-        <td class="data-model-see-also">
-        @field.seeAlso.map { sa =>
-            <a href="@sa" target="_blank">@sa</a>
+        @if(field.seeAlso.nonEmpty && field.description.nonEmpty) {
+            <hr/>
+        }
+        @if(field.seeAlso.nonEmpty) {
+            <div class="data-model-see-also">
+                <strong>@Messages("dataModel.field.seeAlso"):</strong>
+                @field.seeAlso.map { sa =>
+                    <a href="@sa" target="_blank">@sa</a>
+                }
+            </div>
         }
         </td>
     </tr>
 
 }
 
-@views.html.layout.textLayout(Messages("dataModel"), styles = extraStyles) {
+@views.html.layout.rightSidebarLayout(Messages("dataModel"), styles = extraStyles) {
 
     <div class="row">
         <div class="col-md-12">
@@ -57,15 +85,12 @@
     </div>
 
     @for((entityType, categories) <- templates) {
-        <div class="row data-model-entity-type">
-            <div class="col-md-12">
-                @entityTypeMetadata.get(entityType).map { metadata =>
-                    <h3>@metadata.name</h3>
-                    @metadata.description.map { desc =>
-                        @Markdown(desc)
-                    }
+        @entityTypeMetadata.get(entityType).map { metadata =>
+            <div class="data-model-entity-type">
+                <h3 id="section-@entityType">@metadata.name</h3>
+                @metadata.description.map { desc =>
+                    @Markdown(desc)
                 }
-
                 @fieldMetadata.get(entityType).map { fieldSet =>
                     <table class="table table-bordered table-condensed">
                         <thead>
@@ -73,7 +98,6 @@
                                 <th>@Messages("dataModel.field.name")</th>
                                 <th>@Messages("dataModel.field.usage")</th>
                                 <th>@Messages("dataModel.field.description")</th>
-                                <th>@Messages("dataModel.field.seeAlso")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -85,7 +109,7 @@
                             } else {
                                 @if(fieldSet.withCategory(category).nonEmpty) {
                                     <tr>
-                                        <td colspan="4" class="data-model-category"><strong>@Messages(s"dataModel.$entityType.$category")</strong></td>
+                                        <td colspan="4" class="data-model-category" id="section-@entityType-@category"><strong>@Messages(s"dataModel.$entityType.$category")</strong></td>
                                     </tr>
                                     @for(field <- fieldSet.withCategory(category)) {
                                         @fieldRow(field)
@@ -97,6 +121,39 @@
                     </table>
                 }
             </div>
-        </div>
+        }
     }
+
+    <script>
+        jQuery(function($) {
+          $("body").scrollspy({ target: "#data-model-nav" });
+        });
+    </script>
+} {
+    <div id="data-model-nav">
+        <ul class="nav nav-pills">
+        @for((entityType, categories) <- templates) {
+            @entityTypeMetadata.get(entityType).map { metadata =>
+                <li class="nav-item">
+                    <a class="nav-link" href="#section-@entityType">@metadata.name</a>
+                    @if(categories.keys.toSeq.nonEmpty) {
+                        <ul class="nav nav-pills">
+                        @categories.keys.toSeq.map { category =>
+                            @if(!category.equals("_")) {
+                                @if(fieldMetadata.get(entityType).exists(_.withCategory(category).nonEmpty)) {
+                                    <li class="nav-item">
+                                        <a href="#section-@entityType-@category">
+                                            @Messages(s"dataModel.$entityType.$category")
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
+                        </ul>
+                    }
+                </li>
+            }
+        }
+        </ul>
+    </div>
 }
