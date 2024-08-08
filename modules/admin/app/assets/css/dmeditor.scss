@@ -22,13 +22,20 @@ $active-table-row: #e7f1ff;
   width: 5rem;
 }
 
+.fm-see-also strong {
+  margin-right: $margin-xs;
+}
+
 .fm-see-also a + a {
   display: inline-block;
 }
 
+.fm-see-also a + a:before {
+  content: ", ";
+}
+
 .fm-usage {
   white-space: nowrap;
-
 }
 
 .fm-list td:last-child a {

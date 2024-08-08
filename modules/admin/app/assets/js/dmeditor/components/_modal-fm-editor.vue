@@ -160,8 +160,8 @@ export default {
             <multi-item v-bind:label="'See Also'" v-model="seeAlso" v-bind:type="'url'" />
         </fieldset>
         <template v-slot:footer>
-            <button v-if="editing" class="btn btn-danger" id="delete-metadata" v-on:click="confirmDelete = true">
-                <i v-if="saving" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
+            <button tabindex="-1" v-if="editing" class="btn btn-danger" id="delete-metadata" v-on:click="confirmDelete = true">
+                <i v-if="deleting" class="fa fa-fw fa-circle-o-notch fa-spin"></i>
                 <i v-else class="fa fa-fw fa-trash-o"></i>
                 Delete Field Metadata
             </button>
