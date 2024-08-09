@@ -239,7 +239,7 @@ export default {
     },
   },
   created: function () {
-    this.worker = new Worker(this.config.previewLoader);
+    this.worker = new Worker(this.config.websocketHandler);
     this.worker.onmessage = this.receiveMessage;
   },
   mounted: function () {

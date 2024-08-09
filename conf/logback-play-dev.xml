@@ -70,6 +70,9 @@
   <!-- Uncomment to see misc controller logging -->
     <logger name="controllers" level="INFO" />
 
+
+    <logger name="actors" level="INFO" />
+
   <!-- Uncomment to see mailer debug, when play.mailer.debug=yes in configuration -->
   <!--  <logger name="play.mailer" level="DEBUG" />-->
   

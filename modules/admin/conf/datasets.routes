@@ -4,9 +4,6 @@ GET         /                                             @controllers.datasets.
 GET         /routes                                       @controllers.datasets.ImportDatasets.jsRoutes()
 GET         /:id                                          @controllers.datasets.ImportDatasets.manager(id: String, ds: Option[String] ?= None)
 
-# API/JSON routes
-DELETE      /api/:id/cancel                               @controllers.datasets.LongRunningJobs.cancel(id: String, jobId: String)
-
 GET         /api/list                                     @controllers.datasets.ImportDatasets.listAll()
 POST        /api/:id/toggle-versioning                    @controllers.datasets.ImportDatasets.toggleVersioning(id: String, enabled: Boolean ?= true)
 GET         /api/:id/datasets-stats                       @controllers.datasets.ImportDatasets.stats(id: String)

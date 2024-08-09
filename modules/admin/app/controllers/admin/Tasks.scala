@@ -1,10 +1,11 @@
 package controllers.admin
 
-import akka.actor.{Actor, ActorSystem, Props}
-import akka.stream.Materializer
+import actors.LongRunningJob
+import akka.actor.{Actor, ActorLogging, ActorNotFound, ActorSystem, Props}
+import akka.stream.{Materializer, OverflowStrategy}
 import controllers.AppComponents
 import controllers.base.AdminController
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsNull, JsValue, Json}
 import play.api.libs.streams.ActorFlow
 import play.api.mvc.WebSocket.MessageFlowTransformer
 import play.api.mvc._
@@ -26,8 +27,13 @@ case class Tasks @Inject()(
     def props: Props = Props(new MessageHandler)
   }
 
-  class MessageHandler extends Actor {
+  class MessageHandler extends Actor with ActorLogging {
     private val logger = play.api.Logger(getClass)
+
+    override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+      super.preRestart(reason, message)
+      log.error(reason, "Unhandled exception for message: {}", message)
+    }
 
     override def receive: Receive = {
       case e => logger.warn(s"Unhandled message: $e")
@@ -38,7 +44,8 @@ case class Tasks @Inject()(
     MessageFlowTransformer.jsonMessageFlowTransformer[JsValue, String]
 
   def taskMonitorWS(jobId: String): WebSocket = AuthenticatedWebsocket(_.account.exists(_.staff)) { implicit request =>
-    ActorFlow.actorRef { out =>
+    logger.debug(s"Opening websocket for task: $jobId")
+    ActorFlow.actorRef(out => {
       system.actorSelection(s"user/$jobId").resolveOne(5.seconds).onComplete {
         case Success(ref) =>
           logger.info(s"Monitoring job: $jobId")
@@ -49,6 +56,19 @@ case class Tasks @Inject()(
       }
 
       MessageHandler.props
+    }, 24, OverflowStrategy.dropTail)
+  }
+
+  def cancel(jobId: String): Action[AnyContent] = WithUserAction.async { implicit request =>
+    import scala.concurrent.duration._
+    mat.system.actorSelection("user/" + jobId).resolveOne(5.seconds).map { ref =>
+      logger.info(s"Cancelling job: $jobId")
+      ref ! LongRunningJob.Cancel
+      Ok(Json.obj("ok" -> true))
+    }.recover {
+      // Check if job is already cancelled or missing...
+      case _: ActorNotFound => Ok(Json.obj("ok" -> JsNull));
+      case e => InternalServerError(Json.obj("error" -> e.getMessage))
     }
   }
 }

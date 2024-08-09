@@ -13,10 +13,10 @@ export class DashboardApi {
   }
 
   managerUrl(repoId: string, ds?: string): string {
-    return this.service.ImportDatasets.manager(repoId, ds).url;
+    return this.service.datasets.ImportDatasets.manager(repoId, ds).url;
   }
 
   listAllDatasets(): Promise<RepositoryDatasets[]> {
-    return apiCall(this.service.ImportDatasets.listAll());
+    return apiCall(this.service.datasets.ImportDatasets.listAll());
   }
 }

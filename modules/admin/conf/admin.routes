@@ -20,6 +20,7 @@ GET         /ingest                             @controllers.admin.Ingest.ingest
 
 # Tasks
 GET         /tasks/monitor                      @controllers.admin.Tasks.taskMonitorWS(jobId: String)
+DELETE      /tasks/cancel/:jobId                 @controllers.admin.Tasks.cancel(jobId: String)
 
 # Search testing
 GET         /search                             @controllers.admin.AdminSearch.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)

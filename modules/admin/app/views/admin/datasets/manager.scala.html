@@ -16,7 +16,7 @@
             Vue.createApp({
                 render: function() {
                     return Vue.h(App.default, {
-                        service: datasetApi.controllers.datasets,
+                        service: datasetApi.controllers,
                         config: {
                             repoId: "@item.id",
                             versioned: @isVersioned,
@@ -24,7 +24,7 @@
                             output: "@FileStage.Output",
                             config: "@FileStage.Config",
                             admin: @userOpt.forall(_.isAdmin),
-                            previewLoader: "@controllers.admin.routes.AdminAssets.versioned("js/datasets/worker.js")",
+                            websocketHandler: "@controllers.admin.routes.AdminAssets.versioned("js/datasets/worker.js")",
                             monitorUrl: jobId => datasetApi.controllers.admin.Tasks.taskMonitorWS(jobId)
                                     .absoluteURL(location.protocol === "https:")
                                     .replace(/^http/, "ws"),

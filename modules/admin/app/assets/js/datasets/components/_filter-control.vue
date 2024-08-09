@@ -1,7 +1,7 @@
 <script lang="ts">
 export default {
   props: {
-    filter: Object
+    filter: Object as { value: string, active: boolean }
   },
 };
 </script>

@@ -26,6 +26,7 @@ export default {
         this.datasetInfo = await this.api.listAllDatasets()
         this.loaded = true;
       } catch (e) {
+        console.log(e);
         this.showError("Error loading dataset info", e);
       } finally {
         this.loading = true;
