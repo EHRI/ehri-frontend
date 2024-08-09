@@ -267,6 +267,9 @@ val resourceSettings = Seq(
   // conf directory.
   (Compile / PlayKeys.playExternalizedResources) += file("modules/xquery/src/main/resources/xtra.xqm") -> "xtra.xqm",
 
+  // Prevents websockets from being closed by the server
+  PlayKeys.devSettings += "play.server.websocket.periodic-keep-alive-mode" -> "pong",
+
   // Filter out excluded resources from packaging
   Universal / mappings := (Universal / mappings).value.filterNot { case (f, s) =>
     excludedResources contains f.getName

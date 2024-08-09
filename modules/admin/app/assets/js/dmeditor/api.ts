@@ -31,6 +31,7 @@ export default class EntityTypeMetadataApi {
       withCredentials: true,
     }).then(r => r.data);
   }
+
   list(): Promise<Record<EntityType, EntityTypeMetadata>> {
     return EntityTypeMetadataApi.call<Record<EntityType, EntityTypeMetadata>>(this.service.list(), {});
   }

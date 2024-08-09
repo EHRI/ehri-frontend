@@ -1,10 +1,14 @@
 # Routes for datamodel API
 
-GET           /                                 @controllers.datamodel.EntityTypeMetadata.editor()
+GET           /                                 @controllers.datamodel.EntityTypeMetadata.index()
+GET           /editor                           @controllers.datamodel.EntityTypeMetadata.editor()
+GET           /audit                            @controllers.datamodel.EntityTypeMetadata.auditor()
+
 GET           /templates                        @controllers.datamodel.EntityTypeMetadataApi.templates()
 GET           /i18n                             @controllers.datamodel.EntityTypeMetadataApi.i18n()
+POST          /run-audit                        @controllers.datamodel.EntityTypeMetadataApi.runAudit()
 GET           /entities                         @controllers.datamodel.EntityTypeMetadataApi.list()
-GET           /entities/:entityType             @controllers.datamodel.EntityTypeMetadataApi.get(entityType :models.EntityType.Value)
+GET           /entities/:entityType             @controllers.datamodel.EntityTypeMetadataApi.get(entityType: models.EntityType.Value)
 POST          /entities/:entityType             @controllers.datamodel.EntityTypeMetadataApi.save(entityType: models.EntityType.Value)
 DELETE        /entities/:entityType             @controllers.datamodel.EntityTypeMetadataApi.delete(entityType: models.EntityType.Value)
 GET           /fields                           @controllers.datamodel.EntityTypeMetadataApi.listFields(entityType: Option[models.EntityType.Value] ?= None)

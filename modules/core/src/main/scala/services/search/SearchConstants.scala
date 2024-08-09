@@ -84,7 +84,7 @@ object SearchConstants {
   final val NAME_NGRAM = "name_ngram"
 
   /**
-   * The field referring to the "item"'s id, rather than
+   * The field referring to the item's id, rather than
    * that of the description.
    */
   final val ITEM_ID = "itemId"

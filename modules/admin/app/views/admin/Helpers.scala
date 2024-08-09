@@ -34,6 +34,8 @@ object Helpers {
     ("ingest.datasets",             controllers.datasets.routes.ImportDatasets.dashboard().url),
     ("s4", "-"),
     ("dataModel",                   controllers.datamodel.routes.EntityTypeMetadata.editor().url),
+    ("dataModel.audit",             controllers.datamodel.routes.EntityTypeMetadata.auditor().url),
+    ("s5", "-"),
     ("search.index.update",         controllers.admin.routes.Indexing.updateIndex().url),
     ("admin.utils.findReplace",     controllers.tools.routes.Tools.findReplace().url),
     ("admin.utils.regenerateIds",   controllers.tools.routes.Tools.regenerateIds().url),

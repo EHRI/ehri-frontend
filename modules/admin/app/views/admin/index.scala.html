@@ -54,5 +54,11 @@
                 @Messages("cypherQuery.list")
             </a>
         }
+        @views.html.admin.common.sidebarAction() {
+            <a href="@controllers.datamodel.routes.EntityTypeMetadata.auditor()">
+                <i class="fa fa-fw fa-check"></i>
+                @Messages("dataModel.audit")
+            </a>
+        }
     }
 }

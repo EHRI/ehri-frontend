@@ -8,7 +8,7 @@ export type ConfigType = {
   input: string,
   output: string,
   config: string,
-  previewLoader: string,
+  websocketHandler: string,
   defaultTab: string,
   monitorUrl: (jobId: string) => string,
   maxPreviewSize: number,

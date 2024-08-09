@@ -1,0 +1,55 @@
+@()(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
+
+@styles = {
+    <link href="@controllers.admin.routes.AdminAssets.versioned("css/dmeditor.css")" rel="stylesheet">
+}
+
+@breadcrumbRoot = {
+    <a href="@controllers.datamodel.routes.EntityTypeMetadata.editor()">@Messages("dataModel.audit")</a>
+}
+
+@views.html.admin.layout.adminSinglePageAppLayout(Messages("dataModel.audit"), styles = styles,
+    breadcrumbs = views.html.admin.common.breadcrumbs(List(), breadcrumbRoot)) {
+} {
+    @helper.javascriptRouter("dataModelApi")(
+        controllers.admin.routes.javascript.Data.getItemType,
+        controllers.admin.routes.javascript.Tasks.cancel,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.templates,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.list,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.i18n,
+        controllers.datamodel.routes.javascript.EntityTypeMetadataApi.runAudit
+    )
+
+    <script src="@controllers.admin.routes.AdminAssets.versioned("js/dmeditor/auditor-app.js")"></script>
+
+    <script>
+            window.SERVICE = {
+                getItemType: dataModelApi.controllers.admin.Data.getItemType,
+                templates: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.templates,
+                list: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.list,
+                runAudit: dataModelApi.controllers.datamodel.EntityTypeMetadataApi.runAudit,
+                cancel: dataModelApi.controllers.admin.Tasks.cancel
+            }
+            fetch(dataModelApi.controllers.datamodel.EntityTypeMetadataApi.i18n().url)
+                .then(response => response.json())
+                .then(data => {
+                    let messages = data;
+                    messages['en'] = messages['default'];
+                    delete messages['default'];
+                    let i18n = VueI18n.createI18n({
+                        locale: 'en',
+                        messages
+                    });
+                    Vue.createApp({
+                        render: function() {
+                            return Vue.h(AuditorApp.default, {
+                                service: window.SERVICE,
+                                config: {
+                                    websocketHandler: "@controllers.admin.routes.AdminAssets.versioned("js/dmeditor/websocket-handler.js")",
+                                }
+                            });
+                        },
+                    }).use(i18n).mount("#vue-app");
+                });
+    </script>
+}

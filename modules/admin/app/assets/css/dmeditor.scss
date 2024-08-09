@@ -46,3 +46,13 @@ $active-table-row: #e7f1ff;
   margin-right: auto;
 }
 
+#auditor-suggestions-container {
+  @extend %expanding-column;
+  @extend %overflow-contents;
+  table-layout: fixed;
+  margin-bottom: $margin-md;
+}
+
+.auditor-options {
+  margin-bottom: $margin-md;
+}

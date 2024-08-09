@@ -23,7 +23,7 @@ case class Home @Inject()(
   appComponents: AppComponents
 ) extends AdminController with Search {
 
-  val searchEntities = List(
+  val searchEntities: Seq[EntityType.Value] = List(
     EntityType.DocumentaryUnit,
     EntityType.Repository,
     EntityType.HistoricalAgent

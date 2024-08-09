@@ -38,6 +38,7 @@ case class ImportDatasets @Inject()(
     Ok(
       JavaScriptReverseRouter("datasetApi")(
         controllers.admin.routes.javascript.Tasks.taskMonitorWS,
+        controllers.admin.routes.javascript.Tasks.cancel,
         controllers.datasets.routes.javascript.ImportDatasets.manager,
         controllers.datasets.routes.javascript.ImportDatasets.list,
         controllers.datasets.routes.javascript.ImportDatasets.listAll,
@@ -48,7 +49,6 @@ case class ImportDatasets @Inject()(
         controllers.datasets.routes.javascript.ImportDatasets.batch,
         controllers.datasets.routes.javascript.ImportDatasets.fileCount,
         controllers.datasets.routes.javascript.ImportDatasets.errors,
-        controllers.datasets.routes.javascript.LongRunningJobs.cancel,
         controllers.datasets.routes.javascript.ImportFiles.listFiles,
         controllers.datasets.routes.javascript.ImportFiles.info,
         controllers.datasets.routes.javascript.ImportFiles.validateFiles,

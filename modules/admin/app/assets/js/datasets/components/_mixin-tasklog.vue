@@ -6,6 +6,9 @@ import _startsWith from 'lodash/startsWith';
 import {Terminal} from "xterm";
 import termopts from "../termopts";
 
+interface Api {
+  cancel: (jobId: string) => Promise<void>;
+}
 
 let initialLogState = function (): object {
   return {
@@ -19,7 +22,7 @@ let initialLogState = function (): object {
 
 export default {
   props: {
-    api: DatasetManagerApi,
+    api: Object as Api,
     config: Object,
   },
   data: function (): object {
@@ -40,11 +43,10 @@ export default {
       this.overwrite = _startsWith(line, this.logDeleteLinePrefix);
     },
 
-    monitor: async function (url: string, jobId: string, onMsg: (s: string) => any = function () {
-    }, clear: boolean = false) {
+    monitor: async function (url: string, jobId: string, onMsg: (s: string) => any = function () {}, clear: boolean = false) {
       this.jobId = jobId;
       return await new Promise(((resolve) => {
-        let worker = new Worker(this.config.previewLoader);
+        let worker = new Worker(this.config.websocketHandler);
         worker.onmessage = msg => {
           if (msg.data.error) {
             this.println(msg.data.error);

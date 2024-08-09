@@ -1,15 +1,19 @@
 package controllers.datamodel
 
+import actors.datamodel.AuditorManager
+import actors.datamodel.AuditorManager.{AuditTask, AuditorJob}
+import akka.actor.Props
 import akka.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._
-import play.api.libs.json.{JsNull, Json}
+import play.api.libs.json.{Format, JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.data.DataHelpers
 import services.datamodel.EntityTypeMetadataService
 
+import java.util.UUID
 import javax.inject._
 import scala.concurrent.ExecutionContext
 
@@ -79,6 +83,21 @@ case class EntityTypeMetadataApi @Inject()(
   def templates(): Action[AnyContent] = WithUserAction.async { implicit request =>
     entityTypeMetaService.templates().map { tpl =>
       Ok(Json.toJson(tpl.map(p => p._1.toString -> p._2)))
+    }
+  }
+
+  def runAudit(): Action[AuditTask] = WithUserAction.async(apiJson[AuditTask]) { implicit request =>
+    entityTypeMetaService.listEntityTypeFields(request.body.entityType).map { fields =>
+      println("Running audit for entity type: " + request.body)
+      val jobId = UUID.randomUUID().toString
+      val job = AuditorJob(jobId = jobId, request.body)
+      mat.system.actorOf(Props(AuditorManager(job, searchEngine, searchResolver, fields)), jobId)
+
+      Ok(Json.obj(
+        "url" -> controllers.admin.routes.Tasks.taskMonitorWS(jobId).webSocketURL(conf.https),
+        "cancelUrl" -> controllers.admin.routes.Tasks.cancel(jobId).url,
+        "jobId" -> jobId
+      ))
     }
   }
 }
