@@ -4,11 +4,11 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import akka.actor.Props
-import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{OaiPmhConfig, BasicAuthConfig, UserProfile}
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 import services.harvesting.OaiPmhClient
 import services.storage.FileStorage
 

@@ -6,7 +6,6 @@ import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
 import akka.actor.{ActorContext, Props}
-import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
@@ -14,6 +13,7 @@ import models._
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.ws.WSClient
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 import services.harvesting.{MockHarvestEventService, OaiPmhClient, ResourceSyncClient}
 import services.storage.FileStorage
 import utils.WebsocketConstants

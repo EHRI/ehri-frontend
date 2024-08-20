@@ -1,5 +1,5 @@
 import auth.handler.AuthHandler
-import config.AppConfig
+import views.AppConfig
 import controllers.api.v1.ApiV1
 import controllers.renderError
 import cookies.{SessionPreferences, SessionPrefs}

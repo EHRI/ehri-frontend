@@ -1,12 +1,12 @@
 package controllers.api.oaipmh
 
 import akka.util.ByteString
-import config.ServiceConfig
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HttpVerbs}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import services.ServiceConfig
 
 import javax.inject.{Inject, Singleton}
 

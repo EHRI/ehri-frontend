@@ -7,7 +7,6 @@ import akka.util.Timeout
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
-import config.ServiceConfig
 import cookies.SessionPreferences
 import models.{Account, CypherQuery, Feedback}
 import org.jsoup.Jsoup
@@ -24,6 +23,7 @@ import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Session}
 import play.api.test.Helpers._
 import play.api.test._
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 import services.accounts.{AccountManager, MockAccountManager}
 import services.cypher.{CypherQueryService, MockCypherQueryService}
 import services.data._
@@ -34,7 +34,7 @@ import services.htmlpages.{HtmlPages, MockHtmlPages}
 import services.ingest.{EadValidator, MockEadValidatorService}
 import services.oauth2.OAuth2Service
 import services.redirects.{MockMovedPageLookup, MovedPageLookup}
-import services.search.{MockSearchIndexMediator, _}
+import services.search._
 import utils.MockBufferedMailer
 
 import java.nio.file.Paths

@@ -1,11 +1,11 @@
 package eu.ehri.project.search.solr
 
-import config.ServiceConfig
 import play.api.libs.json.JsString
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Logger}
+import services.ServiceConfig
 import services.data.BadJson
-import services.search.{SearchHit, _}
+import services.search._
 import utils.Page
 
 import java.net.ConnectException

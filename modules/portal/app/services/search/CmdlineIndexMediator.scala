@@ -2,9 +2,9 @@ package services.search
 
 import akka.actor.ActorRef
 import com.google.common.collect.EvictingQueue
-import config.ServiceConfig
 import models.EntityType
 import play.api.{Configuration, Logger}
+import services.ServiceConfig
 import services.data.Constants
 
 import javax.inject.Inject

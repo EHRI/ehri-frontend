@@ -3,7 +3,7 @@ package controllers
 import akka.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
-import config.AppConfig
+import views.AppConfig
 import lifecycle.ItemLifecycle
 import play.api.Configuration
 import play.api.cache.SyncCacheApi

@@ -2,7 +2,6 @@ package services.data
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
-import config.ServiceConfig
 import play.api.Logger
 import play.api.http._
 import play.api.libs.json._

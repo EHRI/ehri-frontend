@@ -2,7 +2,7 @@ package controllers.base
 
 import akka.stream.scaladsl.Flow
 import auth.handler.AuthHandler
-import config.AppConfig
+import views.AppConfig
 import lifecycle.ItemLifecycle
 import models.{Account, ContentTypes, PermissionType, UserProfile}
 import play.api.mvc.WebSocket.MessageFlowTransformer

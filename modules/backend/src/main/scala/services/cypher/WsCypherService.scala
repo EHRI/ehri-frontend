@@ -5,13 +5,13 @@ import akka.stream.alpakka.json.scaladsl.JsonReader
 import akka.stream.scaladsl.Source
 import akka.stream.{Materializer, scaladsl}
 import akka.util.ByteString
-import config.ServiceConfig
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsValue, Json, Reads, __}
 import play.api.libs.ws.{WSClient, WSRequest}
+import services.ServiceConfig
 import services.data.Constants.STREAM_HEADER_NAME
 
 import javax.inject.{Inject, Singleton}

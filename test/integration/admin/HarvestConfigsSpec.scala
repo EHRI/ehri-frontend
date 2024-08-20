@@ -1,11 +1,11 @@
 package integration.admin
 
-import config.ServiceConfig
 import helpers._
 import models._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit

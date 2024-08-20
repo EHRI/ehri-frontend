@@ -2,13 +2,13 @@ package services.harvesting
 
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
-import config.ServiceConfig
 import helpers.TestConfiguration
 import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, BasicAuthConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.test.PlaySpecification
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 
 import java.io.StringWriter
 import scala.xml.XML

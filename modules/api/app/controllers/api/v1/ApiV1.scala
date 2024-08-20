@@ -2,7 +2,7 @@ package controllers.api.v1
 
 import akka.stream.Materializer
 import auth.handler.AuthHandler
-import config.AppConfig
+import views.AppConfig
 import controllers.AppComponents
 import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchRelated, SearchVC}
 import controllers.generic.Search
