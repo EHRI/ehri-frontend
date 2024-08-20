@@ -162,6 +162,7 @@ val commonSettings = Seq(
     "-Ywarn-unused:imports",
     "-unchecked",
     "-deprecation",
+    "-Wconf:cat=unused-imports&site=.*views.html.*:s", // Silence import warnings in Play html files
   ),
 
   resolvers ++= additionalResolvers,

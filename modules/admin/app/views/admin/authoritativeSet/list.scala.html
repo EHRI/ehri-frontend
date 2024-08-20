@@ -17,7 +17,7 @@
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.AuthoritativeSet, PermissionType.Create)) {
-            <a href="@controllers.sets.routes.AuthoritativeSets.create">
+            <a href="@controllers.sets.routes.AuthoritativeSets.create()">
                 <i class="fa fa-fw fa-plus-square-o"></i>
                 @Messages("authoritativeSet.create")
             </a>
