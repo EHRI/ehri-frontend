@@ -2,7 +2,7 @@ package controllers.portal.base
 
 import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
-import config.AppConfig
+import views.AppConfig
 import controllers.base.{ControllerHelpers, CoreActionBuilders}
 import controllers.{AppComponents, renderError}
 import cookies.{SessionPreferences, SessionPrefs}

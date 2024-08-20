@@ -1,4 +1,4 @@
-package config
+package views
 
 import models.EntityType
 import play.api.Configuration

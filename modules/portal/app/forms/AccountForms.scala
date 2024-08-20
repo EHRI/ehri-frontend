@@ -1,7 +1,7 @@
 package forms
 
 import auth.oauth2.OAuth2Config
-import config.AppConfig
+import views.AppConfig
 
 import javax.inject.{Inject, Singleton}
 import models.SignupData

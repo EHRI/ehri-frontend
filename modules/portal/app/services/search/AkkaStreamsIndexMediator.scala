@@ -12,7 +12,6 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import config.ServiceConfig
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import models.EntityType
 import play.api.libs.json.Json
@@ -26,6 +25,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import org.apache.commons.lang3.time.DurationFormatUtils.formatDurationWords
+import services.ServiceConfig
 
 
 case class AkkaStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, config: Configuration, executionContext: ExecutionContext) extends

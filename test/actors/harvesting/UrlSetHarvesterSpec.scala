@@ -4,12 +4,12 @@ import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
 import akka.actor.Props
-import config.ServiceConfig
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{BasicAuthConfig, UrlSetConfig, UserProfile}
 import play.api.libs.ws.WSClient
 import play.api.{Application, Configuration}
+import services.ServiceConfig
 import services.storage.FileStorage
 
 class UrlSetHarvesterSpec extends IntegrationTestRunner {

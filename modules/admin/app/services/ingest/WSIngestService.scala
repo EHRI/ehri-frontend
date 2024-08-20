@@ -5,7 +5,6 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
-import config.ServiceConfig
 import models._
 import play.api.cache.AsyncCacheApi
 import play.api.http.{HeaderNames, MimeTypes}
@@ -13,6 +12,7 @@ import play.api.libs.Files.SingletonTemporaryFileCreator
 import play.api.libs.json._
 import play.api.libs.ws.{BodyWritable, SourceBody, WSClient}
 import play.api.{Configuration, Logger}
+import services.ServiceConfig
 import services.data.{Constants, DataUser}
 import services.redirects.MovedPageLookup
 import services.search.{SearchConstants, SearchIndexMediator, SearchIndexMediatorHandle}

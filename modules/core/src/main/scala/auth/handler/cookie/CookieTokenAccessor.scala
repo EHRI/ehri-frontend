@@ -2,7 +2,7 @@ package auth.handler.cookie
 
 import javax.inject.Inject
 import auth.handler.TokenAccessor
-import config.AppConfig
+import views.AppConfig
 import play.api.Configuration
 import play.api.libs.crypto.CookieSigner
 import play.api.mvc.Cookie.SameSite

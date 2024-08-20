@@ -1,4 +1,4 @@
-package config
+package services
 
 import play.api.Configuration
 import play.api.http.HeaderNames

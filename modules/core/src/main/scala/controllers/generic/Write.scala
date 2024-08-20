@@ -1,6 +1,6 @@
 package controllers.generic
 
-import config.AppConfig
+import views.AppConfig
 import controllers.base.CoreActionBuilders
 import play.api.mvc.Request
 import services.data.Constants

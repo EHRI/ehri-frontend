@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import config.AppConfig
+import views.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
 import play.api.libs.concurrent.AkkaGuiceSupport

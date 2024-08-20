@@ -1,4 +1,4 @@
-import config.AppConfig
+import views.AppConfig
 import models.UserProfile
 import play.api.i18n.Messages
 import play.api.mvc.RequestHeader
