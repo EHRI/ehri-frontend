@@ -2157,3 +2157,8 @@ section:last-child {
   @include make-container();
   @include make-container-max-widths();
 }
+
+// External page styling
+.external-page table {
+  @extend .table, .table-bordered, .table-striped;
+}

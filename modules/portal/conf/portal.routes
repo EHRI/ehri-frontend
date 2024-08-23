@@ -15,7 +15,7 @@ GET         /about                                @controllers.portal.Portal.abo
 GET         /terms                                @controllers.portal.Portal.terms()
 
 GET         /help/datamodel                       @controllers.portal.Portal.dataModel()
-GET         /help/$page<\w+>                      @controllers.portal.Portal.externalPage(page: String)
+GET         /help/$page<\w[\w-_]+>                @controllers.portal.Portal.externalPage(page: String)
 
 # Change locale
 GET         /prefs                                @controllers.portal.Portal.prefs()

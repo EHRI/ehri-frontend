@@ -17,7 +17,7 @@ trait HtmlPages {
     * @param key      the identifier for this fragment
     * @param noCache  whether to prevent the fragment coming from the cache
     * @param messages an implicit messages instance containing the current language
-    * @return An optional, future of Css -> Body HTML
+    * @return An optional, future of (Title, Css, Body HTML)
     */
-  def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]]
+  def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(String, Html, Html)]]
 }
