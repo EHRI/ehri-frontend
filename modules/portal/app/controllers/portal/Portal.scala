@@ -185,10 +185,12 @@ case class Portal @Inject()(
   def externalPage(key: String): Action[AnyContent] = OptionalUserAction.async { implicit request =>
     futurePageOr404 {
       htmlPages.get(key, noCache = request.getQueryString("noCache").isDefined).map { futureData =>
-        futureData.map { case (css, html) =>
-          val title = Messages(s"pages.external.$key.title")
-          val meta = Map("description" -> Messages(s"pages.external.$key.description"))
-          Ok(views.html.layout.textLayout(title, meta = meta, styles = css)(html))
+        futureData.map { case (title, css, html) =>
+          val titleKey = s"pages.external.$key.title"
+          val descKey = s"pages.external.$key.description"
+          val i18nTitle = if (Messages.isDefinedAt(titleKey)) Messages(titleKey) else title
+          val i18nMeta = Map("description" -> (if(Messages.isDefinedAt(descKey)) Messages(descKey) else ""))
+          Ok(views.html.layout.textLayout(i18nTitle, meta = i18nMeta, styles = css)(html))
         }
       }
     }

@@ -45,7 +45,7 @@ case class AkkaStreamsIndexMediatorHandle(
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean = _ % 100 == 0): AkkaStreamsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)
 
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
   import scala.concurrent.duration._
 
   private val logger = Logger(classOf[AkkaStreamsIndexMediator])
@@ -79,8 +79,8 @@ case class AkkaStreamsIndexMediatorHandle(
     }
     .via(httpSinkFlow)
     .collect {
-      case (Success(response), tag) => response
-      case (Failure(e), tag) => throw e
+      case (Success(response), _) => response
+      case (Failure(e), _) => throw e
     }
     .flatMapConcat(_.entity.withoutSizeLimit().dataBytes)
     .toMat(Sink.fold(ByteString.empty)(_ ++ _))(Keep.right)

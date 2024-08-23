@@ -14,7 +14,7 @@ package object mockdata {
   val yahooOpenId = OpenIDAssociation("linda", "https://yahoo.com/openid", Some(moderator))
 
   val externalPages = Map(
-    "faq" -> Html("<h1>FAQ</h1>")
+    "faq" -> ("Faq", Html(""), Html("<h1>FAQ</h1>"))
   )
 
   // Users...

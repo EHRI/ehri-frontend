@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configuration)(
     implicit cache: AsyncCacheApi, executionContext: ExecutionContext) extends HtmlPages {
 
-  private def googleDocBody(url: String): Future[(Html, Html)] = {
+  private def googleDocBody(url: String): Future[(String, Html, Html)] = {
     ws.url(url).addQueryStringParameters(
       "e" -> "download",
       "exportFormat" -> "html",
@@ -38,6 +38,9 @@ case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configu
       import org.jsoup.Jsoup
 
       val doc = Jsoup.parse(r.body)
+
+      val title = doc.title().replace(" - Google Docs", "")
+
       val body = doc
         .body()
         .tagName("div")
@@ -51,11 +54,11 @@ case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configu
       body.select("div#banners").remove()
       body.select("div#footer").remove()
 
-      Html("") -> Html(body.outerHtml())
+      (title, Html(""), Html(body.outerHtml()))
     }
   }
 
-  override def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(Html, Html)]] = {
+  override def get(key: String, noCache: Boolean = false)(implicit messages: Messages): Option[Future[(String, Html, Html)]] = {
     def getUrl: Option[String] =
       config.getOptional[String](s"pages.external.google.$key.${messages.lang.code}") orElse
           config.getOptional[String](s"pages.external.google.$key.default")
