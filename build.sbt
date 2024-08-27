@@ -48,7 +48,10 @@ val backendDependencies = Seq(
   "org.apache.jena" % "jena-iri" % "3.9.0",
 
   // Ontology
-  "eu.ehri-project" % "ehri-definitions" % backendVersion
+  "eu.ehri-project" % "ehri-definitions" % backendVersion,
+
+  // JavaX Mail for logback SMTP appender
+  "javax.mail" % "javax.mail-api" % "1.5.6",
 )
 
 val coreDependencies = backendDependencies ++ Seq(
@@ -91,8 +94,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.11.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "8.0.1",
-  "com.typesafe.play" %% "play-mailer-guice" % "8.0.1",
+  "com.typesafe.play" %% "play-mailer" % "9.0.0",
+  "com.typesafe.play" %% "play-mailer-guice" % "9.0.0",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
@@ -343,7 +346,7 @@ lazy val xslt = Project(appName + "-xslt", file("modules/xslt"))
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= Seq(
     "javax.inject" % "javax.inject" % "1",
-    "org.slf4j" % "slf4j-api" % "1.7.32",
+    "org.slf4j" % "slf4j-api" % "2.0.13",
 
     // We need JSON here...
     "com.typesafe.play" %% "play-json" % "2.10.0",
@@ -360,8 +363,8 @@ lazy val xquery = Project(appName + "-xquery", file("modules/xquery"))
   .settings(resolvers += "BaseX repository" at "https://files.basex.org/maven/")
   .settings(libraryDependencies ++= Seq(
     "javax.inject" % "javax.inject" % "1",
-    "org.slf4j" % "slf4j-api" % "1.7.32",
-    "ch.qos.logback" % "logback-classic" % "1.2.5",
+    "org.slf4j" % "slf4j-api" % "2.0.13",
+    "ch.qos.logback" % "logback-classic" % "1.5.6",
 
     // EAD transformation...
     "org.basex" % "basex" % "8.5",
