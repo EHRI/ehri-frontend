@@ -82,7 +82,8 @@ class CypherQuerySpec extends IntegrationTestRunner {
       }
 
       // CSV
-      val q2 = FakeRequest("GET", controllers.cypher.routes.CypherQueries.executeQuery(fakeKey.toString).url + "?format=csv")
+      val q2 = FakeRequest("GET", controllers.cypher.routes.CypherQueries
+        .executeQuery(fakeKey.toString) + "?format=csv")
         .withUser(privilegedUser)
         .call()
       status(q2) must equalTo(OK)

@@ -2,8 +2,9 @@ package controllers.api.v1
 
 import akka.stream.Materializer
 import auth.handler.AuthHandler
+import views.AppConfig
 import controllers.AppComponents
-import controllers.base.{CoreActionBuilders, SearchRelated, SearchVC}
+import controllers.base.{ControllerHelpers, CoreActionBuilders, SearchRelated, SearchVC}
 import controllers.generic.Search
 import lifecycle.ItemLifecycle
 import models._
@@ -25,7 +26,7 @@ import services.redirects.MovedPageLookup
 import services.search.SearchConstants._
 import services.search._
 import utils.{DateFacetUtils, FieldFilter, Page, PageParams}
-import views.{AppConfig, Helpers}
+import views.Helpers
 
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
@@ -60,6 +61,7 @@ case class ApiV1 @Inject()(
   mat: Materializer,
   dfu: DateFacetUtils
 ) extends CoreActionBuilders
+  with ControllerHelpers
   with Search
   with SearchVC
   with SearchRelated {
@@ -184,11 +186,11 @@ case class ApiV1 @Inject()(
       JsObject(js.fields.filter { case (k, v) => keys.contains(k) })
 
     def filterType(js: JsObject, filter: FieldFilter): JsObject =
-    (for {
-      tp <- js.value.get("type") if tp == JsString(filter.et.toString)
-      attrs <- js.value.get("attributes").flatMap(_.asOpt[JsObject])
-    } yield JsObject(js.value.toMap.updated("attributes", filterObject(attrs, filter.fields)).toSeq))
-      .getOrElse(js)
+      (for {
+        tp <- js.value.get("type") if tp == JsString(filter.et.toString)
+        attrs <- js.value.get("attributes").flatMap(_.asOpt[JsObject])
+      } yield JsObject(js.value.updated("attributes", filterObject(attrs, filter.fields)).toSeq))
+        .getOrElse(js)
 
     fields.foldLeft(js.as[JsObject])(filterType)
   }

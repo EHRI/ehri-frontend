@@ -50,8 +50,8 @@ object AuthoritativeSet {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val accessorReads: Reads[models.Accessor] = Accessor.Converter.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
+  private implicit val accessorReads = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and

@@ -26,7 +26,7 @@ class ApiV1Spec extends IntegrationTestRunner {
     } catch {
       case se: ValidationException =>
         println(se.getMessage)
-        import scala.jdk.CollectionConverters._
+        import scala.collection.JavaConverters._
         se.getCausingExceptions.asScala.foreach { e =>
           println(" - " + e.getMessage)
         }
@@ -130,7 +130,7 @@ class ApiV1Spec extends IntegrationTestRunner {
     }
 
     "include context when search in items" in new ITestApp {
-      val search = FakeRequest(GET, apiRoutes.searchIn("r1").url + "?limit=1&page=2").call()
+      val search = FakeRequest(GET, apiRoutes.searchIn("r1") + "?limit=1&page=2").call()
       status(search) must_== OK
       validateJson(contentAsJson(search))
       contentAsJson(search) \ "included" \ 0 \ "id" must_== JsDefined(JsString("r1"))

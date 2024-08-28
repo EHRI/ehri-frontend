@@ -3,7 +3,6 @@ package services.data
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.RequestHeader
-import scala.collection
 
 import java.time.ZonedDateTime
 
@@ -81,7 +80,7 @@ case class ItemNotFound(
 case class CriticalError(error: String) extends RuntimeException(error) with DataServiceError
 
 case class BadJson(
-  error: collection.Seq[(JsPath, collection.Seq[JsonValidationError])],
+  error: Seq[(JsPath,Seq[JsonValidationError])],
   url: Option[String] = None,
   data: Option[String] = None
 ) extends RuntimeException(error.toString) with DataServiceError {

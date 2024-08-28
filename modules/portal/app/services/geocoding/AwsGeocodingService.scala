@@ -8,7 +8,7 @@ import software.amazon.awssdk.services.location.LocationClient
 import software.amazon.awssdk.services.location.model.SearchPlaceIndexForTextRequest
 
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
 

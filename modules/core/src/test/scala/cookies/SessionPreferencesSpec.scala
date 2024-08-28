@@ -27,7 +27,7 @@ class PrefTestController @Inject()(val controllerComponents: ControllerComponent
 // which needs a dummy secret.
 case class FakeApp() extends WithApplication(
   new GuiceApplicationBuilder().configure(
-    Map("smtp.host" -> "localhost", "play.http.secret.key" -> "foobar".*(6))).build())
+    Map("smtp.host" -> "localhost", "play.http.secret.key" -> "foobar")).build())
 
 trait PrefTest extends SessionPreferences[TestPrefs] {
   this: BaseController =>

@@ -211,7 +211,7 @@ case class UserProfiles @Inject()(
     Ok(views.html.admin.userProfile.list(request.page, request.params))
   }
 
-  def exportInfo: Action[AnyContent] = AdminAction.async { implicit request =>
+  def export: Action[AnyContent] = AdminAction.async { implicit request =>
     for {
       accounts <- accounts.findAll(PageParams.empty.withoutLimit)
       users <- userDataApi.list[UserProfile](PageParams.empty.withoutLimit)

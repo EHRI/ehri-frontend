@@ -11,8 +11,8 @@ import scala.concurrent.duration._
 
 class ByteStringResizerSpec extends PlaySpecification {
 
-  private implicit val as: akka.actor.ActorSystem = ActorSystem.create("testing")
-  private implicit val mat: akka.stream.Materializer = Materializer(as)
+  private implicit val as = ActorSystem.create("testing")
+  private implicit val mat = Materializer(as)
 
   def count(size: Int, bytes: ByteString*): Int = Await.result(
     Source.apply(bytes.toList)
