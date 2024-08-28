@@ -86,8 +86,8 @@ object UserProfile {
   import Ontology._
   import UserProfileF._
 
-  private implicit val groupReads: Reads[models.Group] = Group.GroupResource.restReads
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val groupReads = Group.GroupResource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[UserProfile] = (
     __.read[UserProfileF] and

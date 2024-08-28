@@ -53,7 +53,7 @@ object Vocabulary {
   import Ontology._
   import VocabularyF._
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[Vocabulary] = (
     __.read[VocabularyF] and

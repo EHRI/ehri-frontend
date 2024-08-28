@@ -36,7 +36,7 @@ object Feedback {
     val Data = Value("data")
   }
 
-  implicit val form: Form[models.Feedback] = Form(
+  implicit val form = Form(
     mapping(
       "objectId" -> ignored(Option.empty[String]),
       ID -> optional(text),

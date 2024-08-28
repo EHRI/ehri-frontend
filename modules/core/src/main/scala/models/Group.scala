@@ -44,7 +44,7 @@ object Group {
   import Entity._
   import Ontology._
 
-  private lazy implicit val systemEventReads: Reads[SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private lazy implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
 
   implicit val metaReads: Reads[Group] = (
     __.read[GroupF] and
@@ -60,7 +60,7 @@ object Group {
     val restReads: Reads[Group] = metaReads
   }
 
-  val form: Form[GroupF] = Form(
+  val form = Form(
     mapping(
       ISA -> ignored(EntityType.Group),
       ID -> optional(text),

@@ -25,7 +25,8 @@ class IndexingSpec extends SearchTestRunner {
     TextMessage.Strict(Json.prettyPrint(Json.toJson(obj)))
 
   "Indexing views" should {
-    "index items correctly" in new ITestServer(app = appBuilder.build()) {
+    val port = 9902
+    "index items correctly" in new ITestServer(app = appBuilder.build(), port = port) {
 
       val mediator = app.injector.instanceOf[SearchIndexMediator]
       val engine = app.injector.instanceOf[SearchEngine]
@@ -38,7 +39,7 @@ class IndexingSpec extends SearchTestRunner {
 
       // Now initiate a full re-index request...
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
-      val wsUrl = s"ws://127.0.0.1:${this.port}${controllers.admin.routes.Indexing.indexer()}"
+      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer()}"
       val src = Source.single(jsonMessage(IndexTypes(IndexTypes.all)))
 
       // NB: using the technique mentioned for "half-closed" websockets here to get output

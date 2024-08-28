@@ -2,6 +2,7 @@ package views
 
 import java.net.{MalformedURLException, URL}
 import models.{Annotation, Description, Entity, EntityType, FieldMetadata, Model, PermissionType, UserProfile}
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.StringUtils
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist

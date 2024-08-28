@@ -2,7 +2,7 @@
 
 GET         /                                         @controllers.users.UserProfiles.search(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 GET         /list                                     @controllers.users.UserProfiles.list(paging: utils.PageParams ?= utils.PageParams.empty)
-GET         /export                                   @controllers.users.UserProfiles.exportInfo()
+GET         /export                                   @controllers.users.UserProfiles.export()
 GET         /create                                   @controllers.users.UserProfiles.createUser()
 POST        /create                                   @controllers.users.UserProfiles.createUserPost()
 GET         /syncDb                                   @controllers.users.UserProfiles.syncFromDbPost()

@@ -33,7 +33,7 @@
         <label class="form-label" for="@prefix-type">Type</label>
         <select class="input-sm form-control" id="@prefix-type" name="type">
             <option value="">All</option>
-            @for(t <- models.api.v1.ApiEntity.values.toSeq) {
+            @for(t <- models.api.v1.ApiEntity.values) {
                 <option value="@t">@t</option>
             }
         </select>
@@ -42,7 +42,7 @@
         <label class="form-label" for="@prefix-facet">Facet</label>
         <select class="input-sm form-control" id="@prefix-facet" name="facet">
             <option value="">---</option>
-            @for(t <- models.api.v1.ApiFacet.values.toSeq) {
+            @for(t <- models.api.v1.ApiFacet.values) {
                 <option value="@t">@t</option>
             }
         </select>

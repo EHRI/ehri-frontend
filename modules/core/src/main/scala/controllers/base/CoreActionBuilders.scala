@@ -14,13 +14,14 @@ import services.datamodel.EntityTypeMetadataService
 import java.time.ZonedDateTime
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.higherKinds
 
 
 /**
   * Trait containing Action wrappers to handle different
   * types of site management and request authentication concerns
   */
-trait CoreActionBuilders extends BaseController with controllers.base.ControllerHelpers {
+trait CoreActionBuilders extends BaseController with ControllerHelpers {
 
   /**
     * Inheriting controllers need to be provided/injected with
@@ -85,7 +86,7 @@ trait CoreActionBuilders extends BaseController with controllers.base.Controller
     * Indicates that the current controller is secured, which,
     * if set to false, overrides staffOnly and verifiedOnly.
     */
-  protected lazy val secured: Boolean = conf.configuration.getOptional[Boolean]("ehri.secured").getOrElse(true)
+  protected lazy val secured: Boolean = config.getOptional[Boolean]("ehri.secured").getOrElse(true)
 
   /**
     * Abstract response methods that should be implemented by inheritors.

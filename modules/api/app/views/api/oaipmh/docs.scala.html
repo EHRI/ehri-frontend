@@ -1,5 +1,7 @@
 @()(implicit userOpt: Option[UserProfile] = None, req: RequestHeader, conf: AppConfig, messages: Messages, prefs: SessionPrefs, flash: Flash)
 
+@import play.api.libs.json.Json
+
 @views.html.api.layout.apiDocLayout(Messages("api.oaipmh.header")) {
 
     <section id="overview">

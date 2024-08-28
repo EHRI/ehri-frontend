@@ -59,8 +59,8 @@ object HistoricalAgent {
   import Ontology._
   import utils.EnumUtils.enumMapping
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val authoritativeSetReads: Reads[models.AuthoritativeSet] = AuthoritativeSet.AuthoritativeSetResource.restReads
+  private implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
+  private implicit val authoritativeSetReads = AuthoritativeSet.AuthoritativeSetResource.restReads
 
   implicit val metaReads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
