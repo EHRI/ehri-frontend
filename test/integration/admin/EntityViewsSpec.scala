@@ -266,7 +266,7 @@ class EntityViewsSpec extends IntegrationTestRunner {
     }
 
     "allow exporting users" in new ITestApp {
-      val csv = FakeRequest(controllers.users.routes.UserProfiles.export())
+      val csv = FakeRequest(controllers.users.routes.UserProfiles.exportInfo())
         .withUser(privilegedUser).call()
       status(csv) must equalTo(OK)
       header(HeaderNames.CONTENT_DISPOSITION, csv) must beSome.which { s =>

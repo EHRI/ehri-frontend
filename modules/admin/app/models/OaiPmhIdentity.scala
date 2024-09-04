@@ -15,7 +15,7 @@ object OaiPmhIdentity {
     val Day = Value("YYYY-MM-DD")
     val Second = Value("YYYY-MM-DDThh:mm:ssZ")
 
-    implicit val _format = EnumUtils.enumFormat(Granularity)
+    implicit val _format: Format[models.OaiPmhIdentity.Granularity.Value] = EnumUtils.enumFormat(Granularity)
   }
 
   implicit val _format: Format[OaiPmhIdentity] = Json.format[OaiPmhIdentity]

@@ -47,13 +47,12 @@ class SearchSpec extends IntegrationTestRunner {
   }
 
   "Search index mediator" should {
-    val port = 9902
     "perform indexing correctly via Websocket endpoint" in new ITestServer(
-        app = appBuilder.configure(getConfig).build(), port = port) {
+        app = appBuilder.configure(getConfig).build()) {
 
       val cmd = List(EntityType.DocumentaryUnit)
       val data = IndexTypes(cmd)
-      val wsUrl = s"ws://127.0.0.1:$port${controllers.admin.routes.Indexing.indexer().url}"
+      val wsUrl = s"ws://127.0.0.1:${this.port}${controllers.admin.routes.Indexing.indexer().url}"
       val headers = collection.immutable.Seq(RawHeader(AUTH_TEST_HEADER_NAME, testAuthToken(privilegedUser.id)))
 
       // Ensure the buffer of index events is empty.

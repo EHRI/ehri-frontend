@@ -2,8 +2,7 @@ package controllers.portal.base
 
 import akka.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
-import views.AppConfig
-import controllers.base.{ControllerHelpers, CoreActionBuilders}
+import controllers.base.CoreActionBuilders
 import controllers.{AppComponents, renderError}
 import cookies.{SessionPreferences, SessionPrefs}
 import lifecycle.ItemLifecycle
@@ -17,6 +16,7 @@ import services.data.{DataServiceBuilder, DataUser}
 import services.datamodel.EntityTypeMetadataService
 import services.search.{SearchEngine, SearchItemResolver}
 import utils._
+import views.AppConfig
 import views.html.MarkdownRenderer
 import views.html.errors.{gone, itemNotFound, maintenance, pageNotFound}
 
@@ -29,7 +29,6 @@ import scala.concurrent.duration.Duration
 
 trait PortalController
   extends CoreActionBuilders
-  with ControllerHelpers
   with SessionPreferences[SessionPrefs] {
 
   // Abstract controller components, injected into super classes
@@ -75,7 +74,7 @@ trait PortalController
   /**
    * Activity event types that we think the user would care about.
    */
-  val activityEventTypes = List(
+  val activityEventTypes: Seq[EventType.Value] = List(
     EventType.deletion,
     EventType.creation,
     EventType.modification,
@@ -221,7 +220,7 @@ trait PortalController
   protected def renderItem(entityType: EntityType.Value, id: String, format: Option[String], supportedFormats: Seq[String], asFile: Boolean = false)(
     implicit apiUser: DataUser, request: RequestHeader): Future[Result] = {
     val fmt: String = format.filter(supportedFormats.contains).getOrElse(supportedFormats.head)
-    val params = request.queryString.filterKeys(_ == "lang")
+    val params = request.queryString.view.filterKeys(_ == "lang").toMap
     // since rendering EAD can take a long time, override the default timeout
     val timeout: Option[Duration] = config.getOptional[Duration]("ehri.backend.streamingTimeout")
     userDataApi.stream(s"classes/$entityType/$id/$fmt", params = params,

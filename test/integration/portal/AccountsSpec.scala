@@ -8,6 +8,7 @@ import forms.TimeCheckForm._
 import helpers.IntegrationTestRunner
 import mockdata.{unprivilegedUser, unverifiedUser}
 import models.{Account, SignupData}
+import play.api.Application
 import play.api.cache.SyncCacheApi
 import play.api.i18n.MessagesApi
 import play.api.test.{FakeRequest, Injecting, WithApplication}
@@ -21,7 +22,7 @@ class AccountsSpec extends IntegrationTestRunner {
 
   private val accountRoutes = controllers.portal.account.routes.Accounts
 
-  private implicit def cache(implicit app: play.api.Application) = app.injector.instanceOf[SyncCacheApi]
+  private implicit def cache(implicit app: Application): SyncCacheApi = app.injector.instanceOf[SyncCacheApi]
 
   "Account views" should {
     "redirect to index page on log out" in new ITestApp {
@@ -169,7 +170,7 @@ class AccountsSpec extends IntegrationTestRunner {
     }
 
     "error with bad session state" in new WithApplication with Injecting {
-      private implicit val messagesApi = inject[MessagesApi]
+      private implicit val messagesApi: play.api.i18n.MessagesApi = inject[MessagesApi]
       val singleUseKey = "useOnce"
       cache.set(singleUseKey, "jdjjjr")
       val login = FakeRequest(

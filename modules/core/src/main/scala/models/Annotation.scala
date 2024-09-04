@@ -62,10 +62,10 @@ object Annotation {
   import Ontology._
   import EnumUtils.enumMapping
 
-  private implicit val anyModelReads = Model.Converter.restReads
-  private implicit val userProfileMetaReads = UserProfile.UserProfileResource.restReads
-  private lazy implicit val systemEventReads = SystemEvent.SystemEventResource.restReads
-  private implicit val accessorReads = Accessor.Converter.restReads
+  private implicit val anyModelReads: Reads[models.Model] = Model.Converter.restReads
+  private implicit val userProfileMetaReads: Reads[models.UserProfile] = UserProfile.UserProfileResource.restReads
+  private lazy implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val accessorReads: Reads[models.Accessor] = Accessor.Converter.restReads
 
   implicit val metaReads: Reads[Annotation] = (
     __.read[AnnotationF] and
