@@ -45,7 +45,7 @@ case class AkkaStreamsIndexMediatorHandle(
   override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean = _ % 100 == 0): AkkaStreamsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)
 
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
   import scala.concurrent.duration._
 
   private val logger = Logger(classOf[AkkaStreamsIndexMediator])
@@ -124,7 +124,7 @@ case class AkkaStreamsIndexMediatorHandle(
 
   private def setCommonHeaders(reqs: List[HttpRequest]): List[(HttpRequest, Uri)] = reqs.map { r =>
     val headers = Seq(RawHeader(STREAM_HEADER_NAME, "true"), RawHeader(AUTH_HEADER_NAME, "admin")) ++ dataAuth.toSeq
-    val req = r.withHeaders(headers: _*)
+    val req = r.withHeaders(headers)
     req -> r.uri
   }
 

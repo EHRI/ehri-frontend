@@ -2,6 +2,7 @@ package models
 
 import akka.http.scaladsl.model.HttpMethods
 
+
 case class UrlNameMap(url: String, name: String)
 
 case class UrlSetConfig(

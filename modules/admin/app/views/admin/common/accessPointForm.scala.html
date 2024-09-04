@@ -27,7 +27,7 @@
 
                             },
                             labels: {
-                                @AccessPointF.AccessPointType.values.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
+                                @AccessPointF.AccessPointType.values.toSeq.map { apt => @apt: "@Messages("accessPoint.type." + apt)",
                                 }
                             }
                         }

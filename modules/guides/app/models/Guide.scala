@@ -38,7 +38,7 @@ object Guide {
   val DEFAULT_PAGE = "default_page"
   val CSS = "css"
 
-  implicit val form = Form(
+  implicit val form: Form[models.Guide] = Form(
     mapping(
       OBJECTID -> ignored(Option.empty[Long]),
       NAME -> nonEmptyText,
