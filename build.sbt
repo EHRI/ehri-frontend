@@ -17,7 +17,7 @@ logBuffered := false
 logLevel := Level.Info
 ThisBuild / organization := "eu.ehri-project"
 
-val projectScalaVersion = "2.13.14"
+val projectScalaVersion = "2.13.15"
 val appName = "docview"
 
 val backendVersion = "0.15.1"
@@ -48,10 +48,7 @@ val backendDependencies = Seq(
   "org.apache.jena" % "jena-iri" % "3.9.0",
 
   // Ontology
-  "eu.ehri-project" % "ehri-definitions" % backendVersion,
-
-  // JavaX Mail for logback SMTP appender
-  "javax.mail" % "javax.mail-api" % "1.5.6",
+  "eu.ehri-project" % "ehri-definitions" % backendVersion
 )
 
 val coreDependencies = backendDependencies ++ Seq(
@@ -94,8 +91,8 @@ val coreDependencies = backendDependencies ++ Seq(
   "org.jsoup" % "jsoup" % "1.11.3",
 
   // Mailer...
-  "com.typesafe.play" %% "play-mailer" % "9.0.0",
-  "com.typesafe.play" %% "play-mailer-guice" % "9.0.0",
+  "org.playframework" %% "play-mailer" % "11.0.0-M1",
+  "org.playframework" %% "play-mailer-guice" % "11.0.0-M1",
 
   // Time formatting library
   "org.ocpsoft.prettytime" % "prettytime" % "3.2.7.Final",
