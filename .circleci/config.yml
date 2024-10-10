@@ -16,9 +16,11 @@ jobs:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
       SMTP_PORT: 2500
-      SBT_VERSION: 1.4.1
+      SBT_VERSION: 1.10.1
 
     steps:
+      - checkout
+
       - run:
           name: Get sbt binary
           command: |
@@ -26,23 +28,19 @@ jobs:
             sudo dpkg -i sbt-$SBT_VERSION.deb
             sudo rm sbt-$SBT_VERSION.deb
 
-      - checkout
+      - node/install:
+          node-version: '18.12.0'
 
-      # Do some faff magic to get the right node version installed
+      # Install dependencies with specific behaviors
       - run:
-          name: Setup NVM
+          name: Install Dependencies
           command: |
-            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
-            echo ' [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-
-      - run: |
-          nvm install v16.16.0
-          nvm alias default v16.16.0
-
-      - node/install-packages:
-          override-ci-command: npm i
+            npm config set progress false
+            npm config set fund false
+            npm ci --prefer-offline
 
       - run:
+          name: Run JS tests
           command: npm test
 
       # Download and cache dependencies
