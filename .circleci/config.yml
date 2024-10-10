@@ -18,10 +18,22 @@ jobs:
       SMTP_PORT: 2500
       SBT_VERSION: 1.10.1
       NVM_DIR: /usr/local/nvm
+      JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
 
     steps:
       - checkout
 
+     # Install Java
+      - run:
+          name: Install Java
+          command: |
+            apt-get install -y openjdk-11-jdk
+            echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64' >> $BASH_ENV
+            echo 'export PATH=$JAVA_HOME/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            java -version
+
+      # Install sbt
       - run:
           name: Get sbt binary
           command: |
@@ -29,6 +41,7 @@ jobs:
             sudo dpkg -i sbt-$SBT_VERSION.deb
             sudo rm sbt-$SBT_VERSION.deb
 
+      # Install NVM and Node
       - run:
           name: Install NVM and Node
           command: |
