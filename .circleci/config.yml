@@ -17,6 +17,7 @@ jobs:
       TERM: dumb
       SMTP_PORT: 2500
       SBT_VERSION: 1.10.1
+      NVM_DIR: /usr/local/nvm
 
     steps:
       - checkout
@@ -28,8 +29,14 @@ jobs:
             sudo dpkg -i sbt-$SBT_VERSION.deb
             sudo rm sbt-$SBT_VERSION.deb
 
-      - node/install:
-          node-version: '18.12.0'
+      - run:
+          name: Install NVM and Node
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install 18.12.0
+            nvm use 18.12.0
+            echo 'export PATH=$NVM_DIR/versions/node/v18.12.0/bin:$PATH' >> $BASH_ENV
 
       # Install dependencies with specific behaviors
       - run:
