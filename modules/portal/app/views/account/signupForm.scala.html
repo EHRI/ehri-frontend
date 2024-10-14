@@ -4,45 +4,45 @@
 @import forms.TimeCheckForm.TIMESTAMP
 @import SignupData._
 
-@helper.form(action = action, 'class -> "signup-form", 'role -> "form") {
+@helper.form(action = action, attrs._class -> "signup-form", attrs._role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 
     @helper.inputText(
         form(NAME),
-        'autocomplete -> "name",
-        'required -> "required",
-        'class -> "form-control form-control-lg",
-        'placeholder -> Messages("profile.name"),
-        '_label -> Messages("profile.name")
+        attrs._autocomplete -> "name",
+        attrs._required -> "required",
+        attrs._class -> "form-control form-control-lg",
+        attrs._placeholder -> Messages("profile.name"),
+        attrs._label -> Messages("profile.name")
     )
     @helper.inputText(
         form(EMAIL),
-        'id -> "login_email",
-        'autocomplete -> "email",
-        'class -> "form-control form-control-lg",
-        'placeholder -> Messages("login.email"),
-        '_label -> Messages("login.email"),
-        'type -> "email",
-        'required -> true
+        attrs._id -> "login_email",
+        attrs._autocomplete -> "email",
+        attrs._class -> "form-control form-control-lg",
+        attrs._placeholder -> Messages("login.email"),
+        attrs._label -> Messages("login.email"),
+        attrs._type -> "email",
+        attrs._required -> true
     )
     @helper.inputPassword(
         form(PASSWORD),
-        'id -> "signup_password",
-        'class -> "form-control form-control-lg",
-        'autocomplete -> "new-password",
-        'placeholder -> Messages("login.password"),
-        '_label -> Messages("login.password")
+        attrs._id -> "signup_password",
+        attrs._class -> "form-control form-control-lg",
+        attrs._autocomplete -> "new-password",
+        attrs._placeholder -> Messages("login.password"),
+        attrs._label -> Messages("login.password")
     )
     @helper.inputPassword(
         form(CONFIRM),
-        'autocomplete -> "new-password",
-        'class -> "form-control form-control-lg",
-        'placeholder -> Messages("login.password.confirm"),
-        '_label -> Messages("login.password.confirm")
+        attrs._autocomplete -> "new-password",
+        attrs._class -> "form-control form-control-lg",
+        attrs._placeholder -> Messages("login.password.confirm"),
+        attrs._label -> Messages("login.password.confirm")
     )
 
-    @helper.checkbox(form(AGREE_TERMS), 'required -> "required", '_label -> "", '_text -> Html(Messages(
+    @helper.checkbox(form(AGREE_TERMS), attrs._required -> "required", attrs._label -> "", attrs._rel -> Html(Messages(
         "signup.dataPolicyNag",
         Html(s"<a target='_blank' rel='noopener' tabindex='-1' href='${controllers.portal.routes.Portal.terms()}'>${Messages("termsAndConditions")}</a>"),
         Html(s"<a target='_blank' rel='noopener' tabindex='-1' href='${controllers.portal.routes.Portal.dataPolicy()}'>${Messages("dataPolicy")}</a>")

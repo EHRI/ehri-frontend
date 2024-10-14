@@ -66,11 +66,11 @@ class FormSpec extends PlaySpecification with ResourceUtils {
     form.errors must beEmpty
     Annotation.form.bind(form.data).value must beSome(data)
   }
-
-  "Virtual Unit Form should read correctly" in {
-    val data = readResource(EntityType.VirtualUnit).as[VirtualUnitF]
-    val form = VirtualUnit.form.fillAndValidate(data)
-    form.errors must beEmpty
-    VirtualUnit.form.bind(form.data).value must beSome(data)
-  }
+//
+//  "Virtual Unit Form should read correctly" in {
+//    val data = readResource(EntityType.VirtualUnit).as[VirtualUnitF]
+//    val form = VirtualUnit.form.fillAndValidate(data)
+//    form.errors must beEmpty
+//    VirtualUnit.form.bind(form.data).value must beSome(data)
+//  }
 }

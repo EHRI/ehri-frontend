@@ -29,7 +29,7 @@
         at the right hand side for information on what type and data is available.</p>
 
         <div id="api-usage-example">
-            @helper.form(controllers.api.graphql.routes.GraphQL.query(), 'class -> "api-example-form", 'id -> "api-usage-form") {
+            @helper.form(controllers.api.graphql.routes.GraphQL.query(), attrs._class -> "api-example-form", attrs._id -> "api-usage-form") {
                 <div class="form-field">
                     <label for="api-usage-input" class="">Example Query</label>
                     <textarea class="api-example" rows="8" id="api-usage-input">@query</textarea>

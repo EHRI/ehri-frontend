@@ -17,7 +17,7 @@
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Vocabulary, PermissionType.Create)) {
-            <a href="@controllers.vocabularies.routes.Vocabularies.create">
+            <a href="@controllers.vocabularies.routes.Vocabularies.create()">
                 <i class="fa fa-fw fa-plus-square-o"></i>
                 @Messages("cvocVocabulary.create")
             </a>

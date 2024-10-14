@@ -92,7 +92,7 @@ class ConvertConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
     "report correct errors for XQuery scripts" in new ITestApp {
       await(putFile())
-      val map = resourceAsString("simple-mapping.tsv") + "/ead/\t@foobar\t/blah\t&\n" // invalid junk
+      val map = resourceAsString("simple-mapping.tsv").replace("ehri())", "ehri())/ead/\t@foobar\t/blah\t&\n") // invalid junk
       val r = FakeRequest(dtRoutes.convertFile(repoId, datasetId, stage, testFileName))
         .withUser(privilegedUser)
         .callWith(Json.toJson(ConvertSpec(Seq((TransformationType.XQuery, map, Json.obj())))))

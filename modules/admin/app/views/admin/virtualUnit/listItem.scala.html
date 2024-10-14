@@ -5,10 +5,10 @@
     @defining(descriptionId.flatMap(Description.localId).map(did => "#desc-" + did).getOrElse("")) { anchor =>
         @if(path.nonEmpty) {
             @defining(path.map(_.id).mkString(",")) { pathStr =>
-            <a href="@{controllers.virtual.routes.VirtualUnits.getInVc(pathStr, item.id) + anchor}">@item.toStringLang</a>
+            <a href="@controllers.virtual.routes.VirtualUnits.getInVc(pathStr, item.id)@anchor">@item.toStringLang</a>
             }
         } else {
-            <a href="@{controllers.virtual.routes.VirtualUnits.get(item.id) + anchor}">@item.toStringLang</a>
+            <a href="@controllers.virtual.routes.VirtualUnits.get(item.id)@anchor">@item.toStringLang</a>
         }
     }
 } {

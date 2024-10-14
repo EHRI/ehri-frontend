@@ -11,7 +11,7 @@
         @formHelpers.lineInput(field, ADDRESS_NAME)
         @formHelpers.lineInput(field, CONTACT_PERSON)
         @inlineGeoname(field, CITY, "city")
-        @formHelpers.choiceInput(field, COUNTRY_CODE, views.Helpers.countryPairList, '_blank -> true)
+        @formHelpers.choiceInput(field, COUNTRY_CODE, views.Helpers.countryPairList, attrs._blank -> true)
         @inlineGeoname(field, REGION, "region")
         @inlineGeoname(field, POSTAL_CODE, "postal")
         @inlineGeoname(field, STREET_ADDRESS, "address")

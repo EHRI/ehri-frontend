@@ -32,7 +32,10 @@ class HarvestConfigsSpec extends IntegrationTestRunner with ResourceUtils {
 
   "HarvestConfigs API" should {
     "save oaipmh configs" in new DBTestApp("import-dataset-fixtures.sql") {
-      val c = OaiPmhConfig("https://foo.bar/baz", "oai_ead", Some("test"), from = Some(Instant.now().minusSeconds(3600)))
+      // Truncation is necessary here since JDK15, when precision was increased and no longer matches the DB
+      // deserialized precision. This is a workaround for the test to pass.
+      val now = Instant.now().minusSeconds(3600).truncatedTo(ChronoUnit.MILLIS)
+      val c = OaiPmhConfig("https://foo.bar/baz", "oai_ead", Some("test"), from = Some(now))
       val r = FakeRequest(hcRoutes.save("r1", "oaipmh_test")).withUser(privilegedUser).callWith(Json.toJson(c))
       contentAsJson(r) must_== Json.toJson(c)
     }

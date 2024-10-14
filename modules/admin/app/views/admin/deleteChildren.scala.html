@@ -24,7 +24,7 @@
                 <p class="alert alert-warning">
                 @Messages("item.deleteChildren.confirmPhrase", Html(Messages("item.deleteChildren.confirm", children.total)))
                 </p>
-                    @formHelpers.lineInput(f(""), ANSWER, 'autocomplete -> "off")
+                    @formHelpers.lineInput(f(""), ANSWER, attrs._autocomplete -> "off")
                 </div>
 
                 @formHelpers.submitButtonWithLogMessageInput(

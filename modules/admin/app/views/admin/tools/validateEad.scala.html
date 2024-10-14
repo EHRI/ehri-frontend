@@ -44,11 +44,11 @@
         </table>
         <hr>
     }
-    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, attrs._enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
-        @helper.inputFile(f("files"), '_label -> Messages("admin.utils.validate.files"), 'multiple -> true)
+        @helper.inputFile(f("files"), attrs._label -> Messages("admin.utils.validate.files"), attrs._multiple -> true)
 
         @formHelpers.submitButton(Messages("admin.utils.validate.submit"))
     }

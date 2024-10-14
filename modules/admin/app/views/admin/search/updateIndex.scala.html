@@ -22,9 +22,9 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("search.index.update"), scripts = extraScripts, breadcrumbs = breadcrumbs) {
-    @helper.form(action = action, 'id -> "update-form") {
-        @helper.checkbox(form(CLEAR_ALL), '_label -> Messages("search.index.clear.all"))
-        @helper.checkbox(form(CLEAR_TYPES), '_label -> Messages("search.index.clear.types"))
+    @helper.form(action = action, attrs._id -> "update-form") {
+        @helper.checkbox(form(CLEAR_ALL), attrs._label -> Messages("search.index.clear.all"))
+        @helper.checkbox(form(CLEAR_TYPES), attrs._label -> Messages("search.index.clear.types"))
 
         <div class="form-group">
             <label class="control-label">@Messages("search.index.types")</label>

@@ -1,7 +1,7 @@
 @()(implicit request: RequestHeader, messages: Messages, flash: Flash)
 
 <div class="alert alert-warning">
-    @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost) {
+    @helper.form(action = controllers.portal.account.routes.Accounts.resendVerificationPost()) {
         @formHelpers.csrfToken()
         @Messages("mail.unverifiedEmailWarningMessage")
         @Messages("mail.unverifiedEmailResend")

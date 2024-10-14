@@ -5,7 +5,7 @@
 @import OaiPmhConfig._
 
 @views.html.admin.layout.rightSidebar(Messages("oaipmh"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
-    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, attrs._enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 

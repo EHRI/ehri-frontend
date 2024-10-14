@@ -7,7 +7,7 @@
     }
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.hasPermission(ContentTypes.Group, PermissionType.Create)) {
-            <a href="@controllers.groups.routes.Groups.create">
+            <a href="@controllers.groups.routes.Groups.create()">
                 <i class="fa fa-fw fa-plus-square-o"></i>
                 @Messages("group.create")
             </a>

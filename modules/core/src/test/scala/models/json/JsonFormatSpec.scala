@@ -2,7 +2,7 @@ package models.json
 
 import helpers.ResourceUtils
 import models.{EntityType, _}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResult, Json}
 import play.api.test.PlaySpecification
 
 class JsonFormatSpec extends PlaySpecification with ResourceUtils {
@@ -120,9 +120,9 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
   }
 
   "Virtual Unit Format should read correctly" in {
-    val validation = readResource(EntityType.VirtualUnit).validate[VirtualUnit]
+    val validation: JsResult[VirtualUnit] = readResource(EntityType.VirtualUnit).validate[VirtualUnit]
     // The JSON should parse correctly
-    validation.asEither must beRight.which { virtualUnit =>
+    validation.asEither must beRight.which { (virtualUnit: VirtualUnit) =>
       virtualUnit.includedUnits.headOption must beSome
 
       val validation2 = readResource(EntityType.VirtualUnit.toString + "NoDesc.json").validate[VirtualUnit]
@@ -130,6 +130,7 @@ class JsonFormatSpec extends PlaySpecification with ResourceUtils {
       validation2.asEither must beRight.which { virtualUnit2 =>
         virtualUnit2.includedUnits.headOption must beNone
       }
+      success
     }
   }
 

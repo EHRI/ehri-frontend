@@ -9,7 +9,7 @@
     @Messages("feedback.thanks.message")
 </div>
 
-@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), 'class -> "feedback-form") {
+@helper.form(action = controllers.portal.routes.Feedback.feedbackPost(), attrs._class -> "feedback-form") {
     <fieldset>
         @formHelpers.csrfToken()
         @if(userOpt.isEmpty) {

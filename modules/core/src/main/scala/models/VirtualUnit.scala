@@ -75,7 +75,7 @@ object VirtualUnit {
      * is not a mandatory property and thus not returned by the REST
      * interface by default, unless we specify it explicitly.
      */
-    override def defaultParams = Seq(
+    override def defaultParams: Seq[(String, String)] = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.URL_PATTERN,
       Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.OTHER_FORMS_OF_NAME,
       Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.PARALLEL_FORMS_OF_NAME,
@@ -83,7 +83,7 @@ object VirtualUnit {
     )
   }
 
-  val form = Form(
+  val form: Form[VirtualUnitF] = Form(
     mapping(
       ISA -> ignored(EntityType.VirtualUnit),
       ID -> optional(nonEmptyText),

@@ -151,7 +151,6 @@ val commonSettings = Seq(
   // tests. Additionally, set the path to the test config
   // file as an env var.
   Test / javaOptions ++= Seq(
-    "-XX:+CMSClassUnloadingEnabled",
     s"-Dconfig.file=${(LocalRootProject / baseDirectory).value / "conf" / "test.conf"}",
     s"-Dlogger.file=${(LocalRootProject / baseDirectory).value / "conf" / "logback-play-dev.xml"}"
   ),
@@ -163,6 +162,7 @@ val commonSettings = Seq(
     "-unchecked",
     "-deprecation",
     "-Wconf:cat=unused-imports&site=.*views.html.*:s", // Silence import warnings in Play html files
+    "-Wconf:cat=unused-imports&site=.*views.txt.*:s", // Silence import warnings in Play txt files
   ),
 
   resolvers ++= additionalResolvers,
@@ -346,7 +346,7 @@ lazy val xslt = Project(appName + "-xslt", file("modules/xslt"))
     "org.slf4j" % "slf4j-api" % "2.0.13",
 
     // We need JSON here...
-    "com.typesafe.play" %% "play-json" % "2.10.0",
+    "com.typesafe.play" %% "play-json" % "2.10.6",
 
     // Saxon for XSLT transformation
     "net.sf.saxon" % "Saxon-HE" % "10.2",

@@ -4,11 +4,11 @@
     @helper.textarea(
         field = field,
         args = views.Helpers.argsWithConfig(key, views.Helpers.argsWithDefaults(
-            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            '_label -> config.flatMap(_.name(key)).getOrElse(Messages(if(prefix.isEmpty) key else s"$prefix.$key")),
-            'title -> md.renderMarkdown(config.flatMap(_.description(key)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + key + ".description"))),
-            'class -> "form-control",
-            'rows -> config.flatMap(_.rows(key)).getOrElse(4)
+            args.map { case (s, v) => if(s == attrs._class) s -> (v.toString + " form-control") else s -> v },
+            attrs._label -> config.flatMap(_.name(key)).getOrElse(Messages(if(prefix.isEmpty) key else s"$prefix.$key")),
+            attrs._title -> md.renderMarkdown(config.flatMap(_.description(key)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + key + ".description"))),
+            attrs._class -> "form-control",
+            attrs._rows -> config.flatMap(_.rows(key)).getOrElse(4)
         )): _*
     )
 }

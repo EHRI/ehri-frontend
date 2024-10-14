@@ -6,10 +6,10 @@
     @helper.inputText(
         field = field.copy(value = field.value.orElse(defaults.flatMap(_.getOptional[String](fieldName)))),
         args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
-            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            'title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description"))),
-            '_label -> Messages(if(prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)),
-            'class -> "form-control typeahead",
+            args.map { case (s, v) => if(s == attrs._class) s -> (v.toString + " form-control") else s -> v },
+            attrs._title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description"))),
+            attrs._label -> Messages(if(prefix.isEmpty) fieldName else "%s.%s".format(prefix, fieldName)),
+            attrs._class -> "form-control typeahead",
             Symbol("data-remote") -> geonameRemote
         )): _*
     )

@@ -4,14 +4,14 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplateCheckbox.f) }
 
-@helper.form(action = action, 'role -> "form", 'class -> "annotation-form edit-annotation-form validate-form") {
+@helper.form(action = action, attrs._role -> "form", attrs._class -> "annotation-form edit-annotation-form validate-form") {
     <a class="close" href="#">&times;</a>
     <div class="annotation-form-controls">
         @formHelpers.hiddenInput(f(FIELD))
         @views.html.annotation.form(f)
         <div class="annotation-submit-controls">
             <div class="checkbox-inline" data-toggle="tooltip" title="@Messages("contribution.visibility.isPublic.title")">
-                @helper.checkbox(f(IS_PUBLIC), '_label -> Messages("contribution.visibility.isPublic"))
+                @helper.checkbox(f(IS_PUBLIC), attrs._label -> Messages("contribution.visibility.isPublic"))
             </div>
             <button type="submit" class="submit-annotation">
                 @Messages("annotation.update.submit")

@@ -4,7 +4,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(views.html.helpers.fieldTemplate.f) }
 
-@helper.form(action = action, 'role -> "form", 'class -> "validate-form", 'id -> "bookmark-set-form") {
+@helper.form(action = action, attrs._role -> "form", attrs._class -> "validate-form", attrs._id -> "bookmark-set-form") {
     @formHelpers.csrfToken()
     @helper.inputText(f(NAME))
     @helper.inputText(f(DESCRIPTION))

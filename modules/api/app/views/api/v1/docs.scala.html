@@ -137,7 +137,7 @@
             @searchParams
 
             <h4>Test it!</h4>
-            @helper.form(controllers.api.v1.routes.ApiV1.search(), 'class -> "api-example-form") {
+            @helper.form(controllers.api.v1.routes.ApiV1.search(), attrs._class -> "api-example-form") {
 
                 <div class="api-example-form-controls">
                     @searchForm("api-example-search")
@@ -164,7 +164,7 @@
             </p>
 
             <h4>Test it!</h4>
-            @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), 'class -> "api-example-form") {
+            @helper.form(controllers.api.v1.routes.ApiV1.fetch("{id}"), attrs._class -> "api-example-form") {
 
                 <div class="api-example-form-controls">
                     @itemIdField("api-example-fetch")
@@ -195,7 +195,7 @@
             @searchParams
 
             <h4>Test it!</h4>
-            @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), 'class -> "api-example-form") {
+            @helper.form(controllers.api.v1.routes.ApiV1.searchIn("{id}"), attrs._class -> "api-example-form") {
                 @itemIdField("api-example-item-search")
                 <div class="api-example-form-controls">
                 @searchForm("api-example-item-search")
@@ -226,7 +226,7 @@
             @searchParams
 
             <h4>Test it!</h4>
-            @helper.form(controllers.api.v1.routes.ApiV1.related("{id}"), 'class -> "api-example-form") {
+            @helper.form(controllers.api.v1.routes.ApiV1.related("{id}"), attrs._class -> "api-example-form") {
                 @itemIdField("api-example-item-related")
                 <div class="api-example-form-controls">
                     @searchForm("api-example-item-related")

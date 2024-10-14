@@ -1,15 +1,15 @@
 @(form: Form[AccountPreferences], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages,fieldConstructor: helper.FieldConstructor)
 
-@helper.form(action = action, 'role -> "form") {
+@helper.form(action = action, attrs._role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 
     @helper.checkbox(
         form("allowMessaging"),
-        'type -> "checkbox",
-        '_label -> Messages("profile.preferences.allowMessaging"),
-        'title -> Messages("profile.preferences.allowMessaging.description"),
-        '_showConstraints -> false
+        attrs._type -> "checkbox",
+        attrs._label -> Messages("profile.preferences.allowMessaging"),
+        attrs._title -> Messages("profile.preferences.allowMessaging.description"),
+        attrs._showconstraints -> false
     )
 
 <div class="form-field">

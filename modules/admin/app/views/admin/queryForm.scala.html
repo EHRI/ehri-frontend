@@ -41,7 +41,7 @@
 }
 
 @views.html.admin.layout.noSidebar(name, scripts = extrascripts, styles = extrastyles) {
-    @helper.form(action = action, 'id -> "query-form") {
+    @helper.form(action = action, attrs._id -> "query-form") {
         <textarea id="id_q" name="q">@form("q").value</textarea>
         <div class="control-group">
             <button type="submit" class="btn btn-primary btn-progress">

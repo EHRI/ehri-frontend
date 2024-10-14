@@ -178,7 +178,7 @@ case class WSOaiPmhClient @Inject()(ws: WSClient, cache: AsyncCacheApi)(implicit
         .map { r =>
           checkError(r)
           val xml = r.xml
-          val idents = (xml \ verb \ "header").seq.map { node =>
+          val idents = (xml \ verb \ "header").map { node =>
             val del = (node \@ "status") == "deleted"
             val name = (node \ "identifier").text
             name -> del

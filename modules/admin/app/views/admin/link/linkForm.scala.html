@@ -10,8 +10,8 @@
     @defining("link") { implicit fieldPrefix =>
         @defining(form("")) { desc =>
             @formHelpers.textInput(desc, DESCRIPTION)
-            @formHelpers.enumChoiceInput(desc, LINK_TYPE, LinkType, '_blank -> true)
-            @formHelpers.enumChoiceInput(desc, LINK_FIELD, LinkField, '_blank -> true)
+            @formHelpers.enumChoiceInput(desc, LINK_TYPE, LinkType, attrs._blank -> true)
+            @formHelpers.enumChoiceInput(desc, LINK_FIELD, LinkField, attrs._blank -> true)
             @formHelpers.inlineDateSet(desc, DATES)
         }
     }

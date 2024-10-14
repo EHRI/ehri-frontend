@@ -4,7 +4,7 @@
 
 @defining("virtualUnit") { implicit fieldPrefix =>
     @defining(Some(fieldHints)) { implicit implicitFieldHints =>
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
 
         @helper.repeat(f("descriptions"), min = math.max(f("descriptions").indexes.length, 1)) { desc =>
             @defining("documentaryUnit") { implicit fieldPrefix =>

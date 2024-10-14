@@ -8,7 +8,7 @@
     }
 
     @views.html.common.childCount(d) { count =>
-        @views.html.admin.helpers.linkToWithBody(item, fragment = s"#${item.id}-child-item-search", attributes = Seq('class -> "child-items-inline-load collapsed")) {
+        @views.html.admin.helpers.linkToWithBody(item, fragment = s"#${item.id}-child-item-search", attributes = Seq(attrs._class -> "child-items-inline-load collapsed")) {
             <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
             @Messages("documentaryUnit.childCount", count)
         }

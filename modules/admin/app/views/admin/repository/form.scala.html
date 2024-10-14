@@ -15,12 +15,12 @@
             @descriptionForm(desc)
         }
         @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
-            @formHelpers.lineInput(f(""), URL_PATTERN, '_showConstraints -> false)
-            @formHelpers.lineInput(f(""), LOGO_URL, '_showConstraints -> false)
+            @formHelpers.lineInput(f(""), URL_PATTERN, attrs._showconstraints -> false)
+            @formHelpers.lineInput(f(""), LOGO_URL, attrs._showconstraints -> false)
             @defining(PUBLICATION_STATUS) { implicit fieldPrefix =>
                 @formHelpers.enumChoiceInput(f(""), PUBLICATION_STATUS, PublicationStatus)
             }
-            @formHelpers.choiceInput(f(""), PRIORITY, 1.to(5).map(i => (i.toString, i.toString)).toList ++ List(("-1", "Reject")), '_blank -> true)
+            @formHelpers.choiceInput(f(""), PRIORITY, 1.to(5).map(i => (i.toString, i.toString)).toList ++ List(("-1", "Reject")), attrs._blank -> true)
         }
         @formHelpers.hiddenInput(f(LONGITUDE))
         @formHelpers.hiddenInput(f(LATITUDE))

@@ -1,6 +1,6 @@
 @(openIdForm: Form[String], oauth2Config: auth.oauth2.OAuth2Config, isLogin: Boolean, oauth2Call: String => Call)(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
-@helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), 'class -> "openid form validate-form", 'role -> "form") {
+@helper.form(action = controllers.portal.account.routes.Accounts.openIDLoginPost(isLogin), attrs._class -> "openid form validate-form", attrs._role -> "form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(openIdForm)
 
@@ -26,9 +26,9 @@
                     <div class="form-field">
                     @helper.inputText(
                         openIdForm("openid_identifier"),
-                        'id -> s"${if(isLogin) "login" else "signup"}_openid_identifier",
-                        'placeholder -> Messages("login.openid.urlPlaceholder"),
-                        'type -> "url"
+                        attrs._id -> s"${if(isLogin) "login" else "signup"}_openid_identifier",
+                        attrs._placeholder -> Messages("login.openid.urlPlaceholder"),
+                        attrs._type -> "url"
                     )
                     </div>
 

@@ -7,7 +7,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, attrs._blank -> true)
 
     @descriptionFormSection(IDENTITY_AREA) {
         @lineInput(desc, AUTHORIZED_FORM_OF_NAME)

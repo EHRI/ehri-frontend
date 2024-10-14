@@ -14,7 +14,7 @@
 } {
     @views.html.admin.common.sidebarActions { user =>
         @views.html.admin.common.sidebarAction(user.isAdmin && user.hasPermission(ContentTypes.UserProfile, PermissionType.Create)) {
-            <a href="@controllers.users.routes.UserProfiles.createUser">
+            <a href="@controllers.users.routes.UserProfiles.createUser()">
                 <i class="fa fa-fw fa-plus-square-o"></i>
                 @Messages("userProfile.create")
             </a>

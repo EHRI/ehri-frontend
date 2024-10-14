@@ -11,6 +11,6 @@
 *@
 @(field: play.api.data.Field, args: (Symbol,Any)*)
 
-@id = @{ args.toMap.get('id).map(_.toString).getOrElse(field.id) }
+@id = @{ args.toMap.get(attrs._id).map(_.toString).getOrElse(field.id) }
 
 <input type="hidden" id="@id" name="@field.name" value="@field.value" @toHtmlArgs(args.filter(!_._1.name.startsWith("_")).toMap)>
