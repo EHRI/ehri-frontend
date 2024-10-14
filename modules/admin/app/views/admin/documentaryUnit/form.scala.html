@@ -16,13 +16,13 @@
 
         @formHelpers.descriptionFormSection(ADMINISTRATION_AREA) {
             @defining(PUB_STATUS) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus, '_blank -> true)
+                @formHelpers.enumChoiceInput(f(""), PUB_STATUS, PublicationStatus, attrs._blank -> true)
             }
             @defining(COPYRIGHT) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus, '_blank -> true)
+                @formHelpers.enumChoiceInput(f(""), COPYRIGHT, CopyrightStatus, attrs._blank -> true)
             }
             @defining(SCOPE) { implicit fieldPrefix =>
-                @formHelpers.enumChoiceInput(f(""), SCOPE, Scope, '_blank -> true)
+                @formHelpers.enumChoiceInput(f(""), SCOPE, Scope, attrs._blank -> true)
             }
         }
     }

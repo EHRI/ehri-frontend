@@ -12,7 +12,7 @@
         <small>
             @if(!isCopy) {
                 @Messages("mail.message.replyFooter"):
-                <a href="@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = conf.https)">
+                <a href="@controllers.portal.users.routes.UserProfiles.updateProfile().absoluteURL(secure = conf.https)">
                     @Messages("profile.preferences.updatePreferences")
                 </a>
             }

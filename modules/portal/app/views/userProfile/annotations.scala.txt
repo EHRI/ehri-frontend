@@ -1,4 +1,4 @@
-@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: cookies.SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
+@(annotations: utils.AbstractPage[Annotation])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: cookies.SessionPrefs, conf: AppConfig, messages: Messages)
 @userOpt.map { user => @defining(user.toStringLang + " - " + Messages("annotation.list")) { title =>
 @title
 @{"=" * title.size}}}

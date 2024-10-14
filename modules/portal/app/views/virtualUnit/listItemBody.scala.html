@@ -18,7 +18,7 @@
 }
 
 @views.html.common.childCount(item) { count =>
-    @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, item.id), 'class -> "child-items-inline-load collapsed") {
+    @views.html.helpers.link(views.Helpers.virtualUnitSearchUrl(path, item.id), attrs._class -> "child-items-inline-load collapsed") {
         <i class="fa fa-fw fa-plus-square-o" aria-hidden="true"></i>
         @Messages("documentaryUnit.childCount", count)
     }

@@ -2,7 +2,7 @@
 
 @implicitField = @{ helper.FieldConstructor(views.html.helpers.fieldTemplateHorizontal.f) }
 
-@helper.form(action = info.action, 'class -> "message-form", 'role -> "form") {
+@helper.form(action = info.action, attrs._class -> "message-form", attrs._role -> "form") {
     @formHelpers.csrfToken()
     <div class="modal-header">
         <h4 class="modal-title">@Messages("social.message.send", user.toStringLang)</h4>
@@ -12,9 +12,9 @@
         <p class="minor-notice">
             @Messages("social.message.send.warning")
         </p>
-        @helper.inputText(info.form("subject"), 'required -> "true", '_label -> Messages("social.message.send.subject"))
-        @helper.textarea(info.form("message"), 'required -> "true", 'rows -> "6", '_label -> Messages("social.message.send.message"))
-        @helper.checkbox(info.form("copySelf"), '_label -> Messages("social.message.send.copy"))
+        @helper.inputText(info.form("subject"), attrs._required -> "true", attrs._label -> Messages("social.message.send.subject"))
+        @helper.textarea(info.form("message"), attrs._required -> "true", attrs._rows -> "6", attrs._label -> Messages("social.message.send.message"))
+        @helper.checkbox(info.form("copySelf"), attrs._label -> Messages("social.message.send.copy"))
     </div>
     <div class="modal-footer">
         <button type="submit" class=" btn  btn-post ">@Messages("social.message.send.submit")</button>

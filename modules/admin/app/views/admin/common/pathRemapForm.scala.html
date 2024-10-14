@@ -3,7 +3,7 @@
 @formHelpers.csrfToken()
 @views.html.formHelpers.globalErrors(form)
 
-@helper.inputText(form("path-prefix"), 'class -> "form-control", '_label -> Messages("admin.utils.renameItems.pathPrefix"))
+@helper.inputText(form("path-prefix"), attrs._class -> "form-control", attrs._label -> Messages("admin.utils.renameItems.pathPrefix"))
 
 @html
 

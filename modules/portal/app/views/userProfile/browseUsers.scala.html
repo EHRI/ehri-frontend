@@ -26,7 +26,7 @@
     @views.html.common.mainContent {
         @views.html.common.itemHeader(Messages("social.browseUsers"))
         @if(result.params.isFiltered || result.nonEmpty) {
-            @helper.form(action = searchAction, 'role -> "form") {
+            @helper.form(action = searchAction, attrs._role -> "form") {
                 @views.html.common.search.searchBar(result.params, tips = false)
                 @views.html.userProfile.browseUsersList(result, searchAction, following)
             }

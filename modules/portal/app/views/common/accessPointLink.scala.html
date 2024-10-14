@@ -7,7 +7,7 @@
 @accessPoint.target(item, links).map { case (link, other) =>
     <li class="resolved-access-point" id="@accessPoint.id" dir="@views.Helpers.textDirectionAttr(accessPoint.name)">
         @views.html.helpers.linkTo(other, textContent = Some(accessPoint.name),
-            attributes = link.data.description.filterNot(_.trim.isEmpty).toSeq.map('title -> _))
+            attributes = link.data.description.filterNot(_.trim.isEmpty).toSeq.map(attrs._title -> _))
     </li>
 }.getOrElse {
     <li @{accessPoint.description.filterNot(_.trim.isEmpty).map{d => }}

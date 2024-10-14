@@ -4,6 +4,6 @@
     @views.html.common.mainContent {
         <h1>@Messages("profile")</h1>
         <h3>@Messages("profile.image.edit")</h3>
-        @imageUploadForm(f, controllers.portal.users.routes.UserProfiles.updateProfileImagePost)
+        @views.html.userProfile.imageUploadForm(f, controllers.portal.users.routes.UserProfiles.updateProfileImagePost())
     }
 }

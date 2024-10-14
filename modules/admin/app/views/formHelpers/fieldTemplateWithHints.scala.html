@@ -14,7 +14,7 @@
             @if(elements.hasErrors) {
                 <span class="help-block invalid-feedback">@elements.errors.mkString(" / ")</span>
             } else {
-                @elements.args.get('_hint).map { hint =>
+                @elements.args.get(attrs._hint).map { hint =>
                     <span class="help-block info">
                         @hint
                     </span>

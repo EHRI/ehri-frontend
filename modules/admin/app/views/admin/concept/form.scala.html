@@ -5,7 +5,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
+@lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
 
 @defining("cvocConcept") { implicit prefix =>
     @defining(Some(fieldHints)) { implicit implicitFieldHints =>

@@ -11,5 +11,5 @@
 
 @Messages("profile.preferences.updatePreferences"):
 
-@controllers.portal.users.routes.UserProfiles.updateProfile.absoluteURL(secure = conf.https)
+@controllers.portal.users.routes.UserProfiles.updateProfile().absoluteURL(secure = conf.https)
 }

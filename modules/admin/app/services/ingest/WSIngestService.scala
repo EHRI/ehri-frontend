@@ -137,7 +137,7 @@ case class WSIngestService @Inject()(
     // host and we really shouldn't do this!
     val propFile: Option[Path] = data.params.properties match {
       case FileProperties(f) => f.map { propTmp =>
-        import scala.collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
         val readTmp = Files.createTempFile(s"ingest", ".properties")
         propTmp.moveTo(readTmp, replace = true)
         val perms = Set(

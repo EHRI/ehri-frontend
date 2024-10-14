@@ -96,7 +96,7 @@
 
         @common.itemDetails {
             @defining("ingest") { implicit prefix =>
-                @helper.form(action = action, 'enctype -> "multipart/form-data", 'id -> "ingest-form") {
+                @helper.form(action = action, attrs._enctype -> "multipart/form-data", attrs._id -> "ingest-form") {
                     @formHelpers.csrfToken()
                     @formHelpers.hiddenInput(form(SCOPE_TYPE).copy(value = Some(scope.isA.toString)))
                     @formHelpers.hiddenInput(form(SCOPE).copy(value = Some(scope.id)))
@@ -114,7 +114,7 @@
                             @formHelpers.checkbox(f, ALLOW_UPDATE)
                             @formHelpers.checkbox(f, TOLERANT)
                             @formHelpers.checkbox(f, USE_SOURCE_ID)
-                            @formHelpers.choiceInput(f, LANG, views.Helpers.languagePairList, '_blank -> true)
+                            @formHelpers.choiceInput(f, LANG, views.Helpers.languagePairList, attrs._blank -> true)
                         </fieldset>
 
                         <fieldset>
@@ -135,8 +135,8 @@
                         }
 
                         <fieldset>
-                            @formHelpers.textInput(f, LOG, 'required -> true)
-                            @formHelpers.fileInput(f, DATA_FILE, 'required -> true)
+                            @formHelpers.textInput(f, LOG, attrs._required -> true)
+                            @formHelpers.fileInput(f, DATA_FILE, attrs._required -> true)
                         </fieldset>
 
                         @formHelpers.checkbox(f, COMMIT)

@@ -5,7 +5,7 @@
 @views.html.admin.layout.rightSidebarWithType(Messages("repository.create"), EntityType.Repository, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(f)) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'readonly -> true)
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._readonly -> true)
 
         @views.html.admin.repository.form(f, fieldHints)
         @views.html.admin.permissions.visibilityForm(vf, usersAndGroups)

@@ -9,7 +9,7 @@
             @formHelpers.csrfToken()
             <div class="form-group"><strong>Choose either:</strong></div>
             @formHelpers.choiceInput(form(""), "type",
-                ContentTypes.values.toList.map(et => et.toString -> et.toString), '_blank -> true)
+                ContentTypes.values.toList.map(et => et.toString -> et.toString), attrs._blank -> true)
             <div class="form-group"><strong>OR</strong></div>
             @formHelpers.lineInput(form(""), "scope")
 

@@ -2,15 +2,15 @@
 
 @import SignupData.{EMAIL, PASSWORD}
 
-@helper.form(action = action, 'class -> "login-form signup-form") {
+@helper.form(action = action, attrs._class -> "login-form signup-form") {
     @formHelpers.csrfToken()
     @formHelpers.globalErrors(form)
 
-    @helper.inputText(form(EMAIL), 'type -> "email", 'placeholder -> Messages("login.email.new"))
+    @helper.inputText(form(EMAIL), attrs._type -> "email", attrs._placeholder -> Messages("login.email.new"))
 
     <div class="alert alert-warning">
         <h4>@Messages("login.email.passwordConfirmation")</h4>
-        @helper.inputPassword(form(PASSWORD), 'type -> "password", 'placeholder -> Messages("login.password"))
+        @helper.inputPassword(form(PASSWORD), attrs._type -> "password", attrs._placeholder -> Messages("login.password"))
     </div>
 
     <div class="form-field">

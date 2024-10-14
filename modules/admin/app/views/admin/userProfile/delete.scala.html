@@ -11,8 +11,8 @@
 
         @helper.inputText(
             checkForm("deleteCheck"),
-            '_label -> Messages("userProfile.deleteCheck.description"),
-            'class -> "form-control"
+            attrs._label -> Messages("userProfile.deleteCheck.description"),
+            attrs._class -> "form-control"
         )
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("userProfile.delete.submit"), cancel = Some(cancel))

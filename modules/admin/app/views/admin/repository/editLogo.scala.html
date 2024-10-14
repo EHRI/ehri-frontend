@@ -3,7 +3,7 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.layout.rightSidebar(Messages("repository.logo.edit"), breadcrumbs = views.html.admin.repository.breadcrumbs(item)) {
-    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, attrs._enctype -> "multipart/form-data") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(f)
 
@@ -11,7 +11,7 @@
             <img alt="Current Image" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))" />
             <hr/>
 
-            @helper.inputFile(f("image"), '_label -> Messages("repository.logo"))
+            @helper.inputFile(f("image"), attrs._label -> Messages("repository.logo"))
         </div>
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("repository.update.submit"),

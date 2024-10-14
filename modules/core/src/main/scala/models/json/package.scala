@@ -43,7 +43,7 @@ package object json {
      */
     def readSeqOrEmpty[T](implicit r: Reads[T]): Reads[Seq[T]] = Reads[Seq[T]] { json =>
       path.asSingleJsResult(json).fold(
-        err => JsSuccess[Seq[T]](Seq.empty[T], path),
+        _ => JsSuccess[Seq[T]](Seq.empty[T], path),
         valid => valid.validate[Seq[T]](Reads.seq(r))
       )
     }

@@ -3,7 +3,7 @@
 @views.html.layout.portalLayout(Messages(title)) {
     @views.html.common.mainContent {
         <h1>@Messages(title)</h1>
-        @helper.form(action = action, 'role -> "role") {
+        @helper.form(action = action, attrs._role -> "role") {
             @formHelpers.csrfToken()
 
             <div class="form-group">

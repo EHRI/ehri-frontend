@@ -5,7 +5,7 @@
 @views.html.layout.loginLayout(Messages("signup.validation")) {
     @views.html.common.itemHeader(Messages("signup.validation"))
     <p>@Messages("signup.validation.message")</p>
-    @helper.form(action = action, 'class -> "form signup-form login-form") {
+    @helper.form(action = action, attrs._class -> "form signup-form login-form") {
         @formHelpers.csrfToken()
         @formHelpers.globalErrors(form)
         @common.recaptcha(recaptchaKey)

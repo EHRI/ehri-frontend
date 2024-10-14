@@ -10,9 +10,9 @@
             <fieldset id="annotate-area">
                 <legend>@Messages("annotation.relatedItem")</legend>
 
-                @helper.inputText(annf("id"), '_label -> "item")
+                @helper.inputText(annf("id"), attrs._label -> "item")
                 @defining(annf("data")) { formData =>
-                    @helper.inputText(formData(LinkF.DESCRIPTION), '_label -> Messages("link.description"))
+                    @helper.inputText(formData(LinkF.DESCRIPTION), attrs._label -> Messages("link.description"))
                     <input type="hidden" value="@LinkF.LinkType.Associative" name="@formData(LinkF.LINK_TYPE).name" />
                 }
             </fieldset>

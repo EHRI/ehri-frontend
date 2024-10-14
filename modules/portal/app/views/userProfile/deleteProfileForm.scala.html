@@ -8,7 +8,7 @@ implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, mess
 }
 
 @userOpt.map { user =>
-    @helper.form(action = action, 'role -> "form", 'class -> "validate-form", 'id -> "update-profile-form") {
+    @helper.form(action = action, attrs._role -> "form", attrs._class -> "validate-form", attrs._id -> "update-profile-form") {
         @formHelpers.csrfToken()
 
         <div class="alert alert-warning">

@@ -7,11 +7,11 @@
 
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
-        @helper.inputText(f("email"), 'autofocus -> "autofocus", 'class -> "form-control", '_label -> Messages("userProfile.email"))
-        @helper.inputText(f("identifier"), 'class -> "form-control", '_label -> Messages("userProfile.username"))
-        @helper.inputText(f("name"), 'class -> "form-control", '_label -> Messages("userProfile.realname"))
-        @helper.inputPassword(f("password"), 'class -> "form-control", '_label -> Messages("userProfile.password"))
-        @helper.inputPassword(f("confirm"), 'class -> "form-control", '_label -> Messages("userProfile.passwordConfirm"))
+        @helper.inputText(f("email"), attrs._autofocus -> "autofocus", attrs._class -> "form-control", attrs._label -> Messages("userProfile.email"))
+        @helper.inputText(f("identifier"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.username"))
+        @helper.inputText(f("name"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.realname"))
+        @helper.inputPassword(f("password"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.password"))
+        @helper.inputPassword(f("confirm"), attrs._class -> "form-control", attrs._label -> Messages("userProfile.passwordConfirm"))
 
         <div class="form-group">
             <label class="control-label" for="@gf("group").id">@Messages("userProfile.groups")</label>

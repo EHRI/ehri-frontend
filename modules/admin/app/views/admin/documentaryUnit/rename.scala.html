@@ -29,7 +29,7 @@
             </div>
         }
         @formHelpers.csrfToken()
-        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, '_label -> Messages("item.rename.identifier"), 'autofocus -> "autofocus")
+        @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._label -> Messages("item.rename.identifier"), attrs._autofocus -> "autofocus")
 
         @formHelpers.submitButtonWithLogMessageInput(Messages("item.rename.submit"), cancel = views.admin.Helpers.linkToOpt(item))
 	}

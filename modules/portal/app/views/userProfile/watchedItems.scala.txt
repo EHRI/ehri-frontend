@@ -1,4 +1,4 @@
-@(watchList: utils.AbstractPage[models.Model])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages, flash: Flash)
+@(watchList: utils.AbstractPage[models.Model])(implicit userOpt: Option[UserProfile], request: RequestHeader, conf: AppConfig, messages: Messages)
 @userOpt.map { user => @defining(user.toStringLang + " - " + Messages("profile.watch.list")) { title =>
 @title
 @{"=" * title.size}

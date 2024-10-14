@@ -9,9 +9,9 @@
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
 @views.html.admin.common.descriptionForm(desc) {
-    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, '_blank -> true)
+    @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, attrs._blank -> true)
     @defining("description") { implicit fieldPrefix =>
-        @lineInput(desc, IDENTIFIER, 'autocomplete -> "off")
+        @lineInput(desc, IDENTIFIER, attrs._autocomplete -> "off")
     }
 
     @descriptionFormSection(IDENTITY_AREA) {
@@ -24,7 +24,7 @@
 
             @inlineDateSet(desc, DATES)
             @hiddenInputSet(desc(UNIT_DATES))
-            @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, '_blank -> true)
+            @enumChoiceInput(desc, LEVEL_OF_DESCRIPTION, LevelOfDescription, attrs._blank -> true)
             @hiddenInputSet(desc(PHYSICAL_LOCATION))
             @textInput(desc, EXTENT_MEDIUM)
         }
@@ -51,8 +51,8 @@
         @defining(desc(CONDITIONS_AREA)) { desc =>
             @textInput(desc, ACCESS_COND)
             @textInput(desc, REPROD_COND)
-            @choiceInput(desc, LANG_MATERIALS, views.Helpers.languagePairList, 'multiple -> true, 'size -> 1)
-            @choiceInput(desc, SCRIPT_MATERIALS, views.Helpers.scriptPairList, 'multiple -> true, 'size -> 1)
+            @choiceInput(desc, LANG_MATERIALS, views.Helpers.languagePairList, attrs._multiple -> true, attrs._size -> 1)
+            @choiceInput(desc, SCRIPT_MATERIALS, views.Helpers.scriptPairList, attrs._multiple -> true, attrs._size -> 1)
             @textInput(desc, PHYSICAL_CHARS)
             @inlineTextSet(desc, FINDING_AIDS, rows = 4)
         }

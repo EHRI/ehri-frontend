@@ -5,7 +5,7 @@
         @permissionGrantItem(Some(item), perm)
     </ul>
 
-    @helper.form(action = helper.CSRF(action), 'class -> "form-actions") {
+    @helper.form(action = helper.CSRF(action), attrs._class -> "form-actions") {
         @formHelpers.submitButtonWithLogMessageInput(Messages("permissions.revoke.submit"), cancel = views.admin.Helpers.linkToOpt(item))
     }
 } {

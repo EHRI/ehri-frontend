@@ -8,16 +8,16 @@
 
     @defining(f("")) { field =>
         @defining(FIELD_PREFIX) { implicit fieldPrefix =>
-            @formHelpers.lineInput(field, NAME, 'title -> "")
-            @formHelpers.lineInput(field, TITLE, 'title -> "")
-            @formHelpers.lineInput(field, LOCATION, 'title -> Messages("profile.location.description"))
-            @formHelpers.lineInput(field, INSTITUTION, 'title -> Messages("profile.institution.description"))
-            @formHelpers.lineInput(field, ROLE, 'title -> "")
-            @formHelpers.lineInput(field, URL, 'type -> "url", 'title -> "")
-            @formHelpers.lineInput(field, WORK_URL, 'type -> "url", 'title -> "")
-            @formHelpers.choiceInput(field, LANGUAGES, views.Helpers.languagePairList, 'multiple -> true, 'size -> 1, 'title -> "")
-            @formHelpers.textInput(field, ABOUT, 'title -> "")
-            @formHelpers.textInput(field, INTERESTS, 'title -> "")
+            @formHelpers.lineInput(field, NAME, attrs._title -> "")
+            @formHelpers.lineInput(field, TITLE, attrs._title -> "")
+            @formHelpers.lineInput(field, LOCATION, attrs._title -> Messages("profile.location.description"))
+            @formHelpers.lineInput(field, INSTITUTION, attrs._title -> Messages("profile.institution.description"))
+            @formHelpers.lineInput(field, ROLE, attrs._title -> "")
+            @formHelpers.lineInput(field, URL, attrs._type -> "url", attrs._title -> "")
+            @formHelpers.lineInput(field, WORK_URL, attrs._type -> "url", attrs._title -> "")
+            @formHelpers.choiceInput(field, LANGUAGES, views.Helpers.languagePairList, attrs._multiple -> true, attrs._size -> 1, attrs._title -> "")
+            @formHelpers.textInput(field, ABOUT, attrs._title -> "")
+            @formHelpers.textInput(field, INTERESTS, attrs._title -> "")
             @* Currently for compatibility only *@
             @formHelpers.hiddenInput(f(FIRST_NAMES))
             @formHelpers.hiddenInput(f(LAST_NAME))

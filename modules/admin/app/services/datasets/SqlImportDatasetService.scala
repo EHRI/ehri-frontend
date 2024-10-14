@@ -97,16 +97,16 @@ case class SqlImportDatasetService @Inject()(db: Database, actorSystem: ActorSys
     db.withTransaction { implicit conn =>
       val inserts = info.map { item =>
         Seq[NamedParameter](
-          Symbol("repo_id") -> repoId,
-          Symbol("id") -> item.id,
-          Symbol("name") -> item.name,
-          Symbol("type") -> item.src,
-          Symbol("content_type") -> item.contentType,
-          Symbol("item_id") -> item.fonds.filter(_.trim.nonEmpty),
-          Symbol("nest") -> item.nest,
-          Symbol("sync") -> item.sync,
-          Symbol("status") -> item.status,
-          Symbol("comments") -> item.notes
+          "repo_id" -> repoId,
+          "id" -> item.id,
+          "name" -> item.name,
+          "type" -> item.src,
+          "content_type" -> item.contentType,
+          "item_id" -> item.fonds.filter(_.trim.nonEmpty),
+          "nest" -> item.nest,
+          "sync" -> item.sync,
+          "status" -> item.status,
+          "comments" -> item.notes
         )
       }
       val q = """INSERT INTO import_dataset (repo_id, id, name, type, content_type, item_id, sync, status, comments)

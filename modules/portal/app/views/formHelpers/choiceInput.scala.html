@@ -3,12 +3,12 @@
 @views.html.formHelpers.configuredField(desc, fieldName, config) { field =>
     @helper.select(
         field = field,
-        options = (if(args.contains('_blank -> true)) List("" -> "---") else Nil) ::: options,
+        options = (if(args.contains(attrs._blank -> true)) List("" -> "---") else Nil) ::: options,
         args = views.Helpers.argsWithConfig(fieldName, views.Helpers.argsWithDefaults(
-            args.map { case (s, v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            '_label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
-            'title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
-            'class -> s"form-control ${if (args.contains('_select2 -> false)) "" else "select2"} ${if (args.contains('multiple -> true)) "multiple" else ""} ${if (args.contains('_autosubmit -> true)) "autosubmit" else ""}"
+            args.map { case (s, v) => if(s == attrs._class) s -> (v.toString + " form-control") else s -> v },
+            attrs._label -> Messages(if(prefix.isEmpty) fieldName else s"$prefix.$fieldName"),
+            attrs._title -> md.renderMarkdown(Messages((if(prefix != "") prefix + "." else "") + fieldName + ".description")),
+            attrs._class -> s"form-control ${if (args.contains(attrs._select2 -> false)) "" else "select2"} ${if (args.contains(attrs._multiple -> true)) "multiple" else ""} ${if (args.contains(attrs._autosubmit -> true)) "autosubmit" else ""}"
         )): _*
     )
 }

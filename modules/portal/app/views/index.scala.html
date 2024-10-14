@@ -138,22 +138,22 @@
                             @formHelpers.csrfToken()
                             @helper.inputText(
                                 accountForms.passwordLoginForm("email"),
-                                'id -> "login_email",
-                                'class -> "form-control",
-                                'autocomplete -> "email",
-                                'placeholder -> Messages("login.email"),
-                                '_label -> Messages("login.email"),
-                                'type -> "email",
-                                'required -> true
+                                attrs._id -> "login_email",
+                                attrs._class -> "form-control",
+                                attrs._autocomplete -> "email",
+                                attrs._placeholder -> Messages("login.email"),
+                                attrs._label -> Messages("login.email"),
+                                attrs._type -> "email",
+                                attrs._required -> true
                             )
                             @helper.inputPassword(
                                 accountForms.passwordLoginForm("password"),
-                                'id -> "login_password",
-                                'class -> "form-control",
-                                'autocomplete -> "current-password",
-                                'placeholder -> Messages("login.password"),
-                                '_label -> Messages("login.password"),
-                                'required -> true
+                                attrs._id -> "login_password",
+                                attrs._class -> "form-control",
+                                attrs._autocomplete -> "current-password",
+                                attrs._placeholder -> Messages("login.password"),
+                                attrs._label -> Messages("login.password"),
+                                attrs._required -> true
                             )
 
                             <div class="welcome-section-footer">

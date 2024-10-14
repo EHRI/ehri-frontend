@@ -4,10 +4,10 @@
     @helper.inputFile(
         field = field.copy(value = field.value.orElse(config.flatMap(_.default(fieldName)))),
         args = views.Helpers.argsWithDefaults(
-            args.map { case (s,v) => if(s == 'class) s -> (v.toString + " form-control") else s -> v },
-            '_label -> config.flatMap(_.name(fieldName)).getOrElse(Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName")),
-            'title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description"))),
-            'class -> "form-control"
+            args.map { case (s,v) => if(s == attrs._class) s -> (v.toString + " form-control") else s -> v },
+            attrs._label -> config.flatMap(_.name(fieldName)).getOrElse(Messages(if (prefix.isEmpty) fieldName else s"$prefix.$fieldName")),
+            attrs._title -> md.renderMarkdown(config.flatMap(_.description(fieldName)).getOrElse(Messages((if (prefix != "") prefix + "." else "") + fieldName + ".description"))),
+            attrs._class -> "form-control"
         ): _*
     )
 }

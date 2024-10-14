@@ -6,7 +6,7 @@
 
 <fieldset class="event-filter">
     <legend>@Messages("systemEvent.filter")</legend>
-    @helper.form(action = action, 'class -> "", 'role -> "form") {
+    @helper.form(action = action, attrs._class -> "", attrs._role -> "form") {
         <input type="hidden" name="@OFFSET_PARAM" value="@range.offset" />
         <input type="hidden" name="@LIMIT_PARAM" value="@range.limit" />
         @defining("systemEvent") { implicit fieldPrefix =>
@@ -14,15 +14,15 @@
                 filterForm(""),
                 EVENT_TYPE,
                 EventType,
-                '_autosubmit -> true,
-                'multiple -> true
+                attrs._autosubmit -> true,
+                attrs._multiple -> true
             )
             @formHelpers.choiceInput(
                 filterForm(""),
                 USERS,
                 users.toList,
-                '_autosubmit -> true,
-                'multiple -> true
+                attrs._autosubmit -> true,
+                attrs._multiple -> true
             )
         }
     }

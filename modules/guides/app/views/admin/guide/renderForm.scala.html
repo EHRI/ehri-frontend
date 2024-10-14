@@ -15,9 +15,9 @@
         @helper.select(
             f(Guide.DEFAULT_PAGE),
             pages.map(p => p.id.getOrElse(0).toString -> p.name),
-            'class -> "select2 form-control",
-            '_default -> "---",
-            '_label -> Messages(Guide.PREFIX + "." + Guide.DEFAULT_PAGE)
+            attrs._class -> "select2 form-control",
+            attrs._default -> "---",
+            attrs._label -> Messages(Guide.PREFIX + "." + Guide.DEFAULT_PAGE)
         )
     } else {
         @formHelpers.hiddenInput(f(Guide.DEFAULT_PAGE))

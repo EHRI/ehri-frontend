@@ -23,7 +23,7 @@
     @helper.form(action = action) {
         @formHelpers.csrfToken()
         @defining(Some(fieldHints)) { implicit implicitFieldHints =>
-            @formHelpers.lineInput(f(""), Entity.IDENTIFIER, 'autocomplete -> "off")
+            @formHelpers.lineInput(f(""), Entity.IDENTIFIER, attrs._autocomplete -> "off")
         }
         @views.html.admin.documentaryUnit.form(f, fieldHints)
 

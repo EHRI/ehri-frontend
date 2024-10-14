@@ -4,7 +4,7 @@
 
 @views.html.admin.layout.rightSidebar(Messages("admin.utils.renameItems")) {
     <p>@Messages("admin.utils.renameItems.description")</p>
-    @helper.form(action = action, 'enctype -> "multipart/form-data") {
+    @helper.form(action = action, attrs._enctype -> "multipart/form-data") {
         @views.html.admin.common.pathRemapForm(Messages("admin.utils.renameItems.submit"), form) {
             <div class="form-group">
                 <label class="control-label" for="id_csv">

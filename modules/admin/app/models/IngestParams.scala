@@ -38,7 +38,7 @@ object PayloadHandle {
 
   implicit val _writes: Writes[PayloadHandle] = Writes {
     case FilePayload(f) => Json.toJson(f.map(_.toAbsolutePath.toString))
-    case UrlMapPayload(urls) => Json.toJson(urls.mapValues(_.toString))
+    case UrlMapPayload(urls) => Json.toJson(urls.view.mapValues(_.toString).toMap)
   }
 }
 
