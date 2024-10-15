@@ -26,14 +26,14 @@ object AccessPointF {
     val PlaceAccess = Value("place")
     val GenreAccess = Value("genre")
 
-    implicit val format: Format[AccessPointType.Value] = EnumUtils.enumFormat(this)
+    implicit val _format: Format[AccessPointType.Value] = EnumUtils.enumFormat(this)
 
     def exceptCreator: ValueSet = values.filterNot(_ == CreatorAccess)
   }
 
   import Entity.{TYPE => ETYPE,_}
 
-  implicit val accessPointFormat: Format[AccessPointF] = (
+  implicit lazy val _format: Format[AccessPointF] = (
     (__ \ ETYPE).formatIfEquals(EntityType.AccessPoint) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ TYPE).formatWithDefault(AccessPointType.SubjectAccess) and
@@ -42,7 +42,7 @@ object AccessPointF {
   )(AccessPointF.apply, unlift(AccessPointF.unapply))
 
   implicit object Converter extends Writable[AccessPointF] {
-    lazy val restFormat: Format[AccessPointF] = accessPointFormat
+    lazy val _format: Format[AccessPointF] = AccessPointF._format
   }
 }
 
@@ -82,13 +82,13 @@ object AccessPoint {
   import AccessPointF.{TYPE => ETYPE, _}
   import EnumUtils.enumMapping
 
-  implicit val metaReads: Reads[AccessPoint] = (
+  implicit lazy val _reads: Reads[AccessPoint] = (
     __.read[AccessPointF] and
       (__ \ META).readWithDefault(Json.obj())
     )(AccessPoint.apply _)
 
   implicit object Converter extends Readable[AccessPoint] {
-    val restReads: Reads[AccessPoint] = metaReads
+    val _reads: Reads[AccessPoint] = AccessPoint._reads
   }
 
 

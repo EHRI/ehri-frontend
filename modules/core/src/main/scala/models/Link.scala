@@ -1,12 +1,11 @@
 package models
 
-import play.api.libs.json._
-import models.json._
 import eu.ehri.project.definitions.Ontology
+import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import play.api.libs.json.JsObject
+import play.api.libs.json._
 import utils.EnumUtils
 
 
@@ -51,7 +50,7 @@ object LinkF {
   import Ontology._
   import play.api.libs.functional.syntax._
 
-  implicit val linkFormat: Format[LinkF] = (
+  implicit lazy val linkFormat: Format[LinkF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Link) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LINK_TYPE).formatWithDefault(LinkType.Associative) and
@@ -62,7 +61,7 @@ object LinkF {
   )(LinkF.apply, unlift(LinkF.unapply))
 
   implicit object Converter extends Writable[LinkF] {
-    lazy val restFormat: Format[LinkF] = linkFormat
+    lazy val _format: Format[LinkF] = linkFormat
   }
 }
 
@@ -80,21 +79,17 @@ case class LinkF(
 
 object Link {
   import Entity._
+  import EnumUtils.enumMapping
   import Ontology._
   import play.api.libs.functional.syntax._
-  import EnumUtils.enumMapping
 
-  private implicit val userProfileMetaReads: Reads[models.UserProfile] = models.UserProfile.UserProfileResource.restReads
-  private implicit val accessPointReads: Reads[models.AccessPoint] = models.AccessPoint.Converter.restReads
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-
-  implicit val metaReads: Reads[Link] = (
+  implicit lazy val _reads: Reads[Link] = (
     __.read[LinkF] and
-    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ LINK_HAS_SOURCE).lazyReadHeadNullable(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_SOURCE).lazyReadHeadNullable(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ LINK_HAS_LINKER).readHeadNullable(Accessor._reads) and
     (__ \ RELATIONSHIPS \ LINK_HAS_BODY).readSeqOrEmpty[AccessPoint] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
     (__ \ RELATIONSHIPS \ DEMOTED_BY).readSeqOrEmpty[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
@@ -104,7 +99,7 @@ object Link {
   implicit object LinkResource extends ContentType[Link]  {
     val entityType = EntityType.Link
     val contentType = ContentTypes.Link
-    val restReads: Reads[Link] = metaReads
+    val _reads: Reads[Link] = Link._reads
   }
 
   import LinkF._

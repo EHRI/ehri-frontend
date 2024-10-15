@@ -26,19 +26,19 @@ object SessionPrefs {
   import play.api.libs.functional.syntax._
   import play.api.libs.json._
 
-  implicit val reads: Reads[SessionPrefs] = (
+  implicit val _reads: Reads[SessionPrefs] = (
     (__ \ SHOW_USER_CONTENT).readNullable[Boolean].map(_.getOrElse(true)) and
     (__ \ DEFAULT_LANGUAGES).readSeqOrEmpty[String] and
     (__ \ RECENT_ITEMS).readSeqOrEmpty[String]
   )(SessionPrefs.apply _)
 
-  implicit val writes: Writes[SessionPrefs] = (
+  implicit val _writes: Writes[SessionPrefs] = (
     (__ \ SHOW_USER_CONTENT).write[Boolean] and
     (__ \ DEFAULT_LANGUAGES).writeSeqOrEmpty[String] and
     (__ \ RECENT_ITEMS).writeSeqOrEmpty[String]
   )(unlift(SessionPrefs.unapply))
 
-  implicit val fmt: Format[SessionPrefs] = Format(reads, writes)
+  implicit val fmt: Format[SessionPrefs] = Format(_reads, _writes)
 
   /**
    * Update the session preferences from form values in the

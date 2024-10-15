@@ -12,7 +12,7 @@ package object search {
     val Name = Value("name")
     val Count = Value("count")
 
-    implicit val format: Format[FacetQuerySort.Value] = EnumUtils.enumFormat(FacetQuerySort)
+    implicit val _format: Format[FacetQuerySort.Value] = EnumUtils.enumFormat(FacetQuerySort)
   }
 
   /**

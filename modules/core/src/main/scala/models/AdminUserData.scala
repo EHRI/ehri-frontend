@@ -16,7 +16,7 @@ object AdminUserData {
     verified = user.account.exists(_.verified)
   )
 
-  implicit val format: Format[AdminUserData] = Json.format[AdminUserData]
+  implicit val _format: Format[AdminUserData] = Json.format[AdminUserData]
 
   val form = Form(
     mapping(

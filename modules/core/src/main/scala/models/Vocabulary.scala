@@ -23,7 +23,7 @@ object VocabularyF {
 
   import Entity._
 
-  implicit val vocabularyFormat: Format[VocabularyF] = (
+  implicit lazy val vocabularyFormat: Format[VocabularyF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Vocabulary) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -33,7 +33,7 @@ object VocabularyF {
   )(VocabularyF.apply, unlift(VocabularyF.unapply))
 
   implicit object Converter extends Writable[VocabularyF] {
-    lazy val restFormat: Format[VocabularyF] = vocabularyFormat
+    lazy val _format: Format[VocabularyF] = vocabularyFormat
   }
 }
 
@@ -53,11 +53,11 @@ object Vocabulary {
   import Ontology._
   import VocabularyF._
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource._reads
 
-  implicit val metaReads: Reads[Vocabulary] = (
+  implicit lazy val _reads: Reads[Vocabulary] = (
     __.read[VocabularyF] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
     (__ \ RELATIONSHIPS \ DEMOTED_BY).readSeqOrEmpty[UserProfile] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
@@ -67,7 +67,7 @@ object Vocabulary {
   implicit object VocabularyResource extends ContentType[Vocabulary]  {
     val entityType = EntityType.Vocabulary
     val contentType = ContentTypes.Vocabulary
-    val restReads: Reads[Vocabulary] = metaReads
+    val _reads: Reads[Vocabulary] = Vocabulary._reads
   }
 
   val form = Form(

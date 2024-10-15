@@ -23,7 +23,7 @@ object DatePeriodF {
     val Creation = Value("creation")
     val Existence = Value("existence")
 
-    implicit val format: Format[DatePeriodType.Value] = EnumUtils.enumFormat(this)
+    implicit val _format: Format[DatePeriodType.Value] = EnumUtils.enumFormat(this)
   }
 
   object DatePeriodPrecision extends Enumeration {
@@ -34,12 +34,12 @@ object DatePeriodF {
     val Week = Value("week")
     val Day = Value("day")
 
-    implicit val format: Format[DatePeriodPrecision.Value] = utils.EnumUtils.enumFormat(this)
+    implicit val _format: Format[DatePeriodPrecision.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   import Entity.{TYPE => ETYPE, _}
 
-  implicit val datePeriodFormat: Format[DatePeriodF] = (
+  implicit lazy val datePeriodFormat: Format[DatePeriodF] = (
     (__ \ ETYPE).formatIfEquals(EntityType.DatePeriod) and
       (__ \ ID).formatNullable[String] and
       (__ \ DATA \ TYPE).formatNullable[DatePeriodType.Value] and
@@ -50,7 +50,7 @@ object DatePeriodF {
     ) (DatePeriodF.apply, unlift(DatePeriodF.unapply))
 
   implicit object Converter extends Writable[DatePeriodF] {
-    lazy val restFormat: Format[DatePeriodF] = datePeriodFormat
+    lazy val _format: Format[DatePeriodF] = datePeriodFormat
   }
 }
 

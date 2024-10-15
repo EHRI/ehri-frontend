@@ -18,7 +18,7 @@ object Entity {
   /**
    * Reads a generic entity.
    */
-  implicit val entityReads: Reads[Entity] = (
+  implicit lazy val entityReads: Reads[Entity] = (
     (__ \ ID).read[String] and
     (__ \ TYPE).read[EntityType.Type](EnumUtils.enumReads(EntityType)) and
     (__ \ DATA).lazyRead(Reads.map[JsValue]) and

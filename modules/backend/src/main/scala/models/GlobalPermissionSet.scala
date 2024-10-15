@@ -20,7 +20,7 @@ object GlobalPermissionSet {
    * value in each, converting them to a tuple for internal use.
    *
    */
-  implicit val restReads: Reads[GlobalPermissionSet] = Reads.seq(Reads.map(Reads.map(Reads.seq[String]))).map { pd =>
+  implicit val _reads: Reads[GlobalPermissionSet] = Reads.seq(Reads.map(Reads.map(Reads.seq[String]))).map { pd =>
     pd.flatMap { pmap =>
       pmap.headOption.map { case (user, perms) =>
         (user, perms.flatMap {
@@ -45,6 +45,5 @@ case class GlobalPermissionSet(data: GlobalPermissionSet.PermData) extends Permi
    * Check if this permission set has the given permission.
    */
   def has(sub: ContentTypes.Value, permission: PermissionType.Value): Boolean =
-    data.flatMap(_._2.get(sub)).filter(plist => plist.exists(p =>
-      PermissionType.in(p, permission))).nonEmpty
+    data.flatMap(_._2.get(sub)).exists(plist => plist.exists(p => PermissionType.in(p, permission)))
 }

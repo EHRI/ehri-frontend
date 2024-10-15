@@ -21,14 +21,14 @@ trait Annotate[MT] extends Read[MT] {
     * @return
     */
   def createAnnotationJsonPost(id: String): Action[JsValue] = Action.async(parsers.json) { request =>
-    request.body.validate[AnnotationF](AnnotationF.Converter.clientFormat).fold(
+    request.body.validate[AnnotationF](AnnotationF.Converter._clientFormat).fold(
       errors => immediate(BadRequest(JsError.toJson(errors))),
       ap => {
         // NB: No checking of permissions here - we're going to depend
         // on the server for that
         OptionalUserAction.async { implicit request =>
           userDataApi.createAnnotation[Annotation, AnnotationF](id, ap).map { ann =>
-            Created(Json.toJson(ann.data)(AnnotationF.Converter.clientFormat))
+            Created(Json.toJson(ann.data)(AnnotationF.Converter._clientFormat))
           }
         }(request.map(js => AnyContentAsEmpty))
       }

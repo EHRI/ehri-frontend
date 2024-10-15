@@ -5,11 +5,12 @@ import play.api.libs.json._
 
 object Accessor {
   final val ADMIN_GROUP_NAME = "admin"
-  final val BELONGS_REL = "belongsTo"
+
+  implicit lazy val _reads: Reads[Accessor] = Reads[Accessor](
+    _.validate[Accessor](Model.Converter._reads.asInstanceOf[Reads[Accessor]]))
 
   implicit object Converter extends Readable[Accessor] {
-    implicit val restReads: Reads[Accessor] = Reads[Accessor](
-      _.validate[Accessor](Model.Converter.restReads.asInstanceOf[Reads[Accessor]]))
+    implicit val _reads: Reads[Accessor] = Accessor._reads
   }
 
   /**
@@ -17,7 +18,7 @@ object Accessor {
    * the entity type.
    */
   def resourceFor(t: EntityType.Value): ContentType[Accessor] = new ContentType[Accessor] {
-    val restReads: Reads[Accessor] = Converter.restReads
+    val _reads: Reads[Accessor] = Accessor._reads
     def entityType: EntityType.Value = t
     def contentType: ContentTypes.Value = ContentTypes.withName(t.toString)
   }

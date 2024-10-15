@@ -40,7 +40,7 @@ object Description {
     val Import: Type = Value("IMPORT")
     val Manual: Type = Value("MANUAL")
 
-    implicit val format: Format[CreationProcess.Value] = utils.EnumUtils.enumFormat(this)
+    implicit val _format: Format[CreationProcess.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   /**

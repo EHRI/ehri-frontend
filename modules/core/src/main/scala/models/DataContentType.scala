@@ -10,7 +10,7 @@ case class DataContentTypeF(
 ) extends ModelData
 
 object DataContentTypeF {
-  implicit val format: Format[DataContentTypeF] = (
+  implicit val _format: Format[DataContentTypeF] = (
     (__ \ Entity.ID).formatNullable[String] and
     (__ \ Entity.TYPE).formatIfEquals(EntityType.ContentType)
   )(DataContentTypeF.apply, unlift(DataContentTypeF.unapply))
@@ -30,11 +30,11 @@ case class DataContentType(
 
 object DataContentType {
   import Entity._
-  implicit val format: Format[DataContentType] = (
+  implicit val _format: Format[DataContentType] = (
     __.format[DataContentTypeF] and
       (__ \ META).formatWithDefault(Json.obj())
     )(DataContentType.apply, unlift(DataContentType.unapply))
   implicit object Converter extends Readable[DataContentType] {
-    val restReads: Format[DataContentType] = format
+    val _reads: Format[DataContentType] = DataContentType._format
   }
 }

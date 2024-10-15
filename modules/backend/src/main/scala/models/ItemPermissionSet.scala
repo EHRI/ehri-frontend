@@ -14,7 +14,7 @@ object ItemPermissionSet {
    * a less stringly typed version: all the entity types and permissions
    * should all correspond to Enum values in ContentType and PermissionType.
    */
-  implicit def restReads(contentType: ContentTypes.Value): Reads[ItemPermissionSet] = Reads.seq(Reads.map(Reads.seq[String])).map { pd =>
+  implicit def _reads(contentType: ContentTypes.Value): Reads[ItemPermissionSet] = Reads.seq(Reads.map(Reads.seq[String])).map { pd =>
     // Raw data is a Seq[Map[String, Seq[String]]]
     import scala.util.control.Exception._
     pd.flatMap { userPermMap =>

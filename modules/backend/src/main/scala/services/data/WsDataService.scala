@@ -58,7 +58,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     userCall(enc(baseUrl, "admin", "create-default-user-profile"))
       .withQueryString(groups.map(group => Constants.GROUP_PARAM -> group): _*)
       .post(Json.toJson(data)).map { response =>
-      val item = checkErrorAndParse(response)(implicitly[Readable[T]].restReads)
+      val item = checkErrorAndParse(response)(implicitly[Readable[T]]._reads)
       eventHandler.handleCreate(item.id)
       item
     }
@@ -83,12 +83,12 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
           userCall(url, resource.defaultParams).get().map(_.json)
         }
         // Deserialize it now...
-        jsonF.map(json => jsonReadToRestError(json, resource.restReads, context = Some(url)))
+        jsonF.map(json => jsonReadToRestError(json, resource._reads, context = Some(url)))
       } else {
         // If we fail to get an OK response run the request as normal
         // to get the correct error response from the server
         userCall(url, resource.defaultParams).get().map { r =>
-          checkErrorAndParse(r)(resource.restReads)
+          checkErrorAndParse(r)(resource._reads)
         }
       }
     }
@@ -105,8 +105,8 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(Writable[T].restFormat)).map { response =>
-      val created = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      .post(Json.toJson(item)(Writable[T]._format)).map { response =>
+      val created = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       eventHandler.handleCreate(created.id)
       created
     }
@@ -118,10 +118,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params): _*)
       .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(Writable[T].restFormat))
+      .post(Json.toJson(item)(Writable[T]._format))
     for {
       response <- callF
-      created = checkErrorAndParse(response, context = Some(url))(Readable[TT].restReads)
+      created = checkErrorAndParse(response, context = Some(url))(Readable[TT]._reads)
       // also reindex parent since this will update child count caches
       _ = eventHandler.handleUpdate(id)
       _ = eventHandler.handleCreate(created.id)
@@ -133,10 +133,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val url = enc(typeBaseUrl, Resource[MT].entityType, id)
     val callF = userCall(url).withHeaders(msgHeader(logMsg): _*)
       .withQueryString(unpack(params): _*)
-      .put(Json.toJson(item)(Writable[T].restFormat))
+      .put(Json.toJson(item)(Writable[T]._format))
     for {
       response <- callF
-      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       _ = eventHandler.handleUpdate(id)
       _ <- invalidate(id)
     } yield item
@@ -149,7 +149,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .put(item)
     for {
       response <- callF
-      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       _ = eventHandler.handleUpdate(id)
       _ <- invalidate(id)
     } yield item
@@ -201,7 +201,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val callF = userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post()
     for {
       response <- callF
-      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       _ <- invalidate(parentIds)
       _ <- invalidate(id)
       _ = eventHandler.handleUpdate(parentIds :+ id: _*)
@@ -234,7 +234,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def getAny[MT: Readable](id: String): Future[MT] = {
     val url: String = enc(genericItemUrl, id)
     BackendRequest(url).withHeaders(authHeaders.toSeq: _*).get().map { response =>
-      checkErrorAndParse(response, context = Some(url))(implicitly[Readable[MT]].restReads)
+      checkErrorAndParse(response, context = Some(url))(implicitly[Readable[MT]]._reads)
     }
   }
 
@@ -245,7 +245,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       val payload: JsArray = Json.toJson(ids).as[JsArray] ++ Json.toJson(gids).as[JsArray]
       userCall(enc(genericItemUrl)).post(payload).map { response =>
         checkErrorAndParse(response)(Reads.seq(
-          Reads.optionWithNull(implicitly[Readable[MT]].restReads)))
+          Reads.optionWithNull(implicitly[Readable[MT]]._reads)))
       }
     }
   }
@@ -257,7 +257,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .post()
     for {
       response <- callF
-      item = checkErrorAndParse(response, context = Some(url))(Resource[MT].restReads)
+      item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       _ = eventHandler.handleUpdate(id)
       _ <- invalidate(id)
     } yield item
@@ -279,7 +279,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val pageParams = PageParams.empty.withoutLimit
     userCall(enc(genericItemUrl, id, "links")).withQueryString(pageParams.queryParams: _*)
       .get().map { response =>
-      parsePage(response)(Readable[A].restReads)
+      parsePage(response)(Readable[A]._reads)
     }
   }
 
@@ -287,7 +287,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val url = enc(genericItemUrl, id, "annotations")
     val pageParams = PageParams.empty.withoutLimit
     userCall(url).withQueryString(pageParams.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[A].restReads)
+      parsePage(response, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -300,17 +300,17 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def history[A: Readable](id: String, params: RangeParams,
     filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(genericItemUrl, id, "events")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A]._reads), ec)
   }
 
   override def createAccessPoint[MT: Resource, AP: Writable](id: String, did: String, item: AP, logMsg: Option[String] = None): Future[AP] = {
     val url: String = enc(genericItemUrl, id, "descriptions", did, "access-points")
     val callF = userCall(url)
       .withHeaders(msgHeader(logMsg): _*)
-      .post(Json.toJson(item)(Writable[AP].restFormat))
+      .post(Json.toJson(item)(Writable[AP]._format))
     for {
       response <- callF
-      item = checkErrorAndParse(response, context = Some(url))(Writable[AP].restFormat)
+      item = checkErrorAndParse(response, context = Some(url))(Writable[AP]._format)
       _ = eventHandler.handleUpdate(id)
       _ <- invalidate(id)
     } yield item
@@ -328,12 +328,12 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
 
   override def userActions[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "actions")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A]._reads), ec)
   }
 
   override def userEvents[A: Readable](userId: String, params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.UserProfile, userId, "events")
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A]._reads), ec)
   }
 
 
@@ -343,7 +343,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*)
       .withHeaders(Ranged.streamHeader).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[A].restReads)
+      parsePage(response, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -354,8 +354,8 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(TARGET_PARAM -> id)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(subItem.toSeq.map(a => BODY_PARAM -> a): _*)
-      .post(Json.toJson(ann)(Writable[AF].restFormat)).map { response =>
-      val annotation: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
+      .post(Json.toJson(ann)(Writable[AF]._format)).map { response =>
+      val annotation: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A]._reads)
       eventHandler.handleCreate(annotation.id)
       annotation
     }
@@ -370,10 +370,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
         "directional" -> directional.toString
       )
       .withQueryString(accessPoint.map(a => BODY_PARAM -> a).toSeq: _*)
-      .post(Json.toJson(link)(Writable[AF].restFormat))
+      .post(Json.toJson(link)(Writable[AF]._format))
     for {
       response <- callF
-      link = checkErrorAndParse[A](response, context = Some(url))(Readable[A].restReads)
+      link = checkErrorAndParse[A](response, context = Some(url))(Readable[A]._reads)
       _= eventHandler.handleCreate(link.id)
       _ <- invalidate(id)
     } yield link
@@ -396,7 +396,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
 
   override def events[A: Readable](params: RangeParams, filters: SystemEventParams = SystemEventParams.empty): Future[RangePage[Seq[A]]] = {
     val url: String = enc(typeBaseUrl, EntityType.SystemEvent)
-    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A].restReads), ec)
+    fetchRange(userCall(url, filters.toSeq()), params, Some(url))(Reads.seq(Readable[A]._reads), ec)
   }
 
   override def subjectsForEvent[A: Readable](id: String, params: PageParams): Future[Page[A]] = {
@@ -404,7 +404,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     userCall(url)
       .withQueryString(params.queryParams: _*)
       .withHeaders(params.headers: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[A].restReads)
+      parsePage(response, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -442,7 +442,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def permissionGrants[A: Readable](userId: String, params: PageParams): Future[Page[A]] = {
     val url: String = enc(permissionRequestUrl, userId, "permission-grants")
     userCall(url).withQueryString(params.queryParams: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[A].restReads)
+      parsePage(response, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -467,7 +467,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val url = enc(permissionRequestUrl, userId, "item", id)
     cache.getOrElseUpdate(url, cacheTime) {
       userCall(url).get().map { response =>
-        checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
+        checkErrorAndParse(response, context = Some(url))(ItemPermissionSet._reads(contentType))
       }
     }
   }
@@ -476,7 +476,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     val url = enc(permissionRequestUrl, userId, "item", id)
     for {
       response <- userCall(url).post(Json.toJson(data))
-      ip = checkErrorAndParse(response, context = Some(url))(ItemPermissionSet.restReads(contentType))
+      ip = checkErrorAndParse(response, context = Some(url))(ItemPermissionSet._reads(contentType))
       _ <- cache.set(url, ip, cacheTime)
     } yield ip
   }
@@ -572,21 +572,21 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def followers[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]] = {
     val url: String = enc(userRequestUrl, userId, "followers")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[U].restReads)
+      parsePage(r, context = Some(url))(Readable[U]._reads)
     }
   }
 
   override def following[U: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[U]] = {
     val url: String = followingUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[U].restReads)
+      parsePage(r, context = Some(url))(Readable[U]._reads)
     }
   }
 
   override def watching[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(userRequestUrl, userId, "watching")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[A].restReads)
+      parsePage(r, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -622,7 +622,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def blocked[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = blockedUrl(userId)
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[A].restReads)
+      parsePage(r, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -658,21 +658,21 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   override def userAnnotations[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(userRequestUrl, userId, "annotations")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[A].restReads)
+      parsePage(r, context = Some(url))(Readable[A]._reads)
     }
   }
 
   override def userLinks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(userRequestUrl, userId, "links")
     userCall(url).withQueryString(params.queryParams: _*).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[A].restReads)
+      parsePage(r, context = Some(url))(Readable[A]._reads)
     }
   }
 
   override def userBookmarks[A: Readable](userId: String, params: PageParams = PageParams.empty): Future[Page[A]] = {
     val url: String = enc(userRequestUrl, userId, "virtual-units")
     userCall(url).get().map { r =>
-      parsePage(r, context = Some(url))(Readable[A].restReads)
+      parsePage(r, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -765,7 +765,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   }
 
   override def batchUpdate[T: Writable](data: Seq[T], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {
-    implicit val writes: Writes[T] = Writable[T].restFormat
+    implicit val _writes: Writes[T] = Writable[T]._format
     val url = enc(baseUrl, "batch", "update")
     userCall(url).withQueryString(
       "version" -> version.toString,
@@ -811,14 +811,14 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     }
 
   private def itemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
-    val item: MT = checkErrorAndParse(response)(Resource[MT].restReads)
+    val item: MT = checkErrorAndParse(response)(Resource[MT]._reads)
     eventHandler.handleUpdate(id)
     invalidate(id).map(_ => item)
   }
 
   private def listWithUrl[A: Readable](url: String, params: PageParams, extra: Seq[(String,String)] = Seq.empty): Future[Page[A]] = {
     userCall(url).withQueryString(params.queryParams ++ extra: _*).get().map { response =>
-      parsePage(response, context = Some(url))(Readable[A].restReads)
+      parsePage(response, context = Some(url))(Readable[A]._reads)
     }
   }
 
@@ -833,7 +833,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(PageParams.empty.withoutLimit.queryParams ++ extra: _*)
       .stream().map (_.bodyAsSource
       .via(JsonFraming.objectScanner(Integer.MAX_VALUE))
-      .map { bytes => Json.parse(bytes.utf8String).validate[A](reader.restReads) }
+      .map { bytes => Json.parse(bytes.utf8String).validate[A](reader._reads) }
       .collect { case JsSuccess(item, _) => item}
     )).flatMapConcat(identity)
   }

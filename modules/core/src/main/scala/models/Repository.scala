@@ -28,7 +28,7 @@ object RepositoryF {
   import Entity._
   import Ontology._
 
-  implicit val repositoryFormat: Format[RepositoryF] = (
+  implicit lazy val repositoryFormat: Format[RepositoryF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Repository) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -42,7 +42,7 @@ object RepositoryF {
   )(RepositoryF.apply, unlift(RepositoryF.unapply))
 
   implicit object Converter extends Writable[RepositoryF] {
-    val restFormat: Format[RepositoryF] = repositoryFormat
+    val _format: Format[RepositoryF] = repositoryFormat
   }
 }
 
@@ -111,10 +111,10 @@ object Repository {
   import Ontology._
   import utils.EnumUtils.enumMapping
 
-  implicit lazy val metaReads: Reads[Repository] = (
+  implicit lazy val _reads: Reads[Repository] = (
     __.read[RepositoryF](repositoryFormat) and
     (__ \ RELATIONSHIPS \ REPOSITORY_HAS_COUNTRY).readHeadNullable[Country] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Repository.apply _)
@@ -122,7 +122,7 @@ object Repository {
   implicit object RepositoryResource extends ContentType[Repository]  {
     val entityType = EntityType.Repository
     val contentType = ContentTypes.Repository
-    val restReads: Reads[Repository] = metaReads
+    val _reads: Reads[Repository] = Repository._reads
   }
 
   /**

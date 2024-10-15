@@ -20,7 +20,7 @@ import scala.concurrent.{ExecutionContext, Future}
 private case class WsCypherResultData(row: List[JsValue], meta: Seq[JsValue])
 
 private object WsCypherResultData {
-  implicit val reads: Reads[WsCypherResultData] = (
+  implicit val _reads: Reads[WsCypherResultData] = (
     (__ \ "row").read[List[JsValue]] and
     (__ \ "meta").read[Seq[JsValue]]
   )(WsCypherResultData.apply _)
@@ -31,7 +31,7 @@ private case class WsCypherResult(columns: Seq[String], data: Seq[WsCypherResult
 }
 
 private object WsCypherResult {
-  implicit val reads: Reads[WsCypherResult] = (
+  implicit val _reads: Reads[WsCypherResult] = (
     (__ \ "columns").read[Seq[String]] and
     (__ \ "data").read[Seq[WsCypherResultData]]
   )(WsCypherResult.apply _)

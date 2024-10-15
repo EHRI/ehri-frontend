@@ -17,5 +17,5 @@ object FeedbackContext {
     headers = request.headers.toSimpleMap
   )
 
-  implicit val format: Format[FeedbackContext] = Json.format[FeedbackContext]
+  implicit val _format: Format[FeedbackContext] = Json.format[FeedbackContext]
 }

@@ -28,8 +28,8 @@ case class VocabularyEditor @Inject()(
 ) extends AdminController with Read[Vocabulary] with Search {
 
   private val maxSize = config.underlying.getBytes("ehri.admin.vocabEditor.maxPayloadSize")
-  private val clientFormFormat = client.json.conceptJson.fFormat
-  private val clientFormat = client.json.conceptJson.clientFormat
+  private val clientFormFormat = client.json.conceptJson._formFormat
+  private val _clientFormat = client.json.conceptJson._clientFormat
 
   private case class AccountRequest[A](account: Account, request: Request[A]) extends WrappedRequest[A](request)
 
@@ -137,7 +137,7 @@ case class VocabularyEditor @Inject()(
 
   def get(id: String, cid: String): Action[AnyContent] = UserAction(parse.anyContent).async { implicit request =>
     userDataApi.get[Concept](cid).map { item =>
-      Ok(Json.toJson(item)(clientFormat))
+      Ok(Json.toJson(item)(_clientFormat))
     }
   }
 
@@ -159,17 +159,17 @@ case class VocabularyEditor @Inject()(
 
   def broader(id: String, cid: String): Action[Seq[String]] = UserAction(parse.json[Seq[String]]).async { implicit request =>
     userDataApi.parent[Concept, Concept](cid, request.body).map { item =>
-      Ok(Json.toJson(item)(clientFormat))
+      Ok(Json.toJson(item)(_clientFormat))
     }
   }
 
   def updateItem(id: String, cid: String): Action[JsValue] = UserAction(parse.json(maxSize)).async { implicit request =>
-    request.body.validate[Concept](clientFormat).fold(
+    request.body.validate[Concept](_clientFormat).fold(
       invalid => Future.successful(BadRequest(JsError.toJson(invalid))),
       data => {
         userDataApi.update[Concept, ConceptF](cid, data.data).map { item =>
-          implicit val conceptFormat: Writes[Concept] = client.json.conceptJson.clientFormat
-          Ok(Json.toJson(item)(clientFormat))
+          implicit val conceptFormat: Writes[Concept] = client.json.conceptJson._clientFormat
+          Ok(Json.toJson(item)(_clientFormat))
         }.recover {
           case e: ValidationError => BadRequest(Json.toJson(e.errorSet.errors))
         }
@@ -182,7 +182,7 @@ case class VocabularyEditor @Inject()(
       invalid => Future.successful(BadRequest(JsError.toJson(invalid))),
       data => {
         userDataApi.createInContext[Vocabulary, ConceptF, Concept](id, data).map { item =>
-          Created(Json.toJson(item)(clientFormat))
+          Created(Json.toJson(item)(_clientFormat))
         }.recover {
           case e: ValidationError => BadRequest(Json.toJson(e.errorSet.errors))
         }

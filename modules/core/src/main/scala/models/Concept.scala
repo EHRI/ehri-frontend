@@ -49,7 +49,7 @@ object ConceptF {
   import play.api.libs.functional.syntax._
   import Entity._
 
-  implicit val conceptFormat: Format[ConceptF] = (
+  implicit lazy val conceptFormat: Format[ConceptF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Concept) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -62,7 +62,7 @@ object ConceptF {
   )(ConceptF.apply, unlift(ConceptF.unapply))
 
   implicit object Converter extends Writable[ConceptF] {
-    val restFormat: Format[ConceptF] = conceptFormat
+    val _format: Format[ConceptF] = conceptFormat
   }
 }
 
@@ -89,15 +89,12 @@ object Concept {
   import Entity._
   import ConceptF._
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val vocabularyReads: Reads[models.Vocabulary] = Vocabulary.VocabularyResource.restReads
-
-  implicit val metaReads: Reads[Concept] = (
+  implicit lazy val _reads: Reads[Concept] = (
     __.read[ConceptF] and
     (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).readHeadNullable[Vocabulary] and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadHeadNullable[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadSeqOrEmpty[Concept](metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor](Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadHeadNullable[Concept](_reads) and
+    (__ \ RELATIONSHIPS \ CONCEPT_HAS_BROADER).lazyReadSeqOrEmpty[Concept](_reads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Concept.apply _)
@@ -105,14 +102,14 @@ object Concept {
   implicit object ConceptResource extends ContentType[Concept]  {
     val entityType = EntityType.Concept
     val contentType = ContentTypes.Concept
-    val restReads: Reads[Concept] = metaReads
+    val _reads: Reads[Concept] = Concept._reads
 
-    override def defaultParams = Seq(
+    override def defaultParams: Seq[(String, String)] = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> VocabularyF.NAME
     )
   }
 
-  val form = Form(
+  val form: Form[ConceptF] = Form(
     mapping(
       ISA -> ignored(EntityType.Concept),
       ID -> optional(nonEmptyText),

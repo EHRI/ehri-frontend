@@ -35,7 +35,7 @@ object MaintenanceEventF {
 
   import Entity._
 
-  implicit val maintenanceEventFormat: Format[MaintenanceEventF] = (
+  implicit lazy val maintenanceEventFormat: Format[MaintenanceEventF] = (
     (__ \ TYPE).formatIfEquals(EntityType.MaintenanceEvent) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ DATE).formatHeadOrSingleNullable[String] and
@@ -60,13 +60,13 @@ object MaintenanceEvent {
 
   import Entity.META
 
-  implicit val metaReads: Reads[MaintenanceEvent] = (
+  implicit lazy val _reads: Reads[MaintenanceEvent] = (
     __.read[MaintenanceEventF] and
     (__ \ META).readWithDefault(Json.obj())
   )(MaintenanceEvent.apply _)
 
   implicit object Converter extends Readable[MaintenanceEvent] {
-    val restReads: Reads[MaintenanceEvent] = metaReads
+    val _reads: Reads[MaintenanceEvent] = MaintenanceEvent._reads
   }
 }
 

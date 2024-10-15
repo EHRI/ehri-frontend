@@ -18,7 +18,7 @@ object GroupF {
 
   import Entity._
 
-  implicit val groupFormat: Format[GroupF] = (
+  implicit lazy val groupFormat: Format[GroupF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Group) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -27,7 +27,7 @@ object GroupF {
   )(GroupF.apply, unlift(GroupF.unapply))
 
   implicit object Converter extends Writable[GroupF] {
-    lazy val restFormat: Format[GroupF] = groupFormat
+    lazy val _format: Format[GroupF] = groupFormat
   }
 }
 
@@ -44,12 +44,12 @@ object Group {
   import Entity._
   import Ontology._
 
-  private lazy implicit val systemEventReads: Reads[SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private lazy implicit val systemEventReads: Reads[SystemEvent] = SystemEvent.SystemEventResource._reads
 
-  implicit val metaReads: Reads[Group] = (
+  implicit lazy val _reads: Reads[Group] = (
     __.read[GroupF] and
-    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadSeqOrEmpty(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadSeqOrEmpty(Group._reads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Group.apply _)
@@ -57,7 +57,7 @@ object Group {
   implicit object GroupResource extends ContentType[Group]  {
     val entityType = EntityType.Group
     val contentType = ContentTypes.Group
-    val restReads: Reads[Group] = metaReads
+    val _reads: Reads[Group] = Group._reads
   }
 
   val form: Form[GroupF] = Form(
