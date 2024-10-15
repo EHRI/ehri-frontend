@@ -82,7 +82,7 @@ object BoundingBox {
     }
   }
 
-  implicit val writes: Writes[BoundingBox] = Json.writes[BoundingBox]
+  implicit val _writes: Writes[BoundingBox] = Json.writes[BoundingBox]
 
   implicit def bboxQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[BoundingBox] =
     new QueryStringBindable[BoundingBox] {
@@ -118,7 +118,7 @@ object LatLng {
     }
   }
 
-  implicit val writes: Writes[LatLng] = Json.writes[LatLng]
+  implicit val _writes: Writes[LatLng] = Json.writes[LatLng]
 
   implicit def latLngQueryBinder(implicit stringBinder: QueryStringBindable[String]): QueryStringBindable[LatLng] =
     new QueryStringBindable[LatLng] {
@@ -163,7 +163,7 @@ object SearchParams {
 
   def empty: SearchParams = SearchParams()
 
-  implicit val writes: Writes[SearchParams] = Json.writes[SearchParams]
+  implicit val _writes: Writes[SearchParams] = Json.writes[SearchParams]
 
   implicit def _queryBinder(
     implicit seqStrBinder: QueryStringBindable[Seq[String]]): QueryStringBindable[SearchParams] with NamespaceExtractor = new QueryStringBindable[SearchParams] with NamespaceExtractor {

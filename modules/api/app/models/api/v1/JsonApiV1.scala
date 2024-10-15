@@ -37,7 +37,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitDescriptionAttrs {
-    implicit val writes: Writes[DocumentaryUnitDescriptionAttrs] = Json.writes[DocumentaryUnitDescriptionAttrs]
+    implicit val _writes: Writes[DocumentaryUnitDescriptionAttrs] = Json.writes[DocumentaryUnitDescriptionAttrs]
 
     def apply(d: DocumentaryUnitDescriptionF)(implicit messages: Messages): DocumentaryUnitDescriptionAttrs =
       new DocumentaryUnitDescriptionAttrs(
@@ -66,7 +66,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitAttrs {
-    implicit val writes: Writes[DocumentaryUnitAttrs] = Json.writes[DocumentaryUnitAttrs]
+    implicit val _writes: Writes[DocumentaryUnitAttrs] = Json.writes[DocumentaryUnitAttrs]
 
     def apply(d: DocumentaryUnit)(implicit messages: Messages): DocumentaryUnitAttrs =
       new DocumentaryUnitAttrs(
@@ -92,7 +92,7 @@ object JsonApiV1 {
   )
 
   object AddressAttrs {
-    implicit val writes: Writes[AddressAttrs] = Json.writes[AddressAttrs]
+    implicit val _writes: Writes[AddressAttrs] = Json.writes[AddressAttrs]
 
     def apply(a: AddressF)(implicit messages: Messages): AddressAttrs = new AddressAttrs(
       a.name,
@@ -133,7 +133,7 @@ object JsonApiV1 {
   )
 
   object RepositoryAttrs {
-    implicit val writes: Writes[RepositoryAttrs] = Json.writes[RepositoryAttrs]
+    implicit val _writes: Writes[RepositoryAttrs] = Json.writes[RepositoryAttrs]
 
     def apply(r: Repository)(implicit messages: Messages): RepositoryAttrs = {
       r.data.primaryDescription.map { d =>
@@ -172,7 +172,7 @@ object JsonApiV1 {
   )
 
   object DocumentaryUnitLinks {
-    implicit val writes: Writes[DocumentaryUnitLinks] = Json.writes[DocumentaryUnitLinks]
+    implicit val _writes: Writes[DocumentaryUnitLinks] = Json.writes[DocumentaryUnitLinks]
   }
 
   case class DocumentaryUnitRelations(
@@ -184,7 +184,7 @@ object JsonApiV1 {
     // Not using default writes here because missing (Optional)
     // relations should be expressed using null
     // http://jsonapi.org/format/#document-resource-object-related-resource-links
-    implicit val writes: Writes[DocumentaryUnitRelations] = Writes[DocumentaryUnitRelations] { r =>
+    implicit val _writes: Writes[DocumentaryUnitRelations] = Writes[DocumentaryUnitRelations] { r =>
       Json.obj(
         "holder" -> r.holder,
         "parent" -> r.parent
@@ -206,7 +206,7 @@ object JsonApiV1 {
   )
 
   object HistoricalAgentAttrs {
-    implicit val writes: Writes[HistoricalAgentAttrs] = Json.writes[HistoricalAgentAttrs]
+    implicit val _writes: Writes[HistoricalAgentAttrs] = Json.writes[HistoricalAgentAttrs]
 
     def apply(a: HistoricalAgent)(implicit messages: Messages): HistoricalAgentAttrs = {
       a.data.primaryDescription.map { d =>
@@ -234,7 +234,7 @@ object JsonApiV1 {
   )
 
   object HistoricalAgentLinks {
-    implicit val writes: Writes[HistoricalAgentLinks] = Json.writes[HistoricalAgentLinks]
+    implicit val _writes: Writes[HistoricalAgentLinks] = Json.writes[HistoricalAgentLinks]
   }
 
   case class RepositoryLinks(
@@ -244,7 +244,7 @@ object JsonApiV1 {
   )
 
   object RepositoryLinks {
-    implicit val writes: Writes[RepositoryLinks] = Json.writes[RepositoryLinks]
+    implicit val _writes: Writes[RepositoryLinks] = Json.writes[RepositoryLinks]
   }
 
   case class RepositoryRelations(
@@ -252,7 +252,7 @@ object JsonApiV1 {
   )
 
   object RepositoryRelations {
-    implicit val writes: Writes[RepositoryRelations] = Json.writes[RepositoryRelations]
+    implicit val _writes: Writes[RepositoryRelations] = Json.writes[RepositoryRelations]
   }
 
   case class CountryAttrs(
@@ -266,7 +266,7 @@ object JsonApiV1 {
   )
 
   object CountryAttrs {
-    implicit val writes: Writes[CountryAttrs] = Json.writes[CountryAttrs]
+    implicit val _writes: Writes[CountryAttrs] = Json.writes[CountryAttrs]
 
     def apply(c: Country)(implicit requestHeader: RequestHeader, messages: Messages): CountryAttrs =
       new CountryAttrs(
@@ -286,7 +286,7 @@ object JsonApiV1 {
   )
 
   object CountryLinks {
-    implicit val writes: Writes[CountryLinks] = Json.writes[CountryLinks]
+    implicit val _writes: Writes[CountryLinks] = Json.writes[CountryLinks]
   }
 
   case class ConceptDescriptionAttrs(
@@ -302,7 +302,7 @@ object JsonApiV1 {
   )
 
   object ConceptDescriptionAttrs {
-    implicit val writes: Writes[ConceptDescriptionAttrs] = Json.writes[ConceptDescriptionAttrs]
+    implicit val _writes: Writes[ConceptDescriptionAttrs] = Json.writes[ConceptDescriptionAttrs]
 
     def apply(d: ConceptDescriptionF)(implicit messages: Messages): ConceptDescriptionAttrs = new ConceptDescriptionAttrs(
       languageCode = d.languageCode,
@@ -326,7 +326,7 @@ object JsonApiV1 {
   )
 
   object ConceptAttrs {
-    implicit val writes: Writes[ConceptAttrs] = Json.writes[ConceptAttrs]
+    implicit val _writes: Writes[ConceptAttrs] = Json.writes[ConceptAttrs]
 
     def apply(c: Concept)(implicit requestHeader: RequestHeader, messages: Messages): ConceptAttrs =
       new ConceptAttrs(
@@ -347,7 +347,7 @@ object JsonApiV1 {
   )
 
   object ConceptLinks {
-    implicit val writes: Writes[ConceptLinks] = Json.writes[ConceptLinks]
+    implicit val _writes: Writes[ConceptLinks] = Json.writes[ConceptLinks]
   }
 
   case class JsonApiResponse(
@@ -380,7 +380,7 @@ object JsonApiV1 {
   )
 
   object ResourceIdentifier {
-    implicit val writes: Writes[ResourceIdentifier] = Json.writes[ResourceIdentifier]
+    implicit val _writes: Writes[ResourceIdentifier] = Json.writes[ResourceIdentifier]
 
     def apply(m: Model) = new ResourceIdentifier(m.id, m.isA.toString)
   }
@@ -393,7 +393,7 @@ object JsonApiV1 {
   )
 
   object PaginationLinks {
-    implicit val writes: Writes[PaginationLinks] = Json.writes[PaginationLinks]
+    implicit val _writes: Writes[PaginationLinks] = Json.writes[PaginationLinks]
   }
 
   case class JsonApiError(
@@ -406,7 +406,7 @@ object JsonApiV1 {
   )
 
   object JsonApiError {
-    implicit val writes: Writes[JsonApiError] = Json.writes[JsonApiError]
+    implicit val _writes: Writes[JsonApiError] = Json.writes[JsonApiError]
   }
 
   case class GeoPoint(
@@ -415,7 +415,7 @@ object JsonApiV1 {
   )
 
   object GeoPoint {
-    implicit val writes: Writes[GeoPoint] = Writes { p =>
+    implicit val _writes: Writes[GeoPoint] = Writes { p =>
       Json.obj(
         "type" -> "Point",
         "coordinates" -> Json.arr(p.latitude, p.longitude)

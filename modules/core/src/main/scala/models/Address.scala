@@ -13,7 +13,7 @@ object AddressF {
   import Isdiah._
   import play.api.libs.functional.syntax._
 
-  implicit val addressFormat: Format[AddressF] = (
+  implicit lazy val _format: Format[AddressF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Address) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ ADDRESS_NAME).formatNullable[String] and
@@ -30,7 +30,7 @@ object AddressF {
   )(AddressF.apply, unlift(AddressF.unapply))
 
   implicit object Converter extends Writable[AddressF] {
-    val restFormat: Format[AddressF] = addressFormat
+    val _format: Format[AddressF] = AddressF._format
   }
 }
 

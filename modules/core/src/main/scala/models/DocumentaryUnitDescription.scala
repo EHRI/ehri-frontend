@@ -67,7 +67,7 @@ object DocumentaryUnitDescriptionF {
   import Ontology._
   import models.IsadG._
 
-  implicit val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] = (
+  implicit lazy val documentaryUnitDescriptionFormat: Format[DocumentaryUnitDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnitDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
@@ -125,7 +125,7 @@ object DocumentaryUnitDescriptionF {
   )(DocumentaryUnitDescriptionF.apply, unlift(DocumentaryUnitDescriptionF.unapply))
 
   implicit object Converter extends Writable[DocumentaryUnitDescriptionF] {
-    val restFormat: Format[DocumentaryUnitDescriptionF] = documentaryUnitDescriptionFormat
+    val _format: Format[DocumentaryUnitDescriptionF] = documentaryUnitDescriptionFormat
   }
 }
 

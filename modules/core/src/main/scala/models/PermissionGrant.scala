@@ -26,7 +26,7 @@ object PermissionGrantF {
   )(PermissionGrantF.apply _)
 
   implicit object Converter extends Readable[PermissionGrantF] {
-    val restReads: Reads[PermissionGrantF] = permissionGrantReads
+    val _reads: Reads[PermissionGrantF] = permissionGrantReads
   }
 }
 
@@ -43,17 +43,17 @@ object PermissionGrant {
   import eu.ehri.project.definitions.Ontology._
   import play.api.libs.functional.syntax._
 
-  implicit val metaReads: Reads[PermissionGrant] = (
+  implicit lazy val _reads: Reads[PermissionGrant] = (
     __.read(permissionGrantReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadHeadNullable(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).readHeadNullable[UserProfile](UserProfile.UserProfileResource.restReads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SUBJECT).lazyReadHeadNullable(Accessor._reads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_TARGET).lazyReadSeqOrEmpty(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ PERMISSION_GRANT_HAS_GRANTEE).readHeadNullable[UserProfile](UserProfile.UserProfileResource._reads) and
     (__ \ META).readWithDefault(Json.obj())
   )(PermissionGrant.apply _)
 
   implicit object PermissionGrantResource extends Resource[PermissionGrant]  {
-    implicit val restReads: Reads[PermissionGrant] = metaReads
+    implicit val _reads: Reads[PermissionGrant] = PermissionGrant._reads
     val entityType = EntityType.PermissionGrant
   }
 }

@@ -21,7 +21,7 @@ object AuthoritativeSetF {
 
   import Entity._
 
-  implicit val authoritativeSetFormat: Format[AuthoritativeSetF] = (
+  implicit lazy val _format: Format[AuthoritativeSetF] = (
     (__ \ TYPE).formatIfEquals(EntityType.AuthoritativeSet) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -31,7 +31,7 @@ object AuthoritativeSetF {
   )(AuthoritativeSetF.apply, unlift(AuthoritativeSetF.unapply))
 
   implicit object Converter extends Writable[AuthoritativeSetF] {
-    lazy val restFormat: Format[AuthoritativeSetF] = authoritativeSetFormat
+    lazy val _format: Format[AuthoritativeSetF] = AuthoritativeSetF._format
   }
 }
 
@@ -50,10 +50,7 @@ object AuthoritativeSet {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val accessorReads: Reads[models.Accessor] = Accessor.Converter.restReads
-
-  implicit val metaReads: Reads[AuthoritativeSet] = (
+  implicit lazy val _reads: Reads[AuthoritativeSet] = (
     __.read[AuthoritativeSetF] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
@@ -65,10 +62,10 @@ object AuthoritativeSet {
   implicit object AuthoritativeSetResource extends ContentType[AuthoritativeSet]  {
     val entityType = EntityType.AuthoritativeSet
     val contentType = ContentTypes.AuthoritativeSet
-    val restReads: Reads[AuthoritativeSet] = metaReads
+    val _reads: Reads[AuthoritativeSet] = AuthoritativeSet._reads
   }
 
-  val form = Form(
+  val form: Form[AuthoritativeSetF] = Form(
     mapping(
       ISA -> ignored(EntityType.AuthoritativeSet),
       ID -> optional(nonEmptyText),

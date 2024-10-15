@@ -22,7 +22,7 @@ object HistoricalAgentF {
   import Entity._
   import Ontology._
 
-  implicit val historicalAgentFormat: Format[HistoricalAgentF] = (
+  implicit lazy val historicalAgentFormat: Format[HistoricalAgentF] = (
     (__ \ TYPE).formatIfEquals(EntityType.HistoricalAgent) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -31,7 +31,7 @@ object HistoricalAgentF {
   )(HistoricalAgentF.apply, unlift(HistoricalAgentF.unapply))
 
   implicit object Converter extends Writable[HistoricalAgentF] {
-    lazy val restFormat: Format[HistoricalAgentF] = historicalAgentFormat
+    lazy val _format: Format[HistoricalAgentF] = historicalAgentFormat
   }
 }
 
@@ -59,13 +59,13 @@ object HistoricalAgent {
   import Ontology._
   import utils.EnumUtils.enumMapping
 
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val authoritativeSetReads: Reads[models.AuthoritativeSet] = AuthoritativeSet.AuthoritativeSetResource.restReads
+  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource._reads
+  private implicit val authoritativeSetReads: Reads[models.AuthoritativeSet] = AuthoritativeSet.AuthoritativeSetResource._reads
 
-  implicit val metaReads: Reads[HistoricalAgent] = (
+  implicit lazy val _reads: Reads[HistoricalAgent] = (
     __.read[HistoricalAgentF] and
     (__ \ RELATIONSHIPS \ ITEM_IN_AUTHORITATIVE_SET).readHeadNullable[AuthoritativeSet] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(HistoricalAgent.apply _)
@@ -73,7 +73,7 @@ object HistoricalAgent {
   implicit object HistoricalAgentResource extends ContentType[HistoricalAgent]  {
     val entityType = EntityType.HistoricalAgent
     val contentType = ContentTypes.HistoricalAgent
-    val restReads: Reads[HistoricalAgent] = metaReads
+    val _reads: Reads[HistoricalAgent] = HistoricalAgent._reads
   }
 
   val form = Form(

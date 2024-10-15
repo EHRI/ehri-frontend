@@ -1,13 +1,12 @@
 package models
 
-import models.json._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import eu.ehri.project.definitions.Ontology
+import models.json._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
-import play.api.libs.json.JsObject
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import utils.EnumUtils
 
 
@@ -30,7 +29,7 @@ object AnnotationF {
   import Entity._
   import Ontology._
 
-  implicit val annotationFormat: Format[AnnotationF] = (
+  implicit lazy val _format: Format[AnnotationF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Annotation) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ ANNOTATION_TYPE_PROP).formatNullableWithDefault(Some(AnnotationType.Comment)) and
@@ -41,8 +40,8 @@ object AnnotationF {
   )(AnnotationF.apply, unlift(AnnotationF.unapply))
 
   implicit object Converter extends Writable[AnnotationF] {
-    lazy val restFormat: Format[AnnotationF] = annotationFormat
-    lazy val clientFormat: Format[AnnotationF] = Json.format[AnnotationF]
+    lazy val _format: Format[AnnotationF] = AnnotationF._format
+    lazy val _clientFormat: Format[AnnotationF] = Json.format[AnnotationF]
   }
 }
 
@@ -59,20 +58,15 @@ case class AnnotationF(
 
 object Annotation {
   import Entity._
-  import Ontology._
   import EnumUtils.enumMapping
+  import Ontology._
 
-  private implicit val anyModelReads: Reads[models.Model] = Model.Converter.restReads
-  private implicit val userProfileMetaReads: Reads[models.UserProfile] = UserProfile.UserProfileResource.restReads
-  private lazy implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
-  private implicit val accessorReads: Reads[models.Accessor] = Accessor.Converter.restReads
-
-  implicit val metaReads: Reads[Annotation] = (
+  implicit lazy val _reads: Reads[Annotation] = (
     __.read[AnnotationF] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadSeqOrEmpty[Annotation](metaReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATION_ANNOTATES).lazyReadSeqOrEmpty[Annotation](_reads) and
     (__ \ RELATIONSHIPS \ ANNOTATOR_HAS_ANNOTATION).readHeadNullable[UserProfile] and
-    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadHeadNullable[Model](anyModelReads) and
-    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadHeadNullable[Model](anyModelReads) and
+    (__ \ RELATIONSHIPS \ ANNOTATION_HAS_SOURCE).lazyReadHeadNullable[Model](Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ ANNOTATES).lazyReadHeadNullable[Model](Model.Converter._reads) and
     (__ \ RELATIONSHIPS \ ANNOTATES_PART).readHeadNullable[Entity] and
     (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty[Accessor] and
     (__ \ RELATIONSHIPS \ PROMOTED_BY).readSeqOrEmpty[UserProfile] and
@@ -84,7 +78,7 @@ object Annotation {
   implicit object AnnotationResource extends ContentType[Annotation]  {
     val entityType = EntityType.Annotation
     val contentType = ContentTypes.Annotation
-    val restReads: Reads[Annotation] = metaReads
+    val _reads: Reads[Annotation] = Annotation._reads
   }
 
   /**

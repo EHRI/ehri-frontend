@@ -40,7 +40,7 @@ object HistoricalAgentDescriptionF {
   import Isaar._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] = (
+  implicit lazy val historicalAgentDescriptionFormat: Format[HistoricalAgentDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.HistoricalAgentDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
@@ -75,7 +75,7 @@ object HistoricalAgentDescriptionF {
   )(HistoricalAgentDescriptionF.apply, unlift(HistoricalAgentDescriptionF.unapply))
 
   implicit object Converter extends Writable[HistoricalAgentDescriptionF]  {
-    val restFormat: Format[HistoricalAgentDescriptionF] = historicalAgentDescriptionFormat
+    val _format: Format[HistoricalAgentDescriptionF] = historicalAgentDescriptionFormat
   }
 }
 

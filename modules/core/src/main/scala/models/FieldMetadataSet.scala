@@ -36,7 +36,7 @@ case class FieldMetadataSet(fieldMetadata: ListMap[String, FieldMetadata]) {
         e.relationships.values.toSeq.flatten.flatMap { r => flattenEntity(r) }
     }
 
-    val json = Json.toJson(data)(implicitly[Writable[T]].restFormat)
+    val json = Json.toJson(data)(implicitly[Writable[T]]._format)
     json.validate[Entity] match {
       case JsSuccess(entity, _) =>
         val fms = fieldMetadata.values.filter(_.entityType == entity.isA).toSeq

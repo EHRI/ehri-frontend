@@ -18,7 +18,7 @@ object SystemEventF {
   import SystemEventF.{EVENT_TYPE => EVENT_PROP}
   import Entity._
 
-  implicit val systemEventFormat: Format[SystemEventF] = (
+  implicit lazy val systemEventFormat: Format[SystemEventF] = (
     (__ \ TYPE).formatIfEquals(EntityType.SystemEvent) and
     (__ \ ID).formatNullable[String] and
     // NB: Default Joda DateTime format is less flexible then
@@ -32,7 +32,7 @@ object SystemEventF {
   )(SystemEventF.apply, unlift(SystemEventF.unapply))
 
   implicit object Converter extends Readable[SystemEventF] {
-    val restReads: Format[SystemEventF] = systemEventFormat
+    val _reads: Format[SystemEventF] = systemEventFormat
   }
 }
 
@@ -52,19 +52,19 @@ object SystemEvent {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val metaReads: Reads[SystemEvent] = (
+  implicit lazy val _reads: Reads[SystemEvent] = (
     __.read[SystemEventF] and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadHeadNullable(Model.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadHeadNullable(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable(Version.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_SCOPE).lazyReadHeadNullable(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_FIRST_SUBJECT).lazyReadHeadNullable(Model.Converter._reads) and
+    (__ \ RELATIONSHIPS \ EVENT_HAS_ACTIONER).lazyReadHeadNullable(Accessor._reads) and
+    (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable(Version.Converter._reads) and
     (__ \ META).readWithDefault(Json.obj())
   )(SystemEvent.apply _)
 
   implicit object SystemEventResource extends ContentType[SystemEvent]  {
     val entityType = EntityType.SystemEvent
     val contentType = ContentTypes.SystemEvent
-    val restReads: Reads[SystemEvent] = metaReads
+    val _reads: Reads[SystemEvent] = SystemEvent._reads
   }
 }
 

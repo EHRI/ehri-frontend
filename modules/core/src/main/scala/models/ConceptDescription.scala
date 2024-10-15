@@ -16,7 +16,7 @@ object ConceptDescriptionF {
   import Entity._
   import models.ConceptF._
 
-  implicit val conceptDescriptionFormat: Format[ConceptDescriptionF] = (
+  implicit lazy val _format: Format[ConceptDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.ConceptDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
@@ -37,7 +37,7 @@ object ConceptDescriptionF {
   )(ConceptDescriptionF.apply, unlift(ConceptDescriptionF.unapply))
 
   implicit object Converter extends Writable[ConceptDescriptionF] {
-    lazy val restFormat: Format[ConceptDescriptionF] = conceptDescriptionFormat
+    lazy val _format: Format[ConceptDescriptionF] = ConceptDescriptionF._format
   }
 }
 

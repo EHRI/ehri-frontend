@@ -66,7 +66,7 @@ case class AdminSearch @Inject()(
       render {
         case Accepts.Json() => Ok(Json.obj(
             "numPages" -> result.page.numPages,
-            "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson.clientFormat)),
+            "page" -> Json.toJson(result.page.items.map(_._1))(Writes.seq(client.json.anyModelJson._clientFormat)),
             "facets" -> result.facetClasses
           ))
         case _ => Ok(views.html.admin.search.search(result, controllers.admin.routes.AdminSearch.search()))

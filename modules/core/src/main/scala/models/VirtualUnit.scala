@@ -18,7 +18,7 @@ object VirtualUnitF {
   import Entity._
   import Ontology._
 
-  implicit val virtualUnitFormat: Format[VirtualUnitF] = (
+  implicit lazy val virtualUnitFormat: Format[VirtualUnitF] = (
     (__ \ TYPE).formatIfEquals(EntityType.VirtualUnit) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -26,7 +26,7 @@ object VirtualUnitF {
   )(VirtualUnitF.apply, unlift(VirtualUnitF.unapply))
 
   implicit object Converter extends Writable[VirtualUnitF] {
-    val restFormat: Format[VirtualUnitF] = virtualUnitFormat
+    val _format: Format[VirtualUnitF] = virtualUnitFormat
   }
 }
 
@@ -52,13 +52,13 @@ object VirtualUnit {
   import models.VirtualUnitF._
   import Ontology._
 
-  implicit val metaReads: Reads[VirtualUnit] = (
+  implicit lazy val _reads: Reads[VirtualUnit] = (
     __.read[VirtualUnitF](virtualUnitFormat) and
-    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).readSeqOrEmpty(DocumentaryUnit.DocumentaryUnitResource.restReads) and
-    (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).readHeadNullable(Accessor.Converter.restReads) and
-    (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadHeadNullable(metaReads) and
+    (__ \ RELATIONSHIPS \ VC_INCLUDES_UNIT).readSeqOrEmpty(DocumentaryUnit.DocumentaryUnitResource._reads) and
+    (__ \ RELATIONSHIPS \ VC_HAS_AUTHOR).readHeadNullable(Accessor._reads) and
+    (__ \ RELATIONSHIPS \ VC_IS_PART_OF).lazyReadHeadNullable(VirtualUnit._reads) and
     (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).readHeadNullable[Repository] and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(VirtualUnit.apply _)
@@ -67,7 +67,7 @@ object VirtualUnit {
   implicit object VirtualUnitResource extends ContentType[VirtualUnit]  {
     val entityType = EntityType.VirtualUnit
     val contentType = ContentTypes.VirtualUnit
-    implicit val restReads: Reads[VirtualUnit] = metaReads
+    implicit val _reads: Reads[VirtualUnit] = VirtualUnit._reads
 
     /**
      * When displaying doc units we need the

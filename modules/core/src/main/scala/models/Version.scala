@@ -18,7 +18,7 @@ case class VersionF(
   def entity: Option[Model] = try {
     for {
       data <- itemData
-      item <- Json.parse(data).validate(Model.Converter.restReads).asOpt
+      item <- Json.parse(data).validate(Model.Converter._reads).asOpt
     } yield item
   } catch {
     case _: JsonParseException => None
@@ -29,7 +29,7 @@ object VersionF {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val reads: Reads[VersionF] = (
+  implicit val _reads: Reads[VersionF] = (
     (__ \ TYPE).readIfEquals(EntityType.Version) and
     (__ \ ID).readNullable[String] and
     (__ \ DATA \ VERSION_ENTITY_CLASS).read[EntityType.Value] and
@@ -38,7 +38,7 @@ object VersionF {
   )(VersionF.apply _)
 
   implicit object Converter extends Readable[VersionF] {
-    val restReads: Reads[VersionF] = reads
+    val _reads: Reads[VersionF] = VersionF._reads
   }
 }
 
@@ -55,13 +55,13 @@ object Version {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val metaReads: Reads[Version] = (
+  implicit lazy val _reads: Reads[Version] = (
     __.read[VersionF] and
     (__ \ RELATIONSHIPS \ VERSION_HAS_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Version.apply _)
 
   implicit object Converter extends Readable[Version] {
-    val restReads: Reads[Version] = metaReads
+    val _reads: Reads[Version] = Version._reads
   }
 }

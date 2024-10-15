@@ -15,7 +15,7 @@ case object Isaar {
     val Family = Value("family")
     val CorporateBody = Value("corporateBody")
 
-    implicit val format: Format[Isaar.HistoricalAgentType.Value] = EnumUtils.enumFormat(this)
+    implicit val _format: Format[Isaar.HistoricalAgentType.Value] = EnumUtils.enumFormat(this)
   }
 
   val IDENTIFIER = "identifier"

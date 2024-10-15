@@ -75,7 +75,7 @@ case class UserProfiles @Inject()(
       item.toStringLang,
       views.Helpers.linkTo(item).absoluteURL(conf.https)
     )
-    implicit val writes: OWrites[ExportWatchItem] = Json.writes[ExportWatchItem]
+    implicit val _writes: OWrites[ExportWatchItem] = Json.writes[ExportWatchItem]
   }
 
   def activity(params: SystemEventParams, range: RangeParams): Action[AnyContent] = WithUserAction.async { implicit request =>
@@ -150,7 +150,7 @@ case class UserProfiles @Inject()(
         .map(t => views.Helpers.linkTo(t).absoluteURL(conf.https) + "#" + annotation.id)
     )
     import play.api.libs.json._
-    implicit val writes: OWrites[ExportAnnotation] = Json.writes[ExportAnnotation]
+    implicit val _writes: OWrites[ExportAnnotation] = Json.writes[ExportAnnotation]
   }
 
   def annotations(format: DataFormat.Value = DataFormat.Html, params: SearchParams, paging: PageParams): Action[AnyContent] = WithUserAction.async { implicit request =>

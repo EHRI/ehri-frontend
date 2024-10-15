@@ -9,7 +9,7 @@ import scala.annotation.implicitNotFound
  */
 @implicitNotFound("No member of type class Readable found for type ${T}")
 trait Readable[T] {
-  val restReads: Reads[T]
+  def _reads: Reads[T]
 }
 
 object Readable {

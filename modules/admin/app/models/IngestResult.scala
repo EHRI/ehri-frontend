@@ -11,19 +11,19 @@ sealed trait IngestResult
 
 object IngestResult {
 
-  implicit val reads: Reads[IngestResult] = Reads { json =>
+  implicit val _reads: Reads[IngestResult] = Reads { json =>
     json.validate[ImportValidationError]
       .map(e => ErrorLog(s"Validation error at ${e.context}", e.toString))
       .orElse(json.validate[ErrorLog])
       .orElse(json.validate[ImportLog])
       .orElse(json.validate[SyncLog])
   }
-  implicit val writes: Writes[IngestResult] = Writes {
-    case i: ImportLog => Json.toJson(i)(ImportLog.format)
-    case i: SyncLog => Json.toJson(i)(SyncLog.format)
-    case i: ErrorLog => Json.toJson(i)(ErrorLog.format)
+  implicit val _writes: Writes[IngestResult] = Writes {
+    case i: ImportLog => Json.toJson(i)(ImportLog._format)
+    case i: SyncLog => Json.toJson(i)(SyncLog._format)
+    case i: ErrorLog => Json.toJson(i)(ErrorLog._format)
   }
-  implicit val format: Format[IngestResult] = Format(reads, writes)
+  implicit val _format: Format[IngestResult] = Format(_reads, _writes)
 }
 
 case class ImportValidationError(context: String, errorSet: ErrorSet) extends RuntimeException(errorSet.toString) {
@@ -56,7 +56,7 @@ case class ImportLog(
 
 object ImportLog {
   implicit val config: Aux[Json.MacroOptions] = JsonConfiguration(SnakeCase)
-  implicit val format: Format[ImportLog] = Json.format[ImportLog]
+  implicit val _format: Format[ImportLog] = Json.format[ImportLog]
 }
 
 // The result of an EAD synchronisation, which incorporates an import
@@ -68,14 +68,14 @@ case class SyncLog(
 ) extends IngestResult
 
 object SyncLog {
-  implicit val format: Format[SyncLog] = Json.format[SyncLog]
+  implicit val _format: Format[SyncLog] = Json.format[SyncLog]
 }
 
 // An import error we can understand, e.g. not a crash!
 case class ErrorLog(error: String, details: String) extends IngestResult
 
 object ErrorLog {
-  implicit val format: Format[ErrorLog] = Json.format[ErrorLog]
+  implicit val _format: Format[ErrorLog] = Json.format[ErrorLog]
 }
 
 

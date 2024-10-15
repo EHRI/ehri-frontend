@@ -38,26 +38,26 @@ trait Model extends WithId {
 object Model {
 
   val readMap: PartialFunction[EntityType.Value, Reads[Model]] = {
-    case EntityType.Repository => Repository.RepositoryResource.restReads.widen[Model]
-    case EntityType.Country => Country.CountryResource.restReads.widen[Model]
-    case EntityType.DocumentaryUnit => DocumentaryUnit.DocumentaryUnitResource.restReads.widen[Model]
-    case EntityType.Vocabulary => Vocabulary.VocabularyResource.restReads.widen[Model]
-    case EntityType.Concept => Concept.ConceptResource.restReads.widen[Model]
-    case EntityType.HistoricalAgent => HistoricalAgent.HistoricalAgentResource.restReads.widen[Model]
-    case EntityType.AuthoritativeSet => AuthoritativeSet.AuthoritativeSetResource.restReads.widen[Model]
-    case EntityType.SystemEvent => SystemEvent.SystemEventResource.restReads.widen[Model]
-    case EntityType.Group => Group.GroupResource.restReads.widen[Model]
-    case EntityType.UserProfile => UserProfile.UserProfileResource.restReads.widen[Model]
-    case EntityType.Link => Link.LinkResource.restReads.widen[Model]
-    case EntityType.Annotation => Annotation.AnnotationResource.restReads.widen[Model]
-    case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource.restReads.widen[Model]
-    case EntityType.ContentType => DataContentType.Converter.restReads.widen[Model]
-    case EntityType.AccessPoint => AccessPoint.Converter.restReads.widen[Model]
-    case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource.restReads.widen[Model]
+    case EntityType.Repository => Repository.RepositoryResource._reads.widen[Model]
+    case EntityType.Country => Country.CountryResource._reads.widen[Model]
+    case EntityType.DocumentaryUnit => DocumentaryUnit.DocumentaryUnitResource._reads.widen[Model]
+    case EntityType.Vocabulary => Vocabulary.VocabularyResource._reads.widen[Model]
+    case EntityType.Concept => Concept.ConceptResource._reads.widen[Model]
+    case EntityType.HistoricalAgent => HistoricalAgent.HistoricalAgentResource._reads.widen[Model]
+    case EntityType.AuthoritativeSet => AuthoritativeSet.AuthoritativeSetResource._reads.widen[Model]
+    case EntityType.SystemEvent => SystemEvent.SystemEventResource._reads.widen[Model]
+    case EntityType.Group => Group.GroupResource._reads.widen[Model]
+    case EntityType.UserProfile => UserProfile.UserProfileResource._reads.widen[Model]
+    case EntityType.Link => Link.LinkResource._reads.widen[Model]
+    case EntityType.Annotation => Annotation.AnnotationResource._reads.widen[Model]
+    case EntityType.PermissionGrant => PermissionGrant.PermissionGrantResource._reads.widen[Model]
+    case EntityType.ContentType => DataContentType.Converter._reads.widen[Model]
+    case EntityType.AccessPoint => AccessPoint.Converter._reads.widen[Model]
+    case EntityType.VirtualUnit => VirtualUnit.VirtualUnitResource._reads.widen[Model]
   }
 
   implicit object Converter extends Readable[Model] {
-    implicit val restReads: Reads[Model] = Reads[Model] { json =>
+    implicit val _reads: Reads[Model] = Reads[Model] { json =>
       // Sniff the type...
       val et = (json \ Entity.TYPE).as(EnumUtils.enumReads(EntityType))
       readMap.lift(et).map { reads =>
@@ -76,6 +76,6 @@ object Model {
     */
   def resourceFor(t: EntityType.Value): Resource[Model] = new Resource[Model] {
     def entityType: EntityType.Value = t
-    val restReads: Reads[Model] = Converter.restReads
+    val _reads: Reads[Model] = Converter._reads
   }
 }

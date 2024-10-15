@@ -33,7 +33,7 @@ object UserProfileF {
 
   import Entity._
 
-  implicit val userProfileFormat: Format[UserProfileF] = (
+  implicit lazy val userProfileFormat: Format[UserProfileF] = (
     (__ \ TYPE).formatIfEquals(EntityType.UserProfile) and
       (__ \ ID).formatNullable[String] and
       (__ \ DATA \ IDENTIFIER).format[String] and
@@ -55,7 +55,7 @@ object UserProfileF {
     )(UserProfileF.apply, unlift(UserProfileF.unapply))
 
   implicit object Converter extends Writable[UserProfileF] {
-    lazy val restFormat: Format[UserProfileF] = userProfileFormat
+    lazy val _format: Format[UserProfileF] = userProfileFormat
   }
 }
 
@@ -86,13 +86,13 @@ object UserProfile {
   import Ontology._
   import UserProfileF._
 
-  private implicit val groupReads: Reads[models.Group] = Group.GroupResource.restReads
-  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource.restReads
+  private implicit val groupReads: Reads[models.Group] = Group.GroupResource._reads
+  private implicit val systemEventReads: Reads[models.SystemEvent] = SystemEvent.SystemEventResource._reads
 
-  implicit val metaReads: Reads[UserProfile] = (
+  implicit lazy val _reads: Reads[UserProfile] = (
     __.read[UserProfileF] and
     (__ \ RELATIONSHIPS \ ACCESSOR_BELONGS_TO_GROUP).lazyReadSeqOrEmpty(groupReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).lazyReadSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(UserProfile.quickApply _)
@@ -100,7 +100,7 @@ object UserProfile {
   implicit object UserProfileResource extends ContentType[UserProfile]  {
     val entityType = EntityType.UserProfile
     val contentType = ContentTypes.UserProfile
-    val restReads: Reads[UserProfile] = metaReads
+    val _reads: Reads[UserProfile] = UserProfile._reads
   }
 
   // Constructor, sans account and perms

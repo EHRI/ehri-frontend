@@ -48,7 +48,7 @@ object RepositoryDescriptionF {
   import Isdiah._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val repositoryDescriptionFormat: Format[RepositoryDescriptionF] = (
+  implicit lazy val repositoryDescriptionFormat: Format[RepositoryDescriptionF] = (
     (__ \ TYPE).formatIfEquals(EntityType.RepositoryDescription) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ LANG_CODE).format[String] and
@@ -92,7 +92,7 @@ object RepositoryDescriptionF {
   )(RepositoryDescriptionF.apply, unlift(RepositoryDescriptionF.unapply))
 
   implicit object Converter extends Writable[RepositoryDescriptionF] {
-    val restFormat: Format[RepositoryDescriptionF] = repositoryDescriptionFormat
+    val _format: Format[RepositoryDescriptionF] = repositoryDescriptionFormat
   }
 }
 

@@ -23,7 +23,7 @@ object CountryF {
 
   import Entity._
 
-  lazy implicit val countryFormat: Format[CountryF] = (
+  implicit lazy val _format: Format[CountryF] = (
     (__ \ TYPE).formatIfEquals(EntityType.Country) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -35,7 +35,7 @@ object CountryF {
   )(CountryF.apply, unlift(CountryF.unapply))
 
   implicit object Converter extends Writable[CountryF] {
-    lazy val restFormat: Format[CountryF] = countryFormat
+    lazy val _format: Format[CountryF] = CountryF._format
   }
 }
 
@@ -45,9 +45,9 @@ case class CountryF(
   identifier: String,
   abs: Option[String],
   history: Option[String],
-  situation: Option[String],                   
+  situation: Option[String],
   summary: Option[String],
-  extensive: Option[String]                   
+  extensive: Option[String]
 ) extends ModelData with Persistable {
 
   def displayText: Option[String] = abs orElse situation
@@ -59,10 +59,10 @@ object Country {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val metaReads: Reads[Country] = (
-    __.read[CountryF](countryFormat) and
+  implicit lazy val _reads: Reads[Country] = (
+    __.read[CountryF](_format) and
     // Latest event
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(Country.apply _)
@@ -70,7 +70,7 @@ object Country {
   implicit object CountryResource extends ContentType[Country]  {
     val entityType = EntityType.Country
     val contentType = ContentTypes.Country
-    val restReads: Reads[Country] = metaReads
+    val _reads: Reads[Country] = Country._reads
   }
 
   val form: Form[CountryF] = Form(

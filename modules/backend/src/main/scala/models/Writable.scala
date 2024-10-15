@@ -10,7 +10,7 @@ import scala.annotation.implicitNotFound
  */
 @implicitNotFound("No member of type class Writable found for type ${T}")
 trait Writable[T] {
-  val restFormat: Format[T]
+  def _format: Format[T]
 }
 
 object Writable {

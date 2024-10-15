@@ -40,7 +40,7 @@ class PermissionSetSpec extends Specification {
         )
       )
 
-      val permSet = Json.toJson(data).as(ItemPermissionSet.restReads(ContentTypes.DocumentaryUnit))
+      val permSet = Json.toJson(data).as(ItemPermissionSet._reads(ContentTypes.DocumentaryUnit))
       permSet.has(PermissionType.Create) must beTrue
       permSet.has(PermissionType.Update) must beTrue
       permSet.has(PermissionType.Annotate) must beFalse

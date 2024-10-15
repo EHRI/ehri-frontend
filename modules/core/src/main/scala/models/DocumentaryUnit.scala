@@ -21,7 +21,7 @@ object DocumentaryUnitF {
     val No = Value("no")
     val Unknown = Value("unknown")
 
-    implicit val format: Format[CopyrightStatus.Value] = EnumUtils.enumFormat(this)
+    implicit val _format: Format[CopyrightStatus.Value] = EnumUtils.enumFormat(this)
   }
 
   object Scope extends Enumeration {
@@ -29,7 +29,7 @@ object DocumentaryUnitF {
     val Medium = Value("medium")
     val Low = Value("low")
 
-    implicit val format: Format[Scope.Value] = utils.EnumUtils.enumFormat(this)
+    implicit val _format: Format[Scope.Value] = utils.EnumUtils.enumFormat(this)
   }
 
   val OTHER_IDENTIFIERS = "otherIdentifiers"
@@ -40,7 +40,7 @@ object DocumentaryUnitF {
   import Entity._
   import eu.ehri.project.definitions.Ontology._
 
-  implicit val documentaryUnitFormat: Format[DocumentaryUnitF] = (
+  implicit lazy val documentaryUnitFormat: Format[DocumentaryUnitF] = (
     (__ \ TYPE).formatIfEquals(EntityType.DocumentaryUnit) and
     (__ \ ID).formatNullable[String] and
     (__ \ DATA \ IDENTIFIER).format[String] and
@@ -52,7 +52,7 @@ object DocumentaryUnitF {
   )(DocumentaryUnitF.apply, unlift(DocumentaryUnitF.unapply))
 
   implicit object Converter extends Writable[DocumentaryUnitF] {
-    val restFormat: Format[DocumentaryUnitF] = documentaryUnitFormat
+    val _format: Format[DocumentaryUnitF] = documentaryUnitFormat
   }
 }
 
@@ -84,11 +84,11 @@ object DocumentaryUnit {
   import eu.ehri.project.definitions.Ontology.{OTHER_IDENTIFIERS => _, _}
   import EnumUtils.enumMapping
 
-  implicit val metaReads: Reads[DocumentaryUnit] = (
+  implicit lazy val _reads: Reads[DocumentaryUnit] = (
     __.read[DocumentaryUnitF](documentaryUnitFormat) and
     (__ \ RELATIONSHIPS \ DOC_HELD_BY_REPOSITORY).readHeadNullable[Repository] and
-    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadHeadNullable(metaReads) and
-    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor.Converter.restReads) and
+    (__ \ RELATIONSHIPS \ DOC_IS_CHILD_OF).lazyReadHeadNullable(DocumentaryUnit._reads) and
+    (__ \ RELATIONSHIPS \ IS_ACCESSIBLE_TO).readSeqOrEmpty(Accessor._reads) and
     (__ \ RELATIONSHIPS \ ENTITY_HAS_LIFECYCLE_EVENT).readHeadNullable[SystemEvent] and
     (__ \ META).readWithDefault(Json.obj())
   )(DocumentaryUnit.apply _)
@@ -97,7 +97,7 @@ object DocumentaryUnit {
   implicit object DocumentaryUnitResource extends ContentType[DocumentaryUnit]  {
     val entityType = EntityType.DocumentaryUnit
     val contentType = ContentTypes.DocumentaryUnit
-    implicit val restReads: Reads[DocumentaryUnit] = metaReads
+    implicit val _reads: Reads[DocumentaryUnit] = DocumentaryUnit._reads
 
     /**
      * When displaying doc units we need the
@@ -105,7 +105,7 @@ object DocumentaryUnit {
      * is not a mandatory property and thus not returned by the REST
      * interface by default, unless we specify it explicitly.
      */
-    override def defaultParams = Seq(
+    override def defaultParams: Seq[(String, String)] = Seq(
       Constants.INCLUDE_PROPERTIES_PARAM -> RepositoryF.URL_PATTERN,
       Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.OTHER_FORMS_OF_NAME,
       Constants.INCLUDE_PROPERTIES_PARAM -> Isdiah.PARALLEL_FORMS_OF_NAME,
@@ -113,7 +113,7 @@ object DocumentaryUnit {
     )
   }
 
-  val form = Form(
+  val form: Form[DocumentaryUnitF] = Form(
     mapping(
       ISA -> ignored(EntityType.DocumentaryUnit),
       ID -> optional(nonEmptyText),

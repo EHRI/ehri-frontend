@@ -84,7 +84,7 @@ class ApiSpec extends IntegrationTestRunner {
   "Annotation JSON endpoints" should {
     "allow creating annotations" in new ITestApp {
       val json = Json.toJson(new AnnotationF(id = None, body = "Hello, world!"))(
-        AnnotationF.Converter.clientFormat)
+        AnnotationF.Converter._clientFormat)
       val cr = FakeRequest(controllers.annotation.routes.Annotations.createAnnotationJsonPost("c1"))
         .withUser(privilegedUser).withCsrf.callWith(json)
       status(cr) must equalTo(CREATED)

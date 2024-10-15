@@ -41,7 +41,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       def entityType: EntityType.Value = EntityType.DocumentaryUnit
       import play.api.libs.functional.syntax._
       import play.api.libs.json._
-      val restReads: Reads[TestResource] = (
+      val _reads: Reads[TestResource] = (
         (__ \ Entity.ID).read[String] and
           (__ \ Entity.DATA).read[JsObject]
         )(TestResource.apply _)
@@ -215,10 +215,10 @@ class WsDataServiceSpec extends IntegrationTestRunner {
         import play.api.libs.functional.syntax._
         import play.api.libs.json._
         val badDeserializer: ContentType[UserProfile] = new ContentType[UserProfile] {
-          val restReads: Reads[UserProfile] = (
+          val _reads: Reads[UserProfile] = (
             __.read[UserProfileF] and
-            __.lazyReadSeqOrEmpty(Group.GroupResource.restReads) and
-            __.lazyReadSeqOrEmpty(Accessor.Converter.restReads) and
+            __.lazyReadSeqOrEmpty(Group.GroupResource._reads) and
+            __.lazyReadSeqOrEmpty(Accessor.Converter._reads) and
             __.readHeadNullable[SystemEvent] and
             __.read[JsObject]
           )(UserProfile.quickApply _)
