@@ -7,7 +7,6 @@ from datetime import datetime
 
 from fabric import task
 from invoke import run as local
-from patchwork import files
 
 deploys_dir = "/opt/docview/deploys"
 target_link = "/opt/docview/target"
@@ -78,7 +77,7 @@ def whitelist(ctx, ip=None):
     """Toggle the IP whitelist"""
     filename = "/opt/docview/IP_WHITELIST"
     if ip is None:
-        if files.exists(ctx, filename):
+        if check_file_exists(ctx, filename):
             ctx.run(f"rm -f {filename}")
             print("IP_WHITELIST mode is OFF")
         else:
@@ -120,9 +119,21 @@ def maintenance(ctx):
 
 def toggle_mode(ctx, mode):
     filename = f"/opt/docview/{mode}"
-    if files.exists(ctx, filename):
+    if check_file_exists(ctx, filename):
         ctx.run(f"rm {filename}")
         print(f"{mode} mode is OFF")
     else:
         ctx.run(f"touch {filename}")
         print(f"{mode} mode is ON")
+
+
+def check_file_exists(ctx, remote_path):
+    """
+    Check if a file exists on the remote server.
+    """
+    try:
+        # Using test command with -f flag to check for regular file
+        result = ctx.run(f'test -f {remote_path} && echo "EXISTS" || echo "NOT_FOUND"', hide=True)
+        return result.stdout.strip() == "EXISTS"
+    except Exception as e:
+        return False
