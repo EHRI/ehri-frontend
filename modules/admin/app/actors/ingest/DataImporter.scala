@@ -8,7 +8,7 @@ import models._
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._
 
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -17,7 +17,7 @@ object DataImporter {
   case object Start extends State
   case object ImportBatch extends State
   case class SaveLog(log: ImportLog) extends State
-  case class Done(start: LocalDateTime) extends State
+  case class Done(start: Instant) extends State
   case class Message(msg: String) extends State
   case class UnexpectedError(throwable: Throwable) extends State
 }
@@ -48,11 +48,11 @@ case class DataImporter(
 
       // Importer initializing...
       val msgForwarder = context.actorOf(Props(Forwarder(msgTo)))
-      context.become(running(msgTo, job.data.head, job.data.tail, msgForwarder, LocalDateTime.now()))
+      context.become(running(msgTo, job.data.head, job.data.tail, msgForwarder, Instant.now()))
       self ! ImportBatch
   }
 
-  def running(msgTo: ActorRef, data: IngestData, todo: Seq[IngestData], forwarder: ActorRef, start: LocalDateTime): Receive = {
+  def running(msgTo: ActorRef, data: IngestData, todo: Seq[IngestData], forwarder: ActorRef, start: Instant): Receive = {
     case ImportBatch =>
       context.become(running(msgTo, data, todo, forwarder, start))
 

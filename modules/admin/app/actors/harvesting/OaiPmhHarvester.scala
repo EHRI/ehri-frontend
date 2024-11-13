@@ -8,7 +8,7 @@ import models.{OaiPmhConfig, UserProfile}
 import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
 
-import java.time.{Duration, Instant, LocalDateTime}
+import java.time.{Duration, Instant}
 import scala.concurrent.ExecutionContext
 
 
@@ -66,7 +66,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
     // Start the initial harvest
     case job: OaiPmhHarvestJob =>
       val msgTo = sender()
-      context.become(running(job, msgTo, 0, LocalDateTime.now()))
+      context.become(running(job, msgTo, 0, Instant.now()))
       msgTo ! Starting
       client.listIdentifiers(job.data.config, from = job.data.from)
         .map { case (idents, next) =>
@@ -77,7 +77,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
 
 
   // The harvest is running
-  def running(job: OaiPmhHarvestJob, msgTo: ActorRef, done: Int, start: LocalDateTime): Receive = {
+  def running(job: OaiPmhHarvestJob, msgTo: ActorRef, done: Int, start: Instant): Receive = {
 
     // Harvest a new batch via a resumptionToken
     case Next(token) =>
@@ -134,8 +134,8 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
       log.error(s"Unexpected message: $m: ${m.getClass}")
   }
 
-  private def time(from: LocalDateTime): Long =
-    Duration.between(from, LocalDateTime.now()).toMillis / 1000
+  private def time(from: Instant): Long =
+    Duration.between(from, Instant.now()).toMillis / 1000
 
   private def fileName(prefix: String, id: String): String = prefix + id + ".xml"
 

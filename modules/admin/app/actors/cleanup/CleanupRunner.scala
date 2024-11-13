@@ -6,7 +6,7 @@ import play.api.Configuration
 import services.data.{DataService, EventForwarder}
 import services.ingest.{Cleanup, ImportLogService, IngestService}
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.{Duration, FiniteDuration}
@@ -53,12 +53,12 @@ case class CleanupRunner(
     // Start the initial harvest
     case job: CleanupJob =>
       val msgTo = sender()
-      context.become(running(job, msgTo, Status(), LocalDateTime.now()))
+      context.become(running(job, msgTo, Status(), Instant.now()))
       logService.cleanup(job.repoId, job.snapshotId)
         .pipeTo(self)
   }
 
-  def running(job: CleanupJob, msgTo: ActorRef, status: Status, time: LocalDateTime): Receive = {
+  def running(job: CleanupJob, msgTo: ActorRef, status: Status, time: Instant): Receive = {
     // Launch the relink task
     case cleanup: Cleanup =>
       msgTo ! cleanup
@@ -107,7 +107,7 @@ case class CleanupRunner(
     // When there are no more items to delete, save the cleanup log and finish
     case DeleteBatch(cleanup, todo, _) if todo.isEmpty =>
       logService.saveCleanup(job.repoId, job.snapshotId, cleanup)
-        .map(_ => msgTo ! Done(FiniteDuration(java.time.Duration.between(time, LocalDateTime.now).toNanos, TimeUnit.NANOSECONDS)))
+        .map(_ => msgTo ! Done(FiniteDuration(java.time.Duration.between(time, Instant.now).toNanos, TimeUnit.NANOSECONDS)))
 
     case m =>
       msgTo ! s"Unexpected message: $m"
