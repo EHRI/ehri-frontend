@@ -9,7 +9,7 @@ import models.{FileLink, ResourceSyncConfig, UserProfile}
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
 
-import java.time.{Duration, LocalDateTime}
+import java.time.{Duration, Instant}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,7 +50,7 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
     // Start the initial harvest
     case job: ResourceSyncJob =>
       val msgTo = sender()
-      context.become(running(job, msgTo, 0, 0, LocalDateTime.now()))
+      context.become(running(job, msgTo, 0, 0, Instant.now()))
       msgTo ! Starting
       client.list(job.data.config)
         .map {list =>
@@ -62,7 +62,7 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
 
 
   // The harvest is running
-  def running(job: ResourceSyncJob, msgTo: ActorRef, done: Int, fresh: Int, start: LocalDateTime): Receive = {
+  def running(job: ResourceSyncJob, msgTo: ActorRef, done: Int, fresh: Int, start: Instant): Receive = {
     // Harvest an individual item
     case Fetch(item :: rest, count, fresh) =>
       log.debug(s"Calling become with new total: $count")
@@ -122,6 +122,6 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
     }
   }
 
-  private def time(from: LocalDateTime): Long =
-    Duration.between(from, LocalDateTime.now()).toMillis / 1000
+  private def time(from: Instant): Long =
+    Duration.between(from, Instant.now()).toMillis / 1000
 }

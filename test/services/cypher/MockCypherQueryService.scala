@@ -1,6 +1,6 @@
 package services.cypher
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 import models.CypherQuery
 import services.data.ItemNotFound
@@ -17,7 +17,7 @@ case class MockCypherQueryService(buffer: collection.mutable.HashMap[Int, Cypher
 
   override def update(id: String, cypherQuery: CypherQuery): Future[String] = {
     buffer += id.toInt -> cypherQuery
-    immediate(LocalDateTime.now.toString)
+    immediate(Instant.now.toString)
   }
 
   override def delete(id: String): Future[Boolean] = {

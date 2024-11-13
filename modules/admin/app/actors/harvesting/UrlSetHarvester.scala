@@ -11,7 +11,7 @@ import play.api.http.HeaderNames
 import play.api.libs.ws.{WSAuthScheme, WSClient}
 import services.storage.FileStorage
 
-import java.time.{Duration, LocalDateTime}
+import java.time.{Duration, Instant}
 import scala.concurrent.Future.{successful => immediate}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,7 +51,7 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
     // Start the initial harvest
     case job: UrlSetHarvesterJob =>
       val msgTo = sender()
-      context.become(running(job, msgTo, 0, 0, LocalDateTime.now()))
+      context.become(running(job, msgTo, 0, 0, Instant.now()))
       msgTo ! Starting
       msgTo ! ToDo(job.data.config.urlMap.size)
       self ! Fetch(job.data.config.urls.toList, 0, 0)
@@ -59,7 +59,7 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
 
 
   // The harvest is running
-  def running(job: UrlSetHarvesterJob, msgTo: ActorRef, done: Int, fresh: Int, start: LocalDateTime): Receive = {
+  def running(job: UrlSetHarvesterJob, msgTo: ActorRef, done: Int, fresh: Int, start: Instant): Receive = {
     // Harvest an individual item
     case Fetch(item :: rest, count, fresh) =>
       log.debug(s"Calling become with new total: $count")
@@ -134,6 +134,6 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
     }
   }
 
-  private def time(from: LocalDateTime): Long =
-    Duration.between(from, LocalDateTime.now()).toMillis / 1000
+  private def time(from: Instant): Long =
+    Duration.between(from, Instant.now()).toMillis / 1000
 }
