@@ -17,7 +17,7 @@ import scala.concurrent.duration.DurationInt
 
 object AuditorManager {
 
-  case class AuditTask(entityType: EntityType.Value, idPrefix: Option[String] = None, mandatoryOnly: Boolean)
+  case class AuditTask(entityType: EntityType.Value, idPrefix: Option[String] = None, mandatoryOnly: Boolean = true, manualOnly: Boolean = true)
   object AuditTask {
     implicit val _format: Format[AuditTask] = Json.format[AuditTask]
   }

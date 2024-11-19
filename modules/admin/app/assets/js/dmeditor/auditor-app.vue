@@ -19,6 +19,7 @@ export default {
       running: false,
       idPrefix: '',
       mandatoryOnly: true,
+      manualOnly: true,
       entityType: 'Repository' as EntityType,
       filter: {value: '', active: false},
       api: new AuditorApi(this.service),
@@ -42,7 +43,8 @@ export default {
         let {url, jobId} = await this.api.runAudit({
           idPrefix: this.idPrefix,
           entityType: this.entityType,
-          mandatoryOnly: this.mandatoryOnly
+          mandatoryOnly: this.mandatoryOnly,
+          manualOnly: this.manualOnly,
         });
         console.log("Monitor: ", url, jobId);
         self.jobId = jobId;
@@ -137,6 +139,10 @@ export default {
                 <div class="form-group form-check">
                     <input v-model="mandatoryOnly" id="opt_mandatoryOnly" class="form-check-input" type="checkbox"/>
                     <label for="opt_mandatoryOnly" class="form-check-label">{{ $t(`dataModel.audit.mandatoryOnly`) }}</label>
+                </div>
+                <div class="form-group form-check">
+                    <input v-model="manualOnly" id="opt_manualOnly" class="form-check-input" type="checkbox"/>
+                    <label for="opt_manualOnly" class="form-check-label">{{ $t(`dataModel.audit.manualOnly`) }}</label>
                 </div>
             </fieldset>
             <button v-if="running" class="btn btn-sm btn-default" v-on:click.prevent="cancelAudit">
