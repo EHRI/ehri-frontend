@@ -86,9 +86,9 @@ case class Auditor(searchEngine: SearchEngine, resolver: SearchItemResolver, fie
 
   private def initSearch(task: AuditTask): SearchQuery = {
     val paging: PageParams = PageParams(limit = batchSize)
-    val params: SearchParams = SearchParams(entities = Seq(task.entityType), query = task.idPrefix.map(p => s"$p*"), sort = Some(SearchSort.Id))
-    val cpFacet = AppliedFacet(SearchConstants.CREATION_PROCESS, Seq(Description.CreationProcess.Manual.toString))
-    val facets = List(FieldFacetClass(key = SearchConstants.CREATION_PROCESS, name = "Creation Process", param = "creation"))
-    SearchQuery(params = params, paging = paging, appliedFacets = Seq(cpFacet), user = userOpt, facetClasses = facets)
+    val params: SearchParams = SearchParams(entities = Seq(task.entityType), query = task.idPrefix.filter(_.nonEmpty).map(p => s"$p*"), sort = Some(SearchSort.Id))
+    val facets = if(task.manualOnly) List(FieldFacetClass(key = SearchConstants.CREATION_PROCESS, name = "Creation Process", param = "creation")) else Nil
+    val applied = if(task.manualOnly) Seq(AppliedFacet(SearchConstants.CREATION_PROCESS, Seq(Description.CreationProcess.Manual.toString))) else Nil
+    SearchQuery(params = params, paging = paging, appliedFacets = applied, user = userOpt, facetClasses = facets)
   }
 }
