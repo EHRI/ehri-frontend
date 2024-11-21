@@ -40,3 +40,5 @@ conf/dos.conf*
 conf/minio.conf*
 conf/api-keys.conf*
 solr*
+# data which is not yet vetted
+test/resources/searchdata.json
