@@ -1,14 +1,14 @@
 package services.storage
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
-import akka.stream.Materializer
-import akka.stream.alpakka.s3._
-import akka.stream.alpakka.s3.headers.CannedAcl
-import akka.stream.alpakka.s3.scaladsl.S3
-import akka.stream.scaladsl.{FileIO, Sink, Source}
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.s3.{BucketVersioningStatus => _, _}
+import org.apache.pekko.stream.connectors.s3.headers.CannedAcl
+import org.apache.pekko.stream.connectors.s3.scaladsl.S3
+import org.apache.pekko.stream.scaladsl.{FileIO, Sink, Source}
+import org.apache.pekko.util.ByteString
 import play.api.Logger
 import software.amazon.awssdk.auth.credentials.{AwsCredentials, AwsCredentialsProvider, StaticCredentialsProvider}
 import software.amazon.awssdk.core.exception.SdkException
@@ -182,7 +182,7 @@ case class S3CompatibleFileStorage(
         f.key,
         f.lastModified,
         f.size,
-        // NB: S3 returns eTags wrapped in quotes, but Alpakka doesn't
+        // NB: S3 returns eTags wrapped in quotes, but Pekko Connectors doesn't
         // hence for compatibility we add it here.
         Some(f.eTag).map(f => "\"" + f + "\""),
       ))

@@ -2,11 +2,11 @@ package services.ingest
 
 import java.util
 
-import akka.NotUsed
-import akka.stream.alpakka.xml.{Characters, EndElement, ParseEvent, StartElement}
-import akka.stream.scaladsl.Flow
-import akka.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
-import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.connectors.xml.{Characters, EndElement, ParseEvent, StartElement}
+import org.apache.pekko.stream.scaladsl.Flow
+import org.apache.pekko.stream.stage.{GraphStage, GraphStageLogic, InHandler, OutHandler}
+import org.apache.pekko.stream.{Attributes, FlowShape, Inlet, Outlet}
 
 
 object XmlFormatter {

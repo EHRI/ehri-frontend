@@ -1,9 +1,9 @@
 package controllers.api.datasets
 
-import akka.stream.Materializer
-import akka.stream.alpakka.csv.scaladsl.CsvFormatting
-import akka.stream.scaladsl.{Keep, Source}
-import akka.util.ByteString
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.csv.scaladsl.CsvFormatting
+import org.apache.pekko.stream.scaladsl.{Keep, Source}
+import org.apache.pekko.util.ByteString
 import controllers.portal.base.PortalController
 import controllers.{AppComponents, DataFormat}
 import models.CypherQuery

@@ -1,6 +1,6 @@
 package services.ingest
 
-import akka.stream.scaladsl.Source
+import org.apache.pekko.stream.scaladsl.Source
 import com.google.inject.ImplementedBy
 import models.ImportLog
 import play.api.libs.json.{Json, Writes}

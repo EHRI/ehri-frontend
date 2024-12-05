@@ -1,11 +1,11 @@
 package services.harvesting
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import akka.stream.alpakka.xml.Characters
-import akka.stream.alpakka.xml.scaladsl.XmlParsing
-import akka.stream.scaladsl.{Sink, Source}
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.xml.Characters
+import org.apache.pekko.stream.connectors.xml.scaladsl.XmlParsing
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.util.ByteString
 import play.api.test.PlaySpecification
 import services.ingest.XmlFormatter
 

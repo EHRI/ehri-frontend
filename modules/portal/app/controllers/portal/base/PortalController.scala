@@ -1,6 +1,6 @@
 package controllers.portal.base
 
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 import auth.handler.AuthHandler
 import controllers.base.CoreActionBuilders
 import controllers.{AppComponents, renderError}

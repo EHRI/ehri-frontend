@@ -1,6 +1,6 @@
 package controllers.base
 
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.stream.scaladsl.Flow
 import auth.handler.AuthHandler
 import views.AppConfig
 import lifecycle.ItemLifecycle

@@ -1,6 +1,6 @@
 package services.ingest
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import models.{ContentTypes, IngestParams, IngestResult}
 import play.api.mvc.QueryStringBindable
 import services.data.DataUser

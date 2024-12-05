@@ -1,6 +1,6 @@
 package services.data
 
-import akka.stream.scaladsl.Source
+import org.apache.pekko.stream.scaladsl.Source
 import helpers.IntegrationTestRunner
 import models._
 import play.api.Configuration

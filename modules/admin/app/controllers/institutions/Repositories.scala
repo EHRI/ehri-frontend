@@ -1,6 +1,6 @@
 package controllers.institutions
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ImageHelpers, ResolutionTooHigh, UnrecognizedType}
 import controllers.generic._

@@ -1,6 +1,6 @@
 package controllers.portal
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import javax.inject.{Inject, Singleton}
 import controllers.AppComponents

@@ -2,10 +2,10 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef}
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 import models.{BasicAuthConfig, UrlNameMap, UrlSetConfig, UserProfile}
 import play.api.http.HeaderNames
 import play.api.libs.ws.{WSAuthScheme, WSClient}
@@ -45,7 +45,7 @@ case class UrlSetHarvester (client: WSClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
   import Harvester._
   import UrlSetHarvester._
-  import akka.pattern.pipe
+  import org.apache.pekko.pattern.pipe
 
   override def receive: Receive = {
     // Start the initial harvest

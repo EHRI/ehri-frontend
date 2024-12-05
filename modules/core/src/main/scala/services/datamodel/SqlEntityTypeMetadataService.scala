@@ -1,6 +1,6 @@
 package services.datamodel
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.{Column, SqlStringInterpolation, ToStatement, TypeDoesNotMatch}
 import models._
 import org.postgresql.jdbc.PgArray

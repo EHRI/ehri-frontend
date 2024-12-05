@@ -2,8 +2,8 @@ package actors.datamodel
 
 import actors.LongRunningJob.Cancel
 import actors.datamodel.AuditorManager.{AuditTask, AuditorJob}
-import akka.actor.{Actor, ActorLogging, ActorRef}
-import akka.pattern._
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
+import org.apache.pekko.pattern._
 import models._
 import services.data.DataUser
 import services.search._

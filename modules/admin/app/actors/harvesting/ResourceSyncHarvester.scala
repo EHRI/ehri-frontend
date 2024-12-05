@@ -2,9 +2,9 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef}
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
+import org.apache.pekko.http.scaladsl.model.Uri
 import models.{FileLink, ResourceSyncConfig, UserProfile}
 import services.harvesting.ResourceSyncClient
 import services.storage.FileStorage
@@ -44,7 +44,7 @@ case class ResourceSyncHarvester (client: ResourceSyncClient, storage: FileStora
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
   import Harvester._
   import ResourceSyncHarvester._
-  import akka.pattern.pipe
+  import org.apache.pekko.pattern.pipe
 
   override def receive: Receive = {
     // Start the initial harvest

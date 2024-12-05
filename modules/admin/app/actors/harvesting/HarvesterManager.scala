@@ -2,9 +2,9 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
-import akka.actor.Status.Failure
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, OneForOneStrategy, SupervisorStrategy, Terminated}
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.SupervisorStrategy.Stop
+import org.apache.pekko.actor.{Actor, ActorContext, ActorLogging, ActorRef, OneForOneStrategy, SupervisorStrategy, Terminated}
 import models.UserProfile
 import play.api.i18n.Messages
 import services.harvesting.{HarvestEventHandle, HarvestEventService, OaiPmhError}
@@ -26,7 +26,7 @@ case class HarvesterManager(job: HarvestJob, init: ActorContext => ActorRef, eve
   import Harvester._
   import HarvesterManager._
   import OaiPmhHarvester._
-  import akka.pattern.pipe
+  import org.apache.pekko.pattern.pipe
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case e =>

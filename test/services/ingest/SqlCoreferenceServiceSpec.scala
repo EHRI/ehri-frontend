@@ -1,6 +1,6 @@
 package services.ingest
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import helpers._
 import org.specs2.specification.AfterAll
 import play.api.db.Database

@@ -1,9 +1,9 @@
 package helpers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import akka.testkit.{ImplicitSender, TestKitBase}
-import akka.util.Timeout
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.testkit.{ImplicitSender, TestKitBase}
+import org.apache.pekko.util.Timeout
 import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
@@ -199,11 +199,11 @@ trait TestConfiguration {
   }
 
   /**
-    * Same as ITestApp but with Akka TestKit() functionality.
+    * Same as ITestApp but with Pekko TestKit() functionality.
     *
     * @param specificConfig A map of config values for this test
     */
-  protected abstract class ITestAppWithAkka(specificConfig: Map[String,Any] = Map.empty)
+  protected abstract class ITestAppWithPekko(specificConfig: Map[String,Any] = Map.empty)
     extends ITestApp(specificConfig) with TestKitBase with ImplicitSender
 
   /**
@@ -241,7 +241,7 @@ trait TestConfiguration {
       super.around(withDatabaseFixture(db, resource)(implicit db => AsResult.effectively(t)))
   }
 
-  protected abstract class DBTestAppWithAkka(resource: String = "", specificConfig: Map[String,Any] = Map.empty)
+  protected abstract class DBTestAppWithPekko(resource: String = "", specificConfig: Map[String,Any] = Map.empty)
     extends DBTestApp(resource, specificConfig) with TestKitBase with ImplicitSender
 
   /**

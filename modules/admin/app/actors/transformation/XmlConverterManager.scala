@@ -3,9 +3,9 @@ package actors.transformation
 import actors.LongRunningJob.Cancel
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
-import akka.stream.Materializer
+import org.apache.pekko.actor.SupervisorStrategy.Stop
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import org.apache.pekko.stream.Materializer
 import models.{TransformationType, UserProfile}
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject

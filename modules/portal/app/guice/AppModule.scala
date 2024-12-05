@@ -1,13 +1,13 @@
 package guice
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import views.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
-import play.api.libs.concurrent.AkkaGuiceSupport
+import play.api.libs.concurrent.PekkoGuiceSupport
 import services.RateLimitChecker
 import services.cypher.{CypherQueryService, CypherService, SqlCypherQueryService, WsCypherService}
 import services.data._
@@ -36,7 +36,7 @@ private class AwsGeocodingServiceProvider @Inject()(config: play.api.Configurati
   override def get(): GeocodingService = AwsGeocodingService(config.get[com.typesafe.config.Config]("services.geocoding"))(ec)
 }
 
-class AppModule extends AbstractModule with AkkaGuiceSupport {
+class AppModule extends AbstractModule with PekkoGuiceSupport {
   override def configure(): Unit = {
     bind(classOf[AppConfig])
     bind(classOf[RateLimitChecker])

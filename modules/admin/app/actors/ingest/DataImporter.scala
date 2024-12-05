@@ -2,8 +2,8 @@ package actors.ingest
 
 import actors.Ticker
 import actors.ingest.DataImporter._
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern._
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
+import org.apache.pekko.pattern._
 import models._
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._

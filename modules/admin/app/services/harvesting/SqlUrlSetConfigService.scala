@@ -1,6 +1,6 @@
 package services.harvesting
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.postgresql._
 import anorm.{RowParser, _}
 import models.UrlSetConfig

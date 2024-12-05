@@ -1,7 +1,7 @@
 package controllers.countries
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.stream.Materializer
+import org.apache.pekko.actor.{Actor, ActorRef, ActorSystem, Props}
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.generic._

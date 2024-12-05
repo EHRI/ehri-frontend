@@ -1,6 +1,6 @@
 package services.ingest
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import play.api.db.Database

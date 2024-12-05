@@ -1,6 +1,6 @@
 package services.transformation
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import com.google.inject.ImplementedBy
 import models.{DataTransformation, DataTransformationInfo}
 import play.api.http.{MimeTypes, Writeable}

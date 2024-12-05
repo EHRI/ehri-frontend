@@ -19,7 +19,7 @@ class SearchModule extends AbstractModule {
     bind(classOf[Index]).toProvider(classOf[SolrIndexProvider])
     bind(classOf[ResponseParser]).to(classOf[SolrJsonResponseParser])
     bind(classOf[QueryBuilder]).to(classOf[SolrQueryBuilder])
-    bind(classOf[SearchIndexMediator]).to(classOf[AkkaStreamsIndexMediator])
+    bind(classOf[SearchIndexMediator]).to(classOf[PekkoStreamsIndexMediator])
     bind(classOf[SearchEngine]).to(classOf[SolrSearchEngine])
     bind(classOf[SearchItemResolver]).to(classOf[GidSearchResolver])
   }

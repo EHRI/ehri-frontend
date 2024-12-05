@@ -1,6 +1,6 @@
 package controllers.portal.base
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import controllers.base.SearchRelated
 import controllers.generic.{Read, Search}
 import models.{Annotation, ContentType, UserProfile}

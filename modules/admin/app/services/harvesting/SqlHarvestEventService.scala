@@ -2,7 +2,7 @@ package services.harvesting
 
 import java.io.{PrintWriter, StringWriter}
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.{Macro, RowParser, _}
 import javax.inject.Inject
 import models.{HarvestEvent, UserProfile}

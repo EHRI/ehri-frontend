@@ -5,10 +5,10 @@ import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
 import actors.harvesting.{HarvesterManager, OaiPmhHarvester, ResourceSyncHarvester, UrlSetHarvester}
-import akka.actor.{ActorContext, ActorRef, Props}
-import akka.http.scaladsl.model.Uri
-import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.actor.{ActorContext, ActorRef, Props}
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Sink
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update

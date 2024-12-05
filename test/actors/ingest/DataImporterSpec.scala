@@ -1,7 +1,7 @@
 package actors.ingest
 
 import actors.ingest.DataImporter.{Done, Start, Message}
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import helpers.IntegrationTestRunner
 import models._
 import services.data.DataUser
@@ -35,7 +35,7 @@ class DataImporterSpec extends IntegrationTestRunner {
 
 
   "Data Importer" should {
-    "send correct messages when importing files" in new ITestAppWithAkka {
+    "send correct messages when importing files" in new ITestAppWithPekko {
       val importLog = ImportLog()
       val importApi = MockIngestService(importLog)
       val importer = system.actorOf(Props(DataImporter(job, importApi, (_, _) => Future.successful(()))))
@@ -51,7 +51,7 @@ class DataImporterSpec extends IntegrationTestRunner {
       expectMsgType[Done]
     }
 
-    "send correct messages when batch importing files" in new ITestAppWithAkka {
+    "send correct messages when batch importing files" in new ITestAppWithPekko {
       val batchData = payload.toSeq.zipWithIndex.map { case ((k, v), i) =>
         ingestData.copy(params = ingestData.params.copy(data = UrlMapPayload(Map(k -> v))), batch = Some(i + 1))
       }.toList
@@ -79,7 +79,7 @@ class DataImporterSpec extends IntegrationTestRunner {
       expectMsgType[Done]
     }
 
-    "send correct messages when imports throw an error" in new ITestAppWithAkka {
+    "send correct messages when imports throw an error" in new ITestAppWithPekko {
       val importApi = MockIngestService(ErrorLog("identifier", "Missing field"))
       val importer = system.actorOf(Props(DataImporter(job, importApi, (_, _) => Future.successful(()))))
 

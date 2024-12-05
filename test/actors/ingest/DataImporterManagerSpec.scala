@@ -1,6 +1,6 @@
 package actors.ingest
 
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import helpers.IntegrationTestRunner
 import models._
 import services.data.DataUser
@@ -35,7 +35,7 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
 
   "Data Import manager" should {
 
-    "send correct messages when importing files" in new ITestAppWithAkka {
+    "send correct messages when importing files" in new ITestAppWithPekko {
       val importApi = MockIngestService(ImportLog())
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 
@@ -49,7 +49,7 @@ class DataImporterManagerSpec extends IntegrationTestRunner {
       expectMsg(WebsocketConstants.DONE_MESSAGE)
     }
 
-    "send correct messages when imports throw an error" in new ITestAppWithAkka {
+    "send correct messages when imports throw an error" in new ITestAppWithPekko {
       val importApi = MockIngestService(ErrorLog("identifier", "Missing field"))
       val importManager = system.actorOf(Props(DataImporterManager(job, importApi)))
 

@@ -1,7 +1,7 @@
 package controllers.base
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Sink
 import controllers.generic.Search
 import play.api.libs.json.JsString
 import services.cypher.CypherService

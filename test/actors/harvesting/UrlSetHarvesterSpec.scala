@@ -3,7 +3,7 @@ package actors.harvesting
 import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{BasicAuthConfig, UrlSetConfig, UserProfile}
@@ -47,7 +47,7 @@ class UrlSetHarvesterSpec extends IntegrationTestRunner {
 
   "URL set harvest runner" should {
 
-    "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(UrlSetHarvester(client, storage)))
 
       runner ! job
@@ -58,7 +58,7 @@ class UrlSetHarvesterSpec extends IntegrationTestRunner {
       expectMsgClass(classOf[Completed])
     }
 
-    "allow cancellation" in new ITestAppWithAkka {
+    "allow cancellation" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(harvesting.UrlSetHarvester(client, storage)))
 
       runner ! job
@@ -69,7 +69,7 @@ class UrlSetHarvesterSpec extends IntegrationTestRunner {
       expectMsgClass(classOf[Cancelled])
     }
 
-    "support POST requests to endpoints" in new ITestAppWithAkka {
+    "support POST requests to endpoints" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(UrlSetHarvester(client, storage)))
 
       runner ! postJob

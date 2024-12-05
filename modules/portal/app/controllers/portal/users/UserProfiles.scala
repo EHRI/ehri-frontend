@@ -1,6 +1,6 @@
 package controllers.portal.users
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import controllers.base.{ImageHelpers, ResolutionTooHigh, UnrecognizedType}
 import controllers.generic.Search
 import controllers.portal.base.PortalController

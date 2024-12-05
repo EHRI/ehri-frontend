@@ -1,8 +1,8 @@
 package controllers.admin
 
 import actors.LongRunningJob
-import akka.actor.{Actor, ActorLogging, ActorNotFound, ActorSystem, Props}
-import akka.stream.{Materializer, OverflowStrategy}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorNotFound, ActorSystem, Props}
+import org.apache.pekko.stream.{Materializer, OverflowStrategy}
 import controllers.AppComponents
 import controllers.base.AdminController
 import play.api.libs.json.{JsNull, JsValue, Json}

@@ -2,8 +2,8 @@ package actors.harvesting
 
 import actors.LongRunningJob.Cancel
 import actors.harvesting.Harvester.HarvestJob
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef}
 import models.{OaiPmhConfig, UserProfile}
 import services.harvesting.{OaiPmhClient, OaiPmhError}
 import services.storage.FileStorage
@@ -55,7 +55,7 @@ case class OaiPmhHarvester (client: OaiPmhClient, storage: FileStorage)(
     implicit userOpt: Option[UserProfile], ec: ExecutionContext) extends Actor with ActorLogging {
   import Harvester._
   import OaiPmhHarvester._
-  import akka.pattern.pipe
+  import org.apache.pekko.pattern.pipe
 
   override def postStop(): Unit = {
     log.debug("Harvester shut down")

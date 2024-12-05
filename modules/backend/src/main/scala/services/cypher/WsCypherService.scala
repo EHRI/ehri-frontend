@@ -1,10 +1,10 @@
 package services.cypher
 
-import akka.actor.ActorSystem
-import akka.stream.alpakka.json.scaladsl.JsonReader
-import akka.stream.scaladsl.Source
-import akka.stream.{Materializer, scaladsl}
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.connectors.json.scaladsl.JsonReader
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.stream.{Materializer, scaladsl}
+import org.apache.pekko.util.ByteString
 import play.api.Logger
 import play.api.cache.SyncCacheApi
 import play.api.http.HttpVerbs

@@ -1,6 +1,6 @@
 package integration.admin
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import helpers._
 import models.{FileStage, TransformationType, _}
 import play.api.http.{ContentTypes, HeaderNames, Writeable}

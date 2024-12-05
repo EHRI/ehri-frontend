@@ -1,9 +1,9 @@
 package services.ingest
 
-import akka.actor.ActorRef
-import akka.stream.Materializer
-import akka.stream.scaladsl.{FileIO, Source}
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{FileIO, Source}
+import org.apache.pekko.util.ByteString
 import com.fasterxml.jackson.databind.JsonMappingException
 import models._
 import play.api.cache.AsyncCacheApi

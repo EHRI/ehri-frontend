@@ -3,7 +3,7 @@ package actors.cleanup
 import actors.LongRunningJob.Cancel
 import actors.Ticker.Tick
 import actors.cleanup.CleanupRunner.CleanupJob
-import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, Terminated}
+import org.apache.pekko.actor.{Actor, ActorContext, ActorLogging, ActorRef, Terminated}
 import play.api.i18n.Messages
 import services.ingest.Cleanup
 import utils.WebsocketConstants

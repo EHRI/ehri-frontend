@@ -3,8 +3,8 @@ package actors.datamodel
 import actors.LongRunningJob.Cancel
 import actors.datamodel.Auditor.{Cancelled, CheckBatch, Checked, Completed, RunAudit}
 import actors.datamodel.AuditorManager.{AuditorJob, ItemResult}
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import org.apache.pekko.actor.SupervisorStrategy.Stop
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models._
 import play.api.Configuration
 import play.api.i18n.Messages

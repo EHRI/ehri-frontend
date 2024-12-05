@@ -2,10 +2,10 @@ package services.ingest
 
 import java.nio.file.Paths
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.Uri
-import akka.stream.Materializer
-import akka.stream.scaladsl.FileIO
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.FileIO
 import com.google.common.io.Resources
 import play.api.test.PlaySpecification
 

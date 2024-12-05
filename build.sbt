@@ -5,7 +5,7 @@ import com.typesafe.sbt.packager.SettingsHelper._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import net.ground5hark.sbt.concat.Import._
-import play.core.PlayVersion.{akkaHttpVersion, akkaVersion}
+import play.core.PlayVersion.{pekkoHttpVersion, pekkoVersion}
 import play.sbt.PlayImport._
 import play.sbt.routes.RoutesKeys._
 import play.twirl.sbt.Import.TwirlKeys.templateImports
@@ -22,7 +22,7 @@ val appName = "docview"
 
 val backendVersion = "0.15.1"
 val dataConverterVersion = "1.1.15"
-val alpakkaVersion = "3.0.4"
+val pekkoConnectorsVersion = "1.0.2"
 
 // This prevents a library version incompatibility error between
 // scala-xml 1.3.0 and 2.2.0 (which are in fact binary compatible.)
@@ -39,10 +39,10 @@ val backendDependencies = Seq(
   "org.apache.commons" % "commons-text" % "1.4",
 
   // Push JSON parser used for stream parsing...
-  "com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % alpakkaVersion,
+  "org.apache.pekko" %% "pekko-connectors-json-streaming" % pekkoConnectorsVersion,
 
   // CSV parser/writer...
-  "com.lightbend.akka" %% "akka-stream-alpakka-csv" % alpakkaVersion,
+  "org.apache.pekko" %% "pekko-connectors-csv" % pekkoConnectorsVersion,
 
   // IRI helper...
   "org.apache.jena" % "jena-iri" % "3.9.0",
@@ -61,9 +61,9 @@ val coreDependencies = backendDependencies ++ Seq(
   // Force Scala XML version
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
 
-  // Force Akka HTTP version
-  "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-xml"   % akkaHttpVersion,
+  // Force Pekko HTTP version
+  "org.apache.pekko" %% "pekko-http"   % pekkoHttpVersion,
+  "org.apache.pekko" %% "pekko-http-xml"   % pekkoHttpVersion,
 
   // Anorm DB lib
   "org.playframework.anorm" %% "anorm" % "2.7.0",
@@ -109,13 +109,13 @@ val portalDependencies = Seq(
   "eu.ehri-project" % "index-data-converter" % dataConverterVersion exclude("log4j", "log4j") exclude ("org.slf4j", "slf4j-log4j12"),
 
   // S3 Upload plugin
-  "com.lightbend.akka" %% "akka-stream-alpakka-s3" % alpakkaVersion,
+  "org.apache.pekko" %% "pekko-connectors-s3" % pekkoConnectorsVersion,
 
   // S3 sdk
-  "software.amazon.awssdk" % "s3" % "2.15.63",
+  "software.amazon.awssdk" % "s3" % "2.17.113",
 
   // AWS Location sdk
-  "software.amazon.awssdk" % "location" % "2.15.63",
+  "software.amazon.awssdk" % "location" % "2.17.113",
 )
 
 val adminDependencies = Seq(
@@ -123,15 +123,15 @@ val adminDependencies = Seq(
   "org.relaxng" % "jing" % "20181222",
 
   // XML parsing
-  "com.lightbend.akka" %% "akka-stream-alpakka-xml" % alpakkaVersion,
-  "com.lightbend.akka" %% "akka-stream-alpakka-text" % alpakkaVersion,
+  "org.apache.pekko" %% "pekko-connectors-xml" % pekkoConnectorsVersion,
+  "org.apache.pekko" %% "pekko-connectors-text" % pekkoConnectorsVersion,
 )
 
 val testDependencies = Seq(
   specs2 % Test,
 
   // Used for testing JSON stream parsing...
-  "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
+  "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion % Test
 )
 
 val additionalResolvers = Resolver.sonatypeOssRepos("releases") ++ Seq(

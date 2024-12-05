@@ -3,10 +3,10 @@ package services.ingest
 import java.io.InputStreamReader
 import java.nio.file.Path
 
-import akka.http.scaladsl.model.Uri
-import akka.stream.Materializer
-import akka.stream.scaladsl.{Source, StreamConverters}
-import akka.util.ByteString
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
+import org.apache.pekko.util.ByteString
 import com.google.common.io.Resources
 import com.thaiopensource.util.PropertyMapBuilder
 import com.thaiopensource.validate.prop.rng.RngProperty

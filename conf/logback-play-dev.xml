@@ -33,7 +33,7 @@
     <appender-ref ref="STDOUT" />
   </appender>
 
-  <logger name="akka" level="WARN" />
+  <logger name="pekko" level="WARN" />
   <logger name="play" level="INFO" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
@@ -76,7 +76,7 @@
   <!-- Uncomment to see mailer debug, when play.mailer.debug=yes in configuration -->
   <!--  <logger name="play.mailer" level="DEBUG" />-->
   
-  <!--<logger name="akka.stream" level="TRACE" />-->
+  <!--<logger name="pekko.stream" level="TRACE" />-->
 
   <!-- Uncomment to show LOTS of debug info about HTTP calls -->
   <!-- <logger name="play.shaded.ahc.org.asynchttpclient" level="DEBUG" />-->

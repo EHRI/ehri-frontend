@@ -1,6 +1,6 @@
 package controllers.portal
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.generic.Search
 import controllers.portal.base.{Generic, PortalController, Related}
