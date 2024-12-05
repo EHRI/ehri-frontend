@@ -1,6 +1,6 @@
 package integration.admin
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import helpers._
 import play.api.test.FakeRequest
 

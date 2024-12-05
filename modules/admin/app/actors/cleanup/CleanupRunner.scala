@@ -1,7 +1,7 @@
 package actors.cleanup
 
 import actors.Ticker
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
 import play.api.Configuration
 import services.data.{DataService, EventForwarder}
 import services.ingest.{Cleanup, ImportLogService, IngestService}
@@ -45,7 +45,7 @@ case class CleanupRunner(
 )(implicit config: Configuration, ec: ExecutionContext) extends Actor with ActorLogging {
 
   import CleanupRunner._
-  import akka.pattern._
+  import org.apache.pekko.pattern._
 
   private val batchSize = config.get[Int]("ehri.admin.bulkOperations.maxDeletions")
 

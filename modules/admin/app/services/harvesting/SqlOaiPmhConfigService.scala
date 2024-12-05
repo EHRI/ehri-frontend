@@ -1,6 +1,6 @@
 package services.harvesting
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.{RowParser, SqlParser, _}
 import models.OaiPmhConfig
 import play.api.db.Database

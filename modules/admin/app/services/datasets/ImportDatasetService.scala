@@ -1,6 +1,6 @@
 package services.datasets
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import com.google.inject.ImplementedBy
 import models.{ImportDataset, ImportDatasetInfo}
 import play.api.http.{MimeTypes, Writeable}

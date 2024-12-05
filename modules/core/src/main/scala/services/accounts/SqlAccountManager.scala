@@ -4,7 +4,7 @@ import java.sql.Connection
 import java.time.ZonedDateTime
 import java.util.UUID
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.SqlParser._
 import anorm._
 import auth._

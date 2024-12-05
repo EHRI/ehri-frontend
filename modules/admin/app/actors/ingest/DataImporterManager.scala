@@ -2,8 +2,8 @@ package actors.ingest
 
 import actors.Ticker.Tick
 import actors.ingest.DataImporter.{Done, Start, Message, UnexpectedError}
-import akka.actor.SupervisorStrategy.Stop
-import akka.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import org.apache.pekko.actor.SupervisorStrategy.Stop
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import models.{ErrorLog, ImportLog}
 import services.ingest.IngestService.{IngestData, IngestJob}
 import services.ingest._

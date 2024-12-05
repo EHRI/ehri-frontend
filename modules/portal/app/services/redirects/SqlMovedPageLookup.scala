@@ -2,7 +2,7 @@ package services.redirects
 
 import javax.inject.Inject
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm._
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.db.Database

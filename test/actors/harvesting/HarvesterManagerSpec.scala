@@ -5,7 +5,7 @@ import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
 import actors.harvesting.UrlSetHarvester.{UrlSetHarvesterData, UrlSetHarvesterJob}
-import akka.actor.{ActorContext, Props}
+import org.apache.pekko.actor.{ActorContext, Props}
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.HarvestEvent.HarvestEventType
@@ -68,7 +68,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
   "Harvester Manager" should {
     import scala.concurrent.duration._
 
-    "send correct messages when harvesting an endpoint via OAI-PMH" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint via OAI-PMH" in new ITestAppWithPekko {
       val events = MockHarvestEventService()
       val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
       val harvester = system.actorOf(Props(HarvesterManager(oaiPmhJob, init, events)))
@@ -85,7 +85,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
         .eventually(20, 100.millis)
     }
 
-    "send correct messages when harvesting an endpoint via ResourceSync" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint via ResourceSync" in new ITestAppWithPekko {
       val events = MockHarvestEventService()
       val init = (context: ActorContext) => context.actorOf(Props(ResourceSyncHarvester(rsClient, storage)))
       val harvester = system.actorOf(Props(HarvesterManager(rsJob, init, events)))
@@ -103,7 +103,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
         .eventually(20, 100.millis)
     }
 
-    "send correct messages when harvesting an endpoint via an URL set" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint via an URL set" in new ITestAppWithPekko {
         val events = MockHarvestEventService()
         val init = (context: ActorContext) => context.actorOf(Props(UrlSetHarvester(wsClient, storage)))
         val harvester = system.actorOf(Props(HarvesterManager(urlSetJob, init, events)))
@@ -120,7 +120,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
           .eventually(20, 100.millis)
     }
 
-    "handle errors" in new ITestAppWithAkka {
+    "handle errors" in new ITestAppWithPekko {
       val events = MockHarvestEventService()
       val harvestConf = oaiPmhJob.copy(data = oaiPmhJob.data.copy(config = oaiPmhJob.data.config.copy(url = "http://example.com/oaipmh")))
       val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
@@ -135,7 +135,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
       await(events.get("r1")) must_== List.empty[HarvestEvent]
     }
 
-    "harvest selectively with `from` date" in new ITestAppWithAkka {
+    "harvest selectively with `from` date" in new ITestAppWithPekko {
         val events = MockHarvestEventService()
         val start: Instant = Instant.now()
         val job2 = oaiPmhJob(app)
@@ -150,7 +150,7 @@ class HarvesterManagerSpec extends IntegrationTestRunner {
         await(events.get("r1")) must_== List.empty[HarvestEvent]
     }
 
-    "cancel jobs" in new ITestAppWithAkka {
+    "cancel jobs" in new ITestAppWithPekko {
         val events = MockHarvestEventService()
         val init = (context: ActorContext) => context.actorOf(Props(OaiPmhHarvester(oaiPmhClient, storage)))
         val harvester = system.actorOf(Props(harvesting.HarvesterManager(oaiPmhJob, init, events)))

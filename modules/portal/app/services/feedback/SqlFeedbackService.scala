@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.time.ZonedDateTime
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm._
 import javax.inject.{Inject, Singleton}
 import models.{Feedback, FeedbackContext}

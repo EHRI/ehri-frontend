@@ -1,7 +1,7 @@
 package controllers.datasets
 
-import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Sink
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._

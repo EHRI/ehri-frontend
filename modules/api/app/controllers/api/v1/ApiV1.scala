@@ -1,6 +1,6 @@
 package controllers.api.v1
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import auth.handler.AuthHandler
 import controllers.AppComponents
 import controllers.base.{CoreActionBuilders, SearchRelated, SearchVC}

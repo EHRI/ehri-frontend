@@ -1,8 +1,8 @@
 package controllers.admin
 
 import actors.ingest.DataImporterManager
-import akka.actor.Props
-import akka.stream.Materializer
+import org.apache.pekko.actor.Props
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.AdminController
 import controllers.datasets.StorageHelpers

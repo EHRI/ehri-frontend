@@ -1,9 +1,9 @@
 package actors.transformation
 
 import actors.transformation.XmlConverterManager.{XmlConvertData, XmlConvertJob}
-import akka.actor.Props
-import akka.stream.scaladsl.{Flow, Source}
-import akka.util.ByteString
+import org.apache.pekko.actor.Props
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.util.ByteString
 import com.google.inject.name.Names
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
@@ -36,7 +36,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
 
 
   "XML converter" should {
-    "send the right messages when there's nothing to do" in new ITestAppWithAkka {
+    "send the right messages when there's nothing to do" in new ITestAppWithPekko {
         val ds = UUID.randomUUID().toString
         val job = XmlConvertJob("r1", ds, ds,
           XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
@@ -48,7 +48,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
         expectMsgClass(classOf[Completed])
     }
 
-    "transcode input charset to UTF-8" in new ITestAppWithAkka {
+    "transcode input charset to UTF-8" in new ITestAppWithPekko {
       val ds = UUID.randomUUID().toString
       val job = XmlConvertJob("r1", ds, ds,
         XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
@@ -72,7 +72,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
       }
     }
 
-    "copy files when transformation is a no-op" in new ITestAppWithAkka {
+    "copy files when transformation is a no-op" in new ITestAppWithPekko {
         val ds = UUID.randomUUID().toString
         val job = XmlConvertJob("r1", ds, ds,
           XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
@@ -87,7 +87,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
         expectMsgClass(classOf[Completed])
     }
 
-    "handle conversion errors without halting" in new ITestAppWithAkka {
+    "handle conversion errors without halting" in new ITestAppWithPekko {
       val ds = UUID.randomUUID().toString
       val job = XmlConvertJob("r1", ds, ds,
         XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))
@@ -103,7 +103,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
     }
 
 
-    "handle storage errors by halting" in new ITestAppWithAkka {
+    "handle storage errors by halting" in new ITestAppWithPekko {
       val noKey = "nope.xml"
       val ds = UUID.randomUUID().toString
       val job = XmlConvertJob("r1", ds, ds,
@@ -121,7 +121,7 @@ class XmlConverterSpec extends IntegrationTestRunner {
       expectNoMessage()
     }
 
-    "not re-copy when a prior identical transformation has been run" in new ITestAppWithAkka {
+    "not re-copy when a prior identical transformation has been run" in new ITestAppWithPekko {
         val ds = UUID.randomUUID().toString
         val job = XmlConvertJob("r1", ds, ds,
           XmlConvertData(Seq.empty, s"ingest-data/r1/$ds/input/", s"ingest-data/r1/$ds/output/"))

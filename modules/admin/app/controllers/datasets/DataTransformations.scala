@@ -1,6 +1,6 @@
 package controllers.datasets
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic.Update

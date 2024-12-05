@@ -1,6 +1,6 @@
 package services.data
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Terminated}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Terminated}
 
 import javax.inject.Inject
 

@@ -1,7 +1,7 @@
 package services.transformation
 
 import _root_.utils.{db => dbUtils}
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.postgresql._
 import anorm.{Macro, RowParser, _}
 import models.{DataTransformation, DataTransformationInfo}

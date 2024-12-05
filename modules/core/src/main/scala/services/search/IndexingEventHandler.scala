@@ -1,8 +1,9 @@
 package services.search
 
-import akka.actor.ActorRef
-import akka.stream.Materializer
-import akka.stream.scaladsl.Source
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
 import play.api.{Configuration, Logger}
 import services.data.EventForwarder.{Create, Delete, Update}
 import services.data.EventHandler
@@ -54,7 +55,7 @@ case class IndexingEventHandler @Inject()(
       searchIndexer.handle.clearIds(group: _*)
     }
     // This runs all deletes in a synchronous sequence, as opposed to in parallel
-    val allDone: Future[akka.Done] = Source.fromIterator(() => deletes)
+    val allDone: Future[Done] = Source.fromIterator(() => deletes)
       .mapAsync(parallelism = 1)(identity)
       .runForeach(identity)
 

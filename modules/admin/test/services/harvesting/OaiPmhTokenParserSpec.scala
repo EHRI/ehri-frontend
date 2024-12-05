@@ -1,10 +1,10 @@
 package services.harvesting
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import akka.stream.alpakka.xml.scaladsl.{XmlParsing, XmlWriting}
-import akka.stream.scaladsl.{Keep, Source}
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.xml.scaladsl.{XmlParsing, XmlWriting}
+import org.apache.pekko.stream.scaladsl.{Keep, Source}
+import org.apache.pekko.util.ByteString
 import play.api.test.PlaySpecification
 
 import scala.concurrent.Future

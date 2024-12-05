@@ -3,7 +3,7 @@ package actors.datamodel
 import actors.LongRunningJob.Cancel
 import actors.datamodel.Auditor.RunAudit
 import actors.datamodel.AuditorManager.{AuditTask, AuditorJob}
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{EntityType, FieldMetadata, FieldMetadataSet, UserProfile}
@@ -47,7 +47,7 @@ class AuditorSpec extends IntegrationTestRunner {
 
   "Auditor runner" should {
 
-    "send correct messages when auditing an entity type" in new ITestAppWithAkka {
+    "send correct messages when auditing an entity type" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(Auditor(searchEngine, resolver, fieldMetadataSet, 5, 10)))
 
       runner ! RunAudit(job, None)
@@ -56,7 +56,7 @@ class AuditorSpec extends IntegrationTestRunner {
       expectMsgClass(classOf[Auditor.Completed])
     }
 
-    "allow cancellation" in new ITestAppWithAkka {
+    "allow cancellation" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(Auditor(searchEngine, resolver, fieldMetadataSet, 5, 10)))
 
       runner ! RunAudit(job, None)

@@ -1,6 +1,6 @@
 package integration.admin
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import controllers.datasets.FileToUpload
 import helpers._
 import models.{FileStage, _}

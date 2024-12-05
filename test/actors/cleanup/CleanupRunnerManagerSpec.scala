@@ -2,7 +2,7 @@ package actors.cleanup
 
 import actors.LongRunningJob
 import actors.cleanup.CleanupRunner.CleanupJob
-import akka.actor.{ActorContext, ActorRef, Props}
+import org.apache.pekko.actor.{ActorContext, ActorRef, Props}
 import com.google.inject.name.Names
 import controllers.datasets.CleanupConfirmation
 import helpers.IntegrationTestRunner
@@ -32,7 +32,7 @@ class CleanupRunnerManagerSpec extends IntegrationTestRunner {
 
   "Harvester Manager" should {
 
-    "send correct messages when running a cleanup job" in new DBTestAppWithAkka("import-log-fixture.sql",
+    "send correct messages when running a cleanup job" in new DBTestAppWithPekko("import-log-fixture.sql",
         specificConfig = Map("ehri.admin.bulkOperations.maxDeletions" -> 1)) {
       val cleanupConfirmation = CleanupConfirmation("Delete it")
       val cleanupJob: CleanupJob = CleanupJob("r1", 1, jobId, cleanupConfirmation.msg)
@@ -52,7 +52,7 @@ class CleanupRunnerManagerSpec extends IntegrationTestRunner {
       expectMsg("Done")
     }
 
-    "be cancellable" in new DBTestAppWithAkka("import-log-fixture.sql") {
+    "be cancellable" in new DBTestAppWithPekko("import-log-fixture.sql") {
       val cleanupConfirmation = CleanupConfirmation("Delete it")
       val cleanupJob: CleanupJob = CleanupJob("r1", 1, jobId, cleanupConfirmation.msg)
 

@@ -1,16 +1,16 @@
 package services.search
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.HostConnectionPool
-import akka.http.scaladsl.common.EntityStreamingSupport
-import akka.http.scaladsl.model.Uri.Query
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, RawHeader}
-import akka.http.scaladsl.settings.{ClientConnectionSettings, ConnectionPoolSettings}
-import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
-import akka.util.ByteString
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.Http.HostConnectionPool
+import org.apache.pekko.http.scaladsl.common.EntityStreamingSupport
+import org.apache.pekko.http.scaladsl.model.Uri.Query
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, RawHeader}
+import org.apache.pekko.http.scaladsl.settings.{ClientConnectionSettings, ConnectionPoolSettings}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
+import org.apache.pekko.util.ByteString
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import eu.ehri.project.indexing.converter.impl.JsonConverter
 import models.EntityType
@@ -25,15 +25,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 import org.apache.commons.lang3.time.DurationFormatUtils.formatDurationWords
+import org.apache.pekko.NotUsed
 import services.ServiceConfig
 
 
-case class AkkaStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, config: Configuration, executionContext: ExecutionContext) extends
+case class PekkoStreamsIndexMediator @Inject()(actorSystem: ActorSystem, mat: Materializer, config: Configuration, executionContext: ExecutionContext) extends
   SearchIndexMediator {
-  override val handle: SearchIndexMediatorHandle = AkkaStreamsIndexMediatorHandle()(actorSystem, mat, config, executionContext)
+  override val handle: SearchIndexMediatorHandle = PekkoStreamsIndexMediatorHandle()(actorSystem, mat, config, executionContext)
 }
 
-case class AkkaStreamsIndexMediatorHandle(
+case class PekkoStreamsIndexMediatorHandle(
   chan: Option[ActorRef] = None,
   processFunc: String => String = identity[String],
   progressFilter: Int => Boolean = _ % 100 == 0
@@ -42,13 +43,13 @@ case class AkkaStreamsIndexMediatorHandle(
   config: Configuration,
   executionContext: ExecutionContext) extends SearchIndexMediatorHandle {
 
-  override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean = _ % 100 == 0): AkkaStreamsIndexMediatorHandle =
+  override def withChannel(actorRef: ActorRef, formatter: String => String, filter: Int => Boolean = _ % 100 == 0): PekkoStreamsIndexMediatorHandle =
     copy(chan = Some(actorRef), processFunc = formatter, progressFilter = filter)
 
   import scala.jdk.CollectionConverters._
   import scala.concurrent.duration._
 
-  private val logger = Logger(classOf[AkkaStreamsIndexMediator])
+  private val logger = Logger(classOf[PekkoStreamsIndexMediator])
 
   private val dataServiceConfig = ServiceConfig("ehridata", config)
   private val dataBaseUrl: Uri = dataServiceConfig.baseUrl
@@ -87,16 +88,16 @@ case class AkkaStreamsIndexMediatorHandle(
     .mapMaterializedValue(_.map(_.utf8String))
     .named("http-sink-flow")
 
-  private val bytesToJsonNode: Flow[ByteString, JsonNode, akka.NotUsed] = Flow[ByteString]
+  private val bytesToJsonNode: Flow[ByteString, JsonNode, NotUsed] = Flow[ByteString]
     .via(jsonSupport.framingDecoder)
     .map(bytes => mapper.readValue(bytes.toArray, classOf[JsonNode]))
     .named("bytes-to-json-node")
 
-  private val jsonNodeToBytes: Flow[JsonNode, ByteString, akka.NotUsed] = Flow[JsonNode]
+  private val jsonNodeToBytes: Flow[JsonNode, ByteString, NotUsed] = Flow[JsonNode]
     .map(node => ByteString.fromArray(writer.writeValueAsBytes(node)))
     .named("json-node-to-bytes")
 
-  private def jsonNodeToDoc(jsonConverter: JsonConverter): Flow[JsonNode, JsonNode, akka.NotUsed] = Flow[JsonNode]
+  private def jsonNodeToDoc(jsonConverter: JsonConverter): Flow[JsonNode, JsonNode, NotUsed] = Flow[JsonNode]
     .mapConcat[JsonNode](n => jsonConverter.convert(n).asScala.toVector)
     .named("json-node-to-solr-doc")
 

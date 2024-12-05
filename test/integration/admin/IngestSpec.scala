@@ -1,9 +1,9 @@
 package integration.admin
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
 import com.google.inject.name.Names
 import helpers.{FakeMultipartUpload, IntegrationTestRunner}
 import models.{ContentTypes, IngestParams}

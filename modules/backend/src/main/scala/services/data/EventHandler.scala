@@ -1,6 +1,6 @@
 package services.data
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 
 trait EventHandler {
   def subscribe(actorRef: ActorRef): Unit = ()

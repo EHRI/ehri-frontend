@@ -1,11 +1,11 @@
 package integration.admin
 
-import akka.NotUsed
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.ws.{Message, TextMessage, WebSocketRequest}
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
 import controllers.admin.IndexTypes
 import helpers._
 import models.EntityType

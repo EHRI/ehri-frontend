@@ -1,9 +1,9 @@
 package controllers.datasets
 
 import actors.ingest
-import akka.actor.Props
-import akka.stream.Materializer
-import akka.stream.scaladsl.Source
+import org.apache.pekko.actor.Props
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._

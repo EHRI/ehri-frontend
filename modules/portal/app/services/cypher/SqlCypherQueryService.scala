@@ -3,7 +3,7 @@ package services.cypher
 import java.time.ZonedDateTime
 import javax.inject.{Inject, Singleton}
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import anorm.{Macro, RowParser, SqlParser, _}
 import models.CypherQuery
 import play.api.db.Database

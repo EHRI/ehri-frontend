@@ -1,9 +1,9 @@
 package services.harvesting
 
-import akka.actor.{Actor, ActorSystem, Props}
-import akka.pattern.ask
-import akka.stream.Materializer
-import akka.util.Timeout
+import org.apache.pekko.actor.{Actor, ActorSystem, Props}
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.util.Timeout
 import models.HarvestEvent.HarvestEventType
 import models.{HarvestEvent, UserProfile}
 import services.harvesting.EventDb.Query

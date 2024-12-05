@@ -1,7 +1,7 @@
 package services.transformation
 
-import akka.stream.scaladsl.Flow
-import akka.util.ByteString
+import org.apache.pekko.stream.scaladsl.Flow
+import org.apache.pekko.util.ByteString
 import com.google.inject.ImplementedBy
 import models.TransformationType
 import play.api.libs.json.JsObject

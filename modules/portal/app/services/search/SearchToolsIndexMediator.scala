@@ -1,6 +1,6 @@
 package services.search
 
-import akka.actor.{ActorRef, ActorSystem}
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper, ObjectWriter}
 import eu.ehri.project.indexing.Pipeline.Builder
 import eu.ehri.project.indexing.converter.impl.JsonConverter

@@ -1,6 +1,6 @@
 package controllers
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import auth.handler.AuthHandler
 import com.google.inject.ImplementedBy
 import views.AppConfig

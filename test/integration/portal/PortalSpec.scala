@@ -1,6 +1,6 @@
 package integration.portal
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import cookies.{SessionPreferences, SessionPrefs}
 import helpers.IntegrationTestRunner
 import play.api.libs.json.Json

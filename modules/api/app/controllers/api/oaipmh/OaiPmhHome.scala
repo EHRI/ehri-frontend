@@ -1,6 +1,6 @@
 package controllers.api.oaipmh
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 import controllers.AppComponents
 import controllers.portal.base.PortalController
 import play.api.http.{ContentTypes, HttpVerbs}

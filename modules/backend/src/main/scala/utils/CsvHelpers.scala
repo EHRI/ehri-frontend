@@ -1,8 +1,8 @@
 package utils
 
-import akka.NotUsed
-import akka.stream.alpakka.csv.scaladsl.CsvFormatting
-import akka.stream.scaladsl.Source
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.connectors.csv.scaladsl.CsvFormatting
+import org.apache.pekko.stream.scaladsl.Source
 
 trait CsvHelpers {
   def writeCsv(headers: Seq[String], data: Seq[Array[String]], sep: Char = ','): Source[String, NotUsed] = {

@@ -1,6 +1,6 @@
 package services.search
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.collect.EvictingQueue
 import models.EntityType
 import play.api.{Configuration, Logger}

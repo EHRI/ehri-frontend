@@ -3,7 +3,7 @@ package actors.harvesting
 import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.OaiPmhHarvester.{OaiPmhHarvestData, OaiPmhHarvestJob}
-import akka.actor.Props
+import org.apache.pekko.actor.Props
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{OaiPmhConfig, BasicAuthConfig, UserProfile}
@@ -36,7 +36,7 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
 
   "OAI-PMH harvest runner" should {
 
-    "send correct messages when harvesting an endpoint" in new ITestAppWithAkka {
+    "send correct messages when harvesting an endpoint" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(OaiPmhHarvester(client, storage)))
 
       runner ! job
@@ -46,7 +46,7 @@ class OaiPmhHarvesterSpec extends IntegrationTestRunner {
       expectMsgClass(classOf[Completed])
     }
 
-    "allow cancellation" in new ITestAppWithAkka {
+    "allow cancellation" in new ITestAppWithPekko {
       val runner = system.actorOf(Props(harvesting.OaiPmhHarvester(client, storage)))
 
       runner ! job

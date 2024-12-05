@@ -1,9 +1,9 @@
 package services.data.streams
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
-import akka.stream.scaladsl.{Source, StreamConverters}
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
+import org.apache.pekko.util.ByteString
 import play.api.test.PlaySpecification
 
 import scala.concurrent.Await
@@ -11,8 +11,8 @@ import scala.concurrent.duration._
 
 class ByteStringResizerSpec extends PlaySpecification {
 
-  private implicit val as: akka.actor.ActorSystem = ActorSystem.create("testing")
-  private implicit val mat: akka.stream.Materializer = Materializer(as)
+  private implicit val as: ActorSystem = ActorSystem.create("testing")
+  private implicit val mat: Materializer = Materializer(as)
 
   def count(size: Int, bytes: ByteString*): Int = Await.result(
     Source.apply(bytes.toList)

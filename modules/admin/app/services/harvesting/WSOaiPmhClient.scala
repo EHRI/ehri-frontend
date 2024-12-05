@@ -1,11 +1,11 @@
 package services.harvesting
 
-import akka.NotUsed
-import akka.stream.Materializer
-import akka.stream.alpakka.xml.ParseEvent
-import akka.stream.alpakka.xml.scaladsl.{XmlParsing, XmlWriting}
-import akka.stream.scaladsl.{Flow, Keep, Source}
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.xml.ParseEvent
+import org.apache.pekko.stream.connectors.xml.scaladsl.{XmlParsing, XmlWriting}
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Source}
+import org.apache.pekko.util.ByteString
 import models.OaiPmhIdentity.Granularity
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element

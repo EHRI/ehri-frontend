@@ -3,8 +3,8 @@ package actors.transformation
 import actors.LongRunningJob.Cancel
 import actors.transformation.XmlConverter._
 import actors.transformation.XmlConverterManager.XmlConvertJob
-import akka.actor.{Actor, ActorLogging, ActorRef, Scheduler}
-import akka.stream.Materializer
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Scheduler}
+import org.apache.pekko.stream.Materializer
 import services.transformation.utils.getUtf8Transcoder
 import models.UserProfile
 import services.storage.{FileMeta, FileStorage}
@@ -43,7 +43,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
   private val transformDigest: String = services.transformation.utils.digest(job.data.transformers)
 
-  import akka.pattern.pipe
+  import org.apache.pekko.pattern.pipe
 
   override def receive: Receive = {
     // Start the initial harvest
@@ -94,7 +94,7 @@ case class XmlConverter (job: XmlConvertJob, transformer: XmlTransformer, storag
 
     // Fetching a file
     case Convert(file :: others, truncated, _, count, fresh) =>
-      import akka.pattern.retry
+      import org.apache.pekko.pattern.retry
       implicit val scheduler: Scheduler = context.system.scheduler
 
       context.become(running(msgTo, count, fresh, total, start))

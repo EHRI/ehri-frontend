@@ -1,10 +1,10 @@
 package services.transformation
 
-import akka.NotUsed
-import akka.http.scaladsl.model.ContentType
-import akka.stream.alpakka.text.scaladsl.TextFlow
-import akka.stream.scaladsl.Flow
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model.ContentType
+import org.apache.pekko.stream.connectors.text.scaladsl.TextFlow
+import org.apache.pekko.stream.scaladsl.Flow
+import org.apache.pekko.util.ByteString
 import models.TransformationType
 import play.api.libs.Codecs
 import play.api.libs.json.{JsObject, Json}

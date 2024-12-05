@@ -1,12 +1,13 @@
 package controllers.tools
 
-import akka.stream.Materializer
-import akka.stream.alpakka.csv.scaladsl.CsvParsing
-import akka.stream.scaladsl.{FileIO, Flow, Sink, Source}
-import akka.util.ByteString
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.connectors.csv.scaladsl.CsvParsing
+import org.apache.pekko.stream.scaladsl.{FileIO, Flow, Sink, Source}
+import org.apache.pekko.util.ByteString
 import controllers.base.AdminController
 import controllers.{AppComponents, Execution}
 import models.{BatchDeleteTask, ContentTypes}
+import org.apache.pekko.NotUsed
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Messages
@@ -73,14 +74,14 @@ case class Tools @Inject()(
 
   }
 
-  private val errorsToBytes: Flow[XmlValidationError, ByteString, akka.NotUsed] = Flow[XmlValidationError]
+  private val errorsToBytes: Flow[XmlValidationError, ByteString, NotUsed] = Flow[XmlValidationError]
     .map(e => Json.toJson(e))
     .map(Json.prettyPrint)
     .map(ByteString.apply)
     .intersperse(ByteString("["), ByteString(","), ByteString("]"))
 
   private val eadValidatingBodyParser: BodyParser[Source[ByteString, _]] = BodyParser { req =>
-    val validateFlow: Flow[ByteString, ByteString, akka.NotUsed] = Flow[ByteString]
+    val validateFlow: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString]
       .prefixAndTail(0)
       .mapAsync(1) { case (_, src) => eadValidator.validateEad(src) }
       .flatMapConcat(errs => Source.apply(errs.toList))

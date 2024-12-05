@@ -2,9 +2,9 @@ package services.ingest
 
 import java.nio.file.Path
 
-import akka.http.scaladsl.model.Uri
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import org.apache.pekko.http.scaladsl.model.Uri
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 
 import scala.concurrent.Future
 

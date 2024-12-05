@@ -3,8 +3,8 @@ package actors.harvesting
 import actors.LongRunningJob.Cancel
 import actors.harvesting
 import actors.harvesting.ResourceSyncHarvester.{ResourceSyncData, ResourceSyncJob}
-import akka.actor.Props
-import akka.testkit.{ImplicitSender, TestKit}
+import org.apache.pekko.actor.Props
+import org.apache.pekko.testkit.{ImplicitSender, TestKit}
 import helpers.IntegrationTestRunner
 import mockdata.adminUserProfile
 import models.{ResourceSyncConfig, UserProfile}

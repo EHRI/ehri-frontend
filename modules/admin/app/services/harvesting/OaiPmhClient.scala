@@ -2,8 +2,8 @@ package services.harvesting
 
 import java.time.Instant
 
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.ByteString
 import models.{OaiPmhConfig, OaiPmhIdentity}
 import org.w3c.dom.Element
 import play.api.i18n.Messages

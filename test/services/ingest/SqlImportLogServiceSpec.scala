@@ -1,7 +1,7 @@
 package services.ingest
 
-import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.scaladsl.Source
 import helpers._
 import models.{ContentTypes, ImportLog, IngestParams, UrlMapPayload}
 import org.specs2.specification.AfterAll

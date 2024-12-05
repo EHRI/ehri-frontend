@@ -1,8 +1,8 @@
 package services.data
 
-import akka.Done
-import akka.stream.scaladsl.{JsonFraming, Source}
-import akka.util.ByteString
+import org.apache.pekko.Done
+import org.apache.pekko.stream.scaladsl.{JsonFraming, Source}
+import org.apache.pekko.util.ByteString
 import models.{ContentTypes, EntityType, GlobalPermissionSet, ItemPermissionSet, Readable, Resource, WithId, Writable}
 import play.api.Configuration
 import play.api.cache.AsyncCacheApi

@@ -1,6 +1,6 @@
 package models
 
-import akka.http.scaladsl.model.HttpMethods
+import org.apache.pekko.http.scaladsl.model.HttpMethods
 
 
 case class UrlNameMap(url: String, name: String)

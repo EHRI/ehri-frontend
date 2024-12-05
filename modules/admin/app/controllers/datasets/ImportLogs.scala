@@ -2,9 +2,9 @@ package controllers.datasets
 
 import actors.cleanup.CleanupRunner.CleanupJob
 import actors.cleanup.{CleanupRunner, CleanupRunnerManager}
-import akka.actor.{ActorContext, ActorRef, Props}
-import akka.stream.Materializer
-import akka.stream.scaladsl.Source
+import org.apache.pekko.actor.{ActorContext, ActorRef, Props}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Source
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import controllers.generic._

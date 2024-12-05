@@ -2,8 +2,8 @@ package controllers.datamodel
 
 import actors.datamodel.AuditorManager
 import actors.datamodel.AuditorManager.{AuditTask, AuditorJob}
-import akka.actor.Props
-import akka.stream.Materializer
+import org.apache.pekko.actor.Props
+import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._

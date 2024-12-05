@@ -1,9 +1,9 @@
 package controllers.admin
 
-import akka.actor.ActorRef
-import akka.stream.scaladsl.{BroadcastHub, Keep, Source}
-import akka.stream.{CompletionStrategy, Materializer, OverflowStrategy}
-import akka.{Done, NotUsed}
+import org.apache.pekko.actor.ActorRef
+import org.apache.pekko.stream.scaladsl.{BroadcastHub, Keep, Source}
+import org.apache.pekko.stream.{CompletionStrategy, Materializer, OverflowStrategy}
+import org.apache.pekko.{Done, NotUsed}
 import controllers.AppComponents
 import controllers.base.AdminController
 import play.api.http.MimeTypes
