@@ -1,4 +1,4 @@
-pekko.stream.connectors.s3.aws {
+pekko.connectors.s3.aws {
     # e.g. "eu-west-1"
     region.default-region=
 
