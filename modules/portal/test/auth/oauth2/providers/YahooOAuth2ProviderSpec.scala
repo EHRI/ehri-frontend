@@ -1,11 +1,12 @@
 package auth.oauth2.providers
 
+import auth.oauth2.{OAuth2Info, UserData}
 import helpers.ResourceUtils
 import play.api.test.PlaySpecification
 import play.api.{Configuration, Environment}
 
 /**
-   */
+  */
 class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   val testAccessData = resourceAsString("yahooAccessData.json")
@@ -14,7 +15,7 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
 
   "Yahoo OAuth2 provider" should {
     "parse access data" in {
-      YahooOAuth2Provider(config).parseAccessInfo(testAccessData) must beSome.which { d =>
+      YahooOAuth2Provider(config).parseAccessInfo(testAccessData) must beSome.which { (d: OAuth2Info) =>
         d.accessToken must equalTo("some-access-token")
         d.userGuid must beSome("123456789")
         d.refreshToken must beSome("blah")
@@ -23,12 +24,12 @@ class YahooOAuth2ProviderSpec extends PlaySpecification with ResourceUtils {
       }
     }
 
-     "parse user data" in {
-       YahooOAuth2Provider(config).parseUserInfo(testUserData) must beSome.which { d =>
-         d.name must equalTo("Jasmine Smith")
-         d.email must equalTo("yqa_functest_15572415322065371@yahoo.com")
-         d.providerId must equalTo("JEF4XR2CT55JPVEBVD7ZVT6A3A")
-       }
-     }
-   }
- }
+    "parse user data" in {
+      YahooOAuth2Provider(config).parseUserInfo(testUserData) must beSome.which { (d: UserData) =>
+        d.name must equalTo("Jasmine Smith")
+        d.email must equalTo("yqa_functest_15572415322065371@yahoo.com")
+        d.providerId must equalTo("JEF4XR2CT55JPVEBVD7ZVT6A3A")
+      }
+    }
+  }
+}

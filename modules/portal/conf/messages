@@ -201,6 +201,17 @@ profile.update=Update Profile
 profile.update.submit=Update Profile
 profile.update.confirmation=Profile successfully updated
 profile.menu=Profile Menu
+profile.orcid.connect=Connect your ORCID
+profile.orcid.connected=Your ORCID is connected to your EHRI account.
+profile.orcid.connect.info=Link your ORCID to your EHRI profile to display it on your account page.
+profile.orcid.connect.submit=Connect ORCID
+profile.orcid.disconnect=Disconnect your ORCID
+profile.orcid.disconnect.info=Remove your ORCID from your EHRI profile.
+profile.orcid.disconnect.submit=Disconnect ORCID
+profile.orcid.disconnected=Your ORCID has been removed from your EHRI account.
+profile.orcid.icon=The ORCID icon
+profile.orcid.view=View {0}''s ORCID profile
+
 
 profile.watch.list=Watched Items
 profile.watch.by={0} - Watched Items
@@ -303,6 +314,13 @@ login.password.reset.submit=Send Reset Link
 login.openid.urlPlaceholder=Enter your OpenID URL
 login.disabled=Login is currently disabled. Please try again later.
 login.oauth.info=If you already have an account on one of these sites you can click the logo to log in to EHRI:
+login.oauth.google=Google
+login.oauth.facebook=Facebook
+login.oauth.yahoo=Yahoo
+login.oauth.microsoft=Microsoft
+login.oauth.openid=OpenID
+login.oauth.orcid=ORCID
+login.oauth.linkedin=LinkedIn
 login.password.info=If you''ve previously created an account with EHRI, enter your email and password here:
 login.password.submit=Sign In
 login.recover.link=Click here if you''ve forgotten or lost your password.
@@ -313,6 +331,10 @@ login.error.badResetToken=URL given for password reset was invalid or expired. \
   Note: password reset links can only be used once.
 login.error.oauth2.info=We apologise but there was a problem creating your account via {0}. Please try another \
   method of registering.
+login.error.oauth2.orcid.missingEmail=We were unable to retrieve your email address from ORCID. Please ensure your email address is \
+  set to public or limited in your ORCID profile.
+login.error.oauth2.orcid.missingGuid=We were unable to retrieve your ORCID identifier. Please ensure your ORCID profile is \
+  set to public or limited.
 login.error.oauth2.badSessionId=We were unable to log you in via {0} this time. Please try again and if the error \
   persists try using a different browser window.
 login.error.badEmail=Email cannot be changed because it is invalid or already in use.

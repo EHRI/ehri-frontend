@@ -34,4 +34,8 @@
     @textSection("profile.role", user.data.role)
     @textSection("profile.about", user.data.about)
     @textSection("profile.interests", user.data.interests)
+
+    @user.data.orcid.map { orcid =>
+        @views.html.userProfile.orcidUrl(user, orcid)
+    }
 </dl>

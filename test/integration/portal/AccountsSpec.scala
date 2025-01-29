@@ -187,6 +187,23 @@ class AccountsSpec extends IntegrationTestRunner {
     }
   }
 
+  "ORCID OAuth2" should {
+    "allow connecting a user's ORCID account" in new ITestApp {
+      val singleUseKey = "useOnce2"
+      val randomState = "40fj09uoij0u43lnf"
+      cache.set(singleUseKey, randomState)
+      val connectORCID = FakeRequest(accountRoutes.connectORCIDPost(code = Some("blah"), state = Some(randomState)))
+        .withSession("sid" -> singleUseKey)
+        .withUser(privilegedUser)
+        .call()
+      status(connectORCID) must equalTo(SEE_OTHER)
+      flash(connectORCID).get("success") must beSome.which { fl =>
+        fl must contain("profile.orcid.connected")
+      }
+      cache.get[String](singleUseKey) must beNone
+    }
+  }
+
   "Discourse SSO" should {
 
     val CLIENT = "forums"

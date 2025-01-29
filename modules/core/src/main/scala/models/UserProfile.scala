@@ -30,6 +30,7 @@ object UserProfileF {
   val INSTITUTION = "institution"
   val ROLE = "role"
   val INTERESTS = "interests"
+  val ORCID = "orcid"
 
   import Entity._
 
@@ -51,7 +52,8 @@ object UserProfileF {
       (__ \ DATA \ ROLE).formatNullable[String] and
       (__ \ DATA \ INTERESTS).formatNullable[String] and
       (__ \ DATA \ ACTIVE).formatWithDefault(true) and
-      (__ \ DATA \ STAFF).formatWithDefault(false)
+      (__ \ DATA \ STAFF).formatWithDefault(false) and
+      (__ \ DATA \ ORCID).formatNullable[String]
     )(UserProfileF.apply, unlift(UserProfileF.unapply))
 
   implicit object Converter extends Writable[UserProfileF] {
@@ -77,7 +79,8 @@ case class UserProfileF(
   role: Option[String] = None,
   interests: Option[String] = None,
   active: Boolean = true,
-  staff: Boolean = false
+  staff: Boolean = false,
+  orcid: Option[String] = None
 ) extends ModelData with Persistable
 
 
@@ -132,7 +135,8 @@ object UserProfile {
       ROLE -> optional(text),
       INTERESTS -> optional(text),
       ACTIVE -> boolean,
-      STAFF -> boolean
+      STAFF -> boolean,
+      ORCID -> optional(nonEmptyText)
     )(UserProfileF.apply)(UserProfileF.unapply)
   )
 }

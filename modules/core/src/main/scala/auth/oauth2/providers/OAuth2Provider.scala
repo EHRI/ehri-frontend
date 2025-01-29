@@ -81,13 +81,16 @@ trait OAuth2Provider {
    *
    * @param handlerUrl the URL the client redirected us to after authentication
    */
-  def getAccessTokenParams(code: String, handlerUrl: String): Map[String, Seq[String]] = Map(
-    OAuth2Constants.ClientId -> Seq(settings.clientId),
-    OAuth2Constants.ClientSecret -> Seq(settings.clientSecret),
-    OAuth2Constants.GrantType -> Seq(OAuth2Constants.AuthorizationCode),
-    OAuth2Constants.Code -> Seq(code),
-    OAuth2Constants.RedirectUri -> Seq(handlerUrl)
-  )
+  def getAccessTokenParams(code: String, handlerUrl: String): Map[String, Seq[String]] = {
+    logger.debug(s"Getting access token for code $code: $handlerUrl")
+    Map(
+      OAuth2Constants.ClientId -> Seq(settings.clientId),
+      OAuth2Constants.ClientSecret -> Seq(settings.clientSecret),
+      OAuth2Constants.GrantType -> Seq(OAuth2Constants.AuthorizationCode),
+      OAuth2Constants.Code -> Seq(code),
+      OAuth2Constants.RedirectUri -> Seq(handlerUrl)
+    )
+  }
 
   /**
    * Parse the provider's user info data.

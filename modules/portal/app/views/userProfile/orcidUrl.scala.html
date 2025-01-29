@@ -1,0 +1,9 @@
+@(user: UserProfile, orcid: String)(implicit messages: Messages)
+
+<h3 class="orcid-url">
+    <a target="_blank" href="https://orcid.org/@orcid" title="@Messages("profile.orcid.view", user.toStringLang)">
+        <img src="@controllers.portal.routes.PortalAssets.at("img/orcid-auth.svg")" alt="@Messages("profile.orcid.icon")" />
+        https://orcid.org/@orcid
+    </a>
+</h3>
+

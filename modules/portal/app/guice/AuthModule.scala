@@ -16,7 +16,8 @@ private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) ext
       GoogleOAuth2Provider(config),
       MicrosoftOAuth2Provider(config),
       FacebookOAuth2Provider(config),
-      YahooOAuth2Provider(config)
+      YahooOAuth2Provider(config),
+      ORCIDOAuth2Provider(config)
     )
   }
 }
