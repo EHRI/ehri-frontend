@@ -1,6 +1,6 @@
 package controllers.portal.account
 
-import auth.oauth2.providers.OAuth2Provider
+import auth.oauth2.providers.{OAuth2Provider, ORCIDOAuth2Provider}
 import auth.oauth2.{OAuth2Config, UserData}
 import auth.sso.{DiscourseSSO, DiscourseSSOError, DiscourseSSONotEnabledError}
 import auth.{AuthenticationError, HashedPassword}
@@ -14,7 +14,7 @@ import play.api.cache.SyncCacheApi
 import play.api.data.Form
 import play.api.http.{HeaderNames, HttpVerbs}
 import play.api.i18n.Messages
-import play.api.libs.json.{JsObject, JsString}
+import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.libs.mailer.{Email, MailerClient}
 import play.api.libs.openid.OpenIdClient
 import play.api.libs.ws.WSClient
@@ -438,10 +438,9 @@ case class Accounts @Inject()(
       oauth2(providerId, code, state, isLogin = true).apply(request)
     }
 
-  def oauth2Register(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] =
-    NotReadOnlyAction.async { implicit request =>
-      oauth2(providerId, code, state, isLogin = false).apply(request)
-    }
+  def oauth2Register(providerId: String, code: Option[String], state: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    oauth2(providerId, code, state, isLogin = false).apply(request)
+  }
 
   def oauth2(providerId: String, code: Option[String], state: Option[String], isLogin: Boolean): Action[AnyContent] =
     NotReadOnlyAction.async { implicit request =>
@@ -469,7 +468,7 @@ case class Accounts @Inject()(
           // Second phase of request. Using our new code, and with the same random session
           // nonce, proceed to get an access token, the user data, and handle the account
           // creation or updating.
-          case Some(c) => if (checkSessionNonce(sessionId, state)) {
+          case Some(c) if checkSessionNonce(sessionId, state) =>
             cache.remove(sessionId)
             (for {
               info <- oAuth2Flow.getAccessToken(provider, handlerUrl, c)
@@ -477,12 +476,13 @@ case class Accounts @Inject()(
               account <- getOrCreateAccount(provider, userData)
               result <- doLogin(account).map(_.removingFromSession(sessionKey))
             } yield result) recover {
-              case AuthenticationError(msg) =>
+              case AuthenticationError(msg, detailKey) =>
                 logger.error(msg)
                 val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
+                val errMsg = detailKey.map(Messages(_)).getOrElse(Messages("login.error.oauth2.info", provider.name.capitalize))
                 Redirect(url)
                   .removingFromSession(sessionKey)
-                  .flashing("danger" -> Messages("login.error.oauth2.info", provider.name.capitalize))
+                  .flashing("danger" -> errMsg)
               case SignupDisabled() =>
                 logger.error("User attempted to sign up but signup is disabled")
                 val url = if (isLogin) accountRoutes.login() else accountRoutes.signup()
@@ -490,13 +490,66 @@ case class Accounts @Inject()(
                   .removingFromSession(sessionKey)
                   .flashing("danger" -> Messages("signup.disabled"))
             }
-          } else authenticationFailed(request)
-            .map(_.flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize)))
+          case _ =>
+            authenticationFailed(request).map { res =>
+              res.removingFromSession(sessionId)
+                .flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize))
+            }
         }
       } getOrElse {
         notFoundError(request)
       }
     }
+
+  def connectORCIDPost(code: Option[String], state: Option[String]): Action[AnyContent] = WithUserAction.async { implicit request =>
+    // This action authenticates the user with ORCID and then stores the ORCID ID in their profile.
+    // It uses only one part of the OAuth2 flow, as we don't need to access any user data
+    // beyond what's in the OAuth2 info itself, which contains the user's ORCID ID.
+    val provider = ORCIDOAuth2Provider(config)
+    val sessionKey = "sid"
+    val sessionId = request.session.get(sessionKey).getOrElse(UUID.randomUUID().toString)
+    val handlerUrl = accountRoutes.connectORCIDPost(None, None).absoluteURL(conf.https)
+
+    code match {
+      // First step, redirect to the ORCID OAuth2 provider which prompts the user to sign in
+      case None =>
+        val state = UUID.randomUUID().toString
+        cache.set(sessionId, state, oauth2SessionTimeout)
+        val redirectUrl = provider.buildRedirectUrl(handlerUrl, state)
+        logger.debug(s"ORCID authentication redirect URL: $redirectUrl")
+        immediate(Redirect(redirectUrl).addingToSession(sessionKey -> sessionId))
+
+      // Second step, handle the OAuth2 redirect response from ORCID
+      case Some(c) if checkSessionNonce(sessionId, state) =>
+        cache.remove(sessionId)
+        oAuth2Flow.getAccessToken(provider, handlerUrl, c).flatMap { info =>
+          info.userGuid match {
+            case Some(orcid) =>
+              userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.ORCID -> orcid)).map { _ =>
+                Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+                  .removingFromSession(sessionKey)
+                  .flashing("success" -> "profile.orcid.connected")
+              }
+            case None =>
+              immediate(Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+                .removingFromSession(sessionKey)
+                .flashing("danger" -> Messages("login.error.oauth2.orcid.missingGuid")))
+          }
+        }
+
+      case _ =>
+        immediate(Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+          .removingFromSession(sessionKey)
+          .flashing("danger" -> Messages("login.error.oauth2.badSessionId", provider.name.capitalize)))
+    }
+  }
+
+  def disconnectORCIDPost(): Action[AnyContent] = WithUserAction.async { implicit request =>
+    userDataApi.patch[UserProfile](request.user.id, Json.obj(UserProfileF.ORCID -> JsNull)).map { _ =>
+      Redirect(controllers.portal.users.routes.UserProfiles.updateProfile())
+        .flashing("success" -> "profile.orcid.disconnected")
+    }
+  }
 
   def forgotPassword: Action[AnyContent] = OptionalUserAction { implicit request =>
     Ok(views.html.account.forgotPassword(forgotPasswordForm,

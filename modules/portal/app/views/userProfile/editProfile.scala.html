@@ -64,6 +64,40 @@
                     <div class="tab-content edit-profile-form">
                         <div class="tab-pane show active edit-profile-form-section" id="profile-general" role="tabpanel" aria-labelledby="profile-general-tab">
                             @views.html.userProfile.editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost())
+
+                            @if(conf.configuration.get[Boolean]("ehri.portal.profile.orcid")) {
+                                <hr/>
+                                @if(user.data.orcid.isEmpty) {
+                                    <h4>@Messages("profile.orcid.connect.info")</h4>
+                                    @helper.form(action = controllers.portal.account.routes.Accounts.connectORCIDPost()) {
+                                        @formHelpers.csrfToken()
+                                        <div class="form-field">
+                                            <div class="form-submit">
+                                                <button type="submit" class="btn btn-light">
+                                                    <img src="@controllers.portal.routes.PortalAssets.at("img/orcid-auth-16x16.png")" alt="@Messages("profile.orcid.connect.button")" />
+                                                    @Messages("profile.orcid.connect.submit")
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                } else {
+                                    <h4>@Messages("profile.orcid.connected")</h4>
+                                    @user.data.orcid.map { orcid =>
+                                        @views.html.userProfile.orcidUrl(user, orcid)
+                                    }
+                                    @helper.form(action = controllers.portal.account.routes.Accounts.disconnectORCIDPost()) {
+                                        @formHelpers.csrfToken()
+                                        <div class="form-field">
+                                            <div class="form-submit">
+                                                <button type="submit" class="btn btn-warning">
+                                                    <i class="fa fa-chain-broken"></i>
+                                                    @Messages("profile.orcid.disconnect.submit")
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
                         </div>
 
                         <div class="tab-pane edit-profile-form-section" id="profile-image" role="tabpanel" aria-labelledby="profile-image-tab">

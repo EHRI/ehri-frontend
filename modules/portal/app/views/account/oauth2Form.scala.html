@@ -10,7 +10,7 @@
                 @oauth2Config.providers.filter(p => enabledProviders.contains(p.name)).map { provider =>
                     <a href="@oauth2Call(provider.name)" class="btn btn-lg btn-signin-@provider.name"
                         title="@Html(Messages(messagePrefix, provider.name.capitalize))">
-                        @Messages(messagePrefix, provider.name.capitalize)
+                        @Messages(messagePrefix, Messages("login.oauth." + provider.name))
                     </a>
                 }
                 @if(isLogin) {

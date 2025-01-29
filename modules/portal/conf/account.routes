@@ -6,6 +6,9 @@ POST        /openid                         @controllers.portal.account.Accounts
 GET         /authenticate/:provider         @controllers.portal.account.Accounts.oauth2(provider: String, code: Option[String] ?= None, state: Option[String] ?= None, isLogin: Boolean ?= false)
 GET         /login-with/:provider           @controllers.portal.account.Accounts.oauth2Login(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
 GET         /register-with/:provider        @controllers.portal.account.Accounts.oauth2Register(provider: String, code: Option[String] ?= None, state: Option[String] ?= None)
+GET         /connect-orcid                  @controllers.portal.account.Accounts.connectORCIDPost(code: Option[String] ?= None, state: Option[String] ?= None)
+POST        /connect-orcid                  @controllers.portal.account.Accounts.connectORCIDPost(code: Option[String] ?= None, state: Option[String] ?= None)
+POST        /disconnect-orcid               @controllers.portal.account.Accounts.disconnectORCIDPost()
 GET         /logout                         @controllers.portal.account.Accounts.logout()
 GET         /sso/$client<[a-z0-9]+>         @controllers.portal.account.Accounts.sso(client: String, sso: String, sig: String)
 

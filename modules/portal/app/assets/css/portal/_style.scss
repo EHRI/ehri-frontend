@@ -1047,6 +1047,13 @@ body.home {
   background-position: 1rem 0.5rem;
 }
 
+.btn-signin-orcid {
+  @include button-variant(#FFF, #DDD);
+  @extend %button-signin;
+  background-image: url(/v/img/orcid-auth.svg);
+  background-size: 1.5rem;
+}
+
 .oauth-providers {
   display: flex;
   flex-direction: column;
@@ -2161,4 +2168,8 @@ section:last-child {
 // External page styling
 .external-page table {
   @extend .table, .table-bordered, .table-striped;
+}
+
+.orcid-url a {
+  color: $black;
 }

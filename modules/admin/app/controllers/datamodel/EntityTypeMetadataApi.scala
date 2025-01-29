@@ -7,7 +7,7 @@ import org.apache.pekko.stream.Materializer
 import controllers.AppComponents
 import controllers.base.{AdminController, ApiBodyParsers}
 import models._
-import play.api.libs.json.{Format, JsNull, Json}
+import play.api.libs.json.{JsNull, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.data.DataHelpers
