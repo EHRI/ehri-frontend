@@ -1,0 +1,15 @@
+---
+
+# Configuration file for Github/Transiflex integration,
+# specifying the relevant i18n files.
+filters:
+  - filter_type: file
+    file_format: unicodeproperties
+    source_language: en
+    source_file: modules/portal/conf/messages
+    translation_files_expression: modules/portal/conf/messages.<lang>
+  - filter_type: file
+    file_format: unicodeproperties
+    source_language: en
+    source_file: modules/admin/conf/messages
+    translation_files_expression: modules/admin/conf/messages.<lang>
