@@ -143,12 +143,12 @@ case class Portal @Inject()(
     }
   }
 
-  def dataPolicy: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
-    Ok(views.html.dataPolicy())
+  def dataPolicy: Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    externalPage("data-policy").apply(request)
   }
 
-  def terms: Action[AnyContent] = OptionalUserAction.apply { implicit request =>
-    Ok(views.html.terms())
+  def terms: Action[AnyContent] = OptionalUserAction.async { implicit request =>
+    externalPage("terms").apply(request)
   }
 
   def about: Action[AnyContent] = OptionalUserAction.apply { implicit request =>

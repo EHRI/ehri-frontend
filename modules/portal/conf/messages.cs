@@ -744,70 +744,21 @@ feedback.delete.submit=Smazat položku
 feedback.disabled=Zasílání zpětné vazby je v současnosti vypnuto.
 
 #
-# Data policy at https://portal.ehri-project.eu/data-policy
+# Data policy modal
+# NB: the full page is now an external document in Google Docs
 #
 dataPolicy=Zásady zpracování dat
-dataPolicy.header=EHRI zásady zpracování dat
+dataPolicy.modal.header=EHRI zásady zpracování dat
 dataPolicy.modal.notice.1=Tato databáze může obsahovat zvláštní kategorie osobních údajů a osobní údaje týkající se odsouzení za trestné činy nebo přestupky, které lze podle čl.9 odst.2 GDPR a čl.24 a čl.32 písm. f) UAVG (nizozemský zákon o ochraně osobních údajů) použít pro výzkumné účely pouze za předpokladu, že existují vhodné záruky práv a svobod subjektu údajů.
 dataPolicy.modal.notice.2=Zvláštní kategorie osobních údajů v EHRI jsou jakékoli údaje týkající se identifikované nebo identifikovatelné osoby související s jejím náboženským nebo filozofickým přesvědčením, rasovým nebo etnickým původem, politickými názory, členstvím v odborech, zdravotním stavem, sexuálním životem nebo sexuální orientací.
 dataPolicy.modal.terms=Prohlašuji, že zvláštní kategorie osobních údajů a osobní údaje týkající se odsouzení za trestné činy budu používat pouze pro výzkumné účely a obecně budu tyto údaje používat v souladu s platnými nizozemskými a mezinárodními zákony a předpisy. Jsem si vědom/a sankčních důsledků vyplývajících z porušení těchto zákonů a/nebo předpisů.
 dataPolicy.modal.agree=Souhlasím
 
-dataAndPrivacyPolicy.header=EHRI zásady zpracování dat a osobních údajů
-dataAndPrivacyPolicy.1=EHRI dbá na ochranu soukromí uživatelů našich webových stránek a vynakládá veškeré úsilí na ochranu informací na těchto webových stránkách shromážděných. EHRI si je vědoma své odpovědnosti při zpracování osobních údajů. EHRI si přeje, aby každá osoba, jejíž osobní údaje zpracovává, měla jistotu, že se tak děje pečlivě a v souladu se zákonem. EHRI zpracovává vaše osobní údaje pouze v případě, že k tomu existuje zákonný důvod. EHRI zpracovává osobní údaje v souladu s obecným nařízením o ochraně osobních údajů (GDPR) a z něj vyplývajícími pravidly ochrany osobních údajů. Tyto zásady vysvětlují, které osobní údaje EHRI shromažďuje, jak tyto údaje zpracovává a za jakým účelem.
-dataAndPrivacyPolicy.2=Před použitím těchto webových stránek si prosím pečlivě přečtěte následující informace. Přístupem na tyto webové stránky nebo jejich používáním souhlasíte se Zásadami ochrany osobních údajů EHRI. Pokud s některou z níže uvedených podmínek nesouhlasíte, nevstupujte na tyto webové stránky ani je jinak nepoužívejte.
-
-privacy.header=EHRI zásady zpracování osobních údajů
-privacy.users.header=Údaje od uživatelů těchto webových stránek a jejich služeb
-privacy.users.1=Abyste mohli využívat některé funkce webových stránek EHRI, vyžaduje od vás EHRI určité osobní údaje, jako je vaše jméno, adresa, e-mail a profesní příslušnost. Tyto osobní údaje poskytujete dobrovolně a bude s nimi zacházeno s náležitou péčí. EHRI zpracovává osobní údaje pouze v případě, že je to nezbytné pro konkrétní účel. Účel určuje, které osobní údaje musí být zpracovány, a nebude požadováno více údajů, než je pro daný účel nezbytné.
-privacy.users.2=U některých kategorií uživatelů webových stránek se uchovává soubor osobních údajů, včetně navštívených stránek, údajů o adresách pro poštovní seznamy a databáze kontaktů. Toto je nezbytné pro správné fungování webových stránek. Některé údaje jsou potřebné pro statistické účely a jsou anonymizovány. Použití jednotlivých osobních údajů je omezeno na účel, pro který byly shromážděny a o kterém jejich poskytovatel ví). Tyto údaje nebudou předávány třetím stranám, pokud k tomu EHRI nemá zákonnou povinnost nebo důvod podle článku 6 GDPR.
-privacy.users.3=Pokud EHRI zpřístupní vaše údaje třetí straně, zajistí vaše práva na soukromí, mimo jiné uzavřením smlouvy o zpracování, v níž je stanoveno, jak musí být s vašimi osobními údaji nakládáno.
-privacy.users.4=Uživatelé, kteří se zaregistrují na portálu EHRI a vytvoří si profil, souhlasí s tím, že osobní údaje, které o sobě poskytnou, mohou být zpřístupněny ostatním registrovaným uživatelům portálu a že jejich jméno bude na portálu zveřejněno, pokud budou autory veřejného obsahu. Registrovaní uživatelé mohou být kontaktováni ostatními registrovanými uživateli a mohou od nich dostávat sdělení na uvedenou e-mailovou adresu. E-mailová adresa příjemce takové komunikace však nebude sdělena iniciátorovi kontaktu a naopak. Registrovaní uživatelé se mohou dále odhlásit z možnosti být kontaktováni aktualizací preferencí svého osobního profilu.
-privacy.users.5=EHRI může dále zpracovávat jeden nebo více vašich osobních údajů pro následující účely (v závislosti na činnostech, které se vás týkají):
-privacy.users.5.a=abychom vám mohli pomoci a poskytnout vám informace ke konkrétním výzkumným otázkám nebo problémům;
-privacy.users.5.b=abychom s vámi mohli komunikovat prostřednictvím zasílání e-mailů;
-privacy.users.5.c=abychom mohli zlepšovat naše webové stránky.
-privacy.users.6=S výjimkou výše uvedených případů nepředává EHRI žádné údaje registrovaných uživatelů třetím stranám, pokud to nevyžaduje zákon. Pokud EHRI zpracovává osobní údaje na základě vašeho souhlasu, máte možnost svůj souhlas kdykoli odvolat. Od tohoto okamžiku již EHRI nebude zpracovávat žádné vaše osobní údaje.
-
-dataPolicy.data.header=Údaje ve výzkumném portálu
-dataPolicy.data.1=Tato databáze může obsahovat zvláštní kategorie osobních údajů a osobní údaje týkající se odsouzení za trestné činy nebo přestupky, které lze podle evropských a nizozemských předpisů o ochraně údajů používat pouze pro výzkumné účely (článek 9, 10 GDPR).
-dataPolicy.data.2=Zvláštní kategorie osobních údajů jsou jakékoli údaje týkající se identifikované nebo identifikovatelné osoby související s jejím náboženským  přesvědčením nebo vírou, rasovým nebo etnickým původem, politickými názory, členstvím v odborech, zdravotním stavem, sexuálním životem nebo sexuální orientací.
-dataPolicy.data.3=Výzkumný portál obsahuje popisy sbírek a pramenů týkajících se holocaustu, které jsou uloženy ve sbírkotvorných institucích (archivech, dokumentačních centrech) v Evropě, USA a Izraeli. Tyto popisy sbírek mohou obsahovat zvláštní kategorie osobních údajů a osobní údaje týkající se odsouzení za trestné činy nebo přestupky. Vzhledem k tomu, že zpracování a zveřejnění těchto údajů může mít důsledky z hlediska ochrany osobních údajů, provedla EHRI posouzení rizik, aby určila, zda lze k těmto údajům přistupovat prostřednictvím výzkumného portálu a webových stránek EHRI. EHRI rozhodla, že s ohledem na evropské (GDPR) a národní předpisy o ochraně osobních údajů, povahu popisů sbírek, archivní praxi a zásady ochrany osobních údajů institucí, které sbírky vlastní, nepředstavuje zveřejnění těchto popisů sbírek (a nikoli sbírek samotných) významné riziko pro ochranu osobních údajů. V důsledku toho je přístup k popisům sbírek a všem dalším informacím na výzkumném portálu uživatelům otevřený.
-dataPolicy.data.4=Podle článků 9 a 10 GDPR lze zvláštní kategorie osobních údajů a osobní údaje týkající se odsouzení za trestné činy nebo přestupky používat pouze pro výzkumné účely. Odpovědnost za dodržování evropských a nizozemských předpisů o ochraně osobních údajů nese osoba, která údaje nakonec zveřejňuje. Pokud jsou výsledky výzkumu zveřejněny v jiné zemi než v Nizozemsku, je třeba dodržovat zákon o ochraně osobních údajů této země. Pokud jsou výsledky výzkumu zveřejněny v jiné zemi, než která je vázána GDPR, musí být dodržen zákon o ochraně osobních údajů této země. Vzhledem k tomu, že údaje na výzkumném portálu zahrnují pouze popisy sbírek (a nikoliv sbírky samotné), je pro skutečný přístup k dokumentům nutná návštěva archivu, který sbírky uchovává. Je dost pravděpodobné, že tato instituce bude mít vlastní politiku ochrany osobních údajů týkající se přístupu k pramenům a ochrany soukromí: to je vysvětleno v podrobné verzi zpráv o jednotlivých zemích (národních zpráv). Uživatelé musí dodržovat tyto specifické postupy a nemohou se odvolávat na skutečnost, že našli popis sbírky na výzkumném portálu EHRI, aby získali přístup k samotnému archivovanému dokumentu.
-dataPolicy.data.5=Pokud se domníváte, že máte oprávněné důvody - na základě GDPR a/nebo nizozemského nařízení o ochraně osobních údajů - proti zveřejnění určitého souboru osobních údajů na výzkumném portálu, můžete zaslat dopis nebo e-mail, v němž uvedete svůj zájem a vysvětlíte důvody, proč vznášíte námitku proti zveřejnění, straně odpovědné za zpracování osobních údajů. Tato strana vaši stížnost posoudí a v přiměřené lhůtě vám poskytne odpověď.
-
-privacy.cookies.header=Cookies
-privacy.cookies.1=EHRI nepoužívá soubory cookies pro účely sledování, ale pro umožnění funkčnosti webových stránek se používají následující soubory cookies:
-#privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
-#privacy.cookies.3.a=The JS Cookie enabling the website to understand Javascript.
-privacy.cookies.4=Na portálu EHRI ({0}):
-privacy.cookies.5.a=Soubor cookie relace.
-privacy.cookies.5.b=Soubor cookie uchovávající uživatelské preference mezi jednotlivými návštěvami.
-privacy.cookies.5.c=Soubor cookie, který zaznamenává souhlas uživatele se zásadami ochrany osobních údajů EHRI, pokud je to relevantní.
-privacy.cookies.6=Na EHRI dokumentovém blogu ({0}):
-privacy.cookies.6.a=Soubor cookie uchovávající jazykové preference.
-privacy.cookies.7=Na stránkách EHRI digitálních edic:
-privacy.cookies.7.a=Cookie relace.
-
-privacy.rights.header=Uplatňování práv
-privacy.rights.header.2=Uplatňování vašich práv na ochranu osobních údajů a postup pro podávání stížností
-privacy.rights.1=Na EHRI můžete podat žádost o uplatnění následujících práv:
-privacy.rights.1.a=Právo na přístup k vašim osobním údajům
-privacy.rights.1.b=Právo na opravu a/nebo doplnění vašich osobních údajů
-privacy.rights.1.c=Právo na výmaz vašich osobních údajů
-privacy.rights.1.d=Právo na omezení zpracování vašich osobních údajů
-privacy.rights.1.e=Právo vznést námitku
-privacy.rights.1.f=Právo nebýt předmětem rozhodnutí založeného výhradně na automatizovaném zpracování, včetně profilování
-privacy.rights.2=Subjektem odpovědným za zpracování osobních údajů ve smyslu GDPR a nizozemského nařízení o ochraně osobních údajů je NIOD. Řádně odůvodněné a podložené stížnosti je třeba zasílat na adresu {0} nebo na poštovní adresu NIOD (adresovanou jeho řediteli).
-privacy.rights.2.1=Pokud máte jakékoli dotazy a/nebo stížnosti týkající se ochrany vašeho soukromí v rámci EHRI, obraťte se na našeho pověřence pro ochranu osobních údajů (DPO):
-privacy.rights.2.2=Jméno: {0}
-privacy.rights.2.3=Telefonní číslo/email: {0} / {1}
-privacy.authority.header=Orgán pro správu osobních údajů
-privacy.authority.1=Pokud máte stížnost týkající se zpracování vašich osobních údajů, EHRI s vámi bude spolupracovat při hledání řešení. Pokud spolupráce nepovede k uspokojivému výsledku, máte podle GDPR právo podat stížnost Úřadu pro ochranu osobních údajů.
-privacy.changes.header=Změny prohlášení o ochraně osobních údajů
-privacy.changes.1=EHRI může toto prohlášení o ochraně osobních údajů změnit. Veškeré změny budou zveřejněny na webových stránkách EHRI. Změny tohoto prohlášení o ochraně osobních údajů nebudou nikdy v rozporu s GDPR a z něj vyplývajícími pravidly ochrany osobních údajů.
-privacy.entry.header=Vstup v platnost
-privacy.entry.1=Toto prohlášení o ochraně osobních údajů vstoupilo v platnost dne 12-12-2018.
+#
+# Terms and conditions
+# NB: the full page is now an external document in Google Docs
+#
+termsAndConditions=Podmínky a pravidla
 
 #
 # Contact page
@@ -818,23 +769,6 @@ contact.p2=Existuje celá řada dalších způsobů, jak můžete získat pomoc 
 contact.p2.1=v případě jakýchkoli dotazů týkajících se našich dat či zásad ochrany osobních údajů kontaktujte prosím {0}.
 contact.p2.2=pokud máte jakékoli dotazy týkající se fondů a zásad přístupu některého z archivů, které přispívají daty na portál EHRI, obraťte se prosím přímo na příslušný archiv s použitím kontaktních údajů uvedených v jeho institucionálním popisu.
 contact.p2.3=pro všechny ostatní dotazy nebo připomínky, pochvaly či stížnosti týkající se portálu EHRI, pošlete e-mail na adresu {0}.
-
-#
-# Terms and conditions
-#
-termsAndConditions=Podmínky a pravidla
-termsAndConditions.userGenerated.heading=Obsah vytvářený uživateli: podmínky užití
-termsAndConditions.userGenerated.p1=EHRI nabízí uživatelům možnost přispívat k obsahu poskytovanému EHRI obohacováním a anotováním dat. Pro účast v procesu tvorby uživatelského obsahu musí uživatelé souhlasit s níže uvedenými podmínkami používání.
-termsAndConditions.userGenerated.p2=Přihlášením/vytvořením účtu souhlasíte s našimi Podmínkami užití a potvrzujete, že jste si přečetli naše Zásady ochrany osobních údajů (včetně používání souborů cookie).
-termsAndConditions.userGenerated.terms.heading=Podmínky užití:
-termsAndConditions.userGenerated.terms.1=Uživatelé vytvářející obsah souhlasí s tím, že nebudou přidávat nevhodné komentáře.
-termsAndConditions.userGenerated.terms.2=Uživatelé vytvářející obsah se zavazují, že při přidávání obsahu neporuší GDPR, UAVG ani zákon o ochraně osobních údajů země, ve které se nacházejí. To znamená, že uživatelé vytvářející obsah nebudou zveřejňovat informace porušující práva na ochranu osobních údajů.
-termsAndConditions.userGenerated.terms.3=Uživatelé vytvářející obsah souhlasí s tím, že EHRI bude obsah vytvořený uživateli před zveřejněním kontrolovat, což znamená, že osobní údaje potřebné k tomuto účelu budou sděleny recenzentovi (recenzentům).
-termsAndConditions.userGenerated.terms.4=Informace jsou k dispozici uživatelům a mohou být znovu použity, avšak při jejich zveřejnění na jiném místě musí být uveden autor. Za tímto účelem bude jasně uveden autor obsahu vytvořeného uživateli.
-
-copyright.heading=Prohlášení o copyrightu
-copyright.holder=Copyright Konsorcium EHRI {0,number,#}
-copyright.statement=Použití, opakované použití a/nebo reprodukce informací zveřejněných na těchto webových stránkách je bezplatné, avšak za podmínky, že bude jasně uveden držitel autorských práv a konsorcium EHRI a odkaz na zdroj: EHRI {0}. To neplatí pro materiály, jejichž autorská práva nevlastní konsorcium EHRI, ale třetí strana. Uživatel musí respektovat veškerá autorská práva a/nebo práva k databázím týkající se materiálu zveřejněného na webových stránkách nebo v souborech dat, zejména při distribuci nebo publikování souborů dat. V případě potřeby musí uživatel kontaktovat držitele práv k datovým souborům. Veškerý obsah těchto webových stránek vyjadřuje pouze názory autora (autorů) a/nebo EHRI a Evropská komise nenese odpovědnost za jakékoli použití informací, které obsahují.
 
 #
 # About page

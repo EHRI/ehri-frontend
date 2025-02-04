@@ -510,93 +510,9 @@ feedback.type=Feedback bezieht sich auf
 feedback.type.site=die Webseite (Funktionalität, Design, etc.)
 feedback.type.data=den Dateninhalt
 dataPolicy=Datenrichtlinie
-dataPolicy.header=EHRI-Datenrichtlinie
-dataPolicy.agree=Ich stimme zu
-privacy.header=EHRI-Datenschutzrichtlinie
-privacy.users.header=1. Daten von Benutzern dieser Webseite und ihrer Dienstleistungen
-#privacy.users.1=Um verschiedene Funktionen der EHRI-Webseiten nutzen zu können, benötigt EHRI bestimmte persönliche \
-#    Daten von Ihnen, darunter Name, Anschrift, E-Mail-Adresse und berufliche Funktion. \
-#    Diese persönlichen Daten werden vertraulich behandelt.
-#privacy.users.2=Bei bestimmten Kategorien von Webseitennutzern wird ein Satz an persönlichen Daten aufbewahrt, einschließlich besuchter Seiten, \
-#    Adressdaten für Mailinglisten und Kontaktdatenbanken. Dies ist notwendig, um den korrekten Betrieb der Webseite zu gewährleisten. \
-#    Manche dieser Daten sind für statistische Zwecke erforderlich und werden anonymisiert. Die Verwendung individueller persönlicher Daten \
-#    ist auf den Zweck beschränkt, für den sie gesammelt wurden und der dem Anbieter bekannt ist (z. B. Versenden \
-#    eines Newsletters). Solche Daten werden nicht an Dritte weitergegeben.
-#privacy.users.3=Nutzer, die sich auf dem EHRI-Portal registrieren und ein Profil erstellen, stimmen zu, dass die über sich zur Verfügung \
-#    gestellten Informationen anderen registrierten Portalnutzern zur Verfügung gestellt werden können und ihr Name  \
-#    auf dem Portal veröffentlicht wird, falls Sie öffentliche Inhalte verfassen. Registrierte Nutzer können von anderen registrierten Nutzern kontaktiert werden \
-#    und können Nachrichten von solchen Nutzern an die angegebene E-Mail-Adresse erhalten. Die E-Mail-Adresse des Empfängers \
-#    einer solchen Nachricht wird dem Kontakt aufnehmenden Nutzer jedoch nicht angezeigt. Registrierte Nutzer dürfen \
-#    darüber hinaus per Aktualisierung ihrer Profileinstellungen deaktivieren, dass andere Nutzer mit ihnen Kontakt aufnehmen können.
-#privacy.users.4=Abgesehen von den zuvor genannten Ausnahmen gibt EHRI keine Daten von registrierten Nutzern an Dritte weiter, \
-#    wenn keine gesetzliche Verpflichtung hierzu besteht.
-#privacy.data.header=2. Daten auf dem Rechercheportal
-#privacy.data.1=Das Rechercheportal enthält Beschreibungen von auf den Holocaust bezogenen Sammlungen und Quellen, die in \
-#    archivierenden Institutionen (Archive, Dokumentationszentren...) in West-, Ost- und Nordeuropa, \
-#    den USA und in Israel verwahrt werden. Diese Sammlungsbeschreibungen können personenbezogene Daten oder sensible persönliche Daten enthalten (z. B. \
-#    Daten zu Religionszugehörigkeit oder ethnischer Herkunft). Da die Verarbeitung und Veröffentlichung dieser Daten \
-#    aus datenschutzrechtlicher Sicht Auswirkungen haben können, hat EHRI eine Risikobewertung durchgeführt, um zu bestimmen, ob \
-#    auf diese Daten über das Rechercheportal und das Internet zugegriffen werden kann. EHRI hat unter Berücksichtigung europäischer \
-#    und nationaler Datenschutzgesetze, des Wesens der Sammlungsbeschreibungen, der Archivpraxis \
-#    und der Datenschutzrichtlinien der archivierenden Institutionen entschieden, dass die Veröffentlichung dieser Sammlungsbeschreibungen \
-#    kein schwerwiegendes Risiko für den Datenschutz darstellt. Infolgedessen ist der Zugang zu Sammlungsbeschreibungen und allen anderen \
-#    Informationen auf dem Rechercheportal für alle Nutzer offen.
-#privacy.data.1.riskAssessmentLinkText=EHRI-Projektwebseite.
-#privacy.data.2=Nach dem niederländischen Datenschutzgesetz können sensible personenbezogene Daten nur für Forschungszwecke verwendet werden. \
-#    Die Verantwortung für die Einhaltung des niederländischen Datenschutzgesetzes obliegt der Person, die die Daten \
-#    letztendlich veröffentlicht. Werden Ergebnisse in einem anderen Land als in den Niederlanden veröffentlicht, muss das Datenschutzgesetz \
-#    des jeweiligen Landes eingehalten werden. Da es sich bei den Daten auf dem Rechercheportal um Beschreibungen von \
-#    Sammlungen handelt, ist ein Besuch des Archivs, das die Archivalien verwahrt, erforderlich, um tatsächlich auf die Dokumente zugreifen zu können. Es ist wahrscheinlich, \
-#    diese Institution ihre eigene Datenschutzrichtlinie bezüglich des Zugangs zu den Quellen und des Datenschutzes hat: Dies wird \
-#    in der detaillierten Version der Länderberichte erläutert. Die Nutzer müssen diese spezifischen Verfahren beachten und \
-#    können sich nicht auf die Tatsache berufen, dass sie eine Sammlungsbeschreibung auf dem EHRI-Rechercheportal gefunden haben, um \
-#    auf das archivierte Dokument zugreifen zu können.
-#privacy.data.3=Wenn Sie der Ansicht sind, berechtigte Gründe - auf Basis des niederländischen Datenschutzgesetzes - gegen die Veröffentlichung \
-#    bestimmter personenbezogener Daten auf dem Rechercheportal zu haben, können Sie per Schriftform oder per E-Mail \
-#    an die Partei, die für die Verarbeitung der personenbezogenen Daten verantwortlich ist, Ihr Anliegen vortragen und die Gründe für eine Ablehnung der Veröffentlichung erläutern. \
-#    Diese Partei wird Ihre Beschwerde untersuchen und Ihnen innerhalb eines angemessenen Zeitraumes eine Rückmeldung geben.
-#privacy.cookies.header=3. Cookies
-#privacy.cookies.1=EHRI verwendet die folgenden Cookies:
-#privacy.cookies.2=Auf der EHRI-Projekt-Webseite ({0}) und der EHRI-Lehrseite ({1}):
-#privacy.cookies.3.a=a) Die Sitzungscookies, um zu vermeiden, dass Nutzer sich während einer Browsersitzung mehrmals anmelden müssen.
-#privacy.cookies.3.b=b) Der JS Cookie, um der Webseite zu ermöglichen, Javascript zu verstehen.
-#privacy.cookies.3.c=c) Google-Analytics-Cookies: Vier Cookies werden verwendet, um Informationen darüber zu sammeln, wie Nutzer die Webseite nutzen. \
-#    Diese Cookies sind notwendig, um Berichte zur Seitennutzung zu erstellen.
-#privacy.cookies.4=Auf dem EHRI-Portal ({0}):
-#privacy.cookies.5.a=a) Der Sitzungscookie.
-#privacy.cookies.5.b=b) Anzeigeeinstellungen der Nutzer.
-#privacy.cookies.5.c=c) Haftungsausschluss-Cookie - erinnert Nutzer daran, dass sie die Haftungsausschlussklausel mit "Ja" bestätigt haben.
-#privacy.cookies.5.d=d) Cookie für die Browserüberprüfung - erinnert Nutzer an die Kapazitäten des Browsers.
-#privacy.cookies.5.e=e) Google-Analytics-Cookies (siehe oben).
-#privacy.complaints.header=4. Beschwerdeverfahren
-#privacy.complaints.1=Die für die Verarbeitung personenbezogener Daten verantwortliche Partei im Sinne des niederländischen \
-#    Datenschutzgesetzes ist NIOD. Berechtigte Beschwerden sind an {0} oder an die Postadresse von NIOD \
-#    zu senden (adressiert an den Leiter).
-#termsAndConditions=Nutzungsbedingungen
-#termsAndConditions.userGenerated.heading=Nutzergenerierter Inhalt: Nutzungsbedingungen
-#termsAndConditions.userGenerated.p1=EHRI bietet Nutzern die Möglichkeit, zum auf EHRI enthaltenen Inhalt beizutragen, \
-#    indem Daten ergänzt und kommentiert werden. Um an diesem Prozess der Produktion von nutzergeneriertem Inhalt teilzunehmen, müssen die Nutzer \
-#    den nachfolgend genannten Nutzungsbedingungen zustimmen.
-#termsAndConditions.userGenerated.p2=Indem Sie sich in Ihrem Konto anmelden oder ein Konto registrieren, stimmen Sie unseren Nutzungsbedingungen zu und erkennen an, \
-#    dass Sie unsere Datenrichtlinie (einschließlich Nutzung von Cookies) gelesen haben.
-#termsAndConditions.userGenerated.terms.heading=Nutzungsbedingungen:
-#termsAndConditions.userGenerated.terms.1=Nutzer, die Inhalte erstellen, erklären sich damit einverstanden, keine unangemessenen Kommentare zu verfassen.
-#termsAndConditions.userGenerated.terms.2=Nutzer, die Inhalte erstellen, erklären sich damit einverstanden, weder gegen das niederländische Datenschutzgesetz noch \
-#     noch gegen das Datenschutzgesetz des Landes, in dem sie sich zum Zeitpunkt der Erstellung von Inhalten aufhalten, zu verstoßen. Dies impliziert, \
-#     dass Nutzer, die Inhalte erstellen, keine Informationen entgegen der Datenschutzgesetze zu veröffentlichen oder weiterzugeben.
-#termsAndConditions.userGenerated.terms.3=Nutzer, die Inhalte erstellen, erklären sich damit einverstanden, dass EHRI den nutzergenerierten Inhalt vor der Veröffentlichung \
-#    überprüft, was impliziert, dass für diesen Zweck benötigte personenbezogene Daten an den/die Überprüfer weitergegeben werden.
-#termsAndConditions.userGenerated.terms.4=Die Informationen werden für Nutzer zur Verfügung gestellt und können wiederverwendet werden, jedoch muss der Autor \
-#    sein Einverständnis geben, wenn die Informationen an einem anderen Ort veröffentlicht werden soll. Für diesen Zweck wird der \
-#    Autor des nutzergenerierten Inhalts deutlich genannt.
-copyright.heading=Erklärung zum Urheberrecht
-copyright.holder=Copyright EHRI Consortium {0,number,#}
-copyright.statement=Die Verwendung, Wiederverwendung und/oder Reproduktion der auf dieser Webseite veröffentlichten Informationen ist kostenlos, jedoch \
-    muss der Inhaber des Urheberrechts und das EHRI Consortium deutlich genannt und ein Verweis auf \
-    die Quelle EHRI {0} enthalten sein. Dies gilt nicht für Material, dessen Urheberrecht nicht beim \
-    EHRI Consortium, sondern bei Dritten liegt. Der Nutzer hat jegliche Urheberrechte und/oder Datenbankrechte im Zusammenhang mit \
-    auf dieser Webseite oder in Datensätzen veröffentlichtem Material zu respektieren, insbesondere hinsichtlich der Weitergabe oder Veröffentlichung von Datensätzen. Falls erforderlich, \
-    hat der Nutzer den Inhaber der Datensatzrechte zu kontaktieren.
+dataPolicy.modal.header=EHRI-Datenrichtlinie
+dataPolicy.modal.agree=Ich stimme zu
+termsAndConditions=Nutzungsbedingungen
 markdown.cheatsheet.title=Tipps zur Formatierung
 markdown.cheatsheet.asterisks=Asteriske
 markdown.cheatsheet.underscores=Unterstriche
