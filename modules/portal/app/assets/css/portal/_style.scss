@@ -2169,6 +2169,10 @@ section:last-child {
 .external-page table {
   @extend .table, .table-bordered, .table-striped;
 }
+// FIXME: need a better way to style headers throughout the site
+.external-page h2 {
+  font-size: 1.825rem;
+}
 
 .orcid-url a {
   color: $black;

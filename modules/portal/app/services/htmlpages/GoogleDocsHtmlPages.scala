@@ -54,6 +54,17 @@ case class GoogleDocsHtmlPages @Inject ()(ws: WSClient, config: play.api.Configu
       body.select("div#banners").remove()
       body.select("div#footer").remove()
 
+      // Google Docs published pages rewrite URLs to route through Google's servers
+      // - rewrite these to point to the original URL
+      body.select("a[href]").forEach { link =>
+        val href = link.attr("href")
+        if (href.startsWith("https://www.google.com/url?q=")) {
+          // Pluck out the `q` parameter from the URL
+          val url = java.net.URLDecoder.decode(href.split("q=")(1).split("&")(0), "UTF-8")
+          link.attr("href", url)
+        }
+      }
+
       (title, Html(""), Html(body.outerHtml()))
     }
   }
