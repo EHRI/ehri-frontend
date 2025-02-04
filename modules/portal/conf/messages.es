@@ -782,61 +782,11 @@ dataPolicy.modal.notice.2=Las categorías de datos personales en el EHRI son cua
 dataPolicy.modal.terms=Yo declaro que mi utilización de las categorías de datos personales relacionados con condenas o delitos criminales será puramente con fines de investigación y que prometo usar estos datos de acuerdo a lo establecido en las leyes y regulaciones neerlandesas e internacionales. Yo me declaro consciente e informado/a de los posibles resultados punitivos a los que puede dar lugar el incumplimiento de las mencionadas leyes y/o regulaciones.
 dataPolicy.modal.agree=Estoy de acuerdo
 
-dataAndPrivacyPolicy.header=Política de datos y privacidad del EHRI
-dataAndPrivacyPolicy.1=EHRI está comprometido con las privacidad de los usuarios de nuestras páginas web y hacemos todos los esfuerfoz por salvaguardar la informacion recopilada en esta página web. EHRI es consciente de su responsabilidad en el procesamiento de datos personales y desea que toda persona cuoys datos esten siendo procesador por EHRI sepa que dicho procesamiento se lleva a cabo con el mayor de los cuidados y siguiendo las leyes y reglamentaciones al respecto. EHRI procesa los datos personales de acuerdo a lo dispuesto en la General Data Protection Regulation (GDPR) y las reglas de privacidad derivadas de ella. Esta política explica que datos personales están siendo recabados por EHRI, como se procesan estos datos y con qué propósito.
-dataAndPrivacyPolicy.2=Por favor, lea la siguiente información de forma detenida antes de usar este sitio web. Al entrar o usar el sitio web se entiendo que usted acepta la Política de datos y privacidad del EHRI. Si usted no está de acuerdo con alguno de los término expuestos más abajo, no acceda o use esta web.
-
-privacy.header=Política de privacidad del EHRI
-privacy.users.header=Datos de los usuarios de este sitio web y sus servicios
-privacy.users.1=Para poder garantizar el uso de algunas funciones de las páginas web del EHRI, se requieren algunos datos personales como: nombre, dirección, dirección de correo electrónico y aficiliación profesional. Estos datos personales son cedidos por useted y serán tratados con cuidado. EHRI sólo procesa datos personales si es totalmente necesario para un propósito específico siendo este propósito el que determine que datos personales tiene que ser procesadaos, y por tanto nunca le pediremos más datos de estrictamente necesarios.
-privacy.users.2=Para ciertos tipos de usuarios, un conjunto de datos es almacenado, incluyendo páginas consultadas y direcciones de correo electrónico usadas para las listas de correo y la información de contacto en las bases de datos. Esto es necesario para poder garantizar el funcionamiento del sitio web. Algunos datos son necesarios para estudios estadísticos siendo estos anonimizados antes de cualquier procesamiento. El uso de datos personales individuales se encuentra restringido al propósito para el cual fueron cedidos y por tanto el proveedor es consciente de dicha utilización. Estos datos no serán comunicados a terceras partes al menos que el EHRI tenga una obligación legal o fundamento para hacerlo, tal como se menciona en el artículo 6 de la GDPR.
-privacy.users.3=Cuando EHRI comparte sus datos con terceras partes, lo hará salvaguardado su derecho a la privacidad, entre otras cosas, si es requerido, concluyendo un acuerdo de procesamiento en el que se disponga como se tienen que tratar sus datos personales.
-privacy.users.4=Los usuarios que se registren en el portal del EHRI y creen un perfil dan su acuerdo que la información personal que están cediendo puede ser accesible para otros usuarios registrados en el portal. Así mismo, su nombre será publicado si hacen contribuciones públicas al portal. Los usuarios registrados pueden ser contactados por otros usuarios registrados y podrían recibir comunicaciones de dichos usuarios. Sin embargo, la dirección de correo electrónico del receptor no será revelada al emisor original en estas recepciones y viceversa. Los usuarios registrados puede optar por desactivar la posibilidad de ser contactados por otros usuarios actualizando sus preferencias en su perfil de usuario.
-privacy.users.5=EHRI puede adicionalmente procesar uno o más de sus datos personales para uno de los siguiente propósitos (dependiendo del tipo de actividades que le sean de aplicación):
-privacy.users.5.a=para ayudarle e informale respecto de cuestiones relativas a la investigación o a las colecciones;
-privacy.users.5.b=para comunicarse con usted por medio de correo electrónico;
-privacy.users.5.c=para mejorar nuestro sitio web.
-privacy.users.6=Exceptuando los casos enumerados anteriomente, EHRI no cederá los datos de sus usuarios registrados a terceras partes, a menos que sea requerido por la ley. EHRI procesa sus datos personales en base a su consentimiento, por lo que tiene la oportunidad de retirar su consentimiento en cualquier momento. Desde ese momento, EHRI no podrá seguir procesando ninguno de sus datos personales.
-
-dataPolicy.data.header=Datos en el portal de investigación
-dataPolicy.data.1=Esta base de datos puede contener datos personales relacionadas con condenas o delitos criminales que, de acuerdo con las regulaciones de protección de datos neerlandesas y europeas, sólo pueden ser usados con fines de investigación (artículo 9, 10 GDPR).
-dataPolicy.data.2=Las categorías espciales de datos personas es cualquier dato relacionado a una persona identificada o identificable sobre su creencias religiosas, su raza o etnicidad, sus opiniones políticas, sus datos médicos, su vida sexual o su pertencia a sindicatos u organizaciones de trabajadores.
-dataPolicy.data.3=El portal de investigación contiene descripciones de colecciones y documentos relacionados con el Holocausto, custodiados en diferentes instituciones (archivos, centros de documentación) en Europa, Estados Unidos e Israel. Estas descripciones de coleccioones pueden incluir categorías especiales de datos personales y datos personales relacionados con condenas o delitos criminales. Dado que el procesamiento y la publicación de estos datos puede tener implicaciones desde la perspectiva de la protección de datos, el EHRI ha llevado a cabo una evaluación de riesgos para determinar si estos datos pueden ser accedidos desde el portal de investigación o las páginas web del EHRI. Como resultado, el EHRI ha decidido que; teniendo en cuenta las regulaciones de protección de datos europeas (GPDR) y nacionales, y la naturaleza de las descripciones de las colecciones, las prácticas archivísticas y las políticas de privacidad de las instituciones participantes; publicar las descripciones de las colecciones (y no las colecciones al completo) no supone un grave riesgo de protección de datos. Por tanto, el acceso a las descripciones de las colecciones y toda la demás informacion en el portal de investigación está abierto a todos los usuarios.
-dataPolicy.data.4=Según los artículos 9 y 10 de la GDPR, las categorías especiales de datos personales y los datos personales relacionados con condenas o delitos criminales sólo pueden ser usados con fines de investigación. La responsabilidad sobre el cumplimiento de las regulaciones de protección de datos europeas y neerlandesas radica en la persona que publica los datos. Cuando los resutlados de la investigación son publicados en un país diferente a los Paises Bajos, las leyes de protección de datos del país en cuestión deben ser respestadas. Cuando los resultados de la investigación sean publicados en un país que no esté regido por la GDPR  las leyes de protección de datos de dicho país deben ser respetadas. Dado que los datos en el portal de investigación sólo involucran descripciones de colecciones (y no las colecciones al completo), una visita al archivo que custodia los documentos es necesaria para poder realmente acceder a los mismos. Es bastante probable, que esta institución tenga su propia política de acceso a los datos y protección de la privacidad, esto está explicado detalladamente en los informes de país. Los usuarios tienen, por tanto, que seguir estos procesos específicos y no pueden apelar al hecho de haber encontrado la descripción de la colección en el portal de investigación del EHRI para obtener acceso al propio documento.
-dataPolicy.data.5=Si usted considera que tiene fundamentos sólidos - basados en la GDPR y/o en regulación de protección de datos de los Paises Bajos - contra la publicación de un conjunto específico de datos personales en el portal de investigación, puede enviar una carta o un correo electrónico, al responsable del procesado de los datos personales, indicando su interes y explicando los motivos por los cuales usted se opone a la publicación de dichos datos. Su solicitud será examinada y se le dará respuesta en un plazo de tiempo razonable.
-
-privacy.cookies.header=Cookies
-privacy.cookies.1=EHRI no usa cookies con fines de rastreo, sin embargo, para el buen funcionamiento de ciertas carectarísticas se usan las siguientes:
-#privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
-#privacy.cookies.3.a=The JS Cookie enabling the website to understand Javascript.
-privacy.cookies.4=En el portal del EHRI ({0}):
-privacy.cookies.5.a=Una cookie de sesión.
-privacy.cookies.5.b=Una cookie para preservar las preferencias del usuario entre visitas.
-privacy.cookies.5.c=Una cookie que guarda la aceptación del usuario de la política de datos del EHRI, cuando sea aplicable.
-privacy.cookies.6=En el Blog de documento del EHRI ({0}):
-privacy.cookies.6.a=Una cookie para guardar las preferencias de idioma.
-privacy.cookies.7=En el sitio web de Ediciones digitales del EHRI:
-privacy.cookies.7.a=Una cookie de sesión.
-
-privacy.rights.header=Ejercicio de sus derechos
-privacy.rights.header.2=Procedimiento para el ejercicio de sus derechos de privacidad y reclamaciones
-privacy.rights.1=Pueden mandar una solicitud al EHRI para hacer ejercicio de sus siguientes derechos:
-privacy.rights.1.a=Derecho de acceso a sus datos personales
-privacy.rights.1.b=Derecho de rectificación y modificación de sus datos personales
-privacy.rights.1.c=Derecho de verificación de sus datos personales
-privacy.rights.1.d=Derecho a restringir el procesado de sus datos personales
-privacy.rights.1.e=Derecho de oposición
-privacy.rights.1.f=Derecho a no ser sometido a una decisión basada exclusivamente en un proceo automatizado, incluyendo la evaluación de su perfil
-privacy.rights.2=NIOD es la entidad responsable del procesamiento de los datos personales en relación a la GDPR y la regulación neerlandesa de protección de datos personales. Las reclamaciones, debidamente justificadas y sustanciadas deberán ser enviadas a la dirección postal de NIOD (dirigadas a su directoir).
-privacy.rights.2.1=Si usted tiene cualquier duda o reclamación sobre la salvaguarda de su privacidad en EHRI, por favor contacte a nuestro agente de protección de datos (DPO):
-privacy.rights.2.2=Nombre: {0}
-privacy.rights.2.3=Número de teléfono/correo electrónico: {0} / {1}
-privacy.authority.header=Autoridad de datos personales
-privacy.authority.1=EHRI trabajará con ustred para encontrar una solución si usted tiene una queja relativa al procesamiento de sus datos personales. Si esto no doncuce a un resultado satisfactorio, tiene el derecho, bajo la GDPR, de enviar una reclamación a la autoridad de datos personales.
-privacy.changes.header=Cambios a esta declaración de privacidad
-privacy.changes.1=EHRI se reserva el derecho de cambiar esta declaración de privacidad. Los cambios efectuados a esta declaración de privacidad nunca entrarán en conflicto con la GDPR y las reglamentaciones basadas en ella.
-privacy.entry.header=Entrada en efecto
-privacy.entry.1=Esta declaración de privacidad tomó efecto el 12-12-2018.
+#
+# Terms and Conditions
+# NB: the full page is now an external document in Google Docs
+#
+termsAndConditions=Términos y condiciones
 
 #
 # Contact page
@@ -847,23 +797,6 @@ contact.p2=También disponemos de otras formas mendiante las cuales puede obtene
 contact.p2.1=para cuestiones relativas a las políticas de datos o privacidad, por favor póngase en contacto con {0}.
 contact.p2.2=si tiene cualquier pregunta sobre la documentación o las políticas de acceso de cualquiera de los archivos que contribuyen en el portal del EHRI, por favor contacte al archivo en cuestión usando la información de contacto proporcionada en la descripción del archivo.
 contact.p2.3=para todas las demás preguntas o si usted quiere dejar un comentario, un mensaje de agradecimiento o una queja sobre el portal del EHRI, envíenos un correo electrónico a {0}.
-
-#
-# Terms and conditions
-#
-termsAndConditions=Términos y condiciones
-termsAndConditions.userGenerated.heading=Contenido generado por los usuarios: términos de uso
-termsAndConditions.userGenerated.p1=El EHRI ofrece a sus usuarios la oportunidad de contribuir al contenido proporcinado por el el EHRI, mediante el enriquecimiento y la anotación de los datos. Para participar en este proceso de producción de contenido generado por los usuarios, ellos tienen que aceptar los términos de usario descritos a continuación.
-termsAndConditions.userGenerated.p2=Mediante el registo o la creación de una cuenta, usted acepta nuestros términos de uso y reconoce haber leído nuestra política de datos (incluyendo el uso de cookies).
-termsAndConditions.userGenerated.terms.heading=Términos de uso:
-termsAndConditions.userGenerated.terms.1=Los usuarios que generen contenido aceptan no añadir comentarios que puedan resultar inapropiados.
-termsAndConditions.userGenerated.terms.2=Los usuarios que generen contenido aceptan no infringir la GDPR, la UAVG, o la ley de protección de datos del país en el cual se encuentren cuando estén generando dicho contenido. Esto implica que los usuarios cuando generen el contenido no divulgaran información pueda violar los derechos de protección de datos personales.
-termsAndConditions.userGenerated.terms.3=Los usuarios que generen contenido aceptan que el EHRI revise el contenido generado antes de su publicación, implicando esto que los datos personales requeridos para este propósito sean compartidos con los revisores.
-termsAndConditions.userGenerated.terms.4=La información se pondrá a disposición de los usuarios y podrá ser reutilizada, sin embargo la aceptación del autor tiene que ser solicitada cuando la información se vaya a publicar en otro sitio. Con este propósito, el autor del contenido tiene que estar claramente identificado.
-
-copyright.heading=Declaración de los derechos de autor (copyright)
-copyright.holder=Derechos de autor (copyright) del consorcio del EHRI {0,number,#}
-copyright.statement=El uso, reutilización, y/o la reproducción de la información publicada en este sitio web es libre, sin embargo esto está condicionado a que el titular de los derechos de autor y el consorcio del EHRI sean claramente identificados mediante una referencia al origen de la información: EHRI {0}. Esto no es de aplicación al material para el cual los derechos de autor no residen en el consorcio del EHRI sino en un tercero. El usuario debe respetar los derechos de autor y/o los derechos sobre las bases de datos relacionados con el material publicado en el sitio web o en los conjuntos de datos, especialmente cuando se distribuyan o publiquen conjuntos de datos. En caso de que sea necesario, el usuario debe contactar al titular de los derechos del conjunto de datos. El contenido de este sitio web refleja solamente la visión de los autores y/o el EHRI, y por tanto la Comisión Europea no puede ser considerada responsable por cualquier uso que pueda derivar de la información que este sitio web contiene.
 
 #
 # About page

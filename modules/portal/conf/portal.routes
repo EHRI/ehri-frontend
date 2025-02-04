@@ -12,7 +12,6 @@ GET         /sitemap.xml                          @controllers.portal.PortalAsse
 
 GET         /contact                              @controllers.portal.Portal.contact()
 GET         /about                                @controllers.portal.Portal.about()
-GET         /terms                                @controllers.portal.Portal.terms()
 
 GET         /help/datamodel                       @controllers.portal.Portal.dataModel()
 GET         /help/$page<\w[\w-_]+>                @controllers.portal.Portal.externalPage(page: String)
@@ -87,6 +86,7 @@ GET         /bookmarks/createSet                  @controllers.portal.Bookmarks.
 POST        /bookmarks/createSet                  @controllers.portal.Bookmarks.createBookmarkSetPost(item: List[String] ?= Nil)
 
 GET         /data-policy                          @controllers.portal.Portal.dataPolicy()
+GET         /terms                                @controllers.portal.Portal.terms()
 
 GET         /filter                               @controllers.portal.Portal.filterItems(params: services.search.SearchParams ?= services.search.SearchParams.empty, paging: utils.PageParams ?= utils.PageParams.empty)
 

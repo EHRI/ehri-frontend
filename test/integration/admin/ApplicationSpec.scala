@@ -51,14 +51,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val f = new java.io.File("MAINTENANCE")
       f.createNewFile()
       try {
-        val pageOffline = FakeRequest(portalRoutes.dataPolicy()).call()
+        val pageOffline = FakeRequest(portalRoutes.about()).call()
         status(pageOffline) must equalTo(SERVICE_UNAVAILABLE)
         contentAsString(pageOffline) must contain(message("errors.maintenance"))
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageOnline = FakeRequest(portalRoutes.dataPolicy()).call()
+        val pageOnline = FakeRequest(portalRoutes.about()).call()
         status(pageOnline) must equalTo(OK)
         contentAsString(pageOnline) must not contain message("errors.maintenance")
       } finally {
@@ -73,14 +73,14 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       val veryImportantMessage = "This is a very important message!"
       FileUtils.write(f, veryImportantMessage, "UTF-8")
       try {
-        val pageWithMessage = FakeRequest(portalRoutes.dataPolicy()).call()
+        val pageWithMessage = FakeRequest(portalRoutes.about()).call()
         status(pageWithMessage) must equalTo(OK)
         contentAsString(pageWithMessage) must contain(veryImportantMessage)
 
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageWithoutMessage = FakeRequest(portalRoutes.dataPolicy()).call()
+        val pageWithoutMessage = FakeRequest(portalRoutes.about()).call()
         status(pageWithoutMessage) must equalTo(OK)
         contentAsString(pageWithoutMessage) must not contain veryImportantMessage
       } finally {
@@ -92,7 +92,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
       import org.apache.commons.io.FileUtils
       val f = new java.io.File("IP_WHITELIST")
       f.createNewFile()
-      val req = FakeRequest(portalRoutes.dataPolicy())
+      val req = FakeRequest(portalRoutes.about())
       FileUtils.write(f, req.remoteAddress, "UTF-8")
       try {
         val pageWithMessage = req.call()
@@ -102,7 +102,7 @@ class ApplicationSpec extends PlaySpecification with TestConfiguration with User
         // Deleting the file should make the message go away
         f.delete()
 
-        val pageWithoutMessage = FakeRequest(portalRoutes.dataPolicy()).call()
+        val pageWithoutMessage = FakeRequest(portalRoutes.about()).call()
         status(pageWithoutMessage) must equalTo(OK)
         contentAsString(pageWithoutMessage) must not contain req.remoteAddress
       } finally {
