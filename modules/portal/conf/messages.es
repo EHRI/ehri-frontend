@@ -4,9 +4,7 @@ home=Inicio
 about=Sobre EHRI
 language=Idioma
 contact=Contacto
-welcome.blurb=El portal del EHRI ofrece acceso a información sobre la documentación de archivos relevante para el Holocausto, \
-  convervada en instituciones de dentro y fuera de Europa. \
-  Para más información sobre el proyecto EHRI, visite https://ehri-project.eu.
+welcome.blurb=El portal del EHRI ofrece acceso a información sobre la documentación de archivos relevante para el Holocausto, convervada en instituciones de dentro y fuera de Europa. Para más información sobre el proyecto EHRI, visite https://ehri-project.eu.
 welcome.video.heading=Introdución en 3 minutos al portal del EHRI
 footerText=Esta es una versión de desarollo de la interfaz del portal del EHRI.
 footer.funding=El proyecto EHRI está financiado por la Comisión Europea
@@ -30,6 +28,7 @@ help=Ayuda
 help.manual=Manual en línea
 help.faq=Preguntas Frequentes
 help.contact=Contactar al EHRI
+help.dataModel=Modelo de datos
 
 #
 # Landing page: https://portal.ehri-project.eu
@@ -49,8 +48,8 @@ landingBlurb.CvocVocabulary=Explorar términos y lugares.
 #
 # Form constraints, errors, and formats
 #
-constraints.mandatory=Mandatory
-constraints.desirable=Desirable
+constraints.mandatory=Obligatorio
+constraints.desirable=Recomendable
 constraints.timeCheckSeconds=Marca de tiempo
 constraints.timeCheckSeconds.failed=El formulario fue enviado muy rápido. Por favor, inténtelo de nuevo.
 constraints.honeypot=Carta blanca
@@ -63,35 +62,27 @@ format.boolean=Activado/Desactivado
 errors.staffOnly=Restringido
 errors.staffOnlyMessage=El acceso a esta página está actualmente restringido a personal del EHRI.
 errors.verifiedOnly=Verifación por correo electrónico requerida
-errors.verifiedOnlyMessage=El acceso a este recurso está restringido a los usuarios con una dirección de correo electrónico verificada. \
-  Haga click en el botón inferior para recibir un correo de verificación en su dirección de correo electrónico. Asegúrse de verificar también su carpeta de SPAM \
-  si no recibe el correo.
-errors.readonly=El portal del EHRI está actualmente disponible en modo sólo de lectura mientras llevamos a cabo las tareas de mantenimiento.\
-         El servicio habitual será ser restablecido a su debido tiempo. Gracias por su paciencia.
+errors.verifiedOnlyMessage=El acceso a este recurso está restringido a los usuarios con una dirección de correo electrónico verificada. Haga click en el botón inferior para recibir un correo de verificación en su dirección de correo electrónico. Asegúrse de verificar también su carpeta de SPAM si no recibe el correo.
+errors.readonly=El portal del EHRI está actualmente disponible en modo sólo de lectura mientras llevamos a cabo las tareas de mantenimiento.El servicio habitual será ser restablecido a su debido tiempo. Gracias por su paciencia.
 errors.itemNotFound=404 Recurso no encontrado
 errors.itemNotFound.explanation=No se ha podido encontrar ninguna página en esta dirección.
 errors.gone=410 Este recurso ya no está disponible
-errors.gone.explanation=Esta página fue borrada el {0,date}. Este puede suceder debido a que un proveedor de contenido haya borrado \
- un recurso de su propia base de datos, o por otras razones relacionadas al mantenimiento.
+errors.gone.explanation=Esta página fue borrada el {0,date}. Este puede suceder debido a que un proveedor de contenido haya borrado un recurso de su propia base de datos, o por otras razones relacionadas al mantenimiento.
 errors.pageNotFound=404 Recurso no encontrado
 errors.pageNotFound.explanation=La página en esta dirección no existe o ha sido trasladada.
 errors.pageNotFound.search=Intente una búsqueda de un elemento específico:
 errors.pageNotFound.links=...o estos enlaces para más ayuda:
 errors.clientError=Ha ocurrido un error
 errors.genericProblem=Ha ocurrido un error
-errors.genericProblem.explanation=Lo sentimos, pero ha habido un error al cargar esta página. Hemos sido informados de \
-  este incidente y haremos lo posible para arreglar este problema lo antes posible.
+errors.genericProblem.explanation=Lo sentimos, pero ha habido un error al cargar esta página. Hemos sido informados de este incidente y haremos lo posible para arreglar este problema lo antes posible.
 errors.maintenance=Sitio web temporalmente no disponible
 errors.maintenance.explanation=El portal del EHRI no está actualmente disponible por razones de mantenimiento. Por favor, vuelva a intentarlo en unos minutos.
 errors.databaseError=Error en la base de datos
-errors.databaseError.explanation=Parece que nuestra base de datos no está disponible. \
-  Esto se trata normalmente de un incidente temporal, por favor, vuelva a intentarlo de nuevo en unos minutos.
+errors.databaseError.explanation=Parece que nuestra base de datos no está disponible. Esto se trata normalmente de un incidente temporal, por favor, vuelva a intentarlo de nuevo en unos minutos.
 errors.searchEngineError=Error en el motor de búsqueda
-errors.searchEngineError.explanation=Parece que nuestro motor de búsqueda no está disponible. \
-  Esto se trata normalmente de un incidente temporal, por favor, vuelva a intentarlo de nuevo en unos minutos.
+errors.searchEngineError.explanation=Parece que nuestro motor de búsqueda no está disponible. Esto se trata normalmente de un incidente temporal, por favor, vuelva a intentarlo de nuevo en unos minutos.
 errors.databaseMaintenance=Base de datos temporalmente no disponible
-errors.databaseMaintenance.explanation=La base de datos del EHRI no esta disponible actualmente por razones de mantenimiento. \
-  La base de datos debería estar de nuevo en unos minutos.
+errors.databaseMaintenance.explanation=La base de datos del EHRI no esta disponible actualmente por razones de mantenimiento. La base de datos debería estar de nuevo en unos minutos.
 errors.permissionDenied=Permiso denegado
 errors.permissionDenied.explanation=Parece que que no puedes hacer lo que estabas intendo hacer. Probablemente se trate de nuestro error e intentaremos arreglarlo lo más rápido posible.
 errors.errorDetails=Detalles
@@ -106,8 +97,7 @@ errors.sso.notEnabled=La autenticación Single sign-on no está disponible en es
 errors.sso.badData=Imposible validar los datos del single sign-on.
 
 identifier=Identificador
-identifier.description=El idenficador de un elemento es unico en el contexto de su elemento padre. \
-  El idenficiador del tiem determina su URL y normalmente nunca debería ser cambiado una vez ya creado.
+identifier.description=El idenficador de un elemento es unico en el contexto de su elemento padre. El idenficiador del tiem determina su URL y normalmente nunca debería ser cambiado una vez ya creado.
 
 #
 # Additional Language codes that aren't official ISO639-2
@@ -147,6 +137,7 @@ export.metadata=Exportar metadatos
 export.format.json=JSON
 export.format.eag=EAG 2012 XML
 export.format.ead=EAD 2002 XML
+export.format.ead3=EAD-3 XML
 export.format.eac=EAC 2010 XML
 export.format.ttl=TTL
 export.format.rdf_xml=RDF/XML
@@ -188,9 +179,7 @@ profile.edit=Editar perfil
 profile.image.edit=Establecer foto de perfil
 profile.delete=Borrar cuenta
 profile.delete.link=Haga click aquí para borrar su perfil
-profile.delete.check.text=Borrar su cuenta \
-   anonimizará (pero no borrará) cualquier anotación publica o enlace que haya hecho \
-  como contribución al EHRI. Para confirmar, por favor, introduzca su nombre, en el cuadro de abajo, tal como se muestra aquí:
+profile.delete.check.text=Borrar su cuenta anonimizará (pero no borrará) cualquier anotación publica o enlace que haya hecho como contribución al EHRI. Para confirmar, por favor, introduzca su nombre, en el cuadro de abajo, tal como se muestra aquí:
 profile.delete.check=Introduzca su nombre como se muestra arriba.
 profile.delete.badConfirmation=El borrado de la cuenta no se ha confirmado correctamente.
 profile.profile.delete.confirmation=Su perfil ha sido borrado.
@@ -198,6 +187,17 @@ profile.update=Actualizar perfil
 profile.update.submit=Actualizar perfil
 profile.update.confirmation=Perfil correctamente actualizado
 profile.menu=Menú del perfil
+profile.orcid.connect=Vincule su ORCID
+profile.orcid.connected=Su ORCID está vinculado a su cuenta del EHRI.
+profile.orcid.connect.info=Vincule su ORCID a su perfil del EHRI para mostrarlo en su perfil.
+profile.orcid.connect.submit=Vincular ORCID
+profile.orcid.disconnect=Desvincular su ORCID.
+profile.orcid.disconnect.info=Eliminar su ORCID de su perfil del EHRI.
+profile.orcid.disconnect.submit=Desvincular ORCID
+profile.orcid.disconnected=Su ORCID ha sido eliminado de su perfil del EHRI.
+profile.orcid.icon=El icono de ORCID
+profile.orcid.view=Ver perfil ORCID de {0}
+
 
 profile.watch.list=Elementos seguidos
 profile.watch.by={0} - Elementos seguidos
@@ -216,17 +216,18 @@ profile.unwatch.title=Eliminar elemento de su lista de seguimiento
 #
 type=Tipo de elemento
 type.Repository=Archivos
-type.Repository.description=Un inventario de archivos que mantienen \
-  documentación relacionada con el Holocausto.
+type.RepositoryDescription=Archivos
+type.Repository.description=Un inventario de archivos que mantienen documentación relacionada con el Holocausto.
 type.DocumentaryUnit=Descripciones archivísticas
+type.DocumentaryUnitDescription=Descripciones archivísticas
 type.DocumentaryUnit.description=Descripciones electrónicas e instrumentos de descripción de la documentación de archivo relacionada con el Holocausto.
 type.HistoricalAgent=Registros de autoridad
+type.HistoricalAgentDescription=Registros de autoridad
 type.HistoricalAgent.description=Personas, familias e instituciones relacionadas a las descripciones archivísticas del EHRI.
 type.Country=Países
-type.Country.description=Informes nacionales del EHRI que proveen un resumen de la historia de la Segunda Guerra Mundial \
-  y el Holocausto, así como de la situación de los archivos \
-  en los países incluidos en el portal.
+type.Country.description=Informes nacionales del EHRI que proveen un resumen de la historia de la Segunda Guerra Mundial y el Holocausto, así como de la situación de los archivos en los países incluidos en el portal.
 type.CvocConcept=Palabras clave
+type.CvocConceptDescription=Palabras clave
 type.CvocConcept.description=Términos temáticos relacionados con las descripciones archivísticas del EHRI.
 type.UserProfile=Personas en el EHRI
 type.Group=Grupos
@@ -281,41 +282,43 @@ login.email.change.confirmation=Dirección de correo electrónico actualizada co
 login.email.emailIsOAuth=Las direcciones de correo electrónico asociados con un proveedor de autentiación (como Google o Facebook) no pueden ser cambiadas actualmente.
 login.password=Contraseña
 login.password.confirm=Confirmar contraseña
-login.password.noPassword=Actualmente no hay ninguna contraseña asociada a su cuenta. Esto significa que usted \
-  se ha registrado a través de un proveedor externo de autenticación como Google o Facebook.
+login.password.noPassword=Actualmente no hay ninguna contraseña asociada a su cuenta. Esto significa que usted se ha registrado a través de un proveedor externo de autenticación como Google o Facebook.
 login.password.change=Cambiar contraseña
 login.password.change.link=Haga click aquí para cambiar su contraseña
 login.password.change.submit=Enviar
 login.password.change.confirmation=Contraseña modificada correctamente
 login.password.reset=Restablecer contraseña
 login.password.forgot=¿Ha olvidado su contraseña?
-login.password.reset.text=¿Ha olvidado su contraseña? Ingrese la dirección de correo electrónico que uso para el registro debajo \
-  y le enviaremos un enlace para que pueda restablecerla.
+login.password.reset.text=¿Ha olvidado su contraseña? Ingrese la dirección de correo electrónico que uso para el registro debajo y le enviaremos un enlace para que pueda restablecerla.
 login.password.reset.noPasswordMatching=No hay ninguna cuenta que coincida {0}
 login.password.reset.submit=Enviar enlace para restablecer la contraseña
 login.openid.urlPlaceholder=Ingrese su URL de OpenID
 login.disabled=El inicio de sesión esta desactivado actualmente. Por favor, inténtelo de nuevo más tarde.
 login.oauth.info=Si usted ya tiene una cuenta en uno de estos sitios puede hacer click en el logo correspondiente para iniciar sesión en EHRI:
+login.oauth.google=Google
+login.oauth.facebook=Facebook
+login.oauth.yahoo=Yahoo
+login.oauth.microsoft=Microsoft
+login.oauth.openid=OpenID
+login.oauth.orcid=ORCID
+login.oauth.linkedin=LinkedIn
 login.password.info=Si usted ya ha creado una cuenta de EHRI previamente, ingrese su email y contraseña aquí:
 login.password.submit=Registrarse
 login.recover.link=Haga click aquí si ha olvidad o perdido su contraseña.
 login.error=Hubo un problema con sus detalles
 login.error.badUsernameOrPassword=Usuario o contraseña incorrectos
 login.error.passwordsDoNotMatch=La contraseña y la confirmación de la contraseña no coinciden
-login.error.badResetToken=El enlace usado para el restablecimiento de la contraseña no válido o ha expirado. \
-  Nota: los enlace para restablecer la contraseña sólo se pueden usar una vez.
-login.error.oauth2.info=Le pedimos disculpas pero ha habido un error al intentar crear su cuenta usando {0}. Por favor, intente otro \
-  método de registro.
-login.error.oauth2.badSessionId=Esta vez no ha sido posible iniciar la sesión usando {0}. Por favor inténtelo de nuevo y si el error \
-  persiste, intente usar una ventana diferente en su navegador.
+login.error.badResetToken=El enlace usado para el restablecimiento de la contraseña no válido o ha expirado. Nota: los enlace para restablecer la contraseña sólo se pueden usar una vez.
+login.error.oauth2.info=Le pedimos disculpas pero ha habido un error al intentar crear su cuenta usando {0}. Por favor, intente otro método de registro.
+login.error.oauth2.orcid.missingEmail=No hemos sido capaces de obtener su dirección de correo electrónico desde ORCID. Por favor, asegúrese que su dirección de correo electrónico está establecida como pública o limitada en su perfi ORCID.
+login.error.oauth2.orcid.missingGuid=No hemos sido capaces de obtener identificador ORCID. Por favor, asegúrese que su perfil ORCID está establecido como público o limitado.
+login.error.oauth2.badSessionId=Esta vez no ha sido posible iniciar la sesión usando {0}. Por favor inténtelo de nuevo y si el error persiste, intente usar una ventana diferente en su navegador.
 login.error.badEmail=La dirección de correo electrónico no se puede cambiar porque es inválida o ya está en uso.
 
 login.password.current=Contraseña actual
 login.password.new=Nueva contraseña
 login.password.new.confirm=Confirme la nueva contraseña
-login.password.reset.sentLink=Si su dirección de correo electrónico existe en el sistema recibirá \
-  un mensaje con un enlace que puede usar para restablecer su contraseña. \
-  Este enlace sólo puede ser usado una vez.
+login.password.reset.sentLink=Si su dirección de correo electrónico existe en el sistema recibirá un mensaje con un enlace que puede usar para restablecer su contraseña. Este enlace sólo puede ser usado una vez.
 login.password.reset.confirmation=Su contraseña ha sido restablecida.
 login.dataPolicyNag=Al registrarme, reconozco la {0} y acepto cumplir con los {1}.
 logout=Cerrar sesión
@@ -326,12 +329,14 @@ signup=Crear una cuenta
 signup.dataPolicyNag=Al crear una cuenta yo declaro estar de acuerdo con los {0} y la {1}.
 signup.badPasswords=La contraseña y la confirmación de contraseña no coincidedn. Por favor, inténtelo de nuevo.
 signup.agreeTerms=Tiene que declarar su acuerdo con los términos.
-signup.confirmation=¡Gracias por registrase! Le hemos enviado un correo electrónico con el cual puede verificar \
-  su dirección de correo electrónico.
-signup.validation.badToken=El enlace de verificación es inválido o ha caducado.
+signup.confirmation=¡Gracias por registrase! Le hemos enviado un correo electrónico con el cual puede verificar su dirección de correo electrónico.
+signup.validation=Validar su cuenta
+signup.validation.badToken=El enlace de confirmación es inválido, ya ha sido usado, o ha caducado. Nota: los enlaces de confirmación solo se pueden usar una vez.
 signup.validation.confirmation=Su cuenta ha sido verificada..
-signup.disabled=El registro en este sitio esta deshabilitado. Si está usando una instancia de pruebas, registrese en la instancia de producción \
-  y espere a que la sincronización de su cuenta se lleve a cabo for periodic account synchronisation to occur.
+signup.disabled=El registro en este sitio esta deshabilitado. Si está usando una instancia de pruebas, registrese en la instancia de producción y espere a que la sincronización de su cuenta se lleve a cabo for periodic account synchronisation to occur.
+signup.validation.message=Haga click en el botón inferior para confirmar su dirección de correo electrónico.
+signup.validation.message.submit=Confirmar dirección de correo electrónico
+signup.validation.alreadyValidated=Su dirección de correo electrónico ha sido verificada.
 
 #
 # Mail stuff
@@ -341,8 +346,7 @@ mail.forgotPasswordMessage=Para restablecer su contraseña, por favor, siga en e
 mail.forgotPasswordFooter=Reciba un cordial saludo,\nel equipo del EHRI
 mail.confirmEmailHeading=Por favor, confirme su dirección de correo electrónico
 mail.confirmEmailMessage=Por favor, confirme su dirección de correo electrónico visitando la siguiente dirección:
-mail.confirmEmailFooter=Este enlace será válido por una semana, después de la cual su cuenta \
-  será desactivada.
+mail.confirmEmailFooter=Este enlace será válido por una semana, después de la cual su cuenta será desactivada.
 mail.unverifiedEmailWarning=Cuenta sin verificar
 mail.unverifiedEmailWarningMessage=La dirección de correo electrónico asociada con su cuenta todavía no ha sido verificada.
 mail.unverifiedEmailResend=Para reenviar el correo electrónico de verificación
@@ -387,7 +391,7 @@ description.multiple.text=Este elemento tiene mútiples descripciones. Las descr
 #
 accessPoint.browse=Buscar
 accessPoint.type.creator=Creador/es
-accessPoint.type.creator.reverse=Creador de 
+accessPoint.type.creator.reverse=Creador de
 accessPoint.type.person=Personas
 accessPoint.type.person.reverse=Referenciado por (como persona)
 accessPoint.type.family=Familias
@@ -426,7 +430,7 @@ systemEvent.removeGroup=Miembro eliminado de un grupo
 systemEvent.ingest=Elementos importados
 systemEvent.ingest.subjects={0} y {1} otros elementos
 systemEvent.promotion=Elemento promocionado
-systemEvent.demotion=Eliminado elemento promocionado 
+systemEvent.demotion=Eliminado elemento promocionado
 systemEvent.watch=Comenzó a seguir un elemento
 systemEvent.unwatch=Dejó de seguir un elemento
 systemEvent.follow=Comenzó a seguir a un usuario
@@ -440,18 +444,15 @@ systemEvent.to=Hasta
 #
 error.globalErrors=Hubo problemas con el formulario:
 error.date=La fecha es incorrrecta o no ha sido formateada correctamente
-error.badUrl=La URL no es correcta o no ha sido formateada correctamente. Nota: para las direcciones web, una URL válida tiene indicar el schema como prefijo  \
-  p. ej., ''http://'' o ''https://''
+error.badUrl=La URL no es correcta o no ha sido formateada correctamente. Nota: para las direcciones web, una URL válida tiene indicar el schema como prefijo  p. ej., ''http://'' o ''https://''
 error.required=Obligatorio
 error.emailExists=La dirección de correo electrónico es inválida o ya ha sido registrada
 error.unknownUser=Usuario desconocido
 error.emailNotFound=Esa dirección de correo electrónico no ha sido encontrada en nuestro sistema
 error.badRecaptcha=La verificación Recaptcha (destinada a asegurar que usted es un humano y no una máquina automática de SPAM) no obtuvo la respuesta adecuada. Consejo: puede actualizar el texto de verificación hasta que consiga un texto más inteligible.
 error.rateLimit=Número máximo de intentos superado. Por favor, espere {0} minutos antes de volver a intentarlo.
-error.openId=Hubo un problema iniciando su sesión con OpenID.\
-  Esto puede deberse a que su proveedor no soporta el intercambio de atributos.
-error.openId.url=No hubo respuesta del proveedor de openid dado: {0}.\
-  Por favor, asegurese que la URL del proveedor es correcta.
+error.openId=Hubo un problema iniciando su sesión con OpenID.Esto puede deberse a que su proveedor no soporta el intercambio de atributos.
+error.openId.url=No hubo respuesta del proveedor de openid dado: {0}.Por favor, asegurese que la URL del proveedor es correcta.
 error.userEmailAlreadyRegistered=Ya hay un usuario registrado con esa dirección de correo electrónico: {0}
 
 #
@@ -498,8 +499,7 @@ search.facets.removeAll=Borrar todos los filtros
 # and their associated tool-tips
 #
 facet.type=Tipo de elemento
-facet.type.tooltip=El tipo de elemento, p. ej., instituciones, descripciones archivísticas,\
-  o informes de país.
+facet.type.tooltip=El tipo de elemento, p. ej., instituciones, descripciones archivísticas,o informes de país.
 facet.lang=Lengua de la descripción
 facet.lang.placeholder=Filtrar lengua
 facet.lang.tooltip=La lengua de la descripción digital.
@@ -508,8 +508,7 @@ facet.parent.tooltip=Si este elemento actua como contenedor de otros elementos.
 facet.parent.true=Elemento contenedor
 facet.parent.false=Elemento único
 facet.source=Fuente de la descripción
-facet.source.tooltip=La fuente de la descripción digital, p. ej., si ha sido \
-  creada por el personal del EHRI o importada a partir de los datos estructurados cedidos por una institución asociada.
+facet.source.tooltip=La fuente de la descripción digital, p. ej., si ha sido creada por el personal del EHRI o importada a partir de los datos estructurados cedidos por una institución asociada.
 facet.source.MANUAL=EHRI
 facet.source.IMPORT=Institución asociada al EHRI
 facet.lod=Nivel de detalle
@@ -522,9 +521,7 @@ facet.kw=Palabras clave
 facet.kw.tooltip=Palabras clave asociadas con cada descripción.
 facet.kw.placeholder=Filtrar palabras clave
 facet.manifestation=Manifestación
-facet.manifestation.tooltip=Elementos descritos según su organización física, \
-  o elementos ''virtuales'' agregando descripciones de documentación de diferentes \
-  fuentes que potencialmente pueden esta custodiada por diferentes instituciones.
+facet.manifestation.tooltip=Elementos descritos según su organización física, o elementos ''virtuales'' agregando descripciones de documentación de diferentes fuentes que potencialmente pueden esta custodiada por diferentes instituciones.
 facet.manifestation.DocumentaryUnit=Real/Física
 facet.manifestation.VirtualUnit=Colección virtual
 facet.country=País
@@ -731,8 +728,7 @@ contribution.visibility.allowPublic=Permitir promociones
 contribution.visibility.allowPublic.title=Permitir que los moderadores del EHRI puedan promocionar esta nota de manera que sea visible para todos los usuarios.
 contribution.visibility.isPrivate=Nota privada
 contribution.visibility.isPublic=Nota pública
-contribution.visibility.isPublic.title=Deshabilitar esta opción para hacer esta nota privada. \
-  Por defecto, los moderadores del EHRI pueden promocionar las notas para que sean visibles para todo los usuarios.
+contribution.visibility.isPublic.title=Deshabilitar esta opción para hacer esta nota privada. Por defecto, los moderadores del EHRI pueden promocionar las notas para que sean visibles para todo los usuarios.
 
 #
 # General search
@@ -754,8 +750,7 @@ search.helper.linkTitle=Consejos para la búsqueda avanzada
 search.helper=Hay varias formar de hacer búsquedas más específicas:
 search.helper.field=Use la siguiente sintaxis para restringir campos específicos:
 search.helper.field.example=campo:"término de búsqueda"
-search.helper.field.example.description=Por ejemplo, puede buscar todas las descripciones que contengan el término de búsqueda \
-  "Auschwitz Birkenau" en su título usando title:"Auschwitz Birkenau".
+search.helper.field.example.description=Por ejemplo, puede buscar todas las descripciones que contengan el término de búsqueda "Auschwitz Birkenau" en su título usando title:"Auschwitz Birkenau".
 search.helper.field.available=Los siguientes campos están actualmente disponibles:
 search.helper.minus=Para excluir una palabra de la búsqueda, p. ej., -Gestapo
 search.helper.plus=El término tiene que estar en el resultado p ej., +Gestapo
@@ -782,102 +777,38 @@ feedback.disabled=El envío de comentario está desactivado ahora mismo.
 #
 dataPolicy=Política de datos
 dataPolicy.header=Política de datos del EHRI
-dataPolicy.modal.notice.1= Esta base de datos puede contener categorías especiales de datos personales, incluyendo datos de \
-  de personas relacionadas con condenas o delitos criminales que, de acuerdo con el artículo 9, sección 2, punto j de la GDPR y \
-  con los artículos 24 y 32, punto f de la UAVG (Dutch personal data protection act); pueden ser usados con fines de investigación \
-  sólo bajo la condición de que se puedan salvaguardar los derechos y libertades del sujeto al que los datos se refieren.
-dataPolicy.modal.notice.2=Las categorías de datos personales en el EHRI son cualquier dato relacionado con una persona identificada o identificable \
-  que pueda ayudar a relacionarlo a su vez a: sus creencias religiosas o filosóficas, su origen racial o étnico, sus opiniones políticas, \
-  su pertencia a sindicatos u organizaciones de trabajadores, su datos médicos, su vida sexual o su orientación sexual.
-dataPolicy.modal.terms=Yo declaro que mi utilización de las categorías de datos personales relacionados con condenas o delitos \
-  criminales será puramente con fines de investigación y que prometo usar estos datos de acuerdo a lo establecido en las leyes y regulaciones \
-  neerlandesas e internacionales. Yo me declaro consciente e informado/a de los posibles resultados punitivos a los que puede dar lugar \
-  el incumplimiento de las mencionadas leyes y/o regulaciones.
+dataPolicy.modal.notice.1=Esta base de datos puede contener categorías especiales de datos personales, incluyendo datos de de personas relacionadas con condenas o delitos criminales que, de acuerdo con el artículo 9, sección 2, punto j de la GDPR y con los artículos 24 y 32, punto f de la UAVG (Dutch personal data protection act); pueden ser usados con fines de investigación sólo bajo la condición de que se puedan salvaguardar los derechos y libertades del sujeto al que los datos se refieren.
+dataPolicy.modal.notice.2=Las categorías de datos personales en el EHRI son cualquier dato relacionado con una persona identificada o identificable que pueda ayudar a relacionarlo a su vez a: sus creencias religiosas o filosóficas, su origen racial o étnico, sus opiniones políticas, su pertencia a sindicatos u organizaciones de trabajadores, su datos médicos, su vida sexual o su orientación sexual.
+dataPolicy.modal.terms=Yo declaro que mi utilización de las categorías de datos personales relacionados con condenas o delitos criminales será puramente con fines de investigación y que prometo usar estos datos de acuerdo a lo establecido en las leyes y regulaciones neerlandesas e internacionales. Yo me declaro consciente e informado/a de los posibles resultados punitivos a los que puede dar lugar el incumplimiento de las mencionadas leyes y/o regulaciones.
 dataPolicy.modal.agree=Estoy de acuerdo
 
 dataAndPrivacyPolicy.header=Política de datos y privacidad del EHRI
-dataAndPrivacyPolicy.1=EHRI está comprometido con las privacidad de los usuarios de nuestras páginas web y hacemos todos \
-  los esfuerfoz por salvaguardar la informacion recopilada en esta página web. EHRI es consciente de su responsabilidad en el \
-  procesamiento de datos personales y desea que toda persona cuoys datos esten siendo procesador por EHRI sepa que dicho \
-  procesamiento se lleva a cabo con el mayor de los cuidados y siguiendo las leyes y reglamentaciones al respecto. EHRI \
-  procesa los datos personales de acuerdo a lo dispuesto en la General Data Protection Regulation (GDPR) y las reglas de \
-  privacidad derivadas de ella. Esta política explica que datos personales están siendo recabados por EHRI, \
-  como se procesan estos datos y con qué propósito.
-dataAndPrivacyPolicy.2=Por favor, lea la siguiente información de forma detenida antes de usar este sitio web. Al entrar o usar el \
-  sitio web se entiendo que usted acepta la Política de datos y privacidad del EHRI. Si usted no está de acuerdo con alguno de \
-  los término expuestos más abajo, no acceda o use esta web.
+dataAndPrivacyPolicy.1=EHRI está comprometido con las privacidad de los usuarios de nuestras páginas web y hacemos todos los esfuerfoz por salvaguardar la informacion recopilada en esta página web. EHRI es consciente de su responsabilidad en el procesamiento de datos personales y desea que toda persona cuoys datos esten siendo procesador por EHRI sepa que dicho procesamiento se lleva a cabo con el mayor de los cuidados y siguiendo las leyes y reglamentaciones al respecto. EHRI procesa los datos personales de acuerdo a lo dispuesto en la General Data Protection Regulation (GDPR) y las reglas de privacidad derivadas de ella. Esta política explica que datos personales están siendo recabados por EHRI, como se procesan estos datos y con qué propósito.
+dataAndPrivacyPolicy.2=Por favor, lea la siguiente información de forma detenida antes de usar este sitio web. Al entrar o usar el sitio web se entiendo que usted acepta la Política de datos y privacidad del EHRI. Si usted no está de acuerdo con alguno de los término expuestos más abajo, no acceda o use esta web.
 
 privacy.header=Política de privacidad del EHRI
 privacy.users.header=Datos de los usuarios de este sitio web y sus servicios
-privacy.users.1=Para poder garantizar el uso de algunas funciones de las páginas web del EHRI, se requieren algunos datos personales \
-  como: nombre, dirección, dirección de correo electrónico y aficiliación profesional. Estos datos personales son cedidos por useted y serán \
-  tratados con cuidado. EHRI sólo procesa datos personales si es totalmente necesario para un propósito específico siendo este propósito el que \
-  determine que datos personales tiene que ser procesadaos, y por tanto nunca le pediremos más datos de \
-  estrictamente necesarios.
-privacy.users.2=Para ciertos tipos de usuarios, un conjunto de datos es almacenado, incluyendo páginas consultadas y \
-  direcciones de correo electrónico usadas para las listas de correo y la información de contacto en las bases de datos. Esto \
-  es necesario para poder garantizar el funcionamiento del sitio web. Algunos datos son necesarios para estudios estadísticos \
-  siendo estos anonimizados antes de cualquier procesamiento. El uso de datos personales individuales se encuentra restringido al propósito \
-  para el cual fueron cedidos y por tanto el proveedor es consciente de dicha utilización. Estos datos no serán comunicados \
-  a terceras partes al menos que el EHRI tenga una obligación legal o fundamento para hacerlo, tal como se menciona en el artículo 6 de la GDPR.
-privacy.users.3=Cuando EHRI comparte sus datos con terceras partes, lo hará salvaguardado su derecho a la privacidad, entre \
-  otras cosas, si es requerido, concluyendo un acuerdo de procesamiento en el que se disponga como se tienen que tratar \
-  sus datos personales.
-privacy.users.4=Los usuarios que se registren en el portal del EHRI y creen un perfil dan su acuerdo que la información \
-  personal que están cediendo puede ser accesible para otros usuarios registrados en el portal. Así mismo, su nombre \
-  será publicado si hacen contribuciones públicas al portal. Los usuarios registrados pueden ser contactados por otros \
-  usuarios registrados y podrían recibir comunicaciones de dichos usuarios. Sin embargo, la dirección de correo electrónico \
-  del receptor no será revelada al emisor original en estas recepciones y viceversa. Los usuarios registrados puede optar \
-  por desactivar la posibilidad de ser contactados por otros usuarios actualizando sus preferencias \
-  en su perfil de usuario.
-privacy.users.5=EHRI puede adicionalmente procesar uno o más de sus datos personales para uno de los siguiente propósitos \
-  (dependiendo del tipo de actividades que le sean de aplicación):
+privacy.users.1=Para poder garantizar el uso de algunas funciones de las páginas web del EHRI, se requieren algunos datos personales como: nombre, dirección, dirección de correo electrónico y aficiliación profesional. Estos datos personales son cedidos por useted y serán tratados con cuidado. EHRI sólo procesa datos personales si es totalmente necesario para un propósito específico siendo este propósito el que determine que datos personales tiene que ser procesadaos, y por tanto nunca le pediremos más datos de estrictamente necesarios.
+privacy.users.2=Para ciertos tipos de usuarios, un conjunto de datos es almacenado, incluyendo páginas consultadas y direcciones de correo electrónico usadas para las listas de correo y la información de contacto en las bases de datos. Esto es necesario para poder garantizar el funcionamiento del sitio web. Algunos datos son necesarios para estudios estadísticos siendo estos anonimizados antes de cualquier procesamiento. El uso de datos personales individuales se encuentra restringido al propósito para el cual fueron cedidos y por tanto el proveedor es consciente de dicha utilización. Estos datos no serán comunicados a terceras partes al menos que el EHRI tenga una obligación legal o fundamento para hacerlo, tal como se menciona en el artículo 6 de la GDPR.
+privacy.users.3=Cuando EHRI comparte sus datos con terceras partes, lo hará salvaguardado su derecho a la privacidad, entre otras cosas, si es requerido, concluyendo un acuerdo de procesamiento en el que se disponga como se tienen que tratar sus datos personales.
+privacy.users.4=Los usuarios que se registren en el portal del EHRI y creen un perfil dan su acuerdo que la información personal que están cediendo puede ser accesible para otros usuarios registrados en el portal. Así mismo, su nombre será publicado si hacen contribuciones públicas al portal. Los usuarios registrados pueden ser contactados por otros usuarios registrados y podrían recibir comunicaciones de dichos usuarios. Sin embargo, la dirección de correo electrónico del receptor no será revelada al emisor original en estas recepciones y viceversa. Los usuarios registrados puede optar por desactivar la posibilidad de ser contactados por otros usuarios actualizando sus preferencias en su perfil de usuario.
+privacy.users.5=EHRI puede adicionalmente procesar uno o más de sus datos personales para uno de los siguiente propósitos (dependiendo del tipo de actividades que le sean de aplicación):
 privacy.users.5.a=para ayudarle e informale respecto de cuestiones relativas a la investigación o a las colecciones;
 privacy.users.5.b=para comunicarse con usted por medio de correo electrónico;
 privacy.users.5.c=para mejorar nuestro sitio web.
-privacy.users.6=Exceptuando los casos enumerados anteriomente, EHRI no cederá los datos de sus usuarios registrados a terceras \
-  partes, a menos que sea requerido por la ley. EHRI procesa sus datos personales en base a su consentimiento, por lo que \
-  tiene la oportunidad de retirar su consentimiento en cualquier momento. Desde ese momento, EHRI no podrá seguir procesando \
-  ninguno de sus datos personales.
+privacy.users.6=Exceptuando los casos enumerados anteriomente, EHRI no cederá los datos de sus usuarios registrados a terceras partes, a menos que sea requerido por la ley. EHRI procesa sus datos personales en base a su consentimiento, por lo que tiene la oportunidad de retirar su consentimiento en cualquier momento. Desde ese momento, EHRI no podrá seguir procesando ninguno de sus datos personales.
 
 dataPolicy.data.header=Datos en el portal de investigación
-dataPolicy.data.1=Esta base de datos puede contener datos personales relacionadas con condenas o delitos criminales que, \
-  de acuerdo con las regulaciones de protección de datos neerlandesas y europeas, sólo pueden ser usados con fines de investigación \
-  (artículo 9, 10 GDPR).
-dataPolicy.data.2=Las categorías espciales de datos personas es cualquier dato relacionado a una persona identificada o identificable sobre \
-  su creencias religiosas, su raza o etnicidad, sus opiniones políticas, sus datos médicos, su vida sexual o su pertencia a sindicatos u organizaciones de trabajadores.
-dataPolicy.data.3=El portal de investigación contiene descripciones de colecciones y documentos relacionados con el Holocausto, custodiados en diferentes \
-  instituciones (archivos, centros de documentación) en Europa, Estados Unidos e Israel. Estas descripciones de coleccioones pueden incluir categorías \
-  especiales de datos personales y datos personales relacionados con condenas o delitos criminales. Dado que el procesamiento \
-  y la publicación de estos datos puede tener implicaciones desde la perspectiva de la protección de datos, el EHRI ha llevado a \
-  cabo una evaluación de riesgos para determinar si estos datos pueden ser accedidos desde el portal de investigación o las páginas \
-  web del EHRI. Como resultado, el EHRI ha decidido que; teniendo en cuenta las regulaciones de protección de datos europeas (GPDR) \
-  y nacionales, y la naturaleza de las descripciones de las colecciones, las prácticas archivísticas y las políticas de privacidad de \
-  las instituciones participantes; publicar las descripciones de las colecciones (y no las colecciones al completo) no supone un grave \
-  riesgo de protección de datos. Por tanto, el acceso a las descripciones de las colecciones y toda la demás informacion en el portal de \
-  investigación está abierto a todos los usuarios.
-dataPolicy.data.4=Según los artículos 9 y 10 de la GDPR, las categorías especiales de datos personales y los datos personales relacionados \
-  con condenas o delitos criminales sólo pueden ser usados con fines de investigación. La responsabilidad sobre el cumplimiento de las regulaciones de \
-  protección de datos europeas y neerlandesas radica en la persona que publica los datos. Cuando los resutlados de la investigación son \
-  publicados en un país diferente a los Paises Bajos, las leyes de protección de datos del país en cuestión deben ser \
-  respestadas. Cuando los resultados de la investigación sean publicados en un país que no esté regido por la GDPR  \
-  las leyes de protección de datos de dicho país deben ser respetadas. Dado que los datos en el portal de investigación \
-  sólo involucran descripciones de colecciones (y no las colecciones al completo), una visita al archivo que custodia \
-  los documentos es necesaria para poder realmente acceder a los mismos. Es bastante probable, que esta institución tenga \
-  su propia política de acceso a los datos y protección de la privacidad, esto está explicado detalladamente en los informes de \
-  país. Los usuarios tienen, por tanto, que seguir estos procesos específicos y no pueden apelar al hecho de haber \
-  encontrado la descripción de la colección en el portal de investigación del EHRI para obtener acceso al propio documento.
-dataPolicy.data.5=Si usted considera que tiene fundamentos sólidos - basados en la GDPR y/o en regulación de protección de datos \
-  de los Paises Bajos - contra la publicación de un conjunto específico de datos personales en el portal de investigación, puede enviar una carta \
-  o un correo electrónico, al responsable del procesado de los datos personales, indicando su interes y explicando los motivos por los cuales \
-  usted se opone a la publicación de dichos datos. Su solicitud será examinada y se le dará respuesta en un \
-  plazo de tiempo razonable.
+dataPolicy.data.1=Esta base de datos puede contener datos personales relacionadas con condenas o delitos criminales que, de acuerdo con las regulaciones de protección de datos neerlandesas y europeas, sólo pueden ser usados con fines de investigación (artículo 9, 10 GDPR).
+dataPolicy.data.2=Las categorías espciales de datos personas es cualquier dato relacionado a una persona identificada o identificable sobre su creencias religiosas, su raza o etnicidad, sus opiniones políticas, sus datos médicos, su vida sexual o su pertencia a sindicatos u organizaciones de trabajadores.
+dataPolicy.data.3=El portal de investigación contiene descripciones de colecciones y documentos relacionados con el Holocausto, custodiados en diferentes instituciones (archivos, centros de documentación) en Europa, Estados Unidos e Israel. Estas descripciones de coleccioones pueden incluir categorías especiales de datos personales y datos personales relacionados con condenas o delitos criminales. Dado que el procesamiento y la publicación de estos datos puede tener implicaciones desde la perspectiva de la protección de datos, el EHRI ha llevado a cabo una evaluación de riesgos para determinar si estos datos pueden ser accedidos desde el portal de investigación o las páginas web del EHRI. Como resultado, el EHRI ha decidido que; teniendo en cuenta las regulaciones de protección de datos europeas (GPDR) y nacionales, y la naturaleza de las descripciones de las colecciones, las prácticas archivísticas y las políticas de privacidad de las instituciones participantes; publicar las descripciones de las colecciones (y no las colecciones al completo) no supone un grave riesgo de protección de datos. Por tanto, el acceso a las descripciones de las colecciones y toda la demás informacion en el portal de investigación está abierto a todos los usuarios.
+dataPolicy.data.4=Según los artículos 9 y 10 de la GDPR, las categorías especiales de datos personales y los datos personales relacionados con condenas o delitos criminales sólo pueden ser usados con fines de investigación. La responsabilidad sobre el cumplimiento de las regulaciones de protección de datos europeas y neerlandesas radica en la persona que publica los datos. Cuando los resutlados de la investigación son publicados en un país diferente a los Paises Bajos, las leyes de protección de datos del país en cuestión deben ser respestadas. Cuando los resultados de la investigación sean publicados en un país que no esté regido por la GDPR  las leyes de protección de datos de dicho país deben ser respetadas. Dado que los datos en el portal de investigación sólo involucran descripciones de colecciones (y no las colecciones al completo), una visita al archivo que custodia los documentos es necesaria para poder realmente acceder a los mismos. Es bastante probable, que esta institución tenga su propia política de acceso a los datos y protección de la privacidad, esto está explicado detalladamente en los informes de país. Los usuarios tienen, por tanto, que seguir estos procesos específicos y no pueden apelar al hecho de haber encontrado la descripción de la colección en el portal de investigación del EHRI para obtener acceso al propio documento.
+dataPolicy.data.5=Si usted considera que tiene fundamentos sólidos - basados en la GDPR y/o en regulación de protección de datos de los Paises Bajos - contra la publicación de un conjunto específico de datos personales en el portal de investigación, puede enviar una carta o un correo electrónico, al responsable del procesado de los datos personales, indicando su interes y explicando los motivos por los cuales usted se opone a la publicación de dichos datos. Su solicitud será examinada y se le dará respuesta en un plazo de tiempo razonable.
 
 privacy.cookies.header=Cookies
-privacy.cookies.1=EHRI no usa cookies con fines de rastreo, sin embargo, para el buen funcionamiento de ciertas \
-  carectarísticas se usan las siguientes:
-#privacy.cookies.2=En la página del proyecto EHRI ({0}) y el portal de formación del EHRI ({1}):
-#privacy.cookies.3.a=Las cookies JS están habilitados en esta página web para comprender el código Javascript.
+privacy.cookies.1=EHRI no usa cookies con fines de rastreo, sin embargo, para el buen funcionamiento de ciertas carectarísticas se usan las siguientes:
+#privacy.cookies.2=On the EHRI project website ({0}) and EHRI training site ({1}):
+#privacy.cookies.3.a=The JS Cookie enabling the website to understand Javascript.
 privacy.cookies.4=En el portal del EHRI ({0}):
 privacy.cookies.5.a=Una cookie de sesión.
 privacy.cookies.5.b=Una cookie para preservar las preferencias del usuario entre visitas.
@@ -896,20 +827,14 @@ privacy.rights.1.c=Derecho de verificación de sus datos personales
 privacy.rights.1.d=Derecho a restringir el procesado de sus datos personales
 privacy.rights.1.e=Derecho de oposición
 privacy.rights.1.f=Derecho a no ser sometido a una decisión basada exclusivamente en un proceo automatizado, incluyendo la evaluación de su perfil
-privacy.rights.2=NIOD es la entidad responsable del procesamiento de los datos personales en relación a la \
-  GDPR y la regulación neerlandesa de protección de datos personales. Las reclamaciones, debidamente justificadas y sustanciadas \
-  deberán ser enviadas a la dirección postal de NIOD (dirigadas a su directoir).
-privacy.rights.2.1=Si usted tiene cualquier duda o reclamación sobre la salvaguarda de su privacidad en EHRI, \
-  por favor contacte a nuestro agente de protección de datos (DPO):
+privacy.rights.2=NIOD es la entidad responsable del procesamiento de los datos personales en relación a la GDPR y la regulación neerlandesa de protección de datos personales. Las reclamaciones, debidamente justificadas y sustanciadas deberán ser enviadas a la dirección postal de NIOD (dirigadas a su directoir).
+privacy.rights.2.1=Si usted tiene cualquier duda o reclamación sobre la salvaguarda de su privacidad en EHRI, por favor contacte a nuestro agente de protección de datos (DPO):
 privacy.rights.2.2=Nombre: {0}
 privacy.rights.2.3=Número de teléfono/correo electrónico: {0} / {1}
 privacy.authority.header=Autoridad de datos personales
-privacy.authority.1=EHRI trabajará con ustred para encontrar una solución si usted tiene una queja relativa al procesamiento \
-  de sus datos personales. Si esto no doncuce a un resultado satisfactorio, tiene el derecho, bajo la GDPR, de enviar una reclamación \
-  a la autoridad de datos personales.
+privacy.authority.1=EHRI trabajará con ustred para encontrar una solución si usted tiene una queja relativa al procesamiento de sus datos personales. Si esto no doncuce a un resultado satisfactorio, tiene el derecho, bajo la GDPR, de enviar una reclamación a la autoridad de datos personales.
 privacy.changes.header=Cambios a esta declaración de privacidad
-privacy.changes.1=EHRI se reserva el derecho de cambiar esta declaración de privacidad. Los cambios efectuados a esta declaración \
-  de privacidad nunca entrarán en conflicto con la GDPR y las reglamentaciones basadas en ella.
+privacy.changes.1=EHRI se reserva el derecho de cambiar esta declaración de privacidad. Los cambios efectuados a esta declaración de privacidad nunca entrarán en conflicto con la GDPR y las reglamentaciones basadas en ella.
 privacy.entry.header=Entrada en efecto
 privacy.entry.1=Esta declaración de privacidad tomó efecto el 12-12-2018.
 
@@ -917,73 +842,40 @@ privacy.entry.1=Esta declaración de privacidad tomó efecto el 12-12-2018.
 # Contact page
 #
 contact.header=Ponerse en contacto con el EHRI
-contact.p1=El coordinador del proyecto EHRI es NIOD Institute for War, Holocaust and Genocide Studies. \
-  Puede escribir a NIOD usando la siguiente dirección postal:
+contact.p1=El coordinador del proyecto EHRI es NIOD Institute for War, Holocaust and Genocide Studies. Puede escribir a NIOD usando la siguiente dirección postal:
 contact.p2=También disponemos de otras formas mendiante las cuales puede obtener más ayuda o puede ponerse en contacto con nosotros:
 contact.p2.1=para cuestiones relativas a las políticas de datos o privacidad, por favor póngase en contacto con {0}.
-contact.p2.2=si tiene cualquier pregunta sobre la documentación o las políticas de acceso de cualquiera de los archivos que contribuyen \
-  en el portal del EHRI, por favor contacte al archivo en cuestión usando la información de contacto proporcionada \
-  en la descripción del archivo.  
-contact.p2.3=para todas las demás preguntas o si usted quiere dejar un comentario, un mensaje de agradecimiento o una queja sobre el portal \
-  del EHRI, envíenos un correo electrónico a {0}.
+contact.p2.2=si tiene cualquier pregunta sobre la documentación o las políticas de acceso de cualquiera de los archivos que contribuyen en el portal del EHRI, por favor contacte al archivo en cuestión usando la información de contacto proporcionada en la descripción del archivo.
+contact.p2.3=para todas las demás preguntas o si usted quiere dejar un comentario, un mensaje de agradecimiento o una queja sobre el portal del EHRI, envíenos un correo electrónico a {0}.
 
 #
 # Terms and conditions
 #
 termsAndConditions=Términos y condiciones
 termsAndConditions.userGenerated.heading=Contenido generado por los usuarios: términos de uso
-termsAndConditions.userGenerated.p1=El EHRI ofrece a sus usuarios la oportunidad de contribuir al contenido proporcinado por el el EHRI, mediante \
-  el enriquecimiento y la anotación de los datos. Para participar en este proceso de producción de contenido generado por los usuarios, ellos tienen que aceptar \
-  los términos de usario descritos a continuación.
-termsAndConditions.userGenerated.p2=Mediante el registo o la creación de una cuenta, usted acepta nuestros términos de uso y reconoce \
-  haber leído nuestra política de datos (incluyendo el uso de cookies).
+termsAndConditions.userGenerated.p1=El EHRI ofrece a sus usuarios la oportunidad de contribuir al contenido proporcinado por el el EHRI, mediante el enriquecimiento y la anotación de los datos. Para participar en este proceso de producción de contenido generado por los usuarios, ellos tienen que aceptar los términos de usario descritos a continuación.
+termsAndConditions.userGenerated.p2=Mediante el registo o la creación de una cuenta, usted acepta nuestros términos de uso y reconoce haber leído nuestra política de datos (incluyendo el uso de cookies).
 termsAndConditions.userGenerated.terms.heading=Términos de uso:
 termsAndConditions.userGenerated.terms.1=Los usuarios que generen contenido aceptan no añadir comentarios que puedan resultar inapropiados.
-termsAndConditions.userGenerated.terms.2=Los usuarios que generen contenido aceptan no infringir la GDPR, la UAVG, o la ley de protección de datos \
-  del país en el cual se encuentren cuando estén generando dicho contenido. Esto implica que los usuarios cuando generen el contenido no divulgaran \
-  información pueda violar los derechos de protección de datos personales.
-termsAndConditions.userGenerated.terms.3=Los usuarios que generen contenido aceptan que el EHRI revise el contenido generado \
-  antes de su publicación, implicando esto que los datos personales requeridos para este propósito sean compartidos con los revisores.
-termsAndConditions.userGenerated.terms.4=La información se pondrá a disposición de los usuarios y podrá ser reutilizada, sin embargo la aceptación del autor \
-  tiene que ser solicitada cuando la información se vaya a publicar en otro sitio. Con este propósito, el autor \
-  del contenido tiene que estar claramente identificado.
+termsAndConditions.userGenerated.terms.2=Los usuarios que generen contenido aceptan no infringir la GDPR, la UAVG, o la ley de protección de datos del país en el cual se encuentren cuando estén generando dicho contenido. Esto implica que los usuarios cuando generen el contenido no divulgaran información pueda violar los derechos de protección de datos personales.
+termsAndConditions.userGenerated.terms.3=Los usuarios que generen contenido aceptan que el EHRI revise el contenido generado antes de su publicación, implicando esto que los datos personales requeridos para este propósito sean compartidos con los revisores.
+termsAndConditions.userGenerated.terms.4=La información se pondrá a disposición de los usuarios y podrá ser reutilizada, sin embargo la aceptación del autor tiene que ser solicitada cuando la información se vaya a publicar en otro sitio. Con este propósito, el autor del contenido tiene que estar claramente identificado.
 
 copyright.heading=Declaración de los derechos de autor (copyright)
 copyright.holder=Derechos de autor (copyright) del consorcio del EHRI {0,number,#}
-copyright.statement=El uso, reutilización, y/o la reproducción de la información publicada en este sitio web es libre, sin embargo \
-  esto está condicionado a que el titular de los derechos de autor y el consorcio del EHRI sean claramente identificados mediante una referencia al origen \
-  de la información: EHRI {0}. Esto no es de aplicación al material para el cual los derechos de autor no residen en el consorcio del EHRI \
-  sino en un tercero. El usuario debe respetar los derechos de autor y/o los derechos sobre las bases de datos relacionados con el material \
-  publicado en el sitio web o en los conjuntos de datos, especialmente cuando se distribuyan o publiquen conjuntos de datos. En caso de que sea necesario, \
-  el usuario debe contactar al titular de los derechos del conjunto de datos. El contenido de este sitio web refleja solamente la visión de los autores \
-  y/o el EHRI, y por tanto la Comisión Europea no puede ser considerada responsable por cualquier uso que pueda derivar de la información que este sitio \
-  web contiene.
+copyright.statement=El uso, reutilización, y/o la reproducción de la información publicada en este sitio web es libre, sin embargo esto está condicionado a que el titular de los derechos de autor y el consorcio del EHRI sean claramente identificados mediante una referencia al origen de la información: EHRI {0}. Esto no es de aplicación al material para el cual los derechos de autor no residen en el consorcio del EHRI sino en un tercero. El usuario debe respetar los derechos de autor y/o los derechos sobre las bases de datos relacionados con el material publicado en el sitio web o en los conjuntos de datos, especialmente cuando se distribuyan o publiquen conjuntos de datos. En caso de que sea necesario, el usuario debe contactar al titular de los derechos del conjunto de datos. El contenido de este sitio web refleja solamente la visión de los autores y/o el EHRI, y por tanto la Comisión Europea no puede ser considerada responsable por cualquier uso que pueda derivar de la información que este sitio web contiene.
 
 #
 # About page
 #
 about.heading=Sobre el EHRI
-about.p1=El portal en línea del EHRI proporciona infromación sobre documentación de archivo relativa al Holocausto \
-  custodiada en instituciones dentro y fuera de Europa. \
-  El portal del EHRI puede ser accedido por cualquier de manera gratuita.
-about.p2=El portal del EHRI busca superar uno de los retos más distintivos de la investigación sobre el Holocausto: \
-  la fragmentación y la amplia dispersión geográfica de la documentación sobre este evento. \
-  Integrando y contectando infromación sobre decenas de miles de fuentes de archivo custodiadas físicamente \
-  en miles de instituciones, el portal del EHRI es un recurso inestimable para cualquier persona interesada \
-  en el Holocausto, y posibilita nuevos métodos transnacionales y comparativos de investigación.
-about.p3=El portal del EHRI es uno de los principales resultados del proyecto European Holocaust Research Infrastructure \
-  (EHRI), un consorcio que reune investigadores del Holocausto, archiveros y humanistas digitales de más de \
-  20 instituciones. \
-  El portal del EHRI es un recurso en expansión donde nueva información y funcionalidades son continuamente añadidas.
-about.p4=El EHRI es a la vez una infraestructura y una red humana. Además de la creación del portal, \
-  el proyecto EHRI ha desarrollado también {0} de uso libre, y ofrece un variado programa de actividades y enventos, \
-  incluyendo un programa de becas, escuelas de verano, talleres de expertos y conferencias. Puede encontrar más información sobre \
-  la historia del proyecto, las instituciones participantes y las actividades en {1}.
+about.p1=El portal en línea del EHRI proporciona infromación sobre documentación de archivo relativa al Holocausto custodiada en instituciones dentro y fuera de Europa. El portal del EHRI puede ser accedido por cualquier de manera gratuita.
+about.p2=El portal del EHRI busca superar uno de los retos más distintivos de la investigación sobre el Holocausto: la fragmentación y la amplia dispersión geográfica de la documentación sobre este evento. Integrando y contectando infromación sobre decenas de miles de fuentes de archivo custodiadas físicamente en miles de instituciones, el portal del EHRI es un recurso inestimable para cualquier persona interesada en el Holocausto, y posibilita nuevos métodos transnacionales y comparativos de investigación.
+about.p3=El portal del EHRI es uno de los principales resultados del proyecto European Holocaust Research Infrastructure (EHRI), un consorcio que reune investigadores del Holocausto, archiveros y humanistas digitales de más de 20 instituciones. El portal del EHRI es un recurso en expansión donde nueva información y funcionalidades son continuamente añadidas.
+about.p4=El EHRI es a la vez una infraestructura y una red humana. Además de la creación del portal, el proyecto EHRI ha desarrollado también {0} de uso libre, y ofrece un variado programa de actividades y enventos, incluyendo un programa de becas, escuelas de verano, talleres de expertos y conferencias. Puede encontrar más información sobre la historia del proyecto, las instituciones participantes y las actividades en {1}.
 about.p4.a1=Curso en línea sobre estudios del Holocausto
 about.p4.a2=sitio web del proyecto
-about.p5=El poryecto EHRI ha recibido financiación del Seventh Framework Programme de la Unión Europea con número de acuerdo de subvención \
-  261873 y del programa de investigaación e innovación Horizon 2020 de la Unión Europea con número de acuerdo de subvención \
-  654164.
+about.p5=El poryecto EHRI ha recibido financiación del Seventh Framework Programme de la Unión Europea con número de acuerdo de subvención 261873 y del programa de investigaación e innovación Horizon 2020 de la Unión Europea con número de acuerdo de subvención 654164.
 
 
 #
@@ -1003,7 +895,7 @@ markdown.cheatsheet.italic=Cursiva
 markdown.cheatsheet.ordered=Lista ordenada
 markdown.cheatsheet.ordered.item1=Primer elemento de la lista ordenada
 markdown.cheatsheet.ordered.item2=Otro elemento
-markdown.cheatsheet.unordered=Lista ordenada
+markdown.cheatsheet.unordered=Lista no ordenada
 markdown.cheatsheet.unordered.item1=Elemento
 markdown.cheatsheet.unordered.item2=Otro elemento
 markdown.cheatsheet.more=Fuente
@@ -1145,9 +1037,7 @@ documentaryUnit.creationProcess=Fuente
 documentaryUnit.creationProcess.MANUAL=EHRI
 documentaryUnit.creationProcess.MANUAL.description=Esta descripción fue creada por el EHRI.
 documentaryUnit.creationProcess.IMPORT=Socio del EHRI
-documentaryUnit.creationProcess.IMPORT.disclaimer=Esta descripción ha sido elaborada directamente a partir de los datos estructurados cedidos \
- al EHRI por una institución socia. Dicha institución considera esta descripción como un fiel reflejo de su documentation \
- en el momento de la transferencia de los datos.
+documentaryUnit.creationProcess.IMPORT.disclaimer=Esta descripción ha sido elaborada directamente a partir de los datos estructurados cedidos al EHRI por una institución socia. Dicha institución considera esta descripción como un fiel reflejo de su documentation en el momento de la transferencia de los datos.
 
 #
 # Historical Agents
@@ -1234,8 +1124,7 @@ cvocConcept.childCount={0,choice,0#No se han encontrado términos más específi
 #
 
 virtualUnit.viewInArchivalContext=Ver en el contexto archivístico
-virtualUnit.viewInArchivalContext.explanation=Este elemento se muestra como parte de una ''colección virtual'' \
-  que no refleja la organización física de la documentación en el archivo.
+virtualUnit.viewInArchivalContext.explanation=Este elemento se muestra como parte de una ''colección virtual'' que no refleja la organización física de la documentación en el archivo.
 
 #
 # Countries
@@ -1276,3 +1165,38 @@ authoritativeSet.childItems=Registros de autoridad
 authoritativeSet.searchItems=Buscar registros de autoridad en {0}...
 authoritativeSet.childCount={0,choice,0#Sin registros de autoridad|1#Un registro de autoridad|1<{0,number,integer} registros de autoridad}
 authoritativeSet.childItems.search={0,choice,0#Sin registros de autoridad|1#1 registro de autoridad|1<{0,number,integer} registros de autoridad}
+
+#
+# Data Model
+#
+dataModel=Modelo de datos del EHRI
+dataModel.legend=Leyenda
+dataModel.reference=Consultar {0} para más información.
+dataModel.description=El modelo de datos del EHRI es un modelo conceptual que describe la estructura de los datos albergados en el portal del EHRI. El modelo está basado en los estándares desarrollados por el Consejo Internacional de Archivos (CIA) para las descripciones archivísticas.
+dataModel.field.name=Nombre del campo
+dataModel.field.description=Descripción
+dataModel.field.usage=Uso
+dataModel.field.usage.mandatory=Obligatorio
+dataModel.field.usage.mandatory.description=Este campo tiene que ser rellenado.
+dataModel.field.usage.desirable=Recomendable
+dataModel.field.usage.desirable.description=Este campo es recomendable pero no obligatorio.
+dataModel.field.usage.optional=Opcional
+dataModel.field.usage.optional.description=Este campo es opcional.
+dataModel.field.seeAlso=Consultar también
+dataModel.DocumentaryUnit.identityArea=Área de identificación
+dataModel.DocumentaryUnit.contextArea=Área de contexto
+dataModel.DocumentaryUnit.contentArea=Área de contenido y estructura
+dataModel.DocumentaryUnit.conditionsArea=Área de condiciones de acceso y uso
+dataModel.DocumentaryUnit.materialsArea=Área de materiales
+dataModel.DocumentaryUnit.notesArea=Área de notas
+dataModel.DocumentaryUnit.controlArea=Área de control de la descripción
+dataModel.DocumentaryUnit.administrationArea=Área de administración
+dataModel.Repository.identityArea=Área de identificación
+dataModel.Repository.addressArea=Área de dirección
+dataModel.Repository.descriptionArea=Área de descripción
+dataModel.Repository.accessArea=Área de acceso
+dataModel.Repository.servicesArea=Área de servicios
+dataModel.Repository.controlArea=Área de control de la descripción
+dataModel.HistoricalAgent.identityArea=Área de identificación
+dataModel.HistoricalAgent.descriptionArea=Área de descripción
+dataModel.HistoricalAgent.controlArea=Área de control de la descripción
