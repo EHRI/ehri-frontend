@@ -15,17 +15,18 @@
                 <h3>@Messages("mailingList.prompt")</h3>
                 @conf.configuration.getOptional[String]("ehri.portal.mailingListUrl").map { url =>
                     <a href="@url" class="btn btn-primary" target="_blank" rel="noopener" id="subscribe-to-newsletter">
+                        <i class="fa-solid fa-envelope"></i>
                         @Messages("mailingList.subscribe")
                     </a>
                 }
                 <div class="social-links">
-                    <a href="https://facebook.com/EHRIproject">
-                        <i class="fa fa-facebook" aria-hidden="true"></i>
+                    <a href="https://facebook.com/EHRIproject" title="EHRI on Facebook">
+                        <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
                         Facebook
                     </a>
-                    <a href="https://twitter.com/EHRIproject">
-                        <i class="fa fa-twitter" aria-hidden="true"></i>
-                        Twitter
+                    <a href="https://bsky.app/profile/ehri-project.eu" title="EHRI on Bluesky">
+                        <i class="fa-brands fa-bluesky" aria-hidden="true"></i>
+                        Bluesky
                     </a>
                 </div>
             </div>
