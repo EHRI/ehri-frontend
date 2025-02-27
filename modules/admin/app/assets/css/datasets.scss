@@ -1035,6 +1035,10 @@ $active-table-row: #e7f1ff;
 
 #coreference-manager-coreference-list {
   @extend %expanding-column;
+
+  .remove-coreference {
+    float: right;
+  }
 }
 
 #coreference-manager-coreference-table {

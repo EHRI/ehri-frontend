@@ -253,7 +253,7 @@ export default {
     <div id="coreference-manager-coreference-list" v-if="initialised">
       <h4>Coreferences: {{ references.length }}
         <a href="" @click.prevent="deleteCoreferences" v-if="Object.keys(selected).length > 0"
-           class="text-danger pull-right">
+           class="text-danger remove-coreference">
           <i v-if="!deleteInProgress" class="fa fa-fw fa-trash-o"></i>
           <i v-else class="fa fa-fw fa-circle-o-notch fa-spin"></i>
           Remove Selected Coreferences

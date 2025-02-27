@@ -93,7 +93,7 @@ export default {
         <span v-else-if="!dirty && saved"><i class="fa fa-fw fa-check"></i></span>
         <span v-else><i class="fa fa-fw fa-save"></i></span>
       </button>
-      <button v-bind:disabled="!dirty || saving" class="pull-right btn btn-default" v-on:click="$emit('item-rels-reset')">
+      <button v-bind:disabled="!dirty || saving" class="reset-data btn btn-default" v-on:click="$emit('item-rels-reset')">
         Reset
         <span><i class="fa fa-fw fa-undo"></i></span>
       </button>
