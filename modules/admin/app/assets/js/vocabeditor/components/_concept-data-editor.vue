@@ -160,7 +160,7 @@ export default {
         </fieldset>
         <div id="concept-editor-descriptions">
           <header>
-            <div class="concept-editor-description-controls pull-right">
+            <div class="concept-editor-description-controls">
               <button v-if="!newDesc" class="btn btn-default" v-on:click="newDesc = true">
                 <i class="fa fa-plus-circle"></i>
               </button>
@@ -206,7 +206,7 @@ export default {
                     v-bind:data="description"
                     v-bind:langData="langData" />
                 <button v-if="i === currentDescIdx"
-                        class="btn btn-xs btn-danger pull-right" v-on:click="deleteDesc(description)">
+                        class="btn btn-xs btn-danger delete-description" v-on:click="deleteDesc(description)">
                   Delete Description
                   <i class="fa fa-remove"></i>
                 </button>
@@ -226,11 +226,11 @@ export default {
         <span v-else-if="!dirty && saved"><i class="fa fa-fw fa-check"></i></span>
         <span v-else><i class="fa fa-fw fa-save"></i></span>
       </button>
-      <button v-if="!create" v-bind:disabled="!dirty || saving" class="pull-right btn btn-default" v-on:click="$emit('item-data-reset'); newDesc = false">
+      <button v-if="!create" v-bind:disabled="!dirty || saving" class="reset-data btn btn-default" v-on:click="$emit('item-data-reset'); newDesc = false">
         Reset
         <span><i class="fa fa-fw fa-undo"></i></span>
       </button>
-      <button v-if="create" class="pull-right btn btn-default" v-on:click="$emit('cancel-create')" title="Delete draft">
+      <button v-if="create" class="cancel-create btn btn-default" v-on:click="$emit('cancel-create')" title="Delete draft">
         <i class="fa fa-trash"></i>
       </button>
     </div>

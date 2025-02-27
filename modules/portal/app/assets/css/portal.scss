@@ -43,7 +43,11 @@
 @import "lib/bootstrap/print";
 
 // Font-awesome
-@import "lib/font-awesome/font-awesome.scss";
+@import "lib/fa/fontawesome.scss";
+@import "lib/fa/brands.scss";
+@import "lib/fa/solid.scss";
+@import "lib/fa/regular.scss";
+@import "lib/fa/v4-shims.scss";
 
 // Select2
 @import "select2.scss";

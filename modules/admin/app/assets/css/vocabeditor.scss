@@ -15,7 +15,7 @@
 }
 
 .vocab-editor-autocomplete-widget .suggestion-type {
-  @extend .pull-right;
+  float: right;
 }
 
 .vocab-editor-autocomplete-widget .dropdown-list {
@@ -184,6 +184,14 @@
 .concept-editor-tab-form-footer {
   padding: $margin-md;
   border-top: $border-width solid $border-color;
+
+  .reset-data {
+    float: right;
+  }
+
+  .cancel-create {
+    float: right;
+  }
 }
 
 .concept-editor-tab.error .concept-editor-tab-form-footer {
@@ -199,10 +207,18 @@
   border-right: $border-width solid $border-color;
   padding: $margin-sm;
   font-size: $font-size-sm;
+
+  .delete-description {
+    float: right;
+  }
 }
 
 #concept-editor-descriptions > header {
   @include clearfix();
+}
+
+.concept-editor-description-controls {
+  float: right;
 }
 
 .concept-editor-tab {
