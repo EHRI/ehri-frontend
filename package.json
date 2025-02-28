@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "18.12.0"
+    "node": "18.20.7"
   },
   "description": "The EHRI project portal frontend",
   "main": "build.sbt",
