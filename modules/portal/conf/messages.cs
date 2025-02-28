@@ -7,7 +7,6 @@ contact=Kontakt
 welcome.blurb=Portál EHRI nabízí přístup k informacím o archivních dokumentech souvisejících s holocaustem uložených v institucích po celé Evropě i mimo ni. Pro více informací o projektu EHRI navštivte https://ehri-project.eu.
 welcome.video.heading=3minutový úvod do EHRI portálu
 footerText=Toto je vývojářská verze rozhraní portálu EHRI.
-footer.funding=Projekt EHRI je podporován Evropskou komisí
 close=Zavřít
 optional=Volitelné
 cancel=Zrušit

@@ -8,7 +8,6 @@ welcome.blurb=Portal EHRI oferuje dostęp do informacji związanych z materiała
   dostępnymi w instytucjach w całej Europie i poza nią. \
   Więcej informacji na temat projektu EHRI można znaleźć na stronie https://ehri-project.eu.
 footerText=To jest rozwojowa wersja interfejsu portalu EHRI.
-footer.funding=Projekt EHRI jest wspierany przez Komisję Europejską
 close=Zamknij
 optional=Opcjonalnie
 cancel=Anuluj
