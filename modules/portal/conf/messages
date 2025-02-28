@@ -835,7 +835,7 @@ dataPolicy.modal.agree=I Agree
 # NB: the full page is now an external document in Google Docs
 #
 termsAndConditions=Terms and Conditions
-copyright.holder=Copyright EHRI Consortium {0,number,#}
+copyright.holder=Copyright EHRI-ERIC {0,number,#}
 
 #
 # Contact page
