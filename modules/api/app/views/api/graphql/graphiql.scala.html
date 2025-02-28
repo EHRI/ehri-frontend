@@ -29,7 +29,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/graphiql/0.11.10/graphiql.min.js"></script>
 
         <meta charset="UTF-8">
-        <meta name="copyright" content="EHRI Consortium @(java.time.Year.now(java.time.ZoneId.systemDefault()).getValue)">
+        <meta name="copyright" content="@(Messages("copyright.holder", java.time.Year.now(java.time.ZoneId.systemDefault()).getValue))">
         @conf.extraHeadContent.map(c => Html(c))
     </head>
     <body>
