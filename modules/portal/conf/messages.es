@@ -7,7 +7,6 @@ contact=Contacto
 welcome.blurb=El portal del EHRI ofrece acceso a información sobre la documentación de archivos relevante para el Holocausto, convervada en instituciones de dentro y fuera de Europa. Para más información sobre el proyecto EHRI, visite https://ehri-project.eu.
 welcome.video.heading=Introdución en 3 minutos al portal del EHRI
 footerText=Esta es una versión de desarollo de la interfaz del portal del EHRI.
-footer.funding=El proyecto EHRI está financiado por la Comisión Europea
 close=Cerrar
 optional=Opcional
 cancel=Cancelar

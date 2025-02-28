@@ -8,7 +8,6 @@ welcome.blurb=Le portail de l''EHRI permet d''accéder à des informations sur d
   conservés dans des institutions à travers l''Europe et au-delà. \
   Pour obtenir plus d''informations sur le projet EHRI, veuillez-vous rendre sur le site : https://ehri-project.eu.
 footerText=Il s''agit d''une version en cours du développement de l''interface du portail de l''EHRI
-footer.funding=Le projet EHRI est soutenu par la Commission européenne
 close=Fermer
 optional=En option
 cancel=Annuler
