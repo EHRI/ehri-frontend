@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Setup Node
       uses: actions/setup-node@v2
@@ -19,9 +19,10 @@ jobs:
         node-version: '18.20.7'
 
     - name: Setup Scala
-      uses: olafurpg/setup-scala@v11
+      uses: coursier/setup-action@v1
       with:
-        java-version: "adopt@1.11"
+        jvm: "adopt:11"
+        apps: sbt
 
     - name: Build the docker compose stack
       run: docker compose up -d
@@ -45,7 +46,7 @@ jobs:
       run: npm test
 
     - name: Coursier cache
-      uses: coursier/cache-action@v5
+      uses: coursier/cache-action@v6
 
     - name: Build and test
       run: |
