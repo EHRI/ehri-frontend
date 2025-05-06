@@ -564,8 +564,8 @@ facet.data.tooltip=Nur Institutionen anzeigen, für die Bestandsbeschreibungen h
 facet.data.yes=Bestandsbeschreibungen
 facet.restricted=Sichtbarkeit
 facet.restricted.tooltip=Ob ein Element nur für bestimmte User oder Gruppen zugänglich ist oder nicht.
-facet.restricted.true= Eingeschränkt
-facet.restricted.false= Uneingeschränkt
+facet.restricted.true=Eingeschränkt
+facet.restricted.false=Uneingeschränkt
 facet.dates=Daten
 facet.dates.tooltip=Ein umfassendes Datum oder ein Zeitraum, der von dem Material abgedeckt wird, falls vorhanden.
 
