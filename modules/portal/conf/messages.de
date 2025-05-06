@@ -4,9 +4,8 @@ home=Startseite
 about=Über EHRI
 language=Sprache
 contact=Kontakt
-welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterial\
-  zum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird.\
-  Weitere Informationen zum EHRI-Projekt erhalten Sie auf https://ehri-project.eu.
+welcome.blurb=Das EHRI-Portal ermöglicht den Zugang zu Daten über Archivmaterialzum Holocaust, das in Institutionen in und außerhalb von Europa verwahrt wird.Weitere Informationen zum EHRI-Projekt erhalten Sie auf https://ehri-project.eu.
+welcome.video.heading= Eine dreiminütige Einführung in das EHRI-Portal
 footerText=Dies ist eine Entwicklungsversion des EHRI-Portal-Interface.
 close=Schließen
 optional=Optional
@@ -16,80 +15,159 @@ admin.site=Admin-Seite
 browse=Durchsuchen
 details.show=Elementdetails anzeigen
 details.hide=Elementdetails verbergen
+project.site=EHRI-Projektwebseite
+fullscreen.viewOnPortal=Dieses Element im EHRI-Portal ansehen
+mailingList.prompt=Bleiben Sie auf dem Laufenden mit den EHRI News
+mailingList.subscribe=Melden Sie sich für unsere E-Mail-Liste an
+
+#
+# Help https://portal.ehri-project.eu (Help menu)
+#
 help=Hilfe
-help.general=Allgemeine Hilfeseite
-help.archivists=Hilfe für Archivare
+help.manual=Online Anleitung
+help.faq=Häufig gestellte Fragen
+help.contact=EHRI kontaktieren
+help.dataModel=Datenmodell
+
+#
+# Landing page: https://portal.ehri-project.eu
+#
+landingBlurb.Country={0} durchsuchen.
+landingBlurb.Country.link={0} Länderberichte
 landingBlurb.Repository={0} in {1} durchsuchen.
 landingBlurb.Repository.link={0} Archive
 landingBlurb.Repository.Country.link={0} Länder
-landingBlurb.Country={0} durchsuchen.
-landingBlurb.Country.link={0} Länderberichte
 landingBlurb.DocumentaryUnit={0} in {1} durchsuchen.
 landingBlurb.DocumentaryUnit.link={0} Bestandsbeschreibungen
 landingBlurb.DocumentaryUnit.Repository.link={0} Institutionen
-landingBlurb.HistoricalAgent={0} durchsuchen, bestehend aus {1}, {2} und {3}.
-landingBlurb.HistoricalAgent.link={0} historische Akteure
-landingBlurb.corporateBody.link={0,choice,0#{0} Körperschaften|1#1 Körperschaft|1<{0,number,integer} Körperschaften}
-landingBlurb.person.link={0} Personen
-landingBlurb.family.link={0,choice,0#{0} Familien|1#1 Familie|1<{0,number,integer} Familien}
-constraints.mandatory=Mandatory
-constraints.desirable=Desirable
+landingBlurb.AuthoritativeSet=Historische Akteure durchsuchen
+landingBlurb.CvocVocabulary=Begriffe und Orte durchsuchen
+
+
+#
+# Form constraints, errors, and formats
+#
+constraints.mandatory=Verpflichtend
+constraints.desirable=wünschenswert
 constraints.timeCheckSeconds=Timestamp
 constraints.timeCheckSeconds.failed=Das Formular wurde zu schnell übermittelt. Bitte versuchen Sie es erneut.
 constraints.honeypot=Blank Check
 constraints.honeypot.failed=Das Formular hat den Spamcheck nicht bestanden. Bitte versuchen Sie es erneut.
 constraints.uniqueness=Muss einzigartig sein
 constraints.uniqueness.failed=Es existiert bereits ein Element mit diesem Wert
+
 format.boolean=Ein/Aus
+
 errors.staffOnly=Eingeschränkt
 errors.staffOnlyMessage=Der Zugriff auf diese Seite ist momentan auf EHRI-Mitarbeiter eingeschränkt.
-errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus.\
-           Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
+errors.verifiedOnly=E-Mail-Verifizierung erforderlich
+errors.verifiedOnlyMessage=Der Zugriff auf diese Ressource ist auf User mit einer verifizierten E-Mail-Adresse beschränkt. Klicken Sie auf den Button unten, um eine Bestätigungs-E-Mail an Ihre Adresse zu senden. Prüfen Sie Ihren Spam-Ordner, falls die E-Mail nicht empfangen wird.
+errors.readonly=Das EHRI-Portal befindet sich wegen Wartungsarbeiten momentan im Read-Only-Modus.Die normale Nutzung sollte in Kürze wieder möglich sein. Vielen Dank für Ihre Geduld.
 errors.itemNotFound=Element nicht gefunden
 errors.itemNotFound.explanation=Das Element konnte nicht in der Datenbank gefunden werden.
+errors.gone=410 nicht länger verfügbar
+errors.gone.explanation=Diese Seite wurde am {0,date} entfernt. Dies kann daran liegen, weil ein Datenanbieter einen Quelldatensatz aus seiner eigenen Datenbank entfernt hat oder auch aus anderen Wartungsgründen.
 errors.pageNotFound=404 Seite nicht gefunden
 errors.pageNotFound.explanation=Die Seite existiert an diesem Standort nicht oder wurde verschoben.
+errors.pageNotFound.search=Probieren Sie eine Suche nach einem bestimmten Element:
+errors.pageNotFound.links= ..oder diese Links zur Hilfestellung:
 errors.clientError=Es gab ein Problem
 errors.genericProblem=Ein Fehler ist aufgetreten
-errors.genericProblem.explanation=Leider ist beim Laden dieser Seite ein Fehler aufgetreten. Wir wurden bereits darüber informiert \
-    und bemühen uns, das Problem schnellstmöglich zu beheben.
+errors.genericProblem.explanation=Leider ist beim Laden dieser Seite ein Fehler aufgetreten. Wir wurden bereits darüber informiert und bemühen uns, das Problem schnellstmöglich zu beheben.
 errors.maintenance=Seite vorübergehend offline
 errors.maintenance.explanation=Das EHRI-Portal ist momentan wegen Wartungsarbeiten offline. Bitte versuchen Sie es in Kürze erneut.
 errors.databaseError=Datenbankfehler
+errors.databaseError.explanation=Die Verbindung zum Datenbankserver ist gestört. Dies ist in der Regel ein vorübergehendes Problem. Bitte versuchen Sie es in Kürze erneut.
+errors.searchEngineError=Fehler bei der Suche
+errors.searchEngineError.explanation=Die Verbindung zur Suche ist gestört. Dies ist in der Regel ein vorübergehendes Problem. Bitte versuchen Sie es in Kürze erneut.
 errors.databaseMaintenance=Datenbank vorübergehend offline
+errors.databaseMaintenance.explanation=Die EHRI-Datenbank ist derzeit wegen routinemäßiger Wartungsarbeiten offline. Sie sollte bald wieder verfügbar sein. Bitte versuchen Sie es in Kürze erneut.
 errors.permissionDenied=Zugriff verweigert
-errors.permissionDenied.explanation=Anscheinend ist die von Ihnen gewünschte Aktion nicht möglich. \
-    Womöglich ist ein Fehler auf der Seite aufgetreten. Wir werden dieses Problem schnellstmöglich beheben.
+errors.permissionDenied.explanation=Anscheinend ist die von Ihnen gewünschte Aktion nicht möglich. Womöglich ist ein Fehler auf der Seite aufgetreten. Wir werden dieses Problem schnellstmöglich beheben.
 errors.errorDetails=Details
 errors.noFurtherInfo=Keine weiteren Informationen verfügbar.
 errors.imageTooLarge=Dieses Bild war zu groß. Bitte wählen Sie ein Bild mit einer maximalen Dateigröße von 5 MB aus.
+errors.imageResolutionTooLarge=Die Bilddatei ist zu groß. Wählen Sie eine Datei mit insgesamt weniger Pixel.
 errors.badFileType=Die hochgeladene Datei hat kein unterstütztes Dateiformat.
 errors.noFileGiven=Keine Bilddatei ausgewählt.
+errors.invalidUrl=Die Website-URL ist ungültig
+errors.sso=Login-Fehler
+errors.sso.notEnabled=Single Sign-On ist auf dieser Seite nicht verfügbar.
+errors.sso.badData=Single Sign-On-Daten können nicht validiert werden.
+
+identifier=Identifikator
+identifier.description=Ein Element-Identifikator, der innerhalb des Bereichs des übergeordneten Elements eindeutig ist. Der Identifikator eines Elements bestimmt seine URL und sollte normalerweise nach der Erstellung nicht mehr geändert werden.
+
+#
+# Additional Language codes that aren't official ISO639-2
+#
+languageCode.mul=Mehrere
+languageCode.lad=Ladino
+languageCode.sh=Serbokroatisch
+
+#
+# Additional/alternate country codes
+#
+countryCode.xk=Kosovo
+countryCode.mk=Nordmazedonien
+
+#
+# Pagination etc
+#
+# Pagination display. Should say something like "Displaying items 1 to 20 of 25.
+# If there are 0 items, says "No items found", one item, "One item found" etc.
 pagination.displayingItems={2,choice,0#Keine Elemente gefunden|1#Ein Element gefunden|1<Zeige Elemente {0,number,integer} bis {1,number,integer} von {2,number,integer}}
+pagination.nextPage=Nächste Seite
+pagination.previousPage=Vorherige Seite
 truncated=...
 truncated.items.remaining={0,choice,0#|1#und 1 weiteres...|1<und {0,number,integer} weitere...}
+
+#
+# Downloading and formats
+#
 download=Herunterladen
 download.format.txt=Als Plain Text herunterladen
 download.format.csv=Als CSV herunterladen
 download.format.tsv=Als TSV herunterladen
 download.format.json=Als JSON herunterladen
+
+export=Exportieren
+export.metadata=Metadaten exportieren
+export.format.json=JSON
+export.format.eag=EAG 2012 XML
+export.format.ead=EAD 2002 XML
+export.format.ead3=EAD-3 XML
+export.format.eac=EAC 2010 XML
+export.format.ttl=TTL
+export.format.rdf_xml=RDF/XML
+
+#
+# Profile https://portal.ehri-project.eu/profile (and related pages)
+#
 profile.preferences=Einstellungen
 profile.preferences.updated=Einstellungen aktualisiert
 profile.preferences.allowMessaging=Erlauben Sie anderen Nutzern, Ihnen Nachrichten zu schicken.
 profile.preferences.allowMessaging.description=Ihre E-Mail-Adresse wird nicht angezeigt.
 profile.preferences.updatePreferences=Einstellungen aktualisieren
 profile.preferences.view=Einstellungen anzeigen
+profile.preferences.view.showUserContent=Öffentliche Anmerkungen anderer Nutzer zeigen
+
 profile=Profil
 profile.section.general=Über Sie
 profile.section.image=Profilbild
 profile.section.preferences=Kontoeinstellungen
-profile.section.security=Sicherheit
+profile.section.email=E-Mail
+profile.section.password=Passwort
 profile.section.delete=Löschen
 profile.name=Ihr Name
 profile.location=Standort
+profile.location.description=Wohn- oder Arbeitsort
 profile.url=Private Webseite
+profile.url.description=Die URL der eigenen Homepage
 profile.workUrl=Berufliche Webseite
+profile.workUrl.description=Die URL der Arbeitshomepage
 profile.institution=Institution
+profile.institution.description=Institutionelle Zugehörigkeit
 profile.interests=Interessengebiet/e
 profile.title=Anrede
 profile.role=Beruf
@@ -100,38 +178,55 @@ profile.edit=Profil bearbeiten
 profile.image.edit=Profilbild festlegen
 profile.delete=Konto löschen
 profile.delete.link=Klicken Sie hier, um Ihr Profil zu löschen
-profile.delete.check.text=Wenn Sie Ihr Konto löschen, \
-     werden alle öffentlich sichtbaren Anmerkungen und Links, die Sie möglicherweise zu EHRI beigetragen haben, \
-    anonymisiert (jedoch nicht gelöscht). Bitte geben Sie wie im nachfolgenden Kasten angezeigt Ihren Namen ein:
+profile.delete.check.text=Wenn Sie Ihr Konto löschen, werden alle öffentlich sichtbaren Anmerkungen und Links, die Sie möglicherweise zu EHRI beigetragen haben, anonymisiert (jedoch nicht gelöscht). Bitte geben Sie wie im nachfolgenden Kasten angezeigt Ihren Namen ein:
 profile.delete.check=Geben Sie Ihren Namen wie oben angezeigt ein.
 profile.delete.badConfirmation=Die Löschung des Profils wurde nicht ordnungsgemäß bestätigt.
 profile.profile.delete.confirmation=Ihr Profil wurde gelöscht
 profile.update=Profil aktualisieren
 profile.update.submit=Profil aktualisieren
 profile.update.confirmation=Profil erfolgreich aktualisiert
+profile.menu=Profil Menü
+profile.orcid.connect=Verknüpfen Sie Ihre ORCID-ID
+profile.orcid.connected=Ihre ORCID-ID ist mit Ihrem EHRI-Profil verknüpft.
+profile.orcid.connect.info=Verlinken Sie Ihre ORCID-ID mit Ihrem EHRI-Account, um sie auf Ihrer Profilseite anzuzeigen.
+profile.orcid.connect.submit=ORCID verknüpfen
+profile.orcid.disconnect=Verknüpfung zur ORCID-ID entfernen
+profile.orcid.disconnect.info=Die ORCID-ID von Ihrem EHRI-Profil löschen.
+profile.orcid.disconnect.submit=Verknüpfung zur ORCID-ID entfernen
+profile.orcid.disconnected=Ihre ORCID-ID wurde von Ihrem EHRI-Profil entfernt
+profile.orcid.icon=Das ORCID Zeichen
+profile.orcid.view={0}''s ORCID Profil ansehen
+
+
 profile.watch.list=Beobachtete Elemente
 profile.watch.by={0} - Beobachtete Elemente
 profile.watch=Element beobachten
 profile.watch.title=Element zu Ihrer Beobachtungsliste hinzufügen
 profile.watch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste Aktualisierungen dieses Elements zu sehen.
 profile.watch.submit=Element beobachten
+profile.watch.search=Beobachtete Elemente durchsuchen...
 profile.unwatch=Element nicht mehr beobachten
 profile.unwatch.tooltip=Klicken Sie, um in Ihrer Aktivitätenliste keine Aktualisierungen dieses Elements mehr zu sehen.
 profile.unwatch.submit=Element nicht mehr beobachten
 profile.unwatch.title=Element aus Ihrer Beobachtungsliste entfernen
+
+#
+# Data types
+#
 type=Art von Element
 type.Repository=Archive
-type.Repository.description=Ein Verzeichnis von Archiven, in denen \
-  Material zum Holocaust verwahrt wird.
+type.RepositoryDescription=Archive
+type.Repository.description=Ein Verzeichnis von Archiven, in denen Material zum Holocaust verwahrt wird.
 type.DocumentaryUnit=Bestandsbeschreibungen
+type.DocumentaryUnitDescription=Bestandsbeschreibungen
 type.DocumentaryUnit.description=Elektronische Beschreibungen und Findmittel zu Holocaust-bezogenem Archivmaterial.
 type.HistoricalAgent=Historische Akteure
+type.HistoricalAgentDescription=Historische Akteure
 type.HistoricalAgent.description=Personen, Familien und Körperschaften im Zusammenhang mit EHRI-Bestandsbeschreibungen.
 type.Country=Länder
-type.Country.description=Die EHRI-Länderberichte bieten eine Übersicht über \
-    den Zweiten Weltkrieg und die Geschichte des Holocaust sowie über die Archivsituation \
-    in den jeweiligen Ländern.
+type.Country.description=Die EHRI-Länderberichte bieten eine Übersicht über den Zweiten Weltkrieg und die Geschichte des Holocaust sowie über die Archivsituation in den jeweiligen Ländern.
 type.CvocConcept=Stichwörter
+type.CvocConceptDescription=Stichwörter
 type.CvocConcept.description=Sachbegriffe im Zusammenhang mit EHRI-Bestandsbeschreibungen.
 type.UserProfile=Menschen auf EHRI
 type.Group=Gruppen
@@ -139,6 +234,13 @@ type.VirtualUnit=Virtuelle Sammlungen
 type.Annotation=Kommentare
 type.Link=Verbindungen
 type.CvocVocabulary=Vokabulare
+type.CvocVocabulary.description=Schlagworte und Orte im Zusammenhang mit Archivbeschreibungen.
+type.AuthoritativeSet=Historische Akteure
+type.AuthoritativeSet.description=Personen und Körperschaften, die mit Archivbeschreibungen in Verbindung stehen.
+
+#
+# Dates
+#
 dates.start.year=Startjahr
 dates.end.year=Endjahr
 dates.exact={0,number,#}
@@ -146,6 +248,11 @@ dates.before=Vor {0,number,#}
 dates.between=Zwischen {0,number,#} und {1,number,#}
 dates.after=Nach {0,number,#}
 dates.all=Alles
+
+
+#
+# Login-related
+#
 login=Anmelden
 login.title=Anmelden oder EHRI-Konto erstellen
 login.benefits=Ein EHRI-Konto ermöglicht Ihnen folgendes:
@@ -153,6 +260,10 @@ login.benefits.1=Andere Benutzer auf EHRI kontaktieren
 login.benefits.2=Aktivitäten und Änderungen bei Material verfolgen, das Sie interessiert
 login.benefits.3=Notizen hinzufügen und die Daten von EHRI verbessern
 login.signup=Registrieren
+login.signup.prompt=Sie haben noch keinen Account? {0}
+login.signup.prompt.text=Anmelden
+login.login.prompt=Sie haben schon einen Account? {0}
+login.login.prompt.text=Login
 login.moreOptions=Weitere Optionen
 login.alreadyLoggedIn=Sie sind bereits angemeldet als {0}
 login.loginWith=Anmelden mit {0}
@@ -161,66 +272,97 @@ login.signup.submit=Registrieren
 login.openid.submit=Anmelden mit OpenID
 login.openid=OpenID
 login.email=E-Mail-Adresse
+login.email.change=E-Mail Adresse ändern
+login.email.new=Neue E-Mail Adresse
+login.email.passwordConfirmation=Bitte geben Sie zur Sicherheit Ihr aktuelles Passwort unten ein:
+login.email.change.link=Hier klicken, um die E-Mail Adresse zu ändern
+login.email.change.submit=Absenden
+login.email.change.confirmation=E-Mail Adresse erfolgreich aktualisiert
+login.email.emailIsOAuth=E-Mails, die mit einem Authentifizierungsanbieter (z.B. Google oder Facebook) verbunden sind, können derzeit nicht geändert werden.
 login.password=Passwort
 login.password.confirm=Passwort bestätigen
-login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Sie\
-    sich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
+login.password.noPassword=Zur Zeit ist kein Passwort mit Ihrem Konto verknüpft. Das bedeutet, dass Siesich über einen Drittanbieter wie Google oder Facebook angemeldet haben.
 login.password.change=Passwort ändern
 login.password.change.link=Klicken Sie hier, um Ihr Passwort zu ändern
 login.password.change.submit=Absenden
 login.password.change.confirmation=Passwort geändert
 login.password.reset=Passwort wiederherstellen
-login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben,\
-    und wir schicken Ihnen einen Link zur Passwortwiederherstellung.
+login.password.forgot=Passwort vergessen?
+login.password.reset.text=Passwort vergessen? Geben Sie unten die E-Mail-Adresse ein, mit der Sie sich registriert haben,und wir schicken Ihnen einen Link zur Passwortwiederherstellung.
 login.password.reset.noPasswordMatching=Kein Konto stimmt mit {0} überein
 login.password.reset.submit=Wiederherstellungslink schicken
 login.openid.urlPlaceholder=Geben Sie Ihre OpenID-URL ein
 login.disabled=Login momentan deaktiviert. Bitte versuchen Sie es später erneut.
 login.oauth.info=Falls Sie bereits ein Konto auf einer dieser Webseiten haben, können Sie auf den Symbol klicken, um sich bei EHRI anzumelden:
+login.oauth.google=Google
+login.oauth.facebook=Facebook
+login.oauth.yahoo=Yahoo
+login.oauth.microsoft=Microsoft
+login.oauth.openid=OpenID
+login.oauth.orcid=ORCID
+login.oauth.linkedin=LinkedIn
 login.password.info=Falls Sie bereits ein Konto bei EHRI erstellt haben, geben Sie Ihre E-Mail-Adresse und Passwort bitte hier ein:
 login.password.submit=Anmelden
 login.recover.link=Klicken Sie hier, wenn Sie Ihr Passwort vergessen oder verloren haben.
 login.error=Fehler bei den eingegeben Daten
 login.error.badUsernameOrPassword=Ungültiger Benutzername oder Passwort
 login.error.passwordsDoNotMatch=Passwort und Bestätigung stimmen nicht überein
-login.error.badResetToken=Die URL zur Passwortwiederherstellung war ungültig oder ist abgelaufen. \
-    Hinweis: Links zur Passwortwiederherstellung können nur einmal benutzt werden.
-login.error.oauth2.info=Leider ist ein Problem beim Erstellen Ihres Kontos über {0} aufgetreten. Bitte versuchen Sie, \
-    sich auf andere Weise zu registrieren.
+login.error.badResetToken=Die URL zur Passwortwiederherstellung war ungültig oder ist abgelaufen. Hinweis: Links zur Passwortwiederherstellung können nur einmal benutzt werden.
+login.error.oauth2.info=Leider ist ein Problem beim Erstellen Ihres Kontos über {0} aufgetreten. Bitte versuchen Sie, sich auf andere Weise zu registrieren.
+login.error.oauth2.orcid.missingEmail=Wir konnten Ihre E-Mail-Adresse nicht von ORCID abrufen. Bitte stellen Sie sicher, dass Ihre E-Mail-Adresse in Ihrem ORCID-Profil auf öffentlich oder eingeschränkt eingestellt ist.
+login.error.oauth2.orcid.missingGuid=Wir konnten Ihre ORCID-ID nicht von ORCID abrufen. Bitte stellen Sie sicher, dass Ihr ORCID-Profil auf öffentlich oder eingeschränkt eingestellt ist.
+login.error.oauth2.badSessionId=Wir konnten Sie dieses Mal nicht über {0} einloggen. Bitte versuchen Sie es erneut. Wenn der Fehler weiterhin besteht, versuchen Sie, ein anderes Browserfenster zu verwenden.
+login.error.badEmail=Die E-Mail Adresse konnte nicht geändert werden, da sie ungültig ist oder bereits verwendet wird.
+
 login.password.current=Aktuelles Passwort
 login.password.new=Neues Passwort
 login.password.new.confirm=Neues Passwort bestätigen
+login.password.reset.sentLink=Wenn Ihre E-Mail-Adresse bereits im System vorhanden ist, erhalten Sie per E-Mail einen Link, mit dem Sie Ihr Passwort zurücksetzen können. Dieser Link kann nur einmal verwendet werden.
 login.password.reset.confirmation=Ihr Passwort wurde wiederhergestellt.
 login.dataPolicyNag=Indem ich mich anmelde, erkenne ich die {0} an und erkläre mich mit den {1} einverstanden.
 logout=Abmelden
 logout.confirmation=Sie wurden abgemeldet
 account=Konto
+
 signup=Konto erstellen
 signup.dataPolicyNag=Indem ich ein Konto erstelle, erkläre ich mich mit den {0} und {1} einverstanden.
 signup.badPasswords=Passwort und Bestätigung stimmen nicht überein. Bitte versuchen Sie es erneut.
 signup.agreeTerms=Sie müssen den Bedingungen zustimmen.
-signup.confirmation=Vielen Dank für Ihre Registrierung! Wir haben Ihnen eine E-Mail geschickt, mit der Sie Ihre \
-    E-Mail-Adresse bestätigen können.
-signup.validation.badToken=Bestätigungs-URL ist ungültig oder abgelaufen.
+signup.confirmation=Vielen Dank für Ihre Registrierung! Wir haben Ihnen eine E-Mail geschickt, mit der Sie Ihre E-Mail-Adresse bestätigen können.
+signup.validation=Account verifizieren
+signup.validation.badToken=Die Bestätigungs-URL ist ungültig, wurde bereits verwendet oder ist abgelaufen. Hinweis: Bestätigungslinks können nur einmal verwendet werden.
 signup.validation.confirmation=Ihr Konto wurde bestätigt.
+signup.disabled=Die Anmeldung ist auf dieser Website deaktiviert. Wenn Sie eine Staging-Instanz verwenden, melden Sie sich auf der Produktionsseite an und warten Sie auf die automatische Kontosynchronisierung. 
+signup.validation.message=Klicken Sie auf die Schaltfläche unten, um Ihre E-Mail-Adresse zu bestätigen.
+signup.validation.message.submit=E-Mail Adresse bestätigen
+signup.validation.alreadyValidated=Die E-Mail Adresse wurde bereits verifiziert
+
+#
+# Mail stuff
+#
 mail.forgotPasswordMailHeading=Wiederherstellung Ihres EHRI-Passworts
-mail.forgotPasswordMessage=Um Ihr Passwort wiederherzustellen, folgen Sie bitte dem nachfolgenden Link. Hinweis: Dieser Link kann nur einmal verwendet werden, \
-    um Ihr Passwort wiederherzustellen.
+mail.forgotPasswordMessage=Um Ihr Passwort wiederherzustellen, folgen Sie bitte dem nachfolgenden Link. Hinweis: Dieser Link kann nur einmal verwendet werden, um Ihr Passwort wiederherzustellen.
+mail.forgotPasswordFooter=Mit freundlichen Grüßen – Das EHRI Team
 mail.confirmEmailHeading=Bitte bestätigen Sie Ihre E-Mail-Adresse.
 mail.confirmEmailMessage=Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie die folgende Adresse aufrufen:
-mail.confirmEmailFooter=Dieser Link ist für 1 Woche gültig, danach wird Ihr Konto\
-    deaktiviert.
+mail.confirmEmailFooter=Dieser Link ist für 1 Woche gültig, danach wird Ihr Kontodeaktiviert.
 mail.unverifiedEmailWarning=Nicht bestätigtes Konto
 mail.unverifiedEmailWarningMessage=Die mit Ihrem Konto verknüpfte E-Mail-Adresse wurde noch nicht bestätigt.
 mail.unverifiedEmailResend=Um eine Bestätigungs-E-Mail zu versenden,
 mail.unverifiedEmailResendSubmit=klicken Sie bitte hier
+mail.unverifiedEmailSubmit=Verifizierungs-E-Mail senden
 mail.emailConfirmationResent=Wir haben Ihnen eine E-Mail gesendet, mit deren Hilfe Sie Ihre E-Mail-Adresse bestätigen können.
 mail.message.subject=EHRI: Nachricht von {0}: {1}
 mail.message.copy.subject=EHRI: Ihre Nachricht an {0}: {1}
 mail.message.heading=Neue Nachricht von {0}
 mail.message.copy.heading=Kopie Ihrer Nachricht an {0}
 mail.message.replyFooter=Um zu antworten, können Sie direkt auf diese Nachricht antworten. Sie können den Erhalt von Nachrichten anderer Nutzer deaktivieren, indem Sie Ihre Einstellungen aktualisieren.
+
 bookmark.tooltip=Dieses Element zu Ihren Lesezeichen hinzufügen.
+bookmark.item=Das Element mit einem Lesezeichen versehen
+bookmark.item.tooltip=Das Element zu Ihren Lesezeichen hinzufügen.
+bookmark.item.submit=Absenden
+
 bookmarkSet.list=Lesezeichensammlung
 bookmarkSet.defaultSetName=Als Lesezeichen gespeicherte Elemente
 bookmarkSet.create=Lesezeichensammlung erstellen
@@ -231,11 +373,21 @@ bookmarkSet.delete=Lesezeichensammlung löschen
 bookmarkSet.delete.submit=Löschen
 bookmarkSet.noBookmarkSetsYet=Sie haben noch keine Lesezeichensammlungen erstellt.
 bookmarkSet.noUserBookmarkSetsYet={0} hat noch keine öffentlichen Lesezeichensammlungen.
+
+#
+# Descriptions
+#
 description.additionalData=Zusätzliche gewonnene Daten (Klicken, um anzuzeigen)
 description.additionalData.key=Key
 description.additionalData.value=Value
 description.noDescriptions=Zu diesem Element liegt keine Beschreibung vor
+description.multiple=Beschreibungen
 description.multiple.text=Dieses Element hat mehrere Beschreibungen. Bei mehreren Beschreibungen können diese aus verschiedenen Archiven stammen oder (Teil-)Übersetzungen sein.
+
+
+#
+# Access points
+#
 accessPoint.browse=Suchen
 accessPoint.type.creator=Provenienzstelle(n)
 accessPoint.type.creator.reverse=Provenienzstelle von
@@ -249,9 +401,16 @@ accessPoint.type.place=Orte
 accessPoint.type.place.reverse=Orte
 accessPoint.type.subject=Sachthemen
 accessPoint.type.subject.reverse=Sachthema von
+accessPoint.type.genre=Genre
+accessPoint.type.genre.reverse=Genre
 accessPoint.type.other=Diverses
 accessPoint.type.other.reverse=Diverses
+# References not on this item, but from another ites access points
 accessPoint.externalReferences=Externe Verweise auf dieses Element
+
+#
+# System Events
+#
 systemEvent.itemAtTime=Aktion bei {0}
 systemEvent.lastUpdated={0} aktualisiert
 systemEvent.creation=Element erstellt
@@ -268,51 +427,78 @@ systemEvent.setVisibility=Sichtbarkeit geändert
 systemEvent.addGroup=Mitglied zu Gruppe hinzugefügt
 systemEvent.removeGroup=Mitglied aus Gruppe entfernt
 systemEvent.ingest=Elemente importiert
+systemEvent.ingest.subjects={0} und {1} andere Elemente
 systemEvent.promotion=Element hochgestuft
 systemEvent.demotion=Hochstufung des Elementes entfernt
+systemEvent.watch=Hat angefangen ein Element zu beobachten
+systemEvent.unwatch=Hat aufgehört ein Element zu beobachten
+systemEvent.follow=folgt jetzt
+systemEvent.unfollow=folgt nicht mehr
+systemEvent.from=Von
+systemEvent.to=Bis
+
+
+#
+# Miscellaneous errors
+#
 error.globalErrors=Es ist ein Fehler bei diesem Formular aufgetreten:
 error.date=Datum ungültig oder ungültiges Format
-error.badUrl=URL ungültig oder ungültiges Format. Hinweis: Bei Webadressen muss eine gültige URL \
-    bzw. ''http://'' oder ''https://'' vorangestellt sein
+error.badUrl=URL ungültig oder ungültiges Format. Hinweis: Bei Webadressen muss eine gültige URL bzw. ''http://'' oder ''https://'' vorangestellt sein
 error.required=Erforderlich
 error.emailExists=Die E-Mail-Adresse ist entweder ungültig oder bereits registriert
 error.unknownUser=Unbekannter Benutzer
 error.emailNotFound=Diese E-Mail-Adresse wurde in unserem System nicht gefunden.
-error.badRecaptcha=Die Antwort auf die Recaptcha-Prüfung (um sicherzustellen, dass es sich um keine automatische Spammingmaschine handelt) \
-      war falsch. Tipp: Sie können den Prüftext aktualisieren, bis Sie einen besser lesbaren Text erhalten.
+error.badRecaptcha=Die Antwort auf die Recaptcha-Prüfung (um sicherzustellen, dass es sich um keine automatische Spammingmaschine handelt) war falsch. Tipp: Sie können den Prüftext aktualisieren, bis Sie einen besser lesbaren Text erhalten.
 error.rateLimit=Maximale Anzahl von Versuchen erreicht. Bitte warten Sie {0} Minuten und versuchen Sie es erneut.
-error.openId=Beim Anmelden mit OpenID ist ein Fehler aufgetreten.\
-    Dies könnte daran liegen, dass Ihr Anbieter Attribute Exchange nicht unterstützt.
-error.openId.url=Keine Rückmeldung vom angegebenen OpenID-Anbieter: {0}.\
-    Bitte stellen Sie sich, dass die URL des Anbieters korrekt ist.
+error.openId=Beim Anmelden mit OpenID ist ein Fehler aufgetreten.Dies könnte daran liegen, dass Ihr Anbieter Attribute Exchange nicht unterstützt.
+error.openId.url=Keine Rückmeldung vom angegebenen OpenID-Anbieter: {0}.Bitte stellen Sie sich, dass die URL des Anbieters korrekt ist.
 error.userEmailAlreadyRegistered=Es ist bereits ein Benutzer mit dieser E-Mail-Adresse registriert: {0}
+
+#
+# Search
+#
 search.submit=Suchen
+search.site=Website-Suche...
 search.clear=Suche leeren
 search.sort=Reihenfolge
-search.sort.identifier.asc=ID/Code
-search.sort.identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren
-search.sort.isParent.desc-identifier.asc=ID/Code
-search.sort.isParent.desc-identifier.asc.title=Ergebnisse ordnen nach von Institutionen zugewiesenen Identifikatoren, beginnend mit Behälterelementen
-search.sort.name_sort.asc=Name
-search.sort.name_sort.asc.title=Ergebnisse nach Namen ordnen
-search.sort.lastUpdated.desc=Vor kurzem aktualisiert
-search.sort.lastUpdated.desc.title=Ergebnisse mit neuesten Änderungen zuerst anzeigen
-search.sort.score.desc=Relevanz
-search.sort.score.desc.title=Ergebnisse nach Suchrelevanz ordnen
-search.sort.charCount.desc=Detail
-search.sort.charCount.desc.title=Detaillierteste Ergebnisse zuerst anzeigen
-search.sort.repositoryName.asc=Archiv
-search.sort.repositoryName.asc.title=Ergebnisse nach Archiv ordnen
-search.sort.countryName.asc=Land
-search.sort.countryName.asc.title=Ergebnisse nach Land ordnen
+search.sort.id=ID/Code
+search.sort.id.title=Anzeige der Ergebnisse sortiert nach dem von der Institution vergebenen Identifikator, mit den Behälterelementen zuerst
+search.sort.name=Name
+search.sort.name.title=Ergebnisse nach Namen sortiert anzeigen
+search.sort.updated=Kürzlich aktualisiert
+search.sort.updated.title=Die zuletzt geänderten Ergebnisse zuerst anzeigen
+search.sort.score=Relevanz
+search.sort.score.title=Anzeige der Ergebnisse in der Reihenfolge der Suchrelevanz
+search.sort.detail=Detail
+search.sort.detail.title=Detaillierteste Ergebnisse zuerst anzeigen
+search.sort.holder=Archivierende Institution
+search.sort.holder.title=Ergebnisse nach Institution sortieren
+search.sort.country=Land
+search.sort.country.title=Ergebnisse nach Land sortieren
 search.identifier=Identifikator
 search.spellingSuggestion=Meinten Sie
 search.queryPlaceholder=Suchen nach...
 search.results.list={3,choice,0#{0}|1#{0} - Ein Element|1<{0} - {1,number,integer} bis {2,number,integer} von {3,number,integer}}
 search.item.results.list={3,choice,0#{0}|1#{0} - Ein Element|1<{0} - Elemente {1,number,integer} bis {2,number,integer} von {3,number,integer}}
+
+search.field.all=Alle Felder
+search.field.identifier=Identifikator
+search.field.title=Titel
+search.field.creator=Provenienzstelle
+search.field.scopeAndContent=Inhalt
+search.field.person=Personen
+search.field.subject=Sachthemen
+search.field.place=Orte
+search.facets.heading=Ergebnisse filtern
+search.facets.remove=Filter entfernen
+search.facets.removeAll=Alle Filter entfernen
+
+#
+# Facets - these are ways of filtering search results
+# and their associated tool-tips
+#
 facet.type=Elementtyp
-facet.type.tooltip=Die Art von Element, z. B. Institutionen, Bestandsbeschreibungen \
-    oder Länderberichte.
+facet.type.tooltip=Die Art von Element, z. B. Institutionen, Bestandsbeschreibungen oder Länderberichte.
 facet.lang=Sprache der Beschreibung
 facet.lang.placeholder=Nach Sprache filtern
 facet.lang.tooltip=Die Sprache der elektronischen Beschreibung.
@@ -321,8 +507,7 @@ facet.parent.tooltip=Gibt an, ob dieses Element ein Behälter weiterer Unterlage
 facet.parent.true=Behälterelement
 facet.parent.false=Einzelnes Element
 facet.source=Quelle der Beschreibung
-facet.source.tooltip=Die Quelle der elektronischen Beschreibung, d. h. ob sie \
-    von EHRI-Mitarbeitern erstellt wurde oder aus strukturierten Daten einer Partnerinstitution importiert wurde.
+facet.source.tooltip=Die Quelle der elektronischen Beschreibung, d. h. ob sie von EHRI-Mitarbeitern erstellt wurde oder aus strukturierten Daten einer Partnerinstitution importiert wurde.
 facet.source.MANUAL=EHRI
 facet.source.IMPORT=EHRI-Partner
 facet.lod=Detailumfang
@@ -334,6 +519,10 @@ facet.lod.placeholder=Detailumfang auswählen
 facet.kw=Stichwort
 facet.kw.tooltip=Mit jeder Unterlage assoziierte Stichwörter.
 facet.kw.placeholder=Filtern nach Stichwörter
+facet.manifestation=Erscheinungsform
+facet.manifestation.tooltip=Elemente, die entsprechend ihrer physischen Ordnung und Klassifikation verzeichnet sind, oder „virtuelle“ Elemente, die Beschreibungen von Material verschiedener Quellen enthalten, welche potenziell von verschiedenen Institutionen verwahrt werden.
+facet.manifestation.DocumentaryUnit=Tatsächlich/Physisch
+facet.manifestation.VirtualUnit=Virtuelle Sammlung
 facet.country=Land
 facet.country.tooltip=Das Land, in dem das Quellmaterial archiviert ist.
 facet.country.placeholder=Nach Land filtern
@@ -356,6 +545,8 @@ facet.priority=Priorität
 facet.priority.tooltip=Priorität der Institution im Rahmen des Auftrags von EHRI.
 facet.active=Aktivität
 facet.active.tooltip=Aktive oder inaktive Benutzer.
+facet.staff=Personalstatus
+facet.staff.tooltip=Nur für Personal.
 facet.group=Gruppen
 facet.group.tooltip=Gruppen, zu denen Benutzer gehören.
 facet.top=Oberste Stufe
@@ -368,6 +559,21 @@ facet.promoted=Eingestuft
 facet.promoted.tooltip=Elemente, die momentan hoch- oder heruntergestuft sind.
 facet.score=Einstufungswertung
 facet.score.tooltip=Gesamtsumme aller vorhandenen Hoch- und Herunterstufungen
+facet.data=Datenverfügbarkeit
+facet.data.tooltip=Nur Institutionen anzeigen, für die Bestandsbeschreibungen hinzugefügt wurden.
+facet.data.yes=Bestandsbeschreibungen
+facet.restricted=Sichtbarkeit
+facet.restricted.tooltip=Ob ein Element nur für bestimmte User oder Gruppen zugänglich ist oder nicht.
+facet.restricted.true= Eingeschränkt
+facet.restricted.false= Uneingeschränkt
+facet.dates=Daten
+facet.dates.tooltip=Ein umfassendes Datum oder ein Zeitraum, der von dem Material abgedeckt wird, falls vorhanden.
+
+
+
+#
+# Activity: https://portal.ehri-project.eu/activity
+#
 activity=Aktivität
 activity.by={0} - Aktivität
 activity.latestActivity=Neueste Aktivität
@@ -380,6 +586,10 @@ activity.fetchMore=Mehr
 activity.noActivityYet=Hier werden Aktivitäten bei von Ihnen beobachteten Elementen und Benutzern, denen Sie folgen, angezeigt.
 activity.noUserActivityYet={0} hat noch keine öffentlich sichtbaren Aktivitäten.
 activity.modifiedProfile=Aktualisierte Profildaten.
+
+#
+# 'Social' stuff...
+#
 social.message.send={0} kontaktieren
 social.message.send.submit=Nachricht senden
 social.message.send.confirmation=Ihre Nachricht wurde gesendet
@@ -400,6 +610,7 @@ social.followedBy=Gefolgt von
 social.noFollowersYet=Niemand folgt {0} bisher.
 social.noFollowingYet={0} folgt bisher niemandem.
 social.noItemsWatchedYet=Sie beobachten noch keine Elemente.
+social.noItemsWatchedYet.detail=Wenn Sie auf den Elementbeschreibungsseiten auf „Element beobachten“ klicken, werden Aktualisierungen dieser Elemente in Ihrem Aktivitäts-Feed angezeigt.
 social.noUserItemsWatchedYet={0} beobachtet noch keine Elemente.
 social.userFollowing=Benutzer, die {0} folgen
 social.usersFollowedBy=Benutzer, denen {0} folgt
@@ -407,14 +618,21 @@ social.block=Benutzer blockieren
 social.block.submit=Benutzer blockieren
 social.unblock=Benutzer nicht mehr blockieren
 social.unblock.submit=Benutzer nicht mehr blockieren
+
+
+#
+# Annotations
+#
 annotation=Anmerkungen
+annotation.label=Anmerkung von ''{0}'' für {1}
 annotation.description=Anmerkungen zu dieser Beschreibung
 annotation.search=Anmerkungen durchsuchen
-annotation.search.noneFound=Keine Anmerkungen in Übereinstimmung mit  ''{0}' gefunden'.
+annotation.search.noneFound=Keine Anmerkungen in Übereinstimmung mit  ''{0}'' gefunden.
 annotation.field=Feld
 annotation.list=Anmerkungen
 annotation.list.by={0} - Anmerkungen
 annotation.none=Sie haben noch keine Anmerkungen erstellt.
+annotation.none.detail=Sie können (öffentliche oder private) Anmerkungen zu Elementen machen, indem Sie bei Beschreibungen oder einzelnen Feldern auf „Anmerkung hinzufügen“ klicken.
 annotation.create=Anmerkung hinzufügen
 annotation.create.submit=Anmerkung hinzufügen
 annotation.create.title=Eine Anmerkung zu dieser Beschreibung erstellen
@@ -430,9 +648,18 @@ annotation.delete.title=Anmerkung löschen
 annotation.field.showHidden={0,choice,1#1 öffentliche Anmerkung einer anderen Person|1<{0} öffentliche Anmerkungen anderer Personen} anzeigen/verbergen
 annotation.createdBy=Erstellt von {0} {1}
 annotation.showPublic={0,choice,1#Zeige 1 öffentliche Anmerkung|1<Zeige {0} öffentliche Anmerkungen}
+annotation.placeholder=
+
+#
+# Visibility
+#
 access.all=Öffentlich
 access.accessibleTo=Sichtbar für {0}
 access.accessibleTo.extended={0,choice,0#|1# und 1 weiterer|1< und {0} weitere}
+
+#
+# Promotion
+#
 promotion.isPromotable=Hochstufung
 promotion.isPromotable.true=Hochstufbar
 promotion.isPromotable.false=Nicht hochstufbar
@@ -457,6 +684,10 @@ promotion.score.detail=Hochstufungen: {0}, Herunterstufungen: {1}
 promotion.score.negative=Negativ
 promotion.score.neutral=Neutral
 promotion.score.positive=Positiv
+
+#
+# Activity time line
+#
 timeline.eventType.ingest={0} importierte {1}
 timeline.eventType.creation={0} erstellte {1}
 timeline.eventType.annotation={0} kommentierte {1}
@@ -465,9 +696,13 @@ timeline.eventType.link={0} verknüpfte {1}
 timeline.eventType.createDependent={0} aktualisierte {1}
 timeline.eventType.modifyDependent={0} aktualisierte {1}
 timeline.eventType.deleteDependent={0} aktualisierte {1}
+timeline.eventType.watch={0} beobachtet jetzt {1}
+timeline.eventType.follow={0} folgt jetzt {1}
 timeline.eventType.setVisibility={0} aktualisierte {1}
 timeline.eventType.setGlobalPermissions={0} aktualisierte {1}
 timeline.eventType.setItemPermissions={0} aktualisierte {1}
+timeline.eventType.promotion={0} machte {1} öffentlich sichtbar
+timeline.eventType.demotion={0} blendete {1} aus
 timeline.target.Group=eine Gruppe
 timeline.target.UserProfile=einen Benutzer
 timeline.target.Repository=eine archivierende Institution
@@ -480,6 +715,10 @@ timeline.target.Annotation=einen Kommentar
 timeline.target.Country=ein Land
 timeline.target.Link=einen Link
 timeline.target.SystemEvent=eine Geschichte
+
+#
+# Visibility of user-generated content
+#
 contribution.visibility=Wählen Sie, wer dies sehen kann
 contribution.visibility.me=Nur ich
 contribution.visibility.groups=Meine Gruppen
@@ -487,18 +726,38 @@ contribution.visibility.custom=Benutzerdefiniert
 contribution.visibility.allowPublic=Hochstufung erlauben
 contribution.visibility.allowPublic.title=Erlaube EHRI-Moderatoren, diese Anmerkung hochzustufen, so dass sie für alle Benutzer sichtbar ist.
 contribution.visibility.isPrivate=Private Anmerkung
+contribution.visibility.isPublic=Öffentliche Anmerkung
+contribution.visibility.isPublic.title=Deaktivieren Sie diese Option, um diese Notiz privat zu machen. Standardmäßig können EHRI-Moderators Notizen hochstufen, so dass sie für alle User sichtbar sind.
+
+#
+# General search
+#
 search=Suchen
 search.sort.title=Sortierung der Suchergebnisse
 search.global=Alles durchsuchen
 search.Repository=Archive durchsuchen
 search.DocumentaryUnit=Bestandsbeschreibungen durchsuchen
 search.HistoricalAgent=Historische Akteure durchsuchen
+search.VirtualUnit=Virtuelle Sammlungen durchsuchen
+search.Country=Länderberichte durchsuchen
+search.UserProfile=Personen durchsuchen
+search.CvocConcept=Stichwörter durchsuchen
+search.CvocVocabulary=Vokabulare durchsuchen
+search.AuthoritativeSet=Historische Akteure durchsuchen
 search.helper.example=Phrase
 search.helper.linkTitle=Tipps zu erweiterten Suchanfragen
 search.helper=Es existieren mehrere Möglichkeiten, eine spezifischere Suchanfrage zu stellen:
+search.helper.field=Verwenden Sie die folgende Schreibweise, um die Suche auf bestimmte Felder zu beschränken:
+search.helper.field.example=field:"Phrase"
+search.helper.field.example.description=Sie können zum Beispiel alle Beschreibungen aufrufen, die die Phrase "Auschwitz Birkenau" in ihren Titeln enthalten, indem Sie nach dem title:"Auschwitz Birkenau" suchen.
+search.helper.field.available=Die folgenden Felder sind momentan verfügbar:
 search.helper.minus=Ein Wort aus der Suche ausschließen, z. B. -Gestapo
 search.helper.plus=Ein Wort muss in den Ergebnissen enthalten sein, z. B. +Gestapo
 search.helper.quotes=Genaue Übereinstimmung mit Ihrer Suchanfrage anzeigen, z. B. "Liste von Mitgliedern"
+
+#
+# Feedback
+#
 feedback=Feedback
 feedback.submit=Absenden
 feedback.message=Teilen Sie uns Ihr Feedback mit...
@@ -508,10 +767,60 @@ feedback.list=Feedback gesendet
 feedback.type=Feedback bezieht sich auf
 feedback.type.site=die Webseite (Funktionalität, Design, etc.)
 feedback.type.data=den Dateninhalt
+feedback.delete=Löschen
+feedback.delete.submit=Element löschen
+feedback.disabled=Die Einsendung von Feedback ist momentan nicht möglich.
+
+#
+# Data policy modal
+# NB: the full page is now an external document in Google Docs
+#
 dataPolicy=Datenrichtlinie
 dataPolicy.modal.header=EHRI-Datenrichtlinie
+dataPolicy.modal.notice.1=Diese Datenbank kann besondere Kategorien personenbezogener Daten und personenbezogene Daten im Zusammenhang mit strafrechtlichen Verurteilungen oder Straftaten enthalten, die gemäß Artikel 9, Absatz 2 unter j GDPR und Artikel 24 und 32 unter f des UAVG (niederländisches Gesetz zum Schutz personenbezogener Daten) nur unter der Voraussetzung für Forschungszwecke verwendet werden dürfen Schutzmaßnahmen, dass angemessene Garantien für die Rechte und Freiheiten der betroffenen Person bestehen.
+dataPolicy.modal.notice.2=Besondere Kategorien personenbezogener Daten im Sinne von EHRI sind alle Daten, die sich auf eine identifizierte oder identifizierbare Person beziehen und die sich auf die religiösen oder philosophischen Überzeugungen, die ethnische Herkunft, die politische Meinung, die Gewerkschaftszugehörigkeit, die Gesundheit, das Sexualleben oder die sexuelle Orientierung einer Person beziehen.
+dataPolicy.modal.terms=Ich erkläre, dass ich besondere Kategorien personenbezogener Daten und personenbezogene Daten, die sich auf strafrechtliche Verurteilungen oder Straftaten beziehen, nur zu Forschungszwecken verwenden werde und dass ich diese Daten im Allgemeinen in Übereinstimmung mit den geltenden niederländischen und internationalen Gesetzen und Vorschriften verwenden werde. Ich bin mir der strafrechtlichen Folgen eines Verstoßes gegen diese Gesetze und/oder Vorschriften bewusst.
 dataPolicy.modal.agree=Ich stimme zu
-termsAndConditions=Nutzungsbedingungen
+
+#
+# Terms and Conditions
+# NB: the full page is now an external document in Google Docs
+#
+termsAndConditions=Allgemeine Geschäftsbedingungen
+copyright.holder=Urheberrecht EHRI-ERIC {0,number,#}
+
+#
+# Contact page
+#
+contact.header=Kontakt mit EHRI aufnehmen
+contact.p1=Koordiniert wird das EHRI-Projekt vom NIOD-Forschungsinstitut zu Krieg, Holocaust und Genozid. Sie können NIOD unter nachfolgender Adresse kontaktieren:
+contact.p2=Es gibt viele weitere Möglichkeiten, weiterführende Hilfe zu erhalten oder mit uns in Kontakt zu treten:
+contact.p2.1=Für alle Fragen zu unseren Daten- bzw. Datenschutzrichtlinien kontaktieren Sie bitte {0}.
+contact.p2.2=Wenn Sie Fragen zu den Beständen und Zugangsbedingungen eines der Archive haben, die Daten zum EHRI-Portal beisteuern, kontaktieren Sie bitte entsprechend das jeweilige Archiv, indem Sie die in der jeweiligen Institutsbeschreibung angegebenen Kontaktdaten verwenden.
+contact.p2.3=Für alle anderen Fragen oder wenn Sie einen Kommentar, ein Kompliment oder eine Beschwerde zum EHRI-Portal abgeben möchten, senden Sie uns eine E-Mail an {0}.
+
+#
+# About page
+#
+about.heading=Über EHRI
+about.p1=Das EHRI-Onlineportal bietet Zugang zu Informationen über Archivmaterial zum Holocaust, das in Institutionen in Europa und weltweit verwahrt wird. Das EHRI-Portal kann von jedem kostenlos genutzt werden.
+about.p2=Ziel des EHRI-Portals ist es, eine der großen Herausforderungen der Holocaustforschung zu überwinden: die Fragmentierung und weite geografische Streuung von Archivmaterialien, die das Geschehene dokumentieren. Indem es Informationen zu Tausenden von Quellen, die in Hunderten von Institutionen archiviert sind, integriert und miteinander vernetzt, stellt das EHRI-Portal eine unschätzbar wertvolle Hilfe dar für alle, die am Holocaust interessiert sind, und ermöglicht transnationale und vergleichende Forschungsansätze.
+about.p3=Das EHRI-Portal ist eine der wesentlichen Errungenschaften des Projektes „European Holocaust Research Infrastructure“ (EHRI), eine Vereinigung, die Holocaustforscher, Archivare und digitale Humanisten aus mehr als 20 Institutionen zusammenbringt. Das EHRI-Projekt wird durch die Europäische Union innerhalb des Forschungsrahmenprogramms FP7 (2010-2015) und Horizont 2020 (2015-2019) gefördert. Das EHRI-Portal ist eine stetig wachsende Ressource, und es werden kontinuierlich neue Informationen und Funktionen hinzugefügt.
+about.p4=EHRI ist sowohl eine digitale Infrastruktur als auch ein Netzwerk von Menschen. Neben der Entwicklung des Portals hat das EHRI-Projekt auch eine kostenlose {0} und betreibt ein vielfältiges Programm an Aktivitäten und Veranstaltungen, darunter ein Stipendienprogramm, Sommerschulen, Experten-Workshops und Konferenzen. Weitere Informationen zum Hintergrund des Projektes, zu teilnehmenden Institutionen und Aktivitäten ist auf der {1} verfügbar.
+about.p4.a1=Online-Kurs zur Holocaustforschung
+about.p4.a2=Projektwebseite
+about.p5=Das EHRI-Projekt wurde durch das siebte Rahmenprogramm der Europäischen Union unter der Finanzhilfevereinbarung (Grant Agreement) Nr. 261873 und durch das Forschungs- und Innovationsprogramm Horizon 2020 der Europäischen Union unter der Finanzhilfevereinbarung Nr. 654164 gefördert.
+
+
+#
+# Externally-hosted documents
+#
+pages.external.faq.title=Häufig gestellte Fragen
+pages.external.faq.description=Häufig gestellte Fragen zur EHRI-Portalseite.
+pages.external.notFound=Es tut uns leid, aber es ist ein Fehler beim Aufrufen der Daten für diese Seite aufgetreten.
+
+# Markdown Cheatsheet
+#
 markdown.cheatsheet.title=Tipps zur Formatierung
 markdown.cheatsheet.asterisks=Asteriske
 markdown.cheatsheet.underscores=Unterstriche
@@ -520,16 +829,32 @@ markdown.cheatsheet.italic=Kursiv
 markdown.cheatsheet.ordered=Sortierte Liste
 markdown.cheatsheet.ordered.item1=Erstes Element der sortierten Liste
 markdown.cheatsheet.ordered.item2=Weiteres Element
-markdown.cheatsheet.unordered=Sortierte Liste
+markdown.cheatsheet.unordered=Ungeordnete Liste
 markdown.cheatsheet.unordered.item1=Element
 markdown.cheatsheet.unordered.item2=Weiteres Element
 markdown.cheatsheet.more=Quelle
+
+
+#
+# Item-type specific fields
+#
+# Generic
+#
 item.details=Elementdetails
 item.history=Onlineverlauf
+item.history.more=Vollständigen Verlauf anzeigen
 item.related=Verwandte Elemente
+item.related.search=Verwandte Elemente durchsuchen
 item.linked=Andere verknüpfte Elemente
+item.copies=Kopien
 item.showChildItems=Unterelemente
 item.showItems={0,choice,0#{0} Elemente|1#1 Item|1<{0,number,integer} Elemente}
+item.adminPage=Admin Website
+item.publicPage=Öffentliche Website
+
+#
+# Repositories
+#
 repository.address=Adresse
 repository.contact=Kontakt
 repository.phone=Telefon
@@ -550,9 +875,10 @@ repository.childItems.search={0,choice,0#{0} niedrigere Stufe |1#1 Element|1<{0,
 repository.search=Archive durchsuchen
 repository.searchInside=Elemente suchen, die von {0} verwahrt werden
 repository.itemsHeldOnline=Elemente auf EHRI
-repository.hasChildItems=Ja
-repository.noChildItems=Nein
+repository.itemsHeldOnline.true=Ja
+repository.itemsHeldOnline.false=Nein
 repository.childCount={0,choice,0#Keine Bestandsbeschreibungen verfügbar|1#1 Bestandsübersicht verfügbar|1<{0,number,integer} Bestandsbeschreibungen verfügbar}
+
 repository.identifier=Identifikator
 repository.name=Autorisierte Namensform
 repository.parallelFormsOfName=Parallele Namensformen
@@ -584,6 +910,11 @@ repository.languages=Verwende Sprache
 repository.scripts=Verwendete Schrift
 repository.sources=Quellen
 repository.maintenanceNotes=Bemerkungen zu Erstellung und Pflege
+repository.info.disclaimer=Wenn Sie zur Verbesserung dieser Informationen beitragen können, kontaktieren Sie uns bitte unter {0}.
+
+#
+# Documentary units
+#
 documentaryUnit.identifier=Identifikator
 documentaryUnit.ref=Online-Quelle
 documentaryUnit.archivalContext=Archivkontext
@@ -634,14 +965,17 @@ documentaryUnit.publicationNote=Veröffentlichung
 documentaryUnit.notes=Anmerkung(en)
 documentaryUnit.sources=Quellen
 documentaryUnit.datesOfDescriptions=Erstellungsdaten von Verzeichnungseinheiten
+documentaryUnit.sourceFileId=Quelldatei-ID
 documentaryUnit.processInfo=Informationen zur Bearbeitung
 documentaryUnit.creationProcess=Quelle
 documentaryUnit.creationProcess.MANUAL=EHRI
 documentaryUnit.creationProcess.MANUAL.description=Diese Beschreibung wurde von EHRI erstellt.
 documentaryUnit.creationProcess.IMPORT=EHRI-Partner
-documentaryUnit.creationProcess.IMPORT.disclaimer=Diese Beschreibung wurde direkt aus strukturierten Daten entnommen, die EHRI \
-   von einer Partnerinstitution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der archivierenden Institution eine korrekte Darstellung der Archivbestände dar, \
-    auf die sich zum Zeitpunkt des Datentransfers bezieht.
+documentaryUnit.creationProcess.IMPORT.disclaimer=Diese Beschreibung wurde direkt aus strukturierten Daten entnommen, die EHRI von einer Partnerinstitution zur Verfügung gestellt wurde. Diese Beschreibung stellt nach Angaben der archivierenden Institution eine korrekte Darstellung der Archivbestände dar, auf die sich zum Zeitpunkt des Datentransfers bezieht.
+
+#
+# Historical Agents
+#
 historicalAgent.identifier=Identifikator
 historicalAgent.dates=Daten
 historicalAgent.entityType=Art der Stelle
@@ -681,23 +1015,61 @@ historicalAgent.languages=Sprachen
 historicalAgent.scripts=Schriften
 historicalAgent.source=Quellen
 historicalAgent.maintenanceNotes=Bemerkungen zu Erstellung und Pflege
+
+#
+# Concepts
+#
 cvocConcept.descriptions=Beschreibungen
 cvocConcept.languageCode=Sprache
+cvocConcept.identifier=Schriftsystem (optional)
 cvocConcept.name=Bevorzugtes Label
 cvocConcept.altLabel=Alt. Label(s)
+cvocConcept.hiddenLabel=Versteckte Label(s)
+cvocConcept.note=Anmerkung
+cvocConcept.changeNote=Anmerkung ändern
+cvocConcept.editorialNote=Redaktionelle Anmerkung
+cvocConcept.historyNote=Historische Begriffsbedeutung
 cvocConcept.scopeNote=Form
 cvocConcept.definition=Definition
 cvocConcept.inVocabulary=Vokabular
 cvocConcept.search=Suchbegriffe
 cvocConcept.broaderTerms=Weiter gefasste Begriffe
 cvocConcept.narrowerTerms=Enger gefasste Begriffe
-cvocConcept.narrowerTermsPageHeader={2,choice,0#Keine engeren Begriffe gefunden|1#Ein engerer Begriff gefunden|1<Engere Begriffe {0,number,integer} bis {1,number,integer} von {2,number,integer}}
+cvocConcept.narrowerTermsPageHeader={0,choice,0#Keine engeren Begriffe gefunden|1#Ein engerer Begriff gefunden|1<Engere Begriffe {0,number,integer}}
+cvocConcept.longitude=Längengrad
+cvocConcept.latitude=Breitengrad
+cvocConcept.url=URL
+cvocConcept.uri=URI
+cvocConcept.seeAlso=Siehe auch
+cvocConcept.latLon=Geoposition (Breitengrad/Längengrad)
+
+cvocConcept.altLabel.description=
+cvocConcept.hiddenLabel.description=
+cvocConcept.scopeNote.description=
+cvocConcept.longitude.description=Geografischer Längengrad.
+cvocConcept.latitude.description=Geografischer Breitengrad.
+cvocConcept.uri.description=Der Uniform Resource Identifier.
+cvocConcept.url.description=Ein optionaler Uniform Resource Locator.
+cvocConcept.seeAlso.description=Wird verwendet, um eine Ressource anzuzeigen, die zusätzliche Informationen über die betreffende Quelle liefern könnte.
+cvocConcept.childCount={0,choice,0#Keine engeren Stichwörter|1#1 engeres Stichwort|1<{0,number,integer} engere Stichwörter}
+
+#
+# Virtual documentary units
+#
+
 virtualUnit.viewInArchivalContext=Anzeigen in Archivkontext
-virtualUnit.viewInArchivalContext.explanation=Dieses Element wird als Teil einer ''virtuellen Sammlung'' angezeigt, \
-    die nicht der Erschließung von Material im physischen Archiv entspricht.
+virtualUnit.viewInArchivalContext.explanation=Dieses Element wird als Teil einer ''virtuellen Sammlung'' angezeigt, die nicht der Erschließung von Material im physischen Archiv entspricht.
+
+#
+# Countries
+#
+# NB: This is a link to the EHRI Project site
+country.report.intro=Eine allgemeine Einführung zu den EHRI-Länderberichten befindet sich auf der {0}.
+country.report.toc=Inhalte
 country.childItems=Archive
 country.childItems.search={0,choice,0#{0} Institutionen |1#1 Institution|1<{0,number,integer} Institutionen}
 country.search=Länder durchsuchen
+country.searchItems=Institutionen durchsuchen
 country.childCount={0,choice,0#Keine Institutionen gelistet|1#1 Institution gelistet|1<{0,number,integer} Institutionen gelistet}
 country.items=Archive
 country.identifier=Ländercode
@@ -708,79 +1080,57 @@ country.situation=Archivsituation
 country.dataSummary=EHRI-Recherche (Zusammenfassung)
 country.dataExtensive=EHRI-Recherche (Erweitert)
 country.list=Länder
+country.description.empty=Aktuell ist kein EHRI-Länderbericht für dieses Land verfügbar.
+
+#
+# Vocabularies
+#
+cvocVocabulary.intro=Vokabulare sind Sammlungen von Schlagwörtern oder Orten (siehe auch: {0}).
 cvocVocabulary.childItems=Stichwörter
-cvocVocabulary.childCount={0,choice,0#{0} |1#1 Stichwort|1<{0,number,integer} Stichwörter}
-cvocVocabulary.childCount.search={0,choice,0#{0} |1#1 Stichwort|1<{0,number,integer} Stichwörter}
-project.site=EHRI-Projektwebseite
-help.faq=Häufig gestellte Fragen
-help.contact=EHRI kontaktieren
-profile.preferences.view.showUserContent=Öffentliche Anmerkungen anderer Nutzer zeigen
-search.field.all=Alle Felder
-search.field.identifier=Identifikator
-search.field.title=Titel
-search.field.creator=Provenienzstelle
-search.field.scopeAndContent=Inhalt
-search.field.person=Personen
-search.field.subject=Sachthemen
-search.field.place=Orte
-facet.manifestation=Erscheinungsform
-facet.manifestation.tooltip=Elemente, die entsprechend ihrer physischen Ordnung \
-  und Klassifikation verzeichnet sind, oder „virtuelle“ Elemente, die Beschreibungen von Material \
-  verschiedener Quellen enthalten, welche potenziell von verschiedenen Institutionen verwahrt werden.
-facet.manifestation.DocumentaryUnit=Tatsächlich/Physisch
-facet.manifestation.VirtualUnit=Virtuelle Sammlung
-search.helper.field=Verwenden Sie die folgende Schreibweise, um die Suche auf \
-  bestimmte Felder zu beschränken:
-search.helper.field.example=field:"Phrase"
-search.helper.field.example.description=Sie können zum Beispiel alle Beschreibungen \
-  aufrufen, die die Phrase "Auschwitz Birkenau" in ihren Titeln enthalten, \
-  indem Sie nach dem title:"Auschwitz Birkenau" suchen.
-search.helper.field.available=Die folgenden Felder sind momentan verfügbar:
-contact.header=Kontakt mit EHRI aufnehmen
-contact.p1=Koordiniert wird das EHRI-Projekt vom NIOD-Forschungsinstitut zu \
-    Krieg, Holocaust und Genozid. Sie können NIOD unter \
-    nachfolgender Adresse kontaktieren:
-contact.p2=Es gibt viele weitere Möglichkeiten, weiterführende Hilfe zu \
-    erhalten oder mit uns in Kontakt zu treten:
-contact.p2.1=Für alle Fragen zu unseren Daten- bzw. Datenschutzrichtlinien \
-    kontaktieren Sie bitte {0}.
-contact.p2.2=Wenn Sie Fragen zu den Beständen und Zugangsbedingungen \
-    eines der Archive haben, die Daten zum EHRI-Portal beisteuern, \
-    kontaktieren Sie bitte entsprechend das jeweilige Archiv, indem Sie \
-    die in der jeweiligen Institutsbeschreibung angegebenen Kontaktdaten verwenden.
-contact.p2.3=Für alle anderen Fragen oder wenn Sie einen Kommentar, ein Kompliment \
-    oder eine Beschwerde zum EHRI-Portal abgeben möchten, senden Sie uns eine E-Mail an {0}.
-about.heading=Über EHRI
-about.p1=Das EHRI-Onlineportal bietet Zugang zu Informationen über \
-  Archivmaterial zum Holocaust, das in Institutionen in Europa \
-  und weltweit verwahrt wird. Das EHRI-Portal kann von jedem kostenlos genutzt werden.
-about.p2=Ziel des EHRI-Portals ist es, eine der großen Herausforderungen der \
-  Holocaustforschung zu überwinden: die Fragmentierung und weite geografische Streuung \
-  von Archivmaterialien, die das Geschehene dokumentieren. Indem es Informationen \
-  zu Tausenden von Quellen, die in Hunderten von Institutionen \
-  archiviert sind, integriert und miteinander vernetzt, stellt das EHRI-Portal eine \
-  unschätzbar wertvolle Hilfe dar für alle, die am Holocaust interessiert sind, und \
-  ermöglicht transnationale und vergleichende Forschungsansätze.
-about.p3=Das EHRI-Portal ist eine der wesentlichen Errungenschaften des \
-    Projektes „European Holocaust Research Infrastructure“ (EHRI), eine Vereinigung, die \
-    Holocaustforscher, Archivare und digitale Humanisten aus mehr als \
-    20 Institutionen zusammenbringt. Das EHRI-Projekt wird durch die \
-    Europäische Union innerhalb des Forschungsrahmenprogramms \
-    FP7 (2010-2015) und Horizont 2020 (2015-2019) gefördert. Das EHRI-Portal \
-    ist eine stetig wachsende Ressource, und es werden kontinuierlich neue Informationen und Funktionen hinzugefügt.
-about.p4=EHRI ist sowohl eine digitale Infrastruktur als auch ein Netzwerk von Menschen. \
-    Neben der Entwicklung des Portals hat das EHRI-Projekt auch eine \
-    kostenlose {0} und betreibt ein vielfältiges Programm an Aktivitäten und Veranstaltungen, \
-    darunter ein Stipendienprogramm, Sommerschulen, Experten-Workshops und \
-    Konferenzen. Weitere Informationen zum Hintergrund des Projektes, \
-    zu teilnehmenden Institutionen und Aktivitäten ist auf der {1} verfügbar.
-about.p4.a1=Online-Kurs zur Holocaustforschung
-about.p4.a2=Projektwebseite
-pages.external.faq.title=Häufig gestellte Fragen
-pages.external.faq.description=Häufig gestellte Fragen zur EHRI-\
-  Portalseite.
-pages.external.notFound=Es tut uns leid, aber es ist ein Fehler beim Aufrufen der \
-    Daten für diese Seite aufgetreten.
-country.report.intro=Eine allgemeine Einführung zu den EHRI-Länderberichten \
-    befindet sich auf der {0}.
-country.report.toc=Inhalte
+cvocVocabulary.searchItems=Stichwörter in {0} suchen...
+cvocVocabulary.childCount={0,choice,0#Keine Stichwörter|1#1 Stichwort|1<{0,number,integer} Stichwörter}
+cvocVocabulary.childItems.search={0,choice,0#Keine Stichwörter|1#1 Stichwort|1<{0,number,integer} Stichwörter}
+
+#
+# Authoritative Sets
+#
+authoritativeSet.intro=Historische Akteure sind Sammlungen von Personen, Familien oder Körperschaften (siehe auch: {0}).
+authoritativeSet.childItems=Historische Akteure
+authoritativeSet.searchItems=Historische Akteure suchen in {0}...
+authoritativeSet.childCount={0,choice,0#keine historischen Akteure|1#1 historischer Akteur|1<{0,number,integer} historische Akteure}
+authoritativeSet.childItems.search={0,choice,0#keine historischen Akteure|1#1 historischer Akteur|1<{0,number,integer} historische Akteure}
+
+#
+# Data Model
+#
+dataModel=EHRI-Datenmodell
+dataModel.legend=Legende
+dataModel.reference=Siehe {0} für weitere Informationen.
+dataModel.description=Das EHRI-Datenmodell ist ein konzeptionelles Modell, das die Struktur der Daten im EHRI-Portal beschreibt. Das Modell basiert auf den Standards des International Council on Archives (ICA) für Bestandsbeschreibungen.
+dataModel.field.name=Feldname
+dataModel.field.description=Beschreibung
+dataModel.field.usage=Verwendung
+dataModel.field.usage.mandatory=verpflichtend
+dataModel.field.usage.mandatory.description=Dieses Feld muss ausgefüllt werden.
+dataModel.field.usage.desirable=wünschenswert
+dataModel.field.usage.desirable.description=Dieses Feld auszufüllen wird empfohlen, ist aber nicht erforderlich.
+dataModel.field.usage.optional=Optional
+dataModel.field.usage.optional.description=Dieses Feld ist optional.
+dataModel.field.seeAlso=Siehe auch
+dataModel.DocumentaryUnit.identityArea=Identitätsfeld
+dataModel.DocumentaryUnit.contextArea=Kontextfeld
+dataModel.DocumentaryUnit.contentArea=Inhaltliches Feld
+dataModel.DocumentaryUnit.conditionsArea=Konditionsbereich
+dataModel.DocumentaryUnit.materialsArea=Materialbereich
+dataModel.DocumentaryUnit.notesArea=Feld für Notizen
+dataModel.DocumentaryUnit.controlArea=Kontrollfeld
+dataModel.DocumentaryUnit.administrationArea=Administrationsfeld
+dataModel.Repository.identityArea=Identitätsfeld
+dataModel.Repository.addressArea=Adressfeld
+dataModel.Repository.descriptionArea=Beschreibungsfeld
+dataModel.Repository.accessArea=Zugangsbereich
+dataModel.Repository.servicesArea=Servicebereich
+dataModel.Repository.controlArea=Kontrollbereich
+dataModel.HistoricalAgent.identityArea=Identitätsfeld
+dataModel.HistoricalAgent.descriptionArea=Beschreibungsfeld
+dataModel.HistoricalAgent.controlArea=Kontrollbereich
