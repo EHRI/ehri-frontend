@@ -1,6 +1,22 @@
 @(item: Model, annotations: Seq[Annotation], links: Seq[Link], watched: Seq[String], dlid: Option[String], path: Seq[Model] = Seq.empty)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.VirtualUnit.toString) {
+@ogMeta() = @{
+    item match {
+        case v: VirtualUnit =>
+            Map(
+                "title" -> v.toStringLang,
+                "description" -> v.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
+                "url" -> controllers.portal.routes.VirtualUnits.browseVirtualCollection(v.id).absoluteURL(conf.https)
+            )
+        case d: DocumentaryUnit => Map(
+            "title" -> item.toStringLang,
+            "description" -> d.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
+            "url" -> controllers.portal.routes.DocumentaryUnits.browse(d.id).absoluteURL(conf.https)
+        )
+    }
+}
+
+@views.html.layout.portalLayout(item.toStringLang, EntityType.VirtualUnit.toString, ogMeta = ogMeta()) {
     @views.html.virtualUnit.infobar(item, path, watched.contains(item.id))
 
     @views.html.common.mainContent {

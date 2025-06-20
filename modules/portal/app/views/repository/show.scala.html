@@ -1,11 +1,17 @@
 @(item: Repository, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, item.isA.toString) {
-    @infobar(item)
+@defining(Map(
+    "title" -> item.toStringLang,
+    "description" -> item.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
+    "url" -> controllers.portal.routes.Repositories.browse(item.id).absoluteURL(conf.https)
+)) { ogMeta =>
+    @views.html.layout.portalLayout(item.toStringLang, item.isA.toString, ogMeta = ogMeta) {
+        @infobar(item)
 
-    @views.html.common.mainContent {
-        @itemDetails(item, annotations, links, watched)
+        @views.html.common.mainContent {
+            @itemDetails(item, annotations, links, watched)
 
-        @childItemSearch(item, result, action, watched)
+            @childItemSearch(item, result, action, watched)
+        }
     }
 }
