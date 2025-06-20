@@ -1,4 +1,4 @@
-@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
+@(title: Any, cls: String = "", scripts: Html = Html(""), styles: Html = Html(""), meta: Map[String,String] = Map.empty, ogMeta: Map[String, String] = Map.empty)(content: Html)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, flash: Flash)
 
 <!DOCTYPE html>
 
@@ -11,7 +11,7 @@
 
 <html lang="@messages.lang.code">
     @defining(conf.isEmbedMode) { fullscreen =>
-        @views.html.common.head(title, styles = fsstyles, meta = meta)
+        @views.html.common.head(title, styles = fsstyles, meta = meta, ogMeta = ogMeta)
         <body class="@cls @(if(fullscreen) "fullscreen")">
             @views.html.common.preambleScripts()
             @if(!fullscreen) {

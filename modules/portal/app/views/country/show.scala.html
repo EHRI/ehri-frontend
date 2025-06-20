@@ -1,8 +1,15 @@
 @(item: Country, result: services.search.SearchResult[(Repository, services.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.Country.toString) {
-    @views.html.common.mainContent {
-        @itemDetails(item, annotations, links, watched)
-        @childItemSearch(item, result, action, watched)
+@defining(Map(
+    "title" -> item.toStringLang,
+    "description" -> item.data.displayText.getOrElse(Messages("country.description.empty")),
+    "url" -> controllers.portal.routes.Countries.browse(item.id).absoluteURL(conf.https)
+)) { ogMeta =>
+
+    @views.html.layout.portalLayout(item.toStringLang, EntityType.Country.toString, ogMeta = ogMeta) {
+        @views.html.common.mainContent {
+            @itemDetails(item, annotations, links, watched)
+            @childItemSearch(item, result, action, watched)
+        }
     }
 }

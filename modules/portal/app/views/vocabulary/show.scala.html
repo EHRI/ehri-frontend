@@ -1,9 +1,15 @@
 @(item: Vocabulary, result: services.search.SearchResult[(Concept, services.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.portalLayout(item.toStringLang, EntityType.Vocabulary.toString) {
-    @views.html.common.mainContent {
-        @itemDetails(item, annotations, links, watched)
+@defining(Map(
+    "title" -> item.toStringLang,
+    "description" -> item.data.description.getOrElse(""),
+    "url" -> controllers.portal.routes.Vocabularies.browse(item.id).absoluteURL(conf.https)
+)) { ogMeta =>
+    @views.html.layout.portalLayout(item.toStringLang, EntityType.Vocabulary.toString, ogMeta = ogMeta) {
+        @views.html.common.mainContent {
+            @itemDetails(item, annotations, links, watched)
 
-        @childItemSearch(item, result, action, watched)
+            @childItemSearch(item, result, action, watched)
+        }
     }
 }

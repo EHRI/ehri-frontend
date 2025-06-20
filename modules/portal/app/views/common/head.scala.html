@@ -1,4 +1,18 @@
-@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
+@(title: Any, styles: Html = Html(""), meta: Map[String,String] = Map.empty, ogMeta: Map[String, String] = Map.empty)(implicit req: RequestHeader, conf: AppConfig, messages: Messages)
+
+@import org.apache.commons.lang3.StringUtils
+
+@ogMetaValue(key: String, default: Option[String] = None) = @{
+    val pageValue = ogMeta.get(key).filterNot(_.trim.isEmpty)
+    val confValue = conf.configuration.getOptional[String]("ehri.portal.og." + key)
+    pageValue.orElse(confValue).orElse(default)
+}
+
+@ogMetaTag(key: String, default: Option[String] = None) = {
+    @ogMetaValue(key, default).map { value =>
+        <meta property="og:@key" content="@StringUtils.normalizeSpace(StringUtils.abbreviate(value, 600))">
+    }
+}
 
 <head>
     <title>EHRI - @title</title>
@@ -19,12 +33,10 @@
     <meta name="keywords" content="@meta.getOrElse("keywords", "EHRI,Portal,Holocaust,Research,Shoah,Archives,History,Deportations,Camps,Ghettos")">
 
     <!-- Open Graph meta tags -->
-    @conf.configuration.getOptional[String]("ehri.portal.og.title").map { ogTitle =>
-        <meta property="og:title" content="@ogTitle">
-    }
-    @conf.configuration.getOptional[String]("ehri.portal.og.description").map { ogDescription =>
-        <meta property="og:description" content="@ogDescription">
-    }
+    <meta property="og:site_name" content="@Messages("siteName")">
+    @ogMetaTag("title", Some(Messages("welcome.title")))
+    @ogMetaTag("description", Some(Messages("welcome.blurb")))
+    @ogMetaTag("url", Some(controllers.portal.routes.Portal.index().absoluteURL(conf.https)))
     @conf.configuration.getOptional[String]("ehri.portal.og.image").map { ogImage =>
         <meta property="og:image" content="@controllers.portal.routes.PortalAssets.versioned(ogImage).absoluteURL(conf.https)">
     }
@@ -34,7 +46,6 @@
     @conf.configuration.getOptional[Int]("ehri.portal.og.imageHeight").map { ogImageHeight =>
         <meta property="og:image:height" content="@ogImageHeight">
     }
-    <meta property="og:url" content="@controllers.portal.routes.Portal.index().absoluteURL(conf.https)">
     <meta property="og:type" content="website">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

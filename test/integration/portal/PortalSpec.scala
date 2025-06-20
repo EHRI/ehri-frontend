@@ -3,6 +3,7 @@ package integration.portal
 import org.apache.pekko.util.ByteString
 import cookies.{SessionPreferences, SessionPrefs}
 import helpers.IntegrationTestRunner
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
@@ -176,6 +177,26 @@ class PortalSpec extends IntegrationTestRunner {
       val filter = FakeRequest(controllers.portal.routes.Portal.filterItems(SearchParams(query = Some("C"))))
         .call()
       status(filter) must equalTo(OK)
+    }
+
+    "show generic OpenGraph metadata" in new ITestApp {
+      val index = FakeRequest(portalRoutes.index()).call()
+      status(index) must equalTo(OK)
+      contentType(index) must beSome("text/html")
+      implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      contentAsString(index) must contain(s"<meta property=\"og:site_name\" content=\"${Messages("siteName")}\">")
+      contentAsString(index) must contain(s"<meta property=\"og:title\" content=\"${Messages("welcome.title")}\">")
+      contentAsString(index) must contain(s"<meta property=\"og:description\" content=\"${Messages("welcome.blurb")}\">")
+      contentAsString(index) must contain("<meta property=\"og:type\" content=\"website\">")
+    }
+
+    "show OpenGraph metadata for Documentary Units" in new ITestApp {
+      val show = FakeRequest(controllers.portal.routes.DocumentaryUnits.browse("c4")).call()
+      status(show) must equalTo(OK)
+      contentType(show) must beSome("text/html")
+      contentAsString(show) must contain("<meta property=\"og:title\" content=\"Documentary Unit 4\">")
+      contentAsString(show) must contain("<meta property=\"og:type\" content=\"website\">")
+      contentAsString(show) must contain("<meta property=\"og:description\" content=\"Some description text for c4\">")
     }
   }
 
