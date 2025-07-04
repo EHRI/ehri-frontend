@@ -40,9 +40,9 @@
 
         @views.html.common.flash(flash)
         @views.html.common.mainContent {
-            <section id="welcome-lead">
+            <div id="welcome-lead">
                 @Markdown(Messages("welcome.blurb"))
-            </section>
+            </div>
             <section id="portal-sections">
                 <div class="welcome-section">
                     <h2><a href="@controllers.portal.routes.Countries.searchAll()">@Messages("type.Country")</a>
@@ -144,7 +144,7 @@
                                 attrs._placeholder -> Messages("login.email"),
                                 attrs._label -> Messages("login.email"),
                                 attrs._type -> "email",
-                                attrs._required -> true
+                                attrs._required -> "required",
                             )
                             @helper.inputPassword(
                                 accountForms.passwordLoginForm("password"),
@@ -153,7 +153,7 @@
                                 attrs._autocomplete -> "current-password",
                                 attrs._placeholder -> Messages("login.password"),
                                 attrs._label -> Messages("login.password"),
-                                attrs._required -> true
+                                attrs._required -> "required",
                             )
 
                             <div class="welcome-section-footer">
@@ -166,7 +166,7 @@
 
                         <hr/>
                         <div class="oauth-providers form-field">
-                        @accountForms.oAuth2Config.providers.map { provider =>
+                        @accountForms.oAuth2Config.providers(true).map { provider =>
                             <a href="@controllers.portal.account.routes.Accounts.oauth2Login(provider.name)" class="btn btn-signin-@provider.name"
                             title="@Html(Messages("login.loginWith", provider.name.capitalize))"
                             aria-label="@Html(Messages("login.loginWith", provider.name.capitalize))">
@@ -176,8 +176,6 @@
                             </a>
                         }
                         </div>
-
-
                     }
                 </div>
             </section>

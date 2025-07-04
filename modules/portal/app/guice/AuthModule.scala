@@ -5,20 +5,26 @@ import auth.handler.cookie.CookieIdContainer
 import auth.oauth2.OAuth2Config
 import auth.oauth2.providers._
 import com.google.inject.AbstractModule
+import play.api.Configuration
 import services.accounts.{AccountManager, SqlAccountManager}
 import services.oauth2.{OAuth2Service, WebOAuth2Service}
+import views.AppConfig
 
 import javax.inject.{Inject, Provider}
 
-private class OAuth2ConfigProvider @Inject()(config: play.api.Configuration) extends Provider[OAuth2Config] {
-  override def get(): OAuth2Config = new OAuth2Config {
-    override def providers: Seq[OAuth2Provider] = Seq(
+private class OAuth2ConfigProvider @Inject()(config: Configuration, appConfig: AppConfig) extends Provider[OAuth2Config] {
+  override def get(): OAuth2Config = (login: Boolean) => {
+    val all = Seq(
       GoogleOAuth2Provider(config),
       MicrosoftOAuth2Provider(config),
       FacebookOAuth2Provider(config),
       YahooOAuth2Provider(config),
       ORCIDOAuth2Provider(config)
     )
+    val list = if (login) appConfig.oauth2LoginProviders
+    else appConfig.oauth2RegistrationProviders
+
+    all.filter(p => list.contains(p.name))
   }
 }
 
