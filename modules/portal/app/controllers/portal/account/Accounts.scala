@@ -444,7 +444,7 @@ case class Accounts @Inject()(
 
   def oauth2(providerId: String, code: Option[String], state: Option[String], isLogin: Boolean): Action[AnyContent] =
     NotReadOnlyAction.async { implicit request =>
-      oauth2Providers.providers.find(_.name == providerId).map { provider =>
+      oauth2Providers.providers(isLogin).find(_.name == providerId).map { provider =>
 
         // Create a random nonce to stamp this OAuth2 session
         val sessionKey = "sid"

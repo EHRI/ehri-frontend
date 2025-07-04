@@ -22,9 +22,7 @@
     @users.map { other =>
         <li class="user-info @{if(isCurrentUser(other)) "current"}">
             <a href="@controllers.portal.social.routes.Social.userProfile(other.id)" class="gravitar">
-                <img class="user-thumbnail" alt="Image"
-                    height="auto"
-                    width="auto" src="@views.Helpers.gravitar(other.data.imageUrl)" />
+                <img class="user-thumbnail" alt="Image" src="@views.Helpers.gravitar(other.data.imageUrl)">
             </a>
             <div class="user-info-details">
                 <h3 class="search-item-heading type-highlight UserProfile">
