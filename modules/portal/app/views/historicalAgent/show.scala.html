@@ -1,26 +1,26 @@
 @(item: HistoricalAgent, annotations: Seq[Annotation], result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@defining(Map(
-    "title" -> item.toStringLang,
-    "description" -> item.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
-    "url" -> controllers.portal.routes.HistoricalAgents.browse(item.id).absoluteURL(conf.https)
-)) { ogMeta =>
-    @views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString, ogMeta = ogMeta) {
-        @infobar(item)
+@ogMeta = @{OgMeta(
+    item.toStringLang,
+    controllers.portal.routes.HistoricalAgents.browse(item.id),
+    item.data.primaryDescription(messages).flatMap(_.displayText)
+)}
 
-        @views.html.common.mainContent {
-            @views.html.historicalAgent.itemDetails(item, annotations, result, action, watched)
+@views.html.layout.portalLayout(item.toStringLang, EntityType.HistoricalAgent.toString, ogMeta = ogMeta.toMap) {
+    @infobar(item)
 
-            @if(hasRelated) {
-                <section id="@item.id-related-item-search" class="related-item-search">
-                    <h3>@Messages("item.related")</h3>
-                    @views.html.common.search.searchForm(result, action, key = Messages("item.related.search")) {
-                        @views.html.common.search.searchItemList(result, watched)
-                    } {
-                        @views.html.common.search.facetList(result.facetClasses, action)
-                    }
-                </section>
-            }
+    @views.html.common.mainContent {
+        @views.html.historicalAgent.itemDetails(item, annotations, result, action, watched)
+
+        @if(hasRelated) {
+            <section id="@item.id-related-item-search" class="related-item-search">
+                <h3>@Messages("item.related")</h3>
+                @views.html.common.search.searchForm(result, action, key = Messages("item.related.search")) {
+                    @views.html.common.search.searchItemList(result, watched)
+                } {
+                    @views.html.common.search.facetList(result.facetClasses, action)
+                }
+            </section>
         }
     }
 }

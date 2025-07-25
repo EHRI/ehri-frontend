@@ -1,6 +1,12 @@
 @(result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.DocumentaryUnit"), result, cls = EntityType.DocumentaryUnit.toString) {
+@ogMeta = @{OgMeta(
+    Messages("type.DocumentaryUnit"),
+    controllers.portal.routes.DocumentaryUnits.searchAll(),
+    Some(Messages("type.DocumentaryUnit.description"))
+)}
+
+@views.html.layout.searchLayout(Messages("type.DocumentaryUnit"), result, cls = EntityType.DocumentaryUnit.toString, ogMeta = ogMeta.toMap) {
     @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.DocumentaryUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {

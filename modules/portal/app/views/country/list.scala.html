@@ -1,7 +1,13 @@
 @(result: services.search.SearchResult[(Country,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.Country"), result, cls = EntityType.Country.toString) {
-    @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.Country") {
+@ogMeta = @{OgMeta(
+    Messages("type.Country"),
+    controllers.portal.routes.Countries.searchAll(),
+    Some(Messages("type.Country.description"))
+)}
+
+@views.html.layout.searchLayout(Messages("type.Country"), result, cls = EntityType.Country.toString, ogMeta = ogMeta.toMap) {
+    @views.html.common.search.searchForm(result, action, key = "search.Country") {
         @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.country.introNotice()

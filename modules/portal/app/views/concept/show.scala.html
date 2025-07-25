@@ -8,27 +8,27 @@
     <script src="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.js")"></script>
 }
 
-@defining(Map(
-    "title" -> item.toStringLang,
-    "description" -> item.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
-    "url" -> controllers.portal.routes.Concepts.browse(item.id).absoluteURL(conf.https)
-)) { ogMeta =>
-    @views.html.layout.portalLayout(item.toStringLang, EntityType.Concept.toString, styles = extraCss, scripts = extraScript, ogMeta = ogMeta) {
-        @infobar(item)
+@ogMeta = @{OgMeta(
+    item.toStringLang,
+    controllers.portal.routes.Concepts.browse(item.id),
+    item.data.primaryDescription(messages).flatMap(_.displayText)
+)}
 
-        @views.html.common.mainContent {
-            @itemDetails(item, annotations, result, action, watched, dlid)
+@views.html.layout.portalLayout(item.toStringLang, EntityType.Concept.toString, styles = extraCss, scripts = extraScript, ogMeta = ogMeta.toMap) {
+    @infobar(item)
 
-            @if(hasRelated) {
-                <section id="@item.id-related-item-search" class="related-item-search">
-                    <h3>@Messages("item.related")</h3>
-                    @views.html.common.search.searchForm(result, action, key = Messages("item.related.search"), inline = true) {
-                        @views.html.common.search.searchItemList(result, watched)
-                    } {
-                        @views.html.common.search.facetList(result.facetClasses, action)
-                    }
-                </section>
-            }
+    @views.html.common.mainContent {
+        @itemDetails(item, annotations, result, action, watched, dlid)
+
+        @if(hasRelated) {
+            <section id="@item.id-related-item-search" class="related-item-search">
+                <h3>@Messages("item.related")</h3>
+                @views.html.common.search.searchForm(result, action, key = Messages("item.related.search"), inline = true) {
+                    @views.html.common.search.searchItemList(result, watched)
+                } {
+                    @views.html.common.search.facetList(result.facetClasses, action)
+                }
+            </section>
         }
     }
 }

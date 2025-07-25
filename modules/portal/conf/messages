@@ -249,6 +249,7 @@ type.CvocConcept.description=Subject terms related to EHRI archival descriptions
 type.UserProfile=People on EHRI
 type.Group=Groups
 type.VirtualUnit=Virtual Collections
+type.VirtualUnit.description=Related collections of material from different sources and potentially held by different institutions.
 type.Annotation=Notes
 type.Link=Connections
 type.CvocVocabulary=Vocabularies

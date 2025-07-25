@@ -1,7 +1,13 @@
 @(result: services.search.SearchResult[(Repository,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.Repository"), result, cls = EntityType.Repository.toString) {
-    @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.Repository") {
+@ogMeta = @{OgMeta(
+    Messages("type.Repository"),
+    controllers.portal.routes.Repositories.searchAll(),
+    Some(Messages("type.Repository.description"))
+)}
+
+@views.html.layout.searchLayout(Messages("type.Repository"), result, cls = EntityType.Repository.toString, ogMeta = ogMeta.toMap) {
+    @views.html.common.search.searchForm(result, action, key = "search.Repository") {
         @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.search.facetList(result.facetClasses, action)

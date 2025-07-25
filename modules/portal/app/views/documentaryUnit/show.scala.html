@@ -1,17 +1,17 @@
 @(item: DocumentaryUnit, result: services.search.SearchResult[(DocumentaryUnit, services.search.SearchHit)], annotations: Seq[Annotation], links: Seq[Link], action: Call, watched: Seq[String], dlid: Option[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@defining(Map(
-    "title" -> item.toStringLang,
-    "description" -> item.data.primaryDescription(messages).flatMap(_.displayText).getOrElse(""),
-    "url" -> controllers.portal.routes.DocumentaryUnits.browse(item.id).absoluteURL(conf.https)
-)) { ogMeta =>
-    @views.html.layout.portalLayout(item.toStringLang, EntityType.DocumentaryUnit.toString, ogMeta = ogMeta) {
-        @infobar(item)
+@ogMeta = @{OgMeta(
+    item.toStringLang,
+    controllers.portal.routes.DocumentaryUnits.browse(item.id),
+    item.data.primaryDescription(messages).flatMap(_.displayText)
+)}
 
-        @views.html.common.mainContent {
-            @itemDetails(item, annotations, links, watched, dlid)
+@views.html.layout.portalLayout(item.toStringLang, EntityType.DocumentaryUnit.toString, ogMeta = ogMeta.toMap) {
+    @infobar(item)
 
-            @childItemSearch(item, result, action, watched)
-        }
+    @views.html.common.mainContent {
+        @itemDetails(item, annotations, links, watched, dlid)
+
+        @childItemSearch(item, result, action, watched)
     }
 }

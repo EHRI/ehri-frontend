@@ -1,7 +1,13 @@
 @(result: services.search.SearchResult[(HistoricalAgent,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
-@views.html.layout.searchLayout(Messages("type.HistoricalAgent"), result, cls = EntityType.HistoricalAgent.toString) {
-    @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.HistoricalAgent") {
+@ogMeta = @{OgMeta(
+    Messages("type.HistoricalAgent"),
+    controllers.portal.routes.HistoricalAgents.searchAll(),
+    Some(Messages("type.HistoricalAgent.description"))
+)}
+
+@views.html.layout.searchLayout(Messages("type.HistoricalAgent"), result, cls = EntityType.HistoricalAgent.toString, ogMeta = ogMeta.toMap) {
+    @views.html.common.search.searchForm(result, action, key = "search.HistoricalAgent") {
         @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.search.facetList(result.facetClasses, action)
