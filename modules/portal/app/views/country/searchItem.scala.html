@@ -1,7 +1,7 @@
 @(item: Country, highlighter: views.Highlighter, watched: Boolean = false)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer)
 
 @image = {
-    <img alt="Country Flag" width="48" height="48" src="https://ehri-portal.s3.eu-central-1.amazonaws.com/portal/images/Country/@{item.id.toLowerCase}.png"/>
+    <img alt="Country Flag" width="48" height="48" src="https://ehri-portal.s3.eu-central-1.amazonaws.com/portal/images/Country/@{item.id.toLowerCase}.png">
 }
 
 @views.html.common.searchItemOutline(item, watched, views.html.helpers.linkTo(item, htmlContent = image)) {

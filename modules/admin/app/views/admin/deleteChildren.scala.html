@@ -20,7 +20,7 @@
 
                 <div class="form-field">
                     @formHelpers.checkbox(f(""), ALL)
-                <input type="hidden" name="@CONFIRM" value="@Messages("item.deleteChildren.confirm", children.total)"/>
+                <input type="hidden" name="@CONFIRM" value="@Messages("item.deleteChildren.confirm", children.total)">
                 <p class="alert alert-warning">
                 @Messages("item.deleteChildren.confirmPhrase", Html(Messages("item.deleteChildren.confirm", children.total)))
                 </p>

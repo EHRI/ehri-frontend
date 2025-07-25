@@ -1,7 +1,7 @@
 @(item: Concept, annotations: Seq[Annotation], result: services.search.SearchResult[(Model, services.search.SearchHit)], action: Call, watched: Seq[String], dlid: Option[String], hasRelated: Boolean)(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash)
 
 @extraCss = {
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.css")"/>
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.css")">
 }
 
 @extraScript = {

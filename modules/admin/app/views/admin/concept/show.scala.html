@@ -1,7 +1,7 @@
 @(item: Concept, page: utils.Page[Concept], params: utils.PageParams, links: Seq[Link], annotations: Seq[Annotation])(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
 @extraCss = {
-    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.css")"/>
+    <link rel="stylesheet" href="@controllers.portal.routes.PortalAssets.versioned("js/lib/leaflet/leaflet.css")">
 }
 
 @extraScript = {

@@ -12,7 +12,7 @@
             </div>
 
             @req.getQueryString("dlid").map { did =>
-                <input type="hidden" name="dlid" value="@did"/>
+                <input type="hidden" name="dlid" value="@did">
             }
         </div>
         @common.search.selectedFacets(result.facetClasses, result.facets)
