@@ -17,7 +17,7 @@
 @views.html.common.sidebarSection(cls = "collection-context virtualUnit") {
     <p class="alert alert-info">
         @Messages("virtualUnit.viewInArchivalContext.explanation")
-        <br />
+        <br>
         @views.html.helpers.linkTo(item.asInstanceOf[DocumentaryUnit], Html(Messages("virtualUnit.viewInArchivalContext")))
     </p>
     @path.headOption.map { vc =>

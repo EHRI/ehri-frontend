@@ -25,7 +25,7 @@
             @formHelpers.lineInput(f(""), LOG_MSG)
 
             <div class="form-group">
-                <input type="submit" class="btn btn-warning" value="@Messages("admin.utils.findReplace.find")" />
+                <input type="submit" class="btn btn-warning" value="@Messages("admin.utils.findReplace.find")">
             </div>
         }
 
@@ -33,7 +33,7 @@
             @if(found.isEmpty) {
                 <h3>@Messages("admin.utils.findReplace.notFound")</h3>
             } else {
-                <hr/>
+                <hr>
 
                 <h3>@Messages("admin.utils.findReplace.found", found.size)</h3>
                 @helper.form(action = replaceAction) {
@@ -68,7 +68,7 @@
                     <div class="form-group">
                         <input type="submit" onclick="return confirm('Are you sure?')"
                             class="btn btn-danger"
-                            value="@Messages("admin.utils.findReplace.replace", found.size)" />
+                            value="@Messages("admin.utils.findReplace.replace", found.size)">
                     </div>
                 }
             }

@@ -18,7 +18,7 @@
                             <td>
                                 @defining(accessor.getPermission(perms, ct, perm)) { permOpt =>
                                     <input type="checkbox" name="@ct" value="@perm"
-                                    @{if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) "checked"} />
+                                    @{if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) "checked"}>
                                     @permOpt.flatMap(_.inheritedFrom).map { user =>
                                         <span title="@Messages("permissions.inheritedFrom", user)">*</span>
                                     }

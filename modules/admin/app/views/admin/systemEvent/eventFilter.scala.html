@@ -7,8 +7,8 @@
 <fieldset class="event-filter">
     <legend>@Messages("systemEvent.filter")</legend>
     @helper.form(action = action, attrs._class -> "", attrs._role -> "form") {
-        <input type="hidden" name="@OFFSET_PARAM" value="@range.offset" />
-        <input type="hidden" name="@LIMIT_PARAM" value="@range.limit" />
+        <input type="hidden" name="@OFFSET_PARAM" value="@range.offset">
+        <input type="hidden" name="@LIMIT_PARAM" value="@range.limit">
         @defining("systemEvent") { implicit fieldPrefix =>
             @formHelpers.enumChoiceInput(
                 filterForm(""),

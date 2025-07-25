@@ -5,7 +5,7 @@
         <div class="inline-control">
             <input type="text" class="form-control"
                 name="@field.name" id="@field.id" value="@field.value"
-                title="@(md.renderMarkdown(config.flatMap(_.description(key)).getOrElse(Messages((if (fieldPrefix != "") fieldPrefix + "." else "") + key + ".description"))))" />
+                title="@(md.renderMarkdown(config.flatMap(_.description(key)).getOrElse(Messages((if (fieldPrefix != "") fieldPrefix + "." else "") + key + ".description"))))">
             <span class="help-block errors">@field.errors.map(e => Messages(e.message)).mkString(", ")</span>
         </div>
        <div class="inline-remove">

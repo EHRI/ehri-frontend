@@ -22,27 +22,27 @@
                         <dt>@Messages(fieldPrefix + "." + STREET_ADDRESS)</dt>
                         <dd>
                             @address.name.map { an =>
-                                <strong>@an</strong><br/>
+                                <strong>@an</strong><br>
                             }
                             @address.contactPerson.map { an =>
-                                <i>@an</i><br/>
+                                <i>@an</i><br>
                             }
                             @address.streetAddress.map { an =>
                                 @an.split("\\n").map { addressLine =>
-                                    @addressLine<br />
+                                    @addressLine<br>
                                 }
                             }
                             @address.city.map { city =>
-                                @city<br/>
+                                @city<br>
                             }
                             @address.region.map { region =>
-                                @region<br/>
+                                @region<br>
                             }
                             @address.postalCode.map { post =>
-                                @post<br/>
+                                @post<br>
                             }
                             @address.countryCode.map { cc =>
-                                @views.Helpers.countryCodeToName(cc)<br />
+                                @views.Helpers.countryCodeToName(cc)<br>
                             }
 
                         </dd>

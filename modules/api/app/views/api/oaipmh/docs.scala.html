@@ -39,7 +39,7 @@
         <p>Some of these verbs require additional parameters. For example, the <code>ListIdentifiers</code>, <code>GetRecord</code> and <code>ListRecords</code>
         verbs all require a <code>metadataPrefix</code> parameter.</p>
 
-        <hr/>
+        <hr>
         <div id="api-usage-pagination">
             <h3>Pagination &amp; Resumption Tokens</h3>
 
@@ -114,7 +114,7 @@
                 <label for="api-usage-output" class="">Example Results</label>
                 <textarea class="api-example" rows="8" id="api-usage-output"></textarea>
             }
-            <br/>
+            <br>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("api-usage-curl") {
                 curl @controllers.api.oaipmh.routes.OaiPmhHome.query().absoluteURL(conf.https)?verb=Identify

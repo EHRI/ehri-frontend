@@ -50,11 +50,11 @@
     @common.recaptcha(recaptchaKey)
 
     <div class="signup-check">
-        <input type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString" />
-        <input type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
+        <input type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString">
+        <input type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="">
     </div>
 
     <div class="form-field">
-        <input type="submit" class="login-button btn btn-lg btn-post" value="@Messages("login.signup.submit")" />
+        <input type="submit" class="login-button btn btn-lg btn-post" value="@Messages("login.signup.submit")">
     </div>
 }

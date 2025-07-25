@@ -66,7 +66,7 @@
                             @views.html.userProfile.editProfileForm(profileForm, controllers.portal.users.routes.UserProfiles.updateProfilePost())
 
                             @if(conf.configuration.get[Boolean]("ehri.portal.profile.orcid")) {
-                                <hr/>
+                                <hr>
                                 @if(user.data.orcid.isEmpty) {
                                     <h4>@Messages("profile.orcid.connect.info")</h4>
                                     @helper.form(action = controllers.portal.account.routes.Accounts.connectORCIDPost()) {
@@ -74,7 +74,7 @@
                                         <div class="form-field">
                                             <div class="form-submit">
                                                 <button type="submit" class="btn btn-light">
-                                                    <img src="@controllers.portal.routes.PortalAssets.at("img/orcid-auth-16x16.png")" alt="@Messages("profile.orcid.connect.button")" />
+                                                    <img src="@controllers.portal.routes.PortalAssets.at("img/orcid-auth-16x16.png")" alt="@Messages("profile.orcid.connect.button")">
                                                     @Messages("profile.orcid.connect.submit")
                                                 </button>
                                             </div>

@@ -13,7 +13,7 @@
                 @helper.inputText(annf("id"), attrs._label -> "item")
                 @defining(annf("data")) { formData =>
                     @helper.inputText(formData(LinkF.DESCRIPTION), attrs._label -> Messages("link.description"))
-                    <input type="hidden" value="@LinkF.LinkType.Associative" name="@formData(LinkF.LINK_TYPE).name" />
+                    <input type="hidden" value="@LinkF.LinkType.Associative" name="@formData(LinkF.LINK_TYPE).name">
                 }
             </fieldset>
         }

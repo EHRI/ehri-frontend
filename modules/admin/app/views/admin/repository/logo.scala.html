@@ -3,7 +3,7 @@
 @item.data.logoUrl.map { url =>
     <div class="repository-logo">
         <a href="@controllers.institutions.routes.Repositories.updateLogoImage(item.id)">
-            <img src="@url" alt="@Messages("repository.logo.edit")" title="@Messages("repository.logo.edit")" />
+            <img src="@url" alt="@Messages("repository.logo.edit")" title="@Messages("repository.logo.edit")">
         </a>
     </div>
 }
