@@ -6,8 +6,8 @@
         <div class="alert alert-danger">
             @Messages("item.delete.childrenFirst", children.total)
             @deleteAll.map { call =>
-                <br/>
-                <br/>
+                <br>
+                <br>
                 <a title="@Messages("item.deleteChildren.submit", children.total)" href="@call">
                     <strong>@Messages("item.deleteChildren")</strong>
                 </a>

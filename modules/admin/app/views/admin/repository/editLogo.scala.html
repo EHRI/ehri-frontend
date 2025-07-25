@@ -8,8 +8,8 @@
         @formHelpers.globalErrors(f)
 
         <div class="form-field">
-            <img alt="Current Image" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))" />
-            <hr/>
+            <img alt="Current Image" src="@item.data.logoUrl.getOrElse(controllers.portal.routes.PortalAssets.versioned("img/institution-icon.png"))">
+            <hr>
 
             @helper.inputFile(f("image"), attrs._label -> Messages("repository.logo"))
         </div>

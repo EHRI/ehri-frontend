@@ -15,11 +15,11 @@
         @if(userOpt.isEmpty) {
             <div class="form-field">
                 <label for="feedback_name" class="sr-only">@Messages(NAME)</label>
-                <input id="feedback_name" type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))" />
+                <input id="feedback_name" type="text" class="form-control" name="@NAME" placeholder="@Messages(NAME) (@Messages("optional"))">
             </div>
             <div class="form-field">
                 <label for="feedback_email" class="sr-only">@Messages(EMAIL)</label>
-                <input id="feedback_email" type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))" />
+                <input id="feedback_email" type="email" class="form-control" name="@EMAIL" placeholder="@Messages(EMAIL) (@Messages("optional"))">
             </div>
         }
 
@@ -29,8 +29,8 @@
         </div>
 
         <div class="blank-check" style="display: none">
-            <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString" />
-            <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="" />
+            <input tabindex="-1" type="hidden" name="@TIMESTAMP" value="@java.time.ZonedDateTime.now().toString">
+            <input tabindex="-1" type="text" name="@BLANK_CHECK" title="[Leave this blank]" autocomplete="off" value="">
         </div>
     </fieldset>
     <div class="feedback-form-footer">

@@ -50,7 +50,7 @@
     }
 
     @if(item.groups.nonEmpty) {
-        <hr />
+        <hr>
         <strong>@Messages("group.parentGroups"):</strong>&nbsp;
         @item.groups.map { group =>
             <a href="@controllers.groups.routes.Groups.get(group.id)">@group.toStringLang</a>
@@ -65,7 +65,7 @@
                     @badges(member)
                 </h4>
                     @removeLink(member)
-                <hr />
+                <hr>
             }
         </ul>
     }

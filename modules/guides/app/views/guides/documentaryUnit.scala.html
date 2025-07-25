@@ -2,7 +2,7 @@
 
 @sidebar(page: GuidePage) = {
     <div class="guides-notice">
-        <small class="minor-notice">@Messages("guides.annotation")</small><br />
+        <small class="minor-notice">@Messages("guides.annotation")</small><br>
         <small><a href="@controllers.portal.routes.DocumentaryUnits.browse(item.id)">@Messages("guides.seeOnPortal")</a></small>
     </div>
     @views.html.common.descriptionSwitcher(descriptions = item.data.descriptions.zipWithIndex.map { case (d,i) => d -> (i == 0)})

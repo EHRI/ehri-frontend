@@ -29,12 +29,12 @@
         <div class="form-group">
             <label class="control-label">@Messages("search.index.types")</label>
             <div class="control-elements">
-                <label class="checkbox"><input type="checkbox" id="select-all" /> @Messages("search.index.types.selectAll")</label>
-                <hr />
+                <label class="checkbox"><input type="checkbox" id="select-all"> @Messages("search.index.types.selectAll")</label>
+                <hr>
                 @types.map { et =>
                     <div class="content-type">
                         <label class="checkbox">
-                            <input type="checkbox" name="@(TYPES)[]" value="@et" />
+                            <input type="checkbox" name="@(TYPES)[]" value="@et">
                             @Messages("contentTypes." + et.toString)
                         </label>
                     </div>

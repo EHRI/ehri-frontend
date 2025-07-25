@@ -8,7 +8,7 @@
 				append = false;
 			}
 			$.get($href, function(data) {
-                var $data = $("<ul />");
+                var $data = $("<ul>");
                 $data.html(data)
                 $data.find("li").removeClass("facet").addClass("item-wrapper")
                 if($data.find(".facet-scroll.item-wrapper").length == 1) {
@@ -32,7 +32,7 @@
 
 			if($scroll.length === 0){
 				if($ul === "undefined" || $ul.length === 0) {
-					$parent.append($("<ul />", {"class" : "list-item hierarchy"}))
+					$parent.append($("<ul>", {"class" : "list-item hierarchy"}))
 					loadOrganisation($parent.find("ul:first"), $href);
 				} else {
 					var $li = $ul.find("li:first");
@@ -61,7 +61,7 @@
             <h1>@page.name</h1>
             <form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
                 <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search" /></li>
+                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Quick Search"></li>
                     <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="fa fa-search"></span><span class="text-hide">
                         Search</span></button></li>
                 </ul>

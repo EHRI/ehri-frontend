@@ -164,7 +164,7 @@
                             </div>
                         }
 
-                        <hr/>
+                        <hr>
                         <div class="oauth-providers form-field">
                         @accountForms.oAuth2Config.providers(true).map { provider =>
                             <a href="@controllers.portal.account.routes.Accounts.oauth2Login(provider.name)" class="btn btn-signin-@provider.name"

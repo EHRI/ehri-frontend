@@ -1,7 +1,7 @@
 @(paginationKey: String, page: utils.Page[Model], params: utils.PageParams)(listBody: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages)
 
 
-<hr />
+<hr>
 <div class="item-list">
     <h3>@Messages(paginationKey, page.total, page.start, page.end)</h3>
     @if(page.total > 0) {

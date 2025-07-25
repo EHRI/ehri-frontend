@@ -17,7 +17,7 @@
                             <input type="checkbox" name="@item.contentType" value="@perm"
                         @if(permOpt.isDefined && permOpt.flatMap(_.inheritedFrom).isEmpty) {
                             checked
-                        } />
+                        }>
                         @permOpt.flatMap(_.inheritedFrom).map { user =>
                             <span title="@Messages("permissions.inheritedFrom", user)">*</span>
                         }

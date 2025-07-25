@@ -6,7 +6,7 @@
     <label for="@id" class="sr-only" aria-hidden="true">@label</label>
     <input class="form-control form-control-sm @{if(params.query.nonEmpty) "active"}"
         id="@id" type="search" name="@QUERY" value="@params.query" title="@label"
-        placeholder="@label" />
+        placeholder="@label">
     <span class="input-group-append">
         <button class="btn submit-search" type="submit" aria-label="@Messages("search.site")">
             <i class="material-icons form-control-feedback" aria-hidden="true">search</i>

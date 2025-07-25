@@ -60,7 +60,7 @@
             @fc.facets.map { f =>
                 <li class="@(if(f.applied) "remove-filter")">
                     @if(f.applied) {
-                        <input type="hidden" name="@fc.param" value="@f.value" />
+                        <input type="hidden" name="@fc.param" value="@f.value">
                         <a rel="nofollow" class="remove-filter" href="@pathWithoutFacet(fc, f.value, call.url, req.queryString.filter(_._1 != "page"))">
                             <span class="facet-name">@fc.pretty(f)</span>
                             <span class="facet-count">(@f.count)</span>
@@ -134,20 +134,20 @@
             </ol>
         } else {
             <div class="facet-options">
-                <input type="hidden" class="target" name="@fc.param" value="" />
+                <input type="hidden" class="target" name="@fc.param" value="">
                 <div class="form-group">
                     <label for="facet-options-@(fc.param)-begin" class="control-label">@Messages("dates.start.year")</label>
                     <div class="controls">
-                        <input type="text" id="facet-options-@(fc.param)-begin" data-target="begin" class="form-control date input-sm" />
+                        <input type="text" id="facet-options-@(fc.param)-begin" data-target="begin" class="form-control date input-sm">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="facet-options-@(fc.param)-end" class="control-label">@Messages("dates.start.year")</label>
                     <div class="controls">
-                        <input type="text" id="facet-options-@(fc.param)-end" data-target="end" class="form-control date input-sm" />
+                        <input type="text" id="facet-options-@(fc.param)-end" data-target="end" class="form-control date input-sm">
                     </div>
                 </div>
-                <br style="clear: both" />
+                <br style="clear: both">
             </div>
         }
     </li>

@@ -26,8 +26,7 @@
 @searchForm(prefix: String) = {
     <div class="form-field">
         <label class="form-label sr-only" for="@prefix-q">Query</label>
-        <input class="input-sm form-control" placeholder="Query" type="text" name="q"
-        id="@prefix-q" />
+        <input class="input-sm form-control" placeholder="Query" type="text" name="q" id="@prefix-q">
     </div>
     <div class="form-field">
         <label class="form-label" for="@prefix-type">Type</label>
@@ -49,22 +48,18 @@
     </div>
     <div class="form-field">
         <label class="form-label" for="@prefix-page">Page</label>
-        <input class="input-sm form-control" type="number" min="1" max="1000" name="page"
-        id="@prefix-page"
-        value="1" />
+        <input class="input-sm form-control" type="number" min="1" max="1000" name="page" id="@prefix-page" value="1">
     </div>
     <div class="form-field">
         <label class="form-label" for="@prefix-limit">Per page</label>
-        <input class="input-sm form-control" type="number" min="1" max="100" name="limit"
-        id="@prefix-limit" value="20" />
+        <input class="input-sm form-control" type="number" min="1" max="100" name="limit" id="@prefix-limit" value="20">
     </div>
 }
 
 @itemIdField(prefix: String) = {
     <div class="form-field">
         <label class="form-label" for="@prefix-id">Type an item's ID:</label>
-        <input class="input-sm form-control" placeholder="Query" type="text" name="id"
-        id="@prefix-id" value="us-005578" />
+        <input class="input-sm form-control" placeholder="Query" type="text" name="id" id="@prefix-id" value="us-005578">
     </div>
 }
 
@@ -125,7 +120,7 @@
             .api+json</code>.
         </p>
 
-        <hr/>
+        <hr>
 
         <div class="example">
             <h3 id="global-search">Global Search</h3>
@@ -148,7 +143,7 @@
                 <textarea rows="8" class="api-example" id="api-example-search"></textarea>
             }
 
-            <br/>
+            <br>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("global-search-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.search().absoluteURL(conf.https)"
@@ -175,12 +170,12 @@
                 <textarea rows="8" class="api-example" id="api-example-fetch"></textarea>
             }
 
-            <br/>
+            <br>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("retrieve-item-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.fetch("us-005578").absoluteURL(conf.https)"
             }
-            <hr/>
+            <hr>
         </div>
 
         <div class="example">
@@ -206,12 +201,12 @@
                 <textarea rows="8" class="api-example" id="api-example-item-search"></textarea>
             }
 
-            <br/>
+            <br>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("item-search-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.searchIn("us-005578").absoluteURL(conf.https)"
             }
-            <hr/>
+            <hr>
         </div>
 
         <div class="example">
@@ -237,12 +232,12 @@
                 <textarea rows="8" class="api-example" id="api-example-item-related"></textarea>
             }
 
-            <br/>
+            <br>
             <p>Run it as a curl command:</p>
             @views.html.api.helpers.curlField("item-related-curl") {
                 curl "@controllers.api.v1.routes.ApiV1.related("us-005578").absoluteURL(conf.https)"
             }
-            <hr/>
+            <hr>
         </div>
     </section>
 

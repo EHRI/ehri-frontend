@@ -10,7 +10,7 @@
             <h1>@page.name</h1>
             <form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
                 <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Name" value="@params.query" /></li>
+                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" name="q" placeholder="Name" value="@params.query"></li>
                     <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input"><span class="fa fa-search"></span><span class="text-hide">
                         Search</span></button></li>
                 </ul>

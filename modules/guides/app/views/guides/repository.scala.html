@@ -4,7 +4,7 @@
     @item.data.logoUrl.map { logo =>
         @defining(item.url.getOrElse(controllers.portal.guides.routes.Repositories.browse(guide.path, page.path).absoluteURL(request.secure))) { url =>
             <a href="@url">
-                <img class="repository-logo" src="@logo" alt="Institution Logo" />
+                <img class="repository-logo" src="@logo" alt="Institution Logo">
             </a>
         }
     }

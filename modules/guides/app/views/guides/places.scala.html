@@ -14,7 +14,7 @@
     <script type="text/javascript" src="@controllers.portal.guides.routes.GuideAssets.versioned("js/portal-guide-map.js")"></script>
 }
 @css = {
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css">
 }
 
 
@@ -52,7 +52,7 @@
             <h1>@page.name</h1>
             <form role="form" action="@controllers.portal.guides.routes.Guides.layoutRetrieval(guide.path, page.path)">
                 <ul class="nav nav-pills nav-ehri nav-ehri-black nav-justified">
-                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" value="@params.query" name="q" placeholder="Quick Search" /></li>
+                    <li><input class="nav-ehri nav-ehri-black nav-ehri-input" value="@params.query" name="q" placeholder="Quick Search"></li>
                     <li><button type="submit" class="nav-ehri nav-ehri-black nav-ehri-input">Search</button></li>
                 </ul>
             </form>
