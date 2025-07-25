@@ -1,5 +1,5 @@
 @()(implicit request: RequestHeader)
 
 @play.filters.csrf.CSRF.getToken.map { token =>
-    <input type="hidden" name="@token.name" value="@token.value"/>
+    <input type="hidden" name="@token.name" value="@token.value">
 }
