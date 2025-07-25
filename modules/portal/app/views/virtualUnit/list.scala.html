@@ -1,7 +1,13 @@
 @(result: services.search.SearchResult[(VirtualUnit,services.search.SearchHit)], action: Call, watched: Seq[String])(implicit userOpt: Option[UserProfile], request: RequestHeader, prefs: SessionPrefs, conf: AppConfig, messages: Messages, md: MarkdownRenderer, flash: Flash, context: Option[Holder[_]] = None)
 
-@views.html.layout.searchLayout(Messages("type.VirtualUnit"), result, cls = EntityType.VirtualUnit.toString) {
-    @views.html.common.search.searchForm(result, action, autofocus = false, key = "search.VirtualUnit") {
+@ogMeta = @{OgMeta(
+    Messages("type.VirtualUnit"),
+    controllers.portal.routes.VirtualUnits.browseVirtualCollections(),
+    Some(Messages("type.VirtualUnit.description"))
+)}
+
+@views.html.layout.searchLayout(Messages("type.VirtualUnit"), result, cls = EntityType.VirtualUnit.toString, ogMeta = ogMeta.toMap) {
+    @views.html.common.search.searchForm(result, action, key = "search.VirtualUnit") {
         @views.html.common.search.searchItemList(result, watched)
     } {
         @views.html.common.search.facetList(result.facetClasses, action)
