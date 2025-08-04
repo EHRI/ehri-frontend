@@ -11,9 +11,9 @@
         attrs._autocomplete -> "email",
         attrs._autofocus -> "autofocus",
         attrs._placeholder -> Messages("login.email"),
+        attrs._required -> true,
         attrs._label -> Messages("login.email"),
-        attrs._type -> "email",
-        attrs._required -> true
+        attrs._type -> "email"
     )
     @helper.inputPassword(
         pwForm("password"),
@@ -21,8 +21,8 @@
         attrs._class -> "form-control form-control-lg",
         attrs._autocomplete -> "current-password",
         attrs._placeholder -> Messages("login.password"),
-        attrs._label -> Messages("login.password"),
-        attrs._required -> true
+        attrs._required -> true,
+        attrs._label -> Messages("login.password")
     )
 
     <p>

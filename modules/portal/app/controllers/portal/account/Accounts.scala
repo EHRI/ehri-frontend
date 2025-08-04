@@ -572,11 +572,19 @@ case class Accounts @Inject()(
           accounts.findByEmail(email).flatMap {
             case Some(account) =>
               val uuid = UUID.randomUUID()
-              for {
+              (for {
                 p <- userDataApi.get[UserProfile](account.id)
                 _ <- accounts.createToken(account.id, uuid, isSignUp = false)
                 _ = sendResetEmail(p.data.name, account.email, uuid)
-              } yield resp
+              } yield resp).recover {
+                // If the account exists but the profile doesn't, we have to handle it
+                // relatively gracefully via an error message. This should only happen
+                // if something has gone wrong in the backend.
+                case e: ItemNotFound =>
+                  logger.error(s"Error sending password reset email for user ${account.id} [missing profile]: $e")
+                  Redirect(accountRoutes.forgotPassword())
+                  .flashing("danger" -> "login.error.passwordResetNoAccount")
+              }
             // Note: to avoid leaking email data we send the same response whether or not the email
             // exists on the system.
             case None => immediate(resp)
