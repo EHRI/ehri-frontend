@@ -339,6 +339,8 @@ login.error.oauth2.orcid.missingGuid=We were unable to retrieve your ORCID ident
 login.error.oauth2.badSessionId=We were unable to log you in via {0} this time. Please try again and if the error \
   persists try using a different browser window.
 login.error.badEmail=Email cannot be changed because it is invalid or already in use.
+login.error.passwordResetNoAccount=We were unable to reset your password due to a problem with your account. \
+  We''ve been notified and will try to fix this as soon as possible.
 
 login.password.current=Current Password
 login.password.new=New Password

@@ -12,6 +12,7 @@
             })
         });
     </script>
+    @views.html.common.passwordValidationScripts("signup_password")
 }
 
 @views.html.layout.loginLayout(Messages("login.signup"), cls = "register", scripts = extraScripts) {
@@ -28,7 +29,9 @@
         Html(s"<a href='${controllers.portal.account.routes.Accounts.login()}'>${Messages("login.login.prompt.text")}</a>")))</p>
 
     <div id="register">
-        @views.html.account.signupForm(registerForm, registerAction, recaptchaKey)
+        @views.html.account.signupForm(registerForm, registerAction, recaptchaKey) {
+            @views.html.common.passwordValidationWidget()
+        }
 
         <h4 class="or-oauth"><span>Or</span></h4>
 

@@ -1094,6 +1094,68 @@ body.home {
 }
 
 
+// Password strength meter
+.strength-meter {
+  margin: $margin-md 0 $margin-sm;
+
+  .strength-bar {
+    width: 100%;
+    height: 8px;
+    background-color: $gray-200;
+    border-radius: $border-radius-sm;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+  }
+
+  .strength-text {
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: transparent;
+    transition: color 0.3s ease;
+  }
+
+  // Strength level styles
+  &.strength-0 .strength-fill,
+  &.strength-1 .strength-fill
+  {
+    width: 33%;
+    background: linear-gradient(90deg, $danger, darken($danger, 10%));
+  }
+  &.strength-0 .strength-text,
+  &.strength-1 .strength-text
+  {
+    color: $danger;
+  }
+
+  &.strength-2 .strength-fill {
+    width: 66%;
+    background: linear-gradient(90deg, $warning, darken($warning, 10%));
+  }
+  &.strength-2 .strength-text {
+    color: $warning;
+  }
+
+  &.strength-3 .strength-fill,
+  &.strength-4 .strength-fill
+  {
+    width: 100%;
+    background: linear-gradient(90deg, $success, darken($success, 10%));
+  }
+  &.strength-3 .strength-text,
+  &.strength-4 .strength-text
+  {
+    color: $success;
+  }
+}
+
+// Badges for item types
 .badge-repository {
   @include badge-variant($repository-color);
 }

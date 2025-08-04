@@ -1,4 +1,4 @@
-@(form: Form[SignupData], action: Call, recaptchaKey: String)(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
+@(form: Form[SignupData], action: Call, recaptchaKey: String)(passwordFeedback: Html = Html(""))(implicit request: RequestHeader, conf: AppConfig, flash: Flash, messages: Messages, fieldConstructor: helper.FieldConstructor)
 
 @import forms.HoneyPotForm.BLANK_CHECK
 @import forms.TimeCheckForm.TIMESTAMP
@@ -11,9 +11,9 @@
     @helper.inputText(
         form(NAME),
         attrs._autocomplete -> "name",
-        attrs._required -> "required",
         attrs._class -> "form-control form-control-lg",
         attrs._placeholder -> Messages("profile.name"),
+        attrs._required -> true,
         attrs._label -> Messages("profile.name")
     )
     @helper.inputText(
@@ -22,9 +22,9 @@
         attrs._autocomplete -> "email",
         attrs._class -> "form-control form-control-lg",
         attrs._placeholder -> Messages("login.email"),
+        attrs._required -> true,
         attrs._label -> Messages("login.email"),
-        attrs._type -> "email",
-        attrs._required -> true
+        attrs._type -> "email"
     )
     @helper.inputPassword(
         form(PASSWORD),
@@ -32,6 +32,7 @@
         attrs._class -> "form-control form-control-lg",
         attrs._autocomplete -> "new-password",
         attrs._placeholder -> Messages("login.password"),
+        attrs._required -> true,
         attrs._label -> Messages("login.password")
     )
     @helper.inputPassword(
@@ -39,8 +40,11 @@
         attrs._autocomplete -> "new-password",
         attrs._class -> "form-control form-control-lg",
         attrs._placeholder -> Messages("login.password.confirm"),
+        attrs._required -> true,
         attrs._label -> Messages("login.password.confirm")
     )
+
+    @passwordFeedback
 
     @helper.checkbox(form(AGREE_TERMS), attrs._required -> "required", attrs._label -> Html(Messages(
         "signup.dataPolicyNag",
