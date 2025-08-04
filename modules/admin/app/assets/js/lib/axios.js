@@ -1,4 +1,4 @@
-// Axios v1.7.3 Copyright (c) 2024 Matt Zabriskie and contributors
+/*! Axios v1.11.0 Copyright (c) 2025 Matt Zabriskie and contributors */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -681,6 +681,8 @@
 
   var toString = Object.prototype.toString;
   var getPrototypeOf = Object.getPrototypeOf;
+  var iterator = Symbol.iterator,
+    toStringTag = Symbol.toStringTag;
   var kindOf = function (cache) {
     return function (thing) {
       var str = toString.call(thing);
@@ -813,7 +815,27 @@
       return false;
     }
     var prototype = getPrototypeOf(val);
-    return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in val) && !(Symbol.iterator in val);
+    return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(toStringTag in val) && !(iterator in val);
+  };
+
+  /**
+   * Determine if a value is an empty object (safely handles Buffers)
+   *
+   * @param {*} val The value to test
+   *
+   * @returns {boolean} True if value is an empty object, otherwise false
+   */
+  var isEmptyObject = function isEmptyObject(val) {
+    // Early return for non-objects or Buffers to prevent RangeError
+    if (!isObject(val) || isBuffer(val)) {
+      return false;
+    }
+    try {
+      return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+    } catch (e) {
+      // Fallback for any other objects that might cause RangeError with Object.keys()
+      return false;
+    }
   };
 
   /**
@@ -940,6 +962,11 @@
         fn.call(null, obj[i], i, obj);
       }
     } else {
+      // Buffer check
+      if (isBuffer(obj)) {
+        return;
+      }
+
       // Iterate over object keys
       var keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
       var len = keys.length;
@@ -951,6 +978,9 @@
     }
   }
   function findKey(obj, key) {
+    if (isBuffer(obj)) {
+      return null;
+    }
     key = key.toLowerCase();
     var keys = Object.keys(obj);
     var i = keys.length;
@@ -1165,10 +1195,10 @@
    * @returns {void}
    */
   var forEachEntry = function forEachEntry(obj, fn) {
-    var generator = obj && obj[Symbol.iterator];
-    var iterator = generator.call(obj);
+    var generator = obj && obj[iterator];
+    var _iterator = generator.call(obj);
     var result;
-    while ((result = iterator.next()) && !result.done) {
+    while ((result = _iterator.next()) && !result.done) {
       var pair = result.value;
       fn.call(obj, pair[0], pair[1]);
     }
@@ -1266,23 +1296,6 @@
   var toFiniteNumber = function toFiniteNumber(value, defaultValue) {
     return value != null && Number.isFinite(value = +value) ? value : defaultValue;
   };
-  var ALPHA = 'abcdefghijklmnopqrstuvwxyz';
-  var DIGIT = '0123456789';
-  var ALPHABET = {
-    DIGIT: DIGIT,
-    ALPHA: ALPHA,
-    ALPHA_DIGIT: ALPHA + ALPHA.toUpperCase() + DIGIT
-  };
-  var generateString = function generateString() {
-    var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 16;
-    var alphabet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ALPHABET.ALPHA_DIGIT;
-    var str = '';
-    var length = alphabet.length;
-    while (size--) {
-      str += alphabet[Math.random() * length | 0];
-    }
-    return str;
-  };
 
   /**
    * If the thing is a FormData object, return true, otherwise return false.
@@ -1292,7 +1305,7 @@
    * @returns {boolean}
    */
   function isSpecCompliantForm(thing) {
-    return !!(thing && isFunction(thing.append) && thing[Symbol.toStringTag] === 'FormData' && thing[Symbol.iterator]);
+    return !!(thing && isFunction(thing.append) && thing[toStringTag] === 'FormData' && thing[iterator]);
   }
   var toJSONObject = function toJSONObject(obj) {
     var stack = new Array(10);
@@ -1300,6 +1313,11 @@
       if (isObject(source)) {
         if (stack.indexOf(source) >= 0) {
           return;
+        }
+
+        //Buffer check
+        if (isBuffer(source)) {
+          return source;
         }
         if (!('toJSON' in source)) {
           stack[i] = source;
@@ -1348,6 +1366,9 @@
 
   // *********************
 
+  var isIterable = function isIterable(thing) {
+    return thing != null && isFunction(thing[iterator]);
+  };
   var utils$1 = {
     isArray: isArray,
     isArrayBuffer: isArrayBuffer,
@@ -1359,6 +1380,7 @@
     isBoolean: isBoolean,
     isObject: isObject,
     isPlainObject: isPlainObject,
+    isEmptyObject: isEmptyObject,
     isReadableStream: isReadableStream,
     isRequest: isRequest,
     isResponse: isResponse,
@@ -1399,14 +1421,13 @@
     findKey: findKey,
     global: _global,
     isContextDefined: isContextDefined,
-    ALPHABET: ALPHABET,
-    generateString: generateString,
     isSpecCompliantForm: isSpecCompliantForm,
     toJSONObject: toJSONObject,
     isAsyncFn: isAsyncFn,
     isThenable: isThenable,
     setImmediate: _setImmediate,
-    asap: asap
+    asap: asap,
+    isIterable: isIterable
   };
 
   /**
@@ -1432,7 +1453,10 @@
     code && (this.code = code);
     config && (this.config = config);
     request && (this.request = request);
-    response && (this.response = response);
+    if (response) {
+      this.response = response;
+      this.status = response.status ? response.status : null;
+    }
   }
   utils$1.inherits(AxiosError, Error, {
     toJSON: function toJSON() {
@@ -1451,7 +1475,7 @@
         // Axios
         config: utils$1.toJSONObject(this.config),
         code: this.code,
-        status: this.response && this.response.status ? this.response.status : null
+        status: this.status
       };
     }
   });
@@ -1596,6 +1620,9 @@
       if (utils$1.isDate(value)) {
         return value.toISOString();
       }
+      if (utils$1.isBoolean(value)) {
+        return value.toString();
+      }
       if (!useBlob && utils$1.isBlob(value)) {
         throw new AxiosError('Blob is not supported. Use a Buffer instead.');
       }
@@ -1732,7 +1759,7 @@
    *
    * @param {string} url The base of the url (e.g., http://www.google.com)
    * @param {object} [params] The params to be appended
-   * @param {?object} options
+   * @param {?(object|Function)} options
    *
    * @returns {string} The formatted url
    */
@@ -1742,6 +1769,11 @@
       return url;
     }
     var _encode = options && options.encode || encode;
+    if (utils$1.isFunction(options)) {
+      options = {
+        serialize: options
+      };
+    }
     var serializeFn = options && options.serialize;
     var serializedParams;
     if (serializeFn) {
@@ -1860,6 +1892,7 @@
   };
 
   var hasBrowserEnv = typeof window !== 'undefined' && typeof document !== 'undefined';
+  var _navigator = (typeof navigator === "undefined" ? "undefined" : _typeof(navigator)) === 'object' && navigator || undefined;
 
   /**
    * Determine if we're running in a standard browser environment
@@ -1878,9 +1911,7 @@
    *
    * @returns {boolean}
    */
-  var hasStandardBrowserEnv = function (product) {
-    return hasBrowserEnv && ['ReactNative', 'NativeScript', 'NS'].indexOf(product) < 0;
-  }(typeof navigator !== 'undefined' && navigator.product);
+  var hasStandardBrowserEnv = hasBrowserEnv && (!_navigator || ['ReactNative', 'NativeScript', 'NS'].indexOf(_navigator.product) < 0);
 
   /**
    * Determine if we're running in a standard browser webWorker environment
@@ -1903,13 +1934,14 @@
     hasBrowserEnv: hasBrowserEnv,
     hasStandardBrowserWebWorkerEnv: hasStandardBrowserWebWorkerEnv,
     hasStandardBrowserEnv: hasStandardBrowserEnv,
+    navigator: _navigator,
     origin: origin
   });
 
   var platform = _objectSpread2(_objectSpread2({}, utils), platform$1);
 
   function toURLEncodedForm(data, options) {
-    return toFormData(data, new platform.classes.URLSearchParams(), Object.assign({
+    return toFormData(data, new platform.classes.URLSearchParams(), _objectSpread2({
       visitor: function visitor(value, key, path, helpers) {
         if (platform.isNode && utils$1.isBuffer(value)) {
           this.append(key, value.toString('base64'));
@@ -2238,21 +2270,26 @@
           setHeaders(header, valueOrRewrite);
         } else if (utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
           setHeaders(parseHeaders(header), valueOrRewrite);
-        } else if (utils$1.isHeaders(header)) {
-          var _iterator = _createForOfIteratorHelper(header.entries()),
+        } else if (utils$1.isObject(header) && utils$1.isIterable(header)) {
+          var obj = {},
+            dest,
+            key;
+          var _iterator = _createForOfIteratorHelper(header),
             _step;
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var _step$value = _slicedToArray(_step.value, 2),
-                key = _step$value[0],
-                value = _step$value[1];
-              setHeader(value, key, rewrite);
+              var entry = _step.value;
+              if (!utils$1.isArray(entry)) {
+                throw TypeError('Object iterator must return a key-value pair');
+              }
+              obj[key = entry[0]] = (dest = obj[key]) ? utils$1.isArray(dest) ? [].concat(_toConsumableArray(dest), [entry[1]]) : [dest, entry[1]] : entry[1];
             }
           } catch (err) {
             _iterator.e(err);
           } finally {
             _iterator.f();
           }
+          setHeaders(obj, valueOrRewrite);
         } else {
           header != null && setHeader(valueOrRewrite, header, rewrite);
         }
@@ -2382,6 +2419,11 @@
             value = _ref2[1];
           return header + ': ' + value;
         }).join('\n');
+      }
+    }, {
+      key: "getSetCookie",
+      value: function getSetCookie() {
+        return this.get("set-cookie") || [];
       }
     }, {
       key: _Symbol$toStringTag,
@@ -2568,7 +2610,7 @@
         clearTimeout(timer);
         timer = null;
       }
-      fn.apply(null, args);
+      fn.apply(void 0, _toConsumableArray(args));
     };
     var throttled = function throttled() {
       var now = Date.now();
@@ -2639,60 +2681,14 @@
     };
   };
 
-  var isURLSameOrigin = platform.hasStandardBrowserEnv ?
-  // Standard browser envs have full support of the APIs needed to test
-  // whether the request URL is of the same origin as current location.
-  function standardBrowserEnv() {
-    var msie = /(msie|trident)/i.test(navigator.userAgent);
-    var urlParsingNode = document.createElement('a');
-    var originURL;
-
-    /**
-    * Parse a URL to discover its components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-    function resolveURL(url) {
-      var href = url;
-      if (msie) {
-        // IE needs attribute set twice to normalize properties
-        urlParsingNode.setAttribute('href', href);
-        href = urlParsingNode.href;
-      }
-      urlParsingNode.setAttribute('href', href);
-
-      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-      return {
-        href: urlParsingNode.href,
-        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-        host: urlParsingNode.host,
-        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-        hostname: urlParsingNode.hostname,
-        port: urlParsingNode.port,
-        pathname: urlParsingNode.pathname.charAt(0) === '/' ? urlParsingNode.pathname : '/' + urlParsingNode.pathname
-      };
-    }
-    originURL = resolveURL(window.location.href);
-
-    /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-    return function isURLSameOrigin(requestURL) {
-      var parsed = utils$1.isString(requestURL) ? resolveURL(requestURL) : requestURL;
-      return parsed.protocol === originURL.protocol && parsed.host === originURL.host;
+  var isURLSameOrigin = platform.hasStandardBrowserEnv ? function (origin, isMSIE) {
+    return function (url) {
+      url = new URL(url, platform.origin);
+      return origin.protocol === url.protocol && origin.host === url.host && (isMSIE || origin.port === url.port);
     };
-  }() :
-  // Non standard browser envs (web workers, react-native) lack needed support.
-  function nonStandardBrowserEnv() {
-    return function isURLSameOrigin() {
-      return true;
-    };
-  }();
+  }(new URL(platform.origin), platform.navigator && /(msie|trident)/i.test(platform.navigator.userAgent)) : function () {
+    return true;
+  };
 
   var cookies = platform.hasStandardBrowserEnv ?
   // Standard browser envs support document.cookie
@@ -2758,8 +2754,9 @@
    *
    * @returns {string} The combined full path
    */
-  function buildFullPath(baseURL, requestedURL) {
-    if (baseURL && !isAbsoluteURL(requestedURL)) {
+  function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls) {
+    var isRelativeUrl = !isAbsoluteURL(requestedURL);
+    if (baseURL && (isRelativeUrl || allowAbsoluteUrls == false)) {
       return combineURLs(baseURL, requestedURL);
     }
     return requestedURL;
@@ -2782,7 +2779,7 @@
     // eslint-disable-next-line no-param-reassign
     config2 = config2 || {};
     var config = {};
-    function getMergedValue(target, source, caseless) {
+    function getMergedValue(target, source, prop, caseless) {
       if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
         return utils$1.merge.call({
           caseless: caseless
@@ -2796,11 +2793,11 @@
     }
 
     // eslint-disable-next-line consistent-return
-    function mergeDeepProperties(a, b, caseless) {
+    function mergeDeepProperties(a, b, prop, caseless) {
       if (!utils$1.isUndefined(b)) {
-        return getMergedValue(a, b, caseless);
+        return getMergedValue(a, b, prop, caseless);
       } else if (!utils$1.isUndefined(a)) {
-        return getMergedValue(undefined, a, caseless);
+        return getMergedValue(undefined, a, prop, caseless);
       }
     }
 
@@ -2857,11 +2854,11 @@
       socketPath: defaultToConfig2,
       responseEncoding: defaultToConfig2,
       validateStatus: mergeDirectKeys,
-      headers: function headers(a, b) {
-        return mergeDeepProperties(headersToObject(a), headersToObject(b), true);
+      headers: function headers(a, b, prop) {
+        return mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true);
       }
     };
-    utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
+    utils$1.forEach(Object.keys(_objectSpread2(_objectSpread2({}, config1), config2)), function computeConfigValue(prop) {
       var merge = mergeMap[prop] || mergeDeepProperties;
       var configValue = merge(config1[prop], config2[prop], prop);
       utils$1.isUndefined(configValue) && merge !== mergeDirectKeys || (config[prop] = configValue);
@@ -2878,7 +2875,7 @@
       headers = newConfig.headers,
       auth = newConfig.auth;
     newConfig.headers = headers = AxiosHeaders$1.from(headers);
-    newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url), config.params, config.paramsSerializer);
+    newConfig.url = buildURL(buildFullPath(newConfig.baseURL, newConfig.url, newConfig.allowAbsoluteUrls), config.params, config.paramsSerializer);
 
     // HTTP basic authentication
     if (auth) {
@@ -3090,38 +3087,42 @@
   };
 
   var composeSignals = function composeSignals(signals, timeout) {
-    var controller = new AbortController();
-    var aborted;
-    var onabort = function onabort(cancel) {
-      if (!aborted) {
-        aborted = true;
-        unsubscribe();
-        var err = cancel instanceof Error ? cancel : this.reason;
-        controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
-      }
-    };
-    var timer = timeout && setTimeout(function () {
-      onabort(new AxiosError("timeout ".concat(timeout, " of ms exceeded"), AxiosError.ETIMEDOUT));
-    }, timeout);
-    var unsubscribe = function unsubscribe() {
-      if (signals) {
-        timer && clearTimeout(timer);
+    var _signals = signals = signals ? signals.filter(Boolean) : [],
+      length = _signals.length;
+    if (timeout || length) {
+      var controller = new AbortController();
+      var aborted;
+      var onabort = function onabort(reason) {
+        if (!aborted) {
+          aborted = true;
+          unsubscribe();
+          var err = reason instanceof Error ? reason : this.reason;
+          controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+        }
+      };
+      var timer = timeout && setTimeout(function () {
         timer = null;
-        signals.forEach(function (signal) {
-          signal && (signal.removeEventListener ? signal.removeEventListener('abort', onabort) : signal.unsubscribe(onabort));
-        });
-        signals = null;
-      }
-    };
-    signals.forEach(function (signal) {
-      return signal && signal.addEventListener && signal.addEventListener('abort', onabort);
-    });
-    var signal = controller.signal;
-    signal.unsubscribe = unsubscribe;
-    return [signal, function () {
-      timer && clearTimeout(timer);
-      timer = null;
-    }];
+        onabort(new AxiosError("timeout ".concat(timeout, " of ms exceeded"), AxiosError.ETIMEDOUT));
+      }, timeout);
+      var unsubscribe = function unsubscribe() {
+        if (signals) {
+          timer && clearTimeout(timer);
+          timer = null;
+          signals.forEach(function (signal) {
+            signal.unsubscribe ? signal.unsubscribe(onabort) : signal.removeEventListener('abort', onabort);
+          });
+          signals = null;
+        }
+      };
+      signals.forEach(function (signal) {
+        return signal.addEventListener('abort', onabort);
+      });
+      var signal = controller.signal;
+      signal.unsubscribe = function () {
+        return utils$1.asap(unsubscribe);
+      };
+      return signal;
+    }
   };
   var composeSignals$1 = composeSignals;
 
@@ -3160,7 +3161,7 @@
     }, streamChunk);
   });
   var readBytes = /*#__PURE__*/function () {
-    var _ref = _wrapAsyncGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(iterable, chunkSize, encode) {
+    var _ref = _wrapAsyncGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(iterable, chunkSize) {
       var _iteratorAbruptCompletion, _didIteratorError, _iteratorError, _iterator, _step, chunk;
       return _regeneratorRuntime().wrap(function _callee$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
@@ -3168,82 +3169,111 @@
             _iteratorAbruptCompletion = false;
             _didIteratorError = false;
             _context2.prev = 2;
-            _iterator = _asyncIterator(iterable);
+            _iterator = _asyncIterator(readStream(iterable));
           case 4:
             _context2.next = 6;
             return _awaitAsyncGenerator(_iterator.next());
           case 6:
             if (!(_iteratorAbruptCompletion = !(_step = _context2.sent).done)) {
-              _context2.next = 27;
+              _context2.next = 12;
               break;
             }
             chunk = _step.value;
-            _context2.t0 = _asyncGeneratorDelegate;
-            _context2.t1 = _asyncIterator;
-            _context2.t2 = streamChunk;
-            if (!ArrayBuffer.isView(chunk)) {
-              _context2.next = 15;
-              break;
-            }
-            _context2.t3 = chunk;
-            _context2.next = 18;
-            break;
-          case 15:
-            _context2.next = 17;
-            return _awaitAsyncGenerator(encode(String(chunk)));
-          case 17:
-            _context2.t3 = _context2.sent;
-          case 18:
-            _context2.t4 = _context2.t3;
-            _context2.t5 = chunkSize;
-            _context2.t6 = (0, _context2.t2)(_context2.t4, _context2.t5);
-            _context2.t7 = (0, _context2.t1)(_context2.t6);
-            _context2.t8 = _awaitAsyncGenerator;
-            return _context2.delegateYield((0, _context2.t0)(_context2.t7, _context2.t8), "t9", 24);
-          case 24:
+            return _context2.delegateYield(_asyncGeneratorDelegate(_asyncIterator(streamChunk(chunk, chunkSize))), "t0", 9);
+          case 9:
             _iteratorAbruptCompletion = false;
             _context2.next = 4;
             break;
-          case 27:
-            _context2.next = 33;
+          case 12:
+            _context2.next = 18;
             break;
-          case 29:
-            _context2.prev = 29;
-            _context2.t10 = _context2["catch"](2);
+          case 14:
+            _context2.prev = 14;
+            _context2.t1 = _context2["catch"](2);
             _didIteratorError = true;
-            _iteratorError = _context2.t10;
-          case 33:
-            _context2.prev = 33;
-            _context2.prev = 34;
+            _iteratorError = _context2.t1;
+          case 18:
+            _context2.prev = 18;
+            _context2.prev = 19;
             if (!(_iteratorAbruptCompletion && _iterator["return"] != null)) {
-              _context2.next = 38;
+              _context2.next = 23;
               break;
             }
-            _context2.next = 38;
+            _context2.next = 23;
             return _awaitAsyncGenerator(_iterator["return"]());
-          case 38:
-            _context2.prev = 38;
+          case 23:
+            _context2.prev = 23;
             if (!_didIteratorError) {
-              _context2.next = 41;
+              _context2.next = 26;
               break;
             }
             throw _iteratorError;
-          case 41:
-            return _context2.finish(38);
-          case 42:
-            return _context2.finish(33);
-          case 43:
+          case 26:
+            return _context2.finish(23);
+          case 27:
+            return _context2.finish(18);
+          case 28:
           case "end":
             return _context2.stop();
         }
-      }, _callee, null, [[2, 29, 33, 43], [34,, 38, 42]]);
+      }, _callee, null, [[2, 14, 18, 28], [19,, 23, 27]]);
     }));
-    return function readBytes(_x, _x2, _x3) {
+    return function readBytes(_x, _x2) {
       return _ref.apply(this, arguments);
     };
   }();
-  var trackStream = function trackStream(stream, chunkSize, onProgress, onFinish, encode) {
-    var iterator = readBytes(stream, chunkSize, encode);
+  var readStream = /*#__PURE__*/function () {
+    var _ref2 = _wrapAsyncGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(stream) {
+      var reader, _yield$_awaitAsyncGen, done, value;
+      return _regeneratorRuntime().wrap(function _callee2$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            if (!stream[Symbol.asyncIterator]) {
+              _context3.next = 3;
+              break;
+            }
+            return _context3.delegateYield(_asyncGeneratorDelegate(_asyncIterator(stream)), "t0", 2);
+          case 2:
+            return _context3.abrupt("return");
+          case 3:
+            reader = stream.getReader();
+            _context3.prev = 4;
+          case 5:
+            _context3.next = 7;
+            return _awaitAsyncGenerator(reader.read());
+          case 7:
+            _yield$_awaitAsyncGen = _context3.sent;
+            done = _yield$_awaitAsyncGen.done;
+            value = _yield$_awaitAsyncGen.value;
+            if (!done) {
+              _context3.next = 12;
+              break;
+            }
+            return _context3.abrupt("break", 16);
+          case 12:
+            _context3.next = 14;
+            return value;
+          case 14:
+            _context3.next = 5;
+            break;
+          case 16:
+            _context3.prev = 16;
+            _context3.next = 19;
+            return _awaitAsyncGenerator(reader.cancel());
+          case 19:
+            return _context3.finish(16);
+          case 20:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee2, null, [[4,, 16, 20]]);
+    }));
+    return function readStream(_x3) {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  var trackStream = function trackStream(stream, chunkSize, onProgress, onFinish) {
+    var iterator = readBytes(stream, chunkSize);
     var bytes = 0;
     var done;
     var _onFinish = function _onFinish(e) {
@@ -3254,25 +3284,25 @@
     };
     return new ReadableStream({
       pull: function pull(controller) {
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
           var _yield$iterator$next, _done, value, len, loadedBytes;
-          return _regeneratorRuntime().wrap(function _callee2$(_context3) {
-            while (1) switch (_context3.prev = _context3.next) {
+          return _regeneratorRuntime().wrap(function _callee3$(_context4) {
+            while (1) switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.prev = 0;
-                _context3.next = 3;
+                _context4.prev = 0;
+                _context4.next = 3;
                 return iterator.next();
               case 3:
-                _yield$iterator$next = _context3.sent;
+                _yield$iterator$next = _context4.sent;
                 _done = _yield$iterator$next.done;
                 value = _yield$iterator$next.value;
                 if (!_done) {
-                  _context3.next = 10;
+                  _context4.next = 10;
                   break;
                 }
                 _onFinish();
                 controller.close();
-                return _context3.abrupt("return");
+                return _context4.abrupt("return");
               case 10:
                 len = value.byteLength;
                 if (onProgress) {
@@ -3280,18 +3310,18 @@
                   onProgress(loadedBytes);
                 }
                 controller.enqueue(new Uint8Array(value));
-                _context3.next = 19;
+                _context4.next = 19;
                 break;
               case 15:
-                _context3.prev = 15;
-                _context3.t0 = _context3["catch"](0);
-                _onFinish(_context3.t0);
-                throw _context3.t0;
+                _context4.prev = 15;
+                _context4.t0 = _context4["catch"](0);
+                _onFinish(_context4.t0);
+                throw _context4.t0;
               case 19:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
-          }, _callee2, null, [[0, 15]]);
+          }, _callee3, null, [[0, 15]]);
         }))();
       },
       cancel: function cancel(reason) {
@@ -3374,6 +3404,7 @@
   }(new Response());
   var getBodyLength = /*#__PURE__*/function () {
     var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(body) {
+      var _request;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
           case 0:
@@ -3390,32 +3421,36 @@
             return _context2.abrupt("return", body.size);
           case 4:
             if (!utils$1.isSpecCompliantForm(body)) {
-              _context2.next = 8;
+              _context2.next = 9;
               break;
             }
-            _context2.next = 7;
-            return new Request(body).arrayBuffer();
-          case 7:
-            return _context2.abrupt("return", _context2.sent.byteLength);
+            _request = new Request(platform.origin, {
+              method: 'POST',
+              body: body
+            });
+            _context2.next = 8;
+            return _request.arrayBuffer();
           case 8:
+            return _context2.abrupt("return", _context2.sent.byteLength);
+          case 9:
             if (!(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body))) {
-              _context2.next = 10;
+              _context2.next = 11;
               break;
             }
             return _context2.abrupt("return", body.byteLength);
-          case 10:
+          case 11:
             if (utils$1.isURLSearchParams(body)) {
               body = body + '';
             }
             if (!utils$1.isString(body)) {
-              _context2.next = 15;
+              _context2.next = 16;
               break;
             }
-            _context2.next = 14;
+            _context2.next = 15;
             return encodeText(body);
-          case 14:
-            return _context2.abrupt("return", _context2.sent.byteLength);
           case 15:
+            return _context2.abrupt("return", _context2.sent.byteLength);
+          case 16:
           case "end":
             return _context2.stop();
         }
@@ -3445,18 +3480,15 @@
   }();
   var fetchAdapter = isFetchSupported && ( /*#__PURE__*/function () {
     var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(config) {
-      var _resolveConfig, url, method, data, signal, cancelToken, timeout, onDownloadProgress, onUploadProgress, responseType, headers, _resolveConfig$withCr, withCredentials, fetchOptions, _ref5, _ref6, composedSignal, stopTimeout, finished, request, onFinish, requestContentLength, _request, contentTypeHeader, _progressEventDecorat, _progressEventDecorat2, onProgress, flush, response, isStreamResponse, options, responseContentLength, _ref7, _ref8, _onProgress, _flush, responseData;
+      var _resolveConfig, url, method, data, signal, cancelToken, timeout, onDownloadProgress, onUploadProgress, responseType, headers, _resolveConfig$withCr, withCredentials, fetchOptions, composedSignal, request, unsubscribe, requestContentLength, _request, contentTypeHeader, _progressEventDecorat, _progressEventDecorat2, onProgress, flush, isCredentialsSupported, response, isStreamResponse, options, responseContentLength, _ref5, _ref6, _onProgress, _flush, responseData;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
             _resolveConfig = resolveConfig(config), url = _resolveConfig.url, method = _resolveConfig.method, data = _resolveConfig.data, signal = _resolveConfig.signal, cancelToken = _resolveConfig.cancelToken, timeout = _resolveConfig.timeout, onDownloadProgress = _resolveConfig.onDownloadProgress, onUploadProgress = _resolveConfig.onUploadProgress, responseType = _resolveConfig.responseType, headers = _resolveConfig.headers, _resolveConfig$withCr = _resolveConfig.withCredentials, withCredentials = _resolveConfig$withCr === void 0 ? 'same-origin' : _resolveConfig$withCr, fetchOptions = _resolveConfig.fetchOptions;
             responseType = responseType ? (responseType + '').toLowerCase() : 'text';
-            _ref5 = signal || cancelToken || timeout ? composeSignals$1([signal, cancelToken], timeout) : [], _ref6 = _slicedToArray(_ref5, 2), composedSignal = _ref6[0], stopTimeout = _ref6[1];
-            onFinish = function onFinish() {
-              !finished && setTimeout(function () {
-                composedSignal && composedSignal.unsubscribe();
-              });
-              finished = true;
+            composedSignal = composeSignals$1([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
+            unsubscribe = composedSignal && composedSignal.unsubscribe && function () {
+              composedSignal.unsubscribe();
             };
             _context4.prev = 4;
             _context4.t0 = onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head';
@@ -3484,44 +3516,47 @@
             }
             if (_request.body) {
               _progressEventDecorat = progressEventDecorator(requestContentLength, progressEventReducer(asyncDecorator(onUploadProgress))), _progressEventDecorat2 = _slicedToArray(_progressEventDecorat, 2), onProgress = _progressEventDecorat2[0], flush = _progressEventDecorat2[1];
-              data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush, encodeText);
+              data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
             }
           case 15:
             if (!utils$1.isString(withCredentials)) {
               withCredentials = withCredentials ? 'include' : 'omit';
             }
+
+            // Cloudflare Workers throws when credentials are defined
+            // see https://github.com/cloudflare/workerd/issues/902
+            isCredentialsSupported = "credentials" in Request.prototype;
             request = new Request(url, _objectSpread2(_objectSpread2({}, fetchOptions), {}, {
               signal: composedSignal,
               method: method.toUpperCase(),
               headers: headers.normalize().toJSON(),
               body: data,
               duplex: "half",
-              credentials: withCredentials
+              credentials: isCredentialsSupported ? withCredentials : undefined
             }));
-            _context4.next = 19;
-            return fetch(request);
-          case 19:
+            _context4.next = 20;
+            return fetch(request, fetchOptions);
+          case 20:
             response = _context4.sent;
             isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
-            if (supportsResponseStream && (onDownloadProgress || isStreamResponse)) {
+            if (supportsResponseStream && (onDownloadProgress || isStreamResponse && unsubscribe)) {
               options = {};
               ['status', 'statusText', 'headers'].forEach(function (prop) {
                 options[prop] = response[prop];
               });
               responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
-              _ref7 = onDownloadProgress && progressEventDecorator(responseContentLength, progressEventReducer(asyncDecorator(onDownloadProgress), true)) || [], _ref8 = _slicedToArray(_ref7, 2), _onProgress = _ref8[0], _flush = _ref8[1];
+              _ref5 = onDownloadProgress && progressEventDecorator(responseContentLength, progressEventReducer(asyncDecorator(onDownloadProgress), true)) || [], _ref6 = _slicedToArray(_ref5, 2), _onProgress = _ref6[0], _flush = _ref6[1];
               response = new Response(trackStream(response.body, DEFAULT_CHUNK_SIZE, _onProgress, function () {
                 _flush && _flush();
-                isStreamResponse && onFinish();
-              }, encodeText), options);
+                unsubscribe && unsubscribe();
+              }), options);
             }
             responseType = responseType || 'text';
-            _context4.next = 25;
+            _context4.next = 26;
             return resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
-          case 25:
+          case 26:
             responseData = _context4.sent;
-            !isStreamResponse && onFinish();
-            stopTimeout && stopTimeout();
+            !isStreamResponse && unsubscribe && unsubscribe();
             _context4.next = 30;
             return new Promise(function (resolve, reject) {
               settle(resolve, reject, {
@@ -3538,8 +3573,8 @@
           case 33:
             _context4.prev = 33;
             _context4.t2 = _context4["catch"](4);
-            onFinish();
-            if (!(_context4.t2 && _context4.t2.name === 'TypeError' && /fetch/i.test(_context4.t2.message))) {
+            unsubscribe && unsubscribe();
+            if (!(_context4.t2 && _context4.t2.name === 'TypeError' && /Load failed|fetch/i.test(_context4.t2.message))) {
               _context4.next = 38;
               break;
             }
@@ -3676,7 +3711,7 @@
     });
   }
 
-  var VERSION = "1.7.3";
+  var VERSION = "1.11.0";
 
   var validators$1 = {};
 
@@ -3713,6 +3748,13 @@
         console.warn(formatMessage(opt, ' has been deprecated since v' + version + ' and will be removed in the near future'));
       }
       return validator ? validator(value, opt, opts) : true;
+    };
+  };
+  validators$1.spelling = function spelling(correctSpelling) {
+    return function (value, opt) {
+      // eslint-disable-next-line no-console
+      console.warn("".concat(opt, " is likely a misspelling of ").concat(correctSpelling));
+      return true;
     };
   };
 
@@ -3765,7 +3807,7 @@
   var Axios = /*#__PURE__*/function () {
     function Axios(instanceConfig) {
       _classCallCheck(this, Axios);
-      this.defaults = instanceConfig;
+      this.defaults = instanceConfig || {};
       this.interceptors = {
         request: new InterceptorManager$1(),
         response: new InterceptorManager$1()
@@ -3797,7 +3839,8 @@
                 _context.prev = 6;
                 _context.t0 = _context["catch"](0);
                 if (_context.t0 instanceof Error) {
-                  Error.captureStackTrace ? Error.captureStackTrace(dummy = {}) : dummy = new Error();
+                  dummy = {};
+                  Error.captureStackTrace ? Error.captureStackTrace(dummy) : dummy = new Error();
 
                   // slice off the Error: ... line
                   stack = dummy.stack ? dummy.stack.replace(/^.+\n/, '') : '';
@@ -3859,6 +3902,17 @@
             }, true);
           }
         }
+
+        // Set config.allowAbsoluteUrls
+        if (config.allowAbsoluteUrls !== undefined) ; else if (this.defaults.allowAbsoluteUrls !== undefined) {
+          config.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+        } else {
+          config.allowAbsoluteUrls = true;
+        }
+        validator.assertOptions(config, {
+          baseUrl: validators.spelling('baseURL'),
+          withXsrfToken: validators.spelling('withXSRFToken')
+        }, true);
 
         // Set config.method
         config.method = (config.method || this.defaults.method || 'get').toLowerCase();
@@ -3927,7 +3981,7 @@
       key: "getUri",
       value: function getUri(config) {
         config = mergeConfig(this.defaults, config);
-        var fullPath = buildFullPath(config.baseURL, config.url);
+        var fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
         return buildURL(fullPath, config.params, config.paramsSerializer);
       }
     }]);
@@ -4056,6 +4110,20 @@
         if (index !== -1) {
           this._listeners.splice(index, 1);
         }
+      }
+    }, {
+      key: "toAbortSignal",
+      value: function toAbortSignal() {
+        var _this = this;
+        var controller = new AbortController();
+        var abort = function abort(err) {
+          controller.abort(err);
+        };
+        this.subscribe(abort);
+        controller.signal.unsubscribe = function () {
+          return _this.unsubscribe(abort);
+        };
+        return controller.signal;
       }
 
       /**

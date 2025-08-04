@@ -71,7 +71,7 @@ module.exports = function (grunt) {
           },
           {
             expand: true,
-            cwd: 'node_modules/font-awesome/fonts',
+            cwd: 'node_modules/@fortawesome/fontawesome-free/webfonts',
             src: '**/*.{ttf,woff,woff2,eot,svg}',
             dest: paths.portalFonts
           },
@@ -143,22 +143,15 @@ module.exports = function (grunt) {
           },
           {
             expand: true,
+            cwd: 'node_modules/zxcvbn/dist',
+            src: 'zxcvbn.js',
+            dest: paths.portalJsLib
+          },
+          {
+            expand: true,
             cwd: 'node_modules/js-cookie/src',
             src: 'js.cookie.js',
             dest: paths.portalJsLib
-          },
-          // Admin JS modules
-          {
-            expand: true,
-            cwd: 'node_modules/bootstrap-datepicker/dist/js',
-            src: 'bootstrap-datepicker.js',
-            dest: paths.adminJsLib
-          },
-          {
-            expand: true,
-            cwd: 'node_modules/bootstrap-datepicker/dist/css',
-            src: 'bootstrap-datepicker.standalone.css',
-            dest: paths.adminCssLib
           },
           {
             expand: true,
@@ -172,6 +165,19 @@ module.exports = function (grunt) {
               'mode/xml/xml.js'
             ],
             dest: paths.portalJsLib + '/codemirror'
+          },
+          // Admin JS modules
+          {
+            expand: true,
+            cwd: 'node_modules/bootstrap-datepicker/dist/js',
+            src: 'bootstrap-datepicker.js',
+            dest: paths.adminJsLib
+          },
+          {
+            expand: true,
+            cwd: 'node_modules/bootstrap-datepicker/dist/css',
+            src: 'bootstrap-datepicker.standalone.css',
+            dest: paths.adminCssLib
           },
           {
             expand: true,
