@@ -1122,35 +1122,43 @@ body.home {
   }
 
   // Strength level styles
-  &.strength-0 .strength-fill,
-  &.strength-1 .strength-fill
-  {
-    width: 33%;
+  &.strength-0 .strength-fill {
+    width: 20%;
+    background: linear-gradient(90deg, darken($danger, 10%), darken($danger, 20%));
+  }
+  &.strength-0 .strength-text {
+    color: $danger;
+  }
+
+  &.strength-1 .strength-fill {
+    width: 40%;
     background: linear-gradient(90deg, $danger, darken($danger, 10%));
   }
-  &.strength-0 .strength-text,
-  &.strength-1 .strength-text
-  {
+  &.strength-1 .strength-text {
     color: $danger;
   }
 
   &.strength-2 .strength-fill {
-    width: 66%;
+    width: 60%;
     background: linear-gradient(90deg, $warning, darken($warning, 10%));
   }
   &.strength-2 .strength-text {
     color: $warning;
   }
 
-  &.strength-3 .strength-fill,
-  &.strength-4 .strength-fill
-  {
+  &.strength-3 .strength-fill {
+    width: 80%;
+    background: linear-gradient(90deg, lighten($success, 10%), $success);
+  }
+  &.strength-3 .strength-text {
+    color: $success;
+  }
+
+  &.strength-4 .strength-fill {
     width: 100%;
     background: linear-gradient(90deg, $success, darken($success, 10%));
   }
-  &.strength-3 .strength-text,
-  &.strength-4 .strength-text
-  {
+  &.strength-4 .strength-text {
     color: $success;
   }
 }

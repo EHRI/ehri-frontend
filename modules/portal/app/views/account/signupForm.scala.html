@@ -28,10 +28,11 @@
     )
     @helper.inputPassword(
         form(PASSWORD),
-        attrs._id -> "signup_password",
+        attrs._id -> "password",
         attrs._class -> "form-control form-control-lg",
         attrs._autocomplete -> "new-password",
         attrs._placeholder -> Messages("login.password"),
+        attrs._minlength -> conf.minPasswordLength,
         attrs._required -> true,
         attrs._label -> Messages("login.password")
     )
@@ -40,8 +41,10 @@
         attrs._autocomplete -> "new-password",
         attrs._class -> "form-control form-control-lg",
         attrs._placeholder -> Messages("login.password.confirm"),
+        attrs._minlength -> conf.minPasswordLength,
         attrs._required -> true,
-        attrs._label -> Messages("login.password.confirm")
+        attrs._label -> Messages("login.password.confirm"),
+        attrs._oninput -> attrs.passwordCustomValidity()
     )
 
     @passwordFeedback

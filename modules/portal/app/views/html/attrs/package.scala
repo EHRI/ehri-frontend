@@ -1,5 +1,9 @@
 package views.html
 
+import play.api.i18n.Messages
+import play.twirl.api.{Html, JavaScript}
+import play.twirl.api.JavaScriptFormat.raw
+
 package object attrs {
   final val _id = Symbol("id")
   final val _class = Symbol("class")
@@ -16,6 +20,9 @@ package object attrs {
   final val _enctype = Symbol("enctype")
   final val _placeholder = Symbol("placeholder")
   final val _required = Symbol("required")
+  final val _minlength = Symbol("minlength")
+  final val _maxlength = Symbol("maxlength")
+  final val _oninput = Symbol("oninput")
   final val _default = Symbol("_default")
 
   final val _autosubmit = Symbol("_autosubmit")
@@ -28,4 +35,9 @@ package object attrs {
   final val _blank = Symbol("_blank")
   final val _hidden = Symbol("_hidden")
   final val _label = Symbol("_label")
+
+  def passwordCustomValidity(passwordId: String = "password")(implicit messages: Messages): Html = {
+    val msg = Messages("login.error.passwordsDoNotMatch")
+    Html(s"this.setCustomValidity(this.value !== document.getElementById('$passwordId').value ? '$msg' : '')")
+  }
 }

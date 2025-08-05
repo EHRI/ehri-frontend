@@ -55,7 +55,7 @@ case class AccountForms @Inject() (config: Configuration, conf: AppConfig, oAuth
 
   //
   // Signup data validation. This does several checks:
-  //  - passwords must be over 6 characters
+  //  - passwords must be over `minLength` characters
   //  - form must be submitted over 5 seconds after it was rendered
   //  - the blank check field must be present, but left blank (this
   //    is a honeypot check)
