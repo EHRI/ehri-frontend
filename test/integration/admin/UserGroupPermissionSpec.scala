@@ -38,14 +38,14 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
       .map(kv => kv._1 -> Seq(kv._2))
       .updated("identifier", Seq(id))
       .updated("email", Seq(s"$id@example.com"))
-      .updated("password", Seq("mypass"))
-      .updated("confirm", Seq("mypass"))
+      .updated("password", Seq("mypassword"))
+      .updated("confirm", Seq("mypassword"))
       .updated("group[]", groups)
 
     val userCreatePost = FakeRequest(userRoutes.createUserPost())
       .withUser(privilegedUser).withCsrf.callWith(userPostData)
     status(userCreatePost) must equalTo(SEE_OTHER)
-    redirectLocation(userCreatePost) must equalTo(Some(userRoutes.get(id).url))
+    redirectLocation(userCreatePost) must beSome(userRoutes.get(id).url)
     val acc: Account = await(mockAccounts.get(id))
     (acc, await(dataApi.get[UserProfile](id)))
   }
@@ -60,7 +60,7 @@ class UserGroupPermissionSpec extends IntegrationTestRunner {
     val groupCreatePost = FakeRequest(groupRoutes.createPost())
       .withUser(privilegedUser).withCsrf.callWith(groupPostData)
     status(groupCreatePost) must equalTo(SEE_OTHER)
-    redirectLocation(groupCreatePost) must equalTo(Some(groupRoutes.get(id).url))
+    redirectLocation(groupCreatePost) must beSome(groupRoutes.get(id).url)
     await(dataApi.get[Group](id))
   }
 
