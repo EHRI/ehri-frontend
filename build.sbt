@@ -138,7 +138,7 @@ val additionalResolvers = Resolver.sonatypeOssRepos("releases") ++ Seq(
   Resolver.mavenLocal,
 
   // EHRI repositories
-  "EHRI Releases" at "https://dev.ehri-project.eu/artifactory/libs-release-local",
+  "EHRI Releases" at "https://dev.ehri-project.eu/reposilite/libs-release-local",
 )
 
 val validateMessages = TaskKey[Unit]("validate-messages", "Validate messages")
