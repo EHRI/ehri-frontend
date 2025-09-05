@@ -21,7 +21,7 @@ val projectScalaVersion = "2.13.16"
 val appName = "docview"
 
 val backendVersion = "0.15.1"
-val dataConverterVersion = "1.1.15"
+val dataConverterVersion = "1.1.16"
 val pekkoConnectorsVersion = "1.0.2"
 
 // This prevents a library version incompatibility error between
