@@ -1,9 +1,11 @@
 version: "3.5"
 
-services:
+# This is a persistent minio instance that can be used
+# as an s3-substitute during development on the local
+# machine. The `docker-compose.yml` file uses another
+# non-persistant instance mapped to different ports.
 
-  # This is a persistent minio instance that can be used
-  # as an s3-substitute outside of the test environment.
+services:
   s3_local:
     networks:
       - ehri-frontend-minio_default
