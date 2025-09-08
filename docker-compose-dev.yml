@@ -1,10 +1,14 @@
 version: "3.5"
 
+# This Docker Compose config sets up PostgreSQL, Solr, and MySQL
+# instances on default ports for local development, with their
+# data persisting inside the `DB` directory. 
+
 services:
 
   # PostgreSQL admin DB
   rmdbs:
-    image: postgres:14
+    image: docker.io/postgres:14
     ports:
       - 5432:5432
     environment:
@@ -16,7 +20,7 @@ services:
 
   # The actual Neo4j data backend
   neo4j:
-    image: ehri/ehri-rest
+    image: docker.io/ehri/ehri-rest
     ports:
       - 7474:7474
       - 7687:7687
@@ -24,7 +28,7 @@ services:
     - "./DB/neo4j/data:/data"
 
   solr:
-    image: ehri/ehri-search-tools
+    image: docker.io/ehri/ehri-search-tools
     ports:
       - 8983:8983
     volumes:
