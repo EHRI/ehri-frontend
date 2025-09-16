@@ -9,6 +9,10 @@ import helpers.TestConfiguration
 import play.api.Configuration
 import play.api.test.PlaySpecification
 
+import java.net.URI
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse.BodyHandlers
+import java.net.http.{HttpClient, HttpRequest}
 import scala.concurrent.ExecutionContext
 
 class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfiguration {
@@ -113,6 +117,28 @@ class S3CompatibleFileStorageSpec extends PlaySpecification with TestConfigurati
           s.utf8String must_== "Hello, world"
         }
       }
+    }
+
+    "correctly sign metadata headers when generating upload URIs" in {
+      val storage = putTestItems._1
+      val uri: URI = storage.uri("test.txt", contentType = Some("text/plain"), meta = Map("good" -> "test"))
+      // This URI should fail if we use a random header
+      val client = HttpClient.newHttpClient()
+      val badReq = HttpRequest.newBuilder().uri(uri).PUT(BodyPublishers.ofString("Hello, world"))
+        .header("X-Amz-Meta-Bad", "Should-Fail")
+        .build()
+      // This should fail because the 'X-Amz-Meta-Bad' field wasn't included
+      // in the URI meta.
+      val badResp = client.send(badReq,BodyHandlers.ofString())
+      badResp.statusCode() must_== BAD_REQUEST
+
+      val goodReq = HttpRequest.newBuilder(uri).PUT(BodyPublishers.ofString("Hello, world"))
+        .header("Content-Type", "text/plain")
+        .header("X-Amz-Meta-Good", "test")
+        .build()
+
+      val goodResp = client.send(goodReq, BodyHandlers.ofString())
+      goodResp.statusCode() must_== OK
     }
 
     "list versions" in {

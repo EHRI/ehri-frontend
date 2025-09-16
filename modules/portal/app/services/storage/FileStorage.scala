@@ -57,7 +57,7 @@ trait FileStorage {
     * @param versionId   the version ID of the file content
     * @return the file URI of the stored file
     */
-  def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI
+  def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None, meta: Map[String, String] = Map.empty): URI
 
   /**
     * Put a file object in storage.

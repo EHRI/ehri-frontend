@@ -25,7 +25,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class FileToUpload(name: String, `type`: String, size: Long)
+case class FileToUpload(name: String, `type`: String, size: Long, meta: Map[String, String] = Map.empty)
 
 object FileToUpload {
   implicit val _json: Format[FileToUpload] = Json.format[FileToUpload]
@@ -146,7 +146,7 @@ case class ImportFiles @Inject()(
 
   def uploadHandle(id: String, ds: String, stage: FileStage.Value): Action[FileToUpload] = EditAction(id).apply(apiJson[FileToUpload]) { implicit request =>
     val path = s"${prefix(id, ds, stage)}${request.body.name}"
-    val url = storage.uri(path, contentType = Some(request.body.`type`))
+    val url = storage.uri(path, contentType = Some(request.body.`type`), meta = request.body.meta)
     Ok(Json.obj("presignedUrl" -> url))
   }
 

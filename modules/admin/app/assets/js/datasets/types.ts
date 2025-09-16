@@ -135,6 +135,7 @@ export interface FileToUpload {
   name: string,
   type: string,
   size: number,
+  meta: Record<string, string>
 }
 
 export interface FileInfo {

@@ -33,6 +33,7 @@ export class DatasetManagerApi {
 
   static DONE_MSG: string = "Done";
   static ERR_MSG: string = "Error";
+  private static SOURCE_META = 'user';
 
   constructor(service: object, repoId: string) {
     this.service = service;
@@ -89,6 +90,11 @@ export class DatasetManagerApi {
   }
 
   uploadHandle(ds: string, stage: string, fileSpec: FileToUpload): Promise<{presignedUrl: string}> {
+    // NB: Because we're adding the Amazon-specific headers in the `uploadFile` method,
+    // we need to make sure the 'source' metadata field is included in the upload handle request.
+    let meta = fileSpec.meta || {};
+    meta['source'] = DatasetManagerApi.SOURCE_META;
+    fileSpec.meta = meta;
     return apiCall(this.service.datasets.ImportFiles.uploadHandle(this.repoId, ds, stage), fileSpec);
   }
 
@@ -106,7 +112,7 @@ export class DatasetManagerApi {
       headers: {
         'Content-type': file.type,
         'Cache-Control': 120,
-        'x-amz-meta-source': 'user',
+        'x-amz-meta-source': DatasetManagerApi.SOURCE_META,
       },
       cancelToken: source.token,
     }).then(r => r.status === 200)
