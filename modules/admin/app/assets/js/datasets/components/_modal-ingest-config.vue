@@ -61,7 +61,9 @@ export default {
       // the stage of the ingest manager ('output').
       try {
         this.loading = true;
-        let data = await this.api.uploadHandle(this.datasetId, this.config.config, _pick(file, ['name', 'type', 'size']))
+        let fileSpec = _pick(file, ['name', 'type', 'size']);
+        fileSpec['meta'] = {source: 'user'};
+        let data = await this.api.uploadHandle(this.datasetId, this.config.config, fileSpec)
         await this.api.uploadFile(data.presignedUrl, file, () => true);
         this.$emit("update");
         this.properties = file.name;

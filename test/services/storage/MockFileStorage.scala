@@ -105,7 +105,7 @@ case class MockFileStorage(name: String, db: collection.mutable.Map[String, Seq[
     else FileList(all, truncated = false)
   }(ec)
 
-  override def uri(key: String, duration: FiniteDuration = 10.minutes, contentType: Option[String], versionId: Option[String] = None): URI =
+  override def uri(key: String, duration: FiniteDuration = 10.minutes, contentType: Option[String], versionId: Option[String] = None, meta: Map[String, String] = Map.empty): URI =
     new URI(urlPrefix + key)
 
   override def deleteFiles(paths: String*): Future[Seq[String]] = Future {

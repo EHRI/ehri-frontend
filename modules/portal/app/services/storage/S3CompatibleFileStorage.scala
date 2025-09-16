@@ -69,7 +69,7 @@ case class S3CompatibleFileStorage(
     .fold(clientBuilder)(url => clientBuilder.endpointOverride(URI.create(url)))
     .build()
 
-  override def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None): URI = {
+  override def uri(path: String, duration: FiniteDuration = 10.minutes, contentType: Option[String] = None, versionId: Option[String] = None, meta: Map[String, String] = Map.empty): URI = {
     val expire = java.time.Duration.ofNanos(duration.toNanos)
     val preSignerBuilder = S3Presigner.builder()
       .credentialsProvider(credentials)
@@ -80,6 +80,7 @@ case class S3CompatibleFileStorage(
     contentType.map { ct =>
       val r = PutObjectRequest.builder()
         .contentType(ct)
+        .metadata(meta.asJava)
         .bucket(name)
         .key(path)
         .build()

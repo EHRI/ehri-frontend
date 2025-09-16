@@ -121,7 +121,10 @@ export default {
         return Promise.reject(new UploadCancelled(file.name));
       }
 
-      return this.api.uploadHandle(this.datasetId, this.fileStage, _pick(file, ['name', 'type', 'size']))
+      let meta = {source: 'user'}; // This is necessary for the backend to accept the upload,
+                                   // and it must match the value used in the uploadFiles method
+      let fileSpec = {..._pick(file, ['name', 'type', 'size']), ...{meta: meta}};
+      return this.api.uploadHandle(this.datasetId, this.fileStage, fileSpec)
           .then(data => {
             let self = this;
             this.setUploadProgress(file, 0);
