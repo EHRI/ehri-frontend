@@ -57,8 +57,9 @@ export default {
     _isArray,
 
     prettifyXml: function (xml: string): string {
+      let stripBom = xml.charAt(0) == '\uFEFF' ? xml.substring(1) : xml;
       let parser = new DOMParser();
-      let xmlDoc = parser.parseFromString(xml, 'application/xml');
+      let xmlDoc = parser.parseFromString(stripBom, 'application/xml');
       let xsltDoc = parser.parseFromString(`
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
           <xsl:template match="node()|@*">
