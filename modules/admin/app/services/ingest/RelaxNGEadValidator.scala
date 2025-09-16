@@ -1,8 +1,7 @@
 package services.ingest
 
-import java.io.InputStreamReader
+import java.io.{InputStreamReader, StringReader}
 import java.nio.file.Path
-
 import org.apache.pekko.http.scaladsl.model.Uri
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
@@ -11,8 +10,11 @@ import com.google.common.io.Resources
 import com.thaiopensource.util.PropertyMapBuilder
 import com.thaiopensource.validate.prop.rng.RngProperty
 import com.thaiopensource.validate.{ValidateProperty, ValidationDriver}
+import org.apache.commons.io.input.BOMInputStream
+import org.xml.sax
+
 import javax.inject.Inject
-import org.xml.sax.{ErrorHandler, InputSource, SAXParseException}
+import org.xml.sax.{EntityResolver, ErrorHandler, InputSource, SAXParseException}
 import play.api.Logger
 
 import scala.collection.mutable.ArrayBuffer
@@ -27,7 +29,8 @@ case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: Exe
   private val rng: InputSource = ValidationDriver.uriOrFileInputSource(rngUrl.toString)
 
   override def validateEad(src: Source[ByteString, _]): Future[Seq[XmlValidationError]] = {
-    val stream = new InputStreamReader(src.runWith(StreamConverters.asInputStream()))
+    val inputStream = src.runWith(StreamConverters.asInputStream())
+    val stream = new InputStreamReader(inputStream)
     val is = new InputSource(stream)
     validateInputSource(is)
   }
@@ -44,17 +47,19 @@ case class RelaxNGEadValidator @Inject()()(implicit mat: Materializer, exec: Exe
     val props = new PropertyMapBuilder()
     props.put(RngProperty.CHECK_ID_IDREF, null)
     val bs = ArrayBuffer[XmlValidationError]()
-    val erh: ErrorHandler = new ErrorHandler {
+    val entityResolver = new EntityResolver {
+      override def resolveEntity(publicId: String, systemId: String): InputSource =
+        new InputSource(new StringReader(""))
+    }
+    val errorHandler: ErrorHandler = new ErrorHandler {
       override def warning(e: SAXParseException): Unit = addError(e)
-
       override def error(e: SAXParseException): Unit = addError(e)
-
       override def fatalError(e: SAXParseException): Unit = addError(e)
-
       private def addError(e: SAXParseException): Unit =
         bs.append(XmlValidationError(e.getLineNumber, e.getColumnNumber, e.getMessage))
     }
-    props.put(ValidateProperty.ERROR_HANDLER, erh)
+    props.put(ValidateProperty.ERROR_HANDLER, errorHandler)
+    props.put(ValidateProperty.ENTITY_RESOLVER, entityResolver)
     try {
       val driver = new ValidationDriver(props.toPropertyMap)
       driver.loadSchema(rng)
