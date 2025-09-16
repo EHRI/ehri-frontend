@@ -29,7 +29,7 @@
                                     .absoluteURL(location.protocol === "https:")
                                     .replace(/^http/, "ws"),
                             defaultTab: "input",
-                            maxPreviewSize: 1024 * 1024 * 2,
+                            maxPreviewSize: @conf.configuration.get[Int]("ehri.admin.dataManager.maxPreviewSize"),
                         }
                     });
                 },
