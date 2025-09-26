@@ -1,26 +1,24 @@
 package controllers.admin
 
-import org.apache.pekko.actor.ActorRef
+import controllers.AppComponents
+import controllers.base.AdminController
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import org.apache.pekko.stream.scaladsl.{BroadcastHub, Keep, Sink, Source}
 import org.apache.pekko.stream.{CompletionStrategy, Materializer, OverflowStrategy}
 import org.apache.pekko.{Done, NotUsed}
-import controllers.AppComponents
-import controllers.base.AdminController
-import models.EntityType
 import play.api.http.MimeTypes
 import play.api.libs.EventSource
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.cypher.CypherService
-import services.data.{AuthenticatedUser, EventForwarder}
+import services.data.EventStoreMediator.sseEvent
+import services.data.{AuthenticatedUser, EventForwarder, EventStore}
 import services.ingest.EadValidator
 import services.search.SearchIndexMediator
 import services.storage.FileStorage
 import utils.PageParams
 
-import java.time.Instant
-import java.util.UUID
 import javax.inject._
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
@@ -38,13 +36,19 @@ case class Utils @Inject()(
   eadValidator: EadValidator,
   cypher: CypherService,
   @Named("dam") storage: FileStorage,
-  @Named("event-forwarder") forwarder: ActorRef
+  @Named("event-forwarder") forwarder: ActorRef,
+  eventStore: EventStore,
+  actorSystem: ActorSystem,
 )(implicit mat: Materializer) extends AdminController {
 
   override val staffOnly = false
 
+  // keep-alive period for event stream
+  private val keepAlivePeriod: FiniteDuration = config.get[FiniteDuration]("ehri.eventStream.keepAlive")
+
+  // finish transmitting buffered elements after completion
   private val completionMatcher: PartialFunction[Any, CompletionStrategy] = {
-    case Done => CompletionStrategy.immediately
+    case Done => CompletionStrategy.draining
   }
 
   private val (handler: ActorRef, eventSource: Source[EventForwarder.Action, NotUsed]) = Source.actorRef[EventForwarder.Action](
@@ -58,26 +62,28 @@ case class Utils @Inject()(
   // Subscribe to events...
   forwarder ! EventForwarder.Subscribe(handler)
 
+
   /**
     * Add a Server-Send event feed of items created, updated or deleted
     */
   def sse: Action[AnyContent] = Action { implicit request =>
-    import services.data.EventForwarder._
-    val keepAlivePeriod = config.get[FiniteDuration]("ehri.eventStream.keepAlive")
 
-    def toPayload(items: Seq[(EntityType.Value, String)], name: String): EventSource.Event =
-      EventSource.Event(Json.stringify(
-        Json.obj("datetime" -> Instant.now(), "ids" -> items.map(_._2), "types" -> items.map(_._1.toString))),
-        name = Some(name),
-        id = Some(UUID.randomUUID().toString))
+    // If we have a replay header, fetch an initial stream from the store
+    val lastInsertId: Option[String] = request.headers.get("Last-Event-Id").filter(_.trim.nonEmpty)
+    val replay: Future[Seq[EventSource.Event]] = lastInsertId.map { id =>
+      eventStore.get(id).map(_.map(ev => EventSource.Event(ev.data, id = Some(ev.id.toString), name = ev.name)))
+    }.getOrElse(Future.successful(Seq.empty[EventSource.Event]))
+    val replaySource = Source.futureSource(replay.map(Source.apply))
 
-    val events = eventSource.collect {
-      case Create(ids) if ids.nonEmpty => toPayload(ids, "create-event")
-      case Update(ids) if ids.nonEmpty => toPayload(ids, "update-event")
-      case Delete(ids) if ids.nonEmpty => toPayload(ids, "delete-event")
+    val events: Source[EventSource.Event, NotUsed] = eventSource.collect {
+      case ev: EventForwarder.Action => sseEvent(ev)
+    }.collect {
+      case Some(event) => event
     }.keepAlive(keepAlivePeriod, () => EventSource.Event(""))
 
-    Ok.chunked(events).as(MimeTypes.EVENT_STREAM)
+    val stream = replaySource.concat(events)
+
+    Ok.chunked(stream).as(MimeTypes.EVENT_STREAM)
   }
 
   /** Check the database is up by trying to load the admin account.
