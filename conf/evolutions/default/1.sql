@@ -390,8 +390,18 @@ CREATE TABLE field_meta(
 CREATE INDEX field_meta_entity_type ON field_meta(entity_type);
 CREATE INDEX field_meta_id ON field_meta(id);
 
+CREATE TABLE lifecycle_event(
+    data TEXT,
+    id   UUID NOT NULL,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE INDEX lifecycle_event_id ON lifecycle_event(id);
+CREATE INDEX lifecycle_event_name ON lifecycle_event(name);
+
  # --- !Downs
 
+DROP TABLE IF EXISTS lifecycle_event CASCADE;
 DROP TABLE IF EXISTS field_meta CASCADE;
 DROP TABLE IF EXISTS entity_type_meta CASCADE;
 DROP TABLE IF EXISTS coreference CASCADE;
