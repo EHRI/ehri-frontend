@@ -11,7 +11,9 @@
 @views.html.admin.common.descriptionForm(desc) {
     @choiceInput(desc, LANG_CODE, views.Helpers.languagePairList, attrs._blank -> true)
     @defining("description") { implicit fieldPrefix =>
-        @lineInput(desc, IDENTIFIER, attrs._autocomplete -> "off")
+        @* Hack: remove the form field hints for description identifier, because it is optional but shares the same name
+         as the mandatory identifier in the unit level :( *@
+        @lineInput(desc, IDENTIFIER, attrs._autocomplete -> "off")(fieldPrefix, Option.empty[forms.FormFieldHints], implicitField, messages, md)
     }
 
     @descriptionFormSection(IDENTITY_AREA) {
