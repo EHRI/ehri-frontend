@@ -85,13 +85,12 @@ case class DataImporter(
           .flatMap(done => {
             ingestApi.clearIndex(sync.deleted ++ sync.moved.keys.toSeq, forwarder).map { _ =>
               msgTo ! Message(s"Remapped $done item(s)")
-              ingestApi.emitEvents(sync)
+              ingestApi.emitEvents(data, sync)
               sync.log
             }
           })
           .pipeTo(self)
-      }
-      else self ! sync.log
+      } else self ! sync.log
 
     case log: ImportLog =>
       msgTo ! log
@@ -106,7 +105,7 @@ case class DataImporter(
           val updated: Seq[String] = data.params.scope +: (
             log.createdKeys.values.flatten.toSeq ++ log.updatedKeys.values.flatten.toSeq)
           msgTo ! Message("Reindexing...")
-          ingestApi.emitEvents(log)
+          ingestApi.emitEvents(data, log)
           ingestApi.reindex(updated, forwarder).map(_ => self ! SaveLog(log))
         } else {
           msgTo ! Message("No reindexing necessary")

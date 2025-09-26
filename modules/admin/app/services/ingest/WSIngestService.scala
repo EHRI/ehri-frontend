@@ -114,14 +114,22 @@ case class WSIngestService @Inject()(
     for (_ <-  cacheF; r <- indexF) yield r
   }
 
-  override def emitEvents(res: IngestResult): Unit = {
+  override def emitEvents(data: IngestService.IngestData, res: IngestResult): Unit = {
     import services.data.EventForwarder._
+
+    // Emit appropriate events for anything that's changed in the system,
+    // including update events for the scope if creations or deletions have
+    // taken place.
     res match {
       case SyncLog(deleted, created, moved, _) =>
         eventForwarder ! Delete(deleted)
         eventForwarder ! Create(created)
         eventForwarder ! Update(moved.values.toSeq)
+
       case ImportLog(createdKeys, updatedKeys, _, _, _, _) =>
+        if (createdKeys.values.toSeq.flatten.nonEmpty) {
+          eventForwarder ! Update(Seq(data.params.scope))
+        }
         eventForwarder ! Create(createdKeys.values.toSeq.flatten)
         eventForwarder ! Update(updatedKeys.values.toSeq.flatten)
       case _ =>

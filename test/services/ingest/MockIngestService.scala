@@ -3,6 +3,7 @@ package services.ingest
 import org.apache.pekko.actor.ActorRef
 import models.{ContentTypes, IngestResult}
 import services.data.DataUser
+import services.ingest.IngestService.IngestData
 
 import scala.concurrent.Future
 
@@ -32,5 +33,5 @@ case class MockIngestService(res: IngestResult) extends IngestService {
   override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser) =
     Future.successful(res)
 
-  override def emitEvents(res: IngestResult): Unit = ()
+  override def emitEvents(data: IngestData, res: IngestResult): Unit = ()
 }

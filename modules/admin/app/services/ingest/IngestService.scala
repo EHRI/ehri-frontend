@@ -94,5 +94,5 @@ trait IngestService {
   /**
     * Emit lifecycle events associated with the ingest operation.
     */
-  def emitEvents(res: IngestResult): Unit
+  def emitEvents(data: IngestService.IngestData, res: IngestResult): Unit
 }

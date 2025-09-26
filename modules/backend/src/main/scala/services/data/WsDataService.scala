@@ -173,8 +173,12 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       response <- callF
       _ = checkError(response)
+      // Send the delete event...
       _ = eventHandler.handleDelete(id)
-      _ <- invalidate(parentIds(id))
+      // Invalid caches for the parents which may contain child counts, etc
+      _ <- invalidate(id +: parents)
+      // Send an update event for the immediate parent
+      _ = parents.headOption.map(parentId => eventHandler.handleUpdate(parentId))
     } yield ()
   }
 
@@ -188,6 +192,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       deleted = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
       _ = eventHandler.handleDelete(deleted: _*)
       _ <- invalidate(parentIds(id) ++ deleted)
+      _ = eventHandler.handleUpdate(id)
     } yield deleted
   }
 
