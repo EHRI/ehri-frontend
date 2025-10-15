@@ -12,6 +12,7 @@ import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.mvc.Headers
 import services._
 import services.data.Constants._
+import services.data.WsDataService.parentIds
 import utils._
 
 import javax.inject.Inject
@@ -23,6 +24,17 @@ import scala.concurrent.{ExecutionContext, Future}
 case class WsDataServiceBuilder @Inject()(eventHandler: EventHandler, cache: AsyncCacheApi, config: Configuration, ws: WSClient) extends DataServiceBuilder {
   override def withContext(apiUser: DataUser)(implicit ec: ExecutionContext): WsDataService =
     WsDataService(eventHandler, config, cache, ws)(apiUser, ec)
+}
+
+object WsDataService {
+  /*
+   * Given an item ID, use the `sep` delimiter to infer its parent item IDs.
+   */
+  def parentIds(id: String, sep: String = "-"): Seq[String] = {
+    id.split(sep).dropRight(1).foldLeft(Seq.empty[String]) { case (acc, part) =>
+      acc.lastOption.map(last => acc :+ s"$last-$part").getOrElse(Seq(part))
+    }
+  }
 }
 
 case class WsDataService(eventHandler: EventHandler, config: Configuration, cache: AsyncCacheApi, ws: WSClient)(
@@ -157,6 +169,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
 
   override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
     val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete()
+    val parents = parentIds(id)
     for {
       response <- callF
       _ = checkError(response)
@@ -795,13 +808,6 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   private def itemCacheKey(id: String) = s"item:$id"
 
   private def canonicalUrl[MT: Resource](id: String): String = enc(typeBaseUrl, Resource[MT].entityType, id)
-
-  private def parentIds(id: String): Seq[String] = {
-    // Given an item ID, use the '-' delimiter to infer its parent item IDs...
-    id.split("-").foldLeft(Seq.empty[String]) { case (acc, part) =>
-      acc.lastOption.map(last => acc :+ s"$last-$part").getOrElse(Seq(part))
-    }
-  }
 
   private def getTotal(url: String): Future[Long] =
     userCall(url).withMethod(HttpVerbs.HEAD).execute().map { response =>

@@ -48,7 +48,20 @@ class WsDataServiceSpec extends IntegrationTestRunner {
     }
   }
 
-  "RestBackend" should {
+  "WsDataService" should {
+    "infer parent IDs from an ID correctly" in {
+      WsDataService.parentIds("foo-bar-baz-spam-eggs") must_== Seq(
+        "foo",
+        "foo-bar",
+        "foo-bar-baz",
+        "foo-bar-baz-spam",
+      )
+
+      WsDataService.parentIds("foo-bar") must_== Seq("foo")
+
+      WsDataService.parentIds("foo") must_== Seq.empty[String]
+    }
+
     "allow fetching single objects" in new ITestApp {
       val test: TestResource = await(testBackend.get[TestResource]("c1"))
       test.id must equalTo("c1")
