@@ -1,6 +1,7 @@
 package actors.cleanup
 
 import actors.Ticker
+import models.EntityType
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Props}
 import play.api.Configuration
 import services.data.{DataService, EventForwarder}
@@ -92,7 +93,7 @@ case class CleanupRunner(
       dataApi.batchDelete(batch, Some(job.repoId), logMsg = job.msg,
           version = true, tolerant = true, commit = true)
         .map { batchCount =>
-          eventForwarder ! EventForwarder.Delete(batch)
+          eventForwarder ! EventForwarder.Delete(batch.map(EntityType.DocumentaryUnit -> _))
           val st = newStatus.copy(deleteCount = newStatus.deleteCount + batchCount)
           msgTo ! st
           DeleteBatch(cleanup, rest, st)

@@ -164,5 +164,19 @@ class RepositoryViewsSpec extends IntegrationTestRunner {
       val r2 = await(dataApi.get[Repository]("r1"))
       r2.data must_== r1.data
     }
+
+    "allow deleting all items in a repository" in new ITestApp {
+      val formData: Map[String, Seq[String]] = Map(
+        "all" -> Seq("true"),
+        "confirm" -> Seq("delete 5 items"),
+        "answer" -> Seq("delete 5 items")
+      )
+      val cr = FakeRequest(repoRoutes.deleteContentsPost("r1"))
+        .withUser(privilegedUser).withCsrf.callWith(formData)
+      status(cr) must_== SEE_OTHER
+      // we should have 5 delete events for the items, plus an update event for the repo...
+      indexEventBuffer.size must beGreaterThan(5)
+      indexEventBuffer.takeRight(6).sorted must_== Seq("c1", "c2", "c3", "c4", "nl-r1-m19", "r1")
+    }
   }
 }

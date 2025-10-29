@@ -35,7 +35,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
   /**
    * A minimal object that has a resource type and can be read.
    */
-  case class TestResource(id: String, data: JsObject) extends WithId
+  case class TestResource(id: String, isA: EntityType.Value, data: JsObject) extends WithId
   object TestResource {
     implicit object Resource extends Resource[TestResource] {
       def entityType: EntityType.Value = EntityType.DocumentaryUnit
@@ -43,8 +43,9 @@ class WsDataServiceSpec extends IntegrationTestRunner {
       import play.api.libs.json._
       val _reads: Reads[TestResource] = (
         (__ \ Entity.ID).read[String] and
-          (__ \ Entity.DATA).read[JsObject]
-        )(TestResource.apply _)
+        Reads.pure(entityType) and
+        (__ \ Entity.DATA).read[JsObject]
+      )(TestResource.apply _)
     }
   }
 
@@ -144,7 +145,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
     }
 
     "error deleting children w/ children" in new ITestApp {
-      await(testBackend.deleteChildren[DocumentaryUnit]("c1")) must throwA[HierarchyError]
+      await(testBackend.deleteChildren[DocumentaryUnit, DocumentaryUnit]("c1")) must throwA[HierarchyError]
     }
 
     "delete a doc and its child items" in new ITestApp {
@@ -153,7 +154,7 @@ class WsDataServiceSpec extends IntegrationTestRunner {
         await(testBackend.get[DocumentaryUnit](id))
         cache.get(s"item:$id") must beSome
       }
-      val ids = await(testBackend.deleteChildren[DocumentaryUnit]("c1", all = true))
+      val ids = await(testBackend.deleteChildren[DocumentaryUnit, DocumentaryUnit]("c1", all = true))
       ids must_== items
       ids.foreach(id => cache.get(s"item:$id") must beNone)
     }

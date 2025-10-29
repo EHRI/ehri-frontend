@@ -6,6 +6,7 @@ import org.apache.pekko.stream.{CompletionStrategy, Materializer, OverflowStrate
 import org.apache.pekko.{Done, NotUsed}
 import controllers.AppComponents
 import controllers.base.AdminController
+import models.EntityType
 import play.api.http.MimeTypes
 import play.api.libs.EventSource
 import play.api.libs.json._
@@ -64,9 +65,9 @@ case class Utils @Inject()(
     import services.data.EventForwarder._
     val keepAlivePeriod = config.get[FiniteDuration]("ehri.eventStream.keepAlive")
 
-    def toPayload(ids: Seq[String], name: String): EventSource.Event =
+    def toPayload(items: Seq[(EntityType.Value, String)], name: String): EventSource.Event =
       EventSource.Event(Json.stringify(
-        Json.obj("datetime" -> Instant.now(), "ids" -> ids)),
+        Json.obj("datetime" -> Instant.now(), "ids" -> items.map(_._2), "types" -> items.map(_._1.toString))),
         name = Some(name),
         id = Some(UUID.randomUUID().toString))
 

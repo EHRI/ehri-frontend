@@ -1,6 +1,6 @@
 package controllers.generic
 
-import models.{ContentType, DeleteChildrenOptions, Holder, Model, PermissionType, Readable, UserProfile}
+import models.{ContentType, DeleteChildrenOptions, Holder, Model, PermissionType, Readable, Resource, UserProfile}
 import play.api.data.Form
 import play.api.mvc._
 import services.data.HierarchyError
@@ -14,7 +14,7 @@ import scala.concurrent.Future.{successful => immediate}
   * Controller trait which handles logic for deleting an item's sub-items
   * and confirming the user's actions.
   */
-trait DeleteChildren[CMT <: Model, MT <: Model with Holder[CMT]] extends Read[MT] with Write {
+trait DeleteChildren[MT <: Model with Holder[CMT], CMT <: Model] extends Read[MT] with Write {
 
   case class CheckDeleteChildrenRequest[A](
     item: MT,
@@ -42,7 +42,7 @@ trait DeleteChildren[CMT <: Model, MT <: Model with Holder[CMT]] extends Read[MT
       }
     }
 
-  protected def DeleteChildrenAction(itemId: String, paging: PageParams)(implicit ct: ContentType[MT], rs: Readable[CMT]): ActionBuilder[DeleteChildrenRequest, AnyContent] =
+  protected def DeleteChildrenAction(itemId: String, paging: PageParams)(implicit ct: ContentType[MT], rs: Resource[CMT]): ActionBuilder[DeleteChildrenRequest, AnyContent] =
     CheckDeleteChildrenAction(itemId, paging) andThen new CoreActionTransformer[CheckDeleteChildrenRequest, DeleteChildrenRequest] {
       def transform[A](request: CheckDeleteChildrenRequest[A]): Future[DeleteChildrenRequest[A]] = {
         implicit val req: CheckDeleteChildrenRequest[A] = request
@@ -52,7 +52,7 @@ trait DeleteChildren[CMT <: Model, MT <: Model with Holder[CMT]] extends Read[MT
             DeleteChildrenRequest(request.item, Left(errorForm, req.children), request.userOpt, request.request)),
           data => {
             (for {
-              ids <- userDataApi.deleteChildren[MT](itemId, data.all, logMsg = getLogMessage)
+              ids <- userDataApi.deleteChildren[MT, CMT](itemId, data.all, logMsg = getLogMessage)
             } yield DeleteChildrenRequest(request.item, Right(ids), request.userOpt, request)) recover {
               case e: HierarchyError =>
                 val filledForm = f.withGlobalError(e.error)

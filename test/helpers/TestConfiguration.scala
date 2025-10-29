@@ -8,7 +8,7 @@ import auth.handler.cookie.CookieIdContainer
 import auth.handler.{AuthHandler, AuthIdContainer}
 import auth.oauth2.MockOAuth2Service
 import cookies.SessionPreferences
-import models.{Account, CypherQuery, Feedback}
+import models.{Account, CypherQuery, EntityType, Feedback}
 import org.jsoup.Jsoup
 import org.specs2.execute.{AsResult, Result}
 import play.api.db.Database
@@ -86,9 +86,9 @@ trait TestConfiguration {
   // Note: this is defined as an implicit object here so it
   // can be used by the DAO classes directly.
   protected val testEventHandler = new EventHandler {
-    def handleCreate(ids: String*): Unit = mockIndexer.handle.indexIds(ids: _*)
-    def handleUpdate(ids: String*): Unit = mockIndexer.handle.indexIds(ids: _*)
-    def handleDelete(ids: String*): Unit = mockIndexer.handle.clearIds(ids: _*)
+    def handleCreate(items: (EntityType.Value, String)*): Unit = mockIndexer.handle.indexIds(items.map(_._2): _*)
+    def handleUpdate(items: (EntityType.Value, String)*): Unit = mockIndexer.handle.indexIds(items.map(_._2): _*)
+    def handleDelete(items: (EntityType.Value, String)*): Unit = mockIndexer.handle.clearIds(items.map(_._2): _*)
   }
 
   protected val mockSearchLogger = new SearchLogger {

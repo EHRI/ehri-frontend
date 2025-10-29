@@ -126,7 +126,7 @@ case class ImportLogs @Inject()(
       redirectCount <- importService.remapMovedUnits(cleanup.redirects)
       _ = logger.info(s"Done redirects: $redirectCount")
       delCount <- deleteBatches(cleanup.deletions)
-      _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions)
+      _ = eventForwarder ! EventForwarder.Delete(cleanup.deletions.map(EntityType.DocumentaryUnit -> _))
       _ = logger.info(s"Done deletions: $delCount")
       _ <- importLogService.saveCleanup(id, snapshotId, cleanup)
     } yield {

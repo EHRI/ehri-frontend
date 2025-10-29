@@ -26,7 +26,7 @@ case class Vocabularies @Inject()(
   ws: WSClient
 ) extends AdminController
   with CRUD[Vocabulary]
-  with DeleteChildren[Concept, Vocabulary]
+  with DeleteChildren[Vocabulary, Concept]
   with Creator[Concept, Vocabulary]
   with Visibility[Vocabulary]
   with ScopePermissions[Vocabulary]

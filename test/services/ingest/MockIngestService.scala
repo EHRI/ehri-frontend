@@ -1,8 +1,9 @@
 package services.ingest
 
-import org.apache.pekko.actor.ActorRef
 import models.{ContentTypes, IngestResult}
+import org.apache.pekko.actor.ActorRef
 import services.data.DataUser
+import services.ingest.IngestService.IngestData
 
 import scala.concurrent.Future
 
@@ -11,7 +12,7 @@ import scala.concurrent.Future
   * plus side has no dependencies.
   */
 case class MockIngestService(res: IngestResult) extends IngestService {
-  override def importData(data: IngestService.IngestData) =
+  override def importData(data: IngestData) =
     Future.successful(res)
 
   override def remapMovedUnits(movedIds: Seq[(String, String)]) =
@@ -23,7 +24,7 @@ case class MockIngestService(res: IngestResult) extends IngestService {
   override def reindex(ids: Seq[String], chan: ActorRef) =
     Future.successful(())
 
-  override def storeManifestAndLog(jobId: String, data: IngestService.IngestData, res: IngestResult) =
+  override def storeManifestAndLog(jobId: String, data: IngestData, res: IngestResult) =
     Future.successful(java.net.URI.create("http://example.com/log"))
 
   override def clearIndex(ids: Seq[String], chan: ActorRef) =
@@ -32,5 +33,5 @@ case class MockIngestService(res: IngestResult) extends IngestService {
   override def importCoreferences(id: String, refs: Seq[(String, String)])(implicit user: DataUser) =
     Future.successful(res)
 
-  override def emitEvents(res: IngestResult): Unit = ()
+  override def emitEvents(data: IngestData, res: IngestResult): Unit = ()
 }
