@@ -3,6 +3,7 @@ package utils
 import org.apache.jena.iri.IRIFactory
 
 import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 package object http {
 
@@ -19,7 +20,7 @@ package object http {
     */
   def joinQueryString(qs: Seq[(String, String)]): String =
     qs.map { case (key, value) =>
-      URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8")
+      URLEncoder.encode(key, StandardCharsets.UTF_8) + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8)
     }.mkString("&")
 
   /**
@@ -53,6 +54,6 @@ package object http {
   def parseQueryString(s: String): Seq[(String, String)] = s.split('&')
     .map(_.split('=').toList)
     .collect { case key :: value :: Nil =>
-      URLDecoder.decode(key, "UTF-8") -> URLDecoder.decode(value, "UTF-8")
+      URLDecoder.decode(key, StandardCharsets.UTF_8) -> URLDecoder.decode(value, StandardCharsets.UTF_8)
     }.toSeq
 }
