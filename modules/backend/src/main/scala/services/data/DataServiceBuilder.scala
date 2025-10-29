@@ -124,7 +124,7 @@ trait DataService {
     * and optionally regenerate them.
     *
     * @param ct     the content type
-    * @param commit whether or not to commit changes
+    * @param commit whether to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
   def regenerateIdsForType(ct: ContentTypes.Value, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
@@ -134,17 +134,16 @@ trait DataService {
     * and optionally regenerate them.
     *
     * @param scope  the scope ID
-    * @param commit whether or not to commit changes
+    * @param commit whether to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
   def regenerateIdsForScope(scope: String, tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
 
   /**
-    * Check of any of the given items require ID regeneration,
-    * and optionally regenerate them.
+    * Check if the given items require ID regeneration and optionally regenerate them.
     *
     * @param ids    the given items
-    * @param commit whether or not to commit changes
+    * @param commit whether to commit changes
     * @return a mapping of old global ID to new (regenerated) global ID
     */
   def regenerateIds(ids: Seq[String], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String)]]
@@ -169,7 +168,7 @@ trait DataService {
     * @param ids     a sequence of item IDs
     * @param scope   an optional item scope
     * @param logMsg  a log message
-    * @param version whether or not to create pre-delete versions of the deleted items
+    * @param version whether to create pre-delete versions of the deleted items
     * @param commit  whether to commit the changes
     * @return the number of items deleted
     */
@@ -180,7 +179,7 @@ trait DataService {
     *
     * @param data    partial model data a JSON stream
     * @param scope   the optional shared item scope
-    * @param version whether or not to create pre-update versions of updated items
+    * @param version whether to create pre-update versions of updated items
     * @param commit  whether to commit the changes
     * @return the number of items updated
     */
@@ -191,7 +190,7 @@ trait DataService {
     *
     * @param data    the model data
     * @param scope   the optional shared item scope
-    * @param version whether or not to create pre-update versions of updated items
+    * @param version whether to create pre-update versions of updated items
     * @param commit  whether to commit the changes
     * @tparam T the generic model data type
     * @return the number of items updated
@@ -309,10 +308,11 @@ trait DataService {
     *               throwing an error if any children are parents
     *               themselves
     * @param logMsg the log message
-    * @tparam MT the generic type of the item
+    * @tparam MT  the generic type of the item
+    * @tparam CMT the generic type of the children
     * @return a list of deleted item ids
     */
-  def deleteChildren[MT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]]
+  def deleteChildren[MT: Resource, CMT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]]
 
   /**
     * List items with the given resource type.
@@ -506,7 +506,7 @@ trait DataService {
     *
     * @param id        the item id
     * @param ann       the annotation data
-    * @param accessors the user's who can access this annotation
+    * @param accessors the users who can access this annotation
     * @param subItem   an optional dependent component ID (e.g. a description) of the item
     * @return the updated item
     */

@@ -1,5 +1,6 @@
 package services.search
 
+import models.EntityType
 import org.apache.pekko.Done
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.stream.Materializer
@@ -31,34 +32,35 @@ case class IndexingEventHandler @Inject()(
     if (items < threshold) 1.minute else config.get[Duration]("ehri.admin.bulkOperations.timeout")
   }
 
-  private def logFailure(ids: Seq[String], func: Seq[String] => Future[Unit]): Unit = func(ids).failed.foreach {
+  private def logFailure(items: Seq[(EntityType.Value, String)], func: Seq[(EntityType.Value, String)] => Future[Unit]): Unit = func(items).failed.foreach {
     t => logger.error(s"Indexing error", t)
   }
 
-  def handleCreate(ids: String*): Unit = {
-    forwarder ! Create(ids)
-    logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
+  def handleCreate(items: (EntityType.Value, String)*): Unit = {
+    forwarder ! Create(items)
+    logFailure(items, items => searchIndexer.handle.indexIds(items.map(_._2): _*))
   }
 
-  def handleUpdate(ids: String*): Unit = {
-    forwarder ! Update(ids)
-    logFailure(ids, ids => searchIndexer.handle.indexIds(ids: _*))
+  def handleUpdate(items: (EntityType.Value, String)*): Unit = {
+    forwarder ! Update(items)
+    logFailure(items, items => searchIndexer.handle.indexIds(items.map(_._2): _*))
   }
 
   // Special case - block when deleting because otherwise we get ItemNotFounds
   // after redirects because the item is still in the search index but not in
   // the database.
-  def handleDelete(ids: String*): Unit = logFailure(ids, ids => Future.successful[Unit] {
-    val deletes = ids.toSeq.grouped(threshold * 2).map { group =>
-      logger.debug(s"Deleting ID group: ${group.mkString(", ")}")
+  def handleDelete(items: (EntityType.Value, String)*): Unit = logFailure(items, items => Future.successful[Unit] {
+    val deletes = items.toSeq.grouped(threshold * 2).map { group =>
+      val groupIds = group.map(_._2)
+      logger.debug(s"Deleting ID group: ${groupIds.mkString(", ")}")
       forwarder ! Delete(group)
-      searchIndexer.handle.clearIds(group: _*)
+      searchIndexer.handle.clearIds(groupIds: _*)
     }
     // This runs all deletes in a synchronous sequence, as opposed to in parallel
     val allDone: Future[Done] = Source.fromIterator(() => deletes)
       .mapAsync(parallelism = 1)(identity)
       .runForeach(identity)
 
-    concurrent.Await.result(allDone, timeoutMinutes(ids.size))
+    concurrent.Await.result(allDone, timeoutMinutes(items.size))
   })
 }

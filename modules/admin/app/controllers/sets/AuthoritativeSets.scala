@@ -27,7 +27,7 @@ AuthoritativeSets @Inject()(
   ws: WSClient,
 ) extends AdminController
   with CRUD[AuthoritativeSet]
-  with DeleteChildren[HistoricalAgent, AuthoritativeSet]
+  with DeleteChildren[AuthoritativeSet, HistoricalAgent]
   with Creator[HistoricalAgent, AuthoritativeSet]
   with Visibility[AuthoritativeSet]
   with ScopePermissions[AuthoritativeSet]

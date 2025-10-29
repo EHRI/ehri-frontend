@@ -56,6 +56,12 @@ case class WSIngestService @Inject()(
   private def indexer(chan: ActorRef): SearchIndexMediatorHandle =
     searchIndexer.handle.withChannel(chan, filter = _ % 1000 == 0)
 
+  private def entityType(dataType: IngestDataType.Value): EntityType.Value = dataType match {
+    case IngestDataType.Eac => EntityType.HistoricalAgent
+    case IngestDataType.Ead | IngestDataType.EadSync => EntityType.DocumentaryUnit
+    case IngestDataType.Skos => EntityType.Concept
+  }
+
   override def storeManifestAndLog(jobId: String, data: IngestData, res: IngestResult): Future[URI] = {
     import play.api.libs.json._
 
@@ -114,16 +120,21 @@ case class WSIngestService @Inject()(
     for (_ <-  cacheF; r <- indexF) yield r
   }
 
-  override def emitEvents(res: IngestResult): Unit = {
+  override def emitEvents(data: IngestData, res: IngestResult): Unit = {
     import services.data.EventForwarder._
+    val et = entityType(data.dataType)
     res match {
       case SyncLog(deleted, created, moved, _) =>
-        eventForwarder ! Delete(deleted)
-        eventForwarder ! Create(created)
-        eventForwarder ! Update(moved.values.toSeq)
+        eventForwarder ! Delete(deleted.map(et -> _))
+        eventForwarder ! Create(created.map(et -> _))
+        eventForwarder ! Update(moved.values.toSeq.map(et -> _))
       case ImportLog(createdKeys, updatedKeys, _, _, _, _) =>
-        eventForwarder ! Create(createdKeys.values.toSeq.flatten)
-        eventForwarder ! Update(updatedKeys.values.toSeq.flatten)
+        eventForwarder ! Create(createdKeys.values.toSeq.flatten.map(et -> _))
+        eventForwarder ! Update(updatedKeys.values.toSeq.flatten.map(et -> _))
+        if (createdKeys.values.toSeq.flatten.nonEmpty) {
+          val st = EntityType.withName(data.params.scopeType.toString)
+          eventForwarder ! Update(Seq(st -> data.params.scope))
+        }
       case _ =>
     }
   }

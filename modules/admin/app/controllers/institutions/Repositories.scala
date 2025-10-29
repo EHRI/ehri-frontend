@@ -36,7 +36,7 @@ case class Repositories @Inject()(
   with Read[Repository]
   with Update[Repository]
   with Delete[Repository]
-  with DeleteChildren[DocumentaryUnit, Repository]
+  with DeleteChildren[Repository, DocumentaryUnit]
   with Creator[DocumentaryUnit, Repository]
 	with Visibility[Repository]
   with ScopePermissions[Repository]

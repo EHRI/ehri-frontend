@@ -1,7 +1,7 @@
 package services.ingest
 
-import org.apache.pekko.actor.ActorRef
 import models.{ContentTypes, IngestParams, IngestResult}
+import org.apache.pekko.actor.ActorRef
 import play.api.mvc.QueryStringBindable
 import services.data.DataUser
 import services.ingest.IngestService.IngestData
@@ -94,5 +94,5 @@ trait IngestService {
   /**
     * Emit lifecycle events associated with the ingest operation.
     */
-  def emitEvents(res: IngestResult): Unit
+  def emitEvents(data: IngestService.IngestData, res: IngestResult): Unit
 }

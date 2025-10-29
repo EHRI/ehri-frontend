@@ -71,7 +71,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(groups.map(group => Constants.GROUP_PARAM -> group): _*)
       .post(Json.toJson(data)).map { response =>
       val item = checkErrorAndParse(response)(implicitly[Readable[T]]._reads)
-      eventHandler.handleCreate(item.id)
+      eventHandler.handleCreate(item.idAndType)
       item
     }
   }
@@ -119,13 +119,14 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withHeaders(msgHeader(logMsg): _*)
       .post(Json.toJson(item)(Writable[T]._format)).map { response =>
       val created = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
-      eventHandler.handleCreate(created.id)
+      eventHandler.handleCreate(created.idAndType)
       created
     }
   }
 
   override def createInContext[MT: Resource, T: Writable, TT <: WithId : Readable](id: String, item: T, accessors: Seq[String] = Nil, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[TT] = {
-    val url = enc(typeBaseUrl, Resource[MT].entityType, id)
+    val entityType = Resource[MT].entityType
+    val url = enc(typeBaseUrl, entityType, id)
     val callF = userCall(url)
       .withQueryString(accessors.map(a => ACCESSOR_PARAM -> a): _*)
       .withQueryString(unpack(params): _*)
@@ -135,64 +136,73 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       response <- callF
       created = checkErrorAndParse(response, context = Some(url))(Readable[TT]._reads)
       // also reindex parent since this will update child count caches
-      _ = eventHandler.handleUpdate(id)
-      _ = eventHandler.handleCreate(created.id)
+      _ = eventHandler.handleUpdate(entityType -> id)
+      _ = eventHandler.handleCreate(created.idAndType)
       _ <- invalidate(id)
     } yield created
   }
 
   override def update[MT: Resource, T: Writable](id: String, item: T, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
-    val url = enc(typeBaseUrl, Resource[MT].entityType, id)
+    val entityType = Resource[MT].entityType
+    val url = enc(typeBaseUrl, entityType, id)
     val callF = userCall(url).withHeaders(msgHeader(logMsg): _*)
       .withQueryString(unpack(params): _*)
       .put(Json.toJson(item)(Writable[T]._format))
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
-      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleUpdate(entityType -> id)
       _ <- invalidate(id)
     } yield item
   }
 
   override def patch[MT: Resource](id: String, data: JsObject, params: Map[String, Seq[String]] = Map.empty, logMsg: Option[String] = None): Future[MT] = {
-    val item = Json.obj("type" -> Resource[MT].entityType, "data" -> data)
-    val url = enc(typeBaseUrl, Resource[MT].entityType, id)
+    val entityType = Resource[MT].entityType
+    val item = Json.obj("type" -> entityType, "data" -> data)
+    val url = enc(typeBaseUrl, entityType, id)
     val callF = userCall(url).withHeaders((PATCH_HEADER_NAME -> true.toString) +: msgHeader(logMsg): _*)
       .put(item)
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
-      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleUpdate(entityType -> id)
       _ <- invalidate(id)
     } yield item
   }
 
   override def delete[MT: Resource](id: String, logMsg: Option[String] = None): Future[Unit] = {
-    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id)).delete()
+    val entityType = Resource[MT].entityType
+    val callF = userCall(enc(typeBaseUrl, entityType, id)).delete()
     val parents = parentIds(id)
     for {
       response <- callF
       _ = checkError(response)
-      _ = eventHandler.handleDelete(id)
-      _ <- invalidate(parentIds(id))
+      // FIXME: we should update the holder here, but we can't because
+      // the entity type is not available through the generic system.
+      _ = eventHandler.handleDelete(entityType -> id)
+      _ <- invalidate(parents)
     } yield ()
   }
 
-  override def deleteChildren[MT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]] = {
-    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "list"))
+  override def deleteChildren[MT: Resource, CMT: Resource](id: String, all: Boolean = false, logMsg: Option[String] = None): Future[Seq[String]] = {
+    val entityType = Resource[MT].entityType
+    val childEntityType = Resource[CMT].entityType
+    val callF = userCall(enc(typeBaseUrl, entityType, id, "list"))
       .withQueryString("all" -> all.toString)
       .withTimeout(config.get[Duration]("ehri.admin.bulkOperations.timeout"))
       .delete()
     for {
       response <- callF
-      deleted = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
-      _ = eventHandler.handleDelete(deleted: _*)
-      _ <- invalidate(parentIds(id) ++ deleted)
-    } yield deleted
+      deletedIds = checkErrorAndParse[Seq[List[String]]](response).collect { case id :: _ => id}
+      _ = eventHandler.handleDelete(deletedIds.map(childEntityType -> _): _*)
+      _ = eventHandler.handleUpdate(entityType -> id)
+      _ <- invalidate(parentIds(id) ++ deletedIds)
+    } yield deletedIds
   }
 
   override def rename[MT: Resource](id: String, local: String, logMsg: Option[String], check: Boolean = false): Future[Seq[(String, String)]] = {
-    val callF = userCall(enc(typeBaseUrl, Resource[MT].entityType, id, "rename"))
+    val entityType = Resource[MT].entityType
+    val callF = userCall(enc(typeBaseUrl, entityType, id, "rename"))
       .withQueryString("check" -> check.toString)
       .post(local)
     for {
@@ -201,23 +211,26 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       // It's possible the ID won't have changed but the local identifier has (for ex:
       // if they're out-of-sync to start with.) In this case we need to invalidate the
       // existing ID anyway.
-      _ = if (!mappings.toMap.contains(id)) eventHandler.handleUpdate(id)
+      _ = if (!mappings.toMap.contains(id)) eventHandler.handleUpdate(entityType -> id)
       _ <- if (mappings.toMap.contains(id)) immediate(Done) else cache.remove(id)
-      _ = eventHandler.handleDelete(mappings.map(_._1): _*)
-      _ = eventHandler.handleUpdate(mappings.map(_._2): _*)
+      _ = eventHandler.handleDelete(mappings.map(oldToNew => entityType -> oldToNew._1): _*)
+      _ = eventHandler.handleUpdate(mappings.map(oldToNew => entityType -> oldToNew._2): _*)
       _ <- invalidate(mappings.map(_._1))
     } yield mappings
   }
 
   override def parent[MT: Resource, PMT: Resource](id: String, parentIds: Seq[String]): Future[MT] = {
-    val url = enc(typeBaseUrl, Resource[MT].entityType, id, "parent")
+    val parentEntityType = Resource[PMT].entityType
+    val entityType = Resource[MT].entityType
+    val url = enc(typeBaseUrl, entityType, id, "parent")
     val callF = userCall(url).withQueryString(parentIds.map(n => ID_PARAM -> n): _*).post()
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
       _ <- invalidate(parentIds)
       _ <- invalidate(id)
-      _ = eventHandler.handleUpdate(parentIds :+ id: _*)
+      _ = eventHandler.handleUpdate(parentIds.map(id => parentEntityType -> id): _*)
+      _ = eventHandler.handleUpdate(entityType -> id)
     } yield item
   }
 
@@ -264,6 +277,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
   }
 
   override def setVisibility[MT: Resource](id: String, data: Seq[String]): Future[MT] = {
+    val entityType = Resource[MT].entityType
     val url: String = enc(genericItemUrl, id, "access")
     val callF = userCall(url)
       .withQueryString(data.map(a => ACCESSOR_PARAM -> a): _*)
@@ -271,7 +285,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Resource[MT]._reads)
-      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleUpdate(entityType -> id)
       _ <- invalidate(id)
     } yield item
   }
@@ -324,7 +338,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       response <- callF
       item = checkErrorAndParse(response, context = Some(url))(Writable[AP]._format)
-      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleUpdate(Resource[MT].entityType -> id)
       _ <- invalidate(id)
     } yield item
   }
@@ -334,7 +348,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       response <- userCall(url).withHeaders(msgHeader(logMsg): _*).delete()
       _ = checkError(response)
-      _ = eventHandler.handleUpdate(id)
+      _ = eventHandler.handleUpdate(Resource[MT].entityType -> id)
       _ <- invalidate(id)
     } yield ()
   }
@@ -369,7 +383,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .withQueryString(subItem.toSeq.map(a => BODY_PARAM -> a): _*)
       .post(Json.toJson(ann)(Writable[AF]._format)).map { response =>
       val annotation: A = checkErrorAndParse[A](response, context = Some(url))(Readable[A]._reads)
-      eventHandler.handleCreate(annotation.id)
+      eventHandler.handleCreate(annotation.idAndType)
       annotation
     }
   }
@@ -387,7 +401,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       response <- callF
       link = checkErrorAndParse[A](response, context = Some(url))(Readable[A]._reads)
-      _= eventHandler.handleCreate(link.id)
+      _= eventHandler.handleCreate(link.idAndType)
       _ <- invalidate(id)
     } yield link
   }
@@ -425,7 +439,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     for {
       _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
-      _ = eventHandler.handleUpdate(vcId)
+      _ = eventHandler.handleUpdate(Resource[MT].entityType -> vcId)
       _ <- invalidate(vcId)
     } yield ()
   }
@@ -435,7 +449,7 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     else for {
       _ <- userCall(enc(typeBaseUrl, EntityType.VirtualUnit, vcId, "includes"))
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).delete()
-      _ = eventHandler.handleUpdate(vcId)
+      _ = eventHandler.handleUpdate(Resource[MT].entityType -> vcId)
       _ <- invalidate(vcId)
     } yield ()
   }
@@ -447,7 +461,8 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
         .withQueryString(ids.map(id => ID_PARAM -> id): _*).post()
       // Update both source and target sets in the index
       _ <- invalidate(toVc, fromVc)
-      _ = eventHandler.handleUpdate(toVc, fromVc)
+      entityType = Resource[MT].entityType
+      _ = eventHandler.handleUpdate(entityType -> toVc, entityType -> fromVc)
     } yield ()
 
   private val permissionRequestUrl = enc(baseUrl, "permissions")
@@ -817,8 +832,9 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     }
 
   private def itemResponse[MT: Resource](id: String, response: WSResponse): Future[MT] = {
-    val item: MT = checkErrorAndParse(response)(Resource[MT]._reads)
-    eventHandler.handleUpdate(id)
+    val res = Resource[MT]
+    val item: MT = checkErrorAndParse(response)(res._reads)
+    eventHandler.handleUpdate(res.entityType -> id)
     invalidate(id).map(_ => item)
   }
 
@@ -848,10 +864,10 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
 object WsDataServiceBuilder {
   def withNoopHandler(cache: AsyncCacheApi, config: play.api.Configuration, ws: WSClient): DataServiceBuilder =
     new WsDataServiceBuilder(new EventHandler {
-      def handleCreate(ids: String*): Unit = ()
+      def handleCreate(items: (EntityType.Value, String)*): Unit = ()
 
-      def handleUpdate(ids: String*): Unit = ()
+      def handleUpdate(items: (EntityType.Value, String)*): Unit = ()
 
-      def handleDelete(ids: String*): Unit = ()
+      def handleDelete(items: (EntityType.Value, String)*): Unit = ()
     }, cache: AsyncCacheApi, config, ws)
 }

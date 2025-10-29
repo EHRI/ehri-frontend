@@ -1,5 +1,6 @@
 package services.data
 
+import models.EntityType
 import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, Terminated}
 
 import javax.inject.Inject
@@ -9,9 +10,9 @@ object EventForwarder {
   case class Unsubscribe(actorRef: ActorRef)
 
   sealed trait Action
-  case class Create(ids: Seq[String]) extends Action
-  case class Update(ids: Seq[String]) extends Action
-  case class Delete(ids: Seq[String]) extends Action
+  case class Create(items: Seq[(EntityType.Value, String)]) extends Action
+  case class Update(items: Seq[(EntityType.Value, String)]) extends Action
+  case class Delete(items: Seq[(EntityType.Value, String)]) extends Action
 }
 
 class EventForwarder @Inject() () extends Actor with ActorLogging {
