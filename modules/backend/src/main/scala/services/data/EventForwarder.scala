@@ -9,7 +9,9 @@ object EventForwarder {
   case class Subscribe(actorRef: ActorRef)
   case class Unsubscribe(actorRef: ActorRef)
 
-  sealed trait Action
+  sealed trait Action {
+    def items: Seq[(EntityType.Value, String)]
+  }
   case class Create(items: Seq[(EntityType.Value, String)]) extends Action
   case class Update(items: Seq[(EntityType.Value, String)]) extends Action
   case class Delete(items: Seq[(EntityType.Value, String)]) extends Action
