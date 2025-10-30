@@ -709,6 +709,11 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
     Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2))) }
   )
 
+  private implicit val seqTuple3Format: Format[Seq[(String, String, String)]] = Format(
+    Reads.seq[List[String]].map(_.collect { case a :: b :: c :: _ => (a, b, c) }),
+    Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2, t._3))) }
+  )
+
   override def relinkTargets(mapping: Seq[(String, String)], tolerant: Boolean = false, commit: Boolean = false): Future[Seq[(String, String, Int)]] = {
     val url = enc(baseUrl, "tools", "relink-targets")
     userCall(url)
@@ -759,19 +764,19 @@ case class WsDataService(eventHandler: EventHandler, config: Configuration, cach
       .map(r => checkErrorAndParse[Seq[(String, String)]](r, Some(url)))
   }
 
-  private implicit val seqTuple3Format: Format[Seq[(String, String, String)]] = Format(
-    Reads.seq[List[String]].map(_.collect { case a :: b :: c :: _ => (a, b, c) }),
-    Writes { s => Json.toJson(s.map(t => Seq(t._1, t._2, t._3))) }
-  )
-
   override def findReplace(ct: ContentTypes.Value, et: EntityType.Value, property: String, from: String, to: String, commit: Boolean, logMsg: Option[String]): Future[Seq[(String, String, String)]] = {
     val url = enc(baseUrl, "tools", "find-replace")
-    userCall(url)
+    val out = userCall(url)
       .withHeaders(msgHeader(logMsg): _*)
       .withQueryString("type" -> ct.toString, "subtype" -> et.toString,
         "property" -> property, "commit" -> commit.toString)
       .post(Map("from" -> Seq(from), "to" -> Seq(to)))
       .map(r => checkErrorAndParse[Seq[(String, String, String)]](r, Some(url)))
+    out.map { list =>
+      val toUpdate = list.map { case (id, _, _) => EntityType.withName(ct.toString) -> id }
+      eventHandler.handleUpdate(toUpdate: _*)
+      list
+    }
   }
 
   override def batchUpdate(data: Source[JsValue, _], scope: Option[String], logMsg: String, version: Boolean, commit: Boolean): Future[BatchResult] = {

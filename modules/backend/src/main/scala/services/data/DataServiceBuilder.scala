@@ -151,6 +151,7 @@ trait DataService {
   /**
     * Find and replace a text value for a given property across an entire entity type.
     *
+    *
     * @param ct       the parent content type
     * @param et       a specific entity type
     * @param property the property to search within
@@ -163,7 +164,10 @@ trait DataService {
   def findReplace(ct: ContentTypes.Value, et: EntityType.Value, property: String, from: String, to: String, commit: Boolean, logMsg: Option[String]): Future[Seq[(String, String, String)]]
 
   /**
-    * Delete a batch of items.
+    * Delete a batch of items of the same type.
+    *
+    * Note: this API does **NOT** propagate delete events. This must be
+    * done from the client.
     *
     * @param ids     a sequence of item IDs
     * @param scope   an optional item scope
@@ -177,6 +181,9 @@ trait DataService {
   /**
     * Update a batch of items via a stream of partial JSON bundles.
     *
+    * Note: this API does **NOT** propagate update events. This must be
+    * done from the client.
+    *
     * @param data    partial model data a JSON stream
     * @param scope   the optional shared item scope
     * @param version whether to create pre-update versions of updated items
@@ -187,6 +194,9 @@ trait DataService {
 
   /**
     * Update a batch of items.
+    *
+    * Note: this API does **NOT** propagate update events. This must be
+    * done from the client.
     *
     * @param data    the model data
     * @param scope   the optional shared item scope
