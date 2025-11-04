@@ -2,8 +2,6 @@ name: CI
 on:
   pull_request:
   push:
-env:
-  SMTP_PORT: 2500
 
 jobs:
   test:
@@ -25,7 +23,7 @@ jobs:
         apps: sbt
 
     - name: Build the docker compose stack
-      run: docker compose up -d
+      run: docker compose -f docker-compose.test.yml up -d
 
     - name: Cache node modules
       uses: actions/cache@v4

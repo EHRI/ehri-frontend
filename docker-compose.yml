@@ -1,7 +1,8 @@
 version: "3.5"
 
-# This Docker Compose config is for running services in a *test* configuration.
-
+# This Docker Compose config sets up PostgreSQL, Solr, and Neo4j
+# instances on default ports for local development, with their
+# data persisting inside the `DB` directory.
 
 services:
 
@@ -9,63 +10,26 @@ services:
   rmdbs:
     image: docker.io/postgres:14
     ports:
-      - 5431:5432
+      - "${DB_PORT:-5432}:5432"
     environment:
-      POSTGRES_USER: docview_test
+      POSTGRES_USER: docview
       POSTGRES_PASSWORD: changeme
     command: -c "max_connections=200" -c "shared_buffers=256MB"
+    volumes:
+    - "./DB/postgresql/data:/var/lib/postgresql/data"
 
   # The actual Neo4j data backend
   neo4j:
-    image: docker.io/ehri/ehri-rest:latest
+    image: docker.io/ehri/ehri-rest
     ports:
-      - 7575:7474
-      - 7686:7687
-    environment:
-      NEO4J_AUTH: neo4j/changeme
-      # RUNS DB initialisation on startup
-      EHRI_INIT: "true"
+      - ${NEO4J_PORT:-7474}:7474
+      - ${BOLT_PORT:-7687}:7687
+    volumes:
+    - "./DB/neo4j/data:/data"
 
   solr:
     image: docker.io/ehri/ehri-search-tools
     ports:
-      - 8982:8983
-
-  # This simply allows us to send mails from CI environments
-  smtp:
-    image: docker.io/python:3.9.7-slim
-    ports:
-      - 2500:2500
-    environment:
-      PYTHON_UNBUFFERED: 1
-    entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
-
-  minio:
-    image: quay.io/minio/minio:RELEASE.2024-02-26T09-33-48Z
-    ports:
-      - 9876:9000
-      - 9875:9001
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: changeme
-    command: server --console-address ":9001" /data
-    restart: always
-
-  # Use the mc client to create an ehri-test bucket in minio
-  createbuckets:
-    image: quay.io/minio/mc
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc alias set ehri http://minio:9000 admin changeme;
-      /usr/bin/mc mb ehri/test;
-      /usr/bin/mc version enable ehri/test
-
-      /usr/bin/mc mb ehri/dam;
-      /usr/bin/mc version enable ehri/dam
-
-      /usr/bin/mc mb ehri/portal;
-      exit 0;
-      "
+      - ${SOLR_PORT:-8983}:8983
+    volumes:
+    - "./DB/solr:/var/solr"

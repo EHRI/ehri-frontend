@@ -2,8 +2,8 @@ version: "3.5"
 
 # This is a persistent minio instance that can be used
 # as an s3-substitute during development on the local
-# machine. The `docker-compose.yml` file uses another
-# non-persistant instance mapped to different ports.
+# machine. The `docker-compose.test.yml` file uses another
+# (non-persistent) instance mapped to different ports.
 
 services:
   s3_local:
@@ -11,8 +11,8 @@ services:
       - ehri-frontend-minio_default
     image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     ports:
-      - 9100:9000
-      - 9101:9001
+      - ${MINIO_PORT:-9100}:9000
+      - ${MINIO_UI_PORT:-9101}:9001
     environment:
       MINIO_ROOT_USER: docview
       MINIO_ROOT_PASSWORD: changeme
