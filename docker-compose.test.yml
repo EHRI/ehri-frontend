@@ -1,0 +1,71 @@
+version: "3.5"
+
+# This Docker Compose config is for running services in a *test* configuration,
+# using non-standard ports.
+
+services:
+
+  # PostgreSQL admin DB
+  rmdbs:
+    image: docker.io/postgres:14
+    ports:
+      - ${DB_TEST_PORT:-5431}:5432
+    environment:
+      POSTGRES_USER: docview_test
+      POSTGRES_PASSWORD: changeme
+    command: -c "max_connections=200" -c "shared_buffers=256MB"
+
+  # The actual Neo4j data backend
+  neo4j:
+    image: docker.io/ehri/ehri-rest:latest
+    ports:
+      - ${NEO4J_TEST_PORT:-7575}:7474
+      - ${BOLT_TEST_PORT:-7686}:7687
+    environment:
+      NEO4J_AUTH: neo4j/changeme
+      # RUNS DB initialisation on startup
+      EHRI_INIT: "true"
+
+  solr:
+    image: docker.io/ehri/ehri-search-tools
+    ports:
+      - ${SOLR_TEST_PORT:-8982}:8983
+
+  # This simply allows us to send mails from CI environments
+  smtp:
+    image: docker.io/python:3.9.7-slim
+    ports:
+      - ${SMTP_TEST_PORT:-2500}:2500
+    environment:
+      PYTHON_UNBUFFERED: 1
+    entrypoint: ["python", "-m", "smtpd", "-n", "-c", "DebuggingServer", "0.0.0.0:2500"]
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-02-26T09-33-48Z
+    ports:
+      - ${MINIO_TEST_PORT:-9876}:9000
+      - ${MINIO_UI_TEST_PORT:-9877}:9001
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: changeme
+    command: server --console-address ":9001" /data
+    restart: always
+
+  # Use the mc client to create an ehri-test bucket in minio
+  createbuckets:
+    image: quay.io/minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set ehri http://minio:9000 admin changeme;
+      /usr/bin/mc mb ehri/test;
+      /usr/bin/mc version enable ehri/test
+
+      /usr/bin/mc mb ehri/dam;
+      /usr/bin/mc version enable ehri/dam
+
+      /usr/bin/mc mb ehri/portal;
+      exit 0;
+      "

@@ -7,12 +7,7 @@ import play.api.test.{PlaySpecification, WithApplication}
 
 class MailerSpec extends PlaySpecification {
 
-  val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "play.mailer.host" -> "localhost",
-      // NB: SMTP_PORT is set in the travis config to 2500
-      "play.mailer.port" -> scala.util.Properties.envOrElse("SMTP_PORT", "25")
-    ).build()
+  val app: Application = new GuiceApplicationBuilder().build()
 
   "SMTP mailer" should {
     "send mails" in new WithApplication(app) {

@@ -5,25 +5,50 @@ Front-end for  the [EHRI REST](https://github.com/EHRI/ehri-rest) web service.
 This app has a few dependencies, with the main ones being:
 
  - The Neo4j-based EHRI backend service
- - A PostgreSQL 9.5+ database
+ - A PostgreSQL 14+ database
  - Solr, running configured as per the [EHRI Search Tools](https://github.com/EHRI/ehri-search-tools)
- - An S3-compatible object storage service (remote in production and local during dev)
+ - An S3-compatible object storage service (remote in production and local during dev),
+   for example [MinIO](https://min.io)
 
-These services can be instantiated using the `docker-compose-dev.yml` and `docker-compose-minio.yml` files:
+There are currently three docker compose .yml files for development and testing:
+
+ - `docker-compose.yml`: starts PostgreSQL, Neo4j, and Solr in default development config, using data that persists in a
+    `DB` directory in the project folder
+ - `docker-compose.minio.yml`: starts MinIO in development config as an S3-compatible object store, on ports 9100
+     and 9101, with data persisting in the `miniodata` directory
+ - `docker-compose.test.yml`: starts PostgreSQL, Neo4j, Solr, and MinIO with ephemeral storage and ports configured to
+    match the test config
+
+For more serious development you might want to run Neo4j, PostgreSQL, and Solr in a non-containerised fashion, which is
+why the MinIO compose file is separate.
+
+The Makefile contains targets for running the dev, minio, and test services, e.g.:
 
 ```bash
-sudo docker-compose -f docker-compose-dev.yml -f docker-compose-minio.yml up
+make dev-up
 ```
 
-(*NB*: during development it is convenient to use [MinIO](https://min.io/) for file storage, but it's default port
-clashes with that of the Play Framework, so the docker config remaps its ports to 9100 and 9101.)
+```bash
+make minio-up
+```
+
+This will try and detect the container runtime, preferring Podman over Docker, and run the following
+commands (using, in this case, the Podman runtime):
+
+```bash
+podman-compose --project-name docview-dev -f docker-compose.yml up
+```
+
+```bash
+podman-compose --project-name docview-minio -f docker-compose.minio.yml up
+```
 
 If this all works you should be able to visit the following URLs in your browser and see something:
 
  - <http://localhost:7474> (Neo4j, with authentication disabled)
  - <http://localhost:8983> (Solr)
  - <http://localhost:9101> (MinIO)
-
+ 
 If you have the PostgreSQL client libraries installed you should also be able to connect to the `docview` database like so:
 
 ```bash
@@ -37,7 +62,9 @@ psql -Udocview -hlocalhost docview
  - Rename `conf/minio.conf.example` to `conf/minio.conf`
  - Create some MinIO buckets for application data and import data: to match the example config use `portal-data` and `import-data`. 
    **Important**: the `portal-data` should be public and the `import-data` should have versioning enabled.
-   
+
+(*NB*: MinIO's default ports clash with the Play Framework, so the docker config remaps its ports to 9100 and 9101.)
+
 ### EHRI Backend setup
 
  - Create an additional group on the backend named "portal":
@@ -56,7 +83,8 @@ curl  --header content-type:application/json \
 ### Additional dev environment dependencies
 
  - install postfix or a suitable email-sending program
- - install Node JS (which handles client-side asset compilation)
+ - install Node JS (which handles client-side asset compilation). It's recommended to install [NVM](https://github.com/nvm-sh/nvm)
+    and just type `nvm use` to use the configured Node version
  - install the [sbt launcher](https://www.scala-sbt.org/download.html)
  - Run `sbt` from the project directory and it will download and install the appropriate version and start the sbt shell 
    
@@ -106,15 +134,16 @@ the main SBT build system.
 ### Testing
 
 Running integration tests requires the same external services as for development, though in the `conf/test.conf` file their
-ports are non-default. You can set up these services using the _default_ docker compose file, e.g.:
+ports are non-default. You can set up these services using the test docker compose file, e.g.:
 
 ```bash
-sudo docker-compose up
+make test-up
 ```
 
-**Note**: you can keep test services and dev services all running together (at the expense, obviously, of more RAM) like so:
+Restarting containerised services can be down with corresponding Makefile commands:
 
 ```bash
-sudo docker-compose -f docker-compose.yml -f docker-compose-dev.yml -f docker-compose-minio.yml up
+make dev-down
+make minio-down
+make test-down 
 ```
-
