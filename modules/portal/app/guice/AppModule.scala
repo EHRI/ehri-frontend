@@ -7,12 +7,13 @@ import com.google.inject.name.Names
 import views.AppConfig
 import data.markdown.{CommonmarkMarkdownRenderer, RawMarkdownRenderer, SanitisingMarkdownRenderer}
 import lifecycle.{GeocodingItemLifecycle, ItemLifecycle}
+import models.AddressF
 import play.api.libs.concurrent.PekkoGuiceSupport
 import services.RateLimitChecker
 import services.cypher.{CypherQueryService, CypherService, SqlCypherQueryService, WsCypherService}
 import services.data._
 import services.feedback.{FeedbackService, SqlFeedbackService}
-import services.geocoding.{AwsGeocodingService, GeocodingService}
+import services.geocoding.{AwsGeocodingService, GeocodingService, Point}
 import services.htmlpages.{GoogleDocsHtmlPages, HtmlPages}
 import services.redirects.{MovedPageLookup, SqlMovedPageLookup}
 import services.search._
@@ -20,7 +21,7 @@ import services.storage.{FileStorage, S3CompatibleFileStorage}
 import views.html.MarkdownRenderer
 
 import javax.inject.{Inject, Provider}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 private class PortalStorageProvider @Inject()(config: play.api.Configuration)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext) extends Provider[FileStorage] {
   override def get(): FileStorage =
@@ -33,7 +34,12 @@ private class DamStorageProvider @Inject()(config: play.api.Configuration)(impli
 }
 
 private class AwsGeocodingServiceProvider @Inject()(config: play.api.Configuration, ec: ExecutionContext) extends Provider[GeocodingService] {
-  override def get(): GeocodingService = AwsGeocodingService(config.get[com.typesafe.config.Config]("services.geocoding"))(ec)
+  override def get(): GeocodingService = {
+    val enabled = config.get[Boolean]("services.geocoding.enabled")
+    if (enabled)
+      AwsGeocodingService(config.get[com.typesafe.config.Config]("services.geocoding"))(ec)
+    else (_: AddressF) => Future.successful(Option.empty[Point])
+  }
 }
 
 class AppModule extends AbstractModule with PekkoGuiceSupport {
