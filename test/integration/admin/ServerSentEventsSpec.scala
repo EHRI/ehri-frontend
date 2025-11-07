@@ -12,12 +12,12 @@ import services.data.{EventStore, StoredEvent}
 /**
  * Spec to test various page views operate as expected.
  */
-class SSESpec extends IntegrationTestRunner with FakeMultipartUpload {
+class ServerSentEventsSpec extends IntegrationTestRunner with FakeMultipartUpload {
 
   override def getConfig: Map[String, Any] =
     super.getConfig ++ Map("ehri.eventStream.keepAlive" -> "10 millis")
 
-  "Utils" should {
+  "Server-Sent Events" should {
 
     def client(implicit app: Application) = {
       implicit val mat: Materializer = app.injector.instanceOf[Materializer]
@@ -25,7 +25,7 @@ class SSESpec extends IntegrationTestRunner with FakeMultipartUpload {
     }
 
     "check event stream connects and sends keep-alive events" in new ITestServer() {
-      val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.Utils.sse()}")
+      val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.ServerSentEvents.lifecycle()}")
         .withHttpHeaders("Accept" -> "text/event-stream")
         .stream()
 
@@ -44,7 +44,7 @@ class SSESpec extends IntegrationTestRunner with FakeMultipartUpload {
         ids.map(id => StoredEvent("test", id, Some("hello-world")))
       ))
 
-      val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.Utils.sse()}")
+      val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.ServerSentEvents.lifecycle()}")
         .withHttpHeaders("Accept" -> MimeTypes.EVENT_STREAM)
         .withHttpHeaders("Last-Event-Id" -> ids.head.toString)
         .stream()

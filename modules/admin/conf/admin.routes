@@ -36,7 +36,9 @@ GET         /metrics/_clear                     @controllers.admin.Metrics.clear
 # Monitoring
 GET         /monitor/_check                     @controllers.admin.Utils.checkServices()
 GET         /monitor/_checkUserSync             @controllers.admin.Utils.checkUserSync()
-GET         /monitor/_events                    @controllers.admin.Utils.sse()
+
+# Server-Sent events feeds
+GET         /monitor/_events                    @controllers.admin.ServerSentEvents.lifecycle()
 
 # API
 # Forward to any dataApi GET method
