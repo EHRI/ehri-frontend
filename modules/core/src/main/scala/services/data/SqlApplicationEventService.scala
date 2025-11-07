@@ -8,25 +8,25 @@ import play.api.db.Database
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SqlEventStore @Inject()(db: Database, config: Configuration)(implicit actorSystem: ActorSystem) extends EventStore {
+case class SqlApplicationEventService @Inject()(db: Database, config: Configuration)(implicit actorSystem: ActorSystem) extends ApplicationEventService {
 
   private implicit def executionContext: ExecutionContext = actorSystem.dispatchers.lookup("contexts.db-writes")
 
-  private implicit val parser: RowParser[StoredEvent] = Macro.parser[StoredEvent]("data", "id", "name")
+  private implicit val parser: RowParser[ApplicationEvent] = Macro.parser[ApplicationEvent]("id", "data", "name")
 
-  override def store(events: Seq[StoredEvent]): Future[Int] = Future {
+  override def save(events: Seq[ApplicationEvent]): Future[Int] = Future {
     db.withTransaction { implicit conn =>
       val q =
-        """INSERT INTO lifecycle_event (data, id, name)
-           VALUES ({data}, {id}::UUID, {name})
+        """INSERT INTO application_event (id, data, name)
+           VALUES ({id}::UUID, {data}, {name})
            ON CONFLICT DO NOTHING
            """
 
       if (events.nonEmpty) {
         val inserts = events.map { r =>
           Seq[NamedParameter](
-            "data" -> r.data,
             "id" -> r.id,
+            "data" -> r.data,
             "name" -> r.name,
           )
         }
@@ -36,13 +36,13 @@ case class SqlEventStore @Inject()(db: Database, config: Configuration)(implicit
     }
   }
 
-  override def get(lastInsertId: String): Future[Seq[StoredEvent]] = Future {
+  override def get(lastInsertId: String): Future[Seq[ApplicationEvent]] = Future {
     db.withConnection { implicit conn =>
       SQL"""
            SELECT *
-           FROM lifecycle_event
+           FROM application_event
            WHERE id::varchar >= $lastInsertId
-             AND EXISTS (SELECT 1 FROM lifecycle_event WHERE id::varchar = $lastInsertId)
+             AND EXISTS (SELECT 1 FROM application_event WHERE id::varchar = $lastInsertId)
            ORDER BY id ASC""".as(parser.*)
     }
   }

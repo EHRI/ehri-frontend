@@ -10,8 +10,8 @@ import org.apache.pekko.{Done, NotUsed}
 import play.api.http.MimeTypes
 import play.api.libs.EventSource
 import play.api.mvc._
-import services.data.EventStoreMediator.sseEvent
-import services.data.{EventForwarder, EventStore}
+import services.data.ApplicationEventServiceMediator.sseEvent
+import services.data.{EventForwarder, ApplicationEventService}
 
 import javax.inject._
 import scala.concurrent.Future
@@ -29,7 +29,7 @@ case class ServerSentEvents @Inject()(
   controllerComponents: ControllerComponents,
   appComponents: AppComponents,
   @Named("event-forwarder") forwarder: ActorRef,
-  eventStore: EventStore,
+  eventStore: ApplicationEventService,
   actorSystem: ActorSystem,
 )(implicit mat: Materializer) extends AdminController {
 
