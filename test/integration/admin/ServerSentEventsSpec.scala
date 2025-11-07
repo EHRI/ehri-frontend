@@ -7,7 +7,7 @@ import org.apache.pekko.stream.scaladsl.Sink
 import play.api.Application
 import play.api.http.MimeTypes
 import play.api.libs.ws.ahc.StandaloneAhcWSClient
-import services.data.{EventStore, StoredEvent}
+import services.data.{ApplicationEventService, ApplicationEvent}
 
 /**
  * Spec to test various page views operate as expected.
@@ -38,10 +38,10 @@ class ServerSentEventsSpec extends IntegrationTestRunner with FakeMultipartUploa
     }
 
     "check event stream supports replay" in new ITestServer() {
-      val eventStore = app.injector.instanceOf[EventStore]
+      val eventStore = app.injector.instanceOf[ApplicationEventService]
       private val ids = 1.to(3).map(_ => GUID.v7().toUUID)
-      await(eventStore.store(
-        ids.map(id => StoredEvent("test", id, Some("hello-world")))
+      await(eventStore.save(
+        ids.map(id => ApplicationEvent(id, "test", Some("hello-world")))
       ))
 
       val req = client.url(s"http://localhost:${this.port}${controllers.admin.routes.ServerSentEvents.lifecycle()}")
