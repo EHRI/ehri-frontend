@@ -29,17 +29,19 @@ case class FieldMetadataSet(fieldMetadata: ListMap[String, FieldMetadata]) {
 
   def noCategory: Seq[FieldMetadata] = fieldMetadata.values.filter(_.category.isEmpty).toSeq
 
-  def validate(entity: Entity): Seq[ValidationError] = {
+  def validate(entity: Entity, relationMap: Map[String, String] = Map.empty): Seq[ValidationError] = {
     def flattenEntity(e: Entity): Seq[String] = {
       // gather all populated keys in the entity and its child relationships. This
       // might lead to some missed attributes, because keys may be shared. But it's
       // good enough for now.
       e.data.keys.toSeq ++
+        e.relationships.keys.flatMap(k => relationMap.get(k).toSeq) ++
         e.relationships.values.toSeq.flatten.flatMap { r => flattenEntity(r) }
     }
 
     val fms = fieldMetadata.values.filter(_.entityType == entity.isA).toSeq
     val allKeys = flattenEntity(entity)
+
     fms.filter(_.usage.contains(FieldMetadata.Usage.Mandatory)).flatMap { fm =>
       if (!allKeys.contains(fm.id)) Some(MissingMandatoryField(fm.id))
       else None
@@ -49,10 +51,11 @@ case class FieldMetadataSet(fieldMetadata: ListMap[String, FieldMetadata]) {
     }
   }
 
-  def validate[T: Writable](data: T): Seq[ValidationError] = {
+  def validate[T <: Persistable: Writable](data: T): Seq[ValidationError] = {
+    val relationMap = Persistable.getRelationToAttributeMap(data)
     val json = Json.toJson(data)(implicitly[Writable[T]]._format)
     json.validate[Entity] match {
-      case JsSuccess(entity, _) => validate(entity)
+      case JsSuccess(entity, _) => validate(entity, relationMap)
       case JsError(errors) =>
         logger.error(s"FieldMetadataSet.validate: failed to parse entity data: ${Json.prettyPrint(json)}: $errors")
         Seq.empty
