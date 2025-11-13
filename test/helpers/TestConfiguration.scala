@@ -128,7 +128,7 @@ trait TestConfiguration {
     )
     .overrides(testSearchComponents: _*)
 
-  // Might want to mock the dataApi at at some point!
+  // Might want to mock the dataApi at some point!
   protected def dataApi(implicit app: play.api.Application, apiUser: DataUser, executionContext: ExecutionContext): DataService =
     app.injector.instanceOf[DataServiceBuilder].withContext(apiUser)(executionContext)
 
