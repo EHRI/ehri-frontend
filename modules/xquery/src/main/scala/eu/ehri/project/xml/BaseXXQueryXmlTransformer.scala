@@ -22,7 +22,7 @@ object BaseXXQueryXmlTransformer {
   val NS_STRING = "nsString"
   val LIB_URI = "libURI"
 
-  val DEFAULT_NS = Map(
+  private val DEFAULT_NS = Map(
     "" -> "urn:isbn:1-931666-22-9",
     "xlink" -> "http://www.w3.org/1999/xlink",
     "xsi" -> "http://www.w3.org/2001/XMLSchema-instance",
@@ -48,18 +48,18 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
 
     import org.basex.query.value.`type`.AtomType
     import org.basex.query.value.item.{Str => BaseXString}
-    import org.basex.query.value.map.{Map => BaseXMap}
+    import org.basex.query.value.map.XQMap
     try {
       logger.trace(s"Input: $data")
       logger.trace(s"Mapping: $map")
       logger.trace(s"Params: $params")
       time("Transformation") {
         using(new QueryProcessor(script, new Context()).uriResolver(uriResolver)) { proc =>
-          var ns = BaseXMap.EMPTY
+          var ns = XQMap.empty()
           DEFAULT_NS.foreach { case (k, v) =>
             ns = ns.put(
-              new BaseXString(k.getBytes, AtomType.STR),
-              new BaseXString(v.getBytes, AtomType.STR),
+              BaseXString.get(k.getBytes, AtomType.STRING),
+              BaseXString.get(v.getBytes, AtomType.STRING),
               null
             )
           }
@@ -67,8 +67,8 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
           params
             .foreach { case (k, v) =>
               ns = ns.put(
-                new BaseXString(k.getBytes, AtomType.STR),
-                new BaseXString(v.getBytes, AtomType.STR),
+                BaseXString.get(k.getBytes, AtomType.STRING),
+                BaseXString.get(v.getBytes, AtomType.STRING),
                 null
               )
             }
@@ -77,18 +77,18 @@ case class BaseXXQueryXmlTransformer(scriptOpt: Option[String] = None, funcOpt: 
           logger.debug(s"Available namespaces: ${allNs.map(f => f._1 + ":" + f._2).mkString(", ")}")
           val nsString = allNs.filter(_._1.nonEmpty).map { case (k, v) => s"declare namespace $k='$v';"}.mkString("")
 
-          proc.bind(INPUT, data, "xs:string")
-          proc.bind(MAPPING, map, "xs:string")
-          proc.bind(NAMESPACES, ns, "map()")
-          proc.bind(NS_STRING, nsString, "xs:string")
-          proc.bind(LIB_URI, utilLibUrl, "xs:anyURI")
+          proc.variable(INPUT, data, "xs:string")
+          proc.variable(MAPPING, map, "xs:string")
+          proc.variable(NAMESPACES, ns, "map(xs:string, xs:string)")
+          proc.variable(NS_STRING, nsString, "xs:string")
+          proc.variable(LIB_URI, utilLibUrl, "xs:anyURI")
 
           logger.debug(s"Module URL: $utilLibUrl")
 
           val iter = proc.iter()
 
           val bytes = new ByteArrayOutputStream()
-          using(proc.getSerializer(bytes)) { ser =>
+          using(proc.serializer(bytes)) { ser =>
             // Iterate through all items and serialize contents
             var item = iter.next()
             while (item != null) {
