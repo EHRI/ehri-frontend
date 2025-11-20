@@ -271,3 +271,13 @@ declare function xtra:language-name-to-code($name as xs:string) as xs:string {
       then map:get($xtra:langs, $name)
       else $name
 };
+
+declare function xtra:strip-namespaces($item as item()*) as item()* {
+  typeswitch ($item)
+    case element() return
+      element {fn:QName((), fn:local-name($item))} {
+        $item/@*,
+        $item/node() ! xtra:strip-namespaces(.)
+      }
+    default return $item
+};
