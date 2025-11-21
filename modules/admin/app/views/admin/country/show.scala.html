@@ -3,7 +3,7 @@
 @import CountryF._
 @import views.html.admin.common.textValue
 
-@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(item.toStringLang, breadcrumbs = views.html.admin.country.breadcrumbs(Some(item))) {
     @defining("country") { implicit fieldPrefix =>
         @views.html.admin.common.validationErrors(validation, fieldPrefix)
         @views.html.admin.common.annotated(item, annotations) {

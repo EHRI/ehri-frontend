@@ -1,0 +1,7 @@
+@(item: Option[Accessor] = None)(implicit messages: Messages, conf: AppConfig)
+
+@groupLink = {
+    <a href="@controllers.groups.routes.Groups.search().url?active=true">@Messages("group.list")</a>
+}
+
+@views.html.admin.common.breadcrumbs(item.toList, root = groupLink)

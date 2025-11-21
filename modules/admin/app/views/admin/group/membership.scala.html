@@ -18,7 +18,7 @@
 	}
 }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("accessor.groups.manage"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("accessor.groups.manage"), item.isA, breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
 	
 	@if(item.groups.nonEmpty) {
 	  <strong>@Messages("accessor.currentGroups"): </strong>&nbsp;

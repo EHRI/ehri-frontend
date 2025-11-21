@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("accessor.groups.add.item", item.toStringLang, group.toStringLang), group.isA) {
+@views.html.admin.layout.rightSidebarWithType(Messages("accessor.groups.add.item", item.toStringLang, group.toStringLang), group.isA, breadcrumbs = views.html.admin.group.breadcrumbs(Some(group))) {
 	
 	@helper.form(action = action) {
         @formHelpers.csrfToken()

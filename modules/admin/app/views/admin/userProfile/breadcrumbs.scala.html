@@ -1,0 +1,7 @@
+@(item: Option[Accessor] = None)(implicit messages: Messages, conf: AppConfig)
+
+@userLink = {
+    <a href="@controllers.users.routes.UserProfiles.search().url?active=true">@Messages("userProfile.list")</a>
+}
+
+@views.html.admin.common.breadcrumbs(item.toList, root = userLink)

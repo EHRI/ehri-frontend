@@ -1,0 +1,7 @@
+@(item: Option[Link] = None)(implicit messages: Messages, conf: AppConfig)
+
+@rootLink = {
+    <a href="@controllers.links.routes.Links.search().url">@Messages("link.list")</a>
+}
+
+@views.html.admin.common.breadcrumbs(item.toList, root = rootLink)

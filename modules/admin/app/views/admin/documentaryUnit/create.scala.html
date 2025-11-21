@@ -9,7 +9,7 @@
         }
 
         case r: Repository => {
-            @views.html.admin.common.breadcrumbs(List(r))
+            @views.html.admin.repository.breadcrumbs(r)
         }
 
         case _ => {

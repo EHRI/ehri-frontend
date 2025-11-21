@@ -1,6 +1,6 @@
 @(item: Group, f: play.api.data.Form[GroupF], action: Call)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebar(Messages("group.edit"), breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebar(Messages("group.edit"), breadcrumbs = views.html.admin.group.breadcrumbs(Some(item))) {
 	@helper.form(action = action) {
         @formHelpers.csrfToken()
         @form(Some(item), f)

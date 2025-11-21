@@ -1,0 +1,7 @@
+@(item: Option[Country] = None)(implicit messages: Messages, conf: AppConfig)
+
+@countriesLink = {
+    <a href="@controllers.countries.routes.Countries.search().url">@Messages("country.list")</a>
+}
+
+@views.html.admin.common.breadcrumbs(item.toList, root = countriesLink)

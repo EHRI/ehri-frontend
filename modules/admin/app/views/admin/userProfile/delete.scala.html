@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("userProfile.delete.item", item.toStringLang), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item))) {
+@views.html.admin.layout.rightSidebarWithType(Messages("userProfile.delete.item", item.toStringLang), item.isA, breadcrumbs = views.html.admin.userProfile.breadcrumbs(Some(item))) {
     <p class="alert alert-danger">
         @Messages("userProfile.delete.confirm")
     </p>

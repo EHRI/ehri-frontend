@@ -1,6 +1,6 @@
 @(item: Repository, scripts: Html = Html(""), styles: Html = Html(""))(html: Html)(implicit userOpt: Option[UserProfile], req: RequestHeader, conf: AppConfig, messages: Messages, md: MarkdownRenderer, prefs: SessionPrefs, flash: Flash)
 
-@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = breadcrumbs(item), scripts = scripts, styles = styles) {
+@views.html.admin.layout.rightSidebarWithType(item.toStringLang, item.isA, breadcrumbs = views.html.admin.repository.breadcrumbs(item), scripts = scripts, styles = styles) {
     @html
 } {
     @views.html.admin.common.latestAction(item, controllers.institutions.routes.Repositories.history(item.id))

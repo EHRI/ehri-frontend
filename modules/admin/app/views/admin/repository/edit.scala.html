@@ -2,7 +2,7 @@
 
 @implicitField = @{ views.html.helper.FieldConstructor(formHelpers.fieldTemplate.f) }
 
-@views.html.admin.layout.rightSidebarWithType(Messages("repository.update"), item.isA, breadcrumbs = views.html.admin.common.breadcrumbs(List(item)), scripts = formHelpers.formJs(f)) {
+@views.html.admin.layout.rightSidebarWithType(Messages("repository.update"), item.isA, breadcrumbs = views.html.admin.repository.breadcrumbs(item), scripts = formHelpers.formJs(f)) {
     @helper.form(action = action) {
         @formHelpers.csrfToken()
         @formHelpers.hiddenInput(f(Entity.IDENTIFIER))
