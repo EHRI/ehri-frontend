@@ -44,6 +44,7 @@ export default {
           contentType: i.contentType,
           notes: i.notes,
           sync: i.sync,
+          nest: i.nest,
           status: i.status,
           fonds: i.fonds,
         } as ImportDatasetInfo;

@@ -1,5 +1,11 @@
 @(item: DocumentaryUnit, desc: DocumentaryUnitDescriptionF)(implicit userOpt: Option[UserProfile], request: RequestHeader, messages: Messages, conf: AppConfig)
 
+@translationOrCode(key: String, suffix: String) = @{
+    val fullKey = s"$key.$suffix"
+    val translation = Messages(fullKey)
+    if (fullKey == translation) suffix else translation
+}
+
 <dl class="item-meta">
     <dt>@Messages("documentaryUnit.identifier")</dt>
     <dd class="item-meta-identifier">@item.data.identifier</dd>
@@ -22,7 +28,7 @@
     }
     @desc.identity.levelOfDescription.map { e =>
         <dt>@Messages("documentaryUnit.levelOfDescription")</dt>
-        <dd>@Messages("documentaryUnit.levelOfDescription." + e)</dd>
+        <dd>@translationOrCode("documentaryUnit.levelOfDescription", e)</dd>
     }
     @if(desc.conditions.languageOfMaterials.nonEmpty) {
         <dt>@Messages("documentaryUnit.languageOfMaterials")</dt>
